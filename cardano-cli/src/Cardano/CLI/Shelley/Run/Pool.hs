@@ -29,7 +29,7 @@ import qualified Shelley.Spec.Ledger.Address as Shelley
 import           Shelley.Spec.Ledger.Keys (KeyHash (..), hashKey)
 import qualified Shelley.Spec.Ledger.Slot as Shelley
 
-import           Cardano.Config.Shelley.ColdKeys
+import           Cardano.Api.Shelley.ColdKeys
 import           Cardano.Config.Types (PoolMetaDataFile (..))
 
 import           Cardano.CLI.Shelley.Commands
@@ -189,5 +189,5 @@ runPoolMetaDataHash (PoolMetaDataFile poolMDPath) = do
     . hoistEither
     $ decodeAndValidateStakePoolMetadata metaDataBytes
   let metaDataHash :: Crypto.Hash Crypto.Blake2b_256 ByteString
-      metaDataHash = Crypto.hash metaDataBytes
+      metaDataHash = Crypto.hashRaw (\x -> x) metaDataBytes
   liftIO $ BS.putStrLn (Crypto.getHashBytesAsHex metaDataHash)
