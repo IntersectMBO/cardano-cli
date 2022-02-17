@@ -45,10 +45,11 @@ module Cardano.CLI.Shelley.Commands
   , ColdVerificationKeyOrFile (..)
   ) where
 
-import           Data.Text (Text)
 import           Prelude
 
 import           Cardano.Api.Shelley
+
+import           Data.Text (Text)
 
 import           Ouroboros.Consensus.BlockchainTime (SystemStart (..))
 
@@ -359,8 +360,6 @@ data QueryCmd =
       NetworkId
       FilePath
       -- ^ Node operational certificate
-      OpCertCounterFile
-      -- ^ Node operational certificate counter
       (Maybe OutputFile)
   deriving Show
 
