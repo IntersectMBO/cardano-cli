@@ -16,7 +16,7 @@ module Cardano.CLI.Shelley.Parsers
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Shelley
+import           Cardano.Api.Shelley hiding (DRepMetadataHash)
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Common.Parsers
@@ -88,6 +88,8 @@ parseShelleyCommands envCli =
         Opt.info (NodeCmd <$> pNodeCmd) $ Opt.progDesc "Node operation commands"
     , Opt.command "stake-pool" $
         Opt.info (PoolCmd <$> pPoolCmd envCli) $ Opt.progDesc "Stake pool commands"
+    , Opt.command "drep" $
+        Opt.info (DRepCmd <$> pDRepCmd envCli) $ Opt.progDesc "DRep commands"
     , Opt.command "query" $
         Opt.info (QueryCmd <$> pQueryCmd envCli) . Opt.progDesc $ mconcat
           [ "Node query commands. Will query the local node whose Unix domain socket "
@@ -983,6 +985,25 @@ pPoolCmd  envCli =
 
     pPoolMetadataHashSubCmd :: Parser PoolCmd
     pPoolMetadataHashSubCmd = PoolMetadataHash <$> pPoolMetadataFile <*> pMaybeOutputFile
+
+pDRepCmd :: EnvCli -> Parser DRepCmd
+pDRepCmd  envCli =
+  asum
+    [ subParser "registration-certificate"
+      (Opt.info (pDRepRegistrationCert envCli) $ Opt.progDesc "Create a DRep registration certificate")
+    , subParser "deregistration-certificate"
+      (Opt.info pDRepRetirementCert $ Opt.progDesc "Create a DRep deregistration certificate")
+    , subParser "id"
+      (Opt.info pId $ Opt.progDesc "Build DRep id from the offline key")
+    , subParser "metadata-hash"
+      (Opt.info pDRepMetadataHashSubCmd $ Opt.progDesc "Print the hash of DRep metadata.")
+    ]
+  where
+    pId :: Parser DRepCmd
+    pId = DRepGetId <$> pDRepVerificationKeyOrFile <*> pPoolIdOutputFormat
+
+    pDRepMetadataHashSubCmd :: Parser DRepCmd
+    pDRepMetadataHashSubCmd = DRepMetadataHash <$> pDRepMetadataFile <*> pMaybeOutputFile
 
 pQueryCmd :: EnvCli -> Parser QueryCmd
 pQueryCmd envCli =
@@ -1940,6 +1961,15 @@ pPoolMetadataFile =
     [ Opt.long "pool-metadata-file"
     , Opt.metavar "FILE"
     , Opt.help "Filepath of the pool metadata."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pDRepMetadataFile :: Parser (File DRepMetadata In)
+pDRepMetadataFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "drep-metadata-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the drep metadata."
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
@@ -3177,6 +3207,36 @@ pPoolVerificationKeyOrFile =
     , VerificationKeyFilePath <$> pStakePoolVerificationKeyFile
     ]
 
+pDRepVerificationKeyFile :: Parser (VerificationKeyFile In)
+pDRepVerificationKeyFile =
+  fmap File $ asum
+    [ Opt.strOption $ mconcat
+      [ Opt.long "cold-verification-key-file"
+      , Opt.metavar "FILE"
+      , Opt.help "Filepath of the drep verification key."
+      , Opt.completer (Opt.bashCompleter "file")
+      ]
+    , Opt.strOption $ mconcat
+      [ Opt.long "drep-verification-key-file"
+      , Opt.internal
+      ]
+    ]
+
+pDRepVerificationKey :: Parser (VerificationKey DRepKey)
+pDRepVerificationKey =
+  Opt.option
+    (readVerificationKey AsDRepKey)
+      (  Opt.long "drep-verification-key"
+      <> Opt.metavar "STRING"
+      <> Opt.help "DRep verification key (Bech32 or hex-encoded)."
+      )
+
+pDRepVerificationKeyOrFile
+  :: Parser (VerificationKeyOrFile DRepKey)
+pDRepVerificationKeyOrFile =
+  VerificationKeyValue <$> pDRepVerificationKey
+    <|> VerificationKeyFilePath <$> pDRepVerificationKeyFile
+
 pPoolDelegationTarget
   :: Parser PoolDelegationTarget
 pPoolDelegationTarget = PoolDelegationTarget <$> pPoolVerificationKeyOrHashOrFile
@@ -3441,6 +3501,51 @@ pStakePoolRetirementCert :: Parser PoolCmd
 pStakePoolRetirementCert =
   PoolRetirementCert
     <$> pPoolVerificationKeyOrFile
+    <*> pEpochNo
+    <*> pOutputFile
+
+pDRepMetadataReference :: Parser (Maybe DRepMetadataReference)
+pDRepMetadataReference =
+  optional $
+    DRepMetadataReference
+      <$> pDRepMetadataUrl
+      <*> pDRepMetadataHash
+
+pDRepMetadataUrl :: Parser Text
+pDRepMetadataUrl =
+  Opt.option (readURIOfMaxLength 64)
+    (  Opt.long "metadata-url"
+    <> Opt.metavar "URL"
+    <> Opt.help "Pool metadata URL (maximum length of 64 characters)."
+    )
+
+pDRepMetadataHash :: Parser (Hash DRepMetadata)
+pDRepMetadataHash =
+    Opt.option
+      (Opt.eitherReader metadataHash)
+        (  Opt.long "metadata-hash"
+        <> Opt.metavar "HASH"
+        <> Opt.help "Pool metadata hash."
+        )
+  where
+    metadataHash :: String -> Either String (Hash DRepMetadata)
+    metadataHash =
+      first displayError
+        . deserialiseFromRawBytesHex (AsHash AsDRepMetadata)
+        . BSC.pack
+
+pDRepRegistrationCert :: EnvCli -> Parser DRepCmd
+pDRepRegistrationCert envCli =
+  DRepRegistrationCert
+    <$> pNetworkId envCli
+    <*> pDRepVerificationKeyOrFile
+    <*> pDRepMetadataReference
+    <*> pOutputFile
+
+pDRepRetirementCert :: Parser DRepCmd
+pDRepRetirementCert =
+  DRepRetirementCert
+    <$> pDRepVerificationKeyOrFile
     <*> pEpochNo
     <*> pOutputFile
 
