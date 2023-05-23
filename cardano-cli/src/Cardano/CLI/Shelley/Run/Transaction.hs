@@ -266,17 +266,20 @@ runTransactionCmd cmd =
   case cmd of
     TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
             reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mProtocolParamsFile
-            mUpProp outputOptions -> do
+            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp
+            mActionFile mVoteFile outputOptions -> do
       runTxBuildCmd mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
             reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp outputOptions
+            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp
+            mActionFile mVoteFile outputOptions
     TxBuildRaw era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
                mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
-               metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out -> do
+               metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp
+               mActionFile mVoteFile out -> do
       runTxBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
                mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
-               metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out
+               metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp
+               mActionFile mVoteFile out
     TxSign txinfile skfiles network txoutfile ->
       runTxSign txinfile skfiles network txoutfile
     TxSubmit mNodeSocketPath anyConsensusModeParams network txFp ->
@@ -322,6 +325,8 @@ runTxBuildCmd
   -> [MetadataFile]
   -> Maybe (Deprecated ProtocolParamsFile)
   -> Maybe UpdateProposalFile
+  -> Maybe (File GovernanceAction In)
+  -> Maybe (File GovernanceVote In)
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()
 runTxBuildCmd
@@ -329,9 +334,13 @@ runTxBuildCmd
     nid mScriptValidity mOverrideWits txins readOnlyRefIns
     reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
     mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mDeprecatedProtocolParamsFile
-    mUpProp outputOptions = do
+    mUpProp mActionFile mVoteFile outputOptions = do
+
   forM_ mDeprecatedProtocolParamsFile $ \_ ->
     liftIO $ printWarning "'--protocol-params-file' for 'transaction build' is deprecated"
+
+  forM_ mActionFile $ const (error "TODO: governance actions not yet supported")
+  forM_ mVoteFile $ const (error "TODO: governance votes not yet supported")
 
   -- The user can specify an era prior to the era that the node is currently in.
   -- We cannot use the user specified era to construct a query against a node because it may differ
@@ -461,12 +470,19 @@ runTxBuildRawCmd
   -> [MetadataFile]
   -> Maybe ProtocolParamsFile
   -> Maybe UpdateProposalFile
+  -> Maybe (File GovernanceAction In)
+  -> Maybe (File GovernanceVote In)
   -> TxBodyFile Out
   -> ExceptT ShelleyTxCmdError IO ()
 runTxBuildRawCmd
   (AnyCardanoEra cEra) mScriptValidity txins readOnlyRefIns txinsc mReturnColl
   mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
-  metadataSchema scriptFiles metadataFiles mpParamsFile mUpProp out = do
+  metadataSchema scriptFiles metadataFiles mpParamsFile mUpProp
+  mActionFile mVoteFile out = do
+
+  forM_ mActionFile $ const (error "TODO: governance actions not yet supported")
+  forM_ mVoteFile $ const (error "TODO: governance votes not yet supported")
+
   inputsAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError
                                 $ readScriptWitnessFiles cEra txins
   certFilesAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError
