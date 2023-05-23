@@ -736,6 +736,8 @@ pTransaction envCli =
             <*> many pMetadataFile
             <*> optional pDeprecatedProtocolParamsFile
             <*> optional pUpdateProposalFile
+            <*> optional pActionFileIn
+            <*> optional pVoteFileIn
             <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
   pChangeAddress :: Parser TxOutChangeAddress
@@ -770,6 +772,8 @@ pTransaction envCli =
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
       <*> optional pUpdateProposalFile
+      <*> optional pActionFileIn
+      <*> optional pVoteFileIn
       <*> pTxBodyFileOut
 
   pTransactionSign  :: Parser TransactionCmd

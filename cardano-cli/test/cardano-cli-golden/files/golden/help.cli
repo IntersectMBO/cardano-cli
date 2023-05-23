@@ -668,6 +668,8 @@ Usage: cardano-cli transaction build-raw
             [--metadata-json-file FILE | --metadata-cbor-file FILE]
             [--protocol-params-file FILE]
             [--update-proposal-file FILE]
+            [--action-file FILE]
+            [--vote-file FILE]
             --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -782,6 +784,8 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
             [--metadata-json-file FILE | --metadata-cbor-file FILE]
             [--protocol-params-file FILE]
             [--update-proposal-file FILE]
+            [--action-file FILE]
+            [--vote-file FILE]
             (--out-file FILE | --calculate-plutus-script-cost FILE)
 
   Build a balanced transaction (automatically calculates fees)

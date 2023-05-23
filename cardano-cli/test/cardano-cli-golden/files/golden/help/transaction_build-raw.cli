@@ -111,6 +111,8 @@ Usage: cardano-cli transaction build-raw
             [--metadata-json-file FILE | --metadata-cbor-file FILE]
             [--protocol-params-file FILE]
             [--update-proposal-file FILE]
+            [--action-file FILE]
+            [--vote-file FILE]
             --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -386,5 +388,7 @@ Available options:
                            Filepath of the JSON-encoded protocol parameters file
   --update-proposal-file FILE
                            Filepath of the update proposal.
+  --action-file FILE       Input filepath of the governance action.
+  --vote-file FILE         Input filepath of the governance vote.
   --out-file FILE          Output filepath of the JSON TxBody.
   -h,--help                Show this help text
