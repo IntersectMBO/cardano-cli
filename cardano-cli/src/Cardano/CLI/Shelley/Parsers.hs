@@ -15,6 +15,19 @@ module Cardano.CLI.Shelley.Parsers
   , parseTxIn
   ) where
 
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
+import           Cardano.Chain.Common (BlockCount (BlockCount))
+import           Cardano.CLI.Common.Parsers
+import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Shelley.Commands
+import           Cardano.CLI.Shelley.Key (PaymentVerifier (..), PoolDelegationTarget (..),
+                   StakeIdentifier (..), StakeVerifier (..), VerificationKeyOrFile (..),
+                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
+import           Cardano.CLI.Types
+import qualified Cardano.Ledger.BaseTypes as Shelley
+import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 import           Cardano.Prelude (ConvertText (..))
 
 import qualified Data.Aeson as Aeson
@@ -50,22 +63,6 @@ import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
 import           Text.Read (readEither, readMaybe)
-
-import qualified Cardano.Ledger.BaseTypes as Shelley
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
-
-import           Cardano.Api
-import           Cardano.Api.Shelley
-
-import           Cardano.Chain.Common (BlockCount (BlockCount))
-
-import           Cardano.CLI.Common.Parsers
-import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
-                   StakeIdentifier (..), StakeVerifier (..), VerificationKeyOrFile (..),
-                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
-import           Cardano.CLI.Types
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
@@ -272,7 +269,7 @@ pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefi
       <*> optional ((,,) <$> pScriptDatumOrFile scriptFlagPrefix witctx
                          <*> pScriptRedeemerOrFile scriptFlagPrefix
                          <*> (case autoBalanceExecUnits of
-                               AutoBalance -> pure (ExecutionUnits 0 0)
+                               AutoBalance   -> pure (ExecutionUnits 0 0)
                                ManualBalance -> pExecutionUnits scriptFlagPrefix)
                    )
   where
@@ -281,7 +278,7 @@ pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefi
                                    ScriptRedeemerOrFile,
                                    ExecutionUnits)
                          -> ScriptWitnessFiles witctx
-    toScriptWitnessFiles sf Nothing        = SimpleScriptWitnessFile  sf
+    toScriptWitnessFiles sf Nothing         = SimpleScriptWitnessFile  sf
     toScriptWitnessFiles sf (Just (d,r, e)) = PlutusScriptWitnessFiles sf d r e
 
 
@@ -414,7 +411,7 @@ pStakeAddressCmd envCli =
     pStakeAddressPoolDelegationCert =
       StakeCredentialDelegationCert
         <$> pStakeIdentifier
-        <*> pDelegationTarget
+        <*> pPoolDelegationTarget
         <*> pOutputFile
 
 pKeyCmd :: Parser KeyCmd
@@ -926,7 +923,7 @@ pPoolCmd  envCli =
     ]
   where
     pId :: Parser PoolCmd
-    pId = PoolGetId <$> pStakePoolVerificationKeyOrFile <*> pPoolIdOutputFormat <*> pMaybeOutputFile
+    pId = PoolGetId <$> pPoolVerificationKeyOrFile <*> pPoolIdOutputFormat <*> pMaybeOutputFile
 
     pPoolMetadataHashSubCmd :: Parser PoolCmd
     pPoolMetadataHashSubCmd = PoolMetadataHash <$> pPoolMetadataFile <*> pMaybeOutputFile
@@ -1090,7 +1087,7 @@ pQueryCmd envCli =
         <*> pConsensusModeParams
         <*> pNetworkId envCli
         <*> pGenesisFile "Shelley genesis filepath"
-        <*> pStakePoolVerificationKeyOrHashOrFile
+        <*> pPoolVerificationKeyOrHashOrFile
         <*> pVrfSigningKeyFile
         <*> pWhichLeadershipSchedule
         <*> pMaybeOutputFile
@@ -1763,7 +1760,7 @@ pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
     <*> pure NoScriptDatumOrFileForStake
     <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
     <*> (case autoBalanceExecUnits of
-          AutoBalance -> pure (ExecutionUnits 0 0)
+          AutoBalance   -> pure (ExecutionUnits 0 0)
           ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in")
     <*> pure Nothing
 
@@ -2255,7 +2252,7 @@ pTxIn balance =
       <*> pScriptDatumOrFile "spending-reference-tx-in" WitCtxTxIn
       <*> pScriptRedeemerOrFile "spending-reference-tx-in"
       <*> (case autoBalanceExecUnits of
-              AutoBalance -> pure (ExecutionUnits 0 0)
+              AutoBalance   -> pure (ExecutionUnits 0 0)
               ManualBalance -> pExecutionUnits "spending-reference-tx-in")
    where
     createPlutusReferenceScriptWitnessFiles
@@ -2329,7 +2326,7 @@ parseTxId = do
   str <- some Parsec.hexDigit <?> "transaction id (hexadecimal)"
   case deserialiseFromRawBytesHex AsTxId (BSC.pack str) of
     Right addr -> return addr
-    Left e -> fail $ "Incorrect transaction id format: " ++ displayError e
+    Left e     -> fail $ "Incorrect transaction id format: " ++ displayError e
 
 parseTxIx :: Parsec.Parser TxIx
 parseTxIx = TxIx . fromIntegral <$> decimal
@@ -2469,7 +2466,7 @@ pMintMultiAsset balanceExecUnits =
      <*> pure NoScriptDatumOrFileForMint
      <*> pScriptRedeemerOrFile "mint-reference-tx-in"
      <*> (case autoBalanceExecUnits of
-           AutoBalance -> pure (ExecutionUnits 0 0)
+           AutoBalance   -> pure (ExecutionUnits 0 0)
            ManualBalance -> pExecutionUnits "mint-reference-tx-in")
      <*> (Just <$> pPolicyId)
 
@@ -2792,21 +2789,25 @@ pStakePoolVerificationKey =
       <> Opt.help "Stake pool verification key (Bech32 or hex-encoded)."
       )
 
-pStakePoolVerificationKeyOrFile
+pPoolVerificationKeyOrFile
   :: Parser (VerificationKeyOrFile StakePoolKey)
-pStakePoolVerificationKeyOrFile =
-  VerificationKeyValue <$> pStakePoolVerificationKey
-    <|> VerificationKeyFilePath <$> pStakePoolVerificationKeyFile
+pPoolVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pStakePoolVerificationKey
+    , VerificationKeyFilePath <$> pStakePoolVerificationKeyFile
+    ]
 
-pDelegationTarget
-  :: Parser DelegationTarget
-pDelegationTarget = StakePoolDelegationTarget <$> pStakePoolVerificationKeyOrHashOrFile
+pPoolDelegationTarget
+  :: Parser PoolDelegationTarget
+pPoolDelegationTarget = PoolDelegationTarget <$> pPoolVerificationKeyOrHashOrFile
 
-pStakePoolVerificationKeyOrHashOrFile
+pPoolVerificationKeyOrHashOrFile
   :: Parser (VerificationKeyOrHashOrFile StakePoolKey)
-pStakePoolVerificationKeyOrHashOrFile =
-  VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile
-    <|> VerificationKeyHash <$> pStakePoolVerificationKeyHash
+pPoolVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pPoolVerificationKeyOrFile
+    , VerificationKeyHash <$> pStakePoolVerificationKeyHash
+    ]
 
 pVrfVerificationKeyFile :: Parser (VerificationKeyFile In)
 pVrfVerificationKeyFile =
@@ -2967,7 +2968,7 @@ eDNSName :: String -> Either String ByteString
 eDNSName str =
   -- We're using 'Shelley.textToDns' to validate the string.
   case Shelley.textToDns (toS str) of
-    Nothing -> Left $ "DNS name is more than 64 bytes: " <> str
+    Nothing      -> Left $ "DNS name is more than 64 bytes: " <> str
     Just dnsName -> Right . Text.encodeUtf8 . Shelley.dnsToText $ dnsName
 
 pSingleHostAddress :: Parser StakePoolRelay
@@ -3044,7 +3045,7 @@ pStakePoolMetadataHash =
 pStakePoolRegistrationCert :: EnvCli -> Parser PoolCmd
 pStakePoolRegistrationCert envCli =
   PoolRegistrationCert
-    <$> pStakePoolVerificationKeyOrFile
+    <$> pPoolVerificationKeyOrFile
     <*> pVrfVerificationKeyOrFile
     <*> pPoolPledge
     <*> pPoolCost
@@ -3059,7 +3060,7 @@ pStakePoolRegistrationCert envCli =
 pStakePoolRetirementCert :: Parser PoolCmd
 pStakePoolRetirementCert =
   PoolRetirementCert
-    <$> pStakePoolVerificationKeyOrFile
+    <$> pPoolVerificationKeyOrFile
     <*> pEpochNo
     <*> pOutputFile
 

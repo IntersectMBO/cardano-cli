@@ -9,25 +9,25 @@ module Cardano.CLI.Shelley.Run.StakeAddress
   , runStakeAddressKeyGenToFile
   ) where
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT, onLeft)
-import qualified Data.ByteString.Char8 as BS
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
-
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Shelley.Key (DelegationTarget (..), StakeIdentifier (..),
+import           Cardano.CLI.Shelley.Key (PoolDelegationTarget (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,
                    readVerificationKeyOrHashOrFile)
 import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Shelley.Run.Read
 import           Cardano.CLI.Types
+
+import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (lift)
+import           Control.Monad.Trans.Except (ExceptT)
+import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT, onLeft)
+import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
+import           Data.Text (Text)
+import qualified Data.Text as Text
+import qualified Data.Text.IO as Text
 
 data ShelleyStakeAddressCmdError
   = ShelleyStakeAddressCmdReadKeyFileError !(FileError InputDecodeError)
@@ -140,14 +140,14 @@ runStakeCredentialRegistrationCert stakeIdentifier oFp = do
 runStakeCredentialDelegationCert
   :: StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
-  -> DelegationTarget
+  -> PoolDelegationTarget
   -- ^ Delegatee stake pool verification key or verification key file or
   -- verification key hash.
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeCredentialDelegationCert stakeVerifier delegationTarget outFp =
   case delegationTarget of
-    StakePoolDelegationTarget poolVKeyOrHashOrFile -> do
+    PoolDelegationTarget poolVKeyOrHashOrFile -> do
       poolStakeVKeyHash <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile)
         & onLeft (left . ShelleyStakeAddressCmdReadKeyFileError)
       stakeCred <- getStakeCredentialFromIdentifier stakeVerifier

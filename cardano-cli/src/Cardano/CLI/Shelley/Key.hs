@@ -26,10 +26,13 @@ module Cardano.CLI.Shelley.Key
 
   , generateKeyPair
 
-  , DelegationTarget(..)
+  , PoolDelegationTarget(..)
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Shelley (StakePoolKey)
+
+import           Cardano.CLI.Types
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Data.Bifunctor (Bifunctor (..))
@@ -38,9 +41,6 @@ import qualified Data.List.NonEmpty as NE
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-
-import           Cardano.Api.Shelley (StakePoolKey)
-import           Cardano.CLI.Types
 
 
 ------------------------------------------------------------------------------
@@ -115,8 +115,8 @@ data StakeIdentifier
 
 -- | A resource that identifies the delegation target.  At the moment a delegation
 -- target can only be a stake pool.
-newtype DelegationTarget
-  = StakePoolDelegationTarget (VerificationKeyOrHashOrFile StakePoolKey)
+newtype PoolDelegationTarget
+  = PoolDelegationTarget (VerificationKeyOrHashOrFile StakePoolKey)
   deriving Show
 
 -- | Either an unvalidated text representation of a verification key or a path
