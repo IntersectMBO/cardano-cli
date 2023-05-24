@@ -17,6 +17,7 @@ import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
 import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Shelley.Run.Governance.Committee
+import           Cardano.CLI.Shelley.Run.Governance.DRep
 import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
 import           Cardano.CLI.Types
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
@@ -67,6 +68,7 @@ data ShelleyGovernanceCmdError
   | ShelleyGovernanceCmdVerifyPollError !GovernancePollError
   | ShelleyGovernanceCmdWriteFileError !(FileError ())
   | ShelleyGovernanceCommitteeCmdError !ShelleyGovernanceCommitteeCmdError
+  | ShelleyGovernanceDRepCmdError !ShelleyGovernanceDRepCmdError
   deriving Show
 
 renderShelleyGovernanceError :: ShelleyGovernanceCmdError -> Text
@@ -103,6 +105,7 @@ renderShelleyGovernanceError err =
       renderGovernancePollError pollError
     ShelleyGovernanceCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
     ShelleyGovernanceCommitteeCmdError e -> renderShelleyGovernanceCommitteeCmdError e
+    ShelleyGovernanceDRepCmdError e -> renderShelleyGovernanceDRepCmdError e
 
 runGovernanceActionCmd :: GovernanceActionCmd -> ExceptT ShelleyGovernanceCmdError IO ()
 runGovernanceActionCmd = \case
@@ -134,6 +137,7 @@ runGovernanceCmd = \case
     runGovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out
   GovernanceActionCmd cmd -> runGovernanceActionCmd cmd
   GovernanceCommitteeCmd cmd -> firstExceptT ShelleyGovernanceCommitteeCmdError $ runGovernanceCommitteeCmd cmd
+  GovernanceDRepCmd cmd -> firstExceptT ShelleyGovernanceDRepCmdError $ runGovernanceDRepCmd cmd
   GovernanceVoteCmd cmd -> runGovernanceVoteCmd cmd
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
     runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp

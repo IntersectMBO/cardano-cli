@@ -82,10 +82,10 @@ library
                         Cardano.CLI.Shelley.Run
                         Cardano.CLI.Shelley.Run.Address
                         Cardano.CLI.Shelley.Run.Address.Info
-                        Cardano.CLI.Shelley.Run.DRep
                         Cardano.CLI.Shelley.Run.Genesis
                         Cardano.CLI.Shelley.Run.Governance
                         Cardano.CLI.Shelley.Run.Governance.Committee
+                        Cardano.CLI.Shelley.Run.Governance.DRep
                         Cardano.CLI.Shelley.Run.Key
                         Cardano.CLI.Shelley.Run.Node
                         Cardano.CLI.Shelley.Run.Pool

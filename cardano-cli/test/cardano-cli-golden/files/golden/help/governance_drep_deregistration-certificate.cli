@@ -1,14 +1,15 @@
-Usage: cardano-cli drep id 
+Usage: cardano-cli governance drep deregistration-certificate 
             (--drep-verification-key STRING | --cold-verification-key-file FILE)
-            [--output-format STRING]
+            --epoch NATURAL
+            --out-file FILE
 
-  Build DRep id from the offline key
+  Create a DRep deregistration certificate
 
 Available options:
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).
   --cold-verification-key-file FILE
                            Filepath of the drep verification key.
-  --output-format STRING   Optional pool id output format. Accepted output
-                           formats are "hex" and "bech32" (default is "bech32").
+  --epoch NATURAL          The epoch number.
+  --out-file FILE          The output file.
   -h,--help                Show this help text

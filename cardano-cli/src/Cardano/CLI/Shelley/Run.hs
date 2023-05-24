@@ -8,7 +8,6 @@ import           Cardano.Api
 
 import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Shelley.Run.Address
-import           Cardano.CLI.Shelley.Run.DRep
 import           Cardano.CLI.Shelley.Run.Genesis
 import           Cardano.CLI.Shelley.Run.Governance
 import           Cardano.CLI.Shelley.Run.Key
@@ -26,7 +25,6 @@ import qualified Data.Text as Text
 
 data ShelleyClientCmdError
   = ShelleyCmdAddressError !ShelleyAddressCmdError
-  | ShelleyCmdDRepError !ShelleyDRepCmdError
   | ShelleyCmdGenesisError !ShelleyGenesisCmdError
   | ShelleyCmdGovernanceError !ShelleyGovernanceCmdError
   | ShelleyCmdNodeError !ShelleyNodeCmdError
@@ -42,8 +40,6 @@ renderShelleyClientCmdError cmd err =
   case err of
     ShelleyCmdAddressError addrCmdErr ->
        renderError cmd renderShelleyAddressCmdError addrCmdErr
-    ShelleyCmdDRepError addrCmdErr ->
-       renderError cmd renderShelleyDRepCmdError addrCmdErr
     ShelleyCmdGenesisError genesisCmdErr ->
        renderError cmd (Text.pack . displayError) genesisCmdErr
     ShelleyCmdGovernanceError govCmdErr ->
@@ -78,7 +74,6 @@ renderShelleyClientCmdError cmd err =
 
 runShelleyClientCommand :: ShelleyCommand -> ExceptT ShelleyClientCmdError IO ()
 runShelleyClientCommand (AddressCmd      cmd) = firstExceptT ShelleyCmdAddressError $ runAddressCmd cmd
-runShelleyClientCommand (DRepCmd         cmd) = firstExceptT ShelleyCmdDRepError $ runDRepCmd cmd
 runShelleyClientCommand (StakeAddressCmd cmd) = firstExceptT ShelleyCmdStakeAddressError $ runStakeAddressCmd cmd
 runShelleyClientCommand (KeyCmd          cmd) = firstExceptT ShelleyCmdKeyError $ runKeyCmd cmd
 runShelleyClientCommand (TransactionCmd  cmd) = firstExceptT ShelleyCmdTransactionError $ runTransactionCmd  cmd

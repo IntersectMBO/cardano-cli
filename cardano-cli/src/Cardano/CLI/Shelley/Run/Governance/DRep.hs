@@ -1,9 +1,9 @@
 {-# LANGUAGE DataKinds #-}
 
-module Cardano.CLI.Shelley.Run.DRep
-  ( ShelleyDRepCmdError(ShelleyDRepCmdReadFileError)
-  , renderShelleyDRepCmdError
-  , runDRepCmd
+module Cardano.CLI.Shelley.Run.Governance.DRep
+  ( ShelleyGovernanceDRepCmdError(ShelleyDRepCmdReadFileError)
+  , renderShelleyGovernanceDRepCmdError
+  , runGovernanceDRepCmd
   ) where
 
 import           Cardano.Api
@@ -24,15 +24,15 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 
-data ShelleyDRepCmdError
+data ShelleyGovernanceDRepCmdError
   = ShelleyDRepCmdReadFileError !(FileError TextEnvelopeError)
   | ShelleyDRepCmdReadKeyFileError !(FileError InputDecodeError)
   | ShelleyDRepCmdWriteFileError !(FileError ())
   | ShelleyDRepCmdMetadataValidationError !DRepMetadataValidationError
   deriving Show
 
-renderShelleyDRepCmdError :: ShelleyDRepCmdError -> Text
-renderShelleyDRepCmdError err =
+renderShelleyGovernanceDRepCmdError :: ShelleyGovernanceDRepCmdError -> Text
+renderShelleyGovernanceDRepCmdError err =
   case err of
     ShelleyDRepCmdReadFileError fileErr -> Text.pack (displayError fileErr)
     ShelleyDRepCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
@@ -42,13 +42,13 @@ renderShelleyDRepCmdError err =
 
 
 
-runDRepCmd :: DRepCmd -> ExceptT ShelleyDRepCmdError IO ()
-runDRepCmd (DRepRegistrationCert network sPvkey mbMetadata outfp) =
+runGovernanceDRepCmd :: DRepCmd -> ExceptT ShelleyGovernanceDRepCmdError IO ()
+runGovernanceDRepCmd (DRepRegistrationCert network sPvkey mbMetadata outfp) =
   runDRepRegistrationCert network sPvkey mbMetadata outfp
-runDRepCmd (DRepRetirementCert sPvkeyFp retireEpoch outfp) =
+runGovernanceDRepCmd (DRepRetirementCert sPvkeyFp retireEpoch outfp) =
   runDRepRetirementCert sPvkeyFp retireEpoch outfp
-runDRepCmd (DRepGetId sPvkey outputFormat) = runDRepId sPvkey outputFormat
-runDRepCmd (DRepMetadataHash drepMetadataFile mOutFile) = runDRepMetadataHash drepMetadataFile mOutFile
+runGovernanceDRepCmd (DRepGetId sPvkey outputFormat) = runDRepId sPvkey outputFormat
+runGovernanceDRepCmd (DRepMetadataHash drepMetadataFile mOutFile) = runDRepMetadataHash drepMetadataFile mOutFile
 
 --
 -- DRep command implementations
@@ -65,7 +65,7 @@ runDRepRegistrationCert
   -> Maybe DRepMetadataReference
   -- ^ DRep metadata.
   -> File Certificate Out
-  -> ExceptT ShelleyDRepCmdError IO ()
+  -> ExceptT ShelleyGovernanceDRepCmdError IO ()
 runDRepRegistrationCert
   _network
   _drepVerKeyOrFile
@@ -76,13 +76,13 @@ runDRepRetirementCert
   :: VerificationKeyOrFile DRepKey
   -> Shelley.EpochNo
   -> File Certificate Out
-  -> ExceptT ShelleyDRepCmdError IO ()
+  -> ExceptT ShelleyGovernanceDRepCmdError IO ()
 runDRepRetirementCert _drepVerKeyOrFile _retireEpoch _outfp = error "Not implemented"
 
 runDRepId
   :: VerificationKeyOrFile DRepKey
   -> PoolIdOutputFormat
-  -> ExceptT ShelleyDRepCmdError IO ()
+  -> ExceptT ShelleyGovernanceDRepCmdError IO ()
 runDRepId verKeyOrFile outputFormat = do
     drepVerKey <- firstExceptT ShelleyDRepCmdReadKeyFileError
       . newExceptT
@@ -94,7 +94,7 @@ runDRepId verKeyOrFile outputFormat = do
         PoolIdOutputFormatBech32 ->
           Text.putStrLn $ serialiseToBech32 (verificationKeyHash drepVerKey)
 
-runDRepMetadataHash :: File DRepMetadata In -> Maybe (File () Out) -> ExceptT ShelleyDRepCmdError IO ()
+runDRepMetadataHash :: File DRepMetadata In -> Maybe (File () Out) -> ExceptT ShelleyGovernanceDRepCmdError IO ()
 runDRepMetadataHash drepMDPath mOutFile = do
   metadataBytes <- lift (readByteStringFile drepMDPath)
     & onLeft (left . ShelleyDRepCmdReadFileError)

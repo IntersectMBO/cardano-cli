@@ -93,7 +93,6 @@ import           Data.Time.Clock
 --
 data ShelleyCommand
   = AddressCmd      AddressCmd
-  | DRepCmd         DRepCmd
   | StakeAddressCmd StakeAddressCmd
   | KeyCmd          KeyCmd
   | TransactionCmd  TransactionCmd
@@ -108,7 +107,6 @@ renderShelleyCommand :: ShelleyCommand -> Text
 renderShelleyCommand sc =
   case sc of
     AddressCmd cmd      -> renderAddressCmd cmd
-    DRepCmd cmd         -> renderDRepCmd cmd
     StakeAddressCmd cmd -> renderStakeAddressCmd cmd
     KeyCmd cmd          -> renderKeyCmd cmd
     TransactionCmd cmd  -> renderTransactionCmd cmd
@@ -417,14 +415,6 @@ renderPoolCmd cmd =
     PoolGetId {}            -> "stake-pool id"
     PoolMetadataHash {}     -> "stake-pool metadata-hash"
 
-renderDRepCmd :: DRepCmd -> Text
-renderDRepCmd cmd =
-  case cmd of
-    DRepRegistrationCert {} -> "drep registration-certificate"
-    DRepRetirementCert {} -> "drep deregistration-certificate"
-    DRepGetId {} -> "drep id"
-    DRepMetadataHash {} -> "drep metadata-hash"
-
 data QueryCmd =
     QueryLeadershipSchedule
       SocketPath
@@ -575,6 +565,7 @@ data GovernanceCmd
       (File () Out)
   | GovernanceMIRTransfer Lovelace (File () Out) TransferDirection
   | GovernanceCommitteeCmd CommitteeCmd
+  | GovernanceDRepCmd DRepCmd
   | GovernanceGenesisKeyDelegationCertificate
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
@@ -609,6 +600,7 @@ renderGovernanceCmd cmd =
     GovernanceMIRTransfer _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
     GovernanceMIRTransfer _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
     GovernanceCommitteeCmd {} -> "governance committee"
+    GovernanceDRepCmd {} -> "governance drep"
     GovernanceActionCmd {} -> "governance action"
     GovernanceVoteCmd {} -> "governance vote"
     GovernanceUpdateProposal {} -> "governance create-update-proposal"

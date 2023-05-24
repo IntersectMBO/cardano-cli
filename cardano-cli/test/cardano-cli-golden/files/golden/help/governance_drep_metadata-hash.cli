@@ -1,4 +1,4 @@
-Usage: cardano-cli drep metadata-hash --drep-metadata-file FILE
+Usage: cardano-cli governance drep metadata-hash --drep-metadata-file FILE
             [--out-file FILE]
 
   Print the hash of DRep metadata.

@@ -1,11 +1,11 @@
-Usage: cardano-cli drep 
+Usage: cardano-cli governance drep 
             ( registration-certificate
             | deregistration-certificate
             | id
             | metadata-hash
             )
 
-  DRep commands
+  DRep operation commands
 
 Available options:
   -h,--help                Show this help text
