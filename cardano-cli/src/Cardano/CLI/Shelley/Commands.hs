@@ -48,20 +48,19 @@ module Cardano.CLI.Shelley.Commands
   , Deprecated (..)
   ) where
 
-import           Prelude
-
 import           Cardano.Api.Shelley
 
-import           Data.Text (Text)
-import           Data.Time.Clock
-
-import           Cardano.CLI.Shelley.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
+import           Cardano.Chain.Common (BlockCount)
+import           Cardano.CLI.Shelley.Key (PaymentVerifier, PoolDelegationTarget, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
 import           Cardano.CLI.Types
-
-import           Cardano.Chain.Common (BlockCount)
 import           Cardano.Ledger.Shelley.TxBody (MIRPot)
+
+import           Prelude
+
+import           Data.Text (Text)
+import           Data.Time.Clock
 --
 -- Shelley CLI command data types
 --
@@ -83,16 +82,16 @@ data ShelleyCommand
 renderShelleyCommand :: ShelleyCommand -> Text
 renderShelleyCommand sc =
   case sc of
-    AddressCmd cmd -> renderAddressCmd cmd
+    AddressCmd cmd      -> renderAddressCmd cmd
     StakeAddressCmd cmd -> renderStakeAddressCmd cmd
-    KeyCmd cmd -> renderKeyCmd cmd
-    TransactionCmd cmd -> renderTransactionCmd cmd
-    NodeCmd cmd -> renderNodeCmd cmd
-    PoolCmd cmd -> renderPoolCmd cmd
-    QueryCmd cmd -> renderQueryCmd cmd
-    GovernanceCmd cmd -> renderGovernanceCmd cmd
-    GenesisCmd cmd -> renderGenesisCmd cmd
-    TextViewCmd cmd -> renderTextViewCmd cmd
+    KeyCmd cmd          -> renderKeyCmd cmd
+    TransactionCmd cmd  -> renderTransactionCmd cmd
+    NodeCmd cmd         -> renderNodeCmd cmd
+    PoolCmd cmd         -> renderPoolCmd cmd
+    QueryCmd cmd        -> renderQueryCmd cmd
+    GovernanceCmd cmd   -> renderGovernanceCmd cmd
+    GenesisCmd cmd      -> renderGenesisCmd cmd
+    TextViewCmd cmd     -> renderTextViewCmd cmd
 
 data AddressCmd
   = AddressKeyGen KeyOutputFormat AddressKeyType (VerificationKeyFile Out) (SigningKeyFile Out)
@@ -109,10 +108,10 @@ data AddressCmd
 renderAddressCmd :: AddressCmd -> Text
 renderAddressCmd cmd =
   case cmd of
-    AddressKeyGen {} -> "address key-gen"
+    AddressKeyGen {}  -> "address key-gen"
     AddressKeyHash {} -> "address key-hash"
-    AddressBuild {} -> "address build"
-    AddressInfo {} -> "address info"
+    AddressBuild {}   -> "address build"
+    AddressInfo {}    -> "address info"
 
 data StakeAddressCmd
   = StakeAddressKeyGen KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
@@ -121,7 +120,7 @@ data StakeAddressCmd
   | StakeRegistrationCert StakeIdentifier (File () Out)
   | StakeCredentialDelegationCert
       StakeIdentifier
-      DelegationTarget
+      PoolDelegationTarget
       (File () Out)
   | StakeCredentialDeRegistrationCert StakeIdentifier (File () Out)
   deriving Show
@@ -265,18 +264,18 @@ data InputTxBodyOrTxFile = InputTxBodyFile (TxBodyFile In) | InputTxFile (TxFile
 renderTransactionCmd :: TransactionCmd -> Text
 renderTransactionCmd cmd =
   case cmd of
-    TxBuild {} -> "transaction build"
-    TxBuildRaw {} -> "transaction build-raw"
-    TxSign {} -> "transaction sign"
-    TxCreateWitness {} -> "transaction witness"
-    TxAssembleTxBodyWitness {} -> "transaction sign-witness"
-    TxSubmit {} -> "transaction submit"
-    TxMintedPolicyId {} -> "transaction policyid"
-    TxCalculateMinFee {} -> "transaction calculate-min-fee"
+    TxBuild {}                    -> "transaction build"
+    TxBuildRaw {}                 -> "transaction build-raw"
+    TxSign {}                     -> "transaction sign"
+    TxCreateWitness {}            -> "transaction witness"
+    TxAssembleTxBodyWitness {}    -> "transaction sign-witness"
+    TxSubmit {}                   -> "transaction submit"
+    TxMintedPolicyId {}           -> "transaction policyid"
+    TxCalculateMinFee {}          -> "transaction calculate-min-fee"
     TxCalculateMinRequiredUTxO {} -> "transaction calculate-min-value"
-    TxHashScriptData {} -> "transaction hash-script-data"
-    TxGetTxId {} -> "transaction txid"
-    TxView {} -> "transaction view"
+    TxHashScriptData {}           -> "transaction hash-script-data"
+    TxGetTxId {}                  -> "transaction txid"
+    TxView {}                     -> "transaction view"
 
 data NodeCmd
   = NodeKeyGenCold KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out) (OpCertCounterFile Out)
@@ -292,8 +291,8 @@ renderNodeCmd :: NodeCmd -> Text
 renderNodeCmd cmd = do
   case cmd of
     NodeKeyGenCold {} -> "node key-gen"
-    NodeKeyGenKES {} -> "node key-gen-KES"
-    NodeKeyGenVRF {} -> "node key-gen-VRF"
+    NodeKeyGenKES {}  -> "node key-gen-KES"
+    NodeKeyGenVRF {}  -> "node key-gen-VRF"
     NodeKeyHashVRF {} -> "node key-hash-VRF"
     NodeNewCounter {} -> "node new-counter"
     NodeIssueOpCert{} -> "node issue-op-cert"
@@ -335,9 +334,9 @@ renderPoolCmd :: PoolCmd -> Text
 renderPoolCmd cmd =
   case cmd of
     PoolRegistrationCert {} -> "stake-pool registration-certificate"
-    PoolRetirementCert {} -> "stake-pool deregistration-certificate"
-    PoolGetId {} -> "stake-pool id"
-    PoolMetadataHash {} -> "stake-pool metadata-hash"
+    PoolRetirementCert {}   -> "stake-pool deregistration-certificate"
+    PoolGetId {}            -> "stake-pool id"
+    PoolMetadataHash {}     -> "stake-pool metadata-hash"
 
 data QueryCmd =
     QueryLeadershipSchedule
@@ -489,17 +488,17 @@ data GenesisCmd
 renderGenesisCmd :: GenesisCmd -> Text
 renderGenesisCmd cmd =
   case cmd of
-    GenesisCreate {} -> "genesis create"
-    GenesisCreateCardano {} -> "genesis create-cardano"
-    GenesisCreateStaked {} -> "genesis create-staked"
-    GenesisKeyGenGenesis {} -> "genesis key-gen-genesis"
+    GenesisCreate {}         -> "genesis create"
+    GenesisCreateCardano {}  -> "genesis create-cardano"
+    GenesisCreateStaked {}   -> "genesis create-staked"
+    GenesisKeyGenGenesis {}  -> "genesis key-gen-genesis"
     GenesisKeyGenDelegate {} -> "genesis key-gen-delegate"
-    GenesisKeyGenUTxO {} -> "genesis key-gen-utxo"
-    GenesisCmdKeyHash {} -> "genesis key-hash"
-    GenesisVerKey {} -> "genesis get-ver-key"
-    GenesisTxIn {} -> "genesis initial-txin"
-    GenesisAddr {} -> "genesis initial-addr"
-    GenesisHashFile {} -> "genesis hash"
+    GenesisKeyGenUTxO {}     -> "genesis key-gen-utxo"
+    GenesisCmdKeyHash {}     -> "genesis key-hash"
+    GenesisVerKey {}         -> "genesis get-ver-key"
+    GenesisTxIn {}           -> "genesis initial-txin"
+    GenesisAddr {}           -> "genesis initial-addr"
+    GenesisHashFile {}       -> "genesis hash"
 
 --
 -- Shelley CLI flag/option data types
