@@ -1233,7 +1233,25 @@ pVoteFileIn =
 pGovernanceActionCmd :: EnvCli -> Parser GovernanceActionCmd
 pGovernanceActionCmd envCli =
   asum
-    [ subParser "create-info"
+    [ subParser "create-no-confidence-motion"
+      $ Opt.info pActionCreateNoConfidenceMotion
+      $ Opt.progDesc "Create a no-confidence motion action"
+    , subParser "create-new-committee"
+      $ Opt.info pActionCreateNewCommittee
+      $ Opt.progDesc "Create a new-committee action"
+    , subParser "create-constitution-update"
+      $ Opt.info pActionCreateConstitutionUpdate
+      $ Opt.progDesc "Create a constitution-update action"
+    , subParser "create-hard-fork-initiation"
+      $ Opt.info pActionCreateHardForkInitiation
+      $ Opt.progDesc "Create a hard-fork-initiation action"
+    , subParser "create-protocol-parameter-update"
+      $ Opt.info pActionCreateProtocolParameterUpdate
+      $ Opt.progDesc "Create an protocol-parameter-update action"
+    , subParser "create-treasury-withdrawal"
+      $ Opt.info pActionCreateTreasuryWithdrawal
+      $ Opt.progDesc "Create an treasury-withdrawal action"
+    , subParser "create-info"
       $ Opt.info pActionCreateInfo
       $ Opt.progDesc "Create an info action"
     , subParser "view"
@@ -1245,6 +1263,42 @@ pGovernanceActionCmd envCli =
       -- TODO CIP-1694 add --all-active-actions flag when ledger support is available
     ]
   where
+    pActionCreateNoConfidenceMotion :: Parser GovernanceActionCmd
+    pActionCreateNoConfidenceMotion =
+      GovernanceActionCreate
+        <$> pure GovernanceActionOfNoConfidenceMotion
+        <*> pOutputFile
+
+    pActionCreateNewCommittee :: Parser GovernanceActionCmd
+    pActionCreateNewCommittee =
+      GovernanceActionCreate
+        <$> pure GovernanceActionOfNewCommittee
+        <*> pOutputFile
+
+    pActionCreateConstitutionUpdate :: Parser GovernanceActionCmd
+    pActionCreateConstitutionUpdate =
+      GovernanceActionCreate
+        <$> pure GovernanceActionOfConstitutionUpdate
+        <*> pOutputFile
+
+    pActionCreateHardForkInitiation :: Parser GovernanceActionCmd
+    pActionCreateHardForkInitiation =
+      GovernanceActionCreate
+        <$> pure GovernanceActionOfHardForkInitiation
+        <*> pOutputFile
+
+    pActionCreateProtocolParameterUpdate :: Parser GovernanceActionCmd
+    pActionCreateProtocolParameterUpdate =
+      GovernanceActionCreate
+        <$> (GovernanceActionOfProtocolParameterUpdate <$> pProtocolParametersUpdate)
+        <*> pOutputFile
+
+    pActionCreateTreasuryWithdrawal :: Parser GovernanceActionCmd
+    pActionCreateTreasuryWithdrawal =
+      GovernanceActionCreate
+        <$> pure GovernanceActionOfTreasuryWithdrawal
+        <*> pOutputFile
+
     pActionCreateInfo :: Parser GovernanceActionCmd
     pActionCreateInfo =
       GovernanceActionCreate

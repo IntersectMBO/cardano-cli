@@ -1,0 +1,7 @@
+Usage: cardano-cli governance action create-treasury-withdrawal --out-file FILE
+
+  Create an treasury-withdrawal action
+
+Available options:
+  --out-file FILE          The output file.
+  -h,--help                Show this help text

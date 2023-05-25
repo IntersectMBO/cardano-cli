@@ -1,0 +1,7 @@
+Usage: cardano-cli governance action create-no-confidence-motion --out-file FILE
+
+  Create a no-confidence motion action
+
+Available options:
+  --out-file FILE          The output file.
+  -h,--help                Show this help text

@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -477,7 +478,14 @@ instance SerialiseAsRawBytes (Hash GovernanceActionInfoMetadata) where
         GovernanceActionInfoMetadataHash <$> Crypto.hashFromBytes bs
 
 data GovernanceAction =
-    GovernanceActionOfInfo
+    GovernanceActionOfNoConfidenceMotion
+  | GovernanceActionOfNewCommittee
+  | GovernanceActionOfConstitutionUpdate
+  | GovernanceActionOfHardForkInitiation
+  | GovernanceActionOfProtocolParameterUpdate
+      ProtocolParametersUpdate
+  | GovernanceActionOfTreasuryWithdrawal
+  | GovernanceActionOfInfo
       GovernanceActionInfoMetadataUrl
       (Hash GovernanceActionInfoMetadata)
   deriving Show

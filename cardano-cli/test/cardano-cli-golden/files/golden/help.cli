@@ -72,9 +72,69 @@ Usage: cardano-cli governance create-genesis-key-delegation-certificate
 
   Create a genesis key delegation certificate
 
-Usage: cardano-cli governance action (create-info | view | query)
+Usage: cardano-cli governance action 
+            ( create-no-confidence-motion
+            | create-new-committee
+            | create-constitution-update
+            | create-hard-fork-initiation
+            | create-protocol-parameter-update
+            | create-treasury-withdrawal
+            | create-info
+            | view
+            | query
+            )
 
   Commands related to governance actions
+
+Usage: cardano-cli governance action create-no-confidence-motion --out-file FILE
+
+  Create a no-confidence motion action
+
+Usage: cardano-cli governance action create-new-committee --out-file FILE
+
+  Create a new-committee action
+
+Usage: cardano-cli governance action create-constitution-update --out-file FILE
+
+  Create a constitution-update action
+
+Usage: cardano-cli governance action create-hard-fork-initiation --out-file FILE
+
+  Create a hard-fork-initiation action
+
+Usage: cardano-cli governance action create-protocol-parameter-update 
+            [--protocol-major-version NATURAL --protocol-minor-version NATURAL]
+            [--decentralization-parameter RATIONAL]
+            [--extra-entropy HEX | --reset-extra-entropy]
+            [--max-block-header-size NATURAL]
+            [--max-block-body-size NATURAL]
+            [--max-tx-size NATURAL]
+            [--min-fee-constant LOVELACE]
+            [--min-fee-linear LOVELACE]
+            [--min-utxo-value NATURAL]
+            [--key-reg-deposit-amt NATURAL]
+            [--pool-reg-deposit NATURAL]
+            [--min-pool-cost NATURAL]
+            [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+            [--number-of-pools NATURAL]
+            [--pool-influence RATIONAL]
+            [--monetary-expansion RATIONAL]
+            [--treasury-expansion RATIONAL]
+            [--utxo-cost-per-word LOVELACE]
+            [--price-execution-steps RATIONAL --price-execution-memory RATIONAL]
+            [--max-tx-execution-units (INT, INT)]
+            [--max-block-execution-units (INT, INT)]
+            [--max-value-size INT]
+            [--collateral-percent INT]
+            [--max-collateral-inputs INT]
+            [--utxo-cost-per-byte LOVELACE]
+            --out-file FILE
+
+  Create an protocol-parameter-update action
+
+Usage: cardano-cli governance action create-treasury-withdrawal --out-file FILE
+
+  Create an treasury-withdrawal action
 
 Usage: cardano-cli governance action create-info --metadata-url URL
             --metadata-hash HASH
