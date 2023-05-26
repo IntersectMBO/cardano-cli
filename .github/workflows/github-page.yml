@@ -1,0 +1,143 @@
+name: "Haddock documentation"
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ghc: ["9.2.7"]
+        cabal: ["3.10.1.0"]
+        os: [ubuntu-latest]
+
+    env:
+      # Modify this value to "invalidate" the cabal cache.
+      CABAL_CACHE_VERSION: "2022-12-30"
+
+      # Modify this value to "invalidate" the secp cache.
+      SECP_CACHE_VERSION: "2022-12-30"
+
+      # current ref from: 27.02.2022
+      SECP256K1_REF: ac83be33d0956faf6b7f61a60ab524ef7d6a473a
+
+    steps:
+    - name: Workaround runner image issue
+      if: runner.os == 'Linux'
+      # https://github.com/actions/runner-images/issues/7061
+      run: sudo chown -R $USER /usr/local/.ghcup
+
+    - name: Install Haskell
+      uses: input-output-hk/setup-haskell@v1
+      id: setup-haskell
+      with:
+        ghc-version: ${{ matrix.ghc }}
+        cabal-version: ${{ matrix.cabal }}
+
+    - uses: actions/checkout@v3
+
+    - name: Add build script path
+      run: echo "$(pwd)/.github/bin" >> $GITHUB_PATH
+
+    - name: Install build environment
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install libsodium23 libsodium-dev
+        sudo apt-get -y install libsystemd0 libsystemd-dev
+        sudo apt-get -y remove --purge software-properties-common
+        sudo apt-get -y autoremove
+
+    - name: Install secp256k1
+      uses: input-output-hk/setup-secp256k1@v1
+      with:
+        git-ref: ${{ env.SECP256K1_REF }}
+        cache-version: ${{ env.SECP_CACHE_VERSION }}
+
+    - name: Cabal update
+      run: cabal update
+
+    - name: combine github-pages, and machine local project files.
+      run: |
+        cat .github/workflows/cabal.project.local.github-pages \
+            ".github/workflows/cabal.project.local.ci.$(uname -s)" \
+            | tee cabal.project.local
+
+    - name: Dry run
+      run: |
+        cabal build all --dry-run
+        mkdir ./haddocks
+        DRY_RUN=1 ./scripts/haddocs.sh ./haddocks true
+
+    # For users who fork cardano-cli and want to define a writable cache, then can set up their own
+    # S3 bucket then define in their forked repository settings the following secrets:
+    #
+    #   CACHE_AWS_ACCESS_KEY_ID
+    #   CACHE_AWS_SECRET_ACCESS_KEY
+    #   CACHE_URI
+    #   CACHE_AWS_REGION
+    - name: Cabal cache over S3
+      uses: action-works/cabal-cache-s3@v1
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.CACHE_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.CACHE_AWS_SECRET_ACCESS_KEY }}
+      with:
+        region: ${{ vars.CACHE_AWS_REGION }}
+        dist-dir: dist-newstyle
+        store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
+        threads: ${{ vars.CACHE_THREADS }}
+        archive-uri: ${{ vars.CACHE_URI }}/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
+        skip: "${{ vars.CACHE_URI == '' }}"
+
+    # It's important to ensure that people who fork this repository can not only successfully build in
+    # CI by default, but also have meaning cabal store caching.
+    #
+    # Because syncing with S3 requires credentials, we cannot rely on S3 for this. For this reason a
+    # https fallback is used. The https server mirrors the content of the S3 bucket. The https cabal
+    # store archive is read-only for security reasons.
+    #
+    # Users who fork this repository who want to have a writable cabal store archive are encouraged
+    # to set up their own S3 bucket.
+    - name: Cabal cache over HTTPS
+      uses: action-works/cabal-cache-s3@v1
+      with:
+        dist-dir: dist-newstyle
+        store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
+        threads: 16
+        archive-uri: https://iohk.cache.haskellworks.io/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
+        skip: "${{ vars.CACHE_URI != '' }}"
+        enable-save: false
+
+    - name: Install dependencies
+      run: cabal build all
+
+    - name: Build Haddock documentation 🔧
+      run: ./scripts/haddocs.sh ./haddocks true
+
+    - name: View HTML files
+      run: |
+        find "dist-newstyle/build" -name '*.html' | xargs grep html
+
+    - name: Upload documentation
+      uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      continue-on-error: true
+      with:
+        name: haddocks-${{ matrix.os }}-${{ matrix.ghc }}
+        path: ./haddocks
+
+    - name: Deploy documentation to gh-pages 🚀
+      if: github.ref == 'refs/heads/master'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN || github.token }}
+        publish_dir: haddocks
+        force_orphan: true

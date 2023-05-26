@@ -1,0 +1,26 @@
+name: Check cabal files
+
+on:
+  push:
+  merge_group:
+
+jobs:
+  check-cabal-files:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Workaround runner image issue
+      if: runner.os == 'Linux'
+      # https://github.com/actions/runner-images/issues/7061
+      run: sudo chown -R $USER /usr/local/.ghcup
+
+    - name: Install Haskell
+      uses: input-output-hk/setup-haskell@v1
+      id: setup-haskell
+      with:
+        cabal-version: "3.10.1.0"
+
+    - uses: actions/checkout@v3
+
+    - name: Cabal check
+      run: ./scripts/ci/check-cabal-files.sh
