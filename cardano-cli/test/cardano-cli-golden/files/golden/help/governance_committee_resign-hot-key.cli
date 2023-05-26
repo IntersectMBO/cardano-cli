@@ -1,0 +1,16 @@
+Usage: cardano-cli governance committee resign-hot-key 
+            ( --cc-cold-key STRING
+            | --cc-cold-key-file FILE
+            | --cc-cold-key-hash STRING
+            )
+            --out-file FILE
+
+  Resign committee hot key
+
+Available options:
+  --cc-cold-key STRING     Constitutional Committee cold key (hex-encoded).
+  --cc-cold-key-file FILE  Filepath of the Consitutional Committee cold key.
+  --cc-cold-key-hash STRING
+                           Constitutional Committee key hash (hex-encoded).
+  --out-file FILE          The output file.
+  -h,--help                Show this help text
