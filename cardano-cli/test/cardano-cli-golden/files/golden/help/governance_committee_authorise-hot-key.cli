@@ -1,0 +1,23 @@
+Usage: cardano-cli governance committee authorise-hot-key 
+            ( --cc-cold-key STRING
+            | --cc-cold-key-file FILE
+            | --cc-cold-key-hash STRING
+            )
+            ( --cc-hot-key STRING
+            | --cc-hot-key-file FILE
+            | --cc-hot-key-hash STRING
+            )
+            --out-file FILE
+
+  Register committee hot key
+
+Available options:
+  --cc-cold-key STRING     Constitutional Committee cold key (hex-encoded).
+  --cc-cold-key-file FILE  Filepath of the Consitutional Committee cold key.
+  --cc-cold-key-hash STRING
+                           Constitutional Committee key hash (hex-encoded).
+  --cc-hot-key STRING      Constitutional Committee hot key (hex-encoded).
+  --cc-hot-key-file FILE   Filepath of the Consitutional Committee hot key.
+  --cc-hot-key-hash STRING Constitutional Committee key hash (hex-encoded).
+  --out-file FILE          The output file.
+  -h,--help                Show this help text

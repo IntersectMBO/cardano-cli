@@ -15,6 +15,19 @@ module Cardano.CLI.Shelley.Parsers
   , parseTxIn
   ) where
 
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
+import           Cardano.Chain.Common (BlockCount (BlockCount))
+import           Cardano.CLI.Common.Parsers
+import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Shelley.Commands
+import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
+                   StakeIdentifier (..), StakeVerifier (..), VerificationKeyOrFile (..),
+                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
+import           Cardano.CLI.Types
+import qualified Cardano.Ledger.BaseTypes as Shelley
+import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 import           Cardano.Prelude (ConvertText (..))
 
 import qualified Data.Aeson as Aeson
@@ -51,22 +64,6 @@ import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
 import           Text.Read (readEither, readMaybe)
 
-import qualified Cardano.Ledger.BaseTypes as Shelley
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
-
-import           Cardano.Api
-import           Cardano.Api.Shelley
-
-import           Cardano.Chain.Common (BlockCount (BlockCount))
-
-import           Cardano.CLI.Common.Parsers
-import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
-                   StakeIdentifier (..), StakeVerifier (..), VerificationKeyOrFile (..),
-                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
-import           Cardano.CLI.Types
-
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
@@ -99,7 +96,7 @@ parseShelleyCommands envCli =
     , Opt.command "genesis" $
         Opt.info (GenesisCmd <$> pGenesisCmd envCli) $ Opt.progDesc "Genesis block commands"
     , Opt.command "governance" $
-        Opt.info (GovernanceCmd <$> pGovernanceCmd) $ Opt.progDesc "Governance commands"
+        Opt.info (GovernanceCmd <$> pGovernanceCmd envCli) $ Opt.progDesc "Governance commands"
     , Opt.command "text-view" $
         Opt.info (TextViewCmd <$> pTextViewCmd) . Opt.progDesc $ mconcat
           [ "Commands for dealing with Shelley TextView files. "
@@ -377,7 +374,7 @@ pStakeAddressCmd envCli =
           (Opt.info pStakeAddressRegistrationCert $ Opt.progDesc "Create a stake address registration certificate")
       , subParser "deregistration-certificate"
           (Opt.info pStakeAddressDeregistrationCert $ Opt.progDesc "Create a stake address deregistration certificate")
-      , subParser "delegation-certificate"
+      , subParser "pool-delegation-certificate"
           (Opt.info pStakeAddressPoolDelegationCert $ Opt.progDesc "Create a stake address pool delegation certificate")
       ]
   where
@@ -839,6 +836,58 @@ pTransaction envCli =
   pTransactionView :: Parser TransactionCmd
   pTransactionView = TxView <$> pInputTxOrTxBodyFile
 
+
+pGovernanceCommitteeCmd :: Parser CommitteeCmd
+pGovernanceCommitteeCmd =
+  asum
+    [ subParser "key-gen-cold" . Opt.info pCommitteeKeyGenCold . Opt.progDesc $ mconcat
+      [ "Create a cold key pair for a Constitutional Committee Member"
+      , "key and a new certificate issue counter"
+      ]
+    , subParser "key-gen-hot" . Opt.info pKeyGenHot . Opt.progDesc $ mconcat
+      [ "Create a hot key pair for a Constitutional Committee Member"
+      ]
+    , subParser "key-hash" . Opt.info pKeyHash . Opt.progDesc $ mconcat
+      [ "Print the identifier (hash) of a public key"
+      ]
+    , subParser "authorise-hot-key" . Opt.info pAuthoriseHotKey . Opt.progDesc $ mconcat
+      [ "Register committee hot key"
+      ]
+    , subParser "resign-hot-key" . Opt.info pResignHotKey . Opt.progDesc $ mconcat
+      [ "Resign committee hot key"
+      ]
+    ]
+  where
+    pCommitteeKeyGenCold :: Parser CommitteeCmd
+    pCommitteeKeyGenCold =
+      CommitteeKeyGenCold
+        <$> pColdVerificationKeyFile
+        <*> pColdSigningKeyFile
+
+    pKeyGenHot :: Parser CommitteeCmd
+    pKeyGenHot =
+      CommitteeKeyGenHot
+        <$> pVerificationKeyFileOut
+        <*> pSigningKeyFileOut
+        <*> pOperatorCertIssueCounterFile
+
+    pKeyHash :: Parser CommitteeCmd
+    pKeyHash =
+      CommitteeKeyHash <$> pVerificationKeyFileIn
+
+    pAuthoriseHotKey :: Parser CommitteeCmd
+    pAuthoriseHotKey =
+      CommitteeRegisterHotKey
+        <$> pCommitteeColdKeyOrHashOrFile
+        <*> pCommitteeHotKeyOrHashOrFile
+        <*> pOutputFile
+
+    pResignHotKey :: Parser CommitteeCmd
+    pResignHotKey =
+      CommitteeUnregisterHotKey
+        <$> pCommitteeColdKeyOrHashOrFile
+        <*> pOutputFile
+
 pNodeCmd :: Parser NodeCmd
 pNodeCmd =
   asum
@@ -1118,29 +1167,196 @@ pQueryCmd envCli =
                 , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
                 ]
 
-pGovernanceCmd :: Parser GovernanceCmd
-pGovernanceCmd =
+pGovernanceVoteCmd :: Parser GovernanceVoteCmd
+pGovernanceVoteCmd =
   asum
-    [ subParser "create-mir-certificate"
-      $ Opt.info (pMIRPayStakeAddresses <|> mirCertParsers)
-      $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
-    , subParser "create-genesis-key-delegation-certificate"
-      $ Opt.info pGovernanceGenesisKeyDelegationCertificate
-      $ Opt.progDesc "Create a genesis key delegation certificate"
-    , subParser "create-update-proposal"
-      $ Opt.info pUpdateProposal
-      $ Opt.progDesc "Create an update proposal"
-    , subParser "create-poll"
-      $ Opt.info pGovernanceCreatePoll
-      $ Opt.progDesc "Create an SPO poll"
-    , subParser "answer-poll"
-      $ Opt.info pGovernanceAnswerPoll
-      $ Opt.progDesc "Answer an SPO poll"
-    , subParser "verify-poll"
-      $ Opt.info pGovernanceVerifyPoll
-      $ Opt.progDesc "Verify an answer to a given SPO poll"
+    [ subParser "create"
+      $ Opt.info pVoteCreate
+      $ Opt.progDesc "Create a vote"
+    , subParser "view"
+      $ Opt.info pVoteView
+      $ Opt.progDesc "View a vote"
     ]
   where
+    pVoteCreate :: Parser GovernanceVoteCmd
+    pVoteCreate =
+      GovernanceVoteCreate
+        <$> pSigningKeyFileIn
+        <*> pActionFileIn
+        <*> pVote
+        <*> pOutputFile
+
+    pVoteView :: Parser GovernanceVoteCmd
+    pVoteView =
+      GovernanceVoteView
+        <$> pVoteFileIn
+
+    pVote :: Parser Vote
+    pVote =
+      asum
+        [ Opt.flag' VoteYes $ mconcat
+            [ Opt.long "vote-yes"
+            , Opt.help "Specify the Byron era"
+            ]
+        , Opt.flag' VoteNo $ mconcat
+            [ Opt.long "vote-no"
+            , Opt.help "Specify the Byron era"
+            ]
+        , Opt.flag' VoteAbstain $ mconcat
+            [ Opt.long "vote-abstain"
+            , Opt.help "Specify the Byron era"
+            ]
+        ]
+
+pActionFileIn :: Parser (File GovernanceAction In)
+pActionFileIn =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "action-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Input filepath of the governance action."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pVoteFileIn :: Parser (File GovernanceVote In)
+pVoteFileIn =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "vote-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Input filepath of the governance vote."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pGovernanceActionCmd :: EnvCli -> Parser GovernanceActionCmd
+pGovernanceActionCmd envCli =
+  asum
+    [ subParser "create-info"
+      $ Opt.info pActionCreateInfo
+      $ Opt.progDesc "Create an info action"
+    , subParser "view"
+      $ Opt.info pActionView
+      $ Opt.progDesc "View an action"
+    , subParser "query"
+      $ Opt.info pActionQuery
+      $ Opt.progDesc "Query an on-chain action"
+      -- TODO CIP-1694 add --all-active-actions flag when ledger support is available
+    ]
+  where
+    pActionCreateInfo :: Parser GovernanceActionCmd
+    pActionCreateInfo =
+      GovernanceActionCreate
+        <$> pGovernanceActionOfInfo
+        <*> pOutputFile
+
+    pGovernanceActionOfInfo :: Parser GovernanceAction
+    pGovernanceActionOfInfo =
+      GovernanceActionOfInfo
+        <$> pGovernanceActionInfoResource
+
+    pGovernanceActionInfoResource :: Parser GovernanceActionInfoResource
+    pGovernanceActionInfoResource =
+      asum
+        [ pGovernanceActionInfoResourceOfUrl
+        , pGovernanceActionInfoResourceOfFile
+        ]
+
+    pGovernanceActionInfoResourceOfUrl :: Parser GovernanceActionInfoResource
+    pGovernanceActionInfoResourceOfUrl =
+      fmap GovernanceActionInfoResourceOfUrl $ Opt.strOption $ mconcat
+        [ Opt.long "metadata-url"
+        , Opt.metavar "URL"
+        , Opt.help "The metadata url."
+        , Opt.completer (Opt.bashCompleter "url")
+        ]
+
+    pGovernanceActionInfoResourceOfFile :: Parser GovernanceActionInfoResource
+    pGovernanceActionInfoResourceOfFile =
+      fmap GovernanceActionInfoResourceOfFile $ Opt.strOption $ mconcat
+        [ Opt.long "metadata-file"
+        , Opt.metavar "FILE"
+        , Opt.help "The metadata file."
+        , Opt.completer (Opt.bashCompleter "file")
+        ]
+
+    pActionView :: Parser GovernanceActionCmd
+    pActionView =
+      GovernanceActionView
+        <$> pActionFileIn
+
+    pActionQuery :: Parser GovernanceActionCmd
+    pActionQuery =
+      GovernanceActionQuery
+        <$> pSocketPath envCli
+        <*> pNetworkId envCli
+        <*> pGovernanceActionId
+        <*> optional pGovernanceActionQueryResultOut
+
+    pGovernanceActionId :: Parser GovernanceActionId
+    pGovernanceActionId =
+      fmap (const GovernanceActionId) $
+        Opt.strOption @String $ mconcat
+          [ Opt.long "action-id"
+          , Opt.metavar "STRING"
+          , Opt.help "The governance action id."
+          ]
+
+    pGovernanceActionQueryResultOut :: Parser (File GovernanceActionQueryResult Out)
+    pGovernanceActionQueryResultOut =
+      fmap File $ Opt.strOption $ mconcat
+        [ Opt.long "out-file"
+        , Opt.metavar "FILE"
+        , Opt.help "Output filepath of the governance action receipt."
+        , Opt.completer (Opt.bashCompleter "file")
+        ]
+
+pConwayGenesisCmd :: Parser GovernanceCmd
+pConwayGenesisCmd = GovernanceGenesisCmd <$> pConwayGenesisSubParsers
+
+pConwayGenesisSubParsers :: Parser GovernanceGenesisCmd
+pConwayGenesisSubParsers =
+  subParser "create-genesis-key-delegation-certificate"
+    $ Opt.info pGovernanceGenesisKeyDelegationCertificate
+    $ Opt.progDesc "Create a genesis key delegation certificate"
+
+pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceGenesisCmd
+pGovernanceGenesisKeyDelegationCertificate =
+  GovernanceGenesisKeyDelegationCertificate
+    <$> pGenesisVerificationKeyOrHashOrFile
+    <*> pGenesisDelegateVerificationKeyOrHashOrFile
+    <*> pVrfVerificationKeyOrHashOrFile
+    <*> pOutputFile
+
+pGovernanceCmd :: EnvCli -> Parser GovernanceCmd
+pGovernanceCmd envCli =
+  subParser "genesis"
+      $ Opt.info pConwayGenesisCmd
+      $ Opt.progDesc "Conway genesis related commands"
+  where
+    _notExposedYet = asum
+      [ subParser "create-mir-certificate"
+        $ Opt.info (pMIRPayStakeAddresses <|> mirCertParsers)
+        $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
+      , subParser "action"
+        $ Opt.info pActionCmd
+        $ Opt.progDesc "Commands related to governance actions"
+      , subParser "committee"
+        $ Opt.info pCommitteeCmd
+        $ Opt.progDesc "Constitutional Committee operation commands"
+      , subParser "vote"
+        $ Opt.info pVoteCmd
+        $ Opt.progDesc "Commands related to governance votes"
+      , subParser "create-update-proposal"
+        $ Opt.info pUpdateProposal
+        $ Opt.progDesc "Create an update proposal"
+      , subParser "create-poll"
+        $ Opt.info pGovernanceCreatePoll
+        $ Opt.progDesc "Create an SPO poll"
+      , subParser "answer-poll"
+        $ Opt.info pGovernanceAnswerPoll
+        $ Opt.progDesc "Answer an SPO poll"
+      , subParser "verify-poll"
+        $ Opt.info pGovernanceVerifyPoll
+        $ Opt.progDesc "Verify an answer to a given SPO poll"
+      ]
     mirCertParsers :: Parser GovernanceCmd
     mirCertParsers = asum
       [ subParser "stake-addresses"
@@ -1173,13 +1389,7 @@ pGovernanceCmd =
                                <*> pOutputFile
                                <*> pure TransferToReserves
 
-    pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmd
-    pGovernanceGenesisKeyDelegationCertificate =
-      GovernanceGenesisKeyDelegationCertificate
-        <$> pGenesisVerificationKeyOrHashOrFile
-        <*> pGenesisDelegateVerificationKeyOrHashOrFile
-        <*> pVrfVerificationKeyOrHashOrFile
-        <*> pOutputFile
+
 
     pMIRPot :: Parser Shelley.MIRPot
     pMIRPot =
@@ -1191,6 +1401,17 @@ pGovernanceCmd =
             (  Opt.long "treasury"
             <> Opt.help "Use the treasury pot."
             )
+
+    pActionCmd :: Parser GovernanceCmd
+    pActionCmd = GovernanceActionCmd <$> pGovernanceActionCmd envCli
+
+    pVoteCmd :: Parser GovernanceCmd
+    pVoteCmd = GovernanceVoteCmd <$> pGovernanceVoteCmd
+
+    pCommitteeCmd :: Parser GovernanceCmd
+    pCommitteeCmd =
+      GovernanceCommitteeCmd
+        <$> pGovernanceCommitteeCmd
 
     pUpdateProposal :: Parser GovernanceCmd
     pUpdateProposal = GovernanceUpdateProposal
@@ -1221,6 +1442,7 @@ pGovernanceCmd =
         <$> pPollFile
         <*> pPollTxFile
         <*> optional pOutputFile
+
 
 pPollQuestion :: Parser Text
 pPollQuestion =
@@ -2201,6 +2423,111 @@ pKesVerificationKeyFile =
       ]
     ]
 
+pCommitteeColdKeyFile :: Parser (VerificationKeyFile In)
+pCommitteeColdKeyFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "cc-cold-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the Consitutional Committee cold key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pCommitteeColdKeyHash :: Parser (Hash CommitteeColdKey)
+pCommitteeColdKeyHash =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "cc-cold-key-hash"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee key hash (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Consitutional Committee cold key hash: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
+        . BSC.pack
+
+pCommitteeColdKey :: Parser (VerificationKey CommitteeColdKey)
+pCommitteeColdKey =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "cc-cold-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee cold key (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Constitutional Committee cold key: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
+        . BSC.pack
+
+pCommitteeColdKeyOrFile :: Parser (VerificationKeyOrFile CommitteeColdKey)
+pCommitteeColdKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pCommitteeColdKey
+    , VerificationKeyFilePath <$> pCommitteeColdKeyFile
+    ]
+
+pCommitteeColdKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeColdKey)
+pCommitteeColdKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pCommitteeColdKeyOrFile
+    , VerificationKeyHash <$> pCommitteeColdKeyHash
+    ]
+
+---
+
+pCommitteeHotKeyFile :: Parser (VerificationKeyFile In)
+pCommitteeHotKeyFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "cc-hot-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the Consitutional Committee hot key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pCommitteeHotKeyHash :: Parser (Hash CommitteeHotKey)
+pCommitteeHotKeyHash =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "cc-hot-key-hash"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee key hash (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (Hash CommitteeHotKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Consitutional Committee hot key hash: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
+        . BSC.pack
+
+pCommitteeHotKey :: Parser (VerificationKey CommitteeHotKey)
+pCommitteeHotKey =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "cc-hot-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee hot key (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeHotKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Constitutional Committee hot key: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey)
+        . BSC.pack
+
+pCommitteeHotKeyOrFile :: Parser (VerificationKeyOrFile CommitteeHotKey)
+pCommitteeHotKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pCommitteeHotKey
+    , VerificationKeyFilePath <$> pCommitteeHotKeyFile
+    ]
+
+pCommitteeHotKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeHotKey)
+pCommitteeHotKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pCommitteeHotKeyOrFile
+    , VerificationKeyHash <$> pCommitteeHotKeyHash
+    ]
+
+
 pTxSubmitFile :: Parser FilePath
 pTxSubmitFile =
   Opt.strOption
@@ -3050,7 +3377,6 @@ pStakePoolRetirementCert =
     <$> pStakePoolVerificationKeyOrFile
     <*> pEpochNo
     <*> pOutputFile
-
 
 pProtocolParametersUpdate :: Parser ProtocolParametersUpdate
 pProtocolParametersUpdate =

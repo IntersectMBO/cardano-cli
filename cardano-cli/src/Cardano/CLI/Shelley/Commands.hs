@@ -8,13 +8,23 @@ module Cardano.CLI.Shelley.Commands
   ( -- * CLI command types
     ShelleyCommand (..)
   , AddressCmd (..)
+  , CommitteeCmd (..)
   , StakeAddressCmd (..)
   , KeyCmd (..)
   , TransactionCmd (..)
   , NodeCmd (..)
   , PoolCmd (..)
   , QueryCmd (..)
+  , Vote (..)
+  , GovernanceGenesisCmd (..)
+  , GovernanceAction (..)
+  , GovernanceVote (..)
   , GovernanceCmd (..)
+  , GovernanceActionCmd (..)
+  , GovernanceVoteCmd (..)
+  , GovernanceActionId (..)
+  , GovernanceActionReceipt (..)
+  , GovernanceActionQueryResult (..)
   , GenesisCmd (..)
   , TextViewCmd (..)
   , renderShelleyCommand
@@ -44,22 +54,22 @@ module Cardano.CLI.Shelley.Commands
   , BlockId (..)
   , WitnessSigningData (..)
   , ColdVerificationKeyOrFile (..)
+  , GovernanceActionInfoResource(..)
   ) where
-
-import           Prelude
 
 import           Cardano.Api.Shelley
 
-import           Data.Text (Text)
-import           Data.Time.Clock
-
+import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.Shelley.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
 import           Cardano.CLI.Types
-
-import           Cardano.Chain.Common (BlockCount)
 import           Cardano.Ledger.Shelley.TxBody (MIRPot)
+
+import           Prelude
+
+import           Data.Text (Text)
+import           Data.Time.Clock
 --
 -- Shelley CLI command data types
 --
@@ -120,7 +130,7 @@ data StakeAddressCmd
   | StakeCredentialDelegationCert
       StakeIdentifier
       DelegationTarget
-      (File () Out)
+      (File Certificate Out)
   | StakeCredentialDeRegistrationCert StakeIdentifier (File () Out)
   deriving Show
 
@@ -131,7 +141,7 @@ renderStakeAddressCmd cmd =
     StakeAddressKeyHash {} -> "stake-address key-hash"
     StakeAddressBuild {} -> "stake-address build"
     StakeRegistrationCert {} -> "stake-address registration-certificate"
-    StakeCredentialDelegationCert {} -> "stake-address delegation-certificate"
+    StakeCredentialDelegationCert {} -> "stake-address pool-delegation-certificate"
     StakeCredentialDeRegistrationCert {} -> "stake-address deregistration-certificate"
 
 data KeyCmd
@@ -276,6 +286,35 @@ renderTransactionCmd cmd =
     TxGetTxId {} -> "transaction txid"
     TxView {} -> "transaction view"
 
+data CommitteeCmd
+  = CommitteeKeyGenCold
+      (VerificationKeyFile Out)
+      (SigningKeyFile Out)
+  | CommitteeKeyGenHot
+      (VerificationKeyFile Out)
+      (SigningKeyFile Out)
+      (OpCertCounterFile Out)
+  | CommitteeNewCounter
+      ColdVerificationKeyOrFile
+      Word
+      (OpCertCounterFile InOut)
+  | CommitteeIssueOpCert
+      (VerificationKeyOrFile KesKey)
+      (SigningKeyFile In)
+      (OpCertCounterFile InOut)
+      KESPeriod
+      (File () Out)
+  | CommitteeKeyHash
+      (VerificationKeyFile In)
+  | CommitteeRegisterHotKey
+      (VerificationKeyOrHashOrFile CommitteeColdKey)
+      (VerificationKeyOrHashOrFile CommitteeHotKey)
+      (File () Out)
+  | CommitteeUnregisterHotKey
+      (VerificationKeyOrHashOrFile CommitteeColdKey)
+      (File () Out)
+  deriving Show
+
 data NodeCmd
   = NodeKeyGenCold KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out) (OpCertCounterFile Out)
   | NodeKeyGenKES  KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
@@ -397,23 +436,77 @@ renderQueryCmd cmd =
         TxMempoolQueryNextTx -> "next-tx"
         TxMempoolQueryInfo -> "info"
 
+newtype GovernanceAction =
+    GovernanceActionOfInfo
+      GovernanceActionInfoResource
+  deriving Show
+
+data GovernanceActionInfoResource
+  = GovernanceActionInfoResourceOfFile (File () In)
+  | GovernanceActionInfoResourceOfUrl (File () In)
+  deriving Show
+
+data Vote = VoteYes | VoteNo | VoteAbstain deriving Show
+
+data GovernanceVote = GovernanceVote deriving Show
+
+data GovernanceActionId = GovernanceActionId deriving Show
+
+newtype GovernanceActionReceipt = GovernanceActionReceipt
+  { governanceActionSubmissionActionId :: GovernanceActionId
+  } deriving Show
+
+newtype GovernanceActionQueryResult = GovernanceActionQueryResult
+  { governanceActionQueryResultActionId :: GovernanceActionId
+  } deriving Show
+
+data GovernanceActionCmd
+  = GovernanceActionCreate
+      GovernanceAction
+      (File GovernanceAction Out) -- ^ Filepath to write the governance action
+  | GovernanceActionView
+      (File GovernanceAction In) -- ^ Filepath to write the governance action
+  | GovernanceActionQuery
+      SocketPath
+      NetworkId
+      GovernanceActionId -- ^ The ID of the governance action
+      (Maybe (File GovernanceActionQueryResult Out))
+  | GovernanceActionSubmit
+      SocketPath
+      NetworkId
+      (File GovernanceAction In) -- ^ Filepath to write the governance action
+      (Maybe (File GovernanceActionReceipt Out)) -- ^ Receipt of the submission of the action
+  deriving Show
+
+data GovernanceVoteCmd
+  = GovernanceVoteCreate
+      (SigningKeyFile In)
+      (File GovernanceAction In) -- ^ Filepath to governance action
+      Vote -- ^ Vote in favour?
+      (File GovernanceVote Out) -- ^ Filepath to write the governance vote
+  | GovernanceVoteView
+      (File GovernanceVote In) -- ^ Filepath to write the governance vote
+  | GovernanceVoteSubmit
+      SocketPath
+      NetworkId
+      (File GovernanceVote In) -- ^ Filepath to write the governance vote
+  deriving Show
 
 data GovernanceCmd
-  = GovernanceMIRPayStakeAddressesCertificate
+  = GovernanceGenesisCmd GovernanceGenesisCmd
+  | GovernanceMIRPayStakeAddressesCertificate
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
   | GovernanceMIRTransfer Lovelace (File () Out) TransferDirection
-  | GovernanceGenesisKeyDelegationCertificate
-      (VerificationKeyOrHashOrFile GenesisKey)
-      (VerificationKeyOrHashOrFile GenesisDelegateKey)
-      (VerificationKeyOrHashOrFile VrfKey)
-      (File () Out)
+  | GovernanceCommitteeCmd CommitteeCmd
   | GovernanceUpdateProposal (File () Out) EpochNo
                              [VerificationKeyFile In]
                              ProtocolParametersUpdate
                              (Maybe FilePath)
+  | GovernanceActionCmd GovernanceActionCmd
+  | GovernanceVoteCmd GovernanceVoteCmd
   | GovernanceCreatePoll
       Text -- Prompt
       [Text] -- Choices
@@ -429,13 +522,25 @@ data GovernanceCmd
       (Maybe (File () Out)) -- Tx file
   deriving Show
 
+data GovernanceGenesisCmd
+  = GovernanceGenesisKeyDelegationCertificate
+      (VerificationKeyOrHashOrFile GenesisKey)
+      (VerificationKeyOrHashOrFile GenesisDelegateKey)
+      (VerificationKeyOrHashOrFile VrfKey)
+      (File () Out)
+  deriving Show
+
+
 renderGovernanceCmd :: GovernanceCmd -> Text
 renderGovernanceCmd cmd =
   case cmd of
-    GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
+    GovernanceGenesisCmd GovernanceGenesisKeyDelegationCertificate{} -> "governance create-genesis-key-delegation-certificate"
     GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
     GovernanceMIRTransfer _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
     GovernanceMIRTransfer _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
+    GovernanceCommitteeCmd {} -> "governance committee"
+    GovernanceActionCmd {} -> "governance action"
+    GovernanceVoteCmd {} -> "governance vote"
     GovernanceUpdateProposal {} -> "governance create-update-proposal"
     GovernanceCreatePoll{} -> "governance create-poll"
     GovernanceAnswerPoll{} -> "governance answer-poll"
