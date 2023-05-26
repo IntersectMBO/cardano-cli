@@ -12,6 +12,9 @@ Usage: cardano-cli text-view decode-cbor --in-file FILE [--out-file FILE]
 Usage: cardano-cli governance 
             ( create-mir-certificate
             | create-genesis-key-delegation-certificate
+            | action
+            | committee
+            | vote
             | create-update-proposal
             | create-poll
             | answer-poll
@@ -68,6 +71,91 @@ Usage: cardano-cli governance create-genesis-key-delegation-certificate
             --out-file FILE
 
   Create a genesis key delegation certificate
+
+Usage: cardano-cli governance action (create-info | view | query)
+
+  Commands related to governance actions
+
+Usage: cardano-cli governance action create-info 
+            (--metadata-url URL | --metadata-file FILE)
+            --out-file FILE
+
+  Create an info action
+
+Usage: cardano-cli governance action view --action-file FILE
+
+  View an action
+
+Usage: cardano-cli governance action query --socket-path SOCKET_PATH
+            (--mainnet | --testnet-magic NATURAL)
+            --action-id STRING
+            [--out-file FILE]
+
+  Query an on-chain action
+
+Usage: cardano-cli governance committee 
+            ( key-gen-cold
+            | key-gen-hot
+            | key-hash
+            | authorise-hot-key
+            | resign-hot-key
+            )
+
+  Constitutional Committee operation commands
+
+Usage: cardano-cli governance committee key-gen-cold 
+            --cold-verification-key-file FILE
+            --cold-signing-key-file FILE
+
+  Create a cold key pair for a Constitutional Committee Memberkey and a new
+  certificate issue counter
+
+Usage: cardano-cli governance committee key-gen-hot --verification-key-file FILE
+            --signing-key-file FILE
+            --operational-certificate-issue-counter-file FILE
+
+  Create a hot key pair for a Constitutional Committee Member
+
+Usage: cardano-cli governance committee key-hash --verification-key-file FILE
+
+  Print the identifier (hash) of a public key
+
+Usage: cardano-cli governance committee authorise-hot-key 
+            ( --cc-cold-key STRING
+            | --cc-cold-key-file FILE
+            | --cc-cold-key-hash STRING
+            )
+            ( --cc-hot-key STRING
+            | --cc-hot-key-file FILE
+            | --cc-hot-key-hash STRING
+            )
+            --out-file FILE
+
+  Register committee hot key
+
+Usage: cardano-cli governance committee resign-hot-key 
+            ( --cc-cold-key STRING
+            | --cc-cold-key-file FILE
+            | --cc-cold-key-hash STRING
+            )
+            --out-file FILE
+
+  Resign committee hot key
+
+Usage: cardano-cli governance vote (create | view)
+
+  Commands related to governance votes
+
+Usage: cardano-cli governance vote create --signing-key-file FILE
+            --action-file FILE
+            (--vote-yes | --vote-no | --vote-abstain)
+            --out-file FILE
+
+  Create a vote
+
+Usage: cardano-cli governance vote view --vote-file FILE
+
+  View a vote
 
 Usage: cardano-cli governance create-update-proposal --out-file FILE
             --epoch EPOCH
@@ -993,7 +1081,7 @@ Usage: cardano-cli stake-address
             | key-hash
             | registration-certificate
             | deregistration-certificate
-            | delegation-certificate
+            | pool-delegation-certificate
             )
 
   Stake address commands
@@ -1042,7 +1130,7 @@ Usage: cardano-cli stake-address deregistration-certificate
 
   Create a stake address deregistration certificate
 
-Usage: cardano-cli stake-address delegation-certificate 
+Usage: cardano-cli stake-address pool-delegation-certificate 
             ( --stake-verification-key STRING
             | --stake-verification-key-file FILE
             | --stake-script-file FILE

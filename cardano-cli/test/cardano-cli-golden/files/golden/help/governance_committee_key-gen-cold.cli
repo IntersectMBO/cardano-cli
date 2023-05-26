@@ -1,0 +1,13 @@
+Usage: cardano-cli governance committee key-gen-cold 
+            --cold-verification-key-file FILE
+            --cold-signing-key-file FILE
+
+  Create a cold key pair for a Constitutional Committee Memberkey and a new
+  certificate issue counter
+
+Available options:
+  --cold-verification-key-file FILE
+                           Filepath of the cold verification key.
+  --cold-signing-key-file FILE
+                           Filepath of the cold signing key.
+  -h,--help                Show this help text

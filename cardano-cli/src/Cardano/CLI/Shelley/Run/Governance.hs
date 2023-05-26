@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -7,6 +8,18 @@ module Cardano.CLI.Shelley.Run.Governance
   , renderShelleyGovernanceError
   , runGovernanceCmd
   ) where
+
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
+import           Cardano.Binary (DecoderError)
+import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
+                   readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
+import           Cardano.CLI.Shelley.Parsers
+import           Cardano.CLI.Shelley.Run.Governance.Committee
+import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
+import           Cardano.CLI.Types
+import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Control.Monad (unless, when)
 import           Control.Monad.IO.Class (liftIO)
@@ -27,18 +40,6 @@ import qualified Data.Text.Read as Text
 import           Formatting (build, sformat)
 import qualified System.IO as IO
 import           System.IO (stderr, stdin, stdout)
-
-import           Cardano.Api
-import           Cardano.Api.Shelley
-
-import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
-                   readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
-import           Cardano.CLI.Shelley.Parsers
-import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
-import           Cardano.CLI.Types
-
-import           Cardano.Binary (DecoderError)
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 data ShelleyGovernanceCmdError
   = ShelleyGovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
@@ -65,6 +66,7 @@ data ShelleyGovernanceCmdError
   | ShelleyGovernanceCmdDecoderError !DecoderError
   | ShelleyGovernanceCmdVerifyPollError !GovernancePollError
   | ShelleyGovernanceCmdWriteFileError !(FileError ())
+  | ShelleyGovernanceCommitteeCmdError !ShelleyGovernanceCommitteeCmdError
   deriving Show
 
 renderShelleyGovernanceError :: ShelleyGovernanceCmdError -> Text
@@ -100,22 +102,47 @@ renderShelleyGovernanceError err =
     ShelleyGovernanceCmdVerifyPollError pollError ->
       renderGovernancePollError pollError
     ShelleyGovernanceCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
+    ShelleyGovernanceCommitteeCmdError e -> renderShelleyGovernanceCommitteeCmdError e
+
+runGovernanceActionCmd :: GovernanceActionCmd -> ExceptT ShelleyGovernanceCmdError IO ()
+runGovernanceActionCmd = \case
+  GovernanceActionCreate action out ->
+    runGovernanceActionCreate action out
+  GovernanceActionView actionFile ->
+    runGovernanceActionView actionFile
+  GovernanceActionQuery socketPath nw actionId mResultFile ->
+    runGovernanceActionQuery socketPath nw actionId mResultFile
+  GovernanceActionSubmit socketPath nw actionFile receiptFile ->
+    runGovernanceActionSubmit socketPath nw actionFile receiptFile
+
+runGovernanceVoteCmd :: GovernanceVoteCmd -> ExceptT ShelleyGovernanceCmdError IO ()
+runGovernanceVoteCmd = \case
+  GovernanceVoteCreate signinKeyFile action vote out ->
+    runGovernanceVoteCreate signinKeyFile action vote out
+  GovernanceVoteView voteFile ->
+    runGovernanceVoteView voteFile
+  GovernanceVoteSubmit socketPath nw voteFile ->
+    runGovernanceVoteSubmit socketPath nw voteFile
 
 runGovernanceCmd :: GovernanceCmd -> ExceptT ShelleyGovernanceCmdError IO ()
-runGovernanceCmd (GovernanceMIRPayStakeAddressesCertificate mirpot vKeys rewards out) =
-  runGovernanceMIRCertificatePayStakeAddrs mirpot vKeys rewards out
-runGovernanceCmd (GovernanceMIRTransfer amt out direction) =
-  runGovernanceMIRCertificateTransfer amt out direction
-runGovernanceCmd (GovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out) =
-  runGovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out
-runGovernanceCmd (GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp) =
-  runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
-runGovernanceCmd (GovernanceCreatePoll prompt choices nonce out) =
-  runGovernanceCreatePoll prompt choices nonce out
-runGovernanceCmd (GovernanceAnswerPoll poll ix mOutFile) =
-  runGovernanceAnswerPoll poll ix mOutFile
-runGovernanceCmd (GovernanceVerifyPoll poll metadata mOutFile) =
-  runGovernanceVerifyPoll poll metadata mOutFile
+runGovernanceCmd = \case
+  GovernanceMIRPayStakeAddressesCertificate mirpot vKeys rewards out ->
+    runGovernanceMIRCertificatePayStakeAddrs mirpot vKeys rewards out
+  GovernanceMIRTransfer amt out direction ->
+    runGovernanceMIRCertificateTransfer amt out direction
+  GovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out ->
+    runGovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out
+  GovernanceActionCmd cmd -> runGovernanceActionCmd cmd
+  GovernanceCommitteeCmd cmd -> firstExceptT ShelleyGovernanceCommitteeCmdError $ runGovernanceCommitteeCmd cmd
+  GovernanceVoteCmd cmd -> runGovernanceVoteCmd cmd
+  GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
+    runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
+  GovernanceCreatePoll prompt choices nonce out ->
+    runGovernanceCreatePoll prompt choices nonce out
+  GovernanceAnswerPoll poll ix mOutFile ->
+    runGovernanceAnswerPoll poll ix mOutFile
+  GovernanceVerifyPoll poll metadata mOutFile ->
+    runGovernanceVerifyPoll poll metadata mOutFile
 
 runGovernanceMIRCertificatePayStakeAddrs
   :: Shelley.MIRPot
@@ -188,6 +215,67 @@ runGovernanceGenesisKeyDelegationCertificate genVkOrHashOrFp
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Genesis Key Delegation Certificate"
+
+runGovernanceActionCreate
+  :: GovernanceAction
+  -> File GovernanceAction Out
+  -> ExceptT ShelleyGovernanceCmdError IO ()
+runGovernanceActionCreate _action _outFile =
+  error "TODO CIP-1694 Not implemented"
+
+runGovernanceActionView
+  :: File GovernanceAction In
+  -> ExceptT ShelleyGovernanceCmdError IO ()
+runGovernanceActionView _actionFile =
+  error "TODO CIP-1694 Not implemented"
+
+runGovernanceActionQuery
+  :: SocketPath
+  -> NetworkId
+  -> GovernanceActionId
+  -> Maybe (File GovernanceActionQueryResult Out)
+  -> ExceptT ShelleyGovernanceCmdError IO ()
+runGovernanceActionQuery _socketPath _nw _actionId _outFile =
+  error "TODO CIP-1694 Not implemented"
+
+runGovernanceActionSubmit
+  :: SocketPath
+  -> NetworkId
+  -> File GovernanceAction In
+  -> Maybe (File GovernanceActionReceipt Out)
+  -> ExceptT ShelleyGovernanceCmdError IO ()
+runGovernanceActionSubmit _socketPath _nw _actionFile _outFile =
+  error "TODO CIP-1694 Not implemented"
+
+runGovernanceVoteCreate
+  :: SigningKeyFile In
+  -> File GovernanceAction In -- ^ Filepath to governance action
+  -> Vote -- ^ Vote in favour?
+  -> File GovernanceVote Out -- ^ Filepath to write the governance vote
+  -> ExceptT ShelleyGovernanceCmdError IO ()
+runGovernanceVoteCreate _signinKeyFile _action _vote _out =
+  error "TODO CIP-1694 Not implemented"
+
+  -- TODO potentially things to store in the governance action transaction:
+  --
+  --   the governance action ID
+  --   the epoch that the action expires
+  --   the deposit amount
+  --   the rewards address that will receive the deposit when it is returned
+
+runGovernanceVoteView
+  :: File GovernanceVote In -- ^ Filepath to governance vote
+  -> ExceptT ShelleyGovernanceCmdError IO ()
+runGovernanceVoteView _voteFile =
+  error "TODO CIP-1694 Not implemented"
+
+runGovernanceVoteSubmit
+  :: SocketPath
+  -> NetworkId
+  -> File GovernanceVote In -- ^ Filepath to governance vote
+  -> ExceptT ShelleyGovernanceCmdError IO ()
+runGovernanceVoteSubmit _socketPath _nw _voteFile =
+  error "TODO CIP-1694 Not implemented"
 
 runGovernanceUpdateProposal
   :: File () Out

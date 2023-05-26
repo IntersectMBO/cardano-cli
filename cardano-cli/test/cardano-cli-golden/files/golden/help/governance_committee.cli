@@ -1,0 +1,21 @@
+Usage: cardano-cli governance committee 
+            ( key-gen-cold
+            | key-gen-hot
+            | key-hash
+            | authorise-hot-key
+            | resign-hot-key
+            )
+
+  Constitutional Committee operation commands
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  key-gen-cold             Create a cold key pair for a Constitutional Committee
+                           Memberkey and a new certificate issue counter
+  key-gen-hot              Create a hot key pair for a Constitutional Committee
+                           Member
+  key-hash                 Print the identifier (hash) of a public key
+  authorise-hot-key        Register committee hot key
+  resign-hot-key           Resign committee hot key

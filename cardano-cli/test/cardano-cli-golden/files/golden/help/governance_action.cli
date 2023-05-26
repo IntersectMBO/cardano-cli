@@ -1,0 +1,11 @@
+Usage: cardano-cli governance action (create-info | view | query)
+
+  Commands related to governance actions
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  create-info              Create an info action
+  view                     View an action
+  query                    Query an on-chain action
