@@ -1,8 +1,8 @@
-# cardano-cli
+# cardano-cli tests
 
 This tree contains tests for the `cardano-cli` executable.
 
-The whole `cardano-cli` test suite can be run from the top level directory of the `cardano-cli`
+The whole `cardano-cli` test suite can be run from the top level directory of the `cardano-node`
 repository using:
 
 ```
