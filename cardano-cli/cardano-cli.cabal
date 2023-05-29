@@ -199,11 +199,11 @@ test-suite cardano-cli-test
                       , bech32 >= 1.1.0
                       , bytestring
                       , cardano-api ^>= 8.1.0.1
+                      , cardano-api:internal ^>= 8.1.0.1
                       , cardano-api-gen ^>= 8.1.0.2
                       , cardano-cli
                       , cardano-cli:cardano-cli-test-lib
                       , cardano-crypto-class ^>= 2.1
-                      , cardano-node
                       , cardano-slotting ^>= 0.1
                       , containers
                       , filepath
