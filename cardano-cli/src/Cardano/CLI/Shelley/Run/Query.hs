@@ -30,9 +30,12 @@ module Cardano.CLI.Shelley.Run.Query
 import           Cardano.Api
 import qualified Cardano.Api as Api
 import           Cardano.Api.Byron
-import           Cardano.Api.Orphans ()
 import           Cardano.Api.Shelley
 
+import           Control.Monad (forM, forM_, join)
+import           Control.Monad.IO.Class (MonadIO)
+import           Control.Monad.IO.Unlift (MonadIO (..))
+import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except (ExceptT (..), except, runExcept, runExceptT,
                    withExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither,
@@ -40,15 +43,24 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT
 import           Data.Aeson as Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Aeson.Types as Aeson
+import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Coerce (coerce)
+import           Data.Function ((&))
+import           Data.Functor ((<&>))
 import           Data.List (nub)
+import qualified Data.List as List
+import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
+import           Data.Proxy (Proxy (..))
+import           Data.Set (Set)
 import qualified Data.Set as Set
+import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as T
 import qualified Data.Text.IO as Text
+import           Data.Text.Lazy (toStrict)
 import           Data.Text.Lazy.Builder (toLazyText)
 import           Data.Time.Clock
 import qualified Data.Vector as Vector
@@ -92,20 +104,6 @@ import qualified Ouroboros.Consensus.HardFork.History.Qry as Qry
 import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
 import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
 
-import           Control.Monad (forM, forM_, join)
-import           Control.Monad.IO.Class (MonadIO)
-import           Control.Monad.IO.Unlift (MonadIO (..))
-import           Control.Monad.Trans.Class
-import           Data.Bifunctor (Bifunctor (..))
-import           Data.Function ((&))
-import           Data.Functor ((<&>))
-import qualified Data.List as List
-import           Data.Map.Strict (Map)
-import           Data.Proxy (Proxy (..))
-import           Data.Set (Set)
-import           Data.Text (Text)
-import           Data.Text.Lazy (toStrict)
-
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Redundant flip" -}
 
@@ -129,7 +127,7 @@ data ShelleyQueryCmdError
   | ShelleyQueryCmdPoolStateDecodeError DecoderError
   | ShelleyQueryCmdStakeSnapshotDecodeError DecoderError
   | ShelleyQueryCmdUnsupportedNtcVersion !UnsupportedNtcVersionError
-
+  | ShelleyQueryCmdProtocolParameterConversionError !ProtocolParametersConversionError
   deriving Show
 
 renderShelleyQueryCmdError :: ShelleyQueryCmdError -> Text
@@ -164,6 +162,8 @@ renderShelleyQueryCmdError err =
       "Unsupported feature for the node-to-client protocol version.\n" <>
       "This query requires at least " <> textShow minNtcVersion <> " but the node negotiated " <> textShow ntcVersion <> ".\n" <>
       "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
+    ShelleyQueryCmdProtocolParameterConversionError ppce ->
+      Text.pack $ "Failed to convert protocol parameter: " <> displayError ppce
 
 runQueryCmd :: QueryCmd -> ExceptT ShelleyQueryCmdError IO ()
 runQueryCmd cmd =
@@ -194,6 +194,8 @@ runQueryCmd cmd =
       runQueryPoolState mNodeSocketPath consensusModeParams network poolid
     QueryTxMempool mNodeSocketPath consensusModeParams network op mOutFile ->
       runQueryTxMempool mNodeSocketPath consensusModeParams network op mOutFile
+    QuerySlotNumber mNodeSocketPath consensusModeParams network utcTime ->
+      runQuerySlotNumber mNodeSocketPath consensusModeParams network utcTime
 
 runQueryProtocolParameters
   :: SocketPath
@@ -352,8 +354,6 @@ runQueryTip socketPath (AnyConsensusModeParams cModeParams) network mOutFile = d
 
 -- | Query the UTxO, filtered by a given set of addresses, from a Shelley node
 -- via the local state query protocol.
---
-
 runQueryUTxO
   :: SocketPath
   -> AnyConsensusModeParams
@@ -698,6 +698,15 @@ runQueryTxMempool socketPath (AnyConsensusModeParams cModeParams) network query 
     Just (File oFp) -> handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError oFp)
         $ LBS.writeFile oFp renderedResult
 
+runQuerySlotNumber
+  :: SocketPath
+  -> AnyConsensusModeParams
+  -> NetworkId
+  -> UTCTime
+  -> ExceptT ShelleyQueryCmdError IO ()
+runQuerySlotNumber sockPath aCmp network utcTime = do
+  SlotNo slotNo <- utcTimeToSlotNo sockPath aCmp network utcTime
+  liftIO . putStr $ show slotNo
 
 -- | Obtain stake snapshot information for a pool, plus information about the total active stake.
 -- This information can be used for leader slot calculation, for example, and has been requested by SPOs.
@@ -1228,7 +1237,8 @@ runQueryLeadershipSchedule
       let currentEpochQuery = QueryInEra eInMode $ QueryInShelleyBasedEra sbe QueryEpoch
       curentEpoch <- executeQuery era cModeParams localNodeConnInfo currentEpochQuery
 
-      let bpp = bundleProtocolParams era pparams
+      bpp <- hoistEither . first ShelleyQueryCmdProtocolParameterConversionError $
+        bundleProtocolParams era pparams
 
       schedule <- case whichSchedule of
         CurrentEpoch -> do
