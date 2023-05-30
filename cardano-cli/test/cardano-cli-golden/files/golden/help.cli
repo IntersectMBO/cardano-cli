@@ -76,8 +76,8 @@ Usage: cardano-cli governance action (create-info | view | query)
 
   Commands related to governance actions
 
-Usage: cardano-cli governance action create-info 
-            (--metadata-url URL | --metadata-file FILE)
+Usage: cardano-cli governance action create-info --metadata-url URL
+            --metadata-hash HASH
             --out-file FILE
 
   Create an info action

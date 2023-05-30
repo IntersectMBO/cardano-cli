@@ -1,11 +1,11 @@
-Usage: cardano-cli governance action create-info 
-            (--metadata-url URL | --metadata-file FILE)
+Usage: cardano-cli governance action create-info --metadata-url URL
+            --metadata-hash HASH
             --out-file FILE
 
   Create an info action
 
 Available options:
   --metadata-url URL       The metadata url.
-  --metadata-file FILE     The metadata file.
+  --metadata-hash HASH     Pool metadata hash.
   --out-file FILE          The output file.
   -h,--help                Show this help text

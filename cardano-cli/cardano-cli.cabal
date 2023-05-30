@@ -135,6 +135,7 @@ library
                       , cryptonite
                       , deepseq
                       , directory
+                      , either
                       , filepath
                       , formatting
                       , io-classes

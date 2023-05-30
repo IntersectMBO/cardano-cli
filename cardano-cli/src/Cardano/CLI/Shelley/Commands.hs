@@ -1,6 +1,9 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Shelley CLI command types
@@ -24,9 +27,13 @@ module Cardano.CLI.Shelley.Commands
   , GovernanceActionId (..)
   , GovernanceActionReceipt (..)
   , GovernanceActionQueryResult (..)
+  , GovernanceActionInfoMetadata(..)
+  , GovernanceActionInfoMetadataUrl(..)
   , GenesisCmd (..)
   , TextViewCmd (..)
   , renderShelleyCommand
+  , AsType(..)
+  , Hash(..)
 
     -- * CLI flag types
   , AddressKeyType (..)
@@ -64,12 +71,18 @@ import           Cardano.CLI.Shelley.Key (PaymentVerifier, PoolDelegationTarget,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
 import           Cardano.CLI.Types
+import qualified Cardano.Crypto.Hash.Class as Crypto
+import           Cardano.Ledger.Crypto (StandardCrypto)
+import qualified Cardano.Ledger.Keys as Shelley
 import           Cardano.Ledger.Shelley.TxBody (MIRPot)
 
 import           Prelude
 
+import           Data.ByteString (ByteString)
+import           Data.Either.Combinators (maybeToRight)
 import           Data.Text (Text)
 import           Data.Time.Clock
+
 --
 -- Shelley CLI command data types
 --
@@ -440,14 +453,33 @@ renderQueryCmd cmd =
         TxMempoolQueryNextTx -> "next-tx"
         TxMempoolQueryInfo -> "info"
 
+newtype GovernanceActionInfoMetadataUrl = GovernanceActionInfoMetadataUrl Text
+  deriving newtype (Eq, Show)
+
+newtype GovernanceActionInfoMetadata =
+  GovernanceActionInfoMetadata
+  { unGovernanceActionInfoMetadata :: ByteString
+  } deriving (Eq, Show)
+
+newtype instance Hash GovernanceActionInfoMetadata =
+  GovernanceActionInfoMetadataHash (Shelley.Hash StandardCrypto ByteString)
+    deriving (Eq, Show)
+
+instance HasTypeProxy GovernanceActionInfoMetadata where
+    data AsType GovernanceActionInfoMetadata = AsGovernanceActionInfoMetadata
+    proxyToAsType _ = AsGovernanceActionInfoMetadata
+
+instance SerialiseAsRawBytes (Hash GovernanceActionInfoMetadata) where
+    serialiseToRawBytes (GovernanceActionInfoMetadataHash h) = Crypto.hashToBytes h
+
+    deserialiseFromRawBytes (AsHash AsGovernanceActionInfoMetadata) bs =
+      maybeToRight (SerialiseAsRawBytesError "Unable to deserialise Hash GovernanceActionInfoMetadata") $
+        GovernanceActionInfoMetadataHash <$> Crypto.hashFromBytes bs
+
 data GovernanceAction =
     GovernanceActionOfInfo
-      GovernanceActionInfoResource
-  deriving Show
-
-data GovernanceActionInfoResource
-  = GovernanceActionInfoResourceOfFile (File () In)
-  | GovernanceActionInfoResourceOfUrl (File () In)
+      GovernanceActionInfoMetadataUrl
+      (Hash GovernanceActionInfoMetadata)
   deriving Show
 
 data Vote = VoteYes | VoteNo | VoteAbstain deriving Show
