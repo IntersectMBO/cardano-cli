@@ -1254,32 +1254,36 @@ pGovernanceActionCmd envCli =
     pGovernanceActionOfInfo :: Parser GovernanceAction
     pGovernanceActionOfInfo =
       GovernanceActionOfInfo
-        <$> pGovernanceActionInfoResource
+        <$> pGovernanceActionInfoMetadataUrl
+        <*> pGovernanceActionInfoMetadataHash
 
-    pGovernanceActionInfoResource :: Parser GovernanceActionInfoResource
-    pGovernanceActionInfoResource =
-      asum
-        [ pGovernanceActionInfoResourceOfUrl
-        , pGovernanceActionInfoResourceOfFile
-        ]
+    -- GovernanceActionOfInfo
+    --   GovernanceInfoActionMetadataUrl
+    --   (Hash GovernanceInfoActionMetadata)
 
-    pGovernanceActionInfoResourceOfUrl :: Parser GovernanceActionInfoResource
-    pGovernanceActionInfoResourceOfUrl =
-      fmap GovernanceActionInfoResourceOfUrl $ Opt.strOption $ mconcat
+    pGovernanceActionInfoMetadataUrl :: Parser GovernanceActionInfoMetadataUrl
+    pGovernanceActionInfoMetadataUrl =
+      fmap GovernanceActionInfoMetadataUrl $ Opt.strOption $ mconcat
         [ Opt.long "metadata-url"
         , Opt.metavar "URL"
         , Opt.help "The metadata url."
         , Opt.completer (Opt.bashCompleter "url")
         ]
 
-    pGovernanceActionInfoResourceOfFile :: Parser GovernanceActionInfoResource
-    pGovernanceActionInfoResourceOfFile =
-      fmap GovernanceActionInfoResourceOfFile $ Opt.strOption $ mconcat
-        [ Opt.long "metadata-file"
-        , Opt.metavar "FILE"
-        , Opt.help "The metadata file."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+    pGovernanceActionInfoMetadataHash :: Parser (Hash GovernanceActionInfoMetadata)
+    pGovernanceActionInfoMetadataHash =
+        Opt.option
+          (Opt.eitherReader metadataHash)
+            (  Opt.long "metadata-hash"
+            <> Opt.metavar "HASH"
+            <> Opt.help "Pool metadata hash."
+            )
+      where
+        metadataHash :: String -> Either String (Hash GovernanceActionInfoMetadata)
+        metadataHash =
+          first displayError
+            . deserialiseFromRawBytesHex (AsHash AsGovernanceActionInfoMetadata)
+            . BSC.pack
 
     pActionView :: Parser GovernanceActionCmd
     pActionView =
