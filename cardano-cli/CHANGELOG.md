@@ -1,5 +1,9 @@
 # Changelog for cardano-cli
 
+## 7.1.2.0
+
+This section is intentionally empty.
+
 ## 8.1.0
 
 - Delete deprecated shelley command group
