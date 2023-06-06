@@ -1,4 +1,4 @@
-name: Haskell Windows & Mac CI
+name: Haskell CI
 
 on:
   push:
@@ -25,13 +25,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ghc: ["9.2.7"]
+        ghc: ["8.10.7", "9.2.7"]
         cabal: ["3.10.1.0"]
-        os: [macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     env:
       # Modify this value to "invalidate" the cabal cache.
-      CABAL_CACHE_VERSION: "2023-06-01"
+      CABAL_CACHE_VERSION: "2023-04-30"
 
       # Modify this value to "invalidate" the secp cache.
       SECP_CACHE_VERSION: "2022-12-30"
@@ -62,6 +62,11 @@ jobs:
         f+${{ matrix.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
 
+    - name: Workaround runner image issue
+      if: runner.os == 'Linux'
+      # https://github.com/actions/runner-images/issues/7061
+      run: sudo chown -R $USER /usr/local/.ghcup
+
     - name: Install Haskell
       uses: input-output-hk/setup-haskell@v1
       id: setup-haskell
@@ -90,6 +95,18 @@ jobs:
       if: runner.os != 'Windows'
       run: echo "$(pwd)/.github/bin" >> $GITHUB_PATH
 
+    - name: "LINUX: Install build environment (apt-get)"
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install libsodium23 libsodium-dev
+        sudo apt-get -y install libsystemd0 libsystemd-dev
+        sudo apt-get -y remove --purge software-properties-common
+        sudo apt-get -y autoremove
+
+    - name: "LINUX: Install build environment (for secp256k1)"
+      if: runner.os == 'Linux'
+      run: sudo apt-get -y install autoconf automake libtool
 
     - name: "MAC: Install build environment (brew)"
       if: runner.os == 'macOS'
@@ -123,25 +140,25 @@ jobs:
         ${{ (runner.os == 'Windows' && '$env:PATH=("C:\msys64\mingw64\bin;{0}" -f $env:PATH)') || '' }}
         cabal build all --dry-run --minimize-conflict-set
 
-    # For users who fork cardano-node and want to define a writable cache, then can set up their own
+    # For users who fork cardano-cli and want to define a writable cache, then can set up their own
     # S3 bucket then define in their forked repository settings the following secrets:
     #
-    #   AWS_ACCESS_KEY_ID
-    #   AWS_SECRET_ACCESS_KEY
-    #   BINARY_CACHE_URI
-    #   BINARY_CACHE_REGION
+    #   CACHE_AWS_ACCESS_KEY_ID
+    #   CACHE_AWS_SECRET_ACCESS_KEY
+    #   CACHE_URI
+    #   CACHE_AWS_REGION
     - name: Cabal cache over S3
       uses: action-works/cabal-cache-s3@v1
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.CACHE_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.CACHE_AWS_SECRET_ACCESS_KEY }}
       with:
-        region: ${{ vars.BINARY_CACHE_REGION }}
+        region: ${{ vars.CACHE_AWS_REGION }}
         dist-dir: dist-newstyle
         store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
-        threads: ${{ vars.BINARY_CACHE_THREADS }}
-        archive-uri: ${{ vars.BINARY_CACHE_URI }}/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
-        skip: "${{ vars.BINARY_CACHE_URI == '' }}"
+        threads: ${{ vars.CACHE_THREADS }}
+        archive-uri: ${{ vars.CACHE_URI }}/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
+        skip: "${{ vars.CACHE_URI == '' }}"
 
     # It's important to ensure that people who fork this repository can not only successfully build in
     # CI by default, but also have meaning cabal store caching.
@@ -157,19 +174,12 @@ jobs:
       with:
         dist-dir: dist-newstyle
         store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
-        threads: ${{ vars.BINARY_CACHE_THREADS }}
+        threads: 16
         archive-uri: https://iohk.cache.haskellworks.io/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
-        skip: "${{ vars.BINARY_CACHE_URI != '' }}"
+        skip: "${{ vars.CACHE_URI != '' }}"
         enable-save: false
 
-    - name: Build core components
-      run: |
-        # The tests call out to msys2 commands. We generally do not want to mix toolchains, so
-        # we are very deliberate about only adding msys64 to the path where absolutely necessary.
-        ${{ (runner.os == 'Windows' && '$env:PATH=("C:\msys64\mingw64\bin;{0}" -f $env:PATH)') || '' }}
-        cabal build cardano-node cardano-cli cardano-node-chairman cardano-submit-api -j1
-
-    - name: Build remaining components
+    - name: Build all
       run: |
         # The tests call out to msys2 commands. We generally do not want to mix toolchains, so
         # we are very deliberate about only adding msys64 to the path where absolutely necessary.
@@ -185,23 +195,7 @@ jobs:
         # The tests call out to msys2 commands. We generally do not want to mix toolchains, so
         # we are very deliberate about only adding msys64 to the path where absolutely necessary.
         ${{ (runner.os == 'Windows' && '$env:PATH=("C:\msys64\mingw64\bin;{0}" -f $env:PATH)') || '' }}
-        cabal test cardano-testnet cardano-node cardano-node-chairman cardano-cli cardano-submit-api
-
-    - name: Tar failed tests workspaces
-      if: ${{ failure() }}
-      env:
-        TMP: ${{ runner.temp }}
-      shell: bash
-      run: |
-        cd $TMP
-        find . -name 'module' -type f -exec dirname {} \; | xargs -L1 basename | sort -u | xargs tar -czvf workspaces.tgz
-
-    - name: Upload workspaces on tests failure
-      if: ${{ failure() }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: failed-test-workspaces-${{ matrix.os }}-ghc${{ matrix.ghc }}-cabal${{ matrix.cabal }}.tgz
-        path: ${{ runner.temp }}/workspaces.tgz
+        cabal test all
 
     - name: "Tar artifacts"
       shell: bash
@@ -221,26 +215,10 @@ jobs:
         done
 
     - name: Save Artifact
-      if: matrix.ghc == '8.10.7'
       uses: actions/upload-artifact@v1
       with:
-        name: artifacts-${{ matrix.os }}
+        name: artifacts-${{ matrix.os }}-${{ matrix.ghc }}
         path: ./artifacts
-
-    - name: Delete socket files in chairman tests in preparation for uploading artifacts
-      if: ${{ always() }}
-      shell: bash
-      run: |
-        if [ -d "${{ runner.temp }}/chairman" ]; then
-          find "${{ runner.temp }}/chairman" -type s -exec rm -f {} \;
-        fi
-
-    - uses: actions/upload-artifact@v2
-      if: ${{ always() }}
-      continue-on-error: true
-      with:
-        name: chairman-test-artifacts-${{ matrix.os }}-${{ matrix.ghc }}
-        path: ${{ runner.temp }}/chairman/
 
     # Uncomment the following back in for debugging. Remember to launch a `pwsh` from
     # the tmux session to debug `pwsh` issues. And be reminded that the `/msys2` and
@@ -289,18 +267,3 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: true
         prerelease: false
-
-    - name: Download Artifact
-      uses: actions/download-artifact@v1
-      with:
-        name: artifacts-ubuntu-latest
-
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts-ubuntu-latest/cardano-submit-api.tar.gz
-        asset_name: cardano-submit-api_${{ steps.create_release_tag.outputs.TAG }}-linux.tar.gz
-        asset_content_type: application/gzip
