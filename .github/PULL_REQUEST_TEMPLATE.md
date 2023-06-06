@@ -4,9 +4,27 @@ Add your description here, if it fixes a particular issue please provide a
 [link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword=)
 to the issue.
 
+# Changelog
+
+```yaml
+- description: |
+    <insert-changelog-description-here>
+  # no-changes: the API has not changed
+  # compatible: the API has changed but is non-breaking
+  # breaking: the API has changed in a breaking way
+  compatibility: <no-api-changes|compatible|breaking>
+  # feature: the change implements a new feature in the API
+  # bugfix: the change fixes a bug in the API
+  # test: the change fixes modifies tests
+  # maintenance: the change involves something other than the API
+  # If more than one is applicable, it may be put into a list.
+  type: <feature|bugfix|test|maintenance>
+```
+
 # Checklist
 
 - [ ] Commit sequence broadly makes sense and commits have useful messages
+- [ ] The change log section in the PR description has been filled in
 - [ ] New tests are added if needed and existing tests are updated.  These may include:
   - golden tests
   - property tests
