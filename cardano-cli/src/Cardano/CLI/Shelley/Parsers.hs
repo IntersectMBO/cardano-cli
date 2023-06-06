@@ -22,9 +22,10 @@ import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Common.Parsers
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key (PaymentVerifier (..), PoolDelegationTarget (..),
-                   StakeIdentifier (..), StakeVerifier (..), VerificationKeyOrFile (..),
-                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
+import           Cardano.CLI.Shelley.Key (DRepDelegationTarget (..), PaymentVerifier (..),
+                   PoolDelegationTarget (..), StakeIdentifier (..), StakeVerifier (..),
+                   VerificationKeyOrFile (..), VerificationKeyOrHashOrFile (..),
+                   VerificationKeyTextOrFile (..))
 import           Cardano.CLI.Types
 import qualified Cardano.Ledger.BaseTypes as Shelley
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
@@ -376,6 +377,8 @@ pStakeAddressCmd envCli =
           (Opt.info pStakeAddressDeregistrationCert $ Opt.progDesc "Create a stake address deregistration certificate")
       , subParser "pool-delegation-certificate"
           (Opt.info pStakeAddressPoolDelegationCert $ Opt.progDesc "Create a stake address pool delegation certificate")
+      , subParser "drep-delegation-certificate"
+          (Opt.info pStakeAddressDRepDelegationCert $ Opt.progDesc "Create a stake address drep delegation certificate")
       ]
   where
     pStakeAddressKeyGen :: Parser StakeAddressCmd
@@ -412,6 +415,13 @@ pStakeAddressCmd envCli =
       StakeCredentialPoolDelegationCert
         <$> pStakeIdentifier
         <*> pPoolDelegationTarget
+        <*> pOutputFile
+
+    pStakeAddressDRepDelegationCert :: Parser StakeAddressCmd
+    pStakeAddressDRepDelegationCert =
+      StakeCredentialDRepDelegationCert
+        <$> pStakeIdentifier
+        <*> pDRepDelegationTarget
         <*> pOutputFile
 
 pKeyCmd :: Parser KeyCmd
@@ -3217,7 +3227,7 @@ pDRepVerificationKeyFile :: Parser (VerificationKeyFile In)
 pDRepVerificationKeyFile =
   fmap File $ asum
     [ Opt.strOption $ mconcat
-      [ Opt.long "cold-verification-key-file"
+      [ Opt.long "drep-cold-verification-key-file"
       , Opt.metavar "FILE"
       , Opt.help "Filepath of the drep verification key."
       , Opt.completer (Opt.bashCompleter "file")
@@ -3254,6 +3264,55 @@ pPoolVerificationKeyOrHashOrFile =
     [ VerificationKeyOrFile <$> pPoolVerificationKeyOrFile
     , VerificationKeyHash <$> pStakePoolVerificationKeyHash
     ]
+
+pDRepDelegationTarget
+  :: Parser DRepDelegationTarget
+pDRepDelegationTarget = DRepDelegationTarget <$> pDRepVerificationKeyOrHashOrFile
+
+pDRepVerificationKeyOrHashOrFile
+  :: Parser (VerificationKeyOrHashOrFile DRepKey)
+pDRepVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pDRepVerificationKeyOrFile
+    , fmap VerificationKeyHash $ asum
+      [ pDRepVerificationKeyHash
+      , pDRepAbstain
+      , pDRepNoConfidence
+      ]
+    ]
+
+-- See https://github.com/cardano-foundation/CIPs/blob/e96681908fd336702b9d89827063a190c5656eab/CIP-1694/README.md#pre-defined-dreps
+pDRepAbstain :: Parser (Hash DRepKey)
+pDRepAbstain = pure $ error "TODO"
+
+-- See https://github.com/cardano-foundation/CIPs/blob/e96681908fd336702b9d89827063a190c5656eab/CIP-1694/README.md#pre-defined-dreps
+pDRepNoConfidence :: Parser (Hash DRepKey)
+pDRepNoConfidence = pure $ error "TODO"
+
+pDRepVerificationKeyHash :: Parser (Hash DRepKey)
+pDRepVerificationKeyHash =
+    Opt.option (pBech32DRepId <|> pHexDRepId) $ mconcat
+      [ Opt.long "drep-id"
+      , Opt.metavar "DREP_ID"
+      , Opt.help $ mconcat
+        [ "DRep ID/verification key hash (either Bech32-encoded or hex-encoded).  "
+        , "Zero or more occurences of this option is allowed."
+        ]
+      ]
+  where
+    pHexDRepId :: ReadM (Hash DRepKey)
+    pHexDRepId =
+      Opt.eitherReader $
+        first displayError
+          . deserialiseFromRawBytesHex (AsHash AsDRepKey)
+          . BSC.pack
+
+    pBech32DRepId :: ReadM (Hash DRepKey)
+    pBech32DRepId =
+      Opt.eitherReader $
+        first displayError
+          . deserialiseFromBech32 (AsHash AsDRepKey)
+          . Text.pack
 
 pVrfVerificationKeyFile :: Parser (VerificationKeyFile In)
 pVrfVerificationKeyFile =

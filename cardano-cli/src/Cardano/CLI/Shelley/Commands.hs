@@ -69,9 +69,9 @@ module Cardano.CLI.Shelley.Commands
 import           Cardano.Api.Shelley hiding (DRepMetadataHash)
 
 import           Cardano.Chain.Common (BlockCount)
-import           Cardano.CLI.Shelley.Key (PaymentVerifier, PoolDelegationTarget, StakeIdentifier,
-                   StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
-                   VerificationKeyTextOrFile)
+import           Cardano.CLI.Shelley.Key (DRepDelegationTarget, PaymentVerifier,
+                   PoolDelegationTarget, StakeIdentifier, StakeVerifier, VerificationKeyOrFile,
+                   VerificationKeyOrHashOrFile, VerificationKeyTextOrFile)
 import           Cardano.CLI.Types
 import qualified Cardano.Crypto.Hash.Class as Crypto
 import           Cardano.Ledger.Crypto (StandardCrypto)
@@ -146,6 +146,10 @@ data StakeAddressCmd
       StakeIdentifier
       PoolDelegationTarget
       (File Certificate Out)
+  | StakeCredentialDRepDelegationCert
+      StakeIdentifier
+      DRepDelegationTarget
+      (File Certificate Out)
   | StakeCredentialDeRegistrationCert StakeIdentifier (File () Out)
   deriving Show
 
@@ -157,6 +161,7 @@ renderStakeAddressCmd cmd =
     StakeAddressBuild {} -> "stake-address build"
     StakeRegistrationCert {} -> "stake-address registration-certificate"
     StakeCredentialPoolDelegationCert {} -> "stake-address pool-delegation-certificate"
+    StakeCredentialDRepDelegationCert {} -> "stake-address drep-delegation-certificate"
     StakeCredentialDeRegistrationCert {} -> "stake-address deregistration-certificate"
 
 data KeyCmd
@@ -392,7 +397,7 @@ data DRepCmd
       NetworkId
       -- ^ Network ID.
       (VerificationKeyOrFile DRepKey)
-      -- ^ VRF Verification key.
+      -- ^ DRep verification key.
       (Maybe DRepMetadataReference)
       -- ^  DRep metadata.
       (File Certificate Out)

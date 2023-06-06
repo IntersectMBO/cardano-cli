@@ -214,21 +214,27 @@ Usage: cardano-cli governance drep
 
 Usage: cardano-cli governance drep registration-certificate 
             (--mainnet | --testnet-magic NATURAL)
-            (--drep-verification-key STRING | --cold-verification-key-file FILE)
+            ( --drep-verification-key STRING
+            | --drep-cold-verification-key-file FILE
+            )
             [--metadata-url URL --metadata-hash HASH]
             --out-file FILE
 
   Create a DRep registration certificate
 
 Usage: cardano-cli governance drep deregistration-certificate 
-            (--drep-verification-key STRING | --cold-verification-key-file FILE)
+            ( --drep-verification-key STRING
+            | --drep-cold-verification-key-file FILE
+            )
             --epoch NATURAL
             --out-file FILE
 
   Create a DRep deregistration certificate
 
 Usage: cardano-cli governance drep id 
-            (--drep-verification-key STRING | --cold-verification-key-file FILE)
+            ( --drep-verification-key STRING
+            | --drep-cold-verification-key-file FILE
+            )
             [--output-format STRING]
 
   Build DRep id from the offline key
@@ -1178,6 +1184,7 @@ Usage: cardano-cli stake-address
             | registration-certificate
             | deregistration-certificate
             | pool-delegation-certificate
+            | drep-delegation-certificate
             )
 
   Stake address commands
@@ -1239,6 +1246,20 @@ Usage: cardano-cli stake-address pool-delegation-certificate
             --out-file FILE
 
   Create a stake address pool delegation certificate
+
+Usage: cardano-cli stake-address drep-delegation-certificate 
+            ( --stake-verification-key STRING
+            | --stake-verification-key-file FILE
+            | --stake-script-file FILE
+            | --stake-address ADDRESS
+            )
+            [ --drep-verification-key STRING
+            | --drep-cold-verification-key-file FILE
+            | --drep-id DREP_ID
+            ]
+            --out-file FILE
+
+  Create a stake address drep delegation certificate
 
 Usage: cardano-cli address (key-gen | key-hash | build | info)
 
