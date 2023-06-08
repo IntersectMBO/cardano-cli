@@ -10,6 +10,7 @@ module Test.Golden.Shelley
   , txTests
   ) where
 
+import qualified Hedgehog as H
 import           Test.Golden.Shelley.Address.Build (golden_shelleyAddressBuild)
 import           Test.Golden.Shelley.Address.Info (golden_shelleyAddressInfo)
 import           Test.Golden.Shelley.Address.KeyGen (golden_shelleyAddressExtendedKeyGen,
@@ -20,7 +21,6 @@ import           Test.Golden.Shelley.Genesis.KeyGenDelegate (golden_shelleyGenes
 import           Test.Golden.Shelley.Genesis.KeyGenGenesis (golden_shelleyGenesisKeyGenGenesis)
 import           Test.Golden.Shelley.Genesis.KeyGenUtxo (golden_shelleyGenesisKeyGenUtxo)
 import           Test.Golden.Shelley.Genesis.KeyHash (golden_shelleyGenesisKeyHash)
-
 import           Test.Golden.Shelley.Governance.AnswerPoll (golden_shelleyGovernanceAnswerPoll0,
                    golden_shelleyGovernanceAnswerPollNeg1Invalid,
                    golden_shelleyGovernanceAnswerPollPos1,
@@ -32,12 +32,14 @@ import           Test.Golden.Shelley.Governance.VerifyPoll (golden_shelleyGovern
                    golden_shelleyGovernanceVerifyPollMalformedAnswer,
                    golden_shelleyGovernanceVerifyPollMismatch,
                    golden_shelleyGovernanceVerifyPollNoAnswer)
-
 import           Test.Golden.Shelley.Key.ConvertCardanoAddressKey
                    (golden_convertCardanoAddressByronSigningKey,
                    golden_convertCardanoAddressIcarusSigningKey,
                    golden_convertCardanoAddressShelleyPaymentSigningKey,
                    golden_convertCardanoAddressShelleyStakeSigningKey)
+import           Test.Golden.Shelley.Metadata.StakePoolMetadata (golden_stakePoolMetadataHash)
+import           Test.Golden.Shelley.MultiSig.Address (golden_shelleyAllMultiSigAddressBuild,
+                   golden_shelleyAnyMultiSigAddressBuild, golden_shelleyAtLeastMultiSigAddressBuild)
 import           Test.Golden.Shelley.Node.IssueOpCert (golden_shelleyNodeIssueOpCert)
 import           Test.Golden.Shelley.Node.KeyGen (golden_shelleyNodeKeyGen,
                    golden_shelleyNodeKeyGen_bech32, golden_shelleyNodeKeyGen_te)
@@ -53,20 +55,15 @@ import           Test.Golden.Shelley.StakeAddress.RegistrationCertificate
                    (golden_shelleyStakeAddressRegistrationCertificate)
 import           Test.Golden.Shelley.StakePool.RegistrationCertificate
                    (golden_shelleyStakePoolRegistrationCertificate)
-import           Test.Golden.Shelley.TextEnvelope.Certificates.GenesisKeyDelegationCertificate
+import           Test.Golden.Shelley.TextEnvelope.Certificates.GenesisKeyDelegation
                    (golden_shelleyGenesisKeyDelegationCertificate)
-import           Test.Golden.Shelley.TextEnvelope.Certificates.MIRCertificate
-                   (golden_shelleyMIRCertificate)
-import           Test.Golden.Shelley.TextEnvelope.Certificates.OperationalCertificate
+import           Test.Golden.Shelley.TextEnvelope.Certificates.MIR (golden_shelleyMIRCertificate)
+import           Test.Golden.Shelley.TextEnvelope.Certificates.Operational
                    (golden_shelleyOperationalCertificate)
-import           Test.Golden.Shelley.TextEnvelope.Certificates.StakeAddressCertificates
+import           Test.Golden.Shelley.TextEnvelope.Certificates.StakeAddress
                    (golden_shelleyStakeAddressCertificates)
-import           Test.Golden.Shelley.TextEnvelope.Certificates.StakePoolCertificates
+import           Test.Golden.Shelley.TextEnvelope.Certificates.StakePool
                    (golden_shelleyStakePoolCertificates)
-
-import           Test.Golden.Shelley.Metadata.StakePoolMetadata (golden_stakePoolMetadataHash)
-import           Test.Golden.Shelley.MultiSig.Address (golden_shelleyAllMultiSigAddressBuild,
-                   golden_shelleyAnyMultiSigAddressBuild, golden_shelleyAtLeastMultiSigAddressBuild)
 import           Test.Golden.Shelley.TextEnvelope.Keys.ExtendedPaymentKeys
                    (golden_shelleyExtendedPaymentKeys, golden_shelleyExtendedPaymentKeys_bech32,
                    golden_shelleyExtendedPaymentKeys_te)
@@ -82,6 +79,8 @@ import           Test.Golden.Shelley.TextEnvelope.Keys.StakeKeys (golden_shelley
                    golden_shelleyStakeKeys_bech32, golden_shelleyStakeKeys_te)
 import           Test.Golden.Shelley.TextEnvelope.Keys.VRFKeys (golden_shelleyVRFKeys,
                    golden_shelleyVRFKeys_bech32, golden_shelleyVRFKeys_te)
+import           Test.Golden.Shelley.TextEnvelope.Tx.Tx (golden_shelleyTx)
+import           Test.Golden.Shelley.TextEnvelope.Tx.TxBody (golden_shelleyTxBody)
 import           Test.Golden.Shelley.TextView.DecodeCbor (golden_shelleyTextViewDecodeCbor)
 import           Test.Golden.Shelley.Transaction.Assemble
                    (golden_shelleyTransactionAssembleWitness_SigningKey)
@@ -95,13 +94,7 @@ import           Test.Golden.Shelley.Transaction.CalculateMinFee
 import           Test.Golden.Shelley.Transaction.CreateWitness
                    (golden_shelleyTransactionSigningKeyWitness)
 import           Test.Golden.Shelley.Transaction.Sign (golden_shelleyTransactionSign)
-
-import           Test.Golden.Shelley.TextEnvelope.Tx.Tx (golden_shelleyTx)
-import           Test.Golden.Shelley.TextEnvelope.Tx.TxBody (golden_shelleyTxBody)
-
 import           Test.Golden.Version (golden_version)
-
-import qualified Hedgehog as H
 
 keyTests :: IO Bool
 keyTests =
