@@ -1,14 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextEnvelope.Certificates.StakeAddressCertificates
+module Test.Golden.Shelley.TextEnvelope.Certificates.StakeAddress
   ( golden_shelleyStakeAddressCertificates
   ) where
 
 import           Cardano.Api (AsType (..), HasTextEnvelope (..))
+
 import           Control.Monad (void)
-import           Hedgehog (Property)
+
 import           Test.Cardano.CLI.Util
 
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
