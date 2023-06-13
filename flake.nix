@@ -135,12 +135,13 @@
                  let
                    # This define files included in the directory that will be passed to `H.getProjectBase` for this test:
                    filteredProjectBase = inputs.incl ./. [
+                     "cabal.project"
                      "scripts/plutus/scripts/v1/custom-guess-42-datum-42.plutus"
                    ];
                  in
                  ''
                    ${exportCliPath}
-                   export CARDANO_CLI_SRC=${filteredProjectBase}
+                   cp -r ${filteredProjectBase}/* ..
                  '';
                packages.cardano-cli.components.tests.cardano-cli-test.preCheck =
                  let
@@ -149,7 +150,7 @@
                  in
                  ''
                    ${exportCliPath}
-                   export CARDANO_CLI_SRC=${filteredProjectBase}
+                   cp -r ${filteredProjectBase}/* ..
                  '';
             })
             ({pkgs, ...}:
