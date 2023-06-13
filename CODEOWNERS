@@ -3,7 +3,7 @@ README.*                                                      @Jimbo4350 @newhog
 cardano-cli/README.md                                         @Jimbo4350 @newhoggy @carbolymer @olgahryniuk
 
 # Release manager added for notification on dependency updates
-cabal.project                                                 @Jimbo4350 @newhoggy @carbolymer @LaurenceIO
+cabal.project                                                 @Jimbo4350 @newhoggy @carbolymer
 
 
 # Specific reviewers for code pieces
@@ -16,24 +16,7 @@ doc/                                                          @input-output-hk/d
 
 README.*                                                      @input-output-hk/docs-access
 
-bench/                                                        @deepfire @jutaro @mgmeier @fmaste @cleverca22
-cardano-tracer/                                               @deepfire
-nix/workbench/                                                @deepfire @jutaro @mgmeier @fmaste
-trace-dispatcher/                                             @deepfire @jutaro @mgmeier
-trace-forward/                                                @deepfire @jutaro @mgmeier
-trace-resources/                                              @deepfire @jutaro @mgmeier
-Makefile                                                      @deepfire @mgmeier @fmaste
-*.mk                                                          @deepfire @mgmeier @fmaste
-
-nix/                                                          @input-output-hk/devx-core-tech @input-output-hk/devops @deepfire @mgmeier @fmaste
-*.nix                                                         @input-output-hk/devx-core-tech @input-output-hk/devops @deepfire @mgmeier @fmaste
-flake.lock                                                    @input-output-hk/devx-core-tech @input-output-hk/devops @deepfire @mgmeier @fmaste
-
-.buildkite                                                    @input-output-hk/devx-core-tech @input-output-hk/devops
-.github                                                       @input-output-hk/devx-core-tech @input-output-hk/devops
-ci/                                                           @input-output-hk/devx-core-tech @input-output-hk/devops
-configuration/                                                @input-output-hk/devx-core-tech @input-output-hk/devops
-bors.toml                                                     @input-output-hk/devx-core-tech @input-output-hk/devops
-docker-compose.yml                                            @input-output-hk/devx-core-tech @input-output-hk/devops
-cardano-node/src/Cardano/Node/Tracing/                        @deepfire @jutaro @coot
-cardano-node/src/Cardano/Tracing/OrphanInstances/             @input-output-hk/devops @coot
+*.nix                                                         @input-output-hk/devx-core-tech @input-output-hk/core-tech-release
+flake.lock                                                    @input-output-hk/devx-core-tech @input-output-hk/core-tech-release
+.github                                                       @input-output-hk/devx-core-tech @input-output-hk/core-tech-release
+configuration/                                                @input-output-hk/devx-core-tech @input-output-hk/core-tech-release
