@@ -1,5 +1,10 @@
 # Changelog for cardano-cli
 
+## 8.2.0
+
+- Remove ApplicationName and ApplicationVersion config parameters
+  [PR 5240](https://github.com/input-output-hk/cardano-node/pull/5240)
+
 ## 8.1.0
 
 - Delete deprecated shelley command group
