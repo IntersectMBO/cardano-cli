@@ -2,6 +2,10 @@
 
 ## 8.2.0
 
+- Add `--conway-era` flag.
+  (feature; compatible)
+  [PR 20](https://github.com/input-output-hk/cardano-cli/pull/20)
+
 - Remove ApplicationName and ApplicationVersion config parameters
   [PR 5240](https://github.com/input-output-hk/cardano-node/pull/5240)
 
