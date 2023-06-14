@@ -404,7 +404,6 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
       -- We check that the KES period specified in the operational certificate is correct
       -- based on the KES period defined in the genesis parameters and the current slot number
       let genesisQinMode = QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryGenesisParameters
-          eraHistoryQuery = QueryEraHistory CardanoModeIsMultiEra
       gParams <- executeQuery era cModeParams localNodeConnInfo genesisQinMode
 
       chainTip <- liftIO $ getLocalChainTip localNodeConnInfo
@@ -414,8 +413,9 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
           oCertEndKesPeriod = opCertEndKesPeriod gParams opCert
           opCertIntervalInformation = opCertIntervalInfo gParams chainTip curKesPeriod oCertStartKesPeriod oCertEndKesPeriod
 
-      eraHistory <- lift (queryNodeLocalState localNodeConnInfo Nothing eraHistoryQuery)
+      eraHistory <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryEraHistory)
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
+        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
       let eInfo = toTentativeEpochInfo eraHistory
 
@@ -1221,12 +1221,12 @@ runQueryLeadershipSchedule
 
       let pparamsQuery = QueryInEra eInMode $ QueryInShelleyBasedEra sbe QueryProtocolParameters
           ptclStateQuery = QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryProtocolState
-          eraHistoryQuery = QueryEraHistory CardanoModeIsMultiEra
 
       pparams <- executeQuery era cModeParams localNodeConnInfo pparamsQuery
       ptclState <- executeQuery era cModeParams localNodeConnInfo ptclStateQuery
-      eraHistory <- lift (queryNodeLocalState localNodeConnInfo Nothing eraHistoryQuery)
+      eraHistory <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryEraHistory)
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
+        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
       let eInfo = toEpochInfo eraHistory
       let currentEpochQuery = QueryInEra eInMode $ QueryInShelleyBasedEra sbe QueryEpoch
@@ -1351,21 +1351,15 @@ executeQuery era cModeP localNodeConnInfo q = do
   eraInMode <- calcEraInMode era $ consensusModeOnly cModeP
   case eraInMode of
     ByronEraInByronMode -> left ShelleyQueryCmdByronEra
-    _ -> liftIO execQuery >>= queryResult
- where
-   execQuery :: IO (Either AcquiringFailure (Either EraMismatch result))
-   execQuery = queryNodeLocalState localNodeConnInfo Nothing q
+    _ -> do
+      lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (queryExpr q))
+        & onLeft (left . ShelleyQueryCmdAcquireFailure)
+        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+        & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
 getSbe :: Monad m => CardanoEraStyle era -> ExceptT ShelleyQueryCmdError m (Api.ShelleyBasedEra era)
 getSbe LegacyByronEra = left ShelleyQueryCmdByronEra
 getSbe (Api.ShelleyBasedEra sbe) = return sbe
-
-queryResult
-  :: Either AcquiringFailure (Either EraMismatch a)
-  -> ExceptT ShelleyQueryCmdError IO a
-queryResult eAcq = pure eAcq
-  & onLeft (left . ShelleyQueryCmdAcquireFailure)
-  & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
 toEpochInfo :: EraHistory CardanoMode -> EpochInfo (Either Text)
 toEpochInfo (EraHistory _ interpreter) =
