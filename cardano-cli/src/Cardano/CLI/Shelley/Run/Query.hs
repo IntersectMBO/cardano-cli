@@ -207,17 +207,17 @@ runQueryProtocolParameters socketPath (AnyConsensusModeParams cModeParams) netwo
     anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
       & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
-    case cardanoEraStyle era of
-      LegacyByronEra -> left ShelleyQueryCmdByronEra
-      ShelleyBasedEra sbe -> do
-        let cMode = consensusModeOnly cModeParams
+    sbe <- requireShelleyBasedEra era
+      & onNothing (left ShelleyQueryCmdByronEra)
 
-        eInMode <- toEraInMode era cMode
-          & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
+    let cMode = consensusModeOnly cModeParams
 
-        lift (queryProtocolParameters eInMode sbe)
-          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-          & onLeft (left . ShelleyQueryCmdEraMismatch)
+    eInMode <- toEraInMode era cMode
+      & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
+
+    lift (queryProtocolParameters eInMode sbe)
+      & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+      & onLeft (left . ShelleyQueryCmdEraMismatch)
 
   writeProtocolParameters mOutFile =<< except (join (first ShelleyQueryCmdAcquireFailure result))
 
@@ -367,7 +367,9 @@ runQueryUTxO socketPath (AnyConsensusModeParams cModeParams)
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
-  sbe <- getSbe $ cardanoEraStyle era
+
+  sbe <- requireShelleyBasedEra era
+    & onNothing (left ShelleyQueryCmdByronEra)
 
   eInMode <- pure (toEraInMode era cMode)
     & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
@@ -401,7 +403,10 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
-  sbe <- getSbe $ cardanoEraStyle era
+
+  sbe <- requireShelleyBasedEra era
+    & onNothing (left ShelleyQueryCmdByronEra)
+
   case cMode of
     CardanoMode -> do
       eInMode <- toEraInMode era cMode
@@ -670,7 +675,9 @@ runQueryPoolState socketPath (AnyConsensusModeParams cModeParams) network poolId
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
-  sbe <- getSbe $ cardanoEraStyle era
+
+  sbe <- requireShelleyBasedEra era
+    & onNothing (left ShelleyQueryCmdByronEra)
 
   eInMode <- toEraInMode era cMode
     & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
@@ -744,7 +751,9 @@ runQueryStakeSnapshot socketPath (AnyConsensusModeParams cModeParams) network al
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
-  sbe <- getSbe $ cardanoEraStyle era
+
+  sbe <- requireShelleyBasedEra era
+    & onNothing (left ShelleyQueryCmdByronEra)
 
   eInMode <- toEraInMode era cMode
     & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
@@ -779,7 +788,9 @@ runQueryLedgerState socketPath (AnyConsensusModeParams cModeParams) network mOut
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
-  sbe <- getSbe $ cardanoEraStyle era
+
+  sbe <- requireShelleyBasedEra era
+    & onNothing (left ShelleyQueryCmdByronEra)
 
   eInMode <- pure (toEraInMode era cMode)
     & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
@@ -809,7 +820,9 @@ runQueryProtocolState socketPath (AnyConsensusModeParams cModeParams) network mO
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
-  sbe <- getSbe $ cardanoEraStyle era
+
+  sbe <- requireShelleyBasedEra era
+    & onNothing (left ShelleyQueryCmdByronEra)
 
   eInMode <- pure (toEraInMode era cMode)
     & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
@@ -845,7 +858,9 @@ runQueryStakeAddressInfo socketPath (AnyConsensusModeParams cModeParams) (StakeA
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
-  sbe <- getSbe $ cardanoEraStyle era
+
+  sbe <- requireShelleyBasedEra era
+    & onNothing (left ShelleyQueryCmdByronEra)
 
   eInMode <- pure (toEraInMode era cMode)
     & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
@@ -1094,7 +1109,8 @@ runQueryStakePools socketPath (AnyConsensusModeParams cModeParams) network mOutF
         eInMode <- toEraInMode era cMode
           & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
-        sbe <- getSbe $ cardanoEraStyle era
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left ShelleyQueryCmdByronEra)
 
         lift (queryStakePools eInMode sbe)
           & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
@@ -1130,7 +1146,9 @@ runQueryStakeDistribution socketPath (AnyConsensusModeParams cModeParams) networ
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
-  sbe <- getSbe $ cardanoEraStyle era
+
+  sbe <- requireShelleyBasedEra era
+    & onNothing (left ShelleyQueryCmdByronEra)
 
   eInMode <- pure (toEraInMode era cMode)
     & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
@@ -1257,7 +1275,8 @@ runQueryLeadershipSchedule
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
-  sbe <- getSbe (cardanoEraStyle era)
+  sbe <- requireShelleyBasedEra era
+    & onNothing (left ShelleyQueryCmdByronEra)
 
   let cMode = consensusModeOnly cModeParams
 
@@ -1418,10 +1437,6 @@ requireNotByronEraInByronMode :: EraInMode era mode -> ExceptT ShelleyQueryCmdEr
 requireNotByronEraInByronMode = \case
   ByronEraInByronMode -> left ShelleyQueryCmdByronEra
   _ -> pure ()
-
-getSbe :: Monad m => CardanoEraStyle era -> ExceptT ShelleyQueryCmdError m (Api.ShelleyBasedEra era)
-getSbe LegacyByronEra = left ShelleyQueryCmdByronEra
-getSbe (Api.ShelleyBasedEra sbe) = return sbe
 
 toEpochInfo :: EraHistory CardanoMode -> EpochInfo (Either Text)
 toEpochInfo (EraHistory _ interpreter) =
