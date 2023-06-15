@@ -376,7 +376,7 @@ runQueryUTxO socketPath (AnyConsensusModeParams cModeParams)
 
   requireNotByronEraInByronMode eraInMode
 
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode $ QueryInShelleyBasedEra sbe (QueryUTxO qfilter))
+  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryUtxo eInMode sbe qfilter)
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -413,7 +413,7 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
 
       requireNotByronEraInByronMode eraInMode
 
-      gParams <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryGenesisParameters)
+      gParams <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryGenesisParameters eInMode sbe)
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
         & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
         & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -433,7 +433,7 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
 
       -- We get the operational certificate counter from the protocol state and check that
       -- it is equivalent to what we have on disk.
-      ptclState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryProtocolState)
+      ptclState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolState eInMode sbe)
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
         & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
         & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -679,7 +679,7 @@ runQueryPoolState socketPath (AnyConsensusModeParams cModeParams) network poolId
 
   requireNotByronEraInByronMode eraInMode
 
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryPoolState $ Just $ Set.fromList poolIds)
+  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryPoolState eInMode sbe $ Just $ Set.fromList poolIds)
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -749,7 +749,7 @@ runQueryStakeSnapshot socketPath (AnyConsensusModeParams cModeParams) network al
   eInMode <- toEraInMode era cMode
     & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
-  let qInMode = QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryStakeSnapshot $ case allOrOnlyPoolIds of
+  let poolFilter = case allOrOnlyPoolIds of
         All -> Nothing
         Only poolIds -> Just $ Set.fromList poolIds
 
@@ -757,7 +757,7 @@ runQueryStakeSnapshot socketPath (AnyConsensusModeParams cModeParams) network al
 
   requireNotByronEraInByronMode eraInMode2
 
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr qInMode)
+  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStakeSnapshot eInMode sbe poolFilter)
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -788,7 +788,7 @@ runQueryLedgerState socketPath (AnyConsensusModeParams cModeParams) network mOut
 
   requireNotByronEraInByronMode eraInMode
 
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryDebugLedgerState)
+  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryDebugLedgerState eInMode sbe)
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -818,7 +818,7 @@ runQueryProtocolState socketPath (AnyConsensusModeParams cModeParams) network mO
 
   requireNotByronEraInByronMode eraInMode
 
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryProtocolState)
+  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolState eInMode sbe)
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -856,7 +856,7 @@ runQueryStakeAddressInfo socketPath (AnyConsensusModeParams cModeParams) (StakeA
 
   requireNotByronEraInByronMode eraInMode
 
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryStakeAddresses stakeAddr network)
+  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStakeAddresses eInMode sbe stakeAddr network)
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -1139,7 +1139,7 @@ runQueryStakeDistribution socketPath (AnyConsensusModeParams cModeParams) networ
 
   requireNotByronEraInByronMode eraInMode
 
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryStakeDistribution)
+  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStakeDistribution eInMode sbe)
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -1279,12 +1279,12 @@ runQueryLeadershipSchedule
 
       requireNotByronEraInByronMode eraInMode
 
-      pparams <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode $ QueryInShelleyBasedEra sbe QueryProtocolParameters)
+      pparams <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolParameters eInMode sbe)
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
         & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
         & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-      ptclState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryProtocolState)
+      ptclState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolState eInMode sbe)
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
         & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
         & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -1295,7 +1295,7 @@ runQueryLeadershipSchedule
 
       let eInfo = toEpochInfo eraHistory
 
-      curentEpoch <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode $ QueryInShelleyBasedEra sbe QueryEpoch)
+      curentEpoch <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryEpoch eInMode sbe)
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
         & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
         & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -1305,7 +1305,7 @@ runQueryLeadershipSchedule
 
       schedule <- case whichSchedule of
         CurrentEpoch -> do
-          serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode $ QueryInShelleyBasedEra sbe (QueryPoolDistribution (Just (Set.singleton poolid))))
+          serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryPoolDistribution eInMode sbe (Just (Set.singleton poolid)))
             & onLeft (left . ShelleyQueryCmdAcquireFailure)
             & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
             & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
@@ -1326,7 +1326,7 @@ runQueryLeadershipSchedule
         NextEpoch -> do
           tip <- liftIO $ getLocalChainTip localNodeConnInfo
 
-          serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr $ QueryInEra eInMode $ QueryInShelleyBasedEra sbe QueryCurrentEpochState)
+          serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryCurrentEpochState eInMode sbe)
             & onLeft (left . ShelleyQueryCmdAcquireFailure)
             & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
             & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
