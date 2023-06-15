@@ -101,22 +101,6 @@
         "type": "github"
       }
     },
-    "cardano-mainnet-mirror": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1557232434,
-        "narHash": "sha256-2rclcOjIVq0lFCdYAa8S9imzZZHqySn2LZ/O48hUofw=",
-        "owner": "input-output-hk",
-        "repo": "cardano-mainnet-mirror",
-        "rev": "a31ac7534ec855b715b9a6bb6a06861ee94935d9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "input-output-hk",
-        "repo": "cardano-mainnet-mirror",
-        "type": "github"
-      }
-    },
     "cardano-shell": {
       "flake": false,
       "locked": {
@@ -623,7 +607,6 @@
     "root": {
       "inputs": {
         "CHaP": "CHaP",
-        "cardano-mainnet-mirror": "cardano-mainnet-mirror",
         "flake-utils": "flake-utils",
         "haskellNix": "haskellNix",
         "incl": "incl",

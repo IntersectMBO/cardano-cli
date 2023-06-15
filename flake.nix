@@ -10,9 +10,6 @@
 
     CHaP.url = "github:input-output-hk/cardano-haskell-packages?ref=repo";
     CHaP.flake = false;
-
-    cardano-mainnet-mirror.url = "github:input-output-hk/cardano-mainnet-mirror";
-    cardano-mainnet-mirror.flake = false;
   };
 
   outputs = inputs: let
@@ -78,7 +75,6 @@
             };
           # and from nixpkgs or other inputs
           shell.nativeBuildInputs = with nixpkgs; [
-            haskellPackages.implicit-hie
           ];
           # disable Hoogle until someone request it
           shell.withHoogle = false;
@@ -89,26 +85,7 @@
           # specific enough, or doesn't allow setting these.
           modules = [
             ({pkgs, ...}: {
-              packages.byron-spec-chain.configureFlags = ["--ghc-option=-Werror"];
-              packages.byron-spec-ledger.configureFlags = ["--ghc-option=-Werror"];
-              packages.delegation.configureFlags = ["--ghc-option=-Werror"];
-              packages.non-integral.configureFlags = ["--ghc-option=-Werror"];
-              packages.cardano-cli-shelley.configureFlags = ["--ghc-option=-Werror"];
-              packages.cardano-cli-shelley-ma.configureFlags = ["--ghc-option=-Werror"];
-              packages.cardano-cli-shelley-ma-test.configureFlags = ["--ghc-option=-Werror"];
-              packages.small-steps.configureFlags = ["--ghc-option=-Werror"];
-              packages.cardano-cli-byron = {
-                configureFlags = ["--ghc-option=-Werror"];
-                components = {
-                  tests.cardano-cli-byron-test = {
-                    preCheck = ''
-                      export CARDANO_MAINNET_MIRROR="${inputs.cardano-mainnet-mirror}/epochs"
-                      cp ${./eras/byron/ledger/impl/mainnet-genesis.json} ./mainnet-genesis.json
-                    '';
-                    testFlags = ["--scenario=ContinuousIntegration"];
-                  };
-                };
-              };
+              packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"];
               packages.cardano-cli.components.tests.cardano-cli-test.build-tools =
                 lib.mkForce (with pkgs.buildPackages; [ jq coreutils shellcheck ]);
               packages.cardano-cli.components.tests.cardano-cli-golden.build-tools =
@@ -124,10 +101,6 @@
                  "configuration/cardano/mainnet-shelley-genesis.json"
                  "configuration/cardano/mainnet-alonzo-genesis.json"
                  "configuration/cardano/mainnet-conway-genesis.json"
-               ];
-               goldenConfigFiles = [
-                 "cardano-cli/test/cardano-cli-golden/files/golden/alonzo/genesis.alonzo.spec.json"
-                 "cardano-cli/test/cardano-cli-golden/files/golden/conway/genesis.conway.spec.json"
                ];
              in
              {
@@ -153,25 +126,6 @@
                    ${exportCliPath}
                    cp -r ${filteredProjectBase}/* ..
                  '';
-            })
-            ({pkgs, ...}:
-            lib.mkIf pkgs.stdenv.hostPlatform.isUnix {
-              packages.cardano-cli-shelley-ma-test.components.tests.cardano-ledger-shelley-ma-test.build-tools = [pkgs.cddl pkgs.cbor-diag];
-              packages.cardano-cli-shelley-test.components.tests.cardano-ledger-shelley-test.build-tools = [pkgs.cddl pkgs.cbor-diag];
-              packages.cardano-cli-alonzo-test.components.tests.cardano-ledger-alonzo-test.build-tools = [pkgs.cddl pkgs.cbor-diag];
-              packages.cardano-cli-babbage-test.components.tests.cardano-ledger-babbage-test.build-tools = [pkgs.cddl pkgs.cbor-diag];
-              packages.cardano-cli-conway-test.components.tests.cardano-ledger-conway-test.build-tools = [pkgs.cddl pkgs.cbor-diag];
-            })
-            ({pkgs, ...}:
-            lib.mkIf pkgs.stdenv.hostPlatform.isWindows {
-              packages.set-algebra.components.tests.tests.buildable = lib.mkForce false;
-              packages.plutus-preprocessor.package.buildable = lib.mkForce false;
-              packages.cardano-cli-test.package.buildable = lib.mkForce false;
-              packages.cardano-cli-shelley-ma-test.package.buildable = lib.mkForce false;
-              packages.cardano-cli-shelley-test.package.buildable = lib.mkForce false;
-              packages.cardano-cli-alonzo-test.package.buildable = lib.mkForce false;
-              packages.cardano-cli-babbage-test.package.buildable = lib.mkForce false;
-              packages.cardano-cli-conway-test.package.buildable = lib.mkForce false;
             })
           ];
         });
