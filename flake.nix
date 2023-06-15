@@ -70,7 +70,7 @@
             }
             // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
               # tools that work only with default compiler
-              fourmolu = "0.10.1.0";
+              stylish-haskell = "0.14.4.0";
               hlint = "3.5";
               #haskell-language-server = "2.0.0.0";
             };
