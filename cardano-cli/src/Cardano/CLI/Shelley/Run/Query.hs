@@ -32,12 +32,43 @@ import qualified Cardano.Api as Api
 import           Cardano.Api.Byron
 import           Cardano.Api.Shelley
 
+import           Cardano.Binary (DecoderError)
+import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, renderHelpersError)
+import           Cardano.CLI.Pretty
+import           Cardano.CLI.Shelley.Commands
+import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
+                   readVerificationKeyOrHashOrFile)
+import qualified Cardano.CLI.Shelley.Output as O
+import           Cardano.CLI.Shelley.Run.Genesis (ShelleyGenesisCmdError,
+                   readAndDecodeShelleyGenesis)
+import           Cardano.CLI.Types
+import           Cardano.Crypto.Hash (hashToBytesAsHex)
+import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
+import qualified Cardano.Crypto.VRF as Crypto
+import           Cardano.Ledger.BaseTypes (Seed)
+import qualified Cardano.Ledger.Core as Core
+import qualified Cardano.Ledger.Crypto as Crypto
+import           Cardano.Ledger.Keys (KeyHash (..), KeyRole (..))
+import           Cardano.Ledger.SafeHash (HashAnnotated)
+import           Cardano.Ledger.Shelley.LedgerState
+                   (PState (psFutureStakePoolParams, psRetiring, psStakePoolParams))
+import qualified Cardano.Ledger.Shelley.LedgerState as SL
+import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
+import           Ouroboros.Consensus.BlockchainTime.WallClock.Types (RelativeTime (..),
+                   toRelativeTime)
+import           Ouroboros.Consensus.Cardano.Block as Consensus (EraMismatch (..))
+import qualified Ouroboros.Consensus.HardFork.History as Consensus
+import qualified Ouroboros.Consensus.HardFork.History.Qry as Qry
+import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
+import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
+import           Ouroboros.Consensus.Protocol.TPraos (StandardCrypto)
+import           Ouroboros.Network.Block (Serialised (..))
+
 import           Control.Monad (forM, forM_, join)
 import           Control.Monad.IO.Class (MonadIO)
 import           Control.Monad.IO.Unlift (MonadIO (..))
 import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except (ExceptT (..), except, runExcept, runExceptT,
-                   withExceptT)
+import           Control.Monad.Trans.Except (ExceptT (..), except, runExcept, runExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither,
                    hoistMaybe, left, onLeft, onNothing)
 import           Data.Aeson as Aeson
@@ -69,40 +100,6 @@ import           Numeric (showEFloat)
 import           Prettyprinter
 import qualified System.IO as IO
 import           Text.Printf (printf)
-
-import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, renderHelpersError)
-import           Cardano.CLI.Pretty
-import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
-                   readVerificationKeyOrHashOrFile)
-import qualified Cardano.CLI.Shelley.Output as O
-import           Cardano.CLI.Shelley.Run.Genesis (ShelleyGenesisCmdError,
-                   readAndDecodeShelleyGenesis)
-import           Cardano.CLI.Types
-import           Cardano.Crypto.Hash (hashToBytesAsHex)
-import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
-import qualified Cardano.Crypto.VRF as Crypto
-import           Cardano.Ledger.BaseTypes (Seed)
-import qualified Cardano.Ledger.Core as Core
-import qualified Cardano.Ledger.Crypto as Crypto
-import           Cardano.Ledger.Keys (KeyHash (..), KeyRole (..))
-import           Cardano.Ledger.SafeHash (HashAnnotated)
-import           Cardano.Ledger.Shelley.LedgerState
-                   (PState (psFutureStakePoolParams, psRetiring, psStakePoolParams))
-import qualified Cardano.Ledger.Shelley.LedgerState as SL
-import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
-
-import           Ouroboros.Consensus.BlockchainTime.WallClock.Types (RelativeTime (..),
-                   toRelativeTime)
-import           Ouroboros.Consensus.Cardano.Block as Consensus (EraMismatch (..))
-import           Ouroboros.Consensus.Protocol.TPraos (StandardCrypto)
-import           Ouroboros.Network.Block (Serialised (..))
-
-import qualified Ouroboros.Consensus.HardFork.History as Consensus
-import qualified Ouroboros.Consensus.HardFork.History.Qry as Qry
-import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
-import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
 
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Redundant flip" -}
@@ -218,7 +215,7 @@ runQueryProtocolParameters socketPath (AnyConsensusModeParams cModeParams) netwo
         eInMode <- toEraInMode era cMode
           & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
-        lift (queryExpr $ QueryInEra eInMode $ QueryInShelleyBasedEra sbe QueryProtocolParameters)
+        lift (queryPparams eInMode sbe)
           & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
           & onLeft (left . ShelleyQueryCmdEraMismatch)
 
@@ -283,11 +280,11 @@ runQueryTip socketPath (AnyConsensusModeParams cModeParams) network mOutFile = d
 
       eLocalState <- ExceptT $ fmap sequence $
         executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-          era <- lift (queryExpr (QueryCurrentEra CardanoModeIsMultiEra)) & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-          eraHistory <- lift (queryExpr (QueryEraHistory CardanoModeIsMultiEra)) & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-          mChainBlockNo <- lift (queryExpr  QueryChainBlockNo) & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion) & fmap Just
-          mChainPoint <- lift (queryExpr (QueryChainPoint CardanoMode)) & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion) & fmap Just
-          mSystemStart <- lift (queryExpr  QuerySystemStart) & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion) & fmap Just
+          era <- lift queryCurrentEra & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+          eraHistory <- lift queryEraHistory & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+          mChainBlockNo <- lift queryChainBlockNo & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion) & fmap Just
+          mChainPoint <- lift queryChainPoint & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion) & fmap Just
+          mSystemStart <- lift querySystemStart & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion) & fmap Just
 
           return O.QueryTipLocalState
             { O.era = era
@@ -1041,9 +1038,7 @@ runQueryStakePools socketPath (AnyConsensusModeParams cModeParams) network mOutF
         anyE@(AnyCardanoEra era) <- case consensusModeOnly cModeParams of
           ByronMode -> return $ AnyCardanoEra ByronEra
           ShelleyMode -> return $ AnyCardanoEra ShelleyEra
-          CardanoMode ->
-            lift (queryExpr $ QueryCurrentEra CardanoModeIsMultiEra)
-              & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+          CardanoMode -> lift queryCurrentEra & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
         let cMode = consensusModeOnly cModeParams
 
@@ -1052,7 +1047,7 @@ runQueryStakePools socketPath (AnyConsensusModeParams cModeParams) network mOutF
 
         sbe <- getSbe $ cardanoEraStyle era
 
-        lift (queryExpr (QueryInEra eInMode $ QueryInShelleyBasedEra sbe QueryStakePools))
+        lift (queryStakePools eInMode sbe)
           & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
           & onLeft (left . ShelleyQueryCmdEraMismatch)
     ) & onLeft (left . ShelleyQueryCmdAcquireFailure)
@@ -1405,28 +1400,22 @@ utcTimeToSlotNo socketPath (AnyConsensusModeParams cModeParams) network utcTime 
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
   case consensusModeOnly cModeParams of
     CardanoMode -> do
-      (systemStart, eraHistory) <- executeLocalStateQueryExpr' localNodeConnInfo $
-        (,) <$> queryExpr' QuerySystemStart
-            <*> queryExpr' (QueryEraHistory CardanoModeIsMultiEra)
-      let relTime = toRelativeTime systemStart utcTime
-      hoistEither $ Api.getSlotForRelativeTime relTime eraHistory & first ShelleyQueryCmdPastHorizon
+      lift
+        ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+            systemStart <- lift querySystemStart
+              & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+            eraHistory <- lift queryEraHistory
+              & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+            let relTime = toRelativeTime systemStart utcTime
+
+            pure (Api.getSlotForRelativeTime relTime eraHistory)
+              & onLeft (left . ShelleyQueryCmdPastHorizon)
+        ) & onLeft (left . ShelleyQueryCmdAcquireFailure)
+          & onLeft left
+
     mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
-  where
-    executeLocalStateQueryExpr'
-      :: LocalNodeConnectInfo mode
-      -> ExceptT ShelleyQueryCmdError (LocalStateQueryExpr (BlockInMode mode) ChainPoint (QueryInMode mode) () IO) a
-      -> ExceptT ShelleyQueryCmdError IO a
-    executeLocalStateQueryExpr' localNodeConnInfo =
-      ExceptT
-      . fmap (join . first ShelleyQueryCmdAcquireFailure)
-      . executeLocalStateQueryExpr localNodeConnInfo Nothing
-      . runExceptT
-
-    queryExpr'
-      :: QueryInMode mode a
-      -> ExceptT ShelleyQueryCmdError (LocalStateQueryExpr block point (QueryInMode mode) r IO) a
-    queryExpr' = withExceptT ShelleyQueryCmdUnsupportedNtcVersion . ExceptT . queryExpr
-
 
 obtainLedgerEraClassConstraints
   :: ShelleyLedgerEra era ~ ledgerera
