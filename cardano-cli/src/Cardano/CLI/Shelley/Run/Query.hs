@@ -363,8 +363,9 @@ runQueryUTxO socketPath (AnyConsensusModeParams cModeParams)
              qfilter network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (determineEra cModeParams localNodeConnInfo)
+  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
   sbe <- getSbe $ cardanoEraStyle era
@@ -392,8 +393,9 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
 
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (determineEra cModeParams localNodeConnInfo)
+  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
   sbe <- getSbe $ cardanoEraStyle era
@@ -652,8 +654,9 @@ runQueryPoolState
 runQueryPoolState socketPath (AnyConsensusModeParams cModeParams) network poolIds = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (determineEra cModeParams localNodeConnInfo)
+  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
   sbe <- getSbe $ cardanoEraStyle era
@@ -678,8 +681,9 @@ runQueryTxMempool socketPath (AnyConsensusModeParams cModeParams) network query 
 
   localQuery <- case query of
       TxMempoolQueryTxExists tx -> do
-        anyE@(AnyCardanoEra era) <- lift (determineEra cModeParams localNodeConnInfo)
+        anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
           & onLeft (left . ShelleyQueryCmdAcquireFailure)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
         let cMode = consensusModeOnly cModeParams
         eInMode <- toEraInMode era cMode
           & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
@@ -717,8 +721,9 @@ runQueryStakeSnapshot
 runQueryStakeSnapshot socketPath (AnyConsensusModeParams cModeParams) network allOrOnlyPoolIds mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (determineEra cModeParams localNodeConnInfo)
+  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
   sbe <- getSbe $ cardanoEraStyle era
@@ -743,8 +748,9 @@ runQueryLedgerState
 runQueryLedgerState socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (determineEra cModeParams localNodeConnInfo)
+  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
   sbe <- getSbe $ cardanoEraStyle era
@@ -767,8 +773,9 @@ runQueryProtocolState
 runQueryProtocolState socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (determineEra cModeParams localNodeConnInfo)
+  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
   sbe <- getSbe $ cardanoEraStyle era
@@ -797,8 +804,9 @@ runQueryStakeAddressInfo
 runQueryStakeAddressInfo socketPath (AnyConsensusModeParams cModeParams) (StakeAddress _ addr) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (determineEra cModeParams localNodeConnInfo)
+  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
   sbe <- getSbe $ cardanoEraStyle era
@@ -1075,8 +1083,9 @@ runQueryStakeDistribution
 runQueryStakeDistribution socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (determineEra cModeParams localNodeConnInfo)
+  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   let cMode = consensusModeOnly cModeParams
   sbe <- getSbe $ cardanoEraStyle era
@@ -1197,8 +1206,9 @@ runQueryLeadershipSchedule
     whichSchedule mJsonOutputFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (determineEra cModeParams localNodeConnInfo)
+  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
   sbe <- getSbe (cardanoEraStyle era)
 

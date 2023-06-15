@@ -342,8 +342,9 @@ runTxBuildCmd
                             , localNodeSocketPath = socketPath
                             }
 
-  AnyCardanoEra nodeEra <- lift (determineEra cModeParams localNodeConnInfo)
+  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
+    & onLeft (left . ShelleyTxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
   inputsAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError $ readScriptWitnessFiles cEra txins
   certFilesAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError $ readScriptWitnessFiles cEra certs
@@ -686,8 +687,10 @@ runTxBuild
                                      , localNodeNetworkId = networkId
                                      , localNodeSocketPath = socketPath
                                      }
-      AnyCardanoEra nodeEra <- lift (determineEra cModeParams localNodeConnInfo)
+
+      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
         & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . ShelleyTxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
       let certs =
             case validatedTxCerts of
