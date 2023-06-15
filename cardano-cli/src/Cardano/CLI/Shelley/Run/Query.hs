@@ -215,7 +215,7 @@ runQueryProtocolParameters socketPath (AnyConsensusModeParams cModeParams) netwo
         eInMode <- toEraInMode era cMode
           & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
-        lift (queryPparams eInMode sbe)
+        lift (queryProtocolParameters eInMode sbe)
           & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
           & onLeft (left . ShelleyQueryCmdEraMismatch)
 
@@ -1412,8 +1412,9 @@ utcTimeToSlotNo socketPath (AnyConsensusModeParams cModeParams) network utcTime 
 
             pure (Api.getSlotForRelativeTime relTime eraHistory)
               & onLeft (left . ShelleyQueryCmdPastHorizon)
-        ) & onLeft (left . ShelleyQueryCmdAcquireFailure)
-          & onLeft left
+        )
+        & onLeft (left . ShelleyQueryCmdAcquireFailure)
+        & onLeft left
 
     mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
 
