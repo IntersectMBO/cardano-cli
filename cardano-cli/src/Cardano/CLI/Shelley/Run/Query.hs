@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -403,9 +404,8 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
 
       -- We check that the KES period specified in the operational certificate is correct
       -- based on the KES period defined in the genesis parameters and the current slot number
-      let genesisQinMode = QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryGenesisParameters
-          eraHistoryQuery = QueryEraHistory CardanoModeIsMultiEra
-      gParams <- executeQuery era cModeParams localNodeConnInfo genesisQinMode
+      gParams <- executeQuery era cModeParams localNodeConnInfo
+        $ QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryGenesisParameters
 
       chainTip <- liftIO $ getLocalChainTip localNodeConnInfo
 
@@ -414,17 +414,16 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
           oCertEndKesPeriod = opCertEndKesPeriod gParams opCert
           opCertIntervalInformation = opCertIntervalInfo gParams chainTip curKesPeriod oCertStartKesPeriod oCertEndKesPeriod
 
-      eraHistory <- lift (queryNodeLocalState localNodeConnInfo Nothing eraHistoryQuery)
+      eraHistory <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryEraHistory)
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
+        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
       let eInfo = toTentativeEpochInfo eraHistory
 
-
       -- We get the operational certificate counter from the protocol state and check that
       -- it is equivalent to what we have on disk.
-
-      let ptclStateQinMode = QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryProtocolState
-      ptclState <- executeQuery era cModeParams localNodeConnInfo ptclStateQinMode
+      ptclState <- executeQuery era cModeParams localNodeConnInfo
+        $ QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryProtocolState
 
       (onDiskC, stateC) <- eligibleLeaderSlotsConstaints sbe $ opCertOnDiskAndStateCounters ptclState opCert
       let counterInformation = opCertNodeAndOnDiskCounters onDiskC stateC
@@ -1221,12 +1220,12 @@ runQueryLeadershipSchedule
 
       let pparamsQuery = QueryInEra eInMode $ QueryInShelleyBasedEra sbe QueryProtocolParameters
           ptclStateQuery = QueryInEra eInMode . QueryInShelleyBasedEra sbe $ QueryProtocolState
-          eraHistoryQuery = QueryEraHistory CardanoModeIsMultiEra
 
       pparams <- executeQuery era cModeParams localNodeConnInfo pparamsQuery
       ptclState <- executeQuery era cModeParams localNodeConnInfo ptclStateQuery
-      eraHistory <- lift (queryNodeLocalState localNodeConnInfo Nothing eraHistoryQuery)
+      eraHistory <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryEraHistory)
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
+        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
       let eInfo = toEpochInfo eraHistory
       let currentEpochQuery = QueryInEra eInMode $ QueryInShelleyBasedEra sbe QueryEpoch
@@ -1349,23 +1348,20 @@ executeQuery
   -> ExceptT ShelleyQueryCmdError IO result
 executeQuery era cModeP localNodeConnInfo q = do
   eraInMode <- calcEraInMode era $ consensusModeOnly cModeP
-  case eraInMode of
-    ByronEraInByronMode -> left ShelleyQueryCmdByronEra
-    _ -> liftIO execQuery >>= queryResult
- where
-   execQuery :: IO (Either AcquiringFailure (Either EraMismatch result))
-   execQuery = queryNodeLocalState localNodeConnInfo Nothing q
+  requireNotByronEraInByronMode eraInMode
+  lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryExpr q)
+    & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+requireNotByronEraInByronMode :: EraInMode era mode -> ExceptT ShelleyQueryCmdError IO ()
+requireNotByronEraInByronMode = \case
+  ByronEraInByronMode -> left ShelleyQueryCmdByronEra
+  _ -> pure ()
 
 getSbe :: Monad m => CardanoEraStyle era -> ExceptT ShelleyQueryCmdError m (Api.ShelleyBasedEra era)
 getSbe LegacyByronEra = left ShelleyQueryCmdByronEra
 getSbe (Api.ShelleyBasedEra sbe) = return sbe
-
-queryResult
-  :: Either AcquiringFailure (Either EraMismatch a)
-  -> ExceptT ShelleyQueryCmdError IO a
-queryResult eAcq = pure eAcq
-  & onLeft (left . ShelleyQueryCmdAcquireFailure)
-  & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
 toEpochInfo :: EraHistory CardanoMode -> EpochInfo (Either Text)
 toEpochInfo (EraHistory _ interpreter) =
