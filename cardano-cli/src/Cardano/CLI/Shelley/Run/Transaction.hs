@@ -17,6 +17,21 @@ module Cardano.CLI.Shelley.Run.Transaction
   , toTxOutInAnyEra
   ) where
 
+import           Cardano.Api
+import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
+import           Cardano.Api.Shelley
+
+import           Cardano.CLI.Helpers (printWarning)
+import           Cardano.CLI.Run.Friendly (friendlyTxBS, friendlyTxBodyBS)
+import           Cardano.CLI.Shelley.Output
+import           Cardano.CLI.Shelley.Parsers
+import           Cardano.CLI.Shelley.Run.Genesis
+import           Cardano.CLI.Shelley.Run.Read
+import           Cardano.CLI.Shelley.Run.Validate
+import           Cardano.CLI.Types
+import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
+import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
+
 import           Control.Monad (forM, forM_, void)
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (MonadTrans (..))
@@ -41,22 +56,6 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Data.Type.Equality (TestEquality (..))
 import qualified System.IO as IO
-
-import           Cardano.Api
-import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
-import           Cardano.Api.Shelley
-
-import           Cardano.CLI.Helpers (printWarning)
-import           Cardano.CLI.Run.Friendly (friendlyTxBS, friendlyTxBodyBS)
-import           Cardano.CLI.Shelley.Output
-import           Cardano.CLI.Shelley.Parsers
-import           Cardano.CLI.Shelley.Run.Genesis
-import           Cardano.CLI.Shelley.Run.Read
-import           Cardano.CLI.Shelley.Run.Validate
-import           Cardano.CLI.Types
-
-import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
-import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 {- HLINT ignore "Use let" -}
 
@@ -406,7 +405,8 @@ runTxBuildCmd
       case consensusMode of
         CardanoMode -> do
           (nodeEraUTxO, _, eraHistory, systemStart, _, _) <-
-            lift (queryStateForBalancedTx socketPath nodeEra nid allTxInputs [])
+            lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (queryStateForBalancedTx nodeEra allTxInputs []))
+              & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
               & onLeft (left . ShelleyTxCmdQueryConvenienceError)
 
           -- Why do we cast the era? The user can specify an era prior to the era that the node is currently in.
@@ -697,8 +697,9 @@ runTxBuild
               _ -> []
 
       (nodeEraUTxO, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits) <-
-        firstExceptT ShelleyTxCmdQueryConvenienceError . newExceptT
-          $ queryStateForBalancedTx socketPath nodeEra networkId allTxInputs certs
+        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs certs)
+          & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
+          & onLeft (left . ShelleyTxCmdQueryConvenienceError)
 
       validatedPParams <- hoistEither $ first ShelleyTxCmdProtocolParametersValidationError
                                       $ validateProtocolParameters era (Just pparams)
