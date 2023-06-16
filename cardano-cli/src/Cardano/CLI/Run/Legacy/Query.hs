@@ -917,30 +917,34 @@ runQueryStakeAddressInfo
 runQueryStakeAddressInfo socketPath (AnyConsensusModeParams cModeParams) (StakeAddress _ addr) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+  join $ lift
+    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+        anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+        let cMode = consensusModeOnly cModeParams
+
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left ShelleyQueryCmdByronEra)
+
+        eInMode <- pure (toEraInMode era cMode)
+          & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
+
+        let stakeAddr = Set.singleton $ fromShelleyStakeCredential addr
+
+        eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
+
+        requireNotByronEraInByronMode eraInMode
+
+        result <- lift (queryStakeAddresses eInMode sbe stakeAddr network)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+          & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+        pure $ do
+          writeStakeAddressInfo mOutFile $ DelegationsAndRewards result
+    )
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
-  let cMode = consensusModeOnly cModeParams
-
-  sbe <- requireShelleyBasedEra era
-    & onNothing (left ShelleyQueryCmdByronEra)
-
-  eInMode <- pure (toEraInMode era cMode)
-    & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
-
-  let stakeAddr = Set.singleton $ fromShelleyStakeCredential addr
-
-  eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
-
-  requireNotByronEraInByronMode eraInMode
-
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStakeAddresses eInMode sbe stakeAddr network)
-    & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-  writeStakeAddressInfo mOutFile $ DelegationsAndRewards result
+    & onLeft left
 
 -- -------------------------------------------------------------------------------------------------
 
