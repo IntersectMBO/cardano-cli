@@ -449,6 +449,14 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
 
   case cMode of
     CardanoMode -> do
+      join $ lift
+        ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+            pure $ do
+              pure ()
+        )
+        & onLeft (left . ShelleyQueryCmdAcquireFailure)
+        & onLeft left
+
       anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
         & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
