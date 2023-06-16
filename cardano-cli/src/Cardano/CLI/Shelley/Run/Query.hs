@@ -801,33 +801,36 @@ runQueryStakeSnapshot
 runQueryStakeSnapshot socketPath (AnyConsensusModeParams cModeParams) network allOrOnlyPoolIds mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+  join $ lift
+    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+        anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+        let cMode = consensusModeOnly cModeParams
+
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left ShelleyQueryCmdByronEra)
+
+        eInMode <- toEraInMode era cMode
+          & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
+
+        let poolFilter = case allOrOnlyPoolIds of
+              All -> Nothing
+              Only poolIds -> Just $ Set.fromList poolIds
+
+        eraInMode2 <- calcEraInMode era $ consensusModeOnly cModeParams
+
+        requireNotByronEraInByronMode eraInMode2
+
+        result <- lift (queryStakeSnapshot eInMode sbe poolFilter)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+          & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+        pure $ do
+          obtainLedgerEraClassConstraints sbe (writeStakeSnapshots mOutFile) result
+    )
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
-  let cMode = consensusModeOnly cModeParams
-
-  sbe <- requireShelleyBasedEra era
-    & onNothing (left ShelleyQueryCmdByronEra)
-
-  eInMode <- toEraInMode era cMode
-    & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
-
-  let poolFilter = case allOrOnlyPoolIds of
-        All -> Nothing
-        Only poolIds -> Just $ Set.fromList poolIds
-
-  eraInMode2 <- calcEraInMode era $ consensusModeOnly cModeParams
-
-  requireNotByronEraInByronMode eraInMode2
-
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStakeSnapshot eInMode sbe poolFilter)
-    & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-  obtainLedgerEraClassConstraints sbe (writeStakeSnapshots mOutFile) result
-
+    & onLeft left
 
 runQueryLedgerState
   :: SocketPath
@@ -838,28 +841,32 @@ runQueryLedgerState
 runQueryLedgerState socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+  join $ lift
+    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+        anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+        let cMode = consensusModeOnly cModeParams
+
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left ShelleyQueryCmdByronEra)
+
+        eInMode <- pure (toEraInMode era cMode)
+          & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
+
+        eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
+
+        requireNotByronEraInByronMode eraInMode
+
+        result <- lift (queryDebugLedgerState eInMode sbe)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+          & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+        pure $ do
+          obtainLedgerEraClassConstraints sbe (writeLedgerState mOutFile) result
+    )
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
-  let cMode = consensusModeOnly cModeParams
-
-  sbe <- requireShelleyBasedEra era
-    & onNothing (left ShelleyQueryCmdByronEra)
-
-  eInMode <- pure (toEraInMode era cMode)
-    & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
-
-  eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
-
-  requireNotByronEraInByronMode eraInMode
-
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryDebugLedgerState eInMode sbe)
-    & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-  obtainLedgerEraClassConstraints sbe (writeLedgerState mOutFile) result
+    & onLeft left
 
 runQueryProtocolState
   :: SocketPath
