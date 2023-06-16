@@ -737,7 +737,7 @@ pTransaction envCli =
                         Nothing
                         "Filepath of auxiliary script(s)")
             <*> many pMetadataFile
-            <*> optional pProtocolParamsFile
+            <*> optional pDeprecatedProtocolParamsFile
             <*> optional pUpdateProposalFile
             <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
@@ -1598,15 +1598,27 @@ pAddressKeyType =
   <|>
     pure AddressKeyShelley
 
+pDeprecatedProtocolParamsFile :: Parser (Deprecated ProtocolParamsFile)
+pDeprecatedProtocolParamsFile =
+  fmap (Deprecated . ProtocolParamsFile) $ Opt.strOption $ mconcat
+    [ Opt.long "protocol-params-file"
+    , Opt.metavar "FILE"
+    , Opt.help $ mconcat
+        [ "Filepath of the JSON-encoded protocol parameters file. "
+        , "DEPRECATED The option is ignored and protocol parameters are "
+        , "retrieved from the node."
+        ]
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
 pProtocolParamsFile :: Parser ProtocolParamsFile
 pProtocolParamsFile =
-  ProtocolParamsFile <$>
-    Opt.strOption
-      (  Opt.long "protocol-params-file"
-      <> Opt.metavar "FILE"
-      <> Opt.help "Filepath of the JSON-encoded protocol parameters file"
-      <> Opt.completer (Opt.bashCompleter "file")
-      )
+  fmap ProtocolParamsFile $ Opt.strOption $ mconcat
+    [ Opt.long "protocol-params-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the JSON-encoded protocol parameters file"
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
 
 pCalculatePlutusScriptCost :: Parser TxBuildOutputOptions
 pCalculatePlutusScriptCost =

@@ -44,6 +44,8 @@ module Cardano.CLI.Shelley.Commands
   , BlockId (..)
   , WitnessSigningData (..)
   , ColdVerificationKeyOrFile (..)
+
+  , Deprecated (..)
   ) where
 
 import           Prelude
@@ -232,7 +234,7 @@ data TransactionCmd
       [ScriptFile]
       -- ^ Auxiliary scripts
       [MetadataFile]
-      (Maybe ProtocolParamsFile)
+      (Maybe (Deprecated ProtocolParamsFile))
       (Maybe UpdateProposalFile)
       TxBuildOutputOptions
   | TxSign InputTxBodyOrTxFile [WitnessSigningData] (Maybe NetworkId) (TxFile Out)
@@ -615,3 +617,6 @@ data ColdVerificationKeyOrFile
   | ColdGenesisDelegateVerificationKey !(VerificationKey GenesisDelegateKey)
   | ColdVerificationKeyFile !(VerificationKeyFile In)
   deriving Show
+
+-- | Marks a value as being deprecated.
+newtype Deprecated a = Deprecated a

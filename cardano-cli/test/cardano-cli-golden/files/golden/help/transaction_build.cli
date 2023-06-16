@@ -381,7 +381,9 @@ Available options:
   --metadata-cbor-file FILE
                            Filepath of the metadata, in raw CBOR format.
   --protocol-params-file FILE
-                           Filepath of the JSON-encoded protocol parameters file
+                           Filepath of the JSON-encoded protocol parameters
+                           file. DEPRECATED The option is ignored and protocol
+                           parameters are retrieved from the node.
   --update-proposal-file FILE
                            Filepath of the update proposal.
   --out-file FILE          Output filepath of the JSON TxBody.
