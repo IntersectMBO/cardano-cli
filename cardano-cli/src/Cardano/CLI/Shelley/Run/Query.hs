@@ -452,66 +452,65 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
       join $ lift
         ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
             pure $ do
-              pure ()
+              anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+                & onLeft (left . ShelleyQueryCmdAcquireFailure)
+                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+              sbe <- requireShelleyBasedEra era
+                & onNothing (left ShelleyQueryCmdByronEra)
+
+              eInMode <- toEraInMode era cMode
+                & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
+
+              -- We check that the KES period specified in the operational certificate is correct
+              -- based on the KES period defined in the genesis parameters and the current slot number
+              eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
+
+              requireNotByronEraInByronMode eraInMode
+
+              gParams <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryGenesisParameters eInMode sbe)
+                & onLeft (left . ShelleyQueryCmdAcquireFailure)
+                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+                & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+              chainTip <- liftIO $ getLocalChainTip localNodeConnInfo
+
+              let curKesPeriod = currentKesPeriod chainTip gParams
+                  oCertStartKesPeriod = opCertStartingKesPeriod opCert
+                  oCertEndKesPeriod = opCertEndKesPeriod gParams opCert
+                  opCertIntervalInformation = opCertIntervalInfo gParams chainTip curKesPeriod oCertStartKesPeriod oCertEndKesPeriod
+
+              eraHistory <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryEraHistory)
+                & onLeft (left . ShelleyQueryCmdAcquireFailure)
+                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+              let eInfo = toTentativeEpochInfo eraHistory
+
+              -- We get the operational certificate counter from the protocol state and check that
+              -- it is equivalent to what we have on disk.
+              ptclState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolState eInMode sbe)
+                & onLeft (left . ShelleyQueryCmdAcquireFailure)
+                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+                & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+              (onDiskC, stateC) <- eligibleLeaderSlotsConstaints sbe $ opCertOnDiskAndStateCounters ptclState opCert
+              let counterInformation = opCertNodeAndOnDiskCounters onDiskC stateC
+
+              -- Always render diagnostic information
+              liftIO . putStrLn $ renderOpCertIntervalInformation (unFile nodeOpCertFile) opCertIntervalInformation
+              liftIO . putStrLn $ renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFile) counterInformation
+
+              let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
+                  kesPeriodInfoJSON = encodePretty qKesInfoOutput
+
+              liftIO $ LBS.putStrLn kesPeriodInfoJSON
+              forM_ mOutFile (\(File oFp) ->
+                handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError oFp)
+                  $ LBS.writeFile oFp kesPeriodInfoJSON)
         )
         & onLeft (left . ShelleyQueryCmdAcquireFailure)
         & onLeft left
 
-      anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
-        & onLeft (left . ShelleyQueryCmdAcquireFailure)
-        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
-      sbe <- requireShelleyBasedEra era
-        & onNothing (left ShelleyQueryCmdByronEra)
-
-      eInMode <- toEraInMode era cMode
-        & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
-
-      -- We check that the KES period specified in the operational certificate is correct
-      -- based on the KES period defined in the genesis parameters and the current slot number
-      eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
-
-      requireNotByronEraInByronMode eraInMode
-
-      gParams <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryGenesisParameters eInMode sbe)
-        & onLeft (left . ShelleyQueryCmdAcquireFailure)
-        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-        & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-      chainTip <- liftIO $ getLocalChainTip localNodeConnInfo
-
-      let curKesPeriod = currentKesPeriod chainTip gParams
-          oCertStartKesPeriod = opCertStartingKesPeriod opCert
-          oCertEndKesPeriod = opCertEndKesPeriod gParams opCert
-          opCertIntervalInformation = opCertIntervalInfo gParams chainTip curKesPeriod oCertStartKesPeriod oCertEndKesPeriod
-
-      eraHistory <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryEraHistory)
-        & onLeft (left . ShelleyQueryCmdAcquireFailure)
-        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
-      let eInfo = toTentativeEpochInfo eraHistory
-
-      -- We get the operational certificate counter from the protocol state and check that
-      -- it is equivalent to what we have on disk.
-      ptclState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolState eInMode sbe)
-        & onLeft (left . ShelleyQueryCmdAcquireFailure)
-        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-        & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-      (onDiskC, stateC) <- eligibleLeaderSlotsConstaints sbe $ opCertOnDiskAndStateCounters ptclState opCert
-      let counterInformation = opCertNodeAndOnDiskCounters onDiskC stateC
-
-      -- Always render diagnostic information
-      liftIO . putStrLn $ renderOpCertIntervalInformation (unFile nodeOpCertFile) opCertIntervalInformation
-      liftIO . putStrLn $ renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFile) counterInformation
-
-      let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
-          kesPeriodInfoJSON = encodePretty qKesInfoOutput
-
-      liftIO $ LBS.putStrLn kesPeriodInfoJSON
-      forM_ mOutFile (\(File oFp) ->
-        handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError oFp)
-          $ LBS.writeFile oFp kesPeriodInfoJSON)
     mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
 
  where
