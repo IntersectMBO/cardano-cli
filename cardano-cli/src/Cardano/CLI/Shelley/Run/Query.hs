@@ -405,7 +405,7 @@ runQueryUTxO socketPath (AnyConsensusModeParams cModeParams)
              qfilter network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  InAnyShelleyBasedEra sbe utxo <- lift
+  join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
         anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
           & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
@@ -426,12 +426,11 @@ runQueryUTxO socketPath (AnyConsensusModeParams cModeParams)
           & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
           & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-        pure $ inAnyShelleyBasedEra sbe utxo
+        pure $ do
+          writeFilteredUTxOs sbe mOutFile utxo
     )
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft left
-
-  writeFilteredUTxOs sbe mOutFile utxo
 
 runQueryKesPeriodInfo
   :: SocketPath
