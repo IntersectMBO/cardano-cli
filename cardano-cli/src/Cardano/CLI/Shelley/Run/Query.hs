@@ -1367,38 +1367,34 @@ runQueryLeadershipSchedule
 
         case cMode of
           CardanoMode -> do
+            eInMode <- toEraInMode era cMode
+                & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
+
+            eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
+
+            requireNotByronEraInByronMode eraInMode
+
+            pparams <- lift (queryProtocolParameters eInMode sbe)
+              & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+              & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+            ptclState <- lift (queryProtocolState eInMode sbe)
+              & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+              & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+            eraHistory <- lift queryEraHistory
+              & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+            let eInfo = toEpochInfo eraHistory
+
+            curentEpoch <- lift (queryEpoch eInMode sbe)
+              & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+              & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+            bpp <- hoistEither . first ShelleyQueryCmdProtocolParameterConversionError $
+              bundleProtocolParams era pparams
+
             pure $ do
-              eInMode <- toEraInMode era cMode
-                  & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
-
-              eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
-
-              requireNotByronEraInByronMode eraInMode
-
-              pparams <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolParameters eInMode sbe)
-                & onLeft (left . ShelleyQueryCmdAcquireFailure)
-                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-                & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-              ptclState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolState eInMode sbe)
-                & onLeft (left . ShelleyQueryCmdAcquireFailure)
-                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-                & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-              eraHistory <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryEraHistory)
-                & onLeft (left . ShelleyQueryCmdAcquireFailure)
-                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
-              let eInfo = toEpochInfo eraHistory
-
-              curentEpoch <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryEpoch eInMode sbe)
-                & onLeft (left . ShelleyQueryCmdAcquireFailure)
-                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-                & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-              bpp <- hoistEither . first ShelleyQueryCmdProtocolParameterConversionError $
-                bundleProtocolParams era pparams
-
               schedule <- case whichSchedule of
                 CurrentEpoch -> do
                   serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryPoolDistribution eInMode sbe (Just (Set.singleton poolid)))
@@ -1420,12 +1416,12 @@ runQueryLeadershipSchedule
                       curentEpoch
 
                 NextEpoch -> do
-                  tip <- liftIO $ getLocalChainTip localNodeConnInfo
-
                   serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryCurrentEpochState eInMode sbe)
                     & onLeft (left . ShelleyQueryCmdAcquireFailure)
                     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
                     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+                  tip <- liftIO $ getLocalChainTip localNodeConnInfo
 
                   firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
                     $ eligibleLeaderSlotsConstaints sbe
@@ -1444,65 +1440,65 @@ runQueryLeadershipSchedule
     )
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft left
- where
-  printLeadershipScheduleAsText
-    :: Set SlotNo
-    -> EpochInfo (Either Text)
-    -> SystemStart
-    -> IO ()
-  printLeadershipScheduleAsText leadershipSlots eInfo sStart = do
-    Text.putStrLn title
-    putStrLn $ replicate (Text.length title + 2) '-'
-    sequence_
-      [ putStrLn $ showLeadershipSlot slot eInfo sStart
-      | slot <- Set.toList leadershipSlots ]
-   where
-     title :: Text
-     title =
-       "     SlotNo                          UTC Time              "
+  where
+    printLeadershipScheduleAsText
+      :: Set SlotNo
+      -> EpochInfo (Either Text)
+      -> SystemStart
+      -> IO ()
+    printLeadershipScheduleAsText leadershipSlots eInfo sStart = do
+      Text.putStrLn title
+      putStrLn $ replicate (Text.length title + 2) '-'
+      sequence_
+        [ putStrLn $ showLeadershipSlot slot eInfo sStart
+        | slot <- Set.toList leadershipSlots ]
+      where
+        title :: Text
+        title =
+          "     SlotNo                          UTC Time              "
 
-     showLeadershipSlot
-       :: SlotNo
-       -> EpochInfo (Either Text)
-       -> SystemStart
-       -> String
-     showLeadershipSlot lSlot@(SlotNo sn) eInfo' sStart' =
-       case epochInfoSlotToUTCTime eInfo' sStart' lSlot of
-         Right slotTime ->
-          concat
-           [ "     "
-           , show sn
-           , "                   "
-           , show slotTime
-           ]
-         Left err ->
-          concat
-           [ "     "
-           , show sn
-           , "                   "
-           , Text.unpack err
-           ]
-  printLeadershipScheduleAsJson
-    :: Set SlotNo
-    -> EpochInfo (Either Text)
-    -> SystemStart
-    -> LBS.ByteString
-  printLeadershipScheduleAsJson leadershipSlots eInfo sStart =
-    encodePretty $ showLeadershipSlot <$> List.sort (Set.toList leadershipSlots)
-    where
-      showLeadershipSlot :: SlotNo -> Aeson.Value
-      showLeadershipSlot lSlot@(SlotNo sn) =
-        case epochInfoSlotToUTCTime eInfo sStart lSlot of
-          Right slotTime ->
-            Aeson.object
-              [ "slotNumber" Aeson..= sn
-              , "slotTime" Aeson..= slotTime
+        showLeadershipSlot
+          :: SlotNo
+          -> EpochInfo (Either Text)
+          -> SystemStart
+          -> String
+        showLeadershipSlot lSlot@(SlotNo sn) eInfo' sStart' =
+          case epochInfoSlotToUTCTime eInfo' sStart' lSlot of
+            Right slotTime ->
+              concat
+              [ "     "
+              , show sn
+              , "                   "
+              , show slotTime
               ]
-          Left err ->
-            Aeson.object
-              [ "slotNumber" Aeson..= sn
-              , "error" Aeson..= Text.unpack err
+            Left err ->
+              concat
+              [ "     "
+              , show sn
+              , "                   "
+              , Text.unpack err
               ]
+    printLeadershipScheduleAsJson
+      :: Set SlotNo
+      -> EpochInfo (Either Text)
+      -> SystemStart
+      -> LBS.ByteString
+    printLeadershipScheduleAsJson leadershipSlots eInfo sStart =
+      encodePretty $ showLeadershipSlot <$> List.sort (Set.toList leadershipSlots)
+      where
+        showLeadershipSlot :: SlotNo -> Aeson.Value
+        showLeadershipSlot lSlot@(SlotNo sn) =
+          case epochInfoSlotToUTCTime eInfo sStart lSlot of
+            Right slotTime ->
+              Aeson.object
+                [ "slotNumber" Aeson..= sn
+                , "slotTime" Aeson..= slotTime
+                ]
+            Left err ->
+              Aeson.object
+                [ "slotNumber" Aeson..= sn
+                , "error" Aeson..= Text.unpack err
+                ]
 
 
 -- Helpers
