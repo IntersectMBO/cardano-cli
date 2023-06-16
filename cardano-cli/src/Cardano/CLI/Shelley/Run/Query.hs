@@ -1396,12 +1396,11 @@ runQueryLeadershipSchedule
 
             case whichSchedule of
               CurrentEpoch -> do
-                pure $ do
-                  serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryPoolDistribution eInMode sbe (Just (Set.singleton poolid)))
-                    & onLeft (left . ShelleyQueryCmdAcquireFailure)
-                    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-                    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+                serCurrentEpochState <- lift (queryPoolDistribution eInMode sbe (Just (Set.singleton poolid)))
+                  & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+                  & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
+                pure $ do
                   schedule <- firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
                     $ eligibleLeaderSlotsConstaints sbe
                     $ currentEpochEligibleLeadershipSlots
@@ -1418,12 +1417,11 @@ runQueryLeadershipSchedule
                   writeSchedule mJsonOutputFile eInfo shelleyGenesis schedule
 
               NextEpoch -> do
-                pure $ do
-                  serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryCurrentEpochState eInMode sbe)
-                    & onLeft (left . ShelleyQueryCmdAcquireFailure)
-                    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-                    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+                serCurrentEpochState <- lift (queryCurrentEpochState eInMode sbe)
+                  & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+                  & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
+                pure $ do
                   tip <- liftIO $ getLocalChainTip localNodeConnInfo
 
                   schedule <- firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
