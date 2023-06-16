@@ -719,28 +719,32 @@ runQueryPoolState
 runQueryPoolState socketPath (AnyConsensusModeParams cModeParams) network poolIds = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+  join $ lift
+    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+        anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+        let cMode = consensusModeOnly cModeParams
+
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left ShelleyQueryCmdByronEra)
+
+        eInMode <- toEraInMode era cMode
+          & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
+
+        eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
+
+        requireNotByronEraInByronMode eraInMode
+
+        result <- lift (queryPoolState eInMode sbe $ Just $ Set.fromList poolIds)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+          & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+        pure $ do
+          shelleyBasedEraConstraints sbe writePoolState result
+    )
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
-  let cMode = consensusModeOnly cModeParams
-
-  sbe <- requireShelleyBasedEra era
-    & onNothing (left ShelleyQueryCmdByronEra)
-
-  eInMode <- toEraInMode era cMode
-    & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
-
-  eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
-
-  requireNotByronEraInByronMode eraInMode
-
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryPoolState eInMode sbe $ Just $ Set.fromList poolIds)
-    & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-  shelleyBasedEraConstraints sbe $ writePoolState result
+    & onLeft left
 
 -- | Query the local mempool state
 runQueryTxMempool
