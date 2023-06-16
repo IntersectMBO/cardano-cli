@@ -402,28 +402,33 @@ runQueryUTxO socketPath (AnyConsensusModeParams cModeParams)
              qfilter network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+  InAnyShelleyBasedEra sbe utxo <- lift
+    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+        anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+        let cMode = consensusModeOnly cModeParams
+
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left ShelleyQueryCmdByronEra)
+
+        eInMode <- pure (toEraInMode era cMode)
+          & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
+
+        eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
+
+        requireNotByronEraInByronMode eraInMode
+
+        utxo <- lift (queryUtxo eInMode sbe qfilter)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+          & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+        pure $ inAnyShelleyBasedEra sbe utxo
+    )
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+    & onLeft left
 
-  let cMode = consensusModeOnly cModeParams
-
-  sbe <- requireShelleyBasedEra era
-    & onNothing (left ShelleyQueryCmdByronEra)
-
-  eInMode <- pure (toEraInMode era cMode)
-    & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
-
-  eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
-
-  requireNotByronEraInByronMode eraInMode
-
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryUtxo eInMode sbe qfilter)
-    & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-  writeFilteredUTxOs sbe mOutFile result
+  writeFilteredUTxOs sbe mOutFile utxo
 
 runQueryKesPeriodInfo
   :: SocketPath
@@ -1465,15 +1470,19 @@ runQueryLeadershipSchedule
 
 -- Helpers
 
-calcEraInMode
-  :: CardanoEra era
+calcEraInMode :: ()
+  => Monad m
+  => CardanoEra era
   -> ConsensusMode mode
-  -> ExceptT ShelleyQueryCmdError IO (EraInMode era mode)
+  -> ExceptT ShelleyQueryCmdError m (EraInMode era mode)
 calcEraInMode era mode =
   pure (toEraInMode era mode)
     & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode mode) (anyCardanoEra era)))
 
-requireNotByronEraInByronMode :: EraInMode era mode -> ExceptT ShelleyQueryCmdError IO ()
+requireNotByronEraInByronMode :: ()
+  => Monad m
+  => EraInMode era mode
+  -> ExceptT ShelleyQueryCmdError m ()
 requireNotByronEraInByronMode = \case
   ByronEraInByronMode -> left ShelleyQueryCmdByronEra
   _ -> pure ()
