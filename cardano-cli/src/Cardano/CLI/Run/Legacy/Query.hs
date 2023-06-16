@@ -1363,9 +1363,9 @@ runQueryLeadershipSchedule
 
         let cMode = consensusModeOnly cModeParams
 
-        pure $ do
-          case cMode of
-            CardanoMode -> do
+        case cMode of
+          CardanoMode -> do
+            pure $ do
               eInMode <- toEraInMode era cMode
                   & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
@@ -1436,7 +1436,9 @@ runQueryLeadershipSchedule
                 Just (File jsonOutputFile) ->
                   liftIO $ LBS.writeFile jsonOutputFile $
                     printLeadershipScheduleAsJson schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
-            mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
+          mode ->
+            pure $ do
+              left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
     )
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft left
