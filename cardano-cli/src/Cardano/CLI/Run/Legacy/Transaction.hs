@@ -351,10 +351,6 @@ runTxBuildCmd
                             , localNodeSocketPath = socketPath
                             }
 
-  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
-    & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
-    & onLeft (left . ShelleyTxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
-
   inputsAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError $ readScriptWitnessFiles cEra txins
   certFilesAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError $ readScriptWitnessFiles cEra certs
 
@@ -435,6 +431,10 @@ runTxBuildCmd
 
       case consensusMode of
         CardanoMode -> do
+          AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+            & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
+            & onLeft (left . ShelleyTxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+
           (nodeEraUTxO, _, eraHistory, systemStart, _, _) <-
             lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (queryStateForBalancedTx nodeEra allTxInputs []))
               & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
