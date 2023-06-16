@@ -1394,15 +1394,15 @@ runQueryLeadershipSchedule
             bpp <- hoistEither . first ShelleyQueryCmdProtocolParameterConversionError $
               bundleProtocolParams era pparams
 
-            pure $ do
-              schedule <- case whichSchedule of
-                CurrentEpoch -> do
+            case whichSchedule of
+              CurrentEpoch -> do
+                pure $ do
                   serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryPoolDistribution eInMode sbe (Just (Set.singleton poolid)))
                     & onLeft (left . ShelleyQueryCmdAcquireFailure)
                     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
                     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-                  firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
+                  schedule <- firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
                     $ eligibleLeaderSlotsConstaints sbe
                     $ currentEpochEligibleLeadershipSlots
                       sbe
@@ -1415,7 +1415,10 @@ runQueryLeadershipSchedule
                       serCurrentEpochState
                       curentEpoch
 
-                NextEpoch -> do
+                  writeSchedule mJsonOutputFile eInfo shelleyGenesis schedule
+
+              NextEpoch -> do
+                pure $ do
                   serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryCurrentEpochState eInMode sbe)
                     & onLeft (left . ShelleyQueryCmdAcquireFailure)
                     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
@@ -1423,12 +1426,13 @@ runQueryLeadershipSchedule
 
                   tip <- liftIO $ getLocalChainTip localNodeConnInfo
 
-                  firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
+                  schedule <- firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
                     $ eligibleLeaderSlotsConstaints sbe
                     $ nextEpochEligibleLeadershipSlots sbe shelleyGenesis
                       serCurrentEpochState ptclState poolid vrkSkey bpp
                       eInfo (tip, curentEpoch)
-              writeSchedule mJsonOutputFile eInfo shelleyGenesis schedule
+
+                  writeSchedule mJsonOutputFile eInfo shelleyGenesis schedule
           mode ->
             pure $ do
               left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
