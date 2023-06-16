@@ -875,30 +875,34 @@ runQueryProtocolState
 runQueryProtocolState socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+  join $ lift
+    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+        anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+        let cMode = consensusModeOnly cModeParams
+
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left ShelleyQueryCmdByronEra)
+
+        eInMode <- pure (toEraInMode era cMode)
+          & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
+
+        eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
+
+        requireNotByronEraInByronMode eraInMode
+
+        result <- lift (queryProtocolState eInMode sbe)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+          & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+        pure $ do
+          case cMode of
+            CardanoMode -> eligibleWriteProtocolStateConstaints sbe $ writeProtocolState mOutFile result
+            mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
+    )
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
-  let cMode = consensusModeOnly cModeParams
-
-  sbe <- requireShelleyBasedEra era
-    & onNothing (left ShelleyQueryCmdByronEra)
-
-  eInMode <- pure (toEraInMode era cMode)
-    & onNothing (left (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE))
-
-  eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
-
-  requireNotByronEraInByronMode eraInMode
-
-  result <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolState eInMode sbe)
-    & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
-
-  case cMode of
-    CardanoMode -> eligibleWriteProtocolStateConstaints sbe $ writeProtocolState mOutFile result
-    mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
+    & onLeft left
 
 -- | Query the current delegations and reward accounts, filtered by a given
 -- set of addresses, from a Shelley node via the local state query protocol.
