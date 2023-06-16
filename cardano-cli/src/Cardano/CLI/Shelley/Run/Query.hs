@@ -1346,15 +1346,6 @@ runQueryLeadershipSchedule
     whichSchedule mJsonOutputFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
-    & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
-  sbe <- requireShelleyBasedEra era
-    & onNothing (left ShelleyQueryCmdByronEra)
-
-  let cMode = consensusModeOnly cModeParams
-
   poolid <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey coldVerKeyFile)
     & onLeft (left . ShelleyQueryCmdTextReadError)
 
@@ -1364,79 +1355,93 @@ runQueryLeadershipSchedule
   shelleyGenesis <- lift (readAndDecodeShelleyGenesis genFile)
     & onLeft (left . ShelleyQueryCmdGenesisReadError)
 
-  case cMode of
-    CardanoMode -> do
-      eInMode <- toEraInMode era cMode
-          & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
+  join $ lift
+    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+        anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
+          & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
-      eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left ShelleyQueryCmdByronEra)
 
-      requireNotByronEraInByronMode eraInMode
+        let cMode = consensusModeOnly cModeParams
 
-      pparams <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolParameters eInMode sbe)
-        & onLeft (left . ShelleyQueryCmdAcquireFailure)
-        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-        & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+        pure $ do
+          case cMode of
+            CardanoMode -> do
+              eInMode <- toEraInMode era cMode
+                  & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
-      ptclState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolState eInMode sbe)
-        & onLeft (left . ShelleyQueryCmdAcquireFailure)
-        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-        & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+              eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
 
-      eraHistory <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryEraHistory)
-        & onLeft (left . ShelleyQueryCmdAcquireFailure)
-        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+              requireNotByronEraInByronMode eraInMode
 
-      let eInfo = toEpochInfo eraHistory
+              pparams <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolParameters eInMode sbe)
+                & onLeft (left . ShelleyQueryCmdAcquireFailure)
+                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+                & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-      curentEpoch <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryEpoch eInMode sbe)
-        & onLeft (left . ShelleyQueryCmdAcquireFailure)
-        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-        & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+              ptclState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryProtocolState eInMode sbe)
+                & onLeft (left . ShelleyQueryCmdAcquireFailure)
+                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+                & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-      bpp <- hoistEither . first ShelleyQueryCmdProtocolParameterConversionError $
-        bundleProtocolParams era pparams
+              eraHistory <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryEraHistory)
+                & onLeft (left . ShelleyQueryCmdAcquireFailure)
+                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
 
-      schedule <- case whichSchedule of
-        CurrentEpoch -> do
-          serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryPoolDistribution eInMode sbe (Just (Set.singleton poolid)))
-            & onLeft (left . ShelleyQueryCmdAcquireFailure)
-            & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-            & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+              let eInfo = toEpochInfo eraHistory
 
-          firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
-            $ eligibleLeaderSlotsConstaints sbe
-            $ currentEpochEligibleLeadershipSlots
-              sbe
-              shelleyGenesis
-              eInfo
-              bpp
-              ptclState
-              poolid
-              vrkSkey
-              serCurrentEpochState
-              curentEpoch
+              curentEpoch <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryEpoch eInMode sbe)
+                & onLeft (left . ShelleyQueryCmdAcquireFailure)
+                & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+                & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-        NextEpoch -> do
-          tip <- liftIO $ getLocalChainTip localNodeConnInfo
+              bpp <- hoistEither . first ShelleyQueryCmdProtocolParameterConversionError $
+                bundleProtocolParams era pparams
 
-          serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryCurrentEpochState eInMode sbe)
-            & onLeft (left . ShelleyQueryCmdAcquireFailure)
-            & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-            & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+              schedule <- case whichSchedule of
+                CurrentEpoch -> do
+                  serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryPoolDistribution eInMode sbe (Just (Set.singleton poolid)))
+                    & onLeft (left . ShelleyQueryCmdAcquireFailure)
+                    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+                    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-          firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
-            $ eligibleLeaderSlotsConstaints sbe
-            $ nextEpochEligibleLeadershipSlots sbe shelleyGenesis
-              serCurrentEpochState ptclState poolid vrkSkey bpp
-              eInfo (tip, curentEpoch)
+                  firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
+                    $ eligibleLeaderSlotsConstaints sbe
+                    $ currentEpochEligibleLeadershipSlots
+                      sbe
+                      shelleyGenesis
+                      eInfo
+                      bpp
+                      ptclState
+                      poolid
+                      vrkSkey
+                      serCurrentEpochState
+                      curentEpoch
 
-      case mJsonOutputFile of
-        Nothing -> liftIO $ printLeadershipScheduleAsText schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
-        Just (File jsonOutputFile) ->
-          liftIO $ LBS.writeFile jsonOutputFile $
-            printLeadershipScheduleAsJson schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
-    mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
+                NextEpoch -> do
+                  tip <- liftIO $ getLocalChainTip localNodeConnInfo
+
+                  serCurrentEpochState <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryCurrentEpochState eInMode sbe)
+                    & onLeft (left . ShelleyQueryCmdAcquireFailure)
+                    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+                    & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
+
+                  firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
+                    $ eligibleLeaderSlotsConstaints sbe
+                    $ nextEpochEligibleLeadershipSlots sbe shelleyGenesis
+                      serCurrentEpochState ptclState poolid vrkSkey bpp
+                      eInfo (tip, curentEpoch)
+
+              case mJsonOutputFile of
+                Nothing -> liftIO $ printLeadershipScheduleAsText schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
+                Just (File jsonOutputFile) ->
+                  liftIO $ LBS.writeFile jsonOutputFile $
+                    printLeadershipScheduleAsJson schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
+            mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
+    )
+    & onLeft (left . ShelleyQueryCmdAcquireFailure)
+    & onLeft left
  where
   printLeadershipScheduleAsText
     :: Set SlotNo
