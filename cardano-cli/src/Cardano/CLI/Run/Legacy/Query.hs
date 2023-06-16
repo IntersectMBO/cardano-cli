@@ -442,17 +442,17 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
 
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
-    & onLeft (left . ShelleyQueryCmdAcquireFailure)
-    & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
   let cMode = consensusModeOnly cModeParams
-
-  sbe <- requireShelleyBasedEra era
-    & onNothing (left ShelleyQueryCmdByronEra)
 
   case cMode of
     CardanoMode -> do
+      anyE@(AnyCardanoEra era) <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+        & onLeft (left . ShelleyQueryCmdAcquireFailure)
+        & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+      sbe <- requireShelleyBasedEra era
+        & onNothing (left ShelleyQueryCmdByronEra)
+
       eInMode <- toEraInMode era cMode
         & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
@@ -502,6 +502,7 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
         handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError oFp)
           $ LBS.writeFile oFp kesPeriodInfoJSON)
     mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
+
  where
    currentKesPeriod :: ChainTip -> GenesisParameters -> CurrentKesPeriod
    currentKesPeriod ChainTipAtGenesis _ = CurrentKesPeriod 0
