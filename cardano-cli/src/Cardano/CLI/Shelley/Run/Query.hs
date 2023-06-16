@@ -1167,8 +1167,8 @@ runQueryStakePools
 runQueryStakePools socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
-  poolIds <-
-    ( lift $ executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT @ShelleyQueryCmdError $ do
+  join $ lift
+    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT @ShelleyQueryCmdError $ do
         anyE@(AnyCardanoEra era) <- case consensusModeOnly cModeParams of
           ByronMode -> return $ AnyCardanoEra ByronEra
           ShelleyMode -> return $ AnyCardanoEra ShelleyEra
@@ -1182,13 +1182,14 @@ runQueryStakePools socketPath (AnyConsensusModeParams cModeParams) network mOutF
         sbe <- requireShelleyBasedEra era
           & onNothing (left ShelleyQueryCmdByronEra)
 
-        lift (queryStakePools eInMode sbe)
+        poolIds <- lift (queryStakePools eInMode sbe)
           & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
           & onLeft (left . ShelleyQueryCmdEraMismatch)
+
+        pure $ do
+          writeStakePools mOutFile poolIds
     ) & onLeft (left . ShelleyQueryCmdAcquireFailure)
       & onLeft left
-
-  writeStakePools mOutFile poolIds
 
 writeStakePools
   :: Maybe (File () Out)
