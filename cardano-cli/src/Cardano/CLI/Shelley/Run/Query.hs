@@ -1428,12 +1428,7 @@ runQueryLeadershipSchedule
                     $ nextEpochEligibleLeadershipSlots sbe shelleyGenesis
                       serCurrentEpochState ptclState poolid vrkSkey bpp
                       eInfo (tip, curentEpoch)
-
-              case mJsonOutputFile of
-                Nothing -> liftIO $ printLeadershipScheduleAsText schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
-                Just (File jsonOutputFile) ->
-                  liftIO $ LBS.writeFile jsonOutputFile $
-                    printLeadershipScheduleAsJson schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
+              writeSchedule mJsonOutputFile eInfo shelleyGenesis schedule
           mode ->
             pure $ do
               left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
@@ -1441,6 +1436,13 @@ runQueryLeadershipSchedule
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft left
   where
+    writeSchedule mOutFile eInfo shelleyGenesis schedule =
+      case mOutFile of
+        Nothing -> liftIO $ printLeadershipScheduleAsText schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
+        Just (File jsonOutputFile) ->
+          liftIO $ LBS.writeFile jsonOutputFile $
+            printLeadershipScheduleAsJson schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
+
     printLeadershipScheduleAsText
       :: Set SlotNo
       -> EpochInfo (Either Text)
