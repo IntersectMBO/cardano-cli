@@ -46,8 +46,6 @@ module Cardano.CLI.Commands.Legacy
   , BlockId (..)
   , WitnessSigningData (..)
   , ColdVerificationKeyOrFile (..)
-
-  , Deprecated (..)
   ) where
 
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
@@ -243,7 +241,6 @@ data TransactionCmd
       [ScriptFile]
       -- ^ Auxiliary scripts
       [MetadataFile]
-      (Maybe (Deprecated ProtocolParamsFile))
       (Maybe UpdateProposalFile)
       [VoteFile In]
       [NewConstitutionFile In]
@@ -590,6 +587,3 @@ data ColdVerificationKeyOrFile
   | ColdGenesisDelegateVerificationKey !(VerificationKey GenesisDelegateKey)
   | ColdVerificationKeyFile !(VerificationKeyFile In)
   deriving Show
-
--- | Marks a value as being deprecated.
-newtype Deprecated a = Deprecated a

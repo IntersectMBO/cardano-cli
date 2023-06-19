@@ -764,7 +764,6 @@ pTransaction envCli =
                   Nothing
                   "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
-      <*> optional pDeprecatedProtocolParamsFile
       <*> optional pUpdateProposalFile
       <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
       <*> many (pFileInDirection "constitution-file" "Filepath of the constitution.")
@@ -1664,19 +1663,6 @@ pAddressKeyType =
         , Opt.help "Use a Byron-era key."
         ]
     , pure AddressKeyShelley
-    ]
-
-pDeprecatedProtocolParamsFile :: Parser (Deprecated ProtocolParamsFile)
-pDeprecatedProtocolParamsFile =
-  fmap (Deprecated . ProtocolParamsFile) $ Opt.strOption $ mconcat
-    [ Opt.long "protocol-params-file"
-    , Opt.metavar "FILE"
-    , Opt.help $ mconcat
-        [ "Filepath of the JSON-encoded protocol parameters file. "
-        , "DEPRECATED The option is ignored and protocol parameters are "
-        , "retrieved from the node."
-        ]
-    , Opt.completer (Opt.bashCompleter "file")
     ]
 
 pProtocolParamsFile :: Parser ProtocolParamsFile
