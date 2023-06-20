@@ -319,7 +319,7 @@ runTxBuildCmd
   -> TxMetadataJsonSchema
   -> [ScriptFile]
   -> [MetadataFile]
-  -> Maybe ProtocolParamsFile
+  -> Maybe (Deprecated ProtocolParamsFile)
   -> Maybe UpdateProposalFile
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()
@@ -327,7 +327,11 @@ runTxBuildCmd
     socketPath (AnyCardanoEra cEra) consensusModeParams@(AnyConsensusModeParams cModeParams)
     nid mScriptValidity mOverrideWits txins readOnlyRefIns
     reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-    mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp outputOptions = do
+    mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mDeprecatedProtocolParamsFile
+    mUpProp outputOptions = do
+  forM_ mDeprecatedProtocolParamsFile $ \_ ->
+    liftIO $ printWarning "'--protocol-params-file' for 'transaction build' is deprecated"
+
   -- The user can specify an era prior to the era that the node is currently in.
   -- We cannot use the user specified era to construct a query against a node because it may differ
   -- from the node's era and this will result in the 'QueryEraMismatch' failure.
@@ -356,8 +360,6 @@ runTxBuildCmd
   scripts <- firstExceptT ShelleyTxCmdScriptFileError $
                      mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
   txAuxScripts <- hoistEither $ first ShelleyTxCmdAuxScriptsValidationError $ validateTxAuxScripts cEra scripts
-  mpparams <- forM mProtocolParamsFile $ \ppf ->
-    firstExceptT ShelleyTxCmdProtocolParamsError (readProtocolParameters ppf)
 
   mProp <- forM mUpProp $ \(UpdateProposalFile upFp) ->
     firstExceptT ShelleyTxCmdReadTextViewFileError (newExceptT $ readFileTextEnvelope AsUpdateProposal (File upFp))
@@ -375,7 +377,7 @@ runTxBuildCmd
       socketPath cEra consensusModeParams nid mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
       mReturnCollateral mTotCollateral txOuts changeAddr valuesWithScriptWits mLowBound
       mUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
-      requiredSigners txAuxScripts txMetadata mpparams mProp mOverrideWits outputOptions
+      requiredSigners txAuxScripts txMetadata mProp mOverrideWits outputOptions
 
   let allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
@@ -634,7 +636,6 @@ runTxBuild
   -- ^ Required signers
   -> TxAuxScripts era
   -> TxMetadataInEra era
-  -> Maybe ProtocolParameters
   -> Maybe UpdateProposal
   -> Maybe Word
   -> TxBuildOutputOptions
@@ -643,11 +644,8 @@ runTxBuild
     socketPath era (AnyConsensusModeParams cModeParams) networkId mScriptValidity
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
-    certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata mpparams
+    certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
     mUpdatePropF mOverrideWits outputOptions = do
-
-  liftIO $ forM_ mpparams $ \_ ->
-    printWarning "'--protocol-params-file' for 'transaction build' is deprecated"
 
   let consensusMode = consensusModeOnly cModeParams
       dummyFee = Just $ Lovelace 0
