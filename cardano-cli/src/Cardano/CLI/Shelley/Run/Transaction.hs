@@ -32,10 +32,10 @@ import           Cardano.CLI.Types
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
-import           Control.Monad (forM, forM_, void)
+import           Control.Monad (forM, forM_)
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (MonadTrans (..))
-import           Control.Monad.Trans.Except (ExceptT)
+import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, hoistMaybe, left,
                    newExceptT, onLeft, onNothing)
 import           Data.Aeson.Encode.Pretty (encodePretty)
@@ -45,6 +45,7 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Data ((:~:) (..))
 import           Data.Foldable (Foldable (..))
 import           Data.Function ((&))
+import           Data.Functor
 import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
@@ -342,8 +343,9 @@ runTxBuildCmd
                             , localNodeSocketPath = socketPath
                             }
 
-  AnyCardanoEra nodeEra <- lift (determineEra cModeParams localNodeConnInfo)
+  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
     & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
+    & onLeft (left . ShelleyTxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
   inputsAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError $ readScriptWitnessFiles cEra txins
   certFilesAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError $ readScriptWitnessFiles cEra certs
@@ -686,8 +688,10 @@ runTxBuild
                                      , localNodeNetworkId = networkId
                                      , localNodeSocketPath = socketPath
                                      }
-      AnyCardanoEra nodeEra <- lift (determineEra cModeParams localNodeConnInfo)
+
+      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
         & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . ShelleyTxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
       let certs =
             case validatedTxCerts of
@@ -781,9 +785,11 @@ data TxFeature = TxFeatureShelleyAddresses
                | TxFeatureReturnCollateral
   deriving Show
 
-txFeatureMismatch :: CardanoEra era
-                  -> TxFeature
-                  -> ExceptT ShelleyTxCmdError IO a
+txFeatureMismatch :: ()
+  => Monad m
+  => CardanoEra era
+  -> TxFeature
+  -> ExceptT ShelleyTxCmdError m a
 txFeatureMismatch era feature =
     hoistEither . Left $ ShelleyTxCmdTxFeatureMismatch (anyCardanoEra era) feature
 
@@ -863,14 +869,14 @@ toAddressInAnyEra
   :: CardanoEra era
   -> AddressAny
   -> Either ShelleyTxCmdError (AddressInEra era)
-toAddressInAnyEra era addrAny =
+toAddressInAnyEra era addrAny = runExcept $ do
   case addrAny of
-    AddressByron   bAddr -> return (AddressInEra ByronAddressInAnyEra bAddr)
-    AddressShelley sAddr ->
-      case cardanoEraStyle era of
-        LegacyByronEra -> txFeatureMismatchPure era TxFeatureShelleyAddresses
-        ShelleyBasedEra era' ->
-          return (AddressInEra (ShelleyAddressInEra era') sAddr)
+    AddressByron   bAddr -> pure (AddressInEra ByronAddressInAnyEra bAddr)
+    AddressShelley sAddr -> do
+      sbe <- requireShelleyBasedEra era
+        & onNothing (txFeatureMismatch era TxFeatureShelleyAddresses)
+
+      pure (AddressInEra (ShelleyAddressInEra sbe) sAddr)
 
 toTxOutValueInAnyEra
   :: CardanoEra era
