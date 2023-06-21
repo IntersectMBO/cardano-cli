@@ -1,8 +1,8 @@
 name: Check git dependencies
 
 on:
-  push:
   merge_group:
+  pull_request:
 
 jobs:
   build:
