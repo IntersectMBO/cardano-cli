@@ -1,8 +1,8 @@
 name: Check Stylish Haskell
 
 on:
-  push:
   merge_group:
+  pull_request:
 
 # When pushing branches (and/or updating PRs), we do want to cancel previous
 # build runs. We assume they are stale now; and do not want to spend CI time and
