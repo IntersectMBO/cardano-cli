@@ -53,7 +53,7 @@ library
   exposed-modules:      Cardano.CLI.Conway.Commands
                         Cardano.CLI.Conway.Parsers
                         Cardano.CLI.Conway.Types
-  
+
                         Cardano.CLI.Environment
                         Cardano.CLI.Helpers
                         Cardano.CLI.Parsers
@@ -147,8 +147,8 @@ library
                       , microlens
                       , network
                       , optparse-applicative-fork
-                      , ouroboros-consensus >= 0.7
-                      , ouroboros-consensus-cardano >= 0.6
+                      , ouroboros-consensus >= 0.9
+                      , ouroboros-consensus-cardano >= 0.7
                       , ouroboros-consensus-protocol >= 0.5
                       , ouroboros-network-api
                       , ouroboros-network-protocols
