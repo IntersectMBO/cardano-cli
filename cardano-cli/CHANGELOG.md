@@ -1,13 +1,20 @@
 # Changelog for cardano-cli
 
-## next version
+## 8.2.1
 
-- `cardano-cli ping`: timestamp format changed to `ISO8601`
-- `cardano-cli ping`: support `NodeToNodeV_11`, `NodeToNodeV_12` and `NodeToClientV_16`.
-- `cardano-cli ping`: added `--query-versions` flag, instread of doing version
-  negotiation the remote side will reply with its set of supported versions.
-- `cardano-cli ping`: fixed support for `node-to-client` mini-protocol over
-  Unix socket.
+- The `--protocol-params-file` option of the `transaction build` command is
+  now marked as deprecated in Usage help.  The option was already deprecated
+  and ignored.
+  (bugfix; compatible)
+  [PR 28](https://github.com/input-output-hk/cardano-cli/pull/28)
+
+- `cardano-cli ping`  changes:
+  - timestamp format changed to `ISO8601`
+  - support `NodeToNodeV_11`, `NodeToNodeV_12` and `NodeToClientV_16`.
+  - added `--query-versions` flag, instread of doing version negotiation the remote side will reply with its set of supported versions.
+  - fixed support for `node-to-client` mini-protocol over Unix socket.
+  (feature, bugfix; compatible)
+  [PR 30](https://github.com/input-output-hk/cardano-cli/pull/30)
 
 ## 8.2.0
 
