@@ -16,7 +16,7 @@ doc/                                                          @input-output-hk/d
 
 README.*                                                      @input-output-hk/docs-access
 
-*.nix                                                         @input-output-hk/devx-core-tech @input-output-hk/core-tech-release
-flake.lock                                                    @input-output-hk/devx-core-tech @input-output-hk/core-tech-release
-.github                                                       @input-output-hk/devx-core-tech @input-output-hk/core-tech-release
-configuration/                                                @input-output-hk/devx-core-tech @input-output-hk/core-tech-release
+*.nix                                                         @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
+flake.lock                                                    @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
+.github/workflows                                             @input-output-hk/core-tech-devx @input-output-hk/core-tech-release @input-output-hk/core-tech
+configuration/                                                @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
