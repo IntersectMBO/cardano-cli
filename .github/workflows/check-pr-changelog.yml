@@ -1,0 +1,74 @@
+name: Check if PR changelog was filled correctly
+on:
+    merge_group:
+    pull_request:
+      types: [opened, edited, synchronize, ready_for_review]
+
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install js-yaml@4.1.0
+      - name: Fail if PR changelog is not correct
+        uses: actions/github-script@v6
+        id: check-changelog
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const yaml = require('js-yaml');
+
+            const prDescription = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const changelogRegex = /# Changelog([\s\S]*?)(?=\n#[^#])/;
+            const changelogMatch = prDescription.data.body.match(changelogRegex);
+            const changelogContent = changelogMatch ? changelogMatch [1].trim() : '';
+
+            const yamlRegex = /```yaml([\s\S]*?)```/;
+            const yamlMatch = changelogContent.match(yamlRegex);
+            const yamlContent = yamlMatch ? yamlMatch[1].trim() : '';
+
+            changelog = yaml.load(yamlContent)[0]
+
+            let isCompatibilityValid = false;
+            const validCompatibilityValues = ['no-api-changes', 'compatible', 'breaking'];
+            if (Array.isArray(changelog.compatibility) && !!changelog.compatibility) {
+              isCompatibilityValid = changelog.compatibility.every(value => validCompatibilityValues.includes(value));
+            } else {
+              isCompatibilityValid = validCompatibilityValues.includes(changelog.compatibility);
+            }
+            if (!isCompatibilityValid) {
+              console.error(`PR changelog has invalid compatibility: ${changelog.compatibility}\nExpected one, or more of: ${validCompatibilityValues}`)
+            }
+
+            let isTypeValid = false;
+            const validTypeValues = ['feature', 'bugfix', 'test', 'maintenance'];;
+            if (Array.isArray(changelog.type) && !!changelog.type) {
+              isTypeValid = changelog.type.every(value => validTypeValues.includes(value));
+            } else {
+              isTypeValid = validTypeValues.includes(changelog.type);
+            }
+            if (!isTypeValid) {
+              console.error(`PR changelog has invalid type: ${changelog.type}\nExpected one, or more of: ${validTypeValues}`)
+            }
+
+            let isDescriptionValid = true;
+            if (changelog.description.trim() === '<insert-changelog-description-here>') {
+              console.error('PR changelog description has not been updated!')
+              isDescriptionValid = false;
+            } else if (!changelog.description.trim()) {
+              console.error('PR changelog description field is missing!')
+              isDescriptionValid = false;
+            }
+
+            if (!isCompatibilityValid || !isTypeValid || !isDescriptionValid) {
+              console.error('Failed PR changelog checks!');
+              process.exit(1);
+            }
+
