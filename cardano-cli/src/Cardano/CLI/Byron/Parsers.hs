@@ -24,6 +24,33 @@ module Cardano.CLI.Byron.Parsers
   ) where
 
 
+import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
+import           Cardano.Api.Byron (Address (..), ByronProtocolParametersUpdate (..),
+                   toByronLovelace)
+import           Cardano.Api.Shelley (ReferenceScript (ReferenceScriptNone))
+
+import           Cardano.Chain.Common (BlockCount (..), TxFeePolicy (..), TxSizeLinear (..),
+                   decodeAddressBase58, rationalToLovelacePortion)
+import qualified Cardano.Chain.Common as Byron
+import           Cardano.Chain.Genesis (FakeAvvmOptions (..), TestnetBalanceOptions (..))
+import           Cardano.Chain.Slotting (EpochNumber (..), SlotNumber (..))
+import           Cardano.Chain.Update (ApplicationName (..), InstallerHash (..), NumSoftwareVersion,
+                   ProtocolVersion (..), SoftforkRule (..), SoftwareVersion (..), SystemTag (..),
+                   checkApplicationName, checkSystemTag)
+import           Cardano.CLI.Byron.Commands
+import           Cardano.CLI.Byron.Genesis
+import           Cardano.CLI.Byron.Key
+import           Cardano.CLI.Byron.Tx
+import           Cardano.CLI.Common.Parsers hiding (parseTxIn)
+import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Run (ClientCommand (ByronCommand))
+import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
+import           Cardano.CLI.Types
+import           Cardano.Crypto (RequiresNetworkMagic (..))
+import           Cardano.Crypto.Hashing (hashRaw)
+import           Cardano.Crypto.ProtocolMagic (AProtocolMagic (..), ProtocolMagic,
+                   ProtocolMagicId (..))
+import           Cardano.Ledger.Binary (Annotated (..))
 import           Cardano.Prelude (ConvertText (..))
 
 import           Control.Monad (when)
@@ -40,40 +67,8 @@ import           Data.Word (Word16, Word64)
 import           Formatting (build, sformat)
 import           GHC.Natural (Natural)
 import           GHC.Word (Word8)
-
 import           Options.Applicative
 import qualified Options.Applicative as Opt
-
-import           Cardano.Ledger.Binary (Annotated (..))
-
-import           Cardano.Crypto (RequiresNetworkMagic (..))
-import           Cardano.Crypto.Hashing (hashRaw)
-import           Cardano.Crypto.ProtocolMagic (AProtocolMagic (..), ProtocolMagic,
-                   ProtocolMagicId (..))
-
-import           Cardano.Chain.Common (BlockCount (..), TxFeePolicy (..), TxSizeLinear (..),
-                   decodeAddressBase58, rationalToLovelacePortion)
-import qualified Cardano.Chain.Common as Byron
-import           Cardano.Chain.Genesis (FakeAvvmOptions (..), TestnetBalanceOptions (..))
-import           Cardano.Chain.Slotting (EpochNumber (..), SlotNumber (..))
-import           Cardano.Chain.Update (ApplicationName (..), InstallerHash (..), NumSoftwareVersion,
-                   ProtocolVersion (..), SoftforkRule (..), SoftwareVersion (..), SystemTag (..),
-                   checkApplicationName, checkSystemTag)
-
-import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
-import           Cardano.Api.Byron (Address (..), ByronProtocolParametersUpdate (..),
-                   toByronLovelace)
-
-import           Cardano.Api.Shelley (ReferenceScript (ReferenceScriptNone))
-import           Cardano.CLI.Byron.Commands
-import           Cardano.CLI.Byron.Genesis
-import           Cardano.CLI.Byron.Key
-import           Cardano.CLI.Byron.Tx
-import           Cardano.CLI.Common.Parsers
-import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.Run (ClientCommand (ByronCommand))
-import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
-import           Cardano.CLI.Types
 
 
 backwardsCompatibilityCommands :: EnvCli -> Parser ClientCommand
@@ -98,23 +93,23 @@ backwardsCompatibilityCommands envCli =
 -- the 'pNodeCmdBackwardCompatible' parser.
 parseByronCommands :: EnvCli -> Parser ByronCommand
 parseByronCommands envCli = asum
-  [ subParser "key" (Opt.info (asum $ map Opt.subparser (parseKeyRelatedValues envCli))
+  [ subParser' "key" (Opt.info (asum $ map Opt.subparser (parseKeyRelatedValues envCli))
       $ Opt.progDesc "Byron key utility commands")
-  , subParser "transaction" (Opt.info (asum $ map Opt.subparser (parseTxRelatedValues envCli))
+  , subParser' "transaction" (Opt.info (asum $ map Opt.subparser (parseTxRelatedValues envCli))
       $ Opt.progDesc "Byron transaction commands")
-  , subParser "query" (Opt.info (Opt.subparser (parseLocalNodeQueryValues envCli))
+  , subParser' "query" (Opt.info (Opt.subparser (parseLocalNodeQueryValues envCli))
       $ Opt.progDesc "Byron node query commands.")
-  , subParser "genesis" (Opt.info (asum $ map Opt.subparser parseGenesisRelatedValues)
+  , subParser' "genesis" (Opt.info (asum $ map Opt.subparser parseGenesisRelatedValues)
       $ Opt.progDesc "Byron genesis block commands")
-  , subParser "governance" (Opt.info (NodeCmd <$> Opt.subparser (pNodeCmd envCli))
+  , subParser' "governance" (Opt.info (NodeCmd <$> Opt.subparser (pNodeCmd envCli))
       $ Opt.progDesc "Byron governance commands")
-  , subParser "miscellaneous" (Opt.info (asum $ map Opt.subparser parseMiscellaneous)
+  , subParser' "miscellaneous" (Opt.info (asum $ map Opt.subparser parseMiscellaneous)
       $ Opt.progDesc "Byron miscellaneous commands")
   , NodeCmd <$> pNodeCmdBackwardCompatible envCli
   ]
  where
-   subParser :: String -> ParserInfo ByronCommand -> Parser ByronCommand
-   subParser name pInfo = Opt.subparser $ Opt.command name pInfo <> Opt.metavar name
+   subParser' :: String -> ParserInfo ByronCommand -> Parser ByronCommand
+   subParser' name pInfo = Opt.subparser $ Opt.command name pInfo <> Opt.metavar name
 
 pNodeCmdBackwardCompatible :: EnvCli -> Parser NodeCmd
 pNodeCmdBackwardCompatible envCli = Opt.subparser $ pNodeCmd envCli <> Opt.internal
