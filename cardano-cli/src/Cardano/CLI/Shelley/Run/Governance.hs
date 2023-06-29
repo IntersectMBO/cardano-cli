@@ -12,9 +12,11 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
+import           Cardano.CLI.Conway.Commands
+import           Cardano.CLI.Conway.Parsers
+import           Cardano.CLI.Conway.Types
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
-import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
 import           Cardano.CLI.Types
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
@@ -100,22 +102,38 @@ renderShelleyGovernanceError err =
       renderGovernancePollError pollError
     ShelleyGovernanceCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
 
-runGovernanceCmd :: GovernanceCmd -> ExceptT ShelleyGovernanceCmdError IO ()
-runGovernanceCmd (GovernanceVoteCmd (CreateVoteCmd _conwayVote)) = error ""
+runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
+runGovernanceCmd (GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp))) =
+  runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
+runGovernanceCmd (GovernanceActionCmd (CreateConstitution _)) =
+  error "TODO"
 runGovernanceCmd (GovernanceMIRPayStakeAddressesCertificate mirpot vKeys rewards out) =
-  runGovernanceMIRCertificatePayStakeAddrs mirpot vKeys rewards out
+  let _notYet = runGovernanceMIRCertificatePayStakeAddrs mirpot vKeys rewards out
+  in error "runGovernanceCmd: has not been implemented"
 runGovernanceCmd (GovernanceMIRTransfer amt out direction) =
-  runGovernanceMIRCertificateTransfer amt out direction
+  let _notYet = runGovernanceMIRCertificateTransfer amt out direction
+  in error "runGovernanceCmd: has not been implemented"
+
 runGovernanceCmd (GovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out) =
-  runGovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out
+  let _notYet = runGovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out
+  in error "runGovernanceCmd: has not been implemented"
+
 runGovernanceCmd (GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp) =
-  runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
+  let _notYet = runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
+  in error "runGovernanceCmd: has not been implemented"
+
 runGovernanceCmd (GovernanceCreatePoll prompt choices nonce out) =
-  runGovernanceCreatePoll prompt choices nonce out
+  let _notYet = runGovernanceCreatePoll prompt choices nonce out
+  in error "runGovernanceCmd: has not been implemented"
+
 runGovernanceCmd (GovernanceAnswerPoll poll ix mOutFile) =
-  runGovernanceAnswerPoll poll ix mOutFile
+  let _notYet = runGovernanceAnswerPoll poll ix mOutFile
+  in error "runGovernanceCmd: has not been implemented"
+
 runGovernanceCmd (GovernanceVerifyPoll poll metadata mOutFile) =
-  runGovernanceVerifyPoll poll metadata mOutFile
+  let _notYet = runGovernanceVerifyPoll poll metadata mOutFile
+  in error "runGovernanceCmd: has not been implemented"
+
 
 runGovernanceMIRCertificatePayStakeAddrs
   :: Shelley.MIRPot

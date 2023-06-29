@@ -91,7 +91,7 @@ parseShelleyCommands envCli =
     , Opt.command "genesis" $
         Opt.info (GenesisCmd <$> pGenesisCmd envCli) $ Opt.progDesc "Genesis block commands"
     , Opt.command "governance" $
-        Opt.info (GovernanceCmd <$> pGovernanceCmd) $ Opt.progDesc "Governance commands"
+        Opt.info (GovernanceCmd' <$> pGovernanceCmd) $ Opt.progDesc "Governance commands"
     , Opt.command "text-view" $
         Opt.info (TextViewCmd <$> pTextViewCmd) . Opt.progDesc $ mconcat
           [ "Commands for dealing with Shelley TextView files. "
@@ -1086,18 +1086,17 @@ pQueryCmd envCli =
                 ]
 
 
-
+-- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
 pGovernanceCmd :: Parser GovernanceCmd
 pGovernanceCmd =
-  GovernanceVoteCmd
-    <$> asum
-          [ subParser "vote"
-              $ Opt.info pVoteCommmands
-              $ Opt.progDesc "Vote related commands."
-          , subParser "action"
-              $ Opt.info pActionCommmands
-              $ Opt.progDesc "Governance action related commands."
-          ]
+  asum
+    [ fmap GovernanceVoteCmd $ subParser "vote"
+        $ Opt.info pVoteCommmands
+        $ Opt.progDesc "Vote related commands."
+    , fmap GovernanceActionCmd $ subParser "action"
+        $ Opt.info pActionCommmands
+        $ Opt.progDesc "Governance action related commands."
+    ]
   where
     _notYet =
       [ subParser "create-mir-certificate"
@@ -3294,16 +3293,6 @@ pProtocolVersion =
 --
 -- Shelley CLI flag field parsers
 --
-
-parseLovelace :: Parsec.Parser Lovelace
-parseLovelace = do
-  i <- decimal
-  if i > toInteger (maxBound :: Word64)
-  then fail $ show i <> " lovelace exceeds the Word64 upper bound"
-  else return $ Lovelace i
-
-
-
 
 parseTxOutAnyEra
   :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)
