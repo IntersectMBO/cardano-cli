@@ -1,6 +1,5 @@
 name: Check if PR changelog was filled correctly
 on:
-    merge_group:
     pull_request:
       types: [opened, edited, synchronize, ready_for_review]
 
