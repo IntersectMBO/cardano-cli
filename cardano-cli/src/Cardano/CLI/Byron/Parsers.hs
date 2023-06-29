@@ -41,7 +41,7 @@ import           Cardano.CLI.Byron.Commands
 import           Cardano.CLI.Byron.Genesis
 import           Cardano.CLI.Byron.Key
 import           Cardano.CLI.Byron.Tx
-import           Cardano.CLI.Common.Parsers hiding (parseTxIn)
+import           Cardano.CLI.Common.Parsers hiding (parseLovelace, parseTxIn)
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.Run (ClientCommand (ByronCommand))
 import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))

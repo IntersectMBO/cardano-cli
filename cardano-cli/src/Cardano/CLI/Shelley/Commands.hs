@@ -52,12 +52,11 @@ module Cardano.CLI.Shelley.Commands
 import           Cardano.Api.Shelley
 
 import           Cardano.Chain.Common (BlockCount)
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Conway.Parsers
 import           Cardano.CLI.Shelley.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
 import           Cardano.CLI.Types
-import           Cardano.Ledger.Shelley.TxBody (MIRPot)
 
 import           Prelude
 
@@ -77,7 +76,7 @@ data ShelleyCommand
   | NodeCmd         NodeCmd
   | PoolCmd         PoolCmd
   | QueryCmd        QueryCmd
-  | GovernanceCmd   GovernanceCmd
+  | GovernanceCmd'   GovernanceCmd
   | GenesisCmd      GenesisCmd
   | TextViewCmd     TextViewCmd
 
@@ -91,7 +90,7 @@ renderShelleyCommand sc =
     NodeCmd cmd -> renderNodeCmd cmd
     PoolCmd cmd -> renderPoolCmd cmd
     QueryCmd cmd -> renderQueryCmd cmd
-    GovernanceCmd cmd -> renderGovernanceCmd cmd
+    GovernanceCmd' cmd -> renderGovernanceCmd cmd
     GenesisCmd cmd -> renderGenesisCmd cmd
     TextViewCmd cmd -> renderTextViewCmd cmd
 
@@ -400,53 +399,6 @@ renderQueryCmd cmd =
         TxMempoolQueryNextTx -> "next-tx"
         TxMempoolQueryInfo -> "info"
 
-data VoteCmd
-  = CreateVoteCmd ConwayVote deriving Show
-
-data GovernanceCmd
-  = GovernanceVoteCmd VoteCmd
-  | GovernanceMIRPayStakeAddressesCertificate
-      MIRPot
-      [StakeAddress]
-      [Lovelace]
-      (File () Out)
-  | GovernanceMIRTransfer Lovelace (File () Out) TransferDirection
-  | GovernanceGenesisKeyDelegationCertificate
-      (VerificationKeyOrHashOrFile GenesisKey)
-      (VerificationKeyOrHashOrFile GenesisDelegateKey)
-      (VerificationKeyOrHashOrFile VrfKey)
-      (File () Out)
-  | GovernanceUpdateProposal (File () Out) EpochNo
-                             [VerificationKeyFile In]
-                             ProtocolParametersUpdate
-                             (Maybe FilePath)
-  | GovernanceCreatePoll
-      Text -- Prompt
-      [Text] -- Choices
-      (Maybe Word) -- Nonce
-      (File GovernancePoll Out)
-  | GovernanceAnswerPoll
-      (File GovernancePoll In) -- Poll file
-      (Maybe Word) -- Answer index
-      (Maybe (File () Out)) -- Tx file
-  | GovernanceVerifyPoll
-      (File GovernancePoll In) -- Poll file
-      (File (Tx ()) In) -- Tx file
-      (Maybe (File () Out)) -- Tx file
-  deriving Show
-
-renderGovernanceCmd :: GovernanceCmd -> Text
-renderGovernanceCmd cmd =
-  case cmd of
-    GovernanceVoteCmd {} -> "governance vote"
-    GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
-    GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
-    GovernanceMIRTransfer _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
-    GovernanceMIRTransfer _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
-    GovernanceUpdateProposal {} -> "governance create-update-proposal"
-    GovernanceCreatePoll{} -> "governance create-poll"
-    GovernanceAnswerPoll{} -> "governance answer-poll"
-    GovernanceVerifyPoll{} -> "governance verify-poll"
 
 data TextViewCmd
   = TextViewInfo !FilePath (Maybe (File () Out))

@@ -1,3 +1,5 @@
+{-# LANGUAGE DataKinds #-}
+
 module Cardano.CLI.Conway.Parsers where
 
 import           Cardano.Api
@@ -5,13 +7,79 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Common.Parsers
 import           Cardano.CLI.Conway.Types
-import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key (StakeIdentifier (..))
+import           Cardano.CLI.Shelley.Key
+import           Cardano.CLI.Types
+import           Cardano.Ledger.Shelley.TxBody (MIRPot)
 
 import           Data.Foldable
+import           Data.Text (Text)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
+
+data GovernanceCmd
+  = GovernanceVoteCmd VoteCmd
+  | GovernanceActionCmd ActionCmd
+  | GovernanceMIRPayStakeAddressesCertificate
+      MIRPot
+      [StakeAddress]
+      [Lovelace]
+      (File () Out)
+  | GovernanceMIRTransfer Lovelace (File () Out) TransferDirection
+  | GovernanceGenesisKeyDelegationCertificate
+      (VerificationKeyOrHashOrFile GenesisKey)
+      (VerificationKeyOrHashOrFile GenesisDelegateKey)
+      (VerificationKeyOrHashOrFile VrfKey)
+      (File () Out)
+  | GovernanceUpdateProposal (File () Out) EpochNo
+                             [VerificationKeyFile In]
+                             ProtocolParametersUpdate
+                             (Maybe FilePath)
+  | GovernanceCreatePoll
+      Text -- Prompt
+      [Text] -- Choices
+      (Maybe Word) -- Nonce
+      (File GovernancePoll Out)
+  | GovernanceAnswerPoll
+      (File GovernancePoll In) -- Poll file
+      (Maybe Word) -- Answer index
+      (Maybe (File () Out)) -- Tx file
+  | GovernanceVerifyPoll
+      (File GovernancePoll In) -- Poll file
+      (File (Tx ()) In) -- Tx file
+      (Maybe (File () Out)) -- Tx file
+  deriving Show
+
+renderGovernanceCmd :: GovernanceCmd -> Text
+renderGovernanceCmd cmd =
+  case cmd of
+    GovernanceVoteCmd {} -> "governance vote"
+    GovernanceActionCmd {} -> "governance action"
+    GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
+    GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
+    GovernanceMIRTransfer _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
+    GovernanceMIRTransfer _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
+    GovernanceUpdateProposal {} -> "governance create-update-proposal"
+    GovernanceCreatePoll{} -> "governance create-poll"
+    GovernanceAnswerPoll{} -> "governance answer-poll"
+    GovernanceVerifyPoll{} -> "governance verify-poll"
+
+
+
+--------------------------------------------------------------------------------
+-- Vote related
+--------------------------------------------------------------------------------
+
+pVoteCommmands :: Parser VoteCmd
+pVoteCommmands =
+  asum
+    [ subParser "create-vote"
+        $ Opt.info pCreateVote
+        $ Opt.progDesc "Create a vote for a proposed governance action."
+    ]
+
+newtype VoteCmd
+  = CreateVoteCmd ConwayVote deriving Show
 
 
 pCreateVote :: Parser VoteCmd
@@ -22,6 +90,8 @@ pCreateVote =
       <*> pVoterType
       <*> pGoveranceActionIdentifier
       <*> pVotingCredential
+      <*> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
+      <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
  where
   pVoteChoice :: Parser VoteChoice
@@ -49,25 +119,46 @@ pCreateVote =
         )
 
 
-  pVotingCredential :: Parser StakeIdentifier
-  pVotingCredential = pStakeIdentifier
+pVotingCredential :: Parser StakeIdentifier
+pVotingCredential = pStakeIdentifier
 
 
-pVoteCommmands :: Parser VoteCmd
-pVoteCommmands =
-  asum
-    [ subParser "create-vote"
-        $ Opt.info pCreateVote
-        $ Opt.progDesc "Create a vote for a proposed governance action."
-    ]
 
-pActionCommmands :: Parser VoteCmd
+--------------------------------------------------------------------------------
+-- Governance action related
+--------------------------------------------------------------------------------
+
+newtype ActionCmd = CreateConstitution ConwayProposal deriving Show
+
+pActionCommmands :: Parser ActionCmd
 pActionCommmands =
   asum
     [ subParser "create-action"
         $ Opt.info pCreateAction
         $ Opt.progDesc "Create a vote for a proposed governance action."
     ]
-pCreateAction :: Parser VoteCmd
-pCreateAction = error "Change to GovActionCmd"
+pCreateAction :: Parser ActionCmd
+pCreateAction =
+  asum [ subParser "create-constitution"
+           $ Opt.info pCreateConstitution
+           $ Opt.progDesc "Create a vote for a proposed governance action."
+       ]
+
+
+pCreateConstitution :: Parser ActionCmd
+pCreateConstitution =
+  fmap CreateConstitution $
+    ConwayProposal
+      <$> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
+      <*> pGovActionDeposit
+      <*> pVotingCredential
+      <*> pFileOutDirection "out-file" "Output filepath of the governance action."
+
+pGovActionDeposit :: Parser Lovelace
+pGovActionDeposit =
+    Opt.option (readerFromParsecParser parseLovelace)
+      (  Opt.long "governance-action-deposit"
+      <> Opt.metavar "NATURAL"
+      <> Opt.help "Deposit required to submit a governance action."
+      )
 
