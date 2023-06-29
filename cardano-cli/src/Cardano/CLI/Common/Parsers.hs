@@ -286,3 +286,51 @@ pStakeVerificationKeyFile =
 subParser :: String -> ParserInfo a -> Parser a
 subParser availableCommand pInfo =
   Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
+
+
+pShelleyBasedShelley :: Parser AnyShelleyBasedEra
+pShelleyBasedShelley =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraShelley)
+   $ mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
+
+pShelleyBasedAllegra :: Parser AnyShelleyBasedEra
+pShelleyBasedAllegra =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra)
+   $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+
+pShelleyBasedMary :: Parser AnyShelleyBasedEra
+pShelleyBasedMary =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraMary)
+   $ mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
+
+pShelleyBasedAlonzo :: Parser AnyShelleyBasedEra
+pShelleyBasedAlonzo =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra)
+   $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+
+pShelleyBasedBabbage :: Parser AnyShelleyBasedEra
+pShelleyBasedBabbage =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage)
+   $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era"]
+
+pShelleyBasedConway :: Parser AnyShelleyBasedEra
+pShelleyBasedConway =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraConway)
+   $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
+
+pFileOutDirection :: String -> String -> Parser (File () Out)
+pFileOutDirection l h =
+  Opt.strOption
+    (  Opt.long l
+    <> Opt.metavar "FILE"
+    <> Opt.help h
+    <> Opt.completer (Opt.bashCompleter "file")
+    )
+
+parseLovelace :: Parsec.Parser Lovelace
+parseLovelace = do
+  i <- decimal
+  if i > toInteger (maxBound :: Word64)
+  then fail $ show i <> " lovelace exceeds the Word64 upper bound"
+  else return $ Lovelace i
+
