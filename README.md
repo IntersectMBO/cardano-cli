@@ -18,7 +18,7 @@ You can download the hydra binaries of ``cardano-node`` and ``cardano-cli`` from
 
 ## Contributing
 
-See the [Contributing guide][CONTRIBUTING.md] for how to contribute to this project.
+See the [Contributing guide](CONTRIBUTING.md) for how to contribute to this project.
 
 ## Core maintainers
 
