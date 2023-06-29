@@ -51,6 +51,7 @@ library
   hs-source-dirs:       src
 
   exposed-modules:      Cardano.CLI.Conway.Commands
+                        Cardano.CLI.Conway.Parsers
                         Cardano.CLI.Conway.Types
   
                         Cardano.CLI.Environment

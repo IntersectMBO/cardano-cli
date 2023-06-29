@@ -37,3 +37,14 @@ runGovernanceCreateVoteCmd (AnyShelleyBasedEra sbe) vChoice cType govActionTxIn 
       voteProcedure = createVotingProcedure sbe vChoice cType govActIdentifier votingCred
   firstExceptT WriteFileError . newExceptT $ writeFileTextEnvelope oFp Nothing voteProcedure
 
+runGovernanceCreateActionCmd
+  :: AnyShelleyBasedEra
+  -> Lovelace
+  -> Hash StakeKey
+  -> GovernanceAction
+  -> File () Out
+  -> ExceptT GovernanceCmdError IO ()
+runGovernanceCreateActionCmd (AnyShelleyBasedEra sbe) deposit depositReturnAddr govAction oFp =
+  let proposal = createProposalProcedure sbe deposit depositReturnAddr govAction
+  in firstExceptT WriteFileError . newExceptT $ writeFileTextEnvelope oFp Nothing proposal
+

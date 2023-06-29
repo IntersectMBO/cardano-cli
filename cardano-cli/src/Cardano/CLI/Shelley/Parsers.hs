@@ -20,12 +20,12 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Common.Parsers
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Conway.Parsers
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.Shelley.Commands
 import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
-                   StakeIdentifier (..), StakeVerifier (..), VerificationKeyOrFile (..),
-                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
+                   VerificationKeyOrFile (..), VerificationKeyOrHashOrFile (..),
+                   VerificationKeyTextOrFile (..))
 import           Cardano.CLI.Types
 import qualified Cardano.Ledger.BaseTypes as Shelley
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
@@ -40,8 +40,6 @@ import qualified Data.ByteString.Char8 as BSC
 import           Data.Foldable
 import           Data.Functor (($>))
 import qualified Data.IP as IP
-import           Data.List.NonEmpty (NonEmpty)
-import qualified Data.List.NonEmpty as NE
 import           Data.Maybe (fromMaybe)
 import           Data.Ratio ((%))
 import qualified Data.Set as Set
@@ -58,11 +56,7 @@ import qualified Options.Applicative as Opt
 import qualified Options.Applicative.Help as H
 import           Prettyprinter (line, pretty)
 import qualified Text.Parsec as Parsec
-import           Text.Parsec ((<?>))
-import qualified Text.Parsec.Error as Parsec
-import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
-import qualified Text.Parsec.Token as Parsec
 import           Text.Read (readEither, readMaybe)
 
 {- HLINT ignore "Use <$>" -}
@@ -172,17 +166,6 @@ pPaymentVerifier =
           pScriptFor "payment-script-file" Nothing
                      "Filepath of the payment script."
 
-pStakeIdentifier :: Parser StakeIdentifier
-pStakeIdentifier = asum
-  [ StakeIdentifierVerifier <$> pStakeVerifier
-  , StakeIdentifierAddress <$> pStakeAddress
-  ]
-
-pStakeVerifier :: Parser StakeVerifier
-pStakeVerifier = asum
-  [ StakeVerifierKey <$> pStakeVerificationKeyOrFile
-  , StakeVerifierScriptFile <$> pScriptFor "stake-script-file" Nothing "Filepath of the staking script."
-  ]
 
 pPaymentVerificationKeyTextOrFile :: Parser VerificationKeyTextOrFile
 pPaymentVerificationKeyTextOrFile =
@@ -216,21 +199,7 @@ pPaymentVerificationKeyFile =
 pScript :: Parser ScriptFile
 pScript = pScriptFor "script-file" Nothing "Filepath of the script."
 
-pScriptFor :: String -> Maybe String -> String -> Parser ScriptFile
-pScriptFor name Nothing help =
-  ScriptFile <$> Opt.strOption
-    (  Opt.long name
-    <> Opt.metavar "FILE"
-    <> Opt.help help
-    <> Opt.completer (Opt.bashCompleter "file")
-    )
 
-pScriptFor name (Just deprecated) help =
-      pScriptFor name Nothing help
-  <|> ScriptFile <$> Opt.strOption
-        (  Opt.long deprecated
-        <> Opt.internal
-        )
 
 pReferenceTxIn :: String -> String -> Parser TxIn
 pReferenceTxIn prefix scriptType =
@@ -1116,52 +1085,7 @@ pQueryCmd envCli =
                 , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
                 ]
 
-pCreateVote :: Parser VoteCmd
-pCreateVote =
-  fmap CreateVoteCmd $
-    ConwayVote
-      <$> pVoteChoice
-      <*> pVoterType
-      <*> pGoveranceActionIdentifier
-      <*> pVotingCredential
 
- where
-  pVoteChoice :: Parser VoteChoice
-  pVoteChoice =
-    asum
-     [  flag' Yes $ long "yes"
-     ,  flag' No $ long "no"
-     ,  flag' Abst $ long "abstain"
-     ]
-
-  pVoterType :: Parser VoterType
-  pVoterType =
-    asum
-     [  flag' CC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
-     ,  flag' DR $ mconcat [long "drep", Opt.help "Delegate representative"]
-     ,  flag' SP $ mconcat [long "spo", Opt.help "Stake pool operator"]
-     ]
-
-  pGoveranceActionIdentifier :: Parser TxIn
-  pGoveranceActionIdentifier =
-    Opt.option (readerFromParsecParser parseTxIn)
-        (  Opt.long "tx-in"
-        <> Opt.metavar "TX-IN"
-        <> Opt.help "TxIn of governance action (already on chain)."
-        )
-
-
-  pVotingCredential :: Parser StakeIdentifier
-  pVotingCredential = pStakeIdentifier
-
-
-pVoteCommmands :: Parser VoteCmd
-pVoteCommmands =
-  asum
-    [ subParser "vote"
-        $ Opt.info pCreateVote
-        $ Opt.progDesc "Create a vote for a proposed governance action."
-    ]
 
 pGovernanceCmd :: Parser GovernanceCmd
 pGovernanceCmd =
@@ -1170,6 +1094,9 @@ pGovernanceCmd =
           [ subParser "vote"
               $ Opt.info pVoteCommmands
               $ Opt.progDesc "Vote related commands."
+          , subParser "action"
+              $ Opt.info pActionCommmands
+              $ Opt.progDesc "Governance action related commands."
           ]
   where
     _notYet =
@@ -2373,19 +2300,6 @@ pWitnessOverride = Opt.option Opt.auto $ mconcat
   , Opt.help "Specify and override the number of witnesses the transaction requires."
   ]
 
-parseTxIn :: Parsec.Parser TxIn
-parseTxIn = TxIn <$> parseTxId <*> (Parsec.char '#' *> parseTxIx)
-
-parseTxId :: Parsec.Parser TxId
-parseTxId = do
-  str <- some Parsec.hexDigit <?> "transaction id (hexadecimal)"
-  case deserialiseFromRawBytesHex AsTxId (BSC.pack str) of
-    Right addr -> return addr
-    Left e -> fail $ "Incorrect transaction id format: " ++ displayError e
-
-parseTxIx :: Parsec.Parser TxIx
-parseTxIx = TxIx . fromIntegral <$> decimal
-
 
 pTxOut :: Parser TxOutAnyEra
 pTxOut =
@@ -2755,44 +2669,6 @@ pAddress =
       <> Opt.metavar "ADDRESS"
       <> Opt.help "A Cardano address"
       )
-
-pStakeAddress :: Parser StakeAddress
-pStakeAddress =
-    Opt.option (readerFromParsecParser parseStakeAddress)
-      (  Opt.long "stake-address"
-      <> Opt.metavar "ADDRESS"
-      <> Opt.help "Target stake address (bech32 format)."
-      )
-
-pStakeVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakeKey)
-pStakeVerificationKeyOrFile =
-  VerificationKeyValue <$> pStakeVerificationKey
-    <|> VerificationKeyFilePath <$> pStakeVerificationKeyFile
-
-pStakeVerificationKey :: Parser (VerificationKey StakeKey)
-pStakeVerificationKey =
-  Opt.option
-    (readVerificationKey AsStakeKey)
-      (  Opt.long "stake-verification-key"
-      <> Opt.metavar "STRING"
-      <> Opt.help "Stake verification key (Bech32 or hex-encoded)."
-      )
-
-pStakeVerificationKeyFile :: Parser (VerificationKeyFile In)
-pStakeVerificationKeyFile =
-  fmap File $ asum
-    [ Opt.strOption $ mconcat
-      [ Opt.long "stake-verification-key-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath of the staking verification key."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
-    , Opt.strOption $ mconcat
-      [ Opt.long "staking-verification-key-file"
-      , Opt.internal
-      ]
-    ]
-
 
 pStakePoolVerificationKeyFile :: Parser (VerificationKeyFile In)
 pStakePoolVerificationKeyFile =
@@ -3427,12 +3303,7 @@ parseLovelace = do
   else return $ Lovelace i
 
 
-parseStakeAddress :: Parsec.Parser StakeAddress
-parseStakeAddress = do
-    str <- lexPlausibleAddressString
-    case deserialiseAddress AsStakeAddress str of
-      Nothing   -> fail $ "invalid address: " <> Text.unpack str
-      Just addr -> pure addr
+
 
 parseTxOutAnyEra
   :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)
@@ -3445,30 +3316,11 @@ parseTxOutAnyEra = do
     val <- parseValue
     return (TxOutAnyEra addr val)
 
-decimal :: Parsec.Parser Integer
-Parsec.TokenParser { Parsec.decimal = decimal } = Parsec.haskell
-
 --------------------------------------------------------------------------------
 -- Helpers
 --------------------------------------------------------------------------------
 
--- | Read a Bech32 or hex-encoded verification key.
-readVerificationKey
-  :: forall keyrole. SerialiseAsBech32 (VerificationKey keyrole)
-  => AsType keyrole
-  -> Opt.ReadM (VerificationKey keyrole)
-readVerificationKey asType =
-    Opt.eitherReader deserialiseFromBech32OrHex
-  where
-    keyFormats :: NonEmpty (InputFormat (VerificationKey keyrole))
-    keyFormats = NE.fromList [InputFormatBech32, InputFormatHex]
 
-    deserialiseFromBech32OrHex
-      :: String
-      -> Either String (VerificationKey keyrole)
-    deserialiseFromBech32OrHex str =
-      first (Text.unpack . renderInputDecodeError) $
-        deserialiseInput (AsVerificationKey asType) keyFormats (BSC.pack str)
 
 readPoolIdOutputFormat :: Opt.ReadM PoolIdOutputFormat
 readPoolIdOutputFormat = do
@@ -3530,19 +3382,6 @@ readRational =
 readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
 readerFromAttoParser p =
     Opt.eitherReader (Atto.parseOnly (p <* Atto.endOfInput) . BSC.pack)
-
-readerFromParsecParser :: Parsec.Parser a -> Opt.ReadM a
-readerFromParsecParser p =
-    Opt.eitherReader (first formatError . Parsec.parse (p <* Parsec.eof) "")
-  where
-    formatError err =
-      Parsec.showErrorMessages "or" "unknown parse error"
-                               "expecting" "unexpected" "end of input"
-                               (Parsec.errorMessages err)
-
-subParser :: String -> ParserInfo a -> Parser a
-subParser availableCommand pInfo =
-  Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
 
 hiddenSubParser :: String -> ParserInfo a -> Parser a
 hiddenSubParser availableCommand pInfo =
