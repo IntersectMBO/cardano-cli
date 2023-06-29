@@ -327,6 +327,16 @@ pFileOutDirection l h =
     <> Opt.completer (Opt.bashCompleter "file")
     )
 
+pFileInDirection :: String -> String -> Parser (File () In)
+pFileInDirection l h =
+  Opt.strOption
+    (  Opt.long l
+    <> Opt.metavar "FILE"
+    <> Opt.help h
+    <> Opt.completer (Opt.bashCompleter "file")
+    )
+
+
 parseLovelace :: Parsec.Parser Lovelace
 parseLovelace = do
   i <- decimal

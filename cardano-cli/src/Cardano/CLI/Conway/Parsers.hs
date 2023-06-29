@@ -128,31 +128,43 @@ pVotingCredential = pStakeIdentifier
 -- Governance action related
 --------------------------------------------------------------------------------
 
-newtype ActionCmd = CreateConstitution ConwayProposal deriving Show
+newtype ActionCmd = CreateConstitution NewConstitution deriving Show
 
 pActionCommmands :: Parser ActionCmd
 pActionCommmands =
   asum
     [ subParser "create-action"
         $ Opt.info pCreateAction
-        $ Opt.progDesc "Create a vote for a proposed governance action."
+        $ Opt.progDesc "Create a governance action."
     ]
+
 pCreateAction :: Parser ActionCmd
 pCreateAction =
   asum [ subParser "create-constitution"
            $ Opt.info pCreateConstitution
-           $ Opt.progDesc "Create a vote for a proposed governance action."
+           $ Opt.progDesc "Create a constitution."
        ]
 
 
 pCreateConstitution :: Parser ActionCmd
 pCreateConstitution =
   fmap CreateConstitution $
-    ConwayProposal
+    NewConstitution
       <$> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
       <*> pGovActionDeposit
       <*> pVotingCredential
+      <*> pConstitution
       <*> pFileOutDirection "out-file" "Output filepath of the governance action."
+
+pConstitution :: Parser Constitution
+pConstitution =
+  asum [ fmap ConstitutionFromText
+           . Opt.strOption $ mconcat [ Opt.long "constitution"
+                                     , Opt.metavar "TEXT"
+                                     , Opt.help "Input constitution as UTF-8 encoded text."
+                                     ]
+       , ConstitutionFromFile <$> pFileInDirection "constitution-file" "Input constitution as a text file."
+       ]
 
 pGovActionDeposit :: Parser Lovelace
 pGovActionDeposit =
