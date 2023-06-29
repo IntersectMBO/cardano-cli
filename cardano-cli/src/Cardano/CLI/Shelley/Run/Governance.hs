@@ -105,8 +105,8 @@ renderShelleyGovernanceError err =
 runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmd (GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp))) =
   runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
-runGovernanceCmd (GovernanceActionCmd (CreateConstitution _)) =
-  error "TODO"
+runGovernanceCmd (GovernanceActionCmd (CreateConstitution (NewConstitution sbe deposit voteStakeCred newconstitution fp))) =
+  runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
 runGovernanceCmd (GovernanceMIRPayStakeAddressesCertificate mirpot vKeys rewards out) =
   let _notYet = runGovernanceMIRCertificatePayStakeAddrs mirpot vKeys rewards out
   in error "runGovernanceCmd: has not been implemented"

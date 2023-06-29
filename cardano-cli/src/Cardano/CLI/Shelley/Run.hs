@@ -6,6 +6,7 @@ module Cardano.CLI.Shelley.Run
 
 import           Cardano.Api
 
+import           Cardano.CLI.Conway.Commands
 import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Shelley.Run.Address
 import           Cardano.CLI.Shelley.Run.Genesis
@@ -26,7 +27,7 @@ import qualified Data.Text as Text
 data ShelleyClientCmdError
   = ShelleyCmdAddressError !ShelleyAddressCmdError
   | ShelleyCmdGenesisError !ShelleyGenesisCmdError
-  | ShelleyCmdGovernanceError !ShelleyGovernanceCmdError
+  | ShelleyCmdGovernanceError !GovernanceCmdError
   | ShelleyCmdNodeError !ShelleyNodeCmdError
   | ShelleyCmdPoolError !ShelleyPoolCmdError
   | ShelleyCmdStakeAddressError !ShelleyStakeAddressCmdError
@@ -42,8 +43,9 @@ renderShelleyClientCmdError cmd err =
        renderError cmd renderShelleyAddressCmdError addrCmdErr
     ShelleyCmdGenesisError genesisCmdErr ->
        renderError cmd (Text.pack . displayError) genesisCmdErr
-    ShelleyCmdGovernanceError govCmdErr ->
-       renderError cmd renderShelleyGovernanceError govCmdErr
+    ShelleyCmdGovernanceError govCmdErr -> Text.pack $ show govCmdErr
+       -- TODO: Conway era
+       -- renderError cmd renderShelleyGovernanceError govCmdErr
     ShelleyCmdNodeError nodeCmdErr ->
        renderError cmd renderShelleyNodeCmdError nodeCmdErr
     ShelleyCmdPoolError poolCmdErr ->
@@ -80,6 +82,6 @@ runShelleyClientCommand (TransactionCmd  cmd) = firstExceptT ShelleyCmdTransacti
 runShelleyClientCommand (NodeCmd         cmd) = firstExceptT ShelleyCmdNodeError $ runNodeCmd cmd
 runShelleyClientCommand (PoolCmd         cmd) = firstExceptT ShelleyCmdPoolError $ runPoolCmd cmd
 runShelleyClientCommand (QueryCmd        cmd) = firstExceptT ShelleyCmdQueryError $ runQueryCmd cmd
-runShelleyClientCommand (GovernanceCmd'   cmd) = firstExceptT (error "runShelleyClientCommand: Conway TODO") $ runGovernanceCmd cmd
+runShelleyClientCommand (GovernanceCmd'  cmd) = firstExceptT ShelleyCmdGovernanceError $ runGovernanceCmd cmd
 runShelleyClientCommand (GenesisCmd      cmd) = firstExceptT ShelleyCmdGenesisError $ runGenesisCmd cmd
 runShelleyClientCommand (TextViewCmd     cmd) = firstExceptT ShelleyCmdTextViewError $ runTextViewCmd cmd

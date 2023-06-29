@@ -114,7 +114,7 @@ library
                       , binary
                       , bytestring
                       , canonical-json
-                      , cardano-api ^>= 8.5.2
+                      , cardano-api ^>= 8.6
                       , cardano-binary
                       , cardano-crypto
                       , cardano-crypto-class >= 2.1.1
@@ -202,8 +202,8 @@ test-suite cardano-cli-test
                       , base16-bytestring
                       , bech32 >= 1.1.0
                       , bytestring
-                      , cardano-api ^>= 8.5.2
-                      , cardano-api:internal ^>= 8.5.2
+                      , cardano-api ^>= 8.6
+                      , cardano-api:internal ^>= 8.6
                       , cardano-api-gen ^>= 8.1.0.2
                       , cardano-cli
                       , cardano-cli:cardano-cli-test-lib
@@ -244,7 +244,7 @@ test-suite cardano-cli-golden
   build-depends:        aeson >= 1.5.6.0
                       , base16-bytestring
                       , bytestring
-                      , cardano-api ^>= 8.5.2
+                      , cardano-api ^>= 8.6
                       , cardano-cli
                       , cardano-cli:cardano-cli-test-lib
                       , cardano-crypto-class ^>= 2.1
