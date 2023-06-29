@@ -7,6 +7,8 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Shelley.Key
 
+import           Data.Text (Text)
+
 data ConwayVote
   = ConwayVote
     { cvVoteChoice :: VoteChoice
@@ -17,10 +19,15 @@ data ConwayVote
     , cvFilepath :: File () Out
     } deriving Show
 
-data ConwayProposal
-  = ConwayProposal
-      { cpEra :: AnyShelleyBasedEra
-      , cpDeposit :: Lovelace
-      , cpVotingStakeCredential :: StakeIdentifier
-      , cpFilePath :: File () Out
+data NewConstitution
+  = NewConstitution
+      { ncEra :: AnyShelleyBasedEra
+      , ncDeposit :: Lovelace
+      , ncVotingStakeCredential :: StakeIdentifier
+      , ncConstitution :: Constitution
+      , ncFilePath :: File () Out
       } deriving Show
+
+data Constitution
+  = ConstitutionFromFile (File () In)
+  | ConstitutionFromText Text deriving Show
