@@ -9,6 +9,7 @@ module Cardano.CLI.Common.Parsers
 import           Cardano.Api (AnyCardanoEra (..), AnyConsensusModeParams (..), CardanoEra (..),
                    ConsensusModeParams (..), EpochSlots (..), File (..), NetworkId (..),
                    NetworkMagic (..), SocketPath, bounded)
+
 import           Cardano.CLI.Environment (EnvCli (..))
 
 import           Data.Foldable
