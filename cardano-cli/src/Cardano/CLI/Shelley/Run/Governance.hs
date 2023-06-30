@@ -8,6 +8,17 @@ module Cardano.CLI.Shelley.Run.Governance
   , runGovernanceCmd
   ) where
 
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
+import           Cardano.Binary (DecoderError)
+import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
+                   readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
+import           Cardano.CLI.Shelley.Parsers
+import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
+import           Cardano.CLI.Types
+import qualified Cardano.Ledger.Shelley.TxBody as Shelley
+
 import           Control.Monad (unless, when)
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Class (lift)
@@ -27,18 +38,6 @@ import qualified Data.Text.Read as Text
 import           Formatting (build, sformat)
 import qualified System.IO as IO
 import           System.IO (stderr, stdin, stdout)
-
-import           Cardano.Api
-import           Cardano.Api.Shelley
-
-import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
-                   readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
-import           Cardano.CLI.Shelley.Parsers
-import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
-import           Cardano.CLI.Types
-
-import           Cardano.Binary (DecoderError)
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 data ShelleyGovernanceCmdError
   = ShelleyGovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
@@ -102,6 +101,7 @@ renderShelleyGovernanceError err =
     ShelleyGovernanceCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
 
 runGovernanceCmd :: GovernanceCmd -> ExceptT ShelleyGovernanceCmdError IO ()
+runGovernanceCmd (GovernanceVoteCmd (CreateVoteCmd _conwayVote)) = error ""
 runGovernanceCmd (GovernanceMIRPayStakeAddressesCertificate mirpot vKeys rewards out) =
   runGovernanceMIRCertificatePayStakeAddrs mirpot vKeys rewards out
 runGovernanceCmd (GovernanceMIRTransfer amt out direction) =
