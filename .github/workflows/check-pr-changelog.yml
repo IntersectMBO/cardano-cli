@@ -1,17 +1,23 @@
 name: Check if PR changelog was filled correctly
 on:
-    pull_request:
-      types: [opened, edited, synchronize, ready_for_review]
+  merge_group:
+  pull_request:
+    types: [opened, edited, synchronize, ready_for_review]
 
 jobs:
   check-changelog:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v3
+        if: ${{ github.event_name != 'merge_group' }}
         with:
           node-version: 16
+
       - run: npm install js-yaml@4.1.0
+        if: ${{ github.event_name != 'merge_group' }}
+
       - name: Fail if PR changelog is not correct
+        if: ${{ github.event_name != 'merge_group' }}
         uses: actions/github-script@v6
         id: check-changelog
         with:
