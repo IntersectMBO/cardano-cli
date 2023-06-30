@@ -4,18 +4,11 @@
 
 module Cardano.CLI.Shelley.Run.StakeAddress
   ( ShelleyStakeAddressCmdError(ShelleyStakeAddressCmdReadKeyFileError)
+  , getStakeCredentialFromIdentifier
   , renderShelleyStakeAddressCmdError
   , runStakeAddressCmd
   , runStakeAddressKeyGenToFile
   ) where
-
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT, onLeft)
-import qualified Data.ByteString.Char8 as BS
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
@@ -26,8 +19,16 @@ import           Cardano.CLI.Shelley.Key (DelegationTarget (..), StakeIdentifier
 import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Shelley.Run.Read
 import           Cardano.CLI.Types
+
+import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (lift)
+import           Control.Monad.Trans.Except (ExceptT)
+import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT, onLeft)
+import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
+import           Data.Text (Text)
+import qualified Data.Text as Text
+import qualified Data.Text.IO as Text
 
 data ShelleyStakeAddressCmdError
   = ShelleyStakeAddressCmdReadKeyFileError !(FileError InputDecodeError)

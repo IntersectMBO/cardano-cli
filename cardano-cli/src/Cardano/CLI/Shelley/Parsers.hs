@@ -15,6 +15,20 @@ module Cardano.CLI.Shelley.Parsers
   , parseTxIn
   ) where
 
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
+import           Cardano.Chain.Common (BlockCount (BlockCount))
+import           Cardano.CLI.Common.Parsers
+import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Shelley.Commands
+import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
+                   StakeIdentifier (..), StakeVerifier (..), VerificationKeyOrFile (..),
+                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
+import           Cardano.CLI.Types
+import qualified Cardano.Ledger.BaseTypes as Shelley
+import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 import           Cardano.Prelude (ConvertText (..))
 
 import qualified Data.Aeson as Aeson
@@ -50,22 +64,6 @@ import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
 import           Text.Read (readEither, readMaybe)
-
-import qualified Cardano.Ledger.BaseTypes as Shelley
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
-
-import           Cardano.Api
-import           Cardano.Api.Shelley
-
-import           Cardano.Chain.Common (BlockCount (BlockCount))
-
-import           Cardano.CLI.Common.Parsers
-import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
-                   StakeIdentifier (..), StakeVerifier (..), VerificationKeyOrFile (..),
-                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
-import           Cardano.CLI.Types
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
@@ -1118,29 +1116,83 @@ pQueryCmd envCli =
                 , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
                 ]
 
+pCreateVote :: Parser VoteCmd
+pCreateVote =
+  fmap CreateVoteCmd $
+    ConwayVote
+      <$> pVoteChoice
+      <*> pVoterType
+      <*> pGoveranceActionIdentifier
+      <*> pVotingCredential
+
+ where
+  pVoteChoice :: Parser VoteChoice
+  pVoteChoice =
+    asum
+     [  flag' Yes $ long "yes"
+     ,  flag' No $ long "no"
+     ,  flag' Abst $ long "abstain"
+     ]
+
+  pVoterType :: Parser VoterType
+  pVoterType =
+    asum
+     [  flag' CC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
+     ,  flag' DR $ mconcat [long "drep", Opt.help "Delegate representative"]
+     ,  flag' SP $ mconcat [long "spo", Opt.help "Stake pool operator"]
+     ]
+
+  pGoveranceActionIdentifier :: Parser TxIn
+  pGoveranceActionIdentifier =
+    Opt.option (readerFromParsecParser parseTxIn)
+        (  Opt.long "tx-in"
+        <> Opt.metavar "TX-IN"
+        <> Opt.help "TxIn of governance action (already on chain)."
+        )
+
+
+  pVotingCredential :: Parser StakeIdentifier
+  pVotingCredential = pStakeIdentifier
+
+
+pVoteCommmands :: Parser VoteCmd
+pVoteCommmands =
+  asum
+    [ subParser "vote"
+        $ Opt.info pCreateVote
+        $ Opt.progDesc "Create a vote for a proposed governance action."
+    ]
+
 pGovernanceCmd :: Parser GovernanceCmd
 pGovernanceCmd =
-  asum
-    [ subParser "create-mir-certificate"
-      $ Opt.info (pMIRPayStakeAddresses <|> mirCertParsers)
-      $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
-    , subParser "create-genesis-key-delegation-certificate"
-      $ Opt.info pGovernanceGenesisKeyDelegationCertificate
-      $ Opt.progDesc "Create a genesis key delegation certificate"
-    , subParser "create-update-proposal"
-      $ Opt.info pUpdateProposal
-      $ Opt.progDesc "Create an update proposal"
-    , subParser "create-poll"
-      $ Opt.info pGovernanceCreatePoll
-      $ Opt.progDesc "Create an SPO poll"
-    , subParser "answer-poll"
-      $ Opt.info pGovernanceAnswerPoll
-      $ Opt.progDesc "Answer an SPO poll"
-    , subParser "verify-poll"
-      $ Opt.info pGovernanceVerifyPoll
-      $ Opt.progDesc "Verify an answer to a given SPO poll"
-    ]
+  GovernanceVoteCmd
+    <$> asum
+          [ subParser "vote"
+              $ Opt.info pVoteCommmands
+              $ Opt.progDesc "Vote related commands."
+          ]
   where
+    _notYet =
+      [ subParser "create-mir-certificate"
+        $ Opt.info (pMIRPayStakeAddresses <|> mirCertParsers)
+        $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
+      , subParser "create-genesis-key-delegation-certificate"
+        $ Opt.info pGovernanceGenesisKeyDelegationCertificate
+        $ Opt.progDesc "Create a genesis key delegation certificate"
+      , subParser "create-update-proposal"
+        $ Opt.info pUpdateProposal
+        $ Opt.progDesc "Create an update proposal"
+      , subParser "create-poll"
+        $ Opt.info pGovernanceCreatePoll
+        $ Opt.progDesc "Create an SPO poll"
+      , subParser "answer-poll"
+        $ Opt.info pGovernanceAnswerPoll
+        $ Opt.progDesc "Answer an SPO poll"
+      , subParser "verify-poll"
+        $ Opt.info pGovernanceVerifyPoll
+        $ Opt.progDesc "Verify an answer to a given SPO poll"
+      ]
+
     mirCertParsers :: Parser GovernanceCmd
     mirCertParsers = asum
       [ subParser "stake-addresses"

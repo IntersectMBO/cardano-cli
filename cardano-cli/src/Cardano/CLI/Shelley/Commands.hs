@@ -17,6 +17,7 @@ module Cardano.CLI.Shelley.Commands
   , GovernanceCmd (..)
   , GenesisCmd (..)
   , TextViewCmd (..)
+  , VoteCmd(..)
   , renderShelleyCommand
 
     -- * CLI flag types
@@ -48,20 +49,20 @@ module Cardano.CLI.Shelley.Commands
   , Deprecated (..)
   ) where
 
-import           Prelude
-
 import           Cardano.Api.Shelley
 
-import           Data.Text (Text)
-import           Data.Time.Clock
-
+import           Cardano.Chain.Common (BlockCount)
+import           Cardano.CLI.Conway.Types
 import           Cardano.CLI.Shelley.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
 import           Cardano.CLI.Types
-
-import           Cardano.Chain.Common (BlockCount)
 import           Cardano.Ledger.Shelley.TxBody (MIRPot)
+
+import           Prelude
+
+import           Data.Text (Text)
+import           Data.Time.Clock
 --
 -- Shelley CLI command data types
 --
@@ -399,9 +400,12 @@ renderQueryCmd cmd =
         TxMempoolQueryNextTx -> "next-tx"
         TxMempoolQueryInfo -> "info"
 
+data VoteCmd
+  = CreateVoteCmd ConwayVote deriving Show
 
 data GovernanceCmd
-  = GovernanceMIRPayStakeAddressesCertificate
+  = GovernanceVoteCmd VoteCmd
+  | GovernanceMIRPayStakeAddressesCertificate
       MIRPot
       [StakeAddress]
       [Lovelace]
@@ -434,6 +438,7 @@ data GovernanceCmd
 renderGovernanceCmd :: GovernanceCmd -> Text
 renderGovernanceCmd cmd =
   case cmd of
+    GovernanceVoteCmd {} -> "governance vote"
     GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
     GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
     GovernanceMIRTransfer _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
