@@ -340,6 +340,8 @@ friendlyCertificate =
               ]
       MIRCertificate pot target ->
         "MIR" .= object ["pot" .= friendlyMirPot pot, friendlyMirTarget target]
+      CommitteeDelegationCertificate _ _ -> undefined
+      CommitteeHotKeyDeregistrationCertificate _ -> undefined
 
 friendlyMirTarget :: MIRTarget -> Aeson.Pair
 friendlyMirTarget = \case
