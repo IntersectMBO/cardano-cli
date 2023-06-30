@@ -401,19 +401,22 @@ pStakeAddressCmd envCli =
     pStakeAddressRegistrationCert :: Parser StakeAddressCmd
     pStakeAddressRegistrationCert =
       StakeRegistrationCert
-        <$> pStakeIdentifier
+        <$> pCardanoEra
+        <*> pStakeIdentifier
         <*> pOutputFile
 
     pStakeAddressDeregistrationCert :: Parser StakeAddressCmd
     pStakeAddressDeregistrationCert =
       StakeCredentialDeRegistrationCert
-        <$> pStakeIdentifier
+        <$> pCardanoEra
+        <*> pStakeIdentifier
         <*> pOutputFile
 
     pStakeAddressPoolDelegationCert :: Parser StakeAddressCmd
     pStakeAddressPoolDelegationCert =
       StakeCredentialDelegationCert
-        <$> pStakeIdentifier
+        <$> pCardanoEra
+        <*> pStakeIdentifier
         <*> pDelegationTarget
         <*> pOutputFile
 
@@ -1156,27 +1159,31 @@ pGovernanceCmd =
 
     pMIRPayStakeAddresses :: Parser GovernanceCmd
     pMIRPayStakeAddresses = GovernanceMIRPayStakeAddressesCertificate
-                              <$> pMIRPot
+                              <$> pCardanoEra
+                              <*> pMIRPot
                               <*> some pStakeAddress
                               <*> some pRewardAmt
                               <*> pOutputFile
 
     pMIRTransferToTreasury :: Parser GovernanceCmd
     pMIRTransferToTreasury = GovernanceMIRTransfer
-                               <$> pTransferAmt
+                               <$> pCardanoEra
+                               <*> pTransferAmt
                                <*> pOutputFile
                                <*> pure TransferToTreasury
 
     pMIRTransferToReserves :: Parser GovernanceCmd
     pMIRTransferToReserves = GovernanceMIRTransfer
-                               <$> pTransferAmt
+                               <$> pCardanoEra
+                               <*> pTransferAmt
                                <*> pOutputFile
                                <*> pure TransferToReserves
 
     pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmd
     pGovernanceGenesisKeyDelegationCertificate =
       GovernanceGenesisKeyDelegationCertificate
-        <$> pGenesisVerificationKeyOrHashOrFile
+        <$> pCardanoEra
+        <*> pGenesisVerificationKeyOrHashOrFile
         <*> pGenesisDelegateVerificationKeyOrHashOrFile
         <*> pVrfVerificationKeyOrHashOrFile
         <*> pOutputFile
@@ -3032,7 +3039,8 @@ pStakePoolMetadataHash =
 pStakePoolRegistrationCert :: EnvCli -> Parser PoolCmd
 pStakePoolRegistrationCert envCli =
   PoolRegistrationCert
-    <$> pStakePoolVerificationKeyOrFile
+    <$> pCardanoEra
+    <*> pStakePoolVerificationKeyOrFile
     <*> pVrfVerificationKeyOrFile
     <*> pPoolPledge
     <*> pPoolCost
@@ -3047,7 +3055,8 @@ pStakePoolRegistrationCert envCli =
 pStakePoolRetirementCert :: Parser PoolCmd
 pStakePoolRetirementCert =
   PoolRetirementCert
-    <$> pStakePoolVerificationKeyOrFile
+    <$> pCardanoEra
+    <*> pStakePoolVerificationKeyOrFile
     <*> pEpochNo
     <*> pOutputFile
 

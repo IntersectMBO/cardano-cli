@@ -1,6 +1,8 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Shelley CLI command types
@@ -116,12 +118,19 @@ data StakeAddressCmd
   = StakeAddressKeyGen KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
   | StakeAddressKeyHash (VerificationKeyOrFile StakeKey) (Maybe (File () Out))
   | StakeAddressBuild StakeVerifier NetworkId (Maybe (File () Out))
-  | StakeRegistrationCert StakeIdentifier (File () Out)
+  | StakeRegistrationCert
+      AnyCardanoEra
+      StakeIdentifier
+      (File () Out)
   | StakeCredentialDelegationCert
+      AnyCardanoEra
       StakeIdentifier
       DelegationTarget
       (File () Out)
-  | StakeCredentialDeRegistrationCert StakeIdentifier (File () Out)
+  | StakeCredentialDeRegistrationCert
+      AnyCardanoEra
+      StakeIdentifier
+      (File () Out)
   deriving Show
 
 renderStakeAddressCmd :: StakeAddressCmd -> Text
@@ -296,9 +305,10 @@ renderNodeCmd cmd = do
     NodeNewCounter {} -> "node new-counter"
     NodeIssueOpCert{} -> "node issue-op-cert"
 
-
 data PoolCmd
   = PoolRegistrationCert
+      AnyCardanoEra
+      -- ^ Era in which to register the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
       (VerificationKeyOrFile VrfKey)
@@ -320,11 +330,13 @@ data PoolCmd
       NetworkId
       (File () Out)
   | PoolRetirementCert
+      AnyCardanoEra
+      -- ^ Era in which to retire the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
       EpochNo
       -- ^ Epoch in which to retire the stake pool.
-      (File Certificate Out)
+      (File () Out)
   | PoolGetId (VerificationKeyOrFile StakePoolKey) PoolIdOutputFormat (Maybe (File () Out))
   | PoolMetadataHash (StakePoolMetadataFile In) (Maybe (File () Out))
   deriving Show
@@ -400,12 +412,18 @@ renderQueryCmd cmd =
 
 data GovernanceCmd
   = GovernanceMIRPayStakeAddressesCertificate
+      AnyCardanoEra
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
-  | GovernanceMIRTransfer Lovelace (File () Out) TransferDirection
+  | GovernanceMIRTransfer
+      AnyCardanoEra
+      Lovelace
+      (File () Out)
+      TransferDirection
   | GovernanceGenesisKeyDelegationCertificate
+      AnyCardanoEra
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)
@@ -434,8 +452,8 @@ renderGovernanceCmd cmd =
   case cmd of
     GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
     GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
-    GovernanceMIRTransfer _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
-    GovernanceMIRTransfer _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
+    GovernanceMIRTransfer _ _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
+    GovernanceMIRTransfer _ _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
     GovernanceUpdateProposal {} -> "governance create-update-proposal"
     GovernanceCreatePoll{} -> "governance create-poll"
     GovernanceAnswerPoll{} -> "governance answer-poll"
