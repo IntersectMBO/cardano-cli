@@ -1,10 +1,19 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Shelley.Run.Pool
   ( ShelleyPoolCmdError(ShelleyPoolCmdReadFileError)
   , renderShelleyPoolCmdError
   , runPoolCmd
   ) where
+
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
+import           Cardano.CLI.Shelley.Commands
+import           Cardano.CLI.Shelley.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
+import           Cardano.CLI.Types (PoolIdOutputFormat (..))
+import qualified Cardano.Ledger.Slot as Shelley
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (lift)
@@ -15,14 +24,6 @@ import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 import           Data.Text (Text)
 import qualified Data.Text as Text
-
-import           Cardano.Api
-import           Cardano.Api.Shelley
-import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
-import           Cardano.CLI.Types (PoolIdOutputFormat (..))
-
-import qualified Cardano.Ledger.Slot as Shelley
 
 data ShelleyPoolCmdError
   = ShelleyPoolCmdReadFileError !(FileError TextEnvelopeError)
@@ -43,13 +44,12 @@ renderShelleyPoolCmdError err =
 
 
 runPoolCmd :: PoolCmd -> ExceptT ShelleyPoolCmdError IO ()
-runPoolCmd (PoolRegistrationCert sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp) =
-  runStakePoolRegistrationCert sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
-runPoolCmd (PoolRetirementCert sPvkeyFp retireEpoch outfp) =
-  runStakePoolRetirementCert sPvkeyFp retireEpoch outfp
+runPoolCmd (PoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp) =
+  runStakePoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
+runPoolCmd (PoolRetirementCert anyEra sPvkeyFp retireEpoch outfp) =
+  runStakePoolRetirementCert anyEra sPvkeyFp retireEpoch outfp
 runPoolCmd (PoolGetId sPvkey outputFormat mOutFile) = runPoolId sPvkey outputFormat mOutFile
 runPoolCmd (PoolMetadataHash poolMdFile mOutFile) = runPoolMetadataHash poolMdFile mOutFile
-
 
 --
 -- Stake pool command implementations
@@ -59,7 +59,8 @@ runPoolCmd (PoolMetadataHash poolMdFile mOutFile) = runPoolMetadataHash poolMdFi
 -- TODO: Metadata and more stake pool relay support to be
 -- added in the future.
 runStakePoolRegistrationCert
-  :: VerificationKeyOrFile StakePoolKey
+  :: AnyCardanoEra
+  -> VerificationKeyOrFile StakePoolKey
   -- ^ Stake pool verification key.
   -> VerificationKeyOrFile VrfKey
   -- ^ VRF Verification key.
@@ -81,6 +82,7 @@ runStakePoolRegistrationCert
   -> File () Out
   -> ExceptT ShelleyPoolCmdError IO ()
 runStakePoolRegistrationCert
+  anyEra
   stakePoolVerKeyOrFile
   vrfVerKeyOrFile
   pldg
@@ -92,6 +94,8 @@ runStakePoolRegistrationCert
   mbMetadata
   network
   outfp = do
+    AnyCardanoEra era <- pure anyEra
+
     -- Pool verification key
     stakePoolVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
       . newExceptT
@@ -134,7 +138,7 @@ runStakePoolRegistrationCert
             , stakePoolMetadata = mbMetadata
             }
 
-    let registrationCert = makeStakePoolRegistrationCertificate stakePoolParams
+    let registrationCert = makeStakePoolRegistrationCertificate era stakePoolParams
 
     firstExceptT ShelleyPoolCmdWriteFileError
       . newExceptT
@@ -145,23 +149,26 @@ runStakePoolRegistrationCert
     registrationCertDesc = "Stake Pool Registration Certificate"
 
 runStakePoolRetirementCert
-  :: VerificationKeyOrFile StakePoolKey
+  :: AnyCardanoEra
+  -> VerificationKeyOrFile StakePoolKey
   -> Shelley.EpochNo
-  -> File Certificate Out
+  -> File () Out
   -> ExceptT ShelleyPoolCmdError IO ()
-runStakePoolRetirementCert stakePoolVerKeyOrFile retireEpoch outfp = do
+runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
+    AnyCardanoEra era <- pure anyEra
+
     -- Pool verification key
     stakePoolVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
       . newExceptT
       $ readVerificationKeyOrFile AsStakePoolKey stakePoolVerKeyOrFile
 
     let stakePoolId' = verificationKeyHash stakePoolVerKey
-        retireCert = makeStakePoolRetirementCertificate stakePoolId' retireEpoch
+        retireCert = makeStakePoolRetirementCertificate era stakePoolId' retireEpoch
 
     firstExceptT ShelleyPoolCmdWriteFileError
       . newExceptT
-      $ intoFile outfp retireCert writeLazyByteStringFile
-      $ textEnvelopeToJSON (Just retireCertDesc)
+      $ writeLazyByteStringFile outfp
+      $ textEnvelopeToJSON (Just retireCertDesc) retireCert
   where
     retireCertDesc :: TextEnvelopeDescr
     retireCertDesc = "Stake Pool Retirement Certificate"

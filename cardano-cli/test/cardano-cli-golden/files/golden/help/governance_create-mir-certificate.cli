@@ -1,5 +1,13 @@
 Usage: cardano-cli governance create-mir-certificate 
-            ( (--reserves | --treasury)
+            ( [ --byron-era
+              | --shelley-era
+              | --allegra-era
+              | --mary-era
+              | --alonzo-era
+              | --babbage-era
+              | --conway-era
+              ]
+              (--reserves | --treasury)
               (--stake-address ADDRESS)
               (--reward LOVELACE)
               --out-file FILE
@@ -11,6 +19,13 @@ Usage: cardano-cli governance create-mir-certificate
   Create an MIR (Move Instantaneous Rewards) certificate
 
 Available options:
+  --byron-era              Specify the Byron era
+  --shelley-era            Specify the Shelley era
+  --allegra-era            Specify the Allegra era
+  --mary-era               Specify the Mary era
+  --alonzo-era             Specify the Alonzo era
+  --babbage-era            Specify the Babbage era (default)
+  --conway-era             Specify the Conway era
   --reserves               Use the reserves pot.
   --treasury               Use the treasury pot.
   --stake-address ADDRESS  Target stake address (bech32 format).
