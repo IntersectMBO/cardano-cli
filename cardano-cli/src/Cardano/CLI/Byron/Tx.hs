@@ -24,6 +24,22 @@ module Cardano.CLI.Byron.Tx
   )
 where
 
+import           Cardano.Api
+import           Cardano.Api.Byron
+
+import qualified Cardano.Binary as Binary
+import qualified Cardano.Chain.Common as Common
+import           Cardano.Chain.Genesis as Genesis
+import qualified Cardano.Chain.UTxO as UTxO
+import           Cardano.CLI.Byron.Key (byronWitnessToVerKey)
+import           Cardano.CLI.Types (TxFile)
+import qualified Cardano.Crypto.Signing as Crypto
+import qualified Cardano.Ledger.Binary.Decoding as LedgerBinary
+import           Ouroboros.Consensus.Byron.Ledger (ByronBlock, GenTx (..))
+import qualified Ouroboros.Consensus.Byron.Ledger as Byron
+import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
+import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
+
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (left)
@@ -40,25 +56,6 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Formatting (sformat, (%))
-
-import           Cardano.Api
-import           Cardano.Api.Byron
-
-import qualified Cardano.Binary as Binary
-import qualified Cardano.Ledger.Binary.Decoding as LedgerBinary
-
-import qualified Cardano.Chain.Common as Common
-import           Cardano.Chain.Genesis as Genesis
-import qualified Cardano.Chain.UTxO as UTxO
-import qualified Cardano.Crypto.Signing as Crypto
-
-import           Cardano.CLI.Byron.Key (byronWitnessToVerKey)
-import           Cardano.CLI.Types (TxFile)
-
-import           Ouroboros.Consensus.Byron.Ledger (ByronBlock, GenTx (..))
-import qualified Ouroboros.Consensus.Byron.Ledger as Byron
-import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
-import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 data ByronTxError
   = TxDeserialisationFailed !FilePath !Binary.DecoderError
@@ -173,6 +170,8 @@ txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs = do
             TxUpdateProposalNone
             TxMintNone
             TxScriptValidityNone
+            TxGovernanceActionsNone
+            TxVotesNone
     case createAndValidateTransactionBody txBodyCont of
       Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
       Right txBody -> let bWit = fromByronWitness sk nId txBody
@@ -215,6 +214,8 @@ txSpendUTxOByronPBFT nId sk txIns outs = do
                      TxUpdateProposalNone
                      TxMintNone
                      TxScriptValidityNone
+                     TxGovernanceActionsNone
+                     TxVotesNone
   case createAndValidateTransactionBody txBodyCont of
     Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
     Right txBody -> let bWit = fromByronWitness sk nId txBody
