@@ -95,7 +95,7 @@ pCreateVote =
       <$> pVoteChoice
       <*> pVoterType
       <*> pGoveranceActionIdentifier
-      <*> pVotingCredential
+      <*> pStakePoolVerificationKeyOrFile
       <*> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
       <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
@@ -123,8 +123,37 @@ pCreateVote =
         <> Opt.metavar "TX-IN"
         <> Opt.help "TxIn of governance action (already on chain)."
         )
+-- {{{ FIXME this part is duplicated in Shelley parser, needs to be deduplicated once cyclic dep gets solved
+  pStakePoolVerificationKeyOrFile
+    :: Parser (VerificationKeyOrFile StakePoolKey)
+  pStakePoolVerificationKeyOrFile =
+    VerificationKeyValue <$> pStakePoolVerificationKey
+      <|> VerificationKeyFilePath <$> pStakePoolVerificationKeyFile
 
+  pStakePoolVerificationKeyFile :: Parser (VerificationKeyFile In)
+  pStakePoolVerificationKeyFile =
+    File <$> asum
+      [ Opt.strOption $ mconcat
+        [ Opt.long "cold-verification-key-file"
+        , Opt.metavar "FILE"
+        , Opt.help "Filepath of the stake pool verification key."
+        , Opt.completer (Opt.bashCompleter "file")
+        ]
+      , Opt.strOption $ mconcat
+        [ Opt.long "stake-pool-verification-key-file"
+        , Opt.internal
+        ]
+      ]
 
+  pStakePoolVerificationKey :: Parser (VerificationKey StakePoolKey)
+  pStakePoolVerificationKey =
+    Opt.option
+      (readVerificationKey AsStakePoolKey)
+        (  Opt.long "stake-pool-verification-key"
+        <> Opt.metavar "STRING"
+        <> Opt.help "Stake pool verification key (Bech32 or hex-encoded)."
+        )
+-- }}}
 pVotingCredential :: Parser StakeIdentifier
 pVotingCredential = pStakeIdentifier
 

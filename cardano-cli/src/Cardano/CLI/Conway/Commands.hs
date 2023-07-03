@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Cardano.CLI.Conway.Commands where
 
@@ -18,11 +20,17 @@ import           Data.Bifunctor
 import qualified Data.ByteString as BS
 import qualified Data.Text.Encoding as Text
 import           Data.Text.Encoding.Error
+import qualified Cardano.Binary as Plain
+import qualified Cardano.Ledger.Credential as Ledger
+import Cardano.Ledger.Crypto (Crypto)
+import Cardano.Ledger.Alonzo.Core
+import qualified Data.ByteString.Lazy as BL
 
 
 data GovernanceCmdError
   = -- Voting related
-    StakeCredGovCmdError ShelleyStakeAddressCmdError
+    VotingCredentialDecodeError (FileError InputDecodeError)
+  | StakeCredGovCmdError ShelleyStakeAddressCmdError
   | VotingCredentialDecodeGovCmdEror DecoderError
   | WriteFileError (FileError ())
     -- Governance action related
@@ -35,16 +43,40 @@ runGovernanceCreateVoteCmd
   -> VoteChoice
   -> VoterType
   -> TxIn
-  -> StakeIdentifier
+  -> VerificationKeyOrFile StakePoolKey
   -> ConwayVoteFile Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceCreateVoteCmd (AnyShelleyBasedEra sbe) vChoice cType govActionTxIn votingStakeCred oFp = do
-  stakeCred <- firstExceptT StakeCredGovCmdError $ getStakeCredentialFromIdentifier votingStakeCred
-  votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe stakeCred
+runGovernanceCreateVoteCmd (AnyShelleyBasedEra sbe) vChoice cType govActionTxIn stakePoolVerKeyOrFile oFp = do
+  stakePoolVerKey <- firstExceptT VotingCredentialDecodeError
+    . newExceptT
+    $ readVerificationKeyOrFile AsStakePoolKey stakePoolVerKeyOrFile
+
+  let stakePoolVerificationKeyHash = unStakePoolKeyHash $ verificationKeyHash stakePoolVerKey
+  votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ eraDecodeVotingCredential sbe $ Plain.serialize $ Ledger.KeyHashObj stakePoolVerificationKeyHash
+
   let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
       voteProcedure = createVotingProcedure sbe vChoice cType govActIdentifier votingCred
   firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
+  where
+    obtainCryptoConstraints
+      :: ShelleyBasedEra era
+      -> ((Crypto (EraCrypto (ShelleyLedgerEra era))) => a)
+      -> a
+    obtainCryptoConstraints ShelleyBasedEraShelley f = f
+    obtainCryptoConstraints ShelleyBasedEraAllegra f = f
+    obtainCryptoConstraints ShelleyBasedEraMary    f = f
+    obtainCryptoConstraints ShelleyBasedEraAlonzo  f = f
+    obtainCryptoConstraints ShelleyBasedEraBabbage f = f
+    obtainCryptoConstraints ShelleyBasedEraConway  f = f
 
+    eraDecodeVotingCredential
+      :: ShelleyBasedEra era
+      -> BL.ByteString
+      -> Either Plain.DecoderError (VotingCredential era)
+    eraDecodeVotingCredential sbe' bs = obtainCryptoConstraints sbe' $
+      case Plain.decodeFull bs of
+        Left e -> Left e
+        Right x -> Right $ VotingCredential x
 
 
 runGovernanceNewConstitutionCmd
