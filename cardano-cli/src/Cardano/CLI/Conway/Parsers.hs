@@ -129,7 +129,6 @@ pVotingCredential :: Parser StakeIdentifier
 pVotingCredential = pStakeIdentifier
 
 
-
 --------------------------------------------------------------------------------
 -- Governance action related
 --------------------------------------------------------------------------------

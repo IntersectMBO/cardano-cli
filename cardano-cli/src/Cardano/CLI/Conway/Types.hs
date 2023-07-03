@@ -9,6 +9,9 @@ import           Cardano.CLI.Shelley.Key
 
 import           Data.Text (Text)
 
+
+type ConwayVoteFile = File ConwayVote
+
 data ConwayVote
   = ConwayVote
     { cvVoteChoice :: VoteChoice
@@ -16,8 +19,10 @@ data ConwayVote
     , cvGovActionTxIn :: TxIn
     , cvVotingStakeCredential :: StakeIdentifier
     , cvEra :: AnyShelleyBasedEra
-    , cvFilepath :: File () Out
+    , cvFilepath :: ConwayVoteFile Out
     } deriving Show
+
+type NewConstitutionFile = File NewConstitution
 
 data NewConstitution
   = NewConstitution
@@ -25,7 +30,7 @@ data NewConstitution
       , ncDeposit :: Lovelace
       , ncVotingStakeCredential :: StakeIdentifier
       , ncConstitution :: Constitution
-      , ncFilePath :: File () Out
+      , ncFilePath :: NewConstitutionFile Out
       } deriving Show
 
 data Constitution

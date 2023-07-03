@@ -36,7 +36,7 @@ runGovernanceCreateVoteCmd
   -> VoterType
   -> TxIn
   -> StakeIdentifier
-  -> File () Out
+  -> ConwayVoteFile Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateVoteCmd (AnyShelleyBasedEra sbe) vChoice cType govActionTxIn votingStakeCred oFp = do
   stakeCred <- firstExceptT StakeCredGovCmdError $ getStakeCredentialFromIdentifier votingStakeCred
@@ -52,7 +52,7 @@ runGovernanceNewConstitutionCmd
   -> Lovelace
   -> StakeIdentifier
   -> Constitution
-  -> File () Out
+  -> NewConstitutionFile Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceNewConstitutionCmd sbe deposit stakeVoteCred constitution oFp = do
   stakeCred <- firstExceptT StakeCredGovCmdError $ getStakeCredentialFromIdentifier stakeVoteCred
@@ -74,7 +74,7 @@ runGovernanceCreateActionCmd
   -> Lovelace
   -> Hash StakeKey
   -> GovernanceAction
-  -> File () Out
+  -> File a Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateActionCmd (AnyShelleyBasedEra sbe) deposit depositReturnAddr govAction oFp =
   let proposal = createProposalProcedure sbe deposit depositReturnAddr govAction
