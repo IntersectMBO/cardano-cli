@@ -6,6 +6,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
@@ -531,7 +532,7 @@ runTxBuildRaw
   -- ^ Tx fee
   -> (Value, [ScriptWitness WitCtxMint era])
   -- ^ Multi-Asset value(s)
-  -> [(Certificate, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> [Hash PaymentKey]
@@ -634,7 +635,7 @@ runTxBuild
   -- ^ Tx lower bound
   -> Maybe SlotNo
   -- ^ Tx upper bound
-  -> [(Certificate, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> [Hash PaymentKey]
@@ -701,8 +702,11 @@ runTxBuild
               TxCertificates _ cs _ -> cs
               _ -> []
 
+      nodeEraCerts <- pure (forM certs $ eraCast nodeEra)
+        & onLeft (left . ShelleyTxCmdTxEraCastErr)
+
       (nodeEraUTxO, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits) <-
-        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs certs)
+        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs nodeEraCerts)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError)
 
@@ -845,7 +849,7 @@ validateTxInsReference era allRefIns =
 getAllReferenceInputs
  :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
  -> [ScriptWitness WitCtxMint era]
- -> [(Certificate , Maybe (ScriptWitness WitCtxStake era))]
+ -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
  -> [TxIn] -- ^ Read only reference inputs
  -> [TxIn]

@@ -21,12 +21,18 @@ data GovernanceCmd
   = GovernanceVoteCmd VoteCmd
   | GovernanceActionCmd ActionCmd
   | GovernanceMIRPayStakeAddressesCertificate
+      AnyCardanoEra
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
-  | GovernanceMIRTransfer Lovelace (File () Out) TransferDirection
+  | GovernanceMIRTransfer
+      AnyCardanoEra
+      Lovelace
+      (File () Out)
+      TransferDirection
   | GovernanceGenesisKeyDelegationCertificate
+      AnyCardanoEra
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)
@@ -57,8 +63,8 @@ renderGovernanceCmd cmd =
     GovernanceActionCmd {} -> "governance action"
     GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
     GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
-    GovernanceMIRTransfer _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
-    GovernanceMIRTransfer _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
+    GovernanceMIRTransfer _ _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
+    GovernanceMIRTransfer _ _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
     GovernanceUpdateProposal {} -> "governance create-update-proposal"
     GovernanceCreatePoll{} -> "governance create-poll"
     GovernanceAnswerPoll{} -> "governance answer-poll"
