@@ -136,14 +136,14 @@ runGovernanceCmd (GovernanceVerifyPoll poll metadata mOutFile) =
 
 
 runGovernanceMIRCertificatePayStakeAddrs
-  :: AnyCardanoEra
+  :: AnyShelleyBasedEra
   -> Shelley.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT ShelleyGovernanceCmdError IO ()
 runGovernanceMIRCertificatePayStakeAddrs anyEra mirPot sAddrs rwdAmts oFp = do
-    AnyCardanoEra era <- pure anyEra
+    AnyShelleyBasedEra era <- pure anyEra
 
     unless (length sAddrs == length rwdAmts) $
       left $ ShelleyGovernanceCmdMIRCertificateKeyRewardMistmach
@@ -155,20 +155,19 @@ runGovernanceMIRCertificatePayStakeAddrs anyEra mirPot sAddrs rwdAmts oFp = do
     firstExceptT ShelleyGovernanceCmdTextEnvWriteError
       . newExceptT
       $ writeLazyByteStringFile oFp
-      $ cardanoEraConstraints era
       $ textEnvelopeToJSON (Just mirCertDesc) mirCert
   where
     mirCertDesc :: TextEnvelopeDescr
     mirCertDesc = "Move Instantaneous Rewards Certificate"
 
 runGovernanceMIRCertificateTransfer
-  :: AnyCardanoEra
+  :: AnyShelleyBasedEra
   -> Lovelace
   -> File () Out
   -> TransferDirection
   -> ExceptT ShelleyGovernanceCmdError IO ()
 runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
-  AnyCardanoEra era <- pure anyEra
+  AnyShelleyBasedEra era <- pure anyEra
 
   mirCert <- case direction of
                  TransferToReserves ->
@@ -179,7 +178,6 @@ runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
   firstExceptT ShelleyGovernanceCmdTextEnvWriteError
     . newExceptT
     $ writeLazyByteStringFile oFp
-    $ cardanoEraConstraints era
     $ textEnvelopeToJSON (Just $ mirCertDesc direction) mirCert
  where
   mirCertDesc :: TransferDirection -> TextEnvelopeDescr
@@ -188,7 +186,7 @@ runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
 
 
 runGovernanceGenesisKeyDelegationCertificate
-  :: AnyCardanoEra
+  :: AnyShelleyBasedEra
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
@@ -199,7 +197,7 @@ runGovernanceGenesisKeyDelegationCertificate anyEra
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
                                              oFp = do
-    AnyCardanoEra era <- pure anyEra
+    AnyShelleyBasedEra era <- pure anyEra
     genesisVkHash <- firstExceptT ShelleyGovernanceCmdKeyReadError
       . newExceptT
       $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
@@ -213,7 +211,6 @@ runGovernanceGenesisKeyDelegationCertificate anyEra
       . newExceptT
       $ writeLazyByteStringFile oFp
       $ textEnvelopeToJSON (Just genKeyDelegCertDesc)
-      $ cardanoEraConstraints era
       $ makeGenesisKeyDelegationCertificate era genesisVkHash genesisDelVkHash vrfVkHash
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr

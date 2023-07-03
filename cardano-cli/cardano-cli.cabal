@@ -253,7 +253,7 @@ test-suite cardano-cli-golden
                       , cborg
                       , containers
                       , filepath
-                      , hedgehog ^>= 1.2
+                      , hedgehog ^>= 1.3
                       , hedgehog-extras ^>= 0.4.5.1
                       , regex-compat
                       , regex-tdfa

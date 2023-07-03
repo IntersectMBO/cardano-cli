@@ -21,18 +21,18 @@ data GovernanceCmd
   = GovernanceVoteCmd VoteCmd
   | GovernanceActionCmd ActionCmd
   | GovernanceMIRPayStakeAddressesCertificate
-      AnyCardanoEra
+      AnyShelleyBasedEra
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
   | GovernanceMIRTransfer
-      AnyCardanoEra
+      AnyShelleyBasedEra
       Lovelace
       (File () Out)
       TransferDirection
   | GovernanceGenesisKeyDelegationCertificate
-      AnyCardanoEra
+      AnyShelleyBasedEra
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)
@@ -127,7 +127,6 @@ pCreateVote =
 
 pVotingCredential :: Parser StakeIdentifier
 pVotingCredential = pStakeIdentifier
-
 
 
 --------------------------------------------------------------------------------

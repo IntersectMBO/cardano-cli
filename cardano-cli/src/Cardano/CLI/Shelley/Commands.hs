@@ -2,7 +2,6 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Shelley CLI command types
@@ -55,6 +54,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.Conway.Parsers
+import           Cardano.CLI.Conway.Types
 import           Cardano.CLI.Shelley.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
@@ -121,16 +121,16 @@ data StakeAddressCmd
   | StakeAddressKeyHash (VerificationKeyOrFile StakeKey) (Maybe (File () Out))
   | StakeAddressBuild StakeVerifier NetworkId (Maybe (File () Out))
   | StakeRegistrationCert
-      AnyCardanoEra
+      AnyShelleyBasedEra
       StakeIdentifier
       (File () Out)
   | StakeCredentialDelegationCert
-      AnyCardanoEra
+      AnyShelleyBasedEra
       StakeIdentifier
       DelegationTarget
       (File () Out)
   | StakeCredentialDeRegistrationCert
-      AnyCardanoEra
+      AnyShelleyBasedEra
       StakeIdentifier
       (File () Out)
   deriving Show
@@ -245,6 +245,8 @@ data TransactionCmd
       [MetadataFile]
       (Maybe (Deprecated ProtocolParamsFile))
       (Maybe UpdateProposalFile)
+      [ConwayVoteFile In]
+      [NewConstitutionFile In]
       TxBuildOutputOptions
   | TxSign InputTxBodyOrTxFile [WitnessSigningData] (Maybe NetworkId) (TxFile Out)
   | TxCreateWitness (TxBodyFile In) WitnessSigningData (Maybe NetworkId) (File () Out)
@@ -309,7 +311,7 @@ renderNodeCmd cmd = do
 
 data PoolCmd
   = PoolRegistrationCert
-      AnyCardanoEra
+      AnyShelleyBasedEra
       -- ^ Era in which to register the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
@@ -332,7 +334,7 @@ data PoolCmd
       NetworkId
       (File () Out)
   | PoolRetirementCert
-      AnyCardanoEra
+      AnyShelleyBasedEra
       -- ^ Era in which to retire the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.

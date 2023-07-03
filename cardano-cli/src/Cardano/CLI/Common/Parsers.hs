@@ -287,6 +287,13 @@ subParser :: String -> ParserInfo a -> Parser a
 subParser availableCommand pInfo =
   Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
 
+pAnyShelleyBasedEra :: Parser AnyShelleyBasedEra
+pAnyShelleyBasedEra = asum
+  [ pShelleyBasedShelley
+  , pShelleyBasedAllegra
+  , pShelleyBasedMary
+  , pShelleyBasedAlonzo
+  ]
 
 pShelleyBasedShelley :: Parser AnyShelleyBasedEra
 pShelleyBasedShelley =
@@ -318,7 +325,7 @@ pShelleyBasedConway =
   Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraConway)
    $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
 
-pFileOutDirection :: String -> String -> Parser (File () Out)
+pFileOutDirection :: String -> String -> Parser (File a Out)
 pFileOutDirection l h =
   Opt.strOption
     (  Opt.long l
@@ -327,7 +334,7 @@ pFileOutDirection l h =
     <> Opt.completer (Opt.bashCompleter "file")
     )
 
-pFileInDirection :: String -> String -> Parser (File () In)
+pFileInDirection :: String -> String -> Parser (File a In)
 pFileInDirection l h =
   Opt.strOption
     (  Opt.long l

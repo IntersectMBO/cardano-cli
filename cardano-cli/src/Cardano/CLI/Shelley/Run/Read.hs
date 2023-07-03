@@ -53,6 +53,12 @@ module Cardano.CLI.Shelley.Run.Read
   , categoriseSomeWitness
   , readRequiredSigner
 
+  -- * Governance related
+  , ConstitutionError(..)
+  , VoteError (..)
+  , readTxNewConstitutionActions
+  , readTxVotes
+
   -- * FileOrPipe
   , FileOrPipe
   , fileOrPipe
@@ -61,16 +67,21 @@ module Cardano.CLI.Shelley.Run.Read
   , readFileOrPipe
   ) where
 
-import           Prelude
-
 import           Cardano.Api
 import           Cardano.Api.Shelley
+
+import qualified Cardano.Binary as CBOR
+import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Shelley.Parsers
+import           Cardano.CLI.Types
+
+import           Prelude
 
 import           Control.Exception (bracket)
 import           Control.Monad (unless)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
-                   newExceptT)
+                   newExceptT, right)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (first)
 import qualified Data.ByteString.Builder as Builder
@@ -78,18 +89,12 @@ import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
+import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Word
 import           GHC.IO.Handle (hClose, hIsSeekable)
 import           GHC.IO.Handle.FD (openFileBlocking)
 import           System.IO (IOMode (ReadMode))
-
---TODO: do this nicely via the API too:
-import qualified Cardano.Binary as CBOR
-import           Data.Text (Text)
-
-import           Cardano.CLI.Shelley.Parsers
-import           Cardano.CLI.Types
 
 -- Metadata
 
@@ -729,6 +734,67 @@ readRequiredSigner (RequiredSignerSkeyFile skFile) = do
      in verificationKeyHash payVKey
    getHash (ShelleyNormalSigningKey sk) =
      verificationKeyHash . getVerificationKey $ PaymentSigningKey sk
+
+data VoteError
+  = VoteErrorFile (FileError TextEnvelopeError)
+  | VotesNotSupportedInEra AnyCardanoEra
+  deriving Show
+
+readTxVotes :: CardanoEra era
+            -> [ConwayVoteFile In]
+            -> IO (Either VoteError (TxVotes era))
+readTxVotes _ [] = return $ Right TxVotesNone
+readTxVotes era' files =
+  case cardanoEraStyle era' of
+    LegacyByronEra ->
+      return . Left . VotesNotSupportedInEra $ AnyCardanoEra era'
+    ShelleyBasedEra sbe ->
+      case votesSupportedInEra sbe of
+        Nothing -> return . Left . VotesNotSupportedInEra $ AnyCardanoEra era'
+        Just supp ->
+          runExceptT $ do
+            votes <- newExceptT $ sequence <$> mapM (readVoteFile sbe) files
+            right $ TxVotes supp votes
+
+readVoteFile
+  :: ShelleyBasedEra era
+  -> ConwayVoteFile In
+  -> IO (Either VoteError (Vote era))
+readVoteFile sbe fp =
+  first VoteErrorFile <$> obtainEraConstraints sbe (readFileTextEnvelope AsVote fp)
+
+
+data ConstitutionError
+  = ConstitutionErrorFile (FileError TextEnvelopeError)
+  | ConstitutionsNotSupportedInEra AnyCardanoEra
+  deriving Show
+
+readTxNewConstitutionActions
+  :: CardanoEra era
+  -> [NewConstitutionFile In]
+  -> IO (Either ConstitutionError (TxGovernanceActions era))
+readTxNewConstitutionActions _ [] = return $ Right TxGovernanceActionsNone
+readTxNewConstitutionActions era files =
+  case cardanoEraStyle era of
+    LegacyByronEra ->
+      return . Left . ConstitutionsNotSupportedInEra $ AnyCardanoEra era
+    ShelleyBasedEra sbe' ->
+      case governanceActionsSupportedInEra sbe' of
+        Nothing -> return . Left . ConstitutionsNotSupportedInEra $ AnyCardanoEra era
+        Just supp ->
+          runExceptT $ do
+            constitutions <- newExceptT $ sequence <$> mapM (readConstitution sbe') files
+            let brokenUp = map (fromProposalProcedure sbe') constitutions
+            right $ TxGovernanceActions supp brokenUp
+
+readConstitution
+  :: ShelleyBasedEra era
+  -> NewConstitutionFile In
+  -> IO (Either ConstitutionError (Proposal era))
+readConstitution sbe fp =
+  fmap (first ConstitutionErrorFile)
+    $ obtainEraPParamsConstraint sbe
+    $ obtainEraConstraints sbe (readFileTextEnvelope AsProposal fp)
 
 -- Misc
 

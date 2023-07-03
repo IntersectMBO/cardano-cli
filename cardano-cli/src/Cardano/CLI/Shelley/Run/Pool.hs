@@ -8,6 +8,14 @@ module Cardano.CLI.Shelley.Run.Pool
   , runPoolCmd
   ) where
 
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
+import           Cardano.CLI.Shelley.Commands
+import           Cardano.CLI.Shelley.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
+import           Cardano.CLI.Types (PoolIdOutputFormat (..))
+import qualified Cardano.Ledger.Slot as Shelley
+
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (lift)
 import           Control.Monad.Trans.Except (ExceptT)
@@ -17,14 +25,6 @@ import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 import           Data.Text (Text)
 import qualified Data.Text as Text
-
-import           Cardano.Api
-import           Cardano.Api.Shelley
-import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
-import           Cardano.CLI.Types (PoolIdOutputFormat (..))
-
-import qualified Cardano.Ledger.Slot as Shelley
 
 data ShelleyPoolCmdError
   = ShelleyPoolCmdReadFileError !(FileError TextEnvelopeError)
@@ -63,7 +63,7 @@ runPoolCmd = \case
 -- TODO: Metadata and more stake pool relay support to be
 -- added in the future.
 runStakePoolRegistrationCert
-  :: AnyCardanoEra
+  :: AnyShelleyBasedEra
   -> VerificationKeyOrFile StakePoolKey
   -- ^ Stake pool verification key.
   -> VerificationKeyOrFile VrfKey
@@ -98,7 +98,7 @@ runStakePoolRegistrationCert
   mbMetadata
   network
   outfp = do
-    AnyCardanoEra era <- pure anyEra
+    AnyShelleyBasedEra era <- pure anyEra
 
     -- Pool verification key
     stakePoolVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
@@ -153,13 +153,13 @@ runStakePoolRegistrationCert
     registrationCertDesc = "Stake Pool Registration Certificate"
 
 runStakePoolRetirementCert
-  :: AnyCardanoEra
+  :: AnyShelleyBasedEra
   -> VerificationKeyOrFile StakePoolKey
   -> Shelley.EpochNo
   -> File () Out
   -> ExceptT ShelleyPoolCmdError IO ()
 runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
-    AnyCardanoEra era <- pure anyEra
+    AnyShelleyBasedEra era <- pure anyEra
 
     -- Pool verification key
     stakePoolVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError

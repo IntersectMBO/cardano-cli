@@ -45,22 +45,20 @@ module Cardano.CLI.Types
   , FileDirection (..)
   ) where
 
-import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
-import qualified Data.Aeson as Aeson
-import           Data.String (IsString)
-import qualified Data.Text as Text
-import           Data.Word (Word64)
-
-import qualified Cardano.Chain.Slotting as Byron
-
 import           Cardano.Api (AddressAny, AnyScriptLanguage, EpochNo, ExecutionUnits, File (..),
                    FileDirection (..), Hash, HashableScriptData, Key (..), PaymentKey, PolicyId,
                    ScriptData, SlotNo (SlotNo), Tx, TxBody, TxId, TxIn, Value, WitCtxMint,
                    WitCtxStake, WitCtxTxIn)
 
+import qualified Cardano.Chain.Slotting as Byron
 import qualified Cardano.Ledger.Crypto as Crypto
-
 import           Cardano.Ledger.Shelley.TxBody (PoolParams (..))
+
+import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
+import qualified Data.Aeson as Aeson
+import           Data.String (IsString)
+import qualified Data.Text as Text
+import           Data.Word (Word64)
 
 -- | Specify whether to render the script cost as JSON
 -- in the cli's build command.

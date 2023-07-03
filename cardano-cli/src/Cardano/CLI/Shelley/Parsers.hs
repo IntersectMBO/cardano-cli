@@ -368,21 +368,21 @@ pStakeAddressCmd envCli =
     pStakeAddressRegistrationCert :: Parser StakeAddressCmd
     pStakeAddressRegistrationCert =
       StakeRegistrationCert
-        <$> pCardanoEra
+        <$> pAnyShelleyBasedEra
         <*> pStakeIdentifier
         <*> pOutputFile
 
     pStakeAddressDeregistrationCert :: Parser StakeAddressCmd
     pStakeAddressDeregistrationCert =
       StakeCredentialDeRegistrationCert
-        <$> pCardanoEra
+        <$> pAnyShelleyBasedEra
         <*> pStakeIdentifier
         <*> pOutputFile
 
     pStakeAddressPoolDelegationCert :: Parser StakeAddressCmd
     pStakeAddressPoolDelegationCert =
       StakeCredentialDelegationCert
-        <$> pCardanoEra
+        <$> pAnyShelleyBasedEra
         <*> pStakeIdentifier
         <*> pDelegationTarget
         <*> pOutputFile
@@ -709,6 +709,8 @@ pTransaction envCli =
             <*> many pMetadataFile
             <*> optional pDeprecatedProtocolParamsFile
             <*> optional pUpdateProposalFile
+            <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
+            <*> many (pFileInDirection "constitution-file" "Filepath of the constitution.")
             <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
   pChangeAddress :: Parser TxOutChangeAddress
@@ -1137,7 +1139,7 @@ pGovernanceCmd =
 
     pMIRPayStakeAddresses :: Parser GovernanceCmd
     pMIRPayStakeAddresses = GovernanceMIRPayStakeAddressesCertificate
-                              <$> pCardanoEra
+                              <$> pAnyShelleyBasedEra
                               <*> pMIRPot
                               <*> some pStakeAddress
                               <*> some pRewardAmt
@@ -1145,14 +1147,14 @@ pGovernanceCmd =
 
     pMIRTransferToTreasury :: Parser GovernanceCmd
     pMIRTransferToTreasury = GovernanceMIRTransfer
-                               <$> pCardanoEra
+                               <$> pAnyShelleyBasedEra
                                <*> pTransferAmt
                                <*> pOutputFile
                                <*> pure TransferToTreasury
 
     pMIRTransferToReserves :: Parser GovernanceCmd
     pMIRTransferToReserves = GovernanceMIRTransfer
-                               <$> pCardanoEra
+                               <$> pAnyShelleyBasedEra
                                <*> pTransferAmt
                                <*> pOutputFile
                                <*> pure TransferToReserves
@@ -1160,7 +1162,7 @@ pGovernanceCmd =
     pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmd
     pGovernanceGenesisKeyDelegationCertificate =
       GovernanceGenesisKeyDelegationCertificate
-        <$> pCardanoEra
+        <$> pAnyShelleyBasedEra
         <*> pGenesisVerificationKeyOrHashOrFile
         <*> pGenesisDelegateVerificationKeyOrHashOrFile
         <*> pVrfVerificationKeyOrHashOrFile
@@ -2978,7 +2980,7 @@ pStakePoolMetadataHash =
 pStakePoolRegistrationCert :: EnvCli -> Parser PoolCmd
 pStakePoolRegistrationCert envCli =
   PoolRegistrationCert
-    <$> pCardanoEra
+    <$> pAnyShelleyBasedEra
     <*> pStakePoolVerificationKeyOrFile
     <*> pVrfVerificationKeyOrFile
     <*> pPoolPledge
@@ -2994,7 +2996,7 @@ pStakePoolRegistrationCert envCli =
 pStakePoolRetirementCert :: Parser PoolCmd
 pStakePoolRetirementCert =
   PoolRetirementCert
-    <$> pCardanoEra
+    <$> pAnyShelleyBasedEra
     <*> pStakePoolVerificationKeyOrFile
     <*> pEpochNo
     <*> pOutputFile
