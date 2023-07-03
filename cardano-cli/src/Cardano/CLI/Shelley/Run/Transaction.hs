@@ -581,7 +581,8 @@ runTxBuildRaw era
       <- createTxMintValue era valuesWithScriptWits
     validatedTxScriptValidity
       <- first ShelleyTxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
-
+    let validatedTxGovernanceActions = TxGovernanceActionsNone -- TODO: Conwary era
+        validatedTxVotes = TxVotesNone -- TODO: Conwary era
     let txBodyContent = TxBodyContent
                           (validateTxIns inputsAndMaybeScriptWits)
                           validatedCollateralTxIns
@@ -600,6 +601,8 @@ runTxBuildRaw era
                           validatedTxUpProp
                           validatedMintValue
                           validatedTxScriptValidity
+                          validatedTxGovernanceActions
+                          validatedTxVotes
 
     first ShelleyTxCmdTxBodyError $
       getIsCardanoEraConstraint era $ createAndValidateTransactionBody txBodyContent
@@ -705,8 +708,9 @@ runTxBuild
 
       validatedPParams <- hoistEither $ first ShelleyTxCmdProtocolParametersValidationError
                                       $ validateProtocolParameters era (Just pparams)
-
-      let txBodyContent = TxBodyContent
+      let validatedTxGovernanceActions = TxGovernanceActionsNone -- TODO: Conwary era
+          validatedTxVotes = TxVotesNone -- TODO: Conwary era
+          txBodyContent = TxBodyContent
                           (validateTxIns inputsAndMaybeScriptWits)
                           validatedCollateralTxIns
                           validatedRefInputs
@@ -724,6 +728,8 @@ runTxBuild
                           validatedTxUpProp
                           validatedMintValue
                           validatedTxScriptValidity
+                          validatedTxGovernanceActions
+                          validatedTxVotes
 
       firstExceptT ShelleyTxCmdTxInsDoNotExist
         . hoistEither $ txInsExistInUTxO allTxInputs nodeEraUTxO
