@@ -107,15 +107,15 @@ runGovernanceCmd (GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteTy
   runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
 runGovernanceCmd (GovernanceActionCmd (CreateConstitution (NewConstitution sbe deposit voteStakeCred newconstitution fp))) =
   runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
-runGovernanceCmd (GovernanceMIRPayStakeAddressesCertificate mirpot vKeys rewards out) =
-  let _notYet = runGovernanceMIRCertificatePayStakeAddrs mirpot vKeys rewards out
+runGovernanceCmd (GovernanceMIRPayStakeAddressesCertificate anyEra mirpot vKeys rewards out) =
+  let _notYet = runGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
   in error "runGovernanceCmd: has not been implemented"
-runGovernanceCmd (GovernanceMIRTransfer amt out direction) =
-  let _notYet = runGovernanceMIRCertificateTransfer amt out direction
+runGovernanceCmd (GovernanceMIRTransfer anyEra amt out direction) =
+  let _notYet = runGovernanceMIRCertificateTransfer anyEra amt out direction
   in error "runGovernanceCmd: has not been implemented"
 
-runGovernanceCmd (GovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out) =
-  let _notYet = runGovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out
+runGovernanceCmd (GovernanceGenesisKeyDelegationCertificate anyEra genVk genDelegVk vrfVk out) =
+  let _notYet = runGovernanceGenesisKeyDelegationCertificate anyEra genVk genDelegVk vrfVk out
   in error "runGovernanceCmd: has not been implemented"
 
 runGovernanceCmd (GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp) =
@@ -136,42 +136,50 @@ runGovernanceCmd (GovernanceVerifyPoll poll metadata mOutFile) =
 
 
 runGovernanceMIRCertificatePayStakeAddrs
-  :: Shelley.MIRPot
+  :: AnyCardanoEra
+  -> Shelley.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT ShelleyGovernanceCmdError IO ()
-runGovernanceMIRCertificatePayStakeAddrs mirPot sAddrs rwdAmts oFp = do
+runGovernanceMIRCertificatePayStakeAddrs anyEra mirPot sAddrs rwdAmts oFp = do
+    AnyCardanoEra era <- pure anyEra
 
     unless (length sAddrs == length rwdAmts) $
       left $ ShelleyGovernanceCmdMIRCertificateKeyRewardMistmach
                (unFile oFp) (length sAddrs) (length rwdAmts)
 
     let sCreds  = map stakeAddressCredential sAddrs
-        mirCert = makeMIRCertificate mirPot (StakeAddressesMIR $ zip sCreds rwdAmts)
+        mirCert = makeMIRCertificate era mirPot (StakeAddressesMIR $ zip sCreds rwdAmts)
 
     firstExceptT ShelleyGovernanceCmdTextEnvWriteError
       . newExceptT
-      $ writeLazyByteStringFile oFp $ textEnvelopeToJSON (Just mirCertDesc) mirCert
+      $ writeLazyByteStringFile oFp
+      $ cardanoEraConstraints era
+      $ textEnvelopeToJSON (Just mirCertDesc) mirCert
   where
     mirCertDesc :: TextEnvelopeDescr
     mirCertDesc = "Move Instantaneous Rewards Certificate"
 
 runGovernanceMIRCertificateTransfer
-  :: Lovelace
+  :: AnyCardanoEra
+  -> Lovelace
   -> File () Out
   -> TransferDirection
   -> ExceptT ShelleyGovernanceCmdError IO ()
-runGovernanceMIRCertificateTransfer ll oFp direction = do
+runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
+  AnyCardanoEra era <- pure anyEra
+
   mirCert <- case direction of
                  TransferToReserves ->
-                   return . makeMIRCertificate Shelley.TreasuryMIR $ SendToReservesMIR ll
+                   return . makeMIRCertificate era Shelley.TreasuryMIR $ SendToReservesMIR ll
                  TransferToTreasury ->
-                   return . makeMIRCertificate Shelley.ReservesMIR $ SendToTreasuryMIR ll
+                   return . makeMIRCertificate era Shelley.ReservesMIR $ SendToTreasuryMIR ll
 
   firstExceptT ShelleyGovernanceCmdTextEnvWriteError
     . newExceptT
     $ writeLazyByteStringFile oFp
+    $ cardanoEraConstraints era
     $ textEnvelopeToJSON (Just $ mirCertDesc direction) mirCert
  where
   mirCertDesc :: TransferDirection -> TextEnvelopeDescr
@@ -180,15 +188,18 @@ runGovernanceMIRCertificateTransfer ll oFp direction = do
 
 
 runGovernanceGenesisKeyDelegationCertificate
-  :: VerificationKeyOrHashOrFile GenesisKey
+  :: AnyCardanoEra
+  -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
   -> ExceptT ShelleyGovernanceCmdError IO ()
-runGovernanceGenesisKeyDelegationCertificate genVkOrHashOrFp
+runGovernanceGenesisKeyDelegationCertificate anyEra
+                                             genVkOrHashOrFp
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
                                              oFp = do
+    AnyCardanoEra era <- pure anyEra
     genesisVkHash <- firstExceptT ShelleyGovernanceCmdKeyReadError
       . newExceptT
       $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
@@ -202,7 +213,8 @@ runGovernanceGenesisKeyDelegationCertificate genVkOrHashOrFp
       . newExceptT
       $ writeLazyByteStringFile oFp
       $ textEnvelopeToJSON (Just genKeyDelegCertDesc)
-      $ makeGenesisKeyDelegationCertificate genesisVkHash genesisDelVkHash vrfVkHash
+      $ cardanoEraConstraints era
+      $ makeGenesisKeyDelegationCertificate era genesisVkHash genesisDelVkHash vrfVkHash
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Genesis Key Delegation Certificate"
