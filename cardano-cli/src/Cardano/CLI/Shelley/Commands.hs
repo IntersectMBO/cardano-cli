@@ -1,6 +1,8 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Shelley CLI command types
@@ -118,12 +120,19 @@ data StakeAddressCmd
   = StakeAddressKeyGen KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
   | StakeAddressKeyHash (VerificationKeyOrFile StakeKey) (Maybe (File () Out))
   | StakeAddressBuild StakeVerifier NetworkId (Maybe (File () Out))
-  | StakeRegistrationCert StakeIdentifier (File () Out)
+  | StakeRegistrationCert
+      AnyCardanoEra
+      StakeIdentifier
+      (File () Out)
   | StakeCredentialDelegationCert
+      AnyCardanoEra
       StakeIdentifier
       DelegationTarget
       (File () Out)
-  | StakeCredentialDeRegistrationCert StakeIdentifier (File () Out)
+  | StakeCredentialDeRegistrationCert
+      AnyCardanoEra
+      StakeIdentifier
+      (File () Out)
   deriving Show
 
 renderStakeAddressCmd :: StakeAddressCmd -> Text
@@ -298,9 +307,10 @@ renderNodeCmd cmd = do
     NodeNewCounter {} -> "node new-counter"
     NodeIssueOpCert{} -> "node issue-op-cert"
 
-
 data PoolCmd
   = PoolRegistrationCert
+      AnyCardanoEra
+      -- ^ Era in which to register the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
       (VerificationKeyOrFile VrfKey)
@@ -322,11 +332,13 @@ data PoolCmd
       NetworkId
       (File () Out)
   | PoolRetirementCert
+      AnyCardanoEra
+      -- ^ Era in which to retire the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
       EpochNo
       -- ^ Epoch in which to retire the stake pool.
-      (File Certificate Out)
+      (File () Out)
   | PoolGetId (VerificationKeyOrFile StakePoolKey) PoolIdOutputFormat (Maybe (File () Out))
   | PoolMetadataHash (StakePoolMetadataFile In) (Maybe (File () Out))
   deriving Show
