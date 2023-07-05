@@ -6,6 +6,7 @@
 module Cardano.CLI.Common.Parsers where
 
 import           Cardano.Api
+import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.Shelley.Key
@@ -351,3 +352,32 @@ parseLovelace = do
   then fail $ show i <> " lovelace exceeds the Word64 upper bound"
   else return $ Lovelace i
 
+pStakePoolVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakePoolKey)
+pStakePoolVerificationKeyOrFile =
+  VerificationKeyValue <$> pStakePoolVerificationKey
+    <|> VerificationKeyFilePath <$> pStakePoolVerificationKeyFile
+
+
+pStakePoolVerificationKey :: Parser (VerificationKey StakePoolKey)
+pStakePoolVerificationKey =
+  Opt.option
+    (readVerificationKey AsStakePoolKey)
+      (  Opt.long "stake-pool-verification-key"
+      <> Opt.metavar "STRING"
+      <> Opt.help "Stake pool verification key (Bech32 or hex-encoded)."
+      )
+
+pStakePoolVerificationKeyFile :: Parser (VerificationKeyFile In)
+pStakePoolVerificationKeyFile =
+  File <$> asum
+    [ Opt.strOption $ mconcat
+      [ Opt.long "cold-verification-key-file"
+      , Opt.metavar "FILE"
+      , Opt.help "Filepath of the stake pool verification key."
+      , Opt.completer (Opt.bashCompleter "file")
+      ]
+    , Opt.strOption $ mconcat
+      [ Opt.long "stake-pool-verification-key-file"
+      , Opt.internal
+      ]
+    ]

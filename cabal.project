@@ -44,6 +44,6 @@ write-ghc-environment-files: always
 source-repository-package
     type: git
     location: https://github.com/input-output-hk/cardano-api
-    tag: b8103c66a66ea2a7a0e0c68839134e24e9a66abb
+    tag: cf57d5a1eb6673c87211403fa62cde433f1f852a
     subdir: cardano-api
     

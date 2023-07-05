@@ -25,6 +25,7 @@ data GovernanceCmdError
     StakeCredGovCmdError ShelleyStakeAddressCmdError
   | VotingCredentialDecodeGovCmdEror DecoderError
   | WriteFileError (FileError ())
+  | ReadFileError (FileError InputDecodeError)
     -- Governance action related
   | ExpectedStakeKeyCredentialGovCmdError
   | NonUtf8EncodedConstitution UnicodeException
@@ -35,12 +36,13 @@ runGovernanceCreateVoteCmd
   -> VoteChoice
   -> VoterType
   -> TxIn
-  -> StakeIdentifier
+  -> VerificationKeyOrFile StakePoolKey
   -> ConwayVoteFile Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateVoteCmd (AnyShelleyBasedEra sbe) vChoice cType govActionTxIn votingStakeCred oFp = do
-  stakeCred <- firstExceptT StakeCredGovCmdError $ getStakeCredentialFromIdentifier votingStakeCred
-  votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe stakeCred
+  vStakePoolKey <- fmap (verificationKeyHash . castVerificationKey) <$> firstExceptT ReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
+  let vStakeCred = StakeCredentialByKey vStakePoolKey
+  votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
   let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
       voteProcedure = createVotingProcedure sbe vChoice cType govActIdentifier votingCred
   firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
@@ -50,24 +52,26 @@ runGovernanceCreateVoteCmd (AnyShelleyBasedEra sbe) vChoice cType govActionTxIn 
 runGovernanceNewConstitutionCmd
   :: AnyShelleyBasedEra
   -> Lovelace
-  -> StakeIdentifier
+  -> VerificationKeyOrFile StakePoolKey
   -> Constitution
   -> NewConstitutionFile Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceNewConstitutionCmd sbe deposit stakeVoteCred constitution oFp = do
-  stakeCred <- firstExceptT StakeCredGovCmdError $ getStakeCredentialFromIdentifier stakeVoteCred
-  stakeKey <- hoistEither $ stakeKeyHashOnly stakeCred
+  vStakePoolKeyHash
+    <- fmap (verificationKeyHash . castVerificationKey)
+        <$> firstExceptT ReadFileError . newExceptT
+              $ readVerificationKeyOrFile AsStakePoolKey stakeVoteCred
   case constitution of
     ConstitutionFromFile fp  -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
       _utf8EncodedText <- firstExceptT NonUtf8EncodedConstitution . hoistEither $ Text.decodeUtf8' cBs
       let govAct = ProposeNewConstitution cBs
-      runGovernanceCreateActionCmd sbe deposit stakeKey govAct oFp
+      runGovernanceCreateActionCmd sbe deposit vStakePoolKeyHash govAct oFp
 
     ConstitutionFromText c -> do
       let constitBs = Text.encodeUtf8 c
           govAct = ProposeNewConstitution constitBs
-      runGovernanceCreateActionCmd sbe deposit stakeKey govAct oFp
+      runGovernanceCreateActionCmd sbe deposit vStakePoolKeyHash govAct oFp
 
 runGovernanceCreateActionCmd
   :: AnyShelleyBasedEra

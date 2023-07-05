@@ -124,9 +124,9 @@ pCreateVote =
         <> Opt.help "TxIn of governance action (already on chain)."
         )
 
-
-pVotingCredential :: Parser StakeIdentifier
-pVotingCredential = pStakeIdentifier
+-- TODO: Conway era include "normal" stake keys
+pVotingCredential :: Parser (VerificationKeyOrFile StakePoolKey)
+pVotingCredential = pStakePoolVerificationKeyOrFile
 
 
 --------------------------------------------------------------------------------

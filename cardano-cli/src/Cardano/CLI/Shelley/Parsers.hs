@@ -2678,20 +2678,6 @@ pAddress =
       <> Opt.help "A Cardano address"
       )
 
-pStakePoolVerificationKeyFile :: Parser (VerificationKeyFile In)
-pStakePoolVerificationKeyFile =
-  fmap File $ asum
-    [ Opt.strOption $ mconcat
-      [ Opt.long "cold-verification-key-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath of the stake pool verification key."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
-    , Opt.strOption $ mconcat
-      [ Opt.long "stake-pool-verification-key-file"
-      , Opt.internal
-      ]
-    ]
 
 pStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash =
@@ -2719,20 +2705,6 @@ pStakePoolVerificationKeyHash =
         . deserialiseFromBech32 (AsHash AsStakePoolKey)
         . Text.pack
 
-pStakePoolVerificationKey :: Parser (VerificationKey StakePoolKey)
-pStakePoolVerificationKey =
-  Opt.option
-    (readVerificationKey AsStakePoolKey)
-      (  Opt.long "stake-pool-verification-key"
-      <> Opt.metavar "STRING"
-      <> Opt.help "Stake pool verification key (Bech32 or hex-encoded)."
-      )
-
-pStakePoolVerificationKeyOrFile
-  :: Parser (VerificationKeyOrFile StakePoolKey)
-pStakePoolVerificationKeyOrFile =
-  VerificationKeyValue <$> pStakePoolVerificationKey
-    <|> VerificationKeyFilePath <$> pStakePoolVerificationKeyFile
 
 pDelegationTarget
   :: Parser DelegationTarget

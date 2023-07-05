@@ -17,7 +17,7 @@ data ConwayVote
     { cvVoteChoice :: VoteChoice
     , cvVoterType :: VoterType
     , cvGovActionTxIn :: TxIn
-    , cvVotingStakeCredential :: StakeIdentifier
+    , cvVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
     , cvEra :: AnyShelleyBasedEra
     , cvFilepath :: ConwayVoteFile Out
     } deriving Show
@@ -28,7 +28,7 @@ data NewConstitution
   = NewConstitution
       { ncEra :: AnyShelleyBasedEra
       , ncDeposit :: Lovelace
-      , ncVotingStakeCredential :: StakeIdentifier
+      , ncVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
       , ncConstitution :: Constitution
       , ncFilePath :: NewConstitutionFile Out
       } deriving Show
