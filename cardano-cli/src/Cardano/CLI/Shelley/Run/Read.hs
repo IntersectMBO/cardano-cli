@@ -508,12 +508,14 @@ readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
               , FromCDDLTx "Witnessed Tx MaryEra" CddlTx
               , FromCDDLTx "Witnessed Tx AlonzoEra" CddlTx
               , FromCDDLTx "Witnessed Tx BabbageEra" CddlTx
+              , FromCDDLTx "Witnessed Tx ConwayEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx ByronEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx ShelleyEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx AllegraEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx MaryEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx AlonzoEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx BabbageEra" CddlTx
+              , FromCDDLTx "Unwitnessed Tx ConwayEra" CddlTx
               ]
 
 -- Tx witnesses
