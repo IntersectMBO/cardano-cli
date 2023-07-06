@@ -341,6 +341,12 @@ friendlyCertificate =
       MIRCertificate pot target ->
         "MIR" .= object ["pot" .= friendlyMirPot pot, friendlyMirTarget target]
 
+      CommitteeDelegationCertificate {} ->
+        error "TODO CIP-1694 implement CommitteeDelegationCertificate case"
+
+      CommitteeHotKeyDeregistrationCertificate {} ->
+        error "TODO CIP-1694 implement CommitteeHotKeyDeregistrationCertificate case"
+
 friendlyMirTarget :: MIRTarget -> Aeson.Pair
 friendlyMirTarget = \case
   StakeAddressesMIR addresses ->

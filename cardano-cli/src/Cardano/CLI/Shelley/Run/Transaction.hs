@@ -326,11 +326,13 @@ runTxBuildCmd
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()
 runTxBuildCmd
-    socketPath (AnyCardanoEra cEra) consensusModeParams@(AnyConsensusModeParams cModeParams)
+    socketPath anyEra consensusModeParams@(AnyConsensusModeParams cModeParams)
     nid mScriptValidity mOverrideWits txins readOnlyRefIns
     reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
     mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mDeprecatedProtocolParamsFile
     mUpProp outputOptions = do
+  AnyCardanoEra cEra <- pure anyEra
+
   forM_ mDeprecatedProtocolParamsFile $ \_ ->
     liftIO $ printWarning "'--protocol-params-file' for 'transaction build' is deprecated"
 
@@ -350,11 +352,14 @@ runTxBuildCmd
 
   inputsAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError $ readScriptWitnessFiles cEra txins
   certFilesAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError $ readScriptWitnessFiles cEra certs
-  certsAndMaybeScriptWits <- sequence
-             [ fmap (,mSwit) (firstExceptT ShelleyTxCmdReadTextViewFileError . newExceptT $
-                 readFileTextEnvelope AsCertificate (File certFile))
-             | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
-             ]
+  certsAndMaybeScriptWits <-
+    case cardanoEraStyle cEra of
+      LegacyByronEra -> pure []
+      ShelleyBasedEra sbe ->
+        forM certFilesAndMaybeScriptWits $ \(CertificateFile certFile, mSwit) -> do
+          fmap (,mSwit) (firstExceptT ShelleyTxCmdReadTextViewFileError . newExceptT
+            $ shelleyBasedEraConstraints sbe
+            $ readFileTextEnvelope AsCertificate (File certFile))
   withdrawalsAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError
                                      $ readScriptWitnessFilesThruple cEra wdrls
   txMetadata <- firstExceptT ShelleyTxCmdMetadataError
@@ -472,11 +477,14 @@ runTxBuildRawCmd
                                 $ readScriptWitnessFiles cEra txins
   certFilesAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError
                                    $ readScriptWitnessFiles cEra certs
-  certsAndMaybeScriptWits <- sequence
-             [ fmap (,mSwit) (firstExceptT ShelleyTxCmdReadTextViewFileError . newExceptT $
-                 readFileTextEnvelope AsCertificate (File certFile))
-             | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
-             ]
+  certsAndMaybeScriptWits <-
+    case cardanoEraStyle cEra of
+      LegacyByronEra -> pure []
+      ShelleyBasedEra sbe ->
+        forM certFilesAndMaybeScriptWits $ \(CertificateFile certFile, mSwit) -> do
+          fmap (, mSwit) (firstExceptT ShelleyTxCmdReadTextViewFileError . newExceptT
+            $ shelleyBasedEraConstraints sbe
+            $ readFileTextEnvelope AsCertificate (File certFile))
   withdrawalsAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError
                                      $ readScriptWitnessFilesThruple cEra wdrls
   txMetadata <- firstExceptT ShelleyTxCmdMetadataError

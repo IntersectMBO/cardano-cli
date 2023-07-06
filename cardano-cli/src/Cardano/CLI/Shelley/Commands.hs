@@ -120,16 +120,16 @@ data StakeAddressCmd
   | StakeAddressKeyHash (VerificationKeyOrFile StakeKey) (Maybe (File () Out))
   | StakeAddressBuild StakeVerifier NetworkId (Maybe (File () Out))
   | StakeRegistrationCert
-      AnyCardanoEra
+      AnyShelleyBasedEra
       StakeIdentifier
       (File () Out)
   | StakeCredentialDelegationCert
-      AnyCardanoEra
+      AnyShelleyBasedEra
       StakeIdentifier
       DelegationTarget
       (File () Out)
   | StakeCredentialDeRegistrationCert
-      AnyCardanoEra
+      AnyShelleyBasedEra
       StakeIdentifier
       (File () Out)
   deriving Show
@@ -309,7 +309,7 @@ renderNodeCmd cmd = do
 
 data PoolCmd
   = PoolRegistrationCert
-      AnyCardanoEra
+      AnyShelleyBasedEra
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
       (VerificationKeyOrFile VrfKey)
@@ -331,7 +331,7 @@ data PoolCmd
       NetworkId
       (File () Out)
   | PoolRetirementCert
-      AnyCardanoEra
+      AnyShelleyBasedEra
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
       EpochNo
@@ -412,18 +412,18 @@ renderQueryCmd cmd =
 
 data GovernanceCmd
   = GovernanceMIRPayStakeAddressesCertificate
-      AnyCardanoEra
+      AnyShelleyBasedEra
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
   | GovernanceMIRTransfer
-      AnyCardanoEra
+      AnyShelleyBasedEra
       Lovelace
       (File () Out)
       TransferDirection
   | GovernanceGenesisKeyDelegationCertificate
-      AnyCardanoEra
+      AnyShelleyBasedEra
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)

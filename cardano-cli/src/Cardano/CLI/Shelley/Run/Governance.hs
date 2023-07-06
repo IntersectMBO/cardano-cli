@@ -8,6 +8,17 @@ module Cardano.CLI.Shelley.Run.Governance
   , runGovernanceCmd
   ) where
 
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
+import           Cardano.Binary (DecoderError)
+import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
+                   readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
+import           Cardano.CLI.Shelley.Parsers
+import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
+import           Cardano.CLI.Types
+import qualified Cardano.Ledger.Shelley.TxBody as Shelley
+
 import           Control.Monad (unless, when)
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Class (lift)
@@ -27,18 +38,6 @@ import qualified Data.Text.Read as Text
 import           Formatting (build, sformat)
 import qualified System.IO as IO
 import           System.IO (stderr, stdin, stdout)
-
-import           Cardano.Api
-import           Cardano.Api.Shelley
-
-import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
-                   readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
-import           Cardano.CLI.Shelley.Parsers
-import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
-import           Cardano.CLI.Types
-
-import           Cardano.Binary (DecoderError)
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 data ShelleyGovernanceCmdError
   = ShelleyGovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
@@ -102,12 +101,12 @@ renderShelleyGovernanceError err =
     ShelleyGovernanceCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
 
 runGovernanceCmd :: GovernanceCmd -> ExceptT ShelleyGovernanceCmdError IO ()
-runGovernanceCmd (GovernanceMIRPayStakeAddressesCertificate anyEra mirpot vKeys rewards out) =
-  runGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
-runGovernanceCmd (GovernanceMIRTransfer anyEra amt out direction) =
-  runGovernanceMIRCertificateTransfer anyEra amt out direction
-runGovernanceCmd (GovernanceGenesisKeyDelegationCertificate anyEra genVk genDelegVk vrfVk out) =
-  runGovernanceGenesisKeyDelegationCertificate anyEra genVk genDelegVk vrfVk out
+runGovernanceCmd (GovernanceMIRPayStakeAddressesCertificate anySbe mirpot vKeys rewards out) =
+  runGovernanceMIRCertificatePayStakeAddrs anySbe mirpot vKeys rewards out
+runGovernanceCmd (GovernanceMIRTransfer anySbe amt out direction) =
+  runGovernanceMIRCertificateTransfer anySbe amt out direction
+runGovernanceCmd (GovernanceGenesisKeyDelegationCertificate anySbe genVk genDelegVk vrfVk out) =
+  runGovernanceGenesisKeyDelegationCertificate anySbe genVk genDelegVk vrfVk out
 runGovernanceCmd (GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp) =
   runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
 runGovernanceCmd (GovernanceCreatePoll prompt choices nonce out) =
@@ -118,50 +117,50 @@ runGovernanceCmd (GovernanceVerifyPoll poll metadata mOutFile) =
   runGovernanceVerifyPoll poll metadata mOutFile
 
 runGovernanceMIRCertificatePayStakeAddrs
-  :: AnyCardanoEra
+  :: AnyShelleyBasedEra
   -> Shelley.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT ShelleyGovernanceCmdError IO ()
-runGovernanceMIRCertificatePayStakeAddrs anyEra mirPot sAddrs rwdAmts oFp = do
-    AnyCardanoEra era <- pure anyEra
+runGovernanceMIRCertificatePayStakeAddrs anySbe mirPot sAddrs rwdAmts oFp = do
+    AnyShelleyBasedEra sbe <- pure anySbe
 
     unless (length sAddrs == length rwdAmts) $
       left $ ShelleyGovernanceCmdMIRCertificateKeyRewardMistmach
                (unFile oFp) (length sAddrs) (length rwdAmts)
 
     let sCreds  = map stakeAddressCredential sAddrs
-        mirCert = makeMIRCertificate era mirPot (StakeAddressesMIR $ zip sCreds rwdAmts)
+        mirCert = makeMIRCertificate sbe mirPot (StakeAddressesMIR $ zip sCreds rwdAmts)
 
     firstExceptT ShelleyGovernanceCmdTextEnvWriteError
       . newExceptT
       $ writeLazyByteStringFile oFp
-      $ cardanoEraConstraints era
+      $ shelleyBasedEraConstraints sbe
       $ textEnvelopeToJSON (Just mirCertDesc) mirCert
   where
     mirCertDesc :: TextEnvelopeDescr
     mirCertDesc = "Move Instantaneous Rewards Certificate"
 
 runGovernanceMIRCertificateTransfer
-  :: AnyCardanoEra
+  :: AnyShelleyBasedEra
   -> Lovelace
   -> File () Out
   -> TransferDirection
   -> ExceptT ShelleyGovernanceCmdError IO ()
-runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
-  AnyCardanoEra era <- pure anyEra
+runGovernanceMIRCertificateTransfer anySbe ll oFp direction = do
+  AnyShelleyBasedEra sbe <- pure anySbe
 
   mirCert <- case direction of
                  TransferToReserves ->
-                   return . makeMIRCertificate era Shelley.TreasuryMIR $ SendToReservesMIR ll
+                   return . makeMIRCertificate sbe Shelley.TreasuryMIR $ SendToReservesMIR ll
                  TransferToTreasury ->
-                   return . makeMIRCertificate era Shelley.ReservesMIR $ SendToTreasuryMIR ll
+                   return . makeMIRCertificate sbe Shelley.ReservesMIR $ SendToTreasuryMIR ll
 
   firstExceptT ShelleyGovernanceCmdTextEnvWriteError
     . newExceptT
     $ writeLazyByteStringFile oFp
-    $ cardanoEraConstraints era
+    $ shelleyBasedEraConstraints sbe
     $ textEnvelopeToJSON (Just $ mirCertDesc direction) mirCert
  where
   mirCertDesc :: TransferDirection -> TextEnvelopeDescr
@@ -170,18 +169,18 @@ runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
 
 
 runGovernanceGenesisKeyDelegationCertificate
-  :: AnyCardanoEra
+  :: AnyShelleyBasedEra
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
   -> ExceptT ShelleyGovernanceCmdError IO ()
-runGovernanceGenesisKeyDelegationCertificate anyEra
+runGovernanceGenesisKeyDelegationCertificate anySbe
                                              genVkOrHashOrFp
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
                                              oFp = do
-    AnyCardanoEra era <- pure anyEra
+    AnyShelleyBasedEra sbe <- pure anySbe
     genesisVkHash <- firstExceptT ShelleyGovernanceCmdKeyReadError
       . newExceptT
       $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
@@ -195,8 +194,8 @@ runGovernanceGenesisKeyDelegationCertificate anyEra
       . newExceptT
       $ writeLazyByteStringFile oFp
       $ textEnvelopeToJSON (Just genKeyDelegCertDesc)
-      $ cardanoEraConstraints era
-      $ makeGenesisKeyDelegationCertificate era genesisVkHash genesisDelVkHash vrfVkHash
+      $ shelleyBasedEraConstraints sbe
+      $ makeGenesisKeyDelegationCertificate sbe genesisVkHash genesisDelVkHash vrfVkHash
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Genesis Key Delegation Certificate"

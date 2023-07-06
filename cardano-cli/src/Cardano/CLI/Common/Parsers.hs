@@ -1,14 +1,17 @@
 module Cardano.CLI.Common.Parsers
   ( command'
   , pCardanoEra
+  , pShelleyBasedEra
   , pNetworkId
   , pConsensusModeParams
   , pSocketPath
   ) where
 
-import           Cardano.Api (AnyCardanoEra (..), AnyConsensusModeParams (..), CardanoEra (..),
-                   ConsensusModeParams (..), EpochSlots (..), File (..), NetworkId (..),
-                   NetworkMagic (..), SocketPath, bounded)
+import           Cardano.Api (AnyCardanoEra (..), AnyConsensusModeParams (..),
+                   AnyShelleyBasedEra (..), CardanoEra (..), ConsensusModeParams (..),
+                   EpochSlots (..), File (..), NetworkId (..), NetworkMagic (..),
+                   ShelleyBasedEra (..), SocketPath, bounded)
+
 import           Cardano.CLI.Environment (EnvCli (..))
 
 import           Data.Foldable
@@ -54,6 +57,41 @@ pCardanoEra = asum
     -- Default for now:
   , pure (AnyCardanoEra BabbageEra)
   ]
+
+pShelleyBasedEra :: Parser AnyShelleyBasedEra
+pShelleyBasedEra = asum
+  [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraShelley) $ mconcat
+    [ Opt.long "shelley-era"
+    , Opt.help "Specify the Shelley era"
+    ]
+  , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra) $ mconcat
+    [ Opt.long "allegra-era"
+    , Opt.help "Specify the Allegra era"
+    ]
+  , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraMary) $ mconcat
+    [ Opt.long "mary-era"
+    , Opt.help "Specify the Mary era"
+    ]
+  , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo) $ mconcat
+    [ Opt.long "alonzo-era"
+    , Opt.help "Specify the Alonzo era"
+    ]
+  , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage) $ mconcat
+    [ Opt.long "babbage-era"
+    , Opt.help "Specify the Babbage era (default)"
+    ]
+  , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraConway) $ mconcat
+    [ Opt.long "conway-era"
+    , Opt.help "Specify the Conway era"
+    ]
+
+  -- NEW-ERA-ADD-NEW: When a new era is added, add a new flag here.
+  -- NEW-ERA-SET-DEFAULT: When a new era is working, select a new default above and below.
+
+    -- Default for now:
+  , pure (AnyShelleyBasedEra ShelleyBasedEraBabbage)
+  ]
+
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
   mconcat
