@@ -62,6 +62,12 @@
           inputMap = {
             "https://input-output-hk.github.io/cardano-haskell-packages" = inputs.CHaP;
           };
+          cabalProjectLocal = ''
+            repository cardano-haskell-packages-local
+              url: file:${inputs.CHaP}
+              secure: True
+            active-repositories: hackage.haskell.org, cardano-haskell-packages-local
+          '';
           # tools we want in our shell, from hackage
           shell.tools =
             {
