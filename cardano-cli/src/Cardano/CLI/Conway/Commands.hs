@@ -34,19 +34,32 @@ data GovernanceCmdError
 runGovernanceCreateVoteCmd
   :: AnyShelleyBasedEra
   -> VoteChoice
-  -> VoterType
+  -> VType
   -> TxIn
   -> VerificationKeyOrFile StakePoolKey
   -> ConwayVoteFile Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceCreateVoteCmd (AnyShelleyBasedEra sbe) vChoice cType govActionTxIn votingStakeCred oFp = do
-  vStakePoolKey <- fmap (verificationKeyHash . castVerificationKey) <$> firstExceptT ReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
-  let vStakeCred = StakeCredentialByKey vStakePoolKey
-  votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
-  let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
-      voteProcedure = createVotingProcedure sbe vChoice cType govActIdentifier votingCred
-  firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
+runGovernanceCreateVoteCmd (AnyShelleyBasedEra sbe) vChoice vType govActionTxIn votingStakeCred oFp = do
+  vStakePoolKey <- firstExceptT ReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
+  let stakePoolKeyHash = verificationKeyHash vStakePoolKey
+      vStakeCred = StakeCredentialByKey . (verificationKeyHash . castVerificationKey) $ vStakePoolKey
+  case vType of
+    VCC -> do
+      votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
+      let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
+          voteProcedure = createVotingProcedure sbe vChoice (CC votingCred) govActIdentifier
+      firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
+    VDR -> do
+      votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
+      let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
+          voteProcedure = createVotingProcedure sbe vChoice (DR votingCred) govActIdentifier
+      firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
+
+    VSP -> do
+      let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
+          voteProcedure = createVotingProcedure sbe vChoice (SP stakePoolKeyHash) govActIdentifier
+      firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
 
 runGovernanceNewConstitutionCmd

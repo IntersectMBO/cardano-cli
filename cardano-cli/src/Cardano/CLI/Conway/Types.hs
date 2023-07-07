@@ -15,7 +15,7 @@ type ConwayVoteFile = File ConwayVote
 data ConwayVote
   = ConwayVote
     { cvVoteChoice :: VoteChoice
-    , cvVoterType :: VoterType
+    , cvVoterType :: VType
     , cvGovActionTxIn :: TxIn
     , cvVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
     , cvEra :: AnyShelleyBasedEra
@@ -36,3 +36,10 @@ data NewConstitution
 data Constitution
   = ConstitutionFromFile (File () In)
   | ConstitutionFromText Text deriving Show
+
+-- Vote type -- TODO: Conway era - remove me
+data VType = VCC -- committee
+           | VDR -- drep
+           | VSP -- spo
+           deriving Show
+

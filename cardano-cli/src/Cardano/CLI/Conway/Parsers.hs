@@ -108,12 +108,12 @@ pCreateVote =
      ,  flag' Abst $ long "abstain"
      ]
 
-  pVoterType :: Parser VoterType
+  pVoterType :: Parser VType
   pVoterType =
     asum
-     [  flag' CC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
-     ,  flag' DR $ mconcat [long "drep", Opt.help "Delegate representative"]
-     ,  flag' SP $ mconcat [long "spo", Opt.help "Stake pool operator"]
+     [  flag' VCC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
+     ,  flag' VDR $ mconcat [long "drep", Opt.help "Delegate representative"]
+     ,  flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
      ]
 
   pGoveranceActionIdentifier :: Parser TxIn
