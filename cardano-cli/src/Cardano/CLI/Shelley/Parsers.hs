@@ -15,6 +15,19 @@ module Cardano.CLI.Shelley.Parsers
   , parseTxIn
   ) where
 
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
+import           Cardano.Chain.Common (BlockCount (BlockCount))
+import           Cardano.CLI.Common.Parsers
+import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Shelley.Commands
+import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
+                   StakeIdentifier (..), StakeVerifier (..), VerificationKeyOrFile (..),
+                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
+import           Cardano.CLI.Types
+import qualified Cardano.Ledger.BaseTypes as Shelley
+import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 import           Cardano.Prelude (ConvertText (..))
 
 import qualified Data.Aeson as Aeson
@@ -50,22 +63,6 @@ import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
 import           Text.Read (readEither, readMaybe)
-
-import qualified Cardano.Ledger.BaseTypes as Shelley
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
-
-import           Cardano.Api
-import           Cardano.Api.Shelley
-
-import           Cardano.Chain.Common (BlockCount (BlockCount))
-
-import           Cardano.CLI.Common.Parsers
-import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
-                   StakeIdentifier (..), StakeVerifier (..), VerificationKeyOrFile (..),
-                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
-import           Cardano.CLI.Types
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
@@ -401,19 +398,22 @@ pStakeAddressCmd envCli =
     pStakeAddressRegistrationCert :: Parser StakeAddressCmd
     pStakeAddressRegistrationCert =
       StakeRegistrationCert
-        <$> pStakeIdentifier
+        <$> pShelleyBasedEra
+        <*> pStakeIdentifier
         <*> pOutputFile
 
     pStakeAddressDeregistrationCert :: Parser StakeAddressCmd
     pStakeAddressDeregistrationCert =
       StakeCredentialDeRegistrationCert
-        <$> pStakeIdentifier
+        <$> pShelleyBasedEra
+        <*> pStakeIdentifier
         <*> pOutputFile
 
     pStakeAddressPoolDelegationCert :: Parser StakeAddressCmd
     pStakeAddressPoolDelegationCert =
       StakeCredentialDelegationCert
-        <$> pStakeIdentifier
+        <$> pShelleyBasedEra
+        <*> pStakeIdentifier
         <*> pDelegationTarget
         <*> pOutputFile
 
@@ -1156,27 +1156,31 @@ pGovernanceCmd =
 
     pMIRPayStakeAddresses :: Parser GovernanceCmd
     pMIRPayStakeAddresses = GovernanceMIRPayStakeAddressesCertificate
-                              <$> pMIRPot
+                              <$> pShelleyBasedEra
+                              <*> pMIRPot
                               <*> some pStakeAddress
                               <*> some pRewardAmt
                               <*> pOutputFile
 
     pMIRTransferToTreasury :: Parser GovernanceCmd
     pMIRTransferToTreasury = GovernanceMIRTransfer
-                               <$> pTransferAmt
+                               <$> pShelleyBasedEra
+                               <*> pTransferAmt
                                <*> pOutputFile
                                <*> pure TransferToTreasury
 
     pMIRTransferToReserves :: Parser GovernanceCmd
     pMIRTransferToReserves = GovernanceMIRTransfer
-                               <$> pTransferAmt
+                               <$> pShelleyBasedEra
+                               <*> pTransferAmt
                                <*> pOutputFile
                                <*> pure TransferToReserves
 
     pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmd
     pGovernanceGenesisKeyDelegationCertificate =
       GovernanceGenesisKeyDelegationCertificate
-        <$> pGenesisVerificationKeyOrHashOrFile
+        <$> pShelleyBasedEra
+        <*> pGenesisVerificationKeyOrHashOrFile
         <*> pGenesisDelegateVerificationKeyOrHashOrFile
         <*> pVrfVerificationKeyOrHashOrFile
         <*> pOutputFile
@@ -3044,7 +3048,8 @@ pStakePoolMetadataHash =
 pStakePoolRegistrationCert :: EnvCli -> Parser PoolCmd
 pStakePoolRegistrationCert envCli =
   PoolRegistrationCert
-    <$> pStakePoolVerificationKeyOrFile
+    <$> pShelleyBasedEra
+    <*> pStakePoolVerificationKeyOrFile
     <*> pVrfVerificationKeyOrFile
     <*> pPoolPledge
     <*> pPoolCost
@@ -3059,7 +3064,8 @@ pStakePoolRegistrationCert envCli =
 pStakePoolRetirementCert :: Parser PoolCmd
 pStakePoolRetirementCert =
   PoolRetirementCert
-    <$> pStakePoolVerificationKeyOrFile
+    <$> pShelleyBasedEra
+    <*> pStakePoolVerificationKeyOrFile
     <*> pEpochNo
     <*> pOutputFile
 

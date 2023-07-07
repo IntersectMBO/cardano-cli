@@ -4,7 +4,8 @@ module Test.Golden.Shelley.TextEnvelope.Certificates.StakePool
   ( golden_shelleyStakePoolCertificates
   ) where
 
-import           Cardano.Api (AsType (..), HasTextEnvelope (..))
+import           Cardano.Api (AsType (..), CardanoEra (..), cardanoEraConstraints,
+                   textEnvelopeTypeInEra)
 
 import           Control.Monad (void)
 
@@ -24,6 +25,8 @@ import qualified Hedgehog.Extras.Test.File as H
 --   6. Check the TextEnvelope serialization format has not changed.
 golden_shelleyStakePoolCertificates :: Property
 golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  let era = BabbageEra -- TODO generate for all eras
+
   -- Reference files
   referenceRegistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_pool_registration_certificate"
   referenceDeregistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_pool_deregistration_certificate"
@@ -84,7 +87,7 @@ golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tmp" $ \
 
   H.assertFilesExist [registrationCertificate]
 
-  let registrationCertificateType = textEnvelopeType AsCertificate
+  let registrationCertificateType = cardanoEraConstraints era $ textEnvelopeTypeInEra era AsCertificate
 
   -- Check the newly created files have not deviated from the
   -- golden files

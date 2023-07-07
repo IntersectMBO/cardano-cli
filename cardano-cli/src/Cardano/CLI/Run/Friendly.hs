@@ -10,6 +10,15 @@
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Run.Friendly (friendlyTxBS, friendlyTxBodyBS) where
 
+import           Cardano.Api as Api
+import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
+import           Cardano.Api.Shelley (Address (ShelleyAddress),
+                   KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), StakeAddress (..),
+                   StakeCredential (..), StakePoolParameters (..), fromShelleyPaymentCredential,
+                   fromShelleyStakeCredential, fromShelleyStakeReference)
+
+import qualified Cardano.Ledger.Shelley.API as Shelley
+
 import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Key as Aeson
@@ -28,14 +37,6 @@ import           Data.Yaml.Pretty (setConfCompare)
 import qualified Data.Yaml.Pretty as Yaml
 import           GHC.Real (denominator)
 import           GHC.Unicode (isAlphaNum)
-
-import           Cardano.Api as Api
-import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
-import           Cardano.Api.Shelley (Address (ShelleyAddress),
-                   KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), StakeAddress (..),
-                   StakeCredential (..), StakePoolParameters (..), fromShelleyPaymentCredential,
-                   fromShelleyStakeCredential, fromShelleyStakeReference)
-import qualified Cardano.Ledger.Shelley.API as Shelley
 
 yamlConfig :: Yaml.Config
 yamlConfig = Yaml.defConfig & setConfCompare compare
@@ -303,7 +304,7 @@ friendlyCertificates = \case
   TxCertificatesNone -> Null
   TxCertificates _ cs _ -> array $ map friendlyCertificate cs
 
-friendlyCertificate :: Certificate -> Aeson.Value
+friendlyCertificate :: Certificate era -> Aeson.Value
 friendlyCertificate =
   object
     . (: [])
@@ -340,6 +341,12 @@ friendlyCertificate =
               ]
       MIRCertificate pot target ->
         "MIR" .= object ["pot" .= friendlyMirPot pot, friendlyMirTarget target]
+
+      CommitteeDelegationCertificate {} ->
+        error "TODO CIP-1694 implement CommitteeDelegationCertificate case"
+
+      CommitteeHotKeyDeregistrationCertificate {} ->
+        error "TODO CIP-1694 implement CommitteeHotKeyDeregistrationCertificate case"
 
 friendlyMirTarget :: MIRTarget -> Aeson.Pair
 friendlyMirTarget = \case
