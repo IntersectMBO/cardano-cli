@@ -294,6 +294,7 @@ Usage: cardano-cli genesis hash --genesis FILE
 
 Usage: cardano-cli query 
             ( protocol-parameters
+            | constitution-hash
             | tip
             | stake-pools
             | stake-distribution
@@ -321,6 +322,16 @@ Usage: cardano-cli query protocol-parameters --socket-path SOCKET_PATH
             [--out-file FILE]
 
   Get the node's current protocol parameters
+
+Usage: cardano-cli query constitution-hash --socket-path SOCKET_PATH
+            [ --shelley-mode
+            | --byron-mode [--epoch-slots SLOTS]
+            | --cardano-mode [--epoch-slots SLOTS]
+            ]
+            (--mainnet | --testnet-magic NATURAL)
+            [--out-file FILE]
+
+  Get the constitution hash
 
 Usage: cardano-cli query tip --socket-path SOCKET_PATH
             [ --shelley-mode

@@ -27,10 +27,13 @@ module Cardano.CLI.Shelley.Run.Query
   , percentage
   ) where
 
-import           Cardano.Api
+import           Cardano.Api hiding (QueryInShelleyBasedEra(..))
 import qualified Cardano.Api as Api
-import           Cardano.Api.Byron
-import           Cardano.Api.Shelley
+import qualified Cardano.Api.Eras as Api
+import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra(..))
+import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra(..))
+import           Cardano.Ledger.SafeHash (SafeHash)
+import           Data.ByteString (ByteString)
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, renderHelpersError)
@@ -169,6 +172,8 @@ runQueryCmd cmd =
       runQueryLeadershipSchedule mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs
     QueryProtocolParameters' mNodeSocketPath consensusModeParams network mOutFile ->
       runQueryProtocolParameters mNodeSocketPath consensusModeParams network mOutFile
+    QueryConstitutionHash mNodeSocketPath consensusModeParams network mOutFile ->
+      runQueryConstitutionHash mNodeSocketPath consensusModeParams network mOutFile
     QueryTip mNodeSocketPath consensusModeParams network mOutFile ->
       runQueryTip mNodeSocketPath consensusModeParams network mOutFile
     QueryStakePools' mNodeSocketPath consensusModeParams network mOutFile ->
@@ -193,6 +198,44 @@ runQueryCmd cmd =
       runQueryTxMempool mNodeSocketPath consensusModeParams network op mOutFile
     QuerySlotNumber mNodeSocketPath consensusModeParams network utcTime ->
       runQuerySlotNumber mNodeSocketPath consensusModeParams network utcTime
+
+runQueryConstitutionHash
+  :: SocketPath
+  -> AnyConsensusModeParams
+  -> NetworkId
+  -> Maybe (File () Out)
+  -> ExceptT ShelleyQueryCmdError IO ()
+runQueryConstitutionHash socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
+
+  result <- liftIO $ executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
+      & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+
+    sbe <- requireShelleyBasedEra era
+      & onNothing (left ShelleyQueryCmdByronEra)
+
+    let cMode = consensusModeOnly cModeParams
+
+    eInMode <- toEraInMode era cMode
+      & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
+
+    lift (Api.withShelleyBasedEraConstraintsForLedger sbe (queryConstitutionHash eInMode sbe))
+      & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
+      & onLeft (left . ShelleyQueryCmdEraMismatch)
+
+  writeConstitutionHash mOutFile =<< except (join (first ShelleyQueryCmdAcquireFailure result))
+  where
+    writeConstitutionHash
+      :: Maybe (File () Out)
+      -> (Maybe (SafeHash StandardCrypto ByteString))
+      -> ExceptT ShelleyQueryCmdError IO ()
+    writeConstitutionHash mOutFile' cHash =
+      case mOutFile' of
+        Nothing -> liftIO $ LBS.putStrLn (encodePretty cHash)
+        Just (File fpath) ->
+          handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError fpath) $
+            LBS.writeFile fpath (encodePretty cHash)
 
 runQueryProtocolParameters
   :: SocketPath

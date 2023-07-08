@@ -50,7 +50,7 @@ module Cardano.CLI.Shelley.Commands
   , Deprecated (..)
   ) where
 
-import           Cardano.Api.Shelley
+import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra(..))
 
 import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.Conway.Parsers
@@ -364,6 +364,7 @@ data QueryCmd =
       EpochLeadershipSchedule
       (Maybe (File () Out))
   | QueryProtocolParameters' SocketPath AnyConsensusModeParams NetworkId (Maybe (File () Out))
+  | QueryConstitutionHash SocketPath AnyConsensusModeParams NetworkId (Maybe (File () Out))
   | QueryTip SocketPath AnyConsensusModeParams NetworkId (Maybe (File () Out))
   | QueryStakePools' SocketPath AnyConsensusModeParams NetworkId (Maybe (File () Out))
   | QueryStakeDistribution' SocketPath AnyConsensusModeParams NetworkId (Maybe (File () Out))
@@ -394,6 +395,7 @@ renderQueryCmd cmd =
   case cmd of
     QueryLeadershipSchedule {} -> "query leadership-schedule"
     QueryProtocolParameters' {} -> "query protocol-parameters "
+    QueryConstitutionHash {} -> "query constitution-hash "
     QueryTip {} -> "query tip"
     QueryStakePools' {} -> "query stake-pools"
     QueryStakeDistribution' {} -> "query stake-distribution"
