@@ -110,17 +110,19 @@ pTextViewCmd =
 
 pCBORInFile :: Parser FilePath
 pCBORInFile =
-  Opt.strOption
-    (  Opt.long "in-file"
-    <> Opt.metavar "FILE"
-    <> Opt.help "CBOR input file."
-    <> Opt.completer (Opt.bashCompleter "file")
-    )
-  <|>
-  Opt.strOption
-    (  Opt.long "file"
-    <> Opt.internal
-    )
+  asum
+    [ Opt.strOption $ mconcat
+        [ Opt.long "in-file"
+        , Opt.metavar "FILE"
+        , Opt.help "CBOR input file."
+        , Opt.completer (Opt.bashCompleter "file")
+        ]
+    , Opt.strOption $ mconcat
+        [ Opt.long "file"
+        , Opt.internal
+        ]
+    ]
+
 
 pAddressCmd :: EnvCli -> Parser AddressCmd
 pAddressCmd envCli =
@@ -161,25 +163,27 @@ pAddressCmd envCli =
 
 pPaymentVerifier :: Parser PaymentVerifier
 pPaymentVerifier =
-        PaymentVerifierKey <$> pPaymentVerificationKeyTextOrFile
-    <|> PaymentVerifierScriptFile <$>
-          pScriptFor "payment-script-file" Nothing
-                     "Filepath of the payment script."
+  asum
+    [ PaymentVerifierKey <$> pPaymentVerificationKeyTextOrFile
+    , PaymentVerifierScriptFile <$>
+        pScriptFor "payment-script-file" Nothing "Filepath of the payment script."
+    ]
 
 
 pPaymentVerificationKeyTextOrFile :: Parser VerificationKeyTextOrFile
 pPaymentVerificationKeyTextOrFile =
-        VktofVerificationKeyText <$> pPaymentVerificationKeyText
-    <|> VktofVerificationKeyFile <$> pPaymentVerificationKeyFile
+  asum
+    [ VktofVerificationKeyText <$> pPaymentVerificationKeyText
+    , VktofVerificationKeyFile <$> pPaymentVerificationKeyFile
+    ]
 
 pPaymentVerificationKeyText :: Parser Text
 pPaymentVerificationKeyText =
-  Text.pack <$>
-    Opt.strOption
-      (  Opt.long "payment-verification-key"
-      <> Opt.metavar "STRING"
-      <> Opt.help "Payment verification key (Bech32-encoded)"
-      )
+  fmap Text.pack $ Opt.strOption $ mconcat
+    [ Opt.long "payment-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Payment verification key (Bech32-encoded)"
+    ]
 
 pPaymentVerificationKeyFile :: Parser (VerificationKeyFile In)
 pPaymentVerificationKeyFile =
@@ -198,8 +202,6 @@ pPaymentVerificationKeyFile =
 
 pScript :: Parser ScriptFile
 pScript = pScriptFor "script-file" Nothing "Filepath of the script."
-
-
 
 pReferenceTxIn :: String -> String -> Parser TxIn
 pReferenceTxIn prefix scriptType =
@@ -254,12 +256,11 @@ pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefi
 
 pExecutionUnits :: String -> Parser ExecutionUnits
 pExecutionUnits scriptFlagPrefix =
-  uncurry ExecutionUnits <$>
-    Opt.option Opt.auto
-      (  Opt.long (scriptFlagPrefix ++ "-execution-units")
-      <> Opt.metavar "(INT, INT)"
-      <> Opt.help "The time and space units needed by the script."
-      )
+  fmap (uncurry ExecutionUnits) $ Opt.option Opt.auto $ mconcat
+    [ Opt.long (scriptFlagPrefix ++ "-execution-units")
+    , Opt.metavar "(INT, INT)"
+    , Opt.help "The time and space units needed by the script."
+    ]
 
 pScriptRedeemerOrFile :: String -> Parser ScriptDataOrFile
 pScriptRedeemerOrFile scriptFlagPrefix =
@@ -282,16 +283,18 @@ pScriptDatumOrFile scriptFlagPrefix witctx =
  where
   pInlineDatumPresent :: Parser (ScriptDatumOrFile WitCtxTxIn)
   pInlineDatumPresent  =
-    flag' InlineDatumPresentAtTxIn
-      (  long (scriptFlagPrefix ++ "-inline-datum-present")
-      <> Opt.help "Inline datum present at transaction input."
-      )
+    flag' InlineDatumPresentAtTxIn $ mconcat
+      [ long (scriptFlagPrefix ++ "-inline-datum-present")
+      , Opt.help "Inline datum present at transaction input."
+      ]
 
 pScriptDataOrFile :: String -> String -> String -> Parser ScriptDataOrFile
 pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
-      pScriptDataCborFile
-  <|> pScriptDataFile
-  <|> pScriptDataValue
+  asum
+    [ pScriptDataCborFile
+    , pScriptDataFile
+    , pScriptDataValue
+    ]
   where
     pScriptDataCborFile = fmap ScriptDataCborFile . Opt.strOption $ mconcat
       [ Opt.long (dataFlagPrefix ++ "-cbor-file")
@@ -335,17 +338,23 @@ pStakeAddressCmd :: EnvCli -> Parser StakeAddressCmd
 pStakeAddressCmd envCli =
     asum
       [ subParser "key-gen"
-          (Opt.info pStakeAddressKeyGen $ Opt.progDesc "Create a stake address key pair")
+          $ Opt.info pStakeAddressKeyGen
+          $ Opt.progDesc "Create a stake address key pair"
       , subParser "build"
-          (Opt.info pStakeAddressBuild $ Opt.progDesc "Build a stake address")
+          $ Opt.info pStakeAddressBuild
+          $ Opt.progDesc "Build a stake address"
       , subParser "key-hash"
-          (Opt.info pStakeAddressKeyHash $ Opt.progDesc "Print the hash of a stake address key.")
+          $ Opt.info pStakeAddressKeyHash
+          $ Opt.progDesc "Print the hash of a stake address key."
       , subParser "registration-certificate"
-          (Opt.info pStakeAddressRegistrationCert $ Opt.progDesc "Create a stake address registration certificate")
+          $ Opt.info pStakeAddressRegistrationCert
+          $ Opt.progDesc "Create a stake address registration certificate"
       , subParser "deregistration-certificate"
-          (Opt.info pStakeAddressDeregistrationCert $ Opt.progDesc "Create a stake address deregistration certificate")
+          $ Opt.info pStakeAddressDeregistrationCert
+          $ Opt.progDesc "Create a stake address deregistration certificate"
       , subParser "delegation-certificate"
-          (Opt.info pStakeAddressPoolDelegationCert $ Opt.progDesc "Create a stake address pool delegation certificate")
+          $ Opt.info pStakeAddressPoolDelegationCert
+          $ Opt.progDesc "Create a stake address pool delegation certificate"
       ]
   where
     pStakeAddressKeyGen :: Parser StakeAddressCmd
@@ -390,44 +399,68 @@ pStakeAddressCmd envCli =
 pKeyCmd :: Parser KeyCmd
 pKeyCmd =
   asum
-    [ subParser "verification-key" $
-        Opt.info pKeyGetVerificationKey $
-          Opt.progDesc $ "Get a verification key from a signing key. This "
-                      ++ " supports all key types."
-    , subParser "non-extended-key" $
-        Opt.info pKeyNonExtendedKey $
-          Opt.progDesc $ "Get a non-extended verification key from an "
-                      ++ "extended verification key. This supports all "
-                      ++ "extended key types."
-    , subParser "convert-byron-key" $
-        Opt.info pKeyConvertByronKey $
-          Opt.progDesc $ "Convert a Byron payment, genesis or genesis "
-                      ++ "delegate key (signing or verification) to a "
-                      ++ "corresponding Shelley-format key."
-    , subParser "convert-byron-genesis-vkey" $
-        Opt.info pKeyConvertByronGenesisVKey $
-          Opt.progDesc $ "Convert a Base64-encoded Byron genesis "
-                      ++ "verification key to a Shelley genesis "
-                      ++ "verification key"
-    , subParser "convert-itn-key" $
-        Opt.info pKeyConvertITNKey $
-          Opt.progDesc $ "Convert an Incentivized Testnet (ITN) non-extended "
-                      ++ "(Ed25519) signing or verification key to a "
-                      ++ "corresponding Shelley stake key"
-    , subParser "convert-itn-extended-key" $
-        Opt.info pKeyConvertITNExtendedKey $
-          Opt.progDesc $ "Convert an Incentivized Testnet (ITN) extended "
-                      ++ "(Ed25519Extended) signing key to a corresponding "
-                      ++ "Shelley stake signing key"
-    , subParser "convert-itn-bip32-key" $
-        Opt.info pKeyConvertITNBip32Key $
-          Opt.progDesc $ "Convert an Incentivized Testnet (ITN) BIP32 "
-                      ++ "(Ed25519Bip32) signing key to a corresponding "
-                      ++ "Shelley stake signing key"
-    , subParser "convert-cardano-address-key" $
-        Opt.info pKeyConvertCardanoAddressSigningKey $
-          Opt.progDesc $ "Convert a cardano-address extended signing key "
-                      ++ "to a corresponding Shelley-format key."
+    [ subParser "verification-key"
+        $ Opt.info pKeyGetVerificationKey
+        $ Opt.progDesc
+        $ mconcat
+            [ "Get a verification key from a signing key. This "
+            , " supports all key types."
+            ]
+    , subParser "non-extended-key"
+        $ Opt.info pKeyNonExtendedKey
+        $ Opt.progDesc
+        $ mconcat
+            [ "Get a non-extended verification key from an "
+            , "extended verification key. This supports all "
+            , "extended key types."
+            ]
+    , subParser "convert-byron-key"
+        $ Opt.info pKeyConvertByronKey
+        $ Opt.progDesc
+        $ mconcat
+            [ "Convert a Byron payment, genesis or genesis "
+            , "delegate key (signing or verification) to a "
+            , "corresponding Shelley-format key."
+            ]
+    , subParser "convert-byron-genesis-vkey"
+        $ Opt.info pKeyConvertByronGenesisVKey
+        $ Opt.progDesc
+        $ mconcat
+            [ "Convert a Base64-encoded Byron genesis "
+            , "verification key to a Shelley genesis "
+            , "verification key"
+            ]
+    , subParser "convert-itn-key"
+        $ Opt.info pKeyConvertITNKey
+        $ Opt.progDesc
+        $ mconcat
+            [ "Convert an Incentivized Testnet (ITN) non-extended "
+            , "(Ed25519) signing or verification key to a "
+            , "corresponding Shelley stake key"
+            ]
+    , subParser "convert-itn-extended-key"
+        $ Opt.info pKeyConvertITNExtendedKey
+        $ Opt.progDesc
+        $ mconcat
+            [ "Convert an Incentivized Testnet (ITN) extended "
+            , "(Ed25519Extended) signing key to a corresponding "
+            , "Shelley stake signing key"
+            ]
+    , subParser "convert-itn-bip32-key"
+        $ Opt.info pKeyConvertITNBip32Key
+        $ Opt.progDesc
+        $ mconcat
+            [ "Convert an Incentivized Testnet (ITN) BIP32 "
+            , "(Ed25519Bip32) signing key to a corresponding "
+            , "Shelley stake signing key"
+            ]
+    , subParser "convert-cardano-address-key"
+        $ Opt.info pKeyConvertCardanoAddressSigningKey
+        $ Opt.progDesc
+        $ mconcat
+            [ "Convert a cardano-address extended signing key "
+            , "to a corresponding Shelley-format key."
+            ]
     ]
   where
     pKeyGetVerificationKey :: Parser KeyCmd
@@ -451,43 +484,48 @@ pKeyCmd =
         <*> pOutputFile
 
     pPassword :: Parser Text
-    pPassword = Opt.strOption
-                  (  Opt.long "password"
-                  <> Opt.metavar "TEXT"
-                  <> Opt.help "Password for signing key (if applicable)."
-                  )
+    pPassword =
+      Opt.strOption $ mconcat
+        [ Opt.long "password"
+        , Opt.metavar "TEXT"
+        , Opt.help "Password for signing key (if applicable)."
+        ]
 
     pByronKeyType :: Parser ByronKeyType
     pByronKeyType =
-          Opt.flag' (ByronPaymentKey NonLegacyByronKeyFormat)
-            (  Opt.long "byron-payment-key-type"
-            <> Opt.help "Use a Byron-era payment key."
-            )
-      <|> Opt.flag' (ByronPaymentKey LegacyByronKeyFormat)
-            (  Opt.long "legacy-byron-payment-key-type"
-            <> Opt.help "Use a Byron-era payment key, in legacy SL format."
-            )
-      <|> Opt.flag' (ByronGenesisKey NonLegacyByronKeyFormat)
-            (  Opt.long "byron-genesis-key-type"
-            <> Opt.help "Use a Byron-era genesis key."
-            )
-      <|> Opt.flag' (ByronGenesisKey LegacyByronKeyFormat)
-            (  Opt.long "legacy-byron-genesis-key-type"
-            <> Opt.help "Use a Byron-era genesis key, in legacy SL format."
-            )
-      <|> Opt.flag' (ByronDelegateKey NonLegacyByronKeyFormat)
-            (  Opt.long "byron-genesis-delegate-key-type"
-            <> Opt.help "Use a Byron-era genesis delegate key."
-            )
-      <|> Opt.flag' (ByronDelegateKey LegacyByronKeyFormat)
-            (  Opt.long "legacy-byron-genesis-delegate-key-type"
-            <> Opt.help "Use a Byron-era genesis delegate key, in legacy SL format."
-            )
+      asum
+        [ Opt.flag' (ByronPaymentKey NonLegacyByronKeyFormat) $ mconcat
+            [ Opt.long "byron-payment-key-type"
+            , Opt.help "Use a Byron-era payment key."
+            ]
+        , Opt.flag' (ByronPaymentKey LegacyByronKeyFormat) $ mconcat
+            [ Opt.long "legacy-byron-payment-key-type"
+            , Opt.help "Use a Byron-era payment key, in legacy SL format."
+            ]
+        , Opt.flag' (ByronGenesisKey NonLegacyByronKeyFormat) $ mconcat
+            [ Opt.long "byron-genesis-key-type"
+            , Opt.help "Use a Byron-era genesis key."
+            ]
+        , Opt.flag' (ByronGenesisKey LegacyByronKeyFormat) $ mconcat
+            [ Opt.long "legacy-byron-genesis-key-type"
+            , Opt.help "Use a Byron-era genesis key, in legacy SL format."
+            ]
+        , Opt.flag' (ByronDelegateKey NonLegacyByronKeyFormat) $ mconcat
+            [ Opt.long "byron-genesis-delegate-key-type"
+            , Opt.help "Use a Byron-era genesis delegate key."
+            ]
+        , Opt.flag' (ByronDelegateKey LegacyByronKeyFormat) $ mconcat
+            [ Opt.long "legacy-byron-genesis-delegate-key-type"
+            , Opt.help "Use a Byron-era genesis delegate key, in legacy SL format."
+            ]
+        ]
 
     pByronKeyFile :: Parser (SomeKeyFile In)
     pByronKeyFile =
-          (ASigningKeyFile      <$> pByronSigningKeyFile)
-      <|> (AVerificationKeyFile <$> pByronVerificationKeyFile)
+      asum
+        [ ASigningKeyFile      <$> pByronSigningKeyFile
+        , AVerificationKeyFile <$> pByronVerificationKeyFile
+        ]
 
     pByronSigningKeyFile :: Parser (SigningKeyFile In)
     pByronSigningKeyFile =
@@ -515,12 +553,11 @@ pKeyCmd =
 
     pByronGenesisVKeyBase64 :: Parser VerificationKeyBase64
     pByronGenesisVKeyBase64 =
-      VerificationKeyBase64 <$>
-        Opt.strOption
-          (  Opt.long "byron-genesis-verification-key"
-          <> Opt.metavar "BASE64"
-          <> Opt.help "Base64 string for the Byron genesis verification key."
-          )
+      fmap VerificationKeyBase64 $ Opt.strOption $ mconcat
+        [ Opt.long "byron-genesis-verification-key"
+        , Opt.metavar "BASE64"
+        , Opt.help "Base64 string for the Byron genesis verification key."
+        ]
 
     pKeyConvertITNKey :: Parser KeyCmd
     pKeyConvertITNKey =
@@ -541,8 +578,11 @@ pKeyCmd =
         <*> pOutputFile
 
     pITNKeyFIle :: Parser (SomeKeyFile direction)
-    pITNKeyFIle = pITNSigningKeyFile
-              <|> pITNVerificationKeyFile
+    pITNKeyFIle =
+      asum
+        [ pITNSigningKeyFile
+        , pITNVerificationKeyFile
+        ]
 
     pITNSigningKeyFile :: Parser (SomeKeyFile direction)
     pITNSigningKeyFile =
@@ -571,22 +611,24 @@ pKeyCmd =
 
     pCardanoAddressKeyType :: Parser CardanoAddressKeyType
     pCardanoAddressKeyType =
-          Opt.flag' CardanoAddressShelleyPaymentKey
-            (  Opt.long "shelley-payment-key"
-            <> Opt.help "Use a Shelley-era extended payment key."
-            )
-      <|> Opt.flag' CardanoAddressShelleyStakeKey
-            (  Opt.long "shelley-stake-key"
-            <> Opt.help "Use a Shelley-era extended stake key."
-            )
-      <|> Opt.flag' CardanoAddressIcarusPaymentKey
-            (  Opt.long "icarus-payment-key"
-            <> Opt.help "Use a Byron-era extended payment key formatted in the Icarus style."
-            )
-      <|> Opt.flag' CardanoAddressByronPaymentKey
-            (  Opt.long "byron-payment-key"
-            <> Opt.help "Use a Byron-era extended payment key formatted in the deprecated Byron style."
-            )
+      asum
+        [ Opt.flag' CardanoAddressShelleyPaymentKey $ mconcat
+            [ Opt.long "shelley-payment-key"
+            , Opt.help "Use a Shelley-era extended payment key."
+            ]
+        , Opt.flag' CardanoAddressShelleyStakeKey $ mconcat
+            [ Opt.long "shelley-stake-key"
+            , Opt.help "Use a Shelley-era extended stake key."
+            ]
+        , Opt.flag' CardanoAddressIcarusPaymentKey $ mconcat
+            [ Opt.long "icarus-payment-key"
+            , Opt.help "Use a Byron-era extended payment key formatted in the Icarus style."
+            ]
+        , Opt.flag' CardanoAddressByronPaymentKey $ mconcat
+            [ Opt.long "byron-payment-key"
+            , Opt.help "Use a Byron-era extended payment key formatted in the deprecated Byron style."
+            ]
+        ]
 
 pTransaction :: EnvCli -> Parser TransactionCmd
 pTransaction envCli =
@@ -682,45 +724,45 @@ pTransaction envCli =
 
   pTransactionBuild :: Parser TransactionCmd
   pTransactionBuild =
-    TxBuild <$> pSocketPath envCli
-            <*> pCardanoEra
-            <*> pConsensusModeParams
-            <*> pNetworkId envCli
-            <*> optional pScriptValidity
-            <*> optional pWitnessOverride
-            <*> some (pTxIn AutoBalance)
-            <*> many pReadOnlyReferenceTxIn
-            <*> many pRequiredSigner
-            <*> many pTxInCollateral
-            <*> optional pReturnCollateral
-            <*> optional pTotalCollateral
-            <*> many pTxOut
-            <*> pChangeAddress
-            <*> optional (pMintMultiAsset AutoBalance)
-            <*> optional pInvalidBefore
-            <*> optional pInvalidHereafter
-            <*> many (pCertificateFile AutoBalance)
-            <*> many (pWithdrawal AutoBalance)
-            <*> pTxMetadataJsonSchema
-            <*> many (pScriptFor
-                        "auxiliary-script-file"
-                        Nothing
-                        "Filepath of auxiliary script(s)")
-            <*> many pMetadataFile
-            <*> optional pDeprecatedProtocolParamsFile
-            <*> optional pUpdateProposalFile
-            <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
-            <*> many (pFileInDirection "constitution-file" "Filepath of the constitution.")
-            <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
+    TxBuild
+      <$> pSocketPath envCli
+      <*> pCardanoEra
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> optional pScriptValidity
+      <*> optional pWitnessOverride
+      <*> some (pTxIn AutoBalance)
+      <*> many pReadOnlyReferenceTxIn
+      <*> many pRequiredSigner
+      <*> many pTxInCollateral
+      <*> optional pReturnCollateral
+      <*> optional pTotalCollateral
+      <*> many pTxOut
+      <*> pChangeAddress
+      <*> optional (pMintMultiAsset AutoBalance)
+      <*> optional pInvalidBefore
+      <*> optional pInvalidHereafter
+      <*> many (pCertificateFile AutoBalance)
+      <*> many (pWithdrawal AutoBalance)
+      <*> pTxMetadataJsonSchema
+      <*> many (pScriptFor
+                  "auxiliary-script-file"
+                  Nothing
+                  "Filepath of auxiliary script(s)")
+      <*> many pMetadataFile
+      <*> optional pDeprecatedProtocolParamsFile
+      <*> optional pUpdateProposalFile
+      <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
+      <*> many (pFileInDirection "constitution-file" "Filepath of the constitution.")
+      <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
   pChangeAddress :: Parser TxOutChangeAddress
   pChangeAddress =
-    TxOutChangeAddress <$>
-      Opt.option (readerFromParsecParser parseAddressAny)
-        (  Opt.long "change-address"
-        <> Opt.metavar "ADDRESS"
-        <> Opt.help "Address where ADA in excess of the tx fee will go to."
-        )
+    fmap TxOutChangeAddress $ Opt.option (readerFromParsecParser parseAddressAny) $ mconcat
+      [ Opt.long "change-address"
+      , Opt.metavar "ADDRESS"
+      , Opt.help "Address where ADA in excess of the tx fee will go to."
+      ]
 
   pTransactionBuildRaw :: Parser TransactionCmd
   pTransactionBuildRaw =
@@ -799,11 +841,12 @@ pTransaction envCli =
     <*> pTxOut
 
   pTxHashScriptData :: Parser TransactionCmd
-  pTxHashScriptData = TxHashScriptData <$>
-                        pScriptDataOrFile
-                          "script-data"
-                          "The script data, in JSON syntax."
-                          "The script data, in the given JSON file."
+  pTxHashScriptData =
+    fmap TxHashScriptData
+      $ pScriptDataOrFile
+          "script-data"
+          "The script data, in JSON syntax."
+          "The script data, in the given JSON file."
 
   pTransactionId  :: Parser TransactionCmd
   pTransactionId = TxGetTxId <$> pInputTxOrTxBodyFile
@@ -859,42 +902,49 @@ pNodeCmd =
 
     pKeyHashVRF :: Parser NodeCmd
     pKeyHashVRF =
-      NodeKeyHashVRF <$> pVerificationKeyOrFile AsVrfKey <*> pMaybeOutputFile
+      NodeKeyHashVRF
+        <$> pVerificationKeyOrFile AsVrfKey
+        <*> pMaybeOutputFile
 
     pNewCounter :: Parser NodeCmd
     pNewCounter =
-      NodeNewCounter <$> pColdVerificationKeyOrFile
-                     <*> pCounterValue
-                     <*> pOperatorCertIssueCounterFile
+      NodeNewCounter
+        <$> pColdVerificationKeyOrFile
+        <*> pCounterValue
+        <*> pOperatorCertIssueCounterFile
 
     pCounterValue :: Parser Word
     pCounterValue =
-        Opt.option Opt.auto
-          (  Opt.long "counter-value"
-          <> Opt.metavar "INT"
-          <> Opt.help "The next certificate issue counter value to use."
-          )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "counter-value"
+        , Opt.metavar "INT"
+        , Opt.help "The next certificate issue counter value to use."
+        ]
 
     pIssueOpCert :: Parser NodeCmd
     pIssueOpCert =
-      NodeIssueOpCert <$> pKesVerificationKeyOrFile
-                      <*> pColdSigningKeyFile
-                      <*> pOperatorCertIssueCounterFile
-                      <*> pKesPeriod
-                      <*> pOutputFile
-
+      NodeIssueOpCert
+        <$> pKesVerificationKeyOrFile
+        <*> pColdSigningKeyFile
+        <*> pOperatorCertIssueCounterFile
+        <*> pKesPeriod
+        <*> pOutputFile
 
 pPoolCmd :: EnvCli -> Parser PoolCmd
 pPoolCmd  envCli =
   asum
     [ subParser "registration-certificate"
-      (Opt.info (pStakePoolRegistrationCert envCli) $ Opt.progDesc "Create a stake pool registration certificate")
+        $ Opt.info (pStakePoolRegistrationCert envCli)
+        $ Opt.progDesc "Create a stake pool registration certificate"
     , subParser "deregistration-certificate"
-      (Opt.info pStakePoolRetirementCert $ Opt.progDesc "Create a stake pool deregistration certificate")
+        $ Opt.info pStakePoolRetirementCert
+        $ Opt.progDesc "Create a stake pool deregistration certificate"
     , subParser "id"
-      (Opt.info pId $ Opt.progDesc "Build pool id from the offline key")
+        $ Opt.info pId
+        $ Opt.progDesc "Build pool id from the offline key"
     , subParser "metadata-hash"
-      (Opt.info pPoolMetadataHashSubCmd $ Opt.progDesc "Print the hash of pool metadata.")
+        $ Opt.info pPoolMetadataHashSubCmd
+        $ Opt.progDesc "Print the hash of pool metadata."
     ]
   where
     pId :: Parser PoolCmd
@@ -1046,10 +1096,10 @@ pQueryCmd envCli =
     pAllStakePoolsOrOnly :: Parser (AllOrOnly [Hash StakePoolKey])
     pAllStakePoolsOrOnly = pAll <|> pOnly
       where pAll :: Parser (AllOrOnly [Hash StakePoolKey])
-            pAll = Opt.flag' All
-              (  Opt.long "all-stake-pools"
-              <> Opt.help "Query for all stake pools"
-              )
+            pAll = Opt.flag' All $ mconcat
+              [ Opt.long "all-stake-pools"
+              , Opt.help "Query for all stake pools"
+              ]
             pOnly :: Parser (AllOrOnly [Hash StakePoolKey])
             pOnly = Only <$> many pStakePoolVerificationKeyHash
 
@@ -1082,14 +1132,14 @@ pQueryCmd envCli =
         pTxMempoolQuery :: Parser TxMempoolQuery
         pTxMempoolQuery = asum
           [ subParser "info"
-            (Opt.info (pure TxMempoolQueryInfo) $
-              Opt.progDesc "Ask the node about the current mempool's capacity and sizes")
+              $ Opt.info (pure TxMempoolQueryInfo)
+              $ Opt.progDesc "Ask the node about the current mempool's capacity and sizes"
           , subParser "next-tx"
-            (Opt.info (pure TxMempoolQueryNextTx) $
-              Opt.progDesc "Requests the next transaction from the mempool's current list")
+              $ Opt.info (pure TxMempoolQueryNextTx)
+              $ Opt.progDesc "Requests the next transaction from the mempool's current list"
           , subParser "tx-exists"
-            (Opt.info (TxMempoolQueryTxExists <$> argument Opt.str (metavar "TX_ID")) $
-              Opt.progDesc "Query if a particular transaction exists in the mempool")
+              $ Opt.info (TxMempoolQueryTxExists <$> argument Opt.str (metavar "TX_ID"))
+              $ Opt.progDesc "Query if a particular transaction exists in the mempool"
           ]
     pLeadershipSchedule :: Parser QueryCmd
     pLeadershipSchedule =
@@ -1319,41 +1369,50 @@ pGenesisCmd :: EnvCli -> Parser GenesisCmd
 pGenesisCmd envCli =
   asum
     [ subParser "key-gen-genesis"
-        (Opt.info pGenesisKeyGen $
-           Opt.progDesc "Create a Shelley genesis key pair")
+        $ Opt.info pGenesisKeyGen
+        $ Opt.progDesc "Create a Shelley genesis key pair"
     , subParser "key-gen-delegate"
-        (Opt.info pGenesisDelegateKeyGen $
-           Opt.progDesc "Create a Shelley genesis delegate key pair")
+        $ Opt.info pGenesisDelegateKeyGen
+        $ Opt.progDesc "Create a Shelley genesis delegate key pair"
     , subParser "key-gen-utxo"
-        (Opt.info pGenesisUTxOKeyGen $
-           Opt.progDesc "Create a Shelley genesis UTxO key pair")
+        $ Opt.info pGenesisUTxOKeyGen
+        $ Opt.progDesc "Create a Shelley genesis UTxO key pair"
     , subParser "key-hash"
-        (Opt.info pGenesisKeyHash $
-           Opt.progDesc "Print the identifier (hash) of a public key")
+        $ Opt.info pGenesisKeyHash
+        $ Opt.progDesc "Print the identifier (hash) of a public key"
     , subParser "get-ver-key"
-        (Opt.info pGenesisVerKey $
-           Opt.progDesc "Derive the verification key from a signing key")
+        $ Opt.info pGenesisVerKey
+        $ Opt.progDesc "Derive the verification key from a signing key"
     , subParser "initial-addr"
-        (Opt.info pGenesisAddr $
-           Opt.progDesc "Get the address for an initial UTxO based on the verification key")
+        $ Opt.info pGenesisAddr
+        $ Opt.progDesc "Get the address for an initial UTxO based on the verification key"
     , subParser "initial-txin"
-        (Opt.info pGenesisTxIn $
-           Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key")
+        $ Opt.info pGenesisTxIn
+        $ Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
     , subParser "create-cardano"
-        (Opt.info pGenesisCreateCardano $
-           Opt.progDesc ("Create a Byron and Shelley genesis file from a genesis "
-                      ++ "template and genesis/delegation/spending keys."))
+        $ Opt.info pGenesisCreateCardano
+        $ Opt.progDesc
+        $ mconcat
+            [ "Create a Byron and Shelley genesis file from a genesis "
+            , "template and genesis/delegation/spending keys."
+            ]
     , subParser "create"
-        (Opt.info pGenesisCreate $
-           Opt.progDesc ("Create a Shelley genesis file from a genesis "
-                      ++ "template and genesis/delegation/spending keys."))
+        $ Opt.info pGenesisCreate
+        $ Opt.progDesc
+        $ mconcat
+            [ "Create a Shelley genesis file from a genesis "
+            , "template and genesis/delegation/spending keys."
+            ]
     , subParser "create-staked"
-        (Opt.info pGenesisCreateStaked $
-           Opt.progDesc ("Create a staked Shelley genesis file from a genesis "
-                      ++ "template and genesis/delegation/spending keys."))
+        $ Opt.info pGenesisCreateStaked
+        $ Opt.progDesc
+        $ mconcat
+            [ "Create a staked Shelley genesis file from a genesis "
+            , "template and genesis/delegation/spending keys."
+            ]
     , subParser "hash"
-        (Opt.info pGenesisHash $
-           Opt.progDesc "Compute the hash of a genesis file")
+        $ Opt.info pGenesisHash
+        $ Opt.progDesc "Compute the hash of a genesis file"
     ]
   where
     pGenesisKeyGen :: Parser GenesisCmd
@@ -1698,22 +1757,20 @@ pPoolMetadataFile =
 
 pTxMetadataJsonSchema :: Parser TxMetadataJsonSchema
 pTxMetadataJsonSchema =
-    (  Opt.flag' ()
+  asum
+    [ Opt.flag' ()
         (  Opt.long "json-metadata-no-schema"
         <> Opt.help "Use the \"no schema\" conversion from JSON to tx metadata."
         )
-    $> TxMetadataJsonNoSchema
-    )
-  <|>
-    (  Opt.flag' ()
+        $> TxMetadataJsonNoSchema
+    , Opt.flag' ()
         (  Opt.long "json-metadata-detailed-schema"
         <> Opt.help "Use the \"detailed schema\" conversion from JSON to tx metadata."
         )
-    $> TxMetadataJsonDetailedSchema
-    )
-  <|>
-    -- Default to the no-schema conversion.
-    pure TxMetadataJsonNoSchema
+        $> TxMetadataJsonDetailedSchema
+    , -- Default to the no-schema conversion.
+      pure TxMetadataJsonNoSchema
+    ]
 
 convertTime :: String -> UTCTime
 convertTime =
@@ -1721,27 +1778,27 @@ convertTime =
 
 pMetadataFile :: Parser MetadataFile
 pMetadataFile =
-      MetadataFileJSON <$>
-        ( Opt.strOption
-            (  Opt.long "metadata-json-file"
-            <> Opt.metavar "FILE"
-            <> Opt.help "Filepath of the metadata file, in JSON format."
-            <> Opt.completer (Opt.bashCompleter "file")
-            )
-        <|>
-          Opt.strOption
-            (  Opt.long "metadata-file" -- backward compat name
-            <> Opt.internal
-            )
-        )
-  <|>
-      MetadataFileCBOR <$>
-        Opt.strOption
-          (  Opt.long "metadata-cbor-file"
-          <> Opt.metavar "FILE"
-          <> Opt.help "Filepath of the metadata, in raw CBOR format."
-          <> Opt.completer (Opt.bashCompleter "file")
-          )
+  asum
+    [ fmap MetadataFileJSON
+        $ asum
+            [ Opt.strOption $ mconcat
+                [ Opt.long "metadata-json-file"
+                , Opt.metavar "FILE"
+                , Opt.help "Filepath of the metadata file, in JSON format."
+                , Opt.completer (Opt.bashCompleter "file")
+                ]
+            , Opt.strOption $ mconcat
+                [ Opt.long "metadata-file" -- backward compat name
+                , Opt.internal
+                ]
+            ]
+    , fmap MetadataFileCBOR $ Opt.strOption $ mconcat
+        [ Opt.long "metadata-cbor-file"
+        , Opt.metavar "FILE"
+        , Opt.help "Filepath of the metadata, in raw CBOR format."
+        , Opt.completer (Opt.bashCompleter "file")
+        ]
+    ]
 
 pWithdrawal
   :: BalanceTxExecUnits
@@ -1801,20 +1858,19 @@ pPlutusScriptLanguage prefix =
 
 pUpdateProposalFile :: Parser UpdateProposalFile
 pUpdateProposalFile =
-  UpdateProposalFile <$>
-  ( Opt.strOption
-     (  Opt.long "update-proposal-file"
-     <> Opt.metavar "FILE"
-     <> Opt.help "Filepath of the update proposal."
-     <> Opt.completer (Opt.bashCompleter "file")
-     )
-  <|>
-    Opt.strOption
-      (  Opt.long "update-proposal"
-      <> Opt.internal
-      )
-  )
-
+  fmap UpdateProposalFile
+    $ asum
+        [ Opt.strOption $ mconcat
+          [ Opt.long "update-proposal-file"
+          , Opt.metavar "FILE"
+          , Opt.help "Filepath of the update proposal."
+          , Opt.completer (Opt.bashCompleter "file")
+          ]
+        , Opt.strOption $ mconcat
+          [ Opt.long "update-proposal"
+          , Opt.internal
+          ]
+        ]
 
 pColdSigningKeyFile :: Parser (SigningKeyFile direction)
 pColdSigningKeyFile =
@@ -1868,20 +1924,20 @@ pVrfSigningKeyFile =
 
 pWhichLeadershipSchedule :: Parser EpochLeadershipSchedule
 pWhichLeadershipSchedule = pCurrent <|> pNext
- where
-   pCurrent :: Parser EpochLeadershipSchedule
-   pCurrent =
-     Opt.flag' CurrentEpoch
-       (  Opt.long "current"
-       <> Opt.help "Get the leadership schedule for the current epoch."
-       )
+  where
+    pCurrent :: Parser EpochLeadershipSchedule
+    pCurrent =
+      Opt.flag' CurrentEpoch $ mconcat
+        [ Opt.long "current"
+        , Opt.help "Get the leadership schedule for the current epoch."
+        ]
 
-   pNext :: Parser EpochLeadershipSchedule
-   pNext =
-     Opt.flag' NextEpoch
-       (  Opt.long "next"
-       <> Opt.help "Get the leadership schedule for the following epoch."
-       )
+    pNext :: Parser EpochLeadershipSchedule
+    pNext =
+      Opt.flag' NextEpoch $ mconcat
+        [ Opt.long "next"
+        , Opt.help "Get the leadership schedule for the following epoch."
+        ]
 
 pWitnessSigningData :: Parser WitnessSigningData
 pWitnessSigningData =
@@ -1940,13 +1996,12 @@ pEpochNoUpdateProp =
 
 pGenesisFile :: String -> Parser GenesisFile
 pGenesisFile desc =
-  GenesisFile <$>
-    Opt.strOption
-      (  Opt.long "genesis"
-      <> Opt.metavar "FILE"
-      <> Opt.help desc
-      <> Opt.completer (Opt.bashCompleter "file")
-      )
+  fmap GenesisFile $ Opt.strOption $ mconcat
+    [ Opt.long "genesis"
+    , Opt.metavar "FILE"
+    , Opt.help desc
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
 
 pOperatorCertIssueCounterFile :: Parser (OpCertCounterFile direction)
 pOperatorCertIssueCounterFile =
@@ -1965,12 +2020,12 @@ pOperatorCertIssueCounterFile =
 
 pOperationalCertificateFile :: Parser (File () direction)
 pOperationalCertificateFile =
-  Opt.strOption
-    (  Opt.long "op-cert-file"
-    <> Opt.metavar "FILE"
-    <> Opt.help "Filepath of the node's operational certificate."
-    <> Opt.completer (Opt.bashCompleter "file")
-    )
+  Opt.strOption $ mconcat
+    [ Opt.long "op-cert-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the node's operational certificate."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
 
 pKeyOutputFormat :: Parser KeyOutputFormat
 pKeyOutputFormat =
@@ -2016,9 +2071,11 @@ pOutputFile =
 
 pColdVerificationKeyOrFile :: Parser ColdVerificationKeyOrFile
 pColdVerificationKeyOrFile =
-  ColdStakePoolVerificationKey <$> pStakePoolVerificationKey
-    <|> ColdGenesisDelegateVerificationKey <$> pGenesisDelegateVerificationKey
-    <|> ColdVerificationKeyFile <$> pColdVerificationKeyFile
+  asum
+    [ ColdStakePoolVerificationKey <$> pStakePoolVerificationKey
+    , ColdGenesisDelegateVerificationKey <$> pGenesisDelegateVerificationKey
+    , ColdVerificationKeyFile <$> pColdVerificationKeyFile
+    ]
 
 pColdVerificationKeyFile :: Parser (VerificationKeyFile direction)
 pColdVerificationKeyFile =
@@ -2040,12 +2097,11 @@ pVerificationKey
   => AsType keyrole
   -> Parser (VerificationKey keyrole)
 pVerificationKey asType =
-  Opt.option
-    (readVerificationKey asType)
-      (  Opt.long "verification-key"
-      <> Opt.metavar "STRING"
-      <> Opt.help "Verification key (Bech32 or hex-encoded)."
-      )
+  Opt.option (readVerificationKey asType) $ mconcat
+    [ Opt.long "verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Verification key (Bech32 or hex-encoded)."
+    ]
 
 pVerificationKeyOrFile
   :: SerialiseAsBech32 (VerificationKey keyrole)
@@ -2095,12 +2151,11 @@ pGenesisVerificationKeyFile =
 
 pGenesisVerificationKeyHash :: Parser (Hash GenesisKey)
 pGenesisVerificationKeyHash =
-    Opt.option
-      (Opt.eitherReader deserialiseFromHex)
-        (  Opt.long "genesis-verification-key-hash"
-        <> Opt.metavar "STRING"
-        <> Opt.help "Genesis verification key hash (hex-encoded)."
-        )
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "genesis-verification-key-hash"
+    , Opt.metavar "STRING"
+    , Opt.help "Genesis verification key hash (hex-encoded)."
+    ]
   where
     deserialiseFromHex :: String -> Either String (Hash GenesisKey)
     deserialiseFromHex =
@@ -2110,12 +2165,11 @@ pGenesisVerificationKeyHash =
 
 pGenesisVerificationKey :: Parser (VerificationKey GenesisKey)
 pGenesisVerificationKey =
-    Opt.option
-      (Opt.eitherReader deserialiseFromHex)
-        (  Opt.long "genesis-verification-key"
-        <> Opt.metavar "STRING"
-        <> Opt.help "Genesis verification key (hex-encoded)."
-        )
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "genesis-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Genesis verification key (hex-encoded)."
+    ]
   where
     deserialiseFromHex :: String -> Either String (VerificationKey GenesisKey)
     deserialiseFromHex =
@@ -2125,13 +2179,17 @@ pGenesisVerificationKey =
 
 pGenesisVerificationKeyOrFile :: Parser (VerificationKeyOrFile GenesisKey)
 pGenesisVerificationKeyOrFile =
-  VerificationKeyValue <$> pGenesisVerificationKey
-    <|> VerificationKeyFilePath <$> pGenesisVerificationKeyFile
+  asum
+    [ VerificationKeyValue <$> pGenesisVerificationKey
+    , VerificationKeyFilePath <$> pGenesisVerificationKeyFile
+    ]
 
 pGenesisVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile GenesisKey)
 pGenesisVerificationKeyOrHashOrFile =
-  VerificationKeyOrFile <$> pGenesisVerificationKeyOrFile
-    <|> VerificationKeyHash <$> pGenesisVerificationKeyHash
+  asum
+    [ VerificationKeyOrFile <$> pGenesisVerificationKeyOrFile
+    , VerificationKeyHash <$> pGenesisVerificationKeyHash
+    ]
 
 pGenesisDelegateVerificationKeyFile :: Parser (VerificationKeyFile In)
 pGenesisDelegateVerificationKeyFile =
@@ -2144,12 +2202,11 @@ pGenesisDelegateVerificationKeyFile =
 
 pGenesisDelegateVerificationKeyHash :: Parser (Hash GenesisDelegateKey)
 pGenesisDelegateVerificationKeyHash =
-    Opt.option
-      (Opt.eitherReader deserialiseFromHex)
-        (  Opt.long "genesis-delegate-verification-key-hash"
-        <> Opt.metavar "STRING"
-        <> Opt.help "Genesis delegate verification key hash (hex-encoded)."
-        )
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "genesis-delegate-verification-key-hash"
+    , Opt.metavar "STRING"
+    , Opt.help "Genesis delegate verification key hash (hex-encoded)."
+    ]
   where
     deserialiseFromHex :: String -> Either String (Hash GenesisDelegateKey)
     deserialiseFromHex =
@@ -2161,12 +2218,11 @@ pGenesisDelegateVerificationKeyHash =
 
 pGenesisDelegateVerificationKey :: Parser (VerificationKey GenesisDelegateKey)
 pGenesisDelegateVerificationKey =
-    Opt.option
-      (Opt.eitherReader deserialiseFromHex)
-        (  Opt.long "genesis-delegate-verification-key"
-        <> Opt.metavar "STRING"
-        <> Opt.help "Genesis delegate verification key (hex-encoded)."
-        )
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "genesis-delegate-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Genesis delegate verification key (hex-encoded)."
+    ]
   where
     deserialiseFromHex
       :: String
@@ -2180,28 +2236,33 @@ pGenesisDelegateVerificationKey =
 pGenesisDelegateVerificationKeyOrFile
   :: Parser (VerificationKeyOrFile GenesisDelegateKey)
 pGenesisDelegateVerificationKeyOrFile =
-  VerificationKeyValue <$> pGenesisDelegateVerificationKey
-    <|> VerificationKeyFilePath <$> pGenesisDelegateVerificationKeyFile
+  asum
+    [ VerificationKeyValue <$> pGenesisDelegateVerificationKey
+    , VerificationKeyFilePath <$> pGenesisDelegateVerificationKeyFile
+    ]
 
 pGenesisDelegateVerificationKeyOrHashOrFile
   :: Parser (VerificationKeyOrHashOrFile GenesisDelegateKey)
 pGenesisDelegateVerificationKeyOrHashOrFile =
-  VerificationKeyOrFile <$> pGenesisDelegateVerificationKeyOrFile
-    <|> VerificationKeyHash <$> pGenesisDelegateVerificationKeyHash
+  asum
+    [ VerificationKeyOrFile <$> pGenesisDelegateVerificationKeyOrFile
+    , VerificationKeyHash <$> pGenesisDelegateVerificationKeyHash
+    ]
 
 pKesVerificationKeyOrFile :: Parser (VerificationKeyOrFile KesKey)
 pKesVerificationKeyOrFile =
-  VerificationKeyValue <$> pKesVerificationKey
-    <|> VerificationKeyFilePath <$> pKesVerificationKeyFile
+  asum
+    [ VerificationKeyValue <$> pKesVerificationKey
+    , VerificationKeyFilePath <$> pKesVerificationKeyFile
+    ]
 
 pKesVerificationKey :: Parser (VerificationKey KesKey)
 pKesVerificationKey =
-    Opt.option
-      (Opt.eitherReader deserialiseVerKey)
-        (  Opt.long "kes-verification-key"
-        <> Opt.metavar "STRING"
-        <> Opt.help "A Bech32 or hex-encoded hot KES verification key."
-        )
+  Opt.option (Opt.eitherReader deserialiseVerKey) $ mconcat
+    [ Opt.long "kes-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "A Bech32 or hex-encoded hot KES verification key."
+    ]
   where
     asType :: AsType (VerificationKey KesKey)
     asType = AsVerificationKey AsKesKey
@@ -2240,12 +2301,12 @@ pKesVerificationKeyFile =
 
 pTxSubmitFile :: Parser FilePath
 pTxSubmitFile =
-  Opt.strOption
-    (  Opt.long "tx-file"
-    <> Opt.metavar "FILE"
-    <> Opt.help "Filepath of the transaction you intend to submit."
-    <> Opt.completer (Opt.bashCompleter "file")
-    )
+  Opt.strOption $ mconcat
+    [ Opt.long "tx-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the transaction you intend to submit."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
 
 pTxIn :: BalanceTxExecUnits
       -> Parser (TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))
@@ -2492,11 +2553,11 @@ pMintMultiAsset balanceExecUnits =
 
 pPolicyId :: Parser PolicyId
 pPolicyId =
-  Opt.option (readerFromParsecParser policyId)
-     (  Opt.long "policy-id"
-     <> Opt.metavar "HASH"
-     <> Opt.help "Policy id of minting script."
-     )
+  Opt.option (readerFromParsecParser policyId) $ mconcat
+    [ Opt.long "policy-id"
+    , Opt.metavar "HASH"
+    , Opt.help "Policy id of minting script."
+    ]
 
 
 pInvalidBefore :: Parser SlotNo
@@ -2544,22 +2605,20 @@ pInvalidHereafter =
 
 pTxFee :: Parser Lovelace
 pTxFee =
-  Lovelace . (fromIntegral :: Natural -> Integer) <$>
-    Opt.option Opt.auto
-      (  Opt.long "fee"
-      <> Opt.metavar "LOVELACE"
-      <> Opt.help "The fee amount in Lovelace."
-      )
+  fmap (Lovelace . (fromIntegral :: Natural -> Integer)) $ Opt.option Opt.auto $ mconcat
+    [ Opt.long "fee"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The fee amount in Lovelace."
+    ]
 
 pWitnessFile :: Parser WitnessFile
 pWitnessFile =
-  WitnessFile <$>
-    Opt.strOption
-      (  Opt.long "witness-file"
-      <> Opt.metavar "FILE"
-      <> Opt.help "Filepath of the witness"
-      <> Opt.completer (Opt.bashCompleter "file")
-      )
+  fmap WitnessFile $ Opt.strOption $ mconcat
+    [ Opt.long "witness-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the witness"
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
 
 pTxBodyFileIn :: Parser (TxBodyFile In)
 pTxBodyFileIn =
@@ -2615,7 +2674,7 @@ pInputTxOrTxBodyFile =
     [ InputTxBodyFile <$> pTxBodyFileIn
     , InputTxFile <$> pTxFileIn
     ]
-  
+
 pTxInCount :: Parser TxInCount
 pTxInCount =
   fmap TxInCount $ Opt.option Opt.auto $ mconcat
@@ -2656,7 +2715,6 @@ pQueryUTxOFilter =
     , pQueryUTxOByAddress
     , pQueryUTxOByTxIn
     ]
-      
   where
     pQueryUTxOWhole =
       Opt.flag' QueryUTxOWhole $ mconcat
@@ -3406,7 +3464,6 @@ readRational =
     [ toRational <$> readerFromAttoParser Atto.scientific
     , readFractionAsRational
     ]
-      
 
 readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
 readerFromAttoParser p =
