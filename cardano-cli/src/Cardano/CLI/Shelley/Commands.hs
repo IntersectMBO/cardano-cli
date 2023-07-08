@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Shelley CLI command types
@@ -17,6 +18,7 @@ module Cardano.CLI.Shelley.Commands
   , GovernanceCmd (..)
   , GenesisCmd (..)
   , TextViewCmd (..)
+  , VoteCmd(..)
   , renderShelleyCommand
 
     -- * CLI flag types
@@ -48,20 +50,20 @@ module Cardano.CLI.Shelley.Commands
   , Deprecated (..)
   ) where
 
-import           Prelude
-
 import           Cardano.Api.Shelley
 
-import           Data.Text (Text)
-import           Data.Time.Clock
-
+import           Cardano.Chain.Common (BlockCount)
+import           Cardano.CLI.Conway.Parsers
+import           Cardano.CLI.Conway.Types
 import           Cardano.CLI.Shelley.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
 import           Cardano.CLI.Types
 
-import           Cardano.Chain.Common (BlockCount)
-import           Cardano.Ledger.Shelley.TxBody (MIRPot)
+import           Prelude
+
+import           Data.Text (Text)
+import           Data.Time.Clock
 --
 -- Shelley CLI command data types
 --
@@ -76,7 +78,7 @@ data ShelleyCommand
   | NodeCmd         NodeCmd
   | PoolCmd         PoolCmd
   | QueryCmd        QueryCmd
-  | GovernanceCmd   GovernanceCmd
+  | GovernanceCmd'   GovernanceCmd
   | GenesisCmd      GenesisCmd
   | TextViewCmd     TextViewCmd
 
@@ -90,7 +92,7 @@ renderShelleyCommand sc =
     NodeCmd cmd -> renderNodeCmd cmd
     PoolCmd cmd -> renderPoolCmd cmd
     QueryCmd cmd -> renderQueryCmd cmd
-    GovernanceCmd cmd -> renderGovernanceCmd cmd
+    GovernanceCmd' cmd -> renderGovernanceCmd cmd
     GenesisCmd cmd -> renderGenesisCmd cmd
     TextViewCmd cmd -> renderTextViewCmd cmd
 
@@ -118,12 +120,19 @@ data StakeAddressCmd
   = StakeAddressKeyGen KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
   | StakeAddressKeyHash (VerificationKeyOrFile StakeKey) (Maybe (File () Out))
   | StakeAddressBuild StakeVerifier NetworkId (Maybe (File () Out))
-  | StakeRegistrationCert StakeIdentifier (File () Out)
+  | StakeRegistrationCert
+      AnyShelleyBasedEra
+      StakeIdentifier
+      (File () Out)
   | StakeCredentialDelegationCert
+      AnyShelleyBasedEra
       StakeIdentifier
       DelegationTarget
       (File () Out)
-  | StakeCredentialDeRegistrationCert StakeIdentifier (File () Out)
+  | StakeCredentialDeRegistrationCert
+      AnyShelleyBasedEra
+      StakeIdentifier
+      (File () Out)
   deriving Show
 
 renderStakeAddressCmd :: StakeAddressCmd -> Text
@@ -236,6 +245,8 @@ data TransactionCmd
       [MetadataFile]
       (Maybe (Deprecated ProtocolParamsFile))
       (Maybe UpdateProposalFile)
+      [ConwayVoteFile In]
+      [NewConstitutionFile In]
       TxBuildOutputOptions
   | TxSign InputTxBodyOrTxFile [WitnessSigningData] (Maybe NetworkId) (TxFile Out)
   | TxCreateWitness (TxBodyFile In) WitnessSigningData (Maybe NetworkId) (File () Out)
@@ -298,9 +309,10 @@ renderNodeCmd cmd = do
     NodeNewCounter {} -> "node new-counter"
     NodeIssueOpCert{} -> "node issue-op-cert"
 
-
 data PoolCmd
   = PoolRegistrationCert
+      AnyShelleyBasedEra
+      -- ^ Era in which to register the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
       (VerificationKeyOrFile VrfKey)
@@ -322,11 +334,13 @@ data PoolCmd
       NetworkId
       (File () Out)
   | PoolRetirementCert
+      AnyShelleyBasedEra
+      -- ^ Era in which to retire the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
       EpochNo
       -- ^ Epoch in which to retire the stake pool.
-      (File Certificate Out)
+      (File () Out)
   | PoolGetId (VerificationKeyOrFile StakePoolKey) PoolIdOutputFormat (Maybe (File () Out))
   | PoolMetadataHash (StakePoolMetadataFile In) (Maybe (File () Out))
   deriving Show
@@ -399,49 +413,6 @@ renderQueryCmd cmd =
         TxMempoolQueryNextTx -> "next-tx"
         TxMempoolQueryInfo -> "info"
 
-
-data GovernanceCmd
-  = GovernanceMIRPayStakeAddressesCertificate
-      MIRPot
-      [StakeAddress]
-      [Lovelace]
-      (File () Out)
-  | GovernanceMIRTransfer Lovelace (File () Out) TransferDirection
-  | GovernanceGenesisKeyDelegationCertificate
-      (VerificationKeyOrHashOrFile GenesisKey)
-      (VerificationKeyOrHashOrFile GenesisDelegateKey)
-      (VerificationKeyOrHashOrFile VrfKey)
-      (File () Out)
-  | GovernanceUpdateProposal (File () Out) EpochNo
-                             [VerificationKeyFile In]
-                             ProtocolParametersUpdate
-                             (Maybe FilePath)
-  | GovernanceCreatePoll
-      Text -- Prompt
-      [Text] -- Choices
-      (Maybe Word) -- Nonce
-      (File GovernancePoll Out)
-  | GovernanceAnswerPoll
-      (File GovernancePoll In) -- Poll file
-      (Maybe Word) -- Answer index
-      (Maybe (File () Out)) -- Tx file
-  | GovernanceVerifyPoll
-      (File GovernancePoll In) -- Poll file
-      (File (Tx ()) In) -- Tx file
-      (Maybe (File () Out)) -- Tx file
-  deriving Show
-
-renderGovernanceCmd :: GovernanceCmd -> Text
-renderGovernanceCmd cmd =
-  case cmd of
-    GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
-    GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
-    GovernanceMIRTransfer _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
-    GovernanceMIRTransfer _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
-    GovernanceUpdateProposal {} -> "governance create-update-proposal"
-    GovernanceCreatePoll{} -> "governance create-poll"
-    GovernanceAnswerPoll{} -> "governance answer-poll"
-    GovernanceVerifyPoll{} -> "governance verify-poll"
 
 data TextViewCmd
   = TextViewInfo !FilePath (Maybe (File () Out))

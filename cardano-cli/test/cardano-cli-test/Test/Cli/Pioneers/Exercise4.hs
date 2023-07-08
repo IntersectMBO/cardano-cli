@@ -32,6 +32,7 @@ prop_createStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspac
   -- Create stake address registration certificate
   void $ execCardanoCLI
     [ "stake-address","registration-certificate"
+    , "--babbage-era"
     , "--stake-verification-key-file", verKey
     , "--out-file", stakeRegCert
     ]

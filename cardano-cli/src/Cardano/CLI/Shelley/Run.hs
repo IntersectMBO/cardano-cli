@@ -4,32 +4,30 @@ module Cardano.CLI.Shelley.Run
   , runShelleyClientCommand
   ) where
 
-import           Control.Monad.Trans.Except (ExceptT)
-import           Data.Text (Text)
-
 import           Cardano.Api
 
-import           Control.Monad.Trans.Except.Extra (firstExceptT)
-import qualified Data.Text as Text
-
+import           Cardano.CLI.Conway.Commands
 import           Cardano.CLI.Shelley.Parsers
-
 import           Cardano.CLI.Shelley.Run.Address
+import           Cardano.CLI.Shelley.Run.Genesis
 import           Cardano.CLI.Shelley.Run.Governance
 import           Cardano.CLI.Shelley.Run.Key
 import           Cardano.CLI.Shelley.Run.Node
 import           Cardano.CLI.Shelley.Run.Pool
 import           Cardano.CLI.Shelley.Run.Query
 import           Cardano.CLI.Shelley.Run.StakeAddress
-import           Cardano.CLI.Shelley.Run.Transaction
-                                         -- Block, System, DevOps
-import           Cardano.CLI.Shelley.Run.Genesis
 import           Cardano.CLI.Shelley.Run.TextView
+import           Cardano.CLI.Shelley.Run.Transaction
+
+import           Control.Monad.Trans.Except (ExceptT)
+import           Control.Monad.Trans.Except.Extra (firstExceptT)
+import           Data.Text (Text)
+import qualified Data.Text as Text
 
 data ShelleyClientCmdError
   = ShelleyCmdAddressError !ShelleyAddressCmdError
   | ShelleyCmdGenesisError !ShelleyGenesisCmdError
-  | ShelleyCmdGovernanceError !ShelleyGovernanceCmdError
+  | ShelleyCmdGovernanceError !GovernanceCmdError
   | ShelleyCmdNodeError !ShelleyNodeCmdError
   | ShelleyCmdPoolError !ShelleyPoolCmdError
   | ShelleyCmdStakeAddressError !ShelleyStakeAddressCmdError
@@ -45,8 +43,9 @@ renderShelleyClientCmdError cmd err =
        renderError cmd renderShelleyAddressCmdError addrCmdErr
     ShelleyCmdGenesisError genesisCmdErr ->
        renderError cmd (Text.pack . displayError) genesisCmdErr
-    ShelleyCmdGovernanceError govCmdErr ->
-       renderError cmd renderShelleyGovernanceError govCmdErr
+    ShelleyCmdGovernanceError govCmdErr -> Text.pack $ show govCmdErr
+       -- TODO: Conway era
+       -- renderError cmd renderShelleyGovernanceError govCmdErr
     ShelleyCmdNodeError nodeCmdErr ->
        renderError cmd renderShelleyNodeCmdError nodeCmdErr
     ShelleyCmdPoolError poolCmdErr ->
@@ -83,6 +82,6 @@ runShelleyClientCommand (TransactionCmd  cmd) = firstExceptT ShelleyCmdTransacti
 runShelleyClientCommand (NodeCmd         cmd) = firstExceptT ShelleyCmdNodeError $ runNodeCmd cmd
 runShelleyClientCommand (PoolCmd         cmd) = firstExceptT ShelleyCmdPoolError $ runPoolCmd cmd
 runShelleyClientCommand (QueryCmd        cmd) = firstExceptT ShelleyCmdQueryError $ runQueryCmd cmd
-runShelleyClientCommand (GovernanceCmd   cmd) = firstExceptT ShelleyCmdGovernanceError $ runGovernanceCmd cmd
+runShelleyClientCommand (GovernanceCmd'  cmd) = firstExceptT ShelleyCmdGovernanceError $ runGovernanceCmd cmd
 runShelleyClientCommand (GenesisCmd      cmd) = firstExceptT ShelleyCmdGenesisError $ runGenesisCmd cmd
 runShelleyClientCommand (TextViewCmd     cmd) = firstExceptT ShelleyCmdTextViewError $ runTextViewCmd cmd

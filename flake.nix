@@ -126,6 +126,11 @@
                 cp -r ${filteredProjectBase}/* ..
               '';
             })
+            {
+               packages.crypton-x509-system.postPatch = ''
+                  substituteInPlace crypton-x509-system.cabal --replace 'Crypt32' 'crypt32'
+               '';
+            }
           ];
         });
         # ... and construct a flake from the cabal project

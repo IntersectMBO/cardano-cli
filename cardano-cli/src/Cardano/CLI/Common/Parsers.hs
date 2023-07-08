@@ -1,21 +1,33 @@
-module Cardano.CLI.Common.Parsers
-  ( command'
-  , pCardanoEra
-  , pNetworkId
-  , pConsensusModeParams
-  , pSocketPath
-  ) where
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-import           Cardano.Api (AnyCardanoEra (..), AnyConsensusModeParams (..), CardanoEra (..),
-                   ConsensusModeParams (..), EpochSlots (..), File (..), NetworkId (..),
-                   NetworkMagic (..), SocketPath, bounded)
+module Cardano.CLI.Common.Parsers where
+
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
 import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Shelley.Key
+import           Cardano.CLI.Types
 
+import           Data.Bifunctor
+import qualified Data.ByteString.Char8 as BSC
 import           Data.Foldable
+import           Data.List.NonEmpty (NonEmpty)
+import qualified Data.List.NonEmpty as NE
 import           Data.Maybe (maybeToList)
+import qualified Data.Text as Text
 import           Data.Word (Word64)
 import           Options.Applicative
 import qualified Options.Applicative as Opt
+import qualified Text.Parsec as Parsec
+import           Text.Parsec ((<?>))
+import qualified Text.Parsec.Error as Parsec
+import qualified Text.Parsec.Language as Parsec
+import qualified Text.Parsec.String as Parsec
+import qualified Text.Parsec.Token as Parsec
 
 pCardanoEra :: Parser AnyCardanoEra
 pCardanoEra = asum
@@ -154,4 +166,217 @@ pSocketPath envCli =
       ]
     , -- Default to the socket path specified by the environment variable if it is available.
       pure . File <$> maybeToList (envCliSocketPath envCli)
+    ]
+
+readerFromParsecParser :: Parsec.Parser a -> Opt.ReadM a
+readerFromParsecParser p =
+    Opt.eitherReader (first formatError . Parsec.parse (p <* Parsec.eof) "")
+  where
+    formatError err =
+      Parsec.showErrorMessages "or" "unknown parse error"
+                               "expecting" "unexpected" "end of input"
+                               (Parsec.errorMessages err)
+
+parseTxIn :: Parsec.Parser TxIn
+parseTxIn = TxIn <$> parseTxId <*> (Parsec.char '#' *> parseTxIx)
+
+parseTxId :: Parsec.Parser TxId
+parseTxId = do
+  str' <- some Parsec.hexDigit <?> "transaction id (hexadecimal)"
+  case deserialiseFromRawBytesHex AsTxId (BSC.pack str') of
+    Right addr -> return addr
+    Left e -> fail $ "Incorrect transaction id format: " ++ displayError e
+
+parseTxIx :: Parsec.Parser TxIx
+parseTxIx = TxIx . fromIntegral <$> decimal
+
+decimal :: Parsec.Parser Integer
+Parsec.TokenParser { Parsec.decimal = decimal } = Parsec.haskell
+
+
+pStakeIdentifier :: Parser StakeIdentifier
+pStakeIdentifier = asum
+  [ StakeIdentifierVerifier <$> pStakeVerifier
+  , StakeIdentifierAddress <$> pStakeAddress
+  ]
+
+pStakeVerifier :: Parser StakeVerifier
+pStakeVerifier = asum
+  [ StakeVerifierKey <$> pStakeVerificationKeyOrFile
+  , StakeVerifierScriptFile <$> pScriptFor "stake-script-file" Nothing "Filepath of the staking script."
+  ]
+
+pStakeAddress :: Parser StakeAddress
+pStakeAddress =
+  Opt.option (readerFromParsecParser parseStakeAddress) $ mconcat
+    [ Opt.long "stake-address"
+    , Opt.metavar "ADDRESS"
+    , Opt.help "Target stake address (bech32 format)."
+    ]
+
+parseStakeAddress :: Parsec.Parser StakeAddress
+parseStakeAddress = do
+  str' <- lexPlausibleAddressString
+  case deserialiseAddress AsStakeAddress str' of
+    Nothing   -> fail $ "invalid address: " <> Text.unpack str'
+    Just addr -> pure addr
+
+pStakeVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakeKey)
+pStakeVerificationKeyOrFile =
+  VerificationKeyValue <$> pStakeVerificationKey
+    <|> VerificationKeyFilePath <$> pStakeVerificationKeyFile
+
+pScriptFor :: String -> Maybe String -> String -> Parser ScriptFile
+pScriptFor name Nothing help' =
+  fmap ScriptFile $ Opt.strOption $ mconcat
+    [ Opt.long name
+    , Opt.metavar "FILE"
+    , Opt.help help'
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pScriptFor name (Just deprecated) help' =
+      pScriptFor name Nothing help'
+  <|> ScriptFile <$> Opt.strOption
+        (  Opt.long deprecated
+        <> Opt.internal
+        )
+
+pStakeVerificationKey :: Parser (VerificationKey StakeKey)
+pStakeVerificationKey =
+  Opt.option (readVerificationKey AsStakeKey) $ mconcat
+    [ Opt.long "stake-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Stake verification key (Bech32 or hex-encoded)."
+    ]
+
+-- | Read a Bech32 or hex-encoded verification key.
+readVerificationKey
+  :: forall keyrole. SerialiseAsBech32 (VerificationKey keyrole)
+  => AsType keyrole
+  -> Opt.ReadM (VerificationKey keyrole)
+readVerificationKey asType =
+    Opt.eitherReader deserialiseFromBech32OrHex
+  where
+    keyFormats :: NonEmpty (InputFormat (VerificationKey keyrole))
+    keyFormats = NE.fromList [InputFormatBech32, InputFormatHex]
+
+    deserialiseFromBech32OrHex
+      :: String
+      -> Either String (VerificationKey keyrole)
+    deserialiseFromBech32OrHex str' =
+      first (Text.unpack . renderInputDecodeError) $
+        deserialiseInput (AsVerificationKey asType) keyFormats (BSC.pack str')
+
+pStakeVerificationKeyFile :: Parser (VerificationKeyFile In)
+pStakeVerificationKeyFile =
+  File <$> asum
+    [ Opt.strOption $ mconcat
+      [ Opt.long "stake-verification-key-file"
+      , Opt.metavar "FILE"
+      , Opt.help "Filepath of the staking verification key."
+      , Opt.completer (Opt.bashCompleter "file")
+      ]
+    , Opt.strOption $ mconcat
+      [ Opt.long "staking-verification-key-file"
+      , Opt.internal
+      ]
+    ]
+
+subParser :: String -> ParserInfo a -> Parser a
+subParser availableCommand pInfo =
+  Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
+
+pAnyShelleyBasedEra :: Parser AnyShelleyBasedEra
+pAnyShelleyBasedEra = asum
+  [ pShelleyBasedShelley
+  , pShelleyBasedAllegra
+  , pShelleyBasedMary
+  , pShelleyBasedAlonzo
+  , pShelleyBasedBabbage
+  ]
+
+pShelleyBasedShelley :: Parser AnyShelleyBasedEra
+pShelleyBasedShelley =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraShelley)
+   $ mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
+
+pShelleyBasedAllegra :: Parser AnyShelleyBasedEra
+pShelleyBasedAllegra =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra)
+   $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+
+pShelleyBasedMary :: Parser AnyShelleyBasedEra
+pShelleyBasedMary =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraMary)
+   $ mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
+
+pShelleyBasedAlonzo :: Parser AnyShelleyBasedEra
+pShelleyBasedAlonzo =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra)
+   $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+
+pShelleyBasedBabbage :: Parser AnyShelleyBasedEra
+pShelleyBasedBabbage =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage)
+   $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era"]
+
+pShelleyBasedConway :: Parser AnyShelleyBasedEra
+pShelleyBasedConway =
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraConway)
+   $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
+
+pFileOutDirection :: String -> String -> Parser (File a Out)
+pFileOutDirection l h =
+  Opt.strOption $ mconcat
+    [ Opt.long l
+    , Opt.metavar "FILE"
+    , Opt.help h
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pFileInDirection :: String -> String -> Parser (File a In)
+pFileInDirection l h =
+  Opt.strOption $ mconcat
+    [ Opt.long l
+    , Opt.metavar "FILE"
+    , Opt.help h
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+parseLovelace :: Parsec.Parser Lovelace
+parseLovelace = do
+  i <- decimal
+  if i > toInteger (maxBound :: Word64)
+    then fail $ show i <> " lovelace exceeds the Word64 upper bound"
+    else return $ Lovelace i
+
+pStakePoolVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakePoolKey)
+pStakePoolVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pStakePoolVerificationKey
+    , VerificationKeyFilePath <$> pStakePoolVerificationKeyFile
+    ]
+
+pStakePoolVerificationKey :: Parser (VerificationKey StakePoolKey)
+pStakePoolVerificationKey =
+  Opt.option (readVerificationKey AsStakePoolKey) $ mconcat
+    [ Opt.long "stake-pool-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Stake pool verification key (Bech32 or hex-encoded)."
+    ]
+
+pStakePoolVerificationKeyFile :: Parser (VerificationKeyFile In)
+pStakePoolVerificationKeyFile =
+  File <$> asum
+    [ Opt.strOption $ mconcat
+      [ Opt.long "cold-verification-key-file"
+      , Opt.metavar "FILE"
+      , Opt.help "Filepath of the stake pool verification key."
+      , Opt.completer (Opt.bashCompleter "file")
+      ]
+    , Opt.strOption $ mconcat
+      [ Opt.long "stake-pool-verification-key-file"
+      , Opt.internal
+      ]
     ]

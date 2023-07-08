@@ -53,6 +53,12 @@ module Cardano.CLI.Shelley.Run.Read
   , categoriseSomeWitness
   , readRequiredSigner
 
+  -- * Governance related
+  , ConstitutionError(..)
+  , VoteError (..)
+  , readTxNewConstitutionActions
+  , readTxVotes
+
   -- * FileOrPipe
   , FileOrPipe
   , fileOrPipe
@@ -61,16 +67,21 @@ module Cardano.CLI.Shelley.Run.Read
   , readFileOrPipe
   ) where
 
-import           Prelude
-
 import           Cardano.Api
 import           Cardano.Api.Shelley
+
+import qualified Cardano.Binary as CBOR
+import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Shelley.Parsers
+import           Cardano.CLI.Types
+
+import           Prelude
 
 import           Control.Exception (bracket)
 import           Control.Monad (unless)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
-                   newExceptT)
+                   newExceptT, right)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (first)
 import qualified Data.ByteString.Builder as Builder
@@ -78,18 +89,12 @@ import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
+import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Word
 import           GHC.IO.Handle (hClose, hIsSeekable)
 import           GHC.IO.Handle.FD (openFileBlocking)
 import           System.IO (IOMode (ReadMode))
-
---TODO: do this nicely via the API too:
-import qualified Cardano.Binary as CBOR
-import           Data.Text (Text)
-
-import           Cardano.CLI.Shelley.Parsers
-import           Cardano.CLI.Types
 
 -- Metadata
 
@@ -127,12 +132,12 @@ readTxMetadata :: CardanoEra era
                -> [MetadataFile]
                -> IO (Either MetadataError (TxMetadataInEra era))
 readTxMetadata _ _ [] = return $ Right TxMetadataNone
-readTxMetadata era' schema files =
-  case txMetadataSupportedInEra era' of
+readTxMetadata era schema files =
+  case txMetadataSupportedInEra era of
     Nothing ->
       return . Left
         . MetadataErrorNotAvailableInEra
-        $ getIsCardanoEraConstraint era' $ AnyCardanoEra era'
+        $ getIsCardanoEraConstraint era $ AnyCardanoEra era
     Just supported -> do
       let exceptAllTxMetadata = mapM (readFileTxMetadata schema) files
       eAllTxMetaData <- runExceptT exceptAllTxMetadata
@@ -190,7 +195,7 @@ renderScriptWitnessError (ScriptWitnessErrorExpectedPlutus file (AnyScriptLangua
   Text.pack $ file <> ": expected a script in the Plutus script language, " <>
   "but it is actually using " <> show lang <> "."
 renderScriptWitnessError (ScriptWitnessErrorReferenceScriptsNotSupportedInEra anyEra) =
-  "Reference scripts not supported in era': " <> renderEra anyEra
+  "Reference scripts not supported in era: " <> renderEra anyEra
 renderScriptWitnessError (ScriptWitnessErrorScriptData sDataError) =
   renderScriptDataError sDataError
 
@@ -198,10 +203,10 @@ readScriptWitnessFiles
   :: CardanoEra era
   -> [(a, Maybe (ScriptWitnessFiles ctx))]
   -> ExceptT ScriptWitnessError IO [(a, Maybe (ScriptWitness ctx era))]
-readScriptWitnessFiles era' = mapM readSwitFile
+readScriptWitnessFiles era = mapM readSwitFile
  where
   readSwitFile (tIn, Just switFile) = do
-      sWit <- readScriptWitness era' switFile
+      sWit <- readScriptWitness era switFile
       return (tIn, Just sWit)
   readSwitFile (tIn, Nothing) = return (tIn, Nothing)
 
@@ -209,10 +214,10 @@ readScriptWitnessFilesThruple
   :: CardanoEra era
   -> [(a, b, Maybe (ScriptWitnessFiles ctx))]
   -> ExceptT ScriptWitnessError IO [(a, b, Maybe (ScriptWitness ctx era))]
-readScriptWitnessFilesThruple era' = mapM readSwitFile
+readScriptWitnessFilesThruple era = mapM readSwitFile
  where
   readSwitFile (tIn, b, Just switFile) = do
-      sWit <- readScriptWitness era' switFile
+      sWit <- readScriptWitness era switFile
       return (tIn, b, Just sWit)
   readSwitFile (tIn, b, Nothing) = return (tIn, b, Nothing)
 
@@ -220,10 +225,10 @@ readScriptWitness
   :: CardanoEra era
   -> ScriptWitnessFiles witctx
   -> ExceptT ScriptWitnessError IO (ScriptWitness witctx era)
-readScriptWitness era' (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
+readScriptWitness era (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
     script@(ScriptInAnyLang lang _) <- firstExceptT ScriptWitnessErrorFile $
                                          readFileScriptInAnyLang scriptFile
-    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era' script
+    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era script
     case script' of
       SimpleScript sscript ->
         return . SimpleScriptWitness langInEra $ SScript sscript
@@ -236,14 +241,14 @@ readScriptWitness era' (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
                  scriptFile
                  (AnyScriptLanguage lang)
 
-readScriptWitness era' (PlutusScriptWitnessFiles
+readScriptWitness era (PlutusScriptWitnessFiles
                           (ScriptFile scriptFile)
                           datumOrFile
                           redeemerOrFile
                           execUnits) = do
     script@(ScriptInAnyLang lang _) <- firstExceptT ScriptWitnessErrorFile $
                                          readFileScriptInAnyLang scriptFile
-    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era' script
+    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era script
     case script' of
       PlutusScript version pscript -> do
         datum <- firstExceptT ScriptWitnessErrorScriptData
@@ -264,15 +269,15 @@ readScriptWitness era' (PlutusScriptWitnessFiles
                  scriptFile
                  (AnyScriptLanguage lang)
 
-readScriptWitness era' (PlutusReferenceScriptWitnessFiles refTxIn
+readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
                           anyScrLang@(AnyScriptLanguage anyScriptLanguage)
                           datumOrFile redeemerOrFile execUnits mPid) = do
-  case refInsScriptsAndInlineDatsSupportedInEra era' of
+  case refInsScriptsAndInlineDatsSupportedInEra era of
     Nothing -> left $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-                    $ getIsCardanoEraConstraint era' (AnyCardanoEra era')
+                    $ getIsCardanoEraConstraint era (AnyCardanoEra era)
     Just _ -> do
 
-      case scriptLanguageSupportedInEra era' anyScriptLanguage of
+      case scriptLanguageSupportedInEra era anyScriptLanguage of
         Just sLangInEra ->
           case languageOfScriptLanguageInEra sLangInEra of
             SimpleScriptLanguage ->
@@ -290,14 +295,14 @@ readScriptWitness era' (PlutusReferenceScriptWitnessFiles refTxIn
                          (PReferenceScript refTxIn (unPolicyId <$> mPid))
                          datum redeemer execUnits
         Nothing ->
-          left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era')
-readScriptWitness era' (SimpleReferenceScriptWitnessFiles refTxIn
+          left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+readScriptWitness era (SimpleReferenceScriptWitnessFiles refTxIn
                          anyScrLang@(AnyScriptLanguage anyScriptLanguage) mPid) = do
-  case refInsScriptsAndInlineDatsSupportedInEra era' of
+  case refInsScriptsAndInlineDatsSupportedInEra era of
     Nothing -> left $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-                    $ getIsCardanoEraConstraint era' (AnyCardanoEra era')
+                    $ getIsCardanoEraConstraint era (AnyCardanoEra era)
     Just _ -> do
-      case scriptLanguageSupportedInEra era' anyScriptLanguage of
+      case scriptLanguageSupportedInEra era anyScriptLanguage of
         Just sLangInEra ->
           case languageOfScriptLanguageInEra sLangInEra of
             SimpleScriptLanguage ->
@@ -306,15 +311,15 @@ readScriptWitness era' (SimpleReferenceScriptWitnessFiles refTxIn
             PlutusScriptLanguage{} ->
               error "readScriptWitness: Should not be possible to specify a plutus script"
         Nothing ->
-          left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era')
+          left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
 
 validateScriptSupportedInEra :: CardanoEra era
                              -> ScriptInAnyLang
                              -> ExceptT ScriptWitnessError IO (ScriptInEra era)
-validateScriptSupportedInEra era' script@(ScriptInAnyLang lang _) =
-    case toScriptInEra era' script of
+validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
+    case toScriptInEra era script of
       Nothing -> left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra
-                          (AnyScriptLanguage lang) (anyCardanoEra era')
+                          (AnyScriptLanguage lang) (anyCardanoEra era)
       Just script' -> pure script'
 
 data ScriptDataError =
@@ -493,6 +498,7 @@ acceptTxCDDLSerialisation file err =
       first (CddlErrorTextEnv e) <$> readCddlTx file
    e@FileErrorTempFile{} -> return . Left $ CddlIOError e
    e@FileIOError{} -> return . Left $ CddlIOError e
+   e@FileDoesNotExistError{} -> return . Left $ CddlIOError e
 
 readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
 readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
@@ -503,12 +509,14 @@ readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
               , FromCDDLTx "Witnessed Tx MaryEra" CddlTx
               , FromCDDLTx "Witnessed Tx AlonzoEra" CddlTx
               , FromCDDLTx "Witnessed Tx BabbageEra" CddlTx
+              , FromCDDLTx "Witnessed Tx ConwayEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx ByronEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx ShelleyEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx AllegraEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx MaryEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx AlonzoEra" CddlTx
               , FromCDDLTx "Unwitnessed Tx BabbageEra" CddlTx
+              , FromCDDLTx "Unwitnessed Tx ConwayEra" CddlTx
               ]
 
 -- Tx witnesses
@@ -555,6 +563,7 @@ acceptKeyWitnessCDDLSerialisation err =
       first (CddlWitnessErrorTextEnv e) <$> readCddlWitness fp
     e@FileErrorTempFile{} -> return . Left $ CddlWitnessIOError e
     e@FileIOError{} -> return . Left $ CddlWitnessIOError e
+    e@FileDoesNotExistError{} -> return . Left $ CddlWitnessIOError e
 
 readCddlWitness
   :: FilePath
@@ -729,6 +738,67 @@ readRequiredSigner (RequiredSignerSkeyFile skFile) = do
      in verificationKeyHash payVKey
    getHash (ShelleyNormalSigningKey sk) =
      verificationKeyHash . getVerificationKey $ PaymentSigningKey sk
+
+data VoteError
+  = VoteErrorFile (FileError TextEnvelopeError)
+  | VotesNotSupportedInEra AnyCardanoEra
+  deriving Show
+
+readTxVotes :: CardanoEra era
+            -> [ConwayVoteFile In]
+            -> IO (Either VoteError (TxVotes era))
+readTxVotes _ [] = return $ Right TxVotesNone
+readTxVotes era files =
+  case cardanoEraStyle era of
+    LegacyByronEra ->
+      return . Left . VotesNotSupportedInEra $ AnyCardanoEra era
+    ShelleyBasedEra sbe ->
+      case votesSupportedInEra sbe of
+        Nothing -> return . Left . VotesNotSupportedInEra $ AnyCardanoEra era
+        Just supp ->
+          runExceptT $ do
+            votes <- newExceptT $ sequence <$> mapM (readVoteFile sbe) files
+            right $ TxVotes supp votes
+
+readVoteFile
+  :: ShelleyBasedEra era
+  -> ConwayVoteFile In
+  -> IO (Either VoteError (Vote era))
+readVoteFile sbe fp =
+  first VoteErrorFile <$> obtainEraConstraints sbe (readFileTextEnvelope AsVote fp)
+
+
+data ConstitutionError
+  = ConstitutionErrorFile (FileError TextEnvelopeError)
+  | ConstitutionsNotSupportedInEra AnyCardanoEra
+  deriving Show
+
+readTxNewConstitutionActions
+  :: CardanoEra era
+  -> [NewConstitutionFile In]
+  -> IO (Either ConstitutionError (TxGovernanceActions era))
+readTxNewConstitutionActions _ [] = return $ Right TxGovernanceActionsNone
+readTxNewConstitutionActions era files =
+  case cardanoEraStyle era of
+    LegacyByronEra ->
+      return . Left . ConstitutionsNotSupportedInEra $ AnyCardanoEra era
+    ShelleyBasedEra sbe' ->
+      case governanceActionsSupportedInEra sbe' of
+        Nothing -> return . Left . ConstitutionsNotSupportedInEra $ AnyCardanoEra era
+        Just supp ->
+          runExceptT $ do
+            constitutions <- newExceptT $ sequence <$> mapM (readConstitution sbe') files
+            let brokenUp = map (fromProposalProcedure sbe') constitutions
+            right $ TxGovernanceActions supp brokenUp
+
+readConstitution
+  :: ShelleyBasedEra era
+  -> NewConstitutionFile In
+  -> IO (Either ConstitutionError (Proposal era))
+readConstitution sbe fp =
+  fmap (first ConstitutionErrorFile)
+    $ obtainEraPParamsConstraint sbe
+    $ obtainEraConstraints sbe (readFileTextEnvelope AsProposal fp)
 
 -- Misc
 

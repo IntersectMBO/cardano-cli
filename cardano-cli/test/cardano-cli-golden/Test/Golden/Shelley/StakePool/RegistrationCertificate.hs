@@ -22,6 +22,7 @@ golden_shelleyStakePoolRegistrationCertificate = propertyOnce . H.moduleWorkspac
 
   void $ execCardanoCLI
     [ "stake-pool","registration-certificate"
+    , "--babbage-era"
     , "--testnet-magic", "42"
     , "--pool-pledge", "0"
     , "--pool-cost", "0"

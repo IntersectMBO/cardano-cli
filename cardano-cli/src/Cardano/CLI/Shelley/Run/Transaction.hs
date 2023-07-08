@@ -21,6 +21,7 @@ import           Cardano.Api
 import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Conway.Types
 import           Cardano.CLI.Helpers (printWarning)
 import           Cardano.CLI.Run.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Shelley.Output
@@ -62,6 +63,8 @@ import qualified System.IO as IO
 
 data ShelleyTxCmdError
   = ShelleyTxCmdMetadataError MetadataError
+  | ShelleyTxCmdVoteError VoteError
+  | ShelleyTxCmdConstitutionError ConstitutionError
   | ShelleyTxCmdScriptWitnessError ScriptWitnessError
   | ShelleyTxCmdProtocolParamsError ProtocolParamsError
   | ShelleyTxCmdScriptFileError (FileError ScriptDecodeError)
@@ -123,6 +126,8 @@ data ShelleyTxCmdError
 renderShelleyTxCmdError :: ShelleyTxCmdError -> Text
 renderShelleyTxCmdError err =
   case err of
+    ShelleyTxCmdVoteError voteErr -> Text.pack $ show voteErr
+    ShelleyTxCmdConstitutionError constErr -> Text.pack $ show constErr
     ShelleyTxCmdReadTextViewFileError fileErr -> Text.pack (displayError fileErr)
     ShelleyTxCmdScriptFileError fileErr -> Text.pack (displayError fileErr)
     ShelleyTxCmdReadWitnessSigningDataError witSignDataErr ->
@@ -267,10 +272,11 @@ runTransactionCmd cmd =
     TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
             reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
             mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mProtocolParamsFile
-            mUpProp outputOptions -> do
+            mUpProp mconwayVote mNewConstitution outputOptions -> do
       runTxBuildCmd mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
             reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp outputOptions
+            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp
+            mconwayVote mNewConstitution outputOptions
     TxBuildRaw era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
                mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
                metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out -> do
@@ -322,6 +328,8 @@ runTxBuildCmd
   -> [MetadataFile]
   -> Maybe (Deprecated ProtocolParamsFile)
   -> Maybe UpdateProposalFile
+  -> [ConwayVoteFile In]
+  -> [NewConstitutionFile In] -- TODO: Conway era - we should replace this with a sumtype that handles all governance actions
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()
 runTxBuildCmd
@@ -329,7 +337,7 @@ runTxBuildCmd
     nid mScriptValidity mOverrideWits txins readOnlyRefIns
     reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
     mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mDeprecatedProtocolParamsFile
-    mUpProp outputOptions = do
+    mUpProp conwayVotes newConstitutions outputOptions = do
   forM_ mDeprecatedProtocolParamsFile $ \_ ->
     liftIO $ printWarning "'--protocol-params-file' for 'transaction build' is deprecated"
 
@@ -349,11 +357,17 @@ runTxBuildCmd
 
   inputsAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError $ readScriptWitnessFiles cEra txins
   certFilesAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError $ readScriptWitnessFiles cEra certs
-  certsAndMaybeScriptWits <- sequence
-             [ fmap (,mSwit) (firstExceptT ShelleyTxCmdReadTextViewFileError . newExceptT $
-                 readFileTextEnvelope AsCertificate (File certFile))
-             | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
-             ]
+
+  -- TODO: Conway Era - How can we make this more composable?
+  certsAndMaybeScriptWits <-
+    case cardanoEraStyle cEra of
+      LegacyByronEra -> return []
+      ShelleyBasedEra{} ->
+        sequence
+          [ fmap (,mSwit) (firstExceptT ShelleyTxCmdReadTextViewFileError . newExceptT $
+              readFileTextEnvelope AsCertificate (File certFile))
+          | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
+          ]
   withdrawalsAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError
                                      $ readScriptWitnessFilesThruple cEra wdrls
   txMetadata <- firstExceptT ShelleyTxCmdMetadataError
@@ -370,6 +384,14 @@ runTxBuildCmd
 
   txOuts <- mapM (toTxOutInAnyEra cEra) txouts
 
+  -- Conway related
+  votes <- newExceptT $ first ShelleyTxCmdVoteError
+              <$> readTxVotes cEra conwayVotes
+
+  proposals <- newExceptT $ first ShelleyTxCmdConstitutionError
+                  <$> readTxNewConstitutionActions cEra newConstitutions
+
+
   -- the same collateral input can be used for several plutus scripts
   let filteredTxinsc = Set.toList $ Set.fromList txinsc
 
@@ -379,7 +401,7 @@ runTxBuildCmd
       socketPath cEra consensusModeParams nid mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
       mReturnCollateral mTotCollateral txOuts changeAddr valuesWithScriptWits mLowBound
       mUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
-      requiredSigners txAuxScripts txMetadata mProp mOverrideWits outputOptions
+      requiredSigners txAuxScripts txMetadata mProp mOverrideWits votes proposals outputOptions
 
   let allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
@@ -471,11 +493,18 @@ runTxBuildRawCmd
                                 $ readScriptWitnessFiles cEra txins
   certFilesAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError
                                    $ readScriptWitnessFiles cEra certs
-  certsAndMaybeScriptWits <- sequence
-             [ fmap (,mSwit) (firstExceptT ShelleyTxCmdReadTextViewFileError . newExceptT $
-                 readFileTextEnvelope AsCertificate (File certFile))
-             | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
-             ]
+
+  -- TODO: Conway era - How can we make this more composable?
+  certsAndMaybeScriptWits <-
+      case cardanoEraStyle cEra of
+        LegacyByronEra -> return []
+        ShelleyBasedEra{} ->
+          sequence
+            [ fmap (,mSwit) (firstExceptT ShelleyTxCmdReadTextViewFileError . newExceptT $
+                readFileTextEnvelope AsCertificate (File certFile))
+            | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
+            ]
+
   withdrawalsAndMaybeScriptWits <- firstExceptT ShelleyTxCmdScriptWitnessError
                                      $ readScriptWitnessFilesThruple cEra wdrls
   txMetadata <- firstExceptT ShelleyTxCmdMetadataError
@@ -531,7 +560,7 @@ runTxBuildRaw
   -- ^ Tx fee
   -> (Value, [ScriptWitness WitCtxMint era])
   -- ^ Multi-Asset value(s)
-  -> [(Certificate, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> [Hash PaymentKey]
@@ -634,7 +663,7 @@ runTxBuild
   -- ^ Tx lower bound
   -> Maybe SlotNo
   -- ^ Tx upper bound
-  -> [(Certificate, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> [Hash PaymentKey]
@@ -643,6 +672,8 @@ runTxBuild
   -> TxMetadataInEra era
   -> Maybe UpdateProposal
   -> Maybe Word
+  -> TxVotes era
+  -> TxGovernanceActions era
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO (BalancedTxBody era)
 runTxBuild
@@ -650,7 +681,7 @@ runTxBuild
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
-    mUpdatePropF mOverrideWits outputOptions = do
+    mUpdatePropF mOverrideWits votes proposals outputOptions = do
 
   let consensusMode = consensusModeOnly cModeParams
       dummyFee = Just $ Lovelace 0
@@ -701,15 +732,18 @@ runTxBuild
               TxCertificates _ cs _ -> cs
               _ -> []
 
+      nodeEraCerts <- pure (forM certs $ eraCast nodeEra)
+        & onLeft (left . ShelleyTxCmdTxEraCastErr)
+
       (nodeEraUTxO, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits) <-
-        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs certs)
+        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs nodeEraCerts)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError)
 
       validatedPParams <- hoistEither $ first ShelleyTxCmdProtocolParametersValidationError
                                       $ validateProtocolParameters era (Just pparams)
-      let validatedTxGovernanceActions = TxGovernanceActionsNone -- TODO: Conwary era
-          validatedTxVotes = TxVotesNone -- TODO: Conwary era
+      let validatedTxGovernanceActions = proposals
+          validatedTxVotes =  votes
           txBodyContent = TxBodyContent
                           (validateTxIns inputsAndMaybeScriptWits)
                           validatedCollateralTxIns
@@ -845,7 +879,7 @@ validateTxInsReference era allRefIns =
 getAllReferenceInputs
  :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
  -> [ScriptWitness WitCtxMint era]
- -> [(Certificate , Maybe (ScriptWitness WitCtxStake era))]
+ -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
  -> [TxIn] -- ^ Read only reference inputs
  -> [TxIn]
@@ -1461,7 +1495,7 @@ onlyInShelleyBasedEras :: Text
                                   (InAnyShelleyBasedEra a)
 onlyInShelleyBasedEras notImplMsg (InAnyCardanoEra era x) =
     case cardanoEraStyle era of
-      LegacyByronEra       -> left (ShelleyTxCmdNotImplemented notImplMsg)
-      ShelleyBasedEra era' -> return (InAnyShelleyBasedEra era' x)
+      LegacyByronEra      -> left (ShelleyTxCmdNotImplemented notImplMsg)
+      ShelleyBasedEra sbe -> return (InAnyShelleyBasedEra sbe x)
 
 
