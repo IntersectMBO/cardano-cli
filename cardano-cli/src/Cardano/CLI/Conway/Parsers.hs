@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Conway.Parsers where
 
@@ -57,18 +58,17 @@ data GovernanceCmd
   deriving Show
 
 renderGovernanceCmd :: GovernanceCmd -> Text
-renderGovernanceCmd cmd =
-  case cmd of
-    GovernanceVoteCmd {} -> "governance vote"
-    GovernanceActionCmd {} -> "governance action"
-    GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
-    GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
-    GovernanceMIRTransfer _ _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
-    GovernanceMIRTransfer _ _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
-    GovernanceUpdateProposal {} -> "governance create-update-proposal"
-    GovernanceCreatePoll{} -> "governance create-poll"
-    GovernanceAnswerPoll{} -> "governance answer-poll"
-    GovernanceVerifyPoll{} -> "governance verify-poll"
+renderGovernanceCmd = \case
+  GovernanceVoteCmd {} -> "governance vote"
+  GovernanceActionCmd {} -> "governance action"
+  GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
+  GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
+  GovernanceMIRTransfer _ _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
+  GovernanceMIRTransfer _ _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
+  GovernanceUpdateProposal {} -> "governance create-update-proposal"
+  GovernanceCreatePoll{} -> "governance create-poll"
+  GovernanceAnswerPoll{} -> "governance answer-poll"
+  GovernanceVerifyPoll{} -> "governance verify-poll"
 
 
 
@@ -163,13 +163,15 @@ pCreateConstitution =
 
 pConstitution :: Parser Constitution
 pConstitution =
-  asum [ fmap ConstitutionFromText
-           . Opt.strOption $ mconcat [ Opt.long "constitution"
-                                     , Opt.metavar "TEXT"
-                                     , Opt.help "Input constitution as UTF-8 encoded text."
-                                     ]
-       , ConstitutionFromFile <$> pFileInDirection "constitution-file" "Input constitution as a text file."
-       ]
+  asum
+    [ fmap ConstitutionFromText $ Opt.strOption $ mconcat
+        [ Opt.long "constitution"
+        , Opt.metavar "TEXT"
+        , Opt.help "Input constitution as UTF-8 encoded text."
+        ]
+    , ConstitutionFromFile
+        <$> pFileInDirection "constitution-file" "Input constitution as a text file."
+    ]
 
 pGovActionDeposit :: Parser Lovelace
 pGovActionDeposit =

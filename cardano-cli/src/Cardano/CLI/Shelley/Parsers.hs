@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -1121,26 +1122,6 @@ pGovernanceCmd =
         $ Opt.progDesc "Governance action related commands."
     ]
   where
-    _notYet =
-      [ subParser "create-mir-certificate"
-        $ Opt.info (pMIRPayStakeAddresses <|> mirCertParsers)
-        $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
-      , subParser "create-genesis-key-delegation-certificate"
-        $ Opt.info pGovernanceGenesisKeyDelegationCertificate
-        $ Opt.progDesc "Create a genesis key delegation certificate"
-      , subParser "create-update-proposal"
-        $ Opt.info pUpdateProposal
-        $ Opt.progDesc "Create an update proposal"
-      , subParser "create-poll"
-        $ Opt.info pGovernanceCreatePoll
-        $ Opt.progDesc "Create an SPO poll"
-      , subParser "answer-poll"
-        $ Opt.info pGovernanceAnswerPoll
-        $ Opt.progDesc "Answer an SPO poll"
-      , subParser "verify-poll"
-        $ Opt.info pGovernanceVerifyPoll
-        $ Opt.progDesc "Verify an answer to a given SPO poll"
-      ]
 
     mirCertParsers :: Parser GovernanceCmd
     mirCertParsers = asum
@@ -1156,26 +1137,29 @@ pGovernanceCmd =
       ]
 
     pMIRPayStakeAddresses :: Parser GovernanceCmd
-    pMIRPayStakeAddresses = GovernanceMIRPayStakeAddressesCertificate
-                              <$> pAnyShelleyBasedEra
-                              <*> pMIRPot
-                              <*> some pStakeAddress
-                              <*> some pRewardAmt
-                              <*> pOutputFile
+    pMIRPayStakeAddresses =
+      GovernanceMIRPayStakeAddressesCertificate
+        <$> pAnyShelleyBasedEra
+        <*> pMIRPot
+        <*> some pStakeAddress
+        <*> some pRewardAmt
+        <*> pOutputFile
 
     pMIRTransferToTreasury :: Parser GovernanceCmd
-    pMIRTransferToTreasury = GovernanceMIRTransfer
-                               <$> pAnyShelleyBasedEra
-                               <*> pTransferAmt
-                               <*> pOutputFile
-                               <*> pure TransferToTreasury
+    pMIRTransferToTreasury =
+      GovernanceMIRTransfer
+        <$> pAnyShelleyBasedEra
+        <*> pTransferAmt
+        <*> pOutputFile
+        <*> pure TransferToTreasury
 
     pMIRTransferToReserves :: Parser GovernanceCmd
-    pMIRTransferToReserves = GovernanceMIRTransfer
-                               <$> pAnyShelleyBasedEra
-                               <*> pTransferAmt
-                               <*> pOutputFile
-                               <*> pure TransferToReserves
+    pMIRTransferToReserves =
+      GovernanceMIRTransfer
+        <$> pAnyShelleyBasedEra
+        <*> pTransferAmt
+        <*> pOutputFile
+        <*> pure TransferToReserves
 
     pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmd
     pGovernanceGenesisKeyDelegationCertificate =
@@ -1188,22 +1172,25 @@ pGovernanceCmd =
 
     pMIRPot :: Parser Shelley.MIRPot
     pMIRPot =
-          Opt.flag' Shelley.ReservesMIR
-            (  Opt.long "reserves"
-            <> Opt.help "Use the reserves pot."
-            )
-      <|> Opt.flag' Shelley.TreasuryMIR
-            (  Opt.long "treasury"
-            <> Opt.help "Use the treasury pot."
-            )
+      asum
+        [ Opt.flag' Shelley.ReservesMIR $ mconcat
+            [ Opt.long "reserves"
+            , Opt.help "Use the reserves pot."
+            ]
+        , Opt.flag' Shelley.TreasuryMIR $ mconcat
+            [ Opt.long "treasury"
+            , Opt.help "Use the treasury pot."
+            ]
+        ]
 
     pUpdateProposal :: Parser GovernanceCmd
-    pUpdateProposal = GovernanceUpdateProposal
-                        <$> pOutputFile
-                        <*> pEpochNoUpdateProp
-                        <*> some pGenesisVerificationKeyFile
-                        <*> pProtocolParametersUpdate
-                        <*> optional pCostModels
+    pUpdateProposal =
+      GovernanceUpdateProposal
+        <$> pOutputFile
+        <*> pEpochNoUpdateProp
+        <*> some pGenesisVerificationKeyFile
+        <*> pProtocolParametersUpdate
+        <*> optional pCostModels
 
     pGovernanceCreatePoll :: Parser GovernanceCmd
     pGovernanceCreatePoll =
@@ -1229,36 +1216,36 @@ pGovernanceCmd =
 
 pPollQuestion :: Parser Text
 pPollQuestion =
-  Opt.strOption
-    (  Opt.long "question"
-    <> Opt.metavar "STRING"
-    <> Opt.help "The question for the poll."
-    )
+  Opt.strOption $ mconcat
+    [ Opt.long "question"
+    , Opt.metavar "STRING"
+    , Opt.help "The question for the poll."
+    ]
 
 pPollAnswer :: Parser Text
 pPollAnswer =
-  Opt.strOption
-    (  Opt.long "answer"
-    <> Opt.metavar "STRING"
-    <> Opt.help "A possible choice for the poll. The option is repeatable."
-    )
+  Opt.strOption $ mconcat
+    [ Opt.long "answer"
+    , Opt.metavar "STRING"
+    , Opt.help "A possible choice for the poll. The option is repeatable."
+    ]
 
 pPollAnswerIndex :: Parser Word
 pPollAnswerIndex =
-  Opt.option auto
-    (  Opt.long "answer"
-    <> Opt.metavar "INT"
-    <> Opt.help "The index of the chosen answer in the poll. Optional. Asked interactively if omitted."
-    )
+  Opt.option auto $ mconcat
+    [ Opt.long "answer"
+    , Opt.metavar "INT"
+    , Opt.help "The index of the chosen answer in the poll. Optional. Asked interactively if omitted."
+    ]
 
 pPollFile :: Parser (File GovernancePoll In)
 pPollFile =
-  Opt.strOption
-    (  Opt.long "poll-file"
-    <> Opt.metavar "FILE"
-    <> Opt.help "Filepath to the ongoing poll."
-    <> Opt.completer (Opt.bashCompleter "file")
-    )
+  Opt.strOption $ mconcat
+    [ Opt.long "poll-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath to the ongoing poll."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
 
 pPollTxFile :: Parser (TxFile In)
 pPollTxFile =
@@ -1271,27 +1258,27 @@ pPollTxFile =
 
 pPollNonce :: Parser Word
 pPollNonce =
-  Opt.option auto
-    (  Opt.long "nonce"
-    <> Opt.metavar "UINT"
-    <> Opt.help "An (optional) nonce for non-replayability."
-    )
+  Opt.option auto $ mconcat
+    [ Opt.long "nonce"
+    , Opt.metavar "UINT"
+    , Opt.help "An (optional) nonce for non-replayability."
+    ]
 
 pTransferAmt :: Parser Lovelace
 pTransferAmt =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "transfer"
-      <> Opt.metavar "LOVELACE"
-      <> Opt.help "The amount to transfer."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "transfer"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The amount to transfer."
+    ]
 
 pRewardAmt :: Parser Lovelace
 pRewardAmt =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "reward"
-      <> Opt.metavar "LOVELACE"
-      <> Opt.help "The reward for the relevant reward account."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "reward"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The reward for the relevant reward account."
+    ]
 
 pGenesisCmd :: EnvCli -> Parser GenesisCmd
 pGenesisCmd envCli =
@@ -1336,7 +1323,9 @@ pGenesisCmd envCli =
   where
     pGenesisKeyGen :: Parser GenesisCmd
     pGenesisKeyGen =
-      GenesisKeyGenGenesis <$> pVerificationKeyFileOut <*> pSigningKeyFileOut
+      GenesisKeyGenGenesis
+        <$> pVerificationKeyFileOut
+        <*> pSigningKeyFileOut
 
     pGenesisDelegateKeyGen :: Parser GenesisCmd
     pGenesisDelegateKeyGen =
@@ -1347,11 +1336,14 @@ pGenesisCmd envCli =
 
     pGenesisUTxOKeyGen :: Parser GenesisCmd
     pGenesisUTxOKeyGen =
-      GenesisKeyGenUTxO <$> pVerificationKeyFileOut <*> pSigningKeyFileOut
+      GenesisKeyGenUTxO
+        <$> pVerificationKeyFileOut
+        <*> pSigningKeyFileOut
 
     pGenesisKeyHash :: Parser GenesisCmd
     pGenesisKeyHash =
-      GenesisCmdKeyHash <$> pVerificationKeyFileIn
+      GenesisCmdKeyHash
+        <$> pVerificationKeyFileIn
 
     pGenesisVerKey :: Parser GenesisCmd
     pGenesisVerKey =
@@ -1434,145 +1426,139 @@ pGenesisCmd envCli =
 
     pGenesisDir :: Parser GenesisDir
     pGenesisDir =
-      GenesisDir <$>
-        Opt.strOption
-          (  Opt.long "genesis-dir"
-          <> Opt.metavar "DIR"
-          <> Opt.help "The genesis directory containing the genesis template and required genesis/delegation/spending keys."
-          )
+      fmap GenesisDir $ Opt.strOption $ mconcat
+        [ Opt.long "genesis-dir"
+        , Opt.metavar "DIR"
+        , Opt.help "The genesis directory containing the genesis template and required genesis/delegation/spending keys."
+        ]
 
     pMaybeSystemStart :: Parser (Maybe SystemStart)
     pMaybeSystemStart =
-      Opt.optional $
-        SystemStart . convertTime <$>
-          Opt.strOption
-            (  Opt.long "start-time"
-            <> Opt.metavar "UTC-TIME"
-            <> Opt.help "The genesis start time in YYYY-MM-DDThh:mm:ssZ format. If unspecified, will be the current time +30 seconds."
-            )
+      Opt.optional $ fmap (SystemStart . convertTime) $ Opt.strOption $ mconcat
+        [ Opt.long "start-time"
+        , Opt.metavar "UTC-TIME"
+        , Opt.help "The genesis start time in YYYY-MM-DDThh:mm:ssZ format. If unspecified, will be the current time +30 seconds."
+        ]
 
     pGenesisNumGenesisKeys :: Parser Word
     pGenesisNumGenesisKeys =
-        Opt.option Opt.auto
-          (  Opt.long "gen-genesis-keys"
-          <> Opt.metavar "INT"
-          <> Opt.help "The number of genesis keys to make [default is 3]."
-          <> Opt.value 3
-          )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "gen-genesis-keys"
+        , Opt.metavar "INT"
+        , Opt.help "The number of genesis keys to make [default is 3]."
+        , Opt.value 3
+        ]
 
     pNodeConfigTemplate :: Parser (Maybe FilePath)
     pNodeConfigTemplate = optional $ parseFilePath "node-config-template" "the node config template"
 
     pGenesisNumUTxOKeys :: Parser Word
     pGenesisNumUTxOKeys =
-        Opt.option Opt.auto
-          (  Opt.long "gen-utxo-keys"
-          <> Opt.metavar "INT"
-          <> Opt.help "The number of UTxO keys to make [default is 0]."
-          <> Opt.value 0
-          )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "gen-utxo-keys"
+        , Opt.metavar "INT"
+        , Opt.help "The number of UTxO keys to make [default is 0]."
+        , Opt.value 0
+        ]
 
     pGenesisNumPools :: Parser Word
     pGenesisNumPools =
-        Opt.option Opt.auto
-          (  Opt.long "gen-pools"
-          <> Opt.metavar "INT"
-          <> Opt.help "The number of stake pool credential sets to make [default is 0]."
-          <> Opt.value 0
-          )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "gen-pools"
+        , Opt.metavar "INT"
+        , Opt.help "The number of stake pool credential sets to make [default is 0]."
+        , Opt.value 0
+        ]
 
     pGenesisNumStDelegs :: Parser Word
     pGenesisNumStDelegs =
-        Opt.option Opt.auto
-          (  Opt.long "gen-stake-delegs"
-          <> Opt.metavar "INT"
-          <> Opt.help "The number of stake delegator credential sets to make [default is 0]."
-          <> Opt.value 0
-          )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "gen-stake-delegs"
+        , Opt.metavar "INT"
+        , Opt.help "The number of stake delegator credential sets to make [default is 0]."
+        , Opt.value 0
+        ]
 
     pStuffedUtxoCount :: Parser Word
     pStuffedUtxoCount =
-        Opt.option Opt.auto
-          (  Opt.long "num-stuffed-utxo"
-          <> Opt.metavar "INT"
-          <> Opt.help "The number of fake UTxO entries to generate [default is 0]."
-          <> Opt.value 0
-          )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "num-stuffed-utxo"
+        , Opt.metavar "INT"
+        , Opt.help "The number of fake UTxO entries to generate [default is 0]."
+        , Opt.value 0
+        ]
 
     pRelayJsonFp :: Parser FilePath
     pRelayJsonFp =
-      Opt.strOption
-        (  Opt.long "relay-specification-file"
-        <> Opt.metavar "FILE"
-        <> Opt.help "JSON file specified the relays of each stake pool."
-        <> Opt.completer (Opt.bashCompleter "file")
-        )
+      Opt.strOption $ mconcat
+        [ Opt.long "relay-specification-file"
+        , Opt.metavar "FILE"
+        , Opt.help "JSON file specified the relays of each stake pool."
+        , Opt.completer (Opt.bashCompleter "file")
+        ]
 
     pInitialSupplyNonDelegated :: Parser (Maybe Lovelace)
     pInitialSupplyNonDelegated =
-      Opt.optional $
-      Lovelace <$>
-        Opt.option Opt.auto
-          (  Opt.long "supply"
-          <> Opt.metavar "LOVELACE"
-          <> Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, non-delegating stake holders."
-          )
+      Opt.optional $ fmap Lovelace $ Opt.option Opt.auto $ mconcat
+        [ Opt.long "supply"
+        , Opt.metavar "LOVELACE"
+        , Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, non-delegating stake holders."
+        ]
 
     pInitialSupplyDelegated :: Parser Lovelace
     pInitialSupplyDelegated =
-      fmap (Lovelace . fromMaybe 0) $ Opt.optional $
-        Opt.option Opt.auto
-          (  Opt.long "supply-delegated"
-          <> Opt.metavar "LOVELACE"
-          <> Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, delegating stake holders."
-          <> Opt.value 0
-          )
+      fmap (Lovelace . fromMaybe 0) $ Opt.optional $ Opt.option Opt.auto $ mconcat
+        [ Opt.long "supply-delegated"
+        , Opt.metavar "LOVELACE"
+        , Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, delegating stake holders."
+        , Opt.value 0
+        ]
 
     pSecurityParam :: Parser Word64
     pSecurityParam =
-        Opt.option Opt.auto
-          (  Opt.long "security-param"
-          <> Opt.metavar "INT"
-          <> Opt.help "Security parameter for genesis file [default is 108]."
-          <> Opt.value 108
-          )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "security-param"
+        , Opt.metavar "INT"
+        , Opt.help "Security parameter for genesis file [default is 108]."
+        , Opt.value 108
+        ]
 
     pSlotLength :: Parser Word
     pSlotLength =
-        Opt.option Opt.auto
-          (  Opt.long "slot-length"
-          <> Opt.metavar "INT"
-          <> Opt.help "slot length (ms) parameter for genesis file [default is 1000]."
-          <> Opt.value 1000
-          )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "slot-length"
+        , Opt.metavar "INT"
+        , Opt.help "slot length (ms) parameter for genesis file [default is 1000]."
+        , Opt.value 1000
+        ]
 
 
     pSlotCoefficient :: Parser Rational
     pSlotCoefficient =
-        Opt.option readRationalUnitInterval
-          (  Opt.long "slot-coefficient"
-          <> Opt.metavar "RATIONAL"
-          <> Opt.help "Slot Coefficient for genesis file [default is .05]."
-          <> Opt.value 0.05
-          )
+      Opt.option readRationalUnitInterval $ mconcat
+        [ Opt.long "slot-coefficient"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "Slot Coefficient for genesis file [default is .05]."
+        , Opt.value 0.05
+        ]
 
     pBulkPoolCredFiles :: Parser Word
     pBulkPoolCredFiles =
-        Opt.option Opt.auto
-          (  Opt.long "bulk-pool-cred-files"
-          <> Opt.metavar "INT"
-          <> Opt.help "Generate bulk pool credential files [default is 0]."
-          <> Opt.value 0
-          )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "bulk-pool-cred-files"
+        , Opt.metavar "INT"
+        , Opt.help "Generate bulk pool credential files [default is 0]."
+        , Opt.value 0
+        ]
 
     pBulkPoolsPerFile :: Parser Word
     pBulkPoolsPerFile =
-        Opt.option Opt.auto
-          (  Opt.long "bulk-pools-per-file"
-          <> Opt.metavar "INT"
-          <> Opt.help "Each bulk pool to contain this many pool credential sets [default is 0]."
-          <> Opt.value 0
-          )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "bulk-pools-per-file"
+        , Opt.metavar "INT"
+        , Opt.help "Each bulk pool to contain this many pool credential sets [default is 0]."
+        , Opt.value 0
+        ]
 
 
 --
@@ -1586,22 +1572,21 @@ data ParserFileDirection
 
 pAddressKeyType :: Parser AddressKeyType
 pAddressKeyType =
-    Opt.flag' AddressKeyShelley
-      (  Opt.long "normal-key"
-      <> Opt.help "Use a normal Shelley-era key (default)."
-      )
-  <|>
-    Opt.flag' AddressKeyShelleyExtended
-      (  Opt.long "extended-key"
-      <> Opt.help "Use an extended ed25519 Shelley-era key."
-      )
-  <|>
-    Opt.flag' AddressKeyByron
-      (  Opt.long "byron-key"
-      <> Opt.help "Use a Byron-era key."
-      )
-  <|>
-    pure AddressKeyShelley
+  asum
+    [ Opt.flag' AddressKeyShelley $ mconcat
+        [ Opt.long "normal-key"
+        , Opt.help "Use a normal Shelley-era key (default)."
+        ]
+    , Opt.flag' AddressKeyShelleyExtended $ mconcat
+        [ Opt.long "extended-key"
+        , Opt.help "Use an extended ed25519 Shelley-era key."
+        ]
+    , Opt.flag' AddressKeyByron $ mconcat
+        [ Opt.long "byron-key"
+        , Opt.help "Use a Byron-era key."
+        ]
+    , pure AddressKeyShelley
+    ]
 
 pDeprecatedProtocolParamsFile :: Parser (Deprecated ProtocolParamsFile)
 pDeprecatedProtocolParamsFile =
@@ -1638,18 +1623,18 @@ pCertificateFile
   :: BalanceTxExecUnits
   -> Parser (CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))
 pCertificateFile balanceExecUnits =
-  (,) <$> (CertificateFile
-             <$> (  Opt.strOption
-                      (  Opt.long "certificate-file"
-                      <> Opt.metavar "CERTIFICATEFILE"
-                      <> Opt.help helpText
-                      <> Opt.completer (Opt.bashCompleter "file")
-                      )
-                  <|>
-                     Opt.strOption (Opt.long "certificate" <> Opt.internal)
-                  )
-          )
-      <*> optional (pCertifyingScriptOrReferenceScriptWit balanceExecUnits)
+  (,)
+    <$> ( fmap CertificateFile $ asum
+            [ Opt.strOption $ mconcat
+                [ Opt.long "certificate-file"
+                , Opt.metavar "CERTIFICATEFILE"
+                , Opt.help helpText
+                , Opt.completer (Opt.bashCompleter "file")
+                ]
+            , Opt.strOption (Opt.long "certificate" <> Opt.internal)
+            ]
+        )
+    <*> optional (pCertifyingScriptOrReferenceScriptWit balanceExecUnits)
  where
   pCertifyingScriptOrReferenceScriptWit
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
@@ -2591,95 +2576,96 @@ pTxFileOut =
 
 pInputTxOrTxBodyFile :: Parser InputTxBodyOrTxFile
 pInputTxOrTxBodyFile =
-  InputTxBodyFile <$> pTxBodyFileIn <|> InputTxFile <$> pTxFileIn
-
+  asum
+    [ InputTxBodyFile <$> pTxBodyFileIn
+    , InputTxFile <$> pTxFileIn
+    ]
+  
 pTxInCount :: Parser TxInCount
 pTxInCount =
-  TxInCount <$>
-    Opt.option Opt.auto
-      (  Opt.long "tx-in-count"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "The number of transaction inputs."
-      )
+  fmap TxInCount $ Opt.option Opt.auto $ mconcat
+    [ Opt.long "tx-in-count"
+    , Opt.metavar "NATURAL"
+    , Opt.help "The number of transaction inputs."
+    ]
 
 pTxOutCount :: Parser TxOutCount
 pTxOutCount =
-  TxOutCount <$>
-    Opt.option Opt.auto
-      (  Opt.long "tx-out-count"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "The number of transaction outputs."
-      )
+  fmap TxOutCount $ Opt.option Opt.auto $ mconcat
+    [ Opt.long "tx-out-count"
+    , Opt.metavar "NATURAL"
+    , Opt.help "The number of transaction outputs."
+    ]
 
 pTxShelleyWitnessCount :: Parser TxShelleyWitnessCount
 pTxShelleyWitnessCount =
-  TxShelleyWitnessCount <$>
-    Opt.option Opt.auto
-      (  Opt.long "witness-count"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "The number of Shelley key witnesses."
-      )
+  fmap TxShelleyWitnessCount $ Opt.option Opt.auto $ mconcat
+    [ Opt.long "witness-count"
+    , Opt.metavar "NATURAL"
+    , Opt.help "The number of Shelley key witnesses."
+    ]
 
 pTxByronWitnessCount :: Parser TxByronWitnessCount
 pTxByronWitnessCount =
-  TxByronWitnessCount <$>
-    Opt.option Opt.auto
-      (  Opt.long "byron-witness-count"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "The number of Byron key witnesses (default is 0)."
-      <> Opt.value 0
-      )
+  fmap TxByronWitnessCount $ Opt.option Opt.auto $ mconcat
+    [ Opt.long "byron-witness-count"
+    , Opt.metavar "NATURAL"
+    , Opt.help "The number of Byron key witnesses (default is 0)."
+    , Opt.value 0
+    ]
 
 pQueryUTxOFilter :: Parser QueryUTxOFilter
 pQueryUTxOFilter =
-      pQueryUTxOWhole
-  <|> pQueryUTxOByAddress
-  <|> pQueryUTxOByTxIn
+  asum
+    [ pQueryUTxOWhole
+    , pQueryUTxOByAddress
+    , pQueryUTxOByTxIn
+    ]
+      
   where
     pQueryUTxOWhole =
-      Opt.flag' QueryUTxOWhole
-        (  Opt.long "whole-utxo"
-        <> Opt.help "Return the whole UTxO (only appropriate on small testnets)."
-        )
+      Opt.flag' QueryUTxOWhole $ mconcat
+        [ Opt.long "whole-utxo"
+        , Opt.help "Return the whole UTxO (only appropriate on small testnets)."
+        ]
 
     pQueryUTxOByAddress :: Parser QueryUTxOFilter
     pQueryUTxOByAddress = QueryUTxOByAddress . Set.fromList <$> some pByAddress
 
     pByAddress :: Parser AddressAny
     pByAddress =
-        Opt.option (readerFromParsecParser parseAddressAny)
-          (  Opt.long "address"
-          <> Opt.metavar "ADDRESS"
-          <> Opt.help "Filter by Cardano address(es) (Bech32-encoded)."
-          )
+      Opt.option (readerFromParsecParser parseAddressAny) $ mconcat
+        [ Opt.long "address"
+        , Opt.metavar "ADDRESS"
+        , Opt.help "Filter by Cardano address(es) (Bech32-encoded)."
+        ]
 
     pQueryUTxOByTxIn :: Parser QueryUTxOFilter
     pQueryUTxOByTxIn = QueryUTxOByTxIn . Set.fromList <$> some pByTxIn
 
     pByTxIn :: Parser TxIn
     pByTxIn =
-      Opt.option (readerFromParsecParser parseTxIn)
-        (  Opt.long "tx-in"
-        <> Opt.metavar "TX-IN"
-        <> Opt.help "Filter by transaction input (TxId#TxIx)."
-        )
+      Opt.option (readerFromParsecParser parseTxIn) $ mconcat
+        [ Opt.long "tx-in"
+        , Opt.metavar "TX-IN"
+        , Opt.help "Filter by transaction input (TxId#TxIx)."
+        ]
 
 pFilterByStakeAddress :: Parser StakeAddress
 pFilterByStakeAddress =
-    Opt.option (readerFromParsecParser parseStakeAddress)
-      (  Opt.long "address"
-      <> Opt.metavar "ADDRESS"
-      <> Opt.help "Filter by Cardano stake address (Bech32-encoded)."
-      )
+    Opt.option (readerFromParsecParser parseStakeAddress) $ mconcat
+      [ Opt.long "address"
+      , Opt.metavar "ADDRESS"
+      , Opt.help "Filter by Cardano stake address (Bech32-encoded)."
+      ]
 
 pByronAddress :: Parser (Address ByronAddr)
 pByronAddress =
-    Opt.option
-      (Opt.eitherReader deserialise)
-        (  Opt.long "address"
-        <> Opt.metavar "STRING"
-        <> Opt.help "Byron address (Base58-encoded)."
-        )
+  Opt.option (Opt.eitherReader deserialise) $ mconcat
+    [ Opt.long "address"
+    , Opt.metavar "STRING"
+    , Opt.help "Byron address (Base58-encoded)."
+    ]
   where
     deserialise :: String -> Either String (Address ByronAddr)
     deserialise =
@@ -2689,25 +2675,23 @@ pByronAddress =
 
 pAddress :: Parser Text
 pAddress =
-  Text.pack <$>
-    Opt.strOption
-      (  Opt.long "address"
-      <> Opt.metavar "ADDRESS"
-      <> Opt.help "A Cardano address"
-      )
+  fmap Text.pack $ Opt.strOption $ mconcat
+    [ Opt.long "address"
+    , Opt.metavar "ADDRESS"
+    , Opt.help "A Cardano address"
+    ]
 
 
 pStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash =
-    Opt.option
-      (pBech32StakePoolId <|> pHexStakePoolId)
-        (   Opt.long "stake-pool-id"
-        <>  Opt.metavar "STAKE_POOL_ID"
-        <>  Opt.help
-            (   "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded).  "
-            <>  "Zero or more occurences of this option is allowed."
-            )
-        )
+    Opt.option (pBech32StakePoolId <|> pHexStakePoolId) $ mconcat
+      [ Opt.long "stake-pool-id"
+      , Opt.metavar "STAKE_POOL_ID"
+      , Opt.help $ mconcat
+          [ "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded).  "
+          , "Zero or more occurences of this option is allowed."
+          ]
+      ]
   where
     pHexStakePoolId :: ReadM (Hash StakePoolKey)
     pHexStakePoolId =
@@ -2731,8 +2715,10 @@ pDelegationTarget = StakePoolDelegationTarget <$> pStakePoolVerificationKeyOrHas
 pStakePoolVerificationKeyOrHashOrFile
   :: Parser (VerificationKeyOrHashOrFile StakePoolKey)
 pStakePoolVerificationKeyOrHashOrFile =
-  VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile
-    <|> VerificationKeyHash <$> pStakePoolVerificationKeyHash
+  asum
+    [ VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile
+    , VerificationKeyHash <$> pStakePoolVerificationKeyHash
+    ]
 
 pVrfVerificationKeyFile :: Parser (VerificationKeyFile In)
 pVrfVerificationKeyFile =
@@ -2745,12 +2731,11 @@ pVrfVerificationKeyFile =
 
 pVrfVerificationKeyHash :: Parser (Hash VrfKey)
 pVrfVerificationKeyHash =
-    Opt.option
-      (Opt.eitherReader deserialiseFromHex)
-        (  Opt.long "vrf-verification-key-hash"
-        <> Opt.metavar "STRING"
-        <> Opt.help "VRF verification key hash (hex-encoded)."
-        )
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "vrf-verification-key-hash"
+    , Opt.metavar "STRING"
+    , Opt.help "VRF verification key hash (hex-encoded)."
+    ]
   where
     deserialiseFromHex :: String -> Either String (Hash VrfKey)
     deserialiseFromHex =
@@ -2760,22 +2745,25 @@ pVrfVerificationKeyHash =
 
 pVrfVerificationKey :: Parser (VerificationKey VrfKey)
 pVrfVerificationKey =
-  Opt.option
-    (readVerificationKey AsVrfKey)
-      (  Opt.long "vrf-verification-key"
-      <> Opt.metavar "STRING"
-      <> Opt.help "VRF verification key (Bech32 or hex-encoded)."
-      )
+  Opt.option (readVerificationKey AsVrfKey) $ mconcat
+    [ Opt.long "vrf-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "VRF verification key (Bech32 or hex-encoded)."
+    ]
 
 pVrfVerificationKeyOrFile :: Parser (VerificationKeyOrFile VrfKey)
 pVrfVerificationKeyOrFile =
-  VerificationKeyValue <$> pVrfVerificationKey
-    <|> VerificationKeyFilePath <$> pVrfVerificationKeyFile
+  asum
+    [ VerificationKeyValue <$> pVrfVerificationKey
+    , VerificationKeyFilePath <$> pVrfVerificationKeyFile
+    ]
 
 pVrfVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile VrfKey)
 pVrfVerificationKeyOrHashOrFile =
-  VerificationKeyOrFile <$> pVrfVerificationKeyOrFile
-    <|> VerificationKeyHash <$> pVrfVerificationKeyHash
+  asum
+    [ VerificationKeyOrFile <$> pVrfVerificationKeyOrFile
+    , VerificationKeyHash <$> pVrfVerificationKeyHash
+    ]
 
 pRewardAcctVerificationKeyFile :: Parser (VerificationKeyFile In)
 pRewardAcctVerificationKeyFile =
@@ -2794,17 +2782,18 @@ pRewardAcctVerificationKeyFile =
 
 pRewardAcctVerificationKey :: Parser (VerificationKey StakeKey)
 pRewardAcctVerificationKey =
-  Opt.option
-    (readVerificationKey AsStakeKey)
-      (  Opt.long "pool-reward-account-verification-key"
-      <> Opt.metavar "STRING"
-      <> Opt.help "Reward account stake verification key (Bech32 or hex-encoded)."
-      )
+  Opt.option (readVerificationKey AsStakeKey) $ mconcat
+    [ Opt.long "pool-reward-account-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Reward account stake verification key (Bech32 or hex-encoded)."
+    ]
 
 pRewardAcctVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakeKey)
 pRewardAcctVerificationKeyOrFile =
-  VerificationKeyValue <$> pRewardAcctVerificationKey
-    <|> VerificationKeyFilePath <$> pRewardAcctVerificationKeyFile
+  asum
+    [ VerificationKeyValue <$> pRewardAcctVerificationKey
+    , VerificationKeyFilePath <$> pRewardAcctVerificationKeyFile
+    ]
 
 pPoolOwnerVerificationKeyFile :: Parser (VerificationKeyFile In)
 pPoolOwnerVerificationKeyFile =
@@ -2823,57 +2812,63 @@ pPoolOwnerVerificationKeyFile =
 
 pPoolOwnerVerificationKey :: Parser (VerificationKey StakeKey)
 pPoolOwnerVerificationKey =
-  Opt.option
-    (readVerificationKey AsStakeKey)
-      (  Opt.long "pool-owner-verification-key"
-      <> Opt.metavar "STRING"
-      <> Opt.help "Pool owner stake verification key (Bech32 or hex-encoded)."
-      )
+  Opt.option (readVerificationKey AsStakeKey) $ mconcat
+    [ Opt.long "pool-owner-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Pool owner stake verification key (Bech32 or hex-encoded)."
+    ]
 
 pPoolOwnerVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakeKey)
 pPoolOwnerVerificationKeyOrFile =
-  VerificationKeyValue <$> pPoolOwnerVerificationKey
-    <|> VerificationKeyFilePath <$> pPoolOwnerVerificationKeyFile
+  asum
+    [ VerificationKeyValue <$> pPoolOwnerVerificationKey
+    , VerificationKeyFilePath <$> pPoolOwnerVerificationKeyFile
+    ]
 
 pPoolPledge :: Parser Lovelace
 pPoolPledge =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "pool-pledge"
-      <> Opt.metavar "LOVELACE"
-      <> Opt.help "The stake pool's pledge."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "pool-pledge"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The stake pool's pledge."
+    ]
 
 
 pPoolCost :: Parser Lovelace
 pPoolCost =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "pool-cost"
-      <> Opt.metavar "LOVELACE"
-      <> Opt.help "The stake pool's cost."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "pool-cost"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The stake pool's cost."
+    ]
 
 pPoolMargin :: Parser Rational
 pPoolMargin =
-    Opt.option readRationalUnitInterval
-      (  Opt.long "pool-margin"
-      <> Opt.metavar "RATIONAL"
-      <> Opt.help "The stake pool's margin."
-      )
+  Opt.option readRationalUnitInterval $ mconcat
+    [ Opt.long "pool-margin"
+    , Opt.metavar "RATIONAL"
+    , Opt.help "The stake pool's margin."
+    ]
 
 pPoolRelay :: Parser StakePoolRelay
-pPoolRelay = pSingleHostAddress <|> pSingleHostName <|> pMultiHostName
+pPoolRelay =
+  asum
+    [ pSingleHostAddress
+    , pSingleHostName
+    , pMultiHostName
+    ]
 
 pMultiHostName :: Parser StakePoolRelay
 pMultiHostName =
   StakePoolRelayDnsSrvRecord <$> pDNSName
- where
-  pDNSName :: Parser ByteString
-  pDNSName = Opt.option (Opt.eitherReader eDNSName)
-               (  Opt.long "multi-host-pool-relay"
-               <> Opt.metavar "STRING"
-               <> Opt.help "The stake pool relay's DNS name that corresponds to \
-                            \an SRV DNS record"
-               )
+  where
+    pDNSName :: Parser ByteString
+    pDNSName =
+      Opt.option (Opt.eitherReader eDNSName) $ mconcat
+        [ Opt.long "multi-host-pool-relay"
+        , Opt.metavar "STRING"
+        , Opt.help "The stake pool relay's DNS name that corresponds to an SRV DNS record"
+        ]
 
 pSingleHostName :: Parser StakePoolRelay
 pSingleHostName =
@@ -2897,45 +2892,48 @@ eDNSName str =
     Just dnsName -> Right . Text.encodeUtf8 . Shelley.dnsToText $ dnsName
 
 pSingleHostAddress :: Parser StakePoolRelay
-pSingleHostAddress = singleHostAddress
-  <$> optional pIpV4
-  <*> optional pIpV6
-  <*> pPort
- where
-  singleHostAddress :: Maybe IP.IPv4 -> Maybe IP.IPv6 -> PortNumber -> StakePoolRelay
-  singleHostAddress ipv4 ipv6 port =
-    case (ipv4, ipv6) of
-      (Nothing, Nothing) ->
-        error "Please enter either an IPv4 or IPv6 address for the pool relay"
-      (Just i4, Nothing) ->
-        StakePoolRelayIp (Just i4) Nothing (Just port)
-      (Nothing, Just i6) ->
-        StakePoolRelayIp Nothing (Just i6) (Just port)
-      (Just i4, Just i6) ->
-        StakePoolRelayIp (Just i4) (Just i6) (Just port)
-
+pSingleHostAddress =
+  singleHostAddress
+    <$> optional pIpV4
+    <*> optional pIpV6
+    <*> pPort
+  where
+    singleHostAddress :: Maybe IP.IPv4 -> Maybe IP.IPv6 -> PortNumber -> StakePoolRelay
+    singleHostAddress ipv4 ipv6 port =
+      case (ipv4, ipv6) of
+        (Nothing, Nothing) ->
+          error "Please enter either an IPv4 or IPv6 address for the pool relay"
+        (Just i4, Nothing) ->
+          StakePoolRelayIp (Just i4) Nothing (Just port)
+        (Nothing, Just i6) ->
+          StakePoolRelayIp Nothing (Just i6) (Just port)
+        (Just i4, Just i6) ->
+          StakePoolRelayIp (Just i4) (Just i6) (Just port)
 
 
 pIpV4 :: Parser IP.IPv4
-pIpV4 = Opt.option (Opt.maybeReader readMaybe :: Opt.ReadM IP.IPv4)
-          (  Opt.long "pool-relay-ipv4"
-          <> Opt.metavar "STRING"
-          <> Opt.help "The stake pool relay's IPv4 address"
-          )
+pIpV4 =
+  Opt.option (Opt.maybeReader readMaybe :: Opt.ReadM IP.IPv4) $ mconcat
+    [ Opt.long "pool-relay-ipv4"
+    , Opt.metavar "STRING"
+    , Opt.help "The stake pool relay's IPv4 address"
+    ]
 
 pIpV6 :: Parser IP.IPv6
-pIpV6 = Opt.option (Opt.maybeReader readMaybe :: Opt.ReadM IP.IPv6)
-           (  Opt.long "pool-relay-ipv6"
-           <> Opt.metavar "STRING"
-           <> Opt.help "The stake pool relay's IPv6 address"
-           )
+pIpV6 =
+  Opt.option (Opt.maybeReader readMaybe :: Opt.ReadM IP.IPv6) $ mconcat
+    [ Opt.long "pool-relay-ipv6"
+    , Opt.metavar "STRING"
+    , Opt.help "The stake pool relay's IPv6 address"
+    ]
 
 pPort :: Parser PortNumber
-pPort = Opt.option (fromInteger <$> Opt.eitherReader readEither)
-           (  Opt.long "pool-relay-port"
-           <> Opt.metavar "INT"
-           <> Opt.help "The stake pool relay's port"
-           )
+pPort =
+  Opt.option (fromInteger <$> Opt.eitherReader readEither) $ mconcat
+    [ Opt.long "pool-relay-port"
+    , Opt.metavar "INT"
+    , Opt.help "The stake pool relay's port"
+    ]
 
 pStakePoolMetadataReference :: Parser (Maybe StakePoolMetadataReference)
 pStakePoolMetadataReference =
@@ -2946,20 +2944,19 @@ pStakePoolMetadataReference =
 
 pStakePoolMetadataUrl :: Parser Text
 pStakePoolMetadataUrl =
-  Opt.option (readURIOfMaxLength 64)
-    (  Opt.long "metadata-url"
-    <> Opt.metavar "URL"
-    <> Opt.help "Pool metadata URL (maximum length of 64 characters)."
-    )
+  Opt.option (readURIOfMaxLength 64) $ mconcat
+    [ Opt.long "metadata-url"
+    , Opt.metavar "URL"
+    , Opt.help "Pool metadata URL (maximum length of 64 characters)."
+    ]
 
 pStakePoolMetadataHash :: Parser (Hash StakePoolMetadata)
 pStakePoolMetadataHash =
-    Opt.option
-      (Opt.eitherReader metadataHash)
-        (  Opt.long "metadata-hash"
-        <> Opt.metavar "HASH"
-        <> Opt.help "Pool metadata hash."
-        )
+  Opt.option (Opt.eitherReader metadataHash) $ mconcat
+    [ Opt.long "metadata-hash"
+    , Opt.metavar "HASH"
+    , Opt.help "Pool metadata hash."
+    ]
   where
     metadataHash :: String -> Either String (Hash StakePoolMetadata)
     metadataHash =
@@ -3024,84 +3021,84 @@ pProtocolParametersUpdate =
 
 pCostModels :: Parser FilePath
 pCostModels =
-  Opt.strOption
-    (  Opt.long "cost-model-file"
-    <> Opt.metavar "FILE"
-    <> Opt.help "Filepath of the JSON formatted cost model"
-    <> Opt.completer (Opt.bashCompleter "file")
-    )
+  Opt.strOption $ mconcat
+    [ Opt.long "cost-model-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the JSON formatted cost model"
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
 
 pMinFeePerByteFactor :: Parser Lovelace
 pMinFeePerByteFactor =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "min-fee-linear"
-      <> Opt.metavar "LOVELACE"
-      <> Opt.help "The linear factor per byte for the minimum fee calculation."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "min-fee-linear"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The linear factor per byte for the minimum fee calculation."
+    ]
 
 pMinFeeConstantFactor :: Parser Lovelace
 pMinFeeConstantFactor =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "min-fee-constant"
-      <> Opt.metavar "LOVELACE"
-      <> Opt.help "The constant factor for the minimum fee calculation."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "min-fee-constant"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The constant factor for the minimum fee calculation."
+    ]
 
 pMinUTxOValue :: Parser Lovelace
 pMinUTxOValue =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "min-utxo-value"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "The minimum allowed UTxO value (Shelley to Mary eras)."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "min-utxo-value"
+    , Opt.metavar "NATURAL"
+    , Opt.help "The minimum allowed UTxO value (Shelley to Mary eras)."
+    ]
 
 pMinPoolCost :: Parser Lovelace
 pMinPoolCost =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "min-pool-cost"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "The minimum allowed cost parameter for stake pools."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "min-pool-cost"
+    , Opt.metavar "NATURAL"
+    , Opt.help "The minimum allowed cost parameter for stake pools."
+    ]
 
 pMaxBodySize :: Parser Natural
 pMaxBodySize =
-    Opt.option Opt.auto
-      (  Opt.long "max-block-body-size"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "Maximal block body size."
-      )
+  Opt.option Opt.auto $ mconcat
+    [ Opt.long "max-block-body-size"
+    , Opt.metavar "NATURAL"
+    , Opt.help "Maximal block body size."
+    ]
 
 pMaxTransactionSize :: Parser Natural
 pMaxTransactionSize =
-    Opt.option Opt.auto
-      (  Opt.long "max-tx-size"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "Maximum transaction size."
-      )
+  Opt.option Opt.auto $ mconcat
+    [ Opt.long "max-tx-size"
+    , Opt.metavar "NATURAL"
+    , Opt.help "Maximum transaction size."
+    ]
 
 pMaxBlockHeaderSize :: Parser Natural
 pMaxBlockHeaderSize =
-    Opt.option Opt.auto
-      (  Opt.long "max-block-header-size"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "Maximum block header size."
-      )
+  Opt.option Opt.auto $ mconcat
+   [ Opt.long "max-block-header-size"
+   , Opt.metavar "NATURAL"
+   , Opt.help "Maximum block header size."
+   ]
 
 pKeyRegistDeposit :: Parser Lovelace
 pKeyRegistDeposit =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "key-reg-deposit-amt"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "Key registration deposit amount."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+   [ Opt.long "key-reg-deposit-amt"
+   , Opt.metavar "NATURAL"
+   , Opt.help "Key registration deposit amount."
+   ]
 
 pPoolDeposit :: Parser Lovelace
 pPoolDeposit =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "pool-reg-deposit"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "The amount of a pool registration deposit."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+   [ Opt.long "pool-reg-deposit"
+   , Opt.metavar "NATURAL"
+   , Opt.help "The amount of a pool registration deposit."
+   ]
 
 pEpochBoundRetirement :: Parser EpochNo
 pEpochBoundRetirement =
@@ -3113,55 +3110,57 @@ pEpochBoundRetirement =
 
 pNumberOfPools :: Parser Natural
 pNumberOfPools =
-    Opt.option Opt.auto
-      (  Opt.long "number-of-pools"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "Desired number of pools."
-      )
+  Opt.option Opt.auto $ mconcat
+   [ Opt.long "number-of-pools"
+   , Opt.metavar "NATURAL"
+   , Opt.help "Desired number of pools."
+   ]
 
 pPoolInfluence :: Parser Rational
 pPoolInfluence =
-    Opt.option readRational
-      (  Opt.long "pool-influence"
-      <> Opt.metavar "RATIONAL"
-      <> Opt.help "Pool influence."
-      )
+  Opt.option readRational $ mconcat
+    [ Opt.long "pool-influence"
+    , Opt.metavar "RATIONAL"
+    , Opt.help "Pool influence."
+    ]
 
 pTreasuryExpansion :: Parser Rational
 pTreasuryExpansion =
-    Opt.option readRationalUnitInterval
-      (  Opt.long "treasury-expansion"
-      <> Opt.metavar "RATIONAL"
-      <> Opt.help "Treasury expansion."
-      )
+  Opt.option readRationalUnitInterval $ mconcat
+    [ Opt.long "treasury-expansion"
+    , Opt.metavar "RATIONAL"
+    , Opt.help "Treasury expansion."
+    ]
 
 pMonetaryExpansion :: Parser Rational
 pMonetaryExpansion =
-    Opt.option readRationalUnitInterval
-      (  Opt.long "monetary-expansion"
-      <> Opt.metavar "RATIONAL"
-      <> Opt.help "Monetary expansion."
-      )
+  Opt.option readRationalUnitInterval $ mconcat
+    [ Opt.long "monetary-expansion"
+    , Opt.metavar "RATIONAL"
+    , Opt.help "Monetary expansion."
+    ]
 
 pDecentralParam :: Parser Rational
 pDecentralParam =
-    Opt.option readRationalUnitInterval
-      (  Opt.long "decentralization-parameter"
-      <> Opt.metavar "RATIONAL"
-      <> Opt.help "Decentralization parameter."
-      )
+  Opt.option readRationalUnitInterval $ mconcat
+    [ Opt.long "decentralization-parameter"
+    , Opt.metavar "RATIONAL"
+    , Opt.help "Decentralization parameter."
+    ]
 
 pExtraEntropy :: Parser (Maybe PraosNonce)
 pExtraEntropy =
-      Opt.option (Just <$> readerFromParsecParser parsePraosNonce)
-        (  Opt.long "extra-entropy"
-        <> Opt.metavar "HEX"
-        <> Opt.help "Praos extra entropy seed, as a hex byte string."
-        )
-  <|> Opt.flag' Nothing
-        (  Opt.long "reset-extra-entropy"
-        <> Opt.help "Reset the Praos extra entropy to none."
-        )
+  asum
+    [ Opt.option (Just <$> readerFromParsecParser parsePraosNonce) $ mconcat
+        [ Opt.long "extra-entropy"
+        , Opt.metavar "HEX"
+        , Opt.help "Praos extra entropy seed, as a hex byte string."
+        ]
+    , Opt.flag' Nothing $ mconcat
+        [  Opt.long "reset-extra-entropy"
+        , Opt.help "Reset the Praos extra entropy to none."
+        ]
+    ]
   where
     parsePraosNonce :: Parsec.Parser PraosNonce
     parsePraosNonce = makePraosNonce <$> parseEntropyBytes
@@ -3173,19 +3172,19 @@ pExtraEntropy =
 
 pUTxOCostPerWord :: Parser Lovelace
 pUTxOCostPerWord =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "utxo-cost-per-word"
-      <> Opt.metavar "LOVELACE"
-      <> Opt.help "Cost in lovelace per unit of UTxO storage (from Alonzo era)."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "utxo-cost-per-word"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "Cost in lovelace per unit of UTxO storage (from Alonzo era)."
+    ]
 
 pUTxOCostPerByte :: Parser Lovelace
 pUTxOCostPerByte =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "utxo-cost-per-byte"
-      <> Opt.metavar "LOVELACE"
-      <> Opt.help "Cost in lovelace per unit of UTxO storage (from Babbage era)."
-      )
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "utxo-cost-per-byte"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "Cost in lovelace per unit of UTxO storage (from Babbage era)."
+    ]
 
 pExecutionUnitPrices :: Parser ExecutionUnitPrices
 pExecutionUnitPrices = ExecutionUnitPrices
@@ -3276,11 +3275,11 @@ pProtocolVersion =
     (,) <$> pProtocolMajorVersion <*> pProtocolMinorVersion
   where
     pProtocolMajorVersion =
-      Opt.option Opt.auto
-        (  Opt.long "protocol-major-version"
-        <> Opt.metavar "NATURAL"
-        <> Opt.help "Major protocol version. An increase indicates a hard fork."
-        )
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "protocol-major-version"
+        , Opt.metavar "NATURAL"
+        , Opt.help "Major protocol version. An increase indicates a hard fork."
+        ]
     pProtocolMinorVersion =
       Opt.option Opt.auto $ mconcat
         [ Opt.long "protocol-minor-version"
@@ -3346,10 +3345,12 @@ readStringOfMaxLength maxLen = do
   let strLen = length s
   if strLen <= maxLen
     then pure s
-    else fail $
-      "The provided string must have at most 64 characters, but it has "
-        <> show strLen
-        <> " characters."
+    else
+      fail $ mconcat
+        [ "The provided string must have at most 64 characters, but it has "
+        , show strLen
+        , " characters."
+        ]
 
 readRationalUnitInterval :: Opt.ReadM Rational
 readRationalUnitInterval = readRational >>= checkUnitInterval
@@ -3366,12 +3367,15 @@ readFractionAsRational = readerFromAttoParser fractionalAsRational
 
 readRational :: Opt.ReadM Rational
 readRational =
-      (toRational <$> readerFromAttoParser Atto.scientific)
-  <|> readFractionAsRational
+  asum
+    [ toRational <$> readerFromAttoParser Atto.scientific
+    , readFractionAsRational
+    ]
+      
 
 readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
 readerFromAttoParser p =
-    Opt.eitherReader (Atto.parseOnly (p <* Atto.endOfInput) . BSC.pack)
+  Opt.eitherReader (Atto.parseOnly (p <* Atto.endOfInput) . BSC.pack)
 
 hiddenSubParser :: String -> ParserInfo a -> Parser a
 hiddenSubParser availableCommand pInfo =

@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE GADTs #-}
 
 module Cardano.CLI.Conway.Commands where
@@ -130,5 +131,6 @@ runGovernanceCreateActionCmd anyEra deposit depositReturnAddr govAction oFp = do
     $ writeFileTextEnvelope oFp Nothing proposal
 
 stakeKeyHashOnly :: StakeCredential -> Either GovernanceCmdError (Hash StakeKey)
-stakeKeyHashOnly (StakeCredentialByKey k) = Right k
-stakeKeyHashOnly StakeCredentialByScript{} = Left ExpectedStakeKeyCredentialGovCmdError
+stakeKeyHashOnly = \case
+  StakeCredentialByKey k -> Right k
+  StakeCredentialByScript{} -> Left ExpectedStakeKeyCredentialGovCmdError
