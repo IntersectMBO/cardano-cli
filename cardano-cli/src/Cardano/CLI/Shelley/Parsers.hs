@@ -1095,7 +1095,25 @@ pQueryCmd envCli =
 pGovernanceCmd :: Parser GovernanceCmd
 pGovernanceCmd =
   asum
-    [ fmap GovernanceVoteCmd $ subParser "vote"
+    [ subParser "create-mir-certificate"
+        $ Opt.info (pMIRPayStakeAddresses <|> mirCertParsers)
+        $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
+    , subParser "create-genesis-key-delegation-certificate"
+        $ Opt.info pGovernanceGenesisKeyDelegationCertificate
+        $ Opt.progDesc "Create a genesis key delegation certificate"
+    , subParser "create-update-proposal"
+        $ Opt.info pUpdateProposal
+        $ Opt.progDesc "Create an update proposal"
+    , subParser "create-poll"
+        $ Opt.info pGovernanceCreatePoll
+        $ Opt.progDesc "Create an SPO poll"
+    , subParser "answer-poll"
+        $ Opt.info pGovernanceAnswerPoll
+        $ Opt.progDesc "Answer an SPO poll"
+    , subParser "verify-poll"
+        $ Opt.info pGovernanceVerifyPoll
+        $ Opt.progDesc "Verify an answer to a given SPO poll"
+    , fmap GovernanceVoteCmd $ subParser "vote"
         $ Opt.info pVoteCommmands
         $ Opt.progDesc "Vote related commands."
     , fmap GovernanceActionCmd $ subParser "action"

@@ -45,6 +45,7 @@ golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace "tmp" 
   -- Create stake address registration certificate
   void $ execCardanoCLI
     [ "stake-address","registration-certificate"
+    , "--babbage-era"
     , "--stake-verification-key-file", verKey
     , "--out-file", registrationCertificate
     ]
@@ -58,6 +59,7 @@ golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace "tmp" 
   -- Create stake address deregistration certificate
   void $ execCardanoCLI
     [ "stake-address","deregistration-certificate"
+    , "--babbage-era"
     , "--stake-verification-key-file", verKey
     , "--out-file", deregistrationCertificate
     ]

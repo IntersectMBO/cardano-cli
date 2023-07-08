@@ -18,7 +18,9 @@ import           Data.Bifunctor
 import qualified Data.ByteString as BS
 import qualified Data.Text.Encoding as Text
 import           Data.Text.Encoding.Error
+import           Data.Text(Text)
 
+import           Cardano.CLI.Shelley.Run.Read (CddlError)
 
 data GovernanceCmdError
   = -- Voting related
@@ -29,6 +31,31 @@ data GovernanceCmdError
     -- Governance action related
   | ExpectedStakeKeyCredentialGovCmdError
   | NonUtf8EncodedConstitution UnicodeException
+
+  | GovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
+  | GovernanceCmdCddlError !CddlError
+  | GovernanceCmdKeyReadError !(FileError InputDecodeError)
+  | GovernanceCmdCostModelReadError !(FileError ())
+  | GovernanceCmdTextEnvWriteError !(FileError ())
+  | GovernanceCmdEmptyUpdateProposalError
+  | GovernanceCmdMIRCertificateKeyRewardMistmach
+      !FilePath
+      !Int
+      -- ^ Number of stake verification keys
+      !Int
+      -- ^ Number of reward amounts
+  | GovernanceCmdCostModelsJsonDecodeErr !FilePath !Text
+  | GovernanceCmdEmptyCostModel !FilePath
+  | GovernanceCmdUnexpectedKeyType
+      ![TextEnvelopeType]
+      -- ^ Expected key types
+  | GovernanceCmdPollOutOfBoundAnswer
+      !Int
+      -- ^ Maximum answer index
+  | GovernanceCmdPollInvalidChoice
+  | GovernanceCmdDecoderError !DecoderError
+  | GovernanceCmdVerifyPollError !GovernancePollError
+  | GovernanceCmdWriteFileError !(FileError ())
   deriving Show
 
 runGovernanceCreateVoteCmd

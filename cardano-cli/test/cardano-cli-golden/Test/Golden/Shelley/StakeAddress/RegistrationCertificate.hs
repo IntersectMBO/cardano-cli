@@ -26,6 +26,7 @@ golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorks
 
   void $ execCardanoCLI
     [ "stake-address","registration-certificate"
+    , "--babbage-era"
     , "--staking-verification-key-file", keyGenStakingVerificationKeyFile
     , "--out-file", registrationCertFile
     ]
@@ -34,6 +35,7 @@ golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorks
 
   void $ execCardanoCLI
     [ "stake-address","registration-certificate"
+    , "--babbage-era"
     , "--stake-script-file", exampleScript
     , "--out-file", scriptRegistrationCertFile
     ]

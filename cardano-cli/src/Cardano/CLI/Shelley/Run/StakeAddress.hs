@@ -123,20 +123,21 @@ runStakeCredentialRegistrationCert
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeCredentialRegistrationCert anyEra stakeIdentifier oFp = do
+  AnyShelleyBasedEra sbe <- pure anyEra
   stakeCred <- getStakeCredentialFromIdentifier stakeIdentifier
-  writeRegistrationCert anyEra stakeCred
+  writeRegistrationCert sbe stakeCred
 
  where
   writeRegistrationCert
-    :: AnyShelleyBasedEra
+    :: ShelleyBasedEra era
     -> StakeCredential
     -> ExceptT ShelleyStakeAddressCmdError IO ()
-  writeRegistrationCert anyEra sCred = do
-    AnyShelleyBasedEra sbe <- pure anyEra
+  writeRegistrationCert sbe sCred = do
     let deRegCert = makeStakeAddressRegistrationCertificate sbe sCred
     firstExceptT ShelleyStakeAddressCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile oFp
+      $ shelleyBasedEraConstraints sbe
       $ textEnvelopeToJSON (Just regCertDesc) deRegCert
 
   regCertDesc :: TextEnvelopeDescr
@@ -171,20 +172,21 @@ runStakeCredentialDeRegistrationCert
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeCredentialDeRegistrationCert anyEra stakeVerifier oFp = do
+  AnyShelleyBasedEra sbe <- pure anyEra
   stakeCred <- getStakeCredentialFromIdentifier stakeVerifier
-  writeDeregistrationCert anyEra stakeCred
+  writeDeregistrationCert sbe stakeCred
 
   where
     writeDeregistrationCert
-      :: AnyShelleyBasedEra
+      :: ShelleyBasedEra era
       -> StakeCredential
       -> ExceptT ShelleyStakeAddressCmdError IO ()
-    writeDeregistrationCert anyEra sCred = do
-      AnyShelleyBasedEra sbe <- pure anyEra
+    writeDeregistrationCert sbe sCred = do
       let deRegCert = makeStakeAddressDeregistrationCertificate sbe sCred
       firstExceptT ShelleyStakeAddressCmdWriteFileError
         . newExceptT
         $ writeLazyByteStringFile oFp
+        $ shelleyBasedEraConstraints sbe
         $ textEnvelopeToJSON (Just deregCertDesc) deRegCert
 
     deregCertDesc :: TextEnvelopeDescr

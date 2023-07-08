@@ -293,6 +293,7 @@ pAnyShelleyBasedEra = asum
   , pShelleyBasedAllegra
   , pShelleyBasedMary
   , pShelleyBasedAlonzo
+  , pShelleyBasedBabbage
   ]
 
 pShelleyBasedShelley :: Parser AnyShelleyBasedEra

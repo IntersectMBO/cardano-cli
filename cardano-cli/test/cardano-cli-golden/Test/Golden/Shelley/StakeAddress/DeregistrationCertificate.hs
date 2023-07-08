@@ -26,6 +26,7 @@ golden_shelleyStakeAddressDeregistrationCertificate = propertyOnce . H.moduleWor
 
   void $ execCardanoCLI
     [ "stake-address","deregistration-certificate"
+    , "--babbage-era"
     , "--staking-verification-key-file", verificationKeyFile
     , "--out-file", deregistrationCertFile
     ]
@@ -34,6 +35,7 @@ golden_shelleyStakeAddressDeregistrationCertificate = propertyOnce . H.moduleWor
 
   void $ execCardanoCLI
     [ "stake-address","deregistration-certificate"
+    , "--babbage-era"
     , "--stake-script-file", exampleScript
     , "--out-file", scriptDeregistrationCertFile
     ]

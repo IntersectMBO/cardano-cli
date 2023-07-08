@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Shelley.Run.Governance
@@ -69,70 +70,58 @@ data ShelleyGovernanceCmdError
   deriving Show
 
 renderShelleyGovernanceError :: ShelleyGovernanceCmdError -> Text
-renderShelleyGovernanceError err =
-  case err of
-    ShelleyGovernanceCmdTextEnvReadError fileErr -> Text.pack (displayError fileErr)
-    ShelleyGovernanceCmdCddlError cddlErr -> Text.pack (displayError cddlErr)
-    ShelleyGovernanceCmdKeyReadError fileErr -> Text.pack (displayError fileErr)
-    ShelleyGovernanceCmdTextEnvWriteError fileErr -> Text.pack (displayError fileErr)
-    -- TODO: The equality check is still not working for empty update proposals.
-    ShelleyGovernanceCmdEmptyUpdateProposalError ->
-      "Empty update proposals are not allowed"
-    ShelleyGovernanceCmdMIRCertificateKeyRewardMistmach fp numVKeys numRwdAmts ->
-       "Error creating the MIR certificate at: " <> textShow fp
-       <> " The number of staking keys: " <> textShow numVKeys
-       <> " and the number of reward amounts: " <> textShow numRwdAmts
-       <> " are not equivalent."
-    ShelleyGovernanceCmdCostModelsJsonDecodeErr fp err' ->
-      "Error decoding cost model: " <> err' <> " at: " <> Text.pack fp
-    ShelleyGovernanceCmdEmptyCostModel fp ->
-      "The decoded cost model was empty at: " <> Text.pack fp
-    ShelleyGovernanceCmdCostModelReadError err' ->
-      "Error reading the cost model: " <> Text.pack (displayError err')
-    ShelleyGovernanceCmdUnexpectedKeyType expected ->
-      "Unexpected poll key type; expected one of: "
-      <> Text.intercalate ", " (textShow <$> expected)
-    ShelleyGovernanceCmdPollOutOfBoundAnswer nMax ->
-      "Poll answer out of bounds. Choices are between 0 and " <> textShow nMax
-    ShelleyGovernanceCmdPollInvalidChoice ->
-      "Invalid choice. Please choose from the available answers."
-    ShelleyGovernanceCmdDecoderError decoderError ->
-      "Unable to decode metadata: " <> sformat build decoderError
-    ShelleyGovernanceCmdVerifyPollError pollError ->
-      renderGovernancePollError pollError
-    ShelleyGovernanceCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
+renderShelleyGovernanceError = \case
+  ShelleyGovernanceCmdTextEnvReadError fileErr -> Text.pack (displayError fileErr)
+  ShelleyGovernanceCmdCddlError cddlErr -> Text.pack (displayError cddlErr)
+  ShelleyGovernanceCmdKeyReadError fileErr -> Text.pack (displayError fileErr)
+  ShelleyGovernanceCmdTextEnvWriteError fileErr -> Text.pack (displayError fileErr)
+  -- TODO: The equality check is still not working for empty update proposals.
+  ShelleyGovernanceCmdEmptyUpdateProposalError ->
+    "Empty update proposals are not allowed"
+  ShelleyGovernanceCmdMIRCertificateKeyRewardMistmach fp numVKeys numRwdAmts ->
+      "Error creating the MIR certificate at: " <> textShow fp
+      <> " The number of staking keys: " <> textShow numVKeys
+      <> " and the number of reward amounts: " <> textShow numRwdAmts
+      <> " are not equivalent."
+  ShelleyGovernanceCmdCostModelsJsonDecodeErr fp err' ->
+    "Error decoding cost model: " <> err' <> " at: " <> Text.pack fp
+  ShelleyGovernanceCmdEmptyCostModel fp ->
+    "The decoded cost model was empty at: " <> Text.pack fp
+  ShelleyGovernanceCmdCostModelReadError err' ->
+    "Error reading the cost model: " <> Text.pack (displayError err')
+  ShelleyGovernanceCmdUnexpectedKeyType expected ->
+    "Unexpected poll key type; expected one of: "
+    <> Text.intercalate ", " (textShow <$> expected)
+  ShelleyGovernanceCmdPollOutOfBoundAnswer nMax ->
+    "Poll answer out of bounds. Choices are between 0 and " <> textShow nMax
+  ShelleyGovernanceCmdPollInvalidChoice ->
+    "Invalid choice. Please choose from the available answers."
+  ShelleyGovernanceCmdDecoderError decoderError ->
+    "Unable to decode metadata: " <> sformat build decoderError
+  ShelleyGovernanceCmdVerifyPollError pollError ->
+    renderGovernancePollError pollError
+  ShelleyGovernanceCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
 
 runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
-runGovernanceCmd (GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp))) =
-  runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
-runGovernanceCmd (GovernanceActionCmd (CreateConstitution (NewConstitution sbe deposit voteStakeCred newconstitution fp))) =
-  runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
-runGovernanceCmd (GovernanceMIRPayStakeAddressesCertificate anyEra mirpot vKeys rewards out) =
-  let _notYet = runGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
-  in error "runGovernanceCmd: has not been implemented"
-runGovernanceCmd (GovernanceMIRTransfer anyEra amt out direction) =
-  let _notYet = runGovernanceMIRCertificateTransfer anyEra amt out direction
-  in error "runGovernanceCmd: has not been implemented"
-
-runGovernanceCmd (GovernanceGenesisKeyDelegationCertificate anyEra genVk genDelegVk vrfVk out) =
-  let _notYet = runGovernanceGenesisKeyDelegationCertificate anyEra genVk genDelegVk vrfVk out
-  in error "runGovernanceCmd: has not been implemented"
-
-runGovernanceCmd (GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp) =
-  let _notYet = runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
-  in error "runGovernanceCmd: has not been implemented"
-
-runGovernanceCmd (GovernanceCreatePoll prompt choices nonce out) =
-  let _notYet = runGovernanceCreatePoll prompt choices nonce out
-  in error "runGovernanceCmd: has not been implemented"
-
-runGovernanceCmd (GovernanceAnswerPoll poll ix mOutFile) =
-  let _notYet = runGovernanceAnswerPoll poll ix mOutFile
-  in error "runGovernanceCmd: has not been implemented"
-
-runGovernanceCmd (GovernanceVerifyPoll poll metadata mOutFile) =
-  let _notYet = runGovernanceVerifyPoll poll metadata mOutFile
-  in error "runGovernanceCmd: has not been implemented"
+runGovernanceCmd = \case
+  GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
+    runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
+  GovernanceActionCmd (CreateConstitution (NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
+    runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
+  GovernanceMIRPayStakeAddressesCertificate anyEra mirpot vKeys rewards out ->
+    runGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
+  GovernanceMIRTransfer anyEra amt out direction ->
+    runGovernanceMIRCertificateTransfer anyEra amt out direction
+  GovernanceGenesisKeyDelegationCertificate anyEra genVk genDelegVk vrfVk out ->
+    runGovernanceGenesisKeyDelegationCertificate anyEra genVk genDelegVk vrfVk out
+  GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
+    runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
+  GovernanceCreatePoll prompt choices nonce out ->
+    runGovernanceCreatePoll prompt choices nonce out
+  GovernanceAnswerPoll poll ix mOutFile ->
+    runGovernanceAnswerPoll poll ix mOutFile
+  GovernanceVerifyPoll poll metadata mOutFile ->
+    runGovernanceVerifyPoll poll metadata mOutFile
 
 
 runGovernanceMIRCertificatePayStakeAddrs
@@ -141,18 +130,18 @@ runGovernanceMIRCertificatePayStakeAddrs
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
-  -> ExceptT ShelleyGovernanceCmdError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceMIRCertificatePayStakeAddrs anyEra mirPot sAddrs rwdAmts oFp = do
     AnyShelleyBasedEra sbe <- pure anyEra
 
     unless (length sAddrs == length rwdAmts) $
-      left $ ShelleyGovernanceCmdMIRCertificateKeyRewardMistmach
+      left $ GovernanceCmdMIRCertificateKeyRewardMistmach
                (unFile oFp) (length sAddrs) (length rwdAmts)
 
     let sCreds  = map stakeAddressCredential sAddrs
         mirCert = makeMIRCertificate sbe mirPot (StakeAddressesMIR $ zip sCreds rwdAmts)
 
-    firstExceptT ShelleyGovernanceCmdTextEnvWriteError
+    firstExceptT GovernanceCmdTextEnvWriteError
       . newExceptT
       $ writeLazyByteStringFile oFp
       $ textEnvelopeToJSON (Just mirCertDesc) mirCert
@@ -165,7 +154,7 @@ runGovernanceMIRCertificateTransfer
   -> Lovelace
   -> File () Out
   -> TransferDirection
-  -> ExceptT ShelleyGovernanceCmdError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
   AnyShelleyBasedEra sbe <- pure anyEra
 
@@ -176,7 +165,7 @@ runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
       TransferToTreasury ->
         return . makeMIRCertificate sbe Shelley.ReservesMIR $ SendToTreasuryMIR ll
 
-  firstExceptT ShelleyGovernanceCmdTextEnvWriteError
+  firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
     $ writeLazyByteStringFile oFp
     $ textEnvelopeToJSON (Just $ mirCertDesc direction) mirCert
@@ -192,23 +181,23 @@ runGovernanceGenesisKeyDelegationCertificate
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
-  -> ExceptT ShelleyGovernanceCmdError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceGenesisKeyDelegationCertificate anyEra
                                              genVkOrHashOrFp
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
                                              oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
-  genesisVkHash <- firstExceptT ShelleyGovernanceCmdKeyReadError
+  genesisVkHash <- firstExceptT GovernanceCmdKeyReadError
     . newExceptT
     $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
-  genesisDelVkHash <-firstExceptT ShelleyGovernanceCmdKeyReadError
+  genesisDelVkHash <-firstExceptT GovernanceCmdKeyReadError
     . newExceptT
     $ readVerificationKeyOrHashOrTextEnvFile AsGenesisDelegateKey genDelVkOrHashOrFp
-  vrfVkHash <- firstExceptT ShelleyGovernanceCmdKeyReadError
+  vrfVkHash <- firstExceptT GovernanceCmdKeyReadError
     . newExceptT
     $ readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
-  firstExceptT ShelleyGovernanceCmdTextEnvWriteError
+  firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
     $ writeLazyByteStringFile oFp
     $ textEnvelopeToJSON (Just genKeyDelegCertDesc)
@@ -224,32 +213,32 @@ runGovernanceUpdateProposal
   -- ^ Genesis verification keys
   -> ProtocolParametersUpdate
   -> Maybe FilePath -- ^ Cost models file path
-  -> ExceptT ShelleyGovernanceCmdError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceUpdateProposal upFile eNo genVerKeyFiles upPprams mCostModelFp = do
   finalUpPprams <- case mCostModelFp of
     Nothing -> return upPprams
     Just fp -> do
-      costModelsBs <- handleIOExceptT (ShelleyGovernanceCmdCostModelReadError . FileIOError fp) $ LB.readFile fp
+      costModelsBs <- handleIOExceptT (GovernanceCmdCostModelReadError . FileIOError fp) $ LB.readFile fp
 
       cModels <- pure (eitherDecode costModelsBs)
-        & onLeft (left . ShelleyGovernanceCmdCostModelsJsonDecodeErr fp . Text.pack)
+        & onLeft (left . GovernanceCmdCostModelsJsonDecodeErr fp . Text.pack)
 
       let costModels = fromAlonzoCostModels cModels
 
-      when (null costModels) $ left (ShelleyGovernanceCmdEmptyCostModel fp)
+      when (null costModels) $ left (GovernanceCmdEmptyCostModel fp)
 
       return $ upPprams {protocolUpdateCostModels = costModels}
 
-  when (finalUpPprams == mempty) $ left ShelleyGovernanceCmdEmptyUpdateProposalError
+  when (finalUpPprams == mempty) $ left GovernanceCmdEmptyUpdateProposalError
 
   genVKeys <- sequence
-    [ firstExceptT ShelleyGovernanceCmdTextEnvReadError . newExceptT $ readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
+    [ firstExceptT GovernanceCmdTextEnvReadError . newExceptT $ readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
     | vkeyFile <- genVerKeyFiles
     ]
   let genKeyHashes = fmap verificationKeyHash genVKeys
       upProp = makeShelleyUpdateProposal finalUpPprams genKeyHashes eNo
 
-  firstExceptT ShelleyGovernanceCmdTextEnvWriteError . newExceptT
+  firstExceptT GovernanceCmdTextEnvWriteError . newExceptT
     $ writeLazyByteStringFile upFile $ textEnvelopeToJSON Nothing upProp
 
 runGovernanceCreatePoll
@@ -257,12 +246,12 @@ runGovernanceCreatePoll
   -> [Text]
   -> Maybe Word
   -> File GovernancePoll Out
-  -> ExceptT ShelleyGovernanceCmdError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreatePoll govPollQuestion govPollAnswers govPollNonce out = do
   let poll = GovernancePoll{ govPollQuestion, govPollAnswers, govPollNonce }
 
   let description = fromString $ "An on-chain poll for SPOs: " <> Text.unpack govPollQuestion
-  firstExceptT ShelleyGovernanceCmdTextEnvWriteError . newExceptT $
+  firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
     writeFileTextEnvelope out (Just description) poll
 
   let metadata = asTxMetadata poll
@@ -290,9 +279,9 @@ runGovernanceAnswerPoll
   :: File GovernancePoll In
   -> Maybe Word -- ^ Answer index
   -> Maybe (File () Out) -- ^ Output file
-  -> ExceptT ShelleyGovernanceCmdError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceAnswerPoll pollFile maybeChoice mOutFile = do
-  poll <- firstExceptT ShelleyGovernanceCmdTextEnvReadError . newExceptT $
+  poll <- firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
     readFileTextEnvelope AsGovernancePoll pollFile
 
   choice <- case maybeChoice of
@@ -322,7 +311,7 @@ runGovernanceAnswerPoll pollFile maybeChoice mOutFile = do
       ]
 
   lift (writeByteStringOutput mOutFile (prettyPrintJSON metadata))
-    & onLeft (left . ShelleyGovernanceCmdWriteFileError)
+    & onLeft (left . GovernanceCmdWriteFileError)
 
   liftIO $ BSC.hPutStrLn stderr $ mconcat
       [ "\n"
@@ -332,13 +321,13 @@ runGovernanceAnswerPoll pollFile maybeChoice mOutFile = do
       , "file to capture metadata."
       ]
  where
-  validateChoice :: GovernancePoll -> Word -> ExceptT ShelleyGovernanceCmdError IO ()
+  validateChoice :: GovernancePoll -> Word -> ExceptT GovernanceCmdError IO ()
   validateChoice GovernancePoll{govPollAnswers} ix = do
     let maxAnswerIndex = length govPollAnswers - 1
     when (fromIntegral ix > maxAnswerIndex) $ left $
-      ShelleyGovernanceCmdPollOutOfBoundAnswer maxAnswerIndex
+      GovernanceCmdPollOutOfBoundAnswer maxAnswerIndex
 
-  askInteractively :: GovernancePoll -> ExceptT ShelleyGovernanceCmdError IO Word
+  askInteractively :: GovernancePoll -> ExceptT GovernanceCmdError IO Word
   askInteractively poll@GovernancePoll{govPollQuestion, govPollAnswers} = do
     liftIO $ BSC.hPutStrLn stderr $ Text.encodeUtf8 $ Text.intercalate "\n"
       ( govPollQuestion
@@ -354,25 +343,25 @@ runGovernanceAnswerPoll pollFile maybeChoice mOutFile = do
       Right (choice, rest) | Text.null rest ->
         choice <$ validateChoice poll choice
       _ ->
-        left ShelleyGovernanceCmdPollInvalidChoice
+        left GovernanceCmdPollInvalidChoice
 
 runGovernanceVerifyPoll
   :: File GovernancePoll In
   -> File (Tx ()) In
   -> Maybe (File () Out) -- ^ Output file
-  -> ExceptT ShelleyGovernanceCmdError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceVerifyPoll pollFile txFile mOutFile = do
-  poll <- firstExceptT ShelleyGovernanceCmdTextEnvReadError . newExceptT $
+  poll <- firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
     readFileTextEnvelope AsGovernancePoll pollFile
 
   txFileOrPipe <- liftIO $ fileOrPipe (unFile txFile)
-  tx <- firstExceptT ShelleyGovernanceCmdCddlError . newExceptT $
+  tx <- firstExceptT GovernanceCmdCddlError . newExceptT $
     readFileTx txFileOrPipe
 
-  signatories <- firstExceptT ShelleyGovernanceCmdVerifyPollError . newExceptT $ pure $
+  signatories <- firstExceptT GovernanceCmdVerifyPollError . newExceptT $ pure $
     verifyPollAnswer poll tx
 
   liftIO $ IO.hPutStrLn stderr $ "Found valid poll answer with " <> show (length signatories) <> " signatories"
 
   lift (writeByteStringOutput mOutFile (prettyPrintJSON signatories))
-    & onLeft (left . ShelleyGovernanceCmdWriteFileError)
+    & onLeft (left . GovernanceCmdWriteFileError)

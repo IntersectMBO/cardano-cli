@@ -1,0 +1,23 @@
+Usage: cardano-cli governance action create-action create-constitution 
+            [--conway-era]
+            --governance-action-deposit NATURAL
+            ( --stake-pool-verification-key STRING
+            | --cold-verification-key-file FILE
+            )
+            (--constitution TEXT | --constitution-file FILE)
+            --out-file FILE
+
+  Create a constitution.
+
+Available options:
+  --conway-era             Specify the Conway era
+  --governance-action-deposit NATURAL
+                           Deposit required to submit a governance action.
+  --stake-pool-verification-key STRING
+                           Stake pool verification key (Bech32 or hex-encoded).
+  --cold-verification-key-file FILE
+                           Filepath of the stake pool verification key.
+  --constitution TEXT      Input constitution as UTF-8 encoded text.
+  --constitution-file FILE Input constitution as a text file.
+  --out-file FILE          Output filepath of the governance action.
+  -h,--help                Show this help text
