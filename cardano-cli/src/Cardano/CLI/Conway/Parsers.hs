@@ -118,11 +118,11 @@ pCreateVote =
 
   pGoveranceActionIdentifier :: Parser TxIn
   pGoveranceActionIdentifier =
-    Opt.option (readerFromParsecParser parseTxIn)
-        (  Opt.long "tx-in"
-        <> Opt.metavar "TX-IN"
-        <> Opt.help "TxIn of governance action (already on chain)."
-        )
+    Opt.option (readerFromParsecParser parseTxIn) $ mconcat
+      [ Opt.long "tx-in"
+      , Opt.metavar "TX-IN"
+      , Opt.help "TxIn of governance action (already on chain)."
+      ]
 
 -- TODO: Conway era include "normal" stake keys
 pVotingCredential :: Parser (VerificationKeyOrFile StakePoolKey)
@@ -173,9 +173,8 @@ pConstitution =
 
 pGovActionDeposit :: Parser Lovelace
 pGovActionDeposit =
-    Opt.option (readerFromParsecParser parseLovelace)
-      (  Opt.long "governance-action-deposit"
-      <> Opt.metavar "NATURAL"
-      <> Opt.help "Deposit required to submit a governance action."
-      )
-
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "governance-action-deposit"
+    , Opt.metavar "NATURAL"
+    , Opt.help "Deposit required to submit a governance action."
+    ]

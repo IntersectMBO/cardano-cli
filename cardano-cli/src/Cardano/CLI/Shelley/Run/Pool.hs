@@ -98,7 +98,7 @@ runStakePoolRegistrationCert
   mbMetadata
   network
   outfp = do
-    AnyShelleyBasedEra era <- pure anyEra
+    AnyShelleyBasedEra sbe <- pure anyEra
 
     -- Pool verification key
     stakePoolVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
@@ -142,7 +142,7 @@ runStakePoolRegistrationCert
             , stakePoolMetadata = mbMetadata
             }
 
-    let registrationCert = makeStakePoolRegistrationCertificate era stakePoolParams
+    let registrationCert = makeStakePoolRegistrationCertificate sbe stakePoolParams
 
     firstExceptT ShelleyPoolCmdWriteFileError
       . newExceptT
@@ -159,7 +159,7 @@ runStakePoolRetirementCert
   -> File () Out
   -> ExceptT ShelleyPoolCmdError IO ()
 runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
-    AnyShelleyBasedEra era <- pure anyEra
+    AnyShelleyBasedEra sbe <- pure anyEra
 
     -- Pool verification key
     stakePoolVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
@@ -167,7 +167,7 @@ runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
       $ readVerificationKeyOrFile AsStakePoolKey stakePoolVerKeyOrFile
 
     let stakePoolId' = verificationKeyHash stakePoolVerKey
-        retireCert = makeStakePoolRetirementCertificate era stakePoolId' retireEpoch
+        retireCert = makeStakePoolRetirementCertificate sbe stakePoolId' retireEpoch
 
     firstExceptT ShelleyPoolCmdWriteFileError
       . newExceptT

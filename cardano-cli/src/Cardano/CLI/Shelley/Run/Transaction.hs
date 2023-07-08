@@ -1495,7 +1495,7 @@ onlyInShelleyBasedEras :: Text
                                   (InAnyShelleyBasedEra a)
 onlyInShelleyBasedEras notImplMsg (InAnyCardanoEra era x) =
     case cardanoEraStyle era of
-      LegacyByronEra       -> left (ShelleyTxCmdNotImplemented notImplMsg)
-      ShelleyBasedEra era' -> return (InAnyShelleyBasedEra era' x)
+      LegacyByronEra      -> left (ShelleyTxCmdNotImplemented notImplMsg)
+      ShelleyBasedEra sbe -> return (InAnyShelleyBasedEra sbe x)
 
 

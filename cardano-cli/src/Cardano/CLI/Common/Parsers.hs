@@ -208,18 +208,18 @@ pStakeVerifier = asum
 
 pStakeAddress :: Parser StakeAddress
 pStakeAddress =
-    Opt.option (readerFromParsecParser parseStakeAddress)
-      (  Opt.long "stake-address"
-      <> Opt.metavar "ADDRESS"
-      <> Opt.help "Target stake address (bech32 format)."
-      )
+  Opt.option (readerFromParsecParser parseStakeAddress) $ mconcat
+    [ Opt.long "stake-address"
+    , Opt.metavar "ADDRESS"
+    , Opt.help "Target stake address (bech32 format)."
+    ]
 
 parseStakeAddress :: Parsec.Parser StakeAddress
 parseStakeAddress = do
-    str' <- lexPlausibleAddressString
-    case deserialiseAddress AsStakeAddress str' of
-      Nothing   -> fail $ "invalid address: " <> Text.unpack str'
-      Just addr -> pure addr
+  str' <- lexPlausibleAddressString
+  case deserialiseAddress AsStakeAddress str' of
+    Nothing   -> fail $ "invalid address: " <> Text.unpack str'
+    Just addr -> pure addr
 
 pStakeVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakeKey)
 pStakeVerificationKeyOrFile =
@@ -228,12 +228,12 @@ pStakeVerificationKeyOrFile =
 
 pScriptFor :: String -> Maybe String -> String -> Parser ScriptFile
 pScriptFor name Nothing help' =
-  ScriptFile <$> Opt.strOption
-    (  Opt.long name
-    <> Opt.metavar "FILE"
-    <> Opt.help help'
-    <> Opt.completer (Opt.bashCompleter "file")
-    )
+  fmap ScriptFile $ Opt.strOption $ mconcat
+    [ Opt.long name
+    , Opt.metavar "FILE"
+    , Opt.help help'
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
 
 pScriptFor name (Just deprecated) help' =
       pScriptFor name Nothing help'
@@ -244,12 +244,11 @@ pScriptFor name (Just deprecated) help' =
 
 pStakeVerificationKey :: Parser (VerificationKey StakeKey)
 pStakeVerificationKey =
-  Opt.option
-    (readVerificationKey AsStakeKey)
-      (  Opt.long "stake-verification-key"
-      <> Opt.metavar "STRING"
-      <> Opt.help "Stake verification key (Bech32 or hex-encoded)."
-      )
+  Opt.option (readVerificationKey AsStakeKey) $ mconcat
+    [ Opt.long "stake-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Stake verification key (Bech32 or hex-encoded)."
+    ]
 
 -- | Read a Bech32 or hex-encoded verification key.
 readVerificationKey
@@ -328,44 +327,43 @@ pShelleyBasedConway =
 
 pFileOutDirection :: String -> String -> Parser (File a Out)
 pFileOutDirection l h =
-  Opt.strOption
-    (  Opt.long l
-    <> Opt.metavar "FILE"
-    <> Opt.help h
-    <> Opt.completer (Opt.bashCompleter "file")
-    )
+  Opt.strOption $ mconcat
+    [ Opt.long l
+    , Opt.metavar "FILE"
+    , Opt.help h
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
 
 pFileInDirection :: String -> String -> Parser (File a In)
 pFileInDirection l h =
-  Opt.strOption
-    (  Opt.long l
-    <> Opt.metavar "FILE"
-    <> Opt.help h
-    <> Opt.completer (Opt.bashCompleter "file")
-    )
-
+  Opt.strOption $ mconcat
+    [ Opt.long l
+    , Opt.metavar "FILE"
+    , Opt.help h
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
 
 parseLovelace :: Parsec.Parser Lovelace
 parseLovelace = do
   i <- decimal
   if i > toInteger (maxBound :: Word64)
-  then fail $ show i <> " lovelace exceeds the Word64 upper bound"
-  else return $ Lovelace i
+    then fail $ show i <> " lovelace exceeds the Word64 upper bound"
+    else return $ Lovelace i
 
 pStakePoolVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakePoolKey)
 pStakePoolVerificationKeyOrFile =
-  VerificationKeyValue <$> pStakePoolVerificationKey
-    <|> VerificationKeyFilePath <$> pStakePoolVerificationKeyFile
-
+  asum
+    [ VerificationKeyValue <$> pStakePoolVerificationKey
+    , VerificationKeyFilePath <$> pStakePoolVerificationKeyFile
+    ]
 
 pStakePoolVerificationKey :: Parser (VerificationKey StakePoolKey)
 pStakePoolVerificationKey =
-  Opt.option
-    (readVerificationKey AsStakePoolKey)
-      (  Opt.long "stake-pool-verification-key"
-      <> Opt.metavar "STRING"
-      <> Opt.help "Stake pool verification key (Bech32 or hex-encoded)."
-      )
+  Opt.option (readVerificationKey AsStakePoolKey) $ mconcat
+    [ Opt.long "stake-pool-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Stake pool verification key (Bech32 or hex-encoded)."
+    ]
 
 pStakePoolVerificationKeyFile :: Parser (VerificationKeyFile In)
 pStakePoolVerificationKeyFile =

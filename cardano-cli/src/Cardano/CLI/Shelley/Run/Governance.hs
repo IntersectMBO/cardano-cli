@@ -143,14 +143,14 @@ runGovernanceMIRCertificatePayStakeAddrs
   -> File () Out
   -> ExceptT ShelleyGovernanceCmdError IO ()
 runGovernanceMIRCertificatePayStakeAddrs anyEra mirPot sAddrs rwdAmts oFp = do
-    AnyShelleyBasedEra era <- pure anyEra
+    AnyShelleyBasedEra sbe <- pure anyEra
 
     unless (length sAddrs == length rwdAmts) $
       left $ ShelleyGovernanceCmdMIRCertificateKeyRewardMistmach
                (unFile oFp) (length sAddrs) (length rwdAmts)
 
     let sCreds  = map stakeAddressCredential sAddrs
-        mirCert = makeMIRCertificate era mirPot (StakeAddressesMIR $ zip sCreds rwdAmts)
+        mirCert = makeMIRCertificate sbe mirPot (StakeAddressesMIR $ zip sCreds rwdAmts)
 
     firstExceptT ShelleyGovernanceCmdTextEnvWriteError
       . newExceptT
@@ -167,13 +167,14 @@ runGovernanceMIRCertificateTransfer
   -> TransferDirection
   -> ExceptT ShelleyGovernanceCmdError IO ()
 runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
-  AnyShelleyBasedEra era <- pure anyEra
+  AnyShelleyBasedEra sbe <- pure anyEra
 
-  mirCert <- case direction of
-                 TransferToReserves ->
-                   return . makeMIRCertificate era Shelley.TreasuryMIR $ SendToReservesMIR ll
-                 TransferToTreasury ->
-                   return . makeMIRCertificate era Shelley.ReservesMIR $ SendToTreasuryMIR ll
+  mirCert <-
+    case direction of
+      TransferToReserves ->
+        return . makeMIRCertificate sbe Shelley.TreasuryMIR $ SendToReservesMIR ll
+      TransferToTreasury ->
+        return . makeMIRCertificate sbe Shelley.ReservesMIR $ SendToTreasuryMIR ll
 
   firstExceptT ShelleyGovernanceCmdTextEnvWriteError
     . newExceptT
@@ -197,21 +198,21 @@ runGovernanceGenesisKeyDelegationCertificate anyEra
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
                                              oFp = do
-    AnyShelleyBasedEra era <- pure anyEra
-    genesisVkHash <- firstExceptT ShelleyGovernanceCmdKeyReadError
-      . newExceptT
-      $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
-    genesisDelVkHash <-firstExceptT ShelleyGovernanceCmdKeyReadError
-      . newExceptT
-      $ readVerificationKeyOrHashOrTextEnvFile AsGenesisDelegateKey genDelVkOrHashOrFp
-    vrfVkHash <- firstExceptT ShelleyGovernanceCmdKeyReadError
-      . newExceptT
-      $ readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
-    firstExceptT ShelleyGovernanceCmdTextEnvWriteError
-      . newExceptT
-      $ writeLazyByteStringFile oFp
-      $ textEnvelopeToJSON (Just genKeyDelegCertDesc)
-      $ makeGenesisKeyDelegationCertificate era genesisVkHash genesisDelVkHash vrfVkHash
+  AnyShelleyBasedEra sbe <- pure anyEra
+  genesisVkHash <- firstExceptT ShelleyGovernanceCmdKeyReadError
+    . newExceptT
+    $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
+  genesisDelVkHash <-firstExceptT ShelleyGovernanceCmdKeyReadError
+    . newExceptT
+    $ readVerificationKeyOrHashOrTextEnvFile AsGenesisDelegateKey genDelVkOrHashOrFp
+  vrfVkHash <- firstExceptT ShelleyGovernanceCmdKeyReadError
+    . newExceptT
+    $ readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
+  firstExceptT ShelleyGovernanceCmdTextEnvWriteError
+    . newExceptT
+    $ writeLazyByteStringFile oFp
+    $ textEnvelopeToJSON (Just genKeyDelegCertDesc)
+    $ makeGenesisKeyDelegationCertificate sbe genesisVkHash genesisDelVkHash vrfVkHash
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Genesis Key Delegation Certificate"

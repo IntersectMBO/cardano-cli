@@ -132,12 +132,12 @@ readTxMetadata :: CardanoEra era
                -> [MetadataFile]
                -> IO (Either MetadataError (TxMetadataInEra era))
 readTxMetadata _ _ [] = return $ Right TxMetadataNone
-readTxMetadata era' schema files =
-  case txMetadataSupportedInEra era' of
+readTxMetadata era schema files =
+  case txMetadataSupportedInEra era of
     Nothing ->
       return . Left
         . MetadataErrorNotAvailableInEra
-        $ getIsCardanoEraConstraint era' $ AnyCardanoEra era'
+        $ getIsCardanoEraConstraint era $ AnyCardanoEra era
     Just supported -> do
       let exceptAllTxMetadata = mapM (readFileTxMetadata schema) files
       eAllTxMetaData <- runExceptT exceptAllTxMetadata
@@ -195,7 +195,7 @@ renderScriptWitnessError (ScriptWitnessErrorExpectedPlutus file (AnyScriptLangua
   Text.pack $ file <> ": expected a script in the Plutus script language, " <>
   "but it is actually using " <> show lang <> "."
 renderScriptWitnessError (ScriptWitnessErrorReferenceScriptsNotSupportedInEra anyEra) =
-  "Reference scripts not supported in era': " <> renderEra anyEra
+  "Reference scripts not supported in era: " <> renderEra anyEra
 renderScriptWitnessError (ScriptWitnessErrorScriptData sDataError) =
   renderScriptDataError sDataError
 
@@ -203,10 +203,10 @@ readScriptWitnessFiles
   :: CardanoEra era
   -> [(a, Maybe (ScriptWitnessFiles ctx))]
   -> ExceptT ScriptWitnessError IO [(a, Maybe (ScriptWitness ctx era))]
-readScriptWitnessFiles era' = mapM readSwitFile
+readScriptWitnessFiles era = mapM readSwitFile
  where
   readSwitFile (tIn, Just switFile) = do
-      sWit <- readScriptWitness era' switFile
+      sWit <- readScriptWitness era switFile
       return (tIn, Just sWit)
   readSwitFile (tIn, Nothing) = return (tIn, Nothing)
 
@@ -214,10 +214,10 @@ readScriptWitnessFilesThruple
   :: CardanoEra era
   -> [(a, b, Maybe (ScriptWitnessFiles ctx))]
   -> ExceptT ScriptWitnessError IO [(a, b, Maybe (ScriptWitness ctx era))]
-readScriptWitnessFilesThruple era' = mapM readSwitFile
+readScriptWitnessFilesThruple era = mapM readSwitFile
  where
   readSwitFile (tIn, b, Just switFile) = do
-      sWit <- readScriptWitness era' switFile
+      sWit <- readScriptWitness era switFile
       return (tIn, b, Just sWit)
   readSwitFile (tIn, b, Nothing) = return (tIn, b, Nothing)
 
@@ -225,10 +225,10 @@ readScriptWitness
   :: CardanoEra era
   -> ScriptWitnessFiles witctx
   -> ExceptT ScriptWitnessError IO (ScriptWitness witctx era)
-readScriptWitness era' (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
+readScriptWitness era (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
     script@(ScriptInAnyLang lang _) <- firstExceptT ScriptWitnessErrorFile $
                                          readFileScriptInAnyLang scriptFile
-    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era' script
+    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era script
     case script' of
       SimpleScript sscript ->
         return . SimpleScriptWitness langInEra $ SScript sscript
@@ -241,14 +241,14 @@ readScriptWitness era' (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
                  scriptFile
                  (AnyScriptLanguage lang)
 
-readScriptWitness era' (PlutusScriptWitnessFiles
+readScriptWitness era (PlutusScriptWitnessFiles
                           (ScriptFile scriptFile)
                           datumOrFile
                           redeemerOrFile
                           execUnits) = do
     script@(ScriptInAnyLang lang _) <- firstExceptT ScriptWitnessErrorFile $
                                          readFileScriptInAnyLang scriptFile
-    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era' script
+    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era script
     case script' of
       PlutusScript version pscript -> do
         datum <- firstExceptT ScriptWitnessErrorScriptData
@@ -269,15 +269,15 @@ readScriptWitness era' (PlutusScriptWitnessFiles
                  scriptFile
                  (AnyScriptLanguage lang)
 
-readScriptWitness era' (PlutusReferenceScriptWitnessFiles refTxIn
+readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
                           anyScrLang@(AnyScriptLanguage anyScriptLanguage)
                           datumOrFile redeemerOrFile execUnits mPid) = do
-  case refInsScriptsAndInlineDatsSupportedInEra era' of
+  case refInsScriptsAndInlineDatsSupportedInEra era of
     Nothing -> left $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-                    $ getIsCardanoEraConstraint era' (AnyCardanoEra era')
+                    $ getIsCardanoEraConstraint era (AnyCardanoEra era)
     Just _ -> do
 
-      case scriptLanguageSupportedInEra era' anyScriptLanguage of
+      case scriptLanguageSupportedInEra era anyScriptLanguage of
         Just sLangInEra ->
           case languageOfScriptLanguageInEra sLangInEra of
             SimpleScriptLanguage ->
@@ -295,14 +295,14 @@ readScriptWitness era' (PlutusReferenceScriptWitnessFiles refTxIn
                          (PReferenceScript refTxIn (unPolicyId <$> mPid))
                          datum redeemer execUnits
         Nothing ->
-          left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era')
-readScriptWitness era' (SimpleReferenceScriptWitnessFiles refTxIn
+          left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+readScriptWitness era (SimpleReferenceScriptWitnessFiles refTxIn
                          anyScrLang@(AnyScriptLanguage anyScriptLanguage) mPid) = do
-  case refInsScriptsAndInlineDatsSupportedInEra era' of
+  case refInsScriptsAndInlineDatsSupportedInEra era of
     Nothing -> left $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-                    $ getIsCardanoEraConstraint era' (AnyCardanoEra era')
+                    $ getIsCardanoEraConstraint era (AnyCardanoEra era)
     Just _ -> do
-      case scriptLanguageSupportedInEra era' anyScriptLanguage of
+      case scriptLanguageSupportedInEra era anyScriptLanguage of
         Just sLangInEra ->
           case languageOfScriptLanguageInEra sLangInEra of
             SimpleScriptLanguage ->
@@ -311,15 +311,15 @@ readScriptWitness era' (SimpleReferenceScriptWitnessFiles refTxIn
             PlutusScriptLanguage{} ->
               error "readScriptWitness: Should not be possible to specify a plutus script"
         Nothing ->
-          left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era')
+          left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
 
 validateScriptSupportedInEra :: CardanoEra era
                              -> ScriptInAnyLang
                              -> ExceptT ScriptWitnessError IO (ScriptInEra era)
-validateScriptSupportedInEra era' script@(ScriptInAnyLang lang _) =
-    case toScriptInEra era' script of
+validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
+    case toScriptInEra era script of
       Nothing -> left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra
-                          (AnyScriptLanguage lang) (anyCardanoEra era')
+                          (AnyScriptLanguage lang) (anyCardanoEra era)
       Just script' -> pure script'
 
 data ScriptDataError =
@@ -748,13 +748,13 @@ readTxVotes :: CardanoEra era
             -> [ConwayVoteFile In]
             -> IO (Either VoteError (TxVotes era))
 readTxVotes _ [] = return $ Right TxVotesNone
-readTxVotes era' files =
-  case cardanoEraStyle era' of
+readTxVotes era files =
+  case cardanoEraStyle era of
     LegacyByronEra ->
-      return . Left . VotesNotSupportedInEra $ AnyCardanoEra era'
+      return . Left . VotesNotSupportedInEra $ AnyCardanoEra era
     ShelleyBasedEra sbe ->
       case votesSupportedInEra sbe of
-        Nothing -> return . Left . VotesNotSupportedInEra $ AnyCardanoEra era'
+        Nothing -> return . Left . VotesNotSupportedInEra $ AnyCardanoEra era
         Just supp ->
           runExceptT $ do
             votes <- newExceptT $ sequence <$> mapM (readVoteFile sbe) files

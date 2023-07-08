@@ -131,8 +131,9 @@ runStakeCredentialRegistrationCert anyEra stakeIdentifier oFp = do
     :: AnyShelleyBasedEra
     -> StakeCredential
     -> ExceptT ShelleyStakeAddressCmdError IO ()
-  writeRegistrationCert (AnyShelleyBasedEra era) sCred = do
-    let deRegCert = makeStakeAddressRegistrationCertificate era sCred
+  writeRegistrationCert anyEra sCred = do
+    AnyShelleyBasedEra sbe <- pure anyEra
+    let deRegCert = makeStakeAddressRegistrationCertificate sbe sCred
     firstExceptT ShelleyStakeAddressCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile oFp
@@ -152,13 +153,13 @@ runStakeCredentialDelegationCert
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeCredentialDelegationCert anyEra stakeVerifier delegationTarget outFp = do
-  AnyShelleyBasedEra era <- pure anyEra
+  AnyShelleyBasedEra sbe <- pure anyEra
   case delegationTarget of
     StakePoolDelegationTarget poolVKeyOrHashOrFile -> do
       poolStakeVKeyHash <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile)
         & onLeft (left . ShelleyStakeAddressCmdReadKeyFileError)
       stakeCred <- getStakeCredentialFromIdentifier stakeVerifier
-      let delegCert = makeStakeAddressPoolDelegationCertificate era stakeCred poolStakeVKeyHash
+      let delegCert = makeStakeAddressPoolDelegationCertificate sbe stakeCred poolStakeVKeyHash
       firstExceptT ShelleyStakeAddressCmdWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
@@ -178,8 +179,9 @@ runStakeCredentialDeRegistrationCert anyEra stakeVerifier oFp = do
       :: AnyShelleyBasedEra
       -> StakeCredential
       -> ExceptT ShelleyStakeAddressCmdError IO ()
-    writeDeregistrationCert (AnyShelleyBasedEra era) sCred = do
-      let deRegCert = makeStakeAddressDeregistrationCertificate era sCred
+    writeDeregistrationCert anyEra sCred = do
+      AnyShelleyBasedEra sbe <- pure anyEra
+      let deRegCert = makeStakeAddressDeregistrationCertificate sbe sCred
       firstExceptT ShelleyStakeAddressCmdWriteFileError
         . newExceptT
         $ writeLazyByteStringFile oFp

@@ -39,7 +39,8 @@ runGovernanceCreateVoteCmd
   -> VerificationKeyOrFile StakePoolKey
   -> ConwayVoteFile Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceCreateVoteCmd (AnyShelleyBasedEra sbe) vChoice vType govActionTxIn votingStakeCred oFp = do
+runGovernanceCreateVoteCmd anyEra vChoice vType govActionTxIn votingStakeCred oFp = do
+  AnyShelleyBasedEra sbe <- pure anyEra
   vStakePoolKey <- firstExceptT ReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
   let stakePoolKeyHash = verificationKeyHash vStakePoolKey
       vStakeCred = StakeCredentialByKey . (verificationKeyHash . castVerificationKey) $ vStakePoolKey
@@ -93,9 +94,13 @@ runGovernanceCreateActionCmd
   -> GovernanceAction
   -> File a Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceCreateActionCmd (AnyShelleyBasedEra sbe) deposit depositReturnAddr govAction oFp =
+runGovernanceCreateActionCmd anyEra deposit depositReturnAddr govAction oFp = do
+  AnyShelleyBasedEra sbe <- pure anyEra
   let proposal = createProposalProcedure sbe deposit depositReturnAddr govAction
-  in firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing proposal
+  
+  firstExceptT WriteFileError . newExceptT
+    $ obtainEraPParamsConstraint sbe
+    $ writeFileTextEnvelope oFp Nothing proposal
 
 stakeKeyHashOnly :: StakeCredential -> Either GovernanceCmdError (Hash StakeKey)
 stakeKeyHashOnly (StakeCredentialByKey k) = Right k
