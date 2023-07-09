@@ -2,8 +2,9 @@ Usage: cardano-cli stake-address registration-certificate
             ( --shelley-era
             | --allegra-era
             | --mary-era
-            | --allegra-era
+            | --alonzo-era
             | --babbage-era
+            | --conway-era
             )
             ( --stake-verification-key STRING
             | --stake-verification-key-file FILE
@@ -18,8 +19,9 @@ Available options:
   --shelley-era            Specify the Shelley era
   --allegra-era            Specify the Allegra era
   --mary-era               Specify the Mary era
-  --allegra-era            Specify the Allegra era
+  --alonzo-era             Specify the Alonzo era
   --babbage-era            Specify the Babbage era
+  --conway-era             Specify the Conway era
   --stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
   --stake-verification-key-file FILE
