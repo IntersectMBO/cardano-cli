@@ -66,6 +66,7 @@ pCardanoEra = asum
     -- Default for now:
   , pure (AnyCardanoEra BabbageEra)
   ]
+
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
   mconcat
@@ -294,6 +295,7 @@ pAnyShelleyBasedEra = asum
   , pShelleyBasedMary
   , pShelleyBasedAlonzo
   , pShelleyBasedBabbage
+  , pShelleyBasedConway
   ]
 
 pShelleyBasedShelley :: Parser AnyShelleyBasedEra
@@ -313,8 +315,8 @@ pShelleyBasedMary =
 
 pShelleyBasedAlonzo :: Parser AnyShelleyBasedEra
 pShelleyBasedAlonzo =
-  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra)
-   $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo)
+   $ mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
 
 pShelleyBasedBabbage :: Parser AnyShelleyBasedEra
 pShelleyBasedBabbage =

@@ -2,8 +2,9 @@ Usage: cardano-cli governance create-mir-certificate
             ( ( --shelley-era
               | --allegra-era
               | --mary-era
-              | --allegra-era
+              | --alonzo-era
               | --babbage-era
+              | --conway-era
               )
               (--reserves | --treasury)
               (--stake-address ADDRESS)
@@ -20,8 +21,9 @@ Available options:
   --shelley-era            Specify the Shelley era
   --allegra-era            Specify the Allegra era
   --mary-era               Specify the Mary era
-  --allegra-era            Specify the Allegra era
+  --alonzo-era             Specify the Alonzo era
   --babbage-era            Specify the Babbage era
+  --conway-era             Specify the Conway era
   --reserves               Use the reserves pot.
   --treasury               Use the treasury pot.
   --stake-address ADDRESS  Target stake address (bech32 format).
