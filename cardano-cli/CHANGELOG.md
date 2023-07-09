@@ -1,5 +1,16 @@
 # Changelog for cardano-cli
 
+# 8.3.0.0
+
+- Add a query for the hash of the constitution
+  (feature; compatible)
+  [PR 63](https://github.com/input-output-hk/cardano-cli/pull/63)
+
+- Update cardano-cli with the ability to create votes and governance actions.
+  Update tx build with the ability to specify votes and governance actions.
+  (feature; compatible)
+  [PR 45](https://github.com/input-output-hk/cardano-cli/pull/45)
+
 ## 8.2.1
 
 - The `--protocol-params-file` option of the `transaction build` command is
