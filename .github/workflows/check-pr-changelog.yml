@@ -31,15 +31,17 @@ jobs:
               pull_number: context.issue.number
             });
 
-            const changelogRegex = /# Changelog([\s\S]*?)(?=\n#[^#])/;
+            const changelogRegex = /# Changelog[\s\S]*?```yaml([\s\S]*?)```/;
             const changelogMatch = prDescription.data.body.match(changelogRegex);
-            const changelogContent = changelogMatch ? changelogMatch [1].trim() : '';
+            const yamlContent = changelogMatch ? changelogMatch[1].trim() : '';
+            yamlContent || console.error('Failed to find changelog YAML section in the "Changelog" paragraph');
 
-            const yamlRegex = /```yaml([\s\S]*?)```/;
-            const yamlMatch = changelogContent.match(yamlRegex);
-            const yamlContent = yamlMatch ? yamlMatch[1].trim() : '';
-
-            changelog = yaml.load(yamlContent)[0]
+            try {
+              changelog = yaml.load(yamlContent)[0];
+            } catch (e) {
+              console.error('Failed to parse YAML changelog as array:', yamlContent);
+              process.exit(1);
+            }
 
             let isCompatibilityValid = false;
             const validCompatibilityValues = ['no-api-changes', 'compatible', 'breaking'];
