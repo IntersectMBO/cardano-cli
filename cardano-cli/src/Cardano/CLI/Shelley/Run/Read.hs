@@ -497,6 +497,7 @@ acceptTxCDDLSerialisation file err =
    e@(FileError _ (TextEnvelopeTypeError _ _)) ->
       first (CddlErrorTextEnv e) <$> readCddlTx file
    e@FileErrorTempFile{} -> return . Left $ CddlIOError e
+   e@FileDoesNotExistError{} -> return . Left $ CddlIOError e
    e@FileIOError{} -> return . Left $ CddlIOError e
    e@FileDoesNotExistError{} -> return . Left $ CddlIOError e
 
@@ -562,6 +563,7 @@ acceptKeyWitnessCDDLSerialisation err =
     e@(FileError fp (TextEnvelopeTypeError _ _)) ->
       first (CddlWitnessErrorTextEnv e) <$> readCddlWitness fp
     e@FileErrorTempFile{} -> return . Left $ CddlWitnessIOError e
+    e@FileDoesNotExistError{} -> return . Left $ CddlWitnessIOError e
     e@FileIOError{} -> return . Left $ CddlWitnessIOError e
     e@FileDoesNotExistError{} -> return . Left $ CddlWitnessIOError e
 
