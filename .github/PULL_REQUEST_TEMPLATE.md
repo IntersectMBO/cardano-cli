@@ -1,9 +1,3 @@
-# Description
-
-Add your description here, if it fixes a particular issue please provide a
-[link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword=)
-to the issue.
-
 # Changelog
 
 ```yaml
@@ -21,6 +15,14 @@ to the issue.
   type: <feature|bugfix|test|maintenance>
 ```
 
+# Context
+
+Addititional context for the PR goes here.
+
+If the PR fixes a particular issue please provide a
+[link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword=)
+to the issue.
+
 # Checklist
 
 - [ ] Commit sequence broadly makes sense and commits have useful messages
@@ -31,12 +33,12 @@ to the issue.
   - roundtrip tests
   - integration tests
   See [Runnings tests](https://github.com/input-output-hk/cardano-node-wiki/wiki/Running-tests) for more details
-- [ ] Any changes are noted in the `CHANGELOG.md` for affected package
 - [ ] The version bounds in `.cabal` files are updated
 - [ ] CI passes. See note on CI.  The following CI checks are required:
   - [ ] Code is linted with `hlint`.  See `.github/workflows/check-hlint.yml` to get the `hlint` version
   - [ ] Code is formatted with `stylish-haskell`.  See `.github/workflows/stylish-haskell.yml` to get the `stylish-haskell` version
   - [ ] Code builds on Linux, MacOS and Windows for `ghc-8.10.7` and `ghc-9.2.7`
+- [ ] The changelog section in the PR is updated to describe the change
 - [ ] Self-reviewed the diff
 
 # Note on CI
