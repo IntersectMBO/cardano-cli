@@ -27,13 +27,11 @@ module Cardano.CLI.Shelley.Run.Query
   , percentage
   ) where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra(..))
+import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
+import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api.Eras as Api
-import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra(..))
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra(..))
-import           Cardano.Ledger.SafeHash (SafeHash)
-import           Data.ByteString (ByteString)
+import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, renderHelpersError)
@@ -52,7 +50,7 @@ import           Cardano.Ledger.BaseTypes (Seed)
 import qualified Cardano.Ledger.Core as Core
 import qualified Cardano.Ledger.Crypto as Crypto
 import           Cardano.Ledger.Keys (KeyHash (..), KeyRole (..))
-import           Cardano.Ledger.SafeHash (HashAnnotated)
+import           Cardano.Ledger.SafeHash (HashAnnotated, SafeHash)
 import           Cardano.Ledger.Shelley.LedgerState
                    (PState (psFutureStakePoolParams, psRetiring, psStakePoolParams))
 import qualified Cardano.Ledger.Shelley.LedgerState as SL
@@ -78,6 +76,7 @@ import           Data.Aeson as Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Aeson.Types as Aeson
 import           Data.Bifunctor (Bifunctor (..))
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Coerce (coerce)
 import           Data.Function ((&))
@@ -228,7 +227,7 @@ runQueryConstitutionHash socketPath (AnyConsensusModeParams cModeParams) network
   where
     writeConstitutionHash
       :: Maybe (File () Out)
-      -> (Maybe (SafeHash StandardCrypto ByteString))
+      -> Maybe (SafeHash StandardCrypto ByteString)
       -> ExceptT ShelleyQueryCmdError IO ()
     writeConstitutionHash mOutFile' cHash =
       case mOutFile' of
@@ -1026,39 +1025,39 @@ writeFilteredUTxOs :: Api.ShelleyBasedEra era
                    -> Maybe (File () Out)
                    -> UTxO era
                    -> ExceptT ShelleyQueryCmdError IO ()
-writeFilteredUTxOs shelleyBasedEra' mOutFile utxo =
-    case mOutFile of
-      Nothing -> liftIO $ printFilteredUTxOs shelleyBasedEra' utxo
-      Just (File fpath) ->
-        case shelleyBasedEra' of
-          ShelleyBasedEraShelley -> writeUTxo fpath utxo
-          ShelleyBasedEraAllegra -> writeUTxo fpath utxo
-          ShelleyBasedEraMary -> writeUTxo fpath utxo
-          ShelleyBasedEraAlonzo -> writeUTxo fpath utxo
-          ShelleyBasedEraBabbage -> writeUTxo fpath utxo
-          ShelleyBasedEraConway -> writeUTxo fpath utxo
+writeFilteredUTxOs sbe mOutFile utxo =
+  case mOutFile of
+    Nothing -> liftIO $ printFilteredUTxOs sbe utxo
+    Just (File fpath) ->
+      case sbe of
+        ShelleyBasedEraShelley -> writeUTxo fpath utxo
+        ShelleyBasedEraAllegra -> writeUTxo fpath utxo
+        ShelleyBasedEraMary -> writeUTxo fpath utxo
+        ShelleyBasedEraAlonzo -> writeUTxo fpath utxo
+        ShelleyBasedEraBabbage -> writeUTxo fpath utxo
+        ShelleyBasedEraConway -> writeUTxo fpath utxo
  where
    writeUTxo fpath utxo' =
      handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError fpath)
        $ LBS.writeFile fpath (encodePretty utxo')
 
 printFilteredUTxOs :: Api.ShelleyBasedEra era -> UTxO era -> IO ()
-printFilteredUTxOs shelleyBasedEra' (UTxO utxo) = do
+printFilteredUTxOs sbe (UTxO utxo) = do
   Text.putStrLn title
   putStrLn $ replicate (Text.length title + 2) '-'
-  case shelleyBasedEra' of
+  case sbe of
     ShelleyBasedEraShelley ->
-      mapM_ (printUtxo shelleyBasedEra') $ Map.toList utxo
+      mapM_ (printUtxo sbe) $ Map.toList utxo
     ShelleyBasedEraAllegra ->
-      mapM_ (printUtxo shelleyBasedEra') $ Map.toList utxo
+      mapM_ (printUtxo sbe) $ Map.toList utxo
     ShelleyBasedEraMary    ->
-      mapM_ (printUtxo shelleyBasedEra') $ Map.toList utxo
+      mapM_ (printUtxo sbe) $ Map.toList utxo
     ShelleyBasedEraAlonzo ->
-      mapM_ (printUtxo shelleyBasedEra') $ Map.toList utxo
+      mapM_ (printUtxo sbe) $ Map.toList utxo
     ShelleyBasedEraBabbage ->
-      mapM_ (printUtxo shelleyBasedEra') $ Map.toList utxo
+      mapM_ (printUtxo sbe) $ Map.toList utxo
     ShelleyBasedEraConway ->
-      mapM_ (printUtxo shelleyBasedEra') $ Map.toList utxo
+      mapM_ (printUtxo sbe) $ Map.toList utxo
 
  where
    title :: Text
@@ -1069,8 +1068,8 @@ printUtxo
   :: Api.ShelleyBasedEra era
   -> (TxIn, TxOut CtxUTxO era)
   -> IO ()
-printUtxo shelleyBasedEra' txInOutTuple =
-  case shelleyBasedEra' of
+printUtxo sbe txInOutTuple =
+  case sbe of
     ShelleyBasedEraShelley ->
       let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
       in Text.putStrLn $
