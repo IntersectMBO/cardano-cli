@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Conway.Commands where
 
@@ -10,6 +10,7 @@ import           Cardano.Api.Shelley
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Conway.Types
 import           Cardano.CLI.Shelley.Key
+import           Cardano.CLI.Shelley.Run.Read (CddlError)
 import           Cardano.CLI.Shelley.Run.StakeAddress
 
 import           Control.Monad.IO.Class
@@ -17,11 +18,9 @@ import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, newExceptT)
 import           Data.Bifunctor
 import qualified Data.ByteString as BS
+import           Data.Text (Text)
 import qualified Data.Text.Encoding as Text
 import           Data.Text.Encoding.Error
-import           Data.Text(Text)
-
-import           Cardano.CLI.Shelley.Run.Read (CddlError)
 
 data GovernanceCmdError
   = -- Voting related
@@ -125,7 +124,7 @@ runGovernanceCreateActionCmd
 runGovernanceCreateActionCmd anyEra deposit depositReturnAddr govAction oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
   let proposal = createProposalProcedure sbe deposit depositReturnAddr govAction
-  
+
   firstExceptT WriteFileError . newExceptT
     $ obtainEraPParamsConstraint sbe
     $ writeFileTextEnvelope oFp Nothing proposal

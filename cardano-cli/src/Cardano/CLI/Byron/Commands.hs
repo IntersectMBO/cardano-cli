@@ -10,20 +10,18 @@ module Cardano.CLI.Byron.Commands
   , NewCertificateFile (..)
   ) where
 
-import           Data.String (IsString)
-
-import           Cardano.Chain.Update (InstallerHash (..), ProtocolVersion (..),
-                   SoftwareVersion (..), SystemTag (..))
-
 import           Cardano.Api hiding (GenesisParameters)
 import           Cardano.Api.Byron hiding (GenesisParameters)
 
+import           Cardano.Chain.Update (InstallerHash (..), ProtocolVersion (..),
+                   SoftwareVersion (..), SystemTag (..))
 import           Cardano.CLI.Byron.Genesis
 import           Cardano.CLI.Byron.Key
 import           Cardano.CLI.Byron.Tx
+import           Cardano.CLI.Shelley.Commands (ByronKeyFormat)
 import           Cardano.CLI.Types
 
-import           Cardano.CLI.Shelley.Commands (ByronKeyFormat)
+import           Data.String (IsString)
 
 data ByronCommand =
 

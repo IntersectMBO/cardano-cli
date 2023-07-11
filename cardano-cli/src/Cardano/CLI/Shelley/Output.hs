@@ -11,10 +11,15 @@ module Cardano.CLI.Shelley.Output
   , renderScriptCosts
   ) where
 
-import           Prelude
-
 import           Cardano.Api
 import           Cardano.Api.Shelley
+
+import           Cardano.CLI.Shelley.Orphans ()
+import           Cardano.CLI.Types
+import           Cardano.Ledger.Shelley.Scripts ()
+
+import           Prelude
+
 import           Data.Aeson
 import qualified Data.Aeson.Key as Aeson
 import qualified Data.List as List
@@ -24,10 +29,6 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Time.Clock (UTCTime)
 import           Data.Word
-
-import           Cardano.CLI.Shelley.Orphans ()
-import           Cardano.CLI.Types
-import           Cardano.Ledger.Shelley.Scripts ()
 
 data QueryKesPeriodInfoOutput =
   QueryKesPeriodInfoOutput

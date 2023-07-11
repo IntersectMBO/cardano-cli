@@ -5,10 +5,11 @@ module Test.Golden.Shelley.StakeAddress.RegistrationCertificate
   ) where
 
 import           Control.Monad (void)
-import           Hedgehog (Property)
 import           System.FilePath ((</>))
+
 import           Test.Cardano.CLI.Util
 
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Process as H

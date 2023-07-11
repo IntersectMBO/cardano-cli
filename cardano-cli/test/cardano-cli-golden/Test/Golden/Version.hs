@@ -6,8 +6,9 @@ module Test.Golden.Version
 
 import           Control.Monad (void)
 
-import           Hedgehog (Property)
 import           Test.Cardano.CLI.Util
+
+import           Hedgehog (Property)
 
 {- HLINT ignore "Use camelCase" -}
 

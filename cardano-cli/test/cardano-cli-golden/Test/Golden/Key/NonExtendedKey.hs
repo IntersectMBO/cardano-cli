@@ -6,12 +6,14 @@ module Test.Golden.Key.NonExtendedKey
   ) where
 
 import           Control.Monad (void)
+import           System.FilePath ((</>))
+
+import           Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
+
 import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Golden as H
-import           System.FilePath ((</>))
-import           Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
 
 {- HLINT ignore "Use camelCase" -}
 

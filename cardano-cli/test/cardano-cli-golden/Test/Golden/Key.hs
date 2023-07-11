@@ -4,9 +4,8 @@ module Test.Golden.Key
   ( keyTests
   ) where
 
-import qualified Test.Golden.Key.NonExtendedKey
-
 import qualified Hedgehog as H
+import qualified Test.Golden.Key.NonExtendedKey
 
 keyTests :: IO Bool
 keyTests =

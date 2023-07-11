@@ -34,10 +34,10 @@ module Cardano.CLI.Shelley.Run.Validate
   , validateTxWithdrawals
   ) where
 
-import           Prelude
-
 import           Cardano.Api
 import           Cardano.Api.Shelley
+
+import           Prelude
 
 import           Data.Bifunctor (first)
 import qualified Data.Map.Strict as Map

@@ -15,8 +15,8 @@ module Cardano.CLI.Shelley.Parsers
   , parseTxIn
   ) where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra(..))
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra(..))
+import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Common.Parsers

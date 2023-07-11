@@ -12,7 +12,6 @@ module Cardano.CLI.IO.Lazy
 
 import           Control.Monad.IO.Unlift (MonadIO (liftIO), MonadUnliftIO, UnliftIO (unliftIO),
                    askUnliftIO)
-
 import qualified Data.List as L
 import qualified System.IO.Unsafe as IO
 

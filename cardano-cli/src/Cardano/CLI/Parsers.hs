@@ -18,7 +18,6 @@ import           Cardano.CLI.Shelley.Parsers (parseShelleyCommands)
 
 import           Data.Foldable
 import           Options.Applicative
-
 import qualified Options.Applicative as Opt
 
 

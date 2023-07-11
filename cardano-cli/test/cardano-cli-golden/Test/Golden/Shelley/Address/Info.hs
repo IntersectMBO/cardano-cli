@@ -5,11 +5,11 @@ module Test.Golden.Shelley.Address.Info
   ) where
 
 import           Control.Monad (when)
+import qualified Data.List as L
 
-import           Hedgehog (Property)
 import           Test.Cardano.CLI.Util
 
-import qualified Data.List as L
+import           Hedgehog (Property)
 import qualified Hedgehog as H
 
 {- HLINT ignore "Use camelCase" -}

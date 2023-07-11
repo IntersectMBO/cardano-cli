@@ -9,9 +9,10 @@ module Test.Golden.Shelley.Key.ConvertCardanoAddressKey
 
 import           Control.Monad (void)
 import           Data.Text (Text)
-import           Hedgehog (Property, (===))
+
 import           Test.Cardano.CLI.Util
 
+import           Hedgehog (Property, (===))
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 

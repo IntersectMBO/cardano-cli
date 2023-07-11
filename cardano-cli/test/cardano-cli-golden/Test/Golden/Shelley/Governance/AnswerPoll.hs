@@ -7,10 +7,11 @@ module Test.Golden.Shelley.Governance.AnswerPoll
   , golden_shelleyGovernanceAnswerPollPos2Invalid
   ) where
 
-import           Hedgehog (Property)
+import           Control.Monad (void)
+
 import           Test.Cardano.CLI.Util
 
-import           Control.Monad (void)
+import           Hedgehog (Property)
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H

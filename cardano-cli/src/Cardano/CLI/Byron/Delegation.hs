@@ -12,29 +12,28 @@ module Cardano.CLI.Byron.Delegation
   )
 where
 
+import           Cardano.Api.Byron
+
+import qualified Cardano.Chain.Delegation as Dlg
+import           Cardano.Chain.Slotting (EpochNumber)
+import           Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
+import           Cardano.CLI.Types (CertificateFile (..))
+import           Cardano.Crypto (ProtocolMagicId)
+import qualified Cardano.Crypto as Crypto
+import           Cardano.Ledger.Binary (Annotated (..), byronProtVer, serialize')
+import           Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
+
 import           Prelude hiding ((.))
 
 import           Control.Category
-import           Control.Monad.Trans.Except.Extra (left)
-import qualified Data.ByteString.Lazy as LB
-import           Formatting (Format, sformat)
-
-import           Cardano.Api.Byron
-
-import           Cardano.Ledger.Binary (Annotated (..), serialize', byronProtVer)
-import qualified Cardano.Chain.Delegation as Dlg
-import           Cardano.Chain.Slotting (EpochNumber)
-import           Cardano.Crypto (ProtocolMagicId)
-import qualified Cardano.Crypto as Crypto
-
-import           Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
-import           Cardano.CLI.Types (CertificateFile (..))
-import           Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 import           Control.Monad (unless)
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
+import           Control.Monad.Trans.Except.Extra (left)
 import           Data.ByteString (ByteString)
+import qualified Data.ByteString.Lazy as LB
 import           Data.Text (Text)
+import           Formatting (Format, sformat)
 
 data ByronDelegationError
   = CertificateValidationErrors !FilePath ![Text]

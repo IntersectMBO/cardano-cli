@@ -7,9 +7,10 @@ module Test.Golden.Shelley.Node.KeyGen
   ) where
 
 import           Control.Monad (void)
-import           Hedgehog (Property)
+
 import           Test.Cardano.CLI.Util
 
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 

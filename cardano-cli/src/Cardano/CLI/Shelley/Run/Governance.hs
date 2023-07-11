@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Shelley.Run.Governance

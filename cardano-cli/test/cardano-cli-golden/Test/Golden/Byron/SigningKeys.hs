@@ -4,24 +4,24 @@ module Test.Golden.Byron.SigningKeys
   ( tests
   ) where
 
-import           Codec.CBOR.Read (deserialiseFromBytes)
-import           Control.Monad (void)
-import           Control.Monad.Trans.Except (runExceptT)
-import qualified Data.ByteString.Lazy as LB
-
-import qualified Cardano.Crypto.Signing as Crypto
-
 import           Cardano.Api.Byron
 
 import           Cardano.CLI.Byron.Key (readByronSigningKey)
 import           Cardano.CLI.Byron.Legacy (decodeLegacyDelegateKey)
 import           Cardano.CLI.Shelley.Commands
+import qualified Cardano.Crypto.Signing as Crypto
+
+import           Codec.CBOR.Read (deserialiseFromBytes)
+import           Control.Monad (void)
+import           Control.Monad.Trans.Except (runExceptT)
+import qualified Data.ByteString.Lazy as LB
+
+import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Group (..), Property, checkSequential, property, success)
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import           Hedgehog.Internal.Property (failWith)
-import           Test.Cardano.CLI.Util
 
 prop_deserialise_legacy_signing_Key :: Property
 prop_deserialise_legacy_signing_Key = propertyOnce $ do

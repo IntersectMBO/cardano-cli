@@ -9,7 +9,21 @@ module Cardano.CLI.Byron.UpdateProposal
   , submitByronUpdateProposal
   ) where
 
+import           Cardano.Api (NetworkId, SerialiseAsRawBytes (..), SocketPath, textShow)
+import           Cardano.Api.Byron (AsType (AsByronUpdateProposal), ByronProtocolParametersUpdate,
+                   ByronUpdateProposal, makeByronUpdateProposal, toByronLedgerUpdateProposal)
+
+import           Cardano.Chain.Update (InstallerHash (..), ProtocolVersion (..),
+                   SoftwareVersion (..), SystemTag (..))
+import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
+import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
+import           Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
+import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS, renderHelpersError)
+import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
+import           Cardano.CLI.Types
 import           Cardano.Prelude (ConvertText (..))
+import           Ouroboros.Consensus.Ledger.SupportsMempool (txId)
+import           Ouroboros.Consensus.Util.Condense (condense)
 
 import           Control.Exception (Exception (..))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -18,23 +32,6 @@ import           Control.Tracer (stdoutTracer, traceWith)
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as BS
 import           Data.Text (Text)
-
-import           Cardano.Chain.Update (InstallerHash (..), ProtocolVersion (..),
-                   SoftwareVersion (..), SystemTag (..))
-
-import           Ouroboros.Consensus.Ledger.SupportsMempool (txId)
-import           Ouroboros.Consensus.Util.Condense (condense)
-
-import           Cardano.Api (NetworkId, SerialiseAsRawBytes (..), SocketPath, textShow)
-import           Cardano.Api.Byron (AsType (AsByronUpdateProposal), ByronProtocolParametersUpdate,
-                   ByronUpdateProposal, makeByronUpdateProposal, toByronLedgerUpdateProposal)
-
-import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
-import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
-import           Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
-import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS, renderHelpersError)
-import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
-import           Cardano.CLI.Types
 
 data ByronUpdateProposalError
   = ByronReadUpdateProposalFileFailure !FilePath !Text

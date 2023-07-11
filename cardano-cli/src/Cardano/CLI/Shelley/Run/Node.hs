@@ -11,6 +11,13 @@ module Cardano.CLI.Shelley.Run.Node
   , readColdVerificationKeyOrFile
   ) where
 
+import           Cardano.Api
+import           Cardano.Api.Shelley
+
+import           Cardano.CLI.Shelley.Commands
+import           Cardano.CLI.Shelley.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
+import           Cardano.CLI.Types (KeyOutputFormat (..), SigningKeyFile, VerificationKeyFile)
+
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, newExceptT)
@@ -19,13 +26,6 @@ import           Data.String (fromString)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Word (Word64)
-
-import           Cardano.Api
-import           Cardano.Api.Shelley
-
-import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
-import           Cardano.CLI.Types (KeyOutputFormat (..), SigningKeyFile, VerificationKeyFile)
 
 {- HLINT ignore "Reduce duplication" -}
 

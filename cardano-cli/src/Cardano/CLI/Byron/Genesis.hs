@@ -12,6 +12,19 @@ module Cardano.CLI.Byron.Genesis
   )
 where
 
+import           Cardano.Api (Key (..), NetworkId, textShow, writeSecrets)
+import           Cardano.Api.Byron (ByronKey, SerialiseAsRawBytes (..), SigningKey (..),
+                   toByronRequiresNetworkMagic)
+
+import qualified Cardano.Chain.Common as Common
+import           Cardano.Chain.Delegation hiding (Map, epoch)
+import           Cardano.Chain.Genesis (GeneratedSecrets (..))
+import qualified Cardano.Chain.Genesis as Genesis
+import qualified Cardano.Chain.UTxO as UTxO
+import           Cardano.CLI.Byron.Delegation
+import           Cardano.CLI.Byron.Key
+import           Cardano.CLI.Types (GenesisFile (..))
+import qualified Cardano.Crypto as Crypto
 import           Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 
 import           Control.Monad.IO.Class (MonadIO (..))
@@ -30,24 +43,7 @@ import           Data.Text.Lazy (toStrict)
 import           Data.Text.Lazy.Builder (toLazyText)
 import           Data.Time (UTCTime)
 import           Formatting.Buildable
-
-import           Cardano.Api (Key (..), NetworkId, textShow, writeSecrets)
-
-import           Cardano.Api.Byron (ByronKey, SerialiseAsRawBytes (..), SigningKey (..),
-                   toByronRequiresNetworkMagic)
 import           System.Directory (createDirectory, doesPathExist)
-
-import qualified Cardano.Chain.Common as Common
-import           Cardano.Chain.Delegation hiding (Map, epoch)
-import           Cardano.Chain.Genesis (GeneratedSecrets (..))
-import qualified Cardano.Chain.Genesis as Genesis
-import qualified Cardano.Chain.UTxO as UTxO
-
-import qualified Cardano.Crypto as Crypto
-
-import           Cardano.CLI.Byron.Delegation
-import           Cardano.CLI.Byron.Key
-import           Cardano.CLI.Types (GenesisFile (..))
 
 data ByronGenesisError
   = ByronDelegationCertSerializationError !ByronDelegationError

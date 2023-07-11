@@ -10,10 +10,11 @@ module Test.Golden.Shelley.TextEnvelope.Keys.ExtendedPaymentKeys
 import           Cardano.Api (AsType (..), HasTextEnvelope (..))
 
 import           Control.Monad (void)
-import           Hedgehog (Property)
-import           Test.Cardano.CLI.Util
 import           Text.Regex.TDFA ((=~))
 
+import           Test.Cardano.CLI.Util
+
+import           Hedgehog (Property)
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H

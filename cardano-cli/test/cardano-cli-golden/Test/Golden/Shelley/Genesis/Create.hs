@@ -6,20 +6,20 @@ module Test.Golden.Shelley.Genesis.Create
   ) where
 
 import           Control.Monad (void)
-import           Data.Bifunctor (Bifunctor (..))
-import           Data.Foldable (for_)
-
-import           Hedgehog (Property, forAll, (===))
-import           Test.Cardano.CLI.Util as OP
-
 import qualified Data.Aeson as J
 import qualified Data.Aeson.Key as J
 import qualified Data.Aeson.KeyMap as KeyMap
 import qualified Data.Aeson.Types as J
+import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy as LBS
+import           Data.Foldable (for_)
 import qualified Data.HashMap.Lazy as HM
 import qualified Data.Set as S
 import qualified Data.Time.Clock as DT
+
+import           Test.Cardano.CLI.Util as OP
+
+import           Hedgehog (Property, forAll, (===))
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Stock.Time as H
 import qualified Hedgehog.Extras.Test.Base as H

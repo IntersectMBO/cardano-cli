@@ -5,6 +5,7 @@ module Test.Golden.Byron.Tx
   ) where
 
 import           Cardano.Api
+
 import           Cardano.Chain.UTxO (ATxAux)
 import           Cardano.CLI.Byron.Tx
 
@@ -14,12 +15,12 @@ import           Control.Monad.Trans.Except (runExceptT)
 import           Data.ByteString (ByteString)
 import qualified Data.Text as Text
 
-import           Hedgehog (Property, (===))
-import qualified Hedgehog as H
-import           Hedgehog.Internal.Property (failWith)
 import           Test.Cardano.CLI.Util
 
+import           Hedgehog (Property, (===))
+import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
+import           Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 

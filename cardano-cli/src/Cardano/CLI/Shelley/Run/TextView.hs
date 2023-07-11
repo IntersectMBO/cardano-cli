@@ -6,18 +6,17 @@ module Cardano.CLI.Shelley.Run.TextView
   , runTextViewCmd
   ) where
 
-import           Control.Monad.Trans.Except (ExceptT)
-import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Text (Text)
-import qualified Data.Text as Text
+import           Cardano.Api
 
 import           Cardano.CLI.Helpers (HelpersError, pPrintCBOR, renderHelpersError)
 import           Cardano.CLI.Shelley.Parsers
 
-import           Cardano.Api
-
 import           Control.Monad.IO.Class (MonadIO (..))
+import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, newExceptT)
+import qualified Data.ByteString.Lazy.Char8 as LBS
+import           Data.Text (Text)
+import qualified Data.Text as Text
 
 data ShelleyTextViewFileError
   = TextViewReadFileError (FileError TextEnvelopeError)

@@ -7,29 +7,10 @@ module Cardano.CLI.Byron.Run
   , runByronClientCommand
   ) where
 
-import           Control.Monad.IO.Class (MonadIO (liftIO))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, left)
-import           Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString.Char8 as BS
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
-import qualified Data.Text.Lazy.Builder as Builder
-import qualified Data.Text.Lazy.IO as TL
-import qualified Formatting as F
-
-import qualified Cardano.Chain.Genesis as Genesis
-
-import qualified Cardano.Crypto.Hashing as Crypto
-import qualified Cardano.Crypto.Signing as Crypto
-
 import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
 import           Cardano.Api.Byron (SomeByronSigningKey (..), Tx (..))
 
-import           Ouroboros.Consensus.Byron.Ledger (ByronBlock)
-import           Ouroboros.Consensus.Ledger.SupportsMempool (ApplyTxErr)
-
+import qualified Cardano.Chain.Genesis as Genesis
 import           Cardano.CLI.Byron.Commands
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis
@@ -41,6 +22,22 @@ import           Cardano.CLI.Byron.Vote
 import           Cardano.CLI.Helpers
 import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
 import           Cardano.CLI.Types
+import qualified Cardano.Crypto.Hashing as Crypto
+import qualified Cardano.Crypto.Signing as Crypto
+import           Ouroboros.Consensus.Byron.Ledger (ByronBlock)
+import           Ouroboros.Consensus.Ledger.SupportsMempool (ApplyTxErr)
+
+import           Control.Monad.IO.Class (MonadIO (liftIO))
+import           Control.Monad.Trans.Except (ExceptT)
+import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, left)
+import           Data.Bifunctor (Bifunctor (..))
+import qualified Data.ByteString.Char8 as BS
+import           Data.Text (Text)
+import qualified Data.Text as Text
+import qualified Data.Text.IO as Text
+import qualified Data.Text.Lazy.Builder as Builder
+import qualified Data.Text.Lazy.IO as TL
+import qualified Formatting as F
 
 -- | Data type that encompasses all the possible errors of the
 -- Byron client.

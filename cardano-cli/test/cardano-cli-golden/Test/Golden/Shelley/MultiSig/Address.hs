@@ -6,9 +6,9 @@ module Test.Golden.Shelley.MultiSig.Address
   , golden_shelleyAtLeastMultiSigAddressBuild
   ) where
 
-import           Hedgehog (Property)
 import           Test.Cardano.CLI.Util as OP
 
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 

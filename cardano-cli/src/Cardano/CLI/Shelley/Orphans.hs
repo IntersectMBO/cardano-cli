@@ -18,11 +18,6 @@ import qualified Cardano.Protocol.TPraos.API as Ledger
 import           Cardano.Protocol.TPraos.BHeader (HashHeader (..))
 import qualified Cardano.Protocol.TPraos.Rules.Prtcl as Ledger
 import qualified Cardano.Protocol.TPraos.Rules.Tickn as Ledger
-import           Data.Aeson (KeyValue ((.=)), ToJSON (..))
-import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Base16 as Base16
-import qualified Data.ByteString.Short as SBS
-import qualified Data.Text.Encoding as Text
 import           Ouroboros.Consensus.Byron.Ledger.Block (ByronHash (..))
 import           Ouroboros.Consensus.HardFork.Combinator (OneEraHash (..))
 import           Ouroboros.Consensus.Protocol.Praos (PraosState)
@@ -32,6 +27,12 @@ import qualified Ouroboros.Consensus.Protocol.TPraos as Consensus
 import           Ouroboros.Consensus.Shelley.Eras (StandardCrypto)
 import           Ouroboros.Consensus.Shelley.Ledger.Block (ShelleyHash (..))
 import           Ouroboros.Network.Block (HeaderHash, Tip (..))
+
+import           Data.Aeson (KeyValue ((.=)), ToJSON (..))
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Base16 as Base16
+import qualified Data.ByteString.Short as SBS
+import qualified Data.Text.Encoding as Text
 
 instance ToJSON (OneEraHash xs) where
   toJSON = toJSON

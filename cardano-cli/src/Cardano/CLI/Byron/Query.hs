@@ -10,7 +10,6 @@ module Cardano.CLI.Byron.Query
 import           Cardano.Api
 
 import           Data.Aeson.Encode.Pretty (encodePretty)
-
 import qualified Data.ByteString.Lazy as LB
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
