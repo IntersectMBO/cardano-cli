@@ -12,11 +12,13 @@ import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Base16 as Base16
 import           Data.Text (Text)
 import qualified Data.Text.IO as Text
+
+import           Test.Cardano.CLI.Util
+
 import           Hedgehog (Property, (===))
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
-import           Test.Cardano.CLI.Util
 
 {- HLINT ignore "Reduce duplication" -}
 

@@ -9,15 +9,17 @@ module Test.Golden.Shelley.Governance.VerifyPoll
   , golden_shelleyGovernanceVerifyPollInvalidAnswer
   ) where
 
-import           Control.Monad.IO.Class (liftIO)
-import           Hedgehog (Property)
-import           Test.Cardano.CLI.Util
-
 import           Cardano.Api
+
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrFile (..),
                    readVerificationKeyOrTextEnvFile)
 
+import           Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString.Char8 as BSC
+
+import           Test.Cardano.CLI.Util
+
+import           Hedgehog (Property)
 import qualified Hedgehog as H
 import qualified Hedgehog.Internal.Property as H
 

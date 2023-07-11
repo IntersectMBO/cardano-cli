@@ -14,30 +14,6 @@ module Cardano.CLI.Shelley.Run.Key
   , decodeBech32
   ) where
 
-import           Control.Exception (Exception (..), IOException)
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Data.Bifunctor (Bifunctor (..))
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Char8 as BSC
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import           System.Exit (exitFailure)
-
-import qualified Control.Exception as Exception
-import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, left, newExceptT)
-
-import qualified Codec.Binary.Bech32 as Bech32
-
-import qualified Cardano.Crypto.DSIGN as DSIGN
-import qualified Cardano.Crypto.Signing as Byron
-import qualified Cardano.Crypto.Signing as Byron.Crypto
-import qualified Cardano.Crypto.Signing as Crypto
-import qualified Cardano.Crypto.Wallet as Crypto
-import qualified Cardano.Ledger.Keys as Shelley
-
 import           Cardano.Api
 import qualified Cardano.Api.Byron as ByronApi
 import           Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
@@ -49,6 +25,27 @@ import           Cardano.CLI.Shelley.Key (VerificationKeyTextOrFile (..),
                    VerificationKeyTextOrFileError, readVerificationKeyTextOrFileAnyOf,
                    renderVerificationKeyTextOrFileError)
 import           Cardano.CLI.Types (SigningKeyFile, VerificationKeyFile)
+import qualified Cardano.Crypto.DSIGN as DSIGN
+import qualified Cardano.Crypto.Signing as Byron
+import qualified Cardano.Crypto.Signing as Byron.Crypto
+import qualified Cardano.Crypto.Signing as Crypto
+import qualified Cardano.Crypto.Wallet as Crypto
+import qualified Cardano.Ledger.Keys as Shelley
+
+import qualified Codec.Binary.Bech32 as Bech32
+import           Control.Exception (Exception (..), IOException)
+import qualified Control.Exception as Exception
+import           Control.Monad.IO.Class (MonadIO (..))
+import           Control.Monad.Trans.Except (ExceptT)
+import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, left, newExceptT)
+import           Data.Bifunctor (Bifunctor (..))
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BSC
+import           Data.Text (Text)
+import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Text
+import           System.Exit (exitFailure)
 
 
 data ShelleyKeyCmdError

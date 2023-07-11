@@ -29,12 +29,62 @@ module Cardano.CLI.Shelley.Run.Genesis
   , readProtocolParameters
   ) where
 
+import           Cardano.Api
+import           Cardano.Api.Byron (toByronLovelace, toByronProtocolMagicId,
+                   toByronRequiresNetworkMagic)
+import           Cardano.Api.Shelley
+
+import           Cardano.Chain.Common (BlockCount (unBlockCount))
+import qualified Cardano.Chain.Common as Byron (KeyHash, mkKnownLovelace, rationalToLovelacePortion)
+import           Cardano.Chain.Delegation (delegateVK)
+import qualified Cardano.Chain.Delegation as Dlg
+import           Cardano.Chain.Genesis (FakeAvvmOptions (..), TestnetBalanceOptions (..),
+                   gdProtocolParameters, gsDlgIssuersSecrets, gsPoorSecrets, gsRichSecrets)
+import qualified Cardano.Chain.Genesis as Genesis
+import           Cardano.Chain.Update hiding (ProtocolParameters)
+import           Cardano.CLI.Byron.Delegation
+import           Cardano.CLI.Byron.Genesis as Byron
+import qualified Cardano.CLI.Byron.Key as Byron
+import qualified Cardano.CLI.IO.Lazy as Lazy
+import           Cardano.CLI.Shelley.Commands
+import           Cardano.CLI.Shelley.Key
+import           Cardano.CLI.Shelley.Orphans ()
+import           Cardano.CLI.Shelley.Run.Address
+import           Cardano.CLI.Shelley.Run.Node (ShelleyNodeCmdError (..), renderShelleyNodeCmdError,
+                   runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
+import           Cardano.CLI.Shelley.Run.Pool (ShelleyPoolCmdError (..), renderShelleyPoolCmdError)
+import           Cardano.CLI.Shelley.Run.StakeAddress (ShelleyStakeAddressCmdError (..),
+                   renderShelleyStakeAddressCmdError, runStakeAddressKeyGenToFile)
+import           Cardano.CLI.Types
+import qualified Cardano.Crypto as CC
+import           Cardano.Crypto.Hash (HashAlgorithm)
+import qualified Cardano.Crypto.Hash as Crypto
+import qualified Cardano.Crypto.Hash as Hash
+import qualified Cardano.Crypto.Random as Crypto
+import qualified Cardano.Crypto.Signing as Byron
+import qualified Cardano.Ledger.Alonzo.Genesis as Alonzo
+import qualified Cardano.Ledger.BaseTypes as Ledger
+import           Cardano.Ledger.Binary (Annotated (Annotated), ToCBOR (..))
+import           Cardano.Ledger.Coin (Coin (..))
+import qualified Cardano.Ledger.Conway.Genesis as Conway
+import           Cardano.Ledger.Core (ppMinUTxOValueL)
+import           Cardano.Ledger.Crypto (ADDRHASH, Crypto, StandardCrypto)
+import           Cardano.Ledger.Era ()
+import qualified Cardano.Ledger.Keys as Ledger
+import qualified Cardano.Ledger.Shelley.API as Ledger
+import           Cardano.Ledger.Shelley.Genesis (secondsToNominalDiffTimeMicro)
+import           Cardano.Prelude (canonicalEncodePretty)
+import           Cardano.Slotting.Slot (EpochSize (EpochSize))
+import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
+
 import           Control.DeepSeq (NFData, force)
 import           Control.Exception (IOException)
 import           Control.Monad (forM, forM_, unless, when)
 import           Control.Monad.Except (MonadError (..), runExceptT)
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT, throwE, withExceptT)
+import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
+                   newExceptT)
 import           Data.Aeson hiding (Key)
 import qualified Data.Aeson as Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
@@ -48,11 +98,13 @@ import           Data.Char (isDigit)
 import           Data.Coerce (coerce)
 import           Data.Data (Proxy (..))
 import           Data.Either (fromRight)
+import           Data.Fixed (Fixed (MkFixed))
 import           Data.Function (on)
 import           Data.Functor (void)
 import           Data.Functor.Identity
 import qualified Data.List as List
 import qualified Data.List.Split as List
+import           Data.ListMap (ListMap (..))
 import qualified Data.ListMap as ListMap
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
@@ -64,84 +116,20 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Data.Time.Clock (NominalDiffTime, UTCTime, addUTCTime, getCurrentTime)
 import           Data.Word (Word64)
+import qualified Data.Yaml as Yaml
 import           GHC.Generics (Generic)
 import           Lens.Micro ((^.))
-import qualified System.IO as IO
-import qualified System.Random as Random
-import           System.Random (StdGen)
-import           Text.Read (readMaybe)
-
-import           Cardano.Ledger.Binary (Annotated (Annotated), ToCBOR (..))
-
-import qualified Cardano.Crypto as CC
-import           Cardano.Crypto.Hash (HashAlgorithm)
-import qualified Cardano.Crypto.Hash as Hash
-import qualified Cardano.Crypto.Random as Crypto
-import           Crypto.Random as Crypto
-
 import           System.Directory (createDirectoryIfMissing, listDirectory)
 import           System.FilePath (takeExtension, takeExtensions, (</>))
+import qualified System.IO as IO
 import           System.IO.Error (isDoesNotExistError)
-
-import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
-                   newExceptT)
-
-import qualified Cardano.Crypto.Hash as Crypto
-
-import           Cardano.Api
-import           Cardano.Api.Byron (toByronLovelace, toByronProtocolMagicId,
-                   toByronRequiresNetworkMagic)
-import           Cardano.Api.Shelley
-
-import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
-
-import qualified Cardano.Ledger.Alonzo.Genesis as Alonzo
-import qualified Cardano.Ledger.BaseTypes as Ledger
-import           Cardano.Ledger.Coin (Coin (..))
-import qualified Cardano.Ledger.Conway.Genesis as Conway
-import           Cardano.Ledger.Core (ppMinUTxOValueL)
-import qualified Cardano.Ledger.Keys as Ledger
-import qualified Cardano.Ledger.Shelley.API as Ledger
-import           Cardano.Ledger.Shelley.Genesis (secondsToNominalDiffTimeMicro)
-
-import           Cardano.Ledger.Crypto (ADDRHASH, Crypto, StandardCrypto)
-import           Cardano.Ledger.Era ()
-
-import           Cardano.CLI.Shelley.Commands
-import           Cardano.CLI.Shelley.Key
-import           Cardano.CLI.Shelley.Orphans ()
-import           Cardano.CLI.Shelley.Run.Address
-import           Cardano.CLI.Shelley.Run.Node (ShelleyNodeCmdError (..), renderShelleyNodeCmdError,
-                   runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
-import           Cardano.CLI.Shelley.Run.Pool (ShelleyPoolCmdError (..), renderShelleyPoolCmdError)
-import           Cardano.CLI.Shelley.Run.StakeAddress (ShelleyStakeAddressCmdError (..),
-                   renderShelleyStakeAddressCmdError, runStakeAddressKeyGenToFile)
-import           Cardano.CLI.Types
-
-import qualified Cardano.Chain.Common as Byron (KeyHash, mkKnownLovelace, rationalToLovelacePortion)
-import           Cardano.Chain.Genesis (FakeAvvmOptions (..), TestnetBalanceOptions (..),
-                   gdProtocolParameters, gsDlgIssuersSecrets, gsPoorSecrets, gsRichSecrets)
-import           Cardano.CLI.Byron.Delegation
-import           Cardano.CLI.Byron.Genesis as Byron
-import qualified Cardano.CLI.Byron.Key as Byron
-import qualified Cardano.Crypto.Signing as Byron
-
-import           Cardano.Chain.Common (BlockCount (unBlockCount))
-import           Cardano.Chain.Delegation (delegateVK)
-import qualified Cardano.Chain.Delegation as Dlg
-import qualified Cardano.Chain.Genesis as Genesis
-import           Cardano.Chain.Update hiding (ProtocolParameters)
-import           Cardano.Slotting.Slot (EpochSize (EpochSize))
-import           Data.Fixed (Fixed (MkFixed))
-import qualified Data.Yaml as Yaml
+import qualified System.Random as Random
+import           System.Random (StdGen)
 import qualified Text.JSON.Canonical (ToJSON)
 import           Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
+import           Text.Read (readMaybe)
 
-import           Data.ListMap (ListMap (..))
-
-import qualified Cardano.CLI.IO.Lazy as Lazy
-
-import           Cardano.Prelude (canonicalEncodePretty)
+import           Crypto.Random as Crypto
 
 data ShelleyGenesisCmdError
   = ShelleyGenesisCmdAesonDecodeError !FilePath !Text

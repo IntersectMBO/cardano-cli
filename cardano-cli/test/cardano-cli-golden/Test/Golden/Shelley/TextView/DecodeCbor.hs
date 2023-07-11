@@ -4,9 +4,9 @@ module Test.Golden.Shelley.TextView.DecodeCbor
   ( golden_shelleyTextViewDecodeCbor
   ) where
 
-import           Hedgehog (Property)
 import           Test.Cardano.CLI.Util
 
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 

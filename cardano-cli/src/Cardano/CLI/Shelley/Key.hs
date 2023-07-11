@@ -30,6 +30,9 @@ module Cardano.CLI.Shelley.Key
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Shelley (StakePoolKey)
+
+import           Cardano.CLI.Types
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Data.Bifunctor (Bifunctor (..))
@@ -38,9 +41,6 @@ import qualified Data.List.NonEmpty as NE
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-
-import           Cardano.Api.Shelley (StakePoolKey)
-import           Cardano.CLI.Types
 
 
 ------------------------------------------------------------------------------

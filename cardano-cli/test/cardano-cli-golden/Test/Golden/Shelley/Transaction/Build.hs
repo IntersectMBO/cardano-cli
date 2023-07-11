@@ -9,12 +9,12 @@ module Test.Golden.Shelley.Transaction.Build
   ) where
 
 import           Control.Monad (void)
-
 import qualified Data.ByteString.Base16 as Base16
 import qualified Data.ByteString.Char8 as BSC
-import           Hedgehog (Property)
+
 import           Test.Cardano.CLI.Util
 
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 

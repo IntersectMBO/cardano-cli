@@ -15,6 +15,13 @@ module Cardano.CLI.Helpers
   , hushM
   ) where
 
+import           Cardano.Chain.Block (decCBORABlockOrBoundary)
+import qualified Cardano.Chain.Delegation as Delegation
+import qualified Cardano.Chain.Update as Update
+import qualified Cardano.Chain.UTxO as UTxO
+import           Cardano.CLI.Types
+import           Cardano.Ledger.Binary (byronProtVer, toPlainDecoder)
+import           Cardano.Ledger.Binary.Plain (Decoder, fromCBOR)
 import           Cardano.Prelude (ConvertText (..))
 
 import           Codec.CBOR.Pretty (prettyHexEnc)
@@ -37,14 +44,6 @@ import qualified System.Console.ANSI as ANSI
 import           System.Console.ANSI
 import qualified System.Directory as IO
 import qualified System.IO as IO
-
-import           Cardano.Chain.Block (decCBORABlockOrBoundary)
-import qualified Cardano.Chain.Delegation as Delegation
-import qualified Cardano.Chain.Update as Update
-import qualified Cardano.Chain.UTxO as UTxO
-import           Cardano.CLI.Types
-import           Cardano.Ledger.Binary (byronProtVer, toPlainDecoder)
-import           Cardano.Ledger.Binary.Plain (Decoder, fromCBOR)
 
 data HelpersError
   = CBORPrettyPrintError !DeserialiseFailure

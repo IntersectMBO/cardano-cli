@@ -4,18 +4,17 @@ module Cardano.CLI.Render
   ( customRenderHelp
   ) where
 
+import           Cardano.Api (textShow)
+
 import           Data.Text (Text)
+import qualified Data.Text as T
 import           Options.Applicative
 import           Options.Applicative.Help.Ann
 import           Options.Applicative.Help.Types (helpText, renderHelp)
 import           Prettyprinter
 import           Prettyprinter.Render.Util.SimpleDocTree
-
-import qualified Data.Text as T
 import qualified System.Environment as IO
 import qualified System.IO.Unsafe as IO
-
-import           Cardano.Api (textShow)
 
 cliHelpTraceEnabled :: Bool
 cliHelpTraceEnabled = IO.unsafePerformIO $ do

@@ -47,7 +47,6 @@ module Cardano.CLI.TopHandler
 import           Prelude
 
 import           Control.Exception
-
 import           System.Environment
 import           System.Exit
 import           System.IO

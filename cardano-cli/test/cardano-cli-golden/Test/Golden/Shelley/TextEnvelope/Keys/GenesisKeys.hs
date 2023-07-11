@@ -5,10 +5,12 @@ module Test.Golden.Shelley.TextEnvelope.Keys.GenesisKeys
   ) where
 
 import           Cardano.Api (AsType (..), HasTextEnvelope (..))
+
 import           Control.Monad (void)
-import           Hedgehog (Property)
+
 import           Test.Cardano.CLI.Util
 
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 
 {- HLINT ignore "Use camelCase" -}

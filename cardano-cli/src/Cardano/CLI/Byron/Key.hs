@@ -15,6 +15,13 @@ module Cardano.CLI.Byron.Key
   )
 where
 
+import           Cardano.Api.Byron
+
+import qualified Cardano.Chain.Common as Common
+import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
+import           Cardano.CLI.Types
+import qualified Cardano.Crypto.Signing as Crypto
+
 import           Control.Exception (Exception (..))
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
@@ -25,13 +32,6 @@ import           Data.String (IsString, fromString)
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Formatting (build, sformat, (%))
-
-import           Cardano.Api.Byron
-
-import qualified Cardano.Chain.Common as Common
-import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
-import           Cardano.CLI.Types
-import qualified Cardano.Crypto.Signing as Crypto
 
 
 data ByronKeyFailure

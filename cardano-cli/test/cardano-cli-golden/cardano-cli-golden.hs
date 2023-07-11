@@ -1,7 +1,8 @@
-import           Hedgehog.Main (defaultMain)
+import qualified Cardano.Crypto.Init as Crypto
 
 import           System.IO (BufferMode (LineBuffering), hSetBuffering, hSetEncoding, stdout, utf8)
 
+import           Hedgehog.Main (defaultMain)
 import qualified Test.Golden.Byron.SigningKeys
 import qualified Test.Golden.Byron.Tx
 import qualified Test.Golden.Byron.UpdateProposal
@@ -10,8 +11,6 @@ import qualified Test.Golden.Help
 import qualified Test.Golden.Key
 import qualified Test.Golden.Shelley
 import qualified Test.Golden.TxView
-
-import qualified Cardano.Crypto.Init as Crypto
 
 main :: IO ()
 main = do

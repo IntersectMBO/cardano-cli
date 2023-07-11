@@ -50,7 +50,7 @@ module Cardano.CLI.Shelley.Commands
   , Deprecated (..)
   ) where
 
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra(..))
+import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.Conway.Parsers

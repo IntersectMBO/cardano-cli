@@ -4,10 +4,11 @@ module Test.Golden.Shelley.StakePool.RegistrationCertificate
   ( golden_shelleyStakePoolRegistrationCertificate
   ) where
 
-import           Hedgehog (Property)
+import           Control.Monad (void)
+
 import           Test.Cardano.CLI.Util
 
-import           Control.Monad (void)
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 

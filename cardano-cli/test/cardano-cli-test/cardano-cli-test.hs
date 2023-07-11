@@ -1,7 +1,13 @@
 module Main where
 
+import qualified Cardano.Crypto.Init as Crypto
+
 import           System.IO (BufferMode (LineBuffering), hSetBuffering, hSetEncoding, stdout, utf8)
 
+import           Test.Gen.Cardano.Api.Empty ()
+
+import           Hedgehog.Extras.Stock.OS (isWin32)
+import           Hedgehog.Main (defaultMain)
 import qualified Test.Cli.CliIntermediateFormat
 import qualified Test.Cli.FilePermissions
 import qualified Test.Cli.ITN
@@ -13,13 +19,6 @@ import qualified Test.Cli.Pioneers.Exercise3
 import qualified Test.Cli.Pioneers.Exercise4
 import qualified Test.Cli.Pipes
 import qualified Test.Cli.Shelley.Run.Query
-
-import           Hedgehog.Extras.Stock.OS (isWin32)
-import           Hedgehog.Main (defaultMain)
-
-import           Test.Gen.Cardano.Api.Empty ()
-
-import qualified Cardano.Crypto.Init as Crypto
 
 main :: IO ()
 main = do

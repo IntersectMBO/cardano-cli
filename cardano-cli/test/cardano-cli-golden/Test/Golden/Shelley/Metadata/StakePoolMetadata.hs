@@ -7,9 +7,10 @@ module Test.Golden.Shelley.Metadata.StakePoolMetadata
 import           Control.Monad (void)
 import           Data.Text (Text)
 import qualified Data.Text.IO as Text
-import           Hedgehog (Property)
+
 import           Test.Cardano.CLI.Util as OP
 
+import           Hedgehog (Property)
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H

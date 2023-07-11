@@ -3,12 +3,13 @@
 module Test.Golden.TxView (txViewTests) where
 
 import           Control.Monad (void)
+import           System.FilePath ((</>))
+
+import           Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile)
 
 import           Hedgehog (Group (..), Property, checkSequential)
 import           Hedgehog.Extras (Integration, moduleWorkspace, note_, propertyOnce)
 import qualified Hedgehog.Extras.Test.Golden as H
-import           System.FilePath ((</>))
-import           Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile)
 
 {- HLINT ignore "Use camelCase" -}
 

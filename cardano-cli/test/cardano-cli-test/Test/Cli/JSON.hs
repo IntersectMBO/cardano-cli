@@ -5,8 +5,11 @@
 module Test.Cli.JSON where
 
 import           Cardano.Api.Shelley
-import           Test.Gen.Cardano.Api.Typed (genLovelace, genSlotNo, genStakeAddress,
-                   genVerificationKeyHash)
+
+import           Cardano.CLI.Shelley.Output (QueryKesPeriodInfoOutput (..),
+                   createOpCertIntervalInfo)
+import           Cardano.CLI.Shelley.Run.Query
+import           Cardano.CLI.Types
 
 import           Data.Aeson
 import qualified Data.Map.Strict as Map
@@ -14,10 +17,8 @@ import           Data.Time
 import           Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import           Data.Word (Word64)
 
-import           Cardano.CLI.Shelley.Output (QueryKesPeriodInfoOutput (..),
-                   createOpCertIntervalInfo)
-import           Cardano.CLI.Shelley.Run.Query
-import           Cardano.CLI.Types
+import           Test.Gen.Cardano.Api.Typed (genLovelace, genSlotNo, genStakeAddress,
+                   genVerificationKeyHash)
 
 import           Hedgehog (Gen, Property, checkSequential, discover, forAll, property, tripping)
 import           Hedgehog.Gen as Gen

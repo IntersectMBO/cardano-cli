@@ -5,9 +5,10 @@ module Test.Golden.Shelley.TextEnvelope.Tx.Tx
   ) where
 
 import           Control.Monad (void)
-import           Hedgehog (Property)
+
 import           Test.Cardano.CLI.Util
 
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 
 {- HLINT ignore "Use camelCase" -}
