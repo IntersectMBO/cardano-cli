@@ -139,7 +139,7 @@ data SomeSigningKey
   | AKesSigningKey             (SigningKey KesKey)
 
 withSomeSigningKey :: SomeSigningKey
-                   -> (forall keyrole. Key keyrole => SigningKey keyrole -> a)
+                   -> (forall keyrole. (Key keyrole, HasTypeProxy keyrole) => SigningKey keyrole -> a)
                    -> a
 withSomeSigningKey ssk f =
     case ssk of
