@@ -1,33 +1,39 @@
 Usage: cardano-cli stake-pool registration-certificate 
-            ( --shelley-era
-            | --allegra-era
-            | --mary-era
-            | --alonzo-era
-            | --babbage-era
-            | --conway-era
-            )
-            ( --stake-pool-verification-key STRING
-            | --cold-verification-key-file FILE
-            )
-            (--vrf-verification-key STRING | --vrf-verification-key-file FILE)
-            --pool-pledge LOVELACE
-            --pool-cost LOVELACE
-            --pool-margin RATIONAL
-            ( --pool-reward-account-verification-key STRING
-            | --pool-reward-account-verification-key-file FILE
-            )
-            ( --pool-owner-verification-key STRING
-            | --pool-owner-stake-verification-key-file FILE
-            )
-            [ [--pool-relay-ipv4 STRING]
-              [--pool-relay-ipv6 STRING]
-              --pool-relay-port INT
-            | --single-host-pool-relay STRING [--pool-relay-port INT]
-            | --multi-host-pool-relay STRING
-            ]
-            [--metadata-url URL --metadata-hash HASH]
-            (--mainnet | --testnet-magic NATURAL)
-            --out-file FILE
+                                                         ( --shelley-era
+                                                         | --allegra-era
+                                                         | --mary-era
+                                                         | --alonzo-era
+                                                         | --babbage-era
+                                                         | --conway-era
+                                                         )
+                                                         ( --stake-pool-verification-key STRING
+                                                         | --cold-verification-key-file FILE
+                                                         )
+                                                         ( --vrf-verification-key STRING
+                                                         | --vrf-verification-key-file FILE
+                                                         )
+                                                         --pool-pledge LOVELACE
+                                                         --pool-cost LOVELACE
+                                                         --pool-margin RATIONAL
+                                                         ( --pool-reward-account-verification-key STRING
+                                                         | --pool-reward-account-verification-key-file FILE
+                                                         )
+                                                         ( --pool-owner-verification-key STRING
+                                                         | --pool-owner-stake-verification-key-file FILE
+                                                         )
+                                                         [ [--pool-relay-ipv4 STRING]
+                                                           [--pool-relay-ipv6 STRING]
+                                                           --pool-relay-port INT
+                                                         | --single-host-pool-relay STRING
+                                                           [--pool-relay-port INT]
+                                                         | --multi-host-pool-relay STRING
+                                                         ]
+                                                         [--metadata-url URL
+                                                           --metadata-hash HASH]
+                                                         ( --mainnet
+                                                         | --testnet-magic NATURAL
+                                                         )
+                                                         --out-file FILE
 
   Create a stake pool registration certificate
 

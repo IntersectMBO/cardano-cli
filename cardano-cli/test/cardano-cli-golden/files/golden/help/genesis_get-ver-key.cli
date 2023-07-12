@@ -1,5 +1,5 @@
 Usage: cardano-cli genesis get-ver-key --verification-key-file FILE
-            --signing-key-file FILE
+                                         --signing-key-file FILE
 
   Derive the verification key from a signing key
 

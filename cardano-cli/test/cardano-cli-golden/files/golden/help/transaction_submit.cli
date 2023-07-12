@@ -1,10 +1,10 @@
 Usage: cardano-cli transaction submit --socket-path SOCKET_PATH
-            [ --shelley-mode
-            | --byron-mode [--epoch-slots SLOTS]
-            | --cardano-mode [--epoch-slots SLOTS]
-            ]
-            (--mainnet | --testnet-magic NATURAL)
-            --tx-file FILE
+                                        [ --shelley-mode
+                                        | --byron-mode [--epoch-slots SLOTS]
+                                        | --cardano-mode [--epoch-slots SLOTS]
+                                        ]
+                                        (--mainnet | --testnet-magic NATURAL)
+                                        --tx-file FILE
 
   Submit a transaction to the local node whose Unix domain socket is obtained
   from the CARDANO_NODE_SOCKET_PATH environment variable.

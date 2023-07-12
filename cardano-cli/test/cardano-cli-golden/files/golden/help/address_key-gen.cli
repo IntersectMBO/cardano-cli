@@ -1,7 +1,10 @@
 Usage: cardano-cli address key-gen [--key-output-format STRING]
-            [--normal-key | --extended-key | --byron-key]
-            --verification-key-file FILE
-            --signing-key-file FILE
+                                     [ --normal-key
+                                     | --extended-key
+                                     | --byron-key
+                                     ]
+                                     --verification-key-file FILE
+                                     --signing-key-file FILE
 
   Create an address key pair.
 

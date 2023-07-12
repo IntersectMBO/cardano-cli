@@ -1,10 +1,10 @@
 Usage: cardano-cli query slot-number --socket-path SOCKET_PATH
-            [ --shelley-mode
-            | --byron-mode [--epoch-slots SLOTS]
-            | --cardano-mode [--epoch-slots SLOTS]
-            ]
-            (--mainnet | --testnet-magic NATURAL)
-            TIMESTAMP
+                                       [ --shelley-mode
+                                       | --byron-mode [--epoch-slots SLOTS]
+                                       | --cardano-mode [--epoch-slots SLOTS]
+                                       ]
+                                       (--mainnet | --testnet-magic NATURAL)
+                                       TIMESTAMP
 
   Query slot number for UTC timestamp
 

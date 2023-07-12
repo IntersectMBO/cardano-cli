@@ -1,10 +1,10 @@
 Usage: cardano-cli query protocol-state --socket-path SOCKET_PATH
-            [ --shelley-mode
-            | --byron-mode [--epoch-slots SLOTS]
-            | --cardano-mode [--epoch-slots SLOTS]
-            ]
-            (--mainnet | --testnet-magic NATURAL)
-            [--out-file FILE]
+                                          [ --shelley-mode
+                                          | --byron-mode [--epoch-slots SLOTS]
+                                          | --cardano-mode [--epoch-slots SLOTS]
+                                          ]
+                                          (--mainnet | --testnet-magic NATURAL)
+                                          [--out-file FILE]
 
   Dump the current protocol state of the node (Ledger.ChainDepState -- advanced
   command)

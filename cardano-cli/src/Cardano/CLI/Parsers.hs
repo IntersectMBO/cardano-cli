@@ -19,6 +19,7 @@ import           Cardano.CLI.Shelley.Parsers (parseShelleyCommands)
 import           Data.Foldable
 import           Options.Applicative
 import qualified Options.Applicative as Opt
+import qualified Prettyprinter as PP
 
 
 opts :: EnvCli -> ParserInfo ClientCommand
@@ -33,11 +34,12 @@ opts envCli =
     ]
 
 pref :: ParserPrefs
-pref = Opt.prefs $ mconcat
-         [ showHelpOnEmpty
-         , helpHangUsageOverflow 10
-         , helpRenderHelp customRenderHelp
-         ]
+pref =
+  Opt.prefs $ mconcat
+    [ showHelpOnEmpty
+    , helpEmbedBriefDesc $ PP.align
+    , helpRenderHelp customRenderHelp
+    ]
 
 parseClientCommand :: EnvCli -> Parser ClientCommand
 parseClientCommand envCli =

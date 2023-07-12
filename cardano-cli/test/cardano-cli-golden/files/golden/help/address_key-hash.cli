@@ -1,8 +1,8 @@
 Usage: cardano-cli address key-hash 
-            ( --payment-verification-key STRING
-            | --payment-verification-key-file FILE
-            )
-            [--out-file FILE]
+                                      ( --payment-verification-key STRING
+                                      | --payment-verification-key-file FILE
+                                      )
+                                      [--out-file FILE]
 
   Print the hash of an address key.
 

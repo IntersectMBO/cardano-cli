@@ -1,11 +1,12 @@
 Usage: cardano-cli query kes-period-info --socket-path SOCKET_PATH
-            [ --shelley-mode
-            | --byron-mode [--epoch-slots SLOTS]
-            | --cardano-mode [--epoch-slots SLOTS]
-            ]
-            (--mainnet | --testnet-magic NATURAL)
-            --op-cert-file FILE
-            [--out-file FILE]
+                                           [ --shelley-mode
+                                           | --byron-mode [--epoch-slots SLOTS]
+                                           | --cardano-mode
+                                             [--epoch-slots SLOTS]
+                                           ]
+                                           (--mainnet | --testnet-magic NATURAL)
+                                           --op-cert-file FILE
+                                           [--out-file FILE]
 
   Get information about the current KES period and your node's operational
   certificate.

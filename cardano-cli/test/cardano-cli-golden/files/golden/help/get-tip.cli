@@ -1,5 +1,5 @@
 Usage: cardano-cli get-tip --socket-path SOCKET_PATH
-            (--mainnet | --testnet-magic NATURAL)
+                             (--mainnet | --testnet-magic NATURAL)
 
   Get the tip of your local node's blockchain
 

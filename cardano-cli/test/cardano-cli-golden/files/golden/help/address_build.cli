@@ -1,15 +1,15 @@
 Usage: cardano-cli address build 
-            ( --payment-verification-key STRING
-            | --payment-verification-key-file FILE
-            | --payment-script-file FILE
-            )
-            [ --stake-verification-key STRING
-            | --stake-verification-key-file FILE
-            | --stake-script-file FILE
-            | --stake-address ADDRESS
-            ]
-            (--mainnet | --testnet-magic NATURAL)
-            [--out-file FILE]
+                                   ( --payment-verification-key STRING
+                                   | --payment-verification-key-file FILE
+                                   | --payment-script-file FILE
+                                   )
+                                   [ --stake-verification-key STRING
+                                   | --stake-verification-key-file FILE
+                                   | --stake-script-file FILE
+                                   | --stake-address ADDRESS
+                                   ]
+                                   (--mainnet | --testnet-magic NATURAL)
+                                   [--out-file FILE]
 
   Build a Shelley payment address, with optional delegation to a stake address.
 

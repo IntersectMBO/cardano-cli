@@ -1,8 +1,8 @@
 Usage: cardano-cli transaction hash-script-data 
-            ( --script-data-cbor-file CBOR FILE
-            | --script-data-file JSON FILE
-            | --script-data-value JSON VALUE
-            )
+                                                  ( --script-data-cbor-file CBOR FILE
+                                                  | --script-data-file JSON FILE
+                                                  | --script-data-value JSON VALUE
+                                                  )
 
   Calculate the hash of script data.
 

@@ -1,17 +1,19 @@
 Usage: cardano-cli genesis create-cardano --genesis-dir DIR
-            [--gen-genesis-keys INT]
-            [--gen-utxo-keys INT]
-            [--start-time UTC-TIME]
-            [--supply LOVELACE]
-            [--security-param INT]
-            [--slot-length INT]
-            [--slot-coefficient RATIONAL]
-            (--mainnet | --testnet-magic NATURAL)
-            --byron-template FILEPATH
-            --shelley-template FILEPATH
-            --alonzo-template FILEPATH
-            --conway-template FILEPATH
-            [--node-config-template FILEPATH]
+                                            [--gen-genesis-keys INT]
+                                            [--gen-utxo-keys INT]
+                                            [--start-time UTC-TIME]
+                                            [--supply LOVELACE]
+                                            [--security-param INT]
+                                            [--slot-length INT]
+                                            [--slot-coefficient RATIONAL]
+                                            ( --mainnet
+                                            | --testnet-magic NATURAL
+                                            )
+                                            --byron-template FILEPATH
+                                            --shelley-template FILEPATH
+                                            --alonzo-template FILEPATH
+                                            --conway-template FILEPATH
+                                            [--node-config-template FILEPATH]
 
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.

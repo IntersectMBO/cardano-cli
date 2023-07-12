@@ -1,6 +1,6 @@
 Usage: cardano-cli genesis initial-txin --verification-key-file FILE
-            (--mainnet | --testnet-magic NATURAL)
-            [--out-file FILE]
+                                          (--mainnet | --testnet-magic NATURAL)
+                                          [--out-file FILE]
 
   Get the TxIn for an initial UTxO based on the verification key
 

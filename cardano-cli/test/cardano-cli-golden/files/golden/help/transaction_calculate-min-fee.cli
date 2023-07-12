@@ -1,10 +1,12 @@
 Usage: cardano-cli transaction calculate-min-fee --tx-body-file FILE
-            (--mainnet | --testnet-magic NATURAL)
-            --protocol-params-file FILE
-            --tx-in-count NATURAL
-            --tx-out-count NATURAL
-            --witness-count NATURAL
-            [--byron-witness-count NATURAL]
+                                                   ( --mainnet
+                                                   | --testnet-magic NATURAL
+                                                   )
+                                                   --protocol-params-file FILE
+                                                   --tx-in-count NATURAL
+                                                   --tx-out-count NATURAL
+                                                   --witness-count NATURAL
+                                                   [--byron-witness-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 

@@ -1,5 +1,5 @@
 Usage: cardano-cli stake-pool metadata-hash --pool-metadata-file FILE
-            [--out-file FILE]
+                                              [--out-file FILE]
 
   Print the hash of pool metadata.
 

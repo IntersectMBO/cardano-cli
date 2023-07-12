@@ -1,7 +1,9 @@
 Usage: cardano-cli byron governance submit-proposal-vote 
-            --socket-path SOCKET_PATH
-            (--mainnet | --testnet-magic NATURAL)
-            --filepath FILEPATH
+                                                           --socket-path SOCKET_PATH
+                                                           ( --mainnet
+                                                           | --testnet-magic NATURAL
+                                                           )
+                                                           --filepath FILEPATH
 
   Submit a proposal vote.
 
