@@ -79,14 +79,16 @@ import           Prelude
 
 import           Control.Exception (bracket)
 import           Control.Monad (unless)
+import           Control.Monad.Except (throwError)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
-                   newExceptT, right)
+import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither,
+                   hoistMaybe, left, newExceptT)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (first)
 import qualified Data.ByteString.Builder as Builder
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
+import           Data.Function
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
 import           Data.Text (Text)
@@ -499,7 +501,6 @@ acceptTxCDDLSerialisation file err =
    e@FileErrorTempFile{} -> return . Left $ CddlIOError e
    e@FileDoesNotExistError{} -> return . Left $ CddlIOError e
    e@FileIOError{} -> return . Left $ CddlIOError e
-   e@FileDoesNotExistError{} -> return . Left $ CddlIOError e
 
 readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
 readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
@@ -565,7 +566,6 @@ acceptKeyWitnessCDDLSerialisation err =
     e@FileErrorTempFile{} -> return . Left $ CddlWitnessIOError e
     e@FileDoesNotExistError{} -> return . Left $ CddlWitnessIOError e
     e@FileIOError{} -> return . Left $ CddlWitnessIOError e
-    e@FileDoesNotExistError{} -> return . Left $ CddlWitnessIOError e
 
 readCddlWitness
   :: FilePath
@@ -750,17 +750,14 @@ readTxVotes :: CardanoEra era
             -> [ConwayVoteFile In]
             -> IO (Either VoteError (TxVotes era))
 readTxVotes _ [] = return $ Right TxVotesNone
-readTxVotes era files =
+readTxVotes era files = runExceptT $
   case cardanoEraStyle era of
     LegacyByronEra ->
-      return . Left . VotesNotSupportedInEra $ AnyCardanoEra era
-    ShelleyBasedEra sbe ->
-      case votesSupportedInEra sbe of
-        Nothing -> return . Left . VotesNotSupportedInEra $ AnyCardanoEra era
-        Just supp ->
-          runExceptT $ do
-            votes <- newExceptT $ sequence <$> mapM (readVoteFile sbe) files
-            right $ TxVotes supp votes
+      throwError . VotesNotSupportedInEra $ AnyCardanoEra era
+    ShelleyBasedEra sbe ->  do
+      supp <- votesSupportedInEra sbe & hoistMaybe (VotesNotSupportedInEra $ AnyCardanoEra era)
+      votes <- newExceptT $ sequence <$> mapM (readVoteFile sbe) files
+      pure $ TxVotes supp votes
 
 readVoteFile
   :: ShelleyBasedEra era
@@ -780,18 +777,14 @@ readTxNewConstitutionActions
   -> [NewConstitutionFile In]
   -> IO (Either ConstitutionError (TxGovernanceActions era))
 readTxNewConstitutionActions _ [] = return $ Right TxGovernanceActionsNone
-readTxNewConstitutionActions era files =
+readTxNewConstitutionActions era files = runExceptT $
   case cardanoEraStyle era of
     LegacyByronEra ->
-      return . Left . ConstitutionsNotSupportedInEra $ AnyCardanoEra era
-    ShelleyBasedEra sbe' ->
-      case governanceActionsSupportedInEra sbe' of
-        Nothing -> return . Left . ConstitutionsNotSupportedInEra $ AnyCardanoEra era
-        Just supp ->
-          runExceptT $ do
-            constitutions <- newExceptT $ sequence <$> mapM (readConstitution sbe') files
-            let brokenUp = map (fromProposalProcedure sbe') constitutions
-            right $ TxGovernanceActions supp brokenUp
+      throwError . ConstitutionsNotSupportedInEra $ AnyCardanoEra era
+    ShelleyBasedEra sbe' -> do
+      supp <- governanceActionsSupportedInEra sbe' & hoistMaybe (ConstitutionsNotSupportedInEra $ AnyCardanoEra era)
+      constitutions <- newExceptT $ sequence <$> mapM (readConstitution sbe') files
+      pure $ TxGovernanceActions supp constitutions
 
 readConstitution
   :: ShelleyBasedEra era
