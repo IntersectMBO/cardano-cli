@@ -1,6 +1,6 @@
 Usage: cardano-cli genesis initial-addr --verification-key-file FILE
-            (--mainnet | --testnet-magic NATURAL)
-            [--out-file FILE]
+                                          (--mainnet | --testnet-magic NATURAL)
+                                          [--out-file FILE]
 
   Get the address for an initial UTxO based on the verification key
 

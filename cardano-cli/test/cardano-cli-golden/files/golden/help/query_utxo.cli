@@ -1,11 +1,14 @@
 Usage: cardano-cli query utxo --socket-path SOCKET_PATH
-            [ --shelley-mode
-            | --byron-mode [--epoch-slots SLOTS]
-            | --cardano-mode [--epoch-slots SLOTS]
-            ]
-            (--whole-utxo | (--address ADDRESS) | (--tx-in TX-IN))
-            (--mainnet | --testnet-magic NATURAL)
-            [--out-file FILE]
+                                [ --shelley-mode
+                                | --byron-mode [--epoch-slots SLOTS]
+                                | --cardano-mode [--epoch-slots SLOTS]
+                                ]
+                                ( --whole-utxo
+                                | (--address ADDRESS)
+                                | (--tx-in TX-IN)
+                                )
+                                (--mainnet | --testnet-magic NATURAL)
+                                [--out-file FILE]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
 

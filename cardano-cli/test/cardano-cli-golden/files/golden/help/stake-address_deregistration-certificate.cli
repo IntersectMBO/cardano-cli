@@ -1,17 +1,17 @@
 Usage: cardano-cli stake-address deregistration-certificate 
-            ( --shelley-era
-            | --allegra-era
-            | --mary-era
-            | --alonzo-era
-            | --babbage-era
-            | --conway-era
-            )
-            ( --stake-verification-key STRING
-            | --stake-verification-key-file FILE
-            | --stake-script-file FILE
-            | --stake-address ADDRESS
-            )
-            --out-file FILE
+                                                              ( --shelley-era
+                                                              | --allegra-era
+                                                              | --mary-era
+                                                              | --alonzo-era
+                                                              | --babbage-era
+                                                              | --conway-era
+                                                              )
+                                                              ( --stake-verification-key STRING
+                                                              | --stake-verification-key-file FILE
+                                                              | --stake-script-file FILE
+                                                              | --stake-address ADDRESS
+                                                              )
+                                                              --out-file FILE
 
   Create a stake address deregistration certificate
 

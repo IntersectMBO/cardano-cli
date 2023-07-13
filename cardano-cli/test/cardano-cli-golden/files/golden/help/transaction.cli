@@ -1,17 +1,17 @@
 Usage: cardano-cli transaction 
-            ( build-raw
-            | build
-            | sign
-            | witness
-            | assemble
-            | submit
-            | policyid
-            | calculate-min-fee
-            | calculate-min-required-utxo
-            | hash-script-data
-            | txid
-            | view
-            )
+                                 ( build-raw
+                                 | build
+                                 | sign
+                                 | witness
+                                 | assemble
+                                 | submit
+                                 | policyid
+                                 | calculate-min-fee
+                                 | calculate-min-required-utxo
+                                 | hash-script-data
+                                 | txid
+                                 | view
+                                 )
 
   Transaction commands
 

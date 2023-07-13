@@ -1,5 +1,5 @@
 Usage: cardano-cli genesis key-gen-utxo --verification-key-file FILE
-            --signing-key-file FILE
+                                          --signing-key-file FILE
 
   Create a Shelley genesis UTxO key pair
 

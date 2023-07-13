@@ -1,11 +1,14 @@
 Usage: cardano-cli governance vote create-vote (--yes | --no | --abstain)
-            (--constitutional-committee-member | --drep | --spo)
-            --tx-in TX-IN
-            ( --stake-pool-verification-key STRING
-            | --cold-verification-key-file FILE
-            )
-            [--conway-era]
-            --out-file FILE
+                                                 ( --constitutional-committee-member
+                                                 | --drep
+                                                 | --spo
+                                                 )
+                                                 --tx-in TX-IN
+                                                 ( --stake-pool-verification-key STRING
+                                                 | --cold-verification-key-file FILE
+                                                 )
+                                                 [--conway-era]
+                                                 --out-file FILE
 
   Create a vote for a proposed governance action.
 

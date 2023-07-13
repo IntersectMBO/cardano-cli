@@ -1,7 +1,7 @@
 Usage: cardano-cli node key-gen [--key-output-format STRING]
-            --cold-verification-key-file FILE
-            --cold-signing-key-file FILE
-            --operational-certificate-issue-counter-file FILE
+                                  --cold-verification-key-file FILE
+                                  --cold-signing-key-file FILE
+                                  --operational-certificate-issue-counter-file FILE
 
   Create a key pair for a node operator's offline key and a new certificate
   issue counter

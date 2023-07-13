@@ -1,5 +1,5 @@
 Usage: cardano-cli genesis key-gen-genesis --verification-key-file FILE
-            --signing-key-file FILE
+                                             --signing-key-file FILE
 
   Create a Shelley genesis key pair
 

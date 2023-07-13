@@ -1,11 +1,15 @@
 Usage: cardano-cli query stake-address-info --socket-path SOCKET_PATH
-            [ --shelley-mode
-            | --byron-mode [--epoch-slots SLOTS]
-            | --cardano-mode [--epoch-slots SLOTS]
-            ]
-            --address ADDRESS
-            (--mainnet | --testnet-magic NATURAL)
-            [--out-file FILE]
+                                              [ --shelley-mode
+                                              | --byron-mode
+                                                [--epoch-slots SLOTS]
+                                              | --cardano-mode
+                                                [--epoch-slots SLOTS]
+                                              ]
+                                              --address ADDRESS
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              [--out-file FILE]
 
   Get the current delegations and reward accounts filtered by stake address.
 

@@ -1,11 +1,13 @@
 Usage: cardano-cli governance action create-action create-constitution 
-            [--conway-era]
-            --governance-action-deposit NATURAL
-            ( --stake-pool-verification-key STRING
-            | --cold-verification-key-file FILE
-            )
-            (--constitution TEXT | --constitution-file FILE)
-            --out-file FILE
+                                                                         [--conway-era]
+                                                                         --governance-action-deposit NATURAL
+                                                                         ( --stake-pool-verification-key STRING
+                                                                         | --cold-verification-key-file FILE
+                                                                         )
+                                                                         ( --constitution TEXT
+                                                                         | --constitution-file FILE
+                                                                         )
+                                                                         --out-file FILE
 
   Create a constitution.
 

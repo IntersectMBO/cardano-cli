@@ -1,10 +1,10 @@
 Usage: cardano-cli query pool-params --socket-path SOCKET_PATH
-            [ --shelley-mode
-            | --byron-mode [--epoch-slots SLOTS]
-            | --cardano-mode [--epoch-slots SLOTS]
-            ]
-            (--mainnet | --testnet-magic NATURAL)
-            [--stake-pool-id STAKE_POOL_ID]
+                                       [ --shelley-mode
+                                       | --byron-mode [--epoch-slots SLOTS]
+                                       | --cardano-mode [--epoch-slots SLOTS]
+                                       ]
+                                       (--mainnet | --testnet-magic NATURAL)
+                                       [--stake-pool-id STAKE_POOL_ID]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced

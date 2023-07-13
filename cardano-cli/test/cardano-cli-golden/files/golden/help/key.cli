@@ -1,13 +1,13 @@
 Usage: cardano-cli key 
-            ( verification-key
-            | non-extended-key
-            | convert-byron-key
-            | convert-byron-genesis-vkey
-            | convert-itn-key
-            | convert-itn-extended-key
-            | convert-itn-bip32-key
-            | convert-cardano-address-key
-            )
+                         ( verification-key
+                         | non-extended-key
+                         | convert-byron-key
+                         | convert-byron-genesis-vkey
+                         | convert-itn-key
+                         | convert-itn-extended-key
+                         | convert-itn-bip32-key
+                         | convert-cardano-address-key
+                         )
 
   Key utility commands
 

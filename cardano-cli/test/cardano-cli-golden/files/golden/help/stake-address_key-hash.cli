@@ -1,8 +1,8 @@
 Usage: cardano-cli stake-address key-hash 
-            ( --stake-verification-key STRING
-            | --stake-verification-key-file FILE
-            )
-            [--out-file FILE]
+                                            ( --stake-verification-key STRING
+                                            | --stake-verification-key-file FILE
+                                            )
+                                            [--out-file FILE]
 
   Print the hash of a stake address key.
 

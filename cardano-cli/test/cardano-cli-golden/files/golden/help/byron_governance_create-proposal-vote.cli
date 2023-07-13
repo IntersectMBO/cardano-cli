@@ -1,9 +1,13 @@
 Usage: cardano-cli byron governance create-proposal-vote 
-            (--mainnet | --testnet-magic NATURAL)
-            --signing-key FILEPATH
-            --proposal-filepath FILEPATH
-            (--vote-yes | --vote-no)
-            --output-filepath FILEPATH
+                                                           ( --mainnet
+                                                           | --testnet-magic NATURAL
+                                                           )
+                                                           --signing-key FILEPATH
+                                                           --proposal-filepath FILEPATH
+                                                           ( --vote-yes
+                                                           | --vote-no
+                                                           )
+                                                           --output-filepath FILEPATH
 
   Create an update proposal vote.
 

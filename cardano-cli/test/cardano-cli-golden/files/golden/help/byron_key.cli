@@ -1,10 +1,9 @@
-Usage: cardano-cli byron key 
-          ( keygen
-          | to-verification
-          | signing-key-public
-          | signing-key-address
-          | migrate-delegate-key-from
-          )
+Usage: cardano-cli byron key ( keygen
+                             | to-verification
+                             | signing-key-public
+                             | signing-key-address
+                             | migrate-delegate-key-from
+                             )
 
   Byron key utility commands
 

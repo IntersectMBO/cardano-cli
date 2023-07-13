@@ -1,9 +1,11 @@
 Usage: cardano-cli node issue-op-cert 
-            (--kes-verification-key STRING | --kes-verification-key-file FILE)
-            --cold-signing-key-file FILE
-            --operational-certificate-issue-counter-file FILE
-            --kes-period NATURAL
-            --out-file FILE
+                                        ( --kes-verification-key STRING
+                                        | --kes-verification-key-file FILE
+                                        )
+                                        --cold-signing-key-file FILE
+                                        --operational-certificate-issue-counter-file FILE
+                                        --kes-period NATURAL
+                                        --out-file FILE
 
   Issue a node operational certificate
 

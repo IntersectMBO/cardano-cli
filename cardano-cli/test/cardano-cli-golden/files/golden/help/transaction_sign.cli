@@ -1,7 +1,8 @@
 Usage: cardano-cli transaction sign (--tx-body-file FILE | --tx-file FILE)
-            [--signing-key-file FILE [--address STRING]]
-            [--mainnet | --testnet-magic NATURAL]
-            --out-file FILE
+                                      [--signing-key-file FILE
+                                        [--address STRING]]
+                                      [--mainnet | --testnet-magic NATURAL]
+                                      --out-file FILE
 
   Sign a transaction
 

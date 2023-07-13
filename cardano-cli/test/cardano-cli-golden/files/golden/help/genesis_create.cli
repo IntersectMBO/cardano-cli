@@ -1,10 +1,10 @@
 Usage: cardano-cli genesis create [--key-output-format STRING]
-            --genesis-dir DIR
-            [--gen-genesis-keys INT]
-            [--gen-utxo-keys INT]
-            [--start-time UTC-TIME]
-            [--supply LOVELACE]
-            (--mainnet | --testnet-magic NATURAL)
+                                    --genesis-dir DIR
+                                    [--gen-genesis-keys INT]
+                                    [--gen-utxo-keys INT]
+                                    [--start-time UTC-TIME]
+                                    [--supply LOVELACE]
+                                    (--mainnet | --testnet-magic NATURAL)
 
   Create a Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.

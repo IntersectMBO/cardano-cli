@@ -1,15 +1,17 @@
 Usage: cardano-cli governance create-mir-certificate stake-addresses 
-            ( --shelley-era
-            | --allegra-era
-            | --mary-era
-            | --alonzo-era
-            | --babbage-era
-            | --conway-era
-            )
-            (--reserves | --treasury)
-            (--stake-address ADDRESS)
-            (--reward LOVELACE)
-            --out-file FILE
+                                                                       ( --shelley-era
+                                                                       | --allegra-era
+                                                                       | --mary-era
+                                                                       | --alonzo-era
+                                                                       | --babbage-era
+                                                                       | --conway-era
+                                                                       )
+                                                                       ( --reserves
+                                                                       | --treasury
+                                                                       )
+                                                                       (--stake-address ADDRESS)
+                                                                       (--reward LOVELACE)
+                                                                       --out-file FILE
 
   Create an MIR certificate to pay stake addresses
 

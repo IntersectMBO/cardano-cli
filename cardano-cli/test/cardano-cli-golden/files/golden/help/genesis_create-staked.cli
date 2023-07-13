@@ -1,17 +1,17 @@
 Usage: cardano-cli genesis create-staked [--key-output-format STRING]
-            --genesis-dir DIR
-            [--gen-genesis-keys INT]
-            [--gen-utxo-keys INT]
-            [--gen-pools INT]
-            [--gen-stake-delegs INT]
-            [--start-time UTC-TIME]
-            [--supply LOVELACE]
-            [--supply-delegated LOVELACE]
-            (--mainnet | --testnet-magic NATURAL)
-            [--bulk-pool-cred-files INT]
-            [--bulk-pools-per-file INT]
-            [--num-stuffed-utxo INT]
-            [--relay-specification-file FILE]
+                                           --genesis-dir DIR
+                                           [--gen-genesis-keys INT]
+                                           [--gen-utxo-keys INT]
+                                           [--gen-pools INT]
+                                           [--gen-stake-delegs INT]
+                                           [--start-time UTC-TIME]
+                                           [--supply LOVELACE]
+                                           [--supply-delegated LOVELACE]
+                                           (--mainnet | --testnet-magic NATURAL)
+                                           [--bulk-pool-cred-files INT]
+                                           [--bulk-pools-per-file INT]
+                                           [--num-stuffed-utxo INT]
+                                           [--relay-specification-file FILE]
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.

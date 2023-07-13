@@ -1,10 +1,10 @@
 Usage: cardano-cli stake-address build 
-            ( --stake-verification-key STRING
-            | --stake-verification-key-file FILE
-            | --stake-script-file FILE
-            )
-            (--mainnet | --testnet-magic NATURAL)
-            [--out-file FILE]
+                                         ( --stake-verification-key STRING
+                                         | --stake-verification-key-file FILE
+                                         | --stake-script-file FILE
+                                         )
+                                         (--mainnet | --testnet-magic NATURAL)
+                                         [--out-file FILE]
 
   Build a stake address
 

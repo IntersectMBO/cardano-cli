@@ -1,6 +1,6 @@
 Usage: cardano-cli node key-gen-VRF [--key-output-format STRING]
-            --verification-key-file FILE
-            --signing-key-file FILE
+                                      --verification-key-file FILE
+                                      --signing-key-file FILE
 
   Create a key pair for a node VRF operational key
 

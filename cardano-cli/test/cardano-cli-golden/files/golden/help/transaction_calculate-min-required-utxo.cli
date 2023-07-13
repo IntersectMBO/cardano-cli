@@ -1,26 +1,26 @@
 Usage: cardano-cli transaction calculate-min-required-utxo 
-            [ --byron-era
-            | --shelley-era
-            | --allegra-era
-            | --mary-era
-            | --alonzo-era
-            | --babbage-era
-            | --conway-era
-            ]
-            --protocol-params-file FILE
-            --tx-out ADDRESS VALUE
-            [ --tx-out-datum-hash HASH
-            | --tx-out-datum-hash-cbor-file CBOR FILE
-            | --tx-out-datum-hash-file JSON FILE
-            | --tx-out-datum-hash-value JSON VALUE
-            | --tx-out-datum-embed-cbor-file CBOR FILE
-            | --tx-out-datum-embed-file JSON FILE
-            | --tx-out-datum-embed-value JSON VALUE
-            | --tx-out-inline-datum-cbor-file CBOR FILE
-            | --tx-out-inline-datum-file JSON FILE
-            | --tx-out-inline-datum-value JSON VALUE
-            ]
-            [--tx-out-reference-script-file FILE]
+                                                             [ --byron-era
+                                                             | --shelley-era
+                                                             | --allegra-era
+                                                             | --mary-era
+                                                             | --alonzo-era
+                                                             | --babbage-era
+                                                             | --conway-era
+                                                             ]
+                                                             --protocol-params-file FILE
+                                                             --tx-out ADDRESS VALUE
+                                                             [ --tx-out-datum-hash HASH
+                                                             | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                             | --tx-out-datum-hash-file JSON FILE
+                                                             | --tx-out-datum-hash-value JSON VALUE
+                                                             | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                             | --tx-out-datum-embed-file JSON FILE
+                                                             | --tx-out-datum-embed-value JSON VALUE
+                                                             | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                             | --tx-out-inline-datum-file JSON FILE
+                                                             | --tx-out-inline-datum-value JSON VALUE
+                                                             ]
+                                                             [--tx-out-reference-script-file FILE]
 
   Calculate the minimum required UTxO for a transaction output.
 

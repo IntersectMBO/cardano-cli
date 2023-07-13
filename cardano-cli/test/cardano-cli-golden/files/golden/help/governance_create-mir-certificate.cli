@@ -1,19 +1,21 @@
 Usage: cardano-cli governance create-mir-certificate 
-            ( ( --shelley-era
-              | --allegra-era
-              | --mary-era
-              | --alonzo-era
-              | --babbage-era
-              | --conway-era
-              )
-              (--reserves | --treasury)
-              (--stake-address ADDRESS)
-              (--reward LOVELACE)
-              --out-file FILE
-            | stake-addresses
-            | transfer-to-treasury
-            | transfer-to-rewards
-            )
+                                                       ( ( --shelley-era
+                                                         | --allegra-era
+                                                         | --mary-era
+                                                         | --alonzo-era
+                                                         | --babbage-era
+                                                         | --conway-era
+                                                         )
+                                                         ( --reserves
+                                                         | --treasury
+                                                         )
+                                                         (--stake-address ADDRESS)
+                                                         (--reward LOVELACE)
+                                                         --out-file FILE
+                                                       | stake-addresses
+                                                       | transfer-to-treasury
+                                                       | transfer-to-rewards
+                                                       )
 
   Create an MIR (Move Instantaneous Rewards) certificate
 

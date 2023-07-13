@@ -1,8 +1,8 @@
 Usage: cardano-cli transaction witness --tx-body-file FILE
-            --signing-key-file FILE
-            [--address STRING]
-            [--mainnet | --testnet-magic NATURAL]
-            --out-file FILE
+                                         --signing-key-file FILE
+                                         [--address STRING]
+                                         [--mainnet | --testnet-magic NATURAL]
+                                         --out-file FILE
 
   Create a transaction witness
 
