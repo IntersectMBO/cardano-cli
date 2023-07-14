@@ -82,7 +82,7 @@ parseShelleyCommands envCli =
     , Opt.command "node" $
         Opt.info (NodeCmd <$> pNodeCmd) $ Opt.progDesc "Node operation commands"
     , Opt.command "stake-pool" $
-        Opt.info (PoolCmd <$> pPoolCmd envCli) $ Opt.progDesc "Stake pool commands"
+        Opt.info (StakePoolCmd <$> pStakePoolCmd envCli) $ Opt.progDesc "Stake pool commands"
     , Opt.command "query" $
         Opt.info (QueryCmd <$> pQueryCmd envCli) . Opt.progDesc $ mconcat
           [ "Node query commands. Will query the local node whose Unix domain socket "
@@ -930,8 +930,8 @@ pNodeCmd =
         <*> pKesPeriod
         <*> pOutputFile
 
-pPoolCmd :: EnvCli -> Parser PoolCmd
-pPoolCmd  envCli =
+pStakePoolCmd :: EnvCli -> Parser StakePoolCmd
+pStakePoolCmd  envCli =
   asum
     [ subParser "registration-certificate"
         $ Opt.info (pStakePoolRegistrationCert envCli)
@@ -943,15 +943,22 @@ pPoolCmd  envCli =
         $ Opt.info pId
         $ Opt.progDesc "Build pool id from the offline key"
     , subParser "metadata-hash"
-        $ Opt.info pPoolMetadataHashSubCmd
+        $ Opt.info pStakePoolMetadataHashSubCmd
         $ Opt.progDesc "Print the hash of pool metadata."
     ]
   where
-    pId :: Parser PoolCmd
-    pId = PoolGetId <$> pStakePoolVerificationKeyOrFile <*> pPoolIdOutputFormat <*> pMaybeOutputFile
+    pId :: Parser StakePoolCmd
+    pId =
+      StakePoolGetIdCmd
+        <$> pStakePoolVerificationKeyOrFile
+        <*> pStakePoolIdOutputFormat
+        <*> pMaybeOutputFile
 
-    pPoolMetadataHashSubCmd :: Parser PoolCmd
-    pPoolMetadataHashSubCmd = PoolMetadataHash <$> pPoolMetadataFile <*> pMaybeOutputFile
+    pStakePoolMetadataHashSubCmd :: Parser StakePoolCmd
+    pStakePoolMetadataHashSubCmd =
+      StakePoolMetadataHashCmd
+        <$> pStakePoolMetadataFile
+        <*> pMaybeOutputFile
 
 pQueryCmd :: EnvCli -> Parser QueryCmd
 pQueryCmd envCli =
@@ -1746,8 +1753,8 @@ pCertificateFile balanceExecUnits =
     , "stake key certificates etc). Optionally specify a script witness."
     ]
 
-pPoolMetadataFile :: Parser (StakePoolMetadataFile In)
-pPoolMetadataFile =
+pStakePoolMetadataFile :: Parser (StakePoolMetadataFile In)
+pStakePoolMetadataFile =
   fmap File $ Opt.strOption $ mconcat
     [ Opt.long "pool-metadata-file"
     , Opt.metavar "FILE"
@@ -2039,8 +2046,8 @@ pKeyOutputFormat =
     , Opt.value KeyOutputFormatTextEnvelope
     ]
 
-pPoolIdOutputFormat :: Parser PoolIdOutputFormat
-pPoolIdOutputFormat =
+pStakePoolIdOutputFormat :: Parser PoolIdOutputFormat
+pStakePoolIdOutputFormat =
   Opt.option readPoolIdOutputFormat $ mconcat
     [ Opt.long "output-format"
     , Opt.metavar "STRING"
@@ -2888,8 +2895,8 @@ pRewardAcctVerificationKeyOrFile =
     , VerificationKeyFilePath <$> pRewardAcctVerificationKeyFile
     ]
 
-pPoolOwnerVerificationKeyFile :: Parser (VerificationKeyFile In)
-pPoolOwnerVerificationKeyFile =
+pStakePoolOwnerVerificationKeyFile :: Parser (VerificationKeyFile In)
+pStakePoolOwnerVerificationKeyFile =
   fmap File $ asum
     [ Opt.strOption $ mconcat
       [ Opt.long "pool-owner-stake-verification-key-file"
@@ -2903,23 +2910,23 @@ pPoolOwnerVerificationKeyFile =
       ]
     ]
 
-pPoolOwnerVerificationKey :: Parser (VerificationKey StakeKey)
-pPoolOwnerVerificationKey =
+pStakePoolOwnerVerificationKey :: Parser (VerificationKey StakeKey)
+pStakePoolOwnerVerificationKey =
   Opt.option (readVerificationKey AsStakeKey) $ mconcat
     [ Opt.long "pool-owner-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Pool owner stake verification key (Bech32 or hex-encoded)."
     ]
 
-pPoolOwnerVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakeKey)
-pPoolOwnerVerificationKeyOrFile =
+pStakePoolOwnerVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakeKey)
+pStakePoolOwnerVerificationKeyOrFile =
   asum
-    [ VerificationKeyValue <$> pPoolOwnerVerificationKey
-    , VerificationKeyFilePath <$> pPoolOwnerVerificationKeyFile
+    [ VerificationKeyValue <$> pStakePoolOwnerVerificationKey
+    , VerificationKeyFilePath <$> pStakePoolOwnerVerificationKeyFile
     ]
 
-pPoolPledge :: Parser Lovelace
-pPoolPledge =
+pStakePoolPledge :: Parser Lovelace
+pStakePoolPledge =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "pool-pledge"
     , Opt.metavar "LOVELACE"
@@ -2927,24 +2934,24 @@ pPoolPledge =
     ]
 
 
-pPoolCost :: Parser Lovelace
-pPoolCost =
+pStakePoolCost :: Parser Lovelace
+pStakePoolCost =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "pool-cost"
     , Opt.metavar "LOVELACE"
     , Opt.help "The stake pool's cost."
     ]
 
-pPoolMargin :: Parser Rational
-pPoolMargin =
+pStakePoolMargin :: Parser Rational
+pStakePoolMargin =
   Opt.option readRationalUnitInterval $ mconcat
     [ Opt.long "pool-margin"
     , Opt.metavar "RATIONAL"
     , Opt.help "The stake pool's margin."
     ]
 
-pPoolRelay :: Parser StakePoolRelay
-pPoolRelay =
+pStakePoolRelay :: Parser StakePoolRelay
+pStakePoolRelay =
   asum
     [ pSingleHostAddress
     , pSingleHostName
@@ -3057,25 +3064,25 @@ pStakePoolMetadataHash =
         . deserialiseFromRawBytesHex (AsHash AsStakePoolMetadata)
         . BSC.pack
 
-pStakePoolRegistrationCert :: EnvCli -> Parser PoolCmd
+pStakePoolRegistrationCert :: EnvCli -> Parser StakePoolCmd
 pStakePoolRegistrationCert envCli =
-  PoolRegistrationCert
+  StakePoolRegistrationCertCmd
     <$> pAnyShelleyBasedEra
     <*> pStakePoolVerificationKeyOrFile
     <*> pVrfVerificationKeyOrFile
-    <*> pPoolPledge
-    <*> pPoolCost
-    <*> pPoolMargin
+    <*> pStakePoolPledge
+    <*> pStakePoolCost
+    <*> pStakePoolMargin
     <*> pRewardAcctVerificationKeyOrFile
-    <*> some pPoolOwnerVerificationKeyOrFile
-    <*> many pPoolRelay
+    <*> some pStakePoolOwnerVerificationKeyOrFile
+    <*> many pStakePoolRelay
     <*> pStakePoolMetadataReference
     <*> pNetworkId envCli
     <*> pOutputFile
 
-pStakePoolRetirementCert :: Parser PoolCmd
+pStakePoolRetirementCert :: Parser StakePoolCmd
 pStakePoolRetirementCert =
-  PoolRetirementCert
+  StakePoolRetirementCertCmd
     <$> pAnyShelleyBasedEra
     <*> pStakePoolVerificationKeyOrFile
     <*> pEpochNo
@@ -3095,11 +3102,11 @@ pProtocolParametersUpdate =
     <*> optional pMinFeePerByteFactor
     <*> optional pMinUTxOValue
     <*> optional pKeyRegistDeposit
-    <*> optional pPoolDeposit
+    <*> optional pStakePoolDeposit
     <*> optional pMinPoolCost
     <*> optional pEpochBoundRetirement
     <*> optional pNumberOfPools
-    <*> optional pPoolInfluence
+    <*> optional pStakePoolInfluence
     <*> optional pMonetaryExpansion
     <*> optional pTreasuryExpansion
     <*> optional pUTxOCostPerWord
@@ -3185,8 +3192,8 @@ pKeyRegistDeposit =
    , Opt.help "Key registration deposit amount."
    ]
 
-pPoolDeposit :: Parser Lovelace
-pPoolDeposit =
+pStakePoolDeposit :: Parser Lovelace
+pStakePoolDeposit =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
    [ Opt.long "pool-reg-deposit"
    , Opt.metavar "NATURAL"
@@ -3209,8 +3216,8 @@ pNumberOfPools =
    , Opt.help "Desired number of pools."
    ]
 
-pPoolInfluence :: Parser Rational
-pPoolInfluence =
+pStakePoolInfluence :: Parser Rational
+pStakePoolInfluence =
   Opt.option readRational $ mconcat
     [ Opt.long "pool-influence"
     , Opt.metavar "RATIONAL"

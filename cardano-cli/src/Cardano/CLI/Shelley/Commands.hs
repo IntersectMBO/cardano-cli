@@ -13,7 +13,7 @@ module Cardano.CLI.Shelley.Commands
   , KeyCmd (..)
   , TransactionCmd (..)
   , NodeCmd (..)
-  , PoolCmd (..)
+  , StakePoolCmd (..)
   , QueryCmd (..)
   , GovernanceCmd (..)
   , GenesisCmd (..)
@@ -76,7 +76,7 @@ data ShelleyCommand
   | KeyCmd          KeyCmd
   | TransactionCmd  TransactionCmd
   | NodeCmd         NodeCmd
-  | PoolCmd         PoolCmd
+  | StakePoolCmd    StakePoolCmd
   | QueryCmd        QueryCmd
   | GovernanceCmd'   GovernanceCmd
   | GenesisCmd      GenesisCmd
@@ -90,7 +90,7 @@ renderShelleyCommand sc =
     KeyCmd cmd -> renderKeyCmd cmd
     TransactionCmd cmd -> renderTransactionCmd cmd
     NodeCmd cmd -> renderNodeCmd cmd
-    PoolCmd cmd -> renderPoolCmd cmd
+    StakePoolCmd cmd -> renderStakePoolCmd cmd
     QueryCmd cmd -> renderQueryCmd cmd
     GovernanceCmd' cmd -> renderGovernanceCmd cmd
     GenesisCmd cmd -> renderGenesisCmd cmd
@@ -309,8 +309,8 @@ renderNodeCmd cmd = do
     NodeNewCounter {} -> "node new-counter"
     NodeIssueOpCert{} -> "node issue-op-cert"
 
-data PoolCmd
-  = PoolRegistrationCert
+data StakePoolCmd
+  = StakePoolRegistrationCertCmd
       AnyShelleyBasedEra
       -- ^ Era in which to register the stake pool.
       (VerificationKeyOrFile StakePoolKey)
@@ -333,7 +333,7 @@ data PoolCmd
       -- ^ Stake pool metadata.
       NetworkId
       (File () Out)
-  | PoolRetirementCert
+  | StakePoolRetirementCertCmd
       AnyShelleyBasedEra
       -- ^ Era in which to retire the stake pool.
       (VerificationKeyOrFile StakePoolKey)
@@ -341,17 +341,17 @@ data PoolCmd
       EpochNo
       -- ^ Epoch in which to retire the stake pool.
       (File () Out)
-  | PoolGetId (VerificationKeyOrFile StakePoolKey) PoolIdOutputFormat (Maybe (File () Out))
-  | PoolMetadataHash (StakePoolMetadataFile In) (Maybe (File () Out))
+  | StakePoolGetIdCmd (VerificationKeyOrFile StakePoolKey) PoolIdOutputFormat (Maybe (File () Out))
+  | StakePoolMetadataHashCmd (StakePoolMetadataFile In) (Maybe (File () Out))
   deriving Show
 
-renderPoolCmd :: PoolCmd -> Text
-renderPoolCmd cmd =
+renderStakePoolCmd :: StakePoolCmd -> Text
+renderStakePoolCmd cmd =
   case cmd of
-    PoolRegistrationCert {} -> "stake-pool registration-certificate"
-    PoolRetirementCert {} -> "stake-pool deregistration-certificate"
-    PoolGetId {} -> "stake-pool id"
-    PoolMetadataHash {} -> "stake-pool metadata-hash"
+    StakePoolRegistrationCertCmd {} -> "stake-pool registration-certificate"
+    StakePoolRetirementCertCmd {} -> "stake-pool deregistration-certificate"
+    StakePoolGetIdCmd {} -> "stake-pool id"
+    StakePoolMetadataHashCmd {} -> "stake-pool metadata-hash"
 
 data QueryCmd =
     QueryLeadershipSchedule
