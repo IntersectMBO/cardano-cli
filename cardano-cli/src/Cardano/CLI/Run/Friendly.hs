@@ -346,7 +346,7 @@ friendlyCertificate =
           , "hot key hash" .= serialiseToRawBytesHexText hotKeyHash
           ]
 
-      CommitteeHotKeyUnregistrationCertificate coldKeyHash ->
+      CommitteeHotKeyDeregistrationCertificate coldKeyHash ->
         "committee hot key unregistration" .= object
           [ "cold key hash" .= serialiseToRawBytesHexText coldKeyHash
           ]
