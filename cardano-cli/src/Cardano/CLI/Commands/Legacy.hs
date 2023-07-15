@@ -58,7 +58,7 @@ import           Cardano.CLI.Options.Governance
 import           Cardano.CLI.Shelley.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Legacy
 
 import           Prelude
 

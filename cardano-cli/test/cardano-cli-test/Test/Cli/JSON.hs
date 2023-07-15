@@ -9,7 +9,7 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Run.Legacy.Query
 import           Cardano.CLI.Shelley.Output (QueryKesPeriodInfoOutput (..),
                    createOpCertIntervalInfo)
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Legacy
 
 import           Data.Aeson
 import qualified Data.Map.Strict as Map

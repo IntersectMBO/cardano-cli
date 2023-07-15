@@ -77,7 +77,7 @@ library
                         Cardano.CLI.Run.Legacy.Transaction
                         Cardano.CLI.Run.Legacy.Read
                         Cardano.CLI.Run.Legacy.Validate
-                        Cardano.CLI.Types
+                        Cardano.CLI.Types.Legacy
 
                         Cardano.CLI.Byron.Commands
                         Cardano.CLI.Byron.Parsers

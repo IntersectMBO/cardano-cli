@@ -32,7 +32,7 @@ import qualified Cardano.Chain.Common as Common
 import           Cardano.Chain.Genesis as Genesis
 import qualified Cardano.Chain.UTxO as UTxO
 import           Cardano.CLI.Byron.Key (byronWitnessToVerKey)
-import           Cardano.CLI.Types (TxFile)
+import           Cardano.CLI.Types.Legacy (TxFile)
 import qualified Cardano.Crypto.Signing as Crypto
 import qualified Cardano.Ledger.Binary.Decoding as LedgerBinary
 import           Ouroboros.Consensus.Byron.Ledger (ByronBlock, GenTx (..))

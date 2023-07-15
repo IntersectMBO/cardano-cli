@@ -26,7 +26,7 @@ import           Cardano.CLI.Options.Governance
 import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
                    VerificationKeyOrFile (..), VerificationKeyOrHashOrFile (..),
                    VerificationKeyTextOrFile (..))
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.BaseTypes as Shelley
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 import           Cardano.Prelude (ConvertText (..))
