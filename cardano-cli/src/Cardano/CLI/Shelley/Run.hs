@@ -1,7 +1,9 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Cardano.CLI.Shelley.Run
-  ( ShelleyClientCmdError
-  , renderShelleyClientCmdError
-  , runShelleyClientCommand
+  ( LegacyClientCmdError
+  , renderLegacyClientCmdError
+  , runLegacyClientCommand
   ) where
 
 import           Cardano.Api
@@ -24,64 +26,66 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 
-data ShelleyClientCmdError
-  = ShelleyCmdAddressError !ShelleyAddressCmdError
-  | ShelleyCmdGenesisError !ShelleyGenesisCmdError
-  | ShelleyCmdGovernanceError !GovernanceCmdError
-  | ShelleyCmdNodeError !ShelleyNodeCmdError
-  | ShelleyCmdPoolError !ShelleyPoolCmdError
-  | ShelleyCmdStakeAddressError !ShelleyStakeAddressCmdError
-  | ShelleyCmdTextViewError !ShelleyTextViewFileError
-  | ShelleyCmdTransactionError !ShelleyTxCmdError
-  | ShelleyCmdQueryError !ShelleyQueryCmdError
-  | ShelleyCmdKeyError !ShelleyKeyCmdError
+data LegacyClientCmdError
+  = LegacyCmdAddressError !ShelleyAddressCmdError
+  | LegacyCmdGenesisError !ShelleyGenesisCmdError
+  | LegacyCmdGovernanceError !GovernanceCmdError
+  | LegacyCmdNodeError !ShelleyNodeCmdError
+  | LegacyCmdPoolError !ShelleyPoolCmdError
+  | LegacyCmdStakeAddressError !ShelleyStakeAddressCmdError
+  | LegacyCmdTextViewError !ShelleyTextViewFileError
+  | LegacyCmdTransactionError !ShelleyTxCmdError
+  | LegacyCmdQueryError !ShelleyQueryCmdError
+  | LegacyCmdKeyError !ShelleyKeyCmdError
 
-renderShelleyClientCmdError :: LegacyCommand -> ShelleyClientCmdError -> Text
-renderShelleyClientCmdError cmd err =
+renderLegacyClientCmdError :: LegacyCommand -> LegacyClientCmdError -> Text
+renderLegacyClientCmdError cmd err =
   case err of
-    ShelleyCmdAddressError addrCmdErr ->
+    LegacyCmdAddressError addrCmdErr ->
        renderError cmd renderShelleyAddressCmdError addrCmdErr
-    ShelleyCmdGenesisError genesisCmdErr ->
+    LegacyCmdGenesisError genesisCmdErr ->
        renderError cmd (Text.pack . displayError) genesisCmdErr
-    ShelleyCmdGovernanceError govCmdErr -> Text.pack $ show govCmdErr
+    LegacyCmdGovernanceError govCmdErr -> Text.pack $ show govCmdErr
        -- TODO: Conway era
        -- renderError cmd renderShelleyGovernanceError govCmdErr
-    ShelleyCmdNodeError nodeCmdErr ->
+    LegacyCmdNodeError nodeCmdErr ->
        renderError cmd renderShelleyNodeCmdError nodeCmdErr
-    ShelleyCmdPoolError poolCmdErr ->
+    LegacyCmdPoolError poolCmdErr ->
        renderError cmd renderShelleyPoolCmdError poolCmdErr
-    ShelleyCmdStakeAddressError stakeAddrCmdErr ->
+    LegacyCmdStakeAddressError stakeAddrCmdErr ->
        renderError cmd renderShelleyStakeAddressCmdError stakeAddrCmdErr
-    ShelleyCmdTextViewError txtViewErr ->
+    LegacyCmdTextViewError txtViewErr ->
        renderError cmd renderShelleyTextViewFileError txtViewErr
-    ShelleyCmdTransactionError txErr ->
+    LegacyCmdTransactionError txErr ->
        renderError cmd renderShelleyTxCmdError txErr
-    ShelleyCmdQueryError queryErr ->
+    LegacyCmdQueryError queryErr ->
        renderError cmd renderShelleyQueryCmdError queryErr
-    ShelleyCmdKeyError keyErr ->
+    LegacyCmdKeyError keyErr ->
        renderError cmd renderShelleyKeyCmdError keyErr
- where
-   renderError :: LegacyCommand -> (a -> Text) -> a -> Text
-   renderError shelleyCmd renderer shelCliCmdErr =
-      mconcat [ "Command failed: "
-              , renderLegacyCommand shelleyCmd
-              , "  Error: "
-              , renderer shelCliCmdErr
-              ]
+  where
+    renderError :: LegacyCommand -> (a -> Text) -> a -> Text
+    renderError shelleyCmd renderer shelCliCmdErr =
+      mconcat
+        [ "Command failed: "
+        , renderLegacyCommand shelleyCmd
+        , "  Error: "
+        , renderer shelCliCmdErr
+        ]
 
 
 --
 -- CLI shelley command dispatch
 --
 
-runShelleyClientCommand :: LegacyCommand -> ExceptT ShelleyClientCmdError IO ()
-runShelleyClientCommand (AddressCmd      cmd) = firstExceptT ShelleyCmdAddressError $ runAddressCmd cmd
-runShelleyClientCommand (StakeAddressCmd cmd) = firstExceptT ShelleyCmdStakeAddressError $ runStakeAddressCmd cmd
-runShelleyClientCommand (KeyCmd          cmd) = firstExceptT ShelleyCmdKeyError $ runKeyCmd cmd
-runShelleyClientCommand (TransactionCmd  cmd) = firstExceptT ShelleyCmdTransactionError $ runTransactionCmd  cmd
-runShelleyClientCommand (NodeCmd         cmd) = firstExceptT ShelleyCmdNodeError $ runNodeCmd cmd
-runShelleyClientCommand (PoolCmd         cmd) = firstExceptT ShelleyCmdPoolError $ runPoolCmd cmd
-runShelleyClientCommand (QueryCmd        cmd) = firstExceptT ShelleyCmdQueryError $ runQueryCmd cmd
-runShelleyClientCommand (GovernanceCmd'  cmd) = firstExceptT ShelleyCmdGovernanceError $ runGovernanceCmd cmd
-runShelleyClientCommand (GenesisCmd      cmd) = firstExceptT ShelleyCmdGenesisError $ runGenesisCmd cmd
-runShelleyClientCommand (TextViewCmd     cmd) = firstExceptT ShelleyCmdTextViewError $ runTextViewCmd cmd
+runLegacyClientCommand :: LegacyCommand -> ExceptT LegacyClientCmdError IO ()
+runLegacyClientCommand = \case
+  AddressCmd      cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmd cmd
+  StakeAddressCmd cmd -> firstExceptT LegacyCmdStakeAddressError $ runStakeAddressCmd cmd
+  KeyCmd          cmd -> firstExceptT LegacyCmdKeyError $ runKeyCmd cmd
+  TransactionCmd  cmd -> firstExceptT LegacyCmdTransactionError $ runTransactionCmd  cmd
+  NodeCmd         cmd -> firstExceptT LegacyCmdNodeError $ runNodeCmd cmd
+  PoolCmd         cmd -> firstExceptT LegacyCmdPoolError $ runPoolCmd cmd
+  QueryCmd        cmd -> firstExceptT LegacyCmdQueryError $ runQueryCmd cmd
+  GovernanceCmd'  cmd -> firstExceptT LegacyCmdGovernanceError $ runGovernanceCmd cmd
+  GenesisCmd      cmd -> firstExceptT LegacyCmdGenesisError $ runGenesisCmd cmd
+  TextViewCmd     cmd -> firstExceptT LegacyCmdTextViewError $ runTextViewCmd cmd
