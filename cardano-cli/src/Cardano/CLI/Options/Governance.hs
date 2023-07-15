@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Conway.Parsers where
+module Cardano.CLI.Options.Governance where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley

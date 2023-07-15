@@ -51,13 +51,13 @@ library
   hs-source-dirs:       src
 
   exposed-modules:      Cardano.CLI.Commands.Governance
-                        Cardano.CLI.Conway.Parsers
                         Cardano.CLI.Conway.Types
 
                         Cardano.CLI.Commands.Legacy
                         Cardano.CLI.Environment
                         Cardano.CLI.Helpers
                         Cardano.CLI.Json.Friendly
+                        Cardano.CLI.Options.Governance
                         Cardano.CLI.Parsers
                         Cardano.CLI.Render
                         Cardano.CLI.Run
