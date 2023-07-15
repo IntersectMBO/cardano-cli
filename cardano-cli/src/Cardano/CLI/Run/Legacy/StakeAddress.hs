@@ -4,7 +4,7 @@
 
 {- HLINT ignore "Monad law, left identity" -}
 
-module Cardano.CLI.Shelley.Run.StakeAddress
+module Cardano.CLI.Run.Legacy.StakeAddress
   ( ShelleyStakeAddressCmdError(ShelleyStakeAddressCmdReadKeyFileError)
   , getStakeCredentialFromIdentifier
   , renderShelleyStakeAddressCmdError
@@ -15,11 +15,11 @@ module Cardano.CLI.Shelley.Run.StakeAddress
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Shelley.Key (DelegationTarget (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,
                    readVerificationKeyOrHashOrFile)
 import           Cardano.CLI.Shelley.Parsers
-import           Cardano.CLI.Shelley.Run.Read
 import           Cardano.CLI.Types
 
 import           Control.Monad.IO.Class (MonadIO (..))

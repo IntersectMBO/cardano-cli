@@ -13,7 +13,7 @@ module Test.Cardano.CLI.Util
 
 import           Cardano.Api
 
-import           Cardano.CLI.Shelley.Run.Read
+import           Cardano.CLI.Run.Legacy.Read
 
 import           Control.Monad.Catch
 import           Control.Monad.IO.Class (MonadIO (..))

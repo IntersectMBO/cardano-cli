@@ -6,7 +6,7 @@
 
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module Cardano.CLI.Shelley.Run.Validate
+module Cardano.CLI.Run.Legacy.Validate
   ( TxAuxScriptsValidationError(..)
   , TxCertificatesValidationError(..)
   , TxFeeValidationError(..)

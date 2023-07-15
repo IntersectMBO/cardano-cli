@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 
-module Cardano.CLI.Shelley.Run.Address.Info
+module Cardano.CLI.Run.Legacy.Address.Info
   ( runAddressInfo
   , ShelleyAddressInfoError(..)
   ) where

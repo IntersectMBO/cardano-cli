@@ -3,7 +3,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.Shelley.Run.Governance
+module Cardano.CLI.Run.Legacy.Governance
   ( ShelleyGovernanceCmdError
   , renderShelleyGovernanceError
   , runGovernanceCmd
@@ -16,9 +16,9 @@ import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Conway.Commands
 import           Cardano.CLI.Conway.Parsers
 import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
-import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
 import           Cardano.CLI.Types
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 

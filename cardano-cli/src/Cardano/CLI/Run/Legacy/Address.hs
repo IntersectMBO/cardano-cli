@@ -3,7 +3,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.Shelley.Run.Address
+module Cardano.CLI.Run.Legacy.Address
   ( ShelleyAddressCmdError(..)
   , SomeAddressVerificationKey(..)
   , buildShelleyAddress
@@ -16,13 +16,13 @@ module Cardano.CLI.Shelley.Run.Address
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Run.Legacy.Address.Info (ShelleyAddressInfoError, runAddressInfo)
+import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Shelley.Key (PaymentVerifier (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyTextOrFile,
                    VerificationKeyTextOrFileError (..), generateKeyPair, readVerificationKeyOrFile,
                    readVerificationKeyTextOrFileAnyOf, renderVerificationKeyTextOrFileError)
 import           Cardano.CLI.Shelley.Parsers (AddressCmd (..), AddressKeyType (..))
-import           Cardano.CLI.Shelley.Run.Address.Info (ShelleyAddressInfoError, runAddressInfo)
-import           Cardano.CLI.Shelley.Run.Read
 import           Cardano.CLI.Types
 
 import           Control.Monad.IO.Class (MonadIO (..))

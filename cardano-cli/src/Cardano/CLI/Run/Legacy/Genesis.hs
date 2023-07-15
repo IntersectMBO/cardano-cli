@@ -16,7 +16,7 @@
 {- HLINT ignore "Redundant <$>" -}
 {- HLINT ignore "Use let" -}
 
-module Cardano.CLI.Shelley.Run.Genesis
+module Cardano.CLI.Run.Legacy.Genesis
   ( ShelleyGenesisCmdError(..)
   , readShelleyGenesisWithDefault
   , readAndDecodeShelleyGenesis
@@ -46,15 +46,15 @@ import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
 import qualified Cardano.CLI.IO.Lazy as Lazy
+import           Cardano.CLI.Run.Legacy.Address
+import           Cardano.CLI.Run.Legacy.Node (ShelleyNodeCmdError (..), renderShelleyNodeCmdError,
+                   runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
+import           Cardano.CLI.Run.Legacy.Pool (ShelleyPoolCmdError (..), renderShelleyPoolCmdError)
+import           Cardano.CLI.Run.Legacy.StakeAddress (ShelleyStakeAddressCmdError (..),
+                   renderShelleyStakeAddressCmdError, runStakeAddressKeyGenToFile)
 import           Cardano.CLI.Shelley.Commands
 import           Cardano.CLI.Shelley.Key
 import           Cardano.CLI.Shelley.Orphans ()
-import           Cardano.CLI.Shelley.Run.Address
-import           Cardano.CLI.Shelley.Run.Node (ShelleyNodeCmdError (..), renderShelleyNodeCmdError,
-                   runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
-import           Cardano.CLI.Shelley.Run.Pool (ShelleyPoolCmdError (..), renderShelleyPoolCmdError)
-import           Cardano.CLI.Shelley.Run.StakeAddress (ShelleyStakeAddressCmdError (..),
-                   renderShelleyStakeAddressCmdError, runStakeAddressKeyGenToFile)
 import           Cardano.CLI.Types
 import qualified Cardano.Crypto as CC
 import           Cardano.Crypto.Hash (HashAlgorithm)

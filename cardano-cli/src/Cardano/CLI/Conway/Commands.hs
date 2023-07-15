@@ -9,9 +9,9 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Run.Legacy.Read (CddlError)
+import           Cardano.CLI.Run.Legacy.StakeAddress
 import           Cardano.CLI.Shelley.Key
-import           Cardano.CLI.Shelley.Run.Read (CddlError)
-import           Cardano.CLI.Shelley.Run.StakeAddress
 
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Except (ExceptT)

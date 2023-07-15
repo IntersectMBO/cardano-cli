@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Cardano.CLI.Shelley.Run.TextView
+module Cardano.CLI.Run.Legacy.TextView
   ( ShelleyTextViewFileError(..)
   , renderShelleyTextViewFileError
   , runTextViewCmd
