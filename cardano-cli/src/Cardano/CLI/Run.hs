@@ -45,10 +45,6 @@ data ClientCommand =
     -- | Shelley Related Commands
   | LegacyCommand LegacyCommand
 
-    -- | Shelley-related commands that have been parsed under the
-    -- now-deprecated \"shelley\" subcommand.
-  | DeprecatedShelleySubcommand LegacyCommand
-
   | CliPingCommand PingCmd
 
   | forall a. Help ParserPrefs (ParserInfo a)
@@ -63,10 +59,6 @@ runClientCommand :: ClientCommand -> ExceptT ClientCommandErrors IO ()
 runClientCommand (ByronCommand c) = firstExceptT ByronClientError $ runByronClientCommand c
 runClientCommand (LegacyCommand c) = firstExceptT (ShelleyClientError c) $ runShelleyClientCommand c
 runClientCommand (CliPingCommand c) = firstExceptT PingClientError $ runPingCmd c
-runClientCommand (DeprecatedShelleySubcommand c) =
-  firstExceptT (ShelleyClientError c)
-    $ runShelleyClientCommandWithDeprecationWarning
-    $ runShelleyClientCommand c
 runClientCommand (Help pprefs allParserInfo) = runHelp pprefs allParserInfo
 runClientCommand DisplayVersion = runDisplayVersion
 
@@ -77,26 +69,6 @@ renderClientCommandError (ShelleyClientError cmd err) =
   renderShelleyClientCmdError cmd err
 renderClientCommandError (PingClientError err) =
   renderPingClientCmdError err
-
--- | Combine an 'ExceptT' that will write a warning message to @stderr@ with
--- the provided 'ExceptT'.
-ioExceptTWithWarning :: MonadIO m => Text -> ExceptT e m () -> ExceptT e m ()
-ioExceptTWithWarning warningMsg e =
-  liftIO (Text.hPutStrLn IO.stderr warningMsg) >> e
-
--- | Used in the event that Shelley-related commands are run using the
--- now-deprecated \"shelley\" subcommand.
-runShelleyClientCommandWithDeprecationWarning
-  :: MonadIO m
-  => ExceptT e m ()
-  -> ExceptT e m ()
-runShelleyClientCommandWithDeprecationWarning =
-    ioExceptTWithWarning warningMsg
-  where
-    warningMsg :: Text
-    warningMsg =
-      "WARNING: The \"shelley\" subcommand is now deprecated and will be "
-        <> "removed in the future. Please use the top-level commands instead."
 
 runDisplayVersion :: ExceptT ClientCommandErrors IO ()
 runDisplayVersion = do
