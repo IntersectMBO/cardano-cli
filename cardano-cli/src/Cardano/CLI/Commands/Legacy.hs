@@ -53,7 +53,7 @@ module Cardano.CLI.Commands.Legacy
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount)
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Options.Governance
 import           Cardano.CLI.Shelley.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,

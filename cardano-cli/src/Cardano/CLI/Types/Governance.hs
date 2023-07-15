@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Cardano.CLI.Conway.Types where
+module Cardano.CLI.Types.Governance where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
