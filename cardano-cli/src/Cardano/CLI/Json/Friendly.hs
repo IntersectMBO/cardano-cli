@@ -8,7 +8,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
-module Cardano.CLI.Run.Friendly (friendlyTxBS, friendlyTxBodyBS) where
+module Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS) where
 
 import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))

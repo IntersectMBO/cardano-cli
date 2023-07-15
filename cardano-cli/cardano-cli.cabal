@@ -52,10 +52,10 @@ library
 
   exposed-modules:      Cardano.CLI.Environment
                         Cardano.CLI.Helpers
+                        Cardano.CLI.Json.Friendly
                         Cardano.CLI.Parsers
                         Cardano.CLI.Render
                         Cardano.CLI.Run
-                        Cardano.CLI.Run.Friendly
 
                         Cardano.CLI.Types
                         Cardano.CLI.Types.Governance

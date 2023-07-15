@@ -22,7 +22,7 @@ import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Helpers (printWarning)
-import           Cardano.CLI.Run.Friendly (friendlyTxBS, friendlyTxBodyBS)
+import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Shelley.Output
 import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Shelley.Run.Genesis
