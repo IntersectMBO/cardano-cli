@@ -3,7 +3,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.Shelley.Run.Key
+module Cardano.CLI.Run.Legacy.Key
   ( ShelleyKeyCmdError
   , SomeSigningKey(..)
   , renderShelleyKeyCmdError

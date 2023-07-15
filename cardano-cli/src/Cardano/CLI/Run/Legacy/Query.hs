@@ -13,7 +13,7 @@
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Cardano.CLI.Shelley.Run.Query
+module Cardano.CLI.Run.Legacy.Query
   ( DelegationsAndRewards(..)
   , ShelleyQueryCmdError
   , ShelleyQueryCmdLocalStateQueryError (..)
@@ -36,12 +36,12 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, renderHelpersError)
 import           Cardano.CLI.Pretty
+import           Cardano.CLI.Run.Legacy.Genesis (ShelleyGenesisCmdError,
+                   readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Shelley.Commands
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile)
 import qualified Cardano.CLI.Shelley.Output as O
-import           Cardano.CLI.Shelley.Run.Genesis (ShelleyGenesisCmdError,
-                   readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Types
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b

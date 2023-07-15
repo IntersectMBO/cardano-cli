@@ -10,32 +10,25 @@ module Test.Cli.Pipes
 #define UNIX
 #endif
 
+import           Cardano.CLI.Run.Legacy.Read
+
 import           Prelude
 
-#ifdef UNIX
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LBS
+import           System.FilePath ((</>))
 import           System.IO (hClose, hFlush, hPutStr)
 import           System.Posix.IO (closeFd, createPipe, fdToHandle)
 
-import           Cardano.CLI.Shelley.Run.Read
 import           Test.Cardano.CLI.Util
 
-import           Hedgehog (Property, discover, forAll, (===))
+import           Hedgehog (Property, discover, forAll, property, success, (===))
+import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Gen as G
 import           Hedgehog.Internal.Property (failWith)
 import qualified Hedgehog.Range as R
-import           System.FilePath ((</>))
-
-#else
-
-import           Hedgehog (Property, discover, property, success)
-import           System.FilePath ()
-#endif
-
-import qualified Hedgehog as H
 
 #ifdef UNIX
 
