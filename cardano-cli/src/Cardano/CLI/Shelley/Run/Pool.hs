@@ -13,7 +13,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Shelley.Commands
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
-import           Cardano.CLI.Types (PoolIdOutputFormat (..))
+import           Cardano.CLI.Types.Common (PoolIdOutputFormat (..))
 import qualified Cardano.Ledger.Slot as Shelley
 
 import           Control.Monad.IO.Class (MonadIO (..))

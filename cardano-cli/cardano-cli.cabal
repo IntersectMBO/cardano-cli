@@ -57,7 +57,7 @@ library
                         Cardano.CLI.Render
                         Cardano.CLI.Run
 
-                        Cardano.CLI.Types
+                        Cardano.CLI.Types.Common
                         Cardano.CLI.Types.Governance
 
                         Cardano.CLI.Byron.Commands

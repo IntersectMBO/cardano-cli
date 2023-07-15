@@ -24,7 +24,7 @@ import           Cardano.CLI.Shelley.Commands
 import           Cardano.CLI.Shelley.Key (VerificationKeyTextOrFile (..),
                    VerificationKeyTextOrFileError, readVerificationKeyTextOrFileAnyOf,
                    renderVerificationKeyTextOrFileError)
-import           Cardano.CLI.Types (SigningKeyFile, VerificationKeyFile)
+import           Cardano.CLI.Types.Common (SigningKeyFile, VerificationKeyFile)
 import qualified Cardano.Crypto.DSIGN as DSIGN
 import qualified Cardano.Crypto.Signing as Byron
 import qualified Cardano.Crypto.Signing as Byron.Crypto

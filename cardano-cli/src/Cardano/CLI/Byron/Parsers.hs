@@ -45,7 +45,7 @@ import           Cardano.CLI.Common.Parsers hiding (parseLovelace, parseTxIn)
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.Run (ClientCommand (ByronCommand))
 import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Common
 import           Cardano.Crypto (RequiresNetworkMagic (..))
 import           Cardano.Crypto.Hashing (hashRaw)
 import           Cardano.Crypto.ProtocolMagic (AProtocolMagic (..), ProtocolMagic,

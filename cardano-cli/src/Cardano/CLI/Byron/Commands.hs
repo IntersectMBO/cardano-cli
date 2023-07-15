@@ -19,7 +19,7 @@ import           Cardano.CLI.Byron.Genesis
 import           Cardano.CLI.Byron.Key
 import           Cardano.CLI.Byron.Tx
 import           Cardano.CLI.Shelley.Commands (ByronKeyFormat)
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Common
 
 import           Data.String (IsString)
 

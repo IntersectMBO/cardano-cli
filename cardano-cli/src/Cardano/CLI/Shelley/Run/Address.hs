@@ -23,7 +23,7 @@ import           Cardano.CLI.Shelley.Key (PaymentVerifier (..), StakeIdentifier 
 import           Cardano.CLI.Shelley.Parsers (AddressCmd (..), AddressKeyType (..))
 import           Cardano.CLI.Shelley.Run.Address.Info (ShelleyAddressInfoError, runAddressInfo)
 import           Cardano.CLI.Shelley.Run.Read
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Common
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)

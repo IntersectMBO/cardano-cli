@@ -20,7 +20,7 @@ import           Cardano.CLI.Shelley.Key (DelegationTarget (..), StakeIdentifier
                    readVerificationKeyOrHashOrFile)
 import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Shelley.Run.Read
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Common
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (lift)

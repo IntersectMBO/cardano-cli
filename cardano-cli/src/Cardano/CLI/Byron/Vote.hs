@@ -19,7 +19,7 @@ import           Cardano.CLI.Byron.UpdateProposal (ByronUpdateProposalError,
                    readByronUpdateProposal)
 import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS)
 import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Common
 import           Ouroboros.Consensus.Ledger.SupportsMempool (txId)
 import           Ouroboros.Consensus.Util.Condense (condense)
 

@@ -28,7 +28,7 @@ import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Shelley.Run.Genesis
 import           Cardano.CLI.Shelley.Run.Read
 import           Cardano.CLI.Shelley.Run.Validate
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx

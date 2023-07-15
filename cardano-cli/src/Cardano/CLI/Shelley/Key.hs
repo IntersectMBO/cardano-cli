@@ -32,7 +32,7 @@ module Cardano.CLI.Shelley.Key
 import           Cardano.Api
 import           Cardano.Api.Shelley (StakePoolKey)
 
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Common
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Data.Bifunctor (Bifunctor (..))

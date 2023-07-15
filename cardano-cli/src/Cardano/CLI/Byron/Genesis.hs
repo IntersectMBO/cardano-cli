@@ -23,7 +23,7 @@ import qualified Cardano.Chain.Genesis as Genesis
 import qualified Cardano.Chain.UTxO as UTxO
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Key
-import           Cardano.CLI.Types (GenesisFile (..))
+import           Cardano.CLI.Types.Common (GenesisFile (..))
 import qualified Cardano.Crypto as Crypto
 import           Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 
