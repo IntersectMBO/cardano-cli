@@ -56,7 +56,9 @@ library
                         Cardano.CLI.Render
                         Cardano.CLI.Run
                         Cardano.CLI.Run.Friendly
+
                         Cardano.CLI.Types
+                        Cardano.CLI.Types.Governance
 
                         Cardano.CLI.Byron.Commands
                         Cardano.CLI.Byron.Parsers
@@ -76,7 +78,6 @@ library
 
                         Cardano.CLI.Governance.Commands
                         Cardano.CLI.Governance.Parsers
-                        Cardano.CLI.Governance.Types
 
                         Cardano.CLI.Shelley.Commands
                         Cardano.CLI.Shelley.Key

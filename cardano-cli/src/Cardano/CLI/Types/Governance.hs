@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Cardano.CLI.Governance.Types
+module Cardano.CLI.Types.Governance
   ( ConstitutionSource(..)
   , GovVote (..)
   , GovVoterType(..)

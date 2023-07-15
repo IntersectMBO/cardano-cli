@@ -15,11 +15,11 @@ import           Cardano.Api.Shelley
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Governance.Commands
 import           Cardano.CLI.Governance.Parsers
-import           Cardano.CLI.Governance.Types
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
 import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
 import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Governance
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Control.Monad (unless, when)

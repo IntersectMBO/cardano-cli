@@ -7,9 +7,9 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Common.Parsers
-import           Cardano.CLI.Governance.Types
 import           Cardano.CLI.Shelley.Key
 import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Governance
 import           Cardano.Ledger.Shelley.TxBody (MIRPot)
 
 import           Data.Foldable

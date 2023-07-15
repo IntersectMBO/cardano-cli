@@ -54,11 +54,11 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.Governance.Parsers
-import           Cardano.CLI.Governance.Types
 import           Cardano.CLI.Shelley.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
 import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Governance
 
 import           Prelude
 
