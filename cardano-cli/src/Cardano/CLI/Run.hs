@@ -15,7 +15,7 @@ import           Cardano.CLI.Ping (PingClientCmdError (..), PingCmd (..), render
                    runPingCmd)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Shelley.Commands (LegacyCommand)
-import           Cardano.CLI.Shelley.Run (ShelleyClientCmdError, renderShelleyClientCmdError,
+import           Cardano.CLI.Shelley.Run (LegacyClientCmdError, renderLegacyClientCmdError,
                    runShelleyClientCommand)
 import           Cardano.Git.Rev (gitRev)
 
@@ -56,7 +56,7 @@ data ClientCommand =
 
 data ClientCommandErrors
   = ByronClientError ByronClientCmdError
-  | ShelleyClientError LegacyCommand ShelleyClientCmdError
+  | ShelleyClientError LegacyCommand LegacyClientCmdError
   | PingClientError PingClientCmdError
 
 runClientCommand :: ClientCommand -> ExceptT ClientCommandErrors IO ()
@@ -74,7 +74,7 @@ renderClientCommandError :: ClientCommandErrors -> Text
 renderClientCommandError (ByronClientError err) =
   renderByronClientCmdError err
 renderClientCommandError (ShelleyClientError cmd err) =
-  renderShelleyClientCmdError cmd err
+  renderLegacyClientCmdError cmd err
 renderClientCommandError (PingClientError err) =
   renderPingClientCmdError err
 

@@ -1,6 +1,6 @@
 module Cardano.CLI.Shelley.Run
-  ( ShelleyClientCmdError
-  , renderShelleyClientCmdError
+  ( LegacyClientCmdError
+  , renderLegacyClientCmdError
   , runShelleyClientCommand
   ) where
 
@@ -24,7 +24,7 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 
-data ShelleyClientCmdError
+data LegacyClientCmdError
   = ShelleyCmdAddressError !ShelleyAddressCmdError
   | ShelleyCmdGenesisError !ShelleyGenesisCmdError
   | ShelleyCmdGovernanceError !GovernanceCmdError
@@ -36,8 +36,8 @@ data ShelleyClientCmdError
   | ShelleyCmdQueryError !ShelleyQueryCmdError
   | ShelleyCmdKeyError !ShelleyKeyCmdError
 
-renderShelleyClientCmdError :: LegacyCommand -> ShelleyClientCmdError -> Text
-renderShelleyClientCmdError cmd err =
+renderLegacyClientCmdError :: LegacyCommand -> LegacyClientCmdError -> Text
+renderLegacyClientCmdError cmd err =
   case err of
     ShelleyCmdAddressError addrCmdErr ->
        renderError cmd renderShelleyAddressCmdError addrCmdErr
@@ -74,7 +74,7 @@ renderShelleyClientCmdError cmd err =
 -- CLI shelley command dispatch
 --
 
-runShelleyClientCommand :: LegacyCommand -> ExceptT ShelleyClientCmdError IO ()
+runShelleyClientCommand :: LegacyCommand -> ExceptT LegacyClientCmdError IO ()
 runShelleyClientCommand (AddressCmd      cmd) = firstExceptT ShelleyCmdAddressError $ runAddressCmd cmd
 runShelleyClientCommand (StakeAddressCmd cmd) = firstExceptT ShelleyCmdStakeAddressError $ runStakeAddressCmd cmd
 runShelleyClientCommand (KeyCmd          cmd) = firstExceptT ShelleyCmdKeyError $ runKeyCmd cmd
