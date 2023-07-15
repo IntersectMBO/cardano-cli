@@ -20,8 +20,8 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Commands.Legacy
-import           Cardano.CLI.Common.Parsers
 import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Options.Common
 import           Cardano.CLI.Options.Governance
 import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
                    VerificationKeyOrFile (..), VerificationKeyOrHashOrFile (..),

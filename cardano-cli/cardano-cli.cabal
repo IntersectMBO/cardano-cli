@@ -57,6 +57,7 @@ library
                         Cardano.CLI.Environment
                         Cardano.CLI.Helpers
                         Cardano.CLI.Json.Friendly
+                        Cardano.CLI.Options.Common
                         Cardano.CLI.Options.Governance
                         Cardano.CLI.Options.Legacy
                         Cardano.CLI.Parsers
@@ -90,7 +91,6 @@ library
                         Cardano.CLI.Byron.UpdateProposal
                         Cardano.CLI.Byron.Vote
 
-                        Cardano.CLI.Common.Parsers
                         Cardano.CLI.Pretty
                         Cardano.CLI.IO.Lazy
 

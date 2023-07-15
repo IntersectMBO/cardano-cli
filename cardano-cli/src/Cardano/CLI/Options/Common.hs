@@ -3,7 +3,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.Common.Parsers where
+module Cardano.CLI.Options.Common where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
