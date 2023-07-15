@@ -14,7 +14,7 @@ import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.Ping (parsePingCmd)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run (ClientCommand (..))
-import           Cardano.CLI.Shelley.Parsers (parseShelleyCommands)
+import           Cardano.CLI.Shelley.Parsers (parseLegacyCommands)
 
 import           Data.Foldable
 import           Options.Applicative
@@ -68,7 +68,7 @@ parsePing = CliPingCommand <$> parsePingCmd
 
 -- | Parse Shelley-related commands at the top level of the CLI.
 parseShelley :: EnvCli -> Parser ClientCommand
-parseShelley envCli = ShelleyCommand <$> parseShelleyCommands envCli
+parseShelley envCli = LegacyCommand <$> parseLegacyCommands envCli
 
 -- Yes! A --version flag or version command. Either guess is right!
 parseDisplayVersion :: ParserInfo a -> Parser ClientCommand
