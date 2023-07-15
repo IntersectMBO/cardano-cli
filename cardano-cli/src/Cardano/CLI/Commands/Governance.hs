@@ -8,7 +8,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Run.Legacy.Read (CddlError)
 import           Cardano.CLI.Run.Legacy.StakeAddress
 import           Cardano.CLI.Shelley.Key

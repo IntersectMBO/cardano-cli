@@ -14,7 +14,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Commands.Governance
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Options.Governance
 import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,

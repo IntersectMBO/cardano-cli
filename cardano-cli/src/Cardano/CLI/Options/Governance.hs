@@ -6,7 +6,7 @@ module Cardano.CLI.Options.Governance where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Options.Common
 import           Cardano.CLI.Shelley.Key
 import           Cardano.CLI.Types.Legacy
