@@ -95,7 +95,7 @@ library
                         Cardano.CLI.Pretty
                         Cardano.CLI.IO.Lazy
 
-                        Cardano.CLI.Shelley.Output
+                        Cardano.CLI.Types.Output
 
                         Cardano.CLI.Ping
 

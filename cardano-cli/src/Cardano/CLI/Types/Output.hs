@@ -1,7 +1,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-module Cardano.CLI.Shelley.Output
+module Cardano.CLI.Types.Output
   ( PlutusScriptCostError
   , QueryKesPeriodInfoOutput (..)
   , QueryTipLocalState(..)
