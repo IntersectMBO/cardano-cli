@@ -21,15 +21,15 @@ import           Cardano.Api
 import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Helpers (printWarning)
 import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Options.Legacy
 import           Cardano.CLI.Run.Legacy.Genesis
 import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Run.Legacy.Validate
-import           Cardano.CLI.Shelley.Output
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Legacy
+import           Cardano.CLI.Types.Output
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 

@@ -7,9 +7,8 @@ module Test.Cli.JSON where
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Run.Legacy.Query
-import           Cardano.CLI.Shelley.Output (QueryKesPeriodInfoOutput (..),
-                   createOpCertIntervalInfo)
 import           Cardano.CLI.Types.Legacy
+import           Cardano.CLI.Types.Output (QueryKesPeriodInfoOutput (..), createOpCertIntervalInfo)
 
 import           Data.Aeson
 import qualified Data.Map.Strict as Map
