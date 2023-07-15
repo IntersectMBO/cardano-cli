@@ -5,7 +5,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Shelley CLI command types
-module Cardano.CLI.Shelley.Commands
+module Cardano.CLI.Commands.Legacy
   ( -- * CLI command types
     LegacyCommand (..)
   , AddressCmd (..)

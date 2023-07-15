@@ -9,7 +9,7 @@ module Cardano.CLI.Shelley.Parsers
     parseLegacyCommands
 
     -- * CLI command and flag types
-  , module Cardano.CLI.Shelley.Commands
+  , module Cardano.CLI.Commands.Legacy
 
     -- * Field parser and renderers
   , parseTxIn
@@ -19,10 +19,10 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
+import           Cardano.CLI.Commands.Legacy
 import           Cardano.CLI.Common.Parsers
 import           Cardano.CLI.Conway.Parsers
 import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.Shelley.Commands
 import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
                    VerificationKeyOrFile (..), VerificationKeyOrHashOrFile (..),
                    VerificationKeyTextOrFile (..))

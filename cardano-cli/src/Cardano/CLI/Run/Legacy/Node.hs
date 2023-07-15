@@ -14,7 +14,7 @@ module Cardano.CLI.Run.Legacy.Node
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Shelley.Commands
+import           Cardano.CLI.Commands.Legacy
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
 import           Cardano.CLI.Types (KeyOutputFormat (..), SigningKeyFile, VerificationKeyFile)
 

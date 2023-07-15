@@ -18,7 +18,7 @@ where
 import           Cardano.Api.Byron
 
 import qualified Cardano.Chain.Common as Common
-import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
+import           Cardano.CLI.Commands.Legacy (ByronKeyFormat (..))
 import           Cardano.CLI.Types
 import qualified Cardano.Crypto.Signing as Crypto
 

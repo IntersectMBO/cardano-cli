@@ -54,6 +54,7 @@ library
                         Cardano.CLI.Conway.Parsers
                         Cardano.CLI.Conway.Types
 
+                        Cardano.CLI.Commands.Legacy
                         Cardano.CLI.Environment
                         Cardano.CLI.Helpers
                         Cardano.CLI.Json.Friendly
@@ -92,7 +93,6 @@ library
                         Cardano.CLI.Pretty
                         Cardano.CLI.IO.Lazy
 
-                        Cardano.CLI.Shelley.Commands
                         Cardano.CLI.Shelley.Key
                         Cardano.CLI.Shelley.Orphans
                         Cardano.CLI.Shelley.Output
