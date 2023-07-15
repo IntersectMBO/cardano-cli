@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Conway.Commands where
+module Cardano.CLI.Commands.Governance where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
