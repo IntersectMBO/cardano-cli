@@ -22,7 +22,7 @@ import           System.Posix.IO (closeFd, createPipe, fdToHandle)
 
 import           Test.Cardano.CLI.Util
 
-import           Hedgehog (Property, discover, forAll, property, success, (===))
+import           Hedgehog (Property, discover, forAll, (===))
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
