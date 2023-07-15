@@ -36,7 +36,7 @@ data ShelleyClientCmdError
   | ShelleyCmdQueryError !ShelleyQueryCmdError
   | ShelleyCmdKeyError !ShelleyKeyCmdError
 
-renderShelleyClientCmdError :: ShelleyCommand -> ShelleyClientCmdError -> Text
+renderShelleyClientCmdError :: LegacyCommand -> ShelleyClientCmdError -> Text
 renderShelleyClientCmdError cmd err =
   case err of
     ShelleyCmdAddressError addrCmdErr ->
@@ -61,10 +61,10 @@ renderShelleyClientCmdError cmd err =
     ShelleyCmdKeyError keyErr ->
        renderError cmd renderShelleyKeyCmdError keyErr
  where
-   renderError :: ShelleyCommand -> (a -> Text) -> a -> Text
+   renderError :: LegacyCommand -> (a -> Text) -> a -> Text
    renderError shelleyCmd renderer shelCliCmdErr =
       mconcat [ "Command failed: "
-              , renderShelleyCommand shelleyCmd
+              , renderLegacyCommand shelleyCmd
               , "  Error: "
               , renderer shelCliCmdErr
               ]
@@ -74,7 +74,7 @@ renderShelleyClientCmdError cmd err =
 -- CLI shelley command dispatch
 --
 
-runShelleyClientCommand :: ShelleyCommand -> ExceptT ShelleyClientCmdError IO ()
+runShelleyClientCommand :: LegacyCommand -> ExceptT ShelleyClientCmdError IO ()
 runShelleyClientCommand (AddressCmd      cmd) = firstExceptT ShelleyCmdAddressError $ runAddressCmd cmd
 runShelleyClientCommand (StakeAddressCmd cmd) = firstExceptT ShelleyCmdStakeAddressError $ runStakeAddressCmd cmd
 runShelleyClientCommand (KeyCmd          cmd) = firstExceptT ShelleyCmdKeyError $ runKeyCmd cmd

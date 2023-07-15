@@ -14,7 +14,7 @@ import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCm
 import           Cardano.CLI.Ping (PingClientCmdError (..), PingCmd (..), renderPingClientCmdError,
                    runPingCmd)
 import           Cardano.CLI.Render (customRenderHelp)
-import           Cardano.CLI.Shelley.Commands (ShelleyCommand)
+import           Cardano.CLI.Shelley.Commands (LegacyCommand)
 import           Cardano.CLI.Shelley.Run (ShelleyClientCmdError, renderShelleyClientCmdError,
                    runShelleyClientCommand)
 import           Cardano.Git.Rev (gitRev)
@@ -43,11 +43,11 @@ data ClientCommand =
     ByronCommand ByronCommand
 
     -- | Shelley Related Commands
-  | ShelleyCommand ShelleyCommand
+  | LegacyCommand LegacyCommand
 
     -- | Shelley-related commands that have been parsed under the
     -- now-deprecated \"shelley\" subcommand.
-  | DeprecatedShelleySubcommand ShelleyCommand
+  | DeprecatedShelleySubcommand LegacyCommand
 
   | CliPingCommand PingCmd
 
@@ -56,12 +56,12 @@ data ClientCommand =
 
 data ClientCommandErrors
   = ByronClientError ByronClientCmdError
-  | ShelleyClientError ShelleyCommand ShelleyClientCmdError
+  | ShelleyClientError LegacyCommand ShelleyClientCmdError
   | PingClientError PingClientCmdError
 
 runClientCommand :: ClientCommand -> ExceptT ClientCommandErrors IO ()
 runClientCommand (ByronCommand c) = firstExceptT ByronClientError $ runByronClientCommand c
-runClientCommand (ShelleyCommand c) = firstExceptT (ShelleyClientError c) $ runShelleyClientCommand c
+runClientCommand (LegacyCommand c) = firstExceptT (ShelleyClientError c) $ runShelleyClientCommand c
 runClientCommand (CliPingCommand c) = firstExceptT PingClientError $ runPingCmd c
 runClientCommand (DeprecatedShelleySubcommand c) =
   firstExceptT (ShelleyClientError c)
