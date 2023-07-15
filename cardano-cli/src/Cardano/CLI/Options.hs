@@ -3,7 +3,7 @@
 
 {- HLINT ignore "Monoid law, left identity" -}
 
-module Cardano.CLI.Parsers
+module Cardano.CLI.Options
   ( opts
   , pref
   ) where
