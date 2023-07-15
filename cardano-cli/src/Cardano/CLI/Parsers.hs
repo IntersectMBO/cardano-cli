@@ -12,9 +12,9 @@ import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, pars
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.Options.Common
 import           Cardano.CLI.Options.Legacy (parseLegacyCommands)
-import           Cardano.CLI.Ping (parsePingCmd)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run (ClientCommand (..))
+import           Cardano.CLI.Run.Ping (parsePingCmd)
 
 import           Data.Foldable
 import           Options.Applicative

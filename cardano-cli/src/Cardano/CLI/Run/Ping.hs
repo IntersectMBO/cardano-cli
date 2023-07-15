@@ -3,7 +3,7 @@
 
 {- HLINT ignore "Move brackets to avoid $" -}
 
-module Cardano.CLI.Ping
+module Cardano.CLI.Run.Ping
   ( PingCmd(..)
   , PingClientCmdError(..)
   , renderPingClientCmdError
