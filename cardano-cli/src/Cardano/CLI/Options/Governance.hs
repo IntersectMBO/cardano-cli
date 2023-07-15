@@ -9,7 +9,7 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Conway.Types
 import           Cardano.CLI.Options.Common
 import           Cardano.CLI.Shelley.Key
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Legacy
 import           Cardano.Ledger.Shelley.TxBody (MIRPot)
 
 import           Data.Foldable

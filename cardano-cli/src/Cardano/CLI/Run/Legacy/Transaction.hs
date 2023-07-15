@@ -29,7 +29,7 @@ import           Cardano.CLI.Run.Legacy.Genesis
 import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Run.Legacy.Validate
 import           Cardano.CLI.Shelley.Output
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Legacy
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 

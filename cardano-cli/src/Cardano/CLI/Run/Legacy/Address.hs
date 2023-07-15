@@ -23,7 +23,7 @@ import           Cardano.CLI.Shelley.Key (PaymentVerifier (..), StakeIdentifier 
                    StakeVerifier (..), VerificationKeyTextOrFile,
                    VerificationKeyTextOrFileError (..), generateKeyPair, readVerificationKeyOrFile,
                    readVerificationKeyTextOrFileAnyOf, renderVerificationKeyTextOrFileError)
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Legacy
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)

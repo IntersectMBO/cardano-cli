@@ -5,7 +5,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
-module Cardano.CLI.Types
+module Cardano.CLI.Types.Legacy
   ( BalanceTxExecUnits (..)
   , CBORObject (..)
   , CertificateFile (..)

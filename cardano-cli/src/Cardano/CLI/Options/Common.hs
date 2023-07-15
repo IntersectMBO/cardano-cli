@@ -10,7 +10,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.Shelley.Key
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Legacy
 
 import           Data.Bifunctor
 import qualified Data.ByteString.Char8 as BSC

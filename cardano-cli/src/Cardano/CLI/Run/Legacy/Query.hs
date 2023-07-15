@@ -41,7 +41,7 @@ import           Cardano.CLI.Run.Legacy.Genesis (ShelleyGenesisCmdError,
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile)
 import qualified Cardano.CLI.Shelley.Output as O
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Legacy
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
 import qualified Cardano.Crypto.VRF as Crypto
