@@ -55,11 +55,11 @@ library
                         Cardano.CLI.Environment
                         Cardano.CLI.Helpers
                         Cardano.CLI.Json.Friendly
+                        Cardano.CLI.Options
                         Cardano.CLI.Options.Common
                         Cardano.CLI.Options.Governance
                         Cardano.CLI.Options.Legacy
                         Cardano.CLI.Orphans
-                        Cardano.CLI.Parsers
                         Cardano.CLI.Render
                         Cardano.CLI.Run
                         Cardano.CLI.Run.Legacy
