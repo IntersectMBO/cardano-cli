@@ -6,7 +6,7 @@ module Cardano.CLI.Shelley.Run
 
 import           Cardano.Api
 
-import           Cardano.CLI.Conway.Commands
+import           Cardano.CLI.Governance.Commands
 import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Shelley.Run.Address
 import           Cardano.CLI.Shelley.Run.Genesis

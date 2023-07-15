@@ -71,7 +71,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Governance.Types
 import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Types
 
@@ -746,9 +746,10 @@ data VoteError
   | VotesNotSupportedInEra AnyCardanoEra
   deriving Show
 
-readTxVotes :: CardanoEra era
-            -> [ConwayVoteFile In]
-            -> IO (Either VoteError (TxVotes era))
+readTxVotes :: ()
+  => CardanoEra era
+  -> [VoteFile In]
+  -> IO (Either VoteError (TxVotes era))
 readTxVotes _ [] = return $ Right TxVotesNone
 readTxVotes era files = runExceptT $
   case cardanoEraStyle era of
@@ -761,7 +762,7 @@ readTxVotes era files = runExceptT $
 
 readVoteFile
   :: ShelleyBasedEra era
-  -> ConwayVoteFile In
+  -> VoteFile In
   -> IO (Either VoteError (Vote era))
 readVoteFile sbe fp =
   first VoteErrorFile <$> obtainEraConstraints sbe (readFileTextEnvelope AsVote fp)

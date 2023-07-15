@@ -53,8 +53,8 @@ module Cardano.CLI.Shelley.Commands
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount)
-import           Cardano.CLI.Conway.Parsers
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Governance.Parsers
+import           Cardano.CLI.Governance.Types
 import           Cardano.CLI.Shelley.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
@@ -245,7 +245,7 @@ data TransactionCmd
       [MetadataFile]
       (Maybe (Deprecated ProtocolParamsFile))
       (Maybe UpdateProposalFile)
-      [ConwayVoteFile In]
+      [VoteFile In]
       [NewConstitutionFile In]
       TxBuildOutputOptions
   | TxSign InputTxBodyOrTxFile [WitnessSigningData] (Maybe NetworkId) (TxFile Out)

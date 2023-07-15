@@ -21,7 +21,7 @@ import           Cardano.Api
 import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Governance.Types
 import           Cardano.CLI.Helpers (printWarning)
 import           Cardano.CLI.Run.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Shelley.Output
@@ -328,7 +328,7 @@ runTxBuildCmd
   -> [MetadataFile]
   -> Maybe (Deprecated ProtocolParamsFile)
   -> Maybe UpdateProposalFile
-  -> [ConwayVoteFile In]
+  -> [VoteFile In]
   -> [NewConstitutionFile In] -- TODO: Conway era - we should replace this with a sumtype that handles all governance actions
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()

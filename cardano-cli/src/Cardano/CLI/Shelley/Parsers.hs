@@ -20,8 +20,8 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Common.Parsers
-import           Cardano.CLI.Conway.Parsers
 import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Governance.Parsers
 import           Cardano.CLI.Shelley.Commands
 import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
                    VerificationKeyOrFile (..), VerificationKeyOrHashOrFile (..),
@@ -1177,7 +1177,7 @@ pQueryCmd envCli =
                 ]
 
 
--- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
+-- TODO: Conway era - move to Cardano.CLI.Governance.Parsers
 pGovernanceCmd :: Parser GovernanceCmd
 pGovernanceCmd =
   asum

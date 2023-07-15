@@ -1,13 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Conway.Parsers where
+module Cardano.CLI.Governance.Parsers where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Common.Parsers
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Governance.Types
 import           Cardano.CLI.Shelley.Key
 import           Cardano.CLI.Types
 import           Cardano.Ledger.Shelley.TxBody (MIRPot)
@@ -85,13 +85,13 @@ pVoteCommmands =
     ]
 
 newtype VoteCmd
-  = CreateVoteCmd ConwayVote deriving Show
+  = CreateVoteCmd GovVote deriving Show
 
 
 pCreateVote :: Parser VoteCmd
 pCreateVote =
   fmap CreateVoteCmd $
-    ConwayVote
+    GovVote
       <$> pVoteChoice
       <*> pVoterType
       <*> pGoveranceActionIdentifier
@@ -108,13 +108,22 @@ pCreateVote =
      ,  flag' Abst $ long "abstain"
      ]
 
-  pVoterType :: Parser VType
+  pVoterType :: Parser GovVoterType
   pVoterType =
     asum
-     [  flag' VCC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
-     ,  flag' VDR $ mconcat [long "drep", Opt.help "Delegate representative"]
-     ,  flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
-     ]
+      [ flag' GovVoterTypeCommittee $ mconcat
+          [ long "constitutional-committee-member"
+          , Opt.help "Member of the constiutional committee"
+          ]
+      , flag' GovVoterTypeDRep $ mconcat
+          [ long "drep"
+          , Opt.help "Delegate representative"
+          ]
+      , flag' GovVoterTypeSpo $ mconcat
+          [ long "spo"
+          , Opt.help "Stake pool operator"
+          ]
+      ]
 
   pGoveranceActionIdentifier :: Parser TxIn
   pGoveranceActionIdentifier =
@@ -161,15 +170,15 @@ pCreateConstitution =
       <*> pConstitution
       <*> pFileOutDirection "out-file" "Output filepath of the governance action."
 
-pConstitution :: Parser Constitution
+pConstitution :: Parser ConstitutionSource
 pConstitution =
   asum
-    [ fmap ConstitutionFromText $ Opt.strOption $ mconcat
+    [ fmap ConstitutionSourceText $ Opt.strOption $ mconcat
         [ Opt.long "constitution"
         , Opt.metavar "TEXT"
         , Opt.help "Input constitution as UTF-8 encoded text."
         ]
-    , ConstitutionFromFile
+    , ConstitutionSourceFile
         <$> pFileInDirection "constitution-file" "Input constitution as a text file."
     ]
 

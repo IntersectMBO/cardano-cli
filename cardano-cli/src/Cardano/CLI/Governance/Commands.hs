@@ -2,13 +2,13 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Conway.Commands where
+module Cardano.CLI.Governance.Commands where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Governance.Types
 import           Cardano.CLI.Shelley.Key
 import           Cardano.CLI.Shelley.Run.Read (CddlError)
 import           Cardano.CLI.Shelley.Run.StakeAddress
@@ -61,10 +61,10 @@ data GovernanceCmdError
 runGovernanceCreateVoteCmd
   :: AnyShelleyBasedEra
   -> VoteChoice
-  -> VType
+  -> GovVoterType
   -> TxIn
   -> VerificationKeyOrFile StakePoolKey
-  -> ConwayVoteFile Out
+  -> VoteFile Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateVoteCmd anyEra vChoice vType govActionTxIn votingStakeCred oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
@@ -72,19 +72,19 @@ runGovernanceCreateVoteCmd anyEra vChoice vType govActionTxIn votingStakeCred oF
   let stakePoolKeyHash = verificationKeyHash vStakePoolKey
       vStakeCred = StakeCredentialByKey . (verificationKeyHash . castVerificationKey) $ vStakePoolKey
   case vType of
-    VCC -> do
+    GovVoterTypeCommittee -> do
       votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
       let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
           voteProcedure = createVotingProcedure sbe vChoice (CC votingCred) govActIdentifier
       firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
-    VDR -> do
+    GovVoterTypeDRep -> do
       votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
       let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
           voteProcedure = createVotingProcedure sbe vChoice (DR votingCred) govActIdentifier
       firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
-    VSP -> do
+    GovVoterTypeSpo -> do
       let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
           voteProcedure = createVotingProcedure sbe vChoice (SP stakePoolKeyHash) govActIdentifier
       firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
@@ -94,7 +94,7 @@ runGovernanceNewConstitutionCmd
   :: AnyShelleyBasedEra
   -> Lovelace
   -> VerificationKeyOrFile StakePoolKey
-  -> Constitution
+  -> ConstitutionSource
   -> NewConstitutionFile Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceNewConstitutionCmd sbe deposit stakeVoteCred constitution oFp = do
@@ -103,13 +103,13 @@ runGovernanceNewConstitutionCmd sbe deposit stakeVoteCred constitution oFp = do
         <$> firstExceptT ReadFileError . newExceptT
               $ readVerificationKeyOrFile AsStakePoolKey stakeVoteCred
   case constitution of
-    ConstitutionFromFile fp  -> do
+    ConstitutionSourceFile fp  -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
       _utf8EncodedText <- firstExceptT NonUtf8EncodedConstitution . hoistEither $ Text.decodeUtf8' cBs
       let govAct = ProposeNewConstitution cBs
       runGovernanceCreateActionCmd sbe deposit vStakePoolKeyHash govAct oFp
 
-    ConstitutionFromText c -> do
+    ConstitutionSourceText c -> do
       let constitBs = Text.encodeUtf8 c
           govAct = ProposeNewConstitution constitBs
       runGovernanceCreateActionCmd sbe deposit vStakePoolKeyHash govAct oFp
