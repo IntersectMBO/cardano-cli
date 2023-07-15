@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Shelley.Run
+module Cardano.CLI.Run.Legacy
   ( LegacyClientCmdError
   , renderLegacyClientCmdError
   , runLegacyClientCommand
