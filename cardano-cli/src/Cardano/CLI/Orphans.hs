@@ -11,7 +11,7 @@
 
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Cardano.CLI.Shelley.Orphans () where
+module Cardano.CLI.Orphans () where
 
 import qualified Cardano.Ledger.Crypto as CC (Crypto)
 import qualified Cardano.Protocol.TPraos.API as Ledger

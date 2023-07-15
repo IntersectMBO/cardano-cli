@@ -47,6 +47,7 @@ import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
 import           Cardano.CLI.Commands.Legacy
 import qualified Cardano.CLI.IO.Lazy as Lazy
+import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Run.Legacy.Address
 import           Cardano.CLI.Run.Legacy.Node (ShelleyNodeCmdError (..), renderShelleyNodeCmdError,
                    runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
@@ -54,7 +55,6 @@ import           Cardano.CLI.Run.Legacy.Pool (ShelleyPoolCmdError (..), renderSh
 import           Cardano.CLI.Run.Legacy.StakeAddress (ShelleyStakeAddressCmdError (..),
                    renderShelleyStakeAddressCmdError, runStakeAddressKeyGenToFile)
 import           Cardano.CLI.Shelley.Key
-import           Cardano.CLI.Shelley.Orphans ()
 import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Crypto as CC
 import           Cardano.Crypto.Hash (HashAlgorithm)
