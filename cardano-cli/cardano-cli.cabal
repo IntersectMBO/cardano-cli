@@ -60,6 +60,7 @@ library
                         Cardano.CLI.Parsers
                         Cardano.CLI.Render
                         Cardano.CLI.Run
+                        Cardano.CLI.Run.Legacy
                         Cardano.CLI.Types
 
                         Cardano.CLI.Byron.Commands
@@ -83,7 +84,6 @@ library
                         Cardano.CLI.Shelley.Orphans
                         Cardano.CLI.Shelley.Output
                         Cardano.CLI.Shelley.Parsers
-                        Cardano.CLI.Shelley.Run
                         Cardano.CLI.Shelley.Run.Address
                         Cardano.CLI.Shelley.Run.Address.Info
                         Cardano.CLI.Shelley.Run.Genesis
