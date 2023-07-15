@@ -58,6 +58,7 @@ library
                         Cardano.CLI.Helpers
                         Cardano.CLI.Json.Friendly
                         Cardano.CLI.Options.Governance
+                        Cardano.CLI.Options.Legacy
                         Cardano.CLI.Parsers
                         Cardano.CLI.Render
                         Cardano.CLI.Run
@@ -96,7 +97,6 @@ library
                         Cardano.CLI.Shelley.Key
                         Cardano.CLI.Shelley.Orphans
                         Cardano.CLI.Shelley.Output
-                        Cardano.CLI.Shelley.Parsers
 
                         Cardano.CLI.Ping
 

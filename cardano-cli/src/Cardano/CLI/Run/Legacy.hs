@@ -9,6 +9,7 @@ module Cardano.CLI.Run.Legacy
 import           Cardano.Api
 
 import           Cardano.CLI.Commands.Governance
+import           Cardano.CLI.Options.Legacy
 import           Cardano.CLI.Run.Legacy.Address
 import           Cardano.CLI.Run.Legacy.Genesis
 import           Cardano.CLI.Run.Legacy.Governance
@@ -19,7 +20,6 @@ import           Cardano.CLI.Run.Legacy.Query
 import           Cardano.CLI.Run.Legacy.StakeAddress
 import           Cardano.CLI.Run.Legacy.TextView
 import           Cardano.CLI.Run.Legacy.Transaction
-import           Cardano.CLI.Shelley.Parsers
 
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
