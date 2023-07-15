@@ -13,7 +13,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Conway.Commands
+import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.Conway.Parsers
 import           Cardano.CLI.Conway.Types
 import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
