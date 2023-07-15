@@ -6,7 +6,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Shelley CLI option data types and functions for cryptographic keys.
-module Cardano.CLI.Shelley.Key
+module Cardano.CLI.Types.Key
   ( VerificationKeyOrFile (..)
   , readVerificationKeyOrFile
   , readVerificationKeyOrTextEnvFile

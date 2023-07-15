@@ -8,7 +8,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Options.Common
-import           Cardano.CLI.Shelley.Key
+import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
 import           Cardano.Ledger.Shelley.TxBody (MIRPot)
 

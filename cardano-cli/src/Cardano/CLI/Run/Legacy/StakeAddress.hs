@@ -17,7 +17,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Options.Legacy
 import           Cardano.CLI.Run.Legacy.Read
-import           Cardano.CLI.Shelley.Key (DelegationTarget (..), StakeIdentifier (..),
+import           Cardano.CLI.Types.Key (DelegationTarget (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,
                    readVerificationKeyOrHashOrFile)
 import           Cardano.CLI.Types.Legacy

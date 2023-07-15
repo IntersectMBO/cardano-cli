@@ -17,7 +17,7 @@ import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Options.Governance
 import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
-import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
+import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
 import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley

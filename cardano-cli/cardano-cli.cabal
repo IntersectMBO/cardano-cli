@@ -77,6 +77,7 @@ library
                         Cardano.CLI.Run.Legacy.Read
                         Cardano.CLI.Run.Legacy.Validate
                         Cardano.CLI.Types.Governance
+                        Cardano.CLI.Types.Key
                         Cardano.CLI.Types.Legacy
 
                         Cardano.CLI.Byron.Commands
@@ -94,7 +95,6 @@ library
                         Cardano.CLI.Pretty
                         Cardano.CLI.IO.Lazy
 
-                        Cardano.CLI.Shelley.Key
                         Cardano.CLI.Shelley.Output
 
                         Cardano.CLI.Ping

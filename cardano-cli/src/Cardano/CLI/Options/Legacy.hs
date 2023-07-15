@@ -23,7 +23,7 @@ import           Cardano.CLI.Commands.Legacy
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.Options.Common
 import           Cardano.CLI.Options.Governance
-import           Cardano.CLI.Shelley.Key (DelegationTarget (..), PaymentVerifier (..),
+import           Cardano.CLI.Types.Key (DelegationTarget (..), PaymentVerifier (..),
                    VerificationKeyOrFile (..), VerificationKeyOrHashOrFile (..),
                    VerificationKeyTextOrFile (..))
 import           Cardano.CLI.Types.Legacy

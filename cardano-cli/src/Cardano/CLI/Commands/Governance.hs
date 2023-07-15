@@ -11,7 +11,7 @@ import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Run.Legacy.Read (CddlError)
 import           Cardano.CLI.Run.Legacy.StakeAddress
-import           Cardano.CLI.Shelley.Key
+import           Cardano.CLI.Types.Key
 
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Except (ExceptT)
