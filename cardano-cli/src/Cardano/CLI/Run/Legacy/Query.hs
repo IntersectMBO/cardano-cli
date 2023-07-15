@@ -39,7 +39,7 @@ import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, rend
 import           Cardano.CLI.Pretty
 import           Cardano.CLI.Run.Legacy.Genesis (ShelleyGenesisCmdError,
                    readAndDecodeShelleyGenesis)
-import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
+import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile)
 import qualified Cardano.CLI.Shelley.Output as O
 import           Cardano.CLI.Types.Legacy

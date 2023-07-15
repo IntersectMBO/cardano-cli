@@ -11,7 +11,7 @@ module Test.Golden.Shelley.Governance.VerifyPoll
 
 import           Cardano.Api
 
-import           Cardano.CLI.Shelley.Key (VerificationKeyOrFile (..),
+import           Cardano.CLI.Types.Key (VerificationKeyOrFile (..),
                    readVerificationKeyOrTextEnvFile)
 
 import           Control.Monad.IO.Class (liftIO)

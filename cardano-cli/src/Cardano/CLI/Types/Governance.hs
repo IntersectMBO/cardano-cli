@@ -5,7 +5,7 @@ module Cardano.CLI.Types.Governance where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Shelley.Key
+import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
 

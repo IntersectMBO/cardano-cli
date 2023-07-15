@@ -9,7 +9,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra)
-import           Cardano.CLI.Shelley.Key
+import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
 
 import           Control.Monad (mfilter)
