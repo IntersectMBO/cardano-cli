@@ -12,12 +12,12 @@ module Cardano.CLI.Run
 import           Cardano.CLI.Byron.Commands (ByronCommand)
 import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCmdError,
                    runByronClientCommand)
+import           Cardano.CLI.Commands.Legacy (LegacyCommand)
 import           Cardano.CLI.Ping (PingClientCmdError (..), PingCmd (..), renderPingClientCmdError,
                    runPingCmd)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run.Legacy (LegacyClientCmdError, renderLegacyClientCmdError,
                    runLegacyClientCommand)
-import           Cardano.CLI.Shelley.Commands (LegacyCommand)
 import           Cardano.Git.Rev (gitRev)
 
 import           Control.Monad (forM_)

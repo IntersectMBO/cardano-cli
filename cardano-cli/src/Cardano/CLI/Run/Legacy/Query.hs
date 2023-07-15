@@ -34,11 +34,11 @@ import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Binary (DecoderError)
+import           Cardano.CLI.Commands.Legacy
 import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, renderHelpersError)
 import           Cardano.CLI.Pretty
 import           Cardano.CLI.Run.Legacy.Genesis (ShelleyGenesisCmdError,
                    readAndDecodeShelleyGenesis)
-import           Cardano.CLI.Shelley.Commands
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile)
 import qualified Cardano.CLI.Shelley.Output as O
