@@ -24,11 +24,11 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Conway.Types
 import           Cardano.CLI.Helpers (printWarning)
 import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
+import           Cardano.CLI.Options.Legacy
 import           Cardano.CLI.Run.Legacy.Genesis
 import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Run.Legacy.Validate
 import           Cardano.CLI.Shelley.Output
-import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Types
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx

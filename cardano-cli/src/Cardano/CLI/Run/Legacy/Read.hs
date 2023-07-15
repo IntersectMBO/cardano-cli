@@ -72,7 +72,7 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
 import           Cardano.CLI.Conway.Types
-import           Cardano.CLI.Shelley.Parsers
+import           Cardano.CLI.Options.Legacy
 import           Cardano.CLI.Types
 
 import           Prelude

@@ -17,13 +17,13 @@ module Cardano.CLI.Run.Legacy.Address
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Options.Legacy (AddressCmd (..), AddressKeyType (..))
 import           Cardano.CLI.Run.Legacy.Address.Info (ShelleyAddressInfoError, runAddressInfo)
 import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Shelley.Key (PaymentVerifier (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyTextOrFile,
                    VerificationKeyTextOrFileError (..), generateKeyPair, readVerificationKeyOrFile,
                    readVerificationKeyTextOrFileAnyOf, renderVerificationKeyTextOrFileError)
-import           Cardano.CLI.Shelley.Parsers (AddressCmd (..), AddressKeyType (..))
 import           Cardano.CLI.Types
 
 import           Control.Monad.IO.Class (MonadIO (..))

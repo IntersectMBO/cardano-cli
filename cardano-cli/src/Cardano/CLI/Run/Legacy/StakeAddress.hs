@@ -15,11 +15,11 @@ module Cardano.CLI.Run.Legacy.StakeAddress
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Options.Legacy
 import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Shelley.Key (DelegationTarget (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,
                    readVerificationKeyOrHashOrFile)
-import           Cardano.CLI.Shelley.Parsers
 import           Cardano.CLI.Types
 
 import           Control.Monad.IO.Class (MonadIO (..))

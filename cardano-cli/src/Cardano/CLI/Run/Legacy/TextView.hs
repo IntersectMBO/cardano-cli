@@ -9,7 +9,7 @@ module Cardano.CLI.Run.Legacy.TextView
 import           Cardano.Api
 
 import           Cardano.CLI.Helpers (HelpersError, pPrintCBOR, renderHelpersError)
-import           Cardano.CLI.Shelley.Parsers
+import           Cardano.CLI.Options.Legacy
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
