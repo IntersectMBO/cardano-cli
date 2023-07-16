@@ -79,7 +79,7 @@ getEnvSocketPath = IO.lookupEnv "CARDANO_NODE_SOCKET_PATH"
 -- Otherwise, return 'Nothing'.
 getCardanoEra :: IO (Maybe AnyCardanoEra)
 getCardanoEra = do
-  mEraString <- IO.lookupEnv "CARDANO_NODE_SOCKET_PATH"
+  mEraString <- IO.lookupEnv "CARDANO_ERA"
 
   case mEraString of
     Just eraString ->
