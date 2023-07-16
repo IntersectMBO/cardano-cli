@@ -64,7 +64,7 @@ runGovernanceCreateVoteCmd
   -> VType
   -> TxIn
   -> VerificationKeyOrFile StakePoolKey
-  -> File ConwayVote Out
+  -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateVoteCmd anyEra vChoice vType govActionTxIn votingStakeCred oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra

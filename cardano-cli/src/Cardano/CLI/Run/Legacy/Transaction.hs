@@ -328,7 +328,7 @@ runTxBuildCmd
   -> [MetadataFile]
   -> Maybe (Deprecated ProtocolParamsFile)
   -> Maybe UpdateProposalFile
-  -> [File ConwayVote In]
+  -> [File () In]
   -> [NewConstitutionFile In] -- TODO: Conway era - we should replace this with a sumtype that handles all governance actions
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()

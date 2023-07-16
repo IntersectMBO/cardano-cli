@@ -9,26 +9,24 @@ import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
 
-data ConwayVote
-  = ConwayVote
-    { cvVoteChoice :: Vote
-    , cvVoterType :: VType
-    , cvGovActionTxIn :: TxIn
-    , cvVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
-    , cvEra :: AnyShelleyBasedEra
-    , cvFilepath :: File ConwayVote Out
-    } deriving Show
+data ConwayVote = ConwayVote
+  { cvVoteChoice :: Vote
+  , cvVoterType :: VType
+  , cvGovActionTxIn :: TxIn
+  , cvVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
+  , cvEra :: AnyShelleyBasedEra
+  , cvFilepath :: File () Out
+  } deriving Show
 
 type NewConstitutionFile = File NewConstitution
 
-data NewConstitution
-  = NewConstitution
-      { ncEra :: AnyShelleyBasedEra
-      , ncDeposit :: Lovelace
-      , ncVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
-      , ncConstitution :: Constitution
-      , ncFilePath :: NewConstitutionFile Out
-      } deriving Show
+data NewConstitution = NewConstitution
+  { ncEra :: AnyShelleyBasedEra
+  , ncDeposit :: Lovelace
+  , ncVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
+  , ncConstitution :: Constitution
+  , ncFilePath :: NewConstitutionFile Out
+  } deriving Show
 
 data Constitution
   = ConstitutionFromFile (File () In)
@@ -39,4 +37,3 @@ data VType = VCC -- committee
            | VDR -- drep
            | VSP -- spo
            deriving Show
-

@@ -245,7 +245,7 @@ data TransactionCmd
       [MetadataFile]
       (Maybe (Deprecated ProtocolParamsFile))
       (Maybe UpdateProposalFile)
-      [File ConwayVote In]
+      [File () In]
       [NewConstitutionFile In]
       TxBuildOutputOptions
   | TxSign InputTxBodyOrTxFile [WitnessSigningData] (Maybe NetworkId) (TxFile Out)
