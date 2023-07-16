@@ -8,9 +8,9 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Run.Legacy.Read (CddlError)
 import           Cardano.CLI.Run.Legacy.StakeAddress
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.IO.Class
@@ -64,7 +64,7 @@ runGovernanceCreateVoteCmd
   -> VType
   -> TxIn
   -> VerificationKeyOrFile StakePoolKey
-  -> ConwayVoteFile Out
+  -> VoteFile Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateVoteCmd anyEra vChoice vType govActionTxIn votingStakeCred oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
