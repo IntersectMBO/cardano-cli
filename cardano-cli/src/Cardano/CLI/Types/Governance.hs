@@ -10,7 +10,7 @@ import           Cardano.CLI.Types.Key
 import           Data.Text (Text)
 
 
-type ConwayVoteFile = File ConwayVote
+type VoteFile = File ConwayVote
 
 data ConwayVote
   = ConwayVote
@@ -19,7 +19,7 @@ data ConwayVote
     , cvGovActionTxIn :: TxIn
     , cvVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
     , cvEra :: AnyShelleyBasedEra
-    , cvFilepath :: ConwayVoteFile Out
+    , cvFilepath :: VoteFile Out
     } deriving Show
 
 type NewConstitutionFile = File NewConstitution
