@@ -7,6 +7,7 @@
 
 import           Cardano.CLI.Environment (getEnvCli)
 import           Cardano.CLI.Options (opts, pref)
+import           Cardano.CLI.OS.Unix
 import           Cardano.CLI.Run (renderClientCommandError, runClientCommand)
 import           Cardano.CLI.TopHandler
 import qualified Cardano.Crypto.Init as Crypto
@@ -14,7 +15,6 @@ import qualified Cardano.Crypto.Init as Crypto
 import           Control.Monad.Trans.Except.Exit (orDie)
 import qualified GHC.IO.Encoding as GHC
 import qualified Options.Applicative as Opt
-import           System.Posix.Files
 
 main :: IO ()
 main = toplevelExceptionHandler $ do
