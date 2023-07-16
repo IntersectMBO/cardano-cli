@@ -104,30 +104,30 @@ pCreateVote =
     <*> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
     <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
- where
-  pVoteChoice :: Parser Vote
-  pVoteChoice =
-    asum
-     [  flag' Yes $ long "yes"
-     ,  flag' No $ long "no"
-     ,  flag' Abstain $ long "abstain"
-     ]
+  where
+    pVoteChoice :: Parser Vote
+    pVoteChoice =
+      asum
+        [ flag' Yes $ long "yes"
+        , flag' No $ long "no"
+        , flag' Abstain $ long "abstain"
+        ]
 
-  pVoterType :: Parser VType
-  pVoterType =
-    asum
-     [  flag' VCC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
-     ,  flag' VDR $ mconcat [long "drep", Opt.help "Delegate representative"]
-     ,  flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
-     ]
+    pVoterType :: Parser VType
+    pVoterType =
+      asum
+        [ flag' VCC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
+        , flag' VDR $ mconcat [long "drep", Opt.help "Delegate representative"]
+        , flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
+        ]
 
-  pGoveranceActionIdentifier :: Parser TxIn
-  pGoveranceActionIdentifier =
-    Opt.option (readerFromParsecParser parseTxIn) $ mconcat
-      [ Opt.long "tx-in"
-      , Opt.metavar "TX-IN"
-      , Opt.help "TxIn of governance action (already on chain)."
-      ]
+    pGoveranceActionIdentifier :: Parser TxIn
+    pGoveranceActionIdentifier =
+      Opt.option (readerFromParsecParser parseTxIn) $ mconcat
+        [ Opt.long "tx-in"
+        , Opt.metavar "TX-IN"
+        , Opt.help "TxIn of governance action (already on chain)."
+        ]
 
 -- TODO: Conway era include "normal" stake keys
 pVotingCredential :: Parser (VerificationKeyOrFile StakePoolKey)
