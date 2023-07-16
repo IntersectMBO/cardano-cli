@@ -14,9 +14,9 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Commands.Governance
-import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Options.Governance
 import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
 import           Cardano.CLI.Types.Legacy
@@ -104,7 +104,7 @@ renderShelleyGovernanceError = \case
 
 runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmd = \case
-  GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
+  GovernanceVoteCmd (CreateVoteCmd voteChoice voteType govActTcIn voteStakeCred sbe fp) ->
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
   GovernanceActionCmd (CreateConstitution (NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
     runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp

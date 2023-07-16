@@ -84,20 +84,25 @@ pVoteCommmands =
         $ Opt.progDesc "Create a vote for a proposed governance action."
     ]
 
-newtype VoteCmd
-  = CreateVoteCmd ConwayVote deriving Show
-
+data VoteCmd
+  = CreateVoteCmd
+      Vote
+      VType
+      TxIn
+      (VerificationKeyOrFile StakePoolKey)
+      AnyShelleyBasedEra
+      (File () Out)
+  deriving Show
 
 pCreateVote :: Parser VoteCmd
 pCreateVote =
-  fmap CreateVoteCmd $
-    ConwayVote
-      <$> pVoteChoice
-      <*> pVoterType
-      <*> pGoveranceActionIdentifier
-      <*> pVotingCredential
-      <*> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
-      <*> pFileOutDirection "out-file" "Output filepath of the vote."
+  CreateVoteCmd
+    <$> pVoteChoice
+    <*> pVoterType
+    <*> pGoveranceActionIdentifier
+    <*> pVotingCredential
+    <*> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
+    <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
  where
   pVoteChoice :: Parser Vote
