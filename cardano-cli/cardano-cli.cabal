@@ -44,6 +44,7 @@ common maybe-bytestring
 
 library
   import:               project-config
+                      , maybe-unix
 
   if flag(unexpected_thunks)
     cpp-options:        -DUNEXPECTED_THUNKS
@@ -60,6 +61,7 @@ library
                         Cardano.CLI.Options.Governance
                         Cardano.CLI.Options.Legacy
                         Cardano.CLI.Orphans
+                        Cardano.CLI.OS.Unix
                         Cardano.CLI.Render
                         Cardano.CLI.Run
                         Cardano.CLI.Run.Legacy
