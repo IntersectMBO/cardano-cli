@@ -9,14 +9,12 @@ import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
 
-type NewConstitutionFile = File NewConstitution
-
 data NewConstitution = NewConstitution
   { ncEra :: AnyShelleyBasedEra
   , ncDeposit :: Lovelace
   , ncVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
   , ncConstitution :: Constitution
-  , ncFilePath :: NewConstitutionFile Out
+  , ncFilePath :: File () Out -- Constitution file
   } deriving Show
 
 data Constitution

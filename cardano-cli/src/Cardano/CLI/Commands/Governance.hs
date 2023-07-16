@@ -95,7 +95,7 @@ runGovernanceNewConstitutionCmd
   -> Lovelace
   -> VerificationKeyOrFile StakePoolKey
   -> Constitution
-  -> NewConstitutionFile Out
+  -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceNewConstitutionCmd sbe deposit stakeVoteCred constitution oFp = do
   vStakePoolKeyHash

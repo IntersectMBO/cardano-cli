@@ -54,7 +54,6 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.Options.Governance
-import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
                    StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
                    VerificationKeyTextOrFile)
@@ -245,8 +244,8 @@ data TransactionCmd
       [MetadataFile]
       (Maybe (Deprecated ProtocolParamsFile))
       (Maybe UpdateProposalFile)
-      [File () In]
-      [NewConstitutionFile In]
+      [File () In] -- Vote file
+      [File () In] -- Constitution file
       TxBuildOutputOptions
   | TxSign InputTxBodyOrTxFile [WitnessSigningData] (Maybe NetworkId) (TxFile Out)
   | TxCreateWitness (TxBodyFile In) WitnessSigningData (Maybe NetworkId) (File () Out)
