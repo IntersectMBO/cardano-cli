@@ -345,7 +345,7 @@ friendlyCertificate =
       CommitteeDelegationCertificate {} ->
         error "TODO CIP-1694 implement CommitteeDelegationCertificate case"
 
-      CommitteeHotKeyDeregistrationCertificate {} ->
+      CommitteeHotKeyUnregistrationCertificate {} ->
         error "TODO CIP-1694 implement CommitteeHotKeyDeregistrationCertificate case"
 
 friendlyMirTarget :: MIRTarget -> Aeson.Pair

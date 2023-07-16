@@ -763,7 +763,7 @@ readTxVotes era files = runExceptT $
 readVoteFile
   :: ShelleyBasedEra era
   -> VoteFile In
-  -> IO (Either VoteError (Vote era))
+  -> IO (Either VoteError (VotingProcedure era))
 readVoteFile sbe fp =
   first VoteErrorFile <$> obtainEraConstraints sbe (readFileTextEnvelope AsVote fp)
 

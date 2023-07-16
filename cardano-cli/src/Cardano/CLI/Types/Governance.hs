@@ -14,7 +14,7 @@ type VoteFile = File ConwayVote
 
 data ConwayVote
   = ConwayVote
-    { cvVoteChoice :: VoteChoice
+    { cvVoteChoice :: Vote
     , cvVoterType :: VType
     , cvGovActionTxIn :: TxIn
     , cvVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
