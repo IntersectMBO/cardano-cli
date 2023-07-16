@@ -16,7 +16,6 @@ import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.Options.Governance
 import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
-import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
 import           Cardano.CLI.Types.Legacy
@@ -106,7 +105,7 @@ runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmd = \case
   GovernanceVoteCmd (CreateVoteCmd voteChoice voteType govActTcIn voteStakeCred sbe fp) ->
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
-  GovernanceActionCmd (CreateConstitution (NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
+  GovernanceActionCmd (CreateConstitutionCmd sbe deposit voteStakeCred newconstitution fp) ->
     runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
   GovernanceMIRPayStakeAddressesCertificate anyEra mirpot vKeys rewards out ->
     runGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out

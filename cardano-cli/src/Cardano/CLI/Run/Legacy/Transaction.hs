@@ -27,7 +27,6 @@ import           Cardano.CLI.Options.Legacy
 import           Cardano.CLI.Run.Legacy.Genesis
 import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Run.Legacy.Validate
-import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Legacy
 import           Cardano.CLI.Types.Output
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))

@@ -138,7 +138,15 @@ pVotingCredential = pStakePoolVerificationKeyOrFile
 -- Governance action related
 --------------------------------------------------------------------------------
 
-newtype ActionCmd = CreateConstitution NewConstitution deriving Show
+data ActionCmd
+  = CreateConstitutionCmd
+      AnyShelleyBasedEra
+      Lovelace
+      (VerificationKeyOrFile StakePoolKey)
+      Constitution
+      (File () Out) -- Constitution file
+
+  deriving Show
 
 pActionCommmands :: Parser ActionCmd
 pActionCommmands =
@@ -150,21 +158,21 @@ pActionCommmands =
 
 pCreateAction :: Parser ActionCmd
 pCreateAction =
-  asum [ subParser "create-constitution"
-           $ Opt.info pCreateConstitution
-           $ Opt.progDesc "Create a constitution."
-       ]
+  asum
+    [ subParser "create-constitution"
+        $ Opt.info pCreateConstitution
+        $ Opt.progDesc "Create a constitution."
+     ]
 
 
 pCreateConstitution :: Parser ActionCmd
 pCreateConstitution =
-  fmap CreateConstitution $
-    NewConstitution
-      <$> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
-      <*> pGovActionDeposit
-      <*> pVotingCredential
-      <*> pConstitution
-      <*> pFileOutDirection "out-file" "Output filepath of the governance action."
+  CreateConstitutionCmd
+    <$> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
+    <*> pGovActionDeposit
+    <*> pVotingCredential
+    <*> pConstitution
+    <*> pFileOutDirection "out-file" "Output filepath of the governance action."
 
 pConstitution :: Parser Constitution
 pConstitution =
