@@ -1,4 +1,6 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.Conway.Types where
 
@@ -43,3 +45,8 @@ data VType = VCC -- committee
            | VSP -- spo
            deriving Show
 
+
+data AnyAtMostBabbageEra where
+  AnyAtMostBabbageEra :: IsShelleyBasedEra era => AtMostBabbageEra era -> AnyAtMostBabbageEra
+
+deriving instance Show AnyAtMostBabbageEra

@@ -2,6 +2,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Shelley.Run.Governance
   ( ShelleyGovernanceCmdError
@@ -10,12 +11,15 @@ module Cardano.CLI.Shelley.Run.Governance
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
+import qualified Cardano.Api.Shelley as Api
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Conway.Commands
 import           Cardano.CLI.Conway.Parsers
 import           Cardano.CLI.Conway.Types
+import qualified Cardano.CLI.Conway.Types as Cli
 import           Cardano.CLI.Shelley.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
 import           Cardano.CLI.Shelley.Run.Read (CddlError, fileOrPipe, readFileTx)
@@ -32,6 +36,7 @@ import           Data.Aeson (eitherDecode)
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LB
 import           Data.Function ((&))
+import qualified Data.Map.Strict as Map
 import           Data.String (fromString)
 import           Data.Text (Text)
 import qualified Data.Text as Text
@@ -106,14 +111,14 @@ runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmd = \case
   GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
-  GovernanceActionCmd (CreateConstitution (NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
+  GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
     runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
-  GovernanceMIRPayStakeAddressesCertificate anyEra mirpot vKeys rewards out ->
-    runGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
-  GovernanceMIRTransfer anyEra amt out direction ->
-    runGovernanceMIRCertificateTransfer anyEra amt out direction
-  GovernanceGenesisKeyDelegationCertificate anyEra genVk genDelegVk vrfVk out ->
-    runGovernanceGenesisKeyDelegationCertificate anyEra genVk genDelegVk vrfVk out
+  GovernanceMIRPayStakeAddressesCertificate atMostBabbage mirpot vKeys rewards out ->
+    runGovernanceMIRCertificatePayStakeAddrs atMostBabbage mirpot vKeys rewards out
+  GovernanceMIRTransfer atMostBabbage amt out direction ->
+    runGovernanceMIRCertificateTransfer atMostBabbage amt out direction
+  GovernanceGenesisKeyDelegationCertificate atMostBabbage genVk genDelegVk vrfVk out ->
+    runGovernanceGenesisKeyDelegationCertificate atMostBabbage genVk genDelegVk vrfVk out
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
     runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
   GovernanceCreatePoll prompt choices nonce out ->
@@ -125,21 +130,26 @@ runGovernanceCmd = \case
 
 
 runGovernanceMIRCertificatePayStakeAddrs
-  :: AnyShelleyBasedEra
+  :: AnyAtMostBabbageEra
   -> Shelley.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceMIRCertificatePayStakeAddrs anyEra mirPot sAddrs rwdAmts oFp = do
-    AnyShelleyBasedEra sbe <- pure anyEra
+runGovernanceMIRCertificatePayStakeAddrs (AnyAtMostBabbageEra (aMostBab :: AtMostBabbageEra era))
+                                          mirPot sAddrs rwdAmts oFp = do
 
     unless (length sAddrs == length rwdAmts) $
       left $ GovernanceCmdMIRCertificateKeyRewardMistmach
                (unFile oFp) (length sAddrs) (length rwdAmts)
 
     let sCreds  = map stakeAddressCredential sAddrs
-        mirCert = makeMIRCertificate sbe mirPot (StakeAddressesMIR $ zip sCreds rwdAmts)
+        mirTarget = Ledger.StakeAddressesMIR
+                      $ Map.fromList [ (toShelleyStakeCredential scred, Ledger.toDeltaCoin (toShelleyLovelace rwdAmt))
+                                     | (scred, rwdAmt) <- zip sCreds rwdAmts
+                                     ]
+        mirReq = MirCertificateRequirements aMostBab mirPot (obtainEraCryptoConstraints (shelleyBasedEra @era) mirTarget)
+        mirCert = makeMIRCertificate mirReq
 
     firstExceptT GovernanceCmdTextEnvWriteError
       . newExceptT
@@ -150,20 +160,20 @@ runGovernanceMIRCertificatePayStakeAddrs anyEra mirPot sAddrs rwdAmts oFp = do
     mirCertDesc = "Move Instantaneous Rewards Certificate"
 
 runGovernanceMIRCertificateTransfer
-  :: AnyShelleyBasedEra
+  :: AnyAtMostBabbageEra
   -> Lovelace
   -> File () Out
   -> TransferDirection
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
-  AnyShelleyBasedEra sbe <- pure anyEra
+runGovernanceMIRCertificateTransfer (AnyAtMostBabbageEra (aMostBab :: AtMostBabbageEra era))
+                                     ll oFp direction = do
 
+  let mirTarget = Ledger.SendToOppositePotMIR (toShelleyLovelace ll)
+      mirReq mirPot = MirCertificateRequirements aMostBab mirPot (obtainEraCryptoConstraints (shelleyBasedEra @era) mirTarget)
   mirCert <-
     case direction of
-      TransferToReserves ->
-        return . makeMIRCertificate sbe Shelley.TreasuryMIR $ SendToReservesMIR ll
-      TransferToTreasury ->
-        return . makeMIRCertificate sbe Shelley.ReservesMIR $ SendToTreasuryMIR ll
+      TransferToReserves -> return $ makeMIRCertificate$  mirReq Ledger.TreasuryMIR
+      TransferToTreasury -> return $ makeMIRCertificate$  mirReq Ledger.ReservesMIR
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
@@ -176,18 +186,17 @@ runGovernanceMIRCertificateTransfer anyEra ll oFp direction = do
 
 
 runGovernanceGenesisKeyDelegationCertificate
-  :: AnyShelleyBasedEra
+  :: AnyAtMostBabbageEra
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceGenesisKeyDelegationCertificate anyEra
+runGovernanceGenesisKeyDelegationCertificate (AnyAtMostBabbageEra (aMostBab :: AtMostBabbageEra era))
                                              genVkOrHashOrFp
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
                                              oFp = do
-  AnyShelleyBasedEra sbe <- pure anyEra
   genesisVkHash <- firstExceptT GovernanceCmdKeyReadError
     . newExceptT
     $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
@@ -197,11 +206,14 @@ runGovernanceGenesisKeyDelegationCertificate anyEra
   vrfVkHash <- firstExceptT GovernanceCmdKeyReadError
     . newExceptT
     $ readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
+
+  let req = GenesisKeyDelegationRequirements aMostBab genesisVkHash genesisDelVkHash vrfVkHash
+      genKeyDelegCert = makeGenesisKeyDelegationCertificate req
+
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
     $ writeLazyByteStringFile oFp
-    $ textEnvelopeToJSON (Just genKeyDelegCertDesc)
-    $ makeGenesisKeyDelegationCertificate sbe genesisVkHash genesisDelVkHash vrfVkHash
+    $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Genesis Key Delegation Certificate"
@@ -347,7 +359,7 @@ runGovernanceAnswerPoll pollFile maybeChoice mOutFile = do
 
 runGovernanceVerifyPoll
   :: File GovernancePoll In
-  -> File (Tx ()) In
+  -> File (Api.Tx ()) In
   -> Maybe (File () Out) -- ^ Output file
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceVerifyPoll pollFile txFile mOutFile = do

@@ -282,8 +282,9 @@ validateTxCertificates era certsAndScriptWitnesses =
      -> Maybe StakeCredential
    deriveStakeCredentialWitness cert = do
      case cert of
-       StakeAddressDeregistrationCertificate sCred -> Just sCred
-       StakeAddressPoolDelegationCertificate sCred _ -> Just sCred
+       -- TODO: Conway era
+       -- StakeAddressDeregistrationCertificate sCred -> Just sCred
+       -- StakeAddressPoolDelegationCertificate sCred _ -> Just sCred
        _ -> Nothing
 
    convert

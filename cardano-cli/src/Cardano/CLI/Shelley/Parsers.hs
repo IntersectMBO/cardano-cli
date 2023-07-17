@@ -1224,7 +1224,7 @@ pGovernanceCmd =
     pMIRPayStakeAddresses :: Parser GovernanceCmd
     pMIRPayStakeAddresses =
       GovernanceMIRPayStakeAddressesCertificate
-        <$> pAnyShelleyBasedEra
+        <$> pAtMostBabbageEra
         <*> pMIRPot
         <*> some pStakeAddress
         <*> some pRewardAmt
@@ -1233,7 +1233,7 @@ pGovernanceCmd =
     pMIRTransferToTreasury :: Parser GovernanceCmd
     pMIRTransferToTreasury =
       GovernanceMIRTransfer
-        <$> pAnyShelleyBasedEra
+        <$> pAtMostBabbageEra
         <*> pTransferAmt
         <*> pOutputFile
         <*> pure TransferToTreasury
@@ -1241,7 +1241,7 @@ pGovernanceCmd =
     pMIRTransferToReserves :: Parser GovernanceCmd
     pMIRTransferToReserves =
       GovernanceMIRTransfer
-        <$> pAnyShelleyBasedEra
+        <$> pAtMostBabbageEra
         <*> pTransferAmt
         <*> pOutputFile
         <*> pure TransferToReserves
@@ -1249,7 +1249,7 @@ pGovernanceCmd =
     pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmd
     pGovernanceGenesisKeyDelegationCertificate =
       GovernanceGenesisKeyDelegationCertificate
-        <$> pAnyShelleyBasedEra
+        <$> pAtMostBabbageEra
         <*> pGenesisVerificationKeyOrHashOrFile
         <*> pGenesisDelegateVerificationKeyOrHashOrFile
         <*> pVrfVerificationKeyOrHashOrFile

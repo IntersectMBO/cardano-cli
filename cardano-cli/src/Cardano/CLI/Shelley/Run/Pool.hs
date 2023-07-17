@@ -142,12 +142,12 @@ runStakePoolRegistrationCert
             , stakePoolMetadata = mbMetadata
             }
 
-    let registrationCert = makeStakePoolRegistrationCertificate sbe stakePoolParams
+    let registrationCert = error "TODO: Conway era" -- makeStakePoolRegistrationCertificate sbe stakePoolParams
 
     firstExceptT ShelleyPoolCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile outfp
-      $ textEnvelopeToJSON (Just registrationCertDesc) registrationCert
+      $ error "TODO: Conway era"  -- textEnvelopeToJSON (Just registrationCertDesc) registrationCert
   where
     registrationCertDesc :: TextEnvelopeDescr
     registrationCertDesc = "Stake Pool Registration Certificate"
@@ -167,12 +167,12 @@ runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
       $ readVerificationKeyOrFile AsStakePoolKey stakePoolVerKeyOrFile
 
     let stakePoolId' = verificationKeyHash stakePoolVerKey
-        retireCert = makeStakePoolRetirementCertificate sbe stakePoolId' retireEpoch
+        retireCert = error "TODO: Conway era" -- makeStakePoolRetirementCertificate sbe stakePoolId' retireEpoch
 
     firstExceptT ShelleyPoolCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile outfp
-      $ textEnvelopeToJSON (Just retireCertDesc) retireCert
+      $ error "TODO: Conway era" -- textEnvelopeToJSON (Just retireCertDesc) retireCert
   where
     retireCertDesc :: TextEnvelopeDescr
     retireCertDesc = "Stake Pool Retirement Certificate"

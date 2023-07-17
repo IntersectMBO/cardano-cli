@@ -10,7 +10,6 @@ import           Cardano.CLI.Common.Parsers
 import           Cardano.CLI.Conway.Types
 import           Cardano.CLI.Shelley.Key
 import           Cardano.CLI.Types
-import           Cardano.Ledger.Shelley.TxBody (MIRPot)
 
 import           Data.Foldable
 import           Data.Text (Text)
@@ -22,18 +21,18 @@ data GovernanceCmd
   = GovernanceVoteCmd VoteCmd
   | GovernanceActionCmd ActionCmd
   | GovernanceMIRPayStakeAddressesCertificate
-      AnyShelleyBasedEra
+      AnyAtMostBabbageEra
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
   | GovernanceMIRTransfer
-      AnyShelleyBasedEra
+      AnyAtMostBabbageEra
       Lovelace
       (File () Out)
       TransferDirection
   | GovernanceGenesisKeyDelegationCertificate
-      AnyShelleyBasedEra
+      AnyAtMostBabbageEra
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)
@@ -180,3 +179,6 @@ pGovActionDeposit =
     , Opt.metavar "NATURAL"
     , Opt.help "Deposit required to submit a governance action."
     ]
+
+pAtMostBabbageEra :: Parser AnyAtMostBabbageEra
+pAtMostBabbageEra = undefined

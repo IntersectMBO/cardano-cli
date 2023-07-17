@@ -133,12 +133,12 @@ runStakeCredentialRegistrationCert anyEra stakeIdentifier oFp = do
     -> StakeCredential
     -> ExceptT ShelleyStakeAddressCmdError IO ()
   writeRegistrationCert sbe sCred = do
-    let deRegCert = makeStakeAddressRegistrationCertificate sbe sCred
+    let deRegCert = error "TODO: Conway era " -- makeStakeAddressRegistrationCertificate sbe sCred
     firstExceptT ShelleyStakeAddressCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile oFp
       $ shelleyBasedEraConstraints sbe
-      $ textEnvelopeToJSON (Just regCertDesc) deRegCert
+      $ error "TODO: Conway era" -- textEnvelopeToJSON (Just regCertDesc) deRegCert
 
   regCertDesc :: TextEnvelopeDescr
   regCertDesc = "Stake Address Registration Certificate"
@@ -182,12 +182,12 @@ runStakeCredentialDeRegistrationCert anyEra stakeVerifier oFp = do
       -> StakeCredential
       -> ExceptT ShelleyStakeAddressCmdError IO ()
     writeDeregistrationCert sbe sCred = do
-      let deRegCert = makeStakeAddressDeregistrationCertificate sbe sCred
+      let deRegCert = error "TODO: Conway era " -- makeStakeAddressDeregistrationCertificate sbe sCred
       firstExceptT ShelleyStakeAddressCmdWriteFileError
         . newExceptT
         $ writeLazyByteStringFile oFp
         $ shelleyBasedEraConstraints sbe
-        $ textEnvelopeToJSON (Just deregCertDesc) deRegCert
+        $ error "TODO: Conway era " -- textEnvelopeToJSON (Just deregCertDesc) deRegCert
 
     deregCertDesc :: TextEnvelopeDescr
     deregCertDesc = "Stake Address Deregistration Certificate"
