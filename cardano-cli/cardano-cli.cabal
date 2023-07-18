@@ -203,8 +203,7 @@ test-suite cardano-cli-test
                       , base16-bytestring
                       , bech32 >= 1.1.0
                       , bytestring
-                      , cardano-api ^>= 8.10.2
-                      , cardano-api:internal ^>= 8.10.2
+                      , cardano-api:{cardano-api, internal, gen} ^>= 8.10.2
                       , cardano-api-gen ^>= 8.1.1.0
                       , cardano-cli
                       , cardano-cli:cardano-cli-test-lib
@@ -247,7 +246,8 @@ test-suite cardano-cli-golden
   build-depends:        aeson >= 1.5.6.0
                       , base16-bytestring
                       , bytestring
-                      , cardano-api ^>= 8.10.2
+                      , cardano-api:{cardano-api, gen} ^>= 8.10.2
+                      , cardano-binary
                       , cardano-cli
                       , cardano-cli:cardano-cli-test-lib
                       , cardano-crypto-class ^>= 2.1
@@ -260,6 +260,7 @@ test-suite cardano-cli-golden
                       , hedgehog-extras ^>= 0.4.7.0
                       , regex-compat
                       , regex-tdfa
+                      , tasty
                       , text
                       , time
                       , transformers
@@ -272,6 +273,7 @@ test-suite cardano-cli-golden
                         Test.Golden.Byron.UpdateProposal
                         Test.Golden.Byron.Vote
                         Test.Golden.Byron.Witness
+                        Test.Golden.ErrorsSpec
                         Test.Golden.Help
                         Test.Golden.Key
                         Test.Golden.Key.NonExtendedKey

@@ -31,7 +31,7 @@ module Cardano.CLI.Run.Legacy.Read
   , renderScriptDataError
 
   -- * Tx
-  , CddlError
+  , CddlError(..)
   , CddlTx(..)
   , IncompleteTx(..)
   , readFileTx

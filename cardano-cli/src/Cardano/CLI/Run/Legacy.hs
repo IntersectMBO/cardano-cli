@@ -45,9 +45,8 @@ renderLegacyClientCmdError cmd err =
        renderError cmd renderShelleyAddressCmdError addrCmdErr
     LegacyCmdGenesisError genesisCmdErr ->
        renderError cmd (Text.pack . displayError) genesisCmdErr
-    LegacyCmdGovernanceError govCmdErr -> Text.pack $ show govCmdErr
-       -- TODO: Conway era
-       -- renderError cmd renderShelleyGovernanceError govCmdErr
+    LegacyCmdGovernanceError govCmdErr ->
+       renderError cmd (Text.pack . displayError) govCmdErr
     LegacyCmdNodeError nodeCmdErr ->
        renderError cmd renderShelleyNodeCmdError nodeCmdErr
     LegacyCmdPoolError poolCmdErr ->

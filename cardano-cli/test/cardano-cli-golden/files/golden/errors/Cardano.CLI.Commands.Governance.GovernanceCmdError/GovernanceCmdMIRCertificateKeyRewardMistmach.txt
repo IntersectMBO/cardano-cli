@@ -1,0 +1,1 @@
+Error creating the MIR certificate at: path/file.txt The number of staking keys: 1 and the number of reward amounts: 2 are not equivalent.
