@@ -1,5 +1,11 @@
 # Changelog for cardano-cli
 
+# 8.3.2.0
+
+- Make it build with ghc-9.6
+  (maintenance; compatible)
+  [PR 89](https://github.com/input-output-hk/cardano-cli/pull/89)
+
 # 8.3.1.0
 
 - Make it build with ghc-9.6
