@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RankNTypes #-}
@@ -78,6 +79,11 @@ runAddressKeyGenToFile fmt kt vkf skf = case kt of
 
 generateAndWriteByronKeyFiles
   :: Key keyrole
+#if __GLASGOW_HASKELL__ >= 902
+-- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.2 and above complains if its
+-- not present.
+  => HasTypeProxy keyrole
+#endif
   => AsType keyrole
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
@@ -87,6 +93,11 @@ generateAndWriteByronKeyFiles asType vkf skf = do
 
 generateAndWriteKeyFiles
   :: Key keyrole
+#if __GLASGOW_HASKELL__ >= 902
+-- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.2 and above complains if its
+-- not present.
+  => HasTypeProxy keyrole
+#endif
   => SerialiseAsBech32 (SigningKey keyrole)
   => SerialiseAsBech32 (VerificationKey keyrole)
   => KeyOutputFormat

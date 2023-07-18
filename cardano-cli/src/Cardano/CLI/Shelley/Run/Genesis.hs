@@ -458,7 +458,7 @@ runGenesisCreate
 toSKeyJSON :: Key a => SigningKey a -> ByteString
 toSKeyJSON = LBS.toStrict . textEnvelopeToJSON Nothing
 
-toVkeyJSON :: Key a => SigningKey a -> ByteString
+toVkeyJSON :: (Key a, HasTypeProxy a) => SigningKey a -> ByteString
 toVkeyJSON = LBS.toStrict . textEnvelopeToJSON Nothing . getVerificationKey
 
 toVkeyJSON' :: Key a => VerificationKey a -> ByteString

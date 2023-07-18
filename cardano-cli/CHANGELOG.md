@@ -1,5 +1,11 @@
 # Changelog for cardano-cli
 
+# 8.3.1.0
+
+- Make it build with ghc-9.6
+  (maintenance; compatible)
+  [PR 81](https://github.com/input-output-hk/cardano-cli/pull/81)
+
 # 8.3.0.0
 
 - Add a query for the hash of the constitution
