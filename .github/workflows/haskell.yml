@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ghc: ["8.10.7", "9.2.7"]
+        ghc: ["8.10.7", "9.2.7", "9.6.2"]
         cabal: ["3.10.1.0"]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
@@ -48,14 +48,14 @@ jobs:
       with:
         ghc-version: ${{ matrix.ghc }}
         cabal-version: ${{ matrix.cabal }}
-  
+
     - name: Install system dependencies
       uses: input-output-hk/actions/base@latest
       with:
         use-sodium-vrf: true # default is true
 
     - uses: actions/checkout@v3
-  
+
     - name: Cabal update
       run: cabal update
 
