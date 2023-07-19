@@ -12,6 +12,10 @@
   (maintenance; compatible)
   [PR 81](https://github.com/input-output-hk/cardano-cli/pull/81)
 
+- Add alonzo era to `Parser AnyShelleyBasedEra`
+  (bugfix; no-api-changes)
+  [PR 67](https://github.com/input-output-hk/cardano-cli/pull/67)
+
 # 8.3.0.0
 
 - Add a query for the hash of the constitution
