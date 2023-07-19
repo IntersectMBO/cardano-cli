@@ -8,10 +8,11 @@ module Cardano.CLI.Common.Parsers where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra)
 import           Cardano.CLI.Shelley.Key
 import           Cardano.CLI.Types
 
+import           Control.Monad (mfilter)
 import           Data.Bifunctor
 import qualified Data.ByteString.Char8 as BSC
 import           Data.Foldable
@@ -29,43 +30,48 @@ import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
 
-pCardanoEra :: Parser AnyCardanoEra
-pCardanoEra = asum
-  [ Opt.flag' (AnyCardanoEra ByronEra) $ mconcat
-    [ Opt.long "byron-era"
-    , Opt.help "Specify the Byron era"
-    ]
-  , Opt.flag' (AnyCardanoEra ShelleyEra) $ mconcat
-    [ Opt.long "shelley-era"
-    , Opt.help "Specify the Shelley era"
-    ]
-  , Opt.flag' (AnyCardanoEra AllegraEra) $ mconcat
-    [ Opt.long "allegra-era"
-    , Opt.help "Specify the Allegra era"
-    ]
-  , Opt.flag' (AnyCardanoEra MaryEra) $ mconcat
-    [ Opt.long "mary-era"
-    , Opt.help "Specify the Mary era"
-    ]
-  , Opt.flag' (AnyCardanoEra AlonzoEra) $ mconcat
-    [ Opt.long "alonzo-era"
-    , Opt.help "Specify the Alonzo era"
-    ]
-  , Opt.flag' (AnyCardanoEra BabbageEra) $ mconcat
-    [ Opt.long "babbage-era"
-    , Opt.help "Specify the Babbage era (default)"
-    ]
-  , Opt.flag' (AnyCardanoEra ConwayEra) $ mconcat
-    [ Opt.long "conway-era"
-    , Opt.help "Specify the Conway era"
-    ]
+pCardanoEra :: EnvCli -> Parser AnyCardanoEra
+pCardanoEra envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (AnyCardanoEra ByronEra) $ mconcat
+        [ Opt.long "byron-era"
+        , Opt.help "Specify the Byron era"
+        ]
+      , Opt.flag' (AnyCardanoEra ShelleyEra) $ mconcat
+        [ Opt.long "shelley-era"
+        , Opt.help "Specify the Shelley era"
+        ]
+      , Opt.flag' (AnyCardanoEra AllegraEra) $ mconcat
+        [ Opt.long "allegra-era"
+        , Opt.help "Specify the Allegra era"
+        ]
+      , Opt.flag' (AnyCardanoEra MaryEra) $ mconcat
+        [ Opt.long "mary-era"
+        , Opt.help "Specify the Mary era"
+        ]
+      , Opt.flag' (AnyCardanoEra AlonzoEra) $ mconcat
+        [ Opt.long "alonzo-era"
+        , Opt.help "Specify the Alonzo era"
+        ]
+      , Opt.flag' (AnyCardanoEra BabbageEra) $ mconcat
+        [ Opt.long "babbage-era"
+        , Opt.help "Specify the Babbage era (default)"
+        ]
+      , Opt.flag' (AnyCardanoEra ConwayEra) $ mconcat
+        [ Opt.long "conway-era"
+        , Opt.help "Specify the Conway era"
+        ]
 
-  -- NEW-ERA-ADD-NEW: When a new era is added, add a new flag here.
-  -- NEW-ERA-SET-DEFAULT: When a new era is working, select a new default above and below.
+        -- NEW-ERA-ADD-NEW: When a new era is added, add a new flag here.
+        -- NEW-ERA-SET-DEFAULT: When a new era is working, select a new default above and below.
+      ]
 
-    -- Default for now:
-  , pure (AnyCardanoEra BabbageEra)
-  ]
+    , maybeToList $ pure <$> envCliAnyCardanoEra envCli
+
+      -- TODO is this default needed anymore?
+    , [ pure (AnyCardanoEra BabbageEra)
+      ]
+    ]
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
@@ -288,45 +294,96 @@ subParser :: String -> ParserInfo a -> Parser a
 subParser availableCommand pInfo =
   Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
 
-pAnyShelleyBasedEra :: Parser AnyShelleyBasedEra
-pAnyShelleyBasedEra = asum
-  [ pShelleyBasedShelley
-  , pShelleyBasedAllegra
-  , pShelleyBasedMary
-  , pShelleyBasedAlonzo
-  , pShelleyBasedBabbage
-  , pShelleyBasedConway
-  ]
+pAnyShelleyBasedEra :: EnvCli -> Parser AnyShelleyBasedEra
+pAnyShelleyBasedEra envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraShelley)
+        $ mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
+      , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra)
+        $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+      , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraMary)
+        $ mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
+      , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo)
+        $ mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
+      , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage)
+        $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era"]
+      , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraConway)
+        $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
+      ]
+    , maybeToList $ pure <$> envCliAnyShelleyBasedEra envCli
+    ]
 
-pShelleyBasedShelley :: Parser AnyShelleyBasedEra
-pShelleyBasedShelley =
-  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraShelley)
-   $ mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
+pShelleyBasedShelley :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedShelley envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraShelley)
+          $ mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
+      ]
+    , maybeToList
+        $ fmap pure
+        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraShelley)
+        $ envCliAnyShelleyBasedEra envCli
+    ]
 
-pShelleyBasedAllegra :: Parser AnyShelleyBasedEra
-pShelleyBasedAllegra =
-  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra)
-   $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+pShelleyBasedAllegra :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedAllegra envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra)
+          $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+      ]
+    , maybeToList
+        $ fmap pure
+        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraAllegra)
+        $ envCliAnyShelleyBasedEra envCli
+    ]
 
-pShelleyBasedMary :: Parser AnyShelleyBasedEra
-pShelleyBasedMary =
-  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraMary)
-   $ mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
+pShelleyBasedMary :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedMary envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraMary)
+          $ mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
+      ]
+    , maybeToList
+        $ fmap pure
+        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraMary)
+        $ envCliAnyShelleyBasedEra envCli
+    ]
 
-pShelleyBasedAlonzo :: Parser AnyShelleyBasedEra
-pShelleyBasedAlonzo =
-  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo)
-   $ mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
+pShelleyBasedAlonzo :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedAlonzo envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo)
+          $ mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
+      ]
+    , maybeToList
+        $ fmap pure
+        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraAlonzo)
+        $ envCliAnyShelleyBasedEra envCli
+    ]
 
-pShelleyBasedBabbage :: Parser AnyShelleyBasedEra
-pShelleyBasedBabbage =
-  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage)
-   $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era"]
+pShelleyBasedBabbage :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedBabbage envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage)
+          $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era"]
+      ]
+    , maybeToList
+        $ fmap pure
+        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraBabbage)
+        $ envCliAnyShelleyBasedEra envCli
+    ]
 
-pShelleyBasedConway :: Parser AnyShelleyBasedEra
-pShelleyBasedConway =
-  Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraConway)
-   $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
+pShelleyBasedConway :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedConway envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraConway)
+          $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
+      ]
+    , maybeToList
+        $ fmap pure
+        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraConway)
+        $ envCliAnyShelleyBasedEra envCli
+    ]
 
 pFileOutDirection :: String -> String -> Parser (File a Out)
 pFileOutDirection l h =

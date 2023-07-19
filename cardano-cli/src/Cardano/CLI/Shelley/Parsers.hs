@@ -71,32 +71,42 @@ parseShelleyCommands envCli =
   Opt.hsubparser $ mconcat
     [ Opt.metavar "Era based commands"
     , Opt.commandGroup "Era based commands"
-    , Opt.command "address" $
-        Opt.info (AddressCmd <$> pAddressCmd envCli) $ Opt.progDesc "Payment address commands"
-    , Opt.command "stake-address" $
-        Opt.info (StakeAddressCmd <$> pStakeAddressCmd envCli) $ Opt.progDesc "Stake address commands"
-    , Opt.command "key" $
-        Opt.info (KeyCmd <$> pKeyCmd) $ Opt.progDesc "Key utility commands"
-    , Opt.command "transaction" $
-        Opt.info (TransactionCmd <$> pTransaction envCli) $ Opt.progDesc "Transaction commands"
-    , Opt.command "node" $
-        Opt.info (NodeCmd <$> pNodeCmd) $ Opt.progDesc "Node operation commands"
-    , Opt.command "stake-pool" $
-        Opt.info (PoolCmd <$> pPoolCmd envCli) $ Opt.progDesc "Stake pool commands"
-    , Opt.command "query" $
-        Opt.info (QueryCmd <$> pQueryCmd envCli) . Opt.progDesc $ mconcat
-          [ "Node query commands. Will query the local node whose Unix domain socket "
-          , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
-          ]
-    , Opt.command "genesis" $
-        Opt.info (GenesisCmd <$> pGenesisCmd envCli) $ Opt.progDesc "Genesis block commands"
-    , Opt.command "governance" $
-        Opt.info (GovernanceCmd' <$> pGovernanceCmd) $ Opt.progDesc "Governance commands"
-    , Opt.command "text-view" $
-        Opt.info (TextViewCmd <$> pTextViewCmd) . Opt.progDesc $ mconcat
-          [ "Commands for dealing with Shelley TextView files. "
-          , "Transactions, addresses etc are stored on disk as TextView files."
-          ]
+    , Opt.command "address"
+        $ Opt.info (AddressCmd <$> pAddressCmd envCli)
+        $ Opt.progDesc "Payment address commands"
+    , Opt.command "stake-address"
+        $ Opt.info (StakeAddressCmd <$> pStakeAddressCmd envCli)
+        $ Opt.progDesc "Stake address commands"
+    , Opt.command "key"
+        $ Opt.info (KeyCmd <$> pKeyCmd)
+        $ Opt.progDesc "Key utility commands"
+    , Opt.command "transaction"
+        $ Opt.info (TransactionCmd <$> pTransaction envCli)
+        $ Opt.progDesc "Transaction commands"
+    , Opt.command "node"
+        $ Opt.info (NodeCmd <$> pNodeCmd)
+        $ Opt.progDesc "Node operation commands"
+    , Opt.command "stake-pool"
+        $ Opt.info (PoolCmd <$> pPoolCmd envCli)
+        $ Opt.progDesc "Stake pool commands"
+    , Opt.command "query"
+        $ Opt.info (QueryCmd <$> pQueryCmd envCli) . Opt.progDesc
+        $ mconcat
+            [ "Node query commands. Will query the local node whose Unix domain socket "
+            , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
+            ]
+    , Opt.command "genesis"
+        $ Opt.info (GenesisCmd <$> pGenesisCmd envCli)
+        $ Opt.progDesc "Genesis block commands"
+    , Opt.command "governance"
+        $ Opt.info (GovernanceCmd' <$> pGovernanceCmd envCli)
+        $ Opt.progDesc "Governance commands"
+    , Opt.command "text-view"
+        $ Opt.info (TextViewCmd <$> pTextViewCmd) . Opt.progDesc
+        $ mconcat
+            [ "Commands for dealing with Shelley TextView files. "
+            , "Transactions, addresses etc are stored on disk as TextView files."
+            ]
     ]
 
 pTextViewCmd :: Parser TextViewCmd
@@ -377,21 +387,21 @@ pStakeAddressCmd envCli =
     pStakeAddressRegistrationCert :: Parser StakeAddressCmd
     pStakeAddressRegistrationCert =
       StakeRegistrationCert
-        <$> pAnyShelleyBasedEra
+        <$> pAnyShelleyBasedEra envCli
         <*> pStakeIdentifier
         <*> pOutputFile
 
     pStakeAddressDeregistrationCert :: Parser StakeAddressCmd
     pStakeAddressDeregistrationCert =
       StakeCredentialDeRegistrationCert
-        <$> pAnyShelleyBasedEra
+        <$> pAnyShelleyBasedEra envCli
         <*> pStakeIdentifier
         <*> pOutputFile
 
     pStakeAddressPoolDelegationCert :: Parser StakeAddressCmd
     pStakeAddressPoolDelegationCert =
       StakeCredentialDelegationCert
-        <$> pAnyShelleyBasedEra
+        <$> pAnyShelleyBasedEra envCli
         <*> pStakeIdentifier
         <*> pDelegationTarget
         <*> pOutputFile
@@ -726,7 +736,7 @@ pTransaction envCli =
   pTransactionBuild =
     TxBuild
       <$> pSocketPath envCli
-      <*> pCardanoEra
+      <*> pCardanoEra envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
       <*> optional pScriptValidity
@@ -767,7 +777,7 @@ pTransaction envCli =
   pTransactionBuildRaw :: Parser TransactionCmd
   pTransactionBuildRaw =
     TxBuildRaw
-      <$> pCardanoEra
+      <$> pCardanoEra envCli
       <*> optional pScriptValidity
       <*> some (pTxIn ManualBalance)
       <*> many pReadOnlyReferenceTxIn
@@ -836,7 +846,7 @@ pTransaction envCli =
 
   pTransactionCalculateMinReqUTxO :: Parser TransactionCmd
   pTransactionCalculateMinReqUTxO = TxCalculateMinRequiredUTxO
-    <$> pCardanoEra
+    <$> pCardanoEra envCli
     <*> pProtocolParamsFile
     <*> pTxOut
 
@@ -937,7 +947,7 @@ pPoolCmd  envCli =
         $ Opt.info (pStakePoolRegistrationCert envCli)
         $ Opt.progDesc "Create a stake pool registration certificate"
     , subParser "deregistration-certificate"
-        $ Opt.info pStakePoolRetirementCert
+        $ Opt.info (pStakePoolRetirementCert envCli)
         $ Opt.progDesc "Create a stake pool deregistration certificate"
     , subParser "id"
         $ Opt.info pId
@@ -1178,8 +1188,8 @@ pQueryCmd envCli =
 
 
 -- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
-pGovernanceCmd :: Parser GovernanceCmd
-pGovernanceCmd =
+pGovernanceCmd :: EnvCli -> Parser GovernanceCmd
+pGovernanceCmd envCli =
   asum
     [ subParser "create-mir-certificate"
         $ Opt.info (pMIRPayStakeAddresses <|> mirCertParsers)
@@ -1200,10 +1210,10 @@ pGovernanceCmd =
         $ Opt.info pGovernanceVerifyPoll
         $ Opt.progDesc "Verify an answer to a given SPO poll"
     , fmap GovernanceVoteCmd $ subParser "vote"
-        $ Opt.info pVoteCommmands
+        $ Opt.info (pVoteCommmands envCli)
         $ Opt.progDesc "Vote related commands."
     , fmap GovernanceActionCmd $ subParser "action"
-        $ Opt.info pActionCommmands
+        $ Opt.info (pActionCommmands envCli)
         $ Opt.progDesc "Governance action related commands."
     ]
   where
@@ -1224,7 +1234,7 @@ pGovernanceCmd =
     pMIRPayStakeAddresses :: Parser GovernanceCmd
     pMIRPayStakeAddresses =
       GovernanceMIRPayStakeAddressesCertificate
-        <$> pAnyShelleyBasedEra
+        <$> pAnyShelleyBasedEra envCli
         <*> pMIRPot
         <*> some pStakeAddress
         <*> some pRewardAmt
@@ -1233,7 +1243,7 @@ pGovernanceCmd =
     pMIRTransferToTreasury :: Parser GovernanceCmd
     pMIRTransferToTreasury =
       GovernanceMIRTransfer
-        <$> pAnyShelleyBasedEra
+        <$> pAnyShelleyBasedEra envCli
         <*> pTransferAmt
         <*> pOutputFile
         <*> pure TransferToTreasury
@@ -1241,7 +1251,7 @@ pGovernanceCmd =
     pMIRTransferToReserves :: Parser GovernanceCmd
     pMIRTransferToReserves =
       GovernanceMIRTransfer
-        <$> pAnyShelleyBasedEra
+        <$> pAnyShelleyBasedEra envCli
         <*> pTransferAmt
         <*> pOutputFile
         <*> pure TransferToReserves
@@ -1249,7 +1259,7 @@ pGovernanceCmd =
     pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmd
     pGovernanceGenesisKeyDelegationCertificate =
       GovernanceGenesisKeyDelegationCertificate
-        <$> pAnyShelleyBasedEra
+        <$> pAnyShelleyBasedEra envCli
         <*> pGenesisVerificationKeyOrHashOrFile
         <*> pGenesisDelegateVerificationKeyOrHashOrFile
         <*> pVrfVerificationKeyOrHashOrFile
@@ -3060,7 +3070,7 @@ pStakePoolMetadataHash =
 pStakePoolRegistrationCert :: EnvCli -> Parser PoolCmd
 pStakePoolRegistrationCert envCli =
   PoolRegistrationCert
-    <$> pAnyShelleyBasedEra
+    <$> pAnyShelleyBasedEra envCli
     <*> pStakePoolVerificationKeyOrFile
     <*> pVrfVerificationKeyOrFile
     <*> pPoolPledge
@@ -3073,10 +3083,10 @@ pStakePoolRegistrationCert envCli =
     <*> pNetworkId envCli
     <*> pOutputFile
 
-pStakePoolRetirementCert :: Parser PoolCmd
-pStakePoolRetirementCert =
+pStakePoolRetirementCert :: EnvCli -> Parser PoolCmd
+pStakePoolRetirementCert envCli =
   PoolRetirementCert
-    <$> pAnyShelleyBasedEra
+    <$> pAnyShelleyBasedEra envCli
     <*> pStakePoolVerificationKeyOrFile
     <*> pEpochNo
     <*> pOutputFile

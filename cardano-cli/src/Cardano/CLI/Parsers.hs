@@ -37,7 +37,7 @@ pref :: ParserPrefs
 pref =
   Opt.prefs $ mconcat
     [ showHelpOnEmpty
-    , helpEmbedBriefDesc $ PP.align
+    , helpEmbedBriefDesc PP.align
     , helpRenderHelp customRenderHelp
     ]
 

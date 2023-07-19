@@ -8,6 +8,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Common.Parsers
 import           Cardano.CLI.Conway.Types
+import           Cardano.CLI.Environment
 import           Cardano.CLI.Shelley.Key
 import           Cardano.CLI.Types
 import           Cardano.Ledger.Shelley.TxBody (MIRPot)
@@ -38,10 +39,11 @@ data GovernanceCmd
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)
       (File () Out)
-  | GovernanceUpdateProposal (File () Out) EpochNo
-                             [VerificationKeyFile In]
-                             ProtocolParametersUpdate
-                             (Maybe FilePath)
+  | GovernanceUpdateProposal
+      (File () Out) EpochNo
+      [VerificationKeyFile In]
+      ProtocolParametersUpdate
+      (Maybe FilePath)
   | GovernanceCreatePoll
       Text -- Prompt
       [Text] -- Choices
@@ -76,11 +78,11 @@ renderGovernanceCmd = \case
 -- Vote related
 --------------------------------------------------------------------------------
 
-pVoteCommmands :: Parser VoteCmd
-pVoteCommmands =
+pVoteCommmands :: EnvCli -> Parser VoteCmd
+pVoteCommmands envCli =
   asum
     [ subParser "create-vote"
-        $ Opt.info pCreateVote
+        $ Opt.info (pCreateVote envCli)
         $ Opt.progDesc "Create a vote for a proposed governance action."
     ]
 
@@ -88,15 +90,15 @@ newtype VoteCmd
   = CreateVoteCmd ConwayVote deriving Show
 
 
-pCreateVote :: Parser VoteCmd
-pCreateVote =
+pCreateVote :: EnvCli -> Parser VoteCmd
+pCreateVote envCli =
   fmap CreateVoteCmd $
     ConwayVote
       <$> pVoteChoice
       <*> pVoterType
       <*> pGoveranceActionIdentifier
       <*> pVotingCredential
-      <*> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
+      <*> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
       <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
  where
@@ -135,27 +137,28 @@ pVotingCredential = pStakePoolVerificationKeyOrFile
 
 newtype ActionCmd = CreateConstitution NewConstitution deriving Show
 
-pActionCommmands :: Parser ActionCmd
-pActionCommmands =
+pActionCommmands :: EnvCli -> Parser ActionCmd
+pActionCommmands envCli =
   asum
     [ subParser "create-action"
-        $ Opt.info pCreateAction
+        $ Opt.info (pCreateAction envCli)
         $ Opt.progDesc "Create a governance action."
     ]
 
-pCreateAction :: Parser ActionCmd
-pCreateAction =
-  asum [ subParser "create-constitution"
-           $ Opt.info pCreateConstitution
-           $ Opt.progDesc "Create a constitution."
-       ]
+pCreateAction :: EnvCli -> Parser ActionCmd
+pCreateAction envCli =
+  asum
+    [ subParser "create-constitution"
+        $ Opt.info (pCreateConstitution envCli)
+        $ Opt.progDesc "Create a constitution."
+    ]
 
 
-pCreateConstitution :: Parser ActionCmd
-pCreateConstitution =
+pCreateConstitution :: EnvCli -> Parser ActionCmd
+pCreateConstitution envCli =
   fmap CreateConstitution $
     NewConstitution
-      <$> (pShelleyBasedConway <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
+      <$> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
       <*> pGovActionDeposit
       <*> pVotingCredential
       <*> pConstitution
