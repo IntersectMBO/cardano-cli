@@ -1,11 +1,11 @@
 Usage: cardano-cli governance create-mir-certificate transfer-to-treasury 
-                                                                            ( --shelley-era
+                                                                            [ --shelley-era
                                                                             | --allegra-era
                                                                             | --mary-era
                                                                             | --alonzo-era
                                                                             | --babbage-era
                                                                             | --conway-era
-                                                                            )
+                                                                            ]
                                                                             --transfer LOVELACE
                                                                             --out-file FILE
 
@@ -17,7 +17,7 @@ Available options:
   --allegra-era            Specify the Allegra era
   --mary-era               Specify the Mary era
   --alonzo-era             Specify the Alonzo era
-  --babbage-era            Specify the Babbage era
+  --babbage-era            Specify the Babbage era (default)
   --conway-era             Specify the Conway era
   --transfer LOVELACE      The amount to transfer.
   --out-file FILE          The output file.
