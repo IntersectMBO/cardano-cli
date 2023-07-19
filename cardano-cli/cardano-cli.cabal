@@ -188,7 +188,7 @@ library cardano-cli-test-lib
                       , cardano-cli
                       , exceptions
                       , hedgehog
-                      , hedgehog-extras ^>= 0.4.5.1
+                      , hedgehog-extras ^>= 0.4.7.0
                       , process
                       , transformers
 
@@ -213,7 +213,7 @@ test-suite cardano-cli-test
                       , containers
                       , filepath
                       , hedgehog
-                      , hedgehog-extras ^>= 0.4.5.1
+                      , hedgehog-extras ^>= 0.4.7.0
                       , parsec
                       , text
                       , time
@@ -255,7 +255,7 @@ test-suite cardano-cli-golden
                       , containers
                       , filepath
                       , hedgehog ^>= 1.3
-                      , hedgehog-extras ^>= 0.4.5.1
+                      , hedgehog-extras ^>= 0.4.7.0
                       , regex-compat
                       , regex-tdfa
                       , text
