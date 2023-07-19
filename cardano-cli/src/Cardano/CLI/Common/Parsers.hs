@@ -11,11 +11,13 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra)
 import           Cardano.CLI.Shelley.Key
 import           Cardano.CLI.Types
+import           Cardano.Prelude (purer)
 
 import           Control.Monad (mfilter)
 import           Data.Bifunctor
 import qualified Data.ByteString.Char8 as BSC
 import           Data.Foldable
+import           Data.Function
 import           Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
 import           Data.Maybe (maybeToList)
@@ -29,6 +31,9 @@ import qualified Text.Parsec.Error as Parsec
 import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
+
+defaultCurrentEra :: AnyShelleyBasedEra
+defaultCurrentEra = AnyShelleyBasedEra ShelleyBasedEraBabbage
 
 pCardanoEra :: EnvCli -> Parser AnyCardanoEra
 pCardanoEra envCli =
@@ -65,13 +70,13 @@ pCardanoEra envCli =
         -- NEW-ERA-ADD-NEW: When a new era is added, add a new flag here.
         -- NEW-ERA-SET-DEFAULT: When a new era is working, select a new default above and below.
       ]
-
     , maybeToList $ pure <$> envCliAnyCardanoEra envCli
-
-      -- TODO is this default needed anymore?
-    , [ pure (AnyCardanoEra BabbageEra)
-      ]
-    ]
+    -- TODO is this default needed anymore?
+    , purer defaultCardanoEra
+  ]
+    where
+      defaultCardanoEra = defaultCurrentEra & \(AnyShelleyBasedEra era) ->
+        AnyCardanoEra (shelleyBasedToCardanoEra era)
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
@@ -306,12 +311,13 @@ pAnyShelleyBasedEra envCli =
       , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo)
         $ mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
       , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage)
-        $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era"]
+        $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era (default)"]
       , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraConway)
         $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
       ]
     , maybeToList $ pure <$> envCliAnyShelleyBasedEra envCli
-    ]
+    , purer defaultCurrentEra
+  ]
 
 pShelleyBasedShelley :: EnvCli -> Parser AnyShelleyBasedEra
 pShelleyBasedShelley envCli =
@@ -365,7 +371,7 @@ pShelleyBasedBabbage :: EnvCli -> Parser AnyShelleyBasedEra
 pShelleyBasedBabbage envCli =
   asum $ mconcat
     [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage)
-          $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era"]
+          $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era (default)"]
       ]
     , maybeToList
         $ fmap pure
