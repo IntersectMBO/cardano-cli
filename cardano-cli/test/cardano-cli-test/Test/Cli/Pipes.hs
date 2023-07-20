@@ -11,15 +11,13 @@ module Test.Cli.Pipes
 #endif
 
 import           Cardano.CLI.Run.Legacy.Read
+import           Cardano.CLI.OS.Posix
 
 import           Prelude
 
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LBS
 import           System.FilePath ((</>))
-import           System.IO (hClose, hFlush, hPutStr)
-import           System.Posix.IO (closeFd, createPipe, fdToHandle)
-
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property, discover, forAll, (===))
@@ -83,7 +81,7 @@ withPipe contents = do
 
 #else
 prop_readFromPipe :: Property
-prop_readFromPipe = property success
+prop_readFromPipe = H.property H.success
 #endif
 
 -- -----------------------------------------------------------------------------

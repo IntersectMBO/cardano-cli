@@ -73,7 +73,7 @@ library
                         Cardano.CLI.Options.Governance
                         Cardano.CLI.Options.Legacy
                         Cardano.CLI.Orphans
-                        Cardano.CLI.OS.Unix
+                        Cardano.CLI.OS.Posix
                         Cardano.CLI.Pretty
                         Cardano.CLI.Render
                         Cardano.CLI.Run

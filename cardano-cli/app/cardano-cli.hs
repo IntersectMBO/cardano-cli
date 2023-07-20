@@ -5,9 +5,10 @@
 #define UNIX
 #endif
 
+import           Cardano.CLI.OS.Posix
+
 import           Cardano.CLI.Environment (getEnvCli)
 import           Cardano.CLI.Options (opts, pref)
-import           Cardano.CLI.OS.Unix
 import           Cardano.CLI.Run (renderClientCommandError, runClientCommand)
 import           Cardano.CLI.TopHandler
 import qualified Cardano.Crypto.Init as Crypto
