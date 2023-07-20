@@ -41,11 +41,11 @@ import           Cardano.CLI.Byron.Commands
 import           Cardano.CLI.Byron.Genesis
 import           Cardano.CLI.Byron.Key
 import           Cardano.CLI.Byron.Tx
-import           Cardano.CLI.Common.Parsers hiding (parseLovelace, parseTxIn)
+import           Cardano.CLI.Commands.Legacy (ByronKeyFormat (..))
 import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Options.Common hiding (parseLovelace, parseTxIn)
 import           Cardano.CLI.Run (ClientCommand (ByronCommand))
-import           Cardano.CLI.Shelley.Commands (ByronKeyFormat (..))
-import           Cardano.CLI.Types
+import           Cardano.CLI.Types.Legacy
 import           Cardano.Crypto (RequiresNetworkMagic (..))
 import           Cardano.Crypto.Hashing (hashRaw)
 import           Cardano.Crypto.ProtocolMagic (AProtocolMagic (..), ProtocolMagic,

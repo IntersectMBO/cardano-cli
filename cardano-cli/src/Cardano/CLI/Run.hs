@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 
 -- | Dispatch for running all the CLI commands
 module Cardano.CLI.Run
@@ -11,12 +12,12 @@ module Cardano.CLI.Run
 import           Cardano.CLI.Byron.Commands (ByronCommand)
 import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCmdError,
                    runByronClientCommand)
-import           Cardano.CLI.Ping (PingClientCmdError (..), PingCmd (..), renderPingClientCmdError,
-                   runPingCmd)
+import           Cardano.CLI.Commands.Legacy (LegacyCommand)
 import           Cardano.CLI.Render (customRenderHelp)
-import           Cardano.CLI.Shelley.Commands (ShelleyCommand)
-import           Cardano.CLI.Shelley.Run (ShelleyClientCmdError, renderShelleyClientCmdError,
-                   runShelleyClientCommand)
+import           Cardano.CLI.Run.Legacy (LegacyClientCmdError, renderLegacyClientCmdError,
+                   runLegacyClientCommand)
+import           Cardano.CLI.Run.Ping (PingClientCmdError (..), PingCmd (..),
+                   renderPingClientCmdError, runPingCmd)
 import           Cardano.Git.Rev (gitRev)
 
 import           Control.Monad (forM_)
@@ -42,12 +43,8 @@ data ClientCommand =
     -- | Byron Related Commands
     ByronCommand ByronCommand
 
-    -- | Shelley Related Commands
-  | ShelleyCommand ShelleyCommand
-
-    -- | Shelley-related commands that have been parsed under the
-    -- now-deprecated \"shelley\" subcommand.
-  | DeprecatedShelleySubcommand ShelleyCommand
+    -- | Legacy shelley-based Commands
+  | LegacyCommand LegacyCommand
 
   | CliPingCommand PingCmd
 
@@ -56,56 +53,39 @@ data ClientCommand =
 
 data ClientCommandErrors
   = ByronClientError ByronClientCmdError
-  | ShelleyClientError ShelleyCommand ShelleyClientCmdError
+  | LegacyClientError LegacyCommand LegacyClientCmdError
   | PingClientError PingClientCmdError
 
 runClientCommand :: ClientCommand -> ExceptT ClientCommandErrors IO ()
-runClientCommand (ByronCommand c) = firstExceptT ByronClientError $ runByronClientCommand c
-runClientCommand (ShelleyCommand c) = firstExceptT (ShelleyClientError c) $ runShelleyClientCommand c
-runClientCommand (CliPingCommand c) = firstExceptT PingClientError $ runPingCmd c
-runClientCommand (DeprecatedShelleySubcommand c) =
-  firstExceptT (ShelleyClientError c)
-    $ runShelleyClientCommandWithDeprecationWarning
-    $ runShelleyClientCommand c
-runClientCommand (Help pprefs allParserInfo) = runHelp pprefs allParserInfo
-runClientCommand DisplayVersion = runDisplayVersion
+runClientCommand = \case
+  ByronCommand c ->
+    firstExceptT ByronClientError $ runByronClientCommand c
+  LegacyCommand c ->
+    firstExceptT (LegacyClientError c) $ runLegacyClientCommand c
+  CliPingCommand c ->
+    firstExceptT PingClientError $ runPingCmd c
+  Help pprefs allParserInfo ->
+    runHelp pprefs allParserInfo
+  DisplayVersion ->
+    runDisplayVersion
 
 renderClientCommandError :: ClientCommandErrors -> Text
-renderClientCommandError (ByronClientError err) =
-  renderByronClientCmdError err
-renderClientCommandError (ShelleyClientError cmd err) =
-  renderShelleyClientCmdError cmd err
-renderClientCommandError (PingClientError err) =
-  renderPingClientCmdError err
-
--- | Combine an 'ExceptT' that will write a warning message to @stderr@ with
--- the provided 'ExceptT'.
-ioExceptTWithWarning :: MonadIO m => Text -> ExceptT e m () -> ExceptT e m ()
-ioExceptTWithWarning warningMsg e =
-  liftIO (Text.hPutStrLn IO.stderr warningMsg) >> e
-
--- | Used in the event that Shelley-related commands are run using the
--- now-deprecated \"shelley\" subcommand.
-runShelleyClientCommandWithDeprecationWarning
-  :: MonadIO m
-  => ExceptT e m ()
-  -> ExceptT e m ()
-runShelleyClientCommandWithDeprecationWarning =
-    ioExceptTWithWarning warningMsg
-  where
-    warningMsg :: Text
-    warningMsg =
-      "WARNING: The \"shelley\" subcommand is now deprecated and will be "
-        <> "removed in the future. Please use the top-level commands instead."
+renderClientCommandError = \case
+  ByronClientError err ->
+    renderByronClientCmdError err
+  LegacyClientError cmd err ->
+    renderLegacyClientCmdError cmd err
+  PingClientError err ->
+    renderPingClientCmdError err
 
 runDisplayVersion :: ExceptT ClientCommandErrors IO ()
 runDisplayVersion = do
-    liftIO . Text.putStrLn $ mconcat
-                [ "cardano-cli ", renderVersion version
-                , " - ", Text.pack os, "-", Text.pack arch
-                , " - ", Text.pack compilerName, "-", renderVersion compilerVersion
-                , "\ngit rev ", gitRev
-                ]
+  liftIO . Text.putStrLn $ mconcat
+    [ "cardano-cli ", renderVersion version
+    , " - ", Text.pack os, "-", Text.pack arch
+    , " - ", Text.pack compilerName, "-", renderVersion compilerVersion
+    , "\ngit rev ", gitRev
+    ]
   where
     renderVersion = Text.pack . showVersion
 
@@ -115,22 +95,23 @@ helpAll pprefs progn rnames parserInfo = do
   IO.putStrLn $ customRenderHelp 80 (usage_help parserInfo)
   IO.putStrLn ""
   go (infoParser parserInfo)
-  where go :: Parser a -> IO ()
-        go p = case p of
-          NilP _ -> return ()
-          OptP optP -> case optMain optP of
-            CmdReader _ cs -> do
-              forM_ cs $ \(c, subParserInfo) ->
-                  helpAll pprefs progn (c:rnames) subParserInfo
-            _ -> return ()
-          AltP pa pb -> go pa >> go pb
-          MultP pf px -> go pf >> go px
-          BindP pa _ -> go pa
-        usage_help i =
-              mconcat
-              [ usageHelp (pure . parserUsage pprefs (infoParser i) . L.unwords $ progn : reverse rnames)
-              , descriptionHelp (infoProgDesc i)
-              ]
+  where
+    go :: Parser a -> IO ()
+    go p = case p of
+      NilP _ -> return ()
+      OptP optP -> case optMain optP of
+        CmdReader _ cs -> do
+          forM_ cs $ \(c, subParserInfo) ->
+              helpAll pprefs progn (c:rnames) subParserInfo
+        _ -> return ()
+      AltP pa pb -> go pa >> go pb
+      MultP pf px -> go pf >> go px
+      BindP pa _ -> go pa
+    usage_help i =
+      mconcat
+        [ usageHelp (pure . parserUsage pprefs (infoParser i) . L.unwords $ progn : reverse rnames)
+        , descriptionHelp (infoProgDesc i)
+        ]
 
 runHelp :: ParserPrefs -> ParserInfo a -> ExceptT ClientCommandErrors IO ()
 runHelp pprefs allParserInfo = liftIO $ helpAll pprefs "cardano-cli" [] allParserInfo

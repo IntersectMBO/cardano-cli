@@ -5,19 +5,17 @@
 #define UNIX
 #endif
 
-import           Control.Monad.Trans.Except.Exit (orDie)
-import qualified Options.Applicative as Opt
+import           Cardano.CLI.OS.Posix
 
 import           Cardano.CLI.Environment (getEnvCli)
-import           Cardano.CLI.Parsers (opts, pref)
+import           Cardano.CLI.Options (opts, pref)
 import           Cardano.CLI.Run (renderClientCommandError, runClientCommand)
 import           Cardano.CLI.TopHandler
 import qualified Cardano.Crypto.Init as Crypto
-#ifdef UNIX
-import           System.Posix.Files
-#endif
 
+import           Control.Monad.Trans.Except.Exit (orDie)
 import qualified GHC.IO.Encoding as GHC
+import qualified Options.Applicative as Opt
 
 main :: IO ()
 main = toplevelExceptionHandler $ do
