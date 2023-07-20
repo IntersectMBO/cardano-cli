@@ -62,6 +62,7 @@ library
                         Cardano.CLI.Byron.Tx
                         Cardano.CLI.Byron.UpdateProposal
                         Cardano.CLI.Byron.Vote
+                        Cardano.CLI.Commands.EraBased
                         Cardano.CLI.Commands.Governance
                         Cardano.CLI.Commands.Legacy
                         Cardano.CLI.Environment
@@ -70,6 +71,7 @@ library
                         Cardano.CLI.Json.Friendly
                         Cardano.CLI.Options
                         Cardano.CLI.Options.Common
+                        Cardano.CLI.Options.EraBased.Governance
                         Cardano.CLI.Options.Governance
                         Cardano.CLI.Options.Legacy
                         Cardano.CLI.Orphans
@@ -77,6 +79,7 @@ library
                         Cardano.CLI.Pretty
                         Cardano.CLI.Render
                         Cardano.CLI.Run
+                        Cardano.CLI.Run.EraBased
                         Cardano.CLI.Run.Legacy
                         Cardano.CLI.Run.Legacy.Address
                         Cardano.CLI.Run.Legacy.Address.Info
@@ -93,6 +96,7 @@ library
                         Cardano.CLI.Run.Legacy.Validate
                         Cardano.CLI.Run.Ping
                         Cardano.CLI.TopHandler
+                        Cardano.CLI.Types.Era
                         Cardano.CLI.Types.Governance
                         Cardano.CLI.Types.Key
                         Cardano.CLI.Types.Legacy

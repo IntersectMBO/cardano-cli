@@ -8,7 +8,10 @@ module Cardano.CLI.Options
   , pref
   ) where
 
+import           Cardano.Api (CardanoEra (..))
+
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
+import           Cardano.CLI.Commands.EraBased
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.Options.Common
 import           Cardano.CLI.Options.Legacy (parseLegacyCommands)
@@ -47,7 +50,10 @@ parseClientCommand envCli =
     -- There are name clashes between Shelley commands and the Byron backwards
     -- compat commands (e.g. "genesis"), and we need to prefer the Shelley ones
     -- so we list it first.
-    [ parseShelley envCli
+    [ parseAnyEra envCli
+    , parseLegacy envCli
+    , parseTopLevelLatest envCli
+    , parseTopLevelLegacy envCli
     , parseByron envCli
     , parsePing
     , backwardsCompatibilityCommands envCli
@@ -66,29 +72,44 @@ parseByron mNetworkId =
 parsePing :: Parser ClientCommand
 parsePing = CliPingCommand <$> parsePingCmd
 
--- | Parse Shelley-related commands at the top level of the CLI.
-parseShelley :: EnvCli -> Parser ClientCommand
-parseShelley envCli = LegacyCommand <$> parseLegacyCommands envCli
+parseAnyEra :: EnvCli -> Parser ClientCommand
+parseAnyEra envCli = AnyEraCommand <$> pAnyEraCommand envCli
 
+parseLegacy :: EnvCli -> Parser ClientCommand
+parseLegacy envCli =
+  subParser "legacy"
+    $ Opt.info (LegacyCommand <$> parseLegacyCommands envCli)
+    $ Opt.progDesc "Legacy commands"
+
+parseTopLevelLatest :: EnvCli -> Parser ClientCommand
+parseTopLevelLatest envCli =
+  (AnyEraCommand . AnyEraCommandOf BabbageEra <$> pEraBasedCommand envCli BabbageEra)
+
+-- | Parse Legacy commands at the top level of the CLI.
+parseTopLevelLegacy :: EnvCli -> Parser ClientCommand
+parseTopLevelLegacy envCli = LegacyCommand <$> parseLegacyCommands envCli
+
+-- | Parse Legacy commands at the top level of the CLI.
 -- Yes! A --version flag or version command. Either guess is right!
 parseDisplayVersion :: ParserInfo a -> Parser ClientCommand
 parseDisplayVersion allParserInfo =
-      subparser
-        (mconcat
-         [ commandGroup "Miscellaneous commands"
-         , metavar "Miscellaneous commands"
-         , command'
-           "help"
-           "Show all help"
-           (pure (Help pref allParserInfo))
-         , command'
-           "version"
-           "Show the cardano-cli version"
-           (pure DisplayVersion)
-         ]
-        )
-  <|> flag' DisplayVersion
-        (  long "version"
-        <> help "Show the cardano-cli version"
-        <> hidden
-        )
+  asum
+    [ subparser $ mconcat
+        [ commandGroup "Miscellaneous commands"
+        , metavar "Miscellaneous commands"
+        , command'
+            "help"
+            "Show all help"
+            (pure (Help pref allParserInfo))
+        , command'
+            "version"
+            "Show the cardano-cli version"
+            (pure DisplayVersion)
+        ]
+
+    , flag' DisplayVersion $ mconcat
+        [ long "version"
+        , help "Show the cardano-cli version"
+        , hidden
+        ]
+    ]

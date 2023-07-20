@@ -33,7 +33,7 @@ golden_shelleyGovernanceVerifyPoll = propertyOnce $ do
     noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/cold.vk"
 
   stdout <- BSC.pack <$> execCardanoCLI
-    [ "governance", "verify-poll"
+    [ "legacy", "governance", "verify-poll"
     , "--poll-file", pollFile
     , "--tx-file", txFile
     ]
@@ -51,7 +51,7 @@ golden_shelleyGovernanceVerifyPollMismatch = propertyOnce $ do
   txFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/verify/mismatch"
 
   result <- tryExecCardanoCLI
-    [ "governance", "verify-poll"
+    [ "legacy", "governance", "verify-poll"
     , "--poll-file", pollFile
     , "--tx-file", txFile
     ]
@@ -64,7 +64,7 @@ golden_shelleyGovernanceVerifyPollNoAnswer = propertyOnce $ do
   txFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/verify/none"
 
   result <- tryExecCardanoCLI
-    [ "governance", "verify-poll"
+    [ "legacy", "governance", "verify-poll"
     , "--poll-file", pollFile
     , "--tx-file", txFile
     ]
@@ -77,7 +77,7 @@ golden_shelleyGovernanceVerifyPollMalformedAnswer = propertyOnce $ do
   txFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/verify/malformed"
 
   result <- tryExecCardanoCLI
-    [ "governance", "verify-poll"
+    [ "legacy", "governance", "verify-poll"
     , "--poll-file", pollFile
     , "--tx-file", txFile
     ]
@@ -90,7 +90,7 @@ golden_shelleyGovernanceVerifyPollInvalidAnswer = propertyOnce $ do
   txFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/verify/invalid"
 
   result <- tryExecCardanoCLI
-    [ "governance", "verify-poll"
+    [ "legacy", "governance", "verify-poll"
     , "--poll-file", pollFile
     , "--tx-file", txFile
     ]

@@ -1,12 +1,5 @@
-Usage: cardano-cli governance verify-poll --poll-file FILE
-                                            --tx-file FILE
-                                            [--out-file FILE]
+Invalid argument `verify-poll'
 
-  Verify an answer to a given SPO poll
+Usage: cardano-cli governance pre-conway
 
-Available options:
-  --poll-file FILE         Filepath to the ongoing poll.
-  --tx-file FILE           Filepath to the JSON TxBody or JSON Tx carrying a
-                           valid poll answer.
-  --out-file FILE          The output file.
-  -h,--help                Show this help text
+  Era-based governance commands

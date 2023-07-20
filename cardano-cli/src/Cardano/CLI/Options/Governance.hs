@@ -72,8 +72,6 @@ renderGovernanceCmd = \case
   GovernanceAnswerPoll{} -> "governance answer-poll"
   GovernanceVerifyPoll{} -> "governance verify-poll"
 
-
-
 --------------------------------------------------------------------------------
 -- Vote related
 --------------------------------------------------------------------------------
