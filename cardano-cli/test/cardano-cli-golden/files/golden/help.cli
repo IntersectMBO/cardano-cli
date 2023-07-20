@@ -23,13 +23,13 @@ Usage: cardano-cli governance
   Governance commands
 
 Usage: cardano-cli governance create-mir-certificate 
-                                                       ( ( --shelley-era
+                                                       ( [ --shelley-era
                                                          | --allegra-era
                                                          | --mary-era
                                                          | --alonzo-era
                                                          | --babbage-era
                                                          | --conway-era
-                                                         )
+                                                         ]
                                                          ( --reserves
                                                          | --treasury
                                                          )
@@ -44,13 +44,13 @@ Usage: cardano-cli governance create-mir-certificate
   Create an MIR (Move Instantaneous Rewards) certificate
 
 Usage: cardano-cli governance create-mir-certificate stake-addresses 
-                                                                       ( --shelley-era
+                                                                       [ --shelley-era
                                                                        | --allegra-era
                                                                        | --mary-era
                                                                        | --alonzo-era
                                                                        | --babbage-era
                                                                        | --conway-era
-                                                                       )
+                                                                       ]
                                                                        ( --reserves
                                                                        | --treasury
                                                                        )
@@ -61,13 +61,13 @@ Usage: cardano-cli governance create-mir-certificate stake-addresses
   Create an MIR certificate to pay stake addresses
 
 Usage: cardano-cli governance create-mir-certificate transfer-to-treasury 
-                                                                            ( --shelley-era
+                                                                            [ --shelley-era
                                                                             | --allegra-era
                                                                             | --mary-era
                                                                             | --alonzo-era
                                                                             | --babbage-era
                                                                             | --conway-era
-                                                                            )
+                                                                            ]
                                                                             --transfer LOVELACE
                                                                             --out-file FILE
 
@@ -75,13 +75,13 @@ Usage: cardano-cli governance create-mir-certificate transfer-to-treasury
   pot
 
 Usage: cardano-cli governance create-mir-certificate transfer-to-rewards 
-                                                                           ( --shelley-era
+                                                                           [ --shelley-era
                                                                            | --allegra-era
                                                                            | --mary-era
                                                                            | --alonzo-era
                                                                            | --babbage-era
                                                                            | --conway-era
-                                                                           )
+                                                                           ]
                                                                            --transfer LOVELACE
                                                                            --out-file FILE
 
@@ -89,13 +89,13 @@ Usage: cardano-cli governance create-mir-certificate transfer-to-rewards
   pot
 
 Usage: cardano-cli governance create-genesis-key-delegation-certificate 
-                                                                          ( --shelley-era
+                                                                          [ --shelley-era
                                                                           | --allegra-era
                                                                           | --mary-era
                                                                           | --alonzo-era
                                                                           | --babbage-era
                                                                           | --conway-era
-                                                                          )
+                                                                          ]
                                                                           ( --genesis-verification-key STRING
                                                                           | --genesis-verification-key-file FILE
                                                                           | --genesis-verification-key-hash STRING
@@ -559,13 +559,13 @@ Usage: cardano-cli stake-pool
   Stake pool commands
 
 Usage: cardano-cli stake-pool registration-certificate 
-                                                         ( --shelley-era
+                                                         [ --shelley-era
                                                          | --allegra-era
                                                          | --mary-era
                                                          | --alonzo-era
                                                          | --babbage-era
                                                          | --conway-era
-                                                         )
+                                                         ]
                                                          ( --stake-pool-verification-key STRING
                                                          | --cold-verification-key-file FILE
                                                          )
@@ -598,13 +598,13 @@ Usage: cardano-cli stake-pool registration-certificate
   Create a stake pool registration certificate
 
 Usage: cardano-cli stake-pool deregistration-certificate 
-                                                           ( --shelley-era
+                                                           [ --shelley-era
                                                            | --allegra-era
                                                            | --mary-era
                                                            | --alonzo-era
                                                            | --babbage-era
                                                            | --conway-era
-                                                           )
+                                                           ]
                                                            ( --stake-pool-verification-key STRING
                                                            | --cold-verification-key-file FILE
                                                            )
@@ -1193,13 +1193,13 @@ Usage: cardano-cli stake-address key-hash
   Print the hash of a stake address key.
 
 Usage: cardano-cli stake-address registration-certificate 
-                                                            ( --shelley-era
+                                                            [ --shelley-era
                                                             | --allegra-era
                                                             | --mary-era
                                                             | --alonzo-era
                                                             | --babbage-era
                                                             | --conway-era
-                                                            )
+                                                            ]
                                                             ( --stake-verification-key STRING
                                                             | --stake-verification-key-file FILE
                                                             | --stake-script-file FILE
@@ -1210,13 +1210,13 @@ Usage: cardano-cli stake-address registration-certificate
   Create a stake address registration certificate
 
 Usage: cardano-cli stake-address deregistration-certificate 
-                                                              ( --shelley-era
+                                                              [ --shelley-era
                                                               | --allegra-era
                                                               | --mary-era
                                                               | --alonzo-era
                                                               | --babbage-era
                                                               | --conway-era
-                                                              )
+                                                              ]
                                                               ( --stake-verification-key STRING
                                                               | --stake-verification-key-file FILE
                                                               | --stake-script-file FILE
@@ -1227,13 +1227,13 @@ Usage: cardano-cli stake-address deregistration-certificate
   Create a stake address deregistration certificate
 
 Usage: cardano-cli stake-address delegation-certificate 
-                                                          ( --shelley-era
+                                                          [ --shelley-era
                                                           | --allegra-era
                                                           | --mary-era
                                                           | --alonzo-era
                                                           | --babbage-era
                                                           | --conway-era
-                                                          )
+                                                          ]
                                                           ( --stake-verification-key STRING
                                                           | --stake-verification-key-file FILE
                                                           | --stake-script-file FILE

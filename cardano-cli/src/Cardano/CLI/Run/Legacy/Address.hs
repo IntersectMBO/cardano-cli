@@ -79,8 +79,8 @@ runAddressKeyGenToFile fmt kt vkf skf = case kt of
 
 generateAndWriteByronKeyFiles
   :: Key keyrole
-#if __GLASGOW_HASKELL__ >= 902
--- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.2 and above complains if its
+#if __GLASGOW_HASKELL__ >= 940
+-- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.4 and above complains if its
 -- not present.
   => HasTypeProxy keyrole
 #endif
@@ -93,8 +93,8 @@ generateAndWriteByronKeyFiles asType vkf skf = do
 
 generateAndWriteKeyFiles
   :: Key keyrole
-#if __GLASGOW_HASKELL__ >= 902
--- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.2 and above complains if its
+#if __GLASGOW_HASKELL__ >= 940
+-- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.4 and above complains if its
 -- not present.
   => HasTypeProxy keyrole
 #endif
