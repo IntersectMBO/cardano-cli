@@ -13,8 +13,8 @@ import           Cardano.Api (CardanoEra (..))
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
 import           Cardano.CLI.Commands.EraBased
 import           Cardano.CLI.Environment (EnvCli)
-import           Cardano.CLI.Options.Common
-import           Cardano.CLI.Options.Legacy (parseLegacyCommands)
+import           Cardano.CLI.EraBased.Legacy (parseLegacyCommands)
+import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run (ClientCommand (..))
 import           Cardano.CLI.Run.Ping (parsePingCmd)
@@ -83,7 +83,7 @@ parseLegacy envCli =
 
 parseTopLevelLatest :: EnvCli -> Parser ClientCommand
 parseTopLevelLatest envCli =
-  (AnyEraCommand . AnyEraCommandOf BabbageEra <$> pEraBasedCommand envCli BabbageEra)
+  AnyEraCommand . AnyEraCommandOf BabbageEra <$> pEraBasedCommand envCli BabbageEra
 
 -- | Parse Legacy commands at the top level of the CLI.
 parseTopLevelLegacy :: EnvCli -> Parser ClientCommand
