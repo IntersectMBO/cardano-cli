@@ -66,6 +66,7 @@ library
                         Cardano.CLI.Commands.Governance
                         Cardano.CLI.Commands.Legacy
                         Cardano.CLI.Environment
+                        Cardano.CLI.EraBased.Certificate
                         Cardano.CLI.Helpers
                         Cardano.CLI.IO.Lazy
                         Cardano.CLI.Json.Friendly
@@ -96,7 +97,6 @@ library
                         Cardano.CLI.Run.Legacy.Validate
                         Cardano.CLI.Run.Ping
                         Cardano.CLI.TopHandler
-                        Cardano.CLI.Types.Era
                         Cardano.CLI.Types.Governance
                         Cardano.CLI.Types.Key
                         Cardano.CLI.Types.Legacy

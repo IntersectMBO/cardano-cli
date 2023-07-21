@@ -280,11 +280,12 @@ validateTxCertificates era certsAndScriptWitnesses =
    deriveStakeCredentialWitness
      :: Certificate era
      -> Maybe StakeCredential
-   deriveStakeCredentialWitness cert = do
-     case cert of
-       StakeAddressDeregistrationCertificate sCred -> Just sCred
-       StakeAddressPoolDelegationCertificate sCred _ -> Just sCred
-       _ -> Nothing
+   deriveStakeCredentialWitness cert = Nothing
+    --  case cert of
+    --    -- TODO: Conway era
+    --    -- StakeAddressDeregistrationCertificate sCred -> Just sCred
+    --    -- StakeAddressPoolDelegationCertificate sCred _ -> Just sCred
+    --    _ -> Nothing
 
    convert
      :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))

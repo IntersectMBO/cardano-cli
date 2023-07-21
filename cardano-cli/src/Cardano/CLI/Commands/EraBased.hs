@@ -23,7 +23,7 @@ import qualified Options.Applicative as Opt
 data AnyEraCommand where
   AnyEraCommandOf :: CardanoEra era -> EraBasedCommand era -> AnyEraCommand
 
-data EraBasedCommand era
+newtype EraBasedCommand era
   = EraBasedGovernanceCmd (EraBasedGovernanceCmd era)
 
 renderEraBasedCommand :: EraBasedCommand era -> Text

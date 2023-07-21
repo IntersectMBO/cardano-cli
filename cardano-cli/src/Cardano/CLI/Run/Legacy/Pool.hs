@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
@@ -9,6 +10,7 @@ module Cardano.CLI.Run.Legacy.Pool
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Commands.Legacy
@@ -142,7 +144,9 @@ runStakePoolRegistrationCert
             , stakePoolMetadata = mbMetadata
             }
 
-    let registrationCert = makeStakePoolRegistrationCertificate sbe stakePoolParams
+    let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
+        req = createStakePoolRegistrationRequirements sbe $ obtainEraCryptoConstraints sbe ledgerStakePoolParams
+        registrationCert = makeStakePoolRegistrationCertificate req
 
     firstExceptT ShelleyPoolCmdWriteFileError
       . newExceptT
@@ -151,6 +155,26 @@ runStakePoolRegistrationCert
   where
     registrationCertDesc :: TextEnvelopeDescr
     registrationCertDesc = "Stake Pool Registration Certificate"
+
+createStakePoolRegistrationRequirements
+  :: ShelleyBasedEra era
+  -> Ledger.PoolParams (Ledger.EraCrypto (ShelleyLedgerEra era))
+  -> StakePoolRegistrationRequirements era
+createStakePoolRegistrationRequirements sbe pparams =
+ case sbe of
+   ShelleyBasedEraShelley ->
+     StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraShelley pparams
+   ShelleyBasedEraAllegra ->
+     StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraAllegra pparams
+   ShelleyBasedEraMary ->
+     StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraMary pparams
+   ShelleyBasedEraAlonzo ->
+     StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraAlonzo pparams
+   ShelleyBasedEraBabbage ->
+     StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraBabbage pparams
+   ShelleyBasedEraConway ->
+     StakePoolRegistrationRequirementsConwayOnwards ConwayEraOnwardsConway pparams
+
 
 runStakePoolRetirementCert
   :: AnyShelleyBasedEra
@@ -167,7 +191,8 @@ runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
       $ readVerificationKeyOrFile AsStakePoolKey stakePoolVerKeyOrFile
 
     let stakePoolId' = verificationKeyHash stakePoolVerKey
-        retireCert = makeStakePoolRetirementCertificate sbe stakePoolId' retireEpoch
+        req = createStakePoolRetirementRequirements sbe stakePoolId' retireEpoch
+        retireCert = makeStakePoolRetirementCertificate req
 
     firstExceptT ShelleyPoolCmdWriteFileError
       . newExceptT
@@ -176,6 +201,27 @@ runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
   where
     retireCertDesc :: TextEnvelopeDescr
     retireCertDesc = "Stake Pool Retirement Certificate"
+
+createStakePoolRetirementRequirements
+  :: ShelleyBasedEra era
+  -> PoolId
+  -> Ledger.EpochNo
+  -> StakePoolRetirementRequirements era
+createStakePoolRetirementRequirements sbe pid epoch =
+  case sbe of
+    ShelleyBasedEraShelley ->
+      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraShelley pid epoch
+    ShelleyBasedEraAllegra ->
+      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraAllegra pid epoch
+    ShelleyBasedEraMary ->
+      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraMary pid epoch
+    ShelleyBasedEraAlonzo ->
+      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraAlonzo pid epoch
+    ShelleyBasedEraBabbage ->
+      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraBabbage pid epoch
+    ShelleyBasedEraConway ->
+      StakePoolRetirementRequirementsConwayOnwards ConwayEraOnwardsConway pid epoch
+
 
 runPoolId
   :: VerificationKeyOrFile StakePoolKey

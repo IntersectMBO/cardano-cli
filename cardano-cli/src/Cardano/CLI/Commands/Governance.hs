@@ -56,6 +56,9 @@ data GovernanceCmdError
   | GovernanceCmdDecoderError !DecoderError
   | GovernanceCmdVerifyPollError !GovernancePollError
   | GovernanceCmdWriteFileError !(FileError ())
+  -- Legacy - remove me after cardano-cli transitions to new era based structure
+  | ShelleyGovernanceCmdMIRCertNotSupportedInConway
+  | ShelleyGovernanceCmdGenesisDelegationNotSupportedInConway
   deriving Show
 
 runGovernanceCreateVoteCmd
