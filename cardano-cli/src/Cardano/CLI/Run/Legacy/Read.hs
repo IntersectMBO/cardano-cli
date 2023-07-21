@@ -67,7 +67,7 @@ module Cardano.CLI.Run.Legacy.Read
   , readFileOrPipe
   ) where
 
-import           Cardano.Api
+import           Cardano.Api as Api
 import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
@@ -763,7 +763,7 @@ readTxVotes era files = runExceptT $
 readVoteFile
   :: ShelleyBasedEra era
   -> VoteFile In
-  -> IO (Either VoteError (Vote era))
+  -> IO (Either VoteError (VotingProcedure era))
 readVoteFile sbe fp =
   first VoteErrorFile <$> obtainEraConstraints sbe (readFileTextEnvelope AsVote fp)
 

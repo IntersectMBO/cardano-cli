@@ -403,6 +403,11 @@ runTxBuildCmd
       mUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
       requiredSigners txAuxScripts txMetadata mProp mOverrideWits votes proposals outputOptions
 
+  mScriptWits <-
+    case cardanoEraStyle cEra of
+      LegacyByronEra -> return []
+      ShelleyBasedEra sbe -> return $ collectTxBodyScriptWitnesses sbe txBodycontent
+
   let allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
                              (snd valuesWithScriptWits)
@@ -451,7 +456,7 @@ runTxBuildCmd
               $ renderScriptCosts
                   txEraUtxo
                   executionUnitPrices
-                  (collectTxBodyScriptWitnesses txBodycontent)
+                  mScriptWits
                   scriptExecUnitsMap
           liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
         _ -> left ShelleyTxCmdPlutusScriptsRequireCardanoMode

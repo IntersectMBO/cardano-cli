@@ -1,4 +1,6 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.Types.Governance where
 
@@ -14,7 +16,7 @@ type VoteFile = File ConwayVote
 
 data ConwayVote
   = ConwayVote
-    { cvVoteChoice :: VoteChoice
+    { cvVoteChoice :: Vote
     , cvVoterType :: VType
     , cvGovActionTxIn :: TxIn
     , cvVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
@@ -43,3 +45,8 @@ data VType = VCC -- committee
            | VSP -- spo
            deriving Show
 
+
+data AnyAtMostBabbageEra where
+  AnyAtMostBabbageEra :: IsShelleyBasedEra era => ShelleyToBabbageEra era -> AnyAtMostBabbageEra
+
+deriving instance Show AnyAtMostBabbageEra
