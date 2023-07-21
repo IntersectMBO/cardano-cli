@@ -69,8 +69,8 @@ import           Text.Read (readEither, readMaybe)
 parseLegacyCommands :: EnvCli -> Parser LegacyCommand
 parseLegacyCommands envCli =
   Opt.hsubparser $ mconcat
-    [ Opt.metavar "Era based commands"
-    , Opt.commandGroup "Era based commands"
+    [ Opt.metavar "Legacy commands"
+    , Opt.commandGroup "Legacy commands"
     , Opt.command "address"
         $ Opt.info (AddressCmd <$> pAddressCmd envCli)
         $ Opt.progDesc "Payment address commands"

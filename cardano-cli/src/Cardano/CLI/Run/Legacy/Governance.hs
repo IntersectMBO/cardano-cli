@@ -14,9 +14,9 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Commands.Governance
-import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Options.Governance
 import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
 import           Cardano.CLI.Types.Legacy
@@ -122,7 +122,6 @@ runGovernanceCmd = \case
     runGovernanceAnswerPoll poll ix mOutFile
   GovernanceVerifyPoll poll metadata mOutFile ->
     runGovernanceVerifyPoll poll metadata mOutFile
-
 
 runGovernanceMIRCertificatePayStakeAddrs
   :: AnyShelleyBasedEra

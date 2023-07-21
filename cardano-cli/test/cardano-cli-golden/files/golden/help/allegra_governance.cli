@@ -1,0 +1,9 @@
+Usage: cardano-cli allegra governance pre-conway
+
+  Era-based governance commands
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  pre-conway               Pre conway era governance command
