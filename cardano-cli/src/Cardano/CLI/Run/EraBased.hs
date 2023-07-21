@@ -10,7 +10,7 @@ module Cardano.CLI.Run.EraBased
   ) where
 
 import           Cardano.CLI.Commands.EraBased
-import           Cardano.CLI.Options.EraBased.Governance
+import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.Types.Era
 
 import           Control.Monad.Trans.Except

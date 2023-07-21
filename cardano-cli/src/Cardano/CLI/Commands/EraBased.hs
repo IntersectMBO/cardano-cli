@@ -12,8 +12,8 @@ module Cardano.CLI.Commands.EraBased
 import           Cardano.Api (CardanoEra (..))
 
 import           Cardano.CLI.Environment
-import           Cardano.CLI.Options.Common
-import           Cardano.CLI.Options.EraBased.Governance
+import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.EraBased.Options.Governance
 
 import           Data.Foldable
 import           Data.Text (Text)

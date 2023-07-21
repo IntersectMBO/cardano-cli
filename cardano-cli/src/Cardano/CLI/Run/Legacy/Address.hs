@@ -17,7 +17,7 @@ module Cardano.CLI.Run.Legacy.Address
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Options.Legacy (AddressCmd (..), AddressKeyType (..))
+import           Cardano.CLI.EraBased.Legacy (AddressCmd (..), AddressKeyType (..))
 import           Cardano.CLI.Run.Legacy.Address.Info (ShelleyAddressInfoError, runAddressInfo)
 import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
