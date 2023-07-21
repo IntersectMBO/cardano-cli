@@ -26,12 +26,17 @@ module Cardano.CLI.Types.Key
   , StakeVerifier(..)
 
   , generateKeyPair
+  --- Legacy
+  , DelegationTarget(..) -- TODO: Remove me
 
-  , DelegationTarget(..)
+
+  -- NewEraBased
+  , AnyDelegationTarget(..)
+  , StakeTarget (..)
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Shelley (StakePoolKey)
+import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Legacy
 
@@ -114,8 +119,44 @@ data StakeIdentifier
   | StakeIdentifierAddress StakeAddress
   deriving (Eq, Show)
 
--- | A resource that identifies the delegation target.  At the moment a delegation
--- target can only be a stake pool.
+-- | A resource that identifies the delegation target. We can delegate
+-- our stake for two reasons:
+-- 1. To gain rewards. This is limited to choosing a stake pool
+-- 2. To delegate voting power. We can delegate this to a DRep, always
+-- abstain our vote or vote no confidence
+
+data AnyDelegationTarget where
+  ShelleyToBabbageDelegTarget
+    :: ShelleyToBabbageEra era
+    -> StakeIdentifier
+    -> VerificationKeyOrHashOrFile StakePoolKey -- ^ Stake pool target
+    -> AnyDelegationTarget
+
+  ConwayOnwardDelegTarget
+    :: ConwayEraOnwards era
+    -> StakeIdentifier
+    -> StakeTarget era
+    -> AnyDelegationTarget
+
+deriving instance Show AnyDelegationTarget
+
+data StakeTarget era where
+  TargetStakePool
+    :: ConwayEraOnwards era
+    -> VerificationKeyOrHashOrFile StakePoolKey
+    -> StakeTarget era
+
+  -- TODO: Conway era
+  TargetVotingDrep
+    :: ConwayEraOnwards era
+    -> StakeTarget era
+
+  -- TODO: Conway era
+  TargetVotingDrepAndStakePool
+    :: ConwayEraOnwards era
+    -> StakeTarget era
+
+deriving instance Show (StakeTarget era)
 newtype DelegationTarget
   = StakePoolDelegationTarget (VerificationKeyOrHashOrFile StakePoolKey)
   deriving Show
