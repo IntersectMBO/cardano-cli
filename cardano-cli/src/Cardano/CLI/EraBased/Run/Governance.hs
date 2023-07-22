@@ -4,19 +4,16 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Governance
-  ( ShelleyGovernanceCmdError
-  , renderShelleyGovernanceError
-  , runGovernanceCmd
+  ( runGovernanceCmd
   ) where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
 import qualified Cardano.Api.Shelley as Api
 
-import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.EraBased.Governance
-import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
+import           Cardano.CLI.Run.Legacy.Read (fileOrPipe, readFileTx)
 import           Cardano.CLI.Types.Governance
 import qualified Cardano.CLI.Types.Governance as Cli
 import           Cardano.CLI.Types.Legacy
@@ -37,69 +34,8 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
 import qualified Data.Text.Read as Text
-import           Formatting (build, sformat)
 import qualified System.IO as IO
 import           System.IO (stderr, stdin, stdout)
-
-data ShelleyGovernanceCmdError
-  = ShelleyGovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
-  | ShelleyGovernanceCmdCddlError !CddlError
-  | ShelleyGovernanceCmdKeyReadError !(FileError InputDecodeError)
-  | ShelleyGovernanceCmdCostModelReadError !(FileError ())
-  | ShelleyGovernanceCmdTextEnvWriteError !(FileError ())
-  | ShelleyGovernanceCmdEmptyUpdateProposalError
-  | ShelleyGovernanceCmdMIRCertificateKeyRewardMistmach
-      !FilePath
-      !Int
-      -- ^ Number of stake verification keys
-      !Int
-      -- ^ Number of reward amounts
-  | ShelleyGovernanceCmdCostModelsJsonDecodeErr !FilePath !Text
-  | ShelleyGovernanceCmdEmptyCostModel !FilePath
-  | ShelleyGovernanceCmdUnexpectedKeyType
-      ![TextEnvelopeType]
-      -- ^ Expected key types
-  | ShelleyGovernanceCmdPollOutOfBoundAnswer
-      !Int
-      -- ^ Maximum answer index
-  | ShelleyGovernanceCmdPollInvalidChoice
-  | ShelleyGovernanceCmdDecoderError !DecoderError
-  | ShelleyGovernanceCmdVerifyPollError !GovernancePollError
-  | ShelleyGovernanceCmdWriteFileError !(FileError ())
-  deriving Show
-
-renderShelleyGovernanceError :: ShelleyGovernanceCmdError -> Text
-renderShelleyGovernanceError = \case
-  ShelleyGovernanceCmdTextEnvReadError fileErr -> Text.pack (displayError fileErr)
-  ShelleyGovernanceCmdCddlError cddlErr -> Text.pack (displayError cddlErr)
-  ShelleyGovernanceCmdKeyReadError fileErr -> Text.pack (displayError fileErr)
-  ShelleyGovernanceCmdTextEnvWriteError fileErr -> Text.pack (displayError fileErr)
-  -- TODO: The equality check is still not working for empty update proposals.
-  ShelleyGovernanceCmdEmptyUpdateProposalError ->
-    "Empty update proposals are not allowed"
-  ShelleyGovernanceCmdMIRCertificateKeyRewardMistmach fp numVKeys numRwdAmts ->
-      "Error creating the MIR certificate at: " <> textShow fp
-      <> " The number of staking keys: " <> textShow numVKeys
-      <> " and the number of reward amounts: " <> textShow numRwdAmts
-      <> " are not equivalent."
-  ShelleyGovernanceCmdCostModelsJsonDecodeErr fp err' ->
-    "Error decoding cost model: " <> err' <> " at: " <> Text.pack fp
-  ShelleyGovernanceCmdEmptyCostModel fp ->
-    "The decoded cost model was empty at: " <> Text.pack fp
-  ShelleyGovernanceCmdCostModelReadError err' ->
-    "Error reading the cost model: " <> Text.pack (displayError err')
-  ShelleyGovernanceCmdUnexpectedKeyType expected ->
-    "Unexpected poll key type; expected one of: "
-    <> Text.intercalate ", " (textShow <$> expected)
-  ShelleyGovernanceCmdPollOutOfBoundAnswer nMax ->
-    "Poll answer out of bounds. Choices are between 0 and " <> textShow nMax
-  ShelleyGovernanceCmdPollInvalidChoice ->
-    "Invalid choice. Please choose from the available answers."
-  ShelleyGovernanceCmdDecoderError decoderError ->
-    "Unable to decode metadata: " <> sformat build decoderError
-  ShelleyGovernanceCmdVerifyPollError pollError ->
-    renderGovernancePollError pollError
-  ShelleyGovernanceCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
 
 runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmd = \case
