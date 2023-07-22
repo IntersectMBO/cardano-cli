@@ -67,7 +67,6 @@ library
                         Cardano.CLI.Commands.Legacy
                         Cardano.CLI.Environment
                         Cardano.CLI.EraBased.Constraints
-                        Cardano.CLI.EraBased.Governance
                         Cardano.CLI.EraBased.Legacy
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
