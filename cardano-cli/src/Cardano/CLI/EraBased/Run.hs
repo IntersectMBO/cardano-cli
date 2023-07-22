@@ -15,8 +15,8 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Commands.EraBased
-import           Cardano.CLI.EraBased.Certificate
 import           Cardano.CLI.EraBased.Options.Governance
+import           Cardano.CLI.EraBased.Run.Certificate
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra (firstExceptT)

@@ -4,7 +4,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Cardano.CLI.EraBased.Certificate
+module Cardano.CLI.EraBased.Run.Certificate
   ( runGovernanceDelegrationCertificate
   , runGovernanceMIRCertificatePayStakeAddrs
   , runGovernanceMIRCertificateTransfer
