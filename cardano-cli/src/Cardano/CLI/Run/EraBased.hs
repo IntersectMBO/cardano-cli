@@ -43,8 +43,7 @@ runEraBasedGovernanceCmd = \case
 
   EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
     firstExceptT (const ())
-      $ runAnyDelegationTarget stakeIdentifier delegationTarget outFp
-
+      $ runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp
 
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era

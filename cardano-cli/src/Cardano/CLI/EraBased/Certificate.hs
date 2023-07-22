@@ -5,7 +5,7 @@
 {-# LANGUAGE TypeOperators #-}
 
 module Cardano.CLI.EraBased.Certificate
-  ( runAnyDelegationTarget
+  ( runGovernanceDelegrationCertificate
   ) where
 
 import           Cardano.Api
@@ -25,12 +25,12 @@ data EraBasedDelegationError
   | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
   | EraBasedCertificateWriteFileError !(FileError ())
 
-runAnyDelegationTarget
+runGovernanceDelegrationCertificate
   :: StakeIdentifier
   -> AnyDelegationTarget
   -> File () Out
   -> ExceptT EraBasedDelegationError IO ()
-runAnyDelegationTarget stakeIdentifier delegationTarget outFp = do
+runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp = do
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
       & firstExceptT EraBasedCredentialError
