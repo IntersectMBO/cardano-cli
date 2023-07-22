@@ -10,9 +10,9 @@ import           Cardano.Api
 
 import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.EraBased.Legacy
+import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Run.Legacy.Address
 import           Cardano.CLI.Run.Legacy.Genesis
-import           Cardano.CLI.Run.Legacy.Governance
 import           Cardano.CLI.Run.Legacy.Key
 import           Cardano.CLI.Run.Legacy.Node
 import           Cardano.CLI.Run.Legacy.Pool

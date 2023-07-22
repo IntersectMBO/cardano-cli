@@ -3,7 +3,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.Run.Legacy.Governance
+module Cardano.CLI.EraBased.Run.Governance
   ( ShelleyGovernanceCmdError
   , renderShelleyGovernanceError
   , runGovernanceCmd
