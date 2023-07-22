@@ -76,8 +76,7 @@ golden_shelleyGenesisKeyDelegationCertificate =
 
     -- Create genesis key delegation certificate
     void $ execCardanoCLI
-      [ "legacy", "governance", "create-genesis-key-delegation-certificate"
-      , "--babbage-era"
+      [ "babbage", "governance", "create-genesis-key-delegation-certificate"
       , "--genesis-verification-key-file", genesisVerKeyFilePath
       , "--genesis-delegate-verification-key-file", genesisDelegVerKeyFilePath
       , "--vrf-verification-key-file", vrfVerKeyFilePath

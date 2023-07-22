@@ -21,12 +21,6 @@ import qualified Options.Applicative as Opt
 data GovernanceCmd
   = GovernanceVoteCmd VoteCmd
   | GovernanceActionCmd ActionCmd
-  | GovernanceGenesisKeyDelegationCertificate
-      AnyShelleyBasedEra
-      (VerificationKeyOrHashOrFile GenesisKey)
-      (VerificationKeyOrHashOrFile GenesisDelegateKey)
-      (VerificationKeyOrHashOrFile VrfKey)
-      (File () Out)
   | GovernanceUpdateProposal
       (File () Out) EpochNo
       [VerificationKeyFile In]
@@ -51,7 +45,6 @@ renderGovernanceCmd :: GovernanceCmd -> Text
 renderGovernanceCmd = \case
   GovernanceVoteCmd {} -> "governance vote"
   GovernanceActionCmd {} -> "governance action"
-  GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
   GovernanceUpdateProposal {} -> "governance create-update-proposal"
   GovernanceCreatePoll{} -> "governance create-poll"
   GovernanceAnswerPoll{} -> "governance answer-poll"

@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Options.Governance
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Shelley (VrfKey)
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Legacy
@@ -41,6 +42,12 @@ data EraBasedGovernanceCmd era
       StakeIdentifier
       AnyDelegationTarget
       (File () Out)
+  | EraBasedGovernanceGenesisKeyDelegationCertificate
+      (ShelleyToBabbageEra era)
+      (VerificationKeyOrHashOrFile GenesisKey)
+      (VerificationKeyOrHashOrFile GenesisDelegateKey)
+      (VerificationKeyOrHashOrFile VrfKey)
+      (File () Out)
 
 renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
@@ -49,6 +56,7 @@ renderEraBasedGovernanceCmd = \case
   EraBasedGovernanceMIRPayStakeAddressesCertificate {} -> "TODO EraBasedGovernanceMIRPayStakeAddressesCertificate"
   EraBasedGovernanceMIRTransfer {} -> "TODO EraBasedGovernanceMIRTransfer"
   EraBasedGovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"
+  EraBasedGovernanceGenesisKeyDelegationCertificate {} -> "TODO EraBasedGovernanceGenesisKeyDelegationCertificate"
 
 -- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
 pEraBasedGovernanceCmd :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmd era)
@@ -56,6 +64,7 @@ pEraBasedGovernanceCmd envCli era =
   asum $ catMaybes
     [ pEraBasedDelegationCertificateCmd envCli era
     , pCreateMirCertificatesCmds era
+    , pCreateGenesisKeyDelegationCertificateCmd era
     ]
 
 data AnyEraDecider era where
@@ -107,7 +116,19 @@ pStakeTarget cOnwards =
     -- , TargetVotingDrepAndStakePool cOnwards -- TODO: Conway era
     ]
 
-pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
+pCreateGenesisKeyDelegationCertificateCmd :: ()
+  => CardanoEra era
+  -> Maybe (Parser (EraBasedGovernanceCmd era))
+pCreateGenesisKeyDelegationCertificateCmd =
+  featureInEra Nothing $ \w ->
+    Just
+      $ subParser "create-genesis-key-delegation-certificate"
+      $ Opt.info (pGovernanceGenesisKeyDelegationCertificate w)
+      $ Opt.progDesc "Create a genesis key delegation certificate"
+
+pCreateMirCertificatesCmds :: ()
+  => CardanoEra era
+  -> Maybe (Parser (EraBasedGovernanceCmd era))
 pCreateMirCertificatesCmds =
   featureInEra Nothing $ \w ->
     Just
@@ -204,3 +225,13 @@ pDrep = Opt.strOption $ mconcat
           [ Opt.long "dummy-drep-option"
           , Opt.help "Delegate voting stake to Drep"
           ]
+
+pGovernanceGenesisKeyDelegationCertificate :: ()
+  => ShelleyToBabbageEra era
+  -> Parser (EraBasedGovernanceCmd era)
+pGovernanceGenesisKeyDelegationCertificate w =
+  EraBasedGovernanceGenesisKeyDelegationCertificate w
+    <$> pGenesisVerificationKeyOrHashOrFile
+    <*> pGenesisDelegateVerificationKeyOrHashOrFile
+    <*> pVrfVerificationKeyOrHashOrFile
+    <*> pOutputFile

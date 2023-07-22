@@ -1,6 +1,7 @@
 Usage: cardano-cli latest governance 
                                        ( delegation-certificate
                                        | create-mir-certificate
+                                       | create-genesis-key-delegation-certificate
                                        )
 
   Era-based governance commands
@@ -12,3 +13,5 @@ Available commands:
   delegation-certificate   Post conway era governance command
   create-mir-certificate   Create an MIR (Move Instantaneous Rewards)
                            certificate
+  create-genesis-key-delegation-certificate
+                           Create a genesis key delegation certificate

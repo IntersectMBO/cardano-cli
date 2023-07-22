@@ -1,6 +1,5 @@
 Usage: cardano-cli legacy governance 
-                                       ( create-genesis-key-delegation-certificate
-                                       | create-update-proposal
+                                       ( create-update-proposal
                                        | create-poll
                                        | answer-poll
                                        | verify-poll
@@ -14,8 +13,6 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  create-genesis-key-delegation-certificate
-                           Create a genesis key delegation certificate
   create-update-proposal   Create an update proposal
   create-poll              Create an SPO poll
   answer-poll              Answer an SPO poll

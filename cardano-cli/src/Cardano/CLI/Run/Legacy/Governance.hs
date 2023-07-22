@@ -109,9 +109,6 @@ runGovernanceCmd = \case
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
   GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
     runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
-  GovernanceGenesisKeyDelegationCertificate _atMostBabbage genVk genDelegVk vrfVk out ->
-    -- TODO: Conway era - handle similarly to runStakeCredentialDelegationCert
-    runGovernanceGenesisKeyDelegationCertificate (error "TODO") genVk genDelegVk vrfVk out
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
     runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
   GovernanceCreatePoll prompt choices nonce out ->
@@ -120,39 +117,6 @@ runGovernanceCmd = \case
     runGovernanceAnswerPoll poll ix mOutFile
   GovernanceVerifyPoll poll metadata mOutFile ->
     runGovernanceVerifyPoll poll metadata mOutFile
-
-runGovernanceGenesisKeyDelegationCertificate
-  :: AnyAtMostBabbageEra
-  -> VerificationKeyOrHashOrFile GenesisKey
-  -> VerificationKeyOrHashOrFile GenesisDelegateKey
-  -> VerificationKeyOrHashOrFile VrfKey
-  -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
-runGovernanceGenesisKeyDelegationCertificate (AnyAtMostBabbageEra (aMostBab :: ShelleyToBabbageEra era))
-                                             genVkOrHashOrFp
-                                             genDelVkOrHashOrFp
-                                             vrfVkOrHashOrFp
-                                             oFp = do
-  genesisVkHash <- firstExceptT GovernanceCmdKeyReadError
-    . newExceptT
-    $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
-  genesisDelVkHash <-firstExceptT GovernanceCmdKeyReadError
-    . newExceptT
-    $ readVerificationKeyOrHashOrTextEnvFile AsGenesisDelegateKey genDelVkOrHashOrFp
-  vrfVkHash <- firstExceptT GovernanceCmdKeyReadError
-    . newExceptT
-    $ readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
-
-  let req = GenesisKeyDelegationRequirements aMostBab genesisVkHash genesisDelVkHash vrfVkHash
-      genKeyDelegCert = makeGenesisKeyDelegationCertificate req
-
-  firstExceptT GovernanceCmdTextEnvWriteError
-    . newExceptT
-    $ writeLazyByteStringFile oFp
-    $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
-  where
-    genKeyDelegCertDesc :: TextEnvelopeDescr
-    genKeyDelegCertDesc = "Genesis Key Delegation Certificate"
 
 runGovernanceUpdateProposal
   :: File () Out

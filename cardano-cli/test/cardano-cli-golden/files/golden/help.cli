@@ -22,6 +22,7 @@ Usage: cardano-cli shelley governance
 Usage: cardano-cli shelley governance 
                                         ( delegation-certificate
                                         | create-mir-certificate
+                                        | create-genesis-key-delegation-certificate
                                         )
 
   Era-based governance commands
@@ -76,6 +77,23 @@ Usage: cardano-cli shelley governance create-mir-certificate transfer-to-rewards
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
+Usage: cardano-cli shelley governance create-genesis-key-delegation-certificate 
+                                                                                  ( --genesis-verification-key STRING
+                                                                                  | --genesis-verification-key-file FILE
+                                                                                  | --genesis-verification-key-hash STRING
+                                                                                  )
+                                                                                  ( --genesis-delegate-verification-key STRING
+                                                                                  | --genesis-delegate-verification-key-file FILE
+                                                                                  | --genesis-delegate-verification-key-hash STRING
+                                                                                  )
+                                                                                  ( --vrf-verification-key STRING
+                                                                                  | --vrf-verification-key-file FILE
+                                                                                  | --vrf-verification-key-hash STRING
+                                                                                  )
+                                                                                  --out-file FILE
+
+  Create a genesis key delegation certificate
+
 Usage: cardano-cli allegra governance
 
   Allegra era commands
@@ -83,6 +101,7 @@ Usage: cardano-cli allegra governance
 Usage: cardano-cli allegra governance 
                                         ( delegation-certificate
                                         | create-mir-certificate
+                                        | create-genesis-key-delegation-certificate
                                         )
 
   Era-based governance commands
@@ -137,6 +156,23 @@ Usage: cardano-cli allegra governance create-mir-certificate transfer-to-rewards
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
+Usage: cardano-cli allegra governance create-genesis-key-delegation-certificate 
+                                                                                  ( --genesis-verification-key STRING
+                                                                                  | --genesis-verification-key-file FILE
+                                                                                  | --genesis-verification-key-hash STRING
+                                                                                  )
+                                                                                  ( --genesis-delegate-verification-key STRING
+                                                                                  | --genesis-delegate-verification-key-file FILE
+                                                                                  | --genesis-delegate-verification-key-hash STRING
+                                                                                  )
+                                                                                  ( --vrf-verification-key STRING
+                                                                                  | --vrf-verification-key-file FILE
+                                                                                  | --vrf-verification-key-hash STRING
+                                                                                  )
+                                                                                  --out-file FILE
+
+  Create a genesis key delegation certificate
+
 Usage: cardano-cli mary governance
 
   Mary era commands
@@ -144,6 +180,7 @@ Usage: cardano-cli mary governance
 Usage: cardano-cli mary governance 
                                      ( delegation-certificate
                                      | create-mir-certificate
+                                     | create-genesis-key-delegation-certificate
                                      )
 
   Era-based governance commands
@@ -198,6 +235,23 @@ Usage: cardano-cli mary governance create-mir-certificate transfer-to-rewards --
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
+Usage: cardano-cli mary governance create-genesis-key-delegation-certificate 
+                                                                               ( --genesis-verification-key STRING
+                                                                               | --genesis-verification-key-file FILE
+                                                                               | --genesis-verification-key-hash STRING
+                                                                               )
+                                                                               ( --genesis-delegate-verification-key STRING
+                                                                               | --genesis-delegate-verification-key-file FILE
+                                                                               | --genesis-delegate-verification-key-hash STRING
+                                                                               )
+                                                                               ( --vrf-verification-key STRING
+                                                                               | --vrf-verification-key-file FILE
+                                                                               | --vrf-verification-key-hash STRING
+                                                                               )
+                                                                               --out-file FILE
+
+  Create a genesis key delegation certificate
+
 Usage: cardano-cli alonzo governance
 
   Alonzo era commands
@@ -205,6 +259,7 @@ Usage: cardano-cli alonzo governance
 Usage: cardano-cli alonzo governance 
                                        ( delegation-certificate
                                        | create-mir-certificate
+                                       | create-genesis-key-delegation-certificate
                                        )
 
   Era-based governance commands
@@ -259,6 +314,23 @@ Usage: cardano-cli alonzo governance create-mir-certificate transfer-to-rewards 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
+Usage: cardano-cli alonzo governance create-genesis-key-delegation-certificate 
+                                                                                 ( --genesis-verification-key STRING
+                                                                                 | --genesis-verification-key-file FILE
+                                                                                 | --genesis-verification-key-hash STRING
+                                                                                 )
+                                                                                 ( --genesis-delegate-verification-key STRING
+                                                                                 | --genesis-delegate-verification-key-file FILE
+                                                                                 | --genesis-delegate-verification-key-hash STRING
+                                                                                 )
+                                                                                 ( --vrf-verification-key STRING
+                                                                                 | --vrf-verification-key-file FILE
+                                                                                 | --vrf-verification-key-hash STRING
+                                                                                 )
+                                                                                 --out-file FILE
+
+  Create a genesis key delegation certificate
+
 Usage: cardano-cli babbage governance
 
   Babbage era commands
@@ -266,6 +338,7 @@ Usage: cardano-cli babbage governance
 Usage: cardano-cli babbage governance 
                                         ( delegation-certificate
                                         | create-mir-certificate
+                                        | create-genesis-key-delegation-certificate
                                         )
 
   Era-based governance commands
@@ -320,6 +393,23 @@ Usage: cardano-cli babbage governance create-mir-certificate transfer-to-rewards
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
+Usage: cardano-cli babbage governance create-genesis-key-delegation-certificate 
+                                                                                  ( --genesis-verification-key STRING
+                                                                                  | --genesis-verification-key-file FILE
+                                                                                  | --genesis-verification-key-hash STRING
+                                                                                  )
+                                                                                  ( --genesis-delegate-verification-key STRING
+                                                                                  | --genesis-delegate-verification-key-file FILE
+                                                                                  | --genesis-delegate-verification-key-hash STRING
+                                                                                  )
+                                                                                  ( --vrf-verification-key STRING
+                                                                                  | --vrf-verification-key-file FILE
+                                                                                  | --vrf-verification-key-hash STRING
+                                                                                  )
+                                                                                  --out-file FILE
+
+  Create a genesis key delegation certificate
+
 Usage: cardano-cli conway governance
 
   Conway era commands
@@ -350,6 +440,7 @@ Usage: cardano-cli latest governance
 Usage: cardano-cli latest governance 
                                        ( delegation-certificate
                                        | create-mir-certificate
+                                       | create-genesis-key-delegation-certificate
                                        )
 
   Era-based governance commands
@@ -404,6 +495,23 @@ Usage: cardano-cli latest governance create-mir-certificate transfer-to-rewards 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
+Usage: cardano-cli latest governance create-genesis-key-delegation-certificate 
+                                                                                 ( --genesis-verification-key STRING
+                                                                                 | --genesis-verification-key-file FILE
+                                                                                 | --genesis-verification-key-hash STRING
+                                                                                 )
+                                                                                 ( --genesis-delegate-verification-key STRING
+                                                                                 | --genesis-delegate-verification-key-file FILE
+                                                                                 | --genesis-delegate-verification-key-hash STRING
+                                                                                 )
+                                                                                 ( --vrf-verification-key STRING
+                                                                                 | --vrf-verification-key-file FILE
+                                                                                 | --vrf-verification-key-hash STRING
+                                                                                 )
+                                                                                 --out-file FILE
+
+  Create a genesis key delegation certificate
+
 Usage: cardano-cli experimental governance
 
   Experimental era commands (Conway)
@@ -441,8 +549,7 @@ Usage: cardano-cli legacy text-view decode-cbor --in-file FILE [--out-file FILE]
   Print a TextView file as decoded CBOR.
 
 Usage: cardano-cli legacy governance 
-                                       ( create-genesis-key-delegation-certificate
-                                       | create-update-proposal
+                                       ( create-update-proposal
                                        | create-poll
                                        | answer-poll
                                        | verify-poll
@@ -451,30 +558,6 @@ Usage: cardano-cli legacy governance
                                        )
 
   Governance commands
-
-Usage: cardano-cli legacy governance create-genesis-key-delegation-certificate 
-                                                                                 [ --shelley-era
-                                                                                 | --allegra-era
-                                                                                 | --mary-era
-                                                                                 | --alonzo-era
-                                                                                 | --babbage-era
-                                                                                 | --conway-era
-                                                                                 ]
-                                                                                 ( --genesis-verification-key STRING
-                                                                                 | --genesis-verification-key-file FILE
-                                                                                 | --genesis-verification-key-hash STRING
-                                                                                 )
-                                                                                 ( --genesis-delegate-verification-key STRING
-                                                                                 | --genesis-delegate-verification-key-file FILE
-                                                                                 | --genesis-delegate-verification-key-hash STRING
-                                                                                 )
-                                                                                 ( --vrf-verification-key STRING
-                                                                                 | --vrf-verification-key-file FILE
-                                                                                 | --vrf-verification-key-hash STRING
-                                                                                 )
-                                                                                 --out-file FILE
-
-  Create a genesis key delegation certificate
 
 Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
                                                               --epoch EPOCH
@@ -1725,7 +1808,11 @@ Usage: cardano-cli legacy address info --address ADDRESS [--out-file FILE]
 
   Print information about an address.
 
-Usage: cardano-cli governance (delegation-certificate | create-mir-certificate)
+Usage: cardano-cli governance 
+                                ( delegation-certificate
+                                | create-mir-certificate
+                                | create-genesis-key-delegation-certificate
+                                )
 
   Era-based governance commands
 
@@ -1779,35 +1866,7 @@ Usage: cardano-cli governance create-mir-certificate transfer-to-rewards --trans
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli text-view decode-cbor
-
-  Commands for dealing with Shelley TextView files. Transactions, addresses etc
-  are stored on disk as TextView files.
-
-Usage: cardano-cli text-view decode-cbor --in-file FILE [--out-file FILE]
-
-  Print a TextView file as decoded CBOR.
-
-Usage: cardano-cli governance 
-                                ( create-genesis-key-delegation-certificate
-                                | create-update-proposal
-                                | create-poll
-                                | answer-poll
-                                | verify-poll
-                                | vote
-                                | action
-                                )
-
-  Governance commands
-
 Usage: cardano-cli governance create-genesis-key-delegation-certificate 
-                                                                          [ --shelley-era
-                                                                          | --allegra-era
-                                                                          | --mary-era
-                                                                          | --alonzo-era
-                                                                          | --babbage-era
-                                                                          | --conway-era
-                                                                          ]
                                                                           ( --genesis-verification-key STRING
                                                                           | --genesis-verification-key-file FILE
                                                                           | --genesis-verification-key-hash STRING
@@ -1823,6 +1882,26 @@ Usage: cardano-cli governance create-genesis-key-delegation-certificate
                                                                           --out-file FILE
 
   Create a genesis key delegation certificate
+
+Usage: cardano-cli text-view decode-cbor
+
+  Commands for dealing with Shelley TextView files. Transactions, addresses etc
+  are stored on disk as TextView files.
+
+Usage: cardano-cli text-view decode-cbor --in-file FILE [--out-file FILE]
+
+  Print a TextView file as decoded CBOR.
+
+Usage: cardano-cli governance 
+                                ( create-update-proposal
+                                | create-poll
+                                | answer-poll
+                                | verify-poll
+                                | vote
+                                | action
+                                )
+
+  Governance commands
 
 Usage: cardano-cli governance create-update-proposal --out-file FILE
                                                        --epoch EPOCH

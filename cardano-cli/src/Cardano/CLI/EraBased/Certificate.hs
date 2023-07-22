@@ -8,6 +8,7 @@ module Cardano.CLI.EraBased.Certificate
   ( runGovernanceDelegrationCertificate
   , runGovernanceMIRCertificatePayStakeAddrs
   , runGovernanceMIRCertificateTransfer
+  , runGovernanceGenesisKeyDelegationCertificate
   ) where
 
 import           Cardano.Api
@@ -160,3 +161,33 @@ runGovernanceMIRCertificateTransfer w ll oFp direction =
       mirCertDesc :: TransferDirection -> TextEnvelopeDescr
       mirCertDesc TransferToTreasury = "MIR Certificate Send To Treasury"
       mirCertDesc TransferToReserves = "MIR Certificate Send To Reserves"
+
+runGovernanceGenesisKeyDelegationCertificate :: forall era. ()
+  => ShelleyToBabbageEra era
+  -> VerificationKeyOrHashOrFile GenesisKey
+  -> VerificationKeyOrHashOrFile GenesisDelegateKey
+  -> VerificationKeyOrHashOrFile VrfKey
+  -> File () Out
+  -> ExceptT EraBasedDelegationError IO ()
+runGovernanceGenesisKeyDelegationCertificate w genVkOrHashOrFp genDelVkOrHashOrFp vrfVkOrHashOrFp oFp =
+  obtainIsShelleyBasedEraShelleyToBabbage w $ do
+    genesisVkHash <- firstExceptT (const EraBasedDelegationGenericError)
+      . newExceptT
+      $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
+    genesisDelVkHash <-firstExceptT (const EraBasedDelegationGenericError)
+      . newExceptT
+      $ readVerificationKeyOrHashOrTextEnvFile AsGenesisDelegateKey genDelVkOrHashOrFp
+    vrfVkHash <- firstExceptT (const EraBasedDelegationGenericError)
+      . newExceptT
+      $ readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
+
+    let req = GenesisKeyDelegationRequirements w genesisVkHash genesisDelVkHash vrfVkHash
+        genKeyDelegCert = makeGenesisKeyDelegationCertificate req
+
+    firstExceptT (const EraBasedDelegationGenericError)
+      . newExceptT
+      $ writeLazyByteStringFile oFp
+      $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
+  where
+    genKeyDelegCertDesc :: TextEnvelopeDescr
+    genKeyDelegCertDesc = "Genesis Key Delegation Certificate"
