@@ -67,7 +67,9 @@ pEraBasedDelegationCertificateCmd _envCli =
       <*> pAnyDelegationCertificateTarget w
       <*> pOutputFile
 
-  pAnyDelegationCertificateTarget :: AnyEraDecider era -> Parser AnyDelegationTarget
+  pAnyDelegationCertificateTarget :: ()
+    => AnyEraDecider era
+    -> Parser AnyDelegationTarget
   pAnyDelegationCertificateTarget e =
     case e of
       AnyEraDeciderShelleyToBabbage sbe ->
