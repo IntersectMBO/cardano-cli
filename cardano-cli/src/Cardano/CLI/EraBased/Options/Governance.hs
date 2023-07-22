@@ -31,9 +31,7 @@ import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
 data EraBasedGovernanceCmd era
-  = EraBasedGovernancePreConwayCmd (ShelleyToBabbageEra era)
-  | EraBasedGovernancePostConwayCmd (ConwayEraOnwards era)
-  | EraBasedGovernanceMIRPayStakeAddressesCertificate
+  = EraBasedGovernanceMIRPayStakeAddressesCertificate
       (ShelleyToBabbageEra era)
       MIRPot
       [StakeAddress]
@@ -57,8 +55,6 @@ data EraBasedGovernanceCmd era
 
 renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
-  EraBasedGovernancePreConwayCmd {} -> "governance pre-conway"
-  EraBasedGovernancePostConwayCmd {} -> "governance post-conway"
   EraBasedGovernanceMIRPayStakeAddressesCertificate {} -> "TODO EraBasedGovernanceMIRPayStakeAddressesCertificate"
   EraBasedGovernanceMIRTransfer {} -> "TODO EraBasedGovernanceMIRTransfer"
   EraBasedGovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"

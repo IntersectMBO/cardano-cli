@@ -10,7 +10,6 @@ module Cardano.CLI.EraBased.Run
   , renderAnyEraCmdError
   ) where
 
-import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
@@ -38,38 +37,22 @@ runAnyEraCommand = \case
 
 runEraBasedCommand :: ()
   => Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto
-  => EraBasedCommand era -> ExceptT () IO ()
+  => EraBasedCommand era
+  -> ExceptT () IO ()
 runEraBasedCommand = \case
-  EraBasedGovernanceCmd cmd -> runEraBasedGovernanceCmd cmd
+  EraBasedGovernanceCmd cmd ->
+    firstExceptT (const ()) $ runEraBasedGovernanceCmd cmd
 
 runEraBasedGovernanceCmd :: ()
   => Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto
   => EraBasedGovernanceCmd era
-  -> ExceptT () IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runEraBasedGovernanceCmd = \case
-  EraBasedGovernancePreConwayCmd w ->
-    runEraBasedGovernancePreConwayCmd w
-  EraBasedGovernancePostConwayCmd w ->
-    runEraBasedGovernancePostConwayCmd w
   EraBasedGovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
-    firstExceptT (const ()) -- TODO fix error handling
-      $ runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
+    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
   EraBasedGovernanceMIRTransfer w ll oFp direction ->
-    firstExceptT (const ()) -- TODO fix error handling
-      $ runGovernanceMIRCertificateTransfer w ll oFp direction
+    runGovernanceMIRCertificateTransfer w ll oFp direction
   EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
-    firstExceptT (const ()) -- TODO fix error handling
-      $ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
+    runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
   EraBasedGovernanceGenesisKeyDelegationCertificate w genVk genDelegVk vrfVk out ->
-    firstExceptT (const ()) -- TODO fix error handling
-      $ runGovernanceGenesisKeyDelegationCertificate w genVk genDelegVk vrfVk out
-
-runEraBasedGovernancePreConwayCmd
-  :: ShelleyToBabbageEra era
-  -> ExceptT () IO ()
-runEraBasedGovernancePreConwayCmd _w = pure ()
-
-runEraBasedGovernancePostConwayCmd
-  :: ConwayEraOnwards era
-  -> ExceptT () IO ()
-runEraBasedGovernancePostConwayCmd _w = pure ()
+    runGovernanceGenesisKeyDelegationCertificate w genVk genDelegVk vrfVk out

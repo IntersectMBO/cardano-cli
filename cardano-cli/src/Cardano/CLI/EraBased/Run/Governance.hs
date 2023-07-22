@@ -86,13 +86,11 @@ data GovernanceCmdError
   | GovernanceCmdDecoderError !DecoderError
   | GovernanceCmdVerifyPollError !GovernancePollError
   | GovernanceCmdWriteFileError !(FileError ())
+  | GovernanceCmdDelegReadError !(FileError InputDecodeError)
+  | GovernanceCmdCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
+  | GovernanceCmdCertificateWriteFileError !(FileError ())
+  | GovernanceCmdDelegationGenericError -- TODO Delete and replace with more specific errors
   deriving Show
-
-data EraBasedDelegationError
-  = EraBasedDelegReadError !(FileError InputDecodeError)
-  | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
-  | EraBasedCertificateWriteFileError !(FileError ())
-  | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
 
 runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmd = \case
@@ -344,20 +342,20 @@ runGovernanceDelegationCertificate
   :: StakeIdentifier
   -> AnyDelegationTarget
   -> File () Out
-  -> ExceptT EraBasedDelegationError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp = do
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
-      & firstExceptT EraBasedCredentialError
+      & firstExceptT GovernanceCmdCredentialError
 
   case delegationTarget of
     ShelleyToBabbageDelegTarget sTob stakePool -> do
       poolId <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey stakePool)
-                  & onLeft (left . EraBasedDelegReadError)
+                  & onLeft (left . GovernanceCmdDelegReadError)
       let req = StakeDelegationRequirementsPreConway sTob stakeCred poolId
           delegCert = makeStakeAddressDelegationCertificate req
           description = Just @TextEnvelopeDescr "Stake Address Delegation Certificate"
-      firstExceptT EraBasedCertificateWriteFileError
+      firstExceptT GovernanceCmdCertificateWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
         $ obtainIsShelleyBasedEraShelleyToBabbage sTob
@@ -369,7 +367,7 @@ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp = do
           delegCert = makeStakeAddressDelegationCertificate req
           -- TODO: Conway era - update description to say if its delegating voting stake or "regular" stake
           description = Just @TextEnvelopeDescr "Stake Address Delegation Certificate"
-      firstExceptT EraBasedCertificateWriteFileError
+      firstExceptT GovernanceCmdCertificateWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
         $ obtainIsShelleyBasedEraConwayOnwards cOnwards
@@ -377,13 +375,13 @@ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp = do
 
 toLedgerDelegatee
   :: StakeTarget era
-  -> ExceptT EraBasedDelegationError IO (Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era)))
+  -> ExceptT GovernanceCmdError IO (Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era)))
 toLedgerDelegatee t =
   case t of
     TargetStakePool cOnwards vk -> do
       StakePoolKeyHash kHash
         <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey vk)
-             & onLeft (left . EraBasedDelegReadError)
+             & onLeft (left . GovernanceCmdDelegReadError)
 
       right $ Ledger.DelegStake $ obtainIsShelleyBasedEraConwayOnwards cOnwards kHash
     TargetVotingDrep _ -> error "TODO: Conway era - Ledger.DelegVote"
@@ -399,11 +397,11 @@ runGovernanceMIRCertificatePayStakeAddrs :: forall era. ()
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
-  -> ExceptT EraBasedDelegationError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp =
   obtainIsShelleyBasedEraShelleyToBabbage w $ do
     unless (length sAddrs == length rwdAmts) $
-      left EraBasedDelegationGenericError
+      left GovernanceCmdDelegationGenericError
         -- TODO throw specific error:
         -- (GovernanceCmdMIRCertificateKeyRewardMistmachError)
         --       (unFile oFp) (length sAddrs) (length rwdAmts)
@@ -416,7 +414,7 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp =
         mirReq = MirCertificateRequirements w mirPot (obtainEraCryptoConstraints (shelleyBasedEra @era) mirTarget)
         mirCert = makeMIRCertificate mirReq
 
-    firstExceptT (const EraBasedDelegationGenericError)
+    firstExceptT (const GovernanceCmdDelegationGenericError)
       . newExceptT
       $ writeLazyByteStringFile oFp
       $ textEnvelopeToJSON (Just mirCertDesc) mirCert
@@ -432,7 +430,7 @@ runGovernanceMIRCertificateTransfer :: forall era. ()
   -> Lovelace
   -> File () Out
   -> TransferDirection
-  -> ExceptT EraBasedDelegationError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceMIRCertificateTransfer w ll oFp direction =
   obtainIsShelleyBasedEraShelleyToBabbage w $ do
     let mirTarget = Ledger.SendToOppositePotMIR (toShelleyLovelace ll)
@@ -443,7 +441,7 @@ runGovernanceMIRCertificateTransfer w ll oFp direction =
         TransferToReserves -> return $ makeMIRCertificate $ mirReq Ledger.TreasuryMIR
         TransferToTreasury -> return $ makeMIRCertificate $ mirReq Ledger.ReservesMIR
 
-    firstExceptT (const EraBasedDelegationGenericError)
+    firstExceptT (const GovernanceCmdDelegationGenericError)
       . newExceptT
       $ writeLazyByteStringFile oFp
       $ textEnvelopeToJSON (Just $ mirCertDesc direction) mirCert
@@ -459,23 +457,23 @@ runGovernanceGenesisKeyDelegationCertificate :: forall era. ()
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
-  -> ExceptT EraBasedDelegationError IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceGenesisKeyDelegationCertificate w genVkOrHashOrFp genDelVkOrHashOrFp vrfVkOrHashOrFp oFp =
   obtainIsShelleyBasedEraShelleyToBabbage w $ do
-    genesisVkHash <- firstExceptT (const EraBasedDelegationGenericError)
+    genesisVkHash <- firstExceptT (const GovernanceCmdDelegationGenericError)
       . newExceptT
       $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
-    genesisDelVkHash <-firstExceptT (const EraBasedDelegationGenericError)
+    genesisDelVkHash <-firstExceptT (const GovernanceCmdDelegationGenericError)
       . newExceptT
       $ readVerificationKeyOrHashOrTextEnvFile AsGenesisDelegateKey genDelVkOrHashOrFp
-    vrfVkHash <- firstExceptT (const EraBasedDelegationGenericError)
+    vrfVkHash <- firstExceptT (const GovernanceCmdDelegationGenericError)
       . newExceptT
       $ readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
 
     let req = GenesisKeyDelegationRequirements w genesisVkHash genesisDelVkHash vrfVkHash
         genKeyDelegCert = makeGenesisKeyDelegationCertificate req
 
-    firstExceptT (const EraBasedDelegationGenericError)
+    firstExceptT (const GovernanceCmdDelegationGenericError)
       . newExceptT
       $ writeLazyByteStringFile oFp
       $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
