@@ -1,5 +1,5 @@
-Usage: cardano-cli governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
-                                                                            --out-file FILE
+Usage: cardano-cli latest governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                   --out-file FILE
 
   Create an MIR certificate to transfer from the reserves pot to the treasury
   pot

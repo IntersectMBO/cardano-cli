@@ -1,5 +1,5 @@
 Invalid argument `verify-poll'
 
-Usage: cardano-cli governance delegation-certificate
+Usage: cardano-cli governance (delegation-certificate | create-mir-certificate)
 
   Era-based governance commands

@@ -9,7 +9,7 @@ module Cardano.CLI.Commands.EraBased
   , pEraBasedCommand
   ) where
 
-import           Cardano.Api (CardanoEra (..))
+import           Cardano.Api (CardanoEra (..), ShelleyBasedEra (..))
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common
@@ -21,9 +21,9 @@ import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
 
 data AnyEraCommand where
-  AnyEraCommandOf :: CardanoEra era -> EraBasedCommand era -> AnyEraCommand
+  AnyEraCommandOf :: ShelleyBasedEra era -> EraBasedCommand era -> AnyEraCommand
 
-data EraBasedCommand era
+newtype EraBasedCommand era
   = EraBasedGovernanceCmd (EraBasedGovernanceCmd era)
 
 renderEraBasedCommand :: EraBasedCommand era -> Text
@@ -36,29 +36,29 @@ pAnyEraCommand envCli =
     [ -- Note, byron is ommitted because there is already a legacy command group for it.
 
       subParser "shelley"
-        $ Opt.info (AnyEraCommandOf ShelleyEra <$> pEraBasedCommand envCli ShelleyEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pEraBasedCommand envCli ShelleyEra)
         $ Opt.progDesc "Shelley era commands"
     , subParser "allegra"
-        $ Opt.info (AnyEraCommandOf AllegraEra <$> pEraBasedCommand envCli AllegraEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pEraBasedCommand envCli AllegraEra)
         $ Opt.progDesc "Allegra era commands"
     , subParser "mary"
-        $ Opt.info (AnyEraCommandOf MaryEra <$> pEraBasedCommand envCli MaryEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pEraBasedCommand envCli MaryEra)
         $ Opt.progDesc "Mary era commands"
     , subParser "alonzo"
-        $ Opt.info (AnyEraCommandOf AlonzoEra <$> pEraBasedCommand envCli AlonzoEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pEraBasedCommand envCli AlonzoEra)
         $ Opt.progDesc "Alonzo era commands"
     , subParser "babbage"
-        $ Opt.info (AnyEraCommandOf BabbageEra <$> pEraBasedCommand envCli BabbageEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pEraBasedCommand envCli BabbageEra)
         $ Opt.progDesc "Babbage era commands"
     , subParser "conway"
-        $ Opt.info (AnyEraCommandOf ConwayEra <$> pEraBasedCommand envCli ConwayEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pEraBasedCommand envCli ConwayEra)
         $ Opt.progDesc "Conway era commands"
 
     , subParser "latest"
-        $ Opt.info (AnyEraCommandOf BabbageEra <$> pEraBasedCommand envCli BabbageEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pEraBasedCommand envCli BabbageEra)
         $ Opt.progDesc "Latest era commands (Babbage)"
     , subParser "experimental"
-        $ Opt.info (AnyEraCommandOf ConwayEra <$> pEraBasedCommand envCli ConwayEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pEraBasedCommand envCli ConwayEra)
         $ Opt.progDesc "Experimental era commands (Conway)"
     ]
 

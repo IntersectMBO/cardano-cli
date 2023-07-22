@@ -1,10 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Certificate
   ( runGovernanceDelegrationCertificate
+  , runGovernanceMIRCertificatePayStakeAddrs
+  , runGovernanceMIRCertificateTransfer
   ) where
 
 import           Cardano.Api
@@ -12,17 +15,22 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Run.Legacy.StakeAddress
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
+import           Control.Monad
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
+import qualified Data.Map.Strict as Map
 
 data EraBasedDelegationError
   = EraBasedDelegReadError !(FileError InputDecodeError)
   | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
   | EraBasedCertificateWriteFileError !(FileError ())
+  | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
 
 runGovernanceDelegrationCertificate
   :: StakeIdentifier
@@ -92,23 +100,63 @@ obtainIsShelleyBasedEraConwayOnwards
   -> a
 obtainIsShelleyBasedEraConwayOnwards ConwayEraOnwardsConway f = f
 
-
-
-  {-
-  runGovernanceMIRCertificatePayStakeAddrs (AnyAtMostBabbageEra (aMostBab :: ShelleyToBabbageEra era))
-                                          mirPot sAddrs rwdAmts oFp = do
-
+runGovernanceMIRCertificatePayStakeAddrs :: forall era. ()
+  => Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto
+  => ShelleyToBabbageEra era
+  -> Shelley.MIRPot
+  -> [StakeAddress] -- ^ Stake addresses
+  -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
+  -> File () Out
+  -> ExceptT EraBasedDelegationError IO ()
+runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp =
+  obtainIsShelleyBasedEraShelleyToBabbage w $ do
     unless (length sAddrs == length rwdAmts) $
-      left $ GovernanceCmdMIRCertificateKeyRewardMistmach
-               (unFile oFp) (length sAddrs) (length rwdAmts)
+      left EraBasedDelegationGenericError
+        -- TODO throw specific error:
+        -- (GovernanceCmdMIRCertificateKeyRewardMistmach)
+        --       (unFile oFp) (length sAddrs) (length rwdAmts)
 
     let sCreds  = map stakeAddressCredential sAddrs
         mirTarget = Ledger.StakeAddressesMIR
                       $ Map.fromList [ (toShelleyStakeCredential scred, Ledger.toDeltaCoin (toShelleyLovelace rwdAmt))
-                                     | (scred, rwdAmt) <- zip sCreds rwdAmts
-                                     ]
-        mirReq = MirCertificateRequirements aMostBab mirPot (obtainEraCryptoConstraints (shelleyBasedEra @era) mirTarget)
+                                      | (scred, rwdAmt) <- zip sCreds rwdAmts
+                                      ]
+        mirReq = MirCertificateRequirements w mirPot (obtainEraCryptoConstraints (shelleyBasedEra @era) mirTarget)
         mirCert = makeMIRCertificate mirReq
 
+    firstExceptT (const EraBasedDelegationGenericError)
+      . newExceptT
+      $ writeLazyByteStringFile oFp
+      $ textEnvelopeToJSON (Just mirCertDesc) mirCert
 
-  -}
+  where
+    mirCertDesc :: TextEnvelopeDescr
+    mirCertDesc = "Move Instantaneous Rewards Certificate"
+
+
+runGovernanceMIRCertificateTransfer :: forall era. ()
+  => Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto
+  => ShelleyToBabbageEra era
+  -> Lovelace
+  -> File () Out
+  -> TransferDirection
+  -> ExceptT EraBasedDelegationError IO ()
+runGovernanceMIRCertificateTransfer w ll oFp direction =
+  obtainIsShelleyBasedEraShelleyToBabbage w $ do
+    let mirTarget = Ledger.SendToOppositePotMIR (toShelleyLovelace ll)
+    let mirReq mirPot = MirCertificateRequirements w mirPot mirTarget
+
+    mirCert <-
+      case direction of
+        TransferToReserves -> return $ makeMIRCertificate $ mirReq Ledger.TreasuryMIR
+        TransferToTreasury -> return $ makeMIRCertificate $ mirReq Ledger.ReservesMIR
+
+    firstExceptT (const EraBasedDelegationGenericError)
+      . newExceptT
+      $ writeLazyByteStringFile oFp
+      $ textEnvelopeToJSON (Just $ mirCertDesc direction) mirCert
+
+    where
+      mirCertDesc :: TransferDirection -> TextEnvelopeDescr
+      mirCertDesc TransferToTreasury = "MIR Certificate Send To Treasury"
+      mirCertDesc TransferToReserves = "MIR Certificate Send To Reserves"
