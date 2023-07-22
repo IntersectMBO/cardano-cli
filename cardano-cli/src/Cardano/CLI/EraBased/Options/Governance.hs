@@ -3,7 +3,8 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Options.Governance
-  ( EraBasedGovernanceCmd(..)
+  ( ActionCmd(..)
+  , EraBasedGovernanceCmd(..)
   , GovernanceCmd(..)
   , VoteCmd(..)
   , renderEraBasedGovernanceCmd
