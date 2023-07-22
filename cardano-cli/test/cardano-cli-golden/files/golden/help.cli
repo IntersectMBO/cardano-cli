@@ -33,6 +33,7 @@ Usage: cardano-cli shelley governance delegation-certificate
                                                                | --cold-verification-key-file FILE
                                                                | --stake-pool-id STAKE_POOL_ID
                                                                )
+                                                               --out-file FILE
 
   Post conway era governance command
 
@@ -54,6 +55,7 @@ Usage: cardano-cli allegra governance delegation-certificate
                                                                | --cold-verification-key-file FILE
                                                                | --stake-pool-id STAKE_POOL_ID
                                                                )
+                                                               --out-file FILE
 
   Post conway era governance command
 
@@ -75,6 +77,7 @@ Usage: cardano-cli mary governance delegation-certificate
                                                             | --cold-verification-key-file FILE
                                                             | --stake-pool-id STAKE_POOL_ID
                                                             )
+                                                            --out-file FILE
 
   Post conway era governance command
 
@@ -96,6 +99,7 @@ Usage: cardano-cli alonzo governance delegation-certificate
                                                               | --cold-verification-key-file FILE
                                                               | --stake-pool-id STAKE_POOL_ID
                                                               )
+                                                              --out-file FILE
 
   Post conway era governance command
 
@@ -117,6 +121,7 @@ Usage: cardano-cli babbage governance delegation-certificate
                                                                | --cold-verification-key-file FILE
                                                                | --stake-pool-id STAKE_POOL_ID
                                                                )
+                                                               --out-file FILE
 
   Post conway era governance command
 
@@ -139,6 +144,7 @@ Usage: cardano-cli conway governance delegation-certificate
                                                               | --stake-pool-id STAKE_POOL_ID
                                                               | --dummy-drep-option ARG
                                                               )
+                                                              --out-file FILE
 
   Post conway era governance command
 
@@ -160,6 +166,7 @@ Usage: cardano-cli latest governance delegation-certificate
                                                               | --cold-verification-key-file FILE
                                                               | --stake-pool-id STAKE_POOL_ID
                                                               )
+                                                              --out-file FILE
 
   Post conway era governance command
 
@@ -182,6 +189,7 @@ Usage: cardano-cli experimental governance delegation-certificate
                                                                     | --stake-pool-id STAKE_POOL_ID
                                                                     | --dummy-drep-option ARG
                                                                     )
+                                                                    --out-file FILE
 
   Post conway era governance command
 
@@ -1564,6 +1572,7 @@ Usage: cardano-cli governance delegation-certificate
                                                        | --cold-verification-key-file FILE
                                                        | --stake-pool-id STAKE_POOL_ID
                                                        )
+                                                       --out-file FILE
 
   Post conway era governance command
 
