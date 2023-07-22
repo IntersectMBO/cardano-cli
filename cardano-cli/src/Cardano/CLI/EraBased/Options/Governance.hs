@@ -12,7 +12,6 @@ import           Cardano.Api
 import           Cardano.Api.Shelley (VrfKey)
 
 import           Cardano.CLI.Environment
-import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key

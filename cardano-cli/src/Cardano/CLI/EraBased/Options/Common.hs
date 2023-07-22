@@ -586,8 +586,7 @@ pGenesisVerificationKeyOrFile =
     , VerificationKeyFilePath <$> pGenesisVerificationKeyFile
     ]
 
-pGenesisDelegateVerificationKeyOrFile
-  :: Parser (VerificationKeyOrFile GenesisDelegateKey)
+pGenesisDelegateVerificationKeyOrFile :: Parser (VerificationKeyOrFile GenesisDelegateKey)
 pGenesisDelegateVerificationKeyOrFile =
   asum
     [ VerificationKeyValue <$> pGenesisDelegateVerificationKey
@@ -601,10 +600,41 @@ pGenesisVerificationKeyOrHashOrFile =
     , VerificationKeyHash <$> pGenesisVerificationKeyHash
     ]
 
-pGenesisDelegateVerificationKeyOrHashOrFile
-  :: Parser (VerificationKeyOrHashOrFile GenesisDelegateKey)
+pGenesisDelegateVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile GenesisDelegateKey)
 pGenesisDelegateVerificationKeyOrHashOrFile =
   asum
     [ VerificationKeyOrFile <$> pGenesisDelegateVerificationKeyOrFile
     , VerificationKeyHash <$> pGenesisDelegateVerificationKeyHash
     ]
+
+pStakePoolVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile StakePoolKey)
+pStakePoolVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile
+    , VerificationKeyHash <$> pStakePoolVerificationKeyHash
+    ]
+
+pStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
+pStakePoolVerificationKeyHash =
+  Opt.option (pBech32StakePoolId <|> pHexStakePoolId) $ mconcat
+    [ Opt.long "stake-pool-id"
+    , Opt.metavar "STAKE_POOL_ID"
+    , Opt.help $ mconcat
+        [ "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded).  "
+        , "Zero or more occurences of this option is allowed."
+        ]
+    ]
+  where
+    pHexStakePoolId :: ReadM (Hash StakePoolKey)
+    pHexStakePoolId =
+      Opt.eitherReader $
+        first displayError
+          . deserialiseFromRawBytesHex (AsHash AsStakePoolKey)
+          . BSC.pack
+
+    pBech32StakePoolId :: ReadM (Hash StakePoolKey)
+    pBech32StakePoolId =
+      Opt.eitherReader $
+        first displayError
+        . deserialiseFromBech32 (AsHash AsStakePoolKey)
+        . Text.pack

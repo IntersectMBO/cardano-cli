@@ -27,8 +27,7 @@ import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Key (DelegationTarget (..), PaymentVerifier (..),
-                   VerificationKeyOrFile (..), VerificationKeyOrHashOrFile (..),
-                   VerificationKeyTextOrFile (..))
+                   VerificationKeyOrFile (..), VerificationKeyTextOrFile (..))
 import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.BaseTypes as Shelley
 import           Cardano.Prelude (ConvertText (..))
@@ -2588,44 +2587,9 @@ pAddress =
     , Opt.help "A Cardano address"
     ]
 
-
-pStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
-pStakePoolVerificationKeyHash =
-    Opt.option (pBech32StakePoolId <|> pHexStakePoolId) $ mconcat
-      [ Opt.long "stake-pool-id"
-      , Opt.metavar "STAKE_POOL_ID"
-      , Opt.help $ mconcat
-          [ "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded).  "
-          , "Zero or more occurences of this option is allowed."
-          ]
-      ]
-  where
-    pHexStakePoolId :: ReadM (Hash StakePoolKey)
-    pHexStakePoolId =
-      Opt.eitherReader $
-        first displayError
-          . deserialiseFromRawBytesHex (AsHash AsStakePoolKey)
-          . BSC.pack
-
-    pBech32StakePoolId :: ReadM (Hash StakePoolKey)
-    pBech32StakePoolId =
-      Opt.eitherReader $
-        first displayError
-        . deserialiseFromBech32 (AsHash AsStakePoolKey)
-        . Text.pack
-
-
 pDelegationTarget
   :: Parser DelegationTarget
 pDelegationTarget = StakePoolDelegationTarget <$> pStakePoolVerificationKeyOrHashOrFile
-
-pStakePoolVerificationKeyOrHashOrFile
-  :: Parser (VerificationKeyOrHashOrFile StakePoolKey)
-pStakePoolVerificationKeyOrHashOrFile =
-  asum
-    [ VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile
-    , VerificationKeyHash <$> pStakePoolVerificationKeyHash
-    ]
 
 pRewardAcctVerificationKeyFile :: Parser (VerificationKeyFile In)
 pRewardAcctVerificationKeyFile =
