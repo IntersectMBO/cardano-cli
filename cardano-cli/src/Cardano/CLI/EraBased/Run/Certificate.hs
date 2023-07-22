@@ -5,7 +5,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Run.Certificate
-  ( runGovernanceDelegrationCertificate
+  ( runGovernanceDelegationCertificate
   , runGovernanceMIRCertificatePayStakeAddrs
   , runGovernanceMIRCertificateTransfer
   , runGovernanceGenesisKeyDelegationCertificate
@@ -34,12 +34,12 @@ data EraBasedDelegationError
   | EraBasedCertificateWriteFileError !(FileError ())
   | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
 
-runGovernanceDelegrationCertificate
+runGovernanceDelegationCertificate
   :: StakeIdentifier
   -> AnyDelegationTarget
   -> File () Out
   -> ExceptT EraBasedDelegationError IO ()
-runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp = do
+runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp = do
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
       & firstExceptT EraBasedCredentialError

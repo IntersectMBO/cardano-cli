@@ -59,7 +59,7 @@ runEraBasedGovernanceCmd = \case
       $ runGovernanceMIRCertificateTransfer w ll oFp direction
   EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
     firstExceptT (const ()) -- TODO fix error handling
-      $ runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp
+      $ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
   EraBasedGovernanceGenesisKeyDelegationCertificate w genVk genDelegVk vrfVk out ->
     firstExceptT (const ()) -- TODO fix error handling
       $ runGovernanceGenesisKeyDelegationCertificate w genVk genDelegVk vrfVk out
