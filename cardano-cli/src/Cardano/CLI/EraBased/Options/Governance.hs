@@ -51,12 +51,12 @@ instance FeatureInEra AnyEraDecider where
 
 pEraBasedDelegationCertificateCmd :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
 pEraBasedDelegationCertificateCmd _envCli =
-  featureInEra Nothing $ \f ->
-        Just
-          $ fmap EraBasedGovernanceDelegationCertificateCmd
-          $ subParser "delegation-certificate"
-          $ Opt.info (pAnyDelegationCertificateTarget f)
-          $ Opt.progDesc "Post conway era governance command" -- TODO: We can render the help message based on the era
+  featureInEra Nothing $ \w ->
+    Just
+      $ fmap EraBasedGovernanceDelegationCertificateCmd
+      $ subParser "delegation-certificate"
+      $ Opt.info (pAnyDelegationCertificateTarget w)
+      $ Opt.progDesc "Post conway era governance command" -- TODO: We can render the help message based on the era
  where
   pAnyDelegationCertificateTarget :: AnyEraDecider era -> Parser AnyDelegationTarget
   pAnyDelegationCertificateTarget e =

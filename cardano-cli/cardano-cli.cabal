@@ -67,6 +67,7 @@ library
                         Cardano.CLI.Commands.Legacy
                         Cardano.CLI.Environment
                         Cardano.CLI.EraBased.Certificate
+                        Cardano.CLI.Featured
                         Cardano.CLI.Helpers
                         Cardano.CLI.IO.Lazy
                         Cardano.CLI.Json.Friendly
