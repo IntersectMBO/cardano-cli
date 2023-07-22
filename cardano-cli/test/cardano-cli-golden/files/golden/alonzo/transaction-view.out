@@ -3,7 +3,7 @@ certificates: null
 collateral inputs:
 - c9765d7d0e3955be8920e6d7a38e1f3f2032eac48c7c59b0b9193caa87727e7e#256
 era: Alonzo
-fee: 213 Lovelace
+fee: Coin 213 Lovelace
 inputs:
 - ed7c8f68c194cc763ee65ad22ef0973e26481be058c65005fd39fb93f9c43a20#212
 metadata: null
@@ -20,7 +20,7 @@ update proposal:
   updates:
   - genesis key hash: 1bafa294233a5a7ffbf539ae798da0943aa83d2a19398c2d0e5af114
     update:
-      UTxO storage cost per word: 194 Lovelace
+      UTxO storage cost per word: Coin 194 Lovelace
       collateral inputs share: 200%
       execution prices:
         memory: 196/197

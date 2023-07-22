@@ -7,31 +7,32 @@ certificates:
 - MIR:
     pot: reserves
     target stake addresses:
-    - amount: 1000 Lovelace
+    - amount: Coin 1000 Lovelace
       stake credential key hash: ee475cade27e95faf1093541b0783498016cdcfba0d6441055b2dfcb
 - stake address deregistration:
-    stake credential key hash: d0efd9836e62225a47baf9bedfeaccbb86ba3f49d9edc4ac0aa26df5
+    key hash: d0efd9836e62225a47baf9bedfeaccbb86ba3f49d9edc4ac0aa26df5
 - stake address registration:
-    stake credential key hash: c6ea7e348d300b32798888497290db24a99a36f2238ed9668f602d7a
+    key hash: c6ea7e348d300b32798888497290db24a99a36f2238ed9668f602d7a
 - stake pool retirement:
     epoch: 42
     pool: pool13lllruv6rd63l70vkpgye2ea856f22k8xhujmf2vvlul5ytw7mx
 - stake pool registration:
-    VRF key hash: 8d445260282cef45e4c6a862b8a924aeed1b316ccba779dd39f9517220e96407
-    cost: 1000 Lovelace
-    margin: 1/10
+    cost: 1000
+    margin: 0.1
     metadata: null
-    owners (stake key hashes):
+    owners:
     - f25fc5c9f341ec3bd785ddea746f76b6a9ac7f38fdd7aef1779bbe81
-    pledge: 5000 Lovelace
-    pool: pool1cxxj569g3x9akwv49vv6u5z8d3l7xrwzh7p2tf2g2ajkce894m3
+    pledge: 5000
+    publicKey: c18d2a68a8898bdb39952b19ae50476c7fe30dc2bf82a5a54857656c
     relays: []
-    reward account:
+    rewardAccount:
+      credential:
+        key hash: f25fc5c9f341ec3bd785ddea746f76b6a9ac7f38fdd7aef1779bbe81
       network: Mainnet
-      stake credential key hash: f25fc5c9f341ec3bd785ddea746f76b6a9ac7f38fdd7aef1779bbe81
+    vrf: 8d445260282cef45e4c6a862b8a924aeed1b316ccba779dd39f9517220e96407
 collateral inputs: null
 era: Shelley
-fee: 32 Lovelace
+fee: Coin 32 Lovelace
 inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#29
 metadata: null
@@ -39,7 +40,7 @@ mint: null
 outputs:
 - address: addr_test1vz7w0r9epak6nmnh3mc8e2ypkjyu8zsc3xf7dpct6k577acxmcfyv
   address era: Shelley
-  amount: 31 Lovelace
+  amount: Coin 31 Lovelace
   network: Testnet
   payment credential key hash: bce78cb90f6da9ee778ef07ca881b489c38a188993e6870bd5a9ef77
   reference script: null
@@ -55,16 +56,16 @@ update proposal:
     update:
       decentralization parameter: 63/64
       extra entropy: 88f04f011dcded879039ae4b9b20219d9448e5c7b42c2d1f638fb8740e0ab8be
-      key registration deposit: 71 Lovelace
+      key registration deposit: Coin 71 Lovelace
       max block body size: 72
       max block header size: 73
       max transaction size: 74
-      min UTxO value: 78 Lovelace
-      min pool cost: 77 Lovelace
+      min UTxO value: Coin 78 Lovelace
+      min pool cost: Coin 77 Lovelace
       monetary expansion: 79/80
       number of pools: 80
       pool influence: 82/83
-      pool registration deposit: 83 Lovelace
+      pool registration deposit: Coin 83 Lovelace
       pool retirement epoch boundary: 84
       protocol version: '8.86'
       transaction fee constant: 75
@@ -74,6 +75,6 @@ validity range:
   time to live: 33
 withdrawals:
 - address: stake_test1up00fz9lyqs5sjks82k22eqz7a9srym9vysjgp3h2ua2v2cm522kg
-  amount: 42 Lovelace
+  amount: Coin 42 Lovelace
   network: Testnet
   stake credential key hash: 5ef488bf2021484ad03aaca56402f74b0193656121240637573aa62b
