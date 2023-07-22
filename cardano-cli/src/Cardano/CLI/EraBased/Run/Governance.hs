@@ -55,13 +55,12 @@ import           System.IO (stderr, stdin, stdout)
 
 data GovernanceCmdError
   = -- Voting related
-    StakeCredGovCmdError ShelleyStakeAddressCmdError
-  | VotingCredentialDecodeGovCmdEror DecoderError
-  | WriteFileError (FileError ())
-  | ReadFileError (FileError InputDecodeError)
+    GovernanceCmdStakeCredError ShelleyStakeAddressCmdError
+  | GovernanceCmdVotingCredentialDecodeError DecoderError
+  | GovernanceCmdReadFileError (FileError InputDecodeError)
     -- Governance action related
-  | ExpectedStakeKeyCredentialGovCmdError
-  | NonUtf8EncodedConstitution UnicodeException
+  | GovernanceCmdExpectedStakeKeyCredentialError
+  | GovernanceCmdNonUtf8EncodedConstitutionError UnicodeException
 
   | GovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
   | GovernanceCmdCddlError !CddlError
@@ -69,21 +68,21 @@ data GovernanceCmdError
   | GovernanceCmdCostModelReadError !(FileError ())
   | GovernanceCmdTextEnvWriteError !(FileError ())
   | GovernanceCmdEmptyUpdateProposalError
-  | GovernanceCmdMIRCertificateKeyRewardMistmach
+  | GovernanceCmdMIRCertificateKeyRewardMistmachError
       !FilePath
       !Int
       -- ^ Number of stake verification keys
       !Int
       -- ^ Number of reward amounts
-  | GovernanceCmdCostModelsJsonDecodeErr !FilePath !Text
-  | GovernanceCmdEmptyCostModel !FilePath
-  | GovernanceCmdUnexpectedKeyType
+  | GovernanceCmdCostModelsJsonDecodeError !FilePath !Text
+  | GovernanceCmdEmptyCostModelError !FilePath
+  | GovernanceCmdUnexpectedKeyTypeError
       ![TextEnvelopeType]
       -- ^ Expected key types
-  | GovernanceCmdPollOutOfBoundAnswer
+  | GovernanceCmdPollOutOfBoundAnswerError
       !Int
       -- ^ Maximum answer index
-  | GovernanceCmdPollInvalidChoice
+  | GovernanceCmdPollInvalidChoiceError
   | GovernanceCmdDecoderError !DecoderError
   | GovernanceCmdVerifyPollError !GovernancePollError
   | GovernanceCmdWriteFileError !(FileError ())
@@ -125,11 +124,11 @@ runGovernanceUpdateProposal upFile eNo genVerKeyFiles upPprams mCostModelFp = do
       costModelsBs <- handleIOExceptT (GovernanceCmdCostModelReadError . FileIOError fp) $ LB.readFile fp
 
       cModels <- pure (eitherDecode costModelsBs)
-        & onLeft (left . GovernanceCmdCostModelsJsonDecodeErr fp . Text.pack)
+        & onLeft (left . GovernanceCmdCostModelsJsonDecodeError fp . Text.pack)
 
       let costModels = fromAlonzoCostModels cModels
 
-      when (null costModels) $ left (GovernanceCmdEmptyCostModel fp)
+      when (null costModels) $ left (GovernanceCmdEmptyCostModelError fp)
 
       return $ upPprams {protocolUpdateCostModels = costModels}
 
@@ -229,7 +228,7 @@ runGovernanceAnswerPoll pollFile maybeChoice mOutFile = do
   validateChoice GovernancePoll{govPollAnswers} ix = do
     let maxAnswerIndex = length govPollAnswers - 1
     when (fromIntegral ix > maxAnswerIndex) $ left $
-      GovernanceCmdPollOutOfBoundAnswer maxAnswerIndex
+      GovernanceCmdPollOutOfBoundAnswerError maxAnswerIndex
 
   askInteractively :: GovernancePoll -> ExceptT GovernanceCmdError IO Word
   askInteractively poll@GovernancePoll{govPollQuestion, govPollAnswers} = do
@@ -247,7 +246,7 @@ runGovernanceAnswerPoll pollFile maybeChoice mOutFile = do
       Right (choice, rest) | Text.null rest ->
         choice <$ validateChoice poll choice
       _ ->
-        left GovernanceCmdPollInvalidChoice
+        left GovernanceCmdPollInvalidChoiceError
 
 runGovernanceVerifyPoll
   :: File GovernancePoll In
@@ -280,26 +279,26 @@ runGovernanceCreateVoteCmd
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateVoteCmd anyEra vChoice vType govActionTxIn votingStakeCred oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
-  vStakePoolKey <- firstExceptT ReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
+  vStakePoolKey <- firstExceptT GovernanceCmdReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
   let stakePoolKeyHash = verificationKeyHash vStakePoolKey
       vStakeCred = StakeCredentialByKey . (verificationKeyHash . castVerificationKey) $ vStakePoolKey
   case vType of
     VCC -> do
-      votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
+      votingCred <- hoistEither $ first GovernanceCmdVotingCredentialDecodeError $ toVotingCredential sbe vStakeCred
       let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
           voteProcedure = createVotingProcedure sbe vChoice (VoterCommittee votingCred) govActIdentifier
-      firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
+      firstExceptT GovernanceCmdWriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
     VDR -> do
-      votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
+      votingCred <- hoistEither $ first GovernanceCmdVotingCredentialDecodeError $ toVotingCredential sbe vStakeCred
       let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
           voteProcedure = createVotingProcedure sbe vChoice (VoterDRep votingCred) govActIdentifier
-      firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
+      firstExceptT GovernanceCmdWriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
     VSP -> do
       let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
           voteProcedure = createVotingProcedure sbe vChoice (VoterSpo stakePoolKeyHash) govActIdentifier
-      firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
+      firstExceptT GovernanceCmdWriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
 
 runGovernanceNewConstitutionCmd
@@ -312,12 +311,12 @@ runGovernanceNewConstitutionCmd
 runGovernanceNewConstitutionCmd sbe deposit stakeVoteCred constitution oFp = do
   vStakePoolKeyHash
     <- fmap (verificationKeyHash . castVerificationKey)
-        <$> firstExceptT ReadFileError . newExceptT
+        <$> firstExceptT GovernanceCmdReadFileError . newExceptT
               $ readVerificationKeyOrFile AsStakePoolKey stakeVoteCred
   case constitution of
     ConstitutionFromFile fp  -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
-      _utf8EncodedText <- firstExceptT NonUtf8EncodedConstitution . hoistEither $ Text.decodeUtf8' cBs
+      _utf8EncodedText <- firstExceptT GovernanceCmdNonUtf8EncodedConstitutionError . hoistEither $ Text.decodeUtf8' cBs
       let govAct = ProposeNewConstitution cBs
       runGovernanceCreateActionCmd sbe deposit vStakePoolKeyHash govAct oFp
 
@@ -337,7 +336,7 @@ runGovernanceCreateActionCmd anyEra deposit depositReturnAddr govAction oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
   let proposal = createProposalProcedure sbe deposit depositReturnAddr govAction
 
-  firstExceptT WriteFileError . newExceptT
+  firstExceptT GovernanceCmdWriteFileError . newExceptT
     $ obtainEraPParamsConstraint sbe
     $ writeFileTextEnvelope oFp Nothing proposal
 
@@ -406,7 +405,7 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp =
     unless (length sAddrs == length rwdAmts) $
       left EraBasedDelegationGenericError
         -- TODO throw specific error:
-        -- (GovernanceCmdMIRCertificateKeyRewardMistmach)
+        -- (GovernanceCmdMIRCertificateKeyRewardMistmachError)
         --       (unFile oFp) (length sAddrs) (length rwdAmts)
 
     let sCreds  = map stakeAddressCredential sAddrs
