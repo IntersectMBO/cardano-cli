@@ -20,7 +20,10 @@ import qualified Options.Applicative as Opt
 data EraBasedGovernanceCmd era
   = EraBasedGovernancePreConwayCmd (ShelleyToBabbageEra era)
   | EraBasedGovernancePostConwayCmd (ConwayEraOnwards era)
-  | EraBasedGovernanceDelegationCertificateCmd AnyDelegationTarget
+  | EraBasedGovernanceDelegationCertificateCmd
+      StakeIdentifier
+      AnyDelegationTarget
+      (File () Out)
 
 renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
@@ -51,24 +54,28 @@ instance FeatureInEra AnyEraDecider where
 
 pEraBasedDelegationCertificateCmd :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
 pEraBasedDelegationCertificateCmd _envCli =
-  featureInEra Nothing $ \f ->
-        Just
-          $ fmap EraBasedGovernanceDelegationCertificateCmd
-          $ subParser "delegation-certificate"
-          $ Opt.info (pAnyDelegationCertificateTarget f)
-          $ Opt.progDesc "Post conway era governance command" -- TODO: We can render the help message based on the era
+  featureInEra Nothing $ \w ->
+    Just
+      $ subParser "delegation-certificate"
+      $ Opt.info (pCmd w)
+      $ Opt.progDesc "Post conway era governance command" -- TODO: We can render the help message based on the era
  where
+  pCmd :: AnyEraDecider era -> Parser (EraBasedGovernanceCmd era)
+  pCmd w =
+    EraBasedGovernanceDelegationCertificateCmd
+      <$> pStakeIdentifier
+      <*> pAnyDelegationCertificateTarget w
+      <*> pOutputFile
+
   pAnyDelegationCertificateTarget :: AnyEraDecider era -> Parser AnyDelegationTarget
   pAnyDelegationCertificateTarget e =
     case e of
       AnyEraDeciderShelleyToBabbage sbe ->
         ShelleyToBabbageDelegTarget sbe
-          <$> pStakeIdentifier
-          <*> pStakePoolVerificationKeyOrHashOrFile
+          <$> pStakePoolVerificationKeyOrHashOrFile
       AnyEraDeciderConwayOnwards cOnwards ->
         ConwayOnwardDelegTarget cOnwards
-          <$> pStakeIdentifier
-          <*> pStakeTarget cOnwards
+          <$> pStakeTarget cOnwards
 
 pStakeTarget :: ConwayEraOnwards era -> Parser (StakeTarget era)
 pStakeTarget cOnwards =
