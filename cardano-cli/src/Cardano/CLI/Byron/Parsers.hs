@@ -56,7 +56,6 @@ import           Cardano.Prelude (ConvertText (..))
 import           Control.Monad (when)
 import qualified Data.Attoparsec.ByteString.Char8 as Atto
 import           Data.Attoparsec.Combinator ((<?>))
-import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy.Char8 as C8
 import qualified Data.Char as Char
 import           Data.Foldable
@@ -309,10 +308,6 @@ parseTxOut =
     if l > (maxBound :: Word64)
     then error $ show l <> " lovelace exceeds the Word64 upper bound"
     else TxOutAdaOnly AdaOnlyInByronEra . Lovelace $ toInteger l
-
-readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
-readerFromAttoParser p =
-  Opt.eitherReader (Atto.parseOnly (p <* Atto.endOfInput) . BSC.pack)
 
 parseTxRelatedValues :: EnvCli -> [Mod CommandFields ByronCommand]
 parseTxRelatedValues envCli =

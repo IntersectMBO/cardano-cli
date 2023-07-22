@@ -2,11 +2,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Options.Common where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra)
 import           Cardano.CLI.Types.Key
@@ -14,16 +15,21 @@ import           Cardano.CLI.Types.Legacy
 import           Cardano.Prelude (purer)
 
 import           Control.Monad (mfilter)
+import qualified Data.Attoparsec.ByteString.Char8 as Atto
 import           Data.Bifunctor
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BSC
 import           Data.Foldable
 import           Data.Function
 import           Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
 import           Data.Maybe (maybeToList)
+import           Data.Ratio ((%))
 import qualified Data.Text as Text
 import           Data.Word (Word64)
-import           Options.Applicative
+import           GHC.Natural (Natural)
+import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 import qualified Text.Parsec as Parsec
 import           Text.Parsec ((<?>))
@@ -638,3 +644,338 @@ pStakePoolVerificationKeyHash =
         first displayError
         . deserialiseFromBech32 (AsHash AsStakePoolKey)
         . Text.pack
+
+pEpochNoUpdateProp :: Parser EpochNo
+pEpochNoUpdateProp =
+  fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
+    [ Opt.long "epoch"
+    , Opt.metavar "EPOCH"
+    , Opt.help "The epoch number in which the update proposal is valid."
+    ]
+
+-- Protocol paramters
+
+pProtocolParametersUpdate :: Parser ProtocolParametersUpdate
+pProtocolParametersUpdate =
+  ProtocolParametersUpdate
+    <$> optional pProtocolVersion
+    <*> optional pDecentralParam
+    <*> optional pExtraEntropy
+    <*> optional pMaxBlockHeaderSize
+    <*> optional pMaxBodySize
+    <*> optional pMaxTransactionSize
+    <*> optional pMinFeeConstantFactor
+    <*> optional pMinFeePerByteFactor
+    <*> optional pMinUTxOValue
+    <*> optional pKeyRegistDeposit
+    <*> optional pPoolDeposit
+    <*> optional pMinPoolCost
+    <*> optional pEpochBoundRetirement
+    <*> optional pNumberOfPools
+    <*> optional pPoolInfluence
+    <*> optional pMonetaryExpansion
+    <*> optional pTreasuryExpansion
+    <*> optional pUTxOCostPerWord
+    <*> pure mempty
+    <*> optional pExecutionUnitPrices
+    <*> optional pMaxTxExecutionUnits
+    <*> optional pMaxBlockExecutionUnits
+    <*> optional pMaxValueSize
+    <*> optional pCollateralPercent
+    <*> optional pMaxCollateralInputs
+    <*> optional pUTxOCostPerByte
+
+pCostModels :: Parser FilePath
+pCostModels =
+  Opt.strOption $ mconcat
+    [ Opt.long "cost-model-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the JSON formatted cost model"
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pMinFeePerByteFactor :: Parser Lovelace
+pMinFeePerByteFactor =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "min-fee-linear"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The linear factor per byte for the minimum fee calculation."
+    ]
+
+pMinFeeConstantFactor :: Parser Lovelace
+pMinFeeConstantFactor =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "min-fee-constant"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The constant factor for the minimum fee calculation."
+    ]
+
+pMinUTxOValue :: Parser Lovelace
+pMinUTxOValue =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "min-utxo-value"
+    , Opt.metavar "NATURAL"
+    , Opt.help "The minimum allowed UTxO value (Shelley to Mary eras)."
+    ]
+
+pMinPoolCost :: Parser Lovelace
+pMinPoolCost =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "min-pool-cost"
+    , Opt.metavar "NATURAL"
+    , Opt.help "The minimum allowed cost parameter for stake pools."
+    ]
+
+pMaxBodySize :: Parser Natural
+pMaxBodySize =
+  Opt.option Opt.auto $ mconcat
+    [ Opt.long "max-block-body-size"
+    , Opt.metavar "NATURAL"
+    , Opt.help "Maximal block body size."
+    ]
+
+pMaxTransactionSize :: Parser Natural
+pMaxTransactionSize =
+  Opt.option Opt.auto $ mconcat
+    [ Opt.long "max-tx-size"
+    , Opt.metavar "NATURAL"
+    , Opt.help "Maximum transaction size."
+    ]
+
+pMaxBlockHeaderSize :: Parser Natural
+pMaxBlockHeaderSize =
+  Opt.option Opt.auto $ mconcat
+   [ Opt.long "max-block-header-size"
+   , Opt.metavar "NATURAL"
+   , Opt.help "Maximum block header size."
+   ]
+
+pKeyRegistDeposit :: Parser Lovelace
+pKeyRegistDeposit =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+   [ Opt.long "key-reg-deposit-amt"
+   , Opt.metavar "NATURAL"
+   , Opt.help "Key registration deposit amount."
+   ]
+
+pPoolDeposit :: Parser Lovelace
+pPoolDeposit =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+   [ Opt.long "pool-reg-deposit"
+   , Opt.metavar "NATURAL"
+   , Opt.help "The amount of a pool registration deposit."
+   ]
+
+pEpochBoundRetirement :: Parser EpochNo
+pEpochBoundRetirement =
+  fmap EpochNo $ Opt.option (bounded "EPOCH_BOUNDARY") $ mconcat
+    [ Opt.long "pool-retirement-epoch-boundary"
+    , Opt.metavar "EPOCH_BOUNDARY"
+    , Opt.help "Epoch bound on pool retirement."
+    ]
+
+pNumberOfPools :: Parser Natural
+pNumberOfPools =
+  Opt.option Opt.auto $ mconcat
+   [ Opt.long "number-of-pools"
+   , Opt.metavar "NATURAL"
+   , Opt.help "Desired number of pools."
+   ]
+
+pPoolInfluence :: Parser Rational
+pPoolInfluence =
+  Opt.option readRational $ mconcat
+    [ Opt.long "pool-influence"
+    , Opt.metavar "RATIONAL"
+    , Opt.help "Pool influence."
+    ]
+
+pTreasuryExpansion :: Parser Rational
+pTreasuryExpansion =
+  Opt.option readRationalUnitInterval $ mconcat
+    [ Opt.long "treasury-expansion"
+    , Opt.metavar "RATIONAL"
+    , Opt.help "Treasury expansion."
+    ]
+
+pMonetaryExpansion :: Parser Rational
+pMonetaryExpansion =
+  Opt.option readRationalUnitInterval $ mconcat
+    [ Opt.long "monetary-expansion"
+    , Opt.metavar "RATIONAL"
+    , Opt.help "Monetary expansion."
+    ]
+
+pDecentralParam :: Parser Rational
+pDecentralParam =
+  Opt.option readRationalUnitInterval $ mconcat
+    [ Opt.long "decentralization-parameter"
+    , Opt.metavar "RATIONAL"
+    , Opt.help "Decentralization parameter."
+    ]
+
+pExtraEntropy :: Parser (Maybe PraosNonce)
+pExtraEntropy =
+  asum
+    [ Opt.option (Just <$> readerFromParsecParser parsePraosNonce) $ mconcat
+        [ Opt.long "extra-entropy"
+        , Opt.metavar "HEX"
+        , Opt.help "Praos extra entropy seed, as a hex byte string."
+        ]
+    , Opt.flag' Nothing $ mconcat
+        [  Opt.long "reset-extra-entropy"
+        , Opt.help "Reset the Praos extra entropy to none."
+        ]
+    ]
+  where
+    parsePraosNonce :: Parsec.Parser PraosNonce
+    parsePraosNonce = makePraosNonce <$> parseEntropyBytes
+
+    parseEntropyBytes :: Parsec.Parser ByteString
+    parseEntropyBytes = either fail return
+                      . B16.decode . BSC.pack
+                    =<< some Parsec.hexDigit
+
+pUTxOCostPerWord :: Parser Lovelace
+pUTxOCostPerWord =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "utxo-cost-per-word"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "Cost in lovelace per unit of UTxO storage (from Alonzo era)."
+    ]
+
+pUTxOCostPerByte :: Parser Lovelace
+pUTxOCostPerByte =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "utxo-cost-per-byte"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "Cost in lovelace per unit of UTxO storage (from Babbage era)."
+    ]
+
+pExecutionUnitPrices :: Parser ExecutionUnitPrices
+pExecutionUnitPrices = ExecutionUnitPrices
+  <$> Opt.option readRational
+      ( mconcat
+        [ Opt.long "price-execution-steps"
+        , Opt.metavar "RATIONAL"
+        , Opt.help $ mconcat
+          [ "Step price of execution units for script languages that use "
+          , "them (from Alonzo era).  (Examples: '1.1', '11/10')"
+          ]
+        ]
+      )
+  <*> Opt.option readRational
+      ( mconcat
+        [ Opt.long "price-execution-memory"
+        , Opt.metavar "RATIONAL"
+        , Opt.help $ mconcat
+          [ "Memory price of execution units for script languages that "
+          , "use them (from Alonzo era).  (Examples: '1.1', '11/10')"
+          ]
+        ]
+      )
+
+pMaxTxExecutionUnits :: Parser ExecutionUnits
+pMaxTxExecutionUnits =
+  uncurry ExecutionUnits <$>
+  Opt.option Opt.auto
+      ( mconcat
+        [ Opt.long "max-tx-execution-units"
+        , Opt.metavar "(INT, INT)"
+        , Opt.help $ mconcat
+          [ "Max total script execution resources units allowed per tx "
+          , "(from Alonzo era). They are denominated as follows (steps, memory)."
+          ]
+        ]
+      )
+
+pMaxBlockExecutionUnits :: Parser ExecutionUnits
+pMaxBlockExecutionUnits =
+  uncurry ExecutionUnits <$>
+  Opt.option Opt.auto
+      ( mconcat
+        [ Opt.long "max-block-execution-units"
+        , Opt.metavar "(INT, INT)"
+        , Opt.help $ mconcat
+          [ "Max total script execution resources units allowed per block "
+          , "(from Alonzo era). They are denominated as follows (steps, memory)."
+          ]
+        ]
+      )
+
+pMaxValueSize :: Parser Natural
+pMaxValueSize =
+  Opt.option Opt.auto $ mconcat
+  [ Opt.long "max-value-size"
+  , Opt.metavar "INT"
+  , Opt.help $ mconcat
+    [ "Max size of a multi-asset value in a tx output (from Alonzo era)."
+    ]
+  ]
+
+pCollateralPercent :: Parser Natural
+pCollateralPercent =
+  Opt.option Opt.auto $ mconcat
+  [ Opt.long "collateral-percent"
+  , Opt.metavar "INT"
+  , Opt.help $ mconcat
+    [ "The percentage of the script contribution to the txfee that "
+    , "must be provided as collateral inputs when including Plutus "
+    , "scripts (from Alonzo era)."
+    ]
+  ]
+
+pMaxCollateralInputs :: Parser Natural
+pMaxCollateralInputs =
+  Opt.option Opt.auto $ mconcat
+  [ Opt.long "max-collateral-inputs"
+  , Opt.metavar "INT"
+  , Opt.help $ mconcat
+    [ "The maximum number of collateral inputs allowed in a "
+    , "transaction (from Alonzo era)."
+    ]
+  ]
+
+pProtocolVersion :: Parser (Natural, Natural)
+pProtocolVersion =
+    (,) <$> pProtocolMajorVersion <*> pProtocolMinorVersion
+  where
+    pProtocolMajorVersion =
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "protocol-major-version"
+        , Opt.metavar "NATURAL"
+        , Opt.help "Major protocol version. An increase indicates a hard fork."
+        ]
+    pProtocolMinorVersion =
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "protocol-minor-version"
+        , Opt.metavar "NATURAL"
+        , Opt.help $ mconcat
+          [ "Minor protocol version. An increase indicates a soft fork"
+          , " (old software canvalidate but not produce new blocks)."
+          ]
+        ]
+
+readRational :: Opt.ReadM Rational
+readRational =
+  asum
+    [ toRational <$> readerFromAttoParser Atto.scientific
+    , readFractionAsRational
+    ]
+
+readRationalUnitInterval :: Opt.ReadM Rational
+readRationalUnitInterval = readRational >>= checkUnitInterval
+  where
+   checkUnitInterval :: Rational -> Opt.ReadM Rational
+   checkUnitInterval q
+     | q >= 0 && q <= 1 = return q
+     | otherwise        = fail "Please enter a value in the range [0,1]"
+
+readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
+readerFromAttoParser p =
+  Opt.eitherReader (Atto.parseOnly (p <* Atto.endOfInput) . BSC.pack)
+
+readFractionAsRational :: Opt.ReadM Rational
+readFractionAsRational = readerFromAttoParser fractionalAsRational
+  where fractionalAsRational :: Atto.Parser Rational
+        fractionalAsRational = (%) <$> (Atto.decimal @Integer <* Atto.char '/') <*> Atto.decimal @Integer

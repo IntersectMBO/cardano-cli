@@ -6,15 +6,18 @@ module Cardano.CLI.EraBased.Options.Governance
   ( EraBasedGovernanceCmd(..)
   , renderEraBasedGovernanceCmd
   , pEraBasedGovernanceCmd
+  , pGovernanceCmd
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Shelley (VrfKey)
+import           Cardano.Api.Shelley (GovernancePoll (..), VrfKey)
 
 import           Cardano.CLI.Environment
+import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
+import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Data.Foldable
@@ -234,3 +237,108 @@ pGovernanceGenesisKeyDelegationCertificate w =
     <*> pGenesisDelegateVerificationKeyOrHashOrFile
     <*> pVrfVerificationKeyOrHashOrFile
     <*> pOutputFile
+
+pGovernanceCmd :: EnvCli -> Parser GovernanceCmd
+pGovernanceCmd envCli =
+  asum
+    [ subParser "create-update-proposal"
+        $ Opt.info pUpdateProposal
+        $ Opt.progDesc "Create an update proposal"
+    , subParser "create-poll"
+        $ Opt.info pGovernanceCreatePoll
+        $ Opt.progDesc "Create an SPO poll"
+    , subParser "answer-poll"
+        $ Opt.info pGovernanceAnswerPoll
+        $ Opt.progDesc "Answer an SPO poll"
+    , subParser "verify-poll"
+        $ Opt.info pGovernanceVerifyPoll
+        $ Opt.progDesc "Verify an answer to a given SPO poll"
+    , fmap GovernanceVoteCmd $ subParser "vote"
+        $ Opt.info (pVoteCommmands envCli)
+        $ Opt.progDesc "Vote related commands."
+    , fmap GovernanceActionCmd $ subParser "action"
+        $ Opt.info (pActionCommmands envCli)
+        $ Opt.progDesc "Governance action related commands."
+    ]
+  where
+
+    pUpdateProposal :: Parser GovernanceCmd
+    pUpdateProposal =
+      GovernanceUpdateProposal
+        <$> pOutputFile
+        <*> pEpochNoUpdateProp
+        <*> some pGenesisVerificationKeyFile
+        <*> pProtocolParametersUpdate
+        <*> optional pCostModels
+
+    pGovernanceCreatePoll :: Parser GovernanceCmd
+    pGovernanceCreatePoll =
+      GovernanceCreatePoll
+        <$> pPollQuestion
+        <*> some pPollAnswer
+        <*> optional pPollNonce
+        <*> pOutputFile
+
+    pGovernanceAnswerPoll :: Parser GovernanceCmd
+    pGovernanceAnswerPoll =
+      GovernanceAnswerPoll
+        <$> pPollFile
+        <*> optional pPollAnswerIndex
+        <*> optional pOutputFile
+
+    pGovernanceVerifyPoll :: Parser GovernanceCmd
+    pGovernanceVerifyPoll =
+      GovernanceVerifyPoll
+        <$> pPollFile
+        <*> pPollTxFile
+        <*> optional pOutputFile
+
+pPollQuestion :: Parser Text
+pPollQuestion =
+  Opt.strOption $ mconcat
+    [ Opt.long "question"
+    , Opt.metavar "STRING"
+    , Opt.help "The question for the poll."
+    ]
+
+pPollAnswer :: Parser Text
+pPollAnswer =
+  Opt.strOption $ mconcat
+    [ Opt.long "answer"
+    , Opt.metavar "STRING"
+    , Opt.help "A possible choice for the poll. The option is repeatable."
+    ]
+
+pPollAnswerIndex :: Parser Word
+pPollAnswerIndex =
+  Opt.option auto $ mconcat
+    [ Opt.long "answer"
+    , Opt.metavar "INT"
+    , Opt.help "The index of the chosen answer in the poll. Optional. Asked interactively if omitted."
+    ]
+
+pPollFile :: Parser (File GovernancePoll In)
+pPollFile =
+  Opt.strOption $ mconcat
+    [ Opt.long "poll-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath to the ongoing poll."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pPollTxFile :: Parser (TxFile In)
+pPollTxFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "tx-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath to the JSON TxBody or JSON Tx carrying a valid poll answer."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pPollNonce :: Parser Word
+pPollNonce =
+  Opt.option auto $ mconcat
+    [ Opt.long "nonce"
+    , Opt.metavar "UINT"
+    , Opt.help "An (optional) nonce for non-replayability."
+    ]
