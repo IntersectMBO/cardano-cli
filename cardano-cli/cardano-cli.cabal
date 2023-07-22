@@ -70,7 +70,6 @@ library
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Run
-                        Cardano.CLI.EraBased.Run.Certificate
                         Cardano.CLI.EraBased.Run.Governance
                         Cardano.CLI.Featured
                         Cardano.CLI.Helpers
