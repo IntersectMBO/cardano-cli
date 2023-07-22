@@ -41,10 +41,9 @@ runEraBasedGovernanceCmd = \case
   EraBasedGovernancePostConwayCmd w ->
     runEraBasedGovernancePostConwayCmd w
 
-  EraBasedGovernanceDelegationCertificateCmd w ->
+  EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
     firstExceptT (const ())
-      $ runAnyDelegationTarget w
-        (error "TODO: Propagate output filepath via AnyDelegateTarget")
+      $ runAnyDelegationTarget stakeIdentifier delegationTarget outFp
 
 
 runEraBasedGovernancePreConwayCmd

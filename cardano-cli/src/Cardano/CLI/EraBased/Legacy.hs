@@ -2075,15 +2075,6 @@ pMaybeOutputFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pOutputFile :: Parser (File content Out)
-pOutputFile =
-  fmap File $ Opt.strOption $ mconcat
-    [ Opt.long "out-file"
-    , Opt.metavar "FILE"
-    , Opt.help "The output file."
-    , Opt.completer (Opt.bashCompleter "file")
-    ]
-
 pColdVerificationKeyOrFile :: Parser ColdVerificationKeyOrFile
 pColdVerificationKeyOrFile =
   asum

@@ -1,8 +1,13 @@
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE StandaloneDeriving #-}
+
 module Cardano.CLI.Featured
   ( Featured (..)
   , asFeaturedInEra
   , asFeaturedInShelleyBasedEra
   ) where
+
+import           Cardano.Api
 
 -- | A value only if the feature is supported in this era
 data Featured feature era a where
