@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -12,6 +13,8 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Cardano.CLI.Orphans () where
+
+import           Cardano.Api (CardanoEra (..), FeatureInEra (..), ShelleyBasedEra (..))
 
 import qualified Cardano.Ledger.Crypto as CC (Crypto)
 import qualified Cardano.Protocol.TPraos.API as Ledger
@@ -81,3 +84,13 @@ instance ToJSON (PraosState StandardCrypto) where
     , "labNonce" .= Consensus.praosStateLabNonce s
     , "lastEpochBlockNonce" .= Consensus.praosStateLastEpochBlockNonce s
     ]
+
+instance FeatureInEra ShelleyBasedEra where
+  featureInEra no yes = \case
+    ByronEra    -> no
+    ShelleyEra  -> yes ShelleyBasedEraShelley
+    AllegraEra  -> yes ShelleyBasedEraAllegra
+    MaryEra     -> yes ShelleyBasedEraMary
+    AlonzoEra   -> yes ShelleyBasedEraAlonzo
+    BabbageEra  -> yes ShelleyBasedEraBabbage
+    ConwayEra   -> yes ShelleyBasedEraConway

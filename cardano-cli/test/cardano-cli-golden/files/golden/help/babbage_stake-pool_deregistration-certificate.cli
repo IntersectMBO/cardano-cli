@@ -1,11 +1,4 @@
 Usage: cardano-cli babbage stake-pool deregistration-certificate 
-                                                                   [ --shelley-era
-                                                                   | --allegra-era
-                                                                   | --mary-era
-                                                                   | --alonzo-era
-                                                                   | --babbage-era
-                                                                   | --conway-era
-                                                                   ]
                                                                    ( --stake-pool-verification-key STRING
                                                                    | --cold-verification-key-file FILE
                                                                    )
@@ -15,12 +8,6 @@ Usage: cardano-cli babbage stake-pool deregistration-certificate
   Create a stake pool deregistration certificate
 
 Available options:
-  --shelley-era            Specify the Shelley era
-  --allegra-era            Specify the Allegra era
-  --mary-era               Specify the Mary era
-  --alonzo-era             Specify the Alonzo era
-  --babbage-era            Specify the Babbage era (default)
-  --conway-era             Specify the Conway era
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
   --cold-verification-key-file FILE

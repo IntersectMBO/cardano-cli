@@ -45,10 +45,10 @@ renderPoolCmdError err =
 
 runPoolCmd :: PoolCmd era -> ExceptT PoolCmdError IO ()
 runPoolCmd = \case
-  PoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
-    runStakePoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
-  PoolRetirementCert anyEra sPvkeyFp retireEpoch outfp ->
-    runStakePoolRetirementCert anyEra sPvkeyFp retireEpoch outfp
+  PoolRegistrationCert sbe sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
+    runStakePoolRegistrationCert sbe sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
+  PoolRetirementCert sbe sPvkeyFp retireEpoch outfp ->
+    runStakePoolRetirementCert sbe sPvkeyFp retireEpoch outfp
   PoolGetId sPvkey outputFormat mOutFile ->
     runPoolId sPvkey outputFormat mOutFile
   PoolMetadataHash poolMdFile mOutFile ->
@@ -62,7 +62,7 @@ runPoolCmd = \case
 -- TODO: Metadata and more stake pool relay support to be
 -- added in the future.
 runStakePoolRegistrationCert
-  :: AnyShelleyBasedEra
+  :: ShelleyBasedEra era
   -> VerificationKeyOrFile StakePoolKey
   -- ^ Stake pool verification key.
   -> VerificationKeyOrFile VrfKey
@@ -85,7 +85,7 @@ runStakePoolRegistrationCert
   -> File () Out
   -> ExceptT PoolCmdError IO ()
 runStakePoolRegistrationCert
-  anyEra
+  _sbe
   stakePoolVerKeyOrFile
   vrfVerKeyOrFile
   pldg
@@ -97,8 +97,6 @@ runStakePoolRegistrationCert
   mbMetadata
   network
   outfp = do
-    AnyShelleyBasedEra sbe <- pure anyEra
-
     -- Pool verification key
     stakePoolVerKey <- firstExceptT PoolCmdReadKeyFileError
       . newExceptT
@@ -152,14 +150,12 @@ runStakePoolRegistrationCert
     registrationCertDesc = "Stake Pool Registration Certificate"
 
 runStakePoolRetirementCert
-  :: AnyShelleyBasedEra
+  :: ShelleyBasedEra era
   -> VerificationKeyOrFile StakePoolKey
   -> Shelley.EpochNo
   -> File () Out
   -> ExceptT PoolCmdError IO ()
-runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
-    AnyShelleyBasedEra sbe <- pure anyEra
-
+runStakePoolRetirementCert _sbe stakePoolVerKeyOrFile retireEpoch outfp = do
     -- Pool verification key
     stakePoolVerKey <- firstExceptT PoolCmdReadKeyFileError
       . newExceptT

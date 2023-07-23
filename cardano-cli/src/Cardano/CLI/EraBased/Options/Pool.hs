@@ -15,6 +15,7 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import           Cardano.CLI.Commands.Legacy
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile (..))
 import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.BaseTypes as Shelley
@@ -25,6 +26,7 @@ import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BSC
 import           Data.Foldable
 import qualified Data.IP as IP
+import           Data.Maybe
 import           Data.Text (Text)
 import qualified Data.Text.Encoding as Text
 import           Network.Socket (PortNumber)
@@ -37,7 +39,7 @@ import           Text.Read (readEither, readMaybe)
 
 data PoolCmd era
   = PoolRegistrationCert
-      AnyShelleyBasedEra
+      (ShelleyBasedEra era)
       -- ^ Era in which to register the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
@@ -60,7 +62,7 @@ data PoolCmd era
       NetworkId
       (File () Out)
   | PoolRetirementCert
-      AnyShelleyBasedEra
+      (ShelleyBasedEra era)
       -- ^ Era in which to retire the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
@@ -79,28 +81,17 @@ renderPoolCmd cmd =
     PoolGetId {} -> "stake-pool id"
     PoolMetadataHash {} -> "stake-pool metadata-hash"
 
-pPoolCmd :: EnvCli -> Parser (PoolCmd era)
-pPoolCmd  envCli =
-  asum
-    [ subParser "registration-certificate"
-        $ Opt.info (pStakePoolRegistrationCert envCli)
-        $ Opt.progDesc "Create a stake pool registration certificate"
-    , subParser "deregistration-certificate"
-        $ Opt.info (pStakePoolRetirementCert envCli)
-        $ Opt.progDesc "Create a stake pool deregistration certificate"
-    , subParser "id"
-        $ Opt.info pId
-        $ Opt.progDesc "Build pool id from the offline key"
-    , subParser "metadata-hash"
-        $ Opt.info pPoolMetadataHashSubCmd
-        $ Opt.progDesc "Print the hash of pool metadata."
+pPoolCmd :: ()
+  => EnvCli
+  -> CardanoEra era
+  -> Parser (PoolCmd era)
+pPoolCmd envCli era =
+  asum $ catMaybes
+    [ pStakePoolRegistrationCertCmd envCli era
+    , pStakePoolRetirementCertCmd era
+    , pIdCmd
+    , pPoolMetadataHashSubCmd
     ]
-  where
-    pId :: Parser (PoolCmd era)
-    pId = PoolGetId <$> pStakePoolVerificationKeyOrFile <*> pPoolIdOutputFormat <*> pMaybeOutputFile
-
-    pPoolMetadataHashSubCmd :: Parser (PoolCmd era)
-    pPoolMetadataHashSubCmd = PoolMetadataHash <$> pPoolMetadataFile <*> pMaybeOutputFile
 
 pPoolMetadataFile :: Parser (StakePoolMetadataFile In)
 pPoolMetadataFile =
@@ -339,26 +330,66 @@ pStakePoolMetadataHash =
         . deserialiseFromRawBytesHex (AsHash AsStakePoolMetadata)
         . BSC.pack
 
-pStakePoolRegistrationCert :: EnvCli -> Parser (PoolCmd era)
-pStakePoolRegistrationCert envCli =
-  PoolRegistrationCert
-    <$> pAnyShelleyBasedEra envCli
-    <*> pStakePoolVerificationKeyOrFile
-    <*> pVrfVerificationKeyOrFile
-    <*> pPoolPledge
-    <*> pPoolCost
-    <*> pPoolMargin
-    <*> pRewardAcctVerificationKeyOrFile
-    <*> some pPoolOwnerVerificationKeyOrFile
-    <*> many pPoolRelay
-    <*> pStakePoolMetadataReference
-    <*> pNetworkId envCli
-    <*> pOutputFile
+pStakePoolRegistrationCertCmd :: ()
+  => EnvCli
+  -> CardanoEra era
+  -> Maybe (Parser (PoolCmd era))
+pStakePoolRegistrationCertCmd envCli =
+  featureInEra Nothing $ \w -> Just
+    $ subParser "registration-certificate"
+    $ Opt.info (pCmd w)
+    $ Opt.progDesc "Create a stake pool registration certificate"
+  where
+    pCmd era =
+      PoolRegistrationCert era
+        <$> pStakePoolVerificationKeyOrFile
+        <*> pVrfVerificationKeyOrFile
+        <*> pPoolPledge
+        <*> pPoolCost
+        <*> pPoolMargin
+        <*> pRewardAcctVerificationKeyOrFile
+        <*> some pPoolOwnerVerificationKeyOrFile
+        <*> many pPoolRelay
+        <*> pStakePoolMetadataReference
+        <*> pNetworkId envCli
+        <*> pOutputFile
 
-pStakePoolRetirementCert :: EnvCli -> Parser (PoolCmd era)
-pStakePoolRetirementCert envCli =
-  PoolRetirementCert
-    <$> pAnyShelleyBasedEra envCli
-    <*> pStakePoolVerificationKeyOrFile
-    <*> pEpochNo
-    <*> pOutputFile
+pStakePoolRetirementCertCmd :: ()
+  => CardanoEra era
+  -> Maybe (Parser (PoolCmd era))
+pStakePoolRetirementCertCmd =
+  featureInEra Nothing $ \w -> Just
+    $ subParser "deregistration-certificate"
+    $ Opt.info (pCmd w)
+    $ Opt.progDesc "Create a stake pool deregistration certificate"
+  where
+    pCmd era =
+      PoolRetirementCert era
+        <$> pStakePoolVerificationKeyOrFile
+        <*> pEpochNo
+        <*> pOutputFile
+
+pIdCmd :: Maybe (Parser (PoolCmd era))
+pIdCmd =
+  Just
+    $ subParser "id"
+    $ Opt.info pCmd
+    $ Opt.progDesc "Build pool id from the offline key"
+  where
+    pCmd =
+      PoolGetId
+        <$> pStakePoolVerificationKeyOrFile
+        <*> pPoolIdOutputFormat
+        <*> pMaybeOutputFile
+
+pPoolMetadataHashSubCmd :: Maybe (Parser (PoolCmd era))
+pPoolMetadataHashSubCmd =
+  Just
+    $ subParser "metadata-hash"
+    $ Opt.info pCmd
+    $ Opt.progDesc "Print the hash of pool metadata."
+  where
+    pCmd =
+      PoolMetadataHash
+        <$> pPoolMetadataFile
+        <*> pMaybeOutputFile

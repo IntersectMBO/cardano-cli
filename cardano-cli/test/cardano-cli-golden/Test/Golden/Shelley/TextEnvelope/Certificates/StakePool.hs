@@ -73,8 +73,7 @@ golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tmp" $ \
 
   -- Create stake pool registration certificate
   void $ execCardanoCLI
-    [ "stake-pool","registration-certificate"
-    , "--babbage-era"
+    [ "babbage", "stake-pool", "registration-certificate"
     , "--cold-verification-key-file", coldVerKey
     , "--vrf-verification-key-file", vrfVerKey
     , "--mainnet"

@@ -91,6 +91,6 @@ pEraBasedCommand envCli era =
         $ Opt.info (EraBasedStakeAddressCmd <$> pStakeAddressCmd envCli)
         $ Opt.progDesc "Era-based stake pool commands"
     , subParser "stake-pool"
-        $ Opt.info (EraBasedPoolCmd <$> pPoolCmd envCli)
+        $ Opt.info (EraBasedPoolCmd <$> pPoolCmd envCli era)
         $ Opt.progDesc "Era-based stake pool commands"
     ]

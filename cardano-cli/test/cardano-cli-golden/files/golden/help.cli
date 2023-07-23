@@ -728,13 +728,6 @@ Usage: cardano-cli shelley stake-pool
   Era-based stake pool commands
 
 Usage: cardano-cli shelley stake-pool registration-certificate 
-                                                                 [ --shelley-era
-                                                                 | --allegra-era
-                                                                 | --mary-era
-                                                                 | --alonzo-era
-                                                                 | --babbage-era
-                                                                 | --conway-era
-                                                                 ]
                                                                  ( --stake-pool-verification-key STRING
                                                                  | --cold-verification-key-file FILE
                                                                  )
@@ -767,13 +760,6 @@ Usage: cardano-cli shelley stake-pool registration-certificate
   Create a stake pool registration certificate
 
 Usage: cardano-cli shelley stake-pool deregistration-certificate 
-                                                                   [ --shelley-era
-                                                                   | --allegra-era
-                                                                   | --mary-era
-                                                                   | --alonzo-era
-                                                                   | --babbage-era
-                                                                   | --conway-era
-                                                                   ]
                                                                    ( --stake-pool-verification-key STRING
                                                                    | --cold-verification-key-file FILE
                                                                    )
@@ -1506,13 +1492,6 @@ Usage: cardano-cli allegra stake-pool
   Era-based stake pool commands
 
 Usage: cardano-cli allegra stake-pool registration-certificate 
-                                                                 [ --shelley-era
-                                                                 | --allegra-era
-                                                                 | --mary-era
-                                                                 | --alonzo-era
-                                                                 | --babbage-era
-                                                                 | --conway-era
-                                                                 ]
                                                                  ( --stake-pool-verification-key STRING
                                                                  | --cold-verification-key-file FILE
                                                                  )
@@ -1545,13 +1524,6 @@ Usage: cardano-cli allegra stake-pool registration-certificate
   Create a stake pool registration certificate
 
 Usage: cardano-cli allegra stake-pool deregistration-certificate 
-                                                                   [ --shelley-era
-                                                                   | --allegra-era
-                                                                   | --mary-era
-                                                                   | --alonzo-era
-                                                                   | --babbage-era
-                                                                   | --conway-era
-                                                                   ]
                                                                    ( --stake-pool-verification-key STRING
                                                                    | --cold-verification-key-file FILE
                                                                    )
@@ -2260,13 +2232,6 @@ Usage: cardano-cli mary stake-pool
   Era-based stake pool commands
 
 Usage: cardano-cli mary stake-pool registration-certificate 
-                                                              [ --shelley-era
-                                                              | --allegra-era
-                                                              | --mary-era
-                                                              | --alonzo-era
-                                                              | --babbage-era
-                                                              | --conway-era
-                                                              ]
                                                               ( --stake-pool-verification-key STRING
                                                               | --cold-verification-key-file FILE
                                                               )
@@ -2299,13 +2264,6 @@ Usage: cardano-cli mary stake-pool registration-certificate
   Create a stake pool registration certificate
 
 Usage: cardano-cli mary stake-pool deregistration-certificate 
-                                                                [ --shelley-era
-                                                                | --allegra-era
-                                                                | --mary-era
-                                                                | --alonzo-era
-                                                                | --babbage-era
-                                                                | --conway-era
-                                                                ]
                                                                 ( --stake-pool-verification-key STRING
                                                                 | --cold-verification-key-file FILE
                                                                 )
@@ -3034,13 +2992,6 @@ Usage: cardano-cli alonzo stake-pool
   Era-based stake pool commands
 
 Usage: cardano-cli alonzo stake-pool registration-certificate 
-                                                                [ --shelley-era
-                                                                | --allegra-era
-                                                                | --mary-era
-                                                                | --alonzo-era
-                                                                | --babbage-era
-                                                                | --conway-era
-                                                                ]
                                                                 ( --stake-pool-verification-key STRING
                                                                 | --cold-verification-key-file FILE
                                                                 )
@@ -3073,13 +3024,6 @@ Usage: cardano-cli alonzo stake-pool registration-certificate
   Create a stake pool registration certificate
 
 Usage: cardano-cli alonzo stake-pool deregistration-certificate 
-                                                                  [ --shelley-era
-                                                                  | --allegra-era
-                                                                  | --mary-era
-                                                                  | --alonzo-era
-                                                                  | --babbage-era
-                                                                  | --conway-era
-                                                                  ]
                                                                   ( --stake-pool-verification-key STRING
                                                                   | --cold-verification-key-file FILE
                                                                   )
@@ -3812,13 +3756,6 @@ Usage: cardano-cli babbage stake-pool
   Era-based stake pool commands
 
 Usage: cardano-cli babbage stake-pool registration-certificate 
-                                                                 [ --shelley-era
-                                                                 | --allegra-era
-                                                                 | --mary-era
-                                                                 | --alonzo-era
-                                                                 | --babbage-era
-                                                                 | --conway-era
-                                                                 ]
                                                                  ( --stake-pool-verification-key STRING
                                                                  | --cold-verification-key-file FILE
                                                                  )
@@ -3851,13 +3788,6 @@ Usage: cardano-cli babbage stake-pool registration-certificate
   Create a stake pool registration certificate
 
 Usage: cardano-cli babbage stake-pool deregistration-certificate 
-                                                                   [ --shelley-era
-                                                                   | --allegra-era
-                                                                   | --mary-era
-                                                                   | --alonzo-era
-                                                                   | --babbage-era
-                                                                   | --conway-era
-                                                                   ]
                                                                    ( --stake-pool-verification-key STRING
                                                                    | --cold-verification-key-file FILE
                                                                    )
@@ -4532,13 +4462,6 @@ Usage: cardano-cli conway stake-pool
   Era-based stake pool commands
 
 Usage: cardano-cli conway stake-pool registration-certificate 
-                                                                [ --shelley-era
-                                                                | --allegra-era
-                                                                | --mary-era
-                                                                | --alonzo-era
-                                                                | --babbage-era
-                                                                | --conway-era
-                                                                ]
                                                                 ( --stake-pool-verification-key STRING
                                                                 | --cold-verification-key-file FILE
                                                                 )
@@ -4571,13 +4494,6 @@ Usage: cardano-cli conway stake-pool registration-certificate
   Create a stake pool registration certificate
 
 Usage: cardano-cli conway stake-pool deregistration-certificate 
-                                                                  [ --shelley-era
-                                                                  | --allegra-era
-                                                                  | --mary-era
-                                                                  | --alonzo-era
-                                                                  | --babbage-era
-                                                                  | --conway-era
-                                                                  ]
                                                                   ( --stake-pool-verification-key STRING
                                                                   | --cold-verification-key-file FILE
                                                                   )
@@ -5306,13 +5222,6 @@ Usage: cardano-cli latest stake-pool
   Era-based stake pool commands
 
 Usage: cardano-cli latest stake-pool registration-certificate 
-                                                                [ --shelley-era
-                                                                | --allegra-era
-                                                                | --mary-era
-                                                                | --alonzo-era
-                                                                | --babbage-era
-                                                                | --conway-era
-                                                                ]
                                                                 ( --stake-pool-verification-key STRING
                                                                 | --cold-verification-key-file FILE
                                                                 )
@@ -5345,13 +5254,6 @@ Usage: cardano-cli latest stake-pool registration-certificate
   Create a stake pool registration certificate
 
 Usage: cardano-cli latest stake-pool deregistration-certificate 
-                                                                  [ --shelley-era
-                                                                  | --allegra-era
-                                                                  | --mary-era
-                                                                  | --alonzo-era
-                                                                  | --babbage-era
-                                                                  | --conway-era
-                                                                  ]
                                                                   ( --stake-pool-verification-key STRING
                                                                   | --cold-verification-key-file FILE
                                                                   )
@@ -6032,13 +5934,6 @@ Usage: cardano-cli experimental stake-pool
   Era-based stake pool commands
 
 Usage: cardano-cli experimental stake-pool registration-certificate 
-                                                                      [ --shelley-era
-                                                                      | --allegra-era
-                                                                      | --mary-era
-                                                                      | --alonzo-era
-                                                                      | --babbage-era
-                                                                      | --conway-era
-                                                                      ]
                                                                       ( --stake-pool-verification-key STRING
                                                                       | --cold-verification-key-file FILE
                                                                       )
@@ -6071,13 +5966,6 @@ Usage: cardano-cli experimental stake-pool registration-certificate
   Create a stake pool registration certificate
 
 Usage: cardano-cli experimental stake-pool deregistration-certificate 
-                                                                        [ --shelley-era
-                                                                        | --allegra-era
-                                                                        | --mary-era
-                                                                        | --alonzo-era
-                                                                        | --babbage-era
-                                                                        | --conway-era
-                                                                        ]
                                                                         ( --stake-pool-verification-key STRING
                                                                         | --cold-verification-key-file FILE
                                                                         )
@@ -7346,13 +7234,6 @@ Usage: cardano-cli stake-pool
   Era-based stake pool commands
 
 Usage: cardano-cli stake-pool registration-certificate 
-                                                         [ --shelley-era
-                                                         | --allegra-era
-                                                         | --mary-era
-                                                         | --alonzo-era
-                                                         | --babbage-era
-                                                         | --conway-era
-                                                         ]
                                                          ( --stake-pool-verification-key STRING
                                                          | --cold-verification-key-file FILE
                                                          )
@@ -7385,13 +7266,6 @@ Usage: cardano-cli stake-pool registration-certificate
   Create a stake pool registration certificate
 
 Usage: cardano-cli stake-pool deregistration-certificate 
-                                                           [ --shelley-era
-                                                           | --allegra-era
-                                                           | --mary-era
-                                                           | --alonzo-era
-                                                           | --babbage-era
-                                                           | --conway-era
-                                                           ]
                                                            ( --stake-pool-verification-key STRING
                                                            | --cold-verification-key-file FILE
                                                            )

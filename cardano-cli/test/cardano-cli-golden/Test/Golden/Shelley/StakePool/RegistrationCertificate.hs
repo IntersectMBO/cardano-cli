@@ -22,8 +22,7 @@ golden_shelleyStakePoolRegistrationCertificate = propertyOnce . H.moduleWorkspac
   registrationCertFile <- noteTempFile tempDir "registration.cert"
 
   void $ execCardanoCLI
-    [ "stake-pool","registration-certificate"
-    , "--babbage-era"
+    [ "babbage", "stake-pool", "registration-certificate"
     , "--testnet-magic", "42"
     , "--pool-pledge", "0"
     , "--pool-cost", "0"
