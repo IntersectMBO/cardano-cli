@@ -70,10 +70,12 @@ library
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Options.Pool
+                        Cardano.CLI.EraBased.Options.StakeAddress
                         Cardano.CLI.EraBased.Options.Transaction
                         Cardano.CLI.EraBased.Run
                         Cardano.CLI.EraBased.Run.Governance
                         Cardano.CLI.EraBased.Run.Pool
+                        Cardano.CLI.EraBased.Run.StakeAddress
                         Cardano.CLI.EraBased.Run.Transaction
                         Cardano.CLI.Featured
                         Cardano.CLI.Helpers
@@ -93,7 +95,6 @@ library
                         Cardano.CLI.Run.Legacy.Node
                         Cardano.CLI.Run.Legacy.Query
                         Cardano.CLI.Run.Legacy.Read
-                        Cardano.CLI.Run.Legacy.StakeAddress
                         Cardano.CLI.Run.Legacy.TextView
                         Cardano.CLI.Run.Legacy.Validate
                         Cardano.CLI.Run.Ping

@@ -53,8 +53,8 @@ import           Cardano.CLI.Run.Legacy.Address
 import           Cardano.CLI.Run.Legacy.Node (ShelleyNodeCmdError (..), renderShelleyNodeCmdError,
                    runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
 import           Cardano.CLI.EraBased.Run.Pool (PoolCmdError (..), renderPoolCmdError)
-import           Cardano.CLI.Run.Legacy.StakeAddress (ShelleyStakeAddressCmdError (..),
-                   renderShelleyStakeAddressCmdError, runStakeAddressKeyGenToFile)
+import           Cardano.CLI.EraBased.Run.StakeAddress (StakeAddressCmdError (..),
+                   renderStakeAddressCmdError, runStakeAddressKeyGenToFile)
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Crypto as CC
@@ -147,7 +147,7 @@ data ShelleyGenesisCmdError
   | ShelleyGenesisCmdAddressCmdError !ShelleyAddressCmdError
   | ShelleyGenesisCmdNodeCmdError !ShelleyNodeCmdError
   | ShelleyGenesisCmdPoolCmdError !PoolCmdError
-  | ShelleyGenesisCmdStakeAddressCmdError !ShelleyStakeAddressCmdError
+  | ShelleyGenesisCmdStakeAddressCmdError !StakeAddressCmdError
   | ShelleyGenesisCmdCostModelsError !FilePath
   | ShelleyGenesisCmdByronError !ByronGenesisError
   | ShelleyGenesisStakePoolRelayFileError !FilePath !IOException
@@ -185,7 +185,7 @@ instance Error ShelleyGenesisCmdError where
       ShelleyGenesisCmdAddressCmdError e -> Text.unpack $ renderShelleyAddressCmdError e
       ShelleyGenesisCmdNodeCmdError e -> Text.unpack $ renderShelleyNodeCmdError e
       ShelleyGenesisCmdPoolCmdError e -> Text.unpack $ renderPoolCmdError e
-      ShelleyGenesisCmdStakeAddressCmdError e -> Text.unpack $ renderShelleyStakeAddressCmdError e
+      ShelleyGenesisCmdStakeAddressCmdError e -> Text.unpack $ renderStakeAddressCmdError e
       ShelleyGenesisCmdCostModelsError fp -> "Cost model is invalid: " <> fp
       ShelleyGenesisCmdGenesisFileDecodeError fp e ->
        "Error while decoding Shelley genesis at: " <> fp <>

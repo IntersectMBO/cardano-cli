@@ -10,7 +10,6 @@ module Cardano.CLI.Commands.Legacy
   ( -- * CLI command types
     LegacyCommand (..)
   , AddressCmd (..)
-  , StakeAddressCmd (..)
   , KeyCmd (..)
   , NodeCmd (..)
   , QueryCmd (..)
@@ -68,7 +67,6 @@ import           Data.Time.Clock
 --
 data LegacyCommand
   = AddressCmd      AddressCmd
-  | StakeAddressCmd StakeAddressCmd
   | KeyCmd          KeyCmd
   | NodeCmd         NodeCmd
   | QueryCmd        QueryCmd
@@ -79,7 +77,6 @@ renderLegacyCommand :: LegacyCommand -> Text
 renderLegacyCommand sc =
   case sc of
     AddressCmd cmd -> renderAddressCmd cmd
-    StakeAddressCmd cmd -> renderStakeAddressCmd cmd
     KeyCmd cmd -> renderKeyCmd cmd
     NodeCmd cmd -> renderNodeCmd cmd
     QueryCmd cmd -> renderQueryCmd cmd
@@ -97,7 +94,6 @@ data AddressCmd
   | AddressInfo Text (Maybe (File () Out))
   deriving Show
 
-
 renderAddressCmd :: AddressCmd -> Text
 renderAddressCmd cmd =
   case cmd of
@@ -105,37 +101,6 @@ renderAddressCmd cmd =
     AddressKeyHash {} -> "address key-hash"
     AddressBuild {} -> "address build"
     AddressInfo {} -> "address info"
-
-data StakeAddressCmd
-  = StakeAddressKeyGen KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
-  | StakeAddressKeyHash (VerificationKeyOrFile StakeKey) (Maybe (File () Out))
-  | StakeAddressBuild StakeVerifier NetworkId (Maybe (File () Out))
-  | StakeRegistrationCert
-      AnyShelleyBasedEra
-      StakeIdentifier
-      (Maybe Lovelace)
-      (File () Out)
-  | StakeCredentialDelegationCert
-      AnyShelleyBasedEra
-      StakeIdentifier
-      DelegationTarget
-      (File () Out)
-  | StakeCredentialDeRegistrationCert
-      AnyShelleyBasedEra
-      StakeIdentifier
-      (Maybe Lovelace)
-      (File () Out)
-  deriving Show
-
-renderStakeAddressCmd :: StakeAddressCmd -> Text
-renderStakeAddressCmd cmd =
-  case cmd of
-    StakeAddressKeyGen {} -> "stake-address key-gen"
-    StakeAddressKeyHash {} -> "stake-address key-hash"
-    StakeAddressBuild {} -> "stake-address build"
-    StakeRegistrationCert {} -> "stake-address registration-certificate"
-    StakeCredentialDelegationCert {} -> "stake-address delegation-certificate"
-    StakeCredentialDeRegistrationCert {} -> "stake-address deregistration-certificate"
 
 data KeyCmd
   = KeyGetVerificationKey (SigningKeyFile In) (VerificationKeyFile Out)

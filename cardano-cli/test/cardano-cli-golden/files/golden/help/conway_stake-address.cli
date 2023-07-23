@@ -1,11 +1,11 @@
-Usage: cardano-cli stake-address 
-                                   ( key-gen
-                                   | build
-                                   | key-hash
-                                   | registration-certificate
-                                   | deregistration-certificate
-                                   | delegation-certificate
-                                   )
+Usage: cardano-cli conway stake-address 
+                                          ( key-gen
+                                          | build
+                                          | key-hash
+                                          | registration-certificate
+                                          | deregistration-certificate
+                                          | delegation-certificate
+                                          )
 
   Era-based stake pool commands
 

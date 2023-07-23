@@ -1,6 +1,6 @@
-Usage: cardano-cli legacy stake-address key-gen [--key-output-format STRING]
-                                                  --verification-key-file FILE
-                                                  --signing-key-file FILE
+Usage: cardano-cli babbage stake-address key-gen [--key-output-format STRING]
+                                                   --verification-key-file FILE
+                                                   --signing-key-file FILE
 
   Create a stake address key pair
 

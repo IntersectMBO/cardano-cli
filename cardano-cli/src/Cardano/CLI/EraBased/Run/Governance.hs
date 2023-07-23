@@ -22,8 +22,8 @@ import qualified Cardano.Api.Shelley as Api
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.EraBased.Constraints
 import           Cardano.CLI.EraBased.Options.Governance
+import           Cardano.CLI.EraBased.Run.StakeAddress
 import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
-import           Cardano.CLI.Run.Legacy.StakeAddress
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import qualified Cardano.CLI.Types.Governance as Cli
@@ -55,7 +55,7 @@ import           System.IO (stderr, stdin, stdout)
 
 data GovernanceCmdError
   = -- Voting related
-    GovernanceCmdStakeCredError ShelleyStakeAddressCmdError
+    GovernanceCmdStakeCredError StakeAddressCmdError
   | GovernanceCmdVotingCredentialDecodeError DecoderError
   | GovernanceCmdReadFileError (FileError InputDecodeError)
     -- Governance action related
@@ -87,7 +87,7 @@ data GovernanceCmdError
   | GovernanceCmdVerifyPollError !GovernancePollError
   | GovernanceCmdWriteFileError !(FileError ())
   | GovernanceCmdDelegReadError !(FileError InputDecodeError)
-  | GovernanceCmdCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
+  | GovernanceCmdCredentialError !StakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
   | GovernanceCmdCertificateWriteFileError !(FileError ())
   | GovernanceCmdDelegationGenericError -- TODO Delete and replace with more specific errors
   deriving Show

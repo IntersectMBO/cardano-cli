@@ -507,16 +507,6 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
             Left err -> fail (displayError err)
             Right sd -> return sd
 
-
---
--- Shelley CLI flag parsers
---
-
-data ParserFileDirection
-  = Input
-  | Output
-  deriving (Eq, Show)
-
 pDeprecatedProtocolParamsFile :: Parser (Deprecated ProtocolParamsFile)
 pDeprecatedProtocolParamsFile =
   fmap (Deprecated . ProtocolParamsFile) $ Opt.strOption $ mconcat

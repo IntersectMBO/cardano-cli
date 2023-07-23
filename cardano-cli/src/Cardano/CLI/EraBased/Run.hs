@@ -15,6 +15,7 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Commands.EraBased
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Pool
+import           Cardano.CLI.EraBased.Run.StakeAddress
 import           Cardano.CLI.EraBased.Run.Transaction
 
 import           Control.Monad.Trans.Except
@@ -44,5 +45,7 @@ runEraBasedCommand = \case
     firstExceptT (const ()) $ runGovernanceCmd cmd
   EraBasedPoolCmd cmd ->
     firstExceptT (const ()) $ runPoolCmd cmd
+  EraBasedStakeAddressCmd cmd ->
+    firstExceptT (const ()) $ runStakeAddressCmd cmd
   EraBasedTransactionCmd cmd ->
     firstExceptT (const ()) $ runTransactionCmd cmd

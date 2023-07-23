@@ -1,4 +1,9 @@
-Usage: cardano-cli conway (governance | transaction | stake-pool)
+Usage: cardano-cli conway 
+                            ( governance
+                            | transaction
+                            | stake-address
+                            | stake-pool
+                            )
 
   Conway era commands
 
@@ -8,4 +13,5 @@ Available options:
 Available commands:
   governance               Era-based governance commands
   transaction              Era-based transaction commands
+  stake-address            Era-based stake pool commands
   stake-pool               Era-based stake pool commands

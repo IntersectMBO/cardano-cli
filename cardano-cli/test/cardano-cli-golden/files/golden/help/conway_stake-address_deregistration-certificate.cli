@@ -1,4 +1,4 @@
-Usage: cardano-cli legacy stake-address deregistration-certificate 
+Usage: cardano-cli conway stake-address deregistration-certificate 
                                                                      [ --shelley-era
                                                                      | --allegra-era
                                                                      | --mary-era

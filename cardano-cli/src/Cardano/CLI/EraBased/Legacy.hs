@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Legacy
   ( -- * CLI command parser
@@ -25,8 +24,8 @@ import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Commands.Legacy
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Types.Key (DelegationTarget (..), PaymentVerifier (..),
-                   VerificationKeyOrFile (..), VerificationKeyTextOrFile (..))
+import           Cardano.CLI.Types.Key (PaymentVerifier (..), VerificationKeyOrFile (..),
+                   VerificationKeyTextOrFile (..))
 import           Cardano.CLI.Types.Legacy
 
 import           Data.Bifunctor
@@ -57,9 +56,6 @@ parseLegacyCommands envCli =
     , Opt.command "address"
         $ Opt.info (AddressCmd <$> pAddressCmd envCli)
         $ Opt.progDesc "Payment address commands"
-    , Opt.command "stake-address"
-        $ Opt.info (StakeAddressCmd <$> pStakeAddressCmd envCli)
-        $ Opt.progDesc "Stake address commands"
     , Opt.command "key"
         $ Opt.info (KeyCmd <$> pKeyCmd)
         $ Opt.progDesc "Key utility commands"
@@ -182,70 +178,6 @@ pPaymentVerificationKeyFile =
       , Opt.internal
       ]
     ]
-
-pStakeAddressCmd :: EnvCli -> Parser StakeAddressCmd
-pStakeAddressCmd envCli =
-    asum
-      [ subParser "key-gen"
-          $ Opt.info pStakeAddressKeyGen
-          $ Opt.progDesc "Create a stake address key pair"
-      , subParser "build"
-          $ Opt.info pStakeAddressBuild
-          $ Opt.progDesc "Build a stake address"
-      , subParser "key-hash"
-          $ Opt.info pStakeAddressKeyHash
-          $ Opt.progDesc "Print the hash of a stake address key."
-      , subParser "registration-certificate"
-          $ Opt.info pStakeAddressRegistrationCert
-          $ Opt.progDesc "Create a stake address registration certificate"
-      , subParser "deregistration-certificate"
-          $ Opt.info pStakeAddressDeregistrationCert
-          $ Opt.progDesc "Create a stake address deregistration certificate"
-      , subParser "delegation-certificate"
-          $ Opt.info pStakeAddressPoolDelegationCert
-          $ Opt.progDesc "Create a stake address pool delegation certificate"
-      ]
-  where
-    pStakeAddressKeyGen :: Parser StakeAddressCmd
-    pStakeAddressKeyGen =
-      StakeAddressKeyGen
-        <$> pKeyOutputFormat
-        <*> pVerificationKeyFileOut
-        <*> pSigningKeyFileOut
-
-    pStakeAddressKeyHash :: Parser StakeAddressCmd
-    pStakeAddressKeyHash = StakeAddressKeyHash <$> pStakeVerificationKeyOrFile <*> pMaybeOutputFile
-
-    pStakeAddressBuild :: Parser StakeAddressCmd
-    pStakeAddressBuild =
-      StakeAddressBuild
-        <$> pStakeVerifier
-        <*> pNetworkId envCli
-        <*> pMaybeOutputFile
-
-    pStakeAddressRegistrationCert :: Parser StakeAddressCmd
-    pStakeAddressRegistrationCert =
-      StakeRegistrationCert
-        <$> pAnyShelleyBasedEra envCli
-        <*> pStakeIdentifier
-        <*> optional pKeyRegistDeposit
-        <*> pOutputFile
-
-    pStakeAddressDeregistrationCert :: Parser StakeAddressCmd
-    pStakeAddressDeregistrationCert =
-      StakeCredentialDeRegistrationCert
-        <$> pAnyShelleyBasedEra envCli
-        <*> pStakeIdentifier
-        <*> optional pKeyRegistDeposit
-        <*> pOutputFile
-
-    pStakeAddressPoolDelegationCert :: Parser StakeAddressCmd
-    pStakeAddressPoolDelegationCert =
-      StakeCredentialDelegationCert
-        <$> pAnyShelleyBasedEra envCli
-        <*> pStakeIdentifier
-        <*> pDelegationTarget
-        <*> pOutputFile
 
 pKeyCmd :: Parser KeyCmd
 pKeyCmd =
@@ -1070,16 +1002,6 @@ pGenesisCmd envCli =
         , Opt.value 0
         ]
 
-
---
--- Shelley CLI flag parsers
---
-
-data ParserFileDirection
-  = Input
-  | Output
-  deriving (Eq, Show)
-
 pAddressKeyType :: Parser AddressKeyType
 pAddressKeyType =
   asum
@@ -1395,10 +1317,6 @@ pAddress =
     , Opt.metavar "ADDRESS"
     , Opt.help "A Cardano address"
     ]
-
-pDelegationTarget
-  :: Parser DelegationTarget
-pDelegationTarget = StakePoolDelegationTarget <$> pStakePoolVerificationKeyOrHashOrFile
 
 --------------------------------------------------------------------------------
 -- Helpers

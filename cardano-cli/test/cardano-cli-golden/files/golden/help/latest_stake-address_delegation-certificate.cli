@@ -1,4 +1,4 @@
-Usage: cardano-cli legacy stake-address delegation-certificate 
+Usage: cardano-cli latest stake-address delegation-certificate 
                                                                  [ --shelley-era
                                                                  | --allegra-era
                                                                  | --mary-era

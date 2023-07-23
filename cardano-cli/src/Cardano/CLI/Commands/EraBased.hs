@@ -15,6 +15,7 @@ import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.EraBased.Options.Pool
+import           Cardano.CLI.EraBased.Options.StakeAddress
 import           Cardano.CLI.EraBased.Options.Transaction
 
 import           Data.Foldable
@@ -30,14 +31,17 @@ data EraBasedCommand era
       (GovernanceCmd era)
   | EraBasedPoolCmd
       (PoolCmd era)
+  | EraBasedStakeAddressCmd
+      (StakeAddressCmd era)
   | EraBasedTransactionCmd
       (TransactionCmd era)
 
 renderEraBasedCommand :: EraBasedCommand era -> Text
 renderEraBasedCommand = \case
-  EraBasedGovernanceCmd cmd   -> renderGovernanceCmd cmd
-  EraBasedPoolCmd cmd         -> renderPoolCmd cmd
-  EraBasedTransactionCmd cmd  -> renderTransactionCmd cmd
+  EraBasedGovernanceCmd cmd     -> renderGovernanceCmd cmd
+  EraBasedPoolCmd cmd           -> renderPoolCmd cmd
+  EraBasedStakeAddressCmd cmd   -> renderStakeAddressCmd cmd
+  EraBasedTransactionCmd cmd    -> renderTransactionCmd cmd
 
 pAnyEraCommand :: EnvCli -> Parser AnyEraCommand
 pAnyEraCommand envCli =
@@ -83,6 +87,9 @@ pEraBasedCommand envCli era =
     , subParser "transaction"
         $ Opt.info (EraBasedTransactionCmd <$> pTransactionCmd envCli)
         $ Opt.progDesc "Era-based transaction commands"
+    , subParser "stake-address"
+        $ Opt.info (EraBasedStakeAddressCmd <$> pStakeAddressCmd envCli)
+        $ Opt.progDesc "Era-based stake pool commands"
     , subParser "stake-pool"
         $ Opt.info (EraBasedPoolCmd <$> pPoolCmd envCli)
         $ Opt.progDesc "Era-based stake pool commands"

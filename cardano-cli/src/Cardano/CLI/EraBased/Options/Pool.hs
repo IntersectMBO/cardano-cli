@@ -102,15 +102,6 @@ pPoolCmd  envCli =
     pPoolMetadataHashSubCmd :: Parser (PoolCmd era)
     pPoolMetadataHashSubCmd = PoolMetadataHash <$> pPoolMetadataFile <*> pMaybeOutputFile
 
---
--- Shelley CLI flag parsers
---
-
-data ParserFileDirection
-  = Input
-  | Output
-  deriving (Eq, Show)
-
 pPoolMetadataFile :: Parser (StakePoolMetadataFile In)
 pPoolMetadataFile =
   fmap File $ Opt.strOption $ mconcat

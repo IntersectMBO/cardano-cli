@@ -11,12 +11,12 @@ import           Cardano.Api
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Pool
+import           Cardano.CLI.EraBased.Run.StakeAddress
 import           Cardano.CLI.Run.Legacy.Address
 import           Cardano.CLI.Run.Legacy.Genesis
 import           Cardano.CLI.Run.Legacy.Key
 import           Cardano.CLI.Run.Legacy.Node
 import           Cardano.CLI.Run.Legacy.Query
-import           Cardano.CLI.Run.Legacy.StakeAddress
 import           Cardano.CLI.Run.Legacy.TextView
 
 import           Control.Monad.Trans.Except (ExceptT)
@@ -30,7 +30,7 @@ data LegacyClientCmdError
   | LegacyCmdGovernanceError !GovernanceCmdError
   | LegacyCmdNodeError !ShelleyNodeCmdError
   | LegacyCmdPoolError !PoolCmdError
-  | LegacyCmdStakeAddressError !ShelleyStakeAddressCmdError
+  | LegacyCmdStakeAddressError !StakeAddressCmdError
   | LegacyCmdTextViewError !ShelleyTextViewFileError
   | LegacyCmdQueryError !ShelleyQueryCmdError
   | LegacyCmdKeyError !ShelleyKeyCmdError
@@ -50,7 +50,7 @@ renderLegacyClientCmdError cmd err =
     LegacyCmdPoolError poolCmdErr ->
        renderError cmd renderPoolCmdError poolCmdErr
     LegacyCmdStakeAddressError stakeAddrCmdErr ->
-       renderError cmd renderShelleyStakeAddressCmdError stakeAddrCmdErr
+       renderError cmd renderStakeAddressCmdError stakeAddrCmdErr
     LegacyCmdTextViewError txtViewErr ->
        renderError cmd renderShelleyTextViewFileError txtViewErr
     LegacyCmdQueryError queryErr ->
@@ -74,10 +74,9 @@ renderLegacyClientCmdError cmd err =
 
 runLegacyClientCommand :: LegacyCommand -> ExceptT LegacyClientCmdError IO ()
 runLegacyClientCommand = \case
-  AddressCmd      cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmd cmd
-  StakeAddressCmd cmd -> firstExceptT LegacyCmdStakeAddressError $ runStakeAddressCmd cmd
-  KeyCmd          cmd -> firstExceptT LegacyCmdKeyError $ runKeyCmd cmd
-  NodeCmd         cmd -> firstExceptT LegacyCmdNodeError $ runNodeCmd cmd
-  QueryCmd        cmd -> firstExceptT LegacyCmdQueryError $ runQueryCmd cmd
-  GenesisCmd      cmd -> firstExceptT LegacyCmdGenesisError $ runGenesisCmd cmd
-  TextViewCmd     cmd -> firstExceptT LegacyCmdTextViewError $ runTextViewCmd cmd
+  AddressCmd  cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmd cmd
+  KeyCmd      cmd -> firstExceptT LegacyCmdKeyError $ runKeyCmd cmd
+  NodeCmd     cmd -> firstExceptT LegacyCmdNodeError $ runNodeCmd cmd
+  QueryCmd    cmd -> firstExceptT LegacyCmdQueryError $ runQueryCmd cmd
+  GenesisCmd  cmd -> firstExceptT LegacyCmdGenesisError $ runGenesisCmd cmd
+  TextViewCmd cmd -> firstExceptT LegacyCmdTextViewError $ runTextViewCmd cmd

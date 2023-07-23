@@ -1,0 +1,35 @@
+Usage: cardano-cli latest stake-address registration-certificate 
+                                                                   [ --shelley-era
+                                                                   | --allegra-era
+                                                                   | --mary-era
+                                                                   | --alonzo-era
+                                                                   | --babbage-era
+                                                                   | --conway-era
+                                                                   ]
+                                                                   ( --stake-verification-key STRING
+                                                                   | --stake-verification-key-file FILE
+                                                                   | --stake-script-file FILE
+                                                                   | --stake-address ADDRESS
+                                                                   )
+                                                                   [--key-reg-deposit-amt NATURAL]
+                                                                   --out-file FILE
+
+  Create a stake address registration certificate
+
+Available options:
+  --shelley-era            Specify the Shelley era
+  --allegra-era            Specify the Allegra era
+  --mary-era               Specify the Mary era
+  --alonzo-era             Specify the Alonzo era
+  --babbage-era            Specify the Babbage era (default)
+  --conway-era             Specify the Conway era
+  --stake-verification-key STRING
+                           Stake verification key (Bech32 or hex-encoded).
+  --stake-verification-key-file FILE
+                           Filepath of the staking verification key.
+  --stake-script-file FILE Filepath of the staking script.
+  --stake-address ADDRESS  Target stake address (bech32 format).
+  --key-reg-deposit-amt NATURAL
+                           Key registration deposit amount.
+  --out-file FILE          The output file.
+  -h,--help                Show this help text
