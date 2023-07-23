@@ -26,6 +26,7 @@ import           Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
 import           Data.Maybe (maybeToList)
 import           Data.Ratio ((%))
+import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Word (Word64)
 import           GHC.Natural (Natural)
@@ -979,3 +980,69 @@ readFractionAsRational :: Opt.ReadM Rational
 readFractionAsRational = readerFromAttoParser fractionalAsRational
   where fractionalAsRational :: Atto.Parser Rational
         fractionalAsRational = (%) <$> (Atto.decimal @Integer <* Atto.char '/') <*> Atto.decimal @Integer
+
+pByronAddress :: Parser (Address ByronAddr)
+pByronAddress =
+  Opt.option (Opt.eitherReader deserialise) $ mconcat
+    [ Opt.long "address"
+    , Opt.metavar "STRING"
+    , Opt.help "Byron address (Base58-encoded)."
+    ]
+  where
+    deserialise :: String -> Either String (Address ByronAddr)
+    deserialise =
+      maybe (Left "Invalid Byron address.") Right
+        . deserialiseAddress AsByronAddress
+        . Text.pack
+
+readURIOfMaxLength :: Int -> Opt.ReadM Text
+readURIOfMaxLength maxLen =
+  Text.pack <$> readStringOfMaxLength maxLen
+
+readStringOfMaxLength :: Int -> Opt.ReadM String
+readStringOfMaxLength maxLen = do
+  s <- Opt.str
+  let strLen = length s
+  if strLen <= maxLen
+    then pure s
+    else
+      fail $ mconcat
+        [ "The provided string must have at most 64 characters, but it has "
+        , show strLen
+        , " characters."
+        ]
+
+readPoolIdOutputFormat :: Opt.ReadM PoolIdOutputFormat
+readPoolIdOutputFormat = do
+  s <- Opt.str @String
+  case s of
+    "hex" -> pure PoolIdOutputFormatHex
+    "bech32" -> pure PoolIdOutputFormatBech32
+    _ ->
+      fail $ mconcat
+        [ "Invalid output format: " <> show s
+        , ". Accepted output formats are \"hex\" and \"bech32\"."
+        ]
+
+parseTxOutAnyEra
+  :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)
+parseTxOutAnyEra = do
+  addr <- parseAddressAny
+  Parsec.spaces
+  -- Accept the old style of separating the address and value in a
+  -- transaction output:
+  Parsec.option () (Parsec.char '+' >> Parsec.spaces)
+  val <- parseValue
+  return (TxOutAnyEra addr val)
+
+readKeyOutputFormat :: Opt.ReadM KeyOutputFormat
+readKeyOutputFormat = do
+  s <- Opt.str @String
+  case s of
+    "text-envelope" -> pure KeyOutputFormatTextEnvelope
+    "bech32" -> pure KeyOutputFormatBech32
+    _ ->
+      fail $ mconcat
+        [ "Invalid key output format: " <> show s
+        , ". Accepted output formats are \"text-envelope\" and \"bech32\"."
+        ]

@@ -18,7 +18,6 @@ import           Cardano.CLI.Run.Legacy.Pool
 import           Cardano.CLI.Run.Legacy.Query
 import           Cardano.CLI.Run.Legacy.StakeAddress
 import           Cardano.CLI.Run.Legacy.TextView
-import           Cardano.CLI.Run.Legacy.Transaction
 
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
@@ -33,7 +32,6 @@ data LegacyClientCmdError
   | LegacyCmdPoolError !ShelleyPoolCmdError
   | LegacyCmdStakeAddressError !ShelleyStakeAddressCmdError
   | LegacyCmdTextViewError !ShelleyTextViewFileError
-  | LegacyCmdTransactionError !ShelleyTxCmdError
   | LegacyCmdQueryError !ShelleyQueryCmdError
   | LegacyCmdKeyError !ShelleyKeyCmdError
 
@@ -55,8 +53,6 @@ renderLegacyClientCmdError cmd err =
        renderError cmd renderShelleyStakeAddressCmdError stakeAddrCmdErr
     LegacyCmdTextViewError txtViewErr ->
        renderError cmd renderShelleyTextViewFileError txtViewErr
-    LegacyCmdTransactionError txErr ->
-       renderError cmd renderShelleyTxCmdError txErr
     LegacyCmdQueryError queryErr ->
        renderError cmd renderShelleyQueryCmdError queryErr
     LegacyCmdKeyError keyErr ->
@@ -81,7 +77,6 @@ runLegacyClientCommand = \case
   AddressCmd      cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmd cmd
   StakeAddressCmd cmd -> firstExceptT LegacyCmdStakeAddressError $ runStakeAddressCmd cmd
   KeyCmd          cmd -> firstExceptT LegacyCmdKeyError $ runKeyCmd cmd
-  TransactionCmd  cmd -> firstExceptT LegacyCmdTransactionError $ runTransactionCmd  cmd
   NodeCmd         cmd -> firstExceptT LegacyCmdNodeError $ runNodeCmd cmd
   PoolCmd         cmd -> firstExceptT LegacyCmdPoolError $ runPoolCmd cmd
   QueryCmd        cmd -> firstExceptT LegacyCmdQueryError $ runQueryCmd cmd
