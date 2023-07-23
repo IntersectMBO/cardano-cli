@@ -1,9 +1,9 @@
-Usage: cardano-cli stake-pool 
-                                ( registration-certificate
-                                | deregistration-certificate
-                                | id
-                                | metadata-hash
-                                )
+Usage: cardano-cli allegra stake-pool 
+                                        ( registration-certificate
+                                        | deregistration-certificate
+                                        | id
+                                        | metadata-hash
+                                        )
 
   Era-based stake pool commands
 

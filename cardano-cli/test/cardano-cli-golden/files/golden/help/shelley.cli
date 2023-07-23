@@ -1,4 +1,4 @@
-Usage: cardano-cli shelley (governance | transaction)
+Usage: cardano-cli shelley (governance | transaction | stake-pool)
 
   Shelley era commands
 
@@ -8,3 +8,4 @@ Available options:
 Available commands:
   governance               Era-based governance commands
   transaction              Era-based transaction commands
+  stake-pool               Era-based stake pool commands

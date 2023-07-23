@@ -1,4 +1,4 @@
-Usage: cardano-cli babbage (governance | transaction)
+Usage: cardano-cli babbage (governance | transaction | stake-pool)
 
   Babbage era commands
 
@@ -8,3 +8,4 @@ Available options:
 Available commands:
   governance               Era-based governance commands
   transaction              Era-based transaction commands
+  stake-pool               Era-based stake pool commands

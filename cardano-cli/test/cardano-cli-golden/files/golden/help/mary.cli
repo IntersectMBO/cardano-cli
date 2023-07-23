@@ -1,4 +1,4 @@
-Usage: cardano-cli mary (governance | transaction)
+Usage: cardano-cli mary (governance | transaction | stake-pool)
 
   Mary era commands
 
@@ -8,3 +8,4 @@ Available options:
 Available commands:
   governance               Era-based governance commands
   transaction              Era-based transaction commands
+  stake-pool               Era-based stake pool commands

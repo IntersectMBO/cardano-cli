@@ -10,11 +10,11 @@ import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Run.Governance
+import           Cardano.CLI.EraBased.Run.Pool
 import           Cardano.CLI.Run.Legacy.Address
 import           Cardano.CLI.Run.Legacy.Genesis
 import           Cardano.CLI.Run.Legacy.Key
 import           Cardano.CLI.Run.Legacy.Node
-import           Cardano.CLI.Run.Legacy.Pool
 import           Cardano.CLI.Run.Legacy.Query
 import           Cardano.CLI.Run.Legacy.StakeAddress
 import           Cardano.CLI.Run.Legacy.TextView
@@ -29,7 +29,7 @@ data LegacyClientCmdError
   | LegacyCmdGenesisError !ShelleyGenesisCmdError
   | LegacyCmdGovernanceError !GovernanceCmdError
   | LegacyCmdNodeError !ShelleyNodeCmdError
-  | LegacyCmdPoolError !ShelleyPoolCmdError
+  | LegacyCmdPoolError !PoolCmdError
   | LegacyCmdStakeAddressError !ShelleyStakeAddressCmdError
   | LegacyCmdTextViewError !ShelleyTextViewFileError
   | LegacyCmdQueryError !ShelleyQueryCmdError
@@ -48,7 +48,7 @@ renderLegacyClientCmdError cmd err =
     LegacyCmdNodeError nodeCmdErr ->
        renderError cmd renderShelleyNodeCmdError nodeCmdErr
     LegacyCmdPoolError poolCmdErr ->
-       renderError cmd renderShelleyPoolCmdError poolCmdErr
+       renderError cmd renderPoolCmdError poolCmdErr
     LegacyCmdStakeAddressError stakeAddrCmdErr ->
        renderError cmd renderShelleyStakeAddressCmdError stakeAddrCmdErr
     LegacyCmdTextViewError txtViewErr ->
@@ -78,7 +78,6 @@ runLegacyClientCommand = \case
   StakeAddressCmd cmd -> firstExceptT LegacyCmdStakeAddressError $ runStakeAddressCmd cmd
   KeyCmd          cmd -> firstExceptT LegacyCmdKeyError $ runKeyCmd cmd
   NodeCmd         cmd -> firstExceptT LegacyCmdNodeError $ runNodeCmd cmd
-  PoolCmd         cmd -> firstExceptT LegacyCmdPoolError $ runPoolCmd cmd
   QueryCmd        cmd -> firstExceptT LegacyCmdQueryError $ runQueryCmd cmd
   GenesisCmd      cmd -> firstExceptT LegacyCmdGenesisError $ runGenesisCmd cmd
   TextViewCmd     cmd -> firstExceptT LegacyCmdTextViewError $ runTextViewCmd cmd

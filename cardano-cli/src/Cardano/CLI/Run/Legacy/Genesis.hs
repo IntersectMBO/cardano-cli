@@ -52,7 +52,7 @@ import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Run.Legacy.Address
 import           Cardano.CLI.Run.Legacy.Node (ShelleyNodeCmdError (..), renderShelleyNodeCmdError,
                    runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
-import           Cardano.CLI.Run.Legacy.Pool (ShelleyPoolCmdError (..), renderShelleyPoolCmdError)
+import           Cardano.CLI.EraBased.Run.Pool (PoolCmdError (..), renderPoolCmdError)
 import           Cardano.CLI.Run.Legacy.StakeAddress (ShelleyStakeAddressCmdError (..),
                    renderShelleyStakeAddressCmdError, runStakeAddressKeyGenToFile)
 import           Cardano.CLI.Types.Key
@@ -146,7 +146,7 @@ data ShelleyGenesisCmdError
   | ShelleyGenesisCmdTooFewPoolsForBulkCreds !Word !Word !Word
   | ShelleyGenesisCmdAddressCmdError !ShelleyAddressCmdError
   | ShelleyGenesisCmdNodeCmdError !ShelleyNodeCmdError
-  | ShelleyGenesisCmdPoolCmdError !ShelleyPoolCmdError
+  | ShelleyGenesisCmdPoolCmdError !PoolCmdError
   | ShelleyGenesisCmdStakeAddressCmdError !ShelleyStakeAddressCmdError
   | ShelleyGenesisCmdCostModelsError !FilePath
   | ShelleyGenesisCmdByronError !ByronGenesisError
@@ -184,7 +184,7 @@ instance Error ShelleyGenesisCmdError where
         ]
       ShelleyGenesisCmdAddressCmdError e -> Text.unpack $ renderShelleyAddressCmdError e
       ShelleyGenesisCmdNodeCmdError e -> Text.unpack $ renderShelleyNodeCmdError e
-      ShelleyGenesisCmdPoolCmdError e -> Text.unpack $ renderShelleyPoolCmdError e
+      ShelleyGenesisCmdPoolCmdError e -> Text.unpack $ renderPoolCmdError e
       ShelleyGenesisCmdStakeAddressCmdError e -> Text.unpack $ renderShelleyStakeAddressCmdError e
       ShelleyGenesisCmdCostModelsError fp -> "Cost model is invalid: " <> fp
       ShelleyGenesisCmdGenesisFileDecodeError fp e ->
@@ -930,7 +930,7 @@ buildPoolParams
   -> ExceptT ShelleyGenesisCmdError IO (Ledger.PoolParams StandardCrypto)
 buildPoolParams nw dir index specifiedRelays = do
     StakePoolVerificationKey poolColdVK
-      <- firstExceptT (ShelleyGenesisCmdPoolCmdError . ShelleyPoolCmdReadFileError)
+      <- firstExceptT (ShelleyGenesisCmdPoolCmdError . PoolCmdReadFileError)
            . newExceptT $ readFileTextEnvelope (AsVerificationKey AsStakePoolKey) poolColdVKF
 
     VrfVerificationKey poolVrfVK

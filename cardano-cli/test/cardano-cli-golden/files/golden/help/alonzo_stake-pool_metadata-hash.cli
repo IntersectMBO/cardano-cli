@@ -1,4 +1,4 @@
-Usage: cardano-cli legacy stake-pool metadata-hash --pool-metadata-file FILE
+Usage: cardano-cli alonzo stake-pool metadata-hash --pool-metadata-file FILE
                                                      [--out-file FILE]
 
   Print the hash of pool metadata.

@@ -1,4 +1,4 @@
-Usage: cardano-cli experimental (governance | transaction)
+Usage: cardano-cli experimental (governance | transaction | stake-pool)
 
   Experimental era commands (Conway)
 
@@ -8,3 +8,4 @@ Available options:
 Available commands:
   governance               Era-based governance commands
   transaction              Era-based transaction commands
+  stake-pool               Era-based stake pool commands

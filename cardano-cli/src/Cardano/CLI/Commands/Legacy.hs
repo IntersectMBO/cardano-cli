@@ -13,7 +13,6 @@ module Cardano.CLI.Commands.Legacy
   , StakeAddressCmd (..)
   , KeyCmd (..)
   , NodeCmd (..)
-  , PoolCmd (..)
   , QueryCmd (..)
   , GovernanceCmd (..)
   , GenesisCmd (..)
@@ -72,7 +71,6 @@ data LegacyCommand
   | StakeAddressCmd StakeAddressCmd
   | KeyCmd          KeyCmd
   | NodeCmd         NodeCmd
-  | PoolCmd         PoolCmd
   | QueryCmd        QueryCmd
   | GenesisCmd      GenesisCmd
   | TextViewCmd     TextViewCmd
@@ -84,7 +82,6 @@ renderLegacyCommand sc =
     StakeAddressCmd cmd -> renderStakeAddressCmd cmd
     KeyCmd cmd -> renderKeyCmd cmd
     NodeCmd cmd -> renderNodeCmd cmd
-    PoolCmd cmd -> renderPoolCmd cmd
     QueryCmd cmd -> renderQueryCmd cmd
     GenesisCmd cmd -> renderGenesisCmd cmd
     TextViewCmd cmd -> renderTextViewCmd cmd
@@ -185,50 +182,6 @@ renderNodeCmd cmd = do
     NodeKeyHashVRF {} -> "node key-hash-VRF"
     NodeNewCounter {} -> "node new-counter"
     NodeIssueOpCert{} -> "node issue-op-cert"
-
-data PoolCmd
-  = PoolRegistrationCert
-      AnyShelleyBasedEra
-      -- ^ Era in which to register the stake pool.
-      (VerificationKeyOrFile StakePoolKey)
-      -- ^ Stake pool verification key.
-      (VerificationKeyOrFile VrfKey)
-      -- ^ VRF Verification key.
-      Lovelace
-      -- ^ Pool pledge.
-      Lovelace
-      -- ^ Pool cost.
-      Rational
-      -- ^ Pool margin.
-      (VerificationKeyOrFile StakeKey)
-      -- ^ Reward account verification staking key.
-      [VerificationKeyOrFile StakeKey]
-      -- ^ Pool owner verification staking key(s).
-      [StakePoolRelay]
-      -- ^ Stake pool relays.
-      (Maybe StakePoolMetadataReference)
-      -- ^ Stake pool metadata.
-      NetworkId
-      (File () Out)
-  | PoolRetirementCert
-      AnyShelleyBasedEra
-      -- ^ Era in which to retire the stake pool.
-      (VerificationKeyOrFile StakePoolKey)
-      -- ^ Stake pool verification key.
-      EpochNo
-      -- ^ Epoch in which to retire the stake pool.
-      (File () Out)
-  | PoolGetId (VerificationKeyOrFile StakePoolKey) PoolIdOutputFormat (Maybe (File () Out))
-  | PoolMetadataHash (StakePoolMetadataFile In) (Maybe (File () Out))
-  deriving Show
-
-renderPoolCmd :: PoolCmd -> Text
-renderPoolCmd cmd =
-  case cmd of
-    PoolRegistrationCert {} -> "stake-pool registration-certificate"
-    PoolRetirementCert {} -> "stake-pool deregistration-certificate"
-    PoolGetId {} -> "stake-pool id"
-    PoolMetadataHash {} -> "stake-pool metadata-hash"
 
 data QueryCmd =
     QueryLeadershipSchedule

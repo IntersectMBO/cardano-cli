@@ -1,11 +1,11 @@
-Usage: cardano-cli legacy stake-pool 
+Usage: cardano-cli conway stake-pool 
                                        ( registration-certificate
                                        | deregistration-certificate
                                        | id
                                        | metadata-hash
                                        )
 
-  Stake pool commands
+  Era-based stake pool commands
 
 Available options:
   -h,--help                Show this help text
