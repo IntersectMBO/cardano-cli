@@ -23,6 +23,12 @@ Usage: cardano-cli shelley governance
                                         ( delegation-certificate
                                         | create-mir-certificate
                                         | create-genesis-key-delegation-certificate
+                                        | create-update-proposal
+                                        | create-poll
+                                        | answer-poll
+                                        | verify-poll
+                                        | vote
+                                        | action
                                         )
 
   Era-based governance commands
@@ -94,6 +100,104 @@ Usage: cardano-cli shelley governance create-genesis-key-delegation-certificate
 
   Create a genesis key delegation certificate
 
+Usage: cardano-cli shelley governance create-update-proposal --out-file FILE
+                                                               --epoch EPOCH
+                                                               (--genesis-verification-key-file FILE)
+                                                               [--protocol-major-version NATURAL
+                                                                 --protocol-minor-version NATURAL]
+                                                               [--decentralization-parameter RATIONAL]
+                                                               [ --extra-entropy HEX
+                                                               | --reset-extra-entropy
+                                                               ]
+                                                               [--max-block-header-size NATURAL]
+                                                               [--max-block-body-size NATURAL]
+                                                               [--max-tx-size NATURAL]
+                                                               [--min-fee-constant LOVELACE]
+                                                               [--min-fee-linear LOVELACE]
+                                                               [--min-utxo-value NATURAL]
+                                                               [--key-reg-deposit-amt NATURAL]
+                                                               [--pool-reg-deposit NATURAL]
+                                                               [--min-pool-cost NATURAL]
+                                                               [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                               [--number-of-pools NATURAL]
+                                                               [--pool-influence RATIONAL]
+                                                               [--monetary-expansion RATIONAL]
+                                                               [--treasury-expansion RATIONAL]
+                                                               [--utxo-cost-per-word LOVELACE]
+                                                               [--price-execution-steps RATIONAL
+                                                                 --price-execution-memory RATIONAL]
+                                                               [--max-tx-execution-units (INT, INT)]
+                                                               [--max-block-execution-units (INT, INT)]
+                                                               [--max-value-size INT]
+                                                               [--collateral-percent INT]
+                                                               [--max-collateral-inputs INT]
+                                                               [--utxo-cost-per-byte LOVELACE]
+                                                               [--cost-model-file FILE]
+
+  Create an update proposal
+
+Usage: cardano-cli shelley governance create-poll --question STRING
+                                                    (--answer STRING)
+                                                    [--nonce UINT]
+                                                    --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli shelley governance answer-poll --poll-file FILE
+                                                    [--answer INT]
+                                                    [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli shelley governance verify-poll --poll-file FILE
+                                                    --tx-file FILE
+                                                    [--out-file FILE]
+
+  Verify an answer to a given SPO poll
+
+Usage: cardano-cli shelley governance vote create-vote
+
+  Vote related commands.
+
+Usage: cardano-cli shelley governance vote create-vote 
+                                                         ( --yes
+                                                         | --no
+                                                         | --abstain
+                                                         )
+                                                         ( --constitutional-committee-member
+                                                         | --drep
+                                                         | --spo
+                                                         )
+                                                         --tx-in TX-IN
+                                                         ( --stake-pool-verification-key STRING
+                                                         | --cold-verification-key-file FILE
+                                                         )
+                                                         [--conway-era]
+                                                         --out-file FILE
+
+  Create a vote for a proposed governance action.
+
+Usage: cardano-cli shelley governance action create-action
+
+  Governance action related commands.
+
+Usage: cardano-cli shelley governance action create-action create-constitution
+
+  Create a governance action.
+
+Usage: cardano-cli shelley governance action create-action create-constitution 
+                                                                                 [--conway-era]
+                                                                                 --governance-action-deposit NATURAL
+                                                                                 ( --stake-pool-verification-key STRING
+                                                                                 | --cold-verification-key-file FILE
+                                                                                 )
+                                                                                 ( --constitution TEXT
+                                                                                 | --constitution-file FILE
+                                                                                 )
+                                                                                 --out-file FILE
+
+  Create a constitution.
+
 Usage: cardano-cli allegra governance
 
   Allegra era commands
@@ -102,6 +206,12 @@ Usage: cardano-cli allegra governance
                                         ( delegation-certificate
                                         | create-mir-certificate
                                         | create-genesis-key-delegation-certificate
+                                        | create-update-proposal
+                                        | create-poll
+                                        | answer-poll
+                                        | verify-poll
+                                        | vote
+                                        | action
                                         )
 
   Era-based governance commands
@@ -173,6 +283,104 @@ Usage: cardano-cli allegra governance create-genesis-key-delegation-certificate
 
   Create a genesis key delegation certificate
 
+Usage: cardano-cli allegra governance create-update-proposal --out-file FILE
+                                                               --epoch EPOCH
+                                                               (--genesis-verification-key-file FILE)
+                                                               [--protocol-major-version NATURAL
+                                                                 --protocol-minor-version NATURAL]
+                                                               [--decentralization-parameter RATIONAL]
+                                                               [ --extra-entropy HEX
+                                                               | --reset-extra-entropy
+                                                               ]
+                                                               [--max-block-header-size NATURAL]
+                                                               [--max-block-body-size NATURAL]
+                                                               [--max-tx-size NATURAL]
+                                                               [--min-fee-constant LOVELACE]
+                                                               [--min-fee-linear LOVELACE]
+                                                               [--min-utxo-value NATURAL]
+                                                               [--key-reg-deposit-amt NATURAL]
+                                                               [--pool-reg-deposit NATURAL]
+                                                               [--min-pool-cost NATURAL]
+                                                               [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                               [--number-of-pools NATURAL]
+                                                               [--pool-influence RATIONAL]
+                                                               [--monetary-expansion RATIONAL]
+                                                               [--treasury-expansion RATIONAL]
+                                                               [--utxo-cost-per-word LOVELACE]
+                                                               [--price-execution-steps RATIONAL
+                                                                 --price-execution-memory RATIONAL]
+                                                               [--max-tx-execution-units (INT, INT)]
+                                                               [--max-block-execution-units (INT, INT)]
+                                                               [--max-value-size INT]
+                                                               [--collateral-percent INT]
+                                                               [--max-collateral-inputs INT]
+                                                               [--utxo-cost-per-byte LOVELACE]
+                                                               [--cost-model-file FILE]
+
+  Create an update proposal
+
+Usage: cardano-cli allegra governance create-poll --question STRING
+                                                    (--answer STRING)
+                                                    [--nonce UINT]
+                                                    --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli allegra governance answer-poll --poll-file FILE
+                                                    [--answer INT]
+                                                    [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli allegra governance verify-poll --poll-file FILE
+                                                    --tx-file FILE
+                                                    [--out-file FILE]
+
+  Verify an answer to a given SPO poll
+
+Usage: cardano-cli allegra governance vote create-vote
+
+  Vote related commands.
+
+Usage: cardano-cli allegra governance vote create-vote 
+                                                         ( --yes
+                                                         | --no
+                                                         | --abstain
+                                                         )
+                                                         ( --constitutional-committee-member
+                                                         | --drep
+                                                         | --spo
+                                                         )
+                                                         --tx-in TX-IN
+                                                         ( --stake-pool-verification-key STRING
+                                                         | --cold-verification-key-file FILE
+                                                         )
+                                                         [--conway-era]
+                                                         --out-file FILE
+
+  Create a vote for a proposed governance action.
+
+Usage: cardano-cli allegra governance action create-action
+
+  Governance action related commands.
+
+Usage: cardano-cli allegra governance action create-action create-constitution
+
+  Create a governance action.
+
+Usage: cardano-cli allegra governance action create-action create-constitution 
+                                                                                 [--conway-era]
+                                                                                 --governance-action-deposit NATURAL
+                                                                                 ( --stake-pool-verification-key STRING
+                                                                                 | --cold-verification-key-file FILE
+                                                                                 )
+                                                                                 ( --constitution TEXT
+                                                                                 | --constitution-file FILE
+                                                                                 )
+                                                                                 --out-file FILE
+
+  Create a constitution.
+
 Usage: cardano-cli mary governance
 
   Mary era commands
@@ -181,6 +389,12 @@ Usage: cardano-cli mary governance
                                      ( delegation-certificate
                                      | create-mir-certificate
                                      | create-genesis-key-delegation-certificate
+                                     | create-update-proposal
+                                     | create-poll
+                                     | answer-poll
+                                     | verify-poll
+                                     | vote
+                                     | action
                                      )
 
   Era-based governance commands
@@ -252,6 +466,100 @@ Usage: cardano-cli mary governance create-genesis-key-delegation-certificate
 
   Create a genesis key delegation certificate
 
+Usage: cardano-cli mary governance create-update-proposal --out-file FILE
+                                                            --epoch EPOCH
+                                                            (--genesis-verification-key-file FILE)
+                                                            [--protocol-major-version NATURAL
+                                                              --protocol-minor-version NATURAL]
+                                                            [--decentralization-parameter RATIONAL]
+                                                            [ --extra-entropy HEX
+                                                            | --reset-extra-entropy
+                                                            ]
+                                                            [--max-block-header-size NATURAL]
+                                                            [--max-block-body-size NATURAL]
+                                                            [--max-tx-size NATURAL]
+                                                            [--min-fee-constant LOVELACE]
+                                                            [--min-fee-linear LOVELACE]
+                                                            [--min-utxo-value NATURAL]
+                                                            [--key-reg-deposit-amt NATURAL]
+                                                            [--pool-reg-deposit NATURAL]
+                                                            [--min-pool-cost NATURAL]
+                                                            [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                            [--number-of-pools NATURAL]
+                                                            [--pool-influence RATIONAL]
+                                                            [--monetary-expansion RATIONAL]
+                                                            [--treasury-expansion RATIONAL]
+                                                            [--utxo-cost-per-word LOVELACE]
+                                                            [--price-execution-steps RATIONAL
+                                                              --price-execution-memory RATIONAL]
+                                                            [--max-tx-execution-units (INT, INT)]
+                                                            [--max-block-execution-units (INT, INT)]
+                                                            [--max-value-size INT]
+                                                            [--collateral-percent INT]
+                                                            [--max-collateral-inputs INT]
+                                                            [--utxo-cost-per-byte LOVELACE]
+                                                            [--cost-model-file FILE]
+
+  Create an update proposal
+
+Usage: cardano-cli mary governance create-poll --question STRING
+                                                 (--answer STRING)
+                                                 [--nonce UINT]
+                                                 --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli mary governance answer-poll --poll-file FILE
+                                                 [--answer INT]
+                                                 [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli mary governance verify-poll --poll-file FILE
+                                                 --tx-file FILE
+                                                 [--out-file FILE]
+
+  Verify an answer to a given SPO poll
+
+Usage: cardano-cli mary governance vote create-vote
+
+  Vote related commands.
+
+Usage: cardano-cli mary governance vote create-vote (--yes | --no | --abstain)
+                                                      ( --constitutional-committee-member
+                                                      | --drep
+                                                      | --spo
+                                                      )
+                                                      --tx-in TX-IN
+                                                      ( --stake-pool-verification-key STRING
+                                                      | --cold-verification-key-file FILE
+                                                      )
+                                                      [--conway-era]
+                                                      --out-file FILE
+
+  Create a vote for a proposed governance action.
+
+Usage: cardano-cli mary governance action create-action
+
+  Governance action related commands.
+
+Usage: cardano-cli mary governance action create-action create-constitution
+
+  Create a governance action.
+
+Usage: cardano-cli mary governance action create-action create-constitution 
+                                                                              [--conway-era]
+                                                                              --governance-action-deposit NATURAL
+                                                                              ( --stake-pool-verification-key STRING
+                                                                              | --cold-verification-key-file FILE
+                                                                              )
+                                                                              ( --constitution TEXT
+                                                                              | --constitution-file FILE
+                                                                              )
+                                                                              --out-file FILE
+
+  Create a constitution.
+
 Usage: cardano-cli alonzo governance
 
   Alonzo era commands
@@ -260,6 +568,12 @@ Usage: cardano-cli alonzo governance
                                        ( delegation-certificate
                                        | create-mir-certificate
                                        | create-genesis-key-delegation-certificate
+                                       | create-update-proposal
+                                       | create-poll
+                                       | answer-poll
+                                       | verify-poll
+                                       | vote
+                                       | action
                                        )
 
   Era-based governance commands
@@ -331,6 +645,100 @@ Usage: cardano-cli alonzo governance create-genesis-key-delegation-certificate
 
   Create a genesis key delegation certificate
 
+Usage: cardano-cli alonzo governance create-update-proposal --out-file FILE
+                                                              --epoch EPOCH
+                                                              (--genesis-verification-key-file FILE)
+                                                              [--protocol-major-version NATURAL
+                                                                --protocol-minor-version NATURAL]
+                                                              [--decentralization-parameter RATIONAL]
+                                                              [ --extra-entropy HEX
+                                                              | --reset-extra-entropy
+                                                              ]
+                                                              [--max-block-header-size NATURAL]
+                                                              [--max-block-body-size NATURAL]
+                                                              [--max-tx-size NATURAL]
+                                                              [--min-fee-constant LOVELACE]
+                                                              [--min-fee-linear LOVELACE]
+                                                              [--min-utxo-value NATURAL]
+                                                              [--key-reg-deposit-amt NATURAL]
+                                                              [--pool-reg-deposit NATURAL]
+                                                              [--min-pool-cost NATURAL]
+                                                              [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                              [--number-of-pools NATURAL]
+                                                              [--pool-influence RATIONAL]
+                                                              [--monetary-expansion RATIONAL]
+                                                              [--treasury-expansion RATIONAL]
+                                                              [--utxo-cost-per-word LOVELACE]
+                                                              [--price-execution-steps RATIONAL
+                                                                --price-execution-memory RATIONAL]
+                                                              [--max-tx-execution-units (INT, INT)]
+                                                              [--max-block-execution-units (INT, INT)]
+                                                              [--max-value-size INT]
+                                                              [--collateral-percent INT]
+                                                              [--max-collateral-inputs INT]
+                                                              [--utxo-cost-per-byte LOVELACE]
+                                                              [--cost-model-file FILE]
+
+  Create an update proposal
+
+Usage: cardano-cli alonzo governance create-poll --question STRING
+                                                   (--answer STRING)
+                                                   [--nonce UINT]
+                                                   --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli alonzo governance answer-poll --poll-file FILE
+                                                   [--answer INT]
+                                                   [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli alonzo governance verify-poll --poll-file FILE
+                                                   --tx-file FILE
+                                                   [--out-file FILE]
+
+  Verify an answer to a given SPO poll
+
+Usage: cardano-cli alonzo governance vote create-vote
+
+  Vote related commands.
+
+Usage: cardano-cli alonzo governance vote create-vote (--yes | --no | --abstain)
+                                                        ( --constitutional-committee-member
+                                                        | --drep
+                                                        | --spo
+                                                        )
+                                                        --tx-in TX-IN
+                                                        ( --stake-pool-verification-key STRING
+                                                        | --cold-verification-key-file FILE
+                                                        )
+                                                        [--conway-era]
+                                                        --out-file FILE
+
+  Create a vote for a proposed governance action.
+
+Usage: cardano-cli alonzo governance action create-action
+
+  Governance action related commands.
+
+Usage: cardano-cli alonzo governance action create-action create-constitution
+
+  Create a governance action.
+
+Usage: cardano-cli alonzo governance action create-action create-constitution 
+                                                                                [--conway-era]
+                                                                                --governance-action-deposit NATURAL
+                                                                                ( --stake-pool-verification-key STRING
+                                                                                | --cold-verification-key-file FILE
+                                                                                )
+                                                                                ( --constitution TEXT
+                                                                                | --constitution-file FILE
+                                                                                )
+                                                                                --out-file FILE
+
+  Create a constitution.
+
 Usage: cardano-cli babbage governance
 
   Babbage era commands
@@ -339,6 +747,12 @@ Usage: cardano-cli babbage governance
                                         ( delegation-certificate
                                         | create-mir-certificate
                                         | create-genesis-key-delegation-certificate
+                                        | create-update-proposal
+                                        | create-poll
+                                        | answer-poll
+                                        | verify-poll
+                                        | vote
+                                        | action
                                         )
 
   Era-based governance commands
@@ -410,11 +824,117 @@ Usage: cardano-cli babbage governance create-genesis-key-delegation-certificate
 
   Create a genesis key delegation certificate
 
+Usage: cardano-cli babbage governance create-update-proposal --out-file FILE
+                                                               --epoch EPOCH
+                                                               (--genesis-verification-key-file FILE)
+                                                               [--protocol-major-version NATURAL
+                                                                 --protocol-minor-version NATURAL]
+                                                               [--decentralization-parameter RATIONAL]
+                                                               [ --extra-entropy HEX
+                                                               | --reset-extra-entropy
+                                                               ]
+                                                               [--max-block-header-size NATURAL]
+                                                               [--max-block-body-size NATURAL]
+                                                               [--max-tx-size NATURAL]
+                                                               [--min-fee-constant LOVELACE]
+                                                               [--min-fee-linear LOVELACE]
+                                                               [--min-utxo-value NATURAL]
+                                                               [--key-reg-deposit-amt NATURAL]
+                                                               [--pool-reg-deposit NATURAL]
+                                                               [--min-pool-cost NATURAL]
+                                                               [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                               [--number-of-pools NATURAL]
+                                                               [--pool-influence RATIONAL]
+                                                               [--monetary-expansion RATIONAL]
+                                                               [--treasury-expansion RATIONAL]
+                                                               [--utxo-cost-per-word LOVELACE]
+                                                               [--price-execution-steps RATIONAL
+                                                                 --price-execution-memory RATIONAL]
+                                                               [--max-tx-execution-units (INT, INT)]
+                                                               [--max-block-execution-units (INT, INT)]
+                                                               [--max-value-size INT]
+                                                               [--collateral-percent INT]
+                                                               [--max-collateral-inputs INT]
+                                                               [--utxo-cost-per-byte LOVELACE]
+                                                               [--cost-model-file FILE]
+
+  Create an update proposal
+
+Usage: cardano-cli babbage governance create-poll --question STRING
+                                                    (--answer STRING)
+                                                    [--nonce UINT]
+                                                    --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli babbage governance answer-poll --poll-file FILE
+                                                    [--answer INT]
+                                                    [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli babbage governance verify-poll --poll-file FILE
+                                                    --tx-file FILE
+                                                    [--out-file FILE]
+
+  Verify an answer to a given SPO poll
+
+Usage: cardano-cli babbage governance vote create-vote
+
+  Vote related commands.
+
+Usage: cardano-cli babbage governance vote create-vote 
+                                                         ( --yes
+                                                         | --no
+                                                         | --abstain
+                                                         )
+                                                         ( --constitutional-committee-member
+                                                         | --drep
+                                                         | --spo
+                                                         )
+                                                         --tx-in TX-IN
+                                                         ( --stake-pool-verification-key STRING
+                                                         | --cold-verification-key-file FILE
+                                                         )
+                                                         [--conway-era]
+                                                         --out-file FILE
+
+  Create a vote for a proposed governance action.
+
+Usage: cardano-cli babbage governance action create-action
+
+  Governance action related commands.
+
+Usage: cardano-cli babbage governance action create-action create-constitution
+
+  Create a governance action.
+
+Usage: cardano-cli babbage governance action create-action create-constitution 
+                                                                                 [--conway-era]
+                                                                                 --governance-action-deposit NATURAL
+                                                                                 ( --stake-pool-verification-key STRING
+                                                                                 | --cold-verification-key-file FILE
+                                                                                 )
+                                                                                 ( --constitution TEXT
+                                                                                 | --constitution-file FILE
+                                                                                 )
+                                                                                 --out-file FILE
+
+  Create a constitution.
+
 Usage: cardano-cli conway governance
 
   Conway era commands
 
-Usage: cardano-cli conway governance delegation-certificate
+Usage: cardano-cli conway governance 
+                                       ( delegation-certificate
+                                       | create-update-proposal
+                                       | create-poll
+                                       | answer-poll
+                                       | verify-poll
+                                       | vote
+                                       | action
+                                       )
 
   Era-based governance commands
 
@@ -433,6 +953,100 @@ Usage: cardano-cli conway governance delegation-certificate
 
   Post conway era governance command
 
+Usage: cardano-cli conway governance create-update-proposal --out-file FILE
+                                                              --epoch EPOCH
+                                                              (--genesis-verification-key-file FILE)
+                                                              [--protocol-major-version NATURAL
+                                                                --protocol-minor-version NATURAL]
+                                                              [--decentralization-parameter RATIONAL]
+                                                              [ --extra-entropy HEX
+                                                              | --reset-extra-entropy
+                                                              ]
+                                                              [--max-block-header-size NATURAL]
+                                                              [--max-block-body-size NATURAL]
+                                                              [--max-tx-size NATURAL]
+                                                              [--min-fee-constant LOVELACE]
+                                                              [--min-fee-linear LOVELACE]
+                                                              [--min-utxo-value NATURAL]
+                                                              [--key-reg-deposit-amt NATURAL]
+                                                              [--pool-reg-deposit NATURAL]
+                                                              [--min-pool-cost NATURAL]
+                                                              [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                              [--number-of-pools NATURAL]
+                                                              [--pool-influence RATIONAL]
+                                                              [--monetary-expansion RATIONAL]
+                                                              [--treasury-expansion RATIONAL]
+                                                              [--utxo-cost-per-word LOVELACE]
+                                                              [--price-execution-steps RATIONAL
+                                                                --price-execution-memory RATIONAL]
+                                                              [--max-tx-execution-units (INT, INT)]
+                                                              [--max-block-execution-units (INT, INT)]
+                                                              [--max-value-size INT]
+                                                              [--collateral-percent INT]
+                                                              [--max-collateral-inputs INT]
+                                                              [--utxo-cost-per-byte LOVELACE]
+                                                              [--cost-model-file FILE]
+
+  Create an update proposal
+
+Usage: cardano-cli conway governance create-poll --question STRING
+                                                   (--answer STRING)
+                                                   [--nonce UINT]
+                                                   --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli conway governance answer-poll --poll-file FILE
+                                                   [--answer INT]
+                                                   [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli conway governance verify-poll --poll-file FILE
+                                                   --tx-file FILE
+                                                   [--out-file FILE]
+
+  Verify an answer to a given SPO poll
+
+Usage: cardano-cli conway governance vote create-vote
+
+  Vote related commands.
+
+Usage: cardano-cli conway governance vote create-vote (--yes | --no | --abstain)
+                                                        ( --constitutional-committee-member
+                                                        | --drep
+                                                        | --spo
+                                                        )
+                                                        --tx-in TX-IN
+                                                        ( --stake-pool-verification-key STRING
+                                                        | --cold-verification-key-file FILE
+                                                        )
+                                                        [--conway-era]
+                                                        --out-file FILE
+
+  Create a vote for a proposed governance action.
+
+Usage: cardano-cli conway governance action create-action
+
+  Governance action related commands.
+
+Usage: cardano-cli conway governance action create-action create-constitution
+
+  Create a governance action.
+
+Usage: cardano-cli conway governance action create-action create-constitution 
+                                                                                [--conway-era]
+                                                                                --governance-action-deposit NATURAL
+                                                                                ( --stake-pool-verification-key STRING
+                                                                                | --cold-verification-key-file FILE
+                                                                                )
+                                                                                ( --constitution TEXT
+                                                                                | --constitution-file FILE
+                                                                                )
+                                                                                --out-file FILE
+
+  Create a constitution.
+
 Usage: cardano-cli latest governance
 
   Latest era commands (Babbage)
@@ -441,6 +1055,12 @@ Usage: cardano-cli latest governance
                                        ( delegation-certificate
                                        | create-mir-certificate
                                        | create-genesis-key-delegation-certificate
+                                       | create-update-proposal
+                                       | create-poll
+                                       | answer-poll
+                                       | verify-poll
+                                       | vote
+                                       | action
                                        )
 
   Era-based governance commands
@@ -512,54 +1132,7 @@ Usage: cardano-cli latest governance create-genesis-key-delegation-certificate
 
   Create a genesis key delegation certificate
 
-Usage: cardano-cli experimental governance
-
-  Experimental era commands (Conway)
-
-Usage: cardano-cli experimental governance delegation-certificate
-
-  Era-based governance commands
-
-Usage: cardano-cli experimental governance delegation-certificate 
-                                                                    ( --stake-verification-key STRING
-                                                                    | --stake-verification-key-file FILE
-                                                                    | --stake-script-file FILE
-                                                                    | --stake-address ADDRESS
-                                                                    )
-                                                                    ( --stake-pool-verification-key STRING
-                                                                    | --cold-verification-key-file FILE
-                                                                    | --stake-pool-id STAKE_POOL_ID
-                                                                    | --dummy-drep-option ARG
-                                                                    )
-                                                                    --out-file FILE
-
-  Post conway era governance command
-
-Usage: cardano-cli legacy Legacy commands
-
-  Legacy commands
-
-Usage: cardano-cli legacy text-view decode-cbor
-
-  Commands for dealing with Shelley TextView files. Transactions, addresses etc
-  are stored on disk as TextView files.
-
-Usage: cardano-cli legacy text-view decode-cbor --in-file FILE [--out-file FILE]
-
-  Print a TextView file as decoded CBOR.
-
-Usage: cardano-cli legacy governance 
-                                       ( create-update-proposal
-                                       | create-poll
-                                       | answer-poll
-                                       | verify-poll
-                                       | vote
-                                       | action
-                                       )
-
-  Governance commands
-
-Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
+Usage: cardano-cli latest governance create-update-proposal --out-file FILE
                                                               --epoch EPOCH
                                                               (--genesis-verification-key-file FILE)
                                                               [--protocol-major-version NATURAL
@@ -595,30 +1168,30 @@ Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
 
   Create an update proposal
 
-Usage: cardano-cli legacy governance create-poll --question STRING
+Usage: cardano-cli latest governance create-poll --question STRING
                                                    (--answer STRING)
                                                    [--nonce UINT]
                                                    --out-file FILE
 
   Create an SPO poll
 
-Usage: cardano-cli legacy governance answer-poll --poll-file FILE
+Usage: cardano-cli latest governance answer-poll --poll-file FILE
                                                    [--answer INT]
                                                    [--out-file FILE]
 
   Answer an SPO poll
 
-Usage: cardano-cli legacy governance verify-poll --poll-file FILE
+Usage: cardano-cli latest governance verify-poll --poll-file FILE
                                                    --tx-file FILE
                                                    [--out-file FILE]
 
   Verify an answer to a given SPO poll
 
-Usage: cardano-cli legacy governance vote create-vote
+Usage: cardano-cli latest governance vote create-vote
 
   Vote related commands.
 
-Usage: cardano-cli legacy governance vote create-vote (--yes | --no | --abstain)
+Usage: cardano-cli latest governance vote create-vote (--yes | --no | --abstain)
                                                         ( --constitutional-committee-member
                                                         | --drep
                                                         | --spo
@@ -632,15 +1205,15 @@ Usage: cardano-cli legacy governance vote create-vote (--yes | --no | --abstain)
 
   Create a vote for a proposed governance action.
 
-Usage: cardano-cli legacy governance action create-action
+Usage: cardano-cli latest governance action create-action
 
   Governance action related commands.
 
-Usage: cardano-cli legacy governance action create-action create-constitution
+Usage: cardano-cli latest governance action create-action create-constitution
 
   Create a governance action.
 
-Usage: cardano-cli legacy governance action create-action create-constitution 
+Usage: cardano-cli latest governance action create-action create-constitution 
                                                                                 [--conway-era]
                                                                                 --governance-action-deposit NATURAL
                                                                                 ( --stake-pool-verification-key STRING
@@ -652,6 +1225,149 @@ Usage: cardano-cli legacy governance action create-action create-constitution
                                                                                 --out-file FILE
 
   Create a constitution.
+
+Usage: cardano-cli experimental governance
+
+  Experimental era commands (Conway)
+
+Usage: cardano-cli experimental governance 
+                                             ( delegation-certificate
+                                             | create-update-proposal
+                                             | create-poll
+                                             | answer-poll
+                                             | verify-poll
+                                             | vote
+                                             | action
+                                             )
+
+  Era-based governance commands
+
+Usage: cardano-cli experimental governance delegation-certificate 
+                                                                    ( --stake-verification-key STRING
+                                                                    | --stake-verification-key-file FILE
+                                                                    | --stake-script-file FILE
+                                                                    | --stake-address ADDRESS
+                                                                    )
+                                                                    ( --stake-pool-verification-key STRING
+                                                                    | --cold-verification-key-file FILE
+                                                                    | --stake-pool-id STAKE_POOL_ID
+                                                                    | --dummy-drep-option ARG
+                                                                    )
+                                                                    --out-file FILE
+
+  Post conway era governance command
+
+Usage: cardano-cli experimental governance create-update-proposal --out-file FILE
+                                                                    --epoch EPOCH
+                                                                    (--genesis-verification-key-file FILE)
+                                                                    [--protocol-major-version NATURAL
+                                                                      --protocol-minor-version NATURAL]
+                                                                    [--decentralization-parameter RATIONAL]
+                                                                    [ --extra-entropy HEX
+                                                                    | --reset-extra-entropy
+                                                                    ]
+                                                                    [--max-block-header-size NATURAL]
+                                                                    [--max-block-body-size NATURAL]
+                                                                    [--max-tx-size NATURAL]
+                                                                    [--min-fee-constant LOVELACE]
+                                                                    [--min-fee-linear LOVELACE]
+                                                                    [--min-utxo-value NATURAL]
+                                                                    [--key-reg-deposit-amt NATURAL]
+                                                                    [--pool-reg-deposit NATURAL]
+                                                                    [--min-pool-cost NATURAL]
+                                                                    [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                                    [--number-of-pools NATURAL]
+                                                                    [--pool-influence RATIONAL]
+                                                                    [--monetary-expansion RATIONAL]
+                                                                    [--treasury-expansion RATIONAL]
+                                                                    [--utxo-cost-per-word LOVELACE]
+                                                                    [--price-execution-steps RATIONAL
+                                                                      --price-execution-memory RATIONAL]
+                                                                    [--max-tx-execution-units (INT, INT)]
+                                                                    [--max-block-execution-units (INT, INT)]
+                                                                    [--max-value-size INT]
+                                                                    [--collateral-percent INT]
+                                                                    [--max-collateral-inputs INT]
+                                                                    [--utxo-cost-per-byte LOVELACE]
+                                                                    [--cost-model-file FILE]
+
+  Create an update proposal
+
+Usage: cardano-cli experimental governance create-poll --question STRING
+                                                         (--answer STRING)
+                                                         [--nonce UINT]
+                                                         --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli experimental governance answer-poll --poll-file FILE
+                                                         [--answer INT]
+                                                         [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli experimental governance verify-poll --poll-file FILE
+                                                         --tx-file FILE
+                                                         [--out-file FILE]
+
+  Verify an answer to a given SPO poll
+
+Usage: cardano-cli experimental governance vote create-vote
+
+  Vote related commands.
+
+Usage: cardano-cli experimental governance vote create-vote 
+                                                              ( --yes
+                                                              | --no
+                                                              | --abstain
+                                                              )
+                                                              ( --constitutional-committee-member
+                                                              | --drep
+                                                              | --spo
+                                                              )
+                                                              --tx-in TX-IN
+                                                              ( --stake-pool-verification-key STRING
+                                                              | --cold-verification-key-file FILE
+                                                              )
+                                                              [--conway-era]
+                                                              --out-file FILE
+
+  Create a vote for a proposed governance action.
+
+Usage: cardano-cli experimental governance action create-action
+
+  Governance action related commands.
+
+Usage: cardano-cli experimental governance action create-action 
+                                                                  create-constitution
+
+  Create a governance action.
+
+Usage: cardano-cli experimental governance action create-action create-constitution 
+                                                                                      [--conway-era]
+                                                                                      --governance-action-deposit NATURAL
+                                                                                      ( --stake-pool-verification-key STRING
+                                                                                      | --cold-verification-key-file FILE
+                                                                                      )
+                                                                                      ( --constitution TEXT
+                                                                                      | --constitution-file FILE
+                                                                                      )
+                                                                                      --out-file FILE
+
+  Create a constitution.
+
+Usage: cardano-cli legacy Legacy commands
+
+  Legacy commands
+
+Usage: cardano-cli legacy text-view decode-cbor
+
+  Commands for dealing with Shelley TextView files. Transactions, addresses etc
+  are stored on disk as TextView files.
+
+Usage: cardano-cli legacy text-view decode-cbor --in-file FILE [--out-file FILE]
+
+  Print a TextView file as decoded CBOR.
 
 Usage: cardano-cli legacy genesis 
                                     ( key-gen-genesis
@@ -1812,6 +2528,12 @@ Usage: cardano-cli governance
                                 ( delegation-certificate
                                 | create-mir-certificate
                                 | create-genesis-key-delegation-certificate
+                                | create-update-proposal
+                                | create-poll
+                                | answer-poll
+                                | verify-poll
+                                | vote
+                                | action
                                 )
 
   Era-based governance commands
@@ -1882,26 +2604,6 @@ Usage: cardano-cli governance create-genesis-key-delegation-certificate
                                                                           --out-file FILE
 
   Create a genesis key delegation certificate
-
-Usage: cardano-cli text-view decode-cbor
-
-  Commands for dealing with Shelley TextView files. Transactions, addresses etc
-  are stored on disk as TextView files.
-
-Usage: cardano-cli text-view decode-cbor --in-file FILE [--out-file FILE]
-
-  Print a TextView file as decoded CBOR.
-
-Usage: cardano-cli governance 
-                                ( create-update-proposal
-                                | create-poll
-                                | answer-poll
-                                | verify-poll
-                                | vote
-                                | action
-                                )
-
-  Governance commands
 
 Usage: cardano-cli governance create-update-proposal --out-file FILE
                                                        --epoch EPOCH
@@ -1996,6 +2698,15 @@ Usage: cardano-cli governance action create-action create-constitution
                                                                          --out-file FILE
 
   Create a constitution.
+
+Usage: cardano-cli text-view decode-cbor
+
+  Commands for dealing with Shelley TextView files. Transactions, addresses etc
+  are stored on disk as TextView files.
+
+Usage: cardano-cli text-view decode-cbor --in-file FILE [--out-file FILE]
+
+  Print a TextView file as decoded CBOR.
 
 Usage: cardano-cli genesis 
                              ( key-gen-genesis

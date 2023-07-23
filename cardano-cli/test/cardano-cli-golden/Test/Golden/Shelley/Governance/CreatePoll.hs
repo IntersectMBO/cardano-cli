@@ -22,7 +22,7 @@ golden_shelleyGovernanceCreatePoll =
     pollFile <- noteTempFile tempDir "poll.json"
 
     stdout <- execCardanoCLI
-      [ "legacy", "governance", "create-poll"
+      [ "governance", "create-poll"
       , "--question", "Pineapples on pizza?"
       , "--answer", "yes"
       , "--answer", "no"
@@ -42,7 +42,7 @@ golden_shelleyGovernanceCreateLongPoll =
     pollFile <- noteTempFile tempDir "poll.json"
 
     stdout <- execCardanoCLI
-      [ "legacy", "governance", "create-poll"
+      [ "governance", "create-poll"
       , "--question", "What is the most adequate topping to put on a pizza (please consider all possibilities and take time to answer)?"
       , "--answer", "pineapples"
       , "--answer", "only traditional topics should go on a pizza, this isn't room for jokes"

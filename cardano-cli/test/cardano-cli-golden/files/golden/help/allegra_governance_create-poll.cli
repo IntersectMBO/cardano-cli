@@ -1,7 +1,7 @@
-Usage: cardano-cli legacy governance create-poll --question STRING
-                                                   (--answer STRING)
-                                                   [--nonce UINT]
-                                                   --out-file FILE
+Usage: cardano-cli allegra governance create-poll --question STRING
+                                                    (--answer STRING)
+                                                    [--nonce UINT]
+                                                    --out-file FILE
 
   Create an SPO poll
 

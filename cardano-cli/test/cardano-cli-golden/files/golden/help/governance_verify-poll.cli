@@ -1,9 +1,12 @@
-Invalid argument `verify-poll'
+Usage: cardano-cli governance verify-poll --poll-file FILE
+                                            --tx-file FILE
+                                            [--out-file FILE]
 
-Usage: cardano-cli governance 
-                                ( delegation-certificate
-                                | create-mir-certificate
-                                | create-genesis-key-delegation-certificate
-                                )
+  Verify an answer to a given SPO poll
 
-  Era-based governance commands
+Available options:
+  --poll-file FILE         Filepath to the ongoing poll.
+  --tx-file FILE           Filepath to the JSON TxBody or JSON Tx carrying a
+                           valid poll answer.
+  --out-file FILE          The output file.
+  -h,--help                Show this help text

@@ -1,9 +1,12 @@
-Invalid argument `answer-poll'
+Usage: cardano-cli governance answer-poll --poll-file FILE
+                                            [--answer INT]
+                                            [--out-file FILE]
 
-Usage: cardano-cli governance 
-                                ( delegation-certificate
-                                | create-mir-certificate
-                                | create-genesis-key-delegation-certificate
-                                )
+  Answer an SPO poll
 
-  Era-based governance commands
+Available options:
+  --poll-file FILE         Filepath to the ongoing poll.
+  --answer INT             The index of the chosen answer in the poll. Optional.
+                           Asked interactively if omitted.
+  --out-file FILE          The output file.
+  -h,--help                Show this help text

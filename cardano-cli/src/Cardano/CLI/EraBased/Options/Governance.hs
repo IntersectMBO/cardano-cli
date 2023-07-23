@@ -4,12 +4,9 @@
 
 module Cardano.CLI.EraBased.Options.Governance
   ( ActionCmd(..)
-  , EraBasedGovernanceCmd(..)
   , GovernanceCmd(..)
   , VoteCmd(..)
-  , renderEraBasedGovernanceCmd
   , renderGovernanceCmd
-  , pEraBasedGovernanceCmd
   , pGovernanceCmd
   ) where
 
@@ -30,43 +27,78 @@ import           Data.Text (Text)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
-data EraBasedGovernanceCmd era
-  = EraBasedGovernanceMIRPayStakeAddressesCertificate
+data GovernanceCmd era
+  = GovernanceMIRPayStakeAddressesCertificate
       (ShelleyToBabbageEra era)
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
-  | EraBasedGovernanceMIRTransfer
+  | GovernanceMIRTransfer
       (ShelleyToBabbageEra era)
       Lovelace
       (File () Out)
       TransferDirection
-  | EraBasedGovernanceDelegationCertificateCmd
+  | GovernanceDelegationCertificateCmd
       StakeIdentifier
       AnyDelegationTarget
       (File () Out)
-  | EraBasedGovernanceGenesisKeyDelegationCertificate
+  | GovernanceGenesisKeyDelegationCertificate
       (ShelleyToBabbageEra era)
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)
       (File () Out)
+  | GovernanceVoteCmd
+      VoteCmd
+  | GovernanceActionCmd
+      ActionCmd
+  | GovernanceUpdateProposal
+      (File () Out) EpochNo
+      [VerificationKeyFile In]
+      ProtocolParametersUpdate
+      (Maybe FilePath)
+  | GovernanceCreatePoll
+      Text -- Prompt
+      [Text] -- Choices
+      (Maybe Word) -- Nonce
+      (File GovernancePoll Out)
+  | GovernanceAnswerPoll
+      (File GovernancePoll In) -- Poll file
+      (Maybe Word) -- Answer index
+      (Maybe (File () Out)) -- Tx file
+  | GovernanceVerifyPoll
+      (File GovernancePoll In) -- Poll file
+      (File (Tx ()) In) -- Tx file
+      (Maybe (File () Out)) -- Tx file
+  deriving Show
 
-renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
-renderEraBasedGovernanceCmd = \case
-  EraBasedGovernanceMIRPayStakeAddressesCertificate {} -> "TODO EraBasedGovernanceMIRPayStakeAddressesCertificate"
-  EraBasedGovernanceMIRTransfer {} -> "TODO EraBasedGovernanceMIRTransfer"
-  EraBasedGovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"
-  EraBasedGovernanceGenesisKeyDelegationCertificate {} -> "TODO EraBasedGovernanceGenesisKeyDelegationCertificate"
+renderGovernanceCmd :: GovernanceCmd era -> Text
+renderGovernanceCmd = \case
+  GovernanceMIRPayStakeAddressesCertificate {} -> "TODO GovernanceMIRPayStakeAddressesCertificate"
+  GovernanceMIRTransfer {} -> "TODO GovernanceMIRTransfer"
+  GovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"
+  GovernanceGenesisKeyDelegationCertificate {} -> "TODO GovernanceGenesisKeyDelegationCertificate"
+  GovernanceVoteCmd {} -> "governance vote"
+  GovernanceActionCmd {} -> "governance action"
+  GovernanceUpdateProposal {} -> "governance create-update-proposal"
+  GovernanceCreatePoll{} -> "governance create-poll"
+  GovernanceAnswerPoll{} -> "governance answer-poll"
+  GovernanceVerifyPoll{} -> "governance verify-poll"
 
 -- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
-pEraBasedGovernanceCmd :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmd era)
-pEraBasedGovernanceCmd envCli era =
+pGovernanceCmd :: EnvCli -> CardanoEra era -> Parser (GovernanceCmd era)
+pGovernanceCmd envCli era =
   asum $ catMaybes
     [ pEraBasedDelegationCertificateCmd envCli era
     , pCreateMirCertificatesCmds era
     , pCreateGenesisKeyDelegationCertificateCmd era
+    , pCreateUpdateProposalCmd
+    , pCreatePollCmd
+    , pAnswerPollCmd
+    , pVerifyPollCmd
+    , pVote envCli
+    , pAction envCli
     ]
 
 data AnyEraDecider era where
@@ -83,7 +115,7 @@ instance FeatureInEra AnyEraDecider where
     BabbageEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraBabbage
     ConwayEra   -> yes $ AnyEraDeciderConwayOnwards ConwayEraOnwardsConway
 
-pEraBasedDelegationCertificateCmd :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
+pEraBasedDelegationCertificateCmd :: EnvCli -> CardanoEra era -> Maybe (Parser (GovernanceCmd era))
 pEraBasedDelegationCertificateCmd _envCli =
   featureInEra Nothing $ \w ->
     Just
@@ -91,9 +123,9 @@ pEraBasedDelegationCertificateCmd _envCli =
       $ Opt.info (pCmd w)
       $ Opt.progDesc "Post conway era governance command" -- TODO: We can render the help message based on the era
  where
-  pCmd :: AnyEraDecider era -> Parser (EraBasedGovernanceCmd era)
+  pCmd :: AnyEraDecider era -> Parser (GovernanceCmd era)
   pCmd w =
-    EraBasedGovernanceDelegationCertificateCmd
+    GovernanceDelegationCertificateCmd
       <$> pStakeIdentifier
       <*> pAnyDelegationCertificateTarget w
       <*> pOutputFile
@@ -120,7 +152,7 @@ pStakeTarget cOnwards =
 
 pCreateGenesisKeyDelegationCertificateCmd :: ()
   => CardanoEra era
-  -> Maybe (Parser (EraBasedGovernanceCmd era))
+  -> Maybe (Parser (GovernanceCmd era))
 pCreateGenesisKeyDelegationCertificateCmd =
   featureInEra Nothing $ \w ->
     Just
@@ -130,7 +162,7 @@ pCreateGenesisKeyDelegationCertificateCmd =
 
 pCreateMirCertificatesCmds :: ()
   => CardanoEra era
-  -> Maybe (Parser (EraBasedGovernanceCmd era))
+  -> Maybe (Parser (GovernanceCmd era))
 pCreateMirCertificatesCmds =
   featureInEra Nothing $ \w ->
     Just
@@ -140,7 +172,7 @@ pCreateMirCertificatesCmds =
 
 mirCertParsers :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmd era)
+  -> Parser (GovernanceCmd era)
 mirCertParsers w =
   asum
     [ subParser "stake-addresses"
@@ -156,9 +188,9 @@ mirCertParsers w =
 
 pMIRPayStakeAddresses :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmd era)
+  -> Parser (GovernanceCmd era)
 pMIRPayStakeAddresses w =
-  EraBasedGovernanceMIRPayStakeAddressesCertificate w
+  GovernanceMIRPayStakeAddressesCertificate w
     <$> pMIRPot
     <*> some pStakeAddress
     <*> some pRewardAmt
@@ -179,18 +211,18 @@ pMIRPot =
 
 pMIRTransferToTreasury :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmd era)
+  -> Parser (GovernanceCmd era)
 pMIRTransferToTreasury w =
-  EraBasedGovernanceMIRTransfer w
+  GovernanceMIRTransfer w
     <$> pTransferAmt
     <*> pOutputFile
     <*> pure TransferToTreasury
 
 pMIRTransferToReserves :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmd era)
+  -> Parser (GovernanceCmd era)
 pMIRTransferToReserves w =
-  EraBasedGovernanceMIRTransfer w
+  GovernanceMIRTransfer w
     <$> pTransferAmt
     <*> pOutputFile
     <*> pure TransferToReserves
@@ -230,68 +262,86 @@ pDrep = Opt.strOption $ mconcat
 
 pGovernanceGenesisKeyDelegationCertificate :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmd era)
+  -> Parser (GovernanceCmd era)
 pGovernanceGenesisKeyDelegationCertificate w =
-  EraBasedGovernanceGenesisKeyDelegationCertificate w
+  GovernanceGenesisKeyDelegationCertificate w
     <$> pGenesisVerificationKeyOrHashOrFile
     <*> pGenesisDelegateVerificationKeyOrHashOrFile
     <*> pVrfVerificationKeyOrHashOrFile
     <*> pOutputFile
 
-pGovernanceCmd :: EnvCli -> Parser GovernanceCmd
-pGovernanceCmd envCli =
-  asum
-    [ subParser "create-update-proposal"
-        $ Opt.info pUpdateProposal
-        $ Opt.progDesc "Create an update proposal"
-    , subParser "create-poll"
-        $ Opt.info pGovernanceCreatePoll
-        $ Opt.progDesc "Create an SPO poll"
-    , subParser "answer-poll"
-        $ Opt.info pGovernanceAnswerPoll
-        $ Opt.progDesc "Answer an SPO poll"
-    , subParser "verify-poll"
-        $ Opt.info pGovernanceVerifyPoll
-        $ Opt.progDesc "Verify an answer to a given SPO poll"
-    , fmap GovernanceVoteCmd $ subParser "vote"
-        $ Opt.info (pVoteCommmands envCli)
-        $ Opt.progDesc "Vote related commands."
-    , fmap GovernanceActionCmd $ subParser "action"
-        $ Opt.info (pActionCommmands envCli)
-        $ Opt.progDesc "Governance action related commands."
-    ]
-  where
+pCreateUpdateProposalCmd :: Maybe (Parser (GovernanceCmd era))
+pCreateUpdateProposalCmd =
+  Just
+    $ subParser "create-update-proposal"
+    $ Opt.info pUpdateProposal
+    $ Opt.progDesc "Create an update proposal"
 
-    pUpdateProposal :: Parser GovernanceCmd
-    pUpdateProposal =
-      GovernanceUpdateProposal
-        <$> pOutputFile
-        <*> pEpochNoUpdateProp
-        <*> some pGenesisVerificationKeyFile
-        <*> pProtocolParametersUpdate
-        <*> optional pCostModels
+pCreatePollCmd :: Maybe (Parser (GovernanceCmd era))
+pCreatePollCmd =
+  Just
+    $ subParser "create-poll"
+    $ Opt.info pGovernanceCreatePoll
+    $ Opt.progDesc "Create an SPO poll"
 
-    pGovernanceCreatePoll :: Parser GovernanceCmd
-    pGovernanceCreatePoll =
-      GovernanceCreatePoll
-        <$> pPollQuestion
-        <*> some pPollAnswer
-        <*> optional pPollNonce
-        <*> pOutputFile
+pAnswerPollCmd :: Maybe (Parser (GovernanceCmd era))
+pAnswerPollCmd =
+  Just
+    $ subParser "answer-poll"
+    $ Opt.info pGovernanceAnswerPoll
+    $ Opt.progDesc "Answer an SPO poll"
 
-    pGovernanceAnswerPoll :: Parser GovernanceCmd
-    pGovernanceAnswerPoll =
-      GovernanceAnswerPoll
-        <$> pPollFile
-        <*> optional pPollAnswerIndex
-        <*> optional pOutputFile
+pVerifyPollCmd :: Maybe (Parser (GovernanceCmd era))
+pVerifyPollCmd =
+  Just
+    $ subParser "verify-poll"
+    $ Opt.info pGovernanceVerifyPoll
+    $ Opt.progDesc "Verify an answer to a given SPO poll"
 
-    pGovernanceVerifyPoll :: Parser GovernanceCmd
-    pGovernanceVerifyPoll =
-      GovernanceVerifyPoll
-        <$> pPollFile
-        <*> pPollTxFile
-        <*> optional pOutputFile
+pVote :: EnvCli -> Maybe (Parser (GovernanceCmd era))
+pVote envCli =
+  Just
+    $ fmap GovernanceVoteCmd $ subParser "vote"
+    $ Opt.info (pVoteCommmands envCli)
+    $ Opt.progDesc "Vote related commands."
+
+pAction :: EnvCli -> Maybe (Parser (GovernanceCmd era))
+pAction envCli =
+  Just
+    $ fmap GovernanceActionCmd $ subParser "action"
+    $ Opt.info (pActionCommmands envCli)
+    $ Opt.progDesc "Governance action related commands."
+
+pUpdateProposal :: Parser (GovernanceCmd era)
+pUpdateProposal =
+  GovernanceUpdateProposal
+    <$> pOutputFile
+    <*> pEpochNoUpdateProp
+    <*> some pGenesisVerificationKeyFile
+    <*> pProtocolParametersUpdate
+    <*> optional pCostModels
+
+pGovernanceCreatePoll :: Parser (GovernanceCmd era)
+pGovernanceCreatePoll =
+  GovernanceCreatePoll
+    <$> pPollQuestion
+    <*> some pPollAnswer
+    <*> optional pPollNonce
+    <*> pOutputFile
+
+pGovernanceAnswerPoll :: Parser (GovernanceCmd era)
+pGovernanceAnswerPoll =
+  GovernanceAnswerPoll
+    <$> pPollFile
+    <*> optional pPollAnswerIndex
+    <*> optional pOutputFile
+
+pGovernanceVerifyPoll :: Parser (GovernanceCmd era)
+pGovernanceVerifyPoll =
+  GovernanceVerifyPoll
+    <$> pPollFile
+    <*> pPollTxFile
+    <*> optional pOutputFile
 
 pPollQuestion :: Parser Text
 pPollQuestion =
@@ -342,38 +392,6 @@ pPollNonce =
     , Opt.metavar "UINT"
     , Opt.help "An (optional) nonce for non-replayability."
     ]
-
-data GovernanceCmd
-  = GovernanceVoteCmd VoteCmd
-  | GovernanceActionCmd ActionCmd
-  | GovernanceUpdateProposal
-      (File () Out) EpochNo
-      [VerificationKeyFile In]
-      ProtocolParametersUpdate
-      (Maybe FilePath)
-  | GovernanceCreatePoll
-      Text -- Prompt
-      [Text] -- Choices
-      (Maybe Word) -- Nonce
-      (File GovernancePoll Out)
-  | GovernanceAnswerPoll
-      (File GovernancePoll In) -- Poll file
-      (Maybe Word) -- Answer index
-      (Maybe (File () Out)) -- Tx file
-  | GovernanceVerifyPoll
-      (File GovernancePoll In) -- Poll file
-      (File (Tx ()) In) -- Tx file
-      (Maybe (File () Out)) -- Tx file
-  deriving Show
-
-renderGovernanceCmd :: GovernanceCmd -> Text
-renderGovernanceCmd = \case
-  GovernanceVoteCmd {} -> "governance vote"
-  GovernanceActionCmd {} -> "governance action"
-  GovernanceUpdateProposal {} -> "governance create-update-proposal"
-  GovernanceCreatePoll{} -> "governance create-poll"
-  GovernanceAnswerPoll{} -> "governance answer-poll"
-  GovernanceVerifyPoll{} -> "governance verify-poll"
 
 --------------------------------------------------------------------------------
 -- Vote related

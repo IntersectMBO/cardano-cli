@@ -2,6 +2,12 @@ Usage: cardano-cli latest governance
                                        ( delegation-certificate
                                        | create-mir-certificate
                                        | create-genesis-key-delegation-certificate
+                                       | create-update-proposal
+                                       | create-poll
+                                       | answer-poll
+                                       | verify-poll
+                                       | vote
+                                       | action
                                        )
 
   Era-based governance commands
@@ -15,3 +21,9 @@ Available commands:
                            certificate
   create-genesis-key-delegation-certificate
                            Create a genesis key delegation certificate
+  create-update-proposal   Create an update proposal
+  create-poll              Create an SPO poll
+  answer-poll              Answer an SPO poll
+  verify-poll              Verify an answer to a given SPO poll
+  vote                     Vote related commands.
+  action                   Governance action related commands.

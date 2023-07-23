@@ -76,7 +76,6 @@ data LegacyCommand
   | NodeCmd         NodeCmd
   | PoolCmd         PoolCmd
   | QueryCmd        QueryCmd
-  | GovernanceCmd'   GovernanceCmd
   | GenesisCmd      GenesisCmd
   | TextViewCmd     TextViewCmd
 
@@ -90,7 +89,6 @@ renderLegacyCommand sc =
     NodeCmd cmd -> renderNodeCmd cmd
     PoolCmd cmd -> renderPoolCmd cmd
     QueryCmd cmd -> renderQueryCmd cmd
-    GovernanceCmd' cmd -> renderGovernanceCmd cmd
     GenesisCmd cmd -> renderGenesisCmd cmd
     TextViewCmd cmd -> renderTextViewCmd cmd
 

@@ -1,4 +1,4 @@
-Usage: cardano-cli legacy governance action create-action create-constitution 
+Usage: cardano-cli latest governance action create-action create-constitution 
                                                                                 [--conway-era]
                                                                                 --governance-action-deposit NATURAL
                                                                                 ( --stake-pool-verification-key STRING

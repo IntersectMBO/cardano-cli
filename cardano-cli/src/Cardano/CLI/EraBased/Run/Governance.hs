@@ -92,8 +92,19 @@ data GovernanceCmdError
   | GovernanceCmdDelegationGenericError -- TODO Delete and replace with more specific errors
   deriving Show
 
-runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
+runGovernanceCmd :: ()
+  => Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto
+  => GovernanceCmd era
+  -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmd = \case
+  GovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
+    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
+  GovernanceMIRTransfer w ll oFp direction ->
+    runGovernanceMIRCertificateTransfer w ll oFp direction
+  GovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
+    runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
+  GovernanceGenesisKeyDelegationCertificate w genVk genDelegVk vrfVk out ->
+    runGovernanceGenesisKeyDelegationCertificate w genVk genDelegVk vrfVk out
   GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
   GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->

@@ -1,9 +1,9 @@
-Invalid argument `action'
+Usage: cardano-cli governance action create-action create-constitution
 
-Usage: cardano-cli governance 
-                                ( delegation-certificate
-                                | create-mir-certificate
-                                | create-genesis-key-delegation-certificate
-                                )
+  Create a governance action.
 
-  Era-based governance commands
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  create-constitution      Create a constitution.

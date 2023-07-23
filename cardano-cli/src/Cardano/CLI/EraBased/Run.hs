@@ -5,7 +5,6 @@ module Cardano.CLI.EraBased.Run
   ( AnyEraCmdError(..)
   , runAnyEraCommand
   , runEraBasedCommand
-  , runEraBasedGovernanceCmd
 
   , renderAnyEraCmdError
   ) where
@@ -14,7 +13,6 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Commands.EraBased
-import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.EraBased.Run.Governance
 
 import           Control.Monad.Trans.Except
@@ -41,18 +39,4 @@ runEraBasedCommand :: ()
   -> ExceptT () IO ()
 runEraBasedCommand = \case
   EraBasedGovernanceCmd cmd ->
-    firstExceptT (const ()) $ runEraBasedGovernanceCmd cmd
-
-runEraBasedGovernanceCmd :: ()
-  => Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto
-  => EraBasedGovernanceCmd era
-  -> ExceptT GovernanceCmdError IO ()
-runEraBasedGovernanceCmd = \case
-  EraBasedGovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
-    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
-  EraBasedGovernanceMIRTransfer w ll oFp direction ->
-    runGovernanceMIRCertificateTransfer w ll oFp direction
-  EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
-    runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
-  EraBasedGovernanceGenesisKeyDelegationCertificate w genVk genDelegVk vrfVk out ->
-    runGovernanceGenesisKeyDelegationCertificate w genVk genDelegVk vrfVk out
+    firstExceptT (const ()) $ runGovernanceCmd cmd

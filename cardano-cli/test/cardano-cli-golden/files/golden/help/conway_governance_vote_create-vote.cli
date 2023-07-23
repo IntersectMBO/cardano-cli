@@ -1,4 +1,4 @@
-Usage: cardano-cli legacy governance vote create-vote (--yes | --no | --abstain)
+Usage: cardano-cli conway governance vote create-vote (--yes | --no | --abstain)
                                                         ( --constitutional-committee-member
                                                         | --drep
                                                         | --spo

@@ -82,7 +82,7 @@ golden_view_shelley = let
     -- Create update proposal
     void $
       execCardanoCLI
-        [ "legacy", "governance", "create-update-proposal"
+        [ "governance", "create-update-proposal"
         , "--decentralization-parameter", "63/64"
         , "--epoch", "64"
         , "--extra-entropy", extraEntropySeed
@@ -268,7 +268,7 @@ golden_view_alonzo =
       -- Create update proposal
       void $
         execCardanoCLI
-          [ "legacy", "governance", "create-update-proposal"
+          [ "governance", "create-update-proposal"
           , "--epoch", "190"
           , "--genesis-verification-key-file"
           ,   "test/cardano-cli-golden/files/golden/shelley/keys/genesis_keys/verification_key"

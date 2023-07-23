@@ -25,7 +25,6 @@ import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Commands.Legacy
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.Types.Key (DelegationTarget (..), PaymentVerifier (..),
                    VerificationKeyOrFile (..), VerificationKeyTextOrFile (..))
 import           Cardano.CLI.Types.Legacy
@@ -96,9 +95,6 @@ parseLegacyCommands envCli =
     , Opt.command "genesis"
         $ Opt.info (GenesisCmd <$> pGenesisCmd envCli)
         $ Opt.progDesc "Genesis block commands"
-    , Opt.command "governance"
-        $ Opt.info (GovernanceCmd' <$> pGovernanceCmd envCli)
-        $ Opt.progDesc "Governance commands"
     , Opt.command "text-view"
         $ Opt.info (TextViewCmd <$> pTextViewCmd) . Opt.progDesc
         $ mconcat
@@ -177,7 +173,6 @@ pPaymentVerifier =
         pScriptFor "payment-script-file" Nothing "Filepath of the payment script."
     ]
 
-
 pPaymentVerificationKeyTextOrFile :: Parser VerificationKeyTextOrFile
 pPaymentVerificationKeyTextOrFile =
   asum
@@ -234,13 +229,13 @@ pReadOnlyReferenceTxIn =
     ]
 
 
-pScriptWitnessFiles :: forall witctx.
-                       WitCtx witctx
-                    -> BalanceTxExecUnits -- ^ Use the @execution-units@ flag.
-                    -> String -- ^ Script flag prefix
-                    -> Maybe String
-                    -> String
-                    -> Parser (ScriptWitnessFiles witctx)
+pScriptWitnessFiles :: forall witctx. ()
+  => WitCtx witctx
+  -> BalanceTxExecUnits -- ^ Use the @execution-units@ flag.
+  -> String -- ^ Script flag prefix
+  -> Maybe String
+  -> String
+  -> Parser (ScriptWitnessFiles witctx)
 pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
     toScriptWitnessFiles
       <$> pScriptFor (scriptFlagPrefix ++ "-script-file")
@@ -1711,29 +1706,31 @@ pColdSigningKeyFile =
 
 pRequiredSigner :: Parser RequiredSigner
 pRequiredSigner =
-      RequiredSignerSkeyFile <$> sKeyFile
-  <|> RequiredSignerHash <$> sPayKeyHash
- where
-  sKeyFile :: Parser (SigningKeyFile In)
-  sKeyFile = fmap File $ Opt.strOption $ mconcat
-    [ Opt.long "required-signer"
-    , Opt.metavar "FILE"
-    , Opt.help $ mconcat
-      [ "Input filepath of the signing key (zero or more) whose "
-      , "signature is required."
-      ]
-    , Opt.completer (Opt.bashCompleter "file")
+  asum
+    [ RequiredSignerSkeyFile <$> sKeyFile
+    , RequiredSignerHash <$> sPayKeyHash
     ]
-  sPayKeyHash :: Parser (Hash PaymentKey)
-  sPayKeyHash =
-    Opt.option (readerFromParsecParser $ parseHash (AsHash AsPaymentKey)) $ mconcat
-      [ Opt.long "required-signer-hash"
-      , Opt.metavar "HASH"
+ where
+    sKeyFile :: Parser (SigningKeyFile In)
+    sKeyFile = fmap File $ Opt.strOption $ mconcat
+      [ Opt.long "required-signer"
+      , Opt.metavar "FILE"
       , Opt.help $ mconcat
-        [ "Hash of the verification key (zero or more) whose "
+        [ "Input filepath of the signing key (zero or more) whose "
         , "signature is required."
         ]
+      , Opt.completer (Opt.bashCompleter "file")
       ]
+    sPayKeyHash :: Parser (Hash PaymentKey)
+    sPayKeyHash =
+      Opt.option (readerFromParsecParser $ parseHash (AsHash AsPaymentKey)) $ mconcat
+        [ Opt.long "required-signer-hash"
+        , Opt.metavar "HASH"
+        , Opt.help $ mconcat
+          [ "Hash of the verification key (zero or more) whose "
+          , "signature is required."
+          ]
+        ]
 
 pVrfSigningKeyFile :: Parser (SigningKeyFile In)
 pVrfSigningKeyFile =
@@ -2006,64 +2003,71 @@ pTxSubmitFile =
 pTxIn :: BalanceTxExecUnits
       -> Parser (TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))
 pTxIn balance =
-     (,) <$> Opt.option (readerFromParsecParser parseTxIn)
-               (  Opt.long "tx-in"
-                <> Opt.metavar "TX-IN"
-               <> Opt.help "TxId#TxIx"
-               )
-         <*> optional (pPlutusReferenceScriptWitness balance <|>
-                       pSimpleReferenceSpendingScriptWitess <|>
-                       pEmbeddedPlutusScriptWitness
-                       )
- where
-  pSimpleReferenceSpendingScriptWitess :: Parser (ScriptWitnessFiles WitCtxTxIn)
-  pSimpleReferenceSpendingScriptWitess =
-    createSimpleReferenceScriptWitnessFiles
-      <$> pReferenceTxIn "simple-script-" "simple"
-   where
-    createSimpleReferenceScriptWitnessFiles
-      :: TxIn
-      -> ScriptWitnessFiles WitCtxTxIn
-    createSimpleReferenceScriptWitnessFiles refTxIn  =
-      let simpleLang = AnyScriptLanguage SimpleScriptLanguage
-      in SimpleReferenceScriptWitnessFiles refTxIn simpleLang Nothing
+  (,)
+    <$> pTxIn'
+    <*> optional pWitness
+  where
+    pTxIn' =
+      Opt.option (readerFromParsecParser parseTxIn) $ mconcat
+        [ Opt.long "tx-in"
+        , Opt.metavar "TX-IN"
+        , Opt.help "TxId#TxIx"
+        ]
+    pWitness =
+      asum
+        [ pPlutusReferenceScriptWitness balance
+        , pSimpleReferenceSpendingScriptWitness
+        , pEmbeddedPlutusScriptWitness
+        ]
 
-  pPlutusReferenceScriptWitness :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxTxIn)
-  pPlutusReferenceScriptWitness autoBalanceExecUnits =
-    createPlutusReferenceScriptWitnessFiles
-      <$> pReferenceTxIn "spending-" "plutus"
-      <*> pPlutusScriptLanguage "spending-"
-      <*> pScriptDatumOrFile "spending-reference-tx-in" WitCtxTxIn
-      <*> pScriptRedeemerOrFile "spending-reference-tx-in"
-      <*> (case autoBalanceExecUnits of
-              AutoBalance -> pure (ExecutionUnits 0 0)
-              ManualBalance -> pExecutionUnits "spending-reference-tx-in")
-   where
-    createPlutusReferenceScriptWitnessFiles
-      :: TxIn
-      -> AnyScriptLanguage
-      -> ScriptDatumOrFile WitCtxTxIn
-      -> ScriptRedeemerOrFile
-      -> ExecutionUnits
-      -> ScriptWitnessFiles WitCtxTxIn
-    createPlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits =
-      PlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits Nothing
+    pSimpleReferenceSpendingScriptWitness :: Parser (ScriptWitnessFiles WitCtxTxIn)
+    pSimpleReferenceSpendingScriptWitness =
+      createSimpleReferenceScriptWitnessFiles
+        <$> pReferenceTxIn "simple-script-" "simple"
+      where
+        createSimpleReferenceScriptWitnessFiles
+          :: TxIn
+          -> ScriptWitnessFiles WitCtxTxIn
+        createSimpleReferenceScriptWitnessFiles refTxIn  =
+          let simpleLang = AnyScriptLanguage SimpleScriptLanguage
+          in SimpleReferenceScriptWitnessFiles refTxIn simpleLang Nothing
 
-  pEmbeddedPlutusScriptWitness :: Parser (ScriptWitnessFiles WitCtxTxIn)
-  pEmbeddedPlutusScriptWitness =
-    pScriptWitnessFiles
-      WitCtxTxIn
-      balance
-      "tx-in" (Just "txin")
-      "the spending of the transaction input."
+    pPlutusReferenceScriptWitness :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxTxIn)
+    pPlutusReferenceScriptWitness autoBalanceExecUnits =
+      createPlutusReferenceScriptWitnessFiles
+        <$> pReferenceTxIn "spending-" "plutus"
+        <*> pPlutusScriptLanguage "spending-"
+        <*> pScriptDatumOrFile "spending-reference-tx-in" WitCtxTxIn
+        <*> pScriptRedeemerOrFile "spending-reference-tx-in"
+        <*> (case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits "spending-reference-tx-in")
+      where
+        createPlutusReferenceScriptWitnessFiles
+          :: TxIn
+          -> AnyScriptLanguage
+          -> ScriptDatumOrFile WitCtxTxIn
+          -> ScriptRedeemerOrFile
+          -> ExecutionUnits
+          -> ScriptWitnessFiles WitCtxTxIn
+        createPlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits =
+          PlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits Nothing
+
+    pEmbeddedPlutusScriptWitness :: Parser (ScriptWitnessFiles WitCtxTxIn)
+    pEmbeddedPlutusScriptWitness =
+      pScriptWitnessFiles
+        WitCtxTxIn
+        balance
+        "tx-in" (Just "txin")
+        "the spending of the transaction input."
 
 pTxInCollateral :: Parser TxIn
 pTxInCollateral =
-    Opt.option (readerFromParsecParser parseTxIn)
-      (  Opt.long "tx-in-collateral"
-      <> Opt.metavar "TX-IN"
-      <> Opt.help "TxId#TxIx"
-      )
+  Opt.option (readerFromParsecParser parseTxIn) $ mconcat
+    [ Opt.long "tx-in-collateral"
+    , Opt.metavar "TX-IN"
+    , Opt.help "TxId#TxIx"
+    ]
 
 pReturnCollateral :: Parser TxOutAnyEra
 pReturnCollateral =

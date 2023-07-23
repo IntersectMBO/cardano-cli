@@ -25,7 +25,7 @@ golden_shelleyGovernanceAnswerPollNeg1Invalid = propertyOnce . H.moduleWorkspace
   outFile <- H.noteTempFile tempDir "answer-file.json"
 
   result <- tryExecCardanoCLI
-    [ "legacy", "governance", "answer-poll"
+    [ "governance", "answer-poll"
     , "--poll-file", pollFile
     , "--answer", "-1"
     , "--out-file", outFile
@@ -42,7 +42,7 @@ golden_shelleyGovernanceAnswerPoll0 = propertyOnce . H.moduleWorkspace "governan
   outFile <- H.noteTempFile tempDir "answer-file.json"
 
   void $ execCardanoCLI
-    [ "legacy", "governance", "answer-poll"
+    [ "governance", "answer-poll"
     , "--poll-file", pollFile
     , "--answer", "0"
     , "--out-file", outFile
@@ -57,7 +57,7 @@ golden_shelleyGovernanceAnswerPollPos1 = propertyOnce . H.moduleWorkspace "gover
   outFile <- H.noteTempFile tempDir "answer-file.json"
 
   void $ execCardanoCLI
-    [ "legacy", "governance", "answer-poll"
+    [ "governance", "answer-poll"
     , "--poll-file", pollFile
     , "--answer", "1"
     , "--out-file", outFile
@@ -71,7 +71,7 @@ golden_shelleyGovernanceAnswerPollPos2Invalid = propertyOnce . H.moduleWorkspace
   outFile <- H.noteTempFile tempDir "answer-file.json"
 
   result <- tryExecCardanoCLI
-    [ "legacy", "governance", "answer-poll"
+    [ "governance", "answer-poll"
     , "--poll-file", pollFile
     , "--answer", "2"
     , "--out-file", outFile
