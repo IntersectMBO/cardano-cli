@@ -21,6 +21,7 @@ import           Cardano.CLI.Types.Legacy
 import qualified Data.Aeson as Aeson
 import           Data.Foldable
 import           Data.Functor (($>))
+import           Data.Maybe
 import           Data.Text (Text)
 import           GHC.Natural (Natural)
 import           Options.Applicative hiding (help, str)
@@ -69,7 +70,7 @@ data TransactionCmd era
     -- | Like 'TxBuildRaw' but without the fee, and with a change output.
   | TxBuild
       SocketPath
-      AnyCardanoEra
+      (CardanoEra era)
       AnyConsensusModeParams
       NetworkId
       (Maybe ScriptValidity) -- ^ Mark script as expected to pass or fail validation
@@ -107,7 +108,7 @@ data TransactionCmd era
       [MetadataFile]
       (Maybe (Deprecated ProtocolParamsFile))
       (Maybe UpdateProposalFile)
-      [VoteFile In]
+      [File (ConwayVote era) In]
       [NewConstitutionFile In]
       TxBuildOutputOptions
   | TxSign InputTxBodyOrTxFile [WitnessSigningData] (Maybe NetworkId) (TxFile Out)
@@ -148,10 +149,11 @@ renderTransactionCmd cmd =
     TxGetTxId {} -> "transaction txid"
     TxView {} -> "transaction view"
 
-pTransactionCmd :: EnvCli -> Parser (TransactionCmd era)
-pTransactionCmd envCli =
-  asum
-    [ subParser "build-raw"
+pTransactionCmd :: EnvCli -> CardanoEra era -> Parser (TransactionCmd era)
+pTransactionCmd envCli era =
+  asum $ catMaybes
+    [ Just
+        $ subParser "build-raw"
         $ Opt.info pTransactionBuildRaw $ Opt.progDescDoc $ Just $ mconcat
           [ pretty @String "Build a transaction (low-level, inconvenient)"
           , line
@@ -161,8 +163,10 @@ pTransactionCmd envCli =
             , "undesired tx body. See nested [] notation above for details."
             ]
           ]
-    , subParser "build"
-        $ Opt.info pTransactionBuild $ Opt.progDescDoc $ Just $ mconcat
+    , Just
+        $ subParser "build"
+        $ Opt.info (pTransactionBuild era)
+        $ Opt.progDescDoc $ Just $ mconcat
           [ pretty @String "Build a balanced transaction (automatically calculates fees)"
           , line
           , line
@@ -173,34 +177,51 @@ pTransactionCmd envCli =
             , "undesired tx body. See nested [] notation above for details."
             ]
           ]
-    , subParser "sign"
-        (Opt.info pTransactionSign $ Opt.progDesc "Sign a transaction")
-    , subParser "witness"
-        (Opt.info pTransactionCreateWitness $ Opt.progDesc "Create a transaction witness")
-    , subParser "assemble"
-        (Opt.info pTransactionAssembleTxBodyWit
-          $ Opt.progDesc "Assemble a tx body and witness(es) to form a transaction")
+    , Just
+        $ subParser "sign"
+        $ Opt.info pTransactionSign
+        $ Opt.progDesc "Sign a transaction"
+    , Just
+        $ subParser "witness"
+        $ Opt.info pTransactionCreateWitness
+        $ Opt.progDesc "Create a transaction witness"
+    , Just
+        $ subParser "assemble"
+        $ Opt.info pTransactionAssembleTxBodyWit
+        $ Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
     , pSignWitnessBackwardCompatible
-    , subParser "submit"
-        (Opt.info pTransactionSubmit . Opt.progDesc $
-           mconcat
-             [ "Submit a transaction to the local node whose Unix domain socket "
-             , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
-             ]
-          )
-    , subParser "policyid"
-        (Opt.info pTransactionPolicyId $ Opt.progDesc "Calculate the PolicyId from the monetary policy script.")
-    , subParser "calculate-min-fee"
-        (Opt.info pTransactionCalculateMinFee $ Opt.progDesc "Calculate the minimum fee for a transaction.")
-    , subParser "calculate-min-required-utxo"
-        (Opt.info pTransactionCalculateMinReqUTxO $ Opt.progDesc "Calculate the minimum required UTxO for a transaction output.")
+    , Just
+        $ subParser "submit"
+        $ Opt.info pTransactionSubmit . Opt.progDesc
+        $ mconcat
+            [ "Submit a transaction to the local node whose Unix domain socket "
+            , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
+            ]
+    , Just
+        $ subParser "policyid"
+        $ Opt.info pTransactionPolicyId
+        $ Opt.progDesc "Calculate the PolicyId from the monetary policy script."
+    , Just
+        $ subParser "calculate-min-fee"
+        $ Opt.info pTransactionCalculateMinFee
+        $ Opt.progDesc "Calculate the minimum fee for a transaction."
+    , Just
+        $ subParser "calculate-min-required-utxo"
+        $ Opt.info pTransactionCalculateMinReqUTxO
+        $ Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
     , pCalculateMinRequiredUtxoBackwardCompatible
-    , subParser "hash-script-data"
-        (Opt.info pTxHashScriptData $ Opt.progDesc "Calculate the hash of script data.")
-    , subParser "txid"
-        (Opt.info pTransactionId $ Opt.progDesc "Print a transaction identifier.")
-    , subParser "view" $
-        Opt.info pTransactionView $ Opt.progDesc "Print a transaction."
+    , Just
+        $ subParser "hash-script-data"
+        $ Opt.info pTxHashScriptData
+        $ Opt.progDesc "Calculate the hash of script data."
+    , Just
+        $ subParser "txid"
+        $ Opt.info pTransactionId
+        $ Opt.progDesc "Print a transaction identifier."
+    , Just
+        $ subParser "view"
+        $ Opt.info pTransactionView
+        $ Opt.progDesc "Print a transaction."
     ]
   where
     -- Backwards compatible parsers
@@ -209,9 +230,10 @@ pTransactionCmd envCli =
       Opt.info pTransactionCalculateMinReqUTxO
         $ Opt.progDesc "DEPRECATED: Use 'calculate-min-required-utxo' instead."
 
-    pCalculateMinRequiredUtxoBackwardCompatible :: Parser (TransactionCmd era)
+    pCalculateMinRequiredUtxoBackwardCompatible :: Maybe (Parser (TransactionCmd era))
     pCalculateMinRequiredUtxoBackwardCompatible =
-      Opt.subparser
+      Just
+        $ Opt.subparser
         $ Opt.command "calculate-min-value" calcMinValueInfo <> Opt.internal
 
     assembleInfo :: ParserInfo (TransactionCmd era)
@@ -219,9 +241,10 @@ pTransactionCmd envCli =
       Opt.info pTransactionAssembleTxBodyWit
         $ Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
 
-    pSignWitnessBackwardCompatible :: Parser (TransactionCmd era)
+    pSignWitnessBackwardCompatible :: Maybe (Parser (TransactionCmd era))
     pSignWitnessBackwardCompatible =
-      Opt.subparser
+      Just
+        $ Opt.subparser
         $ Opt.command "sign-witness" assembleInfo <> Opt.internal
 
     pScriptValidity :: Parser ScriptValidity
@@ -240,11 +263,11 @@ pTransactionCmd envCli =
         ]
       ]
 
-    pTransactionBuild :: Parser (TransactionCmd era)
-    pTransactionBuild =
+    pTransactionBuild :: CardanoEra era -> Parser (TransactionCmd era)
+    pTransactionBuild era' =
       TxBuild
         <$> pSocketPath envCli
-        <*> pCardanoEra envCli
+        <*> pure era'
         <*> pConsensusModeParams
         <*> pNetworkId envCli
         <*> optional pScriptValidity

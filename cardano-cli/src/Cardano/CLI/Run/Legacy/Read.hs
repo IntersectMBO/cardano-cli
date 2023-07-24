@@ -748,7 +748,7 @@ data VoteError
 
 readTxVotes :: ()
   => CardanoEra era
-  -> [VoteFile In]
+  -> [File (ConwayVote era) In]
   -> IO (Either VoteError (TxVotes era))
 readTxVotes _ [] = return $ Right TxVotesNone
 readTxVotes era files = runExceptT $
@@ -762,7 +762,7 @@ readTxVotes era files = runExceptT $
 
 readVoteFile
   :: ShelleyBasedEra era
-  -> VoteFile In
+  -> File (ConwayVote era) In
   -> IO (Either VoteError (VotingProcedure era))
 readVoteFile sbe fp =
   first VoteErrorFile <$> obtainEraConstraints sbe (readFileTextEnvelope AsVote fp)

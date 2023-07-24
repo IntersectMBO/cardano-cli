@@ -85,7 +85,7 @@ pEraBasedCommand envCli era =
         $ Opt.info (EraBasedGovernanceCmd <$> pGovernanceCmd envCli era)
         $ Opt.progDesc "Era-based governance commands"
     , subParser "transaction"
-        $ Opt.info (EraBasedTransactionCmd <$> pTransactionCmd envCli)
+        $ Opt.info (EraBasedTransactionCmd <$> pTransactionCmd envCli era)
         $ Opt.progDesc "Era-based transaction commands"
     , subParser "stake-address"
         $ Opt.info (EraBasedStakeAddressCmd <$> pStakeAddressCmd envCli)

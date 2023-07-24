@@ -304,7 +304,7 @@ runTransactionCmd = \case
 
 runTxBuildCmd
   :: SocketPath
-  -> AnyCardanoEra
+  -> CardanoEra era
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe ScriptValidity
@@ -327,16 +327,16 @@ runTxBuildCmd
   -> [MetadataFile]
   -> Maybe (Deprecated ProtocolParamsFile)
   -> Maybe UpdateProposalFile
-  -> [VoteFile In]
+  -> [File (ConwayVote era) In]
   -> [NewConstitutionFile In] -- TODO: Conway era - we should replace this with a sumtype that handles all governance actions
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO ()
 runTxBuildCmd
-    socketPath (AnyCardanoEra cEra) consensusModeParams@(AnyConsensusModeParams cModeParams)
+    socketPath cEra consensusModeParams@(AnyConsensusModeParams cModeParams)
     nid mScriptValidity mOverrideWits txins readOnlyRefIns
     reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
     mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mDeprecatedProtocolParamsFile
-    mUpProp conwayVotes newConstitutions outputOptions = do
+    mUpProp conwayVotes newConstitutions outputOptions = getIsCardanoEraConstraint cEra $ do
   forM_ mDeprecatedProtocolParamsFile $ \_ ->
     liftIO $ printWarning "'--protocol-params-file' for 'transaction build' is deprecated"
 

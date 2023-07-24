@@ -15,6 +15,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
@@ -50,7 +51,7 @@ data GovernanceCmd era
       (VerificationKeyOrHashOrFile VrfKey)
       (File () Out)
   | GovernanceVoteCmd
-      VoteCmd
+      (VoteCmd era)
   | GovernanceActionCmd
       ActionCmd
   | GovernanceUpdateProposal
@@ -97,7 +98,7 @@ pGovernanceCmd envCli era =
     , pCreatePollCmd
     , pAnswerPollCmd
     , pVerifyPollCmd
-    , pVote envCli
+    , pVote era
     , pAction envCli
     ]
 
@@ -298,11 +299,13 @@ pVerifyPollCmd =
     $ Opt.info pGovernanceVerifyPoll
     $ Opt.progDesc "Verify an answer to a given SPO poll"
 
-pVote :: EnvCli -> Maybe (Parser (GovernanceCmd era))
-pVote envCli =
+pVote :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceCmd era))
+pVote era =
   Just
     $ fmap GovernanceVoteCmd $ subParser "vote"
-    $ Opt.info (pVoteCommmands envCli)
+    $ Opt.info (pVoteCommmands era)
     $ Opt.progDesc "Vote related commands."
 
 pAction :: EnvCli -> Maybe (Parser (GovernanceCmd era))
@@ -397,53 +400,59 @@ pPollNonce =
 -- Vote related
 --------------------------------------------------------------------------------
 
-pVoteCommmands :: EnvCli -> Parser VoteCmd
-pVoteCommmands envCli =
-  asum
-    [ subParser "create-vote"
-        $ Opt.info (pCreateVote envCli)
-        $ Opt.progDesc "Create a vote for a proposed governance action."
+pVoteCommmands :: ()
+  => CardanoEra era
+  -> Parser (VoteCmd era)
+pVoteCommmands era =
+  asum $ catMaybes
+    [ pCreateVote era
     ]
 
-newtype VoteCmd
-  = CreateVoteCmd ConwayVote deriving Show
+newtype VoteCmd era
+  = CreateVoteCmd (ConwayVote era) deriving Show
 
 
-pCreateVote :: EnvCli -> Parser VoteCmd
-pCreateVote envCli =
-  fmap CreateVoteCmd $
-    ConwayVote
-      <$> pVoteChoice
-      <*> pVoterType
-      <*> pGoveranceActionIdentifier
-      <*> pVotingCredential
-      <*> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
-      <*> pFileOutDirection "out-file" "Output filepath of the vote."
+pCreateVote :: ()
+  => CardanoEra era
+  -> Maybe (Parser (VoteCmd era))
+pCreateVote =
+  featureInEra Nothing $ \w ->
+    Just
+      $ subParser "create-vote"
+      $ Opt.info (pCmd w)
+      $ Opt.progDesc "Create a vote for a proposed governance action."
+  where
+    pCmd w =
+      fmap CreateVoteCmd $ ConwayVote w
+        <$> pVoteChoice
+        <*> pVoterType
+        <*> pGoveranceActionIdentifier
+        <*> pVotingCredential
+        <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
- where
-  pVoteChoice :: Parser Vote
-  pVoteChoice =
-    asum
-     [  flag' Yes $ long "yes"
-     ,  flag' No $ long "no"
-     ,  flag' Abstain $ long "abstain"
-     ]
+    pVoteChoice :: Parser Vote
+    pVoteChoice =
+      asum
+        [ flag' Yes $ long "yes"
+        , flag' No $ long "no"
+        , flag' Abstain $ long "abstain"
+        ]
 
-  pVoterType :: Parser VType
-  pVoterType =
-    asum
-     [  flag' VCC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
-     ,  flag' VDR $ mconcat [long "drep", Opt.help "Delegate representative"]
-     ,  flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
-     ]
+    pVoterType :: Parser VType
+    pVoterType =
+      asum
+        [ flag' VCC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
+        , flag' VDR $ mconcat [long "drep", Opt.help "Delegate representative"]
+        , flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
+        ]
 
-  pGoveranceActionIdentifier :: Parser TxIn
-  pGoveranceActionIdentifier =
-    Opt.option (readerFromParsecParser parseTxIn) $ mconcat
-      [ Opt.long "tx-in"
-      , Opt.metavar "TX-IN"
-      , Opt.help "TxIn of governance action (already on chain)."
-      ]
+    pGoveranceActionIdentifier :: Parser TxIn
+    pGoveranceActionIdentifier =
+      Opt.option (readerFromParsecParser parseTxIn) $ mconcat
+        [ Opt.long "tx-in"
+        , Opt.metavar "TX-IN"
+        , Opt.help "TxIn of governance action (already on chain)."
+        ]
 
 -- TODO: Conway era include "normal" stake keys
 pVotingCredential :: Parser (VerificationKeyOrFile StakePoolKey)
