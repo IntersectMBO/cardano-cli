@@ -3,3 +3,15 @@ main-branch: main
 release-branch:
   prefix: release/
   suffix: .x
+changelog:
+  # Determine which changelog options are available and which end up in the changelog
+  options:
+    compatibility:
+      breaking: true
+      compatible: true
+      no-api-changes: false
+    type:
+      feature: true
+      bugfix: true
+      test: false
+      maintenance: false
