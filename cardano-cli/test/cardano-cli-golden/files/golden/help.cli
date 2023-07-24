@@ -180,7 +180,6 @@ Usage: cardano-cli shelley governance vote create-vote
                                                          ( --stake-pool-verification-key STRING
                                                          | --cold-verification-key-file FILE
                                                          )
-                                                         [--conway-era]
                                                          --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -189,22 +188,9 @@ Usage: cardano-cli shelley governance action create-action
 
   Governance action related commands.
 
-Usage: cardano-cli shelley governance action create-action create-constitution
+Usage: cardano-cli shelley governance action create-action 
 
   Create a governance action.
-
-Usage: cardano-cli shelley governance action create-action create-constitution 
-                                                                                 [--conway-era]
-                                                                                 --governance-action-deposit NATURAL
-                                                                                 ( --stake-pool-verification-key STRING
-                                                                                 | --cold-verification-key-file FILE
-                                                                                 )
-                                                                                 ( --constitution TEXT
-                                                                                 | --constitution-file FILE
-                                                                                 )
-                                                                                 --out-file FILE
-
-  Create a constitution.
 
 Usage: cardano-cli shelley transaction 
                                          ( build-raw
@@ -353,14 +339,6 @@ Usage: cardano-cli shelley transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
-                                               [ --byron-era
-                                               | --shelley-era
-                                               | --allegra-era
-                                               | --mary-era
-                                               | --alonzo-era
-                                               | --babbage-era
-                                               | --conway-era
-                                               ]
                                                [ --shelley-mode
                                                | --byron-mode
                                                  [--epoch-slots SLOTS]
@@ -944,7 +922,6 @@ Usage: cardano-cli allegra governance vote create-vote
                                                          ( --stake-pool-verification-key STRING
                                                          | --cold-verification-key-file FILE
                                                          )
-                                                         [--conway-era]
                                                          --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -953,22 +930,9 @@ Usage: cardano-cli allegra governance action create-action
 
   Governance action related commands.
 
-Usage: cardano-cli allegra governance action create-action create-constitution
+Usage: cardano-cli allegra governance action create-action 
 
   Create a governance action.
-
-Usage: cardano-cli allegra governance action create-action create-constitution 
-                                                                                 [--conway-era]
-                                                                                 --governance-action-deposit NATURAL
-                                                                                 ( --stake-pool-verification-key STRING
-                                                                                 | --cold-verification-key-file FILE
-                                                                                 )
-                                                                                 ( --constitution TEXT
-                                                                                 | --constitution-file FILE
-                                                                                 )
-                                                                                 --out-file FILE
-
-  Create a constitution.
 
 Usage: cardano-cli allegra transaction 
                                          ( build-raw
@@ -1117,14 +1081,6 @@ Usage: cardano-cli allegra transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli allegra transaction build --socket-path SOCKET_PATH
-                                               [ --byron-era
-                                               | --shelley-era
-                                               | --allegra-era
-                                               | --mary-era
-                                               | --alonzo-era
-                                               | --babbage-era
-                                               | --conway-era
-                                               ]
                                                [ --shelley-mode
                                                | --byron-mode
                                                  [--epoch-slots SLOTS]
@@ -1699,7 +1655,6 @@ Usage: cardano-cli mary governance vote create-vote (--yes | --no | --abstain)
                                                       ( --stake-pool-verification-key STRING
                                                       | --cold-verification-key-file FILE
                                                       )
-                                                      [--conway-era]
                                                       --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -1708,22 +1663,9 @@ Usage: cardano-cli mary governance action create-action
 
   Governance action related commands.
 
-Usage: cardano-cli mary governance action create-action create-constitution
+Usage: cardano-cli mary governance action create-action 
 
   Create a governance action.
-
-Usage: cardano-cli mary governance action create-action create-constitution 
-                                                                              [--conway-era]
-                                                                              --governance-action-deposit NATURAL
-                                                                              ( --stake-pool-verification-key STRING
-                                                                              | --cold-verification-key-file FILE
-                                                                              )
-                                                                              ( --constitution TEXT
-                                                                              | --constitution-file FILE
-                                                                              )
-                                                                              --out-file FILE
-
-  Create a constitution.
 
 Usage: cardano-cli mary transaction 
                                       ( build-raw
@@ -1872,14 +1814,6 @@ Usage: cardano-cli mary transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli mary transaction build --socket-path SOCKET_PATH
-                                            [ --byron-era
-                                            | --shelley-era
-                                            | --allegra-era
-                                            | --mary-era
-                                            | --alonzo-era
-                                            | --babbage-era
-                                            | --conway-era
-                                            ]
                                             [ --shelley-mode
                                             | --byron-mode [--epoch-slots SLOTS]
                                             | --cardano-mode
@@ -2444,7 +2378,6 @@ Usage: cardano-cli alonzo governance vote create-vote (--yes | --no | --abstain)
                                                         ( --stake-pool-verification-key STRING
                                                         | --cold-verification-key-file FILE
                                                         )
-                                                        [--conway-era]
                                                         --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -2453,22 +2386,9 @@ Usage: cardano-cli alonzo governance action create-action
 
   Governance action related commands.
 
-Usage: cardano-cli alonzo governance action create-action create-constitution
+Usage: cardano-cli alonzo governance action create-action 
 
   Create a governance action.
-
-Usage: cardano-cli alonzo governance action create-action create-constitution 
-                                                                                [--conway-era]
-                                                                                --governance-action-deposit NATURAL
-                                                                                ( --stake-pool-verification-key STRING
-                                                                                | --cold-verification-key-file FILE
-                                                                                )
-                                                                                ( --constitution TEXT
-                                                                                | --constitution-file FILE
-                                                                                )
-                                                                                --out-file FILE
-
-  Create a constitution.
 
 Usage: cardano-cli alonzo transaction 
                                         ( build-raw
@@ -2617,14 +2537,6 @@ Usage: cardano-cli alonzo transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
-                                              [ --byron-era
-                                              | --shelley-era
-                                              | --allegra-era
-                                              | --mary-era
-                                              | --alonzo-era
-                                              | --babbage-era
-                                              | --conway-era
-                                              ]
                                               [ --shelley-mode
                                               | --byron-mode
                                                 [--epoch-slots SLOTS]
@@ -3208,7 +3120,6 @@ Usage: cardano-cli babbage governance vote create-vote
                                                          ( --stake-pool-verification-key STRING
                                                          | --cold-verification-key-file FILE
                                                          )
-                                                         [--conway-era]
                                                          --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -3217,22 +3128,9 @@ Usage: cardano-cli babbage governance action create-action
 
   Governance action related commands.
 
-Usage: cardano-cli babbage governance action create-action create-constitution
+Usage: cardano-cli babbage governance action create-action 
 
   Create a governance action.
-
-Usage: cardano-cli babbage governance action create-action create-constitution 
-                                                                                 [--conway-era]
-                                                                                 --governance-action-deposit NATURAL
-                                                                                 ( --stake-pool-verification-key STRING
-                                                                                 | --cold-verification-key-file FILE
-                                                                                 )
-                                                                                 ( --constitution TEXT
-                                                                                 | --constitution-file FILE
-                                                                                 )
-                                                                                 --out-file FILE
-
-  Create a constitution.
 
 Usage: cardano-cli babbage transaction 
                                          ( build-raw
@@ -3381,14 +3279,6 @@ Usage: cardano-cli babbage transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
-                                               [ --byron-era
-                                               | --shelley-era
-                                               | --allegra-era
-                                               | --mary-era
-                                               | --alonzo-era
-                                               | --babbage-era
-                                               | --conway-era
-                                               ]
                                                [ --shelley-mode
                                                | --byron-mode
                                                  [--epoch-slots SLOTS]
@@ -3914,7 +3804,6 @@ Usage: cardano-cli conway governance vote create-vote (--yes | --no | --abstain)
                                                         ( --stake-pool-verification-key STRING
                                                         | --cold-verification-key-file FILE
                                                         )
-                                                        [--conway-era]
                                                         --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -3927,9 +3816,7 @@ Usage: cardano-cli conway governance action create-action create-constitution
 
   Create a governance action.
 
-Usage: cardano-cli conway governance action create-action create-constitution 
-                                                                                [--conway-era]
-                                                                                --governance-action-deposit NATURAL
+Usage: cardano-cli conway governance action create-action create-constitution --governance-action-deposit NATURAL
                                                                                 ( --stake-pool-verification-key STRING
                                                                                 | --cold-verification-key-file FILE
                                                                                 )
@@ -4087,14 +3974,6 @@ Usage: cardano-cli conway transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
-                                              [ --byron-era
-                                              | --shelley-era
-                                              | --allegra-era
-                                              | --mary-era
-                                              | --alonzo-era
-                                              | --babbage-era
-                                              | --conway-era
-                                              ]
                                               [ --shelley-mode
                                               | --byron-mode
                                                 [--epoch-slots SLOTS]
@@ -4674,7 +4553,6 @@ Usage: cardano-cli latest governance vote create-vote (--yes | --no | --abstain)
                                                         ( --stake-pool-verification-key STRING
                                                         | --cold-verification-key-file FILE
                                                         )
-                                                        [--conway-era]
                                                         --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -4683,22 +4561,9 @@ Usage: cardano-cli latest governance action create-action
 
   Governance action related commands.
 
-Usage: cardano-cli latest governance action create-action create-constitution
+Usage: cardano-cli latest governance action create-action 
 
   Create a governance action.
-
-Usage: cardano-cli latest governance action create-action create-constitution 
-                                                                                [--conway-era]
-                                                                                --governance-action-deposit NATURAL
-                                                                                ( --stake-pool-verification-key STRING
-                                                                                | --cold-verification-key-file FILE
-                                                                                )
-                                                                                ( --constitution TEXT
-                                                                                | --constitution-file FILE
-                                                                                )
-                                                                                --out-file FILE
-
-  Create a constitution.
 
 Usage: cardano-cli latest transaction 
                                         ( build-raw
@@ -4847,14 +4712,6 @@ Usage: cardano-cli latest transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
-                                              [ --byron-era
-                                              | --shelley-era
-                                              | --allegra-era
-                                              | --mary-era
-                                              | --alonzo-era
-                                              | --babbage-era
-                                              | --conway-era
-                                              ]
                                               [ --shelley-mode
                                               | --byron-mode
                                                 [--epoch-slots SLOTS]
@@ -5384,7 +5241,6 @@ Usage: cardano-cli experimental governance vote create-vote
                                                               ( --stake-pool-verification-key STRING
                                                               | --cold-verification-key-file FILE
                                                               )
-                                                              [--conway-era]
                                                               --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -5398,9 +5254,7 @@ Usage: cardano-cli experimental governance action create-action
 
   Create a governance action.
 
-Usage: cardano-cli experimental governance action create-action create-constitution 
-                                                                                      [--conway-era]
-                                                                                      --governance-action-deposit NATURAL
+Usage: cardano-cli experimental governance action create-action create-constitution --governance-action-deposit NATURAL
                                                                                       ( --stake-pool-verification-key STRING
                                                                                       | --cold-verification-key-file FILE
                                                                                       )
@@ -5558,14 +5412,6 @@ Usage: cardano-cli experimental transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli experimental transaction build --socket-path SOCKET_PATH
-                                                    [ --byron-era
-                                                    | --shelley-era
-                                                    | --allegra-era
-                                                    | --mary-era
-                                                    | --alonzo-era
-                                                    | --babbage-era
-                                                    | --conway-era
-                                                    ]
                                                     [ --shelley-mode
                                                     | --byron-mode
                                                       [--epoch-slots SLOTS]
@@ -6715,7 +6561,6 @@ Usage: cardano-cli governance vote create-vote (--yes | --no | --abstain)
                                                  ( --stake-pool-verification-key STRING
                                                  | --cold-verification-key-file FILE
                                                  )
-                                                 [--conway-era]
                                                  --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -6724,22 +6569,9 @@ Usage: cardano-cli governance action create-action
 
   Governance action related commands.
 
-Usage: cardano-cli governance action create-action create-constitution
+Usage: cardano-cli governance action create-action 
 
   Create a governance action.
-
-Usage: cardano-cli governance action create-action create-constitution 
-                                                                         [--conway-era]
-                                                                         --governance-action-deposit NATURAL
-                                                                         ( --stake-pool-verification-key STRING
-                                                                         | --cold-verification-key-file FILE
-                                                                         )
-                                                                         ( --constitution TEXT
-                                                                         | --constitution-file FILE
-                                                                         )
-                                                                         --out-file FILE
-
-  Create a constitution.
 
 Usage: cardano-cli transaction 
                                  ( build-raw
@@ -6885,14 +6717,6 @@ Usage: cardano-cli transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli transaction build --socket-path SOCKET_PATH
-                                       [ --byron-era
-                                       | --shelley-era
-                                       | --allegra-era
-                                       | --mary-era
-                                       | --alonzo-era
-                                       | --babbage-era
-                                       | --conway-era
-                                       ]
                                        [ --shelley-mode
                                        | --byron-mode [--epoch-slots SLOTS]
                                        | --cardano-mode [--epoch-slots SLOTS]

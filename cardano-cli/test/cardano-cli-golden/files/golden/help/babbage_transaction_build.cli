@@ -1,12 +1,4 @@
 Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
-                                               [ --byron-era
-                                               | --shelley-era
-                                               | --allegra-era
-                                               | --mary-era
-                                               | --alonzo-era
-                                               | --babbage-era
-                                               | --conway-era
-                                               ]
                                                [ --shelley-mode
                                                | --byron-mode
                                                  [--epoch-slots SLOTS]
@@ -136,13 +128,6 @@ Available options:
                            CARDANO_NODE_SOCKET_PATH environment variable. The
                            argument is optional if CARDANO_NODE_SOCKET_PATH is
                            defined and mandatory otherwise.
-  --byron-era              Specify the Byron era
-  --shelley-era            Specify the Shelley era
-  --allegra-era            Specify the Allegra era
-  --mary-era               Specify the Mary era
-  --alonzo-era             Specify the Alonzo era
-  --babbage-era            Specify the Babbage era (default)
-  --conway-era             Specify the Conway era
   --shelley-mode           For talking to a node running in Shelley-only mode.
   --byron-mode             For talking to a node running in Byron-only mode.
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.

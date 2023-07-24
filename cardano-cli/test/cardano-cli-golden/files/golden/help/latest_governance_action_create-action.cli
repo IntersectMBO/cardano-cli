@@ -1,9 +1,6 @@
-Usage: cardano-cli latest governance action create-action create-constitution
+Usage: cardano-cli latest governance action create-action 
 
   Create a governance action.
 
 Available options:
   -h,--help                Show this help text
-
-Available commands:
-  create-constitution      Create a constitution.

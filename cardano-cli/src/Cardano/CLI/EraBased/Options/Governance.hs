@@ -53,7 +53,7 @@ data GovernanceCmd era
   | GovernanceVoteCmd
       (VoteCmd era)
   | GovernanceActionCmd
-      ActionCmd
+      (ActionCmd era)
   | GovernanceUpdateProposal
       (File () Out) EpochNo
       [VerificationKeyFile In]
@@ -99,7 +99,7 @@ pGovernanceCmd envCli era =
     , pAnswerPollCmd
     , pVerifyPollCmd
     , pVote era
-    , pAction envCli
+    , pAction era
     ]
 
 data AnyEraDecider era where
@@ -308,11 +308,13 @@ pVote era =
     $ Opt.info (pVoteCommmands era)
     $ Opt.progDesc "Vote related commands."
 
-pAction :: EnvCli -> Maybe (Parser (GovernanceCmd era))
-pAction envCli =
+pAction :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceCmd era))
+pAction era =
   Just
     $ fmap GovernanceActionCmd $ subParser "action"
-    $ Opt.info (pActionCommmands envCli)
+    $ Opt.info (pActionCommmands era)
     $ Opt.progDesc "Governance action related commands."
 
 pUpdateProposal :: Parser (GovernanceCmd era)
@@ -463,31 +465,45 @@ pVotingCredential = pStakePoolVerificationKeyOrFile
 -- Governance action related
 --------------------------------------------------------------------------------
 
-newtype ActionCmd = CreateConstitution NewConstitution deriving Show
+newtype ActionCmd era = CreateConstitution (NewConstitution era) deriving Show
 
-pActionCommmands :: EnvCli -> Parser ActionCmd
-pActionCommmands envCli =
+pActionCommmands :: ()
+  => CardanoEra era
+  -> Parser (ActionCmd era)
+pActionCommmands era =
   asum
     [ subParser "create-action"
-        $ Opt.info (pCreateAction envCli)
+        $ Opt.info (pCreateAction era)
         $ Opt.progDesc "Create a governance action."
     ]
 
-pCreateAction :: EnvCli -> Parser ActionCmd
-pCreateAction envCli =
-  asum
-    [ subParser "create-constitution"
-        $ Opt.info (pCreateConstitution envCli)
-        $ Opt.progDesc "Create a constitution."
+pCreateAction :: ()
+  => CardanoEra era
+  -> Parser (ActionCmd era)
+pCreateAction era =
+  asum $ catMaybes
+    [ featureInEra Nothing
+        (\w ->
+          featureInEra Nothing
+            (\sbe ->
+                Just
+                  $ subParser "create-constitution"
+                  $ Opt.info (pCreateConstitution sbe w)
+                  $ Opt.progDesc "Create a constitution."
+            )
+          era
+        )
+        era
     ]
 
-
-pCreateConstitution :: EnvCli -> Parser ActionCmd
-pCreateConstitution envCli =
+pCreateConstitution :: ()
+  => ShelleyBasedEra era
+  -> ConwayEraOnwards era
+  -> Parser (ActionCmd era)
+pCreateConstitution sbe w =
   fmap CreateConstitution $
-    NewConstitution
-      <$> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
-      <*> pGovActionDeposit
+    NewConstitution sbe w
+      <$> pGovActionDeposit
       <*> pVotingCredential
       <*> pConstitution
       <*> pFileOutDirection "out-file" "Output filepath of the governance action."

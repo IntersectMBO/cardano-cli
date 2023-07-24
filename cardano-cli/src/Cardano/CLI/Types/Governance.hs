@@ -21,15 +21,14 @@ data ConwayVote era
     , cvFilepath :: File (ConwayVote era) Out
     } deriving Show
 
-type NewConstitutionFile = File NewConstitution
-
-data NewConstitution
+data NewConstitution era
   = NewConstitution
-      { ncEra :: AnyShelleyBasedEra
+      { ncSbe :: ShelleyBasedEra era -- We shouldn't have to store both of these
+      , ncW :: ConwayEraOnwards era -- We shouldn't have to store both of these
       , ncDeposit :: Lovelace
       , ncVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
       , ncConstitution :: Constitution
-      , ncFilePath :: NewConstitutionFile Out
+      , ncFilePath :: File (NewConstitution era) Out
       } deriving Show
 
 data Constitution

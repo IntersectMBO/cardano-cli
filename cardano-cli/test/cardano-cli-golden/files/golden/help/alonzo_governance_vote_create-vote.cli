@@ -7,7 +7,6 @@ Usage: cardano-cli alonzo governance vote create-vote (--yes | --no | --abstain)
                                                         ( --stake-pool-verification-key STRING
                                                         | --cold-verification-key-file FILE
                                                         )
-                                                        [--conway-era]
                                                         --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -22,6 +21,5 @@ Available options:
                            Stake pool verification key (Bech32 or hex-encoded).
   --cold-verification-key-file FILE
                            Filepath of the stake pool verification key.
-  --conway-era             Specify the Conway era
   --out-file FILE          Output filepath of the vote.
   -h,--help                Show this help text

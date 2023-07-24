@@ -775,7 +775,7 @@ data ConstitutionError
 
 readTxNewConstitutionActions
   :: CardanoEra era
-  -> [NewConstitutionFile In]
+  -> [File (NewConstitution era) In]
   -> IO (Either ConstitutionError (TxGovernanceActions era))
 readTxNewConstitutionActions _ [] = return $ Right TxGovernanceActionsNone
 readTxNewConstitutionActions era files = runExceptT $
@@ -789,7 +789,7 @@ readTxNewConstitutionActions era files = runExceptT $
 
 readConstitution
   :: ShelleyBasedEra era
-  -> NewConstitutionFile In
+  -> File (NewConstitution era) In
   -> IO (Either ConstitutionError (Proposal era))
 readConstitution sbe fp =
   fmap (first ConstitutionErrorFile)

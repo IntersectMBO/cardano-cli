@@ -1,6 +1,4 @@
-Usage: cardano-cli conway governance action create-action create-constitution 
-                                                                                [--conway-era]
-                                                                                --governance-action-deposit NATURAL
+Usage: cardano-cli conway governance action create-action create-constitution --governance-action-deposit NATURAL
                                                                                 ( --stake-pool-verification-key STRING
                                                                                 | --cold-verification-key-file FILE
                                                                                 )
@@ -12,7 +10,6 @@ Usage: cardano-cli conway governance action create-action create-constitution
   Create a constitution.
 
 Available options:
-  --conway-era             Specify the Conway era
   --governance-action-deposit NATURAL
                            Deposit required to submit a governance action.
   --stake-pool-verification-key STRING

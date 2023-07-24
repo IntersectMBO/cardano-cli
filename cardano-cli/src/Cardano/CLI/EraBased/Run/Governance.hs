@@ -107,8 +107,8 @@ runGovernanceCmd = \case
     runGovernanceGenesisKeyDelegationCertificate w genVk genDelegVk vrfVk out
   GovernanceVoteCmd (CreateVoteCmd (ConwayVote sbe voteChoice voteType govActTcIn voteStakeCred fp)) ->
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
-  GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
-    runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
+  GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe w deposit voteStakeCred newconstitution fp)) ->
+    runGovernanceNewConstitutionCmd sbe w deposit voteStakeCred newconstitution fp
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
     runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
   GovernanceCreatePoll prompt choices nonce out ->
@@ -310,13 +310,14 @@ runGovernanceCreateVoteCmd sbe vChoice vType govActionTxIn votingStakeCred oFp =
         firstExceptT GovernanceCmdWriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
 runGovernanceNewConstitutionCmd
-  :: AnyShelleyBasedEra
+  :: ShelleyBasedEra era
+  -> ConwayEraOnwards era
   -> Lovelace
   -> VerificationKeyOrFile StakePoolKey
   -> Constitution
-  -> NewConstitutionFile Out
+  -> File (NewConstitution era) Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceNewConstitutionCmd sbe deposit stakeVoteCred constitution oFp = do
+runGovernanceNewConstitutionCmd sbe w deposit stakeVoteCred constitution oFp = do
   vStakePoolKeyHash
     <- fmap (verificationKeyHash . castVerificationKey)
         <$> firstExceptT GovernanceCmdReadFileError . newExceptT
@@ -326,26 +327,28 @@ runGovernanceNewConstitutionCmd sbe deposit stakeVoteCred constitution oFp = do
       cBs <- liftIO $ BS.readFile $ unFile fp
       _utf8EncodedText <- firstExceptT GovernanceCmdNonUtf8EncodedConstitutionError . hoistEither $ Text.decodeUtf8' cBs
       let govAct = ProposeNewConstitution cBs
-      runGovernanceCreateActionCmd sbe deposit vStakePoolKeyHash govAct oFp
+      runGovernanceCreateActionCmd sbe w deposit vStakePoolKeyHash govAct oFp
 
     ConstitutionFromText c -> do
       let constitBs = Text.encodeUtf8 c
           govAct = ProposeNewConstitution constitBs
-      runGovernanceCreateActionCmd sbe deposit vStakePoolKeyHash govAct oFp
+      runGovernanceCreateActionCmd sbe w deposit vStakePoolKeyHash govAct oFp
 
 runGovernanceCreateActionCmd
-  :: AnyShelleyBasedEra
+  :: ShelleyBasedEra era
+  -> ConwayEraOnwards era
   -> Lovelace
   -> Hash StakeKey
   -> GovernanceAction
   -> File a Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceCreateActionCmd anyEra deposit depositReturnAddr govAction oFp = do
-  AnyShelleyBasedEra sbe <- pure anyEra
-  let proposal = createProposalProcedure sbe deposit depositReturnAddr govAction
+runGovernanceCreateActionCmd sbe w deposit depositReturnAddr govAction oFp = do
+  let proposal =
+        -- TODO createProposalProcedure should take CardanoEraOnwards instead of ShelleyBasedEra
+        createProposalProcedure sbe deposit depositReturnAddr govAction
 
   firstExceptT GovernanceCmdWriteFileError . newExceptT
-    $ obtainEraPParamsConstraint sbe
+    $ obtainConwayEraOnwardsConstraints w
     $ writeFileTextEnvelope oFp Nothing proposal
 
 runGovernanceDelegationCertificate
@@ -380,7 +383,7 @@ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp = do
       firstExceptT GovernanceCmdCertificateWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
-        $ obtainIsShelleyBasedEraConwayOnwards cOnwards
+        $ obtainConwayEraOnwardsConstraints cOnwards
         $ textEnvelopeToJSON description delegCert
 
 toLedgerDelegatee
@@ -393,7 +396,7 @@ toLedgerDelegatee t =
         <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey vk)
              & onLeft (left . GovernanceCmdDelegReadError)
 
-      right $ Ledger.DelegStake $ obtainIsShelleyBasedEraConwayOnwards cOnwards kHash
+      right $ Ledger.DelegStake $ obtainConwayEraOnwardsConstraints cOnwards kHash
     TargetVotingDrep _ -> error "TODO: Conway era - Ledger.DelegVote"
     TargetVotingDrepAndStakePool _ -> error "TODO: Conway era - Ledger.DelegStakeVote"
 

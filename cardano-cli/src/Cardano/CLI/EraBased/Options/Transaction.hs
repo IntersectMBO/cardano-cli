@@ -109,7 +109,7 @@ data TransactionCmd era
       (Maybe (Deprecated ProtocolParamsFile))
       (Maybe UpdateProposalFile)
       [File (ConwayVote era) In]
-      [NewConstitutionFile In]
+      [File (NewConstitution era) In]
       TxBuildOutputOptions
   | TxSign InputTxBodyOrTxFile [WitnessSigningData] (Maybe NetworkId) (TxFile Out)
   | TxCreateWitness (TxBodyFile In) WitnessSigningData (Maybe NetworkId) (File () Out)

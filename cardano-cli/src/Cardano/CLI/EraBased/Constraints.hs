@@ -1,10 +1,11 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.EraBased.Constraints
   ( obtainIsShelleyBasedEraShelleyToBabbage
-  , obtainIsShelleyBasedEraConwayOnwards
+  , obtainConwayEraOnwardsConstraints
   ) where
 
 import           Cardano.Api
@@ -22,9 +23,11 @@ obtainIsShelleyBasedEraShelleyToBabbage = \case
   ShelleyToBabbageEraAlonzo -> id
   ShelleyToBabbageEraBabbage -> id
 
-obtainIsShelleyBasedEraConwayOnwards :: ()
+obtainConwayEraOnwardsConstraints :: ()
   => ConwayEraOnwards era
-  -> ((IsShelleyBasedEra era, Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto) => a)
+  -> (  ( IsShelleyBasedEra era
+        , Ledger.EraPParams (ShelleyLedgerEra era)
+        , Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto) => a)
   -> a
-obtainIsShelleyBasedEraConwayOnwards = \case
+obtainConwayEraOnwardsConstraints = \case
   ConwayEraOnwardsConway -> id
