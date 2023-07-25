@@ -1,4 +1,4 @@
-Usage: cardano-cli allegra governance pre-conway
+Usage: cardano-cli allegra governance delegation-certificate
 
   Era-based governance commands
 
@@ -6,4 +6,4 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  pre-conway               Pre conway era governance command
+  delegation-certificate   Post conway era governance command

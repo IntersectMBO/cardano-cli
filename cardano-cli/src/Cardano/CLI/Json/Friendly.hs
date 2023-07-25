@@ -422,7 +422,7 @@ friendlyFee = \case
   TxFeeExplicit _ fee -> friendlyLovelace $ toShelleyLovelace fee
 
 friendlyLovelace :: Ledger.Coin -> Aeson.Value
-friendlyLovelace value = String $ textShow value <> " Lovelace"
+friendlyLovelace (Shelley.Coin value) = String $ textShow value <> " Lovelace"
 
 friendlyMintValue :: TxMintValue ViewTx era -> Aeson.Value
 friendlyMintValue = \case

@@ -1,5 +1,5 @@
 Invalid argument `vote'
 
-Usage: cardano-cli governance pre-conway
+Usage: cardano-cli governance delegation-certificate
 
   Era-based governance commands

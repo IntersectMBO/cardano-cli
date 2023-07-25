@@ -17,7 +17,7 @@ index-state:
   , cardano-haskell-packages 2023-07-27T06:35:34Z
 
 packages:
-    cardano-cli
+  cardano-cli
 
 package cardano-api
   ghc-options: -Werror

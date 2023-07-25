@@ -19,71 +19,126 @@ Usage: cardano-cli shelley governance
 
   Shelley era commands
 
-Usage: cardano-cli shelley governance pre-conway
+Usage: cardano-cli shelley governance delegation-certificate
 
   Era-based governance commands
 
-Usage: cardano-cli shelley governance pre-conway 
+Usage: cardano-cli shelley governance delegation-certificate 
+                                                               ( --stake-verification-key STRING
+                                                               | --stake-verification-key-file FILE
+                                                               | --stake-script-file FILE
+                                                               | --stake-address ADDRESS
+                                                               )
+                                                               ( --stake-pool-verification-key STRING
+                                                               | --cold-verification-key-file FILE
+                                                               | --stake-pool-id STAKE_POOL_ID
+                                                               )
 
-  Pre conway era governance command
+  Post conway era governance command
 
 Usage: cardano-cli allegra governance
 
   Allegra era commands
 
-Usage: cardano-cli allegra governance pre-conway
+Usage: cardano-cli allegra governance delegation-certificate
 
   Era-based governance commands
 
-Usage: cardano-cli allegra governance pre-conway 
+Usage: cardano-cli allegra governance delegation-certificate 
+                                                               ( --stake-verification-key STRING
+                                                               | --stake-verification-key-file FILE
+                                                               | --stake-script-file FILE
+                                                               | --stake-address ADDRESS
+                                                               )
+                                                               ( --stake-pool-verification-key STRING
+                                                               | --cold-verification-key-file FILE
+                                                               | --stake-pool-id STAKE_POOL_ID
+                                                               )
 
-  Pre conway era governance command
+  Post conway era governance command
 
 Usage: cardano-cli mary governance
 
   Mary era commands
 
-Usage: cardano-cli mary governance pre-conway
+Usage: cardano-cli mary governance delegation-certificate
 
   Era-based governance commands
 
-Usage: cardano-cli mary governance pre-conway 
+Usage: cardano-cli mary governance delegation-certificate 
+                                                            ( --stake-verification-key STRING
+                                                            | --stake-verification-key-file FILE
+                                                            | --stake-script-file FILE
+                                                            | --stake-address ADDRESS
+                                                            )
+                                                            ( --stake-pool-verification-key STRING
+                                                            | --cold-verification-key-file FILE
+                                                            | --stake-pool-id STAKE_POOL_ID
+                                                            )
 
-  Pre conway era governance command
+  Post conway era governance command
 
 Usage: cardano-cli alonzo governance
 
   Alonzo era commands
 
-Usage: cardano-cli alonzo governance pre-conway
+Usage: cardano-cli alonzo governance delegation-certificate
 
   Era-based governance commands
 
-Usage: cardano-cli alonzo governance pre-conway 
+Usage: cardano-cli alonzo governance delegation-certificate 
+                                                              ( --stake-verification-key STRING
+                                                              | --stake-verification-key-file FILE
+                                                              | --stake-script-file FILE
+                                                              | --stake-address ADDRESS
+                                                              )
+                                                              ( --stake-pool-verification-key STRING
+                                                              | --cold-verification-key-file FILE
+                                                              | --stake-pool-id STAKE_POOL_ID
+                                                              )
 
-  Pre conway era governance command
+  Post conway era governance command
 
 Usage: cardano-cli babbage governance
 
   Babbage era commands
 
-Usage: cardano-cli babbage governance pre-conway
+Usage: cardano-cli babbage governance delegation-certificate
 
   Era-based governance commands
 
-Usage: cardano-cli babbage governance pre-conway 
+Usage: cardano-cli babbage governance delegation-certificate 
+                                                               ( --stake-verification-key STRING
+                                                               | --stake-verification-key-file FILE
+                                                               | --stake-script-file FILE
+                                                               | --stake-address ADDRESS
+                                                               )
+                                                               ( --stake-pool-verification-key STRING
+                                                               | --cold-verification-key-file FILE
+                                                               | --stake-pool-id STAKE_POOL_ID
+                                                               )
 
-  Pre conway era governance command
+  Post conway era governance command
 
 Usage: cardano-cli conway governance
 
   Conway era commands
 
-Usage: cardano-cli conway governance post-conway
+Usage: cardano-cli conway governance delegation-certificate
 
   Era-based governance commands
 
-Usage: cardano-cli conway governance post-conway 
+Usage: cardano-cli conway governance delegation-certificate 
+                                                              ( --stake-verification-key STRING
+                                                              | --stake-verification-key-file FILE
+                                                              | --stake-script-file FILE
+                                                              | --stake-address ADDRESS
+                                                              )
+                                                              ( --stake-pool-verification-key STRING
+                                                              | --cold-verification-key-file FILE
+                                                              | --stake-pool-id STAKE_POOL_ID
+                                                              | --dummy-drep-option ARG
+                                                              )
 
   Post conway era governance command
 
@@ -91,23 +146,42 @@ Usage: cardano-cli latest governance
 
   Latest era commands (Babbage)
 
-Usage: cardano-cli latest governance pre-conway
+Usage: cardano-cli latest governance delegation-certificate
 
   Era-based governance commands
 
-Usage: cardano-cli latest governance pre-conway 
+Usage: cardano-cli latest governance delegation-certificate 
+                                                              ( --stake-verification-key STRING
+                                                              | --stake-verification-key-file FILE
+                                                              | --stake-script-file FILE
+                                                              | --stake-address ADDRESS
+                                                              )
+                                                              ( --stake-pool-verification-key STRING
+                                                              | --cold-verification-key-file FILE
+                                                              | --stake-pool-id STAKE_POOL_ID
+                                                              )
 
-  Pre conway era governance command
+  Post conway era governance command
 
 Usage: cardano-cli experimental governance
 
   Experimental era commands (Conway)
 
-Usage: cardano-cli experimental governance post-conway
+Usage: cardano-cli experimental governance delegation-certificate
 
   Era-based governance commands
 
-Usage: cardano-cli experimental governance post-conway 
+Usage: cardano-cli experimental governance delegation-certificate 
+                                                                    ( --stake-verification-key STRING
+                                                                    | --stake-verification-key-file FILE
+                                                                    | --stake-script-file FILE
+                                                                    | --stake-address ADDRESS
+                                                                    )
+                                                                    ( --stake-pool-verification-key STRING
+                                                                    | --cold-verification-key-file FILE
+                                                                    | --stake-pool-id STAKE_POOL_ID
+                                                                    | --dummy-drep-option ARG
+                                                                    )
 
   Post conway era governance command
 
@@ -1391,6 +1465,7 @@ Usage: cardano-cli legacy stake-address registration-certificate
                                                                    | --stake-script-file FILE
                                                                    | --stake-address ADDRESS
                                                                    )
+                                                                   [--key-reg-deposit-amt NATURAL]
                                                                    --out-file FILE
 
   Create a stake address registration certificate
@@ -1408,6 +1483,7 @@ Usage: cardano-cli legacy stake-address deregistration-certificate
                                                                      | --stake-script-file FILE
                                                                      | --stake-address ADDRESS
                                                                      )
+                                                                     [--key-reg-deposit-amt NATURAL]
                                                                      --out-file FILE
 
   Create a stake address deregistration certificate
@@ -1474,13 +1550,22 @@ Usage: cardano-cli legacy address info --address ADDRESS [--out-file FILE]
 
   Print information about an address.
 
-Usage: cardano-cli governance pre-conway
+Usage: cardano-cli governance delegation-certificate
 
   Era-based governance commands
 
-Usage: cardano-cli governance pre-conway 
+Usage: cardano-cli governance delegation-certificate 
+                                                       ( --stake-verification-key STRING
+                                                       | --stake-verification-key-file FILE
+                                                       | --stake-script-file FILE
+                                                       | --stake-address ADDRESS
+                                                       )
+                                                       ( --stake-pool-verification-key STRING
+                                                       | --cold-verification-key-file FILE
+                                                       | --stake-pool-id STAKE_POOL_ID
+                                                       )
 
-  Pre conway era governance command
+  Post conway era governance command
 
 Usage: cardano-cli text-view decode-cbor
 
@@ -2687,6 +2772,7 @@ Usage: cardano-cli stake-address registration-certificate
                                                             | --stake-script-file FILE
                                                             | --stake-address ADDRESS
                                                             )
+                                                            [--key-reg-deposit-amt NATURAL]
                                                             --out-file FILE
 
   Create a stake address registration certificate
@@ -2704,6 +2790,7 @@ Usage: cardano-cli stake-address deregistration-certificate
                                                               | --stake-script-file FILE
                                                               | --stake-address ADDRESS
                                                               )
+                                                              [--key-reg-deposit-amt NATURAL]
                                                               --out-file FILE
 
   Create a stake address deregistration certificate
