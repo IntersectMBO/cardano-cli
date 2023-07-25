@@ -12,6 +12,7 @@ module Test.Cli.Pipes
 
 import           Prelude
 import qualified Hedgehog as H
+{- HLINT ignore "Use fewer imports" -}
 import           Hedgehog (Property, discover)
 
 #ifdef UNIX
