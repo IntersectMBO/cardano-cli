@@ -72,6 +72,25 @@ toLedgerDelegatee t =
         <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey vk)
              & onLeft (left . EraBasedDelegReadError)
 
-      right $ Ledger.DelegStake $ conwayEraOnwardsConstraints cOnwards kHash
-    TargetVotingDrep _ -> error "TODO: Conway era - Ledger.DelegVote"
-    TargetVotingDrepAndStakePool _ -> error "TODO: Conway era - Ledger.DelegStakeVote"
+      right $ Ledger.DelegStake $ obtainIsShelleyBasedEraConwayOnwards cOnwards kHash
+    TargetVotingDrep _ _ -> error "TODO: Conway era - Ledger.DelegVote"
+    TargetVotingDrepAndStakePool _ _  _-> error "TODO: Conway era - Ledger.DelegStakeVote"
+
+
+
+
+obtainIsShelleyBasedEraShelleyToBabbage
+  :: ShelleyToBabbageEra era
+  -> (IsShelleyBasedEra era => a)
+  -> a
+obtainIsShelleyBasedEraShelleyToBabbage ShelleyToBabbageEraShelley f = f
+obtainIsShelleyBasedEraShelleyToBabbage ShelleyToBabbageEraAllegra f = f
+obtainIsShelleyBasedEraShelleyToBabbage ShelleyToBabbageEraMary f = f
+obtainIsShelleyBasedEraShelleyToBabbage ShelleyToBabbageEraAlonzo f = f
+obtainIsShelleyBasedEraShelleyToBabbage ShelleyToBabbageEraBabbage f = f
+
+obtainIsShelleyBasedEraConwayOnwards
+  :: ConwayEraOnwards era
+  -> ((IsShelleyBasedEra era, Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto) => a)
+  -> a
+obtainIsShelleyBasedEraConwayOnwards ConwayEraOnwardsConway f = f

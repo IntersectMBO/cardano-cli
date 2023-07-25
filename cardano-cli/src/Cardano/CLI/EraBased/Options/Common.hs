@@ -506,3 +506,18 @@ pTransferAmt =
     , Opt.metavar "LOVELACE"
     , Opt.help "The amount to transfer."
     ]
+
+pHexKeyHash
+  :: SerialiseAsRawBytes (Hash a) => AsType a -> ReadM (Hash a)
+pHexKeyHash a =
+  Opt.eitherReader $
+    first displayError
+      . deserialiseFromRawBytesHex (AsHash a)
+      . BSC.pack
+
+pBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
+pBech32KeyHash a =
+  Opt.eitherReader $
+    first displayError
+    . deserialiseFromBech32 (AsHash a)
+    . Text.pack

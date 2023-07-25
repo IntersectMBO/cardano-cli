@@ -144,14 +144,16 @@ data StakeTarget era where
     -> VerificationKeyOrHashOrFile StakePoolKey
     -> StakeTarget era
 
-  -- TODO: Conway era
   TargetVotingDrep
     :: ConwayEraOnwards era
+    -> VerificationKeyOrHashOrFile DRepKey
     -> StakeTarget era
 
   -- TODO: Conway era
   TargetVotingDrepAndStakePool
     :: ConwayEraOnwards era
+    -> VerificationKeyOrHashOrFile DRepKey
+    -> VerificationKeyOrHashOrFile StakePoolKey
     -> StakeTarget era
 
 deriving instance Show (StakeTarget era)
