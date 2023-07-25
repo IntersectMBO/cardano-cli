@@ -1,12 +1,26 @@
 # Changelog for cardano-cli
 
-# 8.3.2.0
+## 8.4.0.0
+
+- Era-sensitive command structure
+  (feature; breaking)
+  [PR 98](https://github.com/input-output-hk/cardano-cli/pull/98)
+
+- Set default era to Babbage in stake-address, stake-pool and governance commmands
+  (feature; compatible)
+  [PR 90](https://github.com/input-output-hk/cardano-cli/pull/90)
+
+- `CARDANO_ERA` environment variable support
+  (feature; compatible)
+  [PR 80](https://github.com/input-output-hk/cardano-cli/pull/80)
+
+## 8.3.2.0
 
 - Make it build with ghc-9.6
   (maintenance; compatible)
   [PR 89](https://github.com/input-output-hk/cardano-cli/pull/89)
 
-# 8.3.1.0
+## 8.3.1.0
 
 - Make it build with ghc-9.6
   (maintenance; compatible)
@@ -16,7 +30,7 @@
   (bugfix; no-api-changes)
   [PR 67](https://github.com/input-output-hk/cardano-cli/pull/67)
 
-# 8.3.0.0
+## 8.3.0.0
 
 - Add a query for the hash of the constitution
   (feature; compatible)
