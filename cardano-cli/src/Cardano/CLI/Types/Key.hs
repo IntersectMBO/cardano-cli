@@ -139,20 +139,30 @@ data AnyDelegationTarget where
 deriving instance Show AnyDelegationTarget
 
 data StakeTarget era where
+  -- This delegates stake to earn rewards
   TargetStakePool
     :: ConwayEraOnwards era
     -> VerificationKeyOrHashOrFile StakePoolKey
     -> StakeTarget era
 
-  -- TODO: Conway era
+  -- This delegates stake for voting
   TargetVotingDrep
     :: ConwayEraOnwards era
+    -> VerificationKeyOrHashOrFile DRepKey
     -> StakeTarget era
 
-  -- TODO: Conway era
+  -- This delegates stake for voting and rewards
   TargetVotingDrepAndStakePool
     :: ConwayEraOnwards era
+    -> VerificationKeyOrHashOrFile DRepKey
+    -> VerificationKeyOrHashOrFile StakePoolKey
     -> StakeTarget era
+
+  {-
+  -- TODO: Conway era - DRepScriptHash !(ScriptHash c)
+  -- TODO: Conway era - DRepAlwaysAbstain
+  -- TODO: Conway era - DRepAlwaysNoConfidence
+  -}
 
 deriving instance Show (StakeTarget era)
 newtype DelegationTarget
