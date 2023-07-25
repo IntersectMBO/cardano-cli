@@ -11,22 +11,22 @@ module Cardano.CLI.Run.Legacy.Governance
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 import qualified Cardano.Api.Shelley as Api
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.EraBased.Governance
+import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import qualified Cardano.CLI.Types.Governance as Cli
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
 import           Cardano.CLI.Types.Legacy
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
-import           Control.Monad (unless, when)
+import           Control.Monad
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Class (lift)
 import           Control.Monad.Trans.Except (ExceptT)
@@ -35,7 +35,6 @@ import           Data.Aeson (eitherDecode)
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LB
 import           Data.Function ((&))
-import qualified Data.Map.Strict as Map
 import           Data.String (fromString)
 import           Data.Text (Text)
 import qualified Data.Text as Text
@@ -112,10 +111,10 @@ runGovernanceCmd = \case
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
   GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
     runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
-  GovernanceMIRPayStakeAddressesCertificate sbe mirpot vKeys rewards out ->
-    runGovernanceMIRCertificatePayStakeAddrs sbe mirpot vKeys rewards out
-  GovernanceMIRTransfer sbe amt out direction ->
-    runGovernanceMIRCertificateTransfer sbe amt out direction
+  GovernanceMIRPayStakeAddressesCertificate (AnyShelleyToBabbageEra w) mirpot vKeys rewards out ->
+    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
+  GovernanceMIRTransfer (AnyShelleyToBabbageEra w) amt out direction -> do
+    runGovernanceMIRCertificateTransfer w amt out direction
   GovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out ->
     runGovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
@@ -126,79 +125,6 @@ runGovernanceCmd = \case
     runGovernanceAnswerPoll poll ix mOutFile
   GovernanceVerifyPoll poll metadata mOutFile ->
     runGovernanceVerifyPoll poll metadata mOutFile
-
-runGovernanceMIRCertificatePayStakeAddrs
-  :: AnyShelleyBasedEra
-  -> Shelley.MIRPot
-  -> [StakeAddress] -- ^ Stake addresses
-  -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
-  -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
-runGovernanceMIRCertificatePayStakeAddrs (AnyShelleyBasedEra sbe) mirPot sAddrs rwdAmts oFp = do
-
-    unless (length sAddrs == length rwdAmts) $
-      left $ GovernanceCmdMIRCertificateKeyRewardMistmach
-               (unFile oFp) (length sAddrs) (length rwdAmts)
-
-    let sCreds  = map stakeAddressCredential sAddrs
-        mirTarget = Ledger.StakeAddressesMIR
-                      $ Map.fromList [ (toShelleyStakeCredential scred, Ledger.toDeltaCoin (toShelleyLovelace rwdAmt))
-                                     | (scred, rwdAmt) <- zip sCreds rwdAmts
-                                     ]
-    mirReq <- hoistEither $ createMirCertificateRequirements sbe mirPot $ obtainEraCryptoConstraints sbe  mirTarget
-    let mirCert = makeMIRCertificate mirReq
-
-    firstExceptT GovernanceCmdTextEnvWriteError
-      . newExceptT
-      $ writeLazyByteStringFile oFp
-      $ textEnvelopeToJSON (Just mirCertDesc) mirCert
-  where
-    mirCertDesc :: TextEnvelopeDescr
-    mirCertDesc = "Move Instantaneous Rewards Certificate"
-
-createMirCertificateRequirements
-  :: ShelleyBasedEra era
-  -> Ledger.MIRPot
-  -> Ledger.MIRTarget (EraCrypto (ShelleyLedgerEra era))
-  -> Either GovernanceCmdError (MirCertificateRequirements era)
-createMirCertificateRequirements sbe mirPot mirTarget =
-  case sbe of
-    ShelleyBasedEraShelley -> do
-      return $ MirCertificateRequirements ShelleyToBabbageEraShelley mirPot mirTarget
-    ShelleyBasedEraAllegra -> do
-      return $ MirCertificateRequirements ShelleyToBabbageEraAllegra mirPot mirTarget
-    ShelleyBasedEraMary -> do
-      return $ MirCertificateRequirements ShelleyToBabbageEraMary mirPot mirTarget
-    ShelleyBasedEraAlonzo -> do
-      return $ MirCertificateRequirements ShelleyToBabbageEraAlonzo mirPot mirTarget
-    ShelleyBasedEraBabbage -> do
-      return $ MirCertificateRequirements ShelleyToBabbageEraBabbage mirPot mirTarget
-    ShelleyBasedEraConway ->
-      Left ShelleyGovernanceCmdMIRCertNotSupportedInConway
-
-runGovernanceMIRCertificateTransfer
-  :: AnyShelleyBasedEra
-  -> Lovelace
-  -> File () Out
-  -> TransferDirection
-  -> ExceptT GovernanceCmdError IO ()
-runGovernanceMIRCertificateTransfer (AnyShelleyBasedEra sbe) ll oFp direction = do
-
-  let mirTarget = Ledger.SendToOppositePotMIR (toShelleyLovelace ll)
-  req <- case direction of
-              TransferToReserves -> hoistEither $ createMirCertificateRequirements sbe Ledger.TreasuryMIR mirTarget
-              TransferToTreasury -> hoistEither $ createMirCertificateRequirements sbe Ledger.ReservesMIR mirTarget
-  let mirCert = makeMIRCertificate req
-
-  firstExceptT GovernanceCmdTextEnvWriteError
-    . newExceptT
-    $ writeLazyByteStringFile oFp
-    $ textEnvelopeToJSON (Just $ mirCertDesc direction) mirCert
- where
-  mirCertDesc :: TransferDirection -> TextEnvelopeDescr
-  mirCertDesc TransferToTreasury = "MIR Certificate Send To Treasury"
-  mirCertDesc TransferToReserves = "MIR Certificate Send To Reserves"
-
 
 runGovernanceGenesisKeyDelegationCertificate
   :: AnyShelleyBasedEra

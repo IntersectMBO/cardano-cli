@@ -51,6 +51,7 @@ import           Cardano.Api (AddressAny, AnyScriptLanguage, EpochNo, ExecutionU
                    WitCtxStake, WitCtxTxIn)
 
 import qualified Cardano.Chain.Slotting as Byron
+import           Cardano.CLI.Types.Common
 import qualified Cardano.Ledger.Crypto as Crypto
 import           Cardano.Ledger.Shelley.TxBody (PoolParams (..))
 
@@ -297,10 +298,6 @@ instance ToJSON SlotsTillKesKeyExpiry where
 
 instance FromJSON SlotsTillKesKeyExpiry where
   parseJSON v = SlotsTillKesKeyExpiry <$> parseJSON v
-
--- | Determines the direction in which the MIR certificate will transfer ADA.
-data TransferDirection = TransferToReserves | TransferToTreasury
-                         deriving Show
 
 -- | A TxOut value that is the superset of possibilities for any era: any
 -- address type and allowing multi-asset values. This is used as the type for

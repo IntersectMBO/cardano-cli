@@ -1,11 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Cardano.CLI.EraBased.Certificate
-  ( runGovernanceDelegrationCertificate
+  ( EraBasedDelegationError(..)
+  , runGovernanceDelegrationCertificate
   ) where
 
 import           Cardano.Api
@@ -24,6 +26,7 @@ data EraBasedDelegationError
   = EraBasedDelegReadError !(FileError InputDecodeError)
   | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
   | EraBasedCertificateWriteFileError !(FileError ())
+  | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
 
 runGovernanceDelegrationCertificate
   :: StakeIdentifier

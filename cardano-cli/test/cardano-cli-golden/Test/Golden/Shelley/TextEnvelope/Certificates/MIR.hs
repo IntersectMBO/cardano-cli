@@ -43,8 +43,7 @@ golden_shelleyMIRCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir
   let testAddr = "stake1u9j6axhcpd0exvrthn5dqzqt54g85akqvkn4uqmccm70qsc5hpv9w"
   -- Create MIR certificate
   void $ execCardanoCLI
-    [ "legacy", "governance", "create-mir-certificate"
-    , "--babbage-era"
+    [ "babbage", "governance", "create-mir-certificate"
     , "--reserves" --TODO: Should also do "--reserves"
     , "--stake-address", testAddr
     , "--reward", "1000"

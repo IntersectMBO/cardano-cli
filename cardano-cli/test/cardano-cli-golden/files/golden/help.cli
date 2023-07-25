@@ -19,7 +19,10 @@ Usage: cardano-cli shelley governance
 
   Shelley era commands
 
-Usage: cardano-cli shelley governance delegation-certificate
+Usage: cardano-cli shelley governance 
+                                        ( delegation-certificate
+                                        | create-mir-certificate
+                                        )
 
   Era-based governance commands
 
@@ -33,14 +36,54 @@ Usage: cardano-cli shelley governance delegation-certificate
                                                                | --cold-verification-key-file FILE
                                                                | --stake-pool-id STAKE_POOL_ID
                                                                )
+                                                               --out-file FILE
 
   Post conway era governance command
+
+Usage: cardano-cli shelley governance create-mir-certificate 
+                                                               ( ( --reserves
+                                                                 | --treasury
+                                                                 )
+                                                                 (--stake-address ADDRESS)
+                                                                 (--reward LOVELACE)
+                                                                 --out-file FILE
+                                                               | stake-addresses
+                                                               | transfer-to-treasury
+                                                               | transfer-to-rewards
+                                                               )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli shelley governance create-mir-certificate stake-addresses 
+                                                                               ( --reserves
+                                                                               | --treasury
+                                                                               )
+                                                                               (--stake-address ADDRESS)
+                                                                               (--reward LOVELACE)
+                                                                               --out-file FILE
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli shelley governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                    --out-file FILE
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli shelley governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                   --out-file FILE
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
 
 Usage: cardano-cli allegra governance
 
   Allegra era commands
 
-Usage: cardano-cli allegra governance delegation-certificate
+Usage: cardano-cli allegra governance 
+                                        ( delegation-certificate
+                                        | create-mir-certificate
+                                        )
 
   Era-based governance commands
 
@@ -54,14 +97,54 @@ Usage: cardano-cli allegra governance delegation-certificate
                                                                | --cold-verification-key-file FILE
                                                                | --stake-pool-id STAKE_POOL_ID
                                                                )
+                                                               --out-file FILE
 
   Post conway era governance command
+
+Usage: cardano-cli allegra governance create-mir-certificate 
+                                                               ( ( --reserves
+                                                                 | --treasury
+                                                                 )
+                                                                 (--stake-address ADDRESS)
+                                                                 (--reward LOVELACE)
+                                                                 --out-file FILE
+                                                               | stake-addresses
+                                                               | transfer-to-treasury
+                                                               | transfer-to-rewards
+                                                               )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli allegra governance create-mir-certificate stake-addresses 
+                                                                               ( --reserves
+                                                                               | --treasury
+                                                                               )
+                                                                               (--stake-address ADDRESS)
+                                                                               (--reward LOVELACE)
+                                                                               --out-file FILE
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli allegra governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                    --out-file FILE
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli allegra governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                   --out-file FILE
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
 
 Usage: cardano-cli mary governance
 
   Mary era commands
 
-Usage: cardano-cli mary governance delegation-certificate
+Usage: cardano-cli mary governance 
+                                     ( delegation-certificate
+                                     | create-mir-certificate
+                                     )
 
   Era-based governance commands
 
@@ -75,14 +158,54 @@ Usage: cardano-cli mary governance delegation-certificate
                                                             | --cold-verification-key-file FILE
                                                             | --stake-pool-id STAKE_POOL_ID
                                                             )
+                                                            --out-file FILE
 
   Post conway era governance command
+
+Usage: cardano-cli mary governance create-mir-certificate 
+                                                            ( ( --reserves
+                                                              | --treasury
+                                                              )
+                                                              (--stake-address ADDRESS)
+                                                              (--reward LOVELACE)
+                                                              --out-file FILE
+                                                            | stake-addresses
+                                                            | transfer-to-treasury
+                                                            | transfer-to-rewards
+                                                            )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli mary governance create-mir-certificate stake-addresses 
+                                                                            ( --reserves
+                                                                            | --treasury
+                                                                            )
+                                                                            (--stake-address ADDRESS)
+                                                                            (--reward LOVELACE)
+                                                                            --out-file FILE
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli mary governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                 --out-file FILE
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli mary governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                --out-file FILE
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
 
 Usage: cardano-cli alonzo governance
 
   Alonzo era commands
 
-Usage: cardano-cli alonzo governance delegation-certificate
+Usage: cardano-cli alonzo governance 
+                                       ( delegation-certificate
+                                       | create-mir-certificate
+                                       )
 
   Era-based governance commands
 
@@ -96,14 +219,54 @@ Usage: cardano-cli alonzo governance delegation-certificate
                                                               | --cold-verification-key-file FILE
                                                               | --stake-pool-id STAKE_POOL_ID
                                                               )
+                                                              --out-file FILE
 
   Post conway era governance command
+
+Usage: cardano-cli alonzo governance create-mir-certificate 
+                                                              ( ( --reserves
+                                                                | --treasury
+                                                                )
+                                                                (--stake-address ADDRESS)
+                                                                (--reward LOVELACE)
+                                                                --out-file FILE
+                                                              | stake-addresses
+                                                              | transfer-to-treasury
+                                                              | transfer-to-rewards
+                                                              )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli alonzo governance create-mir-certificate stake-addresses 
+                                                                              ( --reserves
+                                                                              | --treasury
+                                                                              )
+                                                                              (--stake-address ADDRESS)
+                                                                              (--reward LOVELACE)
+                                                                              --out-file FILE
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli alonzo governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                   --out-file FILE
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli alonzo governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                  --out-file FILE
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
 
 Usage: cardano-cli babbage governance
 
   Babbage era commands
 
-Usage: cardano-cli babbage governance delegation-certificate
+Usage: cardano-cli babbage governance 
+                                        ( delegation-certificate
+                                        | create-mir-certificate
+                                        )
 
   Era-based governance commands
 
@@ -117,8 +280,45 @@ Usage: cardano-cli babbage governance delegation-certificate
                                                                | --cold-verification-key-file FILE
                                                                | --stake-pool-id STAKE_POOL_ID
                                                                )
+                                                               --out-file FILE
 
   Post conway era governance command
+
+Usage: cardano-cli babbage governance create-mir-certificate 
+                                                               ( ( --reserves
+                                                                 | --treasury
+                                                                 )
+                                                                 (--stake-address ADDRESS)
+                                                                 (--reward LOVELACE)
+                                                                 --out-file FILE
+                                                               | stake-addresses
+                                                               | transfer-to-treasury
+                                                               | transfer-to-rewards
+                                                               )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli babbage governance create-mir-certificate stake-addresses 
+                                                                               ( --reserves
+                                                                               | --treasury
+                                                                               )
+                                                                               (--stake-address ADDRESS)
+                                                                               (--reward LOVELACE)
+                                                                               --out-file FILE
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli babbage governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                    --out-file FILE
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli babbage governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                   --out-file FILE
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
 
 Usage: cardano-cli conway governance
 
@@ -139,6 +339,7 @@ Usage: cardano-cli conway governance delegation-certificate
                                                               | --stake-pool-id STAKE_POOL_ID
                                                               | --dummy-drep-option ARG
                                                               )
+                                                              --out-file FILE
 
   Post conway era governance command
 
@@ -146,7 +347,10 @@ Usage: cardano-cli latest governance
 
   Latest era commands (Babbage)
 
-Usage: cardano-cli latest governance delegation-certificate
+Usage: cardano-cli latest governance 
+                                       ( delegation-certificate
+                                       | create-mir-certificate
+                                       )
 
   Era-based governance commands
 
@@ -160,8 +364,45 @@ Usage: cardano-cli latest governance delegation-certificate
                                                               | --cold-verification-key-file FILE
                                                               | --stake-pool-id STAKE_POOL_ID
                                                               )
+                                                              --out-file FILE
 
   Post conway era governance command
+
+Usage: cardano-cli latest governance create-mir-certificate 
+                                                              ( ( --reserves
+                                                                | --treasury
+                                                                )
+                                                                (--stake-address ADDRESS)
+                                                                (--reward LOVELACE)
+                                                                --out-file FILE
+                                                              | stake-addresses
+                                                              | transfer-to-treasury
+                                                              | transfer-to-rewards
+                                                              )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli latest governance create-mir-certificate stake-addresses 
+                                                                              ( --reserves
+                                                                              | --treasury
+                                                                              )
+                                                                              (--stake-address ADDRESS)
+                                                                              (--reward LOVELACE)
+                                                                              --out-file FILE
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli latest governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                   --out-file FILE
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli latest governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                  --out-file FILE
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
 
 Usage: cardano-cli experimental governance
 
@@ -182,6 +423,7 @@ Usage: cardano-cli experimental governance delegation-certificate
                                                                     | --stake-pool-id STAKE_POOL_ID
                                                                     | --dummy-drep-option ARG
                                                                     )
+                                                                    --out-file FILE
 
   Post conway era governance command
 
@@ -217,7 +459,6 @@ Usage: cardano-cli legacy governance create-mir-certificate
                                                                 | --mary-era
                                                                 | --alonzo-era
                                                                 | --babbage-era
-                                                                | --conway-era
                                                                 ]
                                                                 ( --reserves
                                                                 | --treasury
@@ -238,7 +479,6 @@ Usage: cardano-cli legacy governance create-mir-certificate stake-addresses
                                                                               | --mary-era
                                                                               | --alonzo-era
                                                                               | --babbage-era
-                                                                              | --conway-era
                                                                               ]
                                                                               ( --reserves
                                                                               | --treasury
@@ -255,7 +495,6 @@ Usage: cardano-cli legacy governance create-mir-certificate transfer-to-treasury
                                                                                    | --mary-era
                                                                                    | --alonzo-era
                                                                                    | --babbage-era
-                                                                                   | --conway-era
                                                                                    ]
                                                                                    --transfer LOVELACE
                                                                                    --out-file FILE
@@ -269,7 +508,6 @@ Usage: cardano-cli legacy governance create-mir-certificate transfer-to-rewards
                                                                                   | --mary-era
                                                                                   | --alonzo-era
                                                                                   | --babbage-era
-                                                                                  | --conway-era
                                                                                   ]
                                                                                   --transfer LOVELACE
                                                                                   --out-file FILE
@@ -1550,7 +1788,7 @@ Usage: cardano-cli legacy address info --address ADDRESS [--out-file FILE]
 
   Print information about an address.
 
-Usage: cardano-cli governance delegation-certificate
+Usage: cardano-cli governance (delegation-certificate | create-mir-certificate)
 
   Era-based governance commands
 
@@ -1564,8 +1802,45 @@ Usage: cardano-cli governance delegation-certificate
                                                        | --cold-verification-key-file FILE
                                                        | --stake-pool-id STAKE_POOL_ID
                                                        )
+                                                       --out-file FILE
 
   Post conway era governance command
+
+Usage: cardano-cli governance create-mir-certificate 
+                                                       ( ( --reserves
+                                                         | --treasury
+                                                         )
+                                                         (--stake-address ADDRESS)
+                                                         (--reward LOVELACE)
+                                                         --out-file FILE
+                                                       | stake-addresses
+                                                       | transfer-to-treasury
+                                                       | transfer-to-rewards
+                                                       )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli governance create-mir-certificate stake-addresses 
+                                                                       ( --reserves
+                                                                       | --treasury
+                                                                       )
+                                                                       (--stake-address ADDRESS)
+                                                                       (--reward LOVELACE)
+                                                                       --out-file FILE
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                            --out-file FILE
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                           --out-file FILE
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
 
 Usage: cardano-cli text-view decode-cbor
 
@@ -1595,7 +1870,6 @@ Usage: cardano-cli governance create-mir-certificate
                                                          | --mary-era
                                                          | --alonzo-era
                                                          | --babbage-era
-                                                         | --conway-era
                                                          ]
                                                          ( --reserves
                                                          | --treasury
@@ -1616,7 +1890,6 @@ Usage: cardano-cli governance create-mir-certificate stake-addresses
                                                                        | --mary-era
                                                                        | --alonzo-era
                                                                        | --babbage-era
-                                                                       | --conway-era
                                                                        ]
                                                                        ( --reserves
                                                                        | --treasury
@@ -1633,7 +1906,6 @@ Usage: cardano-cli governance create-mir-certificate transfer-to-treasury
                                                                             | --mary-era
                                                                             | --alonzo-era
                                                                             | --babbage-era
-                                                                            | --conway-era
                                                                             ]
                                                                             --transfer LOVELACE
                                                                             --out-file FILE
@@ -1647,7 +1919,6 @@ Usage: cardano-cli governance create-mir-certificate transfer-to-rewards
                                                                            | --mary-era
                                                                            | --alonzo-era
                                                                            | --babbage-era
-                                                                           | --conway-era
                                                                            ]
                                                                            --transfer LOVELACE
                                                                            --out-file FILE

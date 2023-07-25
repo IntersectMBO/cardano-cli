@@ -31,7 +31,6 @@ import           Cardano.CLI.Types.Key (DelegationTarget (..), PaymentVerifier (
                    VerificationKeyTextOrFile (..))
 import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.BaseTypes as Shelley
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 import           Cardano.Prelude (ConvertText (..))
 
 import qualified Data.Aeson as Aeson
@@ -1197,7 +1196,7 @@ pGovernanceCmd :: EnvCli -> Parser GovernanceCmd
 pGovernanceCmd envCli =
   asum
     [ subParser "create-mir-certificate"
-        $ Opt.info (pMIRPayStakeAddresses <|> mirCertParsers)
+        $ Opt.info (pLegacyMIRPayStakeAddresses <|> mirCertParsers)
         $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
     , subParser "create-genesis-key-delegation-certificate"
         $ Opt.info pGovernanceGenesisKeyDelegationCertificate
@@ -1222,41 +1221,40 @@ pGovernanceCmd envCli =
         $ Opt.progDesc "Governance action related commands."
     ]
   where
-
     mirCertParsers :: Parser GovernanceCmd
     mirCertParsers = asum
       [ subParser "stake-addresses"
-        $ Opt.info pMIRPayStakeAddresses
+        $ Opt.info pLegacyMIRPayStakeAddresses
         $ Opt.progDesc "Create an MIR certificate to pay stake addresses"
       , subParser "transfer-to-treasury"
-        $ Opt.info pMIRTransferToTreasury
+        $ Opt.info pLegacyMIRTransferToTreasury
         $ Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
       , subParser "transfer-to-rewards"
-        $ Opt.info pMIRTransferToReserves
+        $ Opt.info pLegacyMIRTransferToReserves
         $ Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
       ]
 
-    pMIRPayStakeAddresses :: Parser GovernanceCmd
-    pMIRPayStakeAddresses =
+    pLegacyMIRPayStakeAddresses :: Parser GovernanceCmd
+    pLegacyMIRPayStakeAddresses =
       GovernanceMIRPayStakeAddressesCertificate
-        <$> pAnyShelleyBasedEra envCli
+        <$> pAnyShelleyToBabbageEra envCli
         <*> pMIRPot
         <*> some pStakeAddress
         <*> some pRewardAmt
         <*> pOutputFile
 
-    pMIRTransferToTreasury :: Parser GovernanceCmd
-    pMIRTransferToTreasury =
+    pLegacyMIRTransferToTreasury :: Parser GovernanceCmd
+    pLegacyMIRTransferToTreasury =
       GovernanceMIRTransfer
-        <$> pAnyShelleyBasedEra envCli
+        <$> pAnyShelleyToBabbageEra envCli
         <*> pTransferAmt
         <*> pOutputFile
         <*> pure TransferToTreasury
 
-    pMIRTransferToReserves :: Parser GovernanceCmd
-    pMIRTransferToReserves =
+    pLegacyMIRTransferToReserves :: Parser GovernanceCmd
+    pLegacyMIRTransferToReserves =
       GovernanceMIRTransfer
-        <$> pAnyShelleyBasedEra envCli
+        <$> pAnyShelleyToBabbageEra envCli
         <*> pTransferAmt
         <*> pOutputFile
         <*> pure TransferToReserves
@@ -1269,19 +1267,6 @@ pGovernanceCmd envCli =
         <*> pGenesisDelegateVerificationKeyOrHashOrFile
         <*> pVrfVerificationKeyOrHashOrFile
         <*> pOutputFile
-
-    pMIRPot :: Parser Shelley.MIRPot
-    pMIRPot =
-      asum
-        [ Opt.flag' Shelley.ReservesMIR $ mconcat
-            [ Opt.long "reserves"
-            , Opt.help "Use the reserves pot."
-            ]
-        , Opt.flag' Shelley.TreasuryMIR $ mconcat
-            [ Opt.long "treasury"
-            , Opt.help "Use the treasury pot."
-            ]
-        ]
 
     pUpdateProposal :: Parser GovernanceCmd
     pUpdateProposal =
@@ -1362,22 +1347,6 @@ pPollNonce =
     [ Opt.long "nonce"
     , Opt.metavar "UINT"
     , Opt.help "An (optional) nonce for non-replayability."
-    ]
-
-pTransferAmt :: Parser Lovelace
-pTransferAmt =
-  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
-    [ Opt.long "transfer"
-    , Opt.metavar "LOVELACE"
-    , Opt.help "The amount to transfer."
-    ]
-
-pRewardAmt :: Parser Lovelace
-pRewardAmt =
-  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
-    [ Opt.long "reward"
-    , Opt.metavar "LOVELACE"
-    , Opt.help "The reward for the relevant reward account."
     ]
 
 pGenesisCmd :: EnvCli -> Parser GenesisCmd

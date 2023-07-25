@@ -4,7 +4,6 @@ Usage: cardano-cli legacy governance create-mir-certificate transfer-to-rewards
                                                                                   | --mary-era
                                                                                   | --alonzo-era
                                                                                   | --babbage-era
-                                                                                  | --conway-era
                                                                                   ]
                                                                                   --transfer LOVELACE
                                                                                   --out-file FILE
@@ -18,7 +17,6 @@ Available options:
   --mary-era               Specify the Mary era
   --alonzo-era             Specify the Alonzo era
   --babbage-era            Specify the Babbage era (default)
-  --conway-era             Specify the Conway era
   --transfer LOVELACE      The amount to transfer.
   --out-file FILE          The output file.
   -h,--help                Show this help text

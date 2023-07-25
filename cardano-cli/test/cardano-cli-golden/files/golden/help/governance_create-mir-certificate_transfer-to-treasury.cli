@@ -1,5 +1,10 @@
-Invalid argument `create-mir-certificate'
+Usage: cardano-cli governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                            --out-file FILE
 
-Usage: cardano-cli governance delegation-certificate
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
 
-  Era-based governance commands
+Available options:
+  --transfer LOVELACE      The amount to transfer.
+  --out-file FILE          The output file.
+  -h,--help                Show this help text

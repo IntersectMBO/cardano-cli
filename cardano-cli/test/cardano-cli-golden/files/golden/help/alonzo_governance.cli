@@ -1,4 +1,7 @@
-Usage: cardano-cli alonzo governance delegation-certificate
+Usage: cardano-cli alonzo governance 
+                                       ( delegation-certificate
+                                       | create-mir-certificate
+                                       )
 
   Era-based governance commands
 
@@ -7,3 +10,5 @@ Available options:
 
 Available commands:
   delegation-certificate   Post conway era governance command
+  create-mir-certificate   Create an MIR (Move Instantaneous Rewards)
+                           certificate
