@@ -80,7 +80,7 @@ jobs:
         store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
         threads: ${{ vars.CACHE_THREADS }}
         archive-uri: ${{ vars.CACHE_URI }}/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
-        skip: "${{ vars.CACHE_URI == '' }}"
+        skip: "${{ vars.CACHE_URI == '' || env.CABAL_CACHE_VERSION == '' }}"
 
     # It's important to ensure that people who fork this repository can not only successfully build in
     # CI by default, but also have meaning cabal store caching.
@@ -98,7 +98,7 @@ jobs:
         store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
         threads: 16
         archive-uri: https://iohk.cache.haskellworks.io/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
-        skip: "${{ vars.CACHE_URI != '' }}"
+        skip: "${{ vars.CACHE_URI != '' || env.CABAL_CACHE_VERSION == '' }}"
         enable-save: false
 
     - name: Build all
