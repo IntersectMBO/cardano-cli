@@ -10,25 +10,28 @@ module Test.Cli.Pipes
 #define UNIX
 #endif
 
+import           Prelude
+import qualified Hedgehog as H
+{- HLINT ignore "Use fewer imports" -}
+import           Hedgehog (Property, discover)
+
+#ifdef UNIX
 import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.OS.Posix
 
-import           Prelude
 
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LBS
 import           System.FilePath ((</>))
 import           Test.Cardano.CLI.Util
 
-import           Hedgehog (Property, discover, forAll, (===))
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import           Hedgehog ((===), forAll)
 import qualified Hedgehog.Gen as G
 import           Hedgehog.Internal.Property (failWith)
 import qualified Hedgehog.Range as R
+import qualified Hedgehog.Extras.Test.Base as H
+import qualified Hedgehog.Extras.Test.File as H
 
-#ifdef UNIX
 
 prop_readFromPipe :: Property
 prop_readFromPipe = H.withTests 10 . H.property . H.moduleWorkspace "tmp" $ \ws -> do

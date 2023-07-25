@@ -72,7 +72,7 @@
               # tools that work only with default compiler
               stylish-haskell = "0.14.4.0";
               hlint = "3.5";
-              #haskell-language-server = "2.0.0.0";
+              haskell-language-server = "2.0.0.0";
             };
           # and from nixpkgs or other inputs
           shell.nativeBuildInputs = with nixpkgs; [
@@ -144,6 +144,7 @@
         );
       in
         lib.recursiveUpdate flake rec {
+          project = cabalProject;
           # add a required job, that's basically all hydraJobs.
           hydraJobs =
             nixpkgs.callPackages inputs.iohkNix.utils.ciJobsAggregates
