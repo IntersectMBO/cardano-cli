@@ -191,7 +191,7 @@ library cardano-cli-test-lib
                       , transformers
 
 test-suite cardano-cli-test
-  import:               project-config, maybe-unix
+  import:               project-config
 
   hs-source-dirs:       test/cardano-cli-test
   main-is:              cardano-cli-test.hs

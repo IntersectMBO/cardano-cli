@@ -207,7 +207,7 @@ readVerificationKeyOrHashOrTextEnvFile asType verKeyOrHashOrFile =
     VerificationKeyHash vkHash -> pure (Right vkHash)
 
 generateKeyPair ::
-#if __GLASGOW_HASKELL__ >= 940
+#if __GLASGOW_HASKELL__ >= 902
 -- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.4 and above complains if its
 -- not present.
     (Key keyrole, HasTypeProxy keyrole) =>
