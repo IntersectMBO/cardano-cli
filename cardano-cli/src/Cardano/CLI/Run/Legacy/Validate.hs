@@ -280,7 +280,7 @@ validateTxCertificates era certsAndScriptWitnesses =
    deriveStakeCredentialWitness
      :: Certificate era
      -> Maybe StakeCredential
-   deriveStakeCredentialWitness cert = Nothing
+   deriveStakeCredentialWitness _cert = Nothing
     --  case cert of
     --    -- TODO: Conway era
     --    -- StakeAddressDeregistrationCertificate sCred -> Just sCred
