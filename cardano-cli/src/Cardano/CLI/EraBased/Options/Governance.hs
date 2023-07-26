@@ -41,6 +41,9 @@ data EraBasedGovernanceCmd era
       StakeIdentifier
       AnyDelegationTarget
       (File () Out)
+  | EraBasedGovernanceRegistrationCertificateCmd
+      AnyRegistrationTarget
+      (File () Out)
 
 renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
@@ -49,14 +52,57 @@ renderEraBasedGovernanceCmd = \case
   EraBasedGovernanceMIRPayStakeAddressesCertificate {} -> "TODO EraBasedGovernanceMIRPayStakeAddressesCertificate"
   EraBasedGovernanceMIRTransfer {} -> "TODO EraBasedGovernanceMIRTransfer"
   EraBasedGovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"
+  EraBasedGovernanceRegistrationCertificateCmd {} -> "governance registration-certificate"
 
--- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
 pEraBasedGovernanceCmd :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmd era)
 pEraBasedGovernanceCmd envCli era =
   asum $ catMaybes
-    [ pEraBasedDelegationCertificateCmd envCli era
+    [ pEraBasedRegistrationCertificateCmd envCli era
+    , pEraBasedDelegationCertificateCmd envCli era
     , pCreateMirCertificatesCmds era
     ]
+
+
+-- Registration Certificate related
+
+
+pEraBasedRegistrationCertificateCmd
+  :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
+pEraBasedRegistrationCertificateCmd envCli =
+  featureInEra Nothing $ \w ->
+    Just
+      $ subParser "registration-certificate"
+      $ Opt.info (pEraCmd envCli w)
+      $ Opt.progDesc "Create a registration certificate."
+ where
+  pEraCmd :: EnvCli -> AnyEraDecider era -> Parser (EraBasedGovernanceCmd era)
+  pEraCmd envCli' = \case
+    AnyEraDeciderShelleyToBabbage sToB ->
+      EraBasedGovernanceRegistrationCertificateCmd
+        <$> asum [ ShelleyToBabbageStakePoolRegTarget sToB
+                     <$> pStakePoolRegistrationParserRequirements envCli'
+                 , ShelleyToBabbageStakeKeyRegTarget sToB
+                     <$> pStakeIdentifier
+                 ]
+        <*> pOutputFile
+
+    AnyEraDeciderConwayOnwards cOn ->
+      EraBasedGovernanceRegistrationCertificateCmd . ConwayOnwardRegTarget cOn
+        <$> asum [ RegisterStakePool cOn
+                     <$> pStakePoolRegistrationParserRequirements envCli'
+                 , RegisterStakeKey cOn
+                     <$> pStakeIdentifier
+                     <*> pKeyRegistDeposit
+                 , RegisterDRep cOn
+                     <$> pDRepVerificationKeyOrHashOrFile
+                     <*> pKeyRegistDeposit
+                 ]
+        <*> pOutputFile
+
+
+
+--------------------------------------------------------------------------------
+
 
 data AnyEraDecider era where
   AnyEraDeciderShelleyToBabbage :: ShelleyToBabbageEra era -> AnyEraDecider era
@@ -72,13 +118,15 @@ instance FeatureInEra AnyEraDecider where
     BabbageEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraBabbage
     ConwayEra   -> yes $ AnyEraDeciderConwayOnwards ConwayEraOnwardsConway
 
+-- Delegation Certificate related
+
 pEraBasedDelegationCertificateCmd :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
 pEraBasedDelegationCertificateCmd _envCli =
   featureInEra Nothing $ \w ->
     Just
       $ subParser "delegation-certificate"
       $ Opt.info (pCmd w)
-      $ Opt.progDesc "Post conway era governance command" -- TODO: We can render the help message based on the era
+      $ Opt.progDesc "Delegation certificate creation."
  where
   pCmd :: AnyEraDecider era -> Parser (EraBasedGovernanceCmd era)
   pCmd w =
@@ -98,6 +146,7 @@ pEraBasedDelegationCertificateCmd _envCli =
       AnyEraDeciderConwayOnwards cOnwards ->
         ConwayOnwardDelegTarget cOnwards
           <$> pStakeTarget cOnwards
+
 -- TODO: Conway era AFTER sancho net. We probably want to
 -- differentiate between delegating voting stake and reward stake
 pStakeTarget :: ConwayEraOnwards era -> Parser (StakeTarget era)
@@ -153,6 +202,7 @@ pDRepVerificationKeyFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
+--------------------------------------------------------------------------------
 
 pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
 pCreateMirCertificatesCmds =

@@ -49,15 +49,20 @@ runEraBasedGovernanceCmd = \case
   EraBasedGovernancePostConwayCmd w ->
     runEraBasedGovernancePostConwayCmd w
   EraBasedGovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
-    firstExceptT (const ()) -- TODO fix error handling
+    firstExceptT (const ()) -- TODO: Conway era - fix error handling
       $ runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
+
   EraBasedGovernanceMIRTransfer w ll oFp direction ->
-    firstExceptT (const ()) -- TODO fix error handling
+    firstExceptT (const ()) -- TODO: Conway era - fix error handling
       $ runGovernanceMIRCertificateTransfer w ll oFp direction
 
   EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
-    firstExceptT (const ()) -- TODO fix error handling
+    firstExceptT (const ()) -- TODO: Conway era - fix error handling
       $ runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp
+
+  EraBasedGovernanceRegistrationCertificateCmd regTarget outFp ->
+    firstExceptT (const ()) -- TODO: Conway era - fix error handling
+      $ runGovernanceRegistrationCertificate regTarget outFp
 
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era

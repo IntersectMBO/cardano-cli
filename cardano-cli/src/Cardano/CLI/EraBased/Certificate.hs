@@ -7,6 +7,9 @@
 module Cardano.CLI.EraBased.Certificate
   ( EraBasedDelegationError(..)
   , runGovernanceDelegrationCertificate
+
+  , EraBasedRegistrationError(..)
+  , runGovernanceRegistrationCertificate
   ) where
 
 import           Cardano.Api
@@ -20,6 +23,9 @@ import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
+
+
+-- Delegation Certificate related
 
 data EraBasedDelegationError
   = EraBasedDelegReadError !(FileError InputDecodeError)
@@ -93,3 +99,166 @@ toLedgerDelegatee t =
       right $ Ledger.DelegStakeVote
                 (conwayEraOnwardsConstraints cOnwards kHash)
                 (conwayEraOnwardsConstraints cOnwards drepCred)
+
+--------------------------------------------------------------------------------
+
+-- Registration Certificate related
+
+
+data EraBasedRegistrationError
+  = EraBasedRegistReadError !(FileError InputDecodeError)
+  | EraBasedRegistWriteFileError !(FileError ())
+  | EraBasedRegistStakeCredReadError !ShelleyStakeAddressCmdError -- TODO: Conway era - don't use legacy error type
+  | EraBasedRegistStakeError StakeAddressRegistrationError
+
+runGovernanceRegistrationCertificate
+  :: AnyRegistrationTarget
+  -> File () Out
+  -> ExceptT EraBasedRegistrationError IO ()
+runGovernanceRegistrationCertificate anyReg outfp =
+  case anyReg of
+    ShelleyToBabbageStakePoolRegTarget stoB regReqs -> do
+      -- Pool verification key
+      stakePoolVerKey <- firstExceptT EraBasedRegistReadError
+        . newExceptT
+        $ readVerificationKeyOrFile AsStakePoolKey $ sprStakePoolKey regReqs
+      let stakePoolId' = verificationKeyHash stakePoolVerKey
+
+      -- VRF verification key
+      vrfVerKey <- firstExceptT EraBasedRegistReadError
+        . newExceptT
+        $ readVerificationKeyOrFile AsVrfKey $ sprVrfKey regReqs
+      let vrfKeyHash' = verificationKeyHash vrfVerKey
+
+      -- Pool reward account
+      rwdStakeVerKey <- firstExceptT EraBasedRegistReadError
+        . newExceptT
+        $ readVerificationKeyOrFile AsStakeKey $ sprRewardAccountKey regReqs
+      let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
+          rewardAccountAddr = makeStakeAddress (sprNetworkId regReqs) stakeCred
+
+      -- Pool owner(s)
+      sPoolOwnerVkeys <-
+        mapM
+          (firstExceptT EraBasedRegistReadError
+            . newExceptT
+            . readVerificationKeyOrFile AsStakeKey
+          )
+          (spoPoolOwnerKeys regReqs)
+      let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
+
+      let stakePoolParams =
+            StakePoolParameters
+              { stakePoolId = stakePoolId'
+              , stakePoolVRF = vrfKeyHash'
+              , stakePoolCost = sprPoolCost regReqs
+              , stakePoolMargin = sprPoolMargin regReqs
+              , stakePoolRewardAccount = rewardAccountAddr
+              , stakePoolPledge = sprPoolPledge regReqs
+              , stakePoolOwners = stakePoolOwners'
+              , stakePoolRelays = sprRelays regReqs
+              , stakePoolMetadata = sprMetadata regReqs
+              }
+
+      let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
+          req = StakePoolRegistrationRequirementsPreConway stoB $ shelleyCertificateConstraints stoB ledgerStakePoolParams
+          registrationCert = makeStakePoolRegistrationCertificate req
+          description = Just @TextEnvelopeDescr "Stake Pool Registration Certificate"
+      firstExceptT EraBasedRegistWriteFileError
+        . newExceptT
+        . writeLazyByteStringFile outfp
+        $ shelleyCertificateConstraints stoB
+        $ textEnvelopeToJSON description registrationCert
+
+    ShelleyToBabbageStakeKeyRegTarget sToB stakeIdentifier -> do
+      stakeCred <- firstExceptT EraBasedRegistStakeCredReadError
+                     $ getStakeCredentialFromIdentifier stakeIdentifier
+      let req = StakeAddrRegistrationPreConway sToB stakeCred
+          registrationCert = makeStakeAddressRegistrationCertificate req
+          description = Just @TextEnvelopeDescr "Stake Key Registration Certificate"
+      firstExceptT EraBasedRegistWriteFileError
+        . newExceptT
+        . writeLazyByteStringFile outfp
+        $ shelleyCertificateConstraints sToB
+        $ textEnvelopeToJSON description registrationCert
+
+    ConwayOnwardRegTarget _ regTarget ->
+      case regTarget of
+        RegisterStakePool cOnwards regReqs -> do
+          -- Pool verification key
+          stakePoolVerKey <- firstExceptT EraBasedRegistReadError
+            . newExceptT
+            $ readVerificationKeyOrFile AsStakePoolKey $ sprStakePoolKey regReqs
+          let stakePoolId' = verificationKeyHash stakePoolVerKey
+          -- VRF verification key
+          vrfVerKey <- firstExceptT EraBasedRegistReadError
+                         . newExceptT
+                         $ readVerificationKeyOrFile AsVrfKey $ sprVrfKey regReqs
+          let vrfKeyHash' = verificationKeyHash vrfVerKey
+          -- Pool reward account
+          rwdStakeVerKey <- firstExceptT EraBasedRegistReadError
+                              . newExceptT
+                              $ readVerificationKeyOrFile AsStakeKey $ sprRewardAccountKey regReqs
+          let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
+              rewardAccountAddr = makeStakeAddress (sprNetworkId regReqs) stakeCred
+          -- Pool owner(s)
+          sPoolOwnerVkeys <-
+                mapM
+                  (firstExceptT EraBasedRegistReadError
+                    . newExceptT
+                    . readVerificationKeyOrFile AsStakeKey
+                  )
+                  (spoPoolOwnerKeys regReqs)
+          let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
+
+          let stakePoolParams =
+                StakePoolParameters
+                  { stakePoolId = stakePoolId'
+                  , stakePoolVRF = vrfKeyHash'
+                  , stakePoolCost = sprPoolCost regReqs
+                  , stakePoolMargin = sprPoolMargin regReqs
+                  , stakePoolRewardAccount = rewardAccountAddr
+                  , stakePoolPledge = sprPoolPledge regReqs
+                  , stakePoolOwners = stakePoolOwners'
+                  , stakePoolRelays = sprRelays regReqs
+                  , stakePoolMetadata = sprMetadata regReqs
+                  }
+
+          let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
+              req = StakePoolRegistrationRequirementsConwayOnwards cOnwards
+                      $ conwayCertificateConstraints cOnwards ledgerStakePoolParams
+              registrationCert = makeStakePoolRegistrationCertificate req
+              description = Just @TextEnvelopeDescr "Stake Pool Registration Certificate"
+          firstExceptT EraBasedRegistWriteFileError
+            . newExceptT
+            . writeLazyByteStringFile outfp
+            $ conwayCertificateConstraints cOnwards
+            $ textEnvelopeToJSON description registrationCert
+        RegisterStakeKey cOnwards sIdentifier deposit -> do
+          stakeCred <- firstExceptT EraBasedRegistStakeCredReadError
+                         $ getStakeCredentialFromIdentifier sIdentifier
+          let req = StakeAddrRegistrationConway cOnwards deposit stakeCred
+              registrationCert = makeStakeAddressRegistrationCertificate req
+              description = Just @TextEnvelopeDescr "Stake Key Registration Certificate"
+          firstExceptT EraBasedRegistWriteFileError
+            . newExceptT
+            . writeLazyByteStringFile outfp
+            $ conwayCertificateConstraints cOnwards
+            $ textEnvelopeToJSON description registrationCert
+        RegisterDRep cOnwards drepVKey deposit -> do
+          DRepKeyHash drepKeyHash <- firstExceptT EraBasedRegistReadError
+            . newExceptT
+            $ readVerificationKeyOrHashOrFile AsDRepKey drepVKey
+          let drepCred = Ledger.KeyHashObj $ conwayCertificateConstraints cOnwards drepKeyHash
+              votingCredential = VotingCredential drepCred
+              req = DRepRegistrationRequirements cOnwards votingCredential deposit
+              registrationCert = makeDrepRegistrationCertificate req
+              description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
+
+          firstExceptT EraBasedRegistWriteFileError
+            . newExceptT
+            . writeLazyByteStringFile outfp
+            $ conwayCertificateConstraints cOnwards
+            $ textEnvelopeToJSON description registrationCert
+
+--------------------------------------------------------------------------------
