@@ -104,7 +104,9 @@ pStakeTarget cOnwards =
   asum
     [ TargetStakePool cOnwards <$> pStakePoolVerificationKeyOrHashOrFile
     , TargetVotingDrep cOnwards <$> pDRepVerificationKeyOrHashOrFile
-    -- , TargetVotingDrepAndStakePool cOnwards -- TODO: Conway era
+    , TargetVotingDrepAndStakePool cOnwards
+         <$> pDRepVerificationKeyOrHashOrFile
+         <*> pStakePoolVerificationKeyOrHashOrFile
     ]
 
 pDRepVerificationKeyOrHashOrFile
@@ -125,7 +127,6 @@ pDRepVerificationKeyHash =
           , "Zero or more occurences of this option is allowed."
           ]
       ]
-
 
 pDRepVerificationKey :: Parser (VerificationKey DRepKey)
 pDRepVerificationKey =
