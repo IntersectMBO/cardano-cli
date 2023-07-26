@@ -56,11 +56,14 @@ data GovernanceCmdError
   | GovernanceCmdDecoderError !DecoderError
   | GovernanceCmdVerifyPollError !GovernancePollError
   | GovernanceCmdWriteFileError !(FileError ())
+  -- Legacy - remove me after cardano-cli transitions to new era based structure
+  | ShelleyGovernanceCmdMIRCertNotSupportedInConway
+  | ShelleyGovernanceCmdGenesisDelegationNotSupportedInConway
   deriving Show
 
 runGovernanceCreateVoteCmd
   :: AnyShelleyBasedEra
-  -> VoteChoice
+  -> Vote
   -> VType
   -> TxIn
   -> VerificationKeyOrFile StakePoolKey
@@ -74,19 +77,19 @@ runGovernanceCreateVoteCmd anyEra vChoice vType govActionTxIn votingStakeCred oF
   case vType of
     VCC -> do
       votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
-      let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
-          voteProcedure = createVotingProcedure sbe vChoice (CC votingCred) govActIdentifier
+      let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
+          voteProcedure = createVotingProcedure sbe vChoice (VoterCommittee votingCred) govActIdentifier
       firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
     VDR -> do
       votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
-      let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
-          voteProcedure = createVotingProcedure sbe vChoice (DR votingCred) govActIdentifier
+      let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
+          voteProcedure = createVotingProcedure sbe vChoice (VoterDRep votingCred) govActIdentifier
       firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
     VSP -> do
-      let govActIdentifier = makeGoveranceActionIdentifier sbe govActionTxIn
-          voteProcedure = createVotingProcedure sbe vChoice (SP stakePoolKeyHash) govActIdentifier
+      let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
+          voteProcedure = createVotingProcedure sbe vChoice (VoterSpo stakePoolKeyHash) govActIdentifier
       firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
 

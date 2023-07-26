@@ -9,9 +9,11 @@ module Cardano.CLI.Run.EraBased
   , renderAnyEraCmdError
   ) where
 
+import           Cardano.Api
+
 import           Cardano.CLI.Commands.EraBased
+import           Cardano.CLI.EraBased.Certificate
 import           Cardano.CLI.EraBased.Options.Governance
-import           Cardano.CLI.Types.Era
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
@@ -39,6 +41,12 @@ runEraBasedGovernanceCmd = \case
   EraBasedGovernancePostConwayCmd w ->
     runEraBasedGovernancePostConwayCmd w
 
+  EraBasedGovernanceDelegationCertificateCmd w ->
+    firstExceptT (const ())
+      $ runAnyDelegationTarget w
+        (error "TODO: Propagate output filepath via AnyDelegateTarget")
+
+
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era
   -> ExceptT () IO ()
@@ -48,3 +56,5 @@ runEraBasedGovernancePostConwayCmd
   :: ConwayEraOnwards era
   -> ExceptT () IO ()
 runEraBasedGovernancePostConwayCmd _w = pure ()
+
+

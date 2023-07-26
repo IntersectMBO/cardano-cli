@@ -13,6 +13,9 @@ module Cardano.CLI.EraBased.Legacy
 
     -- * Field parser and renderers
   , parseTxIn
+
+  , pKeyRegistDeposit
+  , pStakePoolVerificationKeyOrHashOrFile
   ) where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
@@ -389,6 +392,7 @@ pStakeAddressCmd envCli =
       StakeRegistrationCert
         <$> pAnyShelleyBasedEra envCli
         <*> pStakeIdentifier
+        <*> optional pKeyRegistDeposit
         <*> pOutputFile
 
     pStakeAddressDeregistrationCert :: Parser StakeAddressCmd
@@ -396,6 +400,7 @@ pStakeAddressCmd envCli =
       StakeCredentialDeRegistrationCert
         <$> pAnyShelleyBasedEra envCli
         <*> pStakeIdentifier
+        <*> optional pKeyRegistDeposit
         <*> pOutputFile
 
     pStakeAddressPoolDelegationCert :: Parser StakeAddressCmd

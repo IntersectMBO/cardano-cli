@@ -460,7 +460,7 @@ toSKeyJSON :: Key a => SigningKey a -> ByteString
 toSKeyJSON = LBS.toStrict . textEnvelopeToJSON Nothing
 
 toVkeyJSON ::
-#if __GLASGOW_HASKELL__ >= 902
+#if __GLASGOW_HASKELL__ >= 904
 -- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.4 and above complains if its
 -- not present.
               (Key a, HasTypeProxy a) =>

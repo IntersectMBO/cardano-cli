@@ -11,7 +11,6 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
-import           Cardano.Ledger.Shelley.TxBody (MIRPot)
 
 import           Data.Foldable
 import           Data.Text (Text)
@@ -100,12 +99,12 @@ pCreateVote envCli =
       <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
  where
-  pVoteChoice :: Parser VoteChoice
+  pVoteChoice :: Parser Vote
   pVoteChoice =
     asum
      [  flag' Yes $ long "yes"
      ,  flag' No $ long "no"
-     ,  flag' Abst $ long "abstain"
+     ,  flag' Abstain $ long "abstain"
      ]
 
   pVoterType :: Parser VType

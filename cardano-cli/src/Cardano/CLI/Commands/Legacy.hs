@@ -55,9 +55,7 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Key (DelegationTarget, PaymentVerifier, StakeIdentifier,
-                   StakeVerifier, VerificationKeyOrFile, VerificationKeyOrHashOrFile,
-                   VerificationKeyTextOrFile)
+import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
 
 import           Prelude
@@ -123,6 +121,7 @@ data StakeAddressCmd
   | StakeRegistrationCert
       AnyShelleyBasedEra
       StakeIdentifier
+      (Maybe Lovelace)
       (File () Out)
   | StakeCredentialDelegationCert
       AnyShelleyBasedEra
@@ -132,6 +131,7 @@ data StakeAddressCmd
   | StakeCredentialDeRegistrationCert
       AnyShelleyBasedEra
       StakeIdentifier
+      (Maybe Lovelace)
       (File () Out)
   deriving Show
 
