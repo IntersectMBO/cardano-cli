@@ -98,7 +98,8 @@ pEraBasedDelegationCertificateCmd _envCli =
       AnyEraDeciderConwayOnwards cOnwards ->
         ConwayOnwardDelegTarget cOnwards
           <$> pStakeTarget cOnwards
-
+-- TODO: Conway era AFTER sancho net. We probably want to
+-- differentiate between delegating voting stake and reward stake
 pStakeTarget :: ConwayEraOnwards era -> Parser (StakeTarget era)
 pStakeTarget cOnwards =
   asum
