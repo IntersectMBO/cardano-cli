@@ -1,5 +1,6 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -458,7 +459,15 @@ runGenesisCreate
 toSKeyJSON :: Key a => SigningKey a -> ByteString
 toSKeyJSON = LBS.toStrict . textEnvelopeToJSON Nothing
 
-toVkeyJSON :: (Key a, HasTypeProxy a) => SigningKey a -> ByteString
+toVkeyJSON ::
+#if __GLASGOW_HASKELL__ >= 902
+-- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.2 and above complains if its
+-- not present.
+    (Key a, HasTypeProxy a)
+#else
+    Key a
+#endif
+    => SigningKey a -> ByteString
 toVkeyJSON = LBS.toStrict . textEnvelopeToJSON Nothing . getVerificationKey
 
 toVkeyJSON' :: Key a => VerificationKey a -> ByteString
