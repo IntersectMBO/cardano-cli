@@ -16,6 +16,9 @@ module Cardano.CLI.Run.Legacy.StakeAddress
 
   , StakeAddressDelegationError(..)
   , createDelegationCertRequirements
+
+  , StakeAddressRegistrationError(..)
+  , createRegistrationCertRequirements
   ) where
 
 import           Cardano.Api

@@ -15,6 +15,7 @@ module Cardano.CLI.EraBased.Legacy
   , parseTxIn
 
   , pKeyRegistDeposit
+  , pStakePoolRegistrationParserRequirements
   , pStakePoolVerificationKeyOrHashOrFile
   ) where
 
@@ -27,8 +28,8 @@ import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Key (DelegationTarget (..), PaymentVerifier (..),
-                   VerificationKeyOrFile (..), VerificationKeyOrHashOrFile (..),
-                   VerificationKeyTextOrFile (..))
+                   StakePoolRegistrationParserRequirements (..), VerificationKeyOrFile (..),
+                   VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
 import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.BaseTypes as Shelley
 import           Cardano.Prelude (ConvertText (..))
@@ -3032,6 +3033,23 @@ pStakePoolRegistrationCert envCli =
     <*> pStakePoolMetadataReference
     <*> pNetworkId envCli
     <*> pOutputFile
+
+
+pStakePoolRegistrationParserRequirements
+  :: EnvCli -> Parser StakePoolRegistrationParserRequirements
+pStakePoolRegistrationParserRequirements envCli =
+  StakePoolRegistrationParserRequirements
+    <$> pStakePoolVerificationKeyOrFile
+    <*> pVrfVerificationKeyOrFile
+    <*> pPoolPledge
+    <*> pPoolCost
+    <*> pPoolMargin
+    <*> pRewardAcctVerificationKeyOrFile
+    <*> some pPoolOwnerVerificationKeyOrFile
+    <*> many pPoolRelay
+    <*> pStakePoolMetadataReference
+    <*> pNetworkId envCli
+
 
 pStakePoolRetirementCert :: EnvCli -> Parser PoolCmd
 pStakePoolRetirementCert envCli =
