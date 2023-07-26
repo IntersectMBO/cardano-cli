@@ -5,13 +5,17 @@
 module Cardano.CLI.Environment
   ( EnvCli(..)
   , envCliAnyShelleyBasedEra
+  , envCliAnyShelleyToBabbageEra
   , getEnvCli
   , getEnvNetworkId
   , getEnvSocketPath
   ) where
 
 import           Cardano.Api (AnyCardanoEra (..), AnyShelleyBasedEra (..), CardanoEra (..),
-                   NetworkId (..), NetworkMagic (..), ShelleyBasedEra (..))
+                   NetworkId (..), NetworkMagic (..), ShelleyBasedEra (..),
+                   ShelleyToBabbageEra (..))
+
+import           Cardano.CLI.Types.Common
 
 import           Data.Word (Word32)
 import qualified System.Environment as IO
@@ -48,6 +52,19 @@ envCliAnyShelleyBasedEra envCli = do
     AlonzoEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraAlonzo
     BabbageEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraBabbage
     ConwayEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraConway
+
+envCliAnyShelleyToBabbageEra :: EnvCli -> Maybe AnyShelleyToBabbageEra
+envCliAnyShelleyToBabbageEra envCli = do
+  AnyCardanoEra era <- envCliAnyCardanoEra envCli
+
+  case era of
+    ByronEra -> Nothing
+    ShelleyEra -> Just $ AnyShelleyToBabbageEra ShelleyToBabbageEraShelley
+    AllegraEra -> Just $ AnyShelleyToBabbageEra ShelleyToBabbageEraAllegra
+    MaryEra -> Just $ AnyShelleyToBabbageEra ShelleyToBabbageEraMary
+    AlonzoEra -> Just $ AnyShelleyToBabbageEra ShelleyToBabbageEraAlonzo
+    BabbageEra -> Just $ AnyShelleyToBabbageEra ShelleyToBabbageEraBabbage
+    ConwayEra -> Nothing
 
 -- | If the environment variable @CARDANO_NODE_NETWORK_ID@ is set, then return the network id therein.
 -- Otherwise, return 'Nothing'.

@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Governance where
@@ -8,6 +9,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
@@ -17,18 +19,17 @@ import           Data.Text (Text)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
-
 data GovernanceCmd
   = GovernanceVoteCmd VoteCmd
   | GovernanceActionCmd ActionCmd
   | GovernanceMIRPayStakeAddressesCertificate
-      AnyShelleyBasedEra
+      AnyShelleyToBabbageEra
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
   | GovernanceMIRTransfer
-      AnyShelleyBasedEra
+      AnyShelleyToBabbageEra
       Lovelace
       (File () Out)
       TransferDirection

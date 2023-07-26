@@ -8,9 +8,12 @@ module Cardano.CLI.EraBased.Options.Common where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra)
+import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra,
+                   envCliAnyShelleyToBabbageEra)
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
+import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 import           Cardano.Prelude (purer)
 
 import           Control.Monad (mfilter)
@@ -32,8 +35,11 @@ import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
 
-defaultCurrentEra :: AnyShelleyBasedEra
-defaultCurrentEra = AnyShelleyBasedEra ShelleyBasedEraBabbage
+defaultShelleyBasedEra :: AnyShelleyBasedEra
+defaultShelleyBasedEra = AnyShelleyBasedEra ShelleyBasedEraBabbage
+
+defaultShelleyToBabbageEra :: AnyShelleyToBabbageEra
+defaultShelleyToBabbageEra = AnyShelleyToBabbageEra ShelleyToBabbageEraBabbage
 
 pCardanoEra :: EnvCli -> Parser AnyCardanoEra
 pCardanoEra envCli =
@@ -75,7 +81,7 @@ pCardanoEra envCli =
     , purer defaultCardanoEra
   ]
     where
-      defaultCardanoEra = defaultCurrentEra & \(AnyShelleyBasedEra era) ->
+      defaultCardanoEra = defaultShelleyBasedEra & \(AnyShelleyBasedEra era) ->
         AnyCardanoEra (shelleyBasedToCardanoEra era)
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
@@ -316,7 +322,25 @@ pAnyShelleyBasedEra envCli =
         $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
       ]
     , maybeToList $ pure <$> envCliAnyShelleyBasedEra envCli
-    , purer defaultCurrentEra
+    , purer defaultShelleyBasedEra
+  ]
+
+pAnyShelleyToBabbageEra :: EnvCli -> Parser AnyShelleyToBabbageEra
+pAnyShelleyToBabbageEra envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (AnyShelleyToBabbageEra ShelleyToBabbageEraShelley)
+        $ mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
+      , Opt.flag' (AnyShelleyToBabbageEra ShelleyToBabbageEraAllegra)
+        $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+      , Opt.flag' (AnyShelleyToBabbageEra ShelleyToBabbageEraMary)
+        $ mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
+      , Opt.flag' (AnyShelleyToBabbageEra ShelleyToBabbageEraAlonzo)
+        $ mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
+      , Opt.flag' (AnyShelleyToBabbageEra ShelleyToBabbageEraBabbage)
+        $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era (default)"]
+      ]
+    , maybeToList $ pure <$> envCliAnyShelleyToBabbageEra envCli
+    , purer defaultShelleyToBabbageEra
   ]
 
 pShelleyBasedShelley :: EnvCli -> Parser AnyShelleyBasedEra
@@ -444,4 +468,42 @@ pStakePoolVerificationKeyFile =
       [ Opt.long "stake-pool-verification-key-file"
       , Opt.internal
       ]
+    ]
+
+pOutputFile :: Parser (File content Out)
+pOutputFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "out-file"
+    , Opt.metavar "FILE"
+    , Opt.help "The output file."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pMIRPot :: Parser Shelley.MIRPot
+pMIRPot =
+  asum
+    [ Opt.flag' Shelley.ReservesMIR $ mconcat
+        [ Opt.long "reserves"
+        , Opt.help "Use the reserves pot."
+        ]
+    , Opt.flag' Shelley.TreasuryMIR $ mconcat
+        [ Opt.long "treasury"
+        , Opt.help "Use the treasury pot."
+        ]
+    ]
+
+pRewardAmt :: Parser Lovelace
+pRewardAmt =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "reward"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The reward for the relevant reward account."
+    ]
+
+pTransferAmt :: Parser Lovelace
+pTransferAmt =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "transfer"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "The amount to transfer."
     ]

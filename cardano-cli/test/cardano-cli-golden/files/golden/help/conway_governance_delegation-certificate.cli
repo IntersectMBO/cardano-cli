@@ -9,6 +9,7 @@ Usage: cardano-cli conway governance delegation-certificate
                                                               | --stake-pool-id STAKE_POOL_ID
                                                               | --dummy-drep-option ARG
                                                               )
+                                                              --out-file FILE
 
   Post conway era governance command
 
@@ -28,4 +29,5 @@ Available options:
                            Bech32-encoded or hex-encoded). Zero or more
                            occurences of this option is allowed.
   --dummy-drep-option ARG  Delegate voting stake to Drep
+  --out-file FILE          The output file.
   -h,--help                Show this help text

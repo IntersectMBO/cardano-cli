@@ -128,13 +128,11 @@ data StakeIdentifier
 data AnyDelegationTarget where
   ShelleyToBabbageDelegTarget
     :: ShelleyToBabbageEra era
-    -> StakeIdentifier
     -> VerificationKeyOrHashOrFile StakePoolKey -- ^ Stake pool target
     -> AnyDelegationTarget
 
   ConwayOnwardDelegTarget
     :: ConwayEraOnwards era
-    -> StakeIdentifier
     -> StakeTarget era
     -> AnyDelegationTarget
 

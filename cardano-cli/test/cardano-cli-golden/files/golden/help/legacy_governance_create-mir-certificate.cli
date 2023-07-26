@@ -4,7 +4,6 @@ Usage: cardano-cli legacy governance create-mir-certificate
                                                                 | --mary-era
                                                                 | --alonzo-era
                                                                 | --babbage-era
-                                                                | --conway-era
                                                                 ]
                                                                 ( --reserves
                                                                 | --treasury
@@ -25,7 +24,6 @@ Available options:
   --mary-era               Specify the Mary era
   --alonzo-era             Specify the Alonzo era
   --babbage-era            Specify the Babbage era (default)
-  --conway-era             Specify the Conway era
   --reserves               Use the reserves pot.
   --treasury               Use the treasury pot.
   --stake-address ADDRESS  Target stake address (bech32 format).

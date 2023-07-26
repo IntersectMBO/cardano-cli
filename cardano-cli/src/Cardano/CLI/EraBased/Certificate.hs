@@ -1,11 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Cardano.CLI.EraBased.Certificate
-  ( runAnyDelegationTarget
+  ( EraBasedDelegationError(..)
+  , runGovernanceDelegrationCertificate
   ) where
 
 import           Cardano.Api
@@ -24,18 +26,22 @@ data EraBasedDelegationError
   = EraBasedDelegReadError !(FileError InputDecodeError)
   | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
   | EraBasedCertificateWriteFileError !(FileError ())
+  | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
 
-runAnyDelegationTarget
-  :: AnyDelegationTarget
+runGovernanceDelegrationCertificate
+  :: StakeIdentifier
+  -> AnyDelegationTarget
   -> File () Out
   -> ExceptT EraBasedDelegationError IO ()
-runAnyDelegationTarget delegationTarget outFp = do
+runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp = do
+  stakeCred <-
+    getStakeCredentialFromIdentifier stakeIdentifier
+      & firstExceptT EraBasedCredentialError
+
   case delegationTarget of
-    ShelleyToBabbageDelegTarget sTob stakeIdentifier stakePool -> do
+    ShelleyToBabbageDelegTarget sTob stakePool -> do
       poolId <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey stakePool)
                   & onLeft (left . EraBasedDelegReadError)
-      stakeCred <- firstExceptT EraBasedCredentialError
-                     $ getStakeCredentialFromIdentifier stakeIdentifier
       let req = StakeDelegationRequirementsPreConway sTob stakeCred poolId
           delegCert = makeStakeAddressDelegationCertificate req
           description = Just @TextEnvelopeDescr "Stake Address Delegation Certificate"
@@ -45,9 +51,7 @@ runAnyDelegationTarget delegationTarget outFp = do
         $ obtainIsShelleyBasedEraShelleyToBabbage sTob
         $ textEnvelopeToJSON description delegCert
 
-    ConwayOnwardDelegTarget cOnwards stakeIdentifier target -> do
-      stakeCred <- firstExceptT EraBasedCredentialError
-                     $ getStakeCredentialFromIdentifier stakeIdentifier
+    ConwayOnwardDelegTarget cOnwards target -> do
       delegatee <- toLedgerDelegatee target
       let req = StakeDelegationRequirementsConwayOnwards cOnwards stakeCred delegatee
           delegCert = makeStakeAddressDelegationCertificate req
