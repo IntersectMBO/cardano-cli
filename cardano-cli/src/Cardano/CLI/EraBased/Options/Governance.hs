@@ -11,8 +11,10 @@ module Cardano.CLI.EraBased.Options.Governance
 import           Cardano.Api
 
 import           Cardano.CLI.Environment
+import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
@@ -44,6 +46,9 @@ data EraBasedGovernanceCmd era
   | EraBasedGovernanceRegistrationCertificateCmd
       AnyRegistrationTarget
       (File () Out)
+  | EraBasedGovernanceVoteCmd
+      AnyVote
+      (File () Out)
 
 renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
@@ -53,12 +58,14 @@ renderEraBasedGovernanceCmd = \case
   EraBasedGovernanceMIRTransfer {} -> "TODO EraBasedGovernanceMIRTransfer"
   EraBasedGovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"
   EraBasedGovernanceRegistrationCertificateCmd {} -> "governance registration-certificate"
+  EraBasedGovernanceVoteCmd {} -> "goverance vote"
 
 pEraBasedGovernanceCmd :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmd era)
 pEraBasedGovernanceCmd envCli era =
   asum $ catMaybes
     [ pEraBasedRegistrationCertificateCmd envCli era
     , pEraBasedDelegationCertificateCmd envCli era
+    , pEraBasedVoteCmd envCli era
     , pCreateMirCertificatesCmds era
     ]
 
@@ -203,6 +210,45 @@ pDRepVerificationKeyFile =
     ]
 
 --------------------------------------------------------------------------------
+
+-- Vote related
+
+pEraBasedVoteCmd
+  :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
+pEraBasedVoteCmd envCli =
+  featureInEra Nothing $ \w ->
+    Just
+      $ subParser "vote"
+      $ Opt.info (pEraCmd envCli w)
+      $ Opt.progDesc "Vote creation."
+ where
+  pEraCmd
+    :: EnvCli -> AnyEraDecider era -> Parser (EraBasedGovernanceCmd era)
+  pEraCmd _envCli' = \case
+    AnyEraDeciderShelleyToBabbage{} -> empty
+    AnyEraDeciderConwayOnwards cOn ->
+      EraBasedGovernanceVoteCmd
+        <$> pAnyVote cOn
+        <*> pOutputFile
+
+pAnyVote :: ConwayEraOnwards era -> Parser AnyVote
+pAnyVote cOnwards =
+  ConwayOnwardsVote cOnwards
+    <$> pVoteChoice
+    <*> pVoterType
+    <*> pGoveranceActionIdentifier
+    <*> pAnyVotingStakeVerificationKeyOrHashOrFile
+
+pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile
+pAnyVotingStakeVerificationKeyOrHashOrFile =
+  asum [ AnyDRepVerificationKeyOrHashOrFile <$> pDRepVerificationKeyOrHashOrFile
+       , AnyStakePoolVerificationKeyOrHashOrFile <$> pStakePoolVerificationKeyOrHashOrFile
+       ]
+
+
+
+--------------------------------------------------------------------------------
+
 
 pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
 pCreateMirCertificatesCmds =

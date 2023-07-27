@@ -67,15 +67,16 @@ library
                         Cardano.CLI.Commands.Legacy
                         Cardano.CLI.Environment
                         Cardano.CLI.EraBased.Certificate
-                        Cardano.CLI.Helpers
-                        Cardano.CLI.IO.Lazy
-                        Cardano.CLI.Json.Friendly
-                        Cardano.CLI.Options
+                        Cardano.CLI.EraBased.Vote
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Governance
                         Cardano.CLI.EraBased.Legacy
                         Cardano.CLI.EraBased.Run.Governance
+                        Cardano.CLI.Helpers
+                        Cardano.CLI.IO.Lazy
+                        Cardano.CLI.Json.Friendly
+                        Cardano.CLI.Options
                         Cardano.CLI.Orphans
                         Cardano.CLI.OS.Posix
                         Cardano.CLI.Pretty
