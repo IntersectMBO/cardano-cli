@@ -45,12 +45,10 @@ import           Cardano.CLI.Types.Legacy
 import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
-import qualified Cardano.Crypto.VRF as Crypto
-import           Cardano.Ledger.BaseTypes (Seed)
 import qualified Cardano.Ledger.Core as Core
 import qualified Cardano.Ledger.Crypto as Crypto
 import           Cardano.Ledger.Keys (KeyHash (..), KeyRole (..))
-import           Cardano.Ledger.SafeHash (HashAnnotated, SafeHash)
+import           Cardano.Ledger.SafeHash (SafeHash)
 import           Cardano.Ledger.Shelley.LedgerState
                    (PState (psFutureStakePoolParams, psRetiring, psStakePoolParams))
 import qualified Cardano.Ledger.Shelley.LedgerState as SL
@@ -219,7 +217,7 @@ runQueryConstitutionHash socketPath (AnyConsensusModeParams cModeParams) network
     eInMode <- toEraInMode era cMode
       & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
-    lift (Api.withShelleyBasedEraConstraintsForLedger sbe (queryConstitutionHash eInMode sbe))
+    lift (shelleyBasedEraConstraints sbe (queryConstitutionHash eInMode sbe))
       & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
       & onLeft (left . ShelleyQueryCmdEraMismatch)
 
@@ -485,7 +483,7 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
         & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
         & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-      (onDiskC, stateC) <- eligibleLeaderSlotsConstaints sbe $ opCertOnDiskAndStateCounters ptclState opCert
+      (onDiskC, stateC) <- shelleyBasedEraConstraints sbe $ opCertOnDiskAndStateCounters ptclState opCert
       let counterInformation = opCertNodeAndOnDiskCounters onDiskC stateC
 
       -- Always render diagnostic information
@@ -733,7 +731,7 @@ runQueryPoolState socketPath (AnyConsensusModeParams cModeParams) network poolId
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-  obtainLedgerEraClassConstraints sbe writePoolState result
+  shelleyBasedEraConstraints sbe $ writePoolState result
 
 -- | Query the local mempool state
 runQueryTxMempool
@@ -813,7 +811,7 @@ runQueryStakeSnapshot socketPath (AnyConsensusModeParams cModeParams) network al
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-  obtainLedgerEraClassConstraints sbe (writeStakeSnapshots mOutFile) result
+  shelleyBasedEraConstraints sbe $ writeStakeSnapshots mOutFile result
 
 
 runQueryLedgerState
@@ -846,7 +844,7 @@ runQueryLedgerState socketPath (AnyConsensusModeParams cModeParams) network mOut
     & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
     & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-  obtainLedgerEraClassConstraints sbe (writeLedgerState mOutFile) result
+  shelleyBasedEraConstraints sbe $ writeLedgerState mOutFile result
 
 runQueryProtocolState
   :: SocketPath
@@ -1372,7 +1370,7 @@ runQueryLeadershipSchedule
             & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
           firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
-            $ eligibleLeaderSlotsConstaints sbe
+            $ shelleyBasedEraConstraints sbe
             $ currentEpochEligibleLeadershipSlots
               sbe
               shelleyGenesis
@@ -1393,7 +1391,7 @@ runQueryLeadershipSchedule
             & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
           firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
-            $ eligibleLeaderSlotsConstaints sbe
+            $ shelleyBasedEraConstraints sbe
             $ nextEpochEligibleLeadershipSlots sbe shelleyGenesis
               serCurrentEpochState ptclState poolid vrkSkey bpp
               eInfo (tip, curentEpoch)
@@ -1531,45 +1529,6 @@ utcTimeToSlotNo socketPath (AnyConsensusModeParams cModeParams) network utcTime 
 
     mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
 
-obtainLedgerEraClassConstraints
-  :: ShelleyLedgerEra era ~ ledgerera
-  => Api.ShelleyBasedEra era
-  -> (( ToJSON (DebugLedgerState era)
-      , FromCBOR (DebugLedgerState era)
-      , Core.EraCrypto ledgerera ~ StandardCrypto
-      , Core.Era (ShelleyLedgerEra era)
-      ) => a) -> a
-obtainLedgerEraClassConstraints ShelleyBasedEraShelley f = f
-obtainLedgerEraClassConstraints ShelleyBasedEraAllegra f = f
-obtainLedgerEraClassConstraints ShelleyBasedEraMary    f = f
-obtainLedgerEraClassConstraints ShelleyBasedEraAlonzo  f = f
-obtainLedgerEraClassConstraints ShelleyBasedEraBabbage f = f
-obtainLedgerEraClassConstraints ShelleyBasedEraConway  f = f
-
-eligibleLeaderSlotsConstaints
-  :: ShelleyLedgerEra era ~ ledgerera
-  => ShelleyBasedEra era
-  -> (( ShelleyLedgerEra era ~ ledgerera
-      , Core.EraCrypto ledgerera ~ StandardCrypto
-      , Consensus.PraosProtocolSupportsNode (ConsensusProtocol era)
-      , FromCBOR (Consensus.ChainDepState (ConsensusProtocol era))
-      , Core.Era ledgerera
-      , Crypto.Signable (Crypto.VRF (Core.EraCrypto ledgerera)) Seed
-      , Crypto.ADDRHASH (Consensus.PraosProtocolSupportsNodeCrypto (ConsensusProtocol era)) ~ Blake2b.Blake2b_224
-      , HashAnnotated
-          (Core.TxBody (ShelleyLedgerEra era))
-          Core.EraIndependentTxBody
-          StandardCrypto
-      ) => a
-     )
-  -> a
-eligibleLeaderSlotsConstaints ShelleyBasedEraShelley f = f
-eligibleLeaderSlotsConstaints ShelleyBasedEraAllegra f = f
-eligibleLeaderSlotsConstaints ShelleyBasedEraMary    f = f
-eligibleLeaderSlotsConstaints ShelleyBasedEraAlonzo  f = f
-eligibleLeaderSlotsConstaints ShelleyBasedEraBabbage f = f
-eligibleLeaderSlotsConstaints ShelleyBasedEraConway  f = f
-
 eligibleWriteProtocolStateConstaints
   :: ShelleyBasedEra era
   -> (( FromCBOR (Consensus.ChainDepState (ConsensusProtocol era))
@@ -1577,13 +1536,10 @@ eligibleWriteProtocolStateConstaints
       ) => a
      )
   -> a
-eligibleWriteProtocolStateConstaints ShelleyBasedEraShelley f = f
-eligibleWriteProtocolStateConstaints ShelleyBasedEraAllegra f = f
-eligibleWriteProtocolStateConstaints ShelleyBasedEraMary    f = f
-eligibleWriteProtocolStateConstaints ShelleyBasedEraAlonzo  f = f
-eligibleWriteProtocolStateConstaints ShelleyBasedEraBabbage f = f
-eligibleWriteProtocolStateConstaints ShelleyBasedEraConway  f = f
-
--- Required instances
--- instance FromCBOR (TPraosState StandardCrypto) where
--- instance FromCBOR (Praos.PraosState StandardCrypto) where
+eligibleWriteProtocolStateConstaints = \case
+  ShelleyBasedEraShelley  -> id
+  ShelleyBasedEraAllegra  -> id
+  ShelleyBasedEraMary     -> id
+  ShelleyBasedEraAlonzo   -> id
+  ShelleyBasedEraBabbage  -> id
+  ShelleyBasedEraConway   -> id

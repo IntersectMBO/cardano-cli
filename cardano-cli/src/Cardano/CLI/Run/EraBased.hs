@@ -11,7 +11,6 @@ module Cardano.CLI.Run.EraBased
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Commands.EraBased
 import           Cardano.CLI.EraBased.Certificate
@@ -34,7 +33,7 @@ runAnyEraCommand :: ()
   -> ExceptT AnyEraCmdError IO ()
 runAnyEraCommand = \case
   AnyEraCommandOf sbe cmd ->
-    firstExceptT AnyEraCmdGenericError $ obtainEraCryptoConstraints sbe $ runEraBasedCommand cmd
+    firstExceptT AnyEraCmdGenericError $ shelleyBasedEraConstraints sbe $ runEraBasedCommand cmd
 
 runEraBasedCommand :: ()
   => EraBasedCommand era -> ExceptT () IO ()

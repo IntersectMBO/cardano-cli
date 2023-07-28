@@ -765,7 +765,7 @@ readVoteFile
   -> VoteFile In
   -> IO (Either VoteError (VotingProcedure era))
 readVoteFile sbe fp =
-  first VoteErrorFile <$> obtainEraConstraints sbe (readFileTextEnvelope AsVote fp)
+  first VoteErrorFile <$> shelleyBasedEraConstraints sbe (readFileTextEnvelope AsVote fp)
 
 
 data ConstitutionError
@@ -794,7 +794,7 @@ readConstitution
 readConstitution sbe fp =
   fmap (first ConstitutionErrorFile)
     $ obtainEraPParamsConstraint sbe
-    $ obtainEraConstraints sbe (readFileTextEnvelope AsProposal fp)
+    $ shelleyBasedEraConstraints sbe (readFileTextEnvelope AsProposal fp)
 
 -- Misc
 
