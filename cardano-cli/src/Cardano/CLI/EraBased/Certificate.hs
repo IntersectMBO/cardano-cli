@@ -25,6 +25,7 @@ data EraBasedDelegationError
   = EraBasedDelegReadError !(FileError InputDecodeError)
   | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
   | EraBasedCertificateWriteFileError !(FileError ())
+  | EraBasedDRepReadError !(FileError InputDecodeError)
   | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
 
 runGovernanceDelegrationCertificate
@@ -67,11 +68,28 @@ toLedgerDelegatee
   -> ExceptT EraBasedDelegationError IO (Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era)))
 toLedgerDelegatee t =
   case t of
-    TargetStakePool cOnwards vk -> do
+    TargetStakePool cOnwards keyOrHashOrFile -> do
       StakePoolKeyHash kHash
-        <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey vk)
+        <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey keyOrHashOrFile)
              & onLeft (left . EraBasedDelegReadError)
-
       right $ Ledger.DelegStake $ conwayEraOnwardsConstraints cOnwards kHash
-    TargetVotingDrep _ -> error "TODO: Conway era - Ledger.DelegVote"
-    TargetVotingDrepAndStakePool _ -> error "TODO: Conway era - Ledger.DelegStakeVote"
+
+    TargetVotingDrep cOnwards keyOrHashOrFile -> do
+      DRepKeyHash drepKeyHash <- firstExceptT EraBasedDRepReadError
+                                   . newExceptT
+                                   $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey keyOrHashOrFile
+      let drepCred = Ledger.DRepCredential $ Ledger.KeyHashObj drepKeyHash
+      right $ Ledger.DelegVote $ conwayEraOnwardsConstraints cOnwards drepCred
+
+    TargetVotingDrepAndStakePool cOnwards drepKeyOrHashOrFile  poolKeyOrHashOrFile -> do
+      StakePoolKeyHash kHash
+        <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolKeyOrHashOrFile)
+             & onLeft (left . EraBasedDelegReadError)
+      DRepKeyHash drepKeyHash
+        <- firstExceptT EraBasedDRepReadError
+             . newExceptT
+             $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepKeyOrHashOrFile
+      let drepCred = Ledger.DRepCredential $ Ledger.KeyHashObj drepKeyHash
+      right $ Ledger.DelegStakeVote
+                (conwayEraOnwardsConstraints cOnwards kHash)
+                (conwayEraOnwardsConstraints cOnwards drepCred)

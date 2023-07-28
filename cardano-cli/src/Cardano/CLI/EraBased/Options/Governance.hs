@@ -15,6 +15,7 @@ import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
+import           Cardano.CLI.Types.Legacy
 
 import           Data.Foldable
 import           Data.Maybe
@@ -97,14 +98,61 @@ pEraBasedDelegationCertificateCmd _envCli =
       AnyEraDeciderConwayOnwards cOnwards ->
         ConwayOnwardDelegTarget cOnwards
           <$> pStakeTarget cOnwards
-
+-- TODO: Conway era AFTER sancho net. We probably want to
+-- differentiate between delegating voting stake and reward stake
 pStakeTarget :: ConwayEraOnwards era -> Parser (StakeTarget era)
 pStakeTarget cOnwards =
   asum
     [ TargetStakePool cOnwards <$> pStakePoolVerificationKeyOrHashOrFile
-    , TargetVotingDrep cOnwards <$ pDrep
-    -- , TargetVotingDrepAndStakePool cOnwards -- TODO: Conway era
+    , TargetVotingDrep cOnwards <$> pDRepVerificationKeyOrHashOrFile
+    , TargetVotingDrepAndStakePool cOnwards
+         <$> pDRepVerificationKeyOrHashOrFile
+         <*> pStakePoolVerificationKeyOrHashOrFile
     ]
+
+pDRepVerificationKeyOrHashOrFile
+  :: Parser (VerificationKeyOrHashOrFile DRepKey)
+pDRepVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pDRepVerificationKeyOrFile
+    , VerificationKeyHash <$> pDRepVerificationKeyHash
+    ]
+
+pDRepVerificationKeyHash :: Parser (Hash DRepKey)
+pDRepVerificationKeyHash =
+    Opt.option (pBech32KeyHash AsDRepKey <|> pHexKeyHash AsDRepKey) $ mconcat
+      [ Opt.long "drep-key-hash"
+      , Opt.metavar "HASH"
+      , Opt.help $ mconcat
+          [ "DRep verification key hash (either Bech32-encoded or hex-encoded).  "
+          , "Zero or more occurences of this option is allowed."
+          ]
+      ]
+
+pDRepVerificationKey :: Parser (VerificationKey DRepKey)
+pDRepVerificationKey =
+  Opt.option (readVerificationKey AsDRepKey) $ mconcat
+    [ Opt.long "drep-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "DRep verification key (Bech32 or hex-encoded)."
+    ]
+
+pDRepVerificationKeyOrFile :: Parser (VerificationKeyOrFile DRepKey)
+pDRepVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pDRepVerificationKey
+    , VerificationKeyFilePath <$> pDRepVerificationKeyFile
+    ]
+
+pDRepVerificationKeyFile :: Parser (VerificationKeyFile In)
+pDRepVerificationKeyFile =
+  fmap File . Opt.strOption $ mconcat
+    [ Opt.long "drep-verification-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the DRep verification key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
 
 pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
 pCreateMirCertificatesCmds =
@@ -158,10 +206,4 @@ pMIRTransferToReserves w =
     <*> pOutputFile
     <*> pure TransferToReserves
 
--- TODO: Conway era - parse the relevant voting
--- credential (key hash, script hash, always abstain or no confidence)
-pDrep :: Parser String
-pDrep = Opt.strOption $ mconcat
-          [ Opt.long "dummy-drep-option"
-          , Opt.help "Delegate voting stake to Drep"
-          ]
+

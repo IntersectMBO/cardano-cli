@@ -2752,7 +2752,7 @@ pAddress =
 
 pStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash =
-    Opt.option (pBech32StakePoolId <|> pHexStakePoolId) $ mconcat
+    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexKeyHash AsStakePoolKey) $ mconcat
       [ Opt.long "stake-pool-id"
       , Opt.metavar "STAKE_POOL_ID"
       , Opt.help $ mconcat
@@ -2760,21 +2760,6 @@ pStakePoolVerificationKeyHash =
           , "Zero or more occurences of this option is allowed."
           ]
       ]
-  where
-    pHexStakePoolId :: ReadM (Hash StakePoolKey)
-    pHexStakePoolId =
-      Opt.eitherReader $
-        first displayError
-          . deserialiseFromRawBytesHex (AsHash AsStakePoolKey)
-          . BSC.pack
-
-    pBech32StakePoolId :: ReadM (Hash StakePoolKey)
-    pBech32StakePoolId =
-      Opt.eitherReader $
-        first displayError
-        . deserialiseFromBech32 (AsHash AsStakePoolKey)
-        . Text.pack
-
 
 pDelegationTarget
   :: Parser DelegationTarget
