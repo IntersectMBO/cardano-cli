@@ -3,7 +3,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
 
 
 {- HLINT ignore "Monad law, left identity" -}
@@ -242,28 +241,16 @@ onlySpoDelegatee
   => ShelleyToBabbageEra era
   -> Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era))
   -> Either StakeAddressDelegationError PoolId
-onlySpoDelegatee aMost ledgerDelegatee =
+onlySpoDelegatee w ledgerDelegatee =
   case ledgerDelegatee of
     Ledger.DelegStake stakePoolKeyHash ->
-      Right $ StakePoolKeyHash $ obtainEraCryptoAtMostBabbageConstraints aMost stakePoolKeyHash
+      Right $ StakePoolKeyHash $ shelleyToBabbageEraConstraints w stakePoolKeyHash
     Ledger.DelegVote{} ->
-      Left . VoteDelegationNotSupported $ AnyAtMostBabbageEra aMost
+      Left . VoteDelegationNotSupported $ AnyAtMostBabbageEra w
     Ledger.DelegStakeVote{} ->
-      Left . VoteDelegationNotSupported $ AnyAtMostBabbageEra aMost
+      Left . VoteDelegationNotSupported $ AnyAtMostBabbageEra w
 
 newtype StakeAddressDelegationError = VoteDelegationNotSupported AnyAtMostBabbageEra deriving Show
-
-
-obtainEraCryptoAtMostBabbageConstraints
-  :: ShelleyToBabbageEra era
-  -> ((Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto) => a)
-  -> a
-obtainEraCryptoAtMostBabbageConstraints ShelleyToBabbageEraShelley f = f
-obtainEraCryptoAtMostBabbageConstraints ShelleyToBabbageEraAllegra f = f
-obtainEraCryptoAtMostBabbageConstraints ShelleyToBabbageEraMary    f = f
-obtainEraCryptoAtMostBabbageConstraints ShelleyToBabbageEraAlonzo  f = f
-obtainEraCryptoAtMostBabbageConstraints ShelleyToBabbageEraBabbage f = f
-
 
 runStakeCredentialDeRegistrationCert
   :: AnyShelleyBasedEra

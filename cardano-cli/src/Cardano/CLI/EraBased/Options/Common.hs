@@ -10,7 +10,6 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra,
                    envCliAnyShelleyToBabbageEra)
-import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley

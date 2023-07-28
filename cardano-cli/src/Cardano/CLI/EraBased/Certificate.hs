@@ -3,7 +3,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
 
 module Cardano.CLI.EraBased.Certificate
   ( EraBasedDelegationError(..)
@@ -48,7 +47,7 @@ runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp = do
       firstExceptT EraBasedCertificateWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
-        $ obtainIsShelleyBasedEraShelleyToBabbage sTob
+        $ shelleyToBabbageEraConstraints sTob
         $ textEnvelopeToJSON description delegCert
 
     ConwayOnwardDelegTarget cOnwards target -> do
@@ -60,7 +59,7 @@ runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp = do
       firstExceptT EraBasedCertificateWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
-        $ obtainIsShelleyBasedEraConwayOnwards cOnwards
+        $ conwayEraOnwardsConstraints cOnwards
         $ textEnvelopeToJSON description delegCert
 
 toLedgerDelegatee
@@ -73,25 +72,6 @@ toLedgerDelegatee t =
         <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey vk)
              & onLeft (left . EraBasedDelegReadError)
 
-      right $ Ledger.DelegStake $ obtainIsShelleyBasedEraConwayOnwards cOnwards kHash
+      right $ Ledger.DelegStake $ conwayEraOnwardsConstraints cOnwards kHash
     TargetVotingDrep _ -> error "TODO: Conway era - Ledger.DelegVote"
     TargetVotingDrepAndStakePool _ -> error "TODO: Conway era - Ledger.DelegStakeVote"
-
-
-
-
-obtainIsShelleyBasedEraShelleyToBabbage
-  :: ShelleyToBabbageEra era
-  -> (IsShelleyBasedEra era => a)
-  -> a
-obtainIsShelleyBasedEraShelleyToBabbage ShelleyToBabbageEraShelley f = f
-obtainIsShelleyBasedEraShelleyToBabbage ShelleyToBabbageEraAllegra f = f
-obtainIsShelleyBasedEraShelleyToBabbage ShelleyToBabbageEraMary f = f
-obtainIsShelleyBasedEraShelleyToBabbage ShelleyToBabbageEraAlonzo f = f
-obtainIsShelleyBasedEraShelleyToBabbage ShelleyToBabbageEraBabbage f = f
-
-obtainIsShelleyBasedEraConwayOnwards
-  :: ConwayEraOnwards era
-  -> ((IsShelleyBasedEra era, Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto) => a)
-  -> a
-obtainIsShelleyBasedEraConwayOnwards ConwayEraOnwardsConway f = f
