@@ -793,8 +793,8 @@ readConstitution
   -> IO (Either ConstitutionError (Proposal era))
 readConstitution sbe fp =
   fmap (first ConstitutionErrorFile)
-    $ obtainEraPParamsConstraint sbe
-    $ shelleyBasedEraConstraints sbe (readFileTextEnvelope AsProposal fp)
+    $ shelleyBasedEraConstraints sbe
+    $ readFileTextEnvelope AsProposal fp
 
 -- Misc
 
