@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.Types.Governance where
 
@@ -44,9 +43,3 @@ data VType = VCC -- committee
            | VDR -- drep
            | VSP -- spo
            deriving Show
-
-
-data AnyAtMostBabbageEra where
-  AnyAtMostBabbageEra :: IsShelleyBasedEra era => ShelleyToBabbageEra era -> AnyAtMostBabbageEra
-
-deriving instance Show AnyAtMostBabbageEra

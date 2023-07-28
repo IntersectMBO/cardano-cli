@@ -24,7 +24,6 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.Run.Legacy.Read
-import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key (DelegationTarget (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,
                    readVerificationKeyOrHashOrFile)
@@ -237,8 +236,7 @@ createDelegationCertRequirements sbe stakeCred delegatee =
       return $ StakeDelegationRequirementsConwayOnwards ConwayEraOnwardsConway stakeCred delegatee
 
 onlySpoDelegatee
-  :: IsShelleyBasedEra era
-  => ShelleyToBabbageEra era
+  :: ShelleyToBabbageEra era
   -> Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era))
   -> Either StakeAddressDelegationError PoolId
 onlySpoDelegatee w ledgerDelegatee =
@@ -246,11 +244,11 @@ onlySpoDelegatee w ledgerDelegatee =
     Ledger.DelegStake stakePoolKeyHash ->
       Right $ StakePoolKeyHash $ shelleyToBabbageEraConstraints w stakePoolKeyHash
     Ledger.DelegVote{} ->
-      Left . VoteDelegationNotSupported $ AnyAtMostBabbageEra w
+      Left . VoteDelegationNotSupported $ AnyShelleyToBabbageEra w
     Ledger.DelegStakeVote{} ->
-      Left . VoteDelegationNotSupported $ AnyAtMostBabbageEra w
+      Left . VoteDelegationNotSupported $ AnyShelleyToBabbageEra w
 
-newtype StakeAddressDelegationError = VoteDelegationNotSupported AnyAtMostBabbageEra deriving Show
+newtype StakeAddressDelegationError = VoteDelegationNotSupported AnyShelleyToBabbageEra deriving Show
 
 runStakeCredentialDeRegistrationCert
   :: AnyShelleyBasedEra
