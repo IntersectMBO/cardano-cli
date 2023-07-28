@@ -11,11 +11,9 @@ module Cardano.CLI.Environment
   , getEnvSocketPath
   ) where
 
-import           Cardano.Api (AnyCardanoEra (..), AnyShelleyBasedEra (..), CardanoEra (..),
-                   NetworkId (..), NetworkMagic (..), ShelleyBasedEra (..),
-                   ShelleyToBabbageEra (..))
-
-import           Cardano.CLI.Types.Common
+import           Cardano.Api (AnyCardanoEra (..), AnyShelleyBasedEra (..),
+                   AnyShelleyToBabbageEra (..), CardanoEra (..), NetworkId (..), NetworkMagic (..),
+                   ShelleyBasedEra (..), ShelleyToBabbageEra (..))
 
 import           Data.Word (Word32)
 import qualified System.Environment as IO

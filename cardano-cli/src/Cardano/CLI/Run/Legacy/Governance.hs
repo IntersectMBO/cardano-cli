@@ -19,7 +19,6 @@ import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
-import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import qualified Cardano.CLI.Types.Governance as Cli
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,

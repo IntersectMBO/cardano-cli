@@ -1546,7 +1546,6 @@ obtainLedgerEraClassConstraints ShelleyBasedEraAlonzo  f = f
 obtainLedgerEraClassConstraints ShelleyBasedEraBabbage f = f
 obtainLedgerEraClassConstraints ShelleyBasedEraConway  f = f
 
-
 eligibleLeaderSlotsConstaints
   :: ShelleyLedgerEra era ~ ledgerera
   => ShelleyBasedEra era
