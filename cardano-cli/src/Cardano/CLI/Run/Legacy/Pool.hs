@@ -145,7 +145,8 @@ runStakePoolRegistrationCert
             }
 
     let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
-        req = createStakePoolRegistrationRequirements sbe $ obtainEraCryptoConstraints sbe ledgerStakePoolParams
+        req = createStakePoolRegistrationRequirements sbe
+          $ shelleyBasedEraConstraints sbe ledgerStakePoolParams
         registrationCert = makeStakePoolRegistrationCertificate req
 
     firstExceptT ShelleyPoolCmdWriteFileError
