@@ -11,6 +11,7 @@ module Cardano.CLI.EraBased.Options.Governance
 import           Cardano.Api
 
 import           Cardano.CLI.Environment
+import           Cardano.CLI.EraBased.Committee
 import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Options.Common
@@ -49,6 +50,9 @@ data EraBasedGovernanceCmd era
   | EraBasedGovernanceVoteCmd
       AnyVote
       (File () Out)
+  | EraBasedCommitteeCmd
+      AnyCommitteeCertificateTarget
+      (File () Out)
 
 renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
@@ -59,12 +63,14 @@ renderEraBasedGovernanceCmd = \case
   EraBasedGovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"
   EraBasedGovernanceRegistrationCertificateCmd {} -> "governance registration-certificate"
   EraBasedGovernanceVoteCmd {} -> "goverance vote"
+  EraBasedCommitteeCmd {} -> "governance committee"
 
 pEraBasedGovernanceCmd :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmd era)
 pEraBasedGovernanceCmd envCli era =
   asum $ catMaybes
     [ pEraBasedRegistrationCertificateCmd envCli era
     , pEraBasedDelegationCertificateCmd envCli era
+    , pEraBasedCommitteeCmd envCli era
     , pEraBasedVoteCmd envCli era
     , pCreateMirCertificatesCmds era
     ]
@@ -155,7 +161,7 @@ pEraBasedDelegationCertificateCmd _envCli =
           <$> pStakeTarget cOnwards
 
 -- TODO: Conway era AFTER sancho net. We probably want to
--- differentiate between delegating voting stake and reward stake
+-- differentiate between the delegation of voting stake and reward stake
 pStakeTarget :: ConwayEraOnwards era -> Parser (StakeTarget era)
 pStakeTarget cOnwards =
   asum
@@ -249,6 +255,83 @@ pAnyVotingStakeVerificationKeyOrHashOrFile =
 
 --------------------------------------------------------------------------------
 
+
+-- Committee certificate related
+
+pEraBasedCommitteeCmd
+  :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
+pEraBasedCommitteeCmd envCli =
+  featureInEra Nothing $ \w ->
+    Just
+      $ subParser "committee"
+      $ Opt.info (pEraCmd envCli w)
+      $ Opt.progDesc "Committee related commands."
+ where
+  pEraCmd :: EnvCli -> AnyEraDecider era -> Parser (EraBasedGovernanceCmd era)
+  pEraCmd _envCli' = \case
+    AnyEraDeciderShelleyToBabbage{} -> empty
+    AnyEraDeciderConwayOnwards cOn ->
+      EraBasedCommitteeCmd
+        <$> asum [pCommitteeHotKeyAuth cOn, pCommitteeColdKeyResign cOn]
+        <*> pOutputFile
+
+
+pCommitteeHotKeyAuth :: ConwayEraOnwards era -> Parser AnyCommitteeCertificateTarget
+pCommitteeHotKeyAuth cOn =
+  HotKeyAuthCert cOn
+    <$> pCommitteeColdVerificationKeyOrHashOrFile
+    <*> undefined
+
+pCommitteeColdKeyResign :: ConwayEraOnwards era -> Parser AnyCommitteeCertificateTarget
+pCommitteeColdKeyResign cOn =
+  ColdKeyResignationCert cOn
+    <$> pCommitteeColdVerificationKeyOrHashOrFile
+
+
+pCommitteeColdVerificationKeyOrHashOrFile
+  :: Parser (VerificationKeyOrHashOrFile CommitteeColdKey)
+pCommitteeColdVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pCommitteeColdVerificationKeyOrFile
+    , VerificationKeyHash <$> pCommitteeColdVerificationKeyHash
+    ]
+
+pCommitteeColdVerificationKey :: Parser (VerificationKey CommitteeColdKey)
+pCommitteeColdVerificationKey =
+  Opt.option (readVerificationKey AsCommitteeColdKey) $ mconcat
+    [ Opt.long "committee-cold-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Committee cold verification key (Bech32 or hex-encoded)."
+    ]
+
+pCommitteeColdVerificationKeyOrFile :: Parser (VerificationKeyOrFile CommitteeColdKey)
+pCommitteeColdVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pCommitteeColdVerificationKey
+    , VerificationKeyFilePath <$> pCommitteeColdVerificationKeyFile
+    ]
+
+pCommitteeColdVerificationKeyFile :: Parser (VerificationKeyFile In)
+pCommitteeColdVerificationKeyFile =
+  fmap File . Opt.strOption $ mconcat
+    [ Opt.long "committee-cold-verification-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the committee cold verification key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
+pCommitteeColdVerificationKeyHash =
+    Opt.option (pBech32KeyHash AsCommitteeColdKey <|>  pHexKeyHash AsCommitteeColdKey) $ mconcat
+      [ Opt.long "committee-cold-key-hash"
+      , Opt.metavar "HASH"
+      , Opt.help $ mconcat
+          [ "Committee cold verification key hash (either Bech32-encoded or hex-encoded).  "
+          , "Zero or more occurences of this option is allowed."
+          ]
+      ]
+
+--------------------------------------------------------------------------------
 
 pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
 pCreateMirCertificatesCmds =

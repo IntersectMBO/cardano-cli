@@ -13,8 +13,8 @@ module Cardano.CLI.Run.EraBased
 import           Cardano.Api
 
 import           Cardano.CLI.Commands.EraBased
-import           Cardano.CLI.EraBased.Certificate
 import           Cardano.CLI.EraBased.Options.Governance
+import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.EraBased.Run.Governance
 
 import           Control.Monad.Trans.Except

@@ -1,0 +1,368 @@
+2023-07-28 15:59:21.3110000 [client] INFO Writing client log to file /home/jordan/Repos/Work/cardano-haskell/cardano-cli/cardano-cli/src/Cardano/CLI/EraBased/Options/hls.log
+2023-07-28 15:59:21.3120000 [client] INFO Finding haskell-language-server
+2023-07-28 15:59:21.3130000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:21.3130000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:21.3210000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose upgrade' in cwd '/home/jordan'
+2023-07-28 15:59:21.7580000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:21.7590000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:21.7650000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose list -t hls -c installed -r' in cwd '/home/jordan'
+2023-07-28 15:59:21.8120000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:21.8130000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:21.8200000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose list -t cabal -c installed -r' in cwd '/home/jordan'
+2023-07-28 15:59:21.8660000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:21.8660000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:21.8730000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose list -t stack -c installed -r' in cwd '/home/jordan'
+2023-07-28 15:59:21.9280000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:21.9280000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:21.9340000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose whereis hls 2.0.0.1' in cwd '/home/jordan'
+2023-07-28 15:59:21.9500000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:21.9500000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:21.9580000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose whereis cabal 3.10.1.0' in cwd '/home/jordan'
+2023-07-28 15:59:21.9750000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:21.9750000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:21.9830000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose whereis stack 2.9.3' in cwd '/home/jordan'
+2023-07-28 15:59:22.0080000 [client] INFO Executing 'ghc --numeric-version' in cwd '/home/jordan'
+2023-07-28 15:59:22.0440000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:22.0440000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:22.0510000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose run --hls 2.0.0.1 --cabal 3.10.1.0 --stack 2.9.3 --install' in cwd '/home/jordan'
+2023-07-28 15:59:22.1070000 [client] INFO Working out the project GHC version. This might take a while...
+2023-07-28 15:59:22.1080000 [client] INFO Executing 'haskell-language-server-wrapper --project-ghc-version' in cwd '/home/jordan/Repos/Work/cardano-haskell/cardano-cli/cardano-cli/src/Cardano/CLI/EraBased/Options'
+2023-07-28 15:59:22.1670000 [client] INFO The GHC version for the project or file: 9.2.8
+2023-07-28 15:59:22.3990000 [client] INFO Platform constants: Linux_UnknownLinux, A_64
+2023-07-28 15:59:22.4000000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:22.4000000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:22.4080000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose list -t hls -c installed -r' in cwd '/home/jordan'
+2023-07-28 15:59:22.4660000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:22.4660000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:22.4740000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose whereis bindir' in cwd '/home/jordan'
+2023-07-28 15:59:22.4960000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:22.4960000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:22.5040000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose whereis hls 2.0.0.1' in cwd '/home/jordan'
+2023-07-28 15:59:22.5210000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:22.5220000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:22.5290000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose whereis ghc 9.2.8' in cwd '/home/jordan'
+2023-07-28 15:59:22.5470000 [client] INFO Checking for ghcup installation
+2023-07-28 15:59:22.5470000 [client] INFO Trying to find the ghcup executable in: /home/jordan/.ghcup/bin/ghcup
+2023-07-28 15:59:22.5550000 [client] INFO Executing '/home/jordan/.ghcup/bin/ghcup --no-verbose run --hls 2.0.0.1 --cabal 3.10.1.0 --stack 2.9.3 --ghc 9.2.8 --install' in cwd '/home/jordan'
+2023-07-28 15:59:22.6220000 [client] INFO Activating the language server in working dir: /home/jordan/Repos/Work/cardano-haskell/cardano-cli/cardano-cli/src/Cardano/CLI/EraBased/Options (parent dir of loaded file /home/jordan/Repos/Work/cardano-haskell/cardano-cli/cardano-cli/src/Cardano/CLI/EraBased/Options/Governance.hs)
+2023-07-28 15:59:22.6220000 [client] INFO run command: /home/jordan/.ghcup/tmp/ghcup-ghc-9.2.8_cabal-3.10.1.0_hls-2.0.0.1_stack-2.9.3/haskell-language-server-wrapper --lsp -l hls.log
+2023-07-28 15:59:22.6220000 [client] INFO debug command: /home/jordan/.ghcup/tmp/ghcup-ghc-9.2.8_cabal-3.10.1.0_hls-2.0.0.1_stack-2.9.3/haskell-language-server-wrapper --lsp -l hls.log
+2023-07-28 15:59:22.6220000 [client] INFO server cwd: /home/jordan/Repos/Work/cardano-haskell/cardano-cli/cardano-cli/src/Cardano/CLI/EraBased/Options
+2023-07-28 15:59:22.6220000 [client] INFO server environment variables:
+2023-07-28 15:59:22.6220000 [client] INFO   PATH=/home/jordan/.ghcup/tmp/ghcup-ghc-9.2.8_cabal-3.10.1.0_hls-2.0.0.1_stack-2.9.3:/home/jordan/.cabal/bin:/home/jordan/.ghcup/bin:/home/jordan/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+2023-07-28 15:59:22.6230000 [client] INFO Starting language server
+2023-07-28T15:59:23.635550Z | Info | haskell-language-server version: 2.0.0.1 (GHC: 9.2.8) (PATH: /home/jordan/.ghcup/hls/2.0.0.1/lib/haskell-language-server-2.0.0.1/bin/haskell-language-server-9.2.8)
+2023-07-28T15:59:23.635760Z | Info | Directory: /home/jordan/Repos/Work/cardano-haskell/cardano-cli/cardano-cli/src/Cardano/CLI/EraBased/Options
+2023-07-28T15:59:23.635788Z | Info | Starting (haskell-language-server) LSP server...
+  GhcideArguments {argsCommand = LSP, argsCwd = Nothing, argsShakeProfiling = Nothing, argsTesting = False, argsExamplePlugin = False, argsDebugOn = False, argsLogFile = Just "hls.log", argsThreads = 0, argsProjectGhcVersion = False}
+  PluginIds: [ pragmas
+             , LSPRecorderCallback
+             , rename
+             , ghcide-completions
+             , class
+             , refineImports
+             , splice
+             , cabal
+             , changeTypeSignature
+             , qualifyImportedNames
+             , alternateNumberFormat
+             , hlint
+             , cabalfmt
+             , explicit-fields
+             , ghcide-code-actions-fill-holes
+             , overloaded-record-dot
+             , floskell
+             , ghcide-extend-import-action
+             , codeRange
+             , importLens
+             , retrie
+             , ghcide-type-lenses
+             , ghcide-code-actions-imports-exports
+             , ghcide-hover-and-symbols
+             , eval
+             , gadt
+             , fourmolu
+             , callHierarchy
+             , stylish-haskell
+             , ghcide-code-actions-type-signatures
+             , ghcide-code-actions-bindings
+             , moduleName
+             , ormolu
+             , ghcide-core
+             , explicit-fixity ]
+2023-07-28T15:59:23.635944Z | Info | Logging heap statistics every 60.00s
+2023-07-28T15:59:23.647958Z | Info | Starting LSP server...
+  If you are seeing this in a terminal, you probably should have run WITHOUT the --lsp option!
+  PluginIds: [ pragmas
+             , LSPRecorderCallback
+             , rename
+             , ghcide-completions
+             , class
+             , refineImports
+             , splice
+             , cabal
+             , changeTypeSignature
+             , qualifyImportedNames
+             , alternateNumberFormat
+             , hlint
+             , cabalfmt
+             , explicit-fields
+             , ghcide-code-actions-fill-holes
+             , overloaded-record-dot
+             , floskell
+             , ghcide-extend-import-action
+             , codeRange
+             , importLens
+             , retrie
+             , ghcide-type-lenses
+             , ghcide-code-actions-imports-exports
+             , ghcide-hover-and-symbols
+             , eval
+             , gadt
+             , fourmolu
+             , callHierarchy
+             , stylish-haskell
+             , ghcide-code-actions-type-signatures
+             , ghcide-code-actions-bindings
+             , moduleName
+             , ormolu
+             , ghcide-core
+             , explicit-fixity ]
+2023-07-28T15:59:23.648430Z | Info | Starting server
+2023-07-28T15:59:23.649979Z | Info | Started LSP server in 0.00s
+2023-07-28T15:59:23.690419Z | Info | Registering IDE configuration: IdeConfiguration {workspaceFolders = fromList [], clientSettings = hashed Nothing}
+2023-07-28T15:59:23.706652Z | Info | Cradle path: Governance.hs
+2023-07-28T15:59:23.707126Z | Warning | No [cradle](https://github.com/mpickering/hie-bios#hie-bios) found for Governance.hs.
+Proceeding with [implicit cradle](https://hackage.haskell.org/package/implicit-hie).
+You should ignore this message, unless you see a 'Multi Cradle: No prefixes matched' error.
+2023-07-28T15:59:23.727954Z | Info | invoking build tool to determine build flags (this may take some time depending on the cache)
+2023-07-28T15:59:23.802094Z | Info | Interface files cache directory: /home/jordan/.cache/ghcide/main-1a596a151463f2c53ee4feb14ecd276a1ccebfda
+2023-07-28T15:59:23.808596Z | Info | Making new HscEnv. In-place unit ids: [main]
+2023-07-28T15:59:23.846697Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T15:59:23.846860Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T15:59:23.846936Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:23.847001Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:23.847063Z | Warning | retrie: InternalError: typecheck
+2023-07-28T15:59:23.847305Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T15:59:24.012796Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T15:59:24.078659Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T15:59:24.078940Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T15:59:24.079035Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T15:59:24.079179Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T15:59:24.107695Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T15:59:24.107861Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T15:59:24.107962Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:24.108051Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:24.108144Z | Warning | retrie: InternalError: typecheck
+2023-07-28T15:59:24.108229Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T15:59:31.419845Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T15:59:31.420083Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T15:59:31.420205Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:31.420319Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:31.420429Z | Warning | retrie: InternalError: typecheck
+2023-07-28T15:59:31.420529Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T15:59:31.654681Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T15:59:31.654802Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T15:59:31.654839Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:31.654867Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:31.654897Z | Warning | retrie: InternalError: typecheck
+2023-07-28T15:59:31.654928Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T15:59:31.699012Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T15:59:31.810382Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T15:59:31.810613Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T15:59:31.810687Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T15:59:31.810800Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T15:59:34.039098Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T15:59:34.039229Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T15:59:34.039278Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:34.039323Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:34.039371Z | Warning | retrie: InternalError: typecheck
+2023-07-28T15:59:34.039428Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T15:59:34.281445Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T15:59:34.281719Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T15:59:34.281892Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:34.282047Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T15:59:34.282179Z | Warning | retrie: InternalError: typecheck
+2023-07-28T15:59:34.282307Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T15:59:34.324494Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T15:59:34.435405Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T15:59:34.435656Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T15:59:34.435811Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T15:59:34.435992Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T16:00:23.696959Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:00:25.053065Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T16:00:25.053241Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T16:00:25.053273Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:00:25.053313Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:00:25.053342Z | Warning | retrie: InternalError: typecheck
+2023-07-28T16:00:25.053390Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T16:00:25.291534Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T16:00:25.291785Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T16:00:25.291923Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:00:25.292045Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:00:25.292158Z | Warning | retrie: InternalError: typecheck
+2023-07-28T16:00:25.292272Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T16:00:25.334560Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T16:00:25.445863Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T16:00:25.446136Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T16:00:25.446270Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T16:00:25.446430Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T16:00:30.279229Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T16:00:30.279332Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T16:00:30.279385Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:00:30.279447Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:00:30.279500Z | Warning | retrie: InternalError: typecheck
+2023-07-28T16:00:30.279555Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T16:00:30.521637Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T16:00:30.521896Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T16:00:30.522077Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:00:30.522247Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:00:30.522313Z | Warning | retrie: InternalError: typecheck
+2023-07-28T16:00:30.522378Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T16:00:30.563614Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T16:00:30.673939Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T16:00:30.674333Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T16:00:30.674480Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T16:00:30.674577Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T16:01:21.780635Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T16:01:21.780856Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T16:01:21.780941Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T16:01:21.781053Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T16:01:21.799564Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T16:01:21.799790Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T16:01:21.799868Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:01:21.799930Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:01:21.800002Z | Warning | retrie: InternalError: typecheck
+2023-07-28T16:01:21.800076Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T16:01:22.386593Z | Warning | explicit-fixity: InternalError: ExplicitFixity: Unable to get fixity
+2023-07-28T16:01:23.757911Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:02:23.765239Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:02:49.364888Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T16:02:49.448022Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T16:02:49.448192Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T16:02:49.448289Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T16:02:49.448383Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T16:02:58.202799Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T16:02:58.292018Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T16:02:58.292267Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T16:02:58.292347Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T16:02:58.292430Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T16:03:23.792172Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:04:23.853220Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:05:23.913974Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:06:23.974665Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:07:24.034127Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:07:37.691433Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T16:07:37.782205Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T16:07:37.782331Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T16:07:37.782369Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T16:07:37.782408Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T16:08:21.519717Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T16:08:21.519944Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T16:08:21.520024Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T16:08:21.520119Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T16:08:24.078224Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:08:26.190927Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T16:08:26.191121Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T16:08:26.191186Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:08:26.191248Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:08:26.191333Z | Warning | retrie: InternalError: typecheck
+2023-07-28T16:08:26.191394Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T16:08:26.554988Z | Warning | changeTypeSignature: InternalError: Could not get Parsed Module
+2023-07-28T16:08:26.555192Z | Warning | alternateNumberFormat: InternalError: Could not Collect Literals
+2023-07-28T16:08:26.564620Z | Warning | explicit-fields: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:08:26.564816Z | Warning | overloaded-record-dot: InternalError: Could not get NextPragmaInfo
+2023-07-28T16:08:26.564938Z | Warning | retrie: InternalError: typecheck
+2023-07-28T16:08:26.565084Z | Warning | gadt: InternalError: Unable to get ParsedModuleWithComments
+2023-07-28T16:09:24.135684Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:10:24.194192Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:11:24.254900Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:12:24.314138Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:13:24.374785Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:14:24.435303Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:15:24.450356Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:16:24.495024Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:17:24.556093Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:18:24.614069Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:19:24.674585Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:20:24.735850Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:21:24.797000Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:22:24.854346Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:23:24.915592Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:24:24.976896Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:25:25.034551Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:26:25.094321Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:27:25.154518Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:28:25.168077Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:29:25.226449Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:30:25.286301Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:31:25.295414Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:32:25.354376Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:33:25.401612Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:34:25.462226Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:35:25.522392Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:36:25.551035Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:37:25.610187Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:38:25.670278Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:39:25.730295Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:40:25.790457Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:41:25.806332Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:42:25.818336Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:43:25.879464Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:44:25.940715Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:45:26.001672Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:46:26.062313Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:47:26.122235Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:48:26.183173Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:49:26.242340Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:50:26.303292Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:51:26.362302Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:52:26.422971Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:53:26.482383Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:54:26.542125Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:55:26.602281Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:56:26.662372Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:57:26.723304Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:58:26.784613Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T16:59:26.845884Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:00:26.884712Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:01:26.942280Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:02:27.002273Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:03:27.025881Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:04:27.086306Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:05:01.542678Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T17:05:01.626378Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T17:05:01.626539Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T17:05:01.626614Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T17:05:01.626689Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T17:05:27.110367Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:06:27.156024Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:07:27.157310Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:08:27.214256Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:09:27.275362Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:10:27.295892Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:11:27.324727Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:12:27.350358Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:13:27.410283Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:14:27.470897Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:15:27.497911Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:16:27.559304Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:17:27.618515Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:18:27.679451Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:19:27.738098Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:20:27.798561Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:21:27.859734Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:22:02.498920Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T17:22:02.583622Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T17:22:02.583740Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T17:22:02.583809Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T17:22:02.583889Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T17:22:08.626088Z | Warning | codeRange: bad dependency: GetCodeRange
+2023-07-28T17:22:08.712403Z | Warning | class: InternalError: Unable to typecheck
+2023-07-28T17:22:08.712655Z | Warning | ghcide-type-lenses: InternalError: Unable to get GhcSession
+2023-07-28T17:22:08.712718Z | Warning | eval: InternalError: Exception in plugin PluginId "eval" while processing STextDocumentCodeLens: BadDependency "GetEvalComments"
+2023-07-28T17:22:08.712794Z | Warning | moduleName: InternalError: Exception in plugin PluginId "moduleName" while processing STextDocumentCodeLens: BadDependency "GhcSession"
+2023-07-28T17:22:27.880257Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:23:27.941009Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:24:28.000447Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
+2023-07-28T17:25:28.061636Z | Info | Live bytes: 0.00MB Heap size: 0.00MB
