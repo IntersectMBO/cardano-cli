@@ -16,8 +16,7 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), ShelleyLedgerEra,
                    StakeAddress (..), fromShelleyPaymentCredential, fromShelleyStakeReference,
-                   obtainCryptoConstraints, obtainEraCryptoConstraints, toShelleyLovelace,
-                   toShelleyStakeCredential)
+                   toShelleyLovelace, toShelleyStakeCredential)
 
 import qualified Cardano.Ledger.Credential as Shelley
 import qualified Cardano.Ledger.Shelley.API as Shelley
@@ -311,17 +310,17 @@ stakeCredJson
   :: ShelleyBasedEra era
   -> Shelley.StakeCredential (Ledger.EraCrypto (ShelleyLedgerEra era))
   -> Aeson.Value
-stakeCredJson sbe c = obtainCryptoConstraints sbe $ toJSON c
+stakeCredJson sbe c = shelleyBasedEraConstraints sbe $ toJSON c
 
 poolIdJson
   :: ShelleyBasedEra era
   -> Ledger.KeyHash Ledger.StakePool (Ledger.EraCrypto (ShelleyLedgerEra era))
   -> Aeson.Value
-poolIdJson sbe pId = obtainCryptoConstraints sbe $ toJSON pId
+poolIdJson sbe pId = shelleyBasedEraConstraints sbe $ toJSON pId
 
 poolParamsJson
   :: ShelleyBasedEra era -> Shelley.PoolParams (Ledger.EraCrypto (ShelleyLedgerEra era)) -> Aeson.Value
-poolParamsJson sbe pp = obtainCryptoConstraints sbe $ toJSON pp
+poolParamsJson sbe pp = shelleyBasedEraConstraints sbe $ toJSON pp
 
 
 friendlyCertificate :: ShelleyBasedEra era -> Certificate era -> Aeson.Value
@@ -339,7 +338,7 @@ friendlyCertificate sbe =
                                              , "pool" .= poolIdJson sbe poolId
                                              ]
       ShelleyRelatedCertificate _ (Ledger.ShelleyTxCertPool (Ledger.RetirePool poolId retirementEpoch)) ->
-        "stake pool retirement" .= object ["pool" .= StakePoolKeyHash (obtainEraCryptoConstraints sbe poolId), "epoch" .= retirementEpoch]
+        "stake pool retirement" .= object ["pool" .= StakePoolKeyHash (shelleyBasedEraConstraints sbe poolId), "epoch" .= retirementEpoch]
 
       ShelleyRelatedCertificate _ (Ledger.ShelleyTxCertPool (Ledger.RegPool poolParams)) ->
         "stake pool registration" .= poolParamsJson sbe poolParams
@@ -347,10 +346,10 @@ friendlyCertificate sbe =
                "genesis key delegation"
             .= object
               [ "genesis key hash"
-                  .= serialiseToRawBytesHexText (GenesisKeyHash $ obtainEraCryptoConstraints sbe genesisKeyHash),
+                  .= serialiseToRawBytesHexText (GenesisKeyHash $ shelleyBasedEraConstraints sbe genesisKeyHash),
                 "delegate key hash"
-                  .= serialiseToRawBytesHexText (GenesisDelegateKeyHash $ obtainEraCryptoConstraints sbe delegateKeyHash),
-                "VRF key hash" .= serialiseToRawBytesHexText (VrfKeyHash $ obtainEraCryptoConstraints sbe vrfKeyHash)
+                  .= serialiseToRawBytesHexText (GenesisDelegateKeyHash $ shelleyBasedEraConstraints sbe delegateKeyHash),
+                "VRF key hash" .= serialiseToRawBytesHexText (VrfKeyHash $ shelleyBasedEraConstraints sbe vrfKeyHash)
               ]
       ShelleyRelatedCertificate _ (Ledger.ShelleyTxCertMir (Ledger.MIRCert pot target)) ->
               "MIR" .= object ["pot" .= friendlyMirPot pot, friendlyMirTarget sbe target]
@@ -379,7 +378,7 @@ friendlyMirTarget sbe = \case
           [ friendlyStakeCredential credential
           , "amount" .= friendlyLovelace (toShelleyLovelace (Lovelace 0) `Ledger.addDeltaCoin` lovelace)
           ]
-      | (credential, lovelace) <- Map.toList (obtainEraCryptoConstraints sbe addresses)
+      | (credential, lovelace) <- Map.toList (shelleyBasedEraConstraints sbe addresses)
       ]
   Ledger.SendToOppositePotMIR amount -> "MIR amount" .= friendlyLovelace amount
 

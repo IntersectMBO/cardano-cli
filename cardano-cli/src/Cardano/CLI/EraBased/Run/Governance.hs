@@ -36,7 +36,9 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
                     $ Map.fromList [ (toShelleyStakeCredential scred, Ledger.toDeltaCoin (toShelleyLovelace rwdAmt))
                                     | (scred, rwdAmt) <- zip sCreds rwdAmts
                                     ]
-  let mirCert = makeMIRCertificate $ MirCertificateRequirements w mirPot $ shelleyToBabbageEraConstraints w mirTarget
+  let mirCert = makeMIRCertificate
+        $ MirCertificateRequirements w mirPot
+        $ shelleyToBabbageEraConstraints w mirTarget
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
