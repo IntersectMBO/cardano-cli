@@ -71,12 +71,11 @@ test_GovernanceCmdError =
       , GovernanceCmdVerifyPollError ErrGovernancePollNoAnswer)
     , ("GovernanceCmdWriteFileError"
       , GovernanceCmdWriteFileError $ FileError "path/file.txt" ())
-    , ("ShelleyGovernanceCmdMIRCertNotSupportedInConway"
-      , ShelleyGovernanceCmdMIRCertNotSupportedInConway)
-    , ("ShelleyGovernanceCmdGenesisDelegationNotSupportedInConway"
-      , ShelleyGovernanceCmdGenesisDelegationNotSupportedInConway)
+    , ("GovernanceCmdMIRCertNotSupportedInConway"
+      , GovernanceCmdMIRCertNotSupportedInConway)
+    , ("GovernanceCmdGenesisDelegationNotSupportedInConway"
+      , GovernanceCmdGenesisDelegationNotSupportedInConway)
     ]
-
 
 goldenFilesPath :: FilePath
 goldenFilesPath = "test/cardano-cli-golden/files/golden/errors"
