@@ -59,8 +59,8 @@ runEraBasedGovernanceCmd = \case
       $ runGovernanceMIRCertificateTransfer w ll oFp direction
 
   EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp
+    firstExceptT (const ()) -- TODO fix error handling
+      $ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
 
   EraBasedGovernanceRegistrationCertificateCmd regTarget outFp ->
     firstExceptT (const ()) -- TODO: Conway era - fix error handling
