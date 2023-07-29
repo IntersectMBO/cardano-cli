@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Run.EraBased
+module Cardano.CLI.EraBased.Run
   ( AnyEraCmdError(..)
   , runAnyEraCommand
   , runEraBasedCommand

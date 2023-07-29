@@ -74,6 +74,7 @@ library
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Options.Governance.Committee
+                        Cardano.CLI.EraBased.Run
                         Cardano.CLI.EraBased.Run.Governance
                         Cardano.CLI.EraBased.Run.Governance.Committee
                         Cardano.CLI.EraBased.Vote
@@ -86,7 +87,6 @@ library
                         Cardano.CLI.Pretty
                         Cardano.CLI.Render
                         Cardano.CLI.Run
-                        Cardano.CLI.Run.EraBased
                         Cardano.CLI.Run.Legacy
                         Cardano.CLI.Run.Legacy.Address
                         Cardano.CLI.Run.Legacy.Address.Info
