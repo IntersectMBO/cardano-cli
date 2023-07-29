@@ -11,8 +11,8 @@ module Cardano.CLI.Options
 import           Cardano.Api (CardanoEra (..), ShelleyBasedEra (..))
 
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
-import           Cardano.CLI.Commands.EraBased
 import           Cardano.CLI.Environment (EnvCli)
+import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Legacy (parseLegacyCommands)
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Render (customRenderHelp)
