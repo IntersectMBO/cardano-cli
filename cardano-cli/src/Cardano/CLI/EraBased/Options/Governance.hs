@@ -46,8 +46,9 @@ renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
   EraBasedGovernancePreConwayCmd {} -> "governance pre-conway"
   EraBasedGovernancePostConwayCmd {} -> "governance post-conway"
-  EraBasedGovernanceMIRPayStakeAddressesCertificate {} -> "TODO EraBasedGovernanceMIRPayStakeAddressesCertificate"
-  EraBasedGovernanceMIRTransfer {} -> "TODO EraBasedGovernanceMIRTransfer"
+  EraBasedGovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
+  EraBasedGovernanceMIRTransfer _ _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
+  EraBasedGovernanceMIRTransfer _ _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
   EraBasedGovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"
 
 -- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
