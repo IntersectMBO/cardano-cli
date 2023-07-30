@@ -1213,7 +1213,7 @@ pGovernanceCmd envCli =
     , subParser "verify-poll"
         $ Opt.info pGovernanceVerifyPoll
         $ Opt.progDesc "Verify an answer to a given SPO poll"
-    , fmap GovernanceVoteCmd $ subParser "vote"
+    , subParser "vote"
         $ Opt.info (pVoteCommmands envCli)
         $ Opt.progDesc "Vote related commands."
     , fmap GovernanceActionCmd $ subParser "action"

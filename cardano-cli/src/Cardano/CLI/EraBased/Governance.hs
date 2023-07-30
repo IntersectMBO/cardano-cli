@@ -20,7 +20,8 @@ import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
 data GovernanceCmd
-  = GovernanceVoteCmd VoteCmd
+  = GovernanceVoteCmd
+      ConwayVote
   | GovernanceActionCmd ActionCmd
   | GovernanceMIRPayStakeAddressesCertificate
       AnyShelleyToBabbageEra
@@ -76,7 +77,7 @@ renderGovernanceCmd = \case
 -- Vote related
 --------------------------------------------------------------------------------
 
-pVoteCommmands :: EnvCli -> Parser VoteCmd
+pVoteCommmands :: EnvCli -> Parser GovernanceCmd
 pVoteCommmands envCli =
   asum
     [ subParser "create-vote"
@@ -84,13 +85,9 @@ pVoteCommmands envCli =
         $ Opt.progDesc "Create a vote for a proposed governance action."
     ]
 
-newtype VoteCmd
-  = CreateVoteCmd ConwayVote deriving Show
-
-
-pCreateVote :: EnvCli -> Parser VoteCmd
+pCreateVote :: EnvCli -> Parser GovernanceCmd
 pCreateVote envCli =
-  fmap CreateVoteCmd $
+  fmap GovernanceVoteCmd $
     ConwayVote
       <$> pVoteChoice
       <*> pVoterType

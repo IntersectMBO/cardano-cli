@@ -18,7 +18,6 @@ module Cardano.CLI.Commands.Legacy
   , GovernanceCmd (..)
   , GenesisCmd (..)
   , TextViewCmd (..)
-  , VoteCmd(..)
   , renderLegacyCommand
 
     -- * CLI flag types
