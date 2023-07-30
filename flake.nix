@@ -75,8 +75,7 @@
               haskell-language-server = "2.0.0.0";
             };
           # and from nixpkgs or other inputs
-          shell.nativeBuildInputs = with nixpkgs; [
-          ];
+          shell.nativeBuildInputs = with nixpkgs; [ gh jq yq-go ];
           # disable Hoogle until someone request it
           shell.withHoogle = false;
           # Skip cross compilers for the shell
