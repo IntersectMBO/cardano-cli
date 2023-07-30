@@ -1214,7 +1214,7 @@ pGovernanceCmd envCli =
         $ Opt.info pGovernanceVerifyPoll
         $ Opt.progDesc "Verify an answer to a given SPO poll"
     , subParser "vote"
-        $ Opt.info (pVoteCommmands envCli)
+        $ Opt.info (GovernanceVoteCmds <$> pVoteCommmands envCli)
         $ Opt.progDesc "Vote related commands."
     , fmap GovernanceActionCmd $ subParser "action"
         $ Opt.info (pActionCommmands envCli)

@@ -241,7 +241,7 @@ data TransactionCmd
       -- ^ Auxiliary scripts
       [MetadataFile]
       (Maybe UpdateProposalFile)
-      [VoteFile In]
+      [File () In] -- TODO Use Vote file type
       [NewConstitutionFile In]
       TxBuildOutputOptions
   | TxSign InputTxBodyOrTxFile [WitnessSigningData] (Maybe NetworkId) (TxFile Out)

@@ -71,6 +71,7 @@ library
                         Cardano.CLI.IO.Lazy
                         Cardano.CLI.Json.Friendly
                         Cardano.CLI.Options
+                        Cardano.CLI.EraBased.Commands.Governance.Vote
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Governance

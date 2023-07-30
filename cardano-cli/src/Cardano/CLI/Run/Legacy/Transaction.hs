@@ -326,7 +326,7 @@ runTxBuildCmd
   -> [ScriptFile]
   -> [MetadataFile]
   -> Maybe UpdateProposalFile
-  -> [VoteFile In]
+  -> [File () In] -- TODO Use file vote type
   -> [NewConstitutionFile In] -- TODO: Conway era - we should replace this with a sumtype that handles all governance actions
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()

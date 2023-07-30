@@ -8,6 +8,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment
+import           Cardano.CLI.EraBased.Commands.Governance.Vote
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
@@ -20,8 +21,8 @@ import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
 data GovernanceCmd
-  = GovernanceVoteGroup
-      ConwayVote
+  = GovernanceVoteCmds
+      GovernanceVoteCmds
   | GovernanceActionCmd ActionCmd
   | GovernanceMIRPayStakeAddressesCertificate
       AnyShelleyToBabbageEra
@@ -62,7 +63,7 @@ data GovernanceCmd
 
 renderGovernanceCmd :: GovernanceCmd -> Text
 renderGovernanceCmd = \case
-  GovernanceVoteGroup {} -> "governance vote"
+  GovernanceVoteCmds cmds -> renderGovernanceVoteCmds cmds
   GovernanceActionCmd {} -> "governance action"
   GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
   GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
@@ -77,7 +78,7 @@ renderGovernanceCmd = \case
 -- Vote related
 --------------------------------------------------------------------------------
 
-pVoteCommmands :: EnvCli -> Parser GovernanceCmd
+pVoteCommmands :: EnvCli -> Parser GovernanceVoteCmds
 pVoteCommmands envCli =
   asum
     [ subParser "create-vote"
@@ -85,16 +86,15 @@ pVoteCommmands envCli =
         $ Opt.progDesc "Create a vote for a proposed governance action."
     ]
 
-pCreateVote :: EnvCli -> Parser GovernanceCmd
+pCreateVote :: EnvCli -> Parser GovernanceVoteCmds
 pCreateVote envCli =
-  fmap GovernanceVoteGroup $
-    ConwayVote
-      <$> pVoteChoice
-      <*> pVoterType
-      <*> pGoveranceActionIdentifier
-      <*> pVotingCredential
-      <*> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
-      <*> pFileOutDirection "out-file" "Output filepath of the vote."
+  GovernanceVoteCreateCmd
+    <$> pVoteChoice
+    <*> pVoterType
+    <*> pGoveranceActionIdentifier
+    <*> pVotingCredential
+    <*> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
+    <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
  where
   pVoteChoice :: Parser Vote
