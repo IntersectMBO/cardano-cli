@@ -106,7 +106,7 @@ renderShelleyGovernanceError = \case
 
 runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmd = \case
-  GovernanceVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp) ->
+  GovernanceVoteGroup (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp) ->
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
   GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
     runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp

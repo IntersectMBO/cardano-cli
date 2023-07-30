@@ -20,7 +20,7 @@ import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
 data GovernanceCmd
-  = GovernanceVoteCmd
+  = GovernanceVoteGroup
       ConwayVote
   | GovernanceActionCmd ActionCmd
   | GovernanceMIRPayStakeAddressesCertificate
@@ -62,7 +62,7 @@ data GovernanceCmd
 
 renderGovernanceCmd :: GovernanceCmd -> Text
 renderGovernanceCmd = \case
-  GovernanceVoteCmd {} -> "governance vote"
+  GovernanceVoteGroup {} -> "governance vote"
   GovernanceActionCmd {} -> "governance action"
   GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
   GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
@@ -87,7 +87,7 @@ pVoteCommmands envCli =
 
 pCreateVote :: EnvCli -> Parser GovernanceCmd
 pCreateVote envCli =
-  fmap GovernanceVoteCmd $
+  fmap GovernanceVoteGroup $
     ConwayVote
       <$> pVoteChoice
       <*> pVoterType
