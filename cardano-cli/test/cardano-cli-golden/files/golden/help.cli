@@ -114,27 +114,9 @@ Usage: cardano-cli shelley governance create-mir-certificate transfer-to-rewards
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli shelley governance vote create-vote
+Usage: cardano-cli shelley governance vote 
 
   Vote related commands.
-
-Usage: cardano-cli shelley governance vote create-vote 
-                                                         ( --yes
-                                                         | --no
-                                                         | --abstain
-                                                         )
-                                                         ( --constitutional-committee-member
-                                                         | --drep
-                                                         | --spo
-                                                         )
-                                                         --tx-in TX-IN
-                                                         ( --stake-pool-verification-key STRING
-                                                         | --cold-verification-key-file FILE
-                                                         )
-                                                         [--conway-era]
-                                                         --out-file FILE
-
-  Create a vote for a proposed governance action.
 
 Usage: cardano-cli allegra governance
 
@@ -236,27 +218,9 @@ Usage: cardano-cli allegra governance create-mir-certificate transfer-to-rewards
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli allegra governance vote create-vote
+Usage: cardano-cli allegra governance vote 
 
   Vote related commands.
-
-Usage: cardano-cli allegra governance vote create-vote 
-                                                         ( --yes
-                                                         | --no
-                                                         | --abstain
-                                                         )
-                                                         ( --constitutional-committee-member
-                                                         | --drep
-                                                         | --spo
-                                                         )
-                                                         --tx-in TX-IN
-                                                         ( --stake-pool-verification-key STRING
-                                                         | --cold-verification-key-file FILE
-                                                         )
-                                                         [--conway-era]
-                                                         --out-file FILE
-
-  Create a vote for a proposed governance action.
 
 Usage: cardano-cli mary governance
 
@@ -358,23 +322,9 @@ Usage: cardano-cli mary governance create-mir-certificate transfer-to-rewards --
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli mary governance vote create-vote
+Usage: cardano-cli mary governance vote 
 
   Vote related commands.
-
-Usage: cardano-cli mary governance vote create-vote (--yes | --no | --abstain)
-                                                      ( --constitutional-committee-member
-                                                      | --drep
-                                                      | --spo
-                                                      )
-                                                      --tx-in TX-IN
-                                                      ( --stake-pool-verification-key STRING
-                                                      | --cold-verification-key-file FILE
-                                                      )
-                                                      [--conway-era]
-                                                      --out-file FILE
-
-  Create a vote for a proposed governance action.
 
 Usage: cardano-cli alonzo governance
 
@@ -476,23 +426,9 @@ Usage: cardano-cli alonzo governance create-mir-certificate transfer-to-rewards 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli alonzo governance vote create-vote
+Usage: cardano-cli alonzo governance vote 
 
   Vote related commands.
-
-Usage: cardano-cli alonzo governance vote create-vote (--yes | --no | --abstain)
-                                                        ( --constitutional-committee-member
-                                                        | --drep
-                                                        | --spo
-                                                        )
-                                                        --tx-in TX-IN
-                                                        ( --stake-pool-verification-key STRING
-                                                        | --cold-verification-key-file FILE
-                                                        )
-                                                        [--conway-era]
-                                                        --out-file FILE
-
-  Create a vote for a proposed governance action.
 
 Usage: cardano-cli babbage governance
 
@@ -594,27 +530,9 @@ Usage: cardano-cli babbage governance create-mir-certificate transfer-to-rewards
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli babbage governance vote create-vote
+Usage: cardano-cli babbage governance vote 
 
   Vote related commands.
-
-Usage: cardano-cli babbage governance vote create-vote 
-                                                         ( --yes
-                                                         | --no
-                                                         | --abstain
-                                                         )
-                                                         ( --constitutional-committee-member
-                                                         | --drep
-                                                         | --spo
-                                                         )
-                                                         --tx-in TX-IN
-                                                         ( --stake-pool-verification-key STRING
-                                                         | --cold-verification-key-file FILE
-                                                         )
-                                                         [--conway-era]
-                                                         --out-file FILE
-
-  Create a vote for a proposed governance action.
 
 Usage: cardano-cli conway governance
 
@@ -706,7 +624,6 @@ Usage: cardano-cli conway governance vote create-vote (--yes | --no | --abstain)
                                                         ( --stake-pool-verification-key STRING
                                                         | --cold-verification-key-file FILE
                                                         )
-                                                        [--conway-era]
                                                         --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -811,23 +728,9 @@ Usage: cardano-cli latest governance create-mir-certificate transfer-to-rewards 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli latest governance vote create-vote
+Usage: cardano-cli latest governance vote 
 
   Vote related commands.
-
-Usage: cardano-cli latest governance vote create-vote (--yes | --no | --abstain)
-                                                        ( --constitutional-committee-member
-                                                        | --drep
-                                                        | --spo
-                                                        )
-                                                        --tx-in TX-IN
-                                                        ( --stake-pool-verification-key STRING
-                                                        | --cold-verification-key-file FILE
-                                                        )
-                                                        [--conway-era]
-                                                        --out-file FILE
-
-  Create a vote for a proposed governance action.
 
 Usage: cardano-cli experimental governance
 
@@ -923,7 +826,6 @@ Usage: cardano-cli experimental governance vote create-vote
                                                               ( --stake-pool-verification-key STRING
                                                               | --cold-verification-key-file FILE
                                                               )
-                                                              [--conway-era]
                                                               --out-file FILE
 
   Create a vote for a proposed governance action.
@@ -2327,23 +2229,9 @@ Usage: cardano-cli governance create-mir-certificate transfer-to-rewards --trans
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli governance vote create-vote
+Usage: cardano-cli governance vote 
 
   Vote related commands.
-
-Usage: cardano-cli governance vote create-vote (--yes | --no | --abstain)
-                                                 ( --constitutional-committee-member
-                                                 | --drep
-                                                 | --spo
-                                                 )
-                                                 --tx-in TX-IN
-                                                 ( --stake-pool-verification-key STRING
-                                                 | --cold-verification-key-file FILE
-                                                 )
-                                                 [--conway-era]
-                                                 --out-file FILE
-
-  Create a vote for a proposed governance action.
 
 Usage: cardano-cli text-view decode-cbor
 

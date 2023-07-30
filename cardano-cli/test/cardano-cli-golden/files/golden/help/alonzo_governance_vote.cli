@@ -1,0 +1,6 @@
+Usage: cardano-cli alonzo governance vote 
+
+  Vote related commands.
+
+Available options:
+  -h,--help                Show this help text

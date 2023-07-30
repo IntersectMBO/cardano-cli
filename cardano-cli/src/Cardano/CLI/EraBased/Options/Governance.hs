@@ -47,7 +47,7 @@ data EraBasedGovernanceCmd era
       AnyRegistrationTarget
       (File () Out)
   | EraBasedGovernanceVoteCmds
-      GovernanceVoteCmds
+     (GovernanceVoteCmds era)
 
 renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
@@ -66,7 +66,7 @@ pEraBasedGovernanceCmd envCli era =
     [ pEraBasedRegistrationCertificateCmd envCli era
     , pEraBasedDelegationCertificateCmd envCli era
     , pCreateMirCertificatesCmds era
-    , pEraBasedVoteCmds envCli era
+    , pEraBasedVoteCmds era
     ]
 
 
@@ -126,13 +126,12 @@ instance FeatureInEra AnyEraDecider where
     ConwayEra   -> yes $ AnyEraDeciderConwayOnwards ConwayEraOnwardsConway
 
 pEraBasedVoteCmds :: ()
-  => EnvCli
-  -> CardanoEra era
+  => CardanoEra era
   -> Maybe (Parser (EraBasedGovernanceCmd era))
-pEraBasedVoteCmds envCli _ =
+pEraBasedVoteCmds era =
   Just
     $ subParser "vote"
-    $ Opt.info (EraBasedGovernanceVoteCmds <$> pVoteCommmands envCli)
+    $ Opt.info (EraBasedGovernanceVoteCmds <$> pVoteCommmands era)
     $ Opt.progDesc "Vote related commands."
 
 -- Delegation Certificate related

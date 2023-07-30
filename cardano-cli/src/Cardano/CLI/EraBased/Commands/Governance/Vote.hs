@@ -14,18 +14,18 @@ import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
 
-data GovernanceVoteCmds
+data GovernanceVoteCmds era
   = GovernanceVoteCreateCmd
+      (ConwayEraOnwards era)
       Vote
       VType
       TxIn
       (VerificationKeyOrFile StakePoolKey)
-      AnyShelleyBasedEra
       (File () Out) -- TODO Use specific file type
   deriving Show
 
 renderGovernanceVoteCmds :: ()
-  => GovernanceVoteCmds
+  => GovernanceVoteCmds era
   -> Text
 renderGovernanceVoteCmds = \case
   GovernanceVoteCreateCmd {} -> "governance vote create"
