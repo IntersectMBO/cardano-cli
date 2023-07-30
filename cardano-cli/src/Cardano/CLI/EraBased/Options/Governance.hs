@@ -11,6 +11,8 @@ module Cardano.CLI.EraBased.Options.Governance
 import           Cardano.Api
 
 import           Cardano.CLI.Environment
+import           Cardano.CLI.EraBased.Commands.Governance.Vote
+import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
@@ -44,6 +46,8 @@ data EraBasedGovernanceCmd era
   | EraBasedGovernanceRegistrationCertificateCmd
       AnyRegistrationTarget
       (File () Out)
+  | EraBasedGovernanceVoteCmds
+      GovernanceVoteCmds
 
 renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
@@ -54,6 +58,7 @@ renderEraBasedGovernanceCmd = \case
   EraBasedGovernanceMIRTransfer _ _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
   EraBasedGovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"
   EraBasedGovernanceRegistrationCertificateCmd {} -> "governance registration-certificate"
+  EraBasedGovernanceVoteCmds cmds -> renderGovernanceVoteCmds cmds
 
 pEraBasedGovernanceCmd :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmd era)
 pEraBasedGovernanceCmd envCli era =
@@ -61,6 +66,7 @@ pEraBasedGovernanceCmd envCli era =
     [ pEraBasedRegistrationCertificateCmd envCli era
     , pEraBasedDelegationCertificateCmd envCli era
     , pCreateMirCertificatesCmds era
+    , pEraBasedVoteCmds envCli era
     ]
 
 
@@ -119,8 +125,17 @@ instance FeatureInEra AnyEraDecider where
     BabbageEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraBabbage
     ConwayEra   -> yes $ AnyEraDeciderConwayOnwards ConwayEraOnwardsConway
 
--- Delegation Certificate related
+pEraBasedVoteCmds :: ()
+  => EnvCli
+  -> CardanoEra era
+  -> Maybe (Parser (EraBasedGovernanceCmd era))
+pEraBasedVoteCmds envCli _ =
+  Just
+    $ subParser "vote"
+    $ Opt.info (EraBasedGovernanceVoteCmds <$> pVoteCommmands envCli)
+    $ Opt.progDesc "Vote related commands."
 
+-- Delegation Certificate related
 pEraBasedDelegationCertificateCmd :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
 pEraBasedDelegationCertificateCmd _envCli =
   featureInEra Nothing $ \w ->

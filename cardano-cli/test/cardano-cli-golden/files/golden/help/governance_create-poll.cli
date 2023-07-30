@@ -3,7 +3,11 @@ Usage: cardano-cli governance create-poll --question STRING
                                             [--nonce UINT]
                                             --out-file FILE
 
-  Create an SPO poll
+Usage: cardano-cli governance 
+                                ( delegation-certificate
+                                | create-mir-certificate
+                                | vote
+                                )
 
 Available options:
   --question STRING        The question for the poll.

@@ -18,7 +18,6 @@ import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Run.Governance
-import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.Run.Legacy.Read (CddlError, fileOrPipe, readFileTx)
 import qualified Cardano.CLI.Types.Governance as Cli
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
@@ -106,7 +105,6 @@ renderShelleyGovernanceError = \case
 
 runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmd = \case
-  GovernanceVoteCmds cmds -> runGovernanceVoteCmds cmds
   GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
     runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
   GovernanceMIRPayStakeAddressesCertificate (AnyShelleyToBabbageEra w) mirpot vKeys rewards out ->

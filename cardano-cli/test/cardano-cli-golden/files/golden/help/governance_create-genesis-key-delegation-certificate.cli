@@ -20,7 +20,11 @@ Usage: cardano-cli governance create-genesis-key-delegation-certificate
                                                                           )
                                                                           --out-file FILE
 
-  Create a genesis key delegation certificate
+Usage: cardano-cli governance 
+                                ( delegation-certificate
+                                | create-mir-certificate
+                                | vote
+                                )
 
 Available options:
   --shelley-era            Specify the Shelley era

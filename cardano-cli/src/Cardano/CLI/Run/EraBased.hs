@@ -13,12 +13,15 @@ module Cardano.CLI.Run.EraBased
 import           Cardano.Api
 
 import           Cardano.CLI.Commands.EraBased
+import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.EraBased.Certificate
 import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.EraBased.Run.Governance
+import           Cardano.CLI.EraBased.Run.Governance.Vote
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
+import           Data.Function ((&))
 import           Data.Text (Text)
 
 newtype AnyEraCmdError
@@ -38,38 +41,38 @@ runAnyEraCommand = \case
 runEraBasedCommand :: ()
   => EraBasedCommand era -> ExceptT () IO ()
 runEraBasedCommand = \case
-  EraBasedGovernanceCmd cmd -> runEraBasedGovernanceCmd cmd
+  EraBasedGovernanceCmd cmd ->
+    firstExceptT (const ()) -- TODO fix error handling
+      $ runEraBasedGovernanceCmd cmd
 
 runEraBasedGovernanceCmd :: ()
   => EraBasedGovernanceCmd era
-  -> ExceptT () IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runEraBasedGovernanceCmd = \case
   EraBasedGovernancePreConwayCmd w ->
     runEraBasedGovernancePreConwayCmd w
   EraBasedGovernancePostConwayCmd w ->
     runEraBasedGovernancePostConwayCmd w
   EraBasedGovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
-
+    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
   EraBasedGovernanceMIRTransfer w ll oFp direction ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceMIRCertificateTransfer w ll oFp direction
-
+    runGovernanceMIRCertificateTransfer w ll oFp direction
   EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp
+    runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp
+      & firstExceptT GovernanceDelegationError
+  EraBasedGovernanceVoteCmds cmds ->
+    runGovernanceVoteCmds cmds
 
   EraBasedGovernanceRegistrationCertificateCmd regTarget outFp ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
+    firstExceptT (const GovernanceUnknownError) -- TODO: Conway era - fix error handling
       $ runGovernanceRegistrationCertificate regTarget outFp
 
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era
-  -> ExceptT () IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runEraBasedGovernancePreConwayCmd _w = pure ()
 
 runEraBasedGovernancePostConwayCmd
   :: ConwayEraOnwards era
-  -> ExceptT () IO ()
+  -> ExceptT GovernanceCmdError IO ()
 runEraBasedGovernancePostConwayCmd _w = pure ()

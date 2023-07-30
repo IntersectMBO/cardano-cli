@@ -2,7 +2,11 @@ Usage: cardano-cli governance verify-poll --poll-file FILE
                                             --tx-file FILE
                                             [--out-file FILE]
 
-  Verify an answer to a given SPO poll
+Usage: cardano-cli governance 
+                                ( delegation-certificate
+                                | create-mir-certificate
+                                | vote
+                                )
 
 Available options:
   --poll-file FILE         Filepath to the ongoing poll.

@@ -1,6 +1,10 @@
 Usage: cardano-cli governance action create-action create-constitution
 
-  Create a governance action.
+Usage: cardano-cli governance 
+                                ( delegation-certificate
+                                | create-mir-certificate
+                                | vote
+                                )
 
 Available options:
   -h,--help                Show this help text

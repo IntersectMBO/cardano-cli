@@ -7,6 +7,7 @@
 module Cardano.CLI.EraBased.Certificate
   ( EraBasedDelegationError(..)
   , runGovernanceDelegrationCertificate
+  , renderEraBasedDelegationError
 
   , EraBasedRegistrationError(..)
   , runGovernanceRegistrationCertificate
@@ -23,6 +24,7 @@ import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
+import           Data.Text (Text)
 
 
 -- Delegation Certificate related
@@ -33,6 +35,10 @@ data EraBasedDelegationError
   | EraBasedCertificateWriteFileError !(FileError ())
   | EraBasedDRepReadError !(FileError InputDecodeError)
   | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
+  deriving Show
+
+renderEraBasedDelegationError :: EraBasedDelegationError -> Text
+renderEraBasedDelegationError _ = "TODO renderEraBasedDelegationError"
 
 runGovernanceDelegrationCertificate
   :: StakeIdentifier

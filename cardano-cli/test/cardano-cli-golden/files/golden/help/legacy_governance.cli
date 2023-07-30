@@ -5,7 +5,6 @@ Usage: cardano-cli legacy governance
                                        | create-poll
                                        | answer-poll
                                        | verify-poll
-                                       | vote
                                        | action
                                        )
 
@@ -23,5 +22,4 @@ Available commands:
   create-poll              Create an SPO poll
   answer-poll              Answer an SPO poll
   verify-poll              Verify an answer to a given SPO poll
-  vote                     Vote related commands.
   action                   Governance action related commands.

@@ -2,7 +2,11 @@ Usage: cardano-cli governance answer-poll --poll-file FILE
                                             [--answer INT]
                                             [--out-file FILE]
 
-  Answer an SPO poll
+Usage: cardano-cli governance 
+                                ( delegation-certificate
+                                | create-mir-certificate
+                                | vote
+                                )
 
 Available options:
   --poll-file FILE         Filepath to the ongoing poll.

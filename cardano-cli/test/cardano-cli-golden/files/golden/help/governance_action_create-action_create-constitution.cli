@@ -9,7 +9,11 @@ Usage: cardano-cli governance action create-action create-constitution
                                                                          )
                                                                          --out-file FILE
 
-  Create a constitution.
+Usage: cardano-cli governance 
+                                ( delegation-certificate
+                                | create-mir-certificate
+                                | vote
+                                )
 
 Available options:
   --conway-era             Specify the Conway era

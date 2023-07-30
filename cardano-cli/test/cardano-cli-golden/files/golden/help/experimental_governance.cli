@@ -1,7 +1,4 @@
-Usage: cardano-cli experimental governance 
-                                             ( registration-certificate
-                                             | delegation-certificate
-                                             )
+Usage: cardano-cli experimental governance (delegation-certificate | vote)
 
   Era-based governance commands
 
@@ -9,5 +6,5 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  registration-certificate Create a registration certificate.
-  delegation-certificate   Delegation certificate creation.
+  delegation-certificate   Post conway era governance command
+  vote                     Vote related commands.

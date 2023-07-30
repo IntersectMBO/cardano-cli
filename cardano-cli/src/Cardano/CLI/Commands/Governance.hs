@@ -8,6 +8,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
+import           Cardano.CLI.EraBased.Certificate
 import           Cardano.CLI.Run.Legacy.Read (CddlError)
 import           Cardano.CLI.Run.Legacy.StakeAddress
 import           Cardano.CLI.Types.Governance
@@ -19,6 +20,7 @@ import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, newExceptT)
 import qualified Data.ByteString as BS
 import           Data.Text (Text)
+import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import           Data.Text.Encoding.Error
 import qualified Data.Text.Lazy.Builder as TL
@@ -60,6 +62,8 @@ data GovernanceCmdError
   -- Legacy - remove me after cardano-cli transitions to new era based structure
   | ShelleyGovernanceCmdMIRCertNotSupportedInConway
   | ShelleyGovernanceCmdGenesisDelegationNotSupportedInConway
+  | GovernanceDelegationError EraBasedDelegationError
+  | GovernanceUnknownError
   deriving Show
 
 instance Error GovernanceCmdError where
@@ -112,6 +116,10 @@ instance Error GovernanceCmdError where
       "MIR certificates are not supported in Conway era onwards."
     ShelleyGovernanceCmdGenesisDelegationNotSupportedInConway ->
       "Genesis delegation is not supported in Conway era onwards."
+    GovernanceDelegationError e ->
+      Text.unpack $ renderEraBasedDelegationError e
+    GovernanceUnknownError ->
+      "TODO GovernanceUnknownError"
     where
       renderDecoderError = toS . TL.toLazyText . B.build
 

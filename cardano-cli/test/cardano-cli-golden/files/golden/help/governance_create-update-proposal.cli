@@ -32,7 +32,11 @@ Usage: cardano-cli governance create-update-proposal --out-file FILE
                                                        [--utxo-cost-per-byte LOVELACE]
                                                        [--cost-model-file FILE]
 
-  Create an update proposal
+Usage: cardano-cli governance 
+                                ( delegation-certificate
+                                | create-mir-certificate
+                                | vote
+                                )
 
 Available options:
   --out-file FILE          The output file.
