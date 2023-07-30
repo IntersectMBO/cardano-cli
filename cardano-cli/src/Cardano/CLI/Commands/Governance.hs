@@ -17,7 +17,6 @@ import           Cardano.Prelude (intercalate, toS)
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, newExceptT)
-import           Data.Bifunctor
 import qualified Data.ByteString as BS
 import           Data.Text (Text)
 import qualified Data.Text.Encoding as Text
@@ -115,37 +114,6 @@ instance Error GovernanceCmdError where
       "Genesis delegation is not supported in Conway era onwards."
     where
       renderDecoderError = toS . TL.toLazyText . B.build
-
-runGovernanceCreateVoteCmd
-  :: AnyShelleyBasedEra
-  -> Vote
-  -> VType
-  -> TxIn
-  -> VerificationKeyOrFile StakePoolKey
-  -> VoteFile Out
-  -> ExceptT GovernanceCmdError IO ()
-runGovernanceCreateVoteCmd anyEra vChoice vType govActionTxIn votingStakeCred oFp = do
-  AnyShelleyBasedEra sbe <- pure anyEra
-  vStakePoolKey <- firstExceptT ReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
-  let stakePoolKeyHash = verificationKeyHash vStakePoolKey
-      vStakeCred = StakeCredentialByKey . (verificationKeyHash . castVerificationKey) $ vStakePoolKey
-  case vType of
-    VCC -> do
-      votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
-      let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
-          voteProcedure = createVotingProcedure sbe vChoice (VoterCommittee votingCred) govActIdentifier
-      firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
-
-    VDR -> do
-      votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
-      let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
-          voteProcedure = createVotingProcedure sbe vChoice (VoterDRep votingCred) govActIdentifier
-      firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
-
-    VSP -> do
-      let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
-          voteProcedure = createVotingProcedure sbe vChoice (VoterSpo stakePoolKeyHash) govActIdentifier
-      firstExceptT WriteFileError . newExceptT $ obtainEraPParamsConstraint sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
 
 runGovernanceNewConstitutionCmd

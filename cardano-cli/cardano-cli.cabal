@@ -76,6 +76,7 @@ library
                         Cardano.CLI.EraBased.Governance
                         Cardano.CLI.EraBased.Legacy
                         Cardano.CLI.EraBased.Run.Governance
+                        Cardano.CLI.EraBased.Run.Governance.Vote
                         Cardano.CLI.Orphans
                         Cardano.CLI.OS.Posix
                         Cardano.CLI.Pretty
