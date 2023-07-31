@@ -1,5 +1,6 @@
 Usage: cardano-cli babbage governance 
-                                        ( delegation-certificate
+                                        ( registration-certificate
+                                        | delegation-certificate
                                         | create-mir-certificate
                                         )
 
@@ -9,6 +10,7 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  delegation-certificate   Post conway era governance command
+  registration-certificate Create a registration certificate.
+  delegation-certificate   Delegation certificate creation.
   create-mir-certificate   Create an MIR (Move Instantaneous Rewards)
                            certificate
