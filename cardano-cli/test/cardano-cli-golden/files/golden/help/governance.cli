@@ -1,16 +1,27 @@
 Usage: cardano-cli governance 
-                                ( registration-certificate
-                                | delegation-certificate
-                                | create-mir-certificate
+                                ( create-mir-certificate
+                                | create-genesis-key-delegation-certificate
+                                | create-update-proposal
+                                | create-poll
+                                | answer-poll
+                                | verify-poll
+                                | vote
+                                | action
                                 )
 
-  Era-based governance commands
+  Governance commands
 
 Available options:
   -h,--help                Show this help text
 
 Available commands:
-  registration-certificate Create a registration certificate.
-  delegation-certificate   Delegation certificate creation.
   create-mir-certificate   Create an MIR (Move Instantaneous Rewards)
                            certificate
+  create-genesis-key-delegation-certificate
+                           Create a genesis key delegation certificate
+  create-update-proposal   Create an update proposal
+  create-poll              Create an SPO poll
+  answer-poll              Answer an SPO poll
+  verify-poll              Verify an answer to a given SPO poll
+  vote                     Vote related commands.
+  action                   Governance action related commands.
