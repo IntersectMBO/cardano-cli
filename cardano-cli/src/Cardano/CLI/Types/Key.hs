@@ -28,11 +28,14 @@ module Cardano.CLI.Types.Key
   , generateKeyPair
   --- Legacy
   , DelegationTarget(..) -- TODO: Remove me
-
+  , StakePoolRegistrationParserRequirements(..)
 
   -- NewEraBased
   , AnyDelegationTarget(..)
   , StakeTarget (..)
+
+  , AnyRegistrationTarget(..)
+  , RegistrationTarget(..)
   ) where
 
 import           Cardano.Api
@@ -118,6 +121,65 @@ data StakeIdentifier
   = StakeIdentifierVerifier StakeVerifier
   | StakeIdentifierAddress StakeAddress
   deriving (Eq, Show)
+
+
+data AnyRegistrationTarget where
+  ShelleyToBabbageStakePoolRegTarget
+    :: ShelleyToBabbageEra era
+    -> StakePoolRegistrationParserRequirements
+    -> AnyRegistrationTarget
+
+  ShelleyToBabbageStakeKeyRegTarget
+    :: ShelleyToBabbageEra era
+    -> StakeIdentifier
+    -> AnyRegistrationTarget
+
+  ConwayOnwardRegTarget
+    :: ConwayEraOnwards era
+    -> RegistrationTarget era
+    -> AnyRegistrationTarget
+
+data StakePoolRegistrationParserRequirements
+ = StakePoolRegistrationParserRequirements
+     { sprStakePoolKey :: VerificationKeyOrFile StakePoolKey
+     -- ^ Stake pool verification key.
+     , sprVrfKey :: VerificationKeyOrFile VrfKey
+     -- ^ VRF Verification key.
+     , sprPoolPledge :: Lovelace
+     -- ^ Pool pledge.
+     , sprPoolCost :: Lovelace
+     -- ^ Pool cost.
+     , sprPoolMargin :: Rational
+     -- ^ Pool margin.
+     , sprRewardAccountKey :: VerificationKeyOrFile StakeKey
+     -- ^ Reward account verification staking key.
+     , spoPoolOwnerKeys :: [VerificationKeyOrFile StakeKey]
+     -- ^ Pool owner verification staking key(s).
+     , sprRelays :: [StakePoolRelay]
+     -- ^ Stake pool relays.
+     , sprMetadata :: Maybe StakePoolMetadataReference
+     -- ^ Stake pool metadata.
+     , sprNetworkId :: NetworkId
+     }
+
+
+data RegistrationTarget era where
+  RegisterStakePool
+    :: ConwayEraOnwards era
+    -> StakePoolRegistrationParserRequirements
+    -> RegistrationTarget era
+
+  RegisterStakeKey
+    :: ConwayEraOnwards era
+    -> StakeIdentifier
+    -> Lovelace
+    -> RegistrationTarget era
+
+  RegisterDRep
+    :: ConwayEraOnwards era
+    -> VerificationKeyOrHashOrFile DRepKey
+    -> Lovelace
+    -> RegistrationTarget era
 
 -- | A resource that identifies the delegation target. We can delegate
 -- our stake for two reasons:

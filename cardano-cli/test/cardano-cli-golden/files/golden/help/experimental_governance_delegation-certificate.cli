@@ -21,7 +21,7 @@ Usage: cardano-cli experimental governance delegation-certificate
                                                                     )
                                                                     --out-file FILE
 
-  Post conway era governance command
+  Delegation certificate creation.
 
 Available options:
   --stake-verification-key STRING
