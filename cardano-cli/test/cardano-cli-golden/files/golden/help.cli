@@ -20,11 +20,49 @@ Usage: cardano-cli shelley governance
   Shelley era commands
 
 Usage: cardano-cli shelley governance 
-                                        ( delegation-certificate
+                                        ( registration-certificate
+                                        | delegation-certificate
                                         | create-mir-certificate
                                         )
 
   Era-based governance commands
+
+Usage: cardano-cli shelley governance registration-certificate 
+                                                                 ( ( --stake-pool-verification-key STRING
+                                                                   | --cold-verification-key-file FILE
+                                                                   )
+                                                                   ( --vrf-verification-key STRING
+                                                                   | --vrf-verification-key-file FILE
+                                                                   )
+                                                                   --pool-pledge LOVELACE
+                                                                   --pool-cost LOVELACE
+                                                                   --pool-margin RATIONAL
+                                                                   ( --pool-reward-account-verification-key STRING
+                                                                   | --pool-reward-account-verification-key-file FILE
+                                                                   )
+                                                                   ( --pool-owner-verification-key STRING
+                                                                   | --pool-owner-stake-verification-key-file FILE
+                                                                   )
+                                                                   [ [--pool-relay-ipv4 STRING]
+                                                                     [--pool-relay-ipv6 STRING]
+                                                                     --pool-relay-port INT
+                                                                   | --single-host-pool-relay STRING
+                                                                     [--pool-relay-port INT]
+                                                                   | --multi-host-pool-relay STRING
+                                                                   ]
+                                                                   [--metadata-url URL
+                                                                     --metadata-hash HASH]
+                                                                   ( --mainnet
+                                                                   | --testnet-magic NATURAL
+                                                                   )
+                                                                 | --stake-verification-key STRING
+                                                                 | --stake-verification-key-file FILE
+                                                                 | --stake-script-file FILE
+                                                                 | --stake-address ADDRESS
+                                                                 )
+                                                                 --out-file FILE
+
+  Create a registration certificate.
 
 Usage: cardano-cli shelley governance delegation-certificate 
                                                                ( --stake-verification-key STRING
@@ -38,7 +76,7 @@ Usage: cardano-cli shelley governance delegation-certificate
                                                                )
                                                                --out-file FILE
 
-  Post conway era governance command
+  Delegation certificate creation.
 
 Usage: cardano-cli shelley governance create-mir-certificate 
                                                                ( ( --reserves
@@ -81,11 +119,49 @@ Usage: cardano-cli allegra governance
   Allegra era commands
 
 Usage: cardano-cli allegra governance 
-                                        ( delegation-certificate
+                                        ( registration-certificate
+                                        | delegation-certificate
                                         | create-mir-certificate
                                         )
 
   Era-based governance commands
+
+Usage: cardano-cli allegra governance registration-certificate 
+                                                                 ( ( --stake-pool-verification-key STRING
+                                                                   | --cold-verification-key-file FILE
+                                                                   )
+                                                                   ( --vrf-verification-key STRING
+                                                                   | --vrf-verification-key-file FILE
+                                                                   )
+                                                                   --pool-pledge LOVELACE
+                                                                   --pool-cost LOVELACE
+                                                                   --pool-margin RATIONAL
+                                                                   ( --pool-reward-account-verification-key STRING
+                                                                   | --pool-reward-account-verification-key-file FILE
+                                                                   )
+                                                                   ( --pool-owner-verification-key STRING
+                                                                   | --pool-owner-stake-verification-key-file FILE
+                                                                   )
+                                                                   [ [--pool-relay-ipv4 STRING]
+                                                                     [--pool-relay-ipv6 STRING]
+                                                                     --pool-relay-port INT
+                                                                   | --single-host-pool-relay STRING
+                                                                     [--pool-relay-port INT]
+                                                                   | --multi-host-pool-relay STRING
+                                                                   ]
+                                                                   [--metadata-url URL
+                                                                     --metadata-hash HASH]
+                                                                   ( --mainnet
+                                                                   | --testnet-magic NATURAL
+                                                                   )
+                                                                 | --stake-verification-key STRING
+                                                                 | --stake-verification-key-file FILE
+                                                                 | --stake-script-file FILE
+                                                                 | --stake-address ADDRESS
+                                                                 )
+                                                                 --out-file FILE
+
+  Create a registration certificate.
 
 Usage: cardano-cli allegra governance delegation-certificate 
                                                                ( --stake-verification-key STRING
@@ -99,7 +175,7 @@ Usage: cardano-cli allegra governance delegation-certificate
                                                                )
                                                                --out-file FILE
 
-  Post conway era governance command
+  Delegation certificate creation.
 
 Usage: cardano-cli allegra governance create-mir-certificate 
                                                                ( ( --reserves
@@ -142,11 +218,49 @@ Usage: cardano-cli mary governance
   Mary era commands
 
 Usage: cardano-cli mary governance 
-                                     ( delegation-certificate
+                                     ( registration-certificate
+                                     | delegation-certificate
                                      | create-mir-certificate
                                      )
 
   Era-based governance commands
+
+Usage: cardano-cli mary governance registration-certificate 
+                                                              ( ( --stake-pool-verification-key STRING
+                                                                | --cold-verification-key-file FILE
+                                                                )
+                                                                ( --vrf-verification-key STRING
+                                                                | --vrf-verification-key-file FILE
+                                                                )
+                                                                --pool-pledge LOVELACE
+                                                                --pool-cost LOVELACE
+                                                                --pool-margin RATIONAL
+                                                                ( --pool-reward-account-verification-key STRING
+                                                                | --pool-reward-account-verification-key-file FILE
+                                                                )
+                                                                ( --pool-owner-verification-key STRING
+                                                                | --pool-owner-stake-verification-key-file FILE
+                                                                )
+                                                                [ [--pool-relay-ipv4 STRING]
+                                                                  [--pool-relay-ipv6 STRING]
+                                                                  --pool-relay-port INT
+                                                                | --single-host-pool-relay STRING
+                                                                  [--pool-relay-port INT]
+                                                                | --multi-host-pool-relay STRING
+                                                                ]
+                                                                [--metadata-url URL
+                                                                  --metadata-hash HASH]
+                                                                ( --mainnet
+                                                                | --testnet-magic NATURAL
+                                                                )
+                                                              | --stake-verification-key STRING
+                                                              | --stake-verification-key-file FILE
+                                                              | --stake-script-file FILE
+                                                              | --stake-address ADDRESS
+                                                              )
+                                                              --out-file FILE
+
+  Create a registration certificate.
 
 Usage: cardano-cli mary governance delegation-certificate 
                                                             ( --stake-verification-key STRING
@@ -160,7 +274,7 @@ Usage: cardano-cli mary governance delegation-certificate
                                                             )
                                                             --out-file FILE
 
-  Post conway era governance command
+  Delegation certificate creation.
 
 Usage: cardano-cli mary governance create-mir-certificate 
                                                             ( ( --reserves
@@ -203,11 +317,49 @@ Usage: cardano-cli alonzo governance
   Alonzo era commands
 
 Usage: cardano-cli alonzo governance 
-                                       ( delegation-certificate
+                                       ( registration-certificate
+                                       | delegation-certificate
                                        | create-mir-certificate
                                        )
 
   Era-based governance commands
+
+Usage: cardano-cli alonzo governance registration-certificate 
+                                                                ( ( --stake-pool-verification-key STRING
+                                                                  | --cold-verification-key-file FILE
+                                                                  )
+                                                                  ( --vrf-verification-key STRING
+                                                                  | --vrf-verification-key-file FILE
+                                                                  )
+                                                                  --pool-pledge LOVELACE
+                                                                  --pool-cost LOVELACE
+                                                                  --pool-margin RATIONAL
+                                                                  ( --pool-reward-account-verification-key STRING
+                                                                  | --pool-reward-account-verification-key-file FILE
+                                                                  )
+                                                                  ( --pool-owner-verification-key STRING
+                                                                  | --pool-owner-stake-verification-key-file FILE
+                                                                  )
+                                                                  [ [--pool-relay-ipv4 STRING]
+                                                                    [--pool-relay-ipv6 STRING]
+                                                                    --pool-relay-port INT
+                                                                  | --single-host-pool-relay STRING
+                                                                    [--pool-relay-port INT]
+                                                                  | --multi-host-pool-relay STRING
+                                                                  ]
+                                                                  [--metadata-url URL
+                                                                    --metadata-hash HASH]
+                                                                  ( --mainnet
+                                                                  | --testnet-magic NATURAL
+                                                                  )
+                                                                | --stake-verification-key STRING
+                                                                | --stake-verification-key-file FILE
+                                                                | --stake-script-file FILE
+                                                                | --stake-address ADDRESS
+                                                                )
+                                                                --out-file FILE
+
+  Create a registration certificate.
 
 Usage: cardano-cli alonzo governance delegation-certificate 
                                                               ( --stake-verification-key STRING
@@ -221,7 +373,7 @@ Usage: cardano-cli alonzo governance delegation-certificate
                                                               )
                                                               --out-file FILE
 
-  Post conway era governance command
+  Delegation certificate creation.
 
 Usage: cardano-cli alonzo governance create-mir-certificate 
                                                               ( ( --reserves
@@ -264,11 +416,49 @@ Usage: cardano-cli babbage governance
   Babbage era commands
 
 Usage: cardano-cli babbage governance 
-                                        ( delegation-certificate
+                                        ( registration-certificate
+                                        | delegation-certificate
                                         | create-mir-certificate
                                         )
 
   Era-based governance commands
+
+Usage: cardano-cli babbage governance registration-certificate 
+                                                                 ( ( --stake-pool-verification-key STRING
+                                                                   | --cold-verification-key-file FILE
+                                                                   )
+                                                                   ( --vrf-verification-key STRING
+                                                                   | --vrf-verification-key-file FILE
+                                                                   )
+                                                                   --pool-pledge LOVELACE
+                                                                   --pool-cost LOVELACE
+                                                                   --pool-margin RATIONAL
+                                                                   ( --pool-reward-account-verification-key STRING
+                                                                   | --pool-reward-account-verification-key-file FILE
+                                                                   )
+                                                                   ( --pool-owner-verification-key STRING
+                                                                   | --pool-owner-stake-verification-key-file FILE
+                                                                   )
+                                                                   [ [--pool-relay-ipv4 STRING]
+                                                                     [--pool-relay-ipv6 STRING]
+                                                                     --pool-relay-port INT
+                                                                   | --single-host-pool-relay STRING
+                                                                     [--pool-relay-port INT]
+                                                                   | --multi-host-pool-relay STRING
+                                                                   ]
+                                                                   [--metadata-url URL
+                                                                     --metadata-hash HASH]
+                                                                   ( --mainnet
+                                                                   | --testnet-magic NATURAL
+                                                                   )
+                                                                 | --stake-verification-key STRING
+                                                                 | --stake-verification-key-file FILE
+                                                                 | --stake-script-file FILE
+                                                                 | --stake-address ADDRESS
+                                                                 )
+                                                                 --out-file FILE
+
+  Create a registration certificate.
 
 Usage: cardano-cli babbage governance delegation-certificate 
                                                                ( --stake-verification-key STRING
@@ -282,7 +472,7 @@ Usage: cardano-cli babbage governance delegation-certificate
                                                                )
                                                                --out-file FILE
 
-  Post conway era governance command
+  Delegation certificate creation.
 
 Usage: cardano-cli babbage governance create-mir-certificate 
                                                                ( ( --reserves
@@ -324,9 +514,56 @@ Usage: cardano-cli conway governance
 
   Conway era commands
 
-Usage: cardano-cli conway governance delegation-certificate
+Usage: cardano-cli conway governance 
+                                       ( registration-certificate
+                                       | delegation-certificate
+                                       )
 
   Era-based governance commands
+
+Usage: cardano-cli conway governance registration-certificate 
+                                                                ( ( --stake-pool-verification-key STRING
+                                                                  | --cold-verification-key-file FILE
+                                                                  )
+                                                                  ( --vrf-verification-key STRING
+                                                                  | --vrf-verification-key-file FILE
+                                                                  )
+                                                                  --pool-pledge LOVELACE
+                                                                  --pool-cost LOVELACE
+                                                                  --pool-margin RATIONAL
+                                                                  ( --pool-reward-account-verification-key STRING
+                                                                  | --pool-reward-account-verification-key-file FILE
+                                                                  )
+                                                                  ( --pool-owner-verification-key STRING
+                                                                  | --pool-owner-stake-verification-key-file FILE
+                                                                  )
+                                                                  [ [--pool-relay-ipv4 STRING]
+                                                                    [--pool-relay-ipv6 STRING]
+                                                                    --pool-relay-port INT
+                                                                  | --single-host-pool-relay STRING
+                                                                    [--pool-relay-port INT]
+                                                                  | --multi-host-pool-relay STRING
+                                                                  ]
+                                                                  [--metadata-url URL
+                                                                    --metadata-hash HASH]
+                                                                  ( --mainnet
+                                                                  | --testnet-magic NATURAL
+                                                                  )
+                                                                | ( --stake-verification-key STRING
+                                                                  | --stake-verification-key-file FILE
+                                                                  | --stake-script-file FILE
+                                                                  | --stake-address ADDRESS
+                                                                  )
+                                                                  --key-reg-deposit-amt NATURAL
+                                                                | ( --drep-verification-key STRING
+                                                                  | --drep-verification-key-file FILE
+                                                                  | --drep-key-hash HASH
+                                                                  )
+                                                                  --key-reg-deposit-amt NATURAL
+                                                                )
+                                                                --out-file FILE
+
+  Create a registration certificate.
 
 Usage: cardano-cli conway governance delegation-certificate 
                                                               ( --stake-verification-key STRING
@@ -351,18 +588,56 @@ Usage: cardano-cli conway governance delegation-certificate
                                                               )
                                                               --out-file FILE
 
-  Post conway era governance command
+  Delegation certificate creation.
 
 Usage: cardano-cli latest governance
 
   Latest era commands (Babbage)
 
 Usage: cardano-cli latest governance 
-                                       ( delegation-certificate
+                                       ( registration-certificate
+                                       | delegation-certificate
                                        | create-mir-certificate
                                        )
 
   Era-based governance commands
+
+Usage: cardano-cli latest governance registration-certificate 
+                                                                ( ( --stake-pool-verification-key STRING
+                                                                  | --cold-verification-key-file FILE
+                                                                  )
+                                                                  ( --vrf-verification-key STRING
+                                                                  | --vrf-verification-key-file FILE
+                                                                  )
+                                                                  --pool-pledge LOVELACE
+                                                                  --pool-cost LOVELACE
+                                                                  --pool-margin RATIONAL
+                                                                  ( --pool-reward-account-verification-key STRING
+                                                                  | --pool-reward-account-verification-key-file FILE
+                                                                  )
+                                                                  ( --pool-owner-verification-key STRING
+                                                                  | --pool-owner-stake-verification-key-file FILE
+                                                                  )
+                                                                  [ [--pool-relay-ipv4 STRING]
+                                                                    [--pool-relay-ipv6 STRING]
+                                                                    --pool-relay-port INT
+                                                                  | --single-host-pool-relay STRING
+                                                                    [--pool-relay-port INT]
+                                                                  | --multi-host-pool-relay STRING
+                                                                  ]
+                                                                  [--metadata-url URL
+                                                                    --metadata-hash HASH]
+                                                                  ( --mainnet
+                                                                  | --testnet-magic NATURAL
+                                                                  )
+                                                                | --stake-verification-key STRING
+                                                                | --stake-verification-key-file FILE
+                                                                | --stake-script-file FILE
+                                                                | --stake-address ADDRESS
+                                                                )
+                                                                --out-file FILE
+
+  Create a registration certificate.
 
 Usage: cardano-cli latest governance delegation-certificate 
                                                               ( --stake-verification-key STRING
@@ -376,7 +651,7 @@ Usage: cardano-cli latest governance delegation-certificate
                                                               )
                                                               --out-file FILE
 
-  Post conway era governance command
+  Delegation certificate creation.
 
 Usage: cardano-cli latest governance create-mir-certificate 
                                                               ( ( --reserves
@@ -418,9 +693,56 @@ Usage: cardano-cli experimental governance
 
   Experimental era commands (Conway)
 
-Usage: cardano-cli experimental governance delegation-certificate
+Usage: cardano-cli experimental governance 
+                                             ( registration-certificate
+                                             | delegation-certificate
+                                             )
 
   Era-based governance commands
+
+Usage: cardano-cli experimental governance registration-certificate 
+                                                                      ( ( --stake-pool-verification-key STRING
+                                                                        | --cold-verification-key-file FILE
+                                                                        )
+                                                                        ( --vrf-verification-key STRING
+                                                                        | --vrf-verification-key-file FILE
+                                                                        )
+                                                                        --pool-pledge LOVELACE
+                                                                        --pool-cost LOVELACE
+                                                                        --pool-margin RATIONAL
+                                                                        ( --pool-reward-account-verification-key STRING
+                                                                        | --pool-reward-account-verification-key-file FILE
+                                                                        )
+                                                                        ( --pool-owner-verification-key STRING
+                                                                        | --pool-owner-stake-verification-key-file FILE
+                                                                        )
+                                                                        [ [--pool-relay-ipv4 STRING]
+                                                                          [--pool-relay-ipv6 STRING]
+                                                                          --pool-relay-port INT
+                                                                        | --single-host-pool-relay STRING
+                                                                          [--pool-relay-port INT]
+                                                                        | --multi-host-pool-relay STRING
+                                                                        ]
+                                                                        [--metadata-url URL
+                                                                          --metadata-hash HASH]
+                                                                        ( --mainnet
+                                                                        | --testnet-magic NATURAL
+                                                                        )
+                                                                      | ( --stake-verification-key STRING
+                                                                        | --stake-verification-key-file FILE
+                                                                        | --stake-script-file FILE
+                                                                        | --stake-address ADDRESS
+                                                                        )
+                                                                        --key-reg-deposit-amt NATURAL
+                                                                      | ( --drep-verification-key STRING
+                                                                        | --drep-verification-key-file FILE
+                                                                        | --drep-key-hash HASH
+                                                                        )
+                                                                        --key-reg-deposit-amt NATURAL
+                                                                      )
+                                                                      --out-file FILE
+
+  Create a registration certificate.
 
 Usage: cardano-cli experimental governance delegation-certificate 
                                                                     ( --stake-verification-key STRING
@@ -445,7 +767,7 @@ Usage: cardano-cli experimental governance delegation-certificate
                                                                     )
                                                                     --out-file FILE
 
-  Post conway era governance command
+  Delegation certificate creation.
 
 Usage: cardano-cli legacy Legacy commands
 
@@ -1808,9 +2130,50 @@ Usage: cardano-cli legacy address info --address ADDRESS [--out-file FILE]
 
   Print information about an address.
 
-Usage: cardano-cli governance (delegation-certificate | create-mir-certificate)
+Usage: cardano-cli governance 
+                                ( registration-certificate
+                                | delegation-certificate
+                                | create-mir-certificate
+                                )
 
   Era-based governance commands
+
+Usage: cardano-cli governance registration-certificate 
+                                                         ( ( --stake-pool-verification-key STRING
+                                                           | --cold-verification-key-file FILE
+                                                           )
+                                                           ( --vrf-verification-key STRING
+                                                           | --vrf-verification-key-file FILE
+                                                           )
+                                                           --pool-pledge LOVELACE
+                                                           --pool-cost LOVELACE
+                                                           --pool-margin RATIONAL
+                                                           ( --pool-reward-account-verification-key STRING
+                                                           | --pool-reward-account-verification-key-file FILE
+                                                           )
+                                                           ( --pool-owner-verification-key STRING
+                                                           | --pool-owner-stake-verification-key-file FILE
+                                                           )
+                                                           [ [--pool-relay-ipv4 STRING]
+                                                             [--pool-relay-ipv6 STRING]
+                                                             --pool-relay-port INT
+                                                           | --single-host-pool-relay STRING
+                                                             [--pool-relay-port INT]
+                                                           | --multi-host-pool-relay STRING
+                                                           ]
+                                                           [--metadata-url URL
+                                                             --metadata-hash HASH]
+                                                           ( --mainnet
+                                                           | --testnet-magic NATURAL
+                                                           )
+                                                         | --stake-verification-key STRING
+                                                         | --stake-verification-key-file FILE
+                                                         | --stake-script-file FILE
+                                                         | --stake-address ADDRESS
+                                                         )
+                                                         --out-file FILE
+
+  Create a registration certificate.
 
 Usage: cardano-cli governance delegation-certificate 
                                                        ( --stake-verification-key STRING
@@ -1824,7 +2187,7 @@ Usage: cardano-cli governance delegation-certificate
                                                        )
                                                        --out-file FILE
 
-  Post conway era governance command
+  Delegation certificate creation.
 
 Usage: cardano-cli governance create-mir-certificate 
                                                        ( ( --reserves
