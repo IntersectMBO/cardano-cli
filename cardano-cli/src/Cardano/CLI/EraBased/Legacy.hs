@@ -1843,21 +1843,6 @@ pUpdateProposalFile =
           ]
         ]
 
-pColdSigningKeyFile :: Parser (SigningKeyFile direction)
-pColdSigningKeyFile =
-  fmap File $ asum
-    [ Opt.strOption $ mconcat
-      [ Opt.long "cold-signing-key-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath of the cold signing key."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
-    , Opt.strOption $ mconcat
-      [ Opt.long "signing-key-file"
-      , Opt.internal
-      ]
-    ]
-
 pRequiredSigner :: Parser RequiredSigner
 pRequiredSigner =
       RequiredSignerSkeyFile <$> sKeyFile
