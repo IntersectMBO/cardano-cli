@@ -2031,29 +2031,6 @@ pMaybeOutputFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pColdVerificationKeyOrFile :: Parser ColdVerificationKeyOrFile
-pColdVerificationKeyOrFile =
-  asum
-    [ ColdStakePoolVerificationKey <$> pStakePoolVerificationKey
-    , ColdGenesisDelegateVerificationKey <$> pGenesisDelegateVerificationKey
-    , ColdVerificationKeyFile <$> pColdVerificationKeyFile
-    ]
-
-pColdVerificationKeyFile :: Parser (VerificationKeyFile direction)
-pColdVerificationKeyFile =
-  fmap File $ asum
-    [ Opt.strOption $ mconcat
-      [ Opt.long "cold-verification-key-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath of the cold verification key."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
-    , Opt.strOption $ mconcat
-      [ Opt.long "verification-key-file"
-      , Opt.internal
-      ]
-    ]
-
 pVerificationKey
   :: forall keyrole. SerialiseAsBech32 (VerificationKey keyrole)
   => AsType keyrole
@@ -2176,23 +2153,6 @@ pGenesisDelegateVerificationKeyHash =
         (\e ->
           "Invalid genesis delegate verification key hash: " ++ displayError e)
         . deserialiseFromRawBytesHex (AsHash AsGenesisDelegateKey)
-        . BSC.pack
-
-pGenesisDelegateVerificationKey :: Parser (VerificationKey GenesisDelegateKey)
-pGenesisDelegateVerificationKey =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
-    [ Opt.long "genesis-delegate-verification-key"
-    , Opt.metavar "STRING"
-    , Opt.help "Genesis delegate verification key (hex-encoded)."
-    ]
-  where
-    deserialiseFromHex
-      :: String
-      -> Either String (VerificationKey GenesisDelegateKey)
-    deserialiseFromHex =
-      first
-        (\e -> "Invalid genesis delegate verification key: " ++ displayError e)
-        . deserialiseFromRawBytesHex (AsVerificationKey AsGenesisDelegateKey)
         . BSC.pack
 
 pGenesisDelegateVerificationKeyOrFile
