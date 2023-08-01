@@ -1,5 +1,35 @@
 # Changelog for cardano-cli
 
+## 8.4.1.0
+
+- Add registration certificate creation command to the new era based cli
+  structure. We can create the following registration certififcates:
+    - Stake pool
+    - Stake key
+    - DRep key
+  (feature; compatible)
+  [PR 110](https://github.com/input-output-hk/cardano-cli/pull/110)
+
+- User friendly error messages for Conway era
+  (feature; no-api-changes)
+  [PR 84](https://github.com/input-output-hk/cardano-cli/pull/84)
+
+- Add rendering for ConwayCertificate in Cardano.Cli.Json.Friendly
+  (bugfix; no-api-changes)
+  [PR 113](https://github.com/input-output-hk/cardano-cli/pull/113)
+
+- Refactoring to merge queries to share the same connection
+  (feature; no-api-changes)
+  [PR 29](https://github.com/input-output-hk/cardano-cli/pull/29)
+
+- Add options to delegate voting stake
+  (feature; breaking)
+  [PR 109](https://github.com/input-output-hk/cardano-cli/pull/109)
+
+- Share MIR certificates code between era-based and legacy CLI parsers
+  (feature; breaking)
+  [PR 107](https://github.com/input-output-hk/cardano-cli/pull/107)
+
 ## 8.4.0.0
 
 - Era-sensitive command structure
