@@ -22,7 +22,6 @@ import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Legacy
-import           Cardano.CLI.Helpers (printWarning)
 import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Run.Legacy.Genesis
 import           Cardano.CLI.Run.Legacy.Read
@@ -33,7 +32,7 @@ import           Cardano.CLI.Types.Output
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
-import           Control.Monad (forM, forM_)
+import           Control.Monad (forM)
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (MonadTrans (..))
 import           Control.Monad.Trans.Except
@@ -271,12 +270,12 @@ runTransactionCmd cmd =
   case cmd of
     TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
             reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mProtocolParamsFile
-            mUpProp mconwayVote mNewConstitution outputOptions -> do
+            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
+            mNewConstitution outputOptions -> do
       runTxBuildCmd mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
             reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp
-            mconwayVote mNewConstitution outputOptions
+            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
+            mNewConstitution outputOptions
     TxBuildRaw era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
                mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
                metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out -> do
@@ -326,20 +325,16 @@ runTxBuildCmd
   -> TxMetadataJsonSchema
   -> [ScriptFile]
   -> [MetadataFile]
-  -> Maybe (Deprecated ProtocolParamsFile)
   -> Maybe UpdateProposalFile
   -> [VoteFile In]
   -> [NewConstitutionFile In] -- TODO: Conway era - we should replace this with a sumtype that handles all governance actions
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()
 runTxBuildCmd
-    socketPath (AnyCardanoEra cEra) consensusModeParams@(AnyConsensusModeParams cModeParams)
-    nid mScriptValidity mOverrideWits txins readOnlyRefIns
-    reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-    mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mDeprecatedProtocolParamsFile
-    mUpProp conwayVotes newConstitutions outputOptions = do
-  forM_ mDeprecatedProtocolParamsFile $ \_ ->
-    liftIO $ printWarning "'--protocol-params-file' for 'transaction build' is deprecated"
+    socketPath (AnyCardanoEra cEra) consensusModeParams@(AnyConsensusModeParams cModeParams) nid
+    mScriptValidity mOverrideWits txins readOnlyRefIns reqSigners txinsc mReturnColl mTotCollateral txouts
+    changeAddr mValue mLowBound mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp
+    conwayVotes newConstitutions outputOptions = do
 
   -- The user can specify an era prior to the era that the node is currently in.
   -- We cannot use the user specified era to construct a query against a node because it may differ
