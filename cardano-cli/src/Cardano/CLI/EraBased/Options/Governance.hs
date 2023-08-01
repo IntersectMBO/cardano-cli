@@ -11,6 +11,7 @@ module Cardano.CLI.EraBased.Options.Governance
 import           Cardano.Api
 
 import           Cardano.CLI.Environment
+import           Cardano.CLI.EraBased.Commands.Governance
 import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Options.Common
@@ -21,45 +22,8 @@ import           Cardano.CLI.Types.Legacy
 
 import           Data.Foldable
 import           Data.Maybe
-import           Data.Text (Text)
 import           Options.Applicative
 import qualified Options.Applicative as Opt
-
-data EraBasedGovernanceCmd era
-  = EraBasedGovernancePreConwayCmd (ShelleyToBabbageEra era)
-  | EraBasedGovernancePostConwayCmd (ConwayEraOnwards era)
-  | EraBasedGovernanceMIRPayStakeAddressesCertificate
-      (ShelleyToBabbageEra era)
-      MIRPot
-      [StakeAddress]
-      [Lovelace]
-      (File () Out)
-  | EraBasedGovernanceMIRTransfer
-      (ShelleyToBabbageEra era)
-      Lovelace
-      (File () Out)
-      TransferDirection
-  | EraBasedGovernanceDelegationCertificateCmd
-      StakeIdentifier
-      AnyDelegationTarget
-      (File () Out)
-  | EraBasedGovernanceRegistrationCertificateCmd
-      AnyRegistrationTarget
-      (File () Out)
-  | EraBasedGovernanceVoteCmd
-      AnyVote
-      (File () Out)
-
-renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
-renderEraBasedGovernanceCmd = \case
-  EraBasedGovernancePreConwayCmd {} -> "governance pre-conway"
-  EraBasedGovernancePostConwayCmd {} -> "governance post-conway"
-  EraBasedGovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
-  EraBasedGovernanceMIRTransfer _ _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
-  EraBasedGovernanceMIRTransfer _ _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
-  EraBasedGovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"
-  EraBasedGovernanceRegistrationCertificateCmd {} -> "governance registration-certificate"
-  EraBasedGovernanceVoteCmd {} -> "goverance vote"
 
 pEraBasedGovernanceCmd :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmd era)
 pEraBasedGovernanceCmd envCli era =
@@ -70,9 +34,7 @@ pEraBasedGovernanceCmd envCli era =
     , pCreateMirCertificatesCmds era
     ]
 
-
 -- Registration Certificate related
-
 
 pEraBasedRegistrationCertificateCmd
   :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
@@ -107,10 +69,7 @@ pEraBasedRegistrationCertificateCmd envCli =
                  ]
         <*> pOutputFile
 
-
-
 --------------------------------------------------------------------------------
-
 
 data AnyEraDecider era where
   AnyEraDeciderShelleyToBabbage :: ShelleyToBabbageEra era -> AnyEraDecider era
@@ -299,5 +258,3 @@ pMIRTransferToReserves w =
     <$> pTransferAmt
     <*> pOutputFile
     <*> pure TransferToReserves
-
-
