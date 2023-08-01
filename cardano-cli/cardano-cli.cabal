@@ -68,11 +68,13 @@ library
                         Cardano.CLI.Environment
                         Cardano.CLI.EraBased.Certificate
                         Cardano.CLI.EraBased.Commands.Governance
+                        Cardano.CLI.EraBased.Commands.Governance.Committee
                         Cardano.CLI.EraBased.Governance
                         Cardano.CLI.EraBased.Legacy
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Run.Governance
+                        Cardano.CLI.EraBased.Run.Governance.Committee
                         Cardano.CLI.EraBased.Vote
                         Cardano.CLI.Helpers
                         Cardano.CLI.IO.Lazy

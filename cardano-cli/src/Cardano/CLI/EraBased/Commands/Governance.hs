@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Commands.Governance
 
 import           Cardano.Api
 
+import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
@@ -39,14 +40,26 @@ data EraBasedGovernanceCmd era
   | EraBasedGovernanceVoteCmd
       AnyVote
       (File () Out)
+  | EraBasedGovernanceCommitteeCmds
+      (GovernanceCommitteeCmds era)
 
 renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
-  EraBasedGovernancePreConwayCmd {} -> "governance pre-conway"
-  EraBasedGovernancePostConwayCmd {} -> "governance post-conway"
-  EraBasedGovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
-  EraBasedGovernanceMIRTransfer _ _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
-  EraBasedGovernanceMIRTransfer _ _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
-  EraBasedGovernanceDelegationCertificateCmd {} -> "governance delegation-certificate"
-  EraBasedGovernanceRegistrationCertificateCmd {} -> "governance registration-certificate"
-  EraBasedGovernanceVoteCmd {} -> "goverance vote"
+  EraBasedGovernancePreConwayCmd {} ->
+    "governance pre-conway"
+  EraBasedGovernancePostConwayCmd {} ->
+    "governance post-conway"
+  EraBasedGovernanceMIRPayStakeAddressesCertificate {} ->
+    "governance create-mir-certificate stake-addresses"
+  EraBasedGovernanceMIRTransfer _ _ _ TransferToTreasury ->
+    "governance create-mir-certificate transfer-to-treasury"
+  EraBasedGovernanceMIRTransfer _ _ _ TransferToReserves ->
+    "governance create-mir-certificate transfer-to-reserves"
+  EraBasedGovernanceDelegationCertificateCmd {} ->
+    "governance delegation-certificate"
+  EraBasedGovernanceRegistrationCertificateCmd {} ->
+    "governance registration-certificate"
+  EraBasedGovernanceVoteCmd {} ->
+    "goverance vote"
+  EraBasedGovernanceCommitteeCmds cmds ->
+    renderGovernanceCommitteeCmds cmds
