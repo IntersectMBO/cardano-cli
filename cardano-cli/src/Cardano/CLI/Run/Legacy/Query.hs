@@ -898,7 +898,7 @@ runQueryProtocolState socketPath (AnyConsensusModeParams cModeParams) network mO
 
         pure $ do
           case cMode of
-            CardanoMode -> eligibleWriteProtocolStateConstaints sbe $ writeProtocolState mOutFile result
+            CardanoMode -> shelleyBasedEraConstraints sbe $ writeProtocolState mOutFile result
             mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
     )
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
@@ -1572,18 +1572,3 @@ utcTimeToSlotNo socketPath (AnyConsensusModeParams cModeParams) network utcTime 
         & onLeft left
 
     mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
-
-eligibleWriteProtocolStateConstaints
-  :: ShelleyBasedEra era
-  -> (( FromCBOR (Consensus.ChainDepState (ConsensusProtocol era))
-      , ToJSON (Consensus.ChainDepState (ConsensusProtocol era))
-      ) => a
-     )
-  -> a
-eligibleWriteProtocolStateConstaints = \case
-  ShelleyBasedEraShelley  -> id
-  ShelleyBasedEraAllegra  -> id
-  ShelleyBasedEraMary     -> id
-  ShelleyBasedEraAlonzo   -> id
-  ShelleyBasedEraBabbage  -> id
-  ShelleyBasedEraConway   -> id

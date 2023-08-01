@@ -78,17 +78,15 @@ import           Cardano.CLI.Types.Legacy
 import           Prelude
 
 import           Control.Exception (bracket)
-import           Control.Monad (unless)
-import           Control.Monad.Except (throwError)
+import           Control.Monad (forM, unless)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither,
-                   hoistMaybe, left, newExceptT)
+import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
+                   newExceptT)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (first)
 import qualified Data.ByteString.Builder as Builder
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Function
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
 import           Data.Text (Text)
@@ -747,26 +745,19 @@ data VoteError
   deriving Show
 
 readTxVotes :: ()
-  => CardanoEra era
+  => ConwayEraOnwards era
   -> [VoteFile In]
   -> IO (Either VoteError (TxVotes era))
 readTxVotes _ [] = return $ Right TxVotesNone
-readTxVotes era files = runExceptT $
-  case cardanoEraStyle era of
-    LegacyByronEra ->
-      throwError . VotesNotSupportedInEra $ AnyCardanoEra era
-    ShelleyBasedEra sbe ->  do
-      supp <- votesSupportedInEra sbe & hoistMaybe (VotesNotSupportedInEra $ AnyCardanoEra era)
-      votes <- newExceptT $ sequence <$> mapM (readVoteFile sbe) files
-      pure $ TxVotes supp votes
+readTxVotes w files = runExceptT $ do
+  TxVotes w <$> forM files (ExceptT . readVoteFile w)
 
 readVoteFile
-  :: ShelleyBasedEra era
+  :: ConwayEraOnwards era
   -> VoteFile In
   -> IO (Either VoteError (VotingProcedure era))
-readVoteFile sbe fp =
-  first VoteErrorFile <$> shelleyBasedEraConstraints sbe (readFileTextEnvelope AsVote fp)
-
+readVoteFile w fp =
+  first VoteErrorFile <$> conwayEraOnwardsConstraints w (readFileTextEnvelope AsVote fp)
 
 data ConstitutionError
   = ConstitutionErrorFile (FileError TextEnvelopeError)
@@ -778,23 +769,23 @@ readTxNewConstitutionActions
   -> [NewConstitutionFile In]
   -> IO (Either ConstitutionError (TxGovernanceActions era))
 readTxNewConstitutionActions _ [] = return $ Right TxGovernanceActionsNone
-readTxNewConstitutionActions era files = runExceptT $
-  case cardanoEraStyle era of
-    LegacyByronEra ->
-      throwError . ConstitutionsNotSupportedInEra $ AnyCardanoEra era
-    ShelleyBasedEra sbe' -> do
-      supp <- governanceActionsSupportedInEra sbe' & hoistMaybe (ConstitutionsNotSupportedInEra $ AnyCardanoEra era)
-      constitutions <- newExceptT $ sequence <$> mapM (readConstitution sbe') files
-      pure $ TxGovernanceActions supp constitutions
+readTxNewConstitutionActions era files =
+  runExceptT $
+    featureInEra
+      (left $ ConstitutionsNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
+      (\w -> do
+        constitutions <- newExceptT $ sequence <$> mapM (readConstitution w) files
+        pure $ TxGovernanceActions w constitutions
+      )
+      era
 
 readConstitution
-  :: ShelleyBasedEra era
+  :: ConwayEraOnwards era
   -> NewConstitutionFile In
   -> IO (Either ConstitutionError (Proposal era))
-readConstitution sbe fp =
-  fmap (first ConstitutionErrorFile)
-    $ obtainEraPParamsConstraint sbe
-    $ shelleyBasedEraConstraints sbe (readFileTextEnvelope AsProposal fp)
+readConstitution w fp =
+  first ConstitutionErrorFile
+    <$> conwayEraOnwardsConstraints w (readFileTextEnvelope AsProposal fp)
 
 -- Misc
 

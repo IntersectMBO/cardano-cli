@@ -161,13 +161,13 @@ runGovernanceRegistrationCertificate anyReg outfp =
               }
 
       let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
-          req = StakePoolRegistrationRequirementsPreConway stoB $ shelleyCertificateConstraints stoB ledgerStakePoolParams
+          req = StakePoolRegistrationRequirementsPreConway stoB $ shelleyToBabbageEraConstraints stoB ledgerStakePoolParams
           registrationCert = makeStakePoolRegistrationCertificate req
           description = Just @TextEnvelopeDescr "Stake Pool Registration Certificate"
       firstExceptT EraBasedRegistWriteFileError
         . newExceptT
         . writeLazyByteStringFile outfp
-        $ shelleyCertificateConstraints stoB
+        $ shelleyToBabbageEraConstraints stoB
         $ textEnvelopeToJSON description registrationCert
 
     ShelleyToBabbageStakeKeyRegTarget sToB stakeIdentifier -> do
@@ -179,7 +179,7 @@ runGovernanceRegistrationCertificate anyReg outfp =
       firstExceptT EraBasedRegistWriteFileError
         . newExceptT
         . writeLazyByteStringFile outfp
-        $ shelleyCertificateConstraints sToB
+        $ shelleyToBabbageEraConstraints sToB
         $ textEnvelopeToJSON description registrationCert
 
     ConwayOnwardRegTarget _ regTarget ->
@@ -226,13 +226,13 @@ runGovernanceRegistrationCertificate anyReg outfp =
 
           let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
               req = StakePoolRegistrationRequirementsConwayOnwards cOnwards
-                      $ conwayCertificateConstraints cOnwards ledgerStakePoolParams
+                      $ conwayEraOnwardsConstraints cOnwards ledgerStakePoolParams
               registrationCert = makeStakePoolRegistrationCertificate req
               description = Just @TextEnvelopeDescr "Stake Pool Registration Certificate"
           firstExceptT EraBasedRegistWriteFileError
             . newExceptT
             . writeLazyByteStringFile outfp
-            $ conwayCertificateConstraints cOnwards
+            $ conwayEraOnwardsConstraints cOnwards
             $ textEnvelopeToJSON description registrationCert
         RegisterStakeKey cOnwards sIdentifier deposit -> do
           stakeCred <- firstExceptT EraBasedRegistStakeCredReadError
@@ -243,13 +243,13 @@ runGovernanceRegistrationCertificate anyReg outfp =
           firstExceptT EraBasedRegistWriteFileError
             . newExceptT
             . writeLazyByteStringFile outfp
-            $ conwayCertificateConstraints cOnwards
+            $ conwayEraOnwardsConstraints cOnwards
             $ textEnvelopeToJSON description registrationCert
         RegisterDRep cOnwards drepVKey deposit -> do
           DRepKeyHash drepKeyHash <- firstExceptT EraBasedRegistReadError
             . newExceptT
             $ readVerificationKeyOrHashOrFile AsDRepKey drepVKey
-          let drepCred = Ledger.KeyHashObj $ conwayCertificateConstraints cOnwards drepKeyHash
+          let drepCred = Ledger.KeyHashObj $ conwayEraOnwardsConstraints cOnwards drepKeyHash
               votingCredential = VotingCredential drepCred
               req = DRepRegistrationRequirements cOnwards votingCredential deposit
               registrationCert = makeDrepRegistrationCertificate req
@@ -258,7 +258,7 @@ runGovernanceRegistrationCertificate anyReg outfp =
           firstExceptT EraBasedRegistWriteFileError
             . newExceptT
             . writeLazyByteStringFile outfp
-            $ conwayCertificateConstraints cOnwards
+            $ conwayEraOnwardsConstraints cOnwards
             $ textEnvelopeToJSON description registrationCert
 
 --------------------------------------------------------------------------------

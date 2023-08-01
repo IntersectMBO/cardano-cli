@@ -376,8 +376,11 @@ runTxBuildCmd
   txOuts <- mapM (toTxOutInAnyEra cEra) txouts
 
   -- Conway related
-  votes <- newExceptT $ first ShelleyTxCmdVoteError
-              <$> readTxVotes cEra conwayVotes
+  votes <-
+    featureInEra
+      (pure TxVotesNone)
+      (\w -> firstExceptT ShelleyTxCmdVoteError $ ExceptT (readTxVotes w conwayVotes))
+      cEra
 
   proposals <- newExceptT $ first ShelleyTxCmdConstitutionError
                   <$> readTxNewConstitutionActions cEra newConstitutions
