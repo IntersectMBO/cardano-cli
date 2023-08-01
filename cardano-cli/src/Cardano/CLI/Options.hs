@@ -52,7 +52,7 @@ parseClientCommand envCli =
     -- so we list it first.
     [ parseAnyEra envCli
     , parseLegacy envCli
-    , parseTopLevelLatest envCli
+    -- , parseTopLevelLatest envCli -- TODO restore this when the governance command group is fully operational
     , parseTopLevelLegacy envCli
     , parseByron envCli
     , parsePing
@@ -81,8 +81,8 @@ parseLegacy envCli =
     $ Opt.info (LegacyCommand <$> parseLegacyCommands envCli)
     $ Opt.progDesc "Legacy commands"
 
-parseTopLevelLatest :: EnvCli -> Parser ClientCommand
-parseTopLevelLatest envCli =
+_parseTopLevelLatest :: EnvCli -> Parser ClientCommand
+_parseTopLevelLatest envCli =
   AnyEraCommand . AnyEraCommandOf ShelleyBasedEraBabbage <$> pEraBasedCommand envCli BabbageEra
 
 -- | Parse Legacy commands at the top level of the CLI.
