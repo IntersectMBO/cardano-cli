@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Test.Cli.Pioneers.Exercise4
-  ( tests
+  ( hprop_createStakeAddressRegistrationCertificate
   ) where
 
 import           Control.Monad (void)
@@ -9,14 +9,13 @@ import           Control.Monad (void)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
-import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
 -- | 1. Generate a stake verification key
 --   2. Create a stake address registration certificate
-prop_createStakeAddressRegistrationCertificate :: Property
-prop_createStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_createStakeAddressRegistrationCertificate :: Property
+hprop_createStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Key filepaths
   verKey <- noteTempFile tempDir "stake-verification-key-file"
   signKey <- noteTempFile tempDir "stake-signing-key-file"
@@ -39,12 +38,3 @@ prop_createStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspac
     ]
 
   H.assertFilesExist [verKey, signKey, stakeRegCert]
-
--- -----------------------------------------------------------------------------
-
-tests :: IO Bool
-tests =
-  H.checkSequential
-    $ H.Group "Pioneers Example 4"
-        [ ("prop_createStakeAddressRegistrationCertificate", prop_createStakeAddressRegistrationCertificate)
-        ]

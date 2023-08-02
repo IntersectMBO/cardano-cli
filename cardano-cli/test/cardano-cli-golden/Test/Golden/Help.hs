@@ -3,7 +3,8 @@
 {- HLINT ignore "Redundant id" -}
 
 module Test.Golden.Help
-  ( helpTests
+  ( hprop_golden_HelpAll
+  , hprop_golden_HelpCmds
   ) where
 
 import           Prelude hiding (lines)
@@ -21,7 +22,6 @@ import qualified Test.Cardano.CLI.Util as H
 import           Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
 
 import           Hedgehog (Property)
-import qualified Hedgehog as H
 import           Hedgehog.Extras.Stock.OS (isWin32)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.Golden as H
@@ -48,8 +48,8 @@ extractCmd = id
 
 -- | Test that converting a @cardano-address@ Byron signing key yields the
 -- expected result.
-golden_HelpAll :: Property
-golden_HelpAll =
+hprop_golden_HelpAll :: Property
+hprop_golden_HelpAll =
   propertyOnce . H.moduleWorkspace "help" $ \_ -> do
     -- These tests are not run on Windows because the cardano-cli usage
     -- output is slightly different on Windows.  For example it uses
@@ -82,8 +82,8 @@ deselectSuffix suffix text =
 selectCmd :: Text -> Maybe Text
 selectCmd = selectAndDropPrefix "Usage: cardano-cli " <=< deselectSuffix " COMMAND"
 
-golden_HelpCmds :: Property
-golden_HelpCmds =
+hprop_golden_HelpCmds :: Property
+hprop_golden_HelpCmds =
   propertyOnce . H.moduleWorkspace "help-commands" $ \_ -> do
     -- These tests are not run on Windows because the cardano-cli usage
     -- output is slightly different on Windows.  For example it uses
@@ -103,14 +103,3 @@ golden_HelpCmds =
         cmdHelp <- filterAnsi . third <$> H.execDetailCardanoCli (fmap Text.unpack usage)
 
         H.diffVsGoldenFile cmdHelp expectedCmdHelpFp
-
-helpTests :: IO Bool
-helpTests =
-  H.checkSequential $ H.Group "Help"
-    [ ( "golden_HelpAll"
-      , Test.Golden.Help.golden_HelpAll
-      )
-    , ( "golden_HelpCmds"
-      , Test.Golden.Help.golden_HelpCmds
-      )
-    ]

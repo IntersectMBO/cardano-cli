@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Test.Cli.FilePermissions
-  ( tests
+  ( hprop_createVRFSigningKeyFilePermissions
   ) where
 
 import           Cardano.Api
@@ -14,14 +13,13 @@ import           Control.Monad.Trans.Except (runExceptT)
 
 import           Test.Cardano.CLI.Util (execCardanoCLI)
 
-import           Hedgehog (Property, discover, success)
-import qualified Hedgehog
+import           Hedgehog (Property, success)
 import qualified Hedgehog.Extras.Test.Base as H
 import           Hedgehog.Internal.Property (failWith)
 
 -- | This property ensures that the VRF signing key file is created only with owner permissions
-prop_createVRFSigningKeyFilePermissions :: Property
-prop_createVRFSigningKeyFilePermissions =
+hprop_createVRFSigningKeyFilePermissions :: Property
+hprop_createVRFSigningKeyFilePermissions =
   H.propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Key filepaths
     vrfVerKey <- H.noteTempFile tempDir "VRF-verification-key-file"
@@ -42,9 +40,3 @@ prop_createVRFSigningKeyFilePermissions =
           $ "key-gen-VRF cli command created a VRF signing key \
             \file with the wrong permissions: " <> show err
       Right () -> success
-
--- -----------------------------------------------------------------------------
-
-tests :: IO Bool
-tests =
-  Hedgehog.checkParallel $$discover

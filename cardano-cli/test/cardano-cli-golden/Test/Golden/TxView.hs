@@ -1,32 +1,27 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.TxView (txViewTests) where
+module Test.Golden.TxView
+  ( hprop_golden_view_byron
+  , hprop_golden_view_shelley
+  , hprop_golden_view_allegra
+  , hprop_golden_view_mary
+  , hprop_golden_view_alonzo
+  , hprop_golden_view_alonzo_signed
+  ) where
 
 import           Control.Monad (void)
 import           System.FilePath ((</>))
 
 import           Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile)
 
-import           Hedgehog (Group (..), Property, checkSequential)
+import           Hedgehog (Property)
 import           Hedgehog.Extras (Integration, moduleWorkspace, note_, propertyOnce)
 import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
 
-txViewTests :: IO Bool
-txViewTests =
-  checkSequential $
-    Group "`transaction view` Goldens"
-      [ ("golden_view_byron", golden_view_byron)
-      , ("golden_view_shelley", golden_view_shelley)
-      , ("golden_view_allegra", golden_view_allegra)
-      , ("golden_view_mary", golden_view_mary)
-      , ("golden_view_alonzo", golden_view_alonzo)
-      , ("golden_view_alonzo_signed", golden_view_alonzo_signed)
-      ]
-
-golden_view_byron :: Property
-golden_view_byron =
+hprop_golden_view_byron :: Property
+hprop_golden_view_byron =
   propertyOnce $
   moduleWorkspace "tmp" $ \tempDir -> do
     transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
@@ -49,8 +44,8 @@ golden_view_byron =
         ["transaction", "view", "--tx-body-file", transactionBodyFile]
     H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/byron/transaction-view.out"
 
-golden_view_shelley :: Property
-golden_view_shelley = let
+hprop_golden_view_shelley :: Property
+hprop_golden_view_shelley = let
   certDir = "test/cardano-cli-golden/files/golden/shelley/certificates"
   certs =
     (certDir </>) <$>
@@ -132,8 +127,8 @@ golden_view_shelley = let
         ["transaction", "view", "--tx-body-file", transactionBodyFile]
     H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/shelley/transaction-view.out"
 
-golden_view_allegra :: Property
-golden_view_allegra =
+hprop_golden_view_allegra :: Property
+hprop_golden_view_allegra =
   propertyOnce $
   moduleWorkspace "tmp" $ \tempDir -> do
     transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
@@ -163,8 +158,8 @@ golden_view_allegra =
         ["transaction", "view", "--tx-body-file", transactionBodyFile]
     H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/allegra/transaction-view.out"
 
-golden_view_mary :: Property
-golden_view_mary =
+hprop_golden_view_mary :: Property
+hprop_golden_view_mary =
   propertyOnce $
   moduleWorkspace "tmp" $ \tempDir -> do
     transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
@@ -253,8 +248,8 @@ createAlonzoTxBody mUpdateProposalFile transactionBodyFile = do
           ]
       )
 
-golden_view_alonzo :: Property
-golden_view_alonzo =
+hprop_golden_view_alonzo :: Property
+hprop_golden_view_alonzo =
   propertyOnce $
     moduleWorkspace "tmp" $ \tempDir -> do
       updateProposalFile <- noteTempFile tempDir "update-proposal"
@@ -291,8 +286,8 @@ golden_view_alonzo =
           ["transaction", "view", "--tx-body-file", transactionBodyFile]
       H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/alonzo/transaction-view.out"
 
-golden_view_alonzo_signed :: Property
-golden_view_alonzo_signed =
+hprop_golden_view_alonzo_signed :: Property
+hprop_golden_view_alonzo_signed =
   let testData = "test/cardano-cli-golden/files/golden/alonzo"
   in
   propertyOnce $

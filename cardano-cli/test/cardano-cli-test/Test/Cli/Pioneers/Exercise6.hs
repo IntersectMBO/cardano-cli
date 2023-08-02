@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Test.Cli.Pioneers.Exercise6
-  ( tests
+  ( hprop_createZeroLovelaceTxOutTransaction
   ) where
 
 import           Control.Monad (void)
@@ -9,15 +9,14 @@ import           Control.Monad (void)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
-import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
 -- | 1. We generate a payment signing key
 --   2. We create a tx body
 --   3. We sign the tx body with the generated payment signing key
-prop_createZeroLovelaceTxOutTransaction :: Property
-prop_createZeroLovelaceTxOutTransaction = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_createZeroLovelaceTxOutTransaction :: Property
+hprop_createZeroLovelaceTxOutTransaction = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Key filepaths
   paymentVerKey <- noteTempFile tempDir "payment-verification-key-file"
   paymentSignKey <- noteTempFile tempDir "payment-signing-key-file"
@@ -55,12 +54,3 @@ prop_createZeroLovelaceTxOutTransaction = propertyOnce . H.moduleWorkspace "tmp"
     ]
 
   H.assertFilesExist [paymentVerKey, paymentSignKey, transactionBodyFile, transactionFile]
-
--- -----------------------------------------------------------------------------
-
-tests :: IO Bool
-tests =
-  H.checkSequential
-    $ H.Group "Pioneers Example 6"
-        [ ("prop_createZeroLovelaceTxOutTransaction", prop_createZeroLovelaceTxOutTransaction)
-        ]

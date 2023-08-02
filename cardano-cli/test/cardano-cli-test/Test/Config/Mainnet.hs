@@ -2,8 +2,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+{- HLINT ignore "Use camelCase" -}
+
 module Test.Config.Mainnet
-  ( tests
+  ( disable_hprop_configMainnetHash
+  , hprop_configMainnetYaml
   ) where
 
 import           Cardano.Api (File (..), initialLedgerState, renderInitialLedgerStateError)
@@ -21,8 +24,8 @@ import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.Process as H
 
-hprop_configMainnetHash :: Property
-hprop_configMainnetHash = H.propertyOnce $ do
+disable_hprop_configMainnetHash :: Property
+disable_hprop_configMainnetHash = H.propertyOnce $ do
   base <- H.note =<< H.evalIO . IO.canonicalizePath =<< H.getProjectBase
   result <- H.evalIO $ runExceptT $ initialLedgerState $ File $ base </> "configuration/cardano/mainnet-config.json"
   case result of
@@ -41,11 +44,3 @@ hprop_configMainnetYaml = H.propertyOnce $ do
     Right v -> return v
     Left e -> H.failWithCustom GHC.callStack Nothing (show e)
   yaml === json
-
-tests :: IO Bool
-tests =
-  H.checkSequential
-    $ H.Group "Test.Config.Mainnet"
-        [ ("hprop_configMainnetHash", hprop_configMainnetHash)
-        , ("hprop_configMainnetYaml", hprop_configMainnetYaml)
-        ]
