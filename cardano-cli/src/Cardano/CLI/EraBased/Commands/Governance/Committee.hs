@@ -11,10 +11,13 @@ import           Cardano.Api
 import           Data.Text (Text)
 
 data GovernanceCommitteeCmds era
-  = GovernanceCommitteeCmdCreateColdResignationCertificate
+  = GovernanceCommitteeKeyGenCold
+      (ConwayEraOnwards era)
       (File (VerificationKey ()) Out)
       (File (SigningKey ()) Out)
+  deriving Show
 
 renderGovernanceCommitteeCmds :: GovernanceCommitteeCmds era -> Text
 renderGovernanceCommitteeCmds = \case
-  GovernanceCommitteeCmdCreateColdResignationCertificate {} -> "governance committee create-cold-resignation-certificate"
+  GovernanceCommitteeKeyGenCold {} ->
+    "governance committee key-gen-cold"

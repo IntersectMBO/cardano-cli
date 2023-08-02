@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -24,7 +25,7 @@ import           Data.Foldable
 import           Data.Function
 import           Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
-import           Data.Maybe (maybeToList)
+import           Data.Maybe
 import qualified Data.Text as Text
 import           Data.Word (Word64)
 import           Options.Applicative
@@ -306,6 +307,11 @@ subParser :: String -> ParserInfo a -> Parser a
 subParser availableCommand pInfo =
   Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
 
+subInfoParser :: String -> InfoMod a -> [Maybe (Parser a)] -> Maybe (Parser a)
+subInfoParser name i mps = case catMaybes mps of
+  [] -> Nothing
+  parsers -> Just $ subParser name $ Opt.info (asum parsers) i
+
 pAnyShelleyBasedEra :: EnvCli -> Parser AnyShelleyBasedEra
 pAnyShelleyBasedEra envCli =
   asum $ mconcat
@@ -579,3 +585,8 @@ pColdSigningKeyFile =
       , Opt.internal
       ]
     ]
+
+catCommands :: [Parser a] -> Maybe (Parser a)
+catCommands = \case
+  [] -> Nothing
+  ps -> Just $ asum ps

@@ -73,6 +73,7 @@ library
                         Cardano.CLI.EraBased.Legacy
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
+                        Cardano.CLI.EraBased.Options.Governance.Committee
                         Cardano.CLI.EraBased.Run.Governance
                         Cardano.CLI.EraBased.Run.Governance.Committee
                         Cardano.CLI.EraBased.Vote
@@ -278,6 +279,7 @@ test-suite cardano-cli-golden
                         Test.Golden.Byron.Vote
                         Test.Golden.Byron.Witness
                         Test.Golden.ErrorsSpec
+                        Test.Golden.Governance.Committee
                         Test.Golden.Help
                         Test.Golden.Key
                         Test.Golden.Key.NonExtendedKey

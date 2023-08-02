@@ -15,12 +15,14 @@ import           Cardano.CLI.EraBased.Commands.Governance
 import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
 
 import           Data.Foldable
+import           Data.Functor
 import           Data.Maybe
 import           Options.Applicative
 import qualified Options.Applicative as Opt
@@ -32,6 +34,7 @@ pEraBasedGovernanceCmd envCli era =
     , pEraBasedDelegationCertificateCmd envCli era
     , pEraBasedVoteCmd envCli era
     , pCreateMirCertificatesCmds era
+    , pGovernanceCommitteeCmds era <&> fmap EraBasedGovernanceCommitteeCmds
     ]
 
 -- Registration Certificate related
@@ -258,3 +261,6 @@ pMIRTransferToReserves w =
     <$> pTransferAmt
     <*> pOutputFile
     <*> pure TransferToReserves
+
+--------------------------------------------------------------------------------
+

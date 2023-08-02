@@ -70,7 +70,8 @@ runEraBasedGovernanceCmd = \case
       $ runGovernanceVote anyVote outFp
 
   EraBasedGovernanceCommitteeCmds cmds ->
-    runGovernanceCommitteeCmds cmds
+    firstExceptT (const ()) -- TODO: Conway era - fix error handling
+      $ runGovernanceCommitteeCmds cmds
 
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era

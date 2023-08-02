@@ -2,6 +2,7 @@ Usage: cardano-cli experimental governance
                                              ( registration-certificate
                                              | delegation-certificate
                                              | vote
+                                             | committee
                                              )
 
   Era-based governance commands
@@ -13,3 +14,4 @@ Available commands:
   registration-certificate Create a registration certificate.
   delegation-certificate   Delegation certificate creation.
   vote                     Vote creation.
+  committee                Committee member commands.
