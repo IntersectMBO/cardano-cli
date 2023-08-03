@@ -36,6 +36,8 @@ module Cardano.CLI.Types.Key
 
   , AnyRegistrationTarget(..)
   , RegistrationTarget(..)
+
+  , ColdVerificationKeyOrFile(..)
   ) where
 
 import           Cardano.Api
@@ -329,3 +331,16 @@ generateKeyPair ::
 generateKeyPair asType = do
   skey <- generateSigningKey asType
   return (getVerificationKey skey, skey)
+
+-- | Either a stake pool verification key, genesis delegate verification key,
+-- or a path to a cold verification key file.
+--
+-- Note that a "cold verification key" refers to either a stake pool or
+-- genesis delegate verification key.
+--
+-- TODO: A genesis delegate extended key should also be valid here.
+data ColdVerificationKeyOrFile
+  = ColdStakePoolVerificationKey !(VerificationKey StakePoolKey)
+  | ColdGenesisDelegateVerificationKey !(VerificationKey GenesisDelegateKey)
+  | ColdVerificationKeyFile !(VerificationKeyFile In)
+  deriving Show

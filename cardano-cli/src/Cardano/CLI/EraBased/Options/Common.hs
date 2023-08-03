@@ -1,7 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+
+{- HLINT ignore "Use <$>" -}
 
 module Cardano.CLI.EraBased.Options.Common where
 
@@ -22,7 +25,7 @@ import           Data.Foldable
 import           Data.Function
 import           Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
-import           Data.Maybe (maybeToList)
+import           Data.Maybe
 import qualified Data.Text as Text
 import           Data.Word (Word64)
 import           Options.Applicative
@@ -304,6 +307,11 @@ subParser :: String -> ParserInfo a -> Parser a
 subParser availableCommand pInfo =
   Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
 
+subInfoParser :: String -> InfoMod a -> [Maybe (Parser a)] -> Maybe (Parser a)
+subInfoParser name i mps = case catMaybes mps of
+  [] -> Nothing
+  parsers -> Just $ subParser name $ Opt.info (asum parsers) i
+
 pAnyShelleyBasedEra :: EnvCli -> Parser AnyShelleyBasedEra
 pAnyShelleyBasedEra envCli =
   asum $ mconcat
@@ -521,3 +529,64 @@ pBech32KeyHash a =
     first displayError
     . deserialiseFromBech32 (AsHash a)
     . Text.pack
+
+pGenesisDelegateVerificationKey :: Parser (VerificationKey GenesisDelegateKey)
+pGenesisDelegateVerificationKey =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "genesis-delegate-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Genesis delegate verification key (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex
+      :: String
+      -> Either String (VerificationKey GenesisDelegateKey)
+    deserialiseFromHex =
+      first
+        (\e -> "Invalid genesis delegate verification key: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsVerificationKey AsGenesisDelegateKey)
+        . BSC.pack
+
+pColdVerificationKeyOrFile :: Parser ColdVerificationKeyOrFile
+pColdVerificationKeyOrFile =
+  asum
+    [ ColdStakePoolVerificationKey <$> pStakePoolVerificationKey
+    , ColdGenesisDelegateVerificationKey <$> pGenesisDelegateVerificationKey
+    , ColdVerificationKeyFile <$> pColdVerificationKeyFile
+    ]
+
+pColdVerificationKeyFile :: Parser (VerificationKeyFile direction)
+pColdVerificationKeyFile =
+  fmap File $ asum
+    [ Opt.strOption $ mconcat
+      [ Opt.long "cold-verification-key-file"
+      , Opt.metavar "FILE"
+      , Opt.help "Filepath of the cold verification key."
+      , Opt.completer (Opt.bashCompleter "file")
+      ]
+    , Opt.strOption $ mconcat
+      [ Opt.long "verification-key-file"
+      , Opt.internal
+      ]
+    ]
+
+-- TODO CIP-1694 parameterise this by signing key role
+pColdSigningKeyFile :: Parser (SigningKeyFile direction)
+pColdSigningKeyFile =
+  fmap File $ asum
+    [ Opt.strOption $ mconcat
+      [ Opt.long "cold-signing-key-file"
+      , Opt.metavar "FILE"
+      , Opt.help "Filepath of the cold signing key."
+      , Opt.completer (Opt.bashCompleter "file")
+      ]
+    , Opt.strOption $ mconcat
+      [ Opt.long "signing-key-file"
+      , Opt.internal
+      ]
+    ]
+
+catCommands :: [Parser a] -> Maybe (Parser a)
+catCommands = \case
+  [] -> Nothing
+  ps -> Just $ asum ps

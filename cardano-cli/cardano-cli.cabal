@@ -67,12 +67,16 @@ library
                         Cardano.CLI.Commands.Legacy
                         Cardano.CLI.Environment
                         Cardano.CLI.EraBased.Certificate
-                        Cardano.CLI.EraBased.Vote
-                        Cardano.CLI.EraBased.Options.Common
-                        Cardano.CLI.EraBased.Options.Governance
+                        Cardano.CLI.EraBased.Commands.Governance
+                        Cardano.CLI.EraBased.Commands.Governance.Committee
                         Cardano.CLI.EraBased.Governance
                         Cardano.CLI.EraBased.Legacy
+                        Cardano.CLI.EraBased.Options.Common
+                        Cardano.CLI.EraBased.Options.Governance
+                        Cardano.CLI.EraBased.Options.Governance.Committee
                         Cardano.CLI.EraBased.Run.Governance
+                        Cardano.CLI.EraBased.Run.Governance.Committee
+                        Cardano.CLI.EraBased.Vote
                         Cardano.CLI.Helpers
                         Cardano.CLI.IO.Lazy
                         Cardano.CLI.Json.Friendly
@@ -117,7 +121,7 @@ library
                       , binary
                       , bytestring
                       , canonical-json
-                      , cardano-api ^>= 8.11
+                      , cardano-api ^>= 8.11.1
                       , cardano-binary
                       , cardano-crypto
                       , cardano-crypto-class >= 2.1.1
@@ -204,7 +208,7 @@ test-suite cardano-cli-test
                       , base16-bytestring
                       , bech32 >= 1.1.0
                       , bytestring
-                      , cardano-api:{cardano-api, internal, gen} ^>= 8.11
+                      , cardano-api:{cardano-api, internal, gen} ^>= 8.11.1
                       , cardano-api-gen ^>= 8.1.1.0
                       , cardano-cli
                       , cardano-cli:cardano-cli-test-lib
@@ -247,7 +251,7 @@ test-suite cardano-cli-golden
   build-depends:        aeson >= 1.5.6.0
                       , base16-bytestring
                       , bytestring
-                      , cardano-api:{cardano-api, gen} ^>= 8.11
+                      , cardano-api:{cardano-api, gen} ^>= 8.11.1
                       , cardano-binary
                       , cardano-cli
                       , cardano-cli:cardano-cli-test-lib
@@ -275,6 +279,7 @@ test-suite cardano-cli-golden
                         Test.Golden.Byron.Vote
                         Test.Golden.Byron.Witness
                         Test.Golden.ErrorsSpec
+                        Test.Golden.Governance.Committee
                         Test.Golden.Help
                         Test.Golden.Key
                         Test.Golden.Key.NonExtendedKey
