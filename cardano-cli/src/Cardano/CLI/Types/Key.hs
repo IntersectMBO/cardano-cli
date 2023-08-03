@@ -222,11 +222,18 @@ data StakeTarget era where
     -> VerificationKeyOrHashOrFile StakePoolKey
     -> StakeTarget era
 
-  {-
-  -- TODO: Conway era - DRepScriptHash !(ScriptHash c)
-  -- TODO: Conway era - DRepAlwaysAbstain
-  -- TODO: Conway era - DRepAlwaysNoConfidence
-  -}
+  TargetAlwaysAbstain
+    :: ConwayEraOnwards era
+    -> StakeTarget era
+
+  TargetAlwaysNoConfidence
+    :: ConwayEraOnwards era
+    -> StakeTarget era
+
+  TargetVotingDRepScriptHash
+    :: ConwayEraOnwards era
+    -> ScriptHash
+    -> StakeTarget era
 
 deriving instance Show (StakeTarget era)
 newtype DelegationTarget

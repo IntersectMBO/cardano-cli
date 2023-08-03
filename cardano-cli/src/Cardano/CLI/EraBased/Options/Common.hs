@@ -515,9 +515,9 @@ pTransferAmt =
     , Opt.help "The amount to transfer."
     ]
 
-pHexKeyHash
+pHexHash
   :: SerialiseAsRawBytes (Hash a) => AsType a -> ReadM (Hash a)
-pHexKeyHash a =
+pHexHash a =
   Opt.eitherReader $
     first displayError
       . deserialiseFromRawBytesHex (AsHash a)

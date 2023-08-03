@@ -24,6 +24,7 @@ import           Cardano.CLI.Types.Legacy
 import           Data.Foldable
 import           Data.Functor
 import           Data.Maybe
+import           Data.String
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
@@ -127,7 +128,39 @@ pStakeTarget cOnwards =
     , TargetVotingDrepAndStakePool cOnwards
          <$> pDRepVerificationKeyOrHashOrFile
          <*> pStakePoolVerificationKeyOrHashOrFile
+    , TargetAlwaysAbstain cOnwards <$ pAlwaysAbstain
+    , TargetAlwaysNoConfidence cOnwards <$ pAlwaysNoConfidence
+   -- TODO: Conway era - necessary constructor not exposed by ledger yet
+   -- so this option is hidden
+    , TargetVotingDRepScriptHash cOnwards <$> pDRepScriptHash
     ]
+
+pAlwaysAbstain :: Parser ()
+pAlwaysAbstain =
+  flag' () $ mconcat [ long "always-abstain"
+                     , help "Abstain from voting on all proposals."
+                     ]
+
+
+pAlwaysNoConfidence :: Parser ()
+pAlwaysNoConfidence =
+  flag' () $ mconcat [ long "always-no-confidence"
+                     , help "Always vote no confidence."
+                     ]
+
+pDRepScriptHash :: Parser ScriptHash
+pDRepScriptHash =
+  Opt.option scriptHashReader $ mconcat
+    [ Opt.long "drep-script-hash"
+    , Opt.metavar "HASH"
+    , Opt.help $ mconcat
+        [ "DRep script hash (hex-encoded).  "
+        ]
+    , Opt.hidden
+    ]
+
+scriptHashReader :: ReadM ScriptHash
+scriptHashReader = eitherReader $ Right . fromString
 
 pDRepVerificationKeyOrHashOrFile
   :: Parser (VerificationKeyOrHashOrFile DRepKey)
@@ -139,7 +172,7 @@ pDRepVerificationKeyOrHashOrFile =
 
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
 pDRepVerificationKeyHash =
-    Opt.option (pBech32KeyHash AsDRepKey <|> pHexKeyHash AsDRepKey) $ mconcat
+    Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey) $ mconcat
       [ Opt.long "drep-key-hash"
       , Opt.metavar "HASH"
       , Opt.help $ mconcat
