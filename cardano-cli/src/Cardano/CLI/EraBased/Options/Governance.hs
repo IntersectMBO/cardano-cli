@@ -145,7 +145,7 @@ pAlwaysAbstain =
 pAlwaysNoConfidence :: Parser ()
 pAlwaysNoConfidence =
   flag' () $ mconcat [ long "always-no-confidence"
-                     , help "Always vote no confidence."
+                     , help "Always vote no confidence"
                      ]
 
 pDRepScriptHash :: Parser ScriptHash

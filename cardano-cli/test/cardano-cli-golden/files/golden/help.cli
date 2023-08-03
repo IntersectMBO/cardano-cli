@@ -586,6 +586,8 @@ Usage: cardano-cli conway governance delegation-certificate
                                                                 | --cold-verification-key-file FILE
                                                                 | --stake-pool-id STAKE_POOL_ID
                                                                 )
+                                                              | --always-abstain
+                                                              | --always-no-confidence
                                                               )
                                                               --out-file FILE
 
@@ -790,6 +792,8 @@ Usage: cardano-cli experimental governance delegation-certificate
                                                                       | --cold-verification-key-file FILE
                                                                       | --stake-pool-id STAKE_POOL_ID
                                                                       )
+                                                                    | --always-abstain
+                                                                    | --always-no-confidence
                                                                     )
                                                                     --out-file FILE
 
