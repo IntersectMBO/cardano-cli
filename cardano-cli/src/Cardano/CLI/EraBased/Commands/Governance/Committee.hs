@@ -15,9 +15,15 @@ data GovernanceCommitteeCmds era
       (ConwayEraOnwards era)
       (File (VerificationKey ()) Out)
       (File (SigningKey ()) Out)
+  | GovernanceCommitteeKeyGenHot
+      (ConwayEraOnwards era)
+      (File (VerificationKey ()) Out)
+      (File (SigningKey ()) Out)
   deriving Show
 
 renderGovernanceCommitteeCmds :: GovernanceCommitteeCmds era -> Text
 renderGovernanceCommitteeCmds = \case
   GovernanceCommitteeKeyGenCold {} ->
     "governance committee key-gen-cold"
+  GovernanceCommitteeKeyGenHot {} ->
+    "governance committee key-gen-hot"

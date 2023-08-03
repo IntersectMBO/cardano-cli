@@ -606,13 +606,18 @@ Usage: cardano-cli conway governance vote (--yes | --no | --abstain)
 
   Vote creation.
 
-Usage: cardano-cli conway governance committee key-gen-cold
+Usage: cardano-cli conway governance committee (key-gen-cold | key-gen-hot)
 
   Committee member commands.
 
 Usage: cardano-cli conway governance committee key-gen-cold 
                                                               --cold-verification-key-file FILE
                                                               --cold-signing-key-file FILE
+
+  Create a cold key pair for a Constitutional Committee Member
+
+Usage: cardano-cli conway governance committee key-gen-hot --verification-key-file FILE
+                                                             --signing-key-file FILE
 
   Create a cold key pair for a Constitutional Committee Member
 
@@ -812,13 +817,21 @@ Usage: cardano-cli experimental governance vote (--yes | --no | --abstain)
 
   Vote creation.
 
-Usage: cardano-cli experimental governance committee key-gen-cold
+Usage: cardano-cli experimental governance committee 
+                                                       ( key-gen-cold
+                                                       | key-gen-hot
+                                                       )
 
   Committee member commands.
 
 Usage: cardano-cli experimental governance committee key-gen-cold 
                                                                     --cold-verification-key-file FILE
                                                                     --cold-signing-key-file FILE
+
+  Create a cold key pair for a Constitutional Committee Member
+
+Usage: cardano-cli experimental governance committee key-gen-hot --verification-key-file FILE
+                                                                   --signing-key-file FILE
 
   Create a cold key pair for a Constitutional Committee Member
 

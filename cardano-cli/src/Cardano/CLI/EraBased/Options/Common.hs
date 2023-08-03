@@ -13,6 +13,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra,
                    envCliAnyShelleyToBabbageEra)
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
@@ -571,7 +572,7 @@ pColdVerificationKeyFile =
     ]
 
 -- TODO CIP-1694 parameterise this by signing key role
-pColdSigningKeyFile :: Parser (SigningKeyFile direction)
+pColdSigningKeyFile :: Parser (File (SigningKey keyrole) direction)
 pColdSigningKeyFile =
   fmap File $ asum
     [ Opt.strOption $ mconcat
@@ -584,6 +585,91 @@ pColdSigningKeyFile =
       [ Opt.long "signing-key-file"
       , Opt.internal
       ]
+    ]
+
+-- TODO CIP-1694 parameterise this by verification key role
+pVerificationKeyFileOut :: Parser (File (VerificationKey keyrole) Out)
+pVerificationKeyFileOut =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "verification-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Output filepath of the verification key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pSigningKeyFileOut :: Parser (File (SigningKey keyrole) Out)
+pSigningKeyFileOut =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "signing-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Output filepath of the signing key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pOperatorCertIssueCounterFile :: Parser (File OpCertCounter direction)
+pOperatorCertIssueCounterFile =
+  fmap File $ asum
+    [ Opt.strOption $ mconcat
+      [ Opt.long "operational-certificate-issue-counter-file"
+      , Opt.metavar "FILE"
+      , Opt.help "The file with the issue counter for the operational certificate."
+      , Opt.completer (Opt.bashCompleter "file")
+      ]
+    , Opt.strOption $ mconcat
+      [ Opt.long "operational-certificate-issue-counter"
+      , Opt.internal
+      ]
+    ]
+
+pCommitteeColdKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeColdKey)
+pCommitteeColdKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pCommitteeColdKeyOrFile
+    , VerificationKeyHash <$> pCommitteeColdKeyHash
+    ]
+
+pCommitteeColdKeyOrFile :: Parser (VerificationKeyOrFile CommitteeColdKey)
+pCommitteeColdKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pCommitteeColdKey
+    , VerificationKeyFilePath <$> pCommitteeColdKeyFile
+    ]
+
+pCommitteeColdKey :: Parser (VerificationKey CommitteeColdKey)
+pCommitteeColdKey =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "cc-cold-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee cold key (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Constitutional Committee cold key: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
+        . BSC.pack
+
+pCommitteeColdKeyHash :: Parser (Hash CommitteeColdKey)
+pCommitteeColdKeyHash =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "cc-cold-key-hash"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee key hash (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Consitutional Committee cold key hash: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
+        . BSC.pack
+
+pCommitteeColdKeyFile :: Parser (File (VerificationKey keyrole) In)
+pCommitteeColdKeyFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "cc-cold-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the Consitutional Committee cold key."
+    , Opt.completer (Opt.bashCompleter "file")
     ]
 
 catCommands :: [Parser a] -> Maybe (Parser a)
