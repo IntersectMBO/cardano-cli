@@ -2684,7 +2684,7 @@ pAddress =
 
 pStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash =
-    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexKeyHash AsStakePoolKey) $ mconcat
+    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat
       [ Opt.long "stake-pool-id"
       , Opt.metavar "STAKE_POOL_ID"
       , Opt.help $ mconcat

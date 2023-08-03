@@ -100,6 +100,14 @@ toLedgerDelegatee t =
                 (conwayEraOnwardsConstraints cOnwards kHash)
                 (conwayEraOnwardsConstraints cOnwards drepCred)
 
+    TargetAlwaysAbstain{}-> right $ Ledger.DelegVote Ledger.DRepAlwaysAbstain
+
+    TargetAlwaysNoConfidence{} -> right $ Ledger.DelegVote Ledger.DRepAlwaysNoConfidence
+
+    TargetVotingDRepScriptHash _cOn (ScriptHash _scriptHash) ->
+      error "TODO: Conway era - DRepScriptHash not exposed by ledger yet"
+      -- right $ Ledger.DelegVote $ Ledger.DRepScriptHash scriptHash
+
 --------------------------------------------------------------------------------
 
 -- Registration Certificate related
