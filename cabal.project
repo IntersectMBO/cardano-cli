@@ -51,3 +51,9 @@ if impl(ghc >= 9.6)
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+source-repository-package
+    type: git
+    location: https://github.com/input-output-hk/cardano-api.git
+    tag: 0dcd24359defeedbe1b2e97bd4084182bbc48973
+    subdir: cardano-api
