@@ -16,6 +16,7 @@ import           Cardano.CLI.Commands.EraBased
 import           Cardano.CLI.EraBased.Certificate
 import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.EraBased.Run.Governance
+import           Cardano.CLI.EraBased.Vote
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
@@ -63,6 +64,9 @@ runEraBasedGovernanceCmd = \case
   EraBasedGovernanceRegistrationCertificateCmd regTarget outFp ->
     firstExceptT (const ()) -- TODO: Conway era - fix error handling
       $ runGovernanceRegistrationCertificate regTarget outFp
+  EraBasedGovernanceVoteCmd anyVote outFp ->
+    firstExceptT (const ()) -- TODO: Conway era - fix error handling
+      $ runGovernanceVote anyVote outFp
 
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era
