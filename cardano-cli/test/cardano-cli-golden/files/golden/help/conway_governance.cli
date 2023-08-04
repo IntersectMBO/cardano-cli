@@ -3,6 +3,7 @@ Usage: cardano-cli conway governance
                                        | delegation-certificate
                                        | vote
                                        | committee
+                                       | action
                                        )
 
   Era-based governance commands
@@ -15,3 +16,4 @@ Available commands:
   delegation-certificate   Delegation certificate creation.
   vote                     Vote creation.
   committee                Committee member commands.
+  action                   Governance action commands.
