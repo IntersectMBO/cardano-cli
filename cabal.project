@@ -56,4 +56,5 @@ source-repository-package
     type: git
     location: https://github.com/input-output-hk/cardano-api.git
     tag: 0dcd24359defeedbe1b2e97bd4084182bbc48973
+    --sha256: sha256-3J4bzyXZmratGaOzgKS18nZBLNO4LNsReMuMr9128d4=
     subdir: cardano-api
