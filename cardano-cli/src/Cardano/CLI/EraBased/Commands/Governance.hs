@@ -9,6 +9,8 @@ module Cardano.CLI.EraBased.Commands.Governance
 
 import           Cardano.Api
 
+import           Cardano.CLI.EraBased.Commands.Governance.Actions (GovernanceActionCmds,
+                   renderGovernanceActionCmds)
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Types.Common
@@ -42,6 +44,8 @@ data EraBasedGovernanceCmd era
       (File () Out)
   | EraBasedGovernanceCommitteeCmds
       (GovernanceCommitteeCmds era)
+  | EraBasedGovernanceActionCmds
+      (GovernanceActionCmds era)
 
 renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
 renderEraBasedGovernanceCmd = \case
@@ -63,3 +67,5 @@ renderEraBasedGovernanceCmd = \case
     "goverance vote"
   EraBasedGovernanceCommitteeCmds cmds ->
     renderGovernanceCommitteeCmds cmds
+  EraBasedGovernanceActionCmds cmds ->
+    renderGovernanceActionCmds cmds

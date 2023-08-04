@@ -2639,29 +2639,9 @@ pAddress =
     , Opt.help "A Cardano address"
     ]
 
-
-pStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
-pStakePoolVerificationKeyHash =
-    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat
-      [ Opt.long "stake-pool-id"
-      , Opt.metavar "STAKE_POOL_ID"
-      , Opt.help $ mconcat
-          [ "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded).  "
-          , "Zero or more occurences of this option is allowed."
-          ]
-      ]
-
 pDelegationTarget
   :: Parser DelegationTarget
 pDelegationTarget = StakePoolDelegationTarget <$> pStakePoolVerificationKeyOrHashOrFile
-
-pStakePoolVerificationKeyOrHashOrFile
-  :: Parser (VerificationKeyOrHashOrFile StakePoolKey)
-pStakePoolVerificationKeyOrHashOrFile =
-  asum
-    [ VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile
-    , VerificationKeyHash <$> pStakePoolVerificationKeyHash
-    ]
 
 pVrfVerificationKeyFile :: Parser (VerificationKeyFile In)
 pVrfVerificationKeyFile =

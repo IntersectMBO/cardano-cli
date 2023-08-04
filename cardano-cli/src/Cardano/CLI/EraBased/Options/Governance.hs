@@ -15,6 +15,7 @@ import           Cardano.CLI.EraBased.Commands.Governance
 import           Cardano.CLI.EraBased.Governance
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.EraBased.Options.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Types.Common
@@ -37,7 +38,9 @@ pEraBasedGovernanceCmd envCli era =
     , pEraBasedVoteCmd envCli era
     , pCreateMirCertificatesCmds era
     , pGovernanceCommitteeCmds era <&> fmap EraBasedGovernanceCommitteeCmds
+    , fmap EraBasedGovernanceActionCmds <$> pGovernanceActionCmds era
     ]
+
 
 -- Registration Certificate related
 

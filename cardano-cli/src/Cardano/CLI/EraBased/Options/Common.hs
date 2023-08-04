@@ -685,3 +685,62 @@ catCommands :: [Parser a] -> Maybe (Parser a)
 catCommands = \case
   [] -> Nothing
   ps -> Just $ asum ps
+
+
+
+pConstitution :: Parser Constitution
+pConstitution =
+  asum
+    [ fmap ConstitutionFromText $ Opt.strOption $ mconcat
+        [ Opt.long "constitution"
+        , Opt.metavar "TEXT"
+        , Opt.help "Input constitution as UTF-8 encoded text."
+        ]
+    , ConstitutionFromFile
+        <$> pFileInDirection "constitution-file" "Input constitution as a text file."
+    ]
+
+pGovActionDeposit :: Parser Lovelace
+pGovActionDeposit =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "governance-action-deposit"
+    , Opt.metavar "NATURAL"
+    , Opt.help "Deposit required to submit a governance action."
+    ]
+
+
+pStakeVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile StakeKey)
+pStakeVerificationKeyOrHashOrFile = asum
+  [ VerificationKeyOrFile <$> pStakeVerificationKeyOrFile
+  , VerificationKeyHash <$> pStakeVerificationKeyHash
+  ]
+
+pStakeVerificationKeyHash :: Parser (Hash StakeKey)
+pStakeVerificationKeyHash =
+   Opt.option (pHexHash AsStakeKey) $ mconcat
+      [ Opt.long "stake-key-hash"
+      , Opt.metavar "HASH"
+      , Opt.help $ mconcat
+          [ "Stake verification key hash (hex-encoded)."
+          ]
+      ]
+
+
+pStakePoolVerificationKeyOrHashOrFile
+  :: Parser (VerificationKeyOrHashOrFile StakePoolKey)
+pStakePoolVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile
+    , VerificationKeyHash <$> pStakePoolVerificationKeyHash
+    ]
+
+pStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
+pStakePoolVerificationKeyHash =
+    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat
+      [ Opt.long "stake-pool-id"
+      , Opt.metavar "STAKE_POOL_ID"
+      , Opt.help $ mconcat
+          [ "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded).  "
+          , "Zero or more occurences of this option is allowed."
+          ]
+      ]

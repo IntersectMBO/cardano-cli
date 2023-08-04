@@ -160,23 +160,3 @@ pCreateConstitution envCli =
       <*> pVotingCredential
       <*> pConstitution
       <*> pFileOutDirection "out-file" "Output filepath of the governance action."
-
-pConstitution :: Parser Constitution
-pConstitution =
-  asum
-    [ fmap ConstitutionFromText $ Opt.strOption $ mconcat
-        [ Opt.long "constitution"
-        , Opt.metavar "TEXT"
-        , Opt.help "Input constitution as UTF-8 encoded text."
-        ]
-    , ConstitutionFromFile
-        <$> pFileInDirection "constitution-file" "Input constitution as a text file."
-    ]
-
-pGovActionDeposit :: Parser Lovelace
-pGovActionDeposit =
-  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
-    [ Opt.long "governance-action-deposit"
-    , Opt.metavar "NATURAL"
-    , Opt.help "Deposit required to submit a governance action."
-    ]
