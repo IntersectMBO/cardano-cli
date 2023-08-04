@@ -6,12 +6,13 @@ release-branch:
 changelog:
   # Determine which PR changelog options are available and which end up in the changelog
   options:
-    compatibility:
+    type:
+      feature: add # that's for backwards compatibility with prevous PRs, remove this option after a release
       breaking: add
       compatible: add
-      no-api-changes: add
-    type:
-      feature: add
+      optimisation: add
+      improvement: add
       bugfix: add
       test: skip
       maintenance: skip
+      documentation: skip

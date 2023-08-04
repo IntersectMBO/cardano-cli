@@ -54,14 +54,11 @@ jobs:
             }
 
             let isCompatibilityValid = false;
-            const validCompatibilityValues = Object.keys(config.changelog.options.compatibility);
-            if (Array.isArray(changelog.compatibility) && !!changelog.compatibility) {
-              isCompatibilityValid = changelog.compatibility.every(value => validCompatibilityValues.includes(value));
-            } else {
-              isCompatibilityValid = validCompatibilityValues.includes(changelog.compatibility);
+            if (!changelog.compatibility) {
+              isCompatibilityValid = true;
             }
             if (!isCompatibilityValid) {
-              console.error(`PR changelog has invalid compatibility: ${changelog.compatibility}\nExpected one, or more of: ${validCompatibilityValues}`)
+              console.error('Changelog field "compatibility" is deprecated and no longer used. Please remove it.');
             }
 
             let isTypeValid = false;
