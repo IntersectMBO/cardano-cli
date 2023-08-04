@@ -6,9 +6,8 @@ module Cardano.CLI.Types.Governance where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
-
-import           Data.Text (Text)
 
 
 type VoteFile = File ConwayVote
@@ -33,10 +32,6 @@ data NewConstitution
       , ncConstitution :: Constitution
       , ncFilePath :: NewConstitutionFile Out
       } deriving Show
-
-data Constitution
-  = ConstitutionFromFile (File () In)
-  | ConstitutionFromText Text deriving Show
 
 -- Vote type -- TODO: Conway era - remove me
 data VType = VCC -- committee

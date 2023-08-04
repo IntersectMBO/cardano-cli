@@ -236,6 +236,7 @@ data StakeTarget era where
     -> StakeTarget era
 
 deriving instance Show (StakeTarget era)
+
 newtype DelegationTarget
   = StakePoolDelegationTarget (VerificationKeyOrHashOrFile StakePoolKey)
   deriving Show
