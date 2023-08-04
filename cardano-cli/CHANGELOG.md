@@ -1,5 +1,23 @@
 # Changelog for cardano-cli
 
+## 8.5.0.0
+
+- Add always abstain, always no confidence and drep script hash options. NB: The drep script hash option is hidden until ledger exposed the necessary constructor.
+  (feature; compatible)
+  [PR 137](https://github.com/input-output-hk/cardano-cli/pull/137)
+
+- Stub `governance committee key-gen-cold` command
+  (feature; compatible)
+  [PR 126](https://github.com/input-output-hk/cardano-cli/pull/126)
+
+- Add vote creation command to new era based cli structure
+  (feature; compatible)
+  [PR 114](https://github.com/input-output-hk/cardano-cli/pull/114)
+
+- Remove `--protocol-params-file`  from `transaction build`  command.
+  (feature; breaking)
+  [PR 34](https://github.com/input-output-hk/cardano-cli/pull/34)
+
 ## 8.4.1.0
 
 - Add registration certificate creation command to the new era based cli
