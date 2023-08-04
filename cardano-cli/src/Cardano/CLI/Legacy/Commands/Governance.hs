@@ -130,4 +130,3 @@ pCreateConstitution envCli =
       <*> pVotingCredential
       <*> pConstitution
       <*> pFileOutDirection "out-file" "Output filepath of the governance action."
-
