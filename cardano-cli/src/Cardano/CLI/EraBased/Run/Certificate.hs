@@ -4,12 +4,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Cardano.CLI.EraBased.Certificate
+module Cardano.CLI.EraBased.Run.Certificate
   ( EraBasedDelegationError(..)
-  , runGovernanceDelegrationCertificate
-
   , EraBasedRegistrationError(..)
+
   , runGovernanceRegistrationCertificate
+  , runGovernanceDelegationCertificate
   ) where
 
 import           Cardano.Api
@@ -34,12 +34,12 @@ data EraBasedDelegationError
   | EraBasedDRepReadError !(FileError InputDecodeError)
   | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
 
-runGovernanceDelegrationCertificate
+runGovernanceDelegationCertificate
   :: StakeIdentifier
   -> AnyDelegationTarget
   -> File () Out
   -> ExceptT EraBasedDelegationError IO ()
-runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp = do
+runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp = do
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
       & firstExceptT EraBasedCredentialError

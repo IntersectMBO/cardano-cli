@@ -59,8 +59,8 @@ data GovernanceCmdError
   | GovernanceCmdVerifyPollError !GovernancePollError
   | GovernanceCmdWriteFileError !(FileError ())
   -- Legacy - remove me after cardano-cli transitions to new era based structure
-  | ShelleyGovernanceCmdMIRCertNotSupportedInConway
-  | ShelleyGovernanceCmdGenesisDelegationNotSupportedInConway
+  | GovernanceCmdMIRCertNotSupportedInConway
+  | GovernanceCmdGenesisDelegationNotSupportedInConway
   deriving Show
 
 instance Error GovernanceCmdError where
@@ -109,9 +109,9 @@ instance Error GovernanceCmdError where
       toS (renderGovernancePollError pollError)
     GovernanceCmdWriteFileError fileError ->
       "Cannot write file: " <> displayError fileError
-    ShelleyGovernanceCmdMIRCertNotSupportedInConway ->
+    GovernanceCmdMIRCertNotSupportedInConway ->
       "MIR certificates are not supported in Conway era onwards."
-    ShelleyGovernanceCmdGenesisDelegationNotSupportedInConway ->
+    GovernanceCmdGenesisDelegationNotSupportedInConway ->
       "Genesis delegation is not supported in Conway era onwards."
     where
       renderDecoderError = toS . TL.toLazyText . B.build

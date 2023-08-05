@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Commands.EraBased
+module Cardano.CLI.EraBased.Commands
   ( EraBasedCommand (..)
   , AnyEraCommand (..)
   , renderEraBasedCommand

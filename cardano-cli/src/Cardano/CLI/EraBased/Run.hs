@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Run.EraBased
+module Cardano.CLI.EraBased.Run
   ( AnyEraCmdError(..)
   , runAnyEraCommand
   , runEraBasedCommand
@@ -12,9 +12,9 @@ module Cardano.CLI.Run.EraBased
 
 import           Cardano.Api
 
-import           Cardano.CLI.Commands.EraBased
-import           Cardano.CLI.EraBased.Certificate
+import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Governance
+import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Vote
@@ -59,8 +59,8 @@ runEraBasedGovernanceCmd = \case
       $ runGovernanceMIRCertificateTransfer w ll oFp direction
 
   EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceDelegrationCertificate stakeIdentifier delegationTarget outFp
+    firstExceptT (const ()) -- TODO fix error handling
+      $ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
 
   EraBasedGovernanceRegistrationCertificateCmd regTarget outFp ->
     firstExceptT (const ()) -- TODO: Conway era - fix error handling
