@@ -87,9 +87,9 @@
             ({pkgs, ...}: {
               packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"];
               packages.cardano-cli.components.tests.cardano-cli-test.build-tools =
-                lib.mkForce (with pkgs.buildPackages; [jq coreutils shellcheck]);
+                lib.mkForce (with pkgs.buildPackages; [jq coreutils shellcheck buildPackages.haskell-nix.haskellPackages.tasty-discover]);
               packages.cardano-cli.components.tests.cardano-cli-golden.build-tools =
-                lib.mkForce (with pkgs.buildPackages; [jq coreutils shellcheck]);
+                lib.mkForce (with pkgs.buildPackages; [jq coreutils shellcheck buildPackages.haskell-nix.haskellPackages.tasty-discover]);
             })
             ({
               pkgs,
