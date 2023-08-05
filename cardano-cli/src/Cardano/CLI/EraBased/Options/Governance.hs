@@ -28,6 +28,7 @@ import           Data.String
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
+-- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
 pEraBasedGovernanceCmd :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmd era)
 pEraBasedGovernanceCmd envCli era =
   asum $ catMaybes
