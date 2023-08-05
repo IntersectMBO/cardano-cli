@@ -1916,15 +1916,6 @@ pSigningKeyFileIn =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pSigningKeyFileOut :: Parser (SigningKeyFile Out)
-pSigningKeyFileOut =
-  fmap File $ Opt.strOption $ mconcat
-    [ Opt.long "signing-key-file"
-    , Opt.metavar "FILE"
-    , Opt.help "Output filepath of the signing key."
-    , Opt.completer (Opt.bashCompleter "file")
-    ]
-
 pKesPeriod :: Parser KESPeriod
 pKesPeriod =
   fmap KESPeriod $ Opt.option (bounded "KES_PERIOD") $ mconcat
@@ -1957,21 +1948,6 @@ pGenesisFile desc =
     , Opt.metavar "FILE"
     , Opt.help desc
     , Opt.completer (Opt.bashCompleter "file")
-    ]
-
-pOperatorCertIssueCounterFile :: Parser (OpCertCounterFile direction)
-pOperatorCertIssueCounterFile =
-  fmap File $ asum
-    [ Opt.strOption $ mconcat
-      [ Opt.long "operational-certificate-issue-counter-file"
-      , Opt.metavar "FILE"
-      , Opt.help "The file with the issue counter for the operational certificate."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
-    , Opt.strOption $ mconcat
-      [ Opt.long "operational-certificate-issue-counter"
-      , Opt.internal
-      ]
     ]
 
 pOperationalCertificateFile :: Parser (File () direction)
@@ -2043,15 +2019,6 @@ pVerificationKeyFileIn =
     [ Opt.long "verification-key-file"
     , Opt.metavar "FILE"
     , Opt.help "Input filepath of the verification key."
-    , Opt.completer (Opt.bashCompleter "file")
-    ]
-
-pVerificationKeyFileOut :: Parser (VerificationKeyFile Out)
-pVerificationKeyFileOut =
-  fmap File $ Opt.strOption $ mconcat
-    [ Opt.long "verification-key-file"
-    , Opt.metavar "FILE"
-    , Opt.help "Output filepath of the verification key."
     , Opt.completer (Opt.bashCompleter "file")
     ]
 

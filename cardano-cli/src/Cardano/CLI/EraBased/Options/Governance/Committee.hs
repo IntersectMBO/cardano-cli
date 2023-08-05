@@ -1,3 +1,5 @@
+{-# LANGUAGE DataKinds #-}
+
 module Cardano.CLI.EraBased.Options.Governance.Committee
   ( pGovernanceCommitteeCmds
   ) where
@@ -21,6 +23,7 @@ pGovernanceCommitteeCmds era =
           ]
     )
     [ pGovernanceCommitteeKeyGenCold era
+    , pGovernanceCommitteeKeyGenHot era
     ]
 
 pGovernanceCommitteeKeyGenCold :: ()
@@ -46,3 +49,27 @@ pGovernanceCommitteeKeyGenCold =
       GovernanceCommitteeKeyGenCold w
         <$> pColdVerificationKeyFile
         <*> pColdSigningKeyFile
+
+pGovernanceCommitteeKeyGenHot :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceCommitteeCmds era))
+pGovernanceCommitteeKeyGenHot =
+  featureInEra
+    Nothing
+    ( \w ->
+        Just
+          $ subParser "key-gen-hot"
+          $ Opt.info (pCmd w)
+          $ Opt.progDesc
+          $ mconcat
+              [ "Create a cold key pair for a Constitutional Committee Member"
+              ]
+    )
+  where
+    pCmd :: ()
+      => ConwayEraOnwards era
+      -> Parser (GovernanceCommitteeCmds era)
+    pCmd w =
+      GovernanceCommitteeKeyGenHot w
+        <$> pVerificationKeyFileOut
+        <*> pSigningKeyFileOut

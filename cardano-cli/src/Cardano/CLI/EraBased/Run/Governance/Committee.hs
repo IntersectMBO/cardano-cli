@@ -23,6 +23,8 @@ runGovernanceCommitteeCmds :: ()
 runGovernanceCommitteeCmds = \case
   GovernanceCommitteeKeyGenCold era vk sk ->
     runGovernanceCommitteeKeyGenCold era vk sk
+  GovernanceCommitteeKeyGenHot era vk sk ->
+    runGovernanceCommitteeKeyGenHot era vk sk
 
 runGovernanceCommitteeKeyGenCold :: ()
   => ConwayEraOnwards era
@@ -46,3 +48,30 @@ runGovernanceCommitteeKeyGenCold _w vkeyPath skeyPath = do
 
     vkeyDesc :: TextEnvelopeDescr
     vkeyDesc = "Constitutional Committee Cold Verification Key"
+
+runGovernanceCommitteeKeyGenHot :: ()
+  => ConwayEraOnwards era
+  -> File (VerificationKey ()) Out
+  -> File (SigningKey ()) Out
+  -> ExceptT GovernanceCommitteeError IO ()
+runGovernanceCommitteeKeyGenHot _w vkeyPath skeyPath = do
+  skey <- liftIO $ generateSigningKey AsCommitteeHotKey
+
+  let vkey = getVerificationKey skey
+
+  firstExceptT GovernanceCommitteeCmdWriteFileError
+    . newExceptT
+    $ writeLazyByteStringFile skeyPath
+    $ textEnvelopeToJSON (Just skeyDesc) skey
+
+  firstExceptT GovernanceCommitteeCmdWriteFileError
+    . newExceptT
+    $ writeLazyByteStringFile vkeyPath
+    $ textEnvelopeToJSON (Just vkeyDesc) vkey
+
+  where
+    skeyDesc :: TextEnvelopeDescr
+    skeyDesc = "Constitutional Committee Hot Signing Key"
+
+    vkeyDesc :: TextEnvelopeDescr
+    vkeyDesc = "Constitutional Committee Hot Verification Key"

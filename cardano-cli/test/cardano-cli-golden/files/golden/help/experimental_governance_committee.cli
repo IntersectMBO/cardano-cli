@@ -1,0 +1,15 @@
+Usage: cardano-cli experimental governance committee 
+                                                       ( key-gen-cold
+                                                       | key-gen-hot
+                                                       )
+
+  Committee member commands.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  key-gen-cold             Create a cold key pair for a Constitutional Committee
+                           Member
+  key-gen-hot              Create a cold key pair for a Constitutional Committee
+                           Member
