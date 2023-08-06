@@ -6,6 +6,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -22,7 +23,7 @@ module Cardano.CLI.Run.Legacy.Genesis
   , readShelleyGenesisWithDefault
   , readAndDecodeShelleyGenesis
   , readAlonzoGenesis
-  , runGenesisCmd
+  , runGenesisCmds
 
   -- * Protocol Parameters
   , ProtocolParamsError(..)
@@ -199,19 +200,30 @@ instance Error ShelleyGenesisCmdError where
         "Error occurred while decoding the stake pool relay specification file: " <> fp <>
         " Error: " <>  e
 
-runGenesisCmd :: GenesisCmd -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisCmd (GenesisKeyGenGenesis vk sk) = runGenesisKeyGenGenesis vk sk
-runGenesisCmd (GenesisKeyGenDelegate vk sk ctr) = runGenesisKeyGenDelegate vk sk ctr
-runGenesisCmd (GenesisKeyGenUTxO vk sk) = runGenesisKeyGenUTxO vk sk
-runGenesisCmd (GenesisCmdKeyHash vk) = runGenesisKeyHash vk
-runGenesisCmd (GenesisVerKey vk sk) = runGenesisVerKey vk sk
-runGenesisCmd (GenesisTxIn vk nw mOutFile) = runGenesisTxIn vk nw mOutFile
-runGenesisCmd (GenesisAddr vk nw mOutFile) = runGenesisAddr vk nw mOutFile
-runGenesisCmd (GenesisCreate fmt gd gn un ms am nw) = runGenesisCreate fmt gd gn un ms am nw
-runGenesisCmd (GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg) = runGenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
-runGenesisCmd (GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp) =
-  runGenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
-runGenesisCmd (GenesisHashFile gf) = runGenesisHashFile gf
+runGenesisCmds :: GenesisCmds -> ExceptT ShelleyGenesisCmdError IO ()
+runGenesisCmds = \case
+  GenesisKeyGenGenesis vk sk ->
+    runGenesisKeyGenGenesis vk sk
+  GenesisKeyGenDelegate vk sk ctr ->
+    runGenesisKeyGenDelegate vk sk ctr
+  GenesisKeyGenUTxO vk sk ->
+    runGenesisKeyGenUTxO vk sk
+  GenesisCmdKeyHash vk ->
+    runGenesisKeyHash vk
+  GenesisVerKey vk sk ->
+    runGenesisVerKey vk sk
+  GenesisTxIn vk nw mOutFile ->
+    runGenesisTxIn vk nw mOutFile
+  GenesisAddr vk nw mOutFile ->
+    runGenesisAddr vk nw mOutFile
+  GenesisCreate fmt gd gn un ms am nw ->
+    runGenesisCreate fmt gd gn un ms am nw
+  GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
+    runGenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
+  GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
+    runGenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
+  GenesisHashFile gf ->
+    runGenesisHashFile gf
 
 --
 -- Genesis command implementations

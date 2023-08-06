@@ -5,7 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Governance
-  ( runGovernanceCmd
+  ( runGovernanceCmds
   , runGovernanceMIRCertificatePayStakeAddrs
   , runGovernanceMIRCertificateTransfer
   ) where
@@ -100,8 +100,8 @@ runGovernanceMIRCertificateTransfer w ll oFp direction = do
   mirCertDesc TransferToTreasury = "MIR Certificate Send To Treasury"
   mirCertDesc TransferToReserves = "MIR Certificate Send To Reserves"
 
-runGovernanceCmd :: GovernanceCmd -> ExceptT GovernanceCmdError IO ()
-runGovernanceCmd = \case
+runGovernanceCmds :: GovernanceCmds -> ExceptT GovernanceCmdError IO ()
+runGovernanceCmds = \case
   GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
   GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
@@ -334,3 +334,4 @@ runGovernanceVerifyPoll pollFile txFile mOutFile = do
 
   lift (writeByteStringOutput mOutFile (prettyPrintJSON signatories))
     & onLeft (left . GovernanceCmdWriteFileError)
+

@@ -19,7 +19,7 @@ import           Data.Text (Text)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
-data GovernanceCmd
+data GovernanceCmds
   = GovernanceVoteCmd VoteCmd
   | GovernanceActionCmd ActionCmd
   | GovernanceMIRPayStakeAddressesCertificate
@@ -59,7 +59,7 @@ data GovernanceCmd
       (Maybe (File () Out)) -- Tx file
   deriving Show
 
-renderGovernanceCmd :: GovernanceCmd -> Text
+renderGovernanceCmd :: GovernanceCmds -> Text
 renderGovernanceCmd = \case
   GovernanceVoteCmd {} -> "governance vote"
   GovernanceActionCmd {} -> "governance action"

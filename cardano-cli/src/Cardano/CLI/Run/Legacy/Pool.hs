@@ -6,7 +6,7 @@
 module Cardano.CLI.Run.Legacy.Pool
   ( ShelleyPoolCmdError(ShelleyPoolCmdReadFileError)
   , renderShelleyPoolCmdError
-  , runPoolCmd
+  , runPoolCmds
   ) where
 
 import           Cardano.Api
@@ -44,10 +44,8 @@ renderShelleyPoolCmdError err =
     ShelleyPoolCmdMetadataValidationError validationErr ->
       "Error validating stake pool metadata: " <> Text.pack (displayError validationErr)
 
-
-
-runPoolCmd :: PoolCmd -> ExceptT ShelleyPoolCmdError IO ()
-runPoolCmd = \case
+runPoolCmds :: PoolCmds -> ExceptT ShelleyPoolCmdError IO ()
+runPoolCmds = \case
   PoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
     runStakePoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
   PoolRetirementCert anyEra sPvkeyFp retireEpoch outfp ->

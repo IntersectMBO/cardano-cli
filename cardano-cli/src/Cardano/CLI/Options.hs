@@ -13,7 +13,7 @@ import           Cardano.Api (CardanoEra (..), ShelleyBasedEra (..))
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
-import           Cardano.CLI.EraBased.Legacy (parseLegacyCommands)
+import           Cardano.CLI.EraBased.Legacy (parseLegacyCmds)
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run (ClientCommand (..))
@@ -78,7 +78,7 @@ parseAnyEra envCli = AnyEraCommand <$> pAnyEraCommand envCli
 parseLegacy :: EnvCli -> Parser ClientCommand
 parseLegacy envCli =
   subParser "legacy"
-    $ Opt.info (LegacyCmds <$> parseLegacyCommands envCli)
+    $ Opt.info (LegacyCmds <$> parseLegacyCmds envCli)
     $ Opt.progDesc "Legacy commands"
 
 _parseTopLevelLatest :: EnvCli -> Parser ClientCommand
@@ -87,7 +87,7 @@ _parseTopLevelLatest envCli =
 
 -- | Parse Legacy commands at the top level of the CLI.
 parseTopLevelLegacy :: EnvCli -> Parser ClientCommand
-parseTopLevelLegacy envCli = LegacyCmds <$> parseLegacyCommands envCli
+parseTopLevelLegacy envCli = LegacyCmds <$> parseLegacyCmds envCli
 
 -- | Parse Legacy commands at the top level of the CLI.
 -- Yes! A --version flag or version command. Either guess is right!

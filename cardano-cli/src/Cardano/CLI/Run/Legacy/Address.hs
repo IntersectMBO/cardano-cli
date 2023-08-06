@@ -9,7 +9,7 @@ module Cardano.CLI.Run.Legacy.Address
   , SomeAddressVerificationKey(..)
   , buildShelleyAddress
   , renderShelleyAddressCmdError
-  , runAddressCmd
+  , runAddressCmds
   , runAddressKeyGenToFile
   , makeStakeAddressRef
   ) where
@@ -17,7 +17,7 @@ module Cardano.CLI.Run.Legacy.Address
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Legacy (AddressCmd (..), AddressKeyType (..))
+import           Cardano.CLI.EraBased.Legacy (AddressCmds (..), AddressKeyType (..))
 import           Cardano.CLI.Run.Legacy.Address.Info (ShelleyAddressInfoError, runAddressInfo)
 import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
@@ -58,8 +58,8 @@ renderShelleyAddressCmdError err =
     ShelleyAddressCmdExpectedPaymentVerificationKey someAddress ->
       "Expected payment verification key but got: " <> renderSomeAddressVerificationKey someAddress
 
-runAddressCmd :: AddressCmd -> ExceptT ShelleyAddressCmdError IO ()
-runAddressCmd cmd =
+runAddressCmds :: AddressCmds -> ExceptT ShelleyAddressCmdError IO ()
+runAddressCmds cmd =
   case cmd of
     AddressKeyGen fmt kt vkf skf -> runAddressKeyGenToFile fmt kt vkf skf
     AddressKeyHash vkf mOFp -> runAddressKeyHash vkf mOFp

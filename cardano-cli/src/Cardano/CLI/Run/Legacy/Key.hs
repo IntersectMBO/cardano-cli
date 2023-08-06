@@ -7,7 +7,7 @@ module Cardano.CLI.Run.Legacy.Key
   ( ShelleyKeyCmdError
   , SomeSigningKey(..)
   , renderShelleyKeyCmdError
-  , runKeyCmd
+  , runKeyCmds
   , readSigningKeyFile
 
     -- * Exports for testing
@@ -85,8 +85,8 @@ renderShelleyKeyCmdError err =
     ShelleyKeyCmdExpectedExtendedVerificationKey someVerKey ->
       "Expected an extended verification key but got: " <> renderSomeAddressVerificationKey someVerKey
 
-runKeyCmd :: KeyCmd -> ExceptT ShelleyKeyCmdError IO ()
-runKeyCmd cmd =
+runKeyCmds :: KeyCmds -> ExceptT ShelleyKeyCmdError IO ()
+runKeyCmds cmd =
   case cmd of
     KeyGetVerificationKey skf vkf ->
       runGetVerificationKey skf vkf

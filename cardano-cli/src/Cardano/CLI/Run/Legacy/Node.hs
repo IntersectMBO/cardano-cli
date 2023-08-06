@@ -1,9 +1,10 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Run.Legacy.Node
   ( ShelleyNodeCmdError(ShelleyNodeCmdReadFileError)
   , renderShelleyNodeCmdError
-  , runNodeCmd
+  , runNodeCmds
   , runNodeIssueOpCert
   , runNodeKeyGenCold
   , runNodeKeyGenKES
@@ -58,17 +59,20 @@ renderShelleyNodeCmdError err =
     ShelleyNodeCmdOperationalCertificateIssueError issueErr ->
       Text.pack (displayError issueErr)
 
-
-runNodeCmd :: NodeCmd -> ExceptT ShelleyNodeCmdError IO ()
-runNodeCmd (NodeKeyGenCold fmt vk sk ctr) = runNodeKeyGenCold fmt vk sk ctr
-runNodeCmd (NodeKeyGenKES  fmt vk sk)     = runNodeKeyGenKES fmt vk sk
-runNodeCmd (NodeKeyGenVRF  fmt vk sk)     = runNodeKeyGenVRF fmt vk sk
-runNodeCmd (NodeKeyHashVRF vk mOutFp) = runNodeKeyHashVRF vk mOutFp
-runNodeCmd (NodeNewCounter vk ctr out) = runNodeNewCounter vk ctr out
-runNodeCmd (NodeIssueOpCert vk sk ctr p out) =
-  runNodeIssueOpCert vk sk ctr p out
-
-
+runNodeCmds :: NodeCmds -> ExceptT ShelleyNodeCmdError IO ()
+runNodeCmds = \case
+  NodeKeyGenCold fmt vk sk ctr ->
+    runNodeKeyGenCold fmt vk sk ctr
+  NodeKeyGenKES  fmt vk sk ->
+    runNodeKeyGenKES fmt vk sk
+  NodeKeyGenVRF  fmt vk sk ->
+    runNodeKeyGenVRF fmt vk sk
+  NodeKeyHashVRF vk mOutFp ->
+    runNodeKeyHashVRF vk mOutFp
+  NodeNewCounter vk ctr out ->
+    runNodeNewCounter vk ctr out
+  NodeIssueOpCert vk sk ctr p out ->
+    runNodeIssueOpCert vk sk ctr p out
 
 --
 -- Node command implementations

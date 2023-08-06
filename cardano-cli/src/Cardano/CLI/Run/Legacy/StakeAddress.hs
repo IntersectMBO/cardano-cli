@@ -11,7 +11,7 @@ module Cardano.CLI.Run.Legacy.StakeAddress
   ( ShelleyStakeAddressCmdError(ShelleyStakeAddressCmdReadKeyFileError)
   , getStakeCredentialFromIdentifier
   , renderShelleyStakeAddressCmdError
-  , runStakeAddressCmd
+  , runStakeAddressCmds
   , runStakeAddressKeyGenToFile
 
   , StakeAddressDelegationError(..)
@@ -60,18 +60,20 @@ renderShelleyStakeAddressCmdError err =
     StakeRegistrationError regErr -> Text.pack $ show regErr
     StakeDelegationError delegErr -> Text.pack $ show delegErr
 
-runStakeAddressCmd :: StakeAddressCmd -> ExceptT ShelleyStakeAddressCmdError IO ()
-runStakeAddressCmd (StakeAddressKeyGen fmt vk sk) = runStakeAddressKeyGenToFile fmt vk sk
-runStakeAddressCmd (StakeAddressKeyHash vk mOutputFp) = runStakeAddressKeyHash vk mOutputFp
-runStakeAddressCmd (StakeAddressBuild stakeVerifier nw mOutputFp) =
-  runStakeAddressBuild stakeVerifier nw mOutputFp
-runStakeAddressCmd (StakeRegistrationCert anyEra stakeIdentifier mDeposit outputFp) =
-  runStakeCredentialRegistrationCert anyEra stakeIdentifier mDeposit outputFp
-runStakeAddressCmd (StakeCredentialDelegationCert anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp) =
-  runStakeCredentialDelegationCert anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp
-runStakeAddressCmd (StakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp) =
-  runStakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp
-
+runStakeAddressCmds :: StakeAddressCmds -> ExceptT ShelleyStakeAddressCmdError IO ()
+runStakeAddressCmds = \case
+  StakeAddressKeyGen fmt vk sk ->
+    runStakeAddressKeyGenToFile fmt vk sk
+  StakeAddressKeyHash vk mOutputFp ->
+    runStakeAddressKeyHash vk mOutputFp
+  StakeAddressBuild stakeVerifier nw mOutputFp ->
+    runStakeAddressBuild stakeVerifier nw mOutputFp
+  StakeRegistrationCert anyEra stakeIdentifier mDeposit outputFp ->
+    runStakeCredentialRegistrationCert anyEra stakeIdentifier mDeposit outputFp
+  StakeCredentialDelegationCert anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp ->
+    runStakeCredentialDelegationCert anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp
+  StakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp ->
+    runStakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp
 
 --
 -- Stake address command implementations
