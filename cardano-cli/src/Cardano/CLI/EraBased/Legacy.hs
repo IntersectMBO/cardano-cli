@@ -69,7 +69,7 @@ import           Text.Read (readEither, readMaybe)
 -- Shelley CLI command parsers
 --
 
-parseLegacyCommands :: EnvCli -> Parser LegacyCommand
+parseLegacyCommands :: EnvCli -> Parser LegacyCmds
 parseLegacyCommands envCli =
   Opt.hsubparser $ mconcat
     [ Opt.metavar "Legacy commands"

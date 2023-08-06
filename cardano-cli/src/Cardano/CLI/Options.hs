@@ -78,7 +78,7 @@ parseAnyEra envCli = AnyEraCommand <$> pAnyEraCommand envCli
 parseLegacy :: EnvCli -> Parser ClientCommand
 parseLegacy envCli =
   subParser "legacy"
-    $ Opt.info (LegacyCommand <$> parseLegacyCommands envCli)
+    $ Opt.info (LegacyCmds <$> parseLegacyCommands envCli)
     $ Opt.progDesc "Legacy commands"
 
 _parseTopLevelLatest :: EnvCli -> Parser ClientCommand
@@ -87,7 +87,7 @@ _parseTopLevelLatest envCli =
 
 -- | Parse Legacy commands at the top level of the CLI.
 parseTopLevelLegacy :: EnvCli -> Parser ClientCommand
-parseTopLevelLegacy envCli = LegacyCommand <$> parseLegacyCommands envCli
+parseTopLevelLegacy envCli = LegacyCmds <$> parseLegacyCommands envCli
 
 -- | Parse Legacy commands at the top level of the CLI.
 -- Yes! A --version flag or version command. Either guess is right!

@@ -38,7 +38,10 @@ data LegacyClientCmdError
   | LegacyCmdQueryError !ShelleyQueryCmdError
   | LegacyCmdKeyError !ShelleyKeyCmdError
 
-renderLegacyClientCmdError :: LegacyCommand -> LegacyClientCmdError -> Text
+renderLegacyClientCmdError :: ()
+  => LegacyCmds
+  -> LegacyClientCmdError
+  -> Text
 renderLegacyClientCmdError cmd err =
   case err of
     LegacyCmdAddressError addrCmdErr ->
@@ -62,7 +65,7 @@ renderLegacyClientCmdError cmd err =
     LegacyCmdKeyError keyErr ->
        renderError cmd renderShelleyKeyCmdError keyErr
   where
-    renderError :: LegacyCommand -> (a -> Text) -> a -> Text
+    renderError :: LegacyCmds -> (a -> Text) -> a -> Text
     renderError shelleyCmd renderer shelCliCmdErr =
       mconcat
         [ "Command failed: "
@@ -76,7 +79,7 @@ renderLegacyClientCmdError cmd err =
 -- CLI shelley command dispatch
 --
 
-runLegacyClientCommand :: LegacyCommand -> ExceptT LegacyClientCmdError IO ()
+runLegacyClientCommand :: LegacyCmds -> ExceptT LegacyClientCmdError IO ()
 runLegacyClientCommand = \case
   AddressCmd      cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmd cmd
   StakeAddressCmd cmd -> firstExceptT LegacyCmdStakeAddressError $ runStakeAddressCmd cmd
