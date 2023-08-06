@@ -20,7 +20,7 @@ import           Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.Byron.Key as Byron
-import           Cardano.CLI.Commands.Legacy
+import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Types.Key (VerificationKeyTextOrFile (..),
                    VerificationKeyTextOrFileError, readVerificationKeyTextOrFileAnyOf,
                    renderVerificationKeyTextOrFileError)

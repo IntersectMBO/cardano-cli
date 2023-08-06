@@ -46,7 +46,7 @@ import           Cardano.Chain.Update hiding (ProtocolParameters)
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
-import           Cardano.CLI.Commands.Legacy
+import           Cardano.CLI.Legacy.Commands
 import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Run.Legacy.Address

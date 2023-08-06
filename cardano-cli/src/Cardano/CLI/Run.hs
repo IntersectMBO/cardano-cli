@@ -12,9 +12,9 @@ module Cardano.CLI.Run
 import           Cardano.CLI.Byron.Commands (ByronCommand)
 import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCmdError,
                    runByronClientCommand)
-import           Cardano.CLI.Commands.Legacy (LegacyCommand)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run
+import           Cardano.CLI.Legacy.Commands (LegacyCommand)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run.Legacy (LegacyClientCmdError, renderLegacyClientCmdError,
                    runLegacyClientCommand)

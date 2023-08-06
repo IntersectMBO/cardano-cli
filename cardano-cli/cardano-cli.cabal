@@ -63,7 +63,6 @@ library
                         Cardano.CLI.Byron.UpdateProposal
                         Cardano.CLI.Byron.Vote
                         Cardano.CLI.Commands.Governance
-                        Cardano.CLI.Commands.Legacy
                         Cardano.CLI.Environment
                         Cardano.CLI.EraBased.Commands
                         Cardano.CLI.EraBased.Commands.Governance
@@ -81,6 +80,7 @@ library
                         Cardano.CLI.Helpers
                         Cardano.CLI.IO.Lazy
                         Cardano.CLI.Json.Friendly
+                        Cardano.CLI.Legacy.Commands
                         Cardano.CLI.Options
                         Cardano.CLI.Orphans
                         Cardano.CLI.OS.Posix
