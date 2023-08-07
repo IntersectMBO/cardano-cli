@@ -1,6 +1,7 @@
 Usage: cardano-cli experimental governance committee 
                                                        ( key-gen-cold
                                                        | key-gen-hot
+                                                       | key-hash
                                                        )
 
   Committee member commands.
@@ -13,3 +14,4 @@ Available commands:
                            Member
   key-gen-hot              Create a cold key pair for a Constitutional Committee
                            Member
+  key-hash                 Print the identifier (hash) of a public key

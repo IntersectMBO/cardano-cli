@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 {- HLINT ignore "Use camelCase" -}
 
 module Test.Golden.Governance.Committee
@@ -5,6 +7,7 @@ module Test.Golden.Governance.Committee
   ) where
 
 import           Control.Monad (void)
+import           Text.Regex.TDFA ((=~))
 
 import           Test.Cardano.CLI.Util
 
@@ -18,6 +21,8 @@ governanceCommitteeTests =
   H.checkSequential $ H.Group "Governance Committee Goldens"
     [ ("governance committee key-gen-cold", golden_governanceCommitteeKeyGenCold)
     , ("governance committee key-gen-hot", golden_governanceCommitteeKeyGenHot)
+    , ("governance committee key-hash (cold)", golden_governanceCommitteeKeyHashCold)
+    , ("governance committee key-hash (hot)", golden_governanceCommitteeKeyHashHot)
     ]
 
 golden_governanceCommitteeKeyGenCold :: Property
@@ -58,3 +63,41 @@ golden_governanceCommitteeKeyGenHot =
 
     H.assertEndsWithSingleNewline verificationKeyFile
     H.assertEndsWithSingleNewline signingKeyFile
+
+golden_governanceCommitteeKeyHashCold :: Property
+golden_governanceCommitteeKeyHashCold =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
+    signingKeyFile <- noteTempFile tempDir "key-gen.skey"
+
+    void $ execCardanoCLI
+      [ "conway", "governance", "committee", "key-gen-cold"
+      , "--verification-key-file", verificationKeyFile
+      , "--signing-key-file", signingKeyFile
+      ]
+
+    result <- execCardanoCLI
+      [  "conway", "governance", "committee", "key-hash"
+      , "--verification-key-file", verificationKeyFile
+      ]
+
+    H.assert $ result =~ id @String "^[a-f0-9]{56}$"
+
+golden_governanceCommitteeKeyHashHot :: Property
+golden_governanceCommitteeKeyHashHot =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
+    signingKeyFile <- noteTempFile tempDir "key-gen.skey"
+
+    void $ execCardanoCLI
+      [  "conway", "governance", "committee", "key-gen-hot"
+      , "--verification-key-file", verificationKeyFile
+      , "--signing-key-file", signingKeyFile
+      ]
+
+    result <- execCardanoCLI
+      [  "conway", "governance", "committee", "key-hash"
+      , "--verification-key-file", verificationKeyFile
+      ]
+
+    H.assert $ result =~ id @String "^[a-f0-9]{56}$"

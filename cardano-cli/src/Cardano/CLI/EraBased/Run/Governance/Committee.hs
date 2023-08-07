@@ -12,10 +12,13 @@ import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Control.Monad.Except (ExceptT)
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Except.Extra
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString.Char8 as BS
 import           Data.Function
 
-newtype GovernanceCommitteeError
+data GovernanceCommitteeError
   = GovernanceCommitteeCmdWriteFileError (FileError ())
+  | GovernanceCommitteeCmdTextEnvReadFileError (FileError TextEnvelopeError)
 
 runGovernanceCommitteeCmds :: ()
   => GovernanceCommitteeCmds era
@@ -25,6 +28,8 @@ runGovernanceCommitteeCmds = \case
     runGovernanceCommitteeKeyGenCold era vk sk
   GovernanceCommitteeKeyGenHot era vk sk ->
     runGovernanceCommitteeKeyGenHot era vk sk
+  GovernanceCommitteeKeyHash era vk ->
+    runGovernanceCommitteeKeyHash era vk
 
 runGovernanceCommitteeKeyGenCold :: ()
   => ConwayEraOnwards era
@@ -75,3 +80,32 @@ runGovernanceCommitteeKeyGenHot _w vkeyPath skeyPath = do
 
     vkeyDesc :: TextEnvelopeDescr
     vkeyDesc = "Constitutional Committee Hot Verification Key"
+
+data SomeCommitteeKey f
+  = ACommitteeHotKey  (f CommitteeHotKey)
+  | ACommitteeColdKey (f CommitteeColdKey)
+
+runGovernanceCommitteeKeyHash :: ()
+  => ConwayEraOnwards era
+  -> File (VerificationKey ()) In
+  -> ExceptT GovernanceCommitteeError IO ()
+runGovernanceCommitteeKeyHash _w vkeyPath = do
+  vkey <-
+    readFileTextEnvelopeAnyOf
+      [ FromSomeType (AsVerificationKey AsCommitteeHotKey ) ACommitteeHotKey
+      , FromSomeType (AsVerificationKey AsCommitteeColdKey) ACommitteeColdKey
+      ]
+      vkeyPath
+    & firstExceptT GovernanceCommitteeCmdTextEnvReadFileError . newExceptT
+
+  liftIO $ BS.putStrLn (renderKeyHash vkey)
+
+  where
+    renderKeyHash :: SomeCommitteeKey VerificationKey -> ByteString
+    renderKeyHash = \case
+      ACommitteeHotKey  vk -> renderVerificationKeyHash vk
+      ACommitteeColdKey vk -> renderVerificationKeyHash vk
+
+    renderVerificationKeyHash :: Key keyrole => VerificationKey keyrole -> ByteString
+    renderVerificationKeyHash = serialiseToRawBytesHex
+                              . verificationKeyHash

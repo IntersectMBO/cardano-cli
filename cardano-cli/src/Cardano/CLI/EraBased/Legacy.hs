@@ -2013,15 +2013,6 @@ pVerificationKeyOrFile asType =
     , VerificationKeyFilePath <$> pVerificationKeyFileIn
     ]
 
-pVerificationKeyFileIn :: Parser (VerificationKeyFile In)
-pVerificationKeyFileIn =
-  fmap File $ Opt.strOption $ mconcat
-    [ Opt.long "verification-key-file"
-    , Opt.metavar "FILE"
-    , Opt.help "Input filepath of the verification key."
-    , Opt.completer (Opt.bashCompleter "file")
-    ]
-
 pExtendedVerificationKeyFileIn :: Parser (VerificationKeyFile In)
 pExtendedVerificationKeyFileIn =
   fmap File $ Opt.strOption $ mconcat
