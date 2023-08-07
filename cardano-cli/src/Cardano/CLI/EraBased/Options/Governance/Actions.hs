@@ -31,6 +31,7 @@ pGovernanceActionCmds era =
     )
     [ pGovernanceActionNewConstitution era
     , pGovernanceActionProtocolParametersUpdate era
+    , pGovernanceActionTreasuryWithdrawal era
     ]
 
 
@@ -207,3 +208,21 @@ dpGovActionProtocolParametersUpdate = \case
       <$> pCommonProtocolParameters
       <*> pAlonzoOnwardsPParams
       <*> pIntroducedInBabbagePParams
+
+pGovernanceActionTreasuryWithdrawal :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionTreasuryWithdrawal =
+  featureInEra Nothing (\cOn -> Just $
+     subParser "create-treasury-withdrawal"
+        $ Opt.info (pCmd cOn)
+        $ Opt.progDesc "Create a treasury withdrawal.")
+ where
+  pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
+  pCmd cOn =
+    fmap (GovernanceActionTreasuryWithdrawal cOn) $
+      EraBasedTreasuryWithdrawal
+        <$> pGovActionDeposit
+        <*> pAnyStakeIdentifier
+        <*> many ((,) <$> pAnyStakeIdentifier <*> pTransferAmt)
+        <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
+
+

@@ -1,10 +1,13 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.Actions
   ( AnyStakeIdentifier(..)
   , GovernanceActionCmds(..)
   , EraBasedNewConstitution(..)
+  , EraBasedTreasuryWithdrawal(..)
   , renderGovernanceActionCmds
   ) where
 
@@ -24,7 +27,10 @@ data GovernanceActionCmds era
       (ShelleyBasedEra era)
       (EraBasedProtocolParametersUpdate era)
       (File () Out)
-    deriving Show
+  | GovernanceActionTreasuryWithdrawal
+      (ConwayEraOnwards era)
+      EraBasedTreasuryWithdrawal
+  deriving Show
 
 data EraBasedNewConstitution
   = EraBasedNewConstitution
@@ -34,6 +40,16 @@ data EraBasedNewConstitution
       , encFilePath :: File () Out
       } deriving Show
 
+data EraBasedTreasuryWithdrawal where
+  EraBasedTreasuryWithdrawal
+    :: Lovelace -- ^ Deposit
+    -> AnyStakeIdentifier -- ^ Return address
+    -> [(AnyStakeIdentifier, Lovelace)]
+    -> File () Out
+    -> EraBasedTreasuryWithdrawal
+
+deriving instance Show EraBasedTreasuryWithdrawal
+
 renderGovernanceActionCmds :: GovernanceActionCmds era -> Text
 renderGovernanceActionCmds = \case
   GovernanceActionCreateConstitution {} ->
@@ -42,6 +58,8 @@ renderGovernanceActionCmds = \case
   GovernanceActionProtocolParametersUpdate {} ->
     "governance action create-protocol-parameters-update"
 
+  GovernanceActionTreasuryWithdrawal {} ->
+    "governance action create-treasury-withdrawal"
 
 data AnyStakeIdentifier
   = AnyStakeKey (VerificationKeyOrHashOrFile StakeKey)
