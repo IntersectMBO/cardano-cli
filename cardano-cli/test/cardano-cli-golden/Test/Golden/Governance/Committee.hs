@@ -90,3 +90,34 @@ hprop_golden_governanceCommitteeKeyHashHot =
       ]
 
     H.assert $ result =~ id @String "^[a-f0-9]{56}$"
+
+hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate :: Property
+hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    ccColdVKey <- noteTempFile tempDir "cc-cold.vkey"
+    ccColdSKey <- noteTempFile tempDir "cc-cold.skey"
+    ccHotVKey <- noteTempFile tempDir "cc-hot.vkey"
+    ccHotSKey <- noteTempFile tempDir "cc-hot.skey"
+    certFile <- noteTempFile tempDir "hot-auth.cert"
+
+    void $ execCardanoCLI
+      [ "conway", "governance", "committee", "key-gen-cold"
+      , "--verification-key-file", ccColdVKey
+      , "--signing-key-file", ccColdSKey
+      ]
+
+    void $ execCardanoCLI
+      [ "conway", "governance", "committee", "key-gen-hot"
+      , "--verification-key-file", ccHotVKey
+      , "--signing-key-file", ccHotSKey
+      ]
+
+    void $ execCardanoCLI
+      [  "conway", "governance", "committee", "create-hot-key-authorization-certificate"
+      , "--cc-cold-key-file", ccColdVKey
+      , "--cc-hot-key-file", ccHotVKey
+      , "--out-file", certFile
+      ]
+
+    H.assertFileOccurences 1 "CertificateShelley" certFile
+    H.assertFileOccurences 1 "Constitutional Committee Hot Key Registration Certificate" certFile
