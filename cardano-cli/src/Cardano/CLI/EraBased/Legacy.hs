@@ -99,7 +99,7 @@ parseLegacyCommands envCli =
             , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
             ]
     , Opt.command "genesis"
-        $ Opt.info (GenesisCmd <$> pGenesisCmd envCli)
+        $ Opt.info (GenesisCmds <$> pGenesisCmds envCli)
         $ Opt.progDesc "Genesis block commands"
     , Opt.command "governance"
         $ Opt.info (GovernanceCmds <$> pGovernanceCmds envCli)
@@ -1349,8 +1349,8 @@ pPollNonce =
     , Opt.help "An (optional) nonce for non-replayability."
     ]
 
-pGenesisCmd :: EnvCli -> Parser GenesisCmd
-pGenesisCmd envCli =
+pGenesisCmds :: EnvCli -> Parser GenesisCmds
+pGenesisCmds envCli =
   asum
     [ subParser "key-gen-genesis"
         $ Opt.info pGenesisKeyGen
@@ -1399,51 +1399,51 @@ pGenesisCmd envCli =
         $ Opt.progDesc "Compute the hash of a genesis file"
     ]
   where
-    pGenesisKeyGen :: Parser GenesisCmd
+    pGenesisKeyGen :: Parser GenesisCmds
     pGenesisKeyGen =
       GenesisKeyGenGenesis
         <$> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pGenesisDelegateKeyGen :: Parser GenesisCmd
+    pGenesisDelegateKeyGen :: Parser GenesisCmds
     pGenesisDelegateKeyGen =
       GenesisKeyGenDelegate
         <$> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
         <*> pOperatorCertIssueCounterFile
 
-    pGenesisUTxOKeyGen :: Parser GenesisCmd
+    pGenesisUTxOKeyGen :: Parser GenesisCmds
     pGenesisUTxOKeyGen =
       GenesisKeyGenUTxO
         <$> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pGenesisKeyHash :: Parser GenesisCmd
+    pGenesisKeyHash :: Parser GenesisCmds
     pGenesisKeyHash =
       GenesisCmdKeyHash
         <$> pVerificationKeyFileIn
 
-    pGenesisVerKey :: Parser GenesisCmd
+    pGenesisVerKey :: Parser GenesisCmds
     pGenesisVerKey =
       GenesisVerKey
         <$> pVerificationKeyFileOut
         <*> pSigningKeyFileIn
 
-    pGenesisAddr :: Parser GenesisCmd
+    pGenesisAddr :: Parser GenesisCmds
     pGenesisAddr =
       GenesisAddr
         <$> pVerificationKeyFileIn
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pGenesisTxIn :: Parser GenesisCmd
+    pGenesisTxIn :: Parser GenesisCmds
     pGenesisTxIn =
       GenesisTxIn
         <$> pVerificationKeyFileIn
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pGenesisCreateCardano :: Parser GenesisCmd
+    pGenesisCreateCardano :: Parser GenesisCmds
     pGenesisCreateCardano =
       GenesisCreateCardano
         <$> pGenesisDir
@@ -1469,7 +1469,7 @@ pGenesisCmd envCli =
               "JSON file with genesis defaults for conway."
         <*> pNodeConfigTemplate
 
-    pGenesisCreate :: Parser GenesisCmd
+    pGenesisCreate :: Parser GenesisCmds
     pGenesisCreate =
       GenesisCreate
         <$> pKeyOutputFormat
@@ -1480,7 +1480,7 @@ pGenesisCmd envCli =
         <*> pInitialSupplyNonDelegated
         <*> pNetworkId envCli
 
-    pGenesisCreateStaked :: Parser GenesisCmd
+    pGenesisCreateStaked :: Parser GenesisCmds
     pGenesisCreateStaked =
       GenesisCreateStaked
         <$> pKeyOutputFormat
@@ -1498,7 +1498,7 @@ pGenesisCmd envCli =
         <*> pStuffedUtxoCount
         <*> Opt.optional pRelayJsonFp
 
-    pGenesisHash :: Parser GenesisCmd
+    pGenesisHash :: Parser GenesisCmds
     pGenesisHash =
       GenesisHashFile <$> pGenesisFile "The genesis file."
 

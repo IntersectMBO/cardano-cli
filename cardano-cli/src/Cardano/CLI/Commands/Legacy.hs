@@ -16,7 +16,7 @@ module Cardano.CLI.Commands.Legacy
   , PoolCmd (..)
   , QueryCmd (..)
   , GovernanceCmds (..)
-  , GenesisCmd (..)
+  , GenesisCmds (..)
   , TextViewCmd (..)
   , VoteCmd(..)
   , renderLegacyCommand
@@ -76,7 +76,7 @@ data LegacyCommand
   | PoolCmd         PoolCmd
   | QueryCmd        QueryCmd
   | GovernanceCmds    GovernanceCmds
-  | GenesisCmd      GenesisCmd
+  | GenesisCmds       GenesisCmds
   | TextViewCmd     TextViewCmd
 
 renderLegacyCommand :: LegacyCommand -> Text
@@ -90,7 +90,7 @@ renderLegacyCommand sc =
     PoolCmd cmd -> renderPoolCmd cmd
     QueryCmd cmd -> renderQueryCmd cmd
     GovernanceCmds cmd -> renderGovernanceCmds cmd
-    GenesisCmd cmd -> renderGenesisCmd cmd
+    GenesisCmds cmd -> renderGenesisCmds cmd
     TextViewCmd cmd -> renderTextViewCmd cmd
 
 data AddressCmd
@@ -422,7 +422,7 @@ data TextViewCmd
 renderTextViewCmd :: TextViewCmd -> Text
 renderTextViewCmd (TextViewInfo _ _) = "text-view decode-cbor"
 
-data GenesisCmd
+data GenesisCmds
   = GenesisCreate
       KeyOutputFormat
       GenesisDir
@@ -457,8 +457,8 @@ data GenesisCmd
   | GenesisHashFile GenesisFile
   deriving Show
 
-renderGenesisCmd :: GenesisCmd -> Text
-renderGenesisCmd cmd =
+renderGenesisCmds :: GenesisCmds -> Text
+renderGenesisCmds cmd =
   case cmd of
     GenesisCreate {} -> "genesis create"
     GenesisCreateCardano {} -> "genesis create-cardano"
