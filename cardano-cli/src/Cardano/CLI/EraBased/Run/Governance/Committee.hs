@@ -3,6 +3,7 @@
 
 module Cardano.CLI.EraBased.Run.Governance.Committee
   ( runGovernanceCommitteeCmds
+  , GovernanceCommitteeError(..)
   ) where
 
 import           Cardano.Api
@@ -19,6 +20,12 @@ import           Data.Function
 data GovernanceCommitteeError
   = GovernanceCommitteeCmdWriteFileError (FileError ())
   | GovernanceCommitteeCmdTextEnvReadFileError (FileError TextEnvelopeError)
+  deriving Show
+
+instance Error GovernanceCommitteeError where
+  displayError = \case
+    GovernanceCommitteeCmdWriteFileError e -> "Cannot write file: " <> displayError e
+    GovernanceCommitteeCmdTextEnvReadFileError e -> "Cannot read file: " <> displayError e
 
 runGovernanceCommitteeCmds :: ()
   => GovernanceCommitteeCmds era

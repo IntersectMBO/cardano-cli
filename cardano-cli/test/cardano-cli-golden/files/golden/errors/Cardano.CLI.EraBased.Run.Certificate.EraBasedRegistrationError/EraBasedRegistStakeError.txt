@@ -1,0 +1,1 @@
+Stake address registation error: Stake address deposit required.

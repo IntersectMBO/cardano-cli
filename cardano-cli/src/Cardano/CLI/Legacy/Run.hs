@@ -20,6 +20,7 @@ import           Cardano.CLI.Legacy.Run.Query
 import           Cardano.CLI.Legacy.Run.StakeAddress
 import           Cardano.CLI.Legacy.Run.TextView
 import           Cardano.CLI.Legacy.Run.Transaction
+import           Cardano.Prelude (toS)
 
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
@@ -52,7 +53,7 @@ renderLegacyClientCmdError cmd err =
     LegacyCmdPoolError poolCmdErr ->
        renderError cmd renderShelleyPoolCmdError poolCmdErr
     LegacyCmdStakeAddressError stakeAddrCmdErr ->
-       renderError cmd renderShelleyStakeAddressCmdError stakeAddrCmdErr
+       renderError cmd (toS . displayError) stakeAddrCmdErr
     LegacyCmdTextViewError txtViewErr ->
        renderError cmd renderShelleyTextViewFileError txtViewErr
     LegacyCmdTransactionError txErr ->

@@ -67,7 +67,7 @@ data GovernanceCmdError
 instance Error GovernanceCmdError where
   displayError = \case
     StakeCredGovCmdError stakeAddressCmdError ->
-      "Stake credential error: " <> toS (renderShelleyStakeAddressCmdError stakeAddressCmdError)
+      "Stake credential error: " <> displayError stakeAddressCmdError
     VotingCredentialDecodeGovCmdEror decoderError ->
       "Could not decode voting credential: " <> renderDecoderError decoderError
     WriteFileError fileError ->

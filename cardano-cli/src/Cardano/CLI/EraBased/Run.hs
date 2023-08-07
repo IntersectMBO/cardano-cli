@@ -6,12 +6,11 @@ module Cardano.CLI.EraBased.Run
   , runAnyEraCommand
   , runEraBasedCommand
   , runEraBasedGovernanceCmds
-
-  , renderAnyEraCmdError
   ) where
 
 import           Cardano.Api
 
+import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.EraBased.Run.Certificate
@@ -22,72 +21,85 @@ import           Cardano.CLI.EraBased.Vote
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
-import           Data.Text (Text)
+import           Data.Function ((&))
 
-newtype AnyEraCmdError
-  = AnyEraCmdGenericError ()
+data AnyEraCmdError
+  = AnyEraCmdGovernanceCmdError        !GovernanceCmdError
+  | AnyEraCmdEraDelegationError        !EraBasedDelegationError
+  | AnyEraCmdEraBasedRegistrationError !EraBasedRegistrationError
+  | AnyEraCmdEraBasedVoteError         !EraBasedVoteError
+  | AnyEraCmdGovernanceCommitteeError  !GovernanceCommitteeError
+  | AnyEraCmdGovernanceActionError     !GovernanceActionsError
+  deriving Show
 
-renderAnyEraCmdError :: AnyEraCmdError -> Text
-renderAnyEraCmdError = \case
-  AnyEraCmdGenericError () -> "Generic any era command error"
+instance Error AnyEraCmdError where
+  displayError = \case
+    AnyEraCmdGovernanceCmdError e -> displayError e
+    AnyEraCmdEraDelegationError e -> displayError e
+    AnyEraCmdEraBasedRegistrationError e -> displayError e
+    AnyEraCmdEraBasedVoteError e -> displayError e
+    AnyEraCmdGovernanceCommitteeError e -> displayError e
+    AnyEraCmdGovernanceActionError e -> displayError e
 
 runAnyEraCommand :: ()
   => AnyEraCommand
   -> ExceptT AnyEraCmdError IO ()
 runAnyEraCommand = \case
   AnyEraCommandOf sbe cmd ->
-    firstExceptT AnyEraCmdGenericError $ shelleyBasedEraConstraints sbe $ runEraBasedCommand cmd
+    shelleyBasedEraConstraints sbe $ runEraBasedCommand cmd
 
 runEraBasedCommand :: ()
-  => EraBasedCommand era -> ExceptT () IO ()
+  => EraBasedCommand era -> ExceptT AnyEraCmdError IO ()
 runEraBasedCommand = \case
   EraBasedGovernanceCmds cmd -> runEraBasedGovernanceCmds cmd
 
 runEraBasedGovernanceCmds :: ()
   => EraBasedGovernanceCmds era
-  -> ExceptT () IO ()
+  -> ExceptT AnyEraCmdError IO ()
 runEraBasedGovernanceCmds = \case
   EraBasedGovernancePreConwayCmd w ->
     runEraBasedGovernancePreConwayCmd w
   EraBasedGovernancePostConwayCmd w ->
     runEraBasedGovernancePostConwayCmd w
   EraBasedGovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
+    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
+      & firstExceptT AnyEraCmdGovernanceCmdError
 
   EraBasedGovernanceMIRTransfer w ll oFp direction ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceMIRCertificateTransfer w ll oFp direction
+    runGovernanceMIRCertificateTransfer w ll oFp direction
+      & firstExceptT AnyEraCmdGovernanceCmdError
 
   EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
-    firstExceptT (const ()) -- TODO fix error handling
-      $ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
+    runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
+      & firstExceptT AnyEraCmdEraDelegationError
 
   EraBasedGovernanceRegistrationCertificateCmd regTarget outFp ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceRegistrationCertificate regTarget outFp
+    runGovernanceRegistrationCertificate regTarget outFp
+      & firstExceptT AnyEraCmdEraBasedRegistrationError
+
   EraBasedGovernanceVoteCmd anyVote outFp ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceVote anyVote outFp
+    runGovernanceVote anyVote outFp
+      & firstExceptT AnyEraCmdEraBasedVoteError
 
   EraBasedGovernanceCommitteeCmds cmds ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceCommitteeCmds cmds
+    runGovernanceCommitteeCmds cmds
+      & firstExceptT AnyEraCmdGovernanceCommitteeError
 
   EraBasedGovernanceActionCmds cmds ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceActionCmds cmds
+    runGovernanceActionCmds cmds
+      & firstExceptT AnyEraCmdGovernanceActionError
 
   EraBasedGovernanceDRepGenerateKey w vrf sgn ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceDRepKeyGen w vrf sgn
+    runGovernanceDRepKeyGen w vrf sgn
+      & firstExceptT AnyEraCmdGovernanceCmdError
+
 
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era
-  -> ExceptT () IO ()
+  -> ExceptT e IO ()
 runEraBasedGovernancePreConwayCmd _w = pure ()
 
 runEraBasedGovernancePostConwayCmd
   :: ConwayEraOnwards era
-  -> ExceptT () IO ()
+  -> ExceptT e IO ()
 runEraBasedGovernancePostConwayCmd _w = pure ()
