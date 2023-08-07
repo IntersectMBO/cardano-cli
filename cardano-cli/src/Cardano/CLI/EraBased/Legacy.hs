@@ -78,7 +78,7 @@ parseLegacyCommands envCli =
         $ Opt.info (AddressCmd <$> pAddressCmd envCli)
         $ Opt.progDesc "Payment address commands"
     , Opt.command "stake-address"
-        $ Opt.info (StakeAddressCmd <$> pStakeAddressCmd envCli)
+        $ Opt.info (StakeAddressCmds <$> pStakeAddressCmds envCli)
         $ Opt.progDesc "Stake address commands"
     , Opt.command "key"
         $ Opt.info (KeyCmds <$> pKeyCmds)
@@ -347,8 +347,8 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
             Left err -> fail (displayError err)
             Right sd -> return sd
 
-pStakeAddressCmd :: EnvCli -> Parser StakeAddressCmd
-pStakeAddressCmd envCli =
+pStakeAddressCmds :: EnvCli -> Parser StakeAddressCmds
+pStakeAddressCmds envCli =
     asum
       [ subParser "key-gen"
           $ Opt.info pStakeAddressKeyGen
@@ -370,24 +370,24 @@ pStakeAddressCmd envCli =
           $ Opt.progDesc "Create a stake address pool delegation certificate"
       ]
   where
-    pStakeAddressKeyGen :: Parser StakeAddressCmd
+    pStakeAddressKeyGen :: Parser StakeAddressCmds
     pStakeAddressKeyGen =
       StakeAddressKeyGen
         <$> pKeyOutputFormat
         <*> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pStakeAddressKeyHash :: Parser StakeAddressCmd
+    pStakeAddressKeyHash :: Parser StakeAddressCmds
     pStakeAddressKeyHash = StakeAddressKeyHash <$> pStakeVerificationKeyOrFile <*> pMaybeOutputFile
 
-    pStakeAddressBuild :: Parser StakeAddressCmd
+    pStakeAddressBuild :: Parser StakeAddressCmds
     pStakeAddressBuild =
       StakeAddressBuild
         <$> pStakeVerifier
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pStakeAddressRegistrationCert :: Parser StakeAddressCmd
+    pStakeAddressRegistrationCert :: Parser StakeAddressCmds
     pStakeAddressRegistrationCert =
       StakeRegistrationCert
         <$> pAnyShelleyBasedEra envCli
@@ -395,7 +395,7 @@ pStakeAddressCmd envCli =
         <*> optional pKeyRegistDeposit
         <*> pOutputFile
 
-    pStakeAddressDeregistrationCert :: Parser StakeAddressCmd
+    pStakeAddressDeregistrationCert :: Parser StakeAddressCmds
     pStakeAddressDeregistrationCert =
       StakeCredentialDeRegistrationCert
         <$> pAnyShelleyBasedEra envCli
@@ -403,7 +403,7 @@ pStakeAddressCmd envCli =
         <*> optional pKeyRegistDeposit
         <*> pOutputFile
 
-    pStakeAddressPoolDelegationCert :: Parser StakeAddressCmd
+    pStakeAddressPoolDelegationCert :: Parser StakeAddressCmds
     pStakeAddressPoolDelegationCert =
       StakeCredentialDelegationCert
         <$> pAnyShelleyBasedEra envCli

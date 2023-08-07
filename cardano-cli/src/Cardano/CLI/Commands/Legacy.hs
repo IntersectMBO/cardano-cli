@@ -9,7 +9,7 @@ module Cardano.CLI.Commands.Legacy
   ( -- * CLI command types
     LegacyCommand (..)
   , AddressCmd (..)
-  , StakeAddressCmd (..)
+  , StakeAddressCmds (..)
   , KeyCmds (..)
   , TransactionCmds (..)
   , NodeCmds (..)
@@ -69,7 +69,7 @@ import           Data.Time.Clock
 --
 data LegacyCommand
   = AddressCmd      AddressCmd
-  | StakeAddressCmd StakeAddressCmd
+  | StakeAddressCmds  StakeAddressCmds
   | KeyCmds           KeyCmds
   | TransactionCmds   TransactionCmds
   | NodeCmds          NodeCmds
@@ -83,7 +83,7 @@ renderLegacyCommand :: LegacyCommand -> Text
 renderLegacyCommand sc =
   case sc of
     AddressCmd cmd -> renderAddressCmd cmd
-    StakeAddressCmd cmd -> renderStakeAddressCmd cmd
+    StakeAddressCmds cmd -> renderStakeAddressCmds cmd
     KeyCmds cmd -> renderKeyCmds cmd
     TransactionCmds cmd -> renderTransactionCmds cmd
     NodeCmds cmd -> renderNodeCmds cmd
@@ -113,7 +113,7 @@ renderAddressCmd cmd =
     AddressBuild {} -> "address build"
     AddressInfo {} -> "address info"
 
-data StakeAddressCmd
+data StakeAddressCmds
   = StakeAddressKeyGen KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
   | StakeAddressKeyHash (VerificationKeyOrFile StakeKey) (Maybe (File () Out))
   | StakeAddressBuild StakeVerifier NetworkId (Maybe (File () Out))
@@ -134,8 +134,8 @@ data StakeAddressCmd
       (File () Out)
   deriving Show
 
-renderStakeAddressCmd :: StakeAddressCmd -> Text
-renderStakeAddressCmd cmd =
+renderStakeAddressCmds :: StakeAddressCmds -> Text
+renderStakeAddressCmds cmd =
   case cmd of
     StakeAddressKeyGen {} -> "stake-address key-gen"
     StakeAddressKeyHash {} -> "stake-address key-hash"
