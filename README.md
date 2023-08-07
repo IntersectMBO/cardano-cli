@@ -25,3 +25,7 @@ See the [Contributing guide](CONTRIBUTING.md) for how to contribute to this proj
 * [Jordan Millar](https://github.com/Jimbo4350)
 * [John Ky](https://github.com/newhoggy)
 * [Mateusz Gałażyn](https://github.com/carbolymer)
+
+## Documentation
+
+Development documentation can be found in [Cardano Node Wiki](https://github.com/input-output-hk/cardano-node-wiki/wiki).

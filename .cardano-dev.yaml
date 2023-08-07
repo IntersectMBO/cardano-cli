@@ -7,7 +7,7 @@ changelog:
   # Determine which PR changelog options are available and which end up in the changelog
   options:
     type:
-      feature: add # that's for backwards compatibility with prevous PRs, remove this option after a release
+      feature: add
       breaking: add
       compatible: add
       optimisation: add
@@ -15,4 +15,5 @@ changelog:
       bugfix: add
       test: skip
       maintenance: skip
+      release: skip
       documentation: skip

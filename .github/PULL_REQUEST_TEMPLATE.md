@@ -5,6 +5,7 @@
     <insert-changelog-description-here>
 # uncomment types applicable to the change:
   type:
+  # - feature        # introduces a new feature
   # - breaking       # the API has changed in a breaking way
   # - compatible     # the API has changed but is non-breaking
   # - optimisation   # measurable performance improvements
@@ -12,6 +13,7 @@
   # - bugfix         # fixes a defect
   # - test           # fixes/modifies tests
   # - maintenance    # not directly related to the code
+  # - release        # related to a new release preparation
   # - documentation  # change in code docs, haddocks...
 ```
 
