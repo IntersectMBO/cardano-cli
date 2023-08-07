@@ -84,7 +84,7 @@ parseLegacyCommands envCli =
         $ Opt.info (KeyCmd <$> pKeyCmd)
         $ Opt.progDesc "Key utility commands"
     , Opt.command "transaction"
-        $ Opt.info (TransactionCmd <$> pTransaction envCli)
+        $ Opt.info (TransactionCmds <$> pTransaction envCli)
         $ Opt.progDesc "Transaction commands"
     , Opt.command "node"
         $ Opt.info (NodeCmds <$> pNodeCmds)
@@ -645,7 +645,7 @@ pKeyCmd =
             ]
         ]
 
-pTransaction :: EnvCli -> Parser TransactionCmd
+pTransaction :: EnvCli -> Parser TransactionCmds
 pTransaction envCli =
   asum
     [ subParser "build-raw"
@@ -701,22 +701,22 @@ pTransaction envCli =
     ]
  where
   -- Backwards compatible parsers
-  calcMinValueInfo :: ParserInfo TransactionCmd
+  calcMinValueInfo :: ParserInfo TransactionCmds
   calcMinValueInfo =
     Opt.info pTransactionCalculateMinReqUTxO
       $ Opt.progDesc "DEPRECATED: Use 'calculate-min-required-utxo' instead."
 
-  pCalculateMinRequiredUtxoBackwardCompatible :: Parser TransactionCmd
+  pCalculateMinRequiredUtxoBackwardCompatible :: Parser TransactionCmds
   pCalculateMinRequiredUtxoBackwardCompatible =
     Opt.subparser
       $ Opt.command "calculate-min-value" calcMinValueInfo <> Opt.internal
 
-  assembleInfo :: ParserInfo TransactionCmd
+  assembleInfo :: ParserInfo TransactionCmds
   assembleInfo =
     Opt.info pTransactionAssembleTxBodyWit
       $ Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
 
-  pSignWitnessBackwardCompatible :: Parser TransactionCmd
+  pSignWitnessBackwardCompatible :: Parser TransactionCmds
   pSignWitnessBackwardCompatible =
     Opt.subparser
       $ Opt.command "sign-witness" assembleInfo <> Opt.internal
@@ -737,7 +737,7 @@ pTransaction envCli =
       ]
     ]
 
-  pTransactionBuild :: Parser TransactionCmd
+  pTransactionBuild :: Parser TransactionCmds
   pTransactionBuild =
     TxBuild
       <$> pSocketPath envCli
@@ -778,7 +778,7 @@ pTransaction envCli =
       , Opt.help "Address where ADA in excess of the tx fee will go to."
       ]
 
-  pTransactionBuildRaw :: Parser TransactionCmd
+  pTransactionBuildRaw :: Parser TransactionCmds
   pTransactionBuildRaw =
     TxBuildRaw
       <$> pCardanoEra envCli
@@ -803,7 +803,7 @@ pTransaction envCli =
       <*> optional pUpdateProposalFile
       <*> pTxBodyFileOut
 
-  pTransactionSign  :: Parser TransactionCmd
+  pTransactionSign  :: Parser TransactionCmds
   pTransactionSign =
     TxSign
       <$> pInputTxOrTxBodyFile
@@ -811,7 +811,7 @@ pTransaction envCli =
       <*> optional (pNetworkId envCli)
       <*> pTxFileOut
 
-  pTransactionCreateWitness :: Parser TransactionCmd
+  pTransactionCreateWitness :: Parser TransactionCmds
   pTransactionCreateWitness =
     TxCreateWitness
       <$> pTxBodyFileIn
@@ -819,14 +819,14 @@ pTransaction envCli =
       <*> optional (pNetworkId envCli)
       <*> pOutputFile
 
-  pTransactionAssembleTxBodyWit :: Parser TransactionCmd
+  pTransactionAssembleTxBodyWit :: Parser TransactionCmds
   pTransactionAssembleTxBodyWit =
     TxAssembleTxBodyWitness
       <$> pTxBodyFileIn
       <*> many pWitnessFile
       <*> pOutputFile
 
-  pTransactionSubmit :: Parser TransactionCmd
+  pTransactionSubmit :: Parser TransactionCmds
   pTransactionSubmit =
     TxSubmit
       <$> pSocketPath envCli
@@ -834,10 +834,10 @@ pTransaction envCli =
       <*> pNetworkId envCli
       <*> pTxSubmitFile
 
-  pTransactionPolicyId :: Parser TransactionCmd
+  pTransactionPolicyId :: Parser TransactionCmds
   pTransactionPolicyId = TxMintedPolicyId <$> pScript
 
-  pTransactionCalculateMinFee :: Parser TransactionCmd
+  pTransactionCalculateMinFee :: Parser TransactionCmds
   pTransactionCalculateMinFee =
     TxCalculateMinFee
       <$> pTxBodyFileIn
@@ -848,13 +848,13 @@ pTransaction envCli =
       <*> pTxShelleyWitnessCount
       <*> pTxByronWitnessCount
 
-  pTransactionCalculateMinReqUTxO :: Parser TransactionCmd
+  pTransactionCalculateMinReqUTxO :: Parser TransactionCmds
   pTransactionCalculateMinReqUTxO = TxCalculateMinRequiredUTxO
     <$> pCardanoEra envCli
     <*> pProtocolParamsFile
     <*> pTxOut
 
-  pTxHashScriptData :: Parser TransactionCmd
+  pTxHashScriptData :: Parser TransactionCmds
   pTxHashScriptData =
     fmap TxHashScriptData
       $ pScriptDataOrFile
@@ -862,10 +862,10 @@ pTransaction envCli =
           "The script data, in JSON syntax."
           "The script data, in the given JSON file."
 
-  pTransactionId  :: Parser TransactionCmd
+  pTransactionId  :: Parser TransactionCmds
   pTransactionId = TxGetTxId <$> pInputTxOrTxBodyFile
 
-  pTransactionView :: Parser TransactionCmd
+  pTransactionView :: Parser TransactionCmds
   pTransactionView = TxView <$> pInputTxOrTxBodyFile
 
 pNodeCmds :: Parser NodeCmds

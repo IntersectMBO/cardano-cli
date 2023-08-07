@@ -11,7 +11,7 @@ module Cardano.CLI.Commands.Legacy
   , AddressCmd (..)
   , StakeAddressCmd (..)
   , KeyCmd (..)
-  , TransactionCmd (..)
+  , TransactionCmds (..)
   , NodeCmds (..)
   , PoolCmds (..)
   , QueryCmds (..)
@@ -71,8 +71,8 @@ data LegacyCommand
   = AddressCmd      AddressCmd
   | StakeAddressCmd StakeAddressCmd
   | KeyCmd          KeyCmd
-  | TransactionCmd  TransactionCmd
-  | NodeCmds         NodeCmds
+  | TransactionCmds   TransactionCmds
+  | NodeCmds          NodeCmds
   | PoolCmds          PoolCmds
   | QueryCmds         QueryCmds
   | GovernanceCmds    GovernanceCmds
@@ -85,7 +85,7 @@ renderLegacyCommand sc =
     AddressCmd cmd -> renderAddressCmd cmd
     StakeAddressCmd cmd -> renderStakeAddressCmd cmd
     KeyCmd cmd -> renderKeyCmd cmd
-    TransactionCmd cmd -> renderTransactionCmd cmd
+    TransactionCmds cmd -> renderTransactionCmds cmd
     NodeCmds cmd -> renderNodeCmds cmd
     PoolCmds cmd -> renderPoolCmds cmd
     QueryCmds cmd -> renderQueryCmds cmd
@@ -167,7 +167,7 @@ renderKeyCmd cmd =
     KeyConvertITNBip32ToStakeKey {} -> "key convert-itn-bip32-key"
     KeyConvertCardanoAddressSigningKey {} -> "key convert-cardano-address-signing-key"
 
-data TransactionCmd
+data TransactionCmds
   = TxBuildRaw
       AnyCardanoEra
       (Maybe ScriptValidity) -- ^ Mark script as expected to pass or fail validation
@@ -271,8 +271,8 @@ data TransactionCmd
 data InputTxBodyOrTxFile = InputTxBodyFile (TxBodyFile In) | InputTxFile (TxFile In)
   deriving Show
 
-renderTransactionCmd :: TransactionCmd -> Text
-renderTransactionCmd cmd =
+renderTransactionCmds :: TransactionCmds -> Text
+renderTransactionCmds cmd =
   case cmd of
     TxBuild {} -> "transaction build"
     TxBuildRaw {} -> "transaction build-raw"
