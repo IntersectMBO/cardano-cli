@@ -13,7 +13,7 @@ module Cardano.CLI.EraBased.Legacy
 
     -- * Field parser and renderers
   , parseTxIn
-
+  , pProtocolParametersUpdate
   , pKeyRegistDeposit
   , pStakePoolRegistrationParserRequirements
   , pStakePoolVerificationKeyOrHashOrFile

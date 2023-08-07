@@ -77,6 +77,7 @@ runEraBasedGovernanceCmds = \case
   EraBasedGovernanceActionCmds cmds ->
     firstExceptT (const ()) -- TODO: Conway era - fix error handling
       $ runGovernanceActionCmds cmds
+
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era
   -> ExceptT () IO ()

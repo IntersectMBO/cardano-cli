@@ -5,6 +5,7 @@ module Cardano.CLI.EraBased.Options.Governance.Actions
 import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
+import qualified Cardano.CLI.EraBased.Legacy as Legacy
 import           Cardano.CLI.EraBased.Options.Common
 
 import           Data.Foldable
@@ -22,6 +23,7 @@ pGovernanceActionCmds era =
           ]
     )
     [ pGovernanceActionNewConstitution era
+    , pGovernanceActionCreateUpdateProposal era
     ]
 
 
@@ -48,3 +50,19 @@ pAnyStakeIdentifier =
        , AnyStakeKey <$> pStakeVerificationKeyOrHashOrFile
        ]
 
+pGovernanceActionCreateUpdateProposal :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionCreateUpdateProposal =
+  featureInEra Nothing (\cOn -> Just $
+     subParser "create-update-proposal"
+        $ Opt.info (pCmd cOn)
+        $ Opt.progDesc "Create an update proposal.")
+ where
+  pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
+  pCmd cOn =
+    fmap (GovernanceActionCreateUpdateProposal cOn) $
+      ConwayOnwardsUpdateProposal cOn
+        <$> Legacy.pProtocolParametersUpdate
+        <*> pGovActionDeposit
+        <*> pAnyStakeIdentifier
+        <*> optional (pFileInDirection "cost-model" "Cost model filepath.")
+        <*> pFileOutDirection "out-file" "Output filepath of the update proposal."
