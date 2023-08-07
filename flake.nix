@@ -87,15 +87,9 @@
             ({pkgs, ...}: {
               packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"];
               packages.cardano-cli.components.tests.cardano-cli-test.build-tools =
-                [ pkgs.jq
-                  pkgs.coreutils
-                  pkgs.shellcheck
-                ];
+                with pkgs.buildPackages; [ jq coreutils shellcheck ];
               packages.cardano-cli.components.tests.cardano-cli-golden.build-tools =
-                [ pkgs.jq
-                  pkgs.coreutils
-                  pkgs.shellcheck
-                ];
+                with pkgs.buildPackages; [ jq coreutils shellcheck ];
             })
             ({
               pkgs,
