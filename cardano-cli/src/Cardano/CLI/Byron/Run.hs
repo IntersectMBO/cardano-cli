@@ -68,7 +68,7 @@ renderByronClientCmdError err =
 runByronClientCommand :: ByronCommand -> ExceptT ByronClientCmdError IO ()
 runByronClientCommand c =
   case c of
-    NodeCmd bc -> runNodeCmd bc
+    NodeCmds bc -> runNodeCmds bc
     Genesis outDir params -> runGenesisCommand outDir params
     GetLocalNodeTip mNodeSocketPath network -> liftIO $ runGetLocalNodeTip mNodeSocketPath network
     ValidateCBOR cborObject fp -> runValidateCBOR cborObject fp
@@ -88,18 +88,18 @@ runByronClientCommand c =
       runSpendUTxO nw era nftx ctKey ins outs
 
 
-runNodeCmd :: NodeCmd -> ExceptT ByronClientCmdError IO ()
-runNodeCmd (CreateVote nw sKey upPropFp voteBool outputFp) =
+runNodeCmds :: NodeCmds -> ExceptT ByronClientCmdError IO ()
+runNodeCmds (CreateVote nw sKey upPropFp voteBool outputFp) =
   firstExceptT ByronCmdVoteError $ runVoteCreation nw sKey upPropFp voteBool outputFp
 
-runNodeCmd (SubmitUpdateProposal nodeSocketPath network proposalFp) = do
+runNodeCmds (SubmitUpdateProposal nodeSocketPath network proposalFp) = do
   firstExceptT ByronCmdUpdateProposalError
     $ submitByronUpdateProposal nodeSocketPath network proposalFp
 
-runNodeCmd (SubmitVote nodeSocketPath network voteFp) = do
+runNodeCmds (SubmitVote nodeSocketPath network voteFp) = do
   firstExceptT ByronCmdVoteError $ submitByronVote nodeSocketPath network voteFp
 
-runNodeCmd (UpdateProposal nw sKey pVer sVer sysTag insHash outputFp params) =
+runNodeCmds (UpdateProposal nw sKey pVer sVer sysTag insHash outputFp params) =
   firstExceptT ByronCmdUpdateProposalError
     $ runProposalCreation nw sKey pVer sVer sysTag insHash outputFp params
 

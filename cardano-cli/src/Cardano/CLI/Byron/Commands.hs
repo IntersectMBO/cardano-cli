@@ -3,7 +3,7 @@
 
 module Cardano.CLI.Byron.Commands
   ( ByronCommand (..)
-  , NodeCmd (..)
+  , NodeCmds (..)
   , VerificationKeyFile
   , NewVerificationKeyFile (..)
   , CertificateFile (..)
@@ -26,8 +26,8 @@ import           Data.String (IsString)
 data ByronCommand =
 
   --- Node Related Commands ---
-    NodeCmd
-        NodeCmd
+    NodeCmds
+        NodeCmds
 
   --- Genesis Related Commands ---
   | Genesis
@@ -111,7 +111,7 @@ data ByronCommand =
   deriving Show
 
 
-data NodeCmd =
+data NodeCmds =
     CreateVote
       NetworkId
       (SigningKeyFile In)

@@ -87,7 +87,7 @@ parseLegacyCommands envCli =
         $ Opt.info (TransactionCmd <$> pTransaction envCli)
         $ Opt.progDesc "Transaction commands"
     , Opt.command "node"
-        $ Opt.info (NodeCmd <$> pNodeCmd)
+        $ Opt.info (NodeCmds <$> pNodeCmds)
         $ Opt.progDesc "Node operation commands"
     , Opt.command "stake-pool"
         $ Opt.info (PoolCmds <$> pPoolCmds envCli)
@@ -868,8 +868,8 @@ pTransaction envCli =
   pTransactionView :: Parser TransactionCmd
   pTransactionView = TxView <$> pInputTxOrTxBodyFile
 
-pNodeCmd :: Parser NodeCmd
-pNodeCmd =
+pNodeCmds :: Parser NodeCmds
+pNodeCmds =
   asum
     [ subParser "key-gen" . Opt.info pKeyGenOperator . Opt.progDesc $ mconcat
       [ "Create a key pair for a node operator's offline "
@@ -892,7 +892,7 @@ pNodeCmd =
       ]
     ]
   where
-    pKeyGenOperator :: Parser NodeCmd
+    pKeyGenOperator :: Parser NodeCmds
     pKeyGenOperator =
       NodeKeyGenCold
         <$> pKeyOutputFormat
@@ -900,27 +900,27 @@ pNodeCmd =
         <*> pColdSigningKeyFile
         <*> pOperatorCertIssueCounterFile
 
-    pKeyGenKES :: Parser NodeCmd
+    pKeyGenKES :: Parser NodeCmds
     pKeyGenKES =
       NodeKeyGenKES
         <$> pKeyOutputFormat
         <*> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pKeyGenVRF :: Parser NodeCmd
+    pKeyGenVRF :: Parser NodeCmds
     pKeyGenVRF =
       NodeKeyGenVRF
         <$> pKeyOutputFormat
         <*> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pKeyHashVRF :: Parser NodeCmd
+    pKeyHashVRF :: Parser NodeCmds
     pKeyHashVRF =
       NodeKeyHashVRF
         <$> pVerificationKeyOrFile AsVrfKey
         <*> pMaybeOutputFile
 
-    pNewCounter :: Parser NodeCmd
+    pNewCounter :: Parser NodeCmds
     pNewCounter =
       NodeNewCounter
         <$> pColdVerificationKeyOrFile
@@ -935,7 +935,7 @@ pNodeCmd =
         , Opt.help "The next certificate issue counter value to use."
         ]
 
-    pIssueOpCert :: Parser NodeCmd
+    pIssueOpCert :: Parser NodeCmds
     pIssueOpCert =
       NodeIssueOpCert
         <$> pKesVerificationKeyOrFile

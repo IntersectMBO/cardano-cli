@@ -12,7 +12,7 @@ module Cardano.CLI.Commands.Legacy
   , StakeAddressCmd (..)
   , KeyCmd (..)
   , TransactionCmd (..)
-  , NodeCmd (..)
+  , NodeCmds (..)
   , PoolCmds (..)
   , QueryCmds (..)
   , GovernanceCmds (..)
@@ -72,7 +72,7 @@ data LegacyCommand
   | StakeAddressCmd StakeAddressCmd
   | KeyCmd          KeyCmd
   | TransactionCmd  TransactionCmd
-  | NodeCmd         NodeCmd
+  | NodeCmds         NodeCmds
   | PoolCmds          PoolCmds
   | QueryCmds         QueryCmds
   | GovernanceCmds    GovernanceCmds
@@ -86,7 +86,7 @@ renderLegacyCommand sc =
     StakeAddressCmd cmd -> renderStakeAddressCmd cmd
     KeyCmd cmd -> renderKeyCmd cmd
     TransactionCmd cmd -> renderTransactionCmd cmd
-    NodeCmd cmd -> renderNodeCmd cmd
+    NodeCmds cmd -> renderNodeCmds cmd
     PoolCmds cmd -> renderPoolCmds cmd
     QueryCmds cmd -> renderQueryCmds cmd
     GovernanceCmds cmd -> renderGovernanceCmds cmd
@@ -287,7 +287,7 @@ renderTransactionCmd cmd =
     TxGetTxId {} -> "transaction txid"
     TxView {} -> "transaction view"
 
-data NodeCmd
+data NodeCmds
   = NodeKeyGenCold KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out) (OpCertCounterFile Out)
   | NodeKeyGenKES  KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
   | NodeKeyGenVRF  KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
@@ -297,8 +297,8 @@ data NodeCmd
                     KESPeriod (File () Out)
   deriving Show
 
-renderNodeCmd :: NodeCmd -> Text
-renderNodeCmd cmd = do
+renderNodeCmds :: NodeCmds -> Text
+renderNodeCmds cmd = do
   case cmd of
     NodeKeyGenCold {} -> "node key-gen"
     NodeKeyGenKES {} -> "node key-gen-KES"

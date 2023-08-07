@@ -3,7 +3,7 @@
 module Cardano.CLI.Run.Legacy.Node
   ( ShelleyNodeCmdError(ShelleyNodeCmdReadFileError)
   , renderShelleyNodeCmdError
-  , runNodeCmd
+  , runNodeCmds
   , runNodeIssueOpCert
   , runNodeKeyGenCold
   , runNodeKeyGenKES
@@ -16,7 +16,8 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Commands.Legacy
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
-import           Cardano.CLI.Types.Legacy (KeyOutputFormat (..), SigningKeyFile, VerificationKeyFile)
+import           Cardano.CLI.Types.Legacy (KeyOutputFormat (..), SigningKeyFile,
+                   VerificationKeyFile)
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -58,13 +59,13 @@ renderShelleyNodeCmdError err =
       Text.pack (displayError issueErr)
 
 
-runNodeCmd :: NodeCmd -> ExceptT ShelleyNodeCmdError IO ()
-runNodeCmd (NodeKeyGenCold fmt vk sk ctr) = runNodeKeyGenCold fmt vk sk ctr
-runNodeCmd (NodeKeyGenKES  fmt vk sk)     = runNodeKeyGenKES fmt vk sk
-runNodeCmd (NodeKeyGenVRF  fmt vk sk)     = runNodeKeyGenVRF fmt vk sk
-runNodeCmd (NodeKeyHashVRF vk mOutFp) = runNodeKeyHashVRF vk mOutFp
-runNodeCmd (NodeNewCounter vk ctr out) = runNodeNewCounter vk ctr out
-runNodeCmd (NodeIssueOpCert vk sk ctr p out) =
+runNodeCmds :: NodeCmds -> ExceptT ShelleyNodeCmdError IO ()
+runNodeCmds (NodeKeyGenCold fmt vk sk ctr) = runNodeKeyGenCold fmt vk sk ctr
+runNodeCmds (NodeKeyGenKES  fmt vk sk)     = runNodeKeyGenKES fmt vk sk
+runNodeCmds (NodeKeyGenVRF  fmt vk sk)     = runNodeKeyGenVRF fmt vk sk
+runNodeCmds (NodeKeyHashVRF vk mOutFp) = runNodeKeyHashVRF vk mOutFp
+runNodeCmds (NodeNewCounter vk ctr out) = runNodeNewCounter vk ctr out
+runNodeCmds (NodeIssueOpCert vk sk ctr p out) =
   runNodeIssueOpCert vk sk ctr p out
 
 
