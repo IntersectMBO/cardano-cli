@@ -8,7 +8,7 @@
 module Cardano.CLI.Commands.Legacy
   ( -- * CLI command types
     LegacyCommand (..)
-  , AddressCmd (..)
+  , AddressCmds (..)
   , StakeAddressCmds (..)
   , KeyCmds (..)
   , TransactionCmds (..)
@@ -68,7 +68,7 @@ import           Data.Time.Clock
 -- | All the CLI subcommands under \"shelley\".
 --
 data LegacyCommand
-  = AddressCmd      AddressCmd
+  = AddressCmds       AddressCmds
   | StakeAddressCmds  StakeAddressCmds
   | KeyCmds           KeyCmds
   | TransactionCmds   TransactionCmds
@@ -82,7 +82,7 @@ data LegacyCommand
 renderLegacyCommand :: LegacyCommand -> Text
 renderLegacyCommand sc =
   case sc of
-    AddressCmd cmd -> renderAddressCmd cmd
+    AddressCmds cmd -> renderAddressCmds cmd
     StakeAddressCmds cmd -> renderStakeAddressCmds cmd
     KeyCmds cmd -> renderKeyCmds cmd
     TransactionCmds cmd -> renderTransactionCmds cmd
@@ -93,7 +93,7 @@ renderLegacyCommand sc =
     GenesisCmds cmd -> renderGenesisCmds cmd
     TextViewCmds cmd -> renderTextViewCmds cmd
 
-data AddressCmd
+data AddressCmds
   = AddressKeyGen KeyOutputFormat AddressKeyType (VerificationKeyFile Out) (SigningKeyFile Out)
   | AddressKeyHash VerificationKeyTextOrFile (Maybe (File () Out))
   | AddressBuild
@@ -105,8 +105,8 @@ data AddressCmd
   deriving Show
 
 
-renderAddressCmd :: AddressCmd -> Text
-renderAddressCmd cmd =
+renderAddressCmds :: AddressCmds -> Text
+renderAddressCmds cmd =
   case cmd of
     AddressKeyGen {} -> "address key-gen"
     AddressKeyHash {} -> "address key-hash"

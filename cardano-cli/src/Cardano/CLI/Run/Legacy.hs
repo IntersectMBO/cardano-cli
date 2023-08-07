@@ -78,7 +78,7 @@ renderLegacyClientCmdError cmd err =
 
 runLegacyClientCommand :: LegacyCommand -> ExceptT LegacyClientCmdError IO ()
 runLegacyClientCommand = \case
-  AddressCmd      cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmd cmd
+  AddressCmds      cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmds cmd
   StakeAddressCmds cmd -> firstExceptT LegacyCmdStakeAddressError $ runStakeAddressCmds cmd
   KeyCmds          cmd -> firstExceptT LegacyCmdKeyError $ runKeyCmds cmd
   TransactionCmds  cmd -> firstExceptT LegacyCmdTransactionError $ runTransactionCmds cmd

@@ -75,7 +75,7 @@ parseLegacyCommands envCli =
     [ Opt.metavar "Legacy commands"
     , Opt.commandGroup "Legacy commands"
     , Opt.command "address"
-        $ Opt.info (AddressCmd <$> pAddressCmd envCli)
+        $ Opt.info (AddressCmds <$> pAddressCmds envCli)
         $ Opt.progDesc "Payment address commands"
     , Opt.command "stake-address"
         $ Opt.info (StakeAddressCmds <$> pStakeAddressCmds envCli)
@@ -137,8 +137,8 @@ pCBORInFile =
     ]
 
 
-pAddressCmd :: EnvCli -> Parser AddressCmd
-pAddressCmd envCli =
+pAddressCmds :: EnvCli -> Parser AddressCmds
+pAddressCmds envCli =
    asum
      [ subParser "key-gen"
          (Opt.info pAddressKeyGen $ Opt.progDesc "Create an address key pair.")
@@ -150,7 +150,7 @@ pAddressCmd envCli =
          (Opt.info pAddressInfo $ Opt.progDesc "Print information about an address.")
      ]
   where
-    pAddressKeyGen :: Parser AddressCmd
+    pAddressKeyGen :: Parser AddressCmds
     pAddressKeyGen =
       AddressKeyGen
         <$> pKeyOutputFormat
@@ -158,20 +158,20 @@ pAddressCmd envCli =
         <*> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pAddressKeyHash :: Parser AddressCmd
+    pAddressKeyHash :: Parser AddressCmds
     pAddressKeyHash =
       AddressKeyHash
         <$> pPaymentVerificationKeyTextOrFile
         <*> pMaybeOutputFile
 
-    pAddressBuild :: Parser AddressCmd
+    pAddressBuild :: Parser AddressCmds
     pAddressBuild = AddressBuild
       <$> pPaymentVerifier
       <*> Opt.optional pStakeIdentifier
       <*> pNetworkId envCli
       <*> pMaybeOutputFile
 
-    pAddressInfo :: Parser AddressCmd
+    pAddressInfo :: Parser AddressCmds
     pAddressInfo = AddressInfo <$> pAddress <*> pMaybeOutputFile
 
 pPaymentVerifier :: Parser PaymentVerifier
