@@ -15,7 +15,7 @@ module Cardano.CLI.Commands.Legacy
   , NodeCmd (..)
   , PoolCmd (..)
   , QueryCmd (..)
-  , GovernanceCmd (..)
+  , GovernanceCmds (..)
   , GenesisCmd (..)
   , TextViewCmd (..)
   , VoteCmd(..)
@@ -75,7 +75,7 @@ data LegacyCommand
   | NodeCmd         NodeCmd
   | PoolCmd         PoolCmd
   | QueryCmd        QueryCmd
-  | GovernanceCmd'   GovernanceCmd
+  | GovernanceCmds    GovernanceCmds
   | GenesisCmd      GenesisCmd
   | TextViewCmd     TextViewCmd
 
@@ -89,7 +89,7 @@ renderLegacyCommand sc =
     NodeCmd cmd -> renderNodeCmd cmd
     PoolCmd cmd -> renderPoolCmd cmd
     QueryCmd cmd -> renderQueryCmd cmd
-    GovernanceCmd' cmd -> renderGovernanceCmd cmd
+    GovernanceCmds cmd -> renderGovernanceCmds cmd
     GenesisCmd cmd -> renderGenesisCmd cmd
     TextViewCmd cmd -> renderTextViewCmd cmd
 

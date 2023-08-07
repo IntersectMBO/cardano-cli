@@ -5,7 +5,7 @@ module Cardano.CLI.EraBased.Run
   ( AnyEraCmdError(..)
   , runAnyEraCommand
   , runEraBasedCommand
-  , runEraBasedGovernanceCmd
+  , runEraBasedGovernanceCmds
 
   , renderAnyEraCmdError
   ) where
@@ -40,12 +40,12 @@ runAnyEraCommand = \case
 runEraBasedCommand :: ()
   => EraBasedCommand era -> ExceptT () IO ()
 runEraBasedCommand = \case
-  EraBasedGovernanceCmd cmd -> runEraBasedGovernanceCmd cmd
+  EraBasedGovernanceCmds cmd -> runEraBasedGovernanceCmds cmd
 
-runEraBasedGovernanceCmd :: ()
-  => EraBasedGovernanceCmd era
+runEraBasedGovernanceCmds :: ()
+  => EraBasedGovernanceCmds era
   -> ExceptT () IO ()
-runEraBasedGovernanceCmd = \case
+runEraBasedGovernanceCmds = \case
   EraBasedGovernancePreConwayCmd w ->
     runEraBasedGovernancePreConwayCmd w
   EraBasedGovernancePostConwayCmd w ->

@@ -3,8 +3,8 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance
-  ( EraBasedGovernanceCmd(..)
-  , renderEraBasedGovernanceCmd
+  ( EraBasedGovernanceCmds(..)
+  , renderEraBasedGovernanceCmds
   ) where
 
 import           Cardano.Api
@@ -16,7 +16,7 @@ import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
 
-data EraBasedGovernanceCmd era
+data EraBasedGovernanceCmds era
   = EraBasedGovernancePreConwayCmd (ShelleyToBabbageEra era)
   | EraBasedGovernancePostConwayCmd (ConwayEraOnwards era)
   | EraBasedGovernanceMIRPayStakeAddressesCertificate
@@ -43,8 +43,8 @@ data EraBasedGovernanceCmd era
   | EraBasedGovernanceCommitteeCmds
       (GovernanceCommitteeCmds era)
 
-renderEraBasedGovernanceCmd :: EraBasedGovernanceCmd era -> Text
-renderEraBasedGovernanceCmd = \case
+renderEraBasedGovernanceCmds :: EraBasedGovernanceCmds era -> Text
+renderEraBasedGovernanceCmds = \case
   EraBasedGovernancePreConwayCmd {} ->
     "governance pre-conway"
   EraBasedGovernancePostConwayCmd {} ->

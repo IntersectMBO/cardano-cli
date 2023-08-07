@@ -102,7 +102,7 @@ parseLegacyCommands envCli =
         $ Opt.info (GenesisCmd <$> pGenesisCmd envCli)
         $ Opt.progDesc "Genesis block commands"
     , Opt.command "governance"
-        $ Opt.info (GovernanceCmd' <$> pGovernanceCmd envCli)
+        $ Opt.info (GovernanceCmds <$> pGovernanceCmds envCli)
         $ Opt.progDesc "Governance commands"
     , Opt.command "text-view"
         $ Opt.info (TextViewCmd <$> pTextViewCmd) . Opt.progDesc
@@ -1192,8 +1192,8 @@ pQueryCmd envCli =
 
 
 -- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
-pGovernanceCmd :: EnvCli -> Parser GovernanceCmd
-pGovernanceCmd envCli =
+pGovernanceCmds :: EnvCli -> Parser GovernanceCmds
+pGovernanceCmds envCli =
   asum
     [ subParser "create-mir-certificate"
         $ Opt.info (pLegacyMIRPayStakeAddresses <|> mirCertParsers)
@@ -1221,7 +1221,7 @@ pGovernanceCmd envCli =
         $ Opt.progDesc "Governance action related commands."
     ]
   where
-    mirCertParsers :: Parser GovernanceCmd
+    mirCertParsers :: Parser GovernanceCmds
     mirCertParsers = asum
       [ subParser "stake-addresses"
         $ Opt.info pLegacyMIRPayStakeAddresses
@@ -1234,7 +1234,7 @@ pGovernanceCmd envCli =
         $ Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
       ]
 
-    pLegacyMIRPayStakeAddresses :: Parser GovernanceCmd
+    pLegacyMIRPayStakeAddresses :: Parser GovernanceCmds
     pLegacyMIRPayStakeAddresses =
       GovernanceMIRPayStakeAddressesCertificate
         <$> pAnyShelleyToBabbageEra envCli
@@ -1243,7 +1243,7 @@ pGovernanceCmd envCli =
         <*> some pRewardAmt
         <*> pOutputFile
 
-    pLegacyMIRTransferToTreasury :: Parser GovernanceCmd
+    pLegacyMIRTransferToTreasury :: Parser GovernanceCmds
     pLegacyMIRTransferToTreasury =
       GovernanceMIRTransfer
         <$> pAnyShelleyToBabbageEra envCli
@@ -1251,7 +1251,7 @@ pGovernanceCmd envCli =
         <*> pOutputFile
         <*> pure TransferToTreasury
 
-    pLegacyMIRTransferToReserves :: Parser GovernanceCmd
+    pLegacyMIRTransferToReserves :: Parser GovernanceCmds
     pLegacyMIRTransferToReserves =
       GovernanceMIRTransfer
         <$> pAnyShelleyToBabbageEra envCli
@@ -1259,7 +1259,7 @@ pGovernanceCmd envCli =
         <*> pOutputFile
         <*> pure TransferToReserves
 
-    pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmd
+    pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmds
     pGovernanceGenesisKeyDelegationCertificate =
       GovernanceGenesisKeyDelegationCertificate
         <$> pAnyShelleyBasedEra envCli
@@ -1268,7 +1268,7 @@ pGovernanceCmd envCli =
         <*> pVrfVerificationKeyOrHashOrFile
         <*> pOutputFile
 
-    pUpdateProposal :: Parser GovernanceCmd
+    pUpdateProposal :: Parser GovernanceCmds
     pUpdateProposal =
       GovernanceUpdateProposal
         <$> pOutputFile
@@ -1277,7 +1277,7 @@ pGovernanceCmd envCli =
         <*> pProtocolParametersUpdate
         <*> optional pCostModels
 
-    pGovernanceCreatePoll :: Parser GovernanceCmd
+    pGovernanceCreatePoll :: Parser GovernanceCmds
     pGovernanceCreatePoll =
       GovernanceCreatePoll
         <$> pPollQuestion
@@ -1285,14 +1285,14 @@ pGovernanceCmd envCli =
         <*> optional pPollNonce
         <*> pOutputFile
 
-    pGovernanceAnswerPoll :: Parser GovernanceCmd
+    pGovernanceAnswerPoll :: Parser GovernanceCmds
     pGovernanceAnswerPoll =
       GovernanceAnswerPoll
         <$> pPollFile
         <*> optional pPollAnswerIndex
         <*> optional pOutputFile
 
-    pGovernanceVerifyPoll :: Parser GovernanceCmd
+    pGovernanceVerifyPoll :: Parser GovernanceCmds
     pGovernanceVerifyPoll =
       GovernanceVerifyPoll
         <$> pPollFile

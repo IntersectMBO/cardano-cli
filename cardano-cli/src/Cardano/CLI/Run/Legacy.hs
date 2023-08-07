@@ -85,6 +85,6 @@ runLegacyClientCommand = \case
   NodeCmd         cmd -> firstExceptT LegacyCmdNodeError $ runNodeCmd cmd
   PoolCmd         cmd -> firstExceptT LegacyCmdPoolError $ runPoolCmd cmd
   QueryCmd        cmd -> firstExceptT LegacyCmdQueryError $ runQueryCmd cmd
-  GovernanceCmd'  cmd -> firstExceptT LegacyCmdGovernanceError $ runGovernanceCmd cmd
+  GovernanceCmds  cmd -> firstExceptT LegacyCmdGovernanceError $ runGovernanceCmds cmd
   GenesisCmd      cmd -> firstExceptT LegacyCmdGenesisError $ runGenesisCmd cmd
   TextViewCmd     cmd -> firstExceptT LegacyCmdTextViewError $ runTextViewCmd cmd
