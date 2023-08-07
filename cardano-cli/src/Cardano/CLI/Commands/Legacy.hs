@@ -10,7 +10,7 @@ module Cardano.CLI.Commands.Legacy
     LegacyCommand (..)
   , AddressCmd (..)
   , StakeAddressCmd (..)
-  , KeyCmd (..)
+  , KeyCmds (..)
   , TransactionCmds (..)
   , NodeCmds (..)
   , PoolCmds (..)
@@ -70,7 +70,7 @@ import           Data.Time.Clock
 data LegacyCommand
   = AddressCmd      AddressCmd
   | StakeAddressCmd StakeAddressCmd
-  | KeyCmd          KeyCmd
+  | KeyCmds           KeyCmds
   | TransactionCmds   TransactionCmds
   | NodeCmds          NodeCmds
   | PoolCmds          PoolCmds
@@ -84,7 +84,7 @@ renderLegacyCommand sc =
   case sc of
     AddressCmd cmd -> renderAddressCmd cmd
     StakeAddressCmd cmd -> renderStakeAddressCmd cmd
-    KeyCmd cmd -> renderKeyCmd cmd
+    KeyCmds cmd -> renderKeyCmds cmd
     TransactionCmds cmd -> renderTransactionCmds cmd
     NodeCmds cmd -> renderNodeCmds cmd
     PoolCmds cmd -> renderPoolCmds cmd
@@ -144,7 +144,7 @@ renderStakeAddressCmd cmd =
     StakeCredentialDelegationCert {} -> "stake-address delegation-certificate"
     StakeCredentialDeRegistrationCert {} -> "stake-address deregistration-certificate"
 
-data KeyCmd
+data KeyCmds
   = KeyGetVerificationKey (SigningKeyFile In) (VerificationKeyFile Out)
   | KeyNonExtendedKey  (VerificationKeyFile In) (VerificationKeyFile Out)
   | KeyConvertByronKey (Maybe Text) ByronKeyType (SomeKeyFile In) (File () Out)
@@ -155,8 +155,8 @@ data KeyCmd
   | KeyConvertCardanoAddressSigningKey CardanoAddressKeyType (SigningKeyFile In) (File () Out)
   deriving Show
 
-renderKeyCmd :: KeyCmd -> Text
-renderKeyCmd cmd =
+renderKeyCmds :: KeyCmds -> Text
+renderKeyCmds cmd =
   case cmd of
     KeyGetVerificationKey {} -> "key verification-key"
     KeyNonExtendedKey {} -> "key non-extended-key"

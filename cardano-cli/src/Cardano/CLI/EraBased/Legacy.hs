@@ -81,7 +81,7 @@ parseLegacyCommands envCli =
         $ Opt.info (StakeAddressCmd <$> pStakeAddressCmd envCli)
         $ Opt.progDesc "Stake address commands"
     , Opt.command "key"
-        $ Opt.info (KeyCmd <$> pKeyCmd)
+        $ Opt.info (KeyCmds <$> pKeyCmds)
         $ Opt.progDesc "Key utility commands"
     , Opt.command "transaction"
         $ Opt.info (TransactionCmds <$> pTransaction envCli)
@@ -411,8 +411,8 @@ pStakeAddressCmd envCli =
         <*> pDelegationTarget
         <*> pOutputFile
 
-pKeyCmd :: Parser KeyCmd
-pKeyCmd =
+pKeyCmds :: Parser KeyCmds
+pKeyCmds =
   asum
     [ subParser "verification-key"
         $ Opt.info pKeyGetVerificationKey
@@ -478,19 +478,19 @@ pKeyCmd =
             ]
     ]
   where
-    pKeyGetVerificationKey :: Parser KeyCmd
+    pKeyGetVerificationKey :: Parser KeyCmds
     pKeyGetVerificationKey =
       KeyGetVerificationKey
         <$> pSigningKeyFileIn
         <*> pVerificationKeyFileOut
 
-    pKeyNonExtendedKey :: Parser KeyCmd
+    pKeyNonExtendedKey :: Parser KeyCmds
     pKeyNonExtendedKey =
       KeyNonExtendedKey
         <$> pExtendedVerificationKeyFileIn
         <*> pVerificationKeyFileOut
 
-    pKeyConvertByronKey :: Parser KeyCmd
+    pKeyConvertByronKey :: Parser KeyCmds
     pKeyConvertByronKey =
       KeyConvertByronKey
         <$> optional pPassword
@@ -560,7 +560,7 @@ pKeyCmd =
         , Opt.completer (Opt.bashCompleter "file")
         ]
 
-    pKeyConvertByronGenesisVKey :: Parser KeyCmd
+    pKeyConvertByronGenesisVKey :: Parser KeyCmds
     pKeyConvertByronGenesisVKey =
       KeyConvertByronGenesisVKey
         <$> pByronGenesisVKeyBase64
@@ -574,19 +574,19 @@ pKeyCmd =
         , Opt.help "Base64 string for the Byron genesis verification key."
         ]
 
-    pKeyConvertITNKey :: Parser KeyCmd
+    pKeyConvertITNKey :: Parser KeyCmds
     pKeyConvertITNKey =
       KeyConvertITNStakeKey
         <$> pITNKeyFIle
         <*> pOutputFile
 
-    pKeyConvertITNExtendedKey :: Parser KeyCmd
+    pKeyConvertITNExtendedKey :: Parser KeyCmds
     pKeyConvertITNExtendedKey =
       KeyConvertITNExtendedToStakeKey
         <$> pITNSigningKeyFile
         <*> pOutputFile
 
-    pKeyConvertITNBip32Key :: Parser KeyCmd
+    pKeyConvertITNBip32Key :: Parser KeyCmds
     pKeyConvertITNBip32Key =
       KeyConvertITNBip32ToStakeKey
         <$> pITNSigningKeyFile
@@ -617,7 +617,7 @@ pKeyCmd =
         , Opt.completer (Opt.bashCompleter "file")
         ]
 
-    pKeyConvertCardanoAddressSigningKey :: Parser KeyCmd
+    pKeyConvertCardanoAddressSigningKey :: Parser KeyCmds
     pKeyConvertCardanoAddressSigningKey =
       KeyConvertCardanoAddressSigningKey
         <$> pCardanoAddressKeyType
