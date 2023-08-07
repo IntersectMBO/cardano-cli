@@ -17,7 +17,7 @@ module Cardano.CLI.Commands.Legacy
   , QueryCmd (..)
   , GovernanceCmds (..)
   , GenesisCmds (..)
-  , TextViewCmd (..)
+  , TextViewCmds (..)
   , VoteCmd(..)
   , renderLegacyCommand
 
@@ -77,7 +77,7 @@ data LegacyCommand
   | QueryCmd        QueryCmd
   | GovernanceCmds    GovernanceCmds
   | GenesisCmds       GenesisCmds
-  | TextViewCmd     TextViewCmd
+  | TextViewCmds      TextViewCmds
 
 renderLegacyCommand :: LegacyCommand -> Text
 renderLegacyCommand sc =
@@ -91,7 +91,7 @@ renderLegacyCommand sc =
     QueryCmd cmd -> renderQueryCmd cmd
     GovernanceCmds cmd -> renderGovernanceCmds cmd
     GenesisCmds cmd -> renderGenesisCmds cmd
-    TextViewCmd cmd -> renderTextViewCmd cmd
+    TextViewCmds cmd -> renderTextViewCmds cmd
 
 data AddressCmd
   = AddressKeyGen KeyOutputFormat AddressKeyType (VerificationKeyFile Out) (SigningKeyFile Out)
@@ -414,13 +414,13 @@ renderQueryCmd cmd =
         TxMempoolQueryInfo -> "info"
 
 
-data TextViewCmd
+data TextViewCmds
   = TextViewInfo !FilePath (Maybe (File () Out))
   deriving Show
 
 
-renderTextViewCmd :: TextViewCmd -> Text
-renderTextViewCmd (TextViewInfo _ _) = "text-view decode-cbor"
+renderTextViewCmds :: TextViewCmds -> Text
+renderTextViewCmds (TextViewInfo _ _) = "text-view decode-cbor"
 
 data GenesisCmds
   = GenesisCreate

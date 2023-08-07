@@ -105,15 +105,15 @@ parseLegacyCommands envCli =
         $ Opt.info (GovernanceCmds <$> pGovernanceCmds envCli)
         $ Opt.progDesc "Governance commands"
     , Opt.command "text-view"
-        $ Opt.info (TextViewCmd <$> pTextViewCmd) . Opt.progDesc
+        $ Opt.info (TextViewCmds <$> pTextViewCmds) . Opt.progDesc
         $ mconcat
             [ "Commands for dealing with Shelley TextView files. "
             , "Transactions, addresses etc are stored on disk as TextView files."
             ]
     ]
 
-pTextViewCmd :: Parser TextViewCmd
-pTextViewCmd =
+pTextViewCmds :: Parser TextViewCmds
+pTextViewCmds =
   asum
     [ subParser "decode-cbor"
         (Opt.info (TextViewInfo <$> pCBORInFile <*> pMaybeOutputFile)

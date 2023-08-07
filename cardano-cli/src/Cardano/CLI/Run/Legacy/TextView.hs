@@ -3,7 +3,7 @@
 module Cardano.CLI.Run.Legacy.TextView
   ( ShelleyTextViewFileError(..)
   , renderShelleyTextViewFileError
-  , runTextViewCmd
+  , runTextViewCmds
   ) where
 
 import           Cardano.Api
@@ -31,8 +31,8 @@ renderShelleyTextViewFileError err =
       "Error pretty printing CBOR: " <> renderHelpersError hlprsErr
 
 
-runTextViewCmd :: TextViewCmd -> ExceptT ShelleyTextViewFileError IO ()
-runTextViewCmd cmd =
+runTextViewCmds :: TextViewCmds -> ExceptT ShelleyTextViewFileError IO ()
+runTextViewCmds cmd =
   case cmd of
     TextViewInfo fpath mOutfile -> runTextViewInfo fpath mOutfile
 
