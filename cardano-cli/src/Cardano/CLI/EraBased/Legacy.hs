@@ -93,7 +93,7 @@ parseLegacyCommands envCli =
         $ Opt.info (PoolCmd <$> pPoolCmd envCli)
         $ Opt.progDesc "Stake pool commands"
     , Opt.command "query"
-        $ Opt.info (QueryCmd <$> pQueryCmd envCli) . Opt.progDesc
+        $ Opt.info (QueryCmds <$> pQueryCmds envCli) . Opt.progDesc
         $ mconcat
             [ "Node query commands. Will query the local node whose Unix domain socket "
             , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
@@ -967,8 +967,8 @@ pPoolCmd  envCli =
     pPoolMetadataHashSubCmd :: Parser PoolCmd
     pPoolMetadataHashSubCmd = PoolMetadataHash <$> pPoolMetadataFile <*> pMaybeOutputFile
 
-pQueryCmd :: EnvCli -> Parser QueryCmd
-pQueryCmd envCli =
+pQueryCmds :: EnvCli -> Parser QueryCmds
+pQueryCmds envCli =
   asum
     [ subParser "protocol-parameters"
         $ Opt.info pQueryProtocolParameters
@@ -1033,7 +1033,7 @@ pQueryCmd envCli =
         $ Opt.progDesc "Query slot number for UTC timestamp"
     ]
   where
-    pQueryProtocolParameters :: Parser QueryCmd
+    pQueryProtocolParameters :: Parser QueryCmds
     pQueryProtocolParameters =
       QueryProtocolParameters'
         <$> pSocketPath envCli
@@ -1041,7 +1041,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryConstitutionHash :: Parser QueryCmd
+    pQueryConstitutionHash :: Parser QueryCmds
     pQueryConstitutionHash =
       QueryConstitutionHash
         <$> pSocketPath envCli
@@ -1049,7 +1049,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryTip :: Parser QueryCmd
+    pQueryTip :: Parser QueryCmds
     pQueryTip =
       QueryTip
         <$> pSocketPath envCli
@@ -1057,7 +1057,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryUTxO :: Parser QueryCmd
+    pQueryUTxO :: Parser QueryCmds
     pQueryUTxO =
       QueryUTxO'
         <$> pSocketPath envCli
@@ -1066,7 +1066,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryStakePools :: Parser QueryCmd
+    pQueryStakePools :: Parser QueryCmds
     pQueryStakePools =
       QueryStakePools'
         <$> pSocketPath envCli
@@ -1074,7 +1074,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryStakeDistribution :: Parser QueryCmd
+    pQueryStakeDistribution :: Parser QueryCmds
     pQueryStakeDistribution =
       QueryStakeDistribution'
         <$> pSocketPath envCli
@@ -1082,7 +1082,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryStakeAddressInfo :: Parser QueryCmd
+    pQueryStakeAddressInfo :: Parser QueryCmds
     pQueryStakeAddressInfo =
       QueryStakeAddressInfo
         <$> pSocketPath envCli
@@ -1091,7 +1091,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryLedgerState :: Parser QueryCmd
+    pQueryLedgerState :: Parser QueryCmds
     pQueryLedgerState =
       QueryDebugLedgerState'
         <$> pSocketPath envCli
@@ -1099,7 +1099,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryProtocolState :: Parser QueryCmd
+    pQueryProtocolState :: Parser QueryCmds
     pQueryProtocolState =
       QueryProtocolState'
         <$> pSocketPath envCli
@@ -1117,7 +1117,7 @@ pQueryCmd envCli =
             pOnly :: Parser (AllOrOnly [Hash StakePoolKey])
             pOnly = Only <$> many pStakePoolVerificationKeyHash
 
-    pQueryStakeSnapshot :: Parser QueryCmd
+    pQueryStakeSnapshot :: Parser QueryCmds
     pQueryStakeSnapshot =
       QueryStakeSnapshot'
         <$> pSocketPath envCli
@@ -1126,7 +1126,7 @@ pQueryCmd envCli =
         <*> pAllStakePoolsOrOnly
         <*> pMaybeOutputFile
 
-    pQueryPoolState :: Parser QueryCmd
+    pQueryPoolState :: Parser QueryCmds
     pQueryPoolState =
       QueryPoolState'
         <$> pSocketPath envCli
@@ -1134,7 +1134,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> many pStakePoolVerificationKeyHash
 
-    pQueryTxMempool :: Parser QueryCmd
+    pQueryTxMempool :: Parser QueryCmds
     pQueryTxMempool =
       QueryTxMempool
         <$> pSocketPath envCli
@@ -1155,7 +1155,7 @@ pQueryCmd envCli =
               $ Opt.info (TxMempoolQueryTxExists <$> argument Opt.str (metavar "TX_ID"))
               $ Opt.progDesc "Query if a particular transaction exists in the mempool"
           ]
-    pLeadershipSchedule :: Parser QueryCmd
+    pLeadershipSchedule :: Parser QueryCmds
     pLeadershipSchedule =
       QueryLeadershipSchedule
         <$> pSocketPath envCli
@@ -1167,7 +1167,7 @@ pQueryCmd envCli =
         <*> pWhichLeadershipSchedule
         <*> pMaybeOutputFile
 
-    pKesPeriodInfo :: Parser QueryCmd
+    pKesPeriodInfo :: Parser QueryCmds
     pKesPeriodInfo =
       QueryKesPeriodInfo
         <$> pSocketPath envCli
@@ -1176,7 +1176,7 @@ pQueryCmd envCli =
         <*> pOperationalCertificateFile
         <*> pMaybeOutputFile
 
-    pQuerySlotNumber :: Parser QueryCmd
+    pQuerySlotNumber :: Parser QueryCmds
     pQuerySlotNumber =
       QuerySlotNumber
         <$> pSocketPath envCli

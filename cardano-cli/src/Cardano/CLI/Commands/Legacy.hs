@@ -14,7 +14,7 @@ module Cardano.CLI.Commands.Legacy
   , TransactionCmd (..)
   , NodeCmd (..)
   , PoolCmd (..)
-  , QueryCmd (..)
+  , QueryCmds (..)
   , GovernanceCmds (..)
   , GenesisCmds (..)
   , TextViewCmds (..)
@@ -74,7 +74,7 @@ data LegacyCommand
   | TransactionCmd  TransactionCmd
   | NodeCmd         NodeCmd
   | PoolCmd         PoolCmd
-  | QueryCmd        QueryCmd
+  | QueryCmds         QueryCmds
   | GovernanceCmds    GovernanceCmds
   | GenesisCmds       GenesisCmds
   | TextViewCmds      TextViewCmds
@@ -88,7 +88,7 @@ renderLegacyCommand sc =
     TransactionCmd cmd -> renderTransactionCmd cmd
     NodeCmd cmd -> renderNodeCmd cmd
     PoolCmd cmd -> renderPoolCmd cmd
-    QueryCmd cmd -> renderQueryCmd cmd
+    QueryCmds cmd -> renderQueryCmds cmd
     GovernanceCmds cmd -> renderGovernanceCmds cmd
     GenesisCmds cmd -> renderGenesisCmds cmd
     TextViewCmds cmd -> renderTextViewCmds cmd
@@ -351,7 +351,7 @@ renderPoolCmd cmd =
     PoolGetId {} -> "stake-pool id"
     PoolMetadataHash {} -> "stake-pool metadata-hash"
 
-data QueryCmd =
+data QueryCmds =
     QueryLeadershipSchedule
       SocketPath
       AnyConsensusModeParams
@@ -388,8 +388,8 @@ data QueryCmd =
   | QuerySlotNumber SocketPath AnyConsensusModeParams NetworkId UTCTime
   deriving Show
 
-renderQueryCmd :: QueryCmd -> Text
-renderQueryCmd cmd =
+renderQueryCmds :: QueryCmds -> Text
+renderQueryCmds cmd =
   case cmd of
     QueryLeadershipSchedule {} -> "query leadership-schedule"
     QueryProtocolParameters' {} -> "query protocol-parameters "
