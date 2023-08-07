@@ -24,6 +24,7 @@ pGovernanceCommitteeCmds era =
     )
     [ pGovernanceCommitteeKeyGenCold era
     , pGovernanceCommitteeKeyGenHot era
+    , pGovernanceCommitteeKeyHash era
     ]
 
 pGovernanceCommitteeKeyGenCold :: ()
@@ -73,3 +74,26 @@ pGovernanceCommitteeKeyGenHot =
       GovernanceCommitteeKeyGenHot w
         <$> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
+
+pGovernanceCommitteeKeyHash :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceCommitteeCmds era))
+pGovernanceCommitteeKeyHash =
+  featureInEra
+    Nothing
+    ( \w ->
+        Just
+          $ subParser "key-hash"
+          $ Opt.info (pCmd w)
+          $ Opt.progDesc
+          $ mconcat
+              [ "Print the identifier (hash) of a public key"
+              ]
+    )
+  where
+    pCmd :: ()
+      => ConwayEraOnwards era
+      -> Parser (GovernanceCommitteeCmds era)
+    pCmd w =
+      GovernanceCommitteeKeyHash w
+        <$> pVerificationKeyFileIn

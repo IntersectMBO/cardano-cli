@@ -19,6 +19,9 @@ data GovernanceCommitteeCmds era
       (ConwayEraOnwards era)
       (File (VerificationKey ()) Out)
       (File (SigningKey ()) Out)
+  | GovernanceCommitteeKeyHash -- TODO to be moved under the top-level command group "key"
+      (ConwayEraOnwards era)
+      (File (VerificationKey ()) In)
   deriving Show
 
 renderGovernanceCommitteeCmds :: GovernanceCommitteeCmds era -> Text
@@ -27,3 +30,5 @@ renderGovernanceCommitteeCmds = \case
     "governance committee key-gen-cold"
   GovernanceCommitteeKeyGenHot {} ->
     "governance committee key-gen-hot"
+  GovernanceCommitteeKeyHash {} ->
+    "governance committee key-hash"
