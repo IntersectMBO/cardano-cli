@@ -13,7 +13,7 @@ module Cardano.CLI.Commands.Legacy
   , KeyCmd (..)
   , TransactionCmd (..)
   , NodeCmd (..)
-  , PoolCmd (..)
+  , PoolCmds (..)
   , QueryCmds (..)
   , GovernanceCmds (..)
   , GenesisCmds (..)
@@ -73,7 +73,7 @@ data LegacyCommand
   | KeyCmd          KeyCmd
   | TransactionCmd  TransactionCmd
   | NodeCmd         NodeCmd
-  | PoolCmd         PoolCmd
+  | PoolCmds          PoolCmds
   | QueryCmds         QueryCmds
   | GovernanceCmds    GovernanceCmds
   | GenesisCmds       GenesisCmds
@@ -87,7 +87,7 @@ renderLegacyCommand sc =
     KeyCmd cmd -> renderKeyCmd cmd
     TransactionCmd cmd -> renderTransactionCmd cmd
     NodeCmd cmd -> renderNodeCmd cmd
-    PoolCmd cmd -> renderPoolCmd cmd
+    PoolCmds cmd -> renderPoolCmds cmd
     QueryCmds cmd -> renderQueryCmds cmd
     GovernanceCmds cmd -> renderGovernanceCmds cmd
     GenesisCmds cmd -> renderGenesisCmds cmd
@@ -307,7 +307,7 @@ renderNodeCmd cmd = do
     NodeNewCounter {} -> "node new-counter"
     NodeIssueOpCert{} -> "node issue-op-cert"
 
-data PoolCmd
+data PoolCmds
   = PoolRegistrationCert
       AnyShelleyBasedEra
       -- ^ Era in which to register the stake pool.
@@ -343,8 +343,8 @@ data PoolCmd
   | PoolMetadataHash (StakePoolMetadataFile In) (Maybe (File () Out))
   deriving Show
 
-renderPoolCmd :: PoolCmd -> Text
-renderPoolCmd cmd =
+renderPoolCmds :: PoolCmds -> Text
+renderPoolCmds cmd =
   case cmd of
     PoolRegistrationCert {} -> "stake-pool registration-certificate"
     PoolRetirementCert {} -> "stake-pool deregistration-certificate"

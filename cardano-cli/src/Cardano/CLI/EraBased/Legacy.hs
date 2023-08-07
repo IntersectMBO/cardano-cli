@@ -90,7 +90,7 @@ parseLegacyCommands envCli =
         $ Opt.info (NodeCmd <$> pNodeCmd)
         $ Opt.progDesc "Node operation commands"
     , Opt.command "stake-pool"
-        $ Opt.info (PoolCmd <$> pPoolCmd envCli)
+        $ Opt.info (PoolCmds <$> pPoolCmds envCli)
         $ Opt.progDesc "Stake pool commands"
     , Opt.command "query"
         $ Opt.info (QueryCmds <$> pQueryCmds envCli) . Opt.progDesc
@@ -944,8 +944,8 @@ pNodeCmd =
         <*> pKesPeriod
         <*> pOutputFile
 
-pPoolCmd :: EnvCli -> Parser PoolCmd
-pPoolCmd  envCli =
+pPoolCmds :: EnvCli -> Parser PoolCmds
+pPoolCmds  envCli =
   asum
     [ subParser "registration-certificate"
         $ Opt.info (pStakePoolRegistrationCert envCli)
@@ -961,10 +961,10 @@ pPoolCmd  envCli =
         $ Opt.progDesc "Print the hash of pool metadata."
     ]
   where
-    pId :: Parser PoolCmd
+    pId :: Parser PoolCmds
     pId = PoolGetId <$> pStakePoolVerificationKeyOrFile <*> pPoolIdOutputFormat <*> pMaybeOutputFile
 
-    pPoolMetadataHashSubCmd :: Parser PoolCmd
+    pPoolMetadataHashSubCmd :: Parser PoolCmds
     pPoolMetadataHashSubCmd = PoolMetadataHash <$> pPoolMetadataFile <*> pMaybeOutputFile
 
 pQueryCmds :: EnvCli -> Parser QueryCmds
@@ -2907,7 +2907,7 @@ pStakePoolMetadataHash =
         . deserialiseFromRawBytesHex (AsHash AsStakePoolMetadata)
         . BSC.pack
 
-pStakePoolRegistrationCert :: EnvCli -> Parser PoolCmd
+pStakePoolRegistrationCert :: EnvCli -> Parser PoolCmds
 pStakePoolRegistrationCert envCli =
   PoolRegistrationCert
     <$> pAnyShelleyBasedEra envCli
@@ -2940,7 +2940,7 @@ pStakePoolRegistrationParserRequirements envCli =
     <*> pNetworkId envCli
 
 
-pStakePoolRetirementCert :: EnvCli -> Parser PoolCmd
+pStakePoolRetirementCert :: EnvCli -> Parser PoolCmds
 pStakePoolRetirementCert envCli =
   PoolRetirementCert
     <$> pAnyShelleyBasedEra envCli
