@@ -6,7 +6,7 @@
 
 module Cardano.CLI.EraBased.Legacy
   ( -- * CLI command parser
-    parseLegacyCommands
+    parseLegacyCmds
 
     -- * CLI command and flag types
   , module Cardano.CLI.Commands.Legacy
@@ -69,8 +69,8 @@ import           Text.Read (readEither, readMaybe)
 -- Shelley CLI command parsers
 --
 
-parseLegacyCommands :: EnvCli -> Parser LegacyCommand
-parseLegacyCommands envCli =
+parseLegacyCmds :: EnvCli -> Parser LegacyCmds
+parseLegacyCmds envCli =
   Opt.hsubparser $ mconcat
     [ Opt.metavar "Legacy commands"
     , Opt.commandGroup "Legacy commands"

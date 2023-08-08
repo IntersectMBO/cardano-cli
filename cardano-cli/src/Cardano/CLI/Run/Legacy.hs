@@ -3,7 +3,7 @@
 module Cardano.CLI.Run.Legacy
   ( LegacyClientCmdError
   , renderLegacyClientCmdError
-  , runLegacyClientCommand
+  , runLegacyCmds
   ) where
 
 import           Cardano.Api
@@ -38,7 +38,7 @@ data LegacyClientCmdError
   | LegacyCmdQueryError !ShelleyQueryCmdError
   | LegacyCmdKeyError !ShelleyKeyCmdError
 
-renderLegacyClientCmdError :: LegacyCommand -> LegacyClientCmdError -> Text
+renderLegacyClientCmdError :: LegacyCmds -> LegacyClientCmdError -> Text
 renderLegacyClientCmdError cmd err =
   case err of
     LegacyCmdAddressError addrCmdErr ->
@@ -62,7 +62,7 @@ renderLegacyClientCmdError cmd err =
     LegacyCmdKeyError keyErr ->
        renderError cmd renderShelleyKeyCmdError keyErr
   where
-    renderError :: LegacyCommand -> (a -> Text) -> a -> Text
+    renderError :: LegacyCmds -> (a -> Text) -> a -> Text
     renderError shelleyCmd renderer shelCliCmdErr =
       mconcat
         [ "Command failed: "
@@ -76,8 +76,8 @@ renderLegacyClientCmdError cmd err =
 -- CLI shelley command dispatch
 --
 
-runLegacyClientCommand :: LegacyCommand -> ExceptT LegacyClientCmdError IO ()
-runLegacyClientCommand = \case
+runLegacyCmds :: LegacyCmds -> ExceptT LegacyClientCmdError IO ()
+runLegacyCmds = \case
   LegacyAddressCmds      cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmds cmd
   LegacyStakeAddressCmds cmd -> firstExceptT LegacyCmdStakeAddressError $ runStakeAddressCmds cmd
   LegacyKeyCmds          cmd -> firstExceptT LegacyCmdKeyError $ runKeyCmds cmd
