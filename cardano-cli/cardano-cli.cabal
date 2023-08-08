@@ -92,19 +92,19 @@ library
                         Cardano.CLI.Pretty
                         Cardano.CLI.Render
                         Cardano.CLI.Run
-                        Cardano.CLI.Run.Legacy
-                        Cardano.CLI.Run.Legacy.Address
-                        Cardano.CLI.Run.Legacy.Address.Info
-                        Cardano.CLI.Run.Legacy.Genesis
-                        Cardano.CLI.Run.Legacy.Key
-                        Cardano.CLI.Run.Legacy.Node
-                        Cardano.CLI.Run.Legacy.Pool
-                        Cardano.CLI.Run.Legacy.Query
-                        Cardano.CLI.Run.Legacy.Read
-                        Cardano.CLI.Run.Legacy.StakeAddress
-                        Cardano.CLI.Run.Legacy.TextView
-                        Cardano.CLI.Run.Legacy.Transaction
-                        Cardano.CLI.Run.Legacy.Validate
+                        Cardano.CLI.Legacy.Run
+                        Cardano.CLI.Legacy.Run.Address
+                        Cardano.CLI.Legacy.Run.Address.Info
+                        Cardano.CLI.Legacy.Run.Genesis
+                        Cardano.CLI.Legacy.Run.Key
+                        Cardano.CLI.Legacy.Run.Node
+                        Cardano.CLI.Legacy.Run.Pool
+                        Cardano.CLI.Legacy.Run.Query
+                        Cardano.CLI.Legacy.Run.Read
+                        Cardano.CLI.Legacy.Run.StakeAddress
+                        Cardano.CLI.Legacy.Run.TextView
+                        Cardano.CLI.Legacy.Run.Transaction
+                        Cardano.CLI.Legacy.Run.Validate
                         Cardano.CLI.Run.Ping
                         Cardano.CLI.TopHandler
                         Cardano.CLI.Types.Common

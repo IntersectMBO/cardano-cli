@@ -4,7 +4,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.Run.Legacy.Address
+module Cardano.CLI.Legacy.Run.Address
   ( ShelleyAddressCmdError(..)
   , SomeAddressVerificationKey(..)
   , buildShelleyAddress
@@ -18,8 +18,8 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Legacy (LegacyAddressCmds (..), AddressKeyType (..))
-import           Cardano.CLI.Run.Legacy.Address.Info (ShelleyAddressInfoError, runAddressInfo)
-import           Cardano.CLI.Run.Legacy.Read
+import           Cardano.CLI.Legacy.Run.Address.Info (ShelleyAddressInfoError, runAddressInfo)
+import           Cardano.CLI.Legacy.Run.Read
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyTextOrFile,
                    VerificationKeyTextOrFileError (..), generateKeyPair, readVerificationKeyOrFile,

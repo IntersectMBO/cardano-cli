@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Run.Legacy
+module Cardano.CLI.Legacy.Run
   ( LegacyClientCmdError
   , renderLegacyClientCmdError
   , runLegacyCmds
@@ -11,15 +11,15 @@ import           Cardano.Api
 import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Run.Governance
-import           Cardano.CLI.Run.Legacy.Address
-import           Cardano.CLI.Run.Legacy.Genesis
-import           Cardano.CLI.Run.Legacy.Key
-import           Cardano.CLI.Run.Legacy.Node
-import           Cardano.CLI.Run.Legacy.Pool
-import           Cardano.CLI.Run.Legacy.Query
-import           Cardano.CLI.Run.Legacy.StakeAddress
-import           Cardano.CLI.Run.Legacy.TextView
-import           Cardano.CLI.Run.Legacy.Transaction
+import           Cardano.CLI.Legacy.Run.Address
+import           Cardano.CLI.Legacy.Run.Genesis
+import           Cardano.CLI.Legacy.Run.Key
+import           Cardano.CLI.Legacy.Run.Node
+import           Cardano.CLI.Legacy.Run.Pool
+import           Cardano.CLI.Legacy.Run.Query
+import           Cardano.CLI.Legacy.Run.StakeAddress
+import           Cardano.CLI.Legacy.Run.TextView
+import           Cardano.CLI.Legacy.Run.Transaction
 
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT)

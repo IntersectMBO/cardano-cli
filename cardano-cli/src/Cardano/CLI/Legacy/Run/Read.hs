@@ -6,7 +6,7 @@
 
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module Cardano.CLI.Run.Legacy.Read
+module Cardano.CLI.Legacy.Run.Read
   ( -- * Metadata
     MetadataError(..)
   , renderMetadataError

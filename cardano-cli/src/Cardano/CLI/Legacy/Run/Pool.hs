@@ -3,7 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
-module Cardano.CLI.Run.Legacy.Pool
+module Cardano.CLI.Legacy.Run.Pool
   ( ShelleyPoolCmdError(ShelleyPoolCmdReadFileError)
   , renderShelleyPoolCmdError
   , runPoolCmds

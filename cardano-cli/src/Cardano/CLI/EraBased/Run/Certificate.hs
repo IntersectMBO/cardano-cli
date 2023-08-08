@@ -16,7 +16,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Run.Legacy.StakeAddress
+import           Cardano.CLI.Legacy.Run.StakeAddress
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Trans.Class

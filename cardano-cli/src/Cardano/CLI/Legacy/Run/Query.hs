@@ -13,7 +13,7 @@
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Cardano.CLI.Run.Legacy.Query
+module Cardano.CLI.Legacy.Run.Query
   ( DelegationsAndRewards(..)
   , ShelleyQueryCmdError
   , ShelleyQueryCmdLocalStateQueryError (..)
@@ -36,9 +36,9 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Commands.Legacy
 import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, renderHelpersError)
-import           Cardano.CLI.Pretty
-import           Cardano.CLI.Run.Legacy.Genesis (ShelleyGenesisCmdError,
+import           Cardano.CLI.Legacy.Run.Genesis (ShelleyGenesisCmdError,
                    readAndDecodeShelleyGenesis)
+import           Cardano.CLI.Pretty
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile)
 import           Cardano.CLI.Types.Legacy

@@ -18,7 +18,7 @@ import qualified Hedgehog as H
 import           Hedgehog (Property)
 
 #ifdef UNIX
-import           Cardano.CLI.Run.Legacy.Read
+import           Cardano.CLI.Legacy.Run.Read
 import           Cardano.CLI.OS.Posix
 
 

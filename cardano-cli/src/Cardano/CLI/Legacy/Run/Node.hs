@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Cardano.CLI.Run.Legacy.Node
+module Cardano.CLI.Legacy.Run.Node
   ( ShelleyNodeCmdError(ShelleyNodeCmdReadFileError)
   , renderShelleyNodeCmdError
   , runNodeCmds
