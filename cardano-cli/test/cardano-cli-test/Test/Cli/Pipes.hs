@@ -1,19 +1,17 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Test.Cli.Pipes
-  ( tests
+  ( hprop_readFromPipe
   ) where
 
 #if !defined(mingw32_HOST_OS)
 #define UNIX
 #endif
 
-import           Prelude
 import qualified Hedgehog as H
 {- HLINT ignore "Use fewer imports" -}
-import           Hedgehog (Property, discover)
+import           Hedgehog (Property)
 
 #ifdef UNIX
 import           Cardano.CLI.Run.Legacy.Read
@@ -32,9 +30,8 @@ import qualified Hedgehog.Range as R
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
-
-prop_readFromPipe :: Property
-prop_readFromPipe = H.withTests 10 . H.property . H.moduleWorkspace "tmp" $ \ws -> do
+hprop_readFromPipe :: Property
+hprop_readFromPipe = H.withTests 10 . H.property . H.moduleWorkspace "tmp" $ \ws -> do
 
   s <- forAll $ G.string (R.linear 1 8192) G.ascii
 
@@ -83,12 +80,6 @@ withPipe contents = do
   pure readContents
 
 #else
-prop_readFromPipe :: Property
-prop_readFromPipe = H.property H.success
+hprop_readFromPipe :: Property
+hprop_readFromPipe = H.property H.success
 #endif
-
--- -----------------------------------------------------------------------------
-
-tests :: IO Bool
-tests =
-  H.checkParallel $$discover

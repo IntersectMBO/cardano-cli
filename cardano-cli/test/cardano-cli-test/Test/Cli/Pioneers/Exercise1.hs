@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Test.Cli.Pioneers.Exercise1
-  ( tests
+  ( hprop_buildShelleyPaymentAddress
+  , hprop_buildShelleyStakeAddress
   ) where
 
 import           Control.Monad (void)
@@ -9,15 +10,14 @@ import           Control.Monad (void)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
-import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. We use the generated verification key to build a shelley payment address.
-prop_buildShelleyPaymentAddress :: Property
-prop_buildShelleyPaymentAddress = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_buildShelleyPaymentAddress :: Property
+hprop_buildShelleyPaymentAddress = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Key filepaths
   verKey <- noteTempFile tempDir "payment-verification-key-file"
   signKey <- noteTempFile tempDir "payment-signing-key-file"
@@ -43,8 +43,8 @@ prop_buildShelleyPaymentAddress = propertyOnce . H.moduleWorkspace "tmp" $ \temp
 --   2. Check for the existence of the key pairs
 --   3. We use the payment verification key & staking verification key
 --      to build a shelley stake address.
-prop_buildShelleyStakeAddress :: Property
-prop_buildShelleyStakeAddress = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_buildShelleyStakeAddress :: Property
+hprop_buildShelleyStakeAddress = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Key filepaths
   stakeVerKey <- noteTempFile tempDir "stake-verification-key-file"
   stakeSignKey <- noteTempFile tempDir "stake-signing-key-file"
@@ -74,13 +74,3 @@ prop_buildShelleyStakeAddress = propertyOnce . H.moduleWorkspace "tmp" $ \tempDi
     , "--stake-verification-key-file", stakeVerKey
     , "--mainnet"
     ]
-
--- -----------------------------------------------------------------------------
-
-tests :: IO Bool
-tests =
-  H.checkSequential
-    $ H.Group "Pioneers Example 1"
-        [ ("prop_buildShelleyPaymentAddress", prop_buildShelleyPaymentAddress)
-        , ("prop_buildShelleyStakeAddress", prop_buildShelleyStakeAddress)
-        ]

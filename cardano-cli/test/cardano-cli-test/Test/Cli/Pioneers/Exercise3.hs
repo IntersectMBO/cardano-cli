@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Test.Cli.Pioneers.Exercise3
-  ( tests
+  ( hprop_createOperationalCertificate
   ) where
 
 import           Control.Monad (void)
@@ -9,7 +9,6 @@ import           Control.Monad (void)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
-import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -17,8 +16,8 @@ import qualified Hedgehog.Extras.Test.File as H
 --   2. Create cold keys.
 --   3. Create operational certificate.
 --   4. Create VRF key pair.
-prop_createOperationalCertificate :: Property
-prop_createOperationalCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_createOperationalCertificate :: Property
+hprop_createOperationalCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Key filepaths
   kesVerKey <- noteTempFile tempDir "KES-verification-key-file"
   kesSignKey <- noteTempFile tempDir "KES-signing-key-file"
@@ -57,12 +56,3 @@ prop_createOperationalCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \te
     ]
 
   H.assertFilesExist [kesVerKey, kesSignKey, coldVerKey, coldSignKey, operationalCertCounter, operationalCert]
-
--- -----------------------------------------------------------------------------
-
-tests :: IO Bool
-tests =
-  H.checkSequential
-    $ H.Group "Pioneers Example 3"
-        [ ("prop_createOperationalCertificate", prop_createOperationalCertificate)
-        ]

@@ -3,7 +3,9 @@
 {-# LANGUAGE TypeApplications #-}
 
 
-module Test.Golden.ErrorsSpec (messagesTests) where
+module Test.Golden.ErrorsSpec
+  ( test_GovernanceCmdError
+  ) where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
@@ -13,10 +15,8 @@ import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.Run.Legacy.Read
 import           Cardano.CLI.Run.Legacy.StakeAddress
 
-import           Control.Exception (try)
 import           Data.Text.Encoding.Error
 import           GHC.Stack (HasCallStack)
-import           System.Exit
 
 import qualified Test.Hedgehog.Golden.ErrorMessage as ErrorMessage
 import           Test.Tasty
@@ -80,14 +80,11 @@ test_GovernanceCmdError =
 goldenFilesPath :: FilePath
 goldenFilesPath = "test/cardano-cli-golden/files/golden/errors"
 
-testErrorMessagesRendering :: forall a. (HasCallStack, Error a)
-                      => String -- ^ module name
-                      -> String -- ^ type name
-                      -> [(String, a)]  -- ^ list of constructor names and values
-                      -> TestTree
+testErrorMessagesRendering :: forall a. ()
+  => HasCallStack
+  => Error a
+  => String -- ^ module name
+  -> String -- ^ type name
+  -> [(String, a)]  -- ^ list of constructor names and values
+  -> TestTree
 testErrorMessagesRendering = ErrorMessage.testAllErrorMessages_ goldenFilesPath
-
-messagesTests :: IO Bool
-messagesTests = do
-  exitCode <- try @ExitCode $ defaultMain test_GovernanceCmdError
-  pure $ exitCode == Left ExitSuccess

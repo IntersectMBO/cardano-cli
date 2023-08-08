@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Test.Golden.Version
-  ( golden_version
+  ( hprop_golden_version
   ) where
 
 import           Control.Monad (void)
@@ -12,8 +12,8 @@ import           Hedgehog (Property)
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_version :: Property
-golden_version = propertyOnce $ do
+hprop_golden_version :: Property
+hprop_golden_version = propertyOnce $ do
   void $ execCardanoCLI
     [ "version"
     ]

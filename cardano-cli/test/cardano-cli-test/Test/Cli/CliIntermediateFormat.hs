@@ -1,24 +1,22 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Test.Cli.CliIntermediateFormat
-  ( tests
+  ( hprop_backwardsCompatibleCliFormat
   ) where
 
 import           Control.Monad (void)
 
 import           Test.Cardano.CLI.Util
 
-import           Hedgehog (Property, discover)
-import qualified Hedgehog
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
 -- | We test to make sure that we can deserialize a tx body in the intermediate format
-prop_backwardsCompatibleCliFormat :: Property
-prop_backwardsCompatibleCliFormat = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_backwardsCompatibleCliFormat :: Property
+hprop_backwardsCompatibleCliFormat = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   txBodyFile <- noteInputFile "test/cardano-cli-test/files/golden/babbage/deprecated-cli-format.body"
   witness <- noteInputFile "test/cardano-cli-test/files/golden/babbage/tx-key-witness"
   initialUtxo1SigningKeyFile <- noteInputFile "test/cardano-cli-test/files/golden/shelley/keys/payment_keys/signing_key"
@@ -45,10 +43,3 @@ prop_backwardsCompatibleCliFormat = propertyOnce $ H.moduleWorkspace "tmp" $ \te
 
   H.assertFileOccurences 1 "Tx BabbageEra" signedTransactionFile
   H.assertEndsWithSingleNewline signedTransactionFile
-
--- -----------------------------------------------------------------------------
-
-tests :: IO Bool
-tests =
-  Hedgehog.checkParallel $$discover
-

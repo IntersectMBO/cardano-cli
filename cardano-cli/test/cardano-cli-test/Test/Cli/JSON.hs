@@ -1,8 +1,10 @@
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 
-module Test.Cli.JSON where
+module Test.Cli.JSON
+  ( hprop_json_roundtrip_delegations_and_rewards
+  , hprop_roundtrip_kes_period_info_output_JSON
+  ) where
 
 import           Cardano.Api.Shelley
 
@@ -19,13 +21,13 @@ import           Data.Word (Word64)
 import           Test.Gen.Cardano.Api.Typed (genLovelace, genSlotNo, genStakeAddress,
                    genVerificationKeyHash)
 
-import           Hedgehog (Gen, Property, checkSequential, discover, forAll, property, tripping)
+import           Hedgehog (Gen, Property, forAll, property, tripping)
 import           Hedgehog.Gen as Gen
 import           Hedgehog.Range as Range
 
 -- TODO: Move to cardano-api
-prop_json_roundtrip_delegations_and_rewards :: Property
-prop_json_roundtrip_delegations_and_rewards =
+hprop_json_roundtrip_delegations_and_rewards :: Property
+hprop_json_roundtrip_delegations_and_rewards =
   property $ do
     dAndG <- forAll genDelegationsAndRewards
     tripping dAndG encode eitherDecode
@@ -69,14 +71,7 @@ genKesPeriodInfoOutput =
     <*> genWord64
     <*> genWord64
 
-
-prop_roundtrip_kes_period_info_output_JSON :: Property
-prop_roundtrip_kes_period_info_output_JSON = property $ do
+hprop_roundtrip_kes_period_info_output_JSON :: Property
+hprop_roundtrip_kes_period_info_output_JSON = property $ do
   kesPeriodOutput <- forAll genKesPeriodInfoOutput
   tripping kesPeriodOutput encode eitherDecode
-
---- -----------------------------------------------------------------------------
-
-tests :: IO Bool
-tests =
-  checkSequential $$discover
