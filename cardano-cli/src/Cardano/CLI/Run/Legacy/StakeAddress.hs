@@ -273,7 +273,7 @@ runStakeCredentialDeRegistrationCert anyEra stakeVerifier mDeposit oFp = do
       -> StakeAddressRequirements era
       -> ExceptT ShelleyStakeAddressCmdError IO ()
     writeDeregistrationCert sbe req = do
-      let deRegCert = makeStakeAddressRegistrationCertificate req
+      let deRegCert = makeStakeAddressUnregistrationCertificate req
       firstExceptT ShelleyStakeAddressCmdWriteFileError
         . newExceptT
         $ writeLazyByteStringFile oFp
