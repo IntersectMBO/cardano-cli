@@ -8,16 +8,16 @@
 module Cardano.CLI.Commands.Legacy
   ( -- * CLI command types
     LegacyCommand (..)
-  , AddressCmd (..)
-  , StakeAddressCmd (..)
-  , KeyCmd (..)
-  , TransactionCmd (..)
-  , NodeCmd (..)
-  , PoolCmd (..)
-  , QueryCmd (..)
-  , GovernanceCmd (..)
-  , GenesisCmd (..)
-  , TextViewCmd (..)
+  , AddressCmds (..)
+  , StakeAddressCmds (..)
+  , KeyCmds (..)
+  , TransactionCmds (..)
+  , NodeCmds (..)
+  , PoolCmds (..)
+  , QueryCmds (..)
+  , GovernanceCmds (..)
+  , GenesisCmds (..)
+  , TextViewCmds (..)
   , VoteCmd(..)
   , renderLegacyCommand
 
@@ -68,32 +68,32 @@ import           Data.Time.Clock
 -- | All the CLI subcommands under \"shelley\".
 --
 data LegacyCommand
-  = AddressCmd      AddressCmd
-  | StakeAddressCmd StakeAddressCmd
-  | KeyCmd          KeyCmd
-  | TransactionCmd  TransactionCmd
-  | NodeCmd         NodeCmd
-  | PoolCmd         PoolCmd
-  | QueryCmd        QueryCmd
-  | GovernanceCmd'   GovernanceCmd
-  | GenesisCmd      GenesisCmd
-  | TextViewCmd     TextViewCmd
+  = AddressCmds       AddressCmds
+  | StakeAddressCmds  StakeAddressCmds
+  | KeyCmds           KeyCmds
+  | TransactionCmds   TransactionCmds
+  | NodeCmds          NodeCmds
+  | PoolCmds          PoolCmds
+  | QueryCmds         QueryCmds
+  | GovernanceCmds    GovernanceCmds
+  | GenesisCmds       GenesisCmds
+  | TextViewCmds      TextViewCmds
 
 renderLegacyCommand :: LegacyCommand -> Text
 renderLegacyCommand sc =
   case sc of
-    AddressCmd cmd -> renderAddressCmd cmd
-    StakeAddressCmd cmd -> renderStakeAddressCmd cmd
-    KeyCmd cmd -> renderKeyCmd cmd
-    TransactionCmd cmd -> renderTransactionCmd cmd
-    NodeCmd cmd -> renderNodeCmd cmd
-    PoolCmd cmd -> renderPoolCmd cmd
-    QueryCmd cmd -> renderQueryCmd cmd
-    GovernanceCmd' cmd -> renderGovernanceCmd cmd
-    GenesisCmd cmd -> renderGenesisCmd cmd
-    TextViewCmd cmd -> renderTextViewCmd cmd
+    AddressCmds cmd -> renderAddressCmds cmd
+    StakeAddressCmds cmd -> renderStakeAddressCmds cmd
+    KeyCmds cmd -> renderKeyCmds cmd
+    TransactionCmds cmd -> renderTransactionCmds cmd
+    NodeCmds cmd -> renderNodeCmds cmd
+    PoolCmds cmd -> renderPoolCmds cmd
+    QueryCmds cmd -> renderQueryCmds cmd
+    GovernanceCmds cmd -> renderGovernanceCmds cmd
+    GenesisCmds cmd -> renderGenesisCmds cmd
+    TextViewCmds cmd -> renderTextViewCmds cmd
 
-data AddressCmd
+data AddressCmds
   = AddressKeyGen KeyOutputFormat AddressKeyType (VerificationKeyFile Out) (SigningKeyFile Out)
   | AddressKeyHash VerificationKeyTextOrFile (Maybe (File () Out))
   | AddressBuild
@@ -105,15 +105,15 @@ data AddressCmd
   deriving Show
 
 
-renderAddressCmd :: AddressCmd -> Text
-renderAddressCmd cmd =
+renderAddressCmds :: AddressCmds -> Text
+renderAddressCmds cmd =
   case cmd of
     AddressKeyGen {} -> "address key-gen"
     AddressKeyHash {} -> "address key-hash"
     AddressBuild {} -> "address build"
     AddressInfo {} -> "address info"
 
-data StakeAddressCmd
+data StakeAddressCmds
   = StakeAddressKeyGen KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
   | StakeAddressKeyHash (VerificationKeyOrFile StakeKey) (Maybe (File () Out))
   | StakeAddressBuild StakeVerifier NetworkId (Maybe (File () Out))
@@ -134,8 +134,8 @@ data StakeAddressCmd
       (File () Out)
   deriving Show
 
-renderStakeAddressCmd :: StakeAddressCmd -> Text
-renderStakeAddressCmd cmd =
+renderStakeAddressCmds :: StakeAddressCmds -> Text
+renderStakeAddressCmds cmd =
   case cmd of
     StakeAddressKeyGen {} -> "stake-address key-gen"
     StakeAddressKeyHash {} -> "stake-address key-hash"
@@ -144,7 +144,7 @@ renderStakeAddressCmd cmd =
     StakeCredentialDelegationCert {} -> "stake-address delegation-certificate"
     StakeCredentialDeRegistrationCert {} -> "stake-address deregistration-certificate"
 
-data KeyCmd
+data KeyCmds
   = KeyGetVerificationKey (SigningKeyFile In) (VerificationKeyFile Out)
   | KeyNonExtendedKey  (VerificationKeyFile In) (VerificationKeyFile Out)
   | KeyConvertByronKey (Maybe Text) ByronKeyType (SomeKeyFile In) (File () Out)
@@ -155,8 +155,8 @@ data KeyCmd
   | KeyConvertCardanoAddressSigningKey CardanoAddressKeyType (SigningKeyFile In) (File () Out)
   deriving Show
 
-renderKeyCmd :: KeyCmd -> Text
-renderKeyCmd cmd =
+renderKeyCmds :: KeyCmds -> Text
+renderKeyCmds cmd =
   case cmd of
     KeyGetVerificationKey {} -> "key verification-key"
     KeyNonExtendedKey {} -> "key non-extended-key"
@@ -167,7 +167,7 @@ renderKeyCmd cmd =
     KeyConvertITNBip32ToStakeKey {} -> "key convert-itn-bip32-key"
     KeyConvertCardanoAddressSigningKey {} -> "key convert-cardano-address-signing-key"
 
-data TransactionCmd
+data TransactionCmds
   = TxBuildRaw
       AnyCardanoEra
       (Maybe ScriptValidity) -- ^ Mark script as expected to pass or fail validation
@@ -271,8 +271,8 @@ data TransactionCmd
 data InputTxBodyOrTxFile = InputTxBodyFile (TxBodyFile In) | InputTxFile (TxFile In)
   deriving Show
 
-renderTransactionCmd :: TransactionCmd -> Text
-renderTransactionCmd cmd =
+renderTransactionCmds :: TransactionCmds -> Text
+renderTransactionCmds cmd =
   case cmd of
     TxBuild {} -> "transaction build"
     TxBuildRaw {} -> "transaction build-raw"
@@ -287,7 +287,7 @@ renderTransactionCmd cmd =
     TxGetTxId {} -> "transaction txid"
     TxView {} -> "transaction view"
 
-data NodeCmd
+data NodeCmds
   = NodeKeyGenCold KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out) (OpCertCounterFile Out)
   | NodeKeyGenKES  KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
   | NodeKeyGenVRF  KeyOutputFormat (VerificationKeyFile Out) (SigningKeyFile Out)
@@ -297,8 +297,8 @@ data NodeCmd
                     KESPeriod (File () Out)
   deriving Show
 
-renderNodeCmd :: NodeCmd -> Text
-renderNodeCmd cmd = do
+renderNodeCmds :: NodeCmds -> Text
+renderNodeCmds cmd = do
   case cmd of
     NodeKeyGenCold {} -> "node key-gen"
     NodeKeyGenKES {} -> "node key-gen-KES"
@@ -307,7 +307,7 @@ renderNodeCmd cmd = do
     NodeNewCounter {} -> "node new-counter"
     NodeIssueOpCert{} -> "node issue-op-cert"
 
-data PoolCmd
+data PoolCmds
   = PoolRegistrationCert
       AnyShelleyBasedEra
       -- ^ Era in which to register the stake pool.
@@ -343,15 +343,15 @@ data PoolCmd
   | PoolMetadataHash (StakePoolMetadataFile In) (Maybe (File () Out))
   deriving Show
 
-renderPoolCmd :: PoolCmd -> Text
-renderPoolCmd cmd =
+renderPoolCmds :: PoolCmds -> Text
+renderPoolCmds cmd =
   case cmd of
     PoolRegistrationCert {} -> "stake-pool registration-certificate"
     PoolRetirementCert {} -> "stake-pool deregistration-certificate"
     PoolGetId {} -> "stake-pool id"
     PoolMetadataHash {} -> "stake-pool metadata-hash"
 
-data QueryCmd =
+data QueryCmds =
     QueryLeadershipSchedule
       SocketPath
       AnyConsensusModeParams
@@ -388,8 +388,8 @@ data QueryCmd =
   | QuerySlotNumber SocketPath AnyConsensusModeParams NetworkId UTCTime
   deriving Show
 
-renderQueryCmd :: QueryCmd -> Text
-renderQueryCmd cmd =
+renderQueryCmds :: QueryCmds -> Text
+renderQueryCmds cmd =
   case cmd of
     QueryLeadershipSchedule {} -> "query leadership-schedule"
     QueryProtocolParameters' {} -> "query protocol-parameters "
@@ -414,15 +414,15 @@ renderQueryCmd cmd =
         TxMempoolQueryInfo -> "info"
 
 
-data TextViewCmd
+data TextViewCmds
   = TextViewInfo !FilePath (Maybe (File () Out))
   deriving Show
 
 
-renderTextViewCmd :: TextViewCmd -> Text
-renderTextViewCmd (TextViewInfo _ _) = "text-view decode-cbor"
+renderTextViewCmds :: TextViewCmds -> Text
+renderTextViewCmds (TextViewInfo _ _) = "text-view decode-cbor"
 
-data GenesisCmd
+data GenesisCmds
   = GenesisCreate
       KeyOutputFormat
       GenesisDir
@@ -457,8 +457,8 @@ data GenesisCmd
   | GenesisHashFile GenesisFile
   deriving Show
 
-renderGenesisCmd :: GenesisCmd -> Text
-renderGenesisCmd cmd =
+renderGenesisCmds :: GenesisCmds -> Text
+renderGenesisCmds cmd =
   case cmd of
     GenesisCreate {} -> "genesis create"
     GenesisCreateCardano {} -> "genesis create-cardano"

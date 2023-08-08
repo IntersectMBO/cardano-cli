@@ -22,7 +22,7 @@ module Cardano.CLI.Run.Legacy.Genesis
   , readShelleyGenesisWithDefault
   , readAndDecodeShelleyGenesis
   , readAlonzoGenesis
-  , runGenesisCmd
+  , runGenesisCmds
 
   -- * Protocol Parameters
   , ProtocolParamsError(..)
@@ -199,19 +199,19 @@ instance Error ShelleyGenesisCmdError where
         "Error occurred while decoding the stake pool relay specification file: " <> fp <>
         " Error: " <>  e
 
-runGenesisCmd :: GenesisCmd -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisCmd (GenesisKeyGenGenesis vk sk) = runGenesisKeyGenGenesis vk sk
-runGenesisCmd (GenesisKeyGenDelegate vk sk ctr) = runGenesisKeyGenDelegate vk sk ctr
-runGenesisCmd (GenesisKeyGenUTxO vk sk) = runGenesisKeyGenUTxO vk sk
-runGenesisCmd (GenesisCmdKeyHash vk) = runGenesisKeyHash vk
-runGenesisCmd (GenesisVerKey vk sk) = runGenesisVerKey vk sk
-runGenesisCmd (GenesisTxIn vk nw mOutFile) = runGenesisTxIn vk nw mOutFile
-runGenesisCmd (GenesisAddr vk nw mOutFile) = runGenesisAddr vk nw mOutFile
-runGenesisCmd (GenesisCreate fmt gd gn un ms am nw) = runGenesisCreate fmt gd gn un ms am nw
-runGenesisCmd (GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg) = runGenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
-runGenesisCmd (GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp) =
+runGenesisCmds :: GenesisCmds -> ExceptT ShelleyGenesisCmdError IO ()
+runGenesisCmds (GenesisKeyGenGenesis vk sk) = runGenesisKeyGenGenesis vk sk
+runGenesisCmds (GenesisKeyGenDelegate vk sk ctr) = runGenesisKeyGenDelegate vk sk ctr
+runGenesisCmds (GenesisKeyGenUTxO vk sk) = runGenesisKeyGenUTxO vk sk
+runGenesisCmds (GenesisCmdKeyHash vk) = runGenesisKeyHash vk
+runGenesisCmds (GenesisVerKey vk sk) = runGenesisVerKey vk sk
+runGenesisCmds (GenesisTxIn vk nw mOutFile) = runGenesisTxIn vk nw mOutFile
+runGenesisCmds (GenesisAddr vk nw mOutFile) = runGenesisAddr vk nw mOutFile
+runGenesisCmds (GenesisCreate fmt gd gn un ms am nw) = runGenesisCreate fmt gd gn un ms am nw
+runGenesisCmds (GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg) = runGenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
+runGenesisCmds (GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp) =
   runGenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
-runGenesisCmd (GenesisHashFile gf) = runGenesisHashFile gf
+runGenesisCmds (GenesisHashFile gf) = runGenesisHashFile gf
 
 --
 -- Genesis command implementations

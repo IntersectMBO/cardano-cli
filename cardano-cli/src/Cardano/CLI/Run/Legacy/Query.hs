@@ -20,7 +20,7 @@ module Cardano.CLI.Run.Legacy.Query
   , renderOpCertIntervalInformation
   , renderShelleyQueryCmdError
   , renderLocalStateQueryError
-  , runQueryCmd
+  , runQueryCmds
   , toEpochInfo
   , utcTimeToSlotNo
   , determineEra
@@ -162,8 +162,8 @@ renderShelleyQueryCmdError err =
     ShelleyQueryCmdProtocolParameterConversionError ppce ->
       Text.pack $ "Failed to convert protocol parameter: " <> displayError ppce
 
-runQueryCmd :: QueryCmd -> ExceptT ShelleyQueryCmdError IO ()
-runQueryCmd cmd =
+runQueryCmds :: QueryCmds -> ExceptT ShelleyQueryCmdError IO ()
+runQueryCmds cmd =
   case cmd of
     QueryLeadershipSchedule mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs ->
       runQueryLeadershipSchedule mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs

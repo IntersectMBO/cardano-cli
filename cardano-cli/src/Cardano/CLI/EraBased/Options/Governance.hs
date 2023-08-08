@@ -3,9 +3,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Options.Governance
-  ( EraBasedGovernanceCmd(..)
-  , renderEraBasedGovernanceCmd
-  , pEraBasedGovernanceCmd
+  ( EraBasedGovernanceCmds(..)
+  , renderEraBasedGovernanceCmds
+  , pEraBasedGovernanceCmds
   ) where
 
 import           Cardano.Api
@@ -29,8 +29,8 @@ import           Options.Applicative
 import qualified Options.Applicative as Opt
 
 -- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
-pEraBasedGovernanceCmd :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmd era)
-pEraBasedGovernanceCmd envCli era =
+pEraBasedGovernanceCmds :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmds era)
+pEraBasedGovernanceCmds envCli era =
   asum $ catMaybes
     [ pEraBasedRegistrationCertificateCmd envCli era
     , pEraBasedDelegationCertificateCmd envCli era
@@ -42,7 +42,7 @@ pEraBasedGovernanceCmd envCli era =
 -- Registration Certificate related
 
 pEraBasedRegistrationCertificateCmd
-  :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
+  :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
 pEraBasedRegistrationCertificateCmd envCli =
   featureInEra Nothing $ \w ->
     Just
@@ -50,7 +50,7 @@ pEraBasedRegistrationCertificateCmd envCli =
       $ Opt.info (pEraCmd envCli w)
       $ Opt.progDesc "Create a registration certificate."
  where
-  pEraCmd :: EnvCli -> AnyEraDecider era -> Parser (EraBasedGovernanceCmd era)
+  pEraCmd :: EnvCli -> AnyEraDecider era -> Parser (EraBasedGovernanceCmds era)
   pEraCmd envCli' = \case
     AnyEraDeciderShelleyToBabbage sToB ->
       EraBasedGovernanceRegistrationCertificateCmd
@@ -92,7 +92,7 @@ instance FeatureInEra AnyEraDecider where
 
 -- Delegation Certificate related
 
-pEraBasedDelegationCertificateCmd :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
+pEraBasedDelegationCertificateCmd :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
 pEraBasedDelegationCertificateCmd _envCli =
   featureInEra Nothing $ \w ->
     Just
@@ -100,7 +100,7 @@ pEraBasedDelegationCertificateCmd _envCli =
       $ Opt.info (pCmd w)
       $ Opt.progDesc "Delegation certificate creation."
  where
-  pCmd :: AnyEraDecider era -> Parser (EraBasedGovernanceCmd era)
+  pCmd :: AnyEraDecider era -> Parser (EraBasedGovernanceCmds era)
   pCmd w =
     EraBasedGovernanceDelegationCertificateCmd
       <$> pStakeIdentifier
@@ -211,7 +211,7 @@ pDRepVerificationKeyFile =
 -- Vote related
 
 pEraBasedVoteCmd
-  :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
+  :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
 pEraBasedVoteCmd envCli =
   featureInEra Nothing $ \w ->
     Just
@@ -220,7 +220,7 @@ pEraBasedVoteCmd envCli =
       $ Opt.progDesc "Vote creation."
  where
   pEraCmd'
-    :: EnvCli -> ConwayEraOnwards era -> Parser (EraBasedGovernanceCmd era)
+    :: EnvCli -> ConwayEraOnwards era -> Parser (EraBasedGovernanceCmds era)
   pEraCmd' _envCli cOn =
       EraBasedGovernanceVoteCmd
         <$> pAnyVote cOn
@@ -244,7 +244,7 @@ pAnyVotingStakeVerificationKeyOrHashOrFile =
 --------------------------------------------------------------------------------
 
 
-pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmd era))
+pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
 pCreateMirCertificatesCmds =
   featureInEra Nothing $ \w ->
     Just
@@ -254,7 +254,7 @@ pCreateMirCertificatesCmds =
 
 mirCertParsers :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmd era)
+  -> Parser (EraBasedGovernanceCmds era)
 mirCertParsers w =
   asum
     [ subParser "stake-addresses"
@@ -270,7 +270,7 @@ mirCertParsers w =
 
 pMIRPayStakeAddresses :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmd era)
+  -> Parser (EraBasedGovernanceCmds era)
 pMIRPayStakeAddresses w =
   EraBasedGovernanceMIRPayStakeAddressesCertificate w
     <$> pMIRPot
@@ -280,7 +280,7 @@ pMIRPayStakeAddresses w =
 
 pMIRTransferToTreasury :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmd era)
+  -> Parser (EraBasedGovernanceCmds era)
 pMIRTransferToTreasury w =
   EraBasedGovernanceMIRTransfer w
     <$> pTransferAmt
@@ -289,7 +289,7 @@ pMIRTransferToTreasury w =
 
 pMIRTransferToReserves :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmd era)
+  -> Parser (EraBasedGovernanceCmds era)
 pMIRTransferToReserves w =
   EraBasedGovernanceMIRTransfer w
     <$> pTransferAmt

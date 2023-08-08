@@ -2,7 +2,7 @@
 
 module Cardano.CLI.Byron.Parsers
   ( ByronCommand(..)
-  , NodeCmd(..)
+  , NodeCmds(..)
   , backwardsCompatibilityCommands
   , parseByronCommands
   , parseHeavyDelThd
@@ -101,18 +101,18 @@ parseByronCommands envCli = asum
       $ Opt.progDesc "Byron node query commands.")
   , subParser' "genesis" (Opt.info (asum $ map Opt.subparser parseGenesisRelatedValues)
       $ Opt.progDesc "Byron genesis block commands")
-  , subParser' "governance" (Opt.info (NodeCmd <$> Opt.subparser (pNodeCmd envCli))
+  , subParser' "governance" (Opt.info (NodeCmds <$> Opt.subparser (pNodeCmds envCli))
       $ Opt.progDesc "Byron governance commands")
   , subParser' "miscellaneous" (Opt.info (asum $ map Opt.subparser parseMiscellaneous)
       $ Opt.progDesc "Byron miscellaneous commands")
-  , NodeCmd <$> pNodeCmdBackwardCompatible envCli
+  , NodeCmds <$> pNodeCmdBackwardCompatible envCli
   ]
  where
    subParser' :: String -> ParserInfo ByronCommand -> Parser ByronCommand
    subParser' name pInfo = Opt.subparser $ Opt.command name pInfo <> Opt.metavar name
 
-pNodeCmdBackwardCompatible :: EnvCli -> Parser NodeCmd
-pNodeCmdBackwardCompatible envCli = Opt.subparser $ pNodeCmd envCli <> Opt.internal
+pNodeCmdBackwardCompatible :: EnvCli -> Parser NodeCmds
+pNodeCmdBackwardCompatible envCli = Opt.subparser $ pNodeCmds envCli <> Opt.internal
 
 parseCBORObject :: Parser CBORObject
 parseCBORObject = asum
@@ -359,8 +359,8 @@ parseTxRelatedValues envCli =
             <$> parseTxFile "tx"
     ]
 
-pNodeCmd :: EnvCli -> Mod CommandFields NodeCmd
-pNodeCmd envCli =
+pNodeCmds :: EnvCli -> Mod CommandFields NodeCmds
+pNodeCmds envCli =
   mconcat
     [ Opt.command "create-update-proposal" $
         Opt.info (parseByronUpdateProposal envCli) $ Opt.progDesc  "Create an update proposal."
@@ -372,7 +372,7 @@ pNodeCmd envCli =
         Opt.info (parseByronVoteSubmission envCli) $ Opt.progDesc "Submit a proposal vote."
     ]
 
-parseByronUpdateProposal :: EnvCli -> Parser NodeCmd
+parseByronUpdateProposal :: EnvCli -> Parser NodeCmds
 parseByronUpdateProposal envCli = do
   UpdateProposal
     <$> pNetworkId envCli
@@ -384,7 +384,7 @@ parseByronUpdateProposal envCli = do
     <*> parseFilePath "filepath" "Byron proposal output filepath."
     <*> pByronProtocolParametersUpdate
 
-parseByronVoteSubmission :: EnvCli -> Parser NodeCmd
+parseByronVoteSubmission :: EnvCli -> Parser NodeCmds
 parseByronVoteSubmission envCli = do
   SubmitVote
     <$> pSocketPath envCli
@@ -410,14 +410,14 @@ pByronProtocolParametersUpdate =
     <*> optional parseTxFeePolicy
     <*> optional parseUnlockStakeEpoch
 
-parseByronUpdateProposalSubmission :: EnvCli -> Parser NodeCmd
+parseByronUpdateProposalSubmission :: EnvCli -> Parser NodeCmds
 parseByronUpdateProposalSubmission envCli =
   SubmitUpdateProposal
     <$> pSocketPath envCli
     <*> pNetworkId envCli
     <*> parseFilePath "filepath" "Filepath of Byron update proposal."
 
-parseByronVote :: EnvCli -> Parser NodeCmd
+parseByronVote :: EnvCli -> Parser NodeCmds
 parseByronVote envCli =
   CreateVote
     <$> pNetworkId envCli

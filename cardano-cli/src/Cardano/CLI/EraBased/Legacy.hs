@@ -75,45 +75,45 @@ parseLegacyCommands envCli =
     [ Opt.metavar "Legacy commands"
     , Opt.commandGroup "Legacy commands"
     , Opt.command "address"
-        $ Opt.info (AddressCmd <$> pAddressCmd envCli)
+        $ Opt.info (AddressCmds <$> pAddressCmds envCli)
         $ Opt.progDesc "Payment address commands"
     , Opt.command "stake-address"
-        $ Opt.info (StakeAddressCmd <$> pStakeAddressCmd envCli)
+        $ Opt.info (StakeAddressCmds <$> pStakeAddressCmds envCli)
         $ Opt.progDesc "Stake address commands"
     , Opt.command "key"
-        $ Opt.info (KeyCmd <$> pKeyCmd)
+        $ Opt.info (KeyCmds <$> pKeyCmds)
         $ Opt.progDesc "Key utility commands"
     , Opt.command "transaction"
-        $ Opt.info (TransactionCmd <$> pTransaction envCli)
+        $ Opt.info (TransactionCmds <$> pTransaction envCli)
         $ Opt.progDesc "Transaction commands"
     , Opt.command "node"
-        $ Opt.info (NodeCmd <$> pNodeCmd)
+        $ Opt.info (NodeCmds <$> pNodeCmds)
         $ Opt.progDesc "Node operation commands"
     , Opt.command "stake-pool"
-        $ Opt.info (PoolCmd <$> pPoolCmd envCli)
+        $ Opt.info (PoolCmds <$> pPoolCmds envCli)
         $ Opt.progDesc "Stake pool commands"
     , Opt.command "query"
-        $ Opt.info (QueryCmd <$> pQueryCmd envCli) . Opt.progDesc
+        $ Opt.info (QueryCmds <$> pQueryCmds envCli) . Opt.progDesc
         $ mconcat
             [ "Node query commands. Will query the local node whose Unix domain socket "
             , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
             ]
     , Opt.command "genesis"
-        $ Opt.info (GenesisCmd <$> pGenesisCmd envCli)
+        $ Opt.info (GenesisCmds <$> pGenesisCmds envCli)
         $ Opt.progDesc "Genesis block commands"
     , Opt.command "governance"
-        $ Opt.info (GovernanceCmd' <$> pGovernanceCmd envCli)
+        $ Opt.info (GovernanceCmds <$> pGovernanceCmds envCli)
         $ Opt.progDesc "Governance commands"
     , Opt.command "text-view"
-        $ Opt.info (TextViewCmd <$> pTextViewCmd) . Opt.progDesc
+        $ Opt.info (TextViewCmds <$> pTextViewCmds) . Opt.progDesc
         $ mconcat
             [ "Commands for dealing with Shelley TextView files. "
             , "Transactions, addresses etc are stored on disk as TextView files."
             ]
     ]
 
-pTextViewCmd :: Parser TextViewCmd
-pTextViewCmd =
+pTextViewCmds :: Parser TextViewCmds
+pTextViewCmds =
   asum
     [ subParser "decode-cbor"
         (Opt.info (TextViewInfo <$> pCBORInFile <*> pMaybeOutputFile)
@@ -137,8 +137,8 @@ pCBORInFile =
     ]
 
 
-pAddressCmd :: EnvCli -> Parser AddressCmd
-pAddressCmd envCli =
+pAddressCmds :: EnvCli -> Parser AddressCmds
+pAddressCmds envCli =
    asum
      [ subParser "key-gen"
          (Opt.info pAddressKeyGen $ Opt.progDesc "Create an address key pair.")
@@ -150,7 +150,7 @@ pAddressCmd envCli =
          (Opt.info pAddressInfo $ Opt.progDesc "Print information about an address.")
      ]
   where
-    pAddressKeyGen :: Parser AddressCmd
+    pAddressKeyGen :: Parser AddressCmds
     pAddressKeyGen =
       AddressKeyGen
         <$> pKeyOutputFormat
@@ -158,20 +158,20 @@ pAddressCmd envCli =
         <*> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pAddressKeyHash :: Parser AddressCmd
+    pAddressKeyHash :: Parser AddressCmds
     pAddressKeyHash =
       AddressKeyHash
         <$> pPaymentVerificationKeyTextOrFile
         <*> pMaybeOutputFile
 
-    pAddressBuild :: Parser AddressCmd
+    pAddressBuild :: Parser AddressCmds
     pAddressBuild = AddressBuild
       <$> pPaymentVerifier
       <*> Opt.optional pStakeIdentifier
       <*> pNetworkId envCli
       <*> pMaybeOutputFile
 
-    pAddressInfo :: Parser AddressCmd
+    pAddressInfo :: Parser AddressCmds
     pAddressInfo = AddressInfo <$> pAddress <*> pMaybeOutputFile
 
 pPaymentVerifier :: Parser PaymentVerifier
@@ -347,8 +347,8 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
             Left err -> fail (displayError err)
             Right sd -> return sd
 
-pStakeAddressCmd :: EnvCli -> Parser StakeAddressCmd
-pStakeAddressCmd envCli =
+pStakeAddressCmds :: EnvCli -> Parser StakeAddressCmds
+pStakeAddressCmds envCli =
     asum
       [ subParser "key-gen"
           $ Opt.info pStakeAddressKeyGen
@@ -370,24 +370,24 @@ pStakeAddressCmd envCli =
           $ Opt.progDesc "Create a stake address pool delegation certificate"
       ]
   where
-    pStakeAddressKeyGen :: Parser StakeAddressCmd
+    pStakeAddressKeyGen :: Parser StakeAddressCmds
     pStakeAddressKeyGen =
       StakeAddressKeyGen
         <$> pKeyOutputFormat
         <*> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pStakeAddressKeyHash :: Parser StakeAddressCmd
+    pStakeAddressKeyHash :: Parser StakeAddressCmds
     pStakeAddressKeyHash = StakeAddressKeyHash <$> pStakeVerificationKeyOrFile <*> pMaybeOutputFile
 
-    pStakeAddressBuild :: Parser StakeAddressCmd
+    pStakeAddressBuild :: Parser StakeAddressCmds
     pStakeAddressBuild =
       StakeAddressBuild
         <$> pStakeVerifier
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pStakeAddressRegistrationCert :: Parser StakeAddressCmd
+    pStakeAddressRegistrationCert :: Parser StakeAddressCmds
     pStakeAddressRegistrationCert =
       StakeRegistrationCert
         <$> pAnyShelleyBasedEra envCli
@@ -395,7 +395,7 @@ pStakeAddressCmd envCli =
         <*> optional pKeyRegistDeposit
         <*> pOutputFile
 
-    pStakeAddressDeregistrationCert :: Parser StakeAddressCmd
+    pStakeAddressDeregistrationCert :: Parser StakeAddressCmds
     pStakeAddressDeregistrationCert =
       StakeCredentialDeRegistrationCert
         <$> pAnyShelleyBasedEra envCli
@@ -403,7 +403,7 @@ pStakeAddressCmd envCli =
         <*> optional pKeyRegistDeposit
         <*> pOutputFile
 
-    pStakeAddressPoolDelegationCert :: Parser StakeAddressCmd
+    pStakeAddressPoolDelegationCert :: Parser StakeAddressCmds
     pStakeAddressPoolDelegationCert =
       StakeCredentialDelegationCert
         <$> pAnyShelleyBasedEra envCli
@@ -411,8 +411,8 @@ pStakeAddressCmd envCli =
         <*> pDelegationTarget
         <*> pOutputFile
 
-pKeyCmd :: Parser KeyCmd
-pKeyCmd =
+pKeyCmds :: Parser KeyCmds
+pKeyCmds =
   asum
     [ subParser "verification-key"
         $ Opt.info pKeyGetVerificationKey
@@ -478,19 +478,19 @@ pKeyCmd =
             ]
     ]
   where
-    pKeyGetVerificationKey :: Parser KeyCmd
+    pKeyGetVerificationKey :: Parser KeyCmds
     pKeyGetVerificationKey =
       KeyGetVerificationKey
         <$> pSigningKeyFileIn
         <*> pVerificationKeyFileOut
 
-    pKeyNonExtendedKey :: Parser KeyCmd
+    pKeyNonExtendedKey :: Parser KeyCmds
     pKeyNonExtendedKey =
       KeyNonExtendedKey
         <$> pExtendedVerificationKeyFileIn
         <*> pVerificationKeyFileOut
 
-    pKeyConvertByronKey :: Parser KeyCmd
+    pKeyConvertByronKey :: Parser KeyCmds
     pKeyConvertByronKey =
       KeyConvertByronKey
         <$> optional pPassword
@@ -560,7 +560,7 @@ pKeyCmd =
         , Opt.completer (Opt.bashCompleter "file")
         ]
 
-    pKeyConvertByronGenesisVKey :: Parser KeyCmd
+    pKeyConvertByronGenesisVKey :: Parser KeyCmds
     pKeyConvertByronGenesisVKey =
       KeyConvertByronGenesisVKey
         <$> pByronGenesisVKeyBase64
@@ -574,19 +574,19 @@ pKeyCmd =
         , Opt.help "Base64 string for the Byron genesis verification key."
         ]
 
-    pKeyConvertITNKey :: Parser KeyCmd
+    pKeyConvertITNKey :: Parser KeyCmds
     pKeyConvertITNKey =
       KeyConvertITNStakeKey
         <$> pITNKeyFIle
         <*> pOutputFile
 
-    pKeyConvertITNExtendedKey :: Parser KeyCmd
+    pKeyConvertITNExtendedKey :: Parser KeyCmds
     pKeyConvertITNExtendedKey =
       KeyConvertITNExtendedToStakeKey
         <$> pITNSigningKeyFile
         <*> pOutputFile
 
-    pKeyConvertITNBip32Key :: Parser KeyCmd
+    pKeyConvertITNBip32Key :: Parser KeyCmds
     pKeyConvertITNBip32Key =
       KeyConvertITNBip32ToStakeKey
         <$> pITNSigningKeyFile
@@ -617,7 +617,7 @@ pKeyCmd =
         , Opt.completer (Opt.bashCompleter "file")
         ]
 
-    pKeyConvertCardanoAddressSigningKey :: Parser KeyCmd
+    pKeyConvertCardanoAddressSigningKey :: Parser KeyCmds
     pKeyConvertCardanoAddressSigningKey =
       KeyConvertCardanoAddressSigningKey
         <$> pCardanoAddressKeyType
@@ -645,7 +645,7 @@ pKeyCmd =
             ]
         ]
 
-pTransaction :: EnvCli -> Parser TransactionCmd
+pTransaction :: EnvCli -> Parser TransactionCmds
 pTransaction envCli =
   asum
     [ subParser "build-raw"
@@ -701,22 +701,22 @@ pTransaction envCli =
     ]
  where
   -- Backwards compatible parsers
-  calcMinValueInfo :: ParserInfo TransactionCmd
+  calcMinValueInfo :: ParserInfo TransactionCmds
   calcMinValueInfo =
     Opt.info pTransactionCalculateMinReqUTxO
       $ Opt.progDesc "DEPRECATED: Use 'calculate-min-required-utxo' instead."
 
-  pCalculateMinRequiredUtxoBackwardCompatible :: Parser TransactionCmd
+  pCalculateMinRequiredUtxoBackwardCompatible :: Parser TransactionCmds
   pCalculateMinRequiredUtxoBackwardCompatible =
     Opt.subparser
       $ Opt.command "calculate-min-value" calcMinValueInfo <> Opt.internal
 
-  assembleInfo :: ParserInfo TransactionCmd
+  assembleInfo :: ParserInfo TransactionCmds
   assembleInfo =
     Opt.info pTransactionAssembleTxBodyWit
       $ Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
 
-  pSignWitnessBackwardCompatible :: Parser TransactionCmd
+  pSignWitnessBackwardCompatible :: Parser TransactionCmds
   pSignWitnessBackwardCompatible =
     Opt.subparser
       $ Opt.command "sign-witness" assembleInfo <> Opt.internal
@@ -737,7 +737,7 @@ pTransaction envCli =
       ]
     ]
 
-  pTransactionBuild :: Parser TransactionCmd
+  pTransactionBuild :: Parser TransactionCmds
   pTransactionBuild =
     TxBuild
       <$> pSocketPath envCli
@@ -778,7 +778,7 @@ pTransaction envCli =
       , Opt.help "Address where ADA in excess of the tx fee will go to."
       ]
 
-  pTransactionBuildRaw :: Parser TransactionCmd
+  pTransactionBuildRaw :: Parser TransactionCmds
   pTransactionBuildRaw =
     TxBuildRaw
       <$> pCardanoEra envCli
@@ -803,7 +803,7 @@ pTransaction envCli =
       <*> optional pUpdateProposalFile
       <*> pTxBodyFileOut
 
-  pTransactionSign  :: Parser TransactionCmd
+  pTransactionSign  :: Parser TransactionCmds
   pTransactionSign =
     TxSign
       <$> pInputTxOrTxBodyFile
@@ -811,7 +811,7 @@ pTransaction envCli =
       <*> optional (pNetworkId envCli)
       <*> pTxFileOut
 
-  pTransactionCreateWitness :: Parser TransactionCmd
+  pTransactionCreateWitness :: Parser TransactionCmds
   pTransactionCreateWitness =
     TxCreateWitness
       <$> pTxBodyFileIn
@@ -819,14 +819,14 @@ pTransaction envCli =
       <*> optional (pNetworkId envCli)
       <*> pOutputFile
 
-  pTransactionAssembleTxBodyWit :: Parser TransactionCmd
+  pTransactionAssembleTxBodyWit :: Parser TransactionCmds
   pTransactionAssembleTxBodyWit =
     TxAssembleTxBodyWitness
       <$> pTxBodyFileIn
       <*> many pWitnessFile
       <*> pOutputFile
 
-  pTransactionSubmit :: Parser TransactionCmd
+  pTransactionSubmit :: Parser TransactionCmds
   pTransactionSubmit =
     TxSubmit
       <$> pSocketPath envCli
@@ -834,10 +834,10 @@ pTransaction envCli =
       <*> pNetworkId envCli
       <*> pTxSubmitFile
 
-  pTransactionPolicyId :: Parser TransactionCmd
+  pTransactionPolicyId :: Parser TransactionCmds
   pTransactionPolicyId = TxMintedPolicyId <$> pScript
 
-  pTransactionCalculateMinFee :: Parser TransactionCmd
+  pTransactionCalculateMinFee :: Parser TransactionCmds
   pTransactionCalculateMinFee =
     TxCalculateMinFee
       <$> pTxBodyFileIn
@@ -848,13 +848,13 @@ pTransaction envCli =
       <*> pTxShelleyWitnessCount
       <*> pTxByronWitnessCount
 
-  pTransactionCalculateMinReqUTxO :: Parser TransactionCmd
+  pTransactionCalculateMinReqUTxO :: Parser TransactionCmds
   pTransactionCalculateMinReqUTxO = TxCalculateMinRequiredUTxO
     <$> pCardanoEra envCli
     <*> pProtocolParamsFile
     <*> pTxOut
 
-  pTxHashScriptData :: Parser TransactionCmd
+  pTxHashScriptData :: Parser TransactionCmds
   pTxHashScriptData =
     fmap TxHashScriptData
       $ pScriptDataOrFile
@@ -862,14 +862,14 @@ pTransaction envCli =
           "The script data, in JSON syntax."
           "The script data, in the given JSON file."
 
-  pTransactionId  :: Parser TransactionCmd
+  pTransactionId  :: Parser TransactionCmds
   pTransactionId = TxGetTxId <$> pInputTxOrTxBodyFile
 
-  pTransactionView :: Parser TransactionCmd
+  pTransactionView :: Parser TransactionCmds
   pTransactionView = TxView <$> pInputTxOrTxBodyFile
 
-pNodeCmd :: Parser NodeCmd
-pNodeCmd =
+pNodeCmds :: Parser NodeCmds
+pNodeCmds =
   asum
     [ subParser "key-gen" . Opt.info pKeyGenOperator . Opt.progDesc $ mconcat
       [ "Create a key pair for a node operator's offline "
@@ -892,7 +892,7 @@ pNodeCmd =
       ]
     ]
   where
-    pKeyGenOperator :: Parser NodeCmd
+    pKeyGenOperator :: Parser NodeCmds
     pKeyGenOperator =
       NodeKeyGenCold
         <$> pKeyOutputFormat
@@ -900,27 +900,27 @@ pNodeCmd =
         <*> pColdSigningKeyFile
         <*> pOperatorCertIssueCounterFile
 
-    pKeyGenKES :: Parser NodeCmd
+    pKeyGenKES :: Parser NodeCmds
     pKeyGenKES =
       NodeKeyGenKES
         <$> pKeyOutputFormat
         <*> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pKeyGenVRF :: Parser NodeCmd
+    pKeyGenVRF :: Parser NodeCmds
     pKeyGenVRF =
       NodeKeyGenVRF
         <$> pKeyOutputFormat
         <*> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pKeyHashVRF :: Parser NodeCmd
+    pKeyHashVRF :: Parser NodeCmds
     pKeyHashVRF =
       NodeKeyHashVRF
         <$> pVerificationKeyOrFile AsVrfKey
         <*> pMaybeOutputFile
 
-    pNewCounter :: Parser NodeCmd
+    pNewCounter :: Parser NodeCmds
     pNewCounter =
       NodeNewCounter
         <$> pColdVerificationKeyOrFile
@@ -935,7 +935,7 @@ pNodeCmd =
         , Opt.help "The next certificate issue counter value to use."
         ]
 
-    pIssueOpCert :: Parser NodeCmd
+    pIssueOpCert :: Parser NodeCmds
     pIssueOpCert =
       NodeIssueOpCert
         <$> pKesVerificationKeyOrFile
@@ -944,8 +944,8 @@ pNodeCmd =
         <*> pKesPeriod
         <*> pOutputFile
 
-pPoolCmd :: EnvCli -> Parser PoolCmd
-pPoolCmd  envCli =
+pPoolCmds :: EnvCli -> Parser PoolCmds
+pPoolCmds  envCli =
   asum
     [ subParser "registration-certificate"
         $ Opt.info (pStakePoolRegistrationCert envCli)
@@ -961,14 +961,14 @@ pPoolCmd  envCli =
         $ Opt.progDesc "Print the hash of pool metadata."
     ]
   where
-    pId :: Parser PoolCmd
+    pId :: Parser PoolCmds
     pId = PoolGetId <$> pStakePoolVerificationKeyOrFile <*> pPoolIdOutputFormat <*> pMaybeOutputFile
 
-    pPoolMetadataHashSubCmd :: Parser PoolCmd
+    pPoolMetadataHashSubCmd :: Parser PoolCmds
     pPoolMetadataHashSubCmd = PoolMetadataHash <$> pPoolMetadataFile <*> pMaybeOutputFile
 
-pQueryCmd :: EnvCli -> Parser QueryCmd
-pQueryCmd envCli =
+pQueryCmds :: EnvCli -> Parser QueryCmds
+pQueryCmds envCli =
   asum
     [ subParser "protocol-parameters"
         $ Opt.info pQueryProtocolParameters
@@ -1033,7 +1033,7 @@ pQueryCmd envCli =
         $ Opt.progDesc "Query slot number for UTC timestamp"
     ]
   where
-    pQueryProtocolParameters :: Parser QueryCmd
+    pQueryProtocolParameters :: Parser QueryCmds
     pQueryProtocolParameters =
       QueryProtocolParameters'
         <$> pSocketPath envCli
@@ -1041,7 +1041,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryConstitutionHash :: Parser QueryCmd
+    pQueryConstitutionHash :: Parser QueryCmds
     pQueryConstitutionHash =
       QueryConstitutionHash
         <$> pSocketPath envCli
@@ -1049,7 +1049,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryTip :: Parser QueryCmd
+    pQueryTip :: Parser QueryCmds
     pQueryTip =
       QueryTip
         <$> pSocketPath envCli
@@ -1057,7 +1057,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryUTxO :: Parser QueryCmd
+    pQueryUTxO :: Parser QueryCmds
     pQueryUTxO =
       QueryUTxO'
         <$> pSocketPath envCli
@@ -1066,7 +1066,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryStakePools :: Parser QueryCmd
+    pQueryStakePools :: Parser QueryCmds
     pQueryStakePools =
       QueryStakePools'
         <$> pSocketPath envCli
@@ -1074,7 +1074,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryStakeDistribution :: Parser QueryCmd
+    pQueryStakeDistribution :: Parser QueryCmds
     pQueryStakeDistribution =
       QueryStakeDistribution'
         <$> pSocketPath envCli
@@ -1082,7 +1082,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryStakeAddressInfo :: Parser QueryCmd
+    pQueryStakeAddressInfo :: Parser QueryCmds
     pQueryStakeAddressInfo =
       QueryStakeAddressInfo
         <$> pSocketPath envCli
@@ -1091,7 +1091,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryLedgerState :: Parser QueryCmd
+    pQueryLedgerState :: Parser QueryCmds
     pQueryLedgerState =
       QueryDebugLedgerState'
         <$> pSocketPath envCli
@@ -1099,7 +1099,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pQueryProtocolState :: Parser QueryCmd
+    pQueryProtocolState :: Parser QueryCmds
     pQueryProtocolState =
       QueryProtocolState'
         <$> pSocketPath envCli
@@ -1117,7 +1117,7 @@ pQueryCmd envCli =
             pOnly :: Parser (AllOrOnly [Hash StakePoolKey])
             pOnly = Only <$> many pStakePoolVerificationKeyHash
 
-    pQueryStakeSnapshot :: Parser QueryCmd
+    pQueryStakeSnapshot :: Parser QueryCmds
     pQueryStakeSnapshot =
       QueryStakeSnapshot'
         <$> pSocketPath envCli
@@ -1126,7 +1126,7 @@ pQueryCmd envCli =
         <*> pAllStakePoolsOrOnly
         <*> pMaybeOutputFile
 
-    pQueryPoolState :: Parser QueryCmd
+    pQueryPoolState :: Parser QueryCmds
     pQueryPoolState =
       QueryPoolState'
         <$> pSocketPath envCli
@@ -1134,7 +1134,7 @@ pQueryCmd envCli =
         <*> pNetworkId envCli
         <*> many pStakePoolVerificationKeyHash
 
-    pQueryTxMempool :: Parser QueryCmd
+    pQueryTxMempool :: Parser QueryCmds
     pQueryTxMempool =
       QueryTxMempool
         <$> pSocketPath envCli
@@ -1155,7 +1155,7 @@ pQueryCmd envCli =
               $ Opt.info (TxMempoolQueryTxExists <$> argument Opt.str (metavar "TX_ID"))
               $ Opt.progDesc "Query if a particular transaction exists in the mempool"
           ]
-    pLeadershipSchedule :: Parser QueryCmd
+    pLeadershipSchedule :: Parser QueryCmds
     pLeadershipSchedule =
       QueryLeadershipSchedule
         <$> pSocketPath envCli
@@ -1167,7 +1167,7 @@ pQueryCmd envCli =
         <*> pWhichLeadershipSchedule
         <*> pMaybeOutputFile
 
-    pKesPeriodInfo :: Parser QueryCmd
+    pKesPeriodInfo :: Parser QueryCmds
     pKesPeriodInfo =
       QueryKesPeriodInfo
         <$> pSocketPath envCli
@@ -1176,7 +1176,7 @@ pQueryCmd envCli =
         <*> pOperationalCertificateFile
         <*> pMaybeOutputFile
 
-    pQuerySlotNumber :: Parser QueryCmd
+    pQuerySlotNumber :: Parser QueryCmds
     pQuerySlotNumber =
       QuerySlotNumber
         <$> pSocketPath envCli
@@ -1192,8 +1192,8 @@ pQueryCmd envCli =
 
 
 -- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
-pGovernanceCmd :: EnvCli -> Parser GovernanceCmd
-pGovernanceCmd envCli =
+pGovernanceCmds :: EnvCli -> Parser GovernanceCmds
+pGovernanceCmds envCli =
   asum
     [ subParser "create-mir-certificate"
         $ Opt.info (pLegacyMIRPayStakeAddresses <|> mirCertParsers)
@@ -1221,7 +1221,7 @@ pGovernanceCmd envCli =
         $ Opt.progDesc "Governance action related commands."
     ]
   where
-    mirCertParsers :: Parser GovernanceCmd
+    mirCertParsers :: Parser GovernanceCmds
     mirCertParsers = asum
       [ subParser "stake-addresses"
         $ Opt.info pLegacyMIRPayStakeAddresses
@@ -1234,7 +1234,7 @@ pGovernanceCmd envCli =
         $ Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
       ]
 
-    pLegacyMIRPayStakeAddresses :: Parser GovernanceCmd
+    pLegacyMIRPayStakeAddresses :: Parser GovernanceCmds
     pLegacyMIRPayStakeAddresses =
       GovernanceMIRPayStakeAddressesCertificate
         <$> pAnyShelleyToBabbageEra envCli
@@ -1243,7 +1243,7 @@ pGovernanceCmd envCli =
         <*> some pRewardAmt
         <*> pOutputFile
 
-    pLegacyMIRTransferToTreasury :: Parser GovernanceCmd
+    pLegacyMIRTransferToTreasury :: Parser GovernanceCmds
     pLegacyMIRTransferToTreasury =
       GovernanceMIRTransfer
         <$> pAnyShelleyToBabbageEra envCli
@@ -1251,7 +1251,7 @@ pGovernanceCmd envCli =
         <*> pOutputFile
         <*> pure TransferToTreasury
 
-    pLegacyMIRTransferToReserves :: Parser GovernanceCmd
+    pLegacyMIRTransferToReserves :: Parser GovernanceCmds
     pLegacyMIRTransferToReserves =
       GovernanceMIRTransfer
         <$> pAnyShelleyToBabbageEra envCli
@@ -1259,7 +1259,7 @@ pGovernanceCmd envCli =
         <*> pOutputFile
         <*> pure TransferToReserves
 
-    pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmd
+    pGovernanceGenesisKeyDelegationCertificate :: Parser GovernanceCmds
     pGovernanceGenesisKeyDelegationCertificate =
       GovernanceGenesisKeyDelegationCertificate
         <$> pAnyShelleyBasedEra envCli
@@ -1268,7 +1268,7 @@ pGovernanceCmd envCli =
         <*> pVrfVerificationKeyOrHashOrFile
         <*> pOutputFile
 
-    pUpdateProposal :: Parser GovernanceCmd
+    pUpdateProposal :: Parser GovernanceCmds
     pUpdateProposal =
       GovernanceUpdateProposal
         <$> pOutputFile
@@ -1277,7 +1277,7 @@ pGovernanceCmd envCli =
         <*> pProtocolParametersUpdate
         <*> optional pCostModels
 
-    pGovernanceCreatePoll :: Parser GovernanceCmd
+    pGovernanceCreatePoll :: Parser GovernanceCmds
     pGovernanceCreatePoll =
       GovernanceCreatePoll
         <$> pPollQuestion
@@ -1285,14 +1285,14 @@ pGovernanceCmd envCli =
         <*> optional pPollNonce
         <*> pOutputFile
 
-    pGovernanceAnswerPoll :: Parser GovernanceCmd
+    pGovernanceAnswerPoll :: Parser GovernanceCmds
     pGovernanceAnswerPoll =
       GovernanceAnswerPoll
         <$> pPollFile
         <*> optional pPollAnswerIndex
         <*> optional pOutputFile
 
-    pGovernanceVerifyPoll :: Parser GovernanceCmd
+    pGovernanceVerifyPoll :: Parser GovernanceCmds
     pGovernanceVerifyPoll =
       GovernanceVerifyPoll
         <$> pPollFile
@@ -1349,8 +1349,8 @@ pPollNonce =
     , Opt.help "An (optional) nonce for non-replayability."
     ]
 
-pGenesisCmd :: EnvCli -> Parser GenesisCmd
-pGenesisCmd envCli =
+pGenesisCmds :: EnvCli -> Parser GenesisCmds
+pGenesisCmds envCli =
   asum
     [ subParser "key-gen-genesis"
         $ Opt.info pGenesisKeyGen
@@ -1399,51 +1399,51 @@ pGenesisCmd envCli =
         $ Opt.progDesc "Compute the hash of a genesis file"
     ]
   where
-    pGenesisKeyGen :: Parser GenesisCmd
+    pGenesisKeyGen :: Parser GenesisCmds
     pGenesisKeyGen =
       GenesisKeyGenGenesis
         <$> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pGenesisDelegateKeyGen :: Parser GenesisCmd
+    pGenesisDelegateKeyGen :: Parser GenesisCmds
     pGenesisDelegateKeyGen =
       GenesisKeyGenDelegate
         <$> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
         <*> pOperatorCertIssueCounterFile
 
-    pGenesisUTxOKeyGen :: Parser GenesisCmd
+    pGenesisUTxOKeyGen :: Parser GenesisCmds
     pGenesisUTxOKeyGen =
       GenesisKeyGenUTxO
         <$> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pGenesisKeyHash :: Parser GenesisCmd
+    pGenesisKeyHash :: Parser GenesisCmds
     pGenesisKeyHash =
       GenesisCmdKeyHash
         <$> pVerificationKeyFileIn
 
-    pGenesisVerKey :: Parser GenesisCmd
+    pGenesisVerKey :: Parser GenesisCmds
     pGenesisVerKey =
       GenesisVerKey
         <$> pVerificationKeyFileOut
         <*> pSigningKeyFileIn
 
-    pGenesisAddr :: Parser GenesisCmd
+    pGenesisAddr :: Parser GenesisCmds
     pGenesisAddr =
       GenesisAddr
         <$> pVerificationKeyFileIn
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pGenesisTxIn :: Parser GenesisCmd
+    pGenesisTxIn :: Parser GenesisCmds
     pGenesisTxIn =
       GenesisTxIn
         <$> pVerificationKeyFileIn
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pGenesisCreateCardano :: Parser GenesisCmd
+    pGenesisCreateCardano :: Parser GenesisCmds
     pGenesisCreateCardano =
       GenesisCreateCardano
         <$> pGenesisDir
@@ -1469,7 +1469,7 @@ pGenesisCmd envCli =
               "JSON file with genesis defaults for conway."
         <*> pNodeConfigTemplate
 
-    pGenesisCreate :: Parser GenesisCmd
+    pGenesisCreate :: Parser GenesisCmds
     pGenesisCreate =
       GenesisCreate
         <$> pKeyOutputFormat
@@ -1480,7 +1480,7 @@ pGenesisCmd envCli =
         <*> pInitialSupplyNonDelegated
         <*> pNetworkId envCli
 
-    pGenesisCreateStaked :: Parser GenesisCmd
+    pGenesisCreateStaked :: Parser GenesisCmds
     pGenesisCreateStaked =
       GenesisCreateStaked
         <$> pKeyOutputFormat
@@ -1498,7 +1498,7 @@ pGenesisCmd envCli =
         <*> pStuffedUtxoCount
         <*> Opt.optional pRelayJsonFp
 
-    pGenesisHash :: Parser GenesisCmd
+    pGenesisHash :: Parser GenesisCmds
     pGenesisHash =
       GenesisHashFile <$> pGenesisFile "The genesis file."
 
@@ -2907,7 +2907,7 @@ pStakePoolMetadataHash =
         . deserialiseFromRawBytesHex (AsHash AsStakePoolMetadata)
         . BSC.pack
 
-pStakePoolRegistrationCert :: EnvCli -> Parser PoolCmd
+pStakePoolRegistrationCert :: EnvCli -> Parser PoolCmds
 pStakePoolRegistrationCert envCli =
   PoolRegistrationCert
     <$> pAnyShelleyBasedEra envCli
@@ -2940,7 +2940,7 @@ pStakePoolRegistrationParserRequirements envCli =
     <*> pNetworkId envCli
 
 
-pStakePoolRetirementCert :: EnvCli -> Parser PoolCmd
+pStakePoolRetirementCert :: EnvCli -> Parser PoolCmds
 pStakePoolRetirementCert envCli =
   PoolRetirementCert
     <$> pAnyShelleyBasedEra envCli

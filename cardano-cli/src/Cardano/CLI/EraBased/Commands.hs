@@ -24,11 +24,11 @@ data AnyEraCommand where
   AnyEraCommandOf :: ShelleyBasedEra era -> EraBasedCommand era -> AnyEraCommand
 
 newtype EraBasedCommand era
-  = EraBasedGovernanceCmd (EraBasedGovernanceCmd era)
+  = EraBasedGovernanceCmds (EraBasedGovernanceCmds era)
 
 renderEraBasedCommand :: EraBasedCommand era -> Text
 renderEraBasedCommand = \case
-  EraBasedGovernanceCmd cmd -> renderEraBasedGovernanceCmd cmd
+  EraBasedGovernanceCmds cmd -> renderEraBasedGovernanceCmds cmd
 
 pAnyEraCommand :: EnvCli -> Parser AnyEraCommand
 pAnyEraCommand envCli =
@@ -66,6 +66,6 @@ pEraBasedCommand :: EnvCli -> CardanoEra era -> Parser (EraBasedCommand era)
 pEraBasedCommand envCli era =
   asum
     [ subParser "governance"
-        $ Opt.info (EraBasedGovernanceCmd <$> pEraBasedGovernanceCmd envCli era)
+        $ Opt.info (EraBasedGovernanceCmds <$> pEraBasedGovernanceCmds envCli era)
         $ Opt.progDesc "Era-based governance commands"
     ]

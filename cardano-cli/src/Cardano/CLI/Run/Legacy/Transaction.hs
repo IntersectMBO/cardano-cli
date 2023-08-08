@@ -12,7 +12,7 @@
 module Cardano.CLI.Run.Legacy.Transaction
   ( ShelleyTxCmdError(..)
   , renderShelleyTxCmdError
-  , runTransactionCmd
+  , runTransactionCmds
   , readFileTx
   , toTxOutInAnyEra
   ) where
@@ -265,8 +265,8 @@ renderFeature TxFeatureTotalCollateral      = "Total collateral"
 renderFeature TxFeatureReferenceInputs      = "Reference inputs"
 renderFeature TxFeatureReturnCollateral     = "Return collateral"
 
-runTransactionCmd :: TransactionCmd -> ExceptT ShelleyTxCmdError IO ()
-runTransactionCmd cmd =
+runTransactionCmds :: TransactionCmds -> ExceptT ShelleyTxCmdError IO ()
+runTransactionCmds cmd =
   case cmd of
     TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
             reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
