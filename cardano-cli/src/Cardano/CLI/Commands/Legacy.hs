@@ -51,7 +51,7 @@ module Cardano.CLI.Commands.Legacy
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount)
-import           Cardano.CLI.EraBased.Governance
+import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key

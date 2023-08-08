@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.EraBased.Governance where
+module Cardano.CLI.Legacy.Commands.Governance where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
