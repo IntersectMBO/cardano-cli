@@ -6,17 +6,14 @@
 
 module Cardano.CLI.Legacy.Run.Governance
   ( runGovernanceCmds
-  , runGovernanceMIRCertificatePayStakeAddrs
-  , runGovernanceMIRCertificateTransfer
   ) where
 
-
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 import qualified Cardano.Api.Shelley as Api
 
 import           Cardano.CLI.Commands.Governance
+import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Legacy.Run.Read (fileOrPipe, readFileTx)
 import           Cardano.CLI.Types.Common
@@ -24,7 +21,6 @@ import           Cardano.CLI.Types.Governance
 import qualified Cardano.CLI.Types.Governance as Cli
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Control.Monad
 import           Control.Monad.IO.Class (liftIO)
@@ -35,7 +31,6 @@ import           Data.Aeson (eitherDecode)
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LB
 import           Data.Function ((&))
-import qualified Data.Map.Strict as Map
 import           Data.String (fromString)
 import           Data.Text (Text)
 import qualified Data.Text as Text
@@ -44,61 +39,6 @@ import qualified Data.Text.IO as Text
 import qualified Data.Text.Read as Text
 import qualified System.IO as IO
 import           System.IO (stderr, stdin, stdout)
-
-runGovernanceMIRCertificatePayStakeAddrs
-  :: ShelleyToBabbageEra era
-  -> Shelley.MIRPot
-  -> [StakeAddress] -- ^ Stake addresses
-  -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
-  -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
-runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
-  unless (length sAddrs == length rwdAmts) $
-    left $ GovernanceCmdMIRCertificateKeyRewardMistmach
-              (unFile oFp) (length sAddrs) (length rwdAmts)
-
-  let sCreds  = map stakeAddressCredential sAddrs
-      mirTarget = Ledger.StakeAddressesMIR
-                    $ Map.fromList [ (toShelleyStakeCredential scred, Ledger.toDeltaCoin (toShelleyLovelace rwdAmt))
-                                    | (scred, rwdAmt) <- zip sCreds rwdAmts
-                                    ]
-  let mirCert = makeMIRCertificate
-        $ MirCertificateRequirements w mirPot
-        $ shelleyToBabbageEraConstraints w mirTarget
-
-  firstExceptT GovernanceCmdTextEnvWriteError
-    . newExceptT
-    $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
-    $ writeLazyByteStringFile oFp
-    $ textEnvelopeToJSON (Just mirCertDesc) mirCert
-  where
-    mirCertDesc :: TextEnvelopeDescr
-    mirCertDesc = "Move Instantaneous Rewards Certificate"
-
-runGovernanceMIRCertificateTransfer
-  :: ShelleyToBabbageEra era
-  -> Lovelace
-  -> File () Out
-  -> TransferDirection
-  -> ExceptT GovernanceCmdError IO ()
-runGovernanceMIRCertificateTransfer w ll oFp direction = do
-  let mirTarget = Ledger.SendToOppositePotMIR (toShelleyLovelace ll)
-
-  let mirCert =
-        makeMIRCertificate $
-          case direction of
-            TransferToReserves -> MirCertificateRequirements w Ledger.TreasuryMIR mirTarget
-            TransferToTreasury -> MirCertificateRequirements w Ledger.ReservesMIR mirTarget
-
-  firstExceptT GovernanceCmdTextEnvWriteError
-    . newExceptT
-    $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
-    $ writeLazyByteStringFile oFp
-    $ textEnvelopeToJSON (Just $ mirCertDesc direction) mirCert
- where
-  mirCertDesc :: TransferDirection -> TextEnvelopeDescr
-  mirCertDesc TransferToTreasury = "MIR Certificate Send To Treasury"
-  mirCertDesc TransferToReserves = "MIR Certificate Send To Reserves"
 
 runGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmds = \case
