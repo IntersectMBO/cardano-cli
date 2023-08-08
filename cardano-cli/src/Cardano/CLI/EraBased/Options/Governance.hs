@@ -15,7 +15,6 @@ import           Cardano.CLI.EraBased.Commands.Governance
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Governance.Committee
-import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
@@ -298,4 +297,3 @@ pMIRTransferToReserves w =
     <*> pure TransferToReserves
 
 --------------------------------------------------------------------------------
-

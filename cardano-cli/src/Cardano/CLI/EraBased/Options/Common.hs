@@ -17,6 +17,7 @@ import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra,
                    envCliAnyShelleyToBabbageEra)
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 import           Cardano.Prelude (purer)
@@ -2550,9 +2551,7 @@ pProtocolVersion =
           ]
         ]
 
---
--- Shelley CLI flag field parsers
---
+--------------------------------------------------------------------------------
 
 parseTxOutAnyEra
   :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)
@@ -2564,6 +2563,36 @@ parseTxOutAnyEra = do
     Parsec.option () (Parsec.char '+' >> Parsec.spaces)
     val <- parseValue
     return (TxOutAnyEra addr val)
+
+--------------------------------------------------------------------------------
+
+pVoteChoice :: Parser Vote
+pVoteChoice =
+  asum
+   [  flag' Yes $ long "yes"
+   ,  flag' No $ long "no"
+   ,  flag' Abstain $ long "abstain"
+   ]
+
+pVoterType :: Parser VType
+pVoterType =
+  asum
+   [  flag' VCC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
+   ,  flag' VDR $ mconcat [long "drep", Opt.help "Delegate representative"]
+   ,  flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
+   ]
+
+pGoveranceActionIdentifier :: Parser TxIn
+pGoveranceActionIdentifier =
+  Opt.option (readerFromParsecParser parseTxIn) $ mconcat
+    [ Opt.long "tx-in"
+    , Opt.metavar "TX-IN"
+    , Opt.help "TxIn of governance action (already on chain)."
+    ]
+
+-- TODO: Conway era include "normal" stake keys
+pVotingCredential :: Parser (VerificationKeyOrFile StakePoolKey)
+pVotingCredential = pStakePoolVerificationKeyOrFile
 
 --------------------------------------------------------------------------------
 -- Helpers
