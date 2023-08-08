@@ -4,7 +4,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
 
-
 {- HLINT ignore "Monad law, left identity" -}
 
 module Cardano.CLI.Legacy.Run.StakeAddress
@@ -23,8 +22,8 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Errors.StakeAddress
+import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.Legacy.Commands.StakeAddress
-import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key (DelegationTarget (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,
@@ -256,37 +255,3 @@ runStakeCredentialDeRegistrationCert anyEra stakeVerifier mDeposit oFp = do
 
     deregCertDesc :: TextEnvelopeDescr
     deregCertDesc = "Stake Address Deregistration Certificate"
-
-
-
-
-getStakeCredentialFromVerifier
-  :: StakeVerifier
-  -> ExceptT ShelleyStakeAddressCmdError IO StakeCredential
-getStakeCredentialFromVerifier = \case
-  StakeVerifierScriptFile (ScriptFile sFile) -> do
-    ScriptInAnyLang _ script <-
-      firstExceptT ShelleyStakeAddressCmdReadScriptFileError $
-        readFileScriptInAnyLang sFile
-    pure $ StakeCredentialByScript $ hashScript script
-
-  StakeVerifierKey stakeVerKeyOrFile -> do
-    stakeVerKey <-
-      firstExceptT ShelleyStakeAddressCmdReadKeyFileError
-        . newExceptT
-        $ readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
-    pure $ StakeCredentialByKey $ verificationKeyHash stakeVerKey
-
-getStakeCredentialFromIdentifier
-  :: StakeIdentifier
-  -> ExceptT ShelleyStakeAddressCmdError IO StakeCredential
-getStakeCredentialFromIdentifier = \case
-  StakeIdentifierAddress stakeAddr -> pure $ stakeAddressCredential stakeAddr
-  StakeIdentifierVerifier stakeVerifier -> getStakeCredentialFromVerifier stakeVerifier
-
-getStakeAddressFromVerifier
-  :: NetworkId
-  -> StakeVerifier
-  -> ExceptT ShelleyStakeAddressCmdError IO StakeAddress
-getStakeAddressFromVerifier networkId stakeVerifier =
-  makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier
