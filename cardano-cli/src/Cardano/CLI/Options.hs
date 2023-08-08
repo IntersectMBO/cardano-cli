@@ -13,8 +13,8 @@ import           Cardano.Api (CardanoEra (..), ShelleyBasedEra (..))
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
-import           Cardano.CLI.EraBased.Legacy (parseLegacyCmds)
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Legacy.Options (parseLegacyCmds)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run (ClientCommand (..))
 import           Cardano.CLI.Run.Ping (parsePingCmd)

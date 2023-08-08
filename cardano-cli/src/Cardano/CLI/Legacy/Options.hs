@@ -4,7 +4,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Cardano.CLI.EraBased.Legacy
+module Cardano.CLI.Legacy.Options
   ( -- * CLI command parser
     parseLegacyCmds
 
