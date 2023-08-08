@@ -46,7 +46,7 @@ renderShelleyPoolCmdError err =
 
 
 
-runPoolCmds :: PoolCmds -> ExceptT ShelleyPoolCmdError IO ()
+runPoolCmds :: LegacyPoolCmds -> ExceptT ShelleyPoolCmdError IO ()
 runPoolCmds = \case
   PoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
     runStakePoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp

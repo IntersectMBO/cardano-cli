@@ -100,7 +100,7 @@ runGovernanceMIRCertificateTransfer w ll oFp direction = do
   mirCertDesc TransferToTreasury = "MIR Certificate Send To Treasury"
   mirCertDesc TransferToReserves = "MIR Certificate Send To Reserves"
 
-runGovernanceCmds :: GovernanceCmds -> ExceptT GovernanceCmdError IO ()
+runGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmds = \case
   GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp

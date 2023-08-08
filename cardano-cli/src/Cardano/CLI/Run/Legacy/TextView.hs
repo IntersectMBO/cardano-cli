@@ -31,7 +31,7 @@ renderShelleyTextViewFileError err =
       "Error pretty printing CBOR: " <> renderHelpersError hlprsErr
 
 
-runTextViewCmds :: TextViewCmds -> ExceptT ShelleyTextViewFileError IO ()
+runTextViewCmds :: LegacyTextViewCmds -> ExceptT ShelleyTextViewFileError IO ()
 runTextViewCmds cmd =
   case cmd of
     TextViewInfo fpath mOutfile -> runTextViewInfo fpath mOutfile

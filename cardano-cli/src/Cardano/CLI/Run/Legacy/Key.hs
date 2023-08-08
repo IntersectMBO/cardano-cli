@@ -85,7 +85,7 @@ renderShelleyKeyCmdError err =
     ShelleyKeyCmdExpectedExtendedVerificationKey someVerKey ->
       "Expected an extended verification key but got: " <> renderSomeAddressVerificationKey someVerKey
 
-runKeyCmds :: KeyCmds -> ExceptT ShelleyKeyCmdError IO ()
+runKeyCmds :: LegacyKeyCmds -> ExceptT ShelleyKeyCmdError IO ()
 runKeyCmds cmd =
   case cmd of
     KeyGetVerificationKey skf vkf ->

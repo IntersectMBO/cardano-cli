@@ -19,7 +19,7 @@ import           Data.Text (Text)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
-data GovernanceCmds
+data LegacyGovernanceCmds
   = GovernanceVoteCmd VoteCmd
   | GovernanceActionCmd ActionCmd
   | GovernanceMIRPayStakeAddressesCertificate
@@ -59,8 +59,8 @@ data GovernanceCmds
       (Maybe (File () Out)) -- Tx file
   deriving Show
 
-renderGovernanceCmds :: GovernanceCmds -> Text
-renderGovernanceCmds = \case
+renderLegacyGovernanceCmds :: LegacyGovernanceCmds -> Text
+renderLegacyGovernanceCmds = \case
   GovernanceVoteCmd {} -> "governance vote"
   GovernanceActionCmd {} -> "governance action"
   GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"

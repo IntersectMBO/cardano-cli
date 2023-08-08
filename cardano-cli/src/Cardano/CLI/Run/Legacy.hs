@@ -78,13 +78,13 @@ renderLegacyClientCmdError cmd err =
 
 runLegacyClientCommand :: LegacyCommand -> ExceptT LegacyClientCmdError IO ()
 runLegacyClientCommand = \case
-  AddressCmds      cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmds cmd
-  StakeAddressCmds cmd -> firstExceptT LegacyCmdStakeAddressError $ runStakeAddressCmds cmd
-  KeyCmds          cmd -> firstExceptT LegacyCmdKeyError $ runKeyCmds cmd
-  TransactionCmds  cmd -> firstExceptT LegacyCmdTransactionError $ runTransactionCmds cmd
-  NodeCmds         cmd -> firstExceptT LegacyCmdNodeError $ runNodeCmds cmd
-  PoolCmds         cmd -> firstExceptT LegacyCmdPoolError $ runPoolCmds cmd
-  QueryCmds        cmd -> firstExceptT LegacyCmdQueryError $ runQueryCmds cmd
-  GovernanceCmds  cmd -> firstExceptT LegacyCmdGovernanceError $ runGovernanceCmds cmd
-  GenesisCmds      cmd -> firstExceptT LegacyCmdGenesisError $ runGenesisCmds cmd
-  TextViewCmds     cmd -> firstExceptT LegacyCmdTextViewError $ runTextViewCmds cmd
+  LegacyAddressCmds      cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmds cmd
+  LegacyStakeAddressCmds cmd -> firstExceptT LegacyCmdStakeAddressError $ runStakeAddressCmds cmd
+  LegacyKeyCmds          cmd -> firstExceptT LegacyCmdKeyError $ runKeyCmds cmd
+  LegacyTransactionCmds  cmd -> firstExceptT LegacyCmdTransactionError $ runTransactionCmds cmd
+  LegacyNodeCmds         cmd -> firstExceptT LegacyCmdNodeError $ runNodeCmds cmd
+  LegacyPoolCmds         cmd -> firstExceptT LegacyCmdPoolError $ runPoolCmds cmd
+  LegacyQueryCmds        cmd -> firstExceptT LegacyCmdQueryError $ runQueryCmds cmd
+  LegacyGovernanceCmds   cmd -> firstExceptT LegacyCmdGovernanceError $ runGovernanceCmds cmd
+  LegacyGenesisCmds      cmd -> firstExceptT LegacyCmdGenesisError $ runGenesisCmds cmd
+  LegacyTextViewCmds     cmd -> firstExceptT LegacyCmdTextViewError $ runTextViewCmds cmd

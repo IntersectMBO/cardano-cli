@@ -265,7 +265,7 @@ renderFeature TxFeatureTotalCollateral      = "Total collateral"
 renderFeature TxFeatureReferenceInputs      = "Reference inputs"
 renderFeature TxFeatureReturnCollateral     = "Return collateral"
 
-runTransactionCmds :: TransactionCmds -> ExceptT ShelleyTxCmdError IO ()
+runTransactionCmds :: LegacyTransactionCmds -> ExceptT ShelleyTxCmdError IO ()
 runTransactionCmds cmd =
   case cmd of
     TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns

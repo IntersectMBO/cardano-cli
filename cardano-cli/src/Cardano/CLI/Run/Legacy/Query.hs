@@ -162,7 +162,7 @@ renderShelleyQueryCmdError err =
     ShelleyQueryCmdProtocolParameterConversionError ppce ->
       Text.pack $ "Failed to convert protocol parameter: " <> displayError ppce
 
-runQueryCmds :: QueryCmds -> ExceptT ShelleyQueryCmdError IO ()
+runQueryCmds :: LegacyQueryCmds -> ExceptT ShelleyQueryCmdError IO ()
 runQueryCmds cmd =
   case cmd of
     QueryLeadershipSchedule mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs ->

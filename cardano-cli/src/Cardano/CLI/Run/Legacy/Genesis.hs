@@ -199,7 +199,7 @@ instance Error ShelleyGenesisCmdError where
         "Error occurred while decoding the stake pool relay specification file: " <> fp <>
         " Error: " <>  e
 
-runGenesisCmds :: GenesisCmds -> ExceptT ShelleyGenesisCmdError IO ()
+runGenesisCmds :: LegacyGenesisCmds -> ExceptT ShelleyGenesisCmdError IO ()
 runGenesisCmds (GenesisKeyGenGenesis vk sk) = runGenesisKeyGenGenesis vk sk
 runGenesisCmds (GenesisKeyGenDelegate vk sk ctr) = runGenesisKeyGenDelegate vk sk ctr
 runGenesisCmds (GenesisKeyGenUTxO vk sk) = runGenesisKeyGenUTxO vk sk

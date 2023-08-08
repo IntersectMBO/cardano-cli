@@ -59,7 +59,7 @@ renderShelleyNodeCmdError err =
       Text.pack (displayError issueErr)
 
 
-runNodeCmds :: NodeCmds -> ExceptT ShelleyNodeCmdError IO ()
+runNodeCmds :: LegacyNodeCmds -> ExceptT ShelleyNodeCmdError IO ()
 runNodeCmds (NodeKeyGenCold fmt vk sk ctr) = runNodeKeyGenCold fmt vk sk ctr
 runNodeCmds (NodeKeyGenKES  fmt vk sk)     = runNodeKeyGenKES fmt vk sk
 runNodeCmds (NodeKeyGenVRF  fmt vk sk)     = runNodeKeyGenVRF fmt vk sk

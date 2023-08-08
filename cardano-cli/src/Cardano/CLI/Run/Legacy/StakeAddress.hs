@@ -60,7 +60,7 @@ renderShelleyStakeAddressCmdError err =
     StakeRegistrationError regErr -> Text.pack $ show regErr
     StakeDelegationError delegErr -> Text.pack $ show delegErr
 
-runStakeAddressCmds :: StakeAddressCmds -> ExceptT ShelleyStakeAddressCmdError IO ()
+runStakeAddressCmds :: LegacyStakeAddressCmds -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeAddressCmds (StakeAddressKeyGen fmt vk sk) = runStakeAddressKeyGenToFile fmt vk sk
 runStakeAddressCmds (StakeAddressKeyHash vk mOutputFp) = runStakeAddressKeyHash vk mOutputFp
 runStakeAddressCmds (StakeAddressBuild stakeVerifier nw mOutputFp) =
