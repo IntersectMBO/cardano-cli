@@ -7,7 +7,12 @@
 
 module Cardano.CLI.Types.Common
   ( AllOrOnly(..)
+  , AddressKeyType(..)
   , BalanceTxExecUnits (..)
+  , BlockId(..)
+  , ByronKeyFormat(..)
+  , ByronKeyType(..)
+  , CardanoAddressKeyType(..)
   , CBORObject (..)
   , CertificateFile (..)
   , Constitution(..)
@@ -15,9 +20,13 @@ module Cardano.CLI.Types.Common
   , EpochLeadershipSchedule (..)
   , File(..)
   , FileDirection (..)
+  , GenesisDir(..)
   , GenesisFile (..)
+  , GenesisKeyFile(..)
   , KeyOutputFormat(..)
+  , MetadataFile(..)
   , OpCertCounter
+  , OpCertCounterFile
   , OpCertEndingKesPeriod (..)
   , OpCertIntervalInformation (..)
   , OpCertNodeAndOnDiskCounterInformation (..)
@@ -26,6 +35,8 @@ module Cardano.CLI.Types.Common
   , OpCertStartingKesPeriod (..)
   , Params (..)
   , PoolIdOutputFormat (..)
+  , PrivKeyFile(..)
+  , ProtocolParamsFile(..)
   , ReferenceScriptAnyEra (..)
   , RequiredSigner (..)
   , ScriptDataOrFile (..)
@@ -35,16 +46,25 @@ module Cardano.CLI.Types.Common
   , ScriptWitnessFiles (..)
   , SigningKeyFile
   , SlotsTillKesKeyExpiry (..)
+  , SomeKeyFile(..)
+  , StakePoolMetadataFile
   , TransferDirection(..)
   , TxBodyFile
   , TxBuildOutputOptions(..)
+  , TxByronWitnessCount(..)
   , TxFile
+  , TxInCount(..)
   , TxMempoolQuery (..)
   , TxOutAnyEra (..)
   , TxOutChangeAddress (..)
+  , TxOutCount(..)
   , TxOutDatumAnyEra (..)
+  , TxShelleyWitnessCount(..)
   , UpdateProposalFile (..)
+  , VerificationKeyBase64(..)
   , VerificationKeyFile
+  , WitnessFile(..)
+  , WitnessSigningData(..)
   ) where
 
 import           Cardano.Api
@@ -370,4 +390,106 @@ data TxMempoolQuery =
       TxMempoolQueryTxExists TxId
     | TxMempoolQueryNextTx
     | TxMempoolQueryInfo
+  deriving Show
+
+--
+-- Shelley CLI flag/option data types
+--
+
+newtype ProtocolParamsFile
+  = ProtocolParamsFile FilePath
+  deriving (Show, Eq)
+
+newtype TxInCount
+  = TxInCount Int
+  deriving Show
+
+newtype TxOutCount
+  = TxOutCount Int
+  deriving Show
+
+newtype TxShelleyWitnessCount
+  = TxShelleyWitnessCount Int
+  deriving Show
+
+newtype TxByronWitnessCount
+  = TxByronWitnessCount Int
+  deriving Show
+
+newtype BlockId
+  = BlockId String -- Probably not a String
+  deriving Show
+
+newtype GenesisKeyFile
+  = GenesisKeyFile FilePath
+  deriving Show
+
+data MetadataFile = MetadataFileJSON (File () In)
+                  | MetadataFileCBOR (File () In)
+
+  deriving Show
+
+type StakePoolMetadataFile = File StakePoolMetadata
+
+newtype GenesisDir
+  = GenesisDir FilePath
+  deriving Show
+
+-- | Either a verification or signing key, used for conversions and other
+-- commands that make sense for both.
+--
+data SomeKeyFile direction
+  = AVerificationKeyFile (VerificationKeyFile direction)
+  | ASigningKeyFile (SigningKeyFile direction)
+  deriving Show
+
+data AddressKeyType
+  = AddressKeyShelley
+  | AddressKeyShelleyExtended
+  | AddressKeyByron
+  deriving Show
+
+data ByronKeyType
+  = ByronPaymentKey  ByronKeyFormat
+  | ByronGenesisKey  ByronKeyFormat
+  | ByronDelegateKey ByronKeyFormat
+  deriving Show
+
+data ByronKeyFormat = NonLegacyByronKeyFormat
+                    | LegacyByronKeyFormat
+  deriving Show
+
+-- | The type of @cardano-address@ key.
+data CardanoAddressKeyType
+  = CardanoAddressShelleyPaymentKey
+  | CardanoAddressShelleyStakeKey
+  | CardanoAddressIcarusPaymentKey
+  | CardanoAddressByronPaymentKey
+  deriving Show
+
+type OpCertCounterFile = File OpCertCounter
+
+newtype PrivKeyFile
+  = PrivKeyFile FilePath
+  deriving Show
+
+newtype WitnessFile
+  = WitnessFile FilePath
+  deriving Show
+
+-- | A raw verification key given in Base64, and decoded into a ByteString.
+newtype VerificationKeyBase64
+  = VerificationKeyBase64 String
+  deriving Show
+
+-- | Data required to construct a witness.
+data WitnessSigningData
+  = KeyWitnessSigningData
+      !(SigningKeyFile In)
+      -- ^ Path to a file that should contain a signing key.
+      !(Maybe (Address ByronAddr))
+      -- ^ An optionally specified Byron address.
+      --
+      -- If specified, both the network ID and derivation path are extracted
+      -- from the address and used in the construction of the Byron witness.
   deriving Show

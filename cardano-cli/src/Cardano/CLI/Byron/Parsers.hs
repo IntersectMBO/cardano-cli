@@ -43,7 +43,6 @@ import           Cardano.CLI.Byron.Key
 import           Cardano.CLI.Byron.Tx
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Options.Common hiding (parseLovelace, parseTxIn)
-import           Cardano.CLI.Legacy.Commands (ByronKeyFormat (..))
 import           Cardano.CLI.Run (ClientCommand (ByronCommand))
 import           Cardano.CLI.Types.Common
 import           Cardano.Crypto (RequiresNetworkMagic (..))

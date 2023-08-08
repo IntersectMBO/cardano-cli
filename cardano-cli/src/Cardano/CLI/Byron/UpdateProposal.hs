@@ -19,7 +19,6 @@ import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
 import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
 import           Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
 import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS, renderHelpersError)
-import           Cardano.CLI.Legacy.Commands (ByronKeyFormat (..))
 import           Cardano.CLI.Types.Common
 import           Cardano.Prelude (ConvertText (..))
 import           Ouroboros.Consensus.Ledger.SupportsMempool (txId)

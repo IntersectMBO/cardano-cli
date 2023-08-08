@@ -18,7 +18,6 @@ import           Cardano.Chain.Update (InstallerHash (..), ProtocolVersion (..),
 import           Cardano.CLI.Byron.Genesis
 import           Cardano.CLI.Byron.Key
 import           Cardano.CLI.Byron.Tx
-import           Cardano.CLI.Legacy.Commands (ByronKeyFormat)
 import           Cardano.CLI.Types.Common
 
 import           Data.String (IsString)
