@@ -1,6 +1,10 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 
+{-# OPTIONS_GHC -Wno-unused-imports #-} -- Required to compile across GHC versions.
+
+{- HLINT ignore "Use fewer imports" -}
+
 module Test.Cli.Pipes
   ( hprop_readFromPipe
   ) where
@@ -14,8 +18,8 @@ import           System.FilePath ()
 #endif
 
 import qualified Hedgehog as H
-{- HLINT ignore "Use fewer imports" -}
 import           Hedgehog (Property)
+import           System.FilePath ((</>))
 
 #ifdef UNIX
 import           Cardano.CLI.Read
@@ -24,7 +28,6 @@ import           Cardano.CLI.OS.Posix
 
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LBS
-import           System.FilePath ((</>))
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog ((===), forAll)
