@@ -24,7 +24,7 @@ import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (.
                    StakeVerifier (..), VerificationKeyTextOrFile,
                    VerificationKeyTextOrFileError (..), generateKeyPair, readVerificationKeyOrFile,
                    readVerificationKeyTextOrFileAnyOf, renderVerificationKeyTextOrFileError)
-import           Cardano.CLI.Types.Legacy
+import           Cardano.CLI.Types.Common
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)

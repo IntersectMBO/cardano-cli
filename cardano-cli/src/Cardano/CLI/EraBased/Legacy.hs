@@ -27,10 +27,10 @@ import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Commands.Governance
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key (DelegationTarget (..), PaymentVerifier (..),
                    StakePoolRegistrationParserRequirements (..), VerificationKeyOrFile (..),
                    VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
-import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.BaseTypes as Shelley
 import           Cardano.Prelude (ConvertText (..))
 

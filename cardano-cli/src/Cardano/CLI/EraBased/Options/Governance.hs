@@ -20,7 +20,6 @@ import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Legacy
 
 import           Data.Foldable
 import           Data.Functor

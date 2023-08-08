@@ -21,7 +21,7 @@ import           Cardano.CLI.Byron.UpdateProposal
 import           Cardano.CLI.Byron.Vote
 import           Cardano.CLI.Helpers
 import           Cardano.CLI.Legacy.Commands (ByronKeyFormat (..))
-import           Cardano.CLI.Types.Legacy
+import           Cardano.CLI.Types.Common
 import qualified Cardano.Crypto.Hashing as Crypto
 import qualified Cardano.Crypto.Signing as Crypto
 import           Ouroboros.Consensus.Byron.Ledger (ByronBlock)

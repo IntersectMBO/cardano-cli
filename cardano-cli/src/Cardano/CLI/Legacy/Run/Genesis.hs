@@ -56,7 +56,7 @@ import           Cardano.CLI.Legacy.Run.Pool (ShelleyPoolCmdError (..), renderSh
 import           Cardano.CLI.Legacy.Run.StakeAddress (ShelleyStakeAddressCmdError (..),
                    renderShelleyStakeAddressCmdError, runStakeAddressKeyGenToFile)
 import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Legacy
+import           Cardano.CLI.Types.Common
 import qualified Cardano.Crypto as CC
 import           Cardano.Crypto.Hash (HashAlgorithm)
 import qualified Cardano.Crypto.Hash as Crypto

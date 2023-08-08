@@ -26,8 +26,8 @@ import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.CLI.Legacy.Run.Read
 import           Cardano.CLI.Legacy.Run.Validate
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Legacy
 import           Cardano.CLI.Types.Output
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx

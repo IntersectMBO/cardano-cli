@@ -12,7 +12,6 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Legacy
 
 import           Data.Foldable
 import           Data.Text (Text)

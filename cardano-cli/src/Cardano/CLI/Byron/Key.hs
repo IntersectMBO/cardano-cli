@@ -19,7 +19,7 @@ import           Cardano.Api.Byron
 
 import qualified Cardano.Chain.Common as Common
 import           Cardano.CLI.Legacy.Commands (ByronKeyFormat (..))
-import           Cardano.CLI.Types.Legacy
+import           Cardano.CLI.Types.Common
 import qualified Cardano.Crypto.Signing as Crypto
 
 import           Control.Exception (Exception (..))

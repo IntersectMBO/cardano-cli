@@ -27,10 +27,10 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.Legacy.Run.Read
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key (DelegationTarget (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,
                    readVerificationKeyOrHashOrFile)
-import           Cardano.CLI.Types.Legacy
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (lift)

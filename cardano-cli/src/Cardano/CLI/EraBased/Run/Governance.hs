@@ -19,11 +19,11 @@ import qualified Cardano.Api.Shelley as Api
 import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Legacy.Run.Read (fileOrPipe, readFileTx)
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import qualified Cardano.CLI.Types.Governance as Cli
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
-import           Cardano.CLI.Types.Legacy
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Control.Monad

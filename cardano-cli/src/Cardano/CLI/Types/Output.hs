@@ -15,7 +15,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Orphans ()
-import           Cardano.CLI.Types.Legacy
+import           Cardano.CLI.Types.Common
 import           Cardano.Ledger.Shelley.Scripts ()
 
 import           Prelude

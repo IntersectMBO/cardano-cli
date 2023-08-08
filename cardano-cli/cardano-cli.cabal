@@ -110,7 +110,6 @@ library
                         Cardano.CLI.Types.Common
                         Cardano.CLI.Types.Governance
                         Cardano.CLI.Types.Key
-                        Cardano.CLI.Types.Legacy
                         Cardano.CLI.Types.Output
 
   other-modules:        Paths_cardano_cli
