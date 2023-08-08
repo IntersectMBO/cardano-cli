@@ -17,7 +17,6 @@ import           Cardano.CLI.EraBased.Options.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Legacy.Commands.Governance
-import           Cardano.CLI.Legacy.Options
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
