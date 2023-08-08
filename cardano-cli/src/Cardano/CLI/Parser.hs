@@ -9,16 +9,21 @@ module Cardano.CLI.Parser
   , readRationalUnitInterval
   , readStringOfMaxLength
   , readURIOfMaxLength
+  , eDNSName
   ) where
 
 import           Cardano.CLI.Types.Common
+import qualified Cardano.Ledger.BaseTypes as Shelley
+import           Cardano.Prelude (ConvertText (..))
 
 import qualified Data.Attoparsec.ByteString.Char8 as Atto
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BSC
 import           Data.Foldable
 import           Data.Ratio ((%))
 import           Data.Text (Text)
 import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Text
 import qualified Options.Applicative as Opt
 
 readPoolIdOutputFormat :: Opt.ReadM PoolIdOutputFormat
@@ -85,3 +90,10 @@ readRational =
 readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
 readerFromAttoParser p =
   Opt.eitherReader (Atto.parseOnly (p <* Atto.endOfInput) . BSC.pack)
+
+eDNSName :: String -> Either String ByteString
+eDNSName str =
+  -- We're using 'Shelley.textToDns' to validate the string.
+  case Shelley.textToDns (toS str) of
+    Nothing -> Left $ "DNS name is more than 64 bytes: " <> str
+    Just dnsName -> Right . Text.encodeUtf8 . Shelley.dnsToText $ dnsName

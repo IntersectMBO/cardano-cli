@@ -32,8 +32,6 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key (DelegationTarget (..), PaymentVerifier (..),
                    StakePoolRegistrationParserRequirements (..), VerificationKeyOrFile (..),
                    VerificationKeyOrHashOrFile (..), VerificationKeyTextOrFile (..))
-import qualified Cardano.Ledger.BaseTypes as Shelley
-import           Cardano.Prelude (ConvertText (..))
 
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
@@ -47,7 +45,6 @@ import           Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
 import           Data.Text (Text)
 import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
 import           Data.Time.Clock (UTCTime)
 import           Data.Time.Format (defaultTimeLocale, parseTimeOrError)
 import           Data.Word (Word64)
@@ -2805,13 +2802,6 @@ pSingleHostName =
         , " A or AAAA DNS record"
         ]
       ]
-
-eDNSName :: String -> Either String ByteString
-eDNSName str =
-  -- We're using 'Shelley.textToDns' to validate the string.
-  case Shelley.textToDns (toS str) of
-    Nothing -> Left $ "DNS name is more than 64 bytes: " <> str
-    Just dnsName -> Right . Text.encodeUtf8 . Shelley.dnsToText $ dnsName
 
 pSingleHostAddress :: Parser StakePoolRelay
 pSingleHostAddress =
