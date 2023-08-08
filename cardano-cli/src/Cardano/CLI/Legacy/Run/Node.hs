@@ -14,10 +14,9 @@ module Cardano.CLI.Legacy.Run.Node
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Legacy.Commands
-import           Cardano.CLI.Types.Common (KeyOutputFormat (..), SigningKeyFile,
-                   VerificationKeyFile)
-import           Cardano.CLI.Types.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
+import           Cardano.CLI.Legacy.Commands.Node
+import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Key
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)

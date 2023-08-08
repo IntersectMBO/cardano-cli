@@ -71,7 +71,6 @@ import           Cardano.Api as Api
 import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
-import           Cardano.CLI.Legacy.Options
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 

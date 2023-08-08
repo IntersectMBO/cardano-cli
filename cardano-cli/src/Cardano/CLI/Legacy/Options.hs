@@ -26,7 +26,16 @@ import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Legacy.Commands
+import           Cardano.CLI.Legacy.Commands.Address
+import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Legacy.Commands.Governance
+import           Cardano.CLI.Legacy.Commands.Key
+import           Cardano.CLI.Legacy.Commands.Node
+import           Cardano.CLI.Legacy.Commands.Pool
+import           Cardano.CLI.Legacy.Commands.Query
+import           Cardano.CLI.Legacy.Commands.StakeAddress
+import           Cardano.CLI.Legacy.Commands.TextView
+import           Cardano.CLI.Legacy.Commands.Transaction
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 

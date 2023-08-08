@@ -25,7 +25,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Legacy.Options
+import           Cardano.CLI.Legacy.Commands.StakeAddress
 import           Cardano.CLI.Legacy.Run.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key (DelegationTarget (..), StakeIdentifier (..),

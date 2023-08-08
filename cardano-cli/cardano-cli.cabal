@@ -84,7 +84,16 @@ library
                         Cardano.CLI.IO.Lazy
                         Cardano.CLI.Json.Friendly
                         Cardano.CLI.Legacy.Commands
+                        Cardano.CLI.Legacy.Commands.Address
+                        Cardano.CLI.Legacy.Commands.Genesis
                         Cardano.CLI.Legacy.Commands.Governance
+                        Cardano.CLI.Legacy.Commands.Key
+                        Cardano.CLI.Legacy.Commands.Node
+                        Cardano.CLI.Legacy.Commands.Pool
+                        Cardano.CLI.Legacy.Commands.Query
+                        Cardano.CLI.Legacy.Commands.StakeAddress
+                        Cardano.CLI.Legacy.Commands.TextView
+                        Cardano.CLI.Legacy.Commands.Transaction
                         Cardano.CLI.Legacy.Options
                         Cardano.CLI.Legacy.Run
                         Cardano.CLI.Legacy.Run.Address

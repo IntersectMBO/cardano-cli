@@ -35,7 +35,7 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, renderHelpersError)
-import           Cardano.CLI.Legacy.Commands
+import           Cardano.CLI.Legacy.Commands.Query
 import           Cardano.CLI.Legacy.Run.Genesis (ShelleyGenesisCmdError,
                    readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Pretty
