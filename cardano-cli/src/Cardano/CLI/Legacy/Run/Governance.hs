@@ -4,7 +4,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.EraBased.Run.Governance
+module Cardano.CLI.Legacy.Run.Governance
   ( runGovernanceCmds
   , runGovernanceMIRCertificatePayStakeAddrs
   , runGovernanceMIRCertificateTransfer
