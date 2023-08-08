@@ -16,6 +16,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.EraBased.Errors.StakeAddress
 import           Cardano.CLI.Legacy.Run.StakeAddress
 import           Cardano.CLI.Types.Key
 
@@ -23,7 +24,6 @@ import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
-
 
 -- Delegation Certificate related
 

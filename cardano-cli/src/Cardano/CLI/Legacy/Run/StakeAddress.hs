@@ -14,10 +14,7 @@ module Cardano.CLI.Legacy.Run.StakeAddress
   , runStakeAddressCmds
   , runStakeAddressKeyGenToFile
 
-  , StakeAddressDelegationError(..)
   , createDelegationCertRequirements
-
-  , StakeAddressRegistrationError(..)
   , createRegistrationCertRequirements
   ) where
 
@@ -25,6 +22,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.EraBased.Errors.StakeAddress
 import           Cardano.CLI.Legacy.Commands.StakeAddress
 import           Cardano.CLI.Legacy.Run.Read
 import           Cardano.CLI.Types.Common
@@ -39,26 +37,7 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, le
                    onLeft)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
-import           Data.Text (Text)
-import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
-
-data ShelleyStakeAddressCmdError
-  = ShelleyStakeAddressCmdReadKeyFileError !(FileError InputDecodeError)
-  | ShelleyStakeAddressCmdReadScriptFileError !(FileError ScriptDecodeError)
-  | ShelleyStakeAddressCmdWriteFileError !(FileError ())
-  | StakeRegistrationError !StakeAddressRegistrationError
-  | StakeDelegationError !StakeAddressDelegationError
-  deriving Show
-
-renderShelleyStakeAddressCmdError :: ShelleyStakeAddressCmdError -> Text
-renderShelleyStakeAddressCmdError err =
-  case err of
-    ShelleyStakeAddressCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyStakeAddressCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyStakeAddressCmdReadScriptFileError fileErr -> Text.pack (displayError fileErr)
-    StakeRegistrationError regErr -> Text.pack $ show regErr
-    StakeDelegationError delegErr -> Text.pack $ show delegErr
 
 runStakeAddressCmds :: LegacyStakeAddressCmds -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeAddressCmds (StakeAddressKeyGen fmt vk sk) = runStakeAddressKeyGenToFile fmt vk sk
@@ -161,9 +140,6 @@ runStakeCredentialRegistrationCert anyEra stakeIdentifier mDeposit oFp = do
   regCertDesc :: TextEnvelopeDescr
   regCertDesc = "Stake Address Registration Certificate"
 
-
-data StakeAddressRegistrationError = StakeAddressRegistrationDepositRequired deriving Show
-
 createRegistrationCertRequirements
   :: ShelleyBasedEra era
   -> StakeCredential
@@ -250,8 +226,6 @@ onlySpoDelegatee w ledgerDelegatee =
       Left . VoteDelegationNotSupported $ AnyShelleyToBabbageEra w
     Ledger.DelegStakeVote{} ->
       Left . VoteDelegationNotSupported $ AnyShelleyToBabbageEra w
-
-newtype StakeAddressDelegationError = VoteDelegationNotSupported AnyShelleyToBabbageEra deriving Show
 
 runStakeCredentialDeRegistrationCert
   :: AnyShelleyBasedEra
