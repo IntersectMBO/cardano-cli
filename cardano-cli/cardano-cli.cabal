@@ -102,6 +102,7 @@ library
                         Cardano.CLI.Options
                         Cardano.CLI.Orphans
                         Cardano.CLI.OS.Posix
+                        Cardano.CLI.Parser
                         Cardano.CLI.Pretty
                         Cardano.CLI.Render
                         Cardano.CLI.Run
