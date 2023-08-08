@@ -9,7 +9,7 @@ module Cardano.CLI.EraBased.Legacy
     parseLegacyCmds
 
     -- * CLI command and flag types
-  , module Cardano.CLI.Commands.Legacy
+  , module Cardano.CLI.Legacy.Commands
 
     -- * Field parser and renderers
   , parseTxIn
@@ -23,9 +23,9 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
-import           Cardano.CLI.Commands.Legacy
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Types.Key (DelegationTarget (..), PaymentVerifier (..),
                    StakePoolRegistrationParserRequirements (..), VerificationKeyOrFile (..),

@@ -13,7 +13,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Commands.Legacy
+import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
 import           Cardano.CLI.Types.Legacy (PoolIdOutputFormat (..))
 import qualified Cardano.Ledger.Slot as Shelley
