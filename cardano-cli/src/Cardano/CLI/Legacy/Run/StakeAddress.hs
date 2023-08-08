@@ -24,7 +24,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Errors.StakeAddress
 import           Cardano.CLI.Legacy.Commands.StakeAddress
-import           Cardano.CLI.Legacy.Run.Read
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key (DelegationTarget (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,

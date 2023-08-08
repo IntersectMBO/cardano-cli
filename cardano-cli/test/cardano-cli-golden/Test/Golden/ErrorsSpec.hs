@@ -12,8 +12,8 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Binary
 import           Cardano.CLI.Commands.Governance
-import           Cardano.CLI.Legacy.Run.Read
 import           Cardano.CLI.Legacy.Run.StakeAddress
+import           Cardano.CLI.Read
 
 import           Data.Text.Encoding.Error
 import           GHC.Stack (HasCallStack)

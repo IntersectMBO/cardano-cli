@@ -7,7 +7,7 @@ module Cardano.CLI.EraBased.Errors.StakeAddress
 
 import           Cardano.Api
 
-import           Cardano.CLI.Legacy.Run.Read
+import           Cardano.CLI.Read
 
 import           Data.Text (Text)
 import qualified Data.Text as Text
