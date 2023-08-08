@@ -35,6 +35,7 @@ module Cardano.CLI.Types.Common
   , OpCertOnDiskCounter (..)
   , OpCertStartingKesPeriod (..)
   , Params (..)
+  , ParserFileDirection (..)
   , PoolIdOutputFormat (..)
   , PrivKeyFile(..)
   , ProtocolParamsFile(..)
@@ -497,3 +498,8 @@ data WitnessSigningData
 
 data InputTxBodyOrTxFile = InputTxBodyFile (TxBodyFile In) | InputTxFile (TxFile In)
   deriving Show
+
+data ParserFileDirection
+  = Input
+  | Output
+  deriving (Eq, Show)

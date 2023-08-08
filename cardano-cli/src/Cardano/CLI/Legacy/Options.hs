@@ -1639,11 +1639,6 @@ pGenesisCmds envCli =
 -- Shelley CLI flag parsers
 --
 
-data ParserFileDirection
-  = Input
-  | Output
-  deriving (Eq, Show)
-
 pAddressKeyType :: Parser AddressKeyType
 pAddressKeyType =
   asum
