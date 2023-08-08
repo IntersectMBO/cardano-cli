@@ -23,6 +23,7 @@ module Cardano.CLI.Types.Common
   , GenesisDir(..)
   , GenesisFile (..)
   , GenesisKeyFile(..)
+  , InputTxBodyOrTxFile (..)
   , KeyOutputFormat(..)
   , MetadataFile(..)
   , OpCertCounter
@@ -492,4 +493,7 @@ data WitnessSigningData
       --
       -- If specified, both the network ID and derivation path are extracted
       -- from the address and used in the construction of the Byron witness.
+  deriving Show
+
+data InputTxBodyOrTxFile = InputTxBodyFile (TxBodyFile In) | InputTxFile (TxFile In)
   deriving Show

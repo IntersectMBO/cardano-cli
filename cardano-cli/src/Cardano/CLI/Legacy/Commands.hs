@@ -267,9 +267,6 @@ data LegacyTransactionCmds
   | TxGetTxId InputTxBodyOrTxFile
   | TxView InputTxBodyOrTxFile
 
-data InputTxBodyOrTxFile = InputTxBodyFile (TxBodyFile In) | InputTxFile (TxFile In)
-  deriving Show
-
 renderLegacyTransactionCmds :: LegacyTransactionCmds -> Text
 renderLegacyTransactionCmds cmd =
   case cmd of
