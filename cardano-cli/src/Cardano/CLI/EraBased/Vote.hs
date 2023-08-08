@@ -7,32 +7,12 @@ import           Cardano.Api.Ledger (HasKeyRole (coerceKeyRole))
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import           Data.Bifunctor
-
-data AnyVote where
-  ConwayOnwardsVote
-    :: ConwayEraOnwards era
-    -> Vote
-    -> TxIn
-    -> AnyVotingStakeVerificationKeyOrHashOrFile
-    -> AnyVote
-
-data AnyVotingStakeVerificationKeyOrHashOrFile where
-  AnyDRepVerificationKeyOrHashOrFile
-    :: VerificationKeyOrHashOrFile DRepKey
-    -> AnyVotingStakeVerificationKeyOrHashOrFile
-
-  AnyStakePoolVerificationKeyOrHashOrFile
-    :: VerificationKeyOrHashOrFile StakePoolKey
-    -> AnyVotingStakeVerificationKeyOrHashOrFile
-
-  AnyCommitteeHotVerificationKeyOrHashOrFile
-    :: VerificationKeyOrHashOrFile CommitteeHotKey
-    -> AnyVotingStakeVerificationKeyOrHashOrFile
 
 data EraBasedVoteError
   = EraBasedVoteReadError !(FileError InputDecodeError)

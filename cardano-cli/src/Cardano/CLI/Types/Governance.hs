@@ -9,7 +9,6 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
-
 type VoteFile = File ConwayVote
 
 data ConwayVote
@@ -38,3 +37,24 @@ data VType = VCC -- committee
            | VDR -- drep
            | VSP -- spo
            deriving Show
+
+data AnyVote where
+  ConwayOnwardsVote
+    :: ConwayEraOnwards era
+    -> Vote
+    -> TxIn
+    -> AnyVotingStakeVerificationKeyOrHashOrFile
+    -> AnyVote
+
+data AnyVotingStakeVerificationKeyOrHashOrFile where
+  AnyDRepVerificationKeyOrHashOrFile
+    :: VerificationKeyOrHashOrFile DRepKey
+    -> AnyVotingStakeVerificationKeyOrHashOrFile
+
+  AnyStakePoolVerificationKeyOrHashOrFile
+    :: VerificationKeyOrHashOrFile StakePoolKey
+    -> AnyVotingStakeVerificationKeyOrHashOrFile
+
+  AnyCommitteeHotVerificationKeyOrHashOrFile
+    :: VerificationKeyOrHashOrFile CommitteeHotKey
+    -> AnyVotingStakeVerificationKeyOrHashOrFile

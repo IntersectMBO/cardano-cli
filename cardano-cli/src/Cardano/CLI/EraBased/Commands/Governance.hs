@@ -12,8 +12,8 @@ import           Cardano.Api
 import           Cardano.CLI.EraBased.Commands.Governance.Actions (GovernanceActionCmds,
                    renderGovernanceActionCmds)
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
-import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
