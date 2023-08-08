@@ -134,17 +134,16 @@ data LegacyTransactionCmds
       InputTxBodyOrTxFile
 
 renderLegacyTransactionCmds :: LegacyTransactionCmds -> Text
-renderLegacyTransactionCmds cmd =
-  case cmd of
-    TxBuild {} -> "transaction build"
-    TxBuildRaw {} -> "transaction build-raw"
-    TxSign {} -> "transaction sign"
-    TxCreateWitness {} -> "transaction witness"
-    TxAssembleTxBodyWitness {} -> "transaction sign-witness"
-    TxSubmit {} -> "transaction submit"
-    TxMintedPolicyId {} -> "transaction policyid"
-    TxCalculateMinFee {} -> "transaction calculate-min-fee"
-    TxCalculateMinRequiredUTxO {} -> "transaction calculate-min-value"
-    TxHashScriptData {} -> "transaction hash-script-data"
-    TxGetTxId {} -> "transaction txid"
-    TxView {} -> "transaction view"
+renderLegacyTransactionCmds = \case
+  TxBuild {} -> "transaction build"
+  TxBuildRaw {} -> "transaction build-raw"
+  TxSign {} -> "transaction sign"
+  TxCreateWitness {} -> "transaction witness"
+  TxAssembleTxBodyWitness {} -> "transaction sign-witness"
+  TxSubmit {} -> "transaction submit"
+  TxMintedPolicyId {} -> "transaction policyid"
+  TxCalculateMinFee {} -> "transaction calculate-min-fee"
+  TxCalculateMinRequiredUTxO {} -> "transaction calculate-min-value"
+  TxHashScriptData {} -> "transaction hash-script-data"
+  TxGetTxId {} -> "transaction txid"
+  TxView {} -> "transaction view"

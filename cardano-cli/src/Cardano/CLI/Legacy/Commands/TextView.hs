@@ -15,4 +15,5 @@ data LegacyTextViewCmds
   deriving Show
 
 renderLegacyTextViewCmds :: LegacyTextViewCmds -> Text
-renderLegacyTextViewCmds (TextViewInfo _ _) = "text-view decode-cbor"
+renderLegacyTextViewCmds = \case
+  TextViewInfo _ _ -> "text-view decode-cbor"

@@ -46,11 +46,10 @@ data LegacyStakeAddressCmds
   deriving Show
 
 renderLegacyStakeAddressCmds :: LegacyStakeAddressCmds -> Text
-renderLegacyStakeAddressCmds cmd =
-  case cmd of
-    StakeAddressKeyGen {} -> "stake-address key-gen"
-    StakeAddressKeyHash {} -> "stake-address key-hash"
-    StakeAddressBuild {} -> "stake-address build"
-    StakeRegistrationCert {} -> "stake-address registration-certificate"
-    StakeCredentialDelegationCert {} -> "stake-address delegation-certificate"
-    StakeCredentialDeRegistrationCert {} -> "stake-address deregistration-certificate"
+renderLegacyStakeAddressCmds = \case
+  StakeAddressKeyGen {} -> "stake-address key-gen"
+  StakeAddressKeyHash {} -> "stake-address key-hash"
+  StakeAddressBuild {} -> "stake-address build"
+  StakeRegistrationCert {} -> "stake-address registration-certificate"
+  StakeCredentialDelegationCert {} -> "stake-address delegation-certificate"
+  StakeCredentialDeRegistrationCert {} -> "stake-address deregistration-certificate"

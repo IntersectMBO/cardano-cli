@@ -103,23 +103,22 @@ data LegacyQueryCmds =
   deriving Show
 
 renderLegacyQueryCmds :: LegacyQueryCmds -> Text
-renderLegacyQueryCmds cmd =
-  case cmd of
-    QueryLeadershipSchedule {} -> "query leadership-schedule"
-    QueryProtocolParameters' {} -> "query protocol-parameters "
-    QueryConstitutionHash {} -> "query constitution-hash "
-    QueryTip {} -> "query tip"
-    QueryStakePools' {} -> "query stake-pools"
-    QueryStakeDistribution' {} -> "query stake-distribution"
-    QueryStakeAddressInfo {} -> "query stake-address-info"
-    QueryUTxO' {} -> "query utxo"
-    QueryDebugLedgerState' {} -> "query ledger-state"
-    QueryProtocolState' {} -> "query protocol-state"
-    QueryStakeSnapshot' {} -> "query stake-snapshot"
-    QueryKesPeriodInfo {} -> "query kes-period-info"
-    QueryPoolState' {} -> "query pool-state"
-    QueryTxMempool _ _ _ query _ -> "query tx-mempool" <> renderTxMempoolQuery query
-    QuerySlotNumber {} -> "query slot-number"
+renderLegacyQueryCmds = \case
+  QueryLeadershipSchedule {} -> "query leadership-schedule"
+  QueryProtocolParameters' {} -> "query protocol-parameters "
+  QueryConstitutionHash {} -> "query constitution-hash "
+  QueryTip {} -> "query tip"
+  QueryStakePools' {} -> "query stake-pools"
+  QueryStakeDistribution' {} -> "query stake-distribution"
+  QueryStakeAddressInfo {} -> "query stake-address-info"
+  QueryUTxO' {} -> "query utxo"
+  QueryDebugLedgerState' {} -> "query ledger-state"
+  QueryProtocolState' {} -> "query protocol-state"
+  QueryStakeSnapshot' {} -> "query stake-snapshot"
+  QueryKesPeriodInfo {} -> "query kes-period-info"
+  QueryPoolState' {} -> "query pool-state"
+  QueryTxMempool _ _ _ query _ -> "query tx-mempool" <> renderTxMempoolQuery query
+  QuerySlotNumber {} -> "query slot-number"
   where
     renderTxMempoolQuery query =
       case query of
