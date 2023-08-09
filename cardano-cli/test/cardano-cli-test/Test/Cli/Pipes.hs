@@ -7,6 +7,10 @@ module Test.Cli.Pipes
 
 #if !defined(mingw32_HOST_OS)
 #define UNIX
+#else
+-- Need this to avoid an unused-package error on Windows when compiling with
+-- cabal-3.10 and ghc-9.6.
+import           System.FilePath ()
 #endif
 
 import qualified Hedgehog as H
