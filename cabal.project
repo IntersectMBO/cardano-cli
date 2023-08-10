@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2023-07-27T22:41:49Z
-  , cardano-haskell-packages 2023-08-05T00:00:00Z
+  , hackage.haskell.org 2023-08-08T19:56:09Z
+  , cardano-haskell-packages 2023-08-08T21:04:17Z
 
 packages:
   cardano-cli
@@ -39,14 +39,6 @@ test-show-details: direct
 
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
-
-if impl(ghc >= 9.6)
-  allow-newer:
-    -- Only really needed because `cardano-ledger-byron-test` has not yet been released to CHaP
-    -- and its not possible to specify `cardano-ledger-byron-test:base` because the dependencies
-    -- of `cardano-ledger-byron-test` also do not permit the version of `base` that `ghc-9.6`
-    -- provides.
-    , *:base
 
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
