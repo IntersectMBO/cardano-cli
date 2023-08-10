@@ -17,6 +17,7 @@ index-state:
   , cardano-haskell-packages 2023-08-08T21:04:17Z
 
 packages:
+  ../cardano-api/cardano-api
   cardano-cli
 
 package cardano-cli

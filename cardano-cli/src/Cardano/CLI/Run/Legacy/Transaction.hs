@@ -286,8 +286,8 @@ runTransactionCmds cmd =
       runTxSign txinfile skfiles network txoutfile
     TxSubmit mNodeSocketPath anyConsensusModeParams network txFp ->
       runTxSubmit mNodeSocketPath anyConsensusModeParams network txFp
-    TxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
-      runTxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
+    TxCalculateMinFee anyEra txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
+      runTxCalculateMinFee anyEra txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
     TxCalculateMinRequiredUTxO era pParamsFile txOuts -> runTxCalculateMinRequiredUTxO era pParamsFile txOuts
     TxHashScriptData scriptDataOrFile -> runTxHashScriptData scriptDataOrFile
     TxGetTxId txinfile -> runTxGetTxId txinfile
@@ -518,7 +518,7 @@ runTxBuildRawCmd
   txAuxScripts <- hoistEither $ first ShelleyTxCmdAuxScriptsValidationError $ validateTxAuxScripts cEra scripts
 
   pparams <- forM mpParamsFile $ \ppf ->
-    firstExceptT ShelleyTxCmdProtocolParamsError (readProtocolParameters ppf)
+    firstExceptT ShelleyTxCmdProtocolParamsError (readProtocolParameters cEra ppf)
 
   mProp <- forM mUpProp $ \(UpdateProposalFile upFp) ->
     firstExceptT ShelleyTxCmdReadTextViewFileError (newExceptT $ readFileTextEnvelope AsUpdateProposal (File upFp))
@@ -570,7 +570,7 @@ runTxBuildRaw
   -- ^ Required signers
   -> TxAuxScripts era
   -> TxMetadataInEra era
-  -> Maybe ProtocolParameters
+  -> Maybe (ProtocolParameters era)
   -> Maybe UpdateProposal
   -> Either ShelleyTxCmdError (TxBody era)
 runTxBuildRaw era
@@ -738,10 +738,13 @@ runTxBuild
       nodeEraCerts <- pure (forM certs $ eraCast nodeEra)
         & onLeft (left . ShelleyTxCmdTxEraCastErr)
 
-      (nodeEraUTxO, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits) <-
+      (nodeEraUTxO, nodeEraPparams, eraHistory, systemStart, stakePools, stakeDelegDeposits) <-
         lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs nodeEraCerts)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError)
+
+      pparams <- pure (eraCast era nodeEraPparams)
+        & onLeft (left . ShelleyTxCmdTxEraCastErr)
 
       validatedPParams <- hoistEither $ first ShelleyTxCmdProtocolParametersValidationError
                                       $ validateProtocolParameters era (Just pparams)
@@ -1189,8 +1192,9 @@ runTxSubmit socketPath (AnyConsensusModeParams cModeParams) network txFilePath =
 -- Transaction fee calculation
 --
 
-runTxCalculateMinFee
-  :: TxBodyFile In
+runTxCalculateMinFee :: ()
+  => AnyCardanoEra
+  -> TxBodyFile In
   -> NetworkId
   -> ProtocolParamsFile
   -> TxInCount
@@ -1198,15 +1202,18 @@ runTxCalculateMinFee
   -> TxShelleyWitnessCount
   -> TxByronWitnessCount
   -> ExceptT ShelleyTxCmdError IO ()
-runTxCalculateMinFee (File txbodyFilePath) nw pParamsFile
-                     (TxInCount nInputs) (TxOutCount nOutputs)
-                     (TxShelleyWitnessCount nShelleyKeyWitnesses)
-                     (TxByronWitnessCount nByronKeyWitnesses) = do
+runTxCalculateMinFee
+      anyEra
+      (File txbodyFilePath) nw pParamsFile
+      (TxInCount nInputs) (TxOutCount nOutputs)
+      (TxShelleyWitnessCount nShelleyKeyWitnesses)
+      (TxByronWitnessCount nByronKeyWitnesses) = do
+    AnyCardanoEra era <- pure anyEra
 
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     unwitnessed <- firstExceptT ShelleyTxCmdCddlError . newExceptT
                      $ readFileTxBody txbodyFile
-    pparams <- firstExceptT ShelleyTxCmdProtocolParamsError $ readProtocolParameters pParamsFile
+    pparams <- firstExceptT ShelleyTxCmdProtocolParamsError $ readProtocolParameters era pParamsFile
     case unwitnessed of
       IncompleteCddlFormattedTx anyTx -> do
         InAnyShelleyBasedEra _era unwitTx <-
@@ -1249,7 +1256,7 @@ runTxCalculateMinRequiredUTxO
   -> TxOutAnyEra
   -> ExceptT ShelleyTxCmdError IO ()
 runTxCalculateMinRequiredUTxO (AnyCardanoEra era) pParamsFile txOut = do
-  pp <- firstExceptT ShelleyTxCmdProtocolParamsError (readProtocolParameters pParamsFile)
+  pp <- firstExceptT ShelleyTxCmdProtocolParamsError (readProtocolParameters era pParamsFile)
   out <- toTxOutInAnyEra era txOut
   case cardanoEraStyle era of
     LegacyByronEra -> error "runTxCalculateMinRequiredUTxO: Byron era not implemented yet"

@@ -309,8 +309,8 @@ instance Error TxProtocolParametersValidationError where
 
 validateProtocolParameters
   :: CardanoEra era
-  -> Maybe ProtocolParameters
-  -> Either TxProtocolParametersValidationError (BuildTxWith BuildTx (Maybe ProtocolParameters))
+  -> Maybe (ProtocolParameters era)
+  -> Either TxProtocolParametersValidationError (BuildTxWith BuildTx (Maybe (ProtocolParameters era)))
 validateProtocolParameters _ Nothing = return (BuildTxWith Nothing)
 validateProtocolParameters era (Just pparams) =
     case scriptDataSupportedInEra era of

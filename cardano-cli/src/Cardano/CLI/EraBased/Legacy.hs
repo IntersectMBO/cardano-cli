@@ -840,7 +840,8 @@ pTransaction envCli =
   pTransactionCalculateMinFee :: Parser TransactionCmds
   pTransactionCalculateMinFee =
     TxCalculateMinFee
-      <$> pTxBodyFileIn
+      <$> pCardanoEra envCli
+      <*> pTxBodyFileIn
       <*> pNetworkId envCli
       <*> pProtocolParamsFile
       <*> pTxInCount
