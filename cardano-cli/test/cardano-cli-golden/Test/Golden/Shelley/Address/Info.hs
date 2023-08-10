@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Address.Info
-  ( golden_shelleyAddressInfo
-  ) where
+module Test.Golden.Shelley.Address.Info where
 
 import           Control.Monad (when)
 import qualified Data.List as L
@@ -14,8 +12,8 @@ import qualified Hedgehog as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyAddressInfo :: Property
-golden_shelleyAddressInfo = propertyOnce $ do
+hprop_golden_shelleyAddressInfo :: Property
+hprop_golden_shelleyAddressInfo = propertyOnce $ do
   -- Disable as per commit: e69984d797fc3bdd5d71bdd99a0328110d71f6ad
   when False $ do
     let byronBase58 = "DdzFFzCqrhsg9F1joqXWJdGKwn6MaNavCqPsrZcjADRjA4ifEtrBmREJZyCojtuexKjMKNFr6CoU7Gx6PPR7pq14JxvPZuuk2xVkzn8p"

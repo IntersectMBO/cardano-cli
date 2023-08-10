@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Node.IssueOpCert
-  ( golden_shelleyNodeIssueOpCert
-  ) where
+module Test.Golden.Shelley.Node.IssueOpCert where
 
 import           Control.Monad (void)
 
@@ -14,8 +12,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyNodeIssueOpCert :: Property
-golden_shelleyNodeIssueOpCert = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyNodeIssueOpCert :: Property
+hprop_golden_shelleyNodeIssueOpCert = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   hotKesVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/verification_key"
   coldSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_delegate_keys/signing_key"
   originalOperationalCertificateIssueCounterFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_delegate_keys/operational_certificate_counter"

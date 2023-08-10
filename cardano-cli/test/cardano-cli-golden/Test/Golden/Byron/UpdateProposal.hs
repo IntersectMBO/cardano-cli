@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Byron.UpdateProposal
-  ( updateProposalTest
-  ) where
+module Test.Golden.Byron.UpdateProposal where
 
 import           Cardano.CLI.Byron.UpdateProposal
 
@@ -14,14 +12,13 @@ import qualified Data.Text as Text
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property, (===))
-import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import           Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_byron_update_proposal :: Property
-golden_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_byron_update_proposal :: Property
+hprop_golden_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   goldenUpdateProposal <- noteInputFile "test/cardano-cli-golden/files/golden/byron/update-proposal"
   signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
   createdUpdateProposal <- noteTempFile tempDir "byron-update-proposal"
@@ -50,10 +47,3 @@ golden_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir
                Right prop -> return prop
 
   golden === created
-
-updateProposalTest :: IO Bool
-updateProposalTest =
-  H.checkSequential
-    $ H.Group "Byron Update Proposal Golden"
-        [ ("golden_byron_update_proposal", golden_byron_update_proposal)
-        ]

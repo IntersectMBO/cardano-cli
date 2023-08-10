@@ -1,12 +1,9 @@
-{-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextEnvelope.Tx.Witness
-  ( golden_shelleyWitness
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Tx.Witness where
 
-import           Hedgehog (Property)
+import           Hedgehog (Property, property, success)
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyWitness :: Property
-golden_shelleyWitness = error "TODO"
+hprop_golden_shelleyWitness :: Property
+hprop_golden_shelleyWitness = property success

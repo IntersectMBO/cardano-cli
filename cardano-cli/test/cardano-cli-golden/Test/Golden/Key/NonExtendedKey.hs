@@ -1,9 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Key.NonExtendedKey
-  ( golden_KeyNonExtendedKey_GenesisExtendedVerificationKey
-  , golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley
-  ) where
+module Test.Golden.Key.NonExtendedKey where
 
 import           Control.Monad (void)
 import           System.FilePath ((</>))
@@ -19,8 +16,8 @@ import qualified Hedgehog.Extras.Test.Golden as H
 
 -- | Test that converting a @cardano-address@ Byron signing key yields the
 -- expected result.
-golden_KeyNonExtendedKey_GenesisExtendedVerificationKey :: Property
-golden_KeyNonExtendedKey_GenesisExtendedVerificationKey =
+hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey :: Property
+hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     genesisVKeyFp <- H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/shelley.000.vkey"
     nonExtendedFp <-  H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-shelley.000.vkey"
@@ -42,8 +39,8 @@ golden_KeyNonExtendedKey_GenesisExtendedVerificationKey =
 
 -- | Test that converting a @cardano-address@ Byron signing key yields the
 -- expected result.
-golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley :: Property
-golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley =
+hprop_golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley :: Property
+hprop_golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     genesisVKeyFp <- H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/stake.000.vkey"
     nonExtendedFp <-  H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-stake.000.vkey"

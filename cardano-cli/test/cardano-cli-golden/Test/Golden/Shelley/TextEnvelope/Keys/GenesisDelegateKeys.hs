@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextEnvelope.Keys.GenesisDelegateKeys
-  ( golden_shelleyGenesisDelegateKeys
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Keys.GenesisDelegateKeys where
 
 import           Cardano.Api (AsType (..), HasTextEnvelope (..))
 
@@ -18,8 +16,8 @@ import qualified Hedgehog.Extras.Test.Base as H
 -- | 1. Generate a key pair & operational certificate counter file
 --   2. Check for the existence of the key pair & counter file
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyGenesisDelegateKeys :: Property
-golden_shelleyGenesisDelegateKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyGenesisDelegateKeys :: Property
+hprop_golden_shelleyGenesisDelegateKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
   referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_delegate_keys/verification_key"
   referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_delegate_keys/signing_key"

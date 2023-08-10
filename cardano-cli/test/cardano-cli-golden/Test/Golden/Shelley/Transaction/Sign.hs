@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Transaction.Sign
-  ( golden_shelleyTransactionSign
-  ) where
+module Test.Golden.Shelley.Transaction.Sign where
 
 import           Control.Monad (void)
 
@@ -14,8 +12,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyTransactionSign :: Property
-golden_shelleyTransactionSign = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyTransactionSign :: Property
+hprop_golden_shelleyTransactionSign = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   txBodyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/tx/txbody"
   initialUtxo1SigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/payment_keys/signing_key"
   utxoSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/transaction-sign/utxo.skey"

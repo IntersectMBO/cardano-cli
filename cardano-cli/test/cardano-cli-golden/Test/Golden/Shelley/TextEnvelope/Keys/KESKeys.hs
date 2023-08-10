@@ -1,11 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.Golden.Shelley.TextEnvelope.Keys.KESKeys
-  ( golden_shelleyKESKeys
-  , golden_shelleyKESKeys_bech32
-  , golden_shelleyKESKeys_te
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Keys.KESKeys where
 
 import           Cardano.Api (AsType (..), HasTextEnvelope (..))
 
@@ -24,8 +20,8 @@ import qualified Hedgehog.Extras.Test.File as H
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyKESKeys :: Property
-golden_shelleyKESKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyKESKeys :: Property
+hprop_golden_shelleyKESKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
   referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/verification_key"
   referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/signing_key"
@@ -52,8 +48,8 @@ golden_shelleyKESKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyKESKeys_te :: Property
-golden_shelleyKESKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyKESKeys_te :: Property
+hprop_golden_shelleyKESKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
   referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/verification_key"
   referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/signing_key"
@@ -81,8 +77,8 @@ golden_shelleyKESKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> 
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyKESKeys_bech32 :: Property
-golden_shelleyKESKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyKESKeys_bech32 :: Property
+hprop_golden_shelleyKESKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Key filepaths
   verKeyFile <- noteTempFile tempDir "kes-verification-key-file"
   signKeyFile <- noteTempFile tempDir "kes-signing-key-file"

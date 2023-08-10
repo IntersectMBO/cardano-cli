@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Transaction.CreateWitness
-  ( golden_shelleyTransactionSigningKeyWitness
-  ) where
+module Test.Golden.Shelley.Transaction.CreateWitness where
 
 import           Control.Monad (void)
 
@@ -20,8 +18,8 @@ txIn = "2392d2b1200b5139fe555c81261697b29a8ccf561c5c783d46e78a479d977053#0"
 txOut :: String
 txOut = "addr1q94cxl99qvtwunsqqv6g9mgj3zrawtpt4edsgwxkjtwpy5dsezcht90tmwfur7t5hc9fk8hjd3r5vjwec2h8vmk3xh8s7er7t3+100"
 
-golden_shelleyTransactionSigningKeyWitness :: Property
-golden_shelleyTransactionSigningKeyWitness = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyTransactionSigningKeyWitness :: Property
+hprop_golden_shelleyTransactionSigningKeyWitness = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
   -- Create tx body file

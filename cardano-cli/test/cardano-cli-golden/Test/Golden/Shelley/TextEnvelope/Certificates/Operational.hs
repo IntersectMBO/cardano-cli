@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextEnvelope.Certificates.Operational
-  ( golden_shelleyOperationalCertificate
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Certificates.Operational where
 
 import           Cardano.Api (AsType (..), HasTextEnvelope (..))
 
@@ -20,8 +18,8 @@ import qualified Hedgehog.Extras.Test.File as H
 --   2. Create cold keys.
 --   3. Create operational certificate.
 --   4. Check the TextEnvelope serialization format has not changed.
-golden_shelleyOperationalCertificate :: Property
-golden_shelleyOperationalCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyOperationalCertificate :: Property
+hprop_golden_shelleyOperationalCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
   referenceOperationalCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/operational_certificate"
 

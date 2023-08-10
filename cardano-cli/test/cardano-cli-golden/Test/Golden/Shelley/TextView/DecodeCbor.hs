@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextView.DecodeCbor
-  ( golden_shelleyTextViewDecodeCbor
-  ) where
+module Test.Golden.Shelley.TextView.DecodeCbor where
 
 import           Test.Cardano.CLI.Util
 
@@ -12,8 +10,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyTextViewDecodeCbor :: Property
-golden_shelleyTextViewDecodeCbor = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyTextViewDecodeCbor :: Property
+hprop_golden_shelleyTextViewDecodeCbor = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   unsignedTxFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/tx/unsigned.tx"
   decodedTxtFile <- noteTempFile tempDir "decoded.txt"
 

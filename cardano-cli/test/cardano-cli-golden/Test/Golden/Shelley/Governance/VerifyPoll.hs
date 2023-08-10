@@ -1,13 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Governance.VerifyPoll
-  ( golden_shelleyGovernanceVerifyPoll
-  , golden_shelleyGovernanceVerifyPollMismatch
-  , golden_shelleyGovernanceVerifyPollNoAnswer
-  , golden_shelleyGovernanceVerifyPollMalformedAnswer
-  , golden_shelleyGovernanceVerifyPollInvalidAnswer
-  ) where
+module Test.Golden.Shelley.Governance.VerifyPoll where
 
 import           Cardano.Api
 
@@ -25,8 +19,8 @@ import qualified Hedgehog.Internal.Property as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyGovernanceVerifyPoll :: Property
-golden_shelleyGovernanceVerifyPoll = propertyOnce $ do
+hprop_golden_shelleyGovernanceVerifyPoll :: Property
+hprop_golden_shelleyGovernanceVerifyPoll = propertyOnce $ do
   pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/polls/basic.json"
   txFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/verify/valid"
   vkFile <- VerificationKeyFilePath . File <$>
@@ -45,8 +39,8 @@ golden_shelleyGovernanceVerifyPoll = propertyOnce $ do
       let expected = prettyPrintJSON $ serialiseToRawBytesHexText <$> [verificationKeyHash vk]
       H.assert $ expected `BSC.isInfixOf` stdout
 
-golden_shelleyGovernanceVerifyPollMismatch :: Property
-golden_shelleyGovernanceVerifyPollMismatch = propertyOnce $ do
+hprop_golden_shelleyGovernanceVerifyPollMismatch :: Property
+hprop_golden_shelleyGovernanceVerifyPollMismatch = propertyOnce $ do
   pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/polls/basic.json"
   txFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/verify/mismatch"
 
@@ -58,8 +52,8 @@ golden_shelleyGovernanceVerifyPollMismatch = propertyOnce $ do
 
   either (const H.success) (H.failWith Nothing) result
 
-golden_shelleyGovernanceVerifyPollNoAnswer :: Property
-golden_shelleyGovernanceVerifyPollNoAnswer = propertyOnce $ do
+hprop_golden_shelleyGovernanceVerifyPollNoAnswer :: Property
+hprop_golden_shelleyGovernanceVerifyPollNoAnswer = propertyOnce $ do
   pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/polls/basic.json"
   txFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/verify/none"
 
@@ -71,8 +65,8 @@ golden_shelleyGovernanceVerifyPollNoAnswer = propertyOnce $ do
 
   either (const H.success) (H.failWith Nothing) result
 
-golden_shelleyGovernanceVerifyPollMalformedAnswer :: Property
-golden_shelleyGovernanceVerifyPollMalformedAnswer = propertyOnce $ do
+hprop_golden_shelleyGovernanceVerifyPollMalformedAnswer :: Property
+hprop_golden_shelleyGovernanceVerifyPollMalformedAnswer = propertyOnce $ do
   pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/polls/basic.json"
   txFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/verify/malformed"
 
@@ -84,8 +78,8 @@ golden_shelleyGovernanceVerifyPollMalformedAnswer = propertyOnce $ do
 
   either (const H.success) (H.failWith Nothing) result
 
-golden_shelleyGovernanceVerifyPollInvalidAnswer :: Property
-golden_shelleyGovernanceVerifyPollInvalidAnswer = propertyOnce $ do
+hprop_golden_shelleyGovernanceVerifyPollInvalidAnswer :: Property
+hprop_golden_shelleyGovernanceVerifyPollInvalidAnswer = propertyOnce $ do
   pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/polls/basic.json"
   txFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/verify/invalid"
 

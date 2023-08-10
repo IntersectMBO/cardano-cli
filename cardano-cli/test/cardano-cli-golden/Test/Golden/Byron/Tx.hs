@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Byron.Tx
-  ( txTests
-  ) where
+module Test.Golden.Byron.Tx where
 
 import           Cardano.Api
 
@@ -24,8 +22,8 @@ import           Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_byronTx_legacy :: Property
-golden_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_byronTx_legacy :: Property
+hprop_golden_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/legacy.skey"
   goldenTx <- noteInputFile "test/cardano-cli-golden/files/golden/byron/tx/legacy.tx"
   createdTx <- noteTempFile tempDir "tx"
@@ -41,8 +39,8 @@ golden_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
 
   compareByronTxs createdTx goldenTx
 
-golden_byronTx :: Property
-golden_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_byronTx :: Property
+hprop_golden_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
   goldenTx <- noteInputFile "test/cardano-cli-golden/files/golden/byron/tx/normal.tx"
   createdTx <- noteTempFile tempDir "tx"
@@ -71,11 +69,3 @@ compareByronTxs createdTx goldenTx = do
   goldenATxAuxBS <- getTxByteString goldenTx
 
   normalByronTxToGenTx goldenATxAuxBS === normalByronTxToGenTx createdATxAuxBS
-
-txTests :: IO Bool
-txTests =
-  H.checkSequential
-    $ H.Group "Byron Tx Goldens"
-        [ ("golden_byronTx", golden_byronTx)
-        , ("golden_byronTx_legacy", golden_byronTx_legacy)
-        ]

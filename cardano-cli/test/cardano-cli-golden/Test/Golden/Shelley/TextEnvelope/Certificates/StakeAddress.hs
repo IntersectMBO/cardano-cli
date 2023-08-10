@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextEnvelope.Certificates.StakeAddress
-  ( golden_shelleyStakeAddressCertificates
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Certificates.StakeAddress where
 
 import           Cardano.Api (AsType (..), CardanoEra (..), textEnvelopeTypeInEra)
 
@@ -19,8 +17,8 @@ import qualified Hedgehog.Extras.Test.File as H
 -- | 1. Generate a stake verification key
 --   2. Create a stake address registration certificate
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyStakeAddressCertificates :: Property
-golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyStakeAddressCertificates :: Property
+hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   let era = BabbageEra
 
   -- Reference files

@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.StakePool.RegistrationCertificate
-  ( golden_shelleyStakePoolRegistrationCertificate
-  ) where
+module Test.Golden.Shelley.StakePool.RegistrationCertificate where
 
 import           Control.Monad (void)
 
@@ -14,8 +12,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyStakePoolRegistrationCertificate :: Property
-golden_shelleyStakePoolRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyStakePoolRegistrationCertificate :: Property
+hprop_golden_shelleyStakePoolRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   operatorVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/node-pool/operator.vkey"
   vrfVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/node-pool/vrf.vkey"
   ownerVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/node-pool/owner.vkey"

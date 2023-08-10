@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextEnvelope.Certificates.MIR
-  ( golden_shelleyMIRCertificate
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Certificates.MIR where
 
 import           Cardano.Api (AsType (..), CardanoEra (..), textEnvelopeTypeInEra)
 
@@ -19,8 +17,8 @@ import qualified Hedgehog.Extras.Test.File as H
 -- | 1. Generate stake key pair
 --   2. Create MIR certificate
 --   s. Check the TextEnvelope serialization format has not changed.
-golden_shelleyMIRCertificate :: Property
-golden_shelleyMIRCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyMIRCertificate :: Property
+hprop_golden_shelleyMIRCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   let era = BabbageEra
 
   -- Reference keys

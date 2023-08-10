@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Byron.Vote
-  ( voteTests
-  ) where
+module Test.Golden.Byron.Vote where
 
 import           Cardano.CLI.Byron.Vote
 
@@ -14,14 +12,13 @@ import qualified Data.Text as Text
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property, (===))
-import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import           Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_byron_yes_vote :: Property
-golden_byron_yes_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_byron_yes_vote :: Property
+hprop_golden_byron_yes_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   goldenYesVote <- noteInputFile "test/cardano-cli-golden/files/golden/byron/votes/vote-yes"
   proposal <- noteInputFile "test/cardano-cli-golden/files/golden/byron/update-proposal"
   signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
@@ -47,8 +44,8 @@ golden_byron_yes_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
 
   golden === created
 
-golden_byron_no_vote :: Property
-golden_byron_no_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_byron_no_vote :: Property
+hprop_golden_byron_no_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   goldenNoVote <- noteInputFile "test/cardano-cli-golden/files/golden/byron/votes/vote-no"
   proposal <- noteInputFile "test/cardano-cli-golden/files/golden/byron/update-proposal"
   signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
@@ -73,11 +70,3 @@ golden_byron_no_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
                Right prop -> return prop
 
   golden === created
-
-voteTests :: IO Bool
-voteTests =
-  H.checkSequential
-    $ H.Group "Byron Vote Goldens"
-        [ ("golden_byron_no_vote", golden_byron_no_vote)
-        , ("golden_byron_yes_vote", golden_byron_yes_vote)
-        ]

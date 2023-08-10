@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.StakeAddress.RegistrationCertificate
-  ( golden_shelleyStakeAddressRegistrationCertificate
-  ) where
+module Test.Golden.Shelley.StakeAddress.RegistrationCertificate where
 
 import           Control.Monad (void)
 import           System.FilePath ((</>))
@@ -16,8 +14,8 @@ import qualified Hedgehog.Extras.Test.Process as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyStakeAddressRegistrationCertificate :: Property
-golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyStakeAddressRegistrationCertificate :: Property
+hprop_golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   base <- H.getProjectBase
 
   keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/verification_key"

@@ -1,11 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.Golden.Shelley.TextEnvelope.Keys.StakeKeys
-  ( golden_shelleyStakeKeys
-  , golden_shelleyStakeKeys_bech32
-  , golden_shelleyStakeKeys_te
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Keys.StakeKeys where
 
 import           Cardano.Api (AsType (..), HasTextEnvelope (..))
 
@@ -24,8 +20,8 @@ import qualified Hedgehog.Extras.Test.File as H
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyStakeKeys :: Property
-golden_shelleyStakeKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyStakeKeys :: Property
+hprop_golden_shelleyStakeKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
   referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/verification_key"
   referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/signing_key"
@@ -52,8 +48,8 @@ golden_shelleyStakeKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> d
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyStakeKeys_te :: Property
-golden_shelleyStakeKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyStakeKeys_te :: Property
+hprop_golden_shelleyStakeKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
   referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/verification_key"
   referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/signing_key"
@@ -81,8 +77,8 @@ golden_shelleyStakeKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the bech32 serialization format has not changed.
-golden_shelleyStakeKeys_bech32 :: Property
-golden_shelleyStakeKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyStakeKeys_bech32 :: Property
+hprop_golden_shelleyStakeKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   H.note_ tempDir
 
   -- Key filepaths

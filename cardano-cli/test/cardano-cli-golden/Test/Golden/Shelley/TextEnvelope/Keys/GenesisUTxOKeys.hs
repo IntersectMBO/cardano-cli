@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextEnvelope.Keys.GenesisUTxOKeys
-  ( golden_shelleyGenesisUTxOKeys
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Keys.GenesisUTxOKeys where
 
 import           Cardano.Api (AsType (..), HasTextEnvelope (..))
 
@@ -18,8 +16,8 @@ import qualified Hedgehog.Extras.Test.Base as H
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyGenesisUTxOKeys :: Property
-golden_shelleyGenesisUTxOKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyGenesisUTxOKeys :: Property
+hprop_golden_shelleyGenesisUTxOKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
   referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_utxo_keys/verification_key"
   referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_utxo_keys/signing_key"

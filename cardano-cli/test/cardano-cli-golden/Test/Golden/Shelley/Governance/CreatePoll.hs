@@ -1,9 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Governance.CreatePoll
-  ( golden_shelleyGovernanceCreatePoll
-  , golden_shelleyGovernanceCreateLongPoll
-  ) where
+module Test.Golden.Shelley.Governance.CreatePoll where
 
 import           Control.Monad (void)
 
@@ -16,8 +13,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyGovernanceCreatePoll :: Property
-golden_shelleyGovernanceCreatePoll =
+hprop_golden_shelleyGovernanceCreatePoll :: Property
+hprop_golden_shelleyGovernanceCreatePoll =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     pollFile <- noteTempFile tempDir "poll.json"
 
@@ -36,8 +33,8 @@ golden_shelleyGovernanceCreatePoll =
     H.assertFileOccurences 1 "GovernancePoll" pollFile
     H.assertEndsWithSingleNewline pollFile
 
-golden_shelleyGovernanceCreateLongPoll :: Property
-golden_shelleyGovernanceCreateLongPoll =
+hprop_golden_shelleyGovernanceCreateLongPoll :: Property
+hprop_golden_shelleyGovernanceCreateLongPoll =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     pollFile <- noteTempFile tempDir "poll.json"
 

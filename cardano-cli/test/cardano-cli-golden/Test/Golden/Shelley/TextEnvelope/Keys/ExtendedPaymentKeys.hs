@@ -1,11 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.Golden.Shelley.TextEnvelope.Keys.ExtendedPaymentKeys
-  ( golden_shelleyExtendedPaymentKeys
-  , golden_shelleyExtendedPaymentKeys_bech32
-  , golden_shelleyExtendedPaymentKeys_te
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Keys.ExtendedPaymentKeys where
 
 import           Cardano.Api (AsType (..), HasTextEnvelope (..))
 
@@ -24,8 +20,8 @@ import qualified Hedgehog.Extras.Test.File as H
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyExtendedPaymentKeys :: Property
-golden_shelleyExtendedPaymentKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyExtendedPaymentKeys :: Property
+hprop_golden_shelleyExtendedPaymentKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
   referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/verification_key"
   referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/signing_key"
@@ -53,8 +49,8 @@ golden_shelleyExtendedPaymentKeys = propertyOnce . H.moduleWorkspace "tmp" $ \te
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyExtendedPaymentKeys_te :: Property
-golden_shelleyExtendedPaymentKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyExtendedPaymentKeys_te :: Property
+hprop_golden_shelleyExtendedPaymentKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
   referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/verification_key"
   referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/signing_key"
@@ -83,8 +79,8 @@ golden_shelleyExtendedPaymentKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ 
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the bech32 serialization format has not changed.
-golden_shelleyExtendedPaymentKeys_bech32 :: Property
-golden_shelleyExtendedPaymentKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyExtendedPaymentKeys_bech32 :: Property
+hprop_golden_shelleyExtendedPaymentKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   H.note_ tempDir
 
   -- Key filepaths
