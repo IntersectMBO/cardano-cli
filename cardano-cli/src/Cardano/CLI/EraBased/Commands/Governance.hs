@@ -46,6 +46,10 @@ data EraBasedGovernanceCmds era
       (GovernanceCommitteeCmds era)
   | EraBasedGovernanceActionCmds
       (GovernanceActionCmds era)
+  | EraBasedGovernanceDRepGenerateKey
+      (ConwayEraOnwards era)
+      (File (VerificationKey ()) Out)
+      (File (SigningKey ()) Out)
 
 renderEraBasedGovernanceCmds :: EraBasedGovernanceCmds era -> Text
 renderEraBasedGovernanceCmds = \case
@@ -69,3 +73,4 @@ renderEraBasedGovernanceCmds = \case
     renderGovernanceCommitteeCmds cmds
   EraBasedGovernanceActionCmds cmds ->
     renderGovernanceActionCmds cmds
+  EraBasedGovernanceDRepGenerateKey{} -> "governance drep key-gen"

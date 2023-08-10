@@ -39,6 +39,7 @@ pEraBasedGovernanceCmds envCli era =
     , pCreateMirCertificatesCmds era
     , pGovernanceCommitteeCmds era <&> fmap EraBasedGovernanceCommitteeCmds
     , fmap EraBasedGovernanceActionCmds <$> pGovernanceActionCmds era
+    , pDRepCommands era
     ]
 
 
@@ -301,3 +302,17 @@ pMIRTransferToReserves w =
 
 --------------------------------------------------------------------------------
 
+pDRepCommands :: ()
+  => CardanoEra era
+  -> Maybe (Parser (EraBasedGovernanceCmds era))
+pDRepCommands era = do
+  w <- maybeFeatureInEra era
+  pure $
+    subParser "drep"
+    $ Opt.info (pKeyGen w)
+    $ Opt.progDesc "Delegate Representative commands."
+  where
+    pKeyGen w =
+      subParser "key-gen"
+      $ Opt.info (EraBasedGovernanceDRepGenerateKey w <$> pVerificationKeyFileOut <*> pSigningKeyFileOut)
+      $ Opt.progDesc "Generate Delegate Representative verification and signing keys."
