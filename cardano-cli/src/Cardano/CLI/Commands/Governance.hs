@@ -10,6 +10,7 @@ import           Cardano.Api.Shelley
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Run.Legacy.Read (CddlError)
 import           Cardano.CLI.Run.Legacy.StakeAddress
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import           Cardano.Prelude (intercalate, toS)
