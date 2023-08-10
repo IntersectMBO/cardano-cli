@@ -252,6 +252,7 @@ data TransactionCmds
   | TxSubmit SocketPath AnyConsensusModeParams NetworkId FilePath
   | TxMintedPolicyId ScriptFile
   | TxCalculateMinFee
+      AnyCardanoEra
       (TxBodyFile In)
       NetworkId
       ProtocolParamsFile

@@ -1391,10 +1391,14 @@ renderProtocolParamsError (ProtocolParamsErrorJSON fp jsonErr) =
 
 --TODO: eliminate this and get only the necessary params, and get them in a more
 -- helpful way rather than requiring them as a local file.
-readProtocolParameters :: ProtocolParamsFile
-                       -> ExceptT ProtocolParamsError IO ProtocolParameters
-readProtocolParameters (ProtocolParamsFile fpath) = do
+readProtocolParameters :: ()
+  => CardanoEra era
+  -> ProtocolParamsFile
+  -> ExceptT ProtocolParamsError IO (ProtocolParameters era)
+readProtocolParameters era (ProtocolParamsFile fpath) = do
   pparams <- handleIOExceptT (ProtocolParamsErrorFile . FileIOError fpath) $ LBS.readFile fpath
-  firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither $
-    Aeson.eitherDecode' pparams
+
+  cardanoEraConstraints era
+    $ firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither
+    $ Aeson.eitherDecode' pparams
 

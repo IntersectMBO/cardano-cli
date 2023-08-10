@@ -234,8 +234,8 @@ runQueryConstitutionHash socketPath (AnyConsensusModeParams cModeParams) network
           handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError fpath) $
             LBS.writeFile fpath (encodePretty cHash)
 
-runQueryProtocolParameters
-  :: SocketPath
+runQueryProtocolParameters :: ()
+  => SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe (File () Out)
@@ -255,18 +255,20 @@ runQueryProtocolParameters socketPath (AnyConsensusModeParams cModeParams) netwo
     eInMode <- toEraInMode era cMode
       & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
-    lift (queryProtocolParameters eInMode sbe)
+    result <- lift (queryProtocolParameters eInMode sbe)
       & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
       & onLeft (left . ShelleyQueryCmdEraMismatch)
+
+    pure (InAnyEra era result)
 
   writeProtocolParameters mOutFile =<< except (join (first ShelleyQueryCmdAcquireFailure result))
 
  where
   writeProtocolParameters
     :: Maybe (File () Out)
-    -> ProtocolParameters
+    -> InAnyEra era ProtocolParameters
     -> ExceptT ShelleyQueryCmdError IO ()
-  writeProtocolParameters mOutFile' pparams =
+  writeProtocolParameters mOutFile' (InAnyEra _ pparams) =
     case mOutFile' of
       Nothing -> liftIO $ LBS.putStrLn (encodePretty pparams)
       Just (File fpath) ->
@@ -457,13 +459,16 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
             eInMode <- toEraInMode era cMode
               & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
+            shelleyInMode <- toEraInMode ShelleyEra cMode
+              & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
+
             -- We check that the KES period specified in the operational certificate is correct
             -- based on the KES period defined in the genesis parameters and the current slot number
             eraInMode <- calcEraInMode era $ consensusModeOnly cModeParams
 
             requireNotByronEraInByronMode eraInMode
 
-            gParams <- lift (queryGenesisParameters eInMode sbe)
+            gParams <- lift (queryGenesisParameters shelleyInMode ShelleyBasedEraShelley)
               & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
               & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -508,7 +513,7 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
     mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
 
  where
-   currentKesPeriod :: ChainTip -> GenesisParameters -> CurrentKesPeriod
+   currentKesPeriod :: ChainTip -> GenesisParameters era -> CurrentKesPeriod
    currentKesPeriod ChainTipAtGenesis _ = CurrentKesPeriod 0
    currentKesPeriod (ChainTip currSlot _ _) gParams =
      let slotsPerKesPeriod = fromIntegral $ protocolParamSlotsPerKESPeriod gParams
@@ -517,7 +522,7 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
    opCertStartingKesPeriod :: OperationalCertificate -> OpCertStartingKesPeriod
    opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . getKesPeriod
 
-   opCertEndKesPeriod :: GenesisParameters -> OperationalCertificate -> OpCertEndingKesPeriod
+   opCertEndKesPeriod :: GenesisParameters era -> OperationalCertificate -> OpCertEndingKesPeriod
    opCertEndKesPeriod gParams oCert =
      let OpCertStartingKesPeriod start = opCertStartingKesPeriod oCert
          maxKesEvo = fromIntegral $ protocolParamMaxKESEvolutions gParams
@@ -525,7 +530,7 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
 
    -- See OCERT rule in Shelley Spec: https://hydra.iohk.io/job/Cardano/cardano-ledger-specs/shelleyLedgerSpec/latest/download-by-type/doc-pdf/ledger-spec
    opCertIntervalInfo
-     :: GenesisParameters
+     :: GenesisParameters era
      -> ChainTip
      -> CurrentKesPeriod
      -> OpCertStartingKesPeriod
@@ -551,7 +556,7 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
 
    opCertExpiryUtcTime
      :: Tentative (EpochInfo (Either Text))
-     -> GenesisParameters
+     -> GenesisParameters era
      -> OpCertEndingKesPeriod
      -> Maybe UTCTime
    opCertExpiryUtcTime eInfo gParams (OpCertEndingKesPeriod oCertExpiryKesPeriod) =
@@ -612,7 +617,7 @@ runQueryKesPeriodInfo socketPath (AnyConsensusModeParams cModeParams) network no
      :: OpCertIntervalInformation
      -> OpCertNodeAndOnDiskCounterInformation
      -> Tentative (EpochInfo (Either Text))
-     -> GenesisParameters
+     -> GenesisParameters ShelleyEra
      -> O.QueryKesPeriodInfoOutput
    createQueryKesPeriodInfoOutput oCertIntervalInfo oCertCounterInfo eInfo gParams  =
      let (e, mStillExp) = case oCertIntervalInfo of
