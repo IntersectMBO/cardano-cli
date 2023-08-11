@@ -8,7 +8,6 @@ module Cardano.CLI.EraBased.Run.Governance
   ( runGovernanceCmds
   , runGovernanceMIRCertificatePayStakeAddrs
   , runGovernanceMIRCertificateTransfer
-  , runGovernanceDRepKeyGen
   ) where
 
 
@@ -336,18 +335,3 @@ runGovernanceVerifyPoll pollFile txFile mOutFile = do
   lift (writeByteStringOutput mOutFile (prettyPrintJSON signatories))
     & onLeft (left . GovernanceCmdWriteFileError)
 
-runGovernanceDRepKeyGen
-  :: ConwayEraOnwards era
-  -> VerificationKeyFile Out
-  -> SigningKeyFile Out
-  -> ExceptT GovernanceCmdError IO ()
-runGovernanceDRepKeyGen _w vkeyPath skeyPath = firstExceptT GovernanceCmdWriteFileError $ do
-  skey <- liftIO $ generateSigningKey AsDRepKey
-  let vkey = getVerificationKey skey
-  newExceptT $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just skeyDesc) skey)
-  newExceptT $ writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just vkeyDesc) vkey)
-  where
-    skeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Delegate Representative Signing Key"
-    vkeyDesc :: TextEnvelopeDescr
-    vkeyDesc = "Delegate Representative Verification Key"

@@ -14,10 +14,10 @@ import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Governance
-import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
+import           Cardano.CLI.EraBased.Run.Governance.DRep (runGovernanceDRepCmds)
 import           Cardano.CLI.EraBased.Vote
 
 import           Control.Monad.Trans.Except
@@ -59,13 +59,6 @@ runEraBasedGovernanceCmds = \case
     firstExceptT (const ()) -- TODO: Conway era - fix error handling
       $ runGovernanceMIRCertificateTransfer w ll oFp direction
 
-  EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
-    firstExceptT (const ()) -- TODO fix error handling
-      $ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
-
-  EraBasedGovernanceRegistrationCertificateCmd regTarget outFp ->
-    firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceRegistrationCertificate regTarget outFp
   EraBasedGovernanceVoteCmd anyVote outFp ->
     firstExceptT (const ()) -- TODO: Conway era - fix error handling
       $ runGovernanceVote anyVote outFp
@@ -78,9 +71,9 @@ runEraBasedGovernanceCmds = \case
     firstExceptT (const ()) -- TODO: Conway era - fix error handling
       $ runGovernanceActionCmds cmds
 
-  EraBasedGovernanceDRepGenerateKey w vrf sgn ->
+  EraBasedGovernanceDRepCmds cmds ->
     firstExceptT (const ()) -- TODO: Conway era - fix error handling
-      $ runGovernanceDRepKeyGen w vrf sgn
+      $ runGovernanceDRepCmds cmds
 
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era

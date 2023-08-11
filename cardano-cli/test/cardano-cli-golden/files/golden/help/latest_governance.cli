@@ -1,8 +1,4 @@
-Usage: cardano-cli latest governance 
-                                       ( registration-certificate
-                                       | delegation-certificate
-                                       | create-mir-certificate
-                                       )
+Usage: cardano-cli latest governance (create-mir-certificate | drep)
 
   Era-based governance commands
 
@@ -10,7 +6,6 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  registration-certificate Create a registration certificate.
-  delegation-certificate   Delegation certificate creation.
   create-mir-certificate   Create an MIR (Move Instantaneous Rewards)
                            certificate
+  drep                     Delegate Representative commands.

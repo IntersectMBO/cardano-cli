@@ -1,57 +1,82 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Cardano.CLI.EraBased.Run.Certificate
-  ( EraBasedDelegationError(..)
-  , EraBasedRegistrationError(..)
+module Cardano.CLI.EraBased.Run.Governance.DRep
+  ( GovernanceDRepError(..)
 
-  , runGovernanceRegistrationCertificate
-  , runGovernanceDelegationCertificate
+  , runGovernanceDRepCmds
   ) where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Byron.Commands (VerificationKeyFile)
+import           Cardano.CLI.EraBased.Commands.Governance.DRep (GovernanceDRepCmds (..))
 import           Cardano.CLI.Run.Legacy.StakeAddress
 import           Cardano.CLI.Types.Key
+import           Cardano.CLI.Types.Legacy (SigningKeyFile)
 
+import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 
 
+data GovernanceDRepError
+  -- delegation
+  = GovernanceDRepDelegReadError !(FileError InputDecodeError)
+  | GovernanceDRepCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
+  | GovernanceDRepCertificateWriteFileError !(FileError ())
+  | GovernanceDRepReadError !(FileError InputDecodeError)
+  | GovernanceDRepDelegationGenericError -- TODO Delete and replace with more specific errors
+  -- registration
+  | GovernanceDRepRegistReadError !(FileError InputDecodeError)
+  | GovernanceDRepRegistWriteFileError !(FileError ())
+  | GovernanceDRepRegistStakeCredReadError !ShelleyStakeAddressCmdError -- TODO: Conway era - don't use legacy error type
+  | GovernanceDRepRegistStakeError StakeAddressRegistrationError
+  -- key-gen
+  | GovernanceDRepKeyGenWriteFileError !(FileError ())
+
+
+runGovernanceDRepCmds
+  :: GovernanceDRepCmds era
+  -> ExceptT GovernanceDRepError IO ()
+runGovernanceDRepCmds = \case
+  GovernanceDRepDelegationCertificate stakeIdentifier delegationTarget outFp ->
+    runGovernanceDRepDelegationCertificate stakeIdentifier delegationTarget outFp
+  GovernanceDRepRegistrationCertificate regTarget outFp ->
+    runGovernanceDRepRegistrationCertificate regTarget outFp
+  GovernanceDRepKeyGen vrf sgn ->
+    runGovernanceDRepKeyGen vrf sgn
+
+--------------------------------------------------------------------------------
+
 -- Delegation Certificate related
 
-data EraBasedDelegationError
-  = EraBasedDelegReadError !(FileError InputDecodeError)
-  | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
-  | EraBasedCertificateWriteFileError !(FileError ())
-  | EraBasedDRepReadError !(FileError InputDecodeError)
-  | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
-
-runGovernanceDelegationCertificate
+runGovernanceDRepDelegationCertificate
   :: StakeIdentifier
   -> AnyDelegationTarget
   -> File () Out
-  -> ExceptT EraBasedDelegationError IO ()
-runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp = do
+  -> ExceptT GovernanceDRepError IO ()
+runGovernanceDRepDelegationCertificate stakeIdentifier delegationTarget outFp = do
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
-      & firstExceptT EraBasedCredentialError
+      & firstExceptT GovernanceDRepCredentialError
 
   case delegationTarget of
     ShelleyToBabbageDelegTarget sTob stakePool -> do
       poolId <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey stakePool)
-                  & onLeft (left . EraBasedDelegReadError)
+                  & onLeft (left . GovernanceDRepDelegReadError)
       let req = StakeDelegationRequirementsPreConway sTob stakeCred poolId
           delegCert = makeStakeAddressDelegationCertificate req
           description = Just @TextEnvelopeDescr "Stake Address Delegation Certificate"
-      firstExceptT EraBasedCertificateWriteFileError
+      firstExceptT GovernanceDRepCertificateWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
         $ shelleyToBabbageEraConstraints sTob
@@ -63,7 +88,7 @@ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp = do
           delegCert = makeStakeAddressDelegationCertificate req
           -- TODO: Conway era - update description to say if its delegating voting stake or "regular" stake
           description = Just @TextEnvelopeDescr "Stake Address Delegation Certificate"
-      firstExceptT EraBasedCertificateWriteFileError
+      firstExceptT GovernanceDRepCertificateWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
         $ conwayEraOnwardsConstraints cOnwards
@@ -71,17 +96,17 @@ runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp = do
 
 toLedgerDelegatee
   :: StakeTarget era
-  -> ExceptT EraBasedDelegationError IO (Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era)))
+  -> ExceptT GovernanceDRepError IO (Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era)))
 toLedgerDelegatee t =
   case t of
     TargetStakePool cOnwards keyOrHashOrFile -> do
       StakePoolKeyHash kHash
         <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey keyOrHashOrFile)
-             & onLeft (left . EraBasedDelegReadError)
+             & onLeft (left . GovernanceDRepDelegReadError)
       right $ Ledger.DelegStake $ conwayEraOnwardsConstraints cOnwards kHash
 
     TargetVotingDrep cOnwards keyOrHashOrFile -> do
-      DRepKeyHash drepKeyHash <- firstExceptT EraBasedDRepReadError
+      DRepKeyHash drepKeyHash <- firstExceptT GovernanceDRepReadError
                                    . newExceptT
                                    $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey keyOrHashOrFile
       let drepCred = Ledger.DRepCredential $ Ledger.KeyHashObj drepKeyHash
@@ -90,9 +115,9 @@ toLedgerDelegatee t =
     TargetVotingDrepAndStakePool cOnwards drepKeyOrHashOrFile  poolKeyOrHashOrFile -> do
       StakePoolKeyHash kHash
         <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolKeyOrHashOrFile)
-             & onLeft (left . EraBasedDelegReadError)
+             & onLeft (left . GovernanceDRepDelegReadError)
       DRepKeyHash drepKeyHash
-        <- firstExceptT EraBasedDRepReadError
+        <- firstExceptT GovernanceDRepReadError
              . newExceptT
              $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepKeyOrHashOrFile
       let drepCred = Ledger.DRepCredential $ Ledger.KeyHashObj drepKeyHash
@@ -112,34 +137,27 @@ toLedgerDelegatee t =
 
 -- Registration Certificate related
 
-
-data EraBasedRegistrationError
-  = EraBasedRegistReadError !(FileError InputDecodeError)
-  | EraBasedRegistWriteFileError !(FileError ())
-  | EraBasedRegistStakeCredReadError !ShelleyStakeAddressCmdError -- TODO: Conway era - don't use legacy error type
-  | EraBasedRegistStakeError StakeAddressRegistrationError
-
-runGovernanceRegistrationCertificate
+runGovernanceDRepRegistrationCertificate
   :: AnyRegistrationTarget
   -> File () Out
-  -> ExceptT EraBasedRegistrationError IO ()
-runGovernanceRegistrationCertificate anyReg outfp =
+  -> ExceptT GovernanceDRepError IO ()
+runGovernanceDRepRegistrationCertificate anyReg outfp =
   case anyReg of
     ShelleyToBabbageStakePoolRegTarget stoB regReqs -> do
       -- Pool verification key
-      stakePoolVerKey <- firstExceptT EraBasedRegistReadError
+      stakePoolVerKey <- firstExceptT GovernanceDRepRegistReadError
         . newExceptT
         $ readVerificationKeyOrFile AsStakePoolKey $ sprStakePoolKey regReqs
       let stakePoolId' = verificationKeyHash stakePoolVerKey
 
       -- VRF verification key
-      vrfVerKey <- firstExceptT EraBasedRegistReadError
+      vrfVerKey <- firstExceptT GovernanceDRepRegistReadError
         . newExceptT
         $ readVerificationKeyOrFile AsVrfKey $ sprVrfKey regReqs
       let vrfKeyHash' = verificationKeyHash vrfVerKey
 
       -- Pool reward account
-      rwdStakeVerKey <- firstExceptT EraBasedRegistReadError
+      rwdStakeVerKey <- firstExceptT GovernanceDRepRegistReadError
         . newExceptT
         $ readVerificationKeyOrFile AsStakeKey $ sprRewardAccountKey regReqs
       let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
@@ -148,7 +166,7 @@ runGovernanceRegistrationCertificate anyReg outfp =
       -- Pool owner(s)
       sPoolOwnerVkeys <-
         mapM
-          (firstExceptT EraBasedRegistReadError
+          (firstExceptT GovernanceDRepRegistReadError
             . newExceptT
             . readVerificationKeyOrFile AsStakeKey
           )
@@ -172,19 +190,19 @@ runGovernanceRegistrationCertificate anyReg outfp =
           req = StakePoolRegistrationRequirementsPreConway stoB $ shelleyToBabbageEraConstraints stoB ledgerStakePoolParams
           registrationCert = makeStakePoolRegistrationCertificate req
           description = Just @TextEnvelopeDescr "Stake Pool Registration Certificate"
-      firstExceptT EraBasedRegistWriteFileError
+      firstExceptT GovernanceDRepRegistWriteFileError
         . newExceptT
         . writeLazyByteStringFile outfp
         $ shelleyToBabbageEraConstraints stoB
         $ textEnvelopeToJSON description registrationCert
 
     ShelleyToBabbageStakeKeyRegTarget sToB stakeIdentifier -> do
-      stakeCred <- firstExceptT EraBasedRegistStakeCredReadError
+      stakeCred <- firstExceptT GovernanceDRepRegistStakeCredReadError
                      $ getStakeCredentialFromIdentifier stakeIdentifier
       let req = StakeAddrRegistrationPreConway sToB stakeCred
           registrationCert = makeStakeAddressRegistrationCertificate req
           description = Just @TextEnvelopeDescr "Stake Key Registration Certificate"
-      firstExceptT EraBasedRegistWriteFileError
+      firstExceptT GovernanceDRepRegistWriteFileError
         . newExceptT
         . writeLazyByteStringFile outfp
         $ shelleyToBabbageEraConstraints sToB
@@ -194,17 +212,17 @@ runGovernanceRegistrationCertificate anyReg outfp =
       case regTarget of
         RegisterStakePool cOnwards regReqs -> do
           -- Pool verification key
-          stakePoolVerKey <- firstExceptT EraBasedRegistReadError
+          stakePoolVerKey <- firstExceptT GovernanceDRepRegistReadError
             . newExceptT
             $ readVerificationKeyOrFile AsStakePoolKey $ sprStakePoolKey regReqs
           let stakePoolId' = verificationKeyHash stakePoolVerKey
           -- VRF verification key
-          vrfVerKey <- firstExceptT EraBasedRegistReadError
+          vrfVerKey <- firstExceptT GovernanceDRepRegistReadError
                          . newExceptT
                          $ readVerificationKeyOrFile AsVrfKey $ sprVrfKey regReqs
           let vrfKeyHash' = verificationKeyHash vrfVerKey
           -- Pool reward account
-          rwdStakeVerKey <- firstExceptT EraBasedRegistReadError
+          rwdStakeVerKey <- firstExceptT GovernanceDRepRegistReadError
                               . newExceptT
                               $ readVerificationKeyOrFile AsStakeKey $ sprRewardAccountKey regReqs
           let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
@@ -212,7 +230,7 @@ runGovernanceRegistrationCertificate anyReg outfp =
           -- Pool owner(s)
           sPoolOwnerVkeys <-
                 mapM
-                  (firstExceptT EraBasedRegistReadError
+                  (firstExceptT GovernanceDRepRegistReadError
                     . newExceptT
                     . readVerificationKeyOrFile AsStakeKey
                   )
@@ -237,24 +255,24 @@ runGovernanceRegistrationCertificate anyReg outfp =
                       $ conwayEraOnwardsConstraints cOnwards ledgerStakePoolParams
               registrationCert = makeStakePoolRegistrationCertificate req
               description = Just @TextEnvelopeDescr "Stake Pool Registration Certificate"
-          firstExceptT EraBasedRegistWriteFileError
+          firstExceptT GovernanceDRepRegistWriteFileError
             . newExceptT
             . writeLazyByteStringFile outfp
             $ conwayEraOnwardsConstraints cOnwards
             $ textEnvelopeToJSON description registrationCert
         RegisterStakeKey cOnwards sIdentifier deposit -> do
-          stakeCred <- firstExceptT EraBasedRegistStakeCredReadError
+          stakeCred <- firstExceptT GovernanceDRepRegistStakeCredReadError
                          $ getStakeCredentialFromIdentifier sIdentifier
           let req = StakeAddrRegistrationConway cOnwards deposit stakeCred
               registrationCert = makeStakeAddressRegistrationCertificate req
               description = Just @TextEnvelopeDescr "Stake Key Registration Certificate"
-          firstExceptT EraBasedRegistWriteFileError
+          firstExceptT GovernanceDRepRegistWriteFileError
             . newExceptT
             . writeLazyByteStringFile outfp
             $ conwayEraOnwardsConstraints cOnwards
             $ textEnvelopeToJSON description registrationCert
         RegisterDRep cOnwards drepVKey deposit -> do
-          DRepKeyHash drepKeyHash <- firstExceptT EraBasedRegistReadError
+          DRepKeyHash drepKeyHash <- firstExceptT GovernanceDRepRegistReadError
             . newExceptT
             $ readVerificationKeyOrHashOrFile AsDRepKey drepVKey
           let drepCred = Ledger.KeyHashObj $ conwayEraOnwardsConstraints cOnwards drepKeyHash
@@ -263,10 +281,28 @@ runGovernanceRegistrationCertificate anyReg outfp =
               registrationCert = makeDrepRegistrationCertificate req
               description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
 
-          firstExceptT EraBasedRegistWriteFileError
+          firstExceptT GovernanceDRepRegistWriteFileError
             . newExceptT
             . writeLazyByteStringFile outfp
             $ conwayEraOnwardsConstraints cOnwards
             $ textEnvelopeToJSON description registrationCert
 
 --------------------------------------------------------------------------------
+
+-- Key generation related
+
+
+runGovernanceDRepKeyGen
+  :: VerificationKeyFile Out
+  -> SigningKeyFile Out
+  -> ExceptT GovernanceDRepError IO ()
+runGovernanceDRepKeyGen vkeyPath skeyPath = firstExceptT GovernanceDRepKeyGenWriteFileError $ do
+  skey <- liftIO $ generateSigningKey AsDRepKey
+  let vkey = getVerificationKey skey
+  newExceptT $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just skeyDesc) skey)
+  newExceptT $ writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just vkeyDesc) vkey)
+  where
+    skeyDesc :: TextEnvelopeDescr
+    skeyDesc = "Delegate Representative Signing Key"
+    vkeyDesc :: TextEnvelopeDescr
+    vkeyDesc = "Delegate Representative Verification Key"

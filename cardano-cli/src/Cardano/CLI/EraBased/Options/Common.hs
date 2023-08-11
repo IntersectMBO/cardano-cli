@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -38,11 +39,28 @@ import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
 
+
 defaultShelleyBasedEra :: AnyShelleyBasedEra
 defaultShelleyBasedEra = AnyShelleyBasedEra ShelleyBasedEraBabbage
 
 defaultShelleyToBabbageEra :: AnyShelleyToBabbageEra
 defaultShelleyToBabbageEra = AnyShelleyToBabbageEra ShelleyToBabbageEraBabbage
+
+
+data AnyEraDecider era where
+  AnyEraDeciderShelleyToBabbage :: ShelleyToBabbageEra era -> AnyEraDecider era
+  AnyEraDeciderConwayOnwards :: ConwayEraOnwards era -> AnyEraDecider era
+
+instance FeatureInEra AnyEraDecider where
+  featureInEra no yes = \case
+    ByronEra    -> no
+    ShelleyEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraShelley
+    AllegraEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAllegra
+    MaryEra     -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraMary
+    AlonzoEra   -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAlonzo
+    BabbageEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraBabbage
+    ConwayEra   -> yes $ AnyEraDeciderConwayOnwards ConwayEraOnwardsConway
+
 
 pCardanoEra :: EnvCli -> Parser AnyCardanoEra
 pCardanoEra envCli =
@@ -744,3 +762,46 @@ pStakePoolVerificationKeyHash =
           , "Zero or more occurences of this option is allowed."
           ]
       ]
+
+pDRepVerificationKeyOrHashOrFile
+  :: Parser (VerificationKeyOrHashOrFile DRepKey)
+pDRepVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pDRepVerificationKeyOrFile
+    , VerificationKeyHash <$> pDRepVerificationKeyHash
+    ]
+
+pDRepVerificationKeyHash :: Parser (Hash DRepKey)
+pDRepVerificationKeyHash =
+    Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey) $ mconcat
+      [ Opt.long "drep-key-hash"
+      , Opt.metavar "HASH"
+      , Opt.help $ mconcat
+          [ "DRep verification key hash (either Bech32-encoded or hex-encoded).  "
+          , "Zero or more occurences of this option is allowed."
+          ]
+      ]
+
+pDRepVerificationKeyOrFile :: Parser (VerificationKeyOrFile DRepKey)
+pDRepVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pDRepVerificationKey
+    , VerificationKeyFilePath <$> pDRepVerificationKeyFile
+    ]
+
+pDRepVerificationKey :: Parser (VerificationKey DRepKey)
+pDRepVerificationKey =
+  Opt.option (readVerificationKey AsDRepKey) $ mconcat
+    [ Opt.long "drep-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "DRep verification key (Bech32 or hex-encoded)."
+    ]
+
+pDRepVerificationKeyFile :: Parser (VerificationKeyFile In)
+pDRepVerificationKeyFile =
+  fmap File . Opt.strOption $ mconcat
+    [ Opt.long "drep-verification-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the DRep verification key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]

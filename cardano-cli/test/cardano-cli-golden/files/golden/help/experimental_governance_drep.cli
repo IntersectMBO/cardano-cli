@@ -1,0 +1,16 @@
+Usage: cardano-cli experimental governance drep 
+                                                  ( registration-certificate
+                                                  | delegation-certificate
+                                                  | key-gen
+                                                  )
+
+  Delegate Representative commands.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  registration-certificate Create a registration certificate.
+  delegation-certificate   Delegation certificate creation.
+  key-gen                  Generate Delegate Representative verification and
+                           signing keys.

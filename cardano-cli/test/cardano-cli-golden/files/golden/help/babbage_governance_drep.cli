@@ -1,0 +1,13 @@
+Usage: cardano-cli babbage governance drep 
+                                             ( registration-certificate
+                                             | delegation-certificate
+                                             )
+
+  Delegate Representative commands.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  registration-certificate Create a registration certificate.
+  delegation-certificate   Delegation certificate creation.
