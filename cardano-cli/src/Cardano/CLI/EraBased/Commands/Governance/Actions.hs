@@ -20,6 +20,10 @@ data GovernanceActionCmds era
   = GovernanceActionCreateConstitution
       (ConwayEraOnwards era)
       EraBasedNewConstitution
+  | GovernanceActionProtocolParametersUpdate
+      (ShelleyBasedEra era)
+      (EraBasedProtocolParametersUpdate era)
+      (File () Out)
     deriving Show
 
 data EraBasedNewConstitution
@@ -34,6 +38,9 @@ renderGovernanceActionCmds :: GovernanceActionCmds era -> Text
 renderGovernanceActionCmds = \case
   GovernanceActionCreateConstitution {} ->
     "governance action create-constitution"
+
+  GovernanceActionProtocolParametersUpdate {} ->
+    "governance action create-protocol-parameters-update"
 
 
 data AnyStakeIdentifier

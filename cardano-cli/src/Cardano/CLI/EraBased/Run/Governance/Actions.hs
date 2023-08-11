@@ -34,6 +34,9 @@ runGovernanceActionCmds = \case
   GovernanceActionCreateConstitution cOn newConstitution ->
     runGovernanceActionCreateConstitution cOn newConstitution
 
+  GovernanceActionProtocolParametersUpdate sbe eraBasedProtocolParametersUpdate ofp ->
+    runGovernanceActionCreateProtocolParametersUpdate sbe eraBasedProtocolParametersUpdate ofp
+
 runGovernanceActionCreateConstitution :: ()
   => ConwayEraOnwards era
   -> EraBasedNewConstitution
@@ -74,3 +77,18 @@ runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution deposit anySt
         $ writeFileTextEnvelope outFp Nothing proposal
 
 
+runGovernanceActionCreateProtocolParametersUpdate :: ()
+  => ShelleyBasedEra era
+  -> EraBasedProtocolParametersUpdate era
+  -> File () Out
+  -> ExceptT GovernanceActionsError IO ()
+runGovernanceActionCreateProtocolParametersUpdate sbe eraBasedPParams oFp = do
+  let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
+      apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
+      -- TODO: Update EraBasedProtocolParametersUpdate to require genesis delegate keys
+      -- depending on the era
+      -- TODO: Require expiration epoch no
+      upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType [] (error "runGovernanceActionCreateProtocolParametersUpdate")
+
+  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+    $ writeLazyByteStringFile oFp $ textEnvelopeToJSON Nothing upProp
