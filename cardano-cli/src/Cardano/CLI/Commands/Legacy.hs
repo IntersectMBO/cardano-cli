@@ -7,7 +7,7 @@
 -- | Shelley CLI command types
 module Cardano.CLI.Commands.Legacy
   ( -- * CLI command types
-    LegacyCommand (..)
+    Command (..)
   , AddressCmds (..)
   , StakeAddressCmds (..)
   , KeyCmds (..)
@@ -67,7 +67,7 @@ import           Data.Time.Clock
 
 -- | All the CLI subcommands under \"shelley\".
 --
-data LegacyCommand
+data Command
   = AddressCmds       AddressCmds
   | StakeAddressCmds  StakeAddressCmds
   | KeyCmds           KeyCmds
@@ -79,7 +79,7 @@ data LegacyCommand
   | GenesisCmds       GenesisCmds
   | TextViewCmds      TextViewCmds
 
-renderLegacyCommand :: LegacyCommand -> Text
+renderLegacyCommand :: Command -> Text
 renderLegacyCommand sc =
   case sc of
     AddressCmds cmd -> renderAddressCmds cmd
