@@ -118,7 +118,6 @@ library
                         Cardano.CLI.Legacy.Run.StakeAddress
                         Cardano.CLI.Legacy.Run.TextView
                         Cardano.CLI.Legacy.Run.Transaction
-                        Cardano.CLI.Legacy.Run.Validate
                         Cardano.CLI.Options
                         Cardano.CLI.Orphans
                         Cardano.CLI.OS.Posix
@@ -163,6 +162,7 @@ library
                         Cardano.CLI.Types.Output
                         Cardano.CLI.Types.TxFeature
                         Cardano.CLI.Types.TxFeature.Core
+                        Cardano.CLI.Validation
 
   other-modules:        Paths_cardano_cli
   autogen-modules:      Paths_cardano_cli

@@ -36,7 +36,6 @@ import qualified Cardano.Api.Shelley as Api
 
 import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Legacy.Commands.Transaction
-import           Cardano.CLI.Legacy.Run.Validate
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -44,6 +43,7 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Governance
 import qualified Cardano.CLI.Types.Output as Cli
 import           Cardano.CLI.Types.TxFeature
+import           Cardano.CLI.Validation
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 import           Control.Monad (forM)
