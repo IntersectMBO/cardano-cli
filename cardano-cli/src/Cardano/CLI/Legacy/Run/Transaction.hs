@@ -13,7 +13,7 @@ module Cardano.CLI.Legacy.Run.Transaction
   , toTxOutInAnyEra
   ) where
 
-import           Cardano.Api
+import           Cardano.Api hiding (txOuts)
 
 import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.Legacy.Commands.Transaction

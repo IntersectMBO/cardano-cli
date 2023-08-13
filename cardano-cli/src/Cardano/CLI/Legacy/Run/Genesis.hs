@@ -23,9 +23,6 @@ module Cardano.CLI.Legacy.Run.Genesis
   , readAndDecodeShelleyGenesis
   , readAlonzoGenesis
   , runLegacyGenesisCmds
-
-  -- * Protocol Parameters
-  , readProtocolParameters
   ) where
 
 import Cardano.CLI.Types.Errors.PoolCmdError
@@ -54,7 +51,6 @@ import           Cardano.CLI.Legacy.Run.Node (
 import           Cardano.CLI.Legacy.Run.StakeAddress (runStakeAddressKeyGenToFile)
 import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
-import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto as CC
@@ -1319,15 +1315,3 @@ readConwayGenesis fpath = do
   lbs <- handleIOExceptT (GenesisCmdGenesisFileError . FileIOError fpath) $ LBS.readFile fpath
   firstExceptT (GenesisCmdAesonDecodeError fpath . Text.pack)
     . hoistEither $ Aeson.eitherDecode' lbs
-
--- Protocol Parameters
-
---TODO: eliminate this and get only the necessary params, and get them in a more
--- helpful way rather than requiring them as a local file.
-readProtocolParameters :: ProtocolParamsFile
-                       -> ExceptT ProtocolParamsError IO ProtocolParameters
-readProtocolParameters (ProtocolParamsFile fpath) = do
-  pparams <- handleIOExceptT (ProtocolParamsErrorFile . FileIOError fpath) $ LBS.readFile fpath
-  firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither $
-    Aeson.eitherDecode' pparams
-

@@ -36,7 +36,6 @@ import qualified Cardano.Api.Shelley as Api
 
 import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Legacy.Commands.Transaction
-import           Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.CLI.Legacy.Run.Validate
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
