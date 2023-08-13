@@ -4,8 +4,8 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Legacy.Run.Pool
-  ( ShelleyPoolCmdError(ShelleyPoolCmdReadFileError)
-  , renderShelleyPoolCmdError
+  ( PoolCmdError(PoolCmdReadFileError)
+  , renderPoolCmdError
   , runPoolCmds
   ) where
 
@@ -28,25 +28,25 @@ import           Data.Function ((&))
 import           Data.Text (Text)
 import qualified Data.Text as Text
 
-data ShelleyPoolCmdError
-  = ShelleyPoolCmdReadFileError !(FileError TextEnvelopeError)
-  | ShelleyPoolCmdReadKeyFileError !(FileError InputDecodeError)
-  | ShelleyPoolCmdWriteFileError !(FileError ())
-  | ShelleyPoolCmdMetadataValidationError !StakePoolMetadataValidationError
+data PoolCmdError
+  = PoolCmdReadFileError !(FileError TextEnvelopeError)
+  | PoolCmdReadKeyFileError !(FileError InputDecodeError)
+  | PoolCmdWriteFileError !(FileError ())
+  | PoolCmdMetadataValidationError !StakePoolMetadataValidationError
   deriving Show
 
-renderShelleyPoolCmdError :: ShelleyPoolCmdError -> Text
-renderShelleyPoolCmdError err =
+renderPoolCmdError :: PoolCmdError -> Text
+renderPoolCmdError err =
   case err of
-    ShelleyPoolCmdReadFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyPoolCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyPoolCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyPoolCmdMetadataValidationError validationErr ->
+    PoolCmdReadFileError fileErr -> Text.pack (displayError fileErr)
+    PoolCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
+    PoolCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
+    PoolCmdMetadataValidationError validationErr ->
       "Error validating stake pool metadata: " <> Text.pack (displayError validationErr)
 
 
 
-runPoolCmds :: LegacyPoolCmds -> ExceptT ShelleyPoolCmdError IO ()
+runPoolCmds :: LegacyPoolCmds -> ExceptT PoolCmdError IO ()
 runPoolCmds = \case
   PoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
     runStakePoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
@@ -86,7 +86,7 @@ runStakePoolRegistrationCert
   -- ^ Stake pool metadata.
   -> NetworkId
   -> File () Out
-  -> ExceptT ShelleyPoolCmdError IO ()
+  -> ExceptT PoolCmdError IO ()
 runStakePoolRegistrationCert
   anyEra
   stakePoolVerKeyOrFile
@@ -103,19 +103,19 @@ runStakePoolRegistrationCert
     AnyShelleyBasedEra sbe <- pure anyEra
 
     -- Pool verification key
-    stakePoolVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
+    stakePoolVerKey <- firstExceptT PoolCmdReadKeyFileError
       . newExceptT
       $ readVerificationKeyOrFile AsStakePoolKey stakePoolVerKeyOrFile
     let stakePoolId' = verificationKeyHash stakePoolVerKey
 
     -- VRF verification key
-    vrfVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
+    vrfVerKey <- firstExceptT PoolCmdReadKeyFileError
       . newExceptT
       $ readVerificationKeyOrFile AsVrfKey vrfVerKeyOrFile
     let vrfKeyHash' = verificationKeyHash vrfVerKey
 
     -- Pool reward account
-    rwdStakeVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
+    rwdStakeVerKey <- firstExceptT PoolCmdReadKeyFileError
       . newExceptT
       $ readVerificationKeyOrFile AsStakeKey rwdStakeVerKeyOrFile
     let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
@@ -124,7 +124,7 @@ runStakePoolRegistrationCert
     -- Pool owner(s)
     sPoolOwnerVkeys <-
       mapM
-        (firstExceptT ShelleyPoolCmdReadKeyFileError
+        (firstExceptT PoolCmdReadKeyFileError
           . newExceptT
           . readVerificationKeyOrFile AsStakeKey
         )
@@ -149,7 +149,7 @@ runStakePoolRegistrationCert
           $ shelleyBasedEraConstraints sbe ledgerStakePoolParams
         registrationCert = makeStakePoolRegistrationCertificate req
 
-    firstExceptT ShelleyPoolCmdWriteFileError
+    firstExceptT PoolCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile outfp
       $ textEnvelopeToJSON (Just registrationCertDesc) registrationCert
@@ -182,12 +182,12 @@ runStakePoolRetirementCert
   -> VerificationKeyOrFile StakePoolKey
   -> Shelley.EpochNo
   -> File () Out
-  -> ExceptT ShelleyPoolCmdError IO ()
+  -> ExceptT PoolCmdError IO ()
 runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
     AnyShelleyBasedEra sbe <- pure anyEra
 
     -- Pool verification key
-    stakePoolVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
+    stakePoolVerKey <- firstExceptT PoolCmdReadKeyFileError
       . newExceptT
       $ readVerificationKeyOrFile AsStakePoolKey stakePoolVerKeyOrFile
 
@@ -195,7 +195,7 @@ runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
         req = createStakePoolRetirementRequirements sbe stakePoolId' retireEpoch
         retireCert = makeStakePoolRetirementCertificate req
 
-    firstExceptT ShelleyPoolCmdWriteFileError
+    firstExceptT PoolCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile outfp
       $ textEnvelopeToJSON (Just retireCertDesc) retireCert
@@ -228,35 +228,35 @@ runPoolId
   :: VerificationKeyOrFile StakePoolKey
   -> PoolIdOutputFormat
   -> Maybe (File () Out)
-  -> ExceptT ShelleyPoolCmdError IO ()
+  -> ExceptT PoolCmdError IO ()
 runPoolId verKeyOrFile outputFormat mOutFile = do
-  stakePoolVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
+  stakePoolVerKey <- firstExceptT PoolCmdReadKeyFileError
     . newExceptT
     $ readVerificationKeyOrFile AsStakePoolKey verKeyOrFile
 
   case outputFormat of
     PoolIdOutputFormatHex ->
-      firstExceptT ShelleyPoolCmdWriteFileError
+      firstExceptT PoolCmdWriteFileError
         . newExceptT
         $ writeByteStringOutput mOutFile
         $ serialiseToRawBytesHex (verificationKeyHash stakePoolVerKey)
     PoolIdOutputFormatBech32 ->
-      firstExceptT ShelleyPoolCmdWriteFileError
+      firstExceptT PoolCmdWriteFileError
         . newExceptT
         $ writeTextOutput mOutFile
         $ serialiseToBech32 (verificationKeyHash stakePoolVerKey)
 
-runPoolMetadataHash :: StakePoolMetadataFile In -> Maybe (File () Out) -> ExceptT ShelleyPoolCmdError IO ()
+runPoolMetadataHash :: StakePoolMetadataFile In -> Maybe (File () Out) -> ExceptT PoolCmdError IO ()
 runPoolMetadataHash poolMDPath mOutFile = do
   metadataBytes <- lift (readByteStringFile poolMDPath)
-    & onLeft (left . ShelleyPoolCmdReadFileError)
+    & onLeft (left . PoolCmdReadFileError)
 
   (_metadata, metadataHash) <-
-      firstExceptT ShelleyPoolCmdMetadataValidationError
+      firstExceptT PoolCmdMetadataValidationError
     . hoistEither
     $ validateAndHashStakePoolMetadata metadataBytes
   case mOutFile of
     Nothing -> liftIO $ BS.putStrLn (serialiseToRawBytesHex metadataHash)
     Just (File fpath) ->
-      handleIOExceptT (ShelleyPoolCmdWriteFileError . FileIOError fpath)
+      handleIOExceptT (PoolCmdWriteFileError . FileIOError fpath)
         $ BS.writeFile fpath (serialiseToRawBytesHex metadataHash)

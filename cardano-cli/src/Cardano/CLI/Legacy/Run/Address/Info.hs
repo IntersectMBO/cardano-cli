@@ -3,7 +3,7 @@
 
 module Cardano.CLI.Legacy.Run.Address.Info
   ( runAddressInfo
-  , ShelleyAddressInfoError(..)
+  , AddressInfoError(..)
   ) where
 
 import           Cardano.Api
@@ -17,10 +17,10 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Text (Text)
 import           Options.Applicative (Alternative (..))
 
-newtype ShelleyAddressInfoError = ShelleyAddressInvalid Text
+newtype AddressInfoError = ShelleyAddressInvalid Text
   deriving Show
 
-instance Error ShelleyAddressInfoError where
+instance Error AddressInfoError where
   displayError (ShelleyAddressInvalid addrTxt) =
     "Invalid address: " <> show addrTxt
 
@@ -42,7 +42,7 @@ instance ToJSON AddressInfo where
       , "base16" .= aiBase16 addrInfo
       ]
 
-runAddressInfo :: Text -> Maybe (File () Out) -> ExceptT ShelleyAddressInfoError IO ()
+runAddressInfo :: Text -> Maybe (File () Out) -> ExceptT AddressInfoError IO ()
 runAddressInfo addrTxt mOutputFp = do
     addrInfo <- case (Left  <$> deserialiseAddress AsAddressAny addrTxt)
                  <|> (Right <$> deserialiseAddress AsStakeAddress addrTxt) of

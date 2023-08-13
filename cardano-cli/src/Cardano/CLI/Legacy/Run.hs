@@ -27,40 +27,40 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 
 data LegacyClientCmdError
-  = LegacyCmdAddressError !ShelleyAddressCmdError
-  | LegacyCmdGenesisError !ShelleyGenesisCmdError
+  = LegacyCmdAddressError !AddressCmdError
+  | LegacyCmdGenesisError !GenesisCmdError
   | LegacyCmdGovernanceError !GovernanceCmdError
-  | LegacyCmdNodeError !ShelleyNodeCmdError
-  | LegacyCmdPoolError !ShelleyPoolCmdError
-  | LegacyCmdStakeAddressError !ShelleyStakeAddressCmdError
-  | LegacyCmdTextViewError !ShelleyTextViewFileError
-  | LegacyCmdTransactionError !ShelleyTxCmdError
-  | LegacyCmdQueryError !ShelleyQueryCmdError
-  | LegacyCmdKeyError !ShelleyKeyCmdError
+  | LegacyCmdNodeError !NodeCmdError
+  | LegacyCmdPoolError !PoolCmdError
+  | LegacyCmdStakeAddressError !StakeAddressCmdError
+  | LegacyCmdTextViewError !TextViewFileError
+  | LegacyCmdTransactionError !TxCmdError
+  | LegacyCmdQueryError !QueryCmdError
+  | LegacyCmdKeyError !KeyCmdError
 
 renderLegacyClientCmdError :: LegacyCmds -> LegacyClientCmdError -> Text
 renderLegacyClientCmdError cmd err =
   case err of
     LegacyCmdAddressError addrCmdErr ->
-       renderError cmd renderShelleyAddressCmdError addrCmdErr
+       renderError cmd renderAddressCmdError addrCmdErr
     LegacyCmdGenesisError genesisCmdErr ->
        renderError cmd (Text.pack . displayError) genesisCmdErr
     LegacyCmdGovernanceError govCmdErr ->
        renderError cmd (Text.pack . displayError) govCmdErr
     LegacyCmdNodeError nodeCmdErr ->
-       renderError cmd renderShelleyNodeCmdError nodeCmdErr
+       renderError cmd renderNodeCmdError nodeCmdErr
     LegacyCmdPoolError poolCmdErr ->
-       renderError cmd renderShelleyPoolCmdError poolCmdErr
+       renderError cmd renderPoolCmdError poolCmdErr
     LegacyCmdStakeAddressError stakeAddrCmdErr ->
-       renderError cmd renderShelleyStakeAddressCmdError stakeAddrCmdErr
+       renderError cmd renderStakeAddressCmdError stakeAddrCmdErr
     LegacyCmdTextViewError txtViewErr ->
-       renderError cmd renderShelleyTextViewFileError txtViewErr
+       renderError cmd renderTextViewFileError txtViewErr
     LegacyCmdTransactionError txErr ->
-       renderError cmd renderShelleyTxCmdError txErr
+       renderError cmd renderTxCmdError txErr
     LegacyCmdQueryError queryErr ->
-       renderError cmd renderShelleyQueryCmdError queryErr
+       renderError cmd renderQueryCmdError queryErr
     LegacyCmdKeyError keyErr ->
-       renderError cmd renderShelleyKeyCmdError keyErr
+       renderError cmd renderKeyCmdError keyErr
   where
     renderError :: LegacyCmds -> (a -> Text) -> a -> Text
     renderError shelleyCmd renderer shelCliCmdErr =

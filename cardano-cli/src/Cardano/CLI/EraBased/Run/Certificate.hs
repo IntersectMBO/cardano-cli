@@ -35,7 +35,7 @@ import           Data.Function
 
 data EraBasedDelegationError
   = EraBasedDelegReadError !(FileError InputDecodeError)
-  | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
+  | EraBasedCredentialError !StakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
   | EraBasedCertificateWriteFileError !(FileError ())
   | EraBasedDRepReadError !(FileError InputDecodeError)
   | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
@@ -122,7 +122,7 @@ toLedgerDelegatee t =
 data EraBasedRegistrationError
   = EraBasedRegistReadError !(FileError InputDecodeError)
   | EraBasedRegistWriteFileError !(FileError ())
-  | EraBasedRegistStakeCredReadError !ShelleyStakeAddressCmdError -- TODO: Conway era - don't use legacy error type
+  | EraBasedRegistStakeCredReadError !StakeAddressCmdError -- TODO: Conway era - don't use legacy error type
   | EraBasedRegistStakeError StakeAddressRegistrationError
 
 runGovernanceRegistrationCertificate
@@ -279,24 +279,24 @@ runGovernanceRegistrationCertificate anyReg outfp =
 
 getStakeCredentialFromVerifier
   :: StakeVerifier
-  -> ExceptT ShelleyStakeAddressCmdError IO StakeCredential
+  -> ExceptT StakeAddressCmdError IO StakeCredential
 getStakeCredentialFromVerifier = \case
   StakeVerifierScriptFile (ScriptFile sFile) -> do
     ScriptInAnyLang _ script <-
-      firstExceptT ShelleyStakeAddressCmdReadScriptFileError $
+      firstExceptT StakeAddressCmdReadScriptFileError $
         readFileScriptInAnyLang sFile
     pure $ StakeCredentialByScript $ hashScript script
 
   StakeVerifierKey stakeVerKeyOrFile -> do
     stakeVerKey <-
-      firstExceptT ShelleyStakeAddressCmdReadKeyFileError
+      firstExceptT StakeAddressCmdReadKeyFileError
         . newExceptT
         $ readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
     pure $ StakeCredentialByKey $ verificationKeyHash stakeVerKey
 
 getStakeCredentialFromIdentifier
   :: StakeIdentifier
-  -> ExceptT ShelleyStakeAddressCmdError IO StakeCredential
+  -> ExceptT StakeAddressCmdError IO StakeCredential
 getStakeCredentialFromIdentifier = \case
   StakeIdentifierAddress stakeAddr -> pure $ stakeAddressCredential stakeAddr
   StakeIdentifierVerifier stakeVerifier -> getStakeCredentialFromVerifier stakeVerifier
@@ -304,6 +304,6 @@ getStakeCredentialFromIdentifier = \case
 getStakeAddressFromVerifier
   :: NetworkId
   -> StakeVerifier
-  -> ExceptT ShelleyStakeAddressCmdError IO StakeAddress
+  -> ExceptT StakeAddressCmdError IO StakeAddress
 getStakeAddressFromVerifier networkId stakeVerifier =
   makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier

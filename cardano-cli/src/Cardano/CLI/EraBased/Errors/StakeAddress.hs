@@ -1,8 +1,8 @@
 module Cardano.CLI.EraBased.Errors.StakeAddress
-  ( ShelleyStakeAddressCmdError(..)
+  ( StakeAddressCmdError(..)
   , StakeAddressRegistrationError(..)
   , StakeAddressDelegationError(..)
-  , renderShelleyStakeAddressCmdError
+  , renderStakeAddressCmdError
   ) where
 
 import           Cardano.Api
@@ -12,23 +12,27 @@ import           Cardano.CLI.Read
 import           Data.Text (Text)
 import qualified Data.Text as Text
 
-data ShelleyStakeAddressCmdError
-  = ShelleyStakeAddressCmdReadKeyFileError !(FileError InputDecodeError)
-  | ShelleyStakeAddressCmdReadScriptFileError !(FileError ScriptDecodeError)
-  | ShelleyStakeAddressCmdWriteFileError !(FileError ())
+data StakeAddressCmdError
+  = StakeAddressCmdReadKeyFileError !(FileError InputDecodeError)
+  | StakeAddressCmdReadScriptFileError !(FileError ScriptDecodeError)
+  | StakeAddressCmdWriteFileError !(FileError ())
   | StakeRegistrationError !StakeAddressRegistrationError
   | StakeDelegationError !StakeAddressDelegationError
   deriving Show
 
-renderShelleyStakeAddressCmdError :: ShelleyStakeAddressCmdError -> Text
-renderShelleyStakeAddressCmdError err =
+renderStakeAddressCmdError :: StakeAddressCmdError -> Text
+renderStakeAddressCmdError err =
   case err of
-    ShelleyStakeAddressCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyStakeAddressCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyStakeAddressCmdReadScriptFileError fileErr -> Text.pack (displayError fileErr)
+    StakeAddressCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
+    StakeAddressCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
+    StakeAddressCmdReadScriptFileError fileErr -> Text.pack (displayError fileErr)
     StakeRegistrationError regErr -> Text.pack $ show regErr
     StakeDelegationError delegErr -> Text.pack $ show delegErr
 
-data StakeAddressRegistrationError = StakeAddressRegistrationDepositRequired deriving Show
+data StakeAddressRegistrationError =
+  StakeAddressRegistrationDepositRequiredError
+  deriving Show
 
-newtype StakeAddressDelegationError = VoteDelegationNotSupported AnyShelleyToBabbageEra deriving Show
+newtype StakeAddressDelegationError =
+  VoteDelegationNotSupportedError AnyShelleyToBabbageEra
+  deriving Show

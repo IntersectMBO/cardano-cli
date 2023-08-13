@@ -26,7 +26,7 @@ test_GovernanceCmdError =
   testErrorMessagesRendering "Cardano.CLI.Commands.Governance" "GovernanceCmdError"
     [ ("StakeCredGovCmdError"
       , StakeCredGovCmdError
-        . ShelleyStakeAddressCmdReadKeyFileError
+        . StakeAddressCmdReadKeyFileError
         $ FileError "path/file.txt" InputInvalidError)
     , ("VotingCredentialDecodeGovCmdEror"
       , VotingCredentialDecodeGovCmdEror $ DecoderErrorEmptyList "emptylist")

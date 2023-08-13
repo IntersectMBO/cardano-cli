@@ -1,8 +1,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Cardano.CLI.Legacy.Run.TextView
-  ( ShelleyTextViewFileError(..)
-  , renderShelleyTextViewFileError
+  ( TextViewFileError(..)
+  , renderTextViewFileError
   , runTextViewCmds
   ) where
 
@@ -18,25 +18,25 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Text (Text)
 import qualified Data.Text as Text
 
-data ShelleyTextViewFileError
+data TextViewFileError
   = TextViewReadFileError (FileError TextEnvelopeError)
   | TextViewCBORPrettyPrintError !HelpersError
   deriving Show
 
-renderShelleyTextViewFileError :: ShelleyTextViewFileError -> Text
-renderShelleyTextViewFileError err =
+renderTextViewFileError :: TextViewFileError -> Text
+renderTextViewFileError err =
   case err of
     TextViewReadFileError fileErr -> Text.pack (displayError fileErr)
     TextViewCBORPrettyPrintError hlprsErr ->
       "Error pretty printing CBOR: " <> renderHelpersError hlprsErr
 
 
-runTextViewCmds :: LegacyTextViewCmds -> ExceptT ShelleyTextViewFileError IO ()
+runTextViewCmds :: LegacyTextViewCmds -> ExceptT TextViewFileError IO ()
 runTextViewCmds cmd =
   case cmd of
     TextViewInfo fpath mOutfile -> runTextViewInfo fpath mOutfile
 
-runTextViewInfo :: FilePath -> Maybe (File () Out) -> ExceptT ShelleyTextViewFileError IO ()
+runTextViewInfo :: FilePath -> Maybe (File () Out) -> ExceptT TextViewFileError IO ()
 runTextViewInfo fpath mOutFile = do
   tv <- firstExceptT TextViewReadFileError $ newExceptT (readTextEnvelopeFromFile fpath)
   let lbCBOR = LBS.fromStrict (textEnvelopeRawCBOR tv)
