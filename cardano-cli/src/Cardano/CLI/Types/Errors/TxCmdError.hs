@@ -10,13 +10,13 @@ module Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Legacy.Run.Validate
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Output
 import           Cardano.CLI.Types.TxFeature.Core
+import           Cardano.CLI.Validation
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 
 import           Data.Text (Text)
