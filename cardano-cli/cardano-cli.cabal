@@ -95,6 +95,16 @@ library
                         Cardano.CLI.Legacy.Commands.TextView
                         Cardano.CLI.Legacy.Commands.Transaction
                         Cardano.CLI.Legacy.Options
+                        Cardano.CLI.Legacy.Options.Address
+                        Cardano.CLI.Legacy.Options.Genesis
+                        Cardano.CLI.Legacy.Options.Governance
+                        Cardano.CLI.Legacy.Options.Key
+                        Cardano.CLI.Legacy.Options.Node
+                        Cardano.CLI.Legacy.Options.Pool
+                        Cardano.CLI.Legacy.Options.Query
+                        Cardano.CLI.Legacy.Options.StakeAddress
+                        Cardano.CLI.Legacy.Options.TextView
+                        Cardano.CLI.Legacy.Options.Transaction
                         Cardano.CLI.Legacy.Run
                         Cardano.CLI.Legacy.Run.Address
                         Cardano.CLI.Legacy.Run.Address.Info
