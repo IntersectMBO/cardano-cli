@@ -109,7 +109,7 @@ runLegacyTxBuildCmd :: ()
   -> [NewConstitutionFile In] -- TODO: Conway era - we should replace this with a sumtype that handles all governance actions
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO ()
-runLegacyTxBuildCmd = runTxBuildCmd
+runLegacyTxBuildCmd socketPath (AnyCardanoEra era) = runTxBuildCmd socketPath era
 
 runLegacyTxBuildRawCmd :: ()
   => AnyCardanoEra
@@ -134,7 +134,7 @@ runLegacyTxBuildRawCmd :: ()
   -> Maybe UpdateProposalFile
   -> TxBodyFile Out
   -> ExceptT TxCmdError IO ()
-runLegacyTxBuildRawCmd = runTxBuildRawCmd
+runLegacyTxBuildRawCmd (AnyCardanoEra era) = runTxBuildRawCmd era
 
 runLegacyTxSign :: ()
   => InputTxBodyOrTxFile
@@ -168,7 +168,7 @@ runLegacyTxCalculateMinRequiredUTxO :: ()
   -> ProtocolParamsFile
   -> TxOutAnyEra
   -> ExceptT TxCmdError IO ()
-runLegacyTxCalculateMinRequiredUTxO = runTxCalculateMinRequiredUTxO
+runLegacyTxCalculateMinRequiredUTxO (AnyCardanoEra era) = runTxCalculateMinRequiredUTxO era
 
 runLegacyTxCreatePolicyId :: ()
   => ScriptFile

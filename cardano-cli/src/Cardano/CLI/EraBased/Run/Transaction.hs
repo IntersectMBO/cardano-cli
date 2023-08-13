@@ -74,7 +74,9 @@ import qualified System.IO as IO
 
 {- HLINT ignore "Use let" -}
 
-runTransactionCmds :: TransactionCmds -> ExceptT TxCmdError IO ()
+runTransactionCmds :: ()
+  => TransactionCmds era
+  -> ExceptT TxCmdError IO ()
 runTransactionCmds = \case
   TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
           reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
@@ -96,7 +98,8 @@ runTransactionCmds = \case
     runTxSubmit mNodeSocketPath anyConsensusModeParams network txFp
   TxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
     runTxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
-  TxCalculateMinRequiredUTxO era pParamsFile txOuts -> runTxCalculateMinRequiredUTxO era pParamsFile txOuts
+  TxCalculateMinRequiredUTxO era pParamsFile txOuts ->
+    runTxCalculateMinRequiredUTxO era pParamsFile txOuts
   TxHashScriptData scriptDataOrFile -> runTxHashScriptData scriptDataOrFile
   TxGetTxId txinfile -> runTxGetTxId txinfile
   TxView txinfile -> runTxView txinfile
@@ -112,7 +115,7 @@ runTransactionCmds = \case
 
 runTxBuildCmd
   :: SocketPath
-  -> AnyCardanoEra
+  -> CardanoEra era
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe ScriptValidity
@@ -139,10 +142,10 @@ runTxBuildCmd
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO ()
 runTxBuildCmd
-    socketPath (AnyCardanoEra cEra) consensusModeParams@(AnyConsensusModeParams cModeParams) nid
+    socketPath era consensusModeParams@(AnyConsensusModeParams cModeParams) nid
     mScriptValidity mOverrideWits txins readOnlyRefIns reqSigners txinsc mReturnColl mTotCollateral txouts
     changeAddr mValue mLowBound mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp
-    conwayVotes newConstitutions outputOptions = do
+    conwayVotes newConstitutions outputOptions = cardanoEraConstraints era $ do
 
   -- The user can specify an era prior to the era that the node is currently in.
   -- We cannot use the user specified era to construct a query against a node because it may differ
@@ -154,12 +157,12 @@ runTxBuildCmd
                             , localNodeSocketPath = socketPath
                             }
 
-  inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles cEra txins
-  certFilesAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles cEra certs
+  inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles era txins
+  certFilesAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles era certs
 
   -- TODO: Conway Era - How can we make this more composable?
   certsAndMaybeScriptWits <-
-    case cardanoEraStyle cEra of
+    case cardanoEraStyle era of
       LegacyByronEra -> return []
       ShelleyBasedEra{} ->
         sequence
@@ -168,30 +171,30 @@ runTxBuildCmd
           | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
           ]
   withdrawalsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
-                                     $ readScriptWitnessFilesThruple cEra wdrls
+                                     $ readScriptWitnessFilesThruple era wdrls
   txMetadata <- firstExceptT TxCmdMetadataError
-                  . newExceptT $ readTxMetadata cEra metadataSchema metadataFiles
-  valuesWithScriptWits <- readValueScriptWitnesses cEra $ fromMaybe (mempty, []) mValue
+                  . newExceptT $ readTxMetadata era metadataSchema metadataFiles
+  valuesWithScriptWits <- readValueScriptWitnesses era $ fromMaybe (mempty, []) mValue
   scripts <- firstExceptT TxCmdScriptFileError $
                      mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
-  txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts cEra scripts
+  txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts era scripts
 
   mProp <- forM mUpProp $ \(UpdateProposalFile upFp) ->
     firstExceptT TxCmdReadTextViewFileError (newExceptT $ readFileTextEnvelope AsUpdateProposal (File upFp))
   requiredSigners  <- mapM (firstExceptT TxCmdRequiredSignerError .  newExceptT . readRequiredSigner) reqSigners
-  mReturnCollateral <- forM mReturnColl $ toTxOutInAnyEra cEra
+  mReturnCollateral <- forM mReturnColl $ toTxOutInAnyEra era
 
-  txOuts <- mapM (toTxOutInAnyEra cEra) txouts
+  txOuts <- mapM (toTxOutInAnyEra era) txouts
 
   -- Conway related
   votes <-
     featureInEra
       (pure TxVotesNone)
       (\w -> firstExceptT TxCmdVoteError $ ExceptT (readTxVotes w conwayVotes))
-      cEra
+      era
 
   proposals <- newExceptT $ first TxCmdConstitutionError
-                  <$> readTxNewConstitutionActions cEra newConstitutions
+                  <$> readTxNewConstitutionActions era newConstitutions
 
 
   -- the same collateral input can be used for several plutus scripts
@@ -200,13 +203,13 @@ runTxBuildCmd
   -- We need to construct the txBodycontent outside of runTxBuild
   BalancedTxBody txBodycontent balancedTxBody _ _ <-
     runTxBuild
-      socketPath cEra consensusModeParams nid mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
+      socketPath era consensusModeParams nid mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
       mReturnCollateral mTotCollateral txOuts changeAddr valuesWithScriptWits mLowBound
       mUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
       requiredSigners txAuxScripts txMetadata mProp mOverrideWits votes proposals outputOptions
 
   mScriptWits <-
-    case cardanoEraStyle cEra of
+    case cardanoEraStyle era of
       LegacyByronEra -> return []
       ShelleyBasedEra sbe -> return $ collectTxBodyScriptWitnesses sbe txBodycontent
 
@@ -233,7 +236,7 @@ runTxBuildCmd
 
       let consensusMode = consensusModeOnly cModeParams
       bpp <- hoistEither . first (TxCmdTxBodyError . TxBodyProtocolParamsConversionError) $
-        bundleProtocolParams cEra pparams
+        bundleProtocolParams era pparams
 
       case consensusMode of
         CardanoMode -> do
@@ -249,7 +252,7 @@ runTxBuildCmd
           -- Why do we cast the era? The user can specify an era prior to the era that the node is currently in.
           -- We cannot use the user specified era to construct a query against a node because it may differ
           -- from the node's era and this will result in the 'QueryEraMismatch' failure.
-          txEraUtxo <- pure (eraCast cEra nodeEraUTxO) & onLeft (left . TxCmdTxEraCastError)
+          txEraUtxo <- pure (eraCast era nodeEraUTxO) & onLeft (left . TxCmdTxEraCastError)
 
           scriptExecUnitsMap <-
             firstExceptT TxCmdTxExecUnitsError $ hoistEither
@@ -273,8 +276,8 @@ runTxBuildCmd
             & onLeft (left . TxCmdWriteFileError)
 
 
-runTxBuildRawCmd
-  :: AnyCardanoEra
+runTxBuildRawCmd :: ()
+  => CardanoEra era
   -> Maybe ScriptValidity
   -> [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
   -> [TxIn] -- ^ Read only reference inputs
@@ -297,17 +300,15 @@ runTxBuildRawCmd
   -> TxBodyFile Out
   -> ExceptT TxCmdError IO ()
 runTxBuildRawCmd
-  (AnyCardanoEra cEra) mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+  era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
   mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
   metadataSchema scriptFiles metadataFiles mpParamsFile mUpProp out = do
-  inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
-                                $ readScriptWitnessFiles cEra txins
-  certFilesAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
-                                   $ readScriptWitnessFiles cEra certs
+  inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles era txins
+  certFilesAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles era certs
 
   -- TODO: Conway era - How can we make this more composable?
   certsAndMaybeScriptWits <-
-      case cardanoEraStyle cEra of
+      case cardanoEraStyle era of
         LegacyByronEra -> return []
         ShelleyBasedEra{} ->
           sequence
@@ -317,13 +318,13 @@ runTxBuildRawCmd
             ]
 
   withdrawalsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
-                                     $ readScriptWitnessFilesThruple cEra wdrls
+                                     $ readScriptWitnessFilesThruple era wdrls
   txMetadata <- firstExceptT TxCmdMetadataError
-                  . newExceptT $ readTxMetadata cEra metadataSchema metadataFiles
-  valuesWithScriptWits <- readValueScriptWitnesses cEra $ fromMaybe (mempty, []) mValue
+                  . newExceptT $ readTxMetadata era metadataSchema metadataFiles
+  valuesWithScriptWits <- readValueScriptWitnesses era $ fromMaybe (mempty, []) mValue
   scripts <- firstExceptT TxCmdScriptFileError $
                      mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
-  txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts cEra scripts
+  txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts era scripts
 
   pparams <- forM mpParamsFile $ \ppf ->
     firstExceptT TxCmdProtocolParamsError (readProtocolParameters ppf)
@@ -332,24 +333,24 @@ runTxBuildRawCmd
     firstExceptT TxCmdReadTextViewFileError (newExceptT $ readFileTextEnvelope AsUpdateProposal (File upFp))
 
   requiredSigners  <- mapM (firstExceptT TxCmdRequiredSignerError .  newExceptT . readRequiredSigner) reqSigners
-  mReturnCollateral <- forM mReturnColl $ toTxOutInAnyEra cEra
-  txOuts <- mapM (toTxOutInAnyEra cEra) txouts
+  mReturnCollateral <- forM mReturnColl $ toTxOutInAnyEra era
+  txOuts <- mapM (toTxOutInAnyEra era) txouts
 
     -- the same collateral input can be used for several plutus scripts
   let filteredTxinsc = Set.toList $ Set.fromList txinsc
 
-  txBody <- hoistEither $ runTxBuildRaw cEra mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
+  txBody <- hoistEither $ runTxBuildRaw era mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
                           mReturnCollateral mTotColl txOuts mLowBound mUpperBound fee valuesWithScriptWits
                           certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits requiredSigners txAuxScripts
                           txMetadata pparams mProp
 
   let noWitTx = makeSignedTransaction [] txBody
-  lift (getIsCardanoEraConstraint cEra $ writeTxFileTextEnvelopeCddl out noWitTx)
+  lift (getIsCardanoEraConstraint era $ writeTxFileTextEnvelopeCddl out noWitTx)
     & onLeft (left . TxCmdWriteFileError)
 
 
-runTxBuildRaw
-  :: CardanoEra era
+runTxBuildRaw :: ()
+  => CardanoEra era
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
   -> [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
@@ -447,8 +448,8 @@ runTxBuildRaw era
     first TxCmdTxBodyError $
       getIsCardanoEraConstraint era $ createAndValidateTransactionBody txBodyContent
 
-runTxBuild
-  :: SocketPath
+runTxBuild :: ()
+  => SocketPath
   -> CardanoEra era
   -> AnyConsensusModeParams
   -> NetworkId
@@ -624,9 +625,10 @@ validateTxIns = map convert
          (txin, BuildTxWith $ KeyWitness KeyWitnessForSpending)
 
 
-validateTxInsCollateral :: CardanoEra era
-                        -> [TxIn]
-                        -> Either TxCmdError (TxInsCollateral era)
+validateTxInsCollateral :: ()
+  => CardanoEra era
+  -> [TxIn]
+  -> Either TxCmdError (TxInsCollateral era)
 validateTxInsCollateral _   []    = return TxInsCollateralNone
 validateTxInsCollateral era txins =
     case collateralSupportedInEra era of
@@ -686,8 +688,8 @@ toAddressInAnyEra era addrAny = runExcept $ do
 
       pure (AddressInEra (ShelleyAddressInEra sbe) sAddr)
 
-toTxOutValueInAnyEra
-  :: CardanoEra era
+toTxOutValueInAnyEra :: ()
+  => CardanoEra era
   -> Value
   -> Either TxCmdError (TxOutValue era)
 toTxOutValueInAnyEra era val =
@@ -1008,12 +1010,12 @@ runTxCalculateMinFee (File txbodyFilePath) nw pParamsFile
 -- Transaction fee calculation
 --
 
-runTxCalculateMinRequiredUTxO
-  :: AnyCardanoEra
+runTxCalculateMinRequiredUTxO :: ()
+  => CardanoEra era
   -> ProtocolParamsFile
   -> TxOutAnyEra
   -> ExceptT TxCmdError IO ()
-runTxCalculateMinRequiredUTxO (AnyCardanoEra era) pParamsFile txOut = do
+runTxCalculateMinRequiredUTxO era pParamsFile txOut = do
   pp <- firstExceptT TxCmdProtocolParamsError (readProtocolParameters pParamsFile)
   out <- toTxOutInAnyEra era txOut
   case cardanoEraStyle era of

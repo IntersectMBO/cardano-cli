@@ -13,9 +13,9 @@ import           Cardano.CLI.Types.Governance
 
 import           Data.Text (Text)
 
-data TransactionCmds
+data TransactionCmds era
   = TxBuildRaw
-      AnyCardanoEra
+      (CardanoEra era)
       (Maybe ScriptValidity)
       -- ^ Mark script as expected to pass or fail validation
       [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
@@ -53,7 +53,7 @@ data TransactionCmds
     -- | Like 'TxBuildRaw' but without the fee, and with a change output.
   | TxBuild
       SocketPath
-      AnyCardanoEra
+      (CardanoEra era)
       AnyConsensusModeParams
       NetworkId
       (Maybe ScriptValidity) -- ^ Mark script as expected to pass or fail validation
@@ -123,7 +123,7 @@ data TransactionCmds
       TxShelleyWitnessCount
       TxByronWitnessCount
   | TxCalculateMinRequiredUTxO
-      AnyCardanoEra
+      (CardanoEra era)
       ProtocolParamsFile
       TxOutAnyEra
   | TxHashScriptData
@@ -133,7 +133,9 @@ data TransactionCmds
   | TxView
       InputTxBodyOrTxFile
 
-renderTransactionCmds :: TransactionCmds -> Text
+renderTransactionCmds :: ()
+  => TransactionCmds era
+  -> Text
 renderTransactionCmds = \case
   TxBuild {} ->
     "transaction build"

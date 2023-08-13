@@ -201,8 +201,8 @@ renderScriptWitnessError (ScriptWitnessErrorReferenceScriptsNotSupportedInEra an
 renderScriptWitnessError (ScriptWitnessErrorScriptData sDataError) =
   renderScriptDataError sDataError
 
-readScriptWitnessFiles
-  :: CardanoEra era
+readScriptWitnessFiles :: ()
+  => CardanoEra era
   -> [(a, Maybe (ScriptWitnessFiles ctx))]
   -> ExceptT ScriptWitnessError IO [(a, Maybe (ScriptWitness ctx era))]
 readScriptWitnessFiles era = mapM readSwitFile
