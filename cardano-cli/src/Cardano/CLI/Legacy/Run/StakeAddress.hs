@@ -1,15 +1,14 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Monad law, left identity" -}
 
 module Cardano.CLI.Legacy.Run.StakeAddress
-  ( StakeAddressCmdError(StakeAddressCmdReadKeyFileError)
-  , getStakeCredentialFromIdentifier
-  , renderStakeAddressCmdError
-  , runStakeAddressCmds
+  ( getStakeCredentialFromIdentifier
+  , runLegacyStakeAddressCmds
   , runStakeAddressKeyGenToFile
 
   , createDelegationCertRequirements
@@ -20,10 +19,12 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Errors.StakeAddress
 import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.Legacy.Commands.StakeAddress
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.StakeAddressCmdError
+import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
+import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Key (DelegationTarget (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,
                    readVerificationKeyOrHashOrFile)
@@ -37,18 +38,20 @@ import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 import qualified Data.Text.IO as Text
 
-runStakeAddressCmds :: LegacyStakeAddressCmds -> ExceptT StakeAddressCmdError IO ()
-runStakeAddressCmds (StakeAddressKeyGen fmt vk sk) = runStakeAddressKeyGenToFile fmt vk sk
-runStakeAddressCmds (StakeAddressKeyHash vk mOutputFp) = runStakeAddressKeyHash vk mOutputFp
-runStakeAddressCmds (StakeAddressBuild stakeVerifier nw mOutputFp) =
-  runStakeAddressBuild stakeVerifier nw mOutputFp
-runStakeAddressCmds (StakeRegistrationCert anyEra stakeIdentifier mDeposit outputFp) =
-  runStakeCredentialRegistrationCert anyEra stakeIdentifier mDeposit outputFp
-runStakeAddressCmds (StakeCredentialDelegationCert anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp) =
-  runStakeCredentialDelegationCert anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp
-runStakeAddressCmds (StakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp) =
-  runStakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp
-
+runLegacyStakeAddressCmds :: LegacyStakeAddressCmds -> ExceptT StakeAddressCmdError IO ()
+runLegacyStakeAddressCmds = \case
+  StakeAddressKeyGen fmt vk sk ->
+    runStakeAddressKeyGenToFile fmt vk sk
+  StakeAddressKeyHash vk mOutputFp ->
+    runStakeAddressKeyHash vk mOutputFp
+  StakeAddressBuild stakeVerifier nw mOutputFp ->
+    runStakeAddressBuild stakeVerifier nw mOutputFp
+  StakeRegistrationCert anyEra stakeIdentifier mDeposit outputFp ->
+    runStakeCredentialRegistrationCert anyEra stakeIdentifier mDeposit outputFp
+  StakeCredentialDelegationCert anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp ->
+    runStakeCredentialDelegationCert anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp
+  StakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp ->
+    runStakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp
 
 --
 -- Stake address command implementations

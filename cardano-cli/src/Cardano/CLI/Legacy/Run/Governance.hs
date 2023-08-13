@@ -5,7 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Legacy.Run.Governance
-  ( runGovernanceCmds
+  ( runLegacyGovernanceCmds
   ) where
 
 import           Cardano.Api
@@ -17,6 +17,7 @@ import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Read (fileOrPipe, readFileTx)
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Governance
 import qualified Cardano.CLI.Types.Governance as Cli
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
@@ -40,8 +41,8 @@ import qualified Data.Text.Read as Text
 import qualified System.IO as IO
 import           System.IO (stderr, stdin, stdout)
 
-runGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
-runGovernanceCmds = \case
+runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceCmds = \case
   GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
     runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
   GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->

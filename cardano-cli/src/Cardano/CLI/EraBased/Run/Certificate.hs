@@ -21,9 +21,11 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Errors.StakeAddress
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.EraBasedDelegationError
+import           Cardano.CLI.Types.Errors.EraBasedRegistrationError
+import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Trans.Class
@@ -32,13 +34,6 @@ import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 
 -- Delegation Certificate related
-
-data EraBasedDelegationError
-  = EraBasedDelegReadError !(FileError InputDecodeError)
-  | EraBasedCredentialError !StakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
-  | EraBasedCertificateWriteFileError !(FileError ())
-  | EraBasedDRepReadError !(FileError InputDecodeError)
-  | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
 
 runGovernanceDelegationCertificate
   :: StakeIdentifier
@@ -118,12 +113,6 @@ toLedgerDelegatee t =
 
 -- Registration Certificate related
 
-
-data EraBasedRegistrationError
-  = EraBasedRegistReadError !(FileError InputDecodeError)
-  | EraBasedRegistWriteFileError !(FileError ())
-  | EraBasedRegistStakeCredReadError !StakeAddressCmdError -- TODO: Conway era - don't use legacy error type
-  | EraBasedRegistStakeError StakeAddressRegistrationError
 
 runGovernanceRegistrationCertificate
   :: AnyRegistrationTarget

@@ -5,61 +5,33 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Legacy.Run.Address
-  ( AddressCmdError(..)
-  , SomeAddressVerificationKey(..)
+  ( SomeAddressVerificationKey(..)
   , buildShelleyAddress
-  , renderAddressCmdError
-  , runAddressCmds
+  , runLegacyAddressCmds
   , runAddressKeyGenToFile
   , makeStakeAddressRef
   ) where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
-
 import           Cardano.CLI.Legacy.Commands.Address
-import           Cardano.CLI.Legacy.Run.Address.Info (AddressInfoError, runAddressInfo)
+import           Cardano.CLI.Legacy.Run.Address.Info ( runAddressInfo)
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Errors.AddressCmdError
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyTextOrFile,
-                   VerificationKeyTextOrFileError (..), generateKeyPair, readVerificationKeyOrFile,
-                   readVerificationKeyTextOrFileAnyOf, renderVerificationKeyTextOrFileError)
+                   generateKeyPair, readVerificationKeyOrFile,
+                   readVerificationKeyTextOrFileAnyOf)
 import           Cardano.CLI.Types.Common
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT)
 import qualified Data.ByteString.Char8 as BS
-import           Data.Text (Text)
-import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 
-data AddressCmdError
-  = AddressCmdAddressInfoError !AddressInfoError
-  | AddressCmdReadKeyFileError !(FileError InputDecodeError)
-  | AddressCmdReadScriptFileError !(FileError ScriptDecodeError)
-  | AddressCmdVerificationKeyTextOrFileError !VerificationKeyTextOrFileError
-  | AddressCmdWriteFileError !(FileError ())
-  | ShelleyAddressCmdExpectedPaymentVerificationKey SomeAddressVerificationKey
-  deriving Show
-
-renderAddressCmdError :: AddressCmdError -> Text
-renderAddressCmdError err =
-  case err of
-    AddressCmdAddressInfoError addrInfoErr ->
-      Text.pack (displayError addrInfoErr)
-    AddressCmdReadKeyFileError fileErr ->
-      Text.pack (displayError fileErr)
-    AddressCmdVerificationKeyTextOrFileError vkTextOrFileErr ->
-      renderVerificationKeyTextOrFileError vkTextOrFileErr
-    AddressCmdReadScriptFileError fileErr ->
-      Text.pack (displayError fileErr)
-    AddressCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyAddressCmdExpectedPaymentVerificationKey someAddress ->
-      "Expected payment verification key but got: " <> renderSomeAddressVerificationKey someAddress
-
-runAddressCmds :: LegacyAddressCmds -> ExceptT AddressCmdError IO ()
-runAddressCmds cmd =
+runLegacyAddressCmds :: LegacyAddressCmds -> ExceptT AddressCmdError IO ()
+runLegacyAddressCmds cmd =
   case cmd of
     AddressKeyGen fmt kt vkf skf -> runAddressKeyGenToFile fmt kt vkf skf
     AddressKeyHash vkf mOFp -> runAddressKeyHash vkf mOFp

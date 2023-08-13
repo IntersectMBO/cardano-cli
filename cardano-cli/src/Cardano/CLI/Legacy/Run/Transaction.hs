@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
@@ -10,16 +9,14 @@
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
 module Cardano.CLI.Legacy.Run.Transaction
-  ( TxCmdError(..)
-  , renderTxCmdError
-  , runTransactionCmds
+  ( runLegacyTransactionCmds
   , readFileTx
   , toTxOutInAnyEra
   ) where
 
-import           Cardano.Api
-import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
-import           Cardano.Api.Shelley
+import           Cardano.Api hiding (txAuxScripts, txMetadata, txOuts)
+import qualified Cardano.Api.Byron as Api
+import qualified Cardano.Api.Shelley as Api
 
 import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Legacy.Commands.Transaction
@@ -27,9 +24,11 @@ import           Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.CLI.Legacy.Run.Validate
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.BootstrapWitnessError
+import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Output
-import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
+import qualified Cardano.CLI.Types.Output as Cli
+import           Cardano.CLI.Types.TxFeature
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 import           Control.Monad (forM)
@@ -60,243 +59,37 @@ import qualified System.IO as IO
 
 {- HLINT ignore "Use let" -}
 
-data TxCmdError
-  = TxCmdMetadataError MetadataError
-  | TxCmdVoteError VoteError
-  | TxCmdConstitutionError ConstitutionError
-  | TxCmdScriptWitnessError ScriptWitnessError
-  | TxCmdProtocolParamsError ProtocolParamsError
-  | TxCmdScriptFileError (FileError ScriptDecodeError)
-  | TxCmdReadTextViewFileError !(FileError TextEnvelopeError)
-  | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
-  | TxCmdWriteFileError !(FileError ())
-  | TxCmdEraConsensusModeMismatchError
-      !(Maybe FilePath)
-      !AnyConsensusMode
-      !AnyCardanoEra
-      -- ^ Era
-  | TxCmdBootstrapWitnessError !BootstrapWitnessError
-  | TxCmdTxSubmitError !Text
-  | TxCmdTxSubmitErrorEraMismatchError !EraMismatch
-  | TxCmdTxFeatureMismatchError !AnyCardanoEra !TxFeature
-  | TxCmdTxBodyError !TxBodyError
-  | TxCmdNotImplementedError !Text
-  | TxCmdWitnessEraMismatchError !AnyCardanoEra !AnyCardanoEra !WitnessFile
-  | TxCmdPolicyIdsMissingError ![PolicyId]
-  | TxCmdPolicyIdsExcessError  ![PolicyId]
-  | TxCmdUnsupportedModeError !AnyConsensusMode
-  | TxCmdByronEraInvalidError
-  | TxCmdEraConsensusModeMismatchTxBalanceError
-      !TxBuildOutputOptions
-      !AnyConsensusMode
-      !AnyCardanoEra
-  | TxCmdBalanceTxBodyError !TxBodyErrorAutoBalance
-  | TxCmdTxInsDoNotExistError !TxInsExistError
-  | TxCmdPParamsError !ProtocolParametersError
-  | TxCmdTextEnvCddlError
-      !(FileError TextEnvelopeError)
-      !(FileError TextEnvelopeCddlError)
-  | TxCmdTxExecUnitsError !TransactionValidityError
-  | TxCmdPlutusScriptCostError !PlutusScriptCostError
-  | TxCmdPParamExecutionUnitsNotAvailableError
-  | TxCmdPlutusScriptsRequireCardanoModeError
-  | TxCmdProtocolParametersNotPresentInTxBodyError
-  | TxCmdTxEraCastError EraCastError
-  | TxCmdQueryConvenienceError !QueryConvenienceError
-  | TxCmdQueryNotScriptLockedError !ScriptLockedTxInsError
-  | TxCmdScriptDataError !ScriptDataError
-  | TxCmdCddlError CddlError
-  | TxCmdCddlWitnessError CddlWitnessError
-  | TxCmdRequiredSignerError RequiredSignerError
-  -- Validation errors
-  | TxCmdAuxScriptsValidationError TxAuxScriptsValidationError
-  | TxCmdTotalCollateralValidationError TxTotalCollateralValidationError
-  | TxCmdReturnCollateralValidationError TxReturnCollateralValidationError
-  | TxCmdTxFeeValidationError TxFeeValidationError
-  | TxCmdTxValidityLowerBoundValidationError TxValidityLowerBoundValidationError
-  | TxCmdTxValidityUpperBoundValidationError TxValidityUpperBoundValidationError
-  | TxCmdRequiredSignersValidationError TxRequiredSignersValidationError
-  | TxCmdProtocolParametersValidationError TxProtocolParametersValidationError
-  | TxCmdTxWithdrawalsValidationError TxWithdrawalsValidationError
-  | TxCmdTxCertificatesValidationError TxCertificatesValidationError
-  | TxCmdTxUpdateProposalValidationError TxUpdateProposalValidationError
-  | TxCmdScriptValidityValidationError TxScriptValidityValidationError
-
-renderTxCmdError :: TxCmdError -> Text
-renderTxCmdError err =
-  case err of
-    TxCmdVoteError voteErr -> Text.pack $ show voteErr
-    TxCmdConstitutionError constErr -> Text.pack $ show constErr
-    TxCmdReadTextViewFileError fileErr -> Text.pack (displayError fileErr)
-    TxCmdScriptFileError fileErr -> Text.pack (displayError fileErr)
-    TxCmdReadWitnessSigningDataError witSignDataErr ->
-      renderReadWitnessSigningDataError witSignDataErr
-    TxCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    TxCmdTxSubmitError res -> "Error while submitting tx: " <> res
-    TxCmdTxSubmitErrorEraMismatchError EraMismatch{ledgerEraName, otherEraName} ->
-      "The era of the node and the tx do not match. " <>
-      "The node is running in the " <> ledgerEraName <>
-      " era, but the transaction is for the " <> otherEraName <> " era."
-    TxCmdBootstrapWitnessError sbwErr ->
-      renderBootstrapWitnessError sbwErr
-    TxCmdTxFeatureMismatchError era TxFeatureImplicitFees ->
-      "An explicit transaction fee must be specified for " <>
-      renderEra era <> " era transactions."
-
-    TxCmdTxFeatureMismatchError (AnyCardanoEra ShelleyEra)
-                                  TxFeatureValidityNoUpperBound ->
-      "A TTL must be specified for Shelley era transactions."
-
-    TxCmdTxFeatureMismatchError era feature ->
-      renderFeature feature <> " cannot be used for " <> renderEra era <>
-      " era transactions."
-
-    TxCmdTxBodyError err' ->
-      "Transaction validaton error: " <> Text.pack (displayError err')
-
-    TxCmdNotImplementedError msg ->
-      "Feature not yet implemented: " <> msg
-
-    TxCmdWitnessEraMismatchError era era' (WitnessFile file) ->
-      "The era of a witness does not match the era of the transaction. " <>
-      "The transaction is for the " <> renderEra era <> " era, but the " <>
-      "witness in " <> textShow file <> " is for the " <> renderEra era' <> " era."
-
-    TxCmdEraConsensusModeMismatchError fp mode era ->
-       "Submitting " <> renderEra era <> " era transaction (" <> textShow fp <>
-       ") is not supported in the " <> renderMode mode <> " consensus mode."
-    TxCmdPolicyIdsMissingError policyids -> mconcat
-      [ "The \"--mint\" flag specifies an asset with a policy Id, but no "
-      , "corresponding monetary policy script has been provided as a witness "
-      , "(via the \"--mint-script-file\" flag). The policy Id in question is: "
-      , Text.intercalate ", " (map serialiseToRawBytesHexText policyids)
-      ]
-
-    TxCmdPolicyIdsExcessError policyids -> mconcat
-      [ "A script provided to witness minting does not correspond to the policy "
-      , "id of any asset specified in the \"--mint\" field. The script hash is: "
-      , Text.intercalate ", " (map serialiseToRawBytesHexText policyids)
-      ]
-    TxCmdUnsupportedModeError mode -> "Unsupported mode: " <> renderMode mode
-    TxCmdByronEraInvalidError -> "This query cannot be used for the Byron era"
-    TxCmdEraConsensusModeMismatchTxBalanceError fp mode era ->
-       "Cannot balance " <> renderEra era <> " era transaction body (" <> textShow fp <>
-       ") because is not supported in the " <> renderMode mode <> " consensus mode."
-    TxCmdBalanceTxBodyError err' -> Text.pack $ displayError err'
-    TxCmdTxInsDoNotExistError e ->
-      renderTxInsExistError e
-    TxCmdPParamsError err' -> Text.pack $ displayError err'
-    TxCmdTextEnvCddlError textEnvErr cddlErr -> mconcat
-      [ "Failed to decode neither the cli's serialisation format nor the ledger's "
-      , "CDDL serialisation format. TextEnvelope error: " <> Text.pack (displayError textEnvErr) <> "\n"
-      , "TextEnvelopeCddl error: " <> Text.pack (displayError cddlErr)
-      ]
-    TxCmdTxExecUnitsError err' ->  Text.pack $ displayError err'
-    TxCmdPlutusScriptCostError err'-> Text.pack $ displayError err'
-    TxCmdPParamExecutionUnitsNotAvailableError -> mconcat
-      [ "Execution units not available in the protocol parameters. This is "
-      , "likely due to not being in the Alonzo era"
-      ]
-    TxCmdTxEraCastError (EraCastError value fromEra toEra) ->
-      "Unable to cast era from " <> textShow fromEra <> " to " <> textShow toEra <> " the value " <> textShow value
-    TxCmdQueryConvenienceError e ->
-      renderQueryConvenienceError e
-    TxCmdQueryNotScriptLockedError e ->
-      renderNotScriptLockedTxInsError e
-    TxCmdPlutusScriptsRequireCardanoModeError ->
-      "Plutus scripts are only available in CardanoMode"
-    TxCmdProtocolParametersNotPresentInTxBodyError ->
-      "Protocol parameters were not found in transaction body"
-    TxCmdMetadataError e -> renderMetadataError e
-    TxCmdScriptWitnessError e -> renderScriptWitnessError e
-    TxCmdScriptDataError e -> renderScriptDataError e
-    TxCmdProtocolParamsError e -> renderProtocolParamsError e
-    TxCmdCddlError e -> Text.pack $ displayError e
-    TxCmdCddlWitnessError e -> Text.pack $ displayError e
-    TxCmdRequiredSignerError e -> Text.pack $ displayError e
-    -- Validation errors
-    TxCmdAuxScriptsValidationError e ->
-      Text.pack $ displayError e
-    TxCmdTotalCollateralValidationError e ->
-      Text.pack $ displayError e
-    TxCmdReturnCollateralValidationError e ->
-      Text.pack $ displayError e
-    TxCmdTxFeeValidationError e ->
-      Text.pack $ displayError e
-    TxCmdTxValidityLowerBoundValidationError e ->
-      Text.pack $ displayError e
-    TxCmdTxValidityUpperBoundValidationError e ->
-      Text.pack $ displayError e
-    TxCmdRequiredSignersValidationError e ->
-      Text.pack $ displayError e
-    TxCmdProtocolParametersValidationError e ->
-      Text.pack $ displayError e
-    TxCmdTxWithdrawalsValidationError e ->
-      Text.pack $ displayError e
-    TxCmdTxCertificatesValidationError e ->
-      Text.pack $ displayError e
-    TxCmdTxUpdateProposalValidationError e ->
-      Text.pack $ displayError e
-    TxCmdScriptValidityValidationError e ->
-      Text.pack $ displayError e
-
-renderFeature :: TxFeature -> Text
-renderFeature TxFeatureShelleyAddresses     = "Shelley addresses"
-renderFeature TxFeatureExplicitFees         = "Explicit fees"
-renderFeature TxFeatureImplicitFees         = "Implicit fees"
-renderFeature TxFeatureValidityLowerBound   = "A validity lower bound"
-renderFeature TxFeatureValidityUpperBound   = "A validity upper bound"
-renderFeature TxFeatureValidityNoUpperBound = "An absent validity upper bound"
-renderFeature TxFeatureTxMetadata           = "Transaction metadata"
-renderFeature TxFeatureAuxScripts           = "Auxiliary scripts"
-renderFeature TxFeatureWithdrawals          = "Reward account withdrawals"
-renderFeature TxFeatureCertificates         = "Certificates"
-renderFeature TxFeatureMintValue            = "Asset minting"
-renderFeature TxFeatureMultiAssetOutputs    = "Multi-Asset outputs"
-renderFeature TxFeatureScriptWitnesses      = "Script witnesses"
-renderFeature TxFeatureShelleyKeys          = "Shelley keys"
-renderFeature TxFeatureCollateral           = "Collateral inputs"
-renderFeature TxFeatureProtocolParameters   = "Protocol parameters"
-renderFeature TxFeatureTxOutDatum           = "Transaction output datums"
-renderFeature TxFeatureScriptValidity       = "Script validity"
-renderFeature TxFeatureExtraKeyWits         = "Required signers"
-renderFeature TxFeatureInlineDatums         = "Inline datums"
-renderFeature TxFeatureTotalCollateral      = "Total collateral"
-renderFeature TxFeatureReferenceInputs      = "Reference inputs"
-renderFeature TxFeatureReturnCollateral     = "Return collateral"
-
-runTransactionCmds :: LegacyTransactionCmds -> ExceptT TxCmdError IO ()
-runTransactionCmds cmd =
-  case cmd of
-    TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
-            reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
-            mNewConstitution outputOptions -> do
-      runTxBuildCmd mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
-            reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-            mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
-            mNewConstitution outputOptions
-    TxBuildRaw era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
-               mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
-               metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out -> do
-      runTxBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
-               mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
-               metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out
-    TxSign txinfile skfiles network txoutfile ->
-      runTxSign txinfile skfiles network txoutfile
-    TxSubmit mNodeSocketPath anyConsensusModeParams network txFp ->
-      runTxSubmit mNodeSocketPath anyConsensusModeParams network txFp
-    TxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
-      runTxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
-    TxCalculateMinRequiredUTxO era pParamsFile txOuts -> runTxCalculateMinRequiredUTxO era pParamsFile txOuts
-    TxHashScriptData scriptDataOrFile -> runTxHashScriptData scriptDataOrFile
-    TxGetTxId txinfile -> runTxGetTxId txinfile
-    TxView txinfile -> runTxView txinfile
-    TxMintedPolicyId sFile -> runTxCreatePolicyId sFile
-    TxCreateWitness txBodyfile witSignData mbNw outFile ->
-      runTxCreateWitness txBodyfile witSignData mbNw outFile
-    TxAssembleTxBodyWitness txBodyFile witnessFile outFile ->
-      runTxSignWitness txBodyFile witnessFile outFile
+runLegacyTransactionCmds :: LegacyTransactionCmds -> ExceptT TxCmdError IO ()
+runLegacyTransactionCmds = \case
+  TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
+          reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
+          mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
+          mNewConstitution outputOptions -> do
+    runTxBuildCmd mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
+          reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
+          mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
+          mNewConstitution outputOptions
+  TxBuildRaw era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+              mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
+              metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out -> do
+    runTxBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+              mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
+              metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out
+  TxSign txinfile skfiles network txoutfile ->
+    runTxSign txinfile skfiles network txoutfile
+  TxSubmit mNodeSocketPath anyConsensusModeParams network txFp ->
+    runTxSubmit mNodeSocketPath anyConsensusModeParams network txFp
+  TxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
+    runTxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
+  TxCalculateMinRequiredUTxO era pParamsFile txOuts -> runTxCalculateMinRequiredUTxO era pParamsFile txOuts
+  TxHashScriptData scriptDataOrFile -> runTxHashScriptData scriptDataOrFile
+  TxGetTxId txinfile -> runTxGetTxId txinfile
+  TxView txinfile -> runTxView txinfile
+  TxMintedPolicyId sFile -> runTxCreatePolicyId sFile
+  TxCreateWitness txBodyfile witSignData mbNw outFile ->
+    runTxCreateWitness txBodyfile witSignData mbNw outFile
+  TxAssembleTxBodyWitness txBodyFile witnessFile outFile ->
+    runTxSignWitness txBodyFile witnessFile outFile
 
 -- ----------------------------------------------------------------------------
 -- Building transactions
@@ -421,7 +214,7 @@ runTxBuildCmd
 
       pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBodyError)
 
-      executionUnitPrices <- pure (protocolParamPrices pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailableError)
+      executionUnitPrices <- pure (Api.protocolParamPrices pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailableError)
 
       let consensusMode = consensusModeOnly cModeParams
       bpp <- hoistEither . first (TxCmdTxBodyError . TxBodyProtocolParamsConversionError) $
@@ -451,7 +244,7 @@ runTxBuildCmd
 
           scriptCostOutput <-
             firstExceptT TxCmdPlutusScriptCostError $ hoistEither
-              $ renderScriptCosts
+              $ Cli.renderScriptCosts
                   txEraUtxo
                   executionUnitPrices
                   mScriptWits
@@ -570,7 +363,7 @@ runTxBuildRaw
   -- ^ Required signers
   -> TxAuxScripts era
   -> TxMetadataInEra era
-  -> Maybe ProtocolParameters
+  -> Maybe Api.ProtocolParameters
   -> Maybe UpdateProposal
   -> Either TxCmdError (TxBody era)
 runTxBuildRaw era
@@ -800,49 +593,6 @@ runTxBuild
 -- Transaction body validation and conversion
 --
 
--- | An enumeration of era-dependent features where we have to check that it
--- is permissible to use this feature in this era.
---
-data TxFeature = TxFeatureShelleyAddresses
-               | TxFeatureExplicitFees
-               | TxFeatureImplicitFees
-               | TxFeatureValidityLowerBound
-               | TxFeatureValidityUpperBound
-               | TxFeatureValidityNoUpperBound
-               | TxFeatureTxMetadata
-               | TxFeatureAuxScripts
-               | TxFeatureWithdrawals
-               | TxFeatureCertificates
-               | TxFeatureMintValue
-               | TxFeatureMultiAssetOutputs
-               | TxFeatureScriptWitnesses
-               | TxFeatureShelleyKeys
-               | TxFeatureCollateral
-               | TxFeatureProtocolParameters
-               | TxFeatureTxOutDatum
-               | TxFeatureScriptValidity
-               | TxFeatureExtraKeyWits
-               | TxFeatureInlineDatums
-               | TxFeatureTotalCollateral
-               | TxFeatureReferenceInputs
-               | TxFeatureReturnCollateral
-  deriving Show
-
-txFeatureMismatch :: ()
-  => Monad m
-  => CardanoEra era
-  -> TxFeature
-  -> ExceptT TxCmdError m a
-txFeatureMismatch era feature =
-    hoistEither . Left $ TxCmdTxFeatureMismatchError (anyCardanoEra era) feature
-
-txFeatureMismatchPure :: CardanoEra era
-                      -> TxFeature
-                      -> Either TxCmdError a
-txFeatureMismatchPure era feature =
-    Left (TxCmdTxFeatureMismatchError (anyCardanoEra era) feature)
-
-
 validateTxIns
   :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
   -> [(TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn era))]
@@ -874,7 +624,7 @@ validateTxInsReference
   -> Either TxCmdError (TxInsReference BuildTx era)
 validateTxInsReference _ []  = return TxInsReferenceNone
 validateTxInsReference era allRefIns =
-  case refInsScriptsAndInlineDatsSupportedInEra era of
+  case Api.refInsScriptsAndInlineDatsSupportedInEra era of
     Nothing -> txFeatureMismatchPure era TxFeatureReferenceInputs
     Just supp -> return $ TxInsReference supp allRefIns
 
@@ -903,10 +653,10 @@ getAllReferenceInputs txins mintWitnesses certFiles withdrawals readOnlyRefIns =
     :: ScriptWitness witctx era -> Maybe TxIn
   getReferenceInput sWit =
     case sWit of
-      PlutusScriptWitness _ _ (PReferenceScript refIn _) _ _ _ -> Just refIn
-      PlutusScriptWitness _ _ PScript{} _ _ _ -> Nothing
-      SimpleScriptWitness _ (SReferenceScript refIn _)  -> Just refIn
-      SimpleScriptWitness _ SScript{}  -> Nothing
+      PlutusScriptWitness _ _ (Api.PReferenceScript refIn _) _ _ _ -> Just refIn
+      PlutusScriptWitness _ _ Api.PScript{} _ _ _ -> Nothing
+      SimpleScriptWitness _ (Api.SReferenceScript refIn _)  -> Just refIn
+      SimpleScriptWitness _ Api.SScript{}  -> Nothing
 
 toAddressInAnyEra
   :: CardanoEra era
@@ -940,10 +690,10 @@ toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
   addr <- hoistEither $ toAddressInAnyEra era addr'
   val <- hoistEither $ toTxOutValueInAnyEra era val'
   (datum, refScript)
-    <- case (scriptDataSupportedInEra era, refInsScriptsAndInlineDatsSupportedInEra era) of
-         (Nothing, Nothing) -> pure (TxOutDatumNone, ReferenceScriptNone)
+    <- case (scriptDataSupportedInEra era, Api.refInsScriptsAndInlineDatsSupportedInEra era) of
+         (Nothing, Nothing) -> pure (TxOutDatumNone, Api.ReferenceScriptNone)
          (Just sup, Nothing)->
-           (,) <$> toTxAlonzoDatum sup mDatumHash <*> pure ReferenceScriptNone
+           (,) <$> toTxAlonzoDatum sup mDatumHash <*> pure Api.ReferenceScriptNone
          (Just sup, Just inlineDatumRefScriptSupp) ->
            toTxDatumReferenceScriptBabbage sup inlineDatumRefScriptSupp mDatumHash refScriptFp
          (Nothing, Just _) ->
@@ -953,19 +703,19 @@ toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
  where
   getReferenceScript
     :: ReferenceScriptAnyEra
-    -> ReferenceTxInsScriptsInlineDatumsSupportedInEra era
-    -> ExceptT TxCmdError IO (ReferenceScript era)
-  getReferenceScript ReferenceScriptAnyEraNone _ = return ReferenceScriptNone
+    -> Api.ReferenceTxInsScriptsInlineDatumsSupportedInEra era
+    -> ExceptT TxCmdError IO (Api.ReferenceScript era)
+  getReferenceScript ReferenceScriptAnyEraNone _ = return Api.ReferenceScriptNone
   getReferenceScript (ReferenceScriptAnyEra fp) supp = do
-    ReferenceScript supp
+    Api.ReferenceScript supp
       <$> firstExceptT TxCmdScriptFileError (readFileScriptInAnyLang fp)
 
   toTxDatumReferenceScriptBabbage
     :: ScriptDataSupportedInEra era
-    -> ReferenceTxInsScriptsInlineDatumsSupportedInEra era
+    -> Api.ReferenceTxInsScriptsInlineDatumsSupportedInEra era
     -> TxOutDatumAnyEra
     -> ReferenceScriptAnyEra
-    -> ExceptT TxCmdError IO (TxOutDatum CtxTx era, ReferenceScript era)
+    -> ExceptT TxCmdError IO (TxOutDatum CtxTx era, Api.ReferenceScript era)
   toTxDatumReferenceScriptBabbage sDataSupp inlineRefSupp cliDatum refScriptFp' = do
     refScript <- getReferenceScript refScriptFp' inlineRefSupp
     case cliDatum of
@@ -1059,15 +809,15 @@ createTxMintValue era (val, scriptWitnesses) =
       witnessesExtra = Set.elems (witnessesProvided Set.\\ witnessesNeeded)
 
 scriptWitnessPolicyId :: ScriptWitness witctx era -> Maybe PolicyId
-scriptWitnessPolicyId (SimpleScriptWitness _ (SScript script)) =
-   Just . scriptPolicyId $ SimpleScript script
-scriptWitnessPolicyId (SimpleScriptWitness _ (SReferenceScript _ mPid)) =
-   PolicyId <$> mPid
-scriptWitnessPolicyId (PlutusScriptWitness _ version (PScript script) _ _ _) =
-   Just . scriptPolicyId $ PlutusScript version script
-scriptWitnessPolicyId (PlutusScriptWitness _ _ (PReferenceScript _ mPid) _ _ _) =
-   PolicyId <$> mPid
-
+scriptWitnessPolicyId = \case
+  SimpleScriptWitness _ (Api.SScript script) ->
+    Just . scriptPolicyId $ SimpleScript script
+  SimpleScriptWitness _ (Api.SReferenceScript _ mPid) ->
+    PolicyId <$> mPid
+  PlutusScriptWitness _ version (Api.PScript script) _ _ _ ->
+    Just . scriptPolicyId $ PlutusScript version script
+  PlutusScriptWitness _ _ (Api.PReferenceScript _ mPid) _ _ _ ->
+    PolicyId <$> mPid
 
 readValueScriptWitnesses
   :: CardanoEra era
@@ -1099,7 +849,7 @@ runTxSign txOrTxBody witSigningData mnw outTxFile = do
       InAnyShelleyBasedEra _era tx <-
           onlyInShelleyBasedEras "sign for Byron era transactions" anyTx
 
-      let (txbody, existingTxKeyWits) = getTxBodyAndWitnesses tx
+      let (txbody, existingTxKeyWits) = Api.getTxBodyAndWitnesses tx
 
       byronWitnesses <- firstExceptT TxCmdBootstrapWitnessError
                           . hoistEither
@@ -1215,8 +965,8 @@ runTxCalculateMinFee (File txbodyFilePath) nw pParamsFile
         let tx = makeSignedTransaction [] txbody
             Lovelace fee = estimateTransactionFee
                              nw
-                             (protocolParamTxFeeFixed pparams)
-                             (protocolParamTxFeePerByte pparams)
+                             (Api.protocolParamTxFeeFixed pparams)
+                             (Api.protocolParamTxFeePerByte pparams)
                              tx
                              nInputs nOutputs
                              nByronKeyWitnesses nShelleyKeyWitnesses
@@ -1231,8 +981,8 @@ runTxCalculateMinFee (File txbodyFilePath) nw pParamsFile
         let tx = makeSignedTransaction [] txbody
             Lovelace fee = estimateTransactionFee
                              nw
-                             (protocolParamTxFeeFixed pparams)
-                             (protocolParamTxFeePerByte pparams)
+                             (Api.protocolParamTxFeeFixed pparams)
+                             (Api.protocolParamTxFeePerByte pparams)
                              tx
                              nInputs nOutputs
                              nByronKeyWitnesses nShelleyKeyWitnesses
@@ -1255,7 +1005,7 @@ runTxCalculateMinRequiredUTxO (AnyCardanoEra era) pParamsFile txOut = do
     LegacyByronEra -> error "runTxCalculateMinRequiredUTxO: Byron era not implemented yet"
     ShelleyBasedEra sbe -> do
       firstExceptT TxCmdPParamsError . hoistEither
-        $ checkProtocolParameters sbe pp
+        $ Api.checkProtocolParameters sbe pp
       bpparams <- hoistEither . first (TxCmdTxBodyError . TxBodyProtocolParamsConversionError) $
         bundleProtocolParams era pp
       let minValue = calculateMinimumUTxO sbe out bpparams
@@ -1288,22 +1038,6 @@ partitionSomeWitnesses = reversePartitionedWits . foldl' go mempty
         AShelleyKeyWitness shelleyKeyWit ->
           (byronAcc, shelleyKeyWit:shelleyKeyAcc)
 
--- | Error constructing a Shelley bootstrap witness (i.e. a Byron key witness
--- in the Shelley era).
-data BootstrapWitnessError
-  = MissingNetworkIdOrByronAddressError
-  -- ^ Neither a network ID nor a Byron address were provided to construct the
-  -- Shelley bootstrap witness. One or the other is required.
-  deriving Show
-
--- | Render an error message for a 'BootstrapWitnessError'.
-renderBootstrapWitnessError :: BootstrapWitnessError -> Text
-renderBootstrapWitnessError MissingNetworkIdOrByronAddressError =
-  "Transactions witnessed by a Byron signing key must be accompanied by a "
-    <> "network ID. Either provide a network ID or provide a Byron "
-    <> "address with each Byron signing key (network IDs can be derived "
-    <> "from Byron addresses)."
-
 -- | Construct a Shelley bootstrap witness (i.e. a Byron key witness in the
 -- Shelley era).
 mkShelleyBootstrapWitness
@@ -1315,9 +1049,9 @@ mkShelleyBootstrapWitness
 mkShelleyBootstrapWitness Nothing _ (ShelleyBootstrapWitnessSigningKeyData _ Nothing) =
   Left MissingNetworkIdOrByronAddressError
 mkShelleyBootstrapWitness (Just nw) txBody (ShelleyBootstrapWitnessSigningKeyData skey Nothing) =
-  Right $ makeShelleyBootstrapWitness (WitnessNetworkId nw) txBody skey
+  Right $ makeShelleyBootstrapWitness (Api.WitnessNetworkId nw) txBody skey
 mkShelleyBootstrapWitness _ txBody (ShelleyBootstrapWitnessSigningKeyData skey (Just addr)) =
-  Right $ makeShelleyBootstrapWitness (WitnessByronAddress addr) txBody skey
+  Right $ makeShelleyBootstrapWitness (Api.WitnessByronAddress addr) txBody skey
 
 -- | Attempt to construct Shelley bootstrap witnesses until an error is
 -- encountered.
@@ -1493,8 +1227,7 @@ runTxSignWitness (File txbodyFilePath) witnessFiles oFp = do
 --
 onlyInShelleyBasedEras :: Text
                        -> InAnyCardanoEra a
-                       -> ExceptT TxCmdError IO
-                                  (InAnyShelleyBasedEra a)
+                       -> ExceptT TxCmdError IO (InAnyShelleyBasedEra a)
 onlyInShelleyBasedEras notImplMsg (InAnyCardanoEra era x) =
     case cardanoEraStyle era of
       LegacyByronEra      -> left (TxCmdNotImplementedError notImplMsg)

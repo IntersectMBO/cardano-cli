@@ -11,6 +11,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Except (ExceptT)
@@ -18,14 +19,6 @@ import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Except.Extra
 import qualified Data.ByteString as BS
 import qualified Data.Text.Encoding as Text
-import           Data.Text.Encoding.Error
-
-
-data GovernanceActionsError
-  = GovernanceActionsCmdWriteFileError (FileError ())
-  | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
-  | GovernanceActionsCmdNonUtf8EncodedConstitution UnicodeException
-
 
 runGovernanceActionCmds :: ()
   => GovernanceActionCmds era

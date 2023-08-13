@@ -6,6 +6,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -18,17 +19,16 @@
 {- HLINT ignore "Use let" -}
 
 module Cardano.CLI.Legacy.Run.Genesis
-  ( GenesisCmdError(..)
-  , readShelleyGenesisWithDefault
+  ( readShelleyGenesisWithDefault
   , readAndDecodeShelleyGenesis
   , readAlonzoGenesis
-  , runGenesisCmds
+  , runLegacyGenesisCmds
 
   -- * Protocol Parameters
-  , ProtocolParamsError(..)
-  , renderProtocolParamsError
   , readProtocolParameters
   ) where
+
+import Cardano.CLI.Types.Errors.PoolCmdError
 
 import           Cardano.Api
 import           Cardano.Api.Byron (toByronLovelace, toByronProtocolMagicId,
@@ -49,14 +49,14 @@ import qualified Cardano.CLI.Byron.Key as Byron
 import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Legacy.Commands.Genesis
-import           Cardano.CLI.Legacy.Run.Address
-import           Cardano.CLI.Legacy.Run.Node (NodeCmdError (..), renderNodeCmdError,
+import           Cardano.CLI.Legacy.Run.Node (
                    runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
-import           Cardano.CLI.Legacy.Run.Pool (PoolCmdError (..), renderPoolCmdError)
-import           Cardano.CLI.Legacy.Run.StakeAddress (StakeAddressCmdError (..),
-                   renderStakeAddressCmdError, runStakeAddressKeyGenToFile)
-import           Cardano.CLI.Types.Key
+import           Cardano.CLI.Legacy.Run.StakeAddress (runStakeAddressKeyGenToFile)
+import           Cardano.CLI.Types.Errors.GenesisCmdError
+import           Cardano.CLI.Types.Errors.NodeCmdError
+import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto as CC
 import           Cardano.Crypto.Hash (HashAlgorithm)
 import qualified Cardano.Crypto.Hash as Crypto
@@ -79,7 +79,6 @@ import           Cardano.Slotting.Slot (EpochSize (EpochSize))
 import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, force)
-import           Control.Exception (IOException)
 import           Control.Monad (forM, forM_, unless, when)
 import           Control.Monad.Except (MonadError (..), runExceptT)
 import           Control.Monad.IO.Class (MonadIO (..))
@@ -132,86 +131,30 @@ import           Text.Read (readMaybe)
 
 import           Crypto.Random as Crypto
 
-data GenesisCmdError
-  = GenesisCmdAesonDecodeError !FilePath !Text
-  | GenesisCmdGenesisFileReadError !(FileError IOException)
-  | GenesisCmdGenesisFileDecodeError !FilePath !Text
-  | GenesisCmdGenesisFileError !(FileError ())
-  | GenesisCmdFileError !(FileError ())
-  | GenesisCmdMismatchedGenesisKeyFilesError [Int] [Int] [Int]
-  | GenesisCmdFilesNoIndexError [FilePath]
-  | GenesisCmdFilesDupIndexError [FilePath]
-  | GenesisCmdTextEnvReadFileError !(FileError TextEnvelopeError)
-  | GenesisCmdUnexpectedAddressVerificationKeyError !(VerificationKeyFile In) !Text !SomeAddressVerificationKey
-  | GenesisCmdTooFewPoolsForBulkCredsError !Word !Word !Word
-  | GenesisCmdAddressCmdError !AddressCmdError
-  | GenesisCmdNodeCmdError !NodeCmdError
-  | GenesisCmdPoolCmdError !PoolCmdError
-  | GenesisCmdStakeAddressCmdError !StakeAddressCmdError
-  | GenesisCmdCostModelsError !FilePath
-  | GenesisCmdByronError !ByronGenesisError
-  | GenesisStakePoolRelayFileError !FilePath !IOException
-  | GenesisStakePoolRelayJsonDecodeError !FilePath !String
-  deriving Show
-
-instance Error GenesisCmdError where
-  displayError err =
-    case err of
-      GenesisCmdAesonDecodeError fp decErr ->
-        "Error while decoding Shelley genesis at: " <> fp <> " Error: " <> Text.unpack decErr
-      GenesisCmdGenesisFileError fe -> displayError fe
-      GenesisCmdFileError fe -> displayError fe
-      GenesisCmdMismatchedGenesisKeyFilesError gfiles dfiles vfiles ->
-        "Mismatch between the files found:\n"
-          <> "Genesis key file indexes:      " <> show gfiles <> "\n"
-          <> "Delegate key file indexes:     " <> show dfiles <> "\n"
-          <> "Delegate VRF key file indexes: " <> show vfiles
-      GenesisCmdFilesNoIndexError files ->
-        "The genesis keys files are expected to have a numeric index but these do not:\n"
-          <> unlines files
-      GenesisCmdFilesDupIndexError files ->
-        "The genesis keys files are expected to have a unique numeric index but these do not:\n"
-          <> unlines files
-      GenesisCmdTextEnvReadFileError fileErr -> displayError fileErr
-      GenesisCmdUnexpectedAddressVerificationKeyError (File file) expect got -> mconcat
-        [ "Unexpected address verification key type in file ", file
-        , ", expected: ", Text.unpack expect, ", got: ", Text.unpack (renderSomeAddressVerificationKey got)
-        ]
-      GenesisCmdTooFewPoolsForBulkCredsError pools files perPool -> mconcat
-        [ "Number of pools requested for generation (", show pools
-        , ") is insufficient to fill ", show files
-        , " bulk files, with ", show perPool, " pools per file."
-        ]
-      GenesisCmdAddressCmdError e -> Text.unpack $ renderAddressCmdError e
-      GenesisCmdNodeCmdError e -> Text.unpack $ renderNodeCmdError e
-      GenesisCmdPoolCmdError e -> Text.unpack $ renderPoolCmdError e
-      GenesisCmdStakeAddressCmdError e -> Text.unpack $ renderStakeAddressCmdError e
-      GenesisCmdCostModelsError fp -> "Cost model is invalid: " <> fp
-      GenesisCmdGenesisFileDecodeError fp e ->
-       "Error while decoding Shelley genesis at: " <> fp <>
-       " Error: " <>  Text.unpack e
-      GenesisCmdGenesisFileReadError e -> displayError e
-      GenesisCmdByronError e -> show e
-      GenesisStakePoolRelayFileError fp e ->
-        "Error occurred while reading the stake pool relay specification file: " <> fp <>
-        " Error: " <> show e
-      GenesisStakePoolRelayJsonDecodeError fp e ->
-        "Error occurred while decoding the stake pool relay specification file: " <> fp <>
-        " Error: " <>  e
-
-runGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
-runGenesisCmds (GenesisKeyGenGenesis vk sk) = runGenesisKeyGenGenesis vk sk
-runGenesisCmds (GenesisKeyGenDelegate vk sk ctr) = runGenesisKeyGenDelegate vk sk ctr
-runGenesisCmds (GenesisKeyGenUTxO vk sk) = runGenesisKeyGenUTxO vk sk
-runGenesisCmds (GenesisCmdKeyHash vk) = runGenesisKeyHash vk
-runGenesisCmds (GenesisVerKey vk sk) = runGenesisVerKey vk sk
-runGenesisCmds (GenesisTxIn vk nw mOutFile) = runGenesisTxIn vk nw mOutFile
-runGenesisCmds (GenesisAddr vk nw mOutFile) = runGenesisAddr vk nw mOutFile
-runGenesisCmds (GenesisCreate fmt gd gn un ms am nw) = runGenesisCreate fmt gd gn un ms am nw
-runGenesisCmds (GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg) = runGenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
-runGenesisCmds (GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp) =
-  runGenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
-runGenesisCmds (GenesisHashFile gf) = runGenesisHashFile gf
+runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
+runLegacyGenesisCmds = \case
+  GenesisKeyGenGenesis vk sk ->
+    runGenesisKeyGenGenesis vk sk
+  GenesisKeyGenDelegate vk sk ctr ->
+    runGenesisKeyGenDelegate vk sk ctr
+  GenesisKeyGenUTxO vk sk ->
+    runGenesisKeyGenUTxO vk sk
+  GenesisCmdKeyHash vk ->
+    runGenesisKeyHash vk
+  GenesisVerKey vk sk ->
+    runGenesisVerKey vk sk
+  GenesisTxIn vk nw mOutFile ->
+    runGenesisTxIn vk nw mOutFile
+  GenesisAddr vk nw mOutFile ->
+    runGenesisAddr vk nw mOutFile
+  GenesisCreate fmt gd gn un ms am nw ->
+    runGenesisCreate fmt gd gn un ms am nw
+  GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
+    runGenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
+  GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
+    runGenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
+  GenesisHashFile gf ->
+    runGenesisHashFile gf
 
 --
 -- Genesis command implementations
@@ -1378,16 +1321,6 @@ readConwayGenesis fpath = do
     . hoistEither $ Aeson.eitherDecode' lbs
 
 -- Protocol Parameters
-
-data ProtocolParamsError
-  = ProtocolParamsErrorFile (FileError ())
-  | ProtocolParamsErrorJSON !FilePath !Text
-
-renderProtocolParamsError :: ProtocolParamsError -> Text
-renderProtocolParamsError (ProtocolParamsErrorFile fileErr) =
-  Text.pack $ displayError fileErr
-renderProtocolParamsError (ProtocolParamsErrorJSON fp jsonErr) =
-  "Error while decoding the protocol parameters at: " <> Text.pack fp <> " Error: " <> jsonErr
 
 --TODO: eliminate this and get only the necessary params, and get them in a more
 -- helpful way rather than requiring them as a local file.

@@ -1,14 +1,10 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.EraBased.Errors.Common
+module Cardano.CLI.Types.Errors.ScriptDecodeError
   ( ScriptDecodeError(..)
   ) where
 
 import           Cardano.Api
-
---
--- Handling decoding the variety of script languages and formats
---
 
 data ScriptDecodeError =
     ScriptDecodeTextEnvelopeError TextEnvelopeError

@@ -8,6 +8,7 @@ module Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
+import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 
 import           Control.Monad.Except (ExceptT)
 import           Control.Monad.IO.Class (liftIO)
@@ -15,10 +16,6 @@ import           Control.Monad.Trans.Except.Extra
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function
-
-data GovernanceCommitteeError
-  = GovernanceCommitteeCmdWriteFileError (FileError ())
-  | GovernanceCommitteeCmdTextEnvReadFileError (FileError TextEnvelopeError)
 
 runGovernanceCommitteeCmds :: ()
   => GovernanceCommitteeCmds era

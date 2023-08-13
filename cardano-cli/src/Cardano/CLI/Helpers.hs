@@ -20,14 +20,15 @@ import qualified Cardano.Chain.Delegation as Delegation
 import qualified Cardano.Chain.Update as Update
 import qualified Cardano.Chain.UTxO as UTxO
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.HelpersError
 import           Cardano.Ledger.Binary (byronProtVer, toPlainDecoder)
 import           Cardano.Ledger.Binary.Plain (Decoder, fromCBOR)
 import           Cardano.Prelude (ConvertText (..))
 
 import           Codec.CBOR.Pretty (prettyHexEnc)
-import           Codec.CBOR.Read (DeserialiseFailure, deserialiseFromBytes)
+import           Codec.CBOR.Read (deserialiseFromBytes)
 import           Codec.CBOR.Term (decodeTerm, encodeTerm)
-import           Control.Exception (Exception (..), IOException)
+import           Control.Exception (Exception (..))
 import           Control.Monad (unless, when)
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -38,29 +39,11 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LB
 import           Data.Functor (void)
 import           Data.Text (Text)
-import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import qualified System.Console.ANSI as ANSI
 import           System.Console.ANSI
 import qualified System.Directory as IO
 import qualified System.IO as IO
-
-data HelpersError
-  = CBORPrettyPrintError !DeserialiseFailure
-  | CBORDecodingError !DeserialiseFailure
-  | IOError' !FilePath !IOException
-  | OutputMustNotAlreadyExist FilePath
-  | ReadCBORFileFailure !FilePath !Text
-  deriving Show
-
-renderHelpersError :: HelpersError -> Text
-renderHelpersError err =
-  case err of
-    OutputMustNotAlreadyExist fp -> "Output file/directory must not already exist: " <> Text.pack fp
-    ReadCBORFileFailure fp err' -> "CBOR read failure at: " <> Text.pack fp <> Text.pack (show err')
-    CBORPrettyPrintError err' -> "Error with CBOR decoding: " <> Text.pack (show err')
-    CBORDecodingError err' -> "Error with CBOR decoding: " <> Text.pack (show err')
-    IOError' fp ioE -> "Error at: " <> Text.pack fp <> " Error: " <> Text.pack (show ioE)
 
 decodeCBOR
   :: LB.ByteString

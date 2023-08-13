@@ -4,9 +4,7 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Legacy.Run.Pool
-  ( PoolCmdError(PoolCmdReadFileError)
-  , renderPoolCmdError
-  , runPoolCmds
+  ( runLegacyPoolCmds
   ) where
 
 import           Cardano.Api
@@ -15,6 +13,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Legacy.Commands.Pool
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.PoolCmdError
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
 import qualified Cardano.Ledger.Slot as Shelley
 
@@ -25,29 +24,9 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT
                    newExceptT, onLeft)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
-import           Data.Text (Text)
-import qualified Data.Text as Text
 
-data PoolCmdError
-  = PoolCmdReadFileError !(FileError TextEnvelopeError)
-  | PoolCmdReadKeyFileError !(FileError InputDecodeError)
-  | PoolCmdWriteFileError !(FileError ())
-  | PoolCmdMetadataValidationError !StakePoolMetadataValidationError
-  deriving Show
-
-renderPoolCmdError :: PoolCmdError -> Text
-renderPoolCmdError err =
-  case err of
-    PoolCmdReadFileError fileErr -> Text.pack (displayError fileErr)
-    PoolCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
-    PoolCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    PoolCmdMetadataValidationError validationErr ->
-      "Error validating stake pool metadata: " <> Text.pack (displayError validationErr)
-
-
-
-runPoolCmds :: LegacyPoolCmds -> ExceptT PoolCmdError IO ()
-runPoolCmds = \case
+runLegacyPoolCmds :: LegacyPoolCmds -> ExceptT PoolCmdError IO ()
+runLegacyPoolCmds = \case
   PoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
     runStakePoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
   PoolRetirementCert anyEra sPvkeyFp retireEpoch outfp ->
