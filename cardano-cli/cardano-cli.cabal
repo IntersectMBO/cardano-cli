@@ -70,8 +70,6 @@ library
                         Cardano.CLI.EraBased.Commands.Governance
                         Cardano.CLI.EraBased.Commands.Governance.Actions
                         Cardano.CLI.EraBased.Commands.Governance.Committee
-                        Cardano.CLI.EraBased.Errors.Common
-                        Cardano.CLI.EraBased.Errors.StakeAddress
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Options.Governance.Actions
@@ -121,9 +119,39 @@ library
                         Cardano.CLI.Run.Ping
                         Cardano.CLI.TopHandler
                         Cardano.CLI.Types.Common
+                        Cardano.CLI.Types.Errors.AddressCmdError
+                        Cardano.CLI.Types.Errors.BootstrapWitnessError
+                        Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
+                        Cardano.CLI.Types.Errors.EraBasedDelegationError
+                        Cardano.CLI.Types.Errors.EraBasedRegistrationError
+                        Cardano.CLI.Types.Errors.EraBasedVoteError
+                        Cardano.CLI.Types.Errors.GenesisCmdError
+                        Cardano.CLI.Types.Errors.GovernanceActionsError
+                        Cardano.CLI.Types.Errors.GovernanceCmdError
+                        Cardano.CLI.Types.Errors.GovernanceCommitteeError
+                        Cardano.CLI.Types.Errors.HelpersError
+                        Cardano.CLI.Types.Errors.ItnKeyConversionError
+                        Cardano.CLI.Types.Errors.KeyCmdError
+                        Cardano.CLI.Types.Errors.LegacyClientCmdError
+                        Cardano.CLI.Types.Errors.NodeCmdError
+                        Cardano.CLI.Types.Errors.PoolCmdError
+                        Cardano.CLI.Types.Errors.ProtocolParamsError
+                        Cardano.CLI.Types.Errors.QueryCmdError
+                        Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
+                        Cardano.CLI.Types.Errors.ScriptDecodeError
+                        Cardano.CLI.Types.Errors.ScriptLanguageValidationError
+                        Cardano.CLI.Types.Errors.StakeAddressCmdError
+                        Cardano.CLI.Types.Errors.StakeAddressDelegationError
+                        Cardano.CLI.Types.Errors.StakeAddressRegistrationError
+                        Cardano.CLI.Types.Errors.TextViewFileError
+                        Cardano.CLI.Types.Errors.TxAuxScriptsValidationError
+                        Cardano.CLI.Types.Errors.TxCmdError
+                        Cardano.CLI.Types.Errors.TxFeeValidationError
                         Cardano.CLI.Types.Governance
                         Cardano.CLI.Types.Key
                         Cardano.CLI.Types.Output
+                        Cardano.CLI.Types.TxFeature
+                        Cardano.CLI.Types.TxFeature.Core
 
   other-modules:        Paths_cardano_cli
   autogen-modules:      Paths_cardano_cli

@@ -9,8 +9,8 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Control.Monad

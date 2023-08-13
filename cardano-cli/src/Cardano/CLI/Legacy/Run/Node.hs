@@ -1,9 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 
+
+{- HLINT ignore "Reduce duplication" -}
+
 module Cardano.CLI.Legacy.Run.Node
-  ( NodeCmdError(NodeCmdReadFileError)
-  , renderNodeCmdError
-  , runNodeCmds
+  ( runLegacyNodeCmds
   , runNodeIssueOpCert
   , runNodeKeyGenCold
   , runNodeKeyGenKES
@@ -16,6 +17,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Legacy.Commands.Node
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.IO.Class (MonadIO (..))
@@ -23,51 +25,16 @@ import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, newExceptT)
 import qualified Data.ByteString.Char8 as BS
 import           Data.String (fromString)
-import           Data.Text (Text)
-import qualified Data.Text as Text
 import           Data.Word (Word64)
 
-{- HLINT ignore "Reduce duplication" -}
-
-data NodeCmdError
-  = NodeCmdReadFileError !(FileError TextEnvelopeError)
-  | NodeCmdReadKeyFileError !(FileError InputDecodeError)
-  | NodeCmdWriteFileError !(FileError ())
-  | NodeCmdOperationalCertificateIssueError !OperationalCertIssueError
-  | NodeCmdVrfSigningKeyCreationError
-      FilePath
-      -- ^ Target path
-      FilePath
-      -- ^ Temp path
-  deriving Show
-
-renderNodeCmdError :: NodeCmdError -> Text
-renderNodeCmdError err =
-  case err of
-    NodeCmdVrfSigningKeyCreationError targetPath tempPath ->
-      Text.pack $ "Error creating VRF signing key file. Target path: " <> targetPath
-      <> " Temporary path: " <> tempPath
-
-    NodeCmdReadFileError fileErr -> Text.pack (displayError fileErr)
-
-    NodeCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
-
-    NodeCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-
-    NodeCmdOperationalCertificateIssueError issueErr ->
-      Text.pack (displayError issueErr)
-
-
-runNodeCmds :: LegacyNodeCmds -> ExceptT NodeCmdError IO ()
-runNodeCmds (NodeKeyGenCold fmt vk sk ctr) = runNodeKeyGenCold fmt vk sk ctr
-runNodeCmds (NodeKeyGenKES  fmt vk sk)     = runNodeKeyGenKES fmt vk sk
-runNodeCmds (NodeKeyGenVRF  fmt vk sk)     = runNodeKeyGenVRF fmt vk sk
-runNodeCmds (NodeKeyHashVRF vk mOutFp) = runNodeKeyHashVRF vk mOutFp
-runNodeCmds (NodeNewCounter vk ctr out) = runNodeNewCounter vk ctr out
-runNodeCmds (NodeIssueOpCert vk sk ctr p out) =
+runLegacyNodeCmds :: LegacyNodeCmds -> ExceptT NodeCmdError IO ()
+runLegacyNodeCmds (NodeKeyGenCold fmt vk sk ctr) = runNodeKeyGenCold fmt vk sk ctr
+runLegacyNodeCmds (NodeKeyGenKES  fmt vk sk)     = runNodeKeyGenKES fmt vk sk
+runLegacyNodeCmds (NodeKeyGenVRF  fmt vk sk)     = runNodeKeyGenVRF fmt vk sk
+runLegacyNodeCmds (NodeKeyHashVRF vk mOutFp) = runNodeKeyHashVRF vk mOutFp
+runLegacyNodeCmds (NodeNewCounter vk ctr out) = runNodeNewCounter vk ctr out
+runLegacyNodeCmds (NodeIssueOpCert vk sk ctr p out) =
   runNodeIssueOpCert vk sk ctr p out
-
-
 
 --
 -- Node command implementations

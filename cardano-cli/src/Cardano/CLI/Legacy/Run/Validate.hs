@@ -37,21 +37,16 @@ module Cardano.CLI.Legacy.Run.Validate
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Types.Errors.ScriptLanguageValidationError
+import           Cardano.CLI.Types.Errors.TxAuxScriptsValidationError
+import           Cardano.CLI.Types.Errors.TxFeeValidationError
+
 import           Prelude
 
 import           Data.Bifunctor (first)
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
 import qualified Data.Text as Text
-
-data ScriptLanguageValidationError
-  = ScriptLanguageValidationError AnyScriptLanguage AnyCardanoEra
-  deriving Show
-
-instance Error ScriptLanguageValidationError where
-  displayError (ScriptLanguageValidationError lang era) =
-    "The script language " <> show lang <> " is not supported in the " <>
-    Text.unpack (renderEra era) <> " era."
 
 validateScriptSupportedInEra
   :: CardanoEra era
@@ -62,18 +57,6 @@ validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
     Nothing -> Left $ ScriptLanguageValidationError
                         (AnyScriptLanguage lang) (anyCardanoEra era)
     Just script' -> pure script'
-
-
-data TxFeeValidationError
-  = TxFeatureImplicitFeesE AnyCardanoEra -- ^ Expected an explicit fee
-  | TxFeatureExplicitFeesE AnyCardanoEra -- ^ Expected an implicit fee
-  deriving Show
-
-instance Error TxFeeValidationError where
-  displayError (TxFeatureImplicitFeesE era) =
-    "Implicit transaction fee not supported in " <> Text.unpack (renderEra era)
-  displayError (TxFeatureExplicitFeesE era) =
-    "Explicit transaction fee not supported in " <> Text.unpack (renderEra era)
 
 validateTxFee :: CardanoEra era
               -> Maybe Lovelace
@@ -172,17 +155,6 @@ validateTxValidityUpperBound era (Just slot) =
                     $ getIsCardanoEraConstraint era
                     $ AnyCardanoEra era
     Just supported -> return (TxValidityUpperBound supported slot)
-
-data TxAuxScriptsValidationError
-  = TxAuxScriptsNotSupportedInEra AnyCardanoEra
-  | TxAuxScriptsLanguageError ScriptLanguageValidationError
-  deriving Show
-
-instance Error TxAuxScriptsValidationError where
-  displayError (TxAuxScriptsNotSupportedInEra era) =
-    "Transaction auxiliary scripts are not supported in " <> Text.unpack (renderEra era)
-  displayError (TxAuxScriptsLanguageError e) =
-    "Transaction auxiliary scripts error: " <> displayError e
 
 validateTxAuxScripts
   :: CardanoEra era

@@ -15,12 +15,8 @@
 
 module Cardano.CLI.Legacy.Run.Query
   ( DelegationsAndRewards(..)
-  , QueryCmdError
-  , QueryCmdLocalStateQueryError (..)
   , renderOpCertIntervalInformation
-  , renderQueryCmdError
-  , renderLocalStateQueryError
-  , runQueryCmds
+  , runLegacyQueryCmds
   , toEpochInfo
   , utcTimeToSlotNo
   , determineEra
@@ -33,12 +29,13 @@ import qualified Cardano.Api as Api
 import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, renderHelpersError)
+import           Cardano.CLI.Helpers (hushM, pPrintCBOR)
 import           Cardano.CLI.Legacy.Commands.Query
-import           Cardano.CLI.Legacy.Run.Genesis (GenesisCmdError, readAndDecodeShelleyGenesis)
+import           Cardano.CLI.Legacy.Run.Genesis (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Pretty
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.QueryCmdError
+import           Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile)
 import qualified Cardano.CLI.Types.Output as O
@@ -54,9 +51,7 @@ import qualified Cardano.Ledger.Shelley.LedgerState as SL
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import           Ouroboros.Consensus.BlockchainTime.WallClock.Types (RelativeTime (..),
                    toRelativeTime)
-import           Ouroboros.Consensus.Cardano.Block as Consensus (EraMismatch (..))
 import qualified Ouroboros.Consensus.HardFork.History as Consensus
-import qualified Ouroboros.Consensus.HardFork.History.Qry as Qry
 import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
 import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
 import           Ouroboros.Consensus.Protocol.TPraos (StandardCrypto)
@@ -90,11 +85,8 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as T
 import qualified Data.Text.IO as Text
-import           Data.Text.Lazy (toStrict)
-import           Data.Text.Lazy.Builder (toLazyText)
 import           Data.Time.Clock
 import qualified Data.Vector as Vector
-import           Formatting.Buildable (build)
 import           Numeric (showEFloat)
 import           Prettyprinter
 import qualified System.IO as IO
@@ -103,66 +95,8 @@ import           Text.Printf (printf)
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Redundant flip" -}
 
-data QueryCmdError
-  = QueryCmdLocalStateQueryError !QueryCmdLocalStateQueryError
-  | QueryCmdWriteFileError !(FileError ())
-  | QueryCmdHelpersError !HelpersError
-  | QueryCmdAcquireFailureError !AcquiringFailure
-  | QueryCmdEraConsensusModeMismatchError !AnyConsensusMode !AnyCardanoEra
-  | QueryCmdByronEraInvalidError
-  | QueryCmdEraMismatchError !EraMismatch
-  | QueryCmdUnsupportedModeError !AnyConsensusMode
-  | QueryCmdPastHorizonError !Qry.PastHorizonException
-  | QueryCmdSystemStartUnavailableError
-  | QueryCmdGenesisReadError !GenesisCmdError
-  | QueryCmdLeaderShipError !LeadershipError
-  | QueryCmdTextEnvelopeReadError !(FileError TextEnvelopeError)
-  | QueryCmdTextReadError !(FileError InputDecodeError)
-  | QueryCmdOpCertCounterReadError !(FileError TextEnvelopeError)
-  | QueryCmdProtocolStateDecodeFailureError !(LBS.ByteString, DecoderError)
-  | QueryCmdPoolStateDecodeError DecoderError
-  | QueryCmdStakeSnapshotDecodeError DecoderError
-  | QueryCmdUnsupportedNtcVersionError !UnsupportedNtcVersionError
-  | QueryCmdProtocolParameterConversionError !ProtocolParametersConversionError
-  deriving Show
-
-renderQueryCmdError :: QueryCmdError -> Text
-renderQueryCmdError err =
-  case err of
-    QueryCmdLocalStateQueryError lsqErr -> renderLocalStateQueryError lsqErr
-    QueryCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    QueryCmdHelpersError helpersErr -> renderHelpersError helpersErr
-    QueryCmdAcquireFailureError acquireFail -> Text.pack $ show acquireFail
-    QueryCmdByronEraInvalidError -> "This query cannot be used for the Byron era"
-    QueryCmdEraConsensusModeMismatchError (AnyConsensusMode cMode) (AnyCardanoEra era) ->
-      "Consensus mode and era mismatch. Consensus mode: " <> textShow cMode <>
-      " Era: " <> textShow era
-    QueryCmdEraMismatchError (EraMismatch ledgerEra queryEra) ->
-      "\nAn error mismatch occurred." <> "\nSpecified query era: " <> queryEra <>
-      "\nCurrent ledger era: " <> ledgerEra
-    QueryCmdUnsupportedModeError mode -> "Unsupported mode: " <> renderMode mode
-    QueryCmdPastHorizonError e -> "Past horizon: " <> textShow e
-    QueryCmdSystemStartUnavailableError -> "System start unavailable"
-    QueryCmdGenesisReadError err' -> Text.pack $ displayError err'
-    QueryCmdLeaderShipError e -> Text.pack $ displayError e
-    QueryCmdTextEnvelopeReadError e -> Text.pack $ displayError e
-    QueryCmdTextReadError e -> Text.pack $ displayError e
-    QueryCmdOpCertCounterReadError e -> Text.pack $ displayError e
-    QueryCmdProtocolStateDecodeFailureError (_, decErr) ->
-      "Failed to decode the protocol state: " <> toStrict (toLazyText $ build decErr)
-    QueryCmdPoolStateDecodeError decoderError ->
-      "Failed to decode PoolState.  Error: " <> Text.pack (show decoderError)
-    QueryCmdStakeSnapshotDecodeError decoderError ->
-      "Failed to decode StakeSnapshot.  Error: " <> Text.pack (show decoderError)
-    QueryCmdUnsupportedNtcVersionError (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
-      "Unsupported feature for the node-to-client protocol version.\n" <>
-      "This query requires at least " <> textShow minNtcVersion <> " but the node negotiated " <> textShow ntcVersion <> ".\n" <>
-      "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
-    QueryCmdProtocolParameterConversionError ppce ->
-      Text.pack $ "Failed to convert protocol parameter: " <> displayError ppce
-
-runQueryCmds :: LegacyQueryCmds -> ExceptT QueryCmdError IO ()
-runQueryCmds cmd =
+runLegacyQueryCmds :: LegacyQueryCmds -> ExceptT QueryCmdError IO ()
+runLegacyQueryCmds cmd =
   case cmd of
     QueryLeadershipSchedule mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs ->
       runQueryLeadershipSchedule mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs
@@ -949,19 +883,6 @@ runQueryStakeAddressInfo socketPath (AnyConsensusModeParams cModeParams) (StakeA
     & onLeft left
 
 -- -------------------------------------------------------------------------------------------------
-
--- | An error that can occur while querying a node's local state.
-newtype QueryCmdLocalStateQueryError
-  = EraMismatchError EraMismatch
-  -- ^ A query from a certain era was applied to a ledger from a different
-  -- era.
-  deriving (Eq, Show)
-
-renderLocalStateQueryError :: QueryCmdLocalStateQueryError -> Text
-renderLocalStateQueryError lsqErr =
-  case lsqErr of
-    EraMismatchError err ->
-      "A query from a certain era was applied to a ledger from a different era: " <> textShow err
 
 writeStakeAddressInfo
   :: Maybe (File () Out)

@@ -6,18 +6,13 @@ module Cardano.CLI.EraBased.Vote where
 import           Cardano.Api.Ledger (HasKeyRole (coerceKeyRole))
 import           Cardano.Api.Shelley
 
-import           Cardano.Binary (DecoderError)
+import           Cardano.CLI.Types.Errors.EraBasedVoteError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import           Data.Bifunctor
-
-data EraBasedVoteError
-  = EraBasedVoteReadError !(FileError InputDecodeError)
-  | EraBasedVotingCredentialDecodeError !DecoderError
-  | EraBasedVoteWriteError !(FileError ())
 
 runGovernanceVote
   :: AnyVote

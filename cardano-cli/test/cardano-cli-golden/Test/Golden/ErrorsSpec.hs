@@ -1,7 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-
 
 module Test.Golden.ErrorsSpec
   ( test_GovernanceCmdError
@@ -11,9 +9,9 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary
-import           Cardano.CLI.Commands.Governance
-import           Cardano.CLI.Legacy.Run.StakeAddress
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 
 import           Data.Text.Encoding.Error
 import           GHC.Stack (HasCallStack)

@@ -1,13 +1,13 @@
-module Cardano.CLI.EraBased.Errors.StakeAddress
+module Cardano.CLI.Types.Errors.StakeAddressCmdError
   ( StakeAddressCmdError(..)
-  , StakeAddressRegistrationError(..)
-  , StakeAddressDelegationError(..)
   , renderStakeAddressCmdError
   ) where
 
 import           Cardano.Api
 
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
+import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 
 import           Data.Text (Text)
 import qualified Data.Text as Text
@@ -28,11 +28,3 @@ renderStakeAddressCmdError err =
     StakeAddressCmdReadScriptFileError fileErr -> Text.pack (displayError fileErr)
     StakeRegistrationError regErr -> Text.pack $ show regErr
     StakeDelegationError delegErr -> Text.pack $ show delegErr
-
-data StakeAddressRegistrationError =
-  StakeAddressRegistrationDepositRequiredError
-  deriving Show
-
-newtype StakeAddressDelegationError =
-  VoteDelegationNotSupportedError AnyShelleyToBabbageEra
-  deriving Show
