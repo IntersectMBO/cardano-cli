@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -10,20 +11,25 @@ module Cardano.CLI.EraBased.Run.Certificate
 
   , runGovernanceRegistrationCertificate
   , runGovernanceDelegationCertificate
+
+  , getStakeCredentialFromVerifier
+  , getStakeCredentialFromIdentifier
+  , getStakeAddressFromVerifier
   ) where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Run.Legacy.StakeAddress
+import           Cardano.CLI.EraBased.Errors.StakeAddress
+import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
-
 
 -- Delegation Certificate related
 
@@ -270,3 +276,34 @@ runGovernanceRegistrationCertificate anyReg outfp =
             $ textEnvelopeToJSON description registrationCert
 
 --------------------------------------------------------------------------------
+
+getStakeCredentialFromVerifier
+  :: StakeVerifier
+  -> ExceptT ShelleyStakeAddressCmdError IO StakeCredential
+getStakeCredentialFromVerifier = \case
+  StakeVerifierScriptFile (ScriptFile sFile) -> do
+    ScriptInAnyLang _ script <-
+      firstExceptT ShelleyStakeAddressCmdReadScriptFileError $
+        readFileScriptInAnyLang sFile
+    pure $ StakeCredentialByScript $ hashScript script
+
+  StakeVerifierKey stakeVerKeyOrFile -> do
+    stakeVerKey <-
+      firstExceptT ShelleyStakeAddressCmdReadKeyFileError
+        . newExceptT
+        $ readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
+    pure $ StakeCredentialByKey $ verificationKeyHash stakeVerKey
+
+getStakeCredentialFromIdentifier
+  :: StakeIdentifier
+  -> ExceptT ShelleyStakeAddressCmdError IO StakeCredential
+getStakeCredentialFromIdentifier = \case
+  StakeIdentifierAddress stakeAddr -> pure $ stakeAddressCredential stakeAddr
+  StakeIdentifierVerifier stakeVerifier -> getStakeCredentialFromVerifier stakeVerifier
+
+getStakeAddressFromVerifier
+  :: NetworkId
+  -> StakeVerifier
+  -> ExceptT ShelleyStakeAddressCmdError IO StakeAddress
+getStakeAddressFromVerifier networkId stakeVerifier =
+  makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier

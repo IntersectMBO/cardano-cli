@@ -9,7 +9,7 @@
 
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module Cardano.CLI.Run.Legacy.Transaction
+module Cardano.CLI.Legacy.Run.Transaction
   ( ShelleyTxCmdError(..)
   , renderShelleyTxCmdError
   , runTransactionCmds
@@ -21,13 +21,13 @@ import           Cardano.Api
 import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
-import           Cardano.CLI.Run.Legacy.Genesis
-import           Cardano.CLI.Run.Legacy.Read
-import           Cardano.CLI.Run.Legacy.Validate
+import           Cardano.CLI.Legacy.Commands.Transaction
+import           Cardano.CLI.Legacy.Run.Genesis
+import           Cardano.CLI.Legacy.Run.Validate
+import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Legacy
 import           Cardano.CLI.Types.Output
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
@@ -265,7 +265,7 @@ renderFeature TxFeatureTotalCollateral      = "Total collateral"
 renderFeature TxFeatureReferenceInputs      = "Reference inputs"
 renderFeature TxFeatureReturnCollateral     = "Return collateral"
 
-runTransactionCmds :: TransactionCmds -> ExceptT ShelleyTxCmdError IO ()
+runTransactionCmds :: LegacyTransactionCmds -> ExceptT ShelleyTxCmdError IO ()
 runTransactionCmds cmd =
   case cmd of
     TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns

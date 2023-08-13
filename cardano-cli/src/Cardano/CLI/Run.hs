@@ -12,12 +12,12 @@ module Cardano.CLI.Run
 import           Cardano.CLI.Byron.Commands (ByronCommand)
 import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCmdError,
                    runByronClientCommand)
-import           Cardano.CLI.Commands.Legacy (LegacyCommand)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run
+import           Cardano.CLI.Legacy.Commands (LegacyCmds)
+import           Cardano.CLI.Legacy.Run (LegacyClientCmdError, renderLegacyClientCmdError,
+                   runLegacyCmds)
 import           Cardano.CLI.Render (customRenderHelp)
-import           Cardano.CLI.Run.Legacy (LegacyClientCmdError, renderLegacyClientCmdError,
-                   runLegacyClientCommand)
 import           Cardano.CLI.Run.Ping (PingClientCmdError (..), PingCmd (..),
                    renderPingClientCmdError, runPingCmd)
 import           Cardano.Git.Rev (gitRev)
@@ -47,7 +47,7 @@ data ClientCommand =
   | ByronCommand ByronCommand
 
     -- | Legacy shelley-based Commands
-  | LegacyCommand LegacyCommand
+  | LegacyCmds LegacyCmds
 
   | CliPingCommand PingCmd
 
@@ -57,7 +57,7 @@ data ClientCommand =
 data ClientCommandErrors
   = AnyEraCmdError AnyEraCmdError
   | ByronClientError ByronClientCmdError
-  | LegacyClientError LegacyCommand LegacyClientCmdError
+  | LegacyClientError LegacyCmds LegacyClientCmdError
   | PingClientError PingClientCmdError
 
 runClientCommand :: ClientCommand -> ExceptT ClientCommandErrors IO ()
@@ -66,8 +66,8 @@ runClientCommand = \case
     firstExceptT AnyEraCmdError $ runAnyEraCommand cmd
   ByronCommand c ->
     firstExceptT ByronClientError $ runByronClientCommand c
-  LegacyCommand c ->
-    firstExceptT (LegacyClientError c) $ runLegacyClientCommand c
+  LegacyCmds c ->
+    firstExceptT (LegacyClientError c) $ runLegacyCmds c
   CliPingCommand c ->
     firstExceptT PingClientError $ runPingCmd c
   Help pprefs allParserInfo ->

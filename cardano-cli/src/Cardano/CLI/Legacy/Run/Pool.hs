@@ -3,7 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
-module Cardano.CLI.Run.Legacy.Pool
+module Cardano.CLI.Legacy.Run.Pool
   ( ShelleyPoolCmdError(ShelleyPoolCmdReadFileError)
   , renderShelleyPoolCmdError
   , runPoolCmds
@@ -13,9 +13,9 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Commands.Legacy
+import           Cardano.CLI.Legacy.Commands.Pool
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
-import           Cardano.CLI.Types.Legacy (PoolIdOutputFormat (..))
 import qualified Cardano.Ledger.Slot as Shelley
 
 import           Control.Monad.IO.Class (MonadIO (..))
@@ -46,7 +46,7 @@ renderShelleyPoolCmdError err =
 
 
 
-runPoolCmds :: PoolCmds -> ExceptT ShelleyPoolCmdError IO ()
+runPoolCmds :: LegacyPoolCmds -> ExceptT ShelleyPoolCmdError IO ()
 runPoolCmds = \case
   PoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
     runStakePoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp

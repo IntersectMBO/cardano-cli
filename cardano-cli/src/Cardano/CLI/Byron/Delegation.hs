@@ -17,7 +17,7 @@ import           Cardano.Api.Byron
 import qualified Cardano.Chain.Delegation as Dlg
 import           Cardano.Chain.Slotting (EpochNumber)
 import           Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
-import           Cardano.CLI.Types.Legacy (CertificateFile (..))
+import           Cardano.CLI.Types.Common (CertificateFile (..))
 import           Cardano.Crypto (ProtocolMagicId)
 import qualified Cardano.Crypto as Crypto
 import           Cardano.Ledger.Binary (Annotated (..), byronProtVer, serialize')

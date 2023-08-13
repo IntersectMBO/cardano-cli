@@ -3,7 +3,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.Run.Legacy.Key
+module Cardano.CLI.Legacy.Run.Key
   ( ShelleyKeyCmdError
   , SomeSigningKey(..)
   , renderShelleyKeyCmdError
@@ -20,11 +20,9 @@ import           Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.Byron.Key as Byron
-import           Cardano.CLI.Commands.Legacy
-import           Cardano.CLI.Types.Key (VerificationKeyTextOrFile (..),
-                   VerificationKeyTextOrFileError, readVerificationKeyTextOrFileAnyOf,
-                   renderVerificationKeyTextOrFileError)
-import           Cardano.CLI.Types.Legacy (SigningKeyFile, VerificationKeyFile)
+import           Cardano.CLI.Legacy.Commands.Key
+import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto.DSIGN as DSIGN
 import qualified Cardano.Crypto.Signing as Byron
 import qualified Cardano.Crypto.Signing as Byron.Crypto
@@ -85,7 +83,7 @@ renderShelleyKeyCmdError err =
     ShelleyKeyCmdExpectedExtendedVerificationKey someVerKey ->
       "Expected an extended verification key but got: " <> renderSomeAddressVerificationKey someVerKey
 
-runKeyCmds :: KeyCmds -> ExceptT ShelleyKeyCmdError IO ()
+runKeyCmds :: LegacyKeyCmds -> ExceptT ShelleyKeyCmdError IO ()
 runKeyCmds cmd =
   case cmd of
     KeyGetVerificationKey skf vkf ->

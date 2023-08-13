@@ -19,7 +19,7 @@ import           Cardano.Chain.Block (decCBORABlockOrBoundary)
 import qualified Cardano.Chain.Delegation as Delegation
 import qualified Cardano.Chain.Update as Update
 import qualified Cardano.Chain.UTxO as UTxO
-import           Cardano.CLI.Types.Legacy
+import           Cardano.CLI.Types.Common
 import           Cardano.Ledger.Binary (byronProtVer, toPlainDecoder)
 import           Cardano.Ledger.Binary.Plain (Decoder, fromCBOR)
 import           Cardano.Prelude (ConvertText (..))

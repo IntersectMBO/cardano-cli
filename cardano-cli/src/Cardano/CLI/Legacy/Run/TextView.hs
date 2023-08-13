@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Cardano.CLI.Run.Legacy.TextView
+module Cardano.CLI.Legacy.Run.TextView
   ( ShelleyTextViewFileError(..)
   , renderShelleyTextViewFileError
   , runTextViewCmds
@@ -8,8 +8,8 @@ module Cardano.CLI.Run.Legacy.TextView
 
 import           Cardano.Api
 
-import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.Helpers (HelpersError, pPrintCBOR, renderHelpersError)
+import           Cardano.CLI.Legacy.Commands.TextView
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -31,7 +31,7 @@ renderShelleyTextViewFileError err =
       "Error pretty printing CBOR: " <> renderHelpersError hlprsErr
 
 
-runTextViewCmds :: TextViewCmds -> ExceptT ShelleyTextViewFileError IO ()
+runTextViewCmds :: LegacyTextViewCmds -> ExceptT ShelleyTextViewFileError IO ()
 runTextViewCmds cmd =
   case cmd of
     TextViewInfo fpath mOutfile -> runTextViewInfo fpath mOutfile

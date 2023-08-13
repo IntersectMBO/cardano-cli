@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.EraBased.Governance where
+module Cardano.CLI.Legacy.Commands.Governance where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
@@ -12,14 +12,13 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Legacy
 
 import           Data.Foldable
 import           Data.Text (Text)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
-data GovernanceCmds
+data LegacyGovernanceCmds
   = GovernanceVoteCmd VoteCmd
   | GovernanceActionCmd ActionCmd
   | GovernanceMIRPayStakeAddressesCertificate
@@ -59,8 +58,8 @@ data GovernanceCmds
       (Maybe (File () Out)) -- Tx file
   deriving Show
 
-renderGovernanceCmds :: GovernanceCmds -> Text
-renderGovernanceCmds = \case
+renderLegacyGovernanceCmds :: LegacyGovernanceCmds -> Text
+renderLegacyGovernanceCmds = \case
   GovernanceVoteCmd {} -> "governance vote"
   GovernanceActionCmd {} -> "governance action"
   GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
@@ -98,35 +97,6 @@ pCreateVote envCli =
       <*> pVotingCredential
       <*> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
       <*> pFileOutDirection "out-file" "Output filepath of the vote."
-
-pVoteChoice :: Parser Vote
-pVoteChoice =
-  asum
-   [  flag' Yes $ long "yes"
-   ,  flag' No $ long "no"
-   ,  flag' Abstain $ long "abstain"
-   ]
-
-pVoterType :: Parser VType
-pVoterType =
-  asum
-   [  flag' VCC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
-   ,  flag' VDR $ mconcat [long "drep", Opt.help "Delegate representative"]
-   ,  flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
-   ]
-
-pGoveranceActionIdentifier :: Parser TxIn
-pGoveranceActionIdentifier =
-  Opt.option (readerFromParsecParser parseTxIn) $ mconcat
-    [ Opt.long "tx-in"
-    , Opt.metavar "TX-IN"
-    , Opt.help "TxIn of governance action (already on chain)."
-    ]
-
--- TODO: Conway era include "normal" stake keys
-pVotingCredential :: Parser (VerificationKeyOrFile StakePoolKey)
-pVotingCredential = pStakePoolVerificationKeyOrFile
-
 
 --------------------------------------------------------------------------------
 -- Governance action related

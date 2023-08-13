@@ -43,7 +43,7 @@ module Cardano.CLI.Types.Key
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Legacy
+import           Cardano.CLI.Types.Common
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Data.Bifunctor (Bifunctor (..))

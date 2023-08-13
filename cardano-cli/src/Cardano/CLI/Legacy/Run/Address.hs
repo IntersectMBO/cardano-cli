@@ -4,7 +4,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.Run.Legacy.Address
+module Cardano.CLI.Legacy.Run.Address
   ( ShelleyAddressCmdError(..)
   , SomeAddressVerificationKey(..)
   , buildShelleyAddress
@@ -17,14 +17,14 @@ module Cardano.CLI.Run.Legacy.Address
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Legacy (AddressCmds (..), AddressKeyType (..))
-import           Cardano.CLI.Run.Legacy.Address.Info (ShelleyAddressInfoError, runAddressInfo)
-import           Cardano.CLI.Run.Legacy.Read
+import           Cardano.CLI.Legacy.Commands.Address
+import           Cardano.CLI.Legacy.Run.Address.Info (ShelleyAddressInfoError, runAddressInfo)
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyTextOrFile,
                    VerificationKeyTextOrFileError (..), generateKeyPair, readVerificationKeyOrFile,
                    readVerificationKeyTextOrFileAnyOf, renderVerificationKeyTextOrFileError)
-import           Cardano.CLI.Types.Legacy
+import           Cardano.CLI.Types.Common
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -58,7 +58,7 @@ renderShelleyAddressCmdError err =
     ShelleyAddressCmdExpectedPaymentVerificationKey someAddress ->
       "Expected payment verification key but got: " <> renderSomeAddressVerificationKey someAddress
 
-runAddressCmds :: AddressCmds -> ExceptT ShelleyAddressCmdError IO ()
+runAddressCmds :: LegacyAddressCmds -> ExceptT ShelleyAddressCmdError IO ()
 runAddressCmds cmd =
   case cmd of
     AddressKeyGen fmt kt vkf skf -> runAddressKeyGenToFile fmt kt vkf skf
