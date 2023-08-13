@@ -34,8 +34,8 @@ import           Cardano.Api hiding (txAuxScripts, txMetadata, txOuts)
 import qualified Cardano.Api.Byron as Api
 import qualified Cardano.Api.Shelley as Api
 
+import           Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
-import           Cardano.CLI.Legacy.Commands.Transaction
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -74,7 +74,7 @@ import qualified System.IO as IO
 
 {- HLINT ignore "Use let" -}
 
-runTransactionCmds :: LegacyTransactionCmds -> ExceptT TxCmdError IO ()
+runTransactionCmds :: TransactionCmds -> ExceptT TxCmdError IO ()
 runTransactionCmds = \case
   TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
           reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
