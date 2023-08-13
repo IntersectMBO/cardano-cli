@@ -8,8 +8,24 @@
 
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module Cardano.CLI.Legacy.Run.Transaction
-  ( runLegacyTransactionCmds
+module Cardano.CLI.EraBased.Run.Transaction
+  ( runTransactionCmds
+
+  , runTxBuild
+  , runTxBuildCmd
+  , runTxBuildRaw
+  , runTxBuildRawCmd
+  , runTxCalculateMinFee
+  , runTxCalculateMinRequiredUTxO
+  , runTxCreatePolicyId
+  , runTxCreateWitness
+  , runTxGetTxId
+  , runTxHashScriptData
+  , runTxSign
+  , runTxSignWitness
+  , runTxSubmit
+  , runTxView
+
   , readFileTx
   , toTxOutInAnyEra
   ) where
@@ -58,8 +74,8 @@ import qualified System.IO as IO
 
 {- HLINT ignore "Use let" -}
 
-runLegacyTransactionCmds :: LegacyTransactionCmds -> ExceptT TxCmdError IO ()
-runLegacyTransactionCmds = \case
+runTransactionCmds :: LegacyTransactionCmds -> ExceptT TxCmdError IO ()
+runTransactionCmds = \case
   TxBuild mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
           reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
           mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote

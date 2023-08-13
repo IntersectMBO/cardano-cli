@@ -65,6 +65,8 @@ module Cardano.CLI.Read
   , fileOrPipePath
   , fileOrPipeCache
   , readFileOrPipe
+
+  , readProtocolParameters
   ) where
 
 import           Cardano.Api as Api
@@ -72,6 +74,7 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Governance
 
 import           Prelude
@@ -893,3 +896,14 @@ readTextEnvelopeCddlFromFileOrPipe file = do
             readFileOrPipe file
     firstExceptT (FileError path . TextEnvelopeCddlAesonDecodeError path)
       . hoistEither $ Aeson.eitherDecode' bs
+
+--TODO: eliminate this and get only the necessary params, and get them in a more
+-- helpful way rather than requiring them as a local file.
+readProtocolParameters :: ()
+  => ProtocolParamsFile
+  -> ExceptT ProtocolParamsError IO ProtocolParameters
+readProtocolParameters (ProtocolParamsFile fpath) = do
+  pparams <- handleIOExceptT (ProtocolParamsErrorFile . FileIOError fpath) $ LBS.readFile fpath
+  firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither $
+    Aeson.eitherDecode' pparams
+
