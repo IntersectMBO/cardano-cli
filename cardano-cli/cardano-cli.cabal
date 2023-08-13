@@ -75,6 +75,7 @@ library
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Options.Governance.Actions
                         Cardano.CLI.EraBased.Options.Governance.Committee
+                        Cardano.CLI.EraBased.Options.Transaction
                         Cardano.CLI.EraBased.Run
                         Cardano.CLI.EraBased.Run.Certificate
                         Cardano.CLI.EraBased.Run.Governance

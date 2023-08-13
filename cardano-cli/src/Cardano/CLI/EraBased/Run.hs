@@ -18,6 +18,7 @@ import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
+import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.EraBased.Vote
 
 import           Control.Monad.Trans.Except
@@ -39,9 +40,11 @@ runAnyEraCommand = \case
     firstExceptT AnyEraCmdGenericError $ shelleyBasedEraConstraints sbe $ runEraBasedCommand cmd
 
 runEraBasedCommand :: ()
-  => EraBasedCommand era -> ExceptT () IO ()
+  => EraBasedCommand era
+  -> ExceptT () IO ()
 runEraBasedCommand = \case
-  EraBasedGovernanceCmds cmd -> runEraBasedGovernanceCmds cmd
+  EraBasedGovernanceCmds  cmd -> firstExceptT (const ()) $  runEraBasedGovernanceCmds  cmd
+  EraBasedTransactionCmds cmd -> firstExceptT (const ()) $  runTransactionCmds         cmd
 
 runEraBasedGovernanceCmds :: ()
   => EraBasedGovernanceCmds era
@@ -77,6 +80,7 @@ runEraBasedGovernanceCmds = \case
   EraBasedGovernanceActionCmds cmds ->
     firstExceptT (const ()) -- TODO: Conway era - fix error handling
       $ runGovernanceActionCmds cmds
+
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era
   -> ExceptT () IO ()
