@@ -12,8 +12,10 @@ module Cardano.CLI.EraBased.Commands
 import           Cardano.Api (CardanoEra (..), ShelleyBasedEra (..))
 
 import           Cardano.CLI.Environment
+import           Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Governance
+import           Cardano.CLI.EraBased.Options.Transaction
 
 import           Data.Foldable
 import           Data.Text (Text)
@@ -23,12 +25,16 @@ import qualified Options.Applicative as Opt
 data AnyEraCommand where
   AnyEraCommandOf :: ShelleyBasedEra era -> EraBasedCommand era -> AnyEraCommand
 
-newtype EraBasedCommand era
-  = EraBasedGovernanceCmds (EraBasedGovernanceCmds era)
+data EraBasedCommand era
+  = EraBasedGovernanceCmds
+      (EraBasedGovernanceCmds era)
+  | EraBasedTransactionCmds
+      (TransactionCmds era)
 
 renderEraBasedCommand :: EraBasedCommand era -> Text
 renderEraBasedCommand = \case
-  EraBasedGovernanceCmds cmd -> renderEraBasedGovernanceCmds cmd
+  EraBasedGovernanceCmds  cmd -> renderEraBasedGovernanceCmds cmd
+  EraBasedTransactionCmds cmd -> renderTransactionCmds        cmd
 
 pAnyEraCommand :: EnvCli -> Parser AnyEraCommand
 pAnyEraCommand envCli =
@@ -67,5 +73,8 @@ pEraBasedCommand envCli era =
   asum
     [ subParser "governance"
         $ Opt.info (EraBasedGovernanceCmds <$> pEraBasedGovernanceCmds envCli era)
+        $ Opt.progDesc "Era-based governance commands"
+    ,  subParser "transaction"
+        $ Opt.info (EraBasedTransactionCmds <$> parseTransactionCmds envCli era)
         $ Opt.progDesc "Era-based governance commands"
     ]
