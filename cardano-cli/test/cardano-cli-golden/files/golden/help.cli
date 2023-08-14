@@ -519,6 +519,7 @@ Usage: cardano-cli conway governance
                                        | vote
                                        | committee
                                        | action
+                                       | drep
                                        )
 
   Era-based governance commands
@@ -649,6 +650,15 @@ Usage: cardano-cli conway governance action create-constitution --governance-act
 
   Create a constitution.
 
+Usage: cardano-cli conway governance drep key-gen
+
+  Delegate Representative commands.
+
+Usage: cardano-cli conway governance drep key-gen --verification-key-file FILE
+                                                    --signing-key-file FILE
+
+  Generate Delegate Representative verification and signing keys.
+
 Usage: cardano-cli latest governance
 
   Latest era commands (Babbage)
@@ -758,6 +768,7 @@ Usage: cardano-cli experimental governance
                                              | vote
                                              | committee
                                              | action
+                                             | drep
                                              )
 
   Era-based governance commands
@@ -887,6 +898,15 @@ Usage: cardano-cli experimental governance action create-constitution --governan
                                                                         --out-file FILE
 
   Create a constitution.
+
+Usage: cardano-cli experimental governance drep key-gen
+
+  Delegate Representative commands.
+
+Usage: cardano-cli experimental governance drep key-gen --verification-key-file FILE
+                                                          --signing-key-file FILE
+
+  Generate Delegate Representative verification and signing keys.
 
 Usage: cardano-cli legacy Legacy commands
 
