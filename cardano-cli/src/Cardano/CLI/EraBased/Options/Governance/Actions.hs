@@ -10,7 +10,6 @@ import           Cardano.Api.Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
-import           Cardano.CLI.EraBased.Legacy
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.Ledger.BaseTypes (NonNegativeInterval)
 import qualified Cardano.Ledger.BaseTypes as Ledger
@@ -122,9 +121,9 @@ mkProtocolVersionOrErr (majorProtVer, minorProtVer) =
     Nothing ->
       error $ "mkProtocolVersionOrErr: invalid protocol version " <> show (majorProtVer, minorProtVer)
 
-pCommonProtocolParameters :: Parser CommonProtocolParameters
+pCommonProtocolParameters :: Parser CommonProtocolParametersUpdate
 pCommonProtocolParameters =
-  CommonProtocolParameters
+  CommonProtocolParametersUpdate
     <$> convertToLedger toShelleyLovelace (optional pMinFeeConstantFactor)
     <*> convertToLedger toShelleyLovelace (optional pMinFeePerByteFactor)
     <*> convertToLedger id (optional pMaxBodySize)

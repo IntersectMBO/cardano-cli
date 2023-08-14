@@ -121,10 +121,13 @@ data ShelleyTxCmdError
   | ShelleyTxCmdTxCertificatesValidationError TxCertificatesValidationError
   | ShelleyTxCmdTxUpdateProposalValidationError TxUpdateProposalValidationError
   | ShelleyTxCmdScriptValidityValidationError TxScriptValidityValidationError
+  | ShelleyTxCmdProtocolParamsConverstionError ProtocolParametersConversionError
 
 renderShelleyTxCmdError :: ShelleyTxCmdError -> Text
 renderShelleyTxCmdError err =
   case err of
+    ShelleyTxCmdProtocolParamsConverstionError err' ->
+      "Error while converting protocol parameters: " <> Text.pack (displayError err')
     ShelleyTxCmdVoteError voteErr -> Text.pack $ show voteErr
     ShelleyTxCmdConstitutionError constErr -> Text.pack $ show constErr
     ShelleyTxCmdReadTextViewFileError fileErr -> Text.pack (displayError fileErr)
@@ -420,12 +423,14 @@ runTxBuildCmd
       let BuildTxWith mTxProtocolParams = txProtocolParams txBodycontent
 
       pparams <- pure mTxProtocolParams & onNothing (left ShelleyTxCmdProtocolParametersNotPresentInTxBody)
+      pp <- case cardanoEraStyle cEra of
+              LegacyByronEra -> left ShelleyTxCmdByronEra
+              ShelleyBasedEra sbe ->
+                hoistEither . first ShelleyTxCmdProtocolParamsConverstionError $ toLedgerPParams sbe pparams
 
       executionUnitPrices <- pure (protocolParamPrices pparams) & onNothing (left ShelleyTxCmdPParamExecutionUnitsNotAvailable)
 
       let consensusMode = consensusModeOnly cModeParams
-      bpp <- hoistEither . first (ShelleyTxCmdTxBodyError . TxBodyProtocolParamsConversionError) $
-        bundleProtocolParams cEra pparams
 
       case consensusMode of
         CardanoMode -> do
@@ -447,7 +452,7 @@ runTxBuildCmd
             firstExceptT ShelleyTxCmdTxExecUnitsErr $ hoistEither
               $ evaluateTransactionExecutionUnits
                   systemStart (toLedgerEpochInfo eraHistory)
-                  bpp txEraUtxo balancedTxBody
+                  pp txEraUtxo balancedTxBody
 
           scriptCostOutput <-
             firstExceptT ShelleyTxCmdPlutusScriptCostErr $ hoistEither
@@ -714,7 +719,7 @@ runTxBuild
   validatedTxScriptValidity <- hoistEither (first ShelleyTxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity)
 
   case (consensusMode, cardanoEraStyle era) of
-    (CardanoMode, ShelleyBasedEra _sbe) -> do
+    (CardanoMode, ShelleyBasedEra sbe) -> do
       void $ pure (toEraInMode era CardanoMode)
         & onNothing (left (ShelleyTxCmdEraConsensusModeMismatchTxBalance outputOptions
                             (AnyConsensusMode CardanoMode) (AnyCardanoEra era)))
@@ -742,6 +747,8 @@ runTxBuild
         lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs nodeEraCerts)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError)
+
+      pp <- hoistEither . first ShelleyTxCmdProtocolParamsConverstionError $ toLedgerPParams sbe pparams
 
       validatedPParams <- hoistEither $ first ShelleyTxCmdProtocolParametersValidationError
                                       $ validateProtocolParameters era (Just pparams)
@@ -785,7 +792,7 @@ runTxBuild
         firstExceptT ShelleyTxCmdBalanceTxBody
           . hoistEither
           $ makeTransactionBodyAutoBalance systemStart (toLedgerEpochInfo eraHistory)
-                                           pparams stakePools stakeDelegDeposits txEraUtxo
+                                           pp stakePools stakeDelegDeposits txEraUtxo
                                            txBodyContent cAddr mOverrideWits
 
       liftIO $ putStrLn $ "Estimated transaction fee: " <> (show fee :: String)
@@ -1256,9 +1263,8 @@ runTxCalculateMinRequiredUTxO (AnyCardanoEra era) pParamsFile txOut = do
     ShelleyBasedEra sbe -> do
       firstExceptT ShelleyTxCmdPParamsErr . hoistEither
         $ checkProtocolParameters sbe pp
-      bpparams <- hoistEither . first (ShelleyTxCmdTxBodyError . TxBodyProtocolParamsConversionError) $
-        bundleProtocolParams era pp
-      let minValue = calculateMinimumUTxO sbe out bpparams
+      pp' <- hoistEither . first ShelleyTxCmdProtocolParamsConverstionError $ toLedgerPParams sbe pp
+      let minValue = calculateMinimumUTxO sbe out pp'
       liftIO . IO.print $ minValue
 
 runTxCreatePolicyId :: ScriptFile -> ExceptT ShelleyTxCmdError IO ()
