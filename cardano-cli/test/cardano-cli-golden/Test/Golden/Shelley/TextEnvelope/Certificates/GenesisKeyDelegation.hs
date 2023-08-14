@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextEnvelope.Certificates.GenesisKeyDelegation
-  ( golden_shelleyGenesisKeyDelegationCertificate
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Certificates.GenesisKeyDelegation where
 
 import           Cardano.Api (AsType (..), CardanoEra (..), cardanoEraConstraints,
                    textEnvelopeTypeInEra)
@@ -17,8 +15,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyGenesisKeyDelegationCertificate :: Property
-golden_shelleyGenesisKeyDelegationCertificate =
+hprop_golden_shelleyGenesisKeyDelegationCertificate :: Property
+hprop_golden_shelleyGenesisKeyDelegationCertificate =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     let era = BabbageEra
 

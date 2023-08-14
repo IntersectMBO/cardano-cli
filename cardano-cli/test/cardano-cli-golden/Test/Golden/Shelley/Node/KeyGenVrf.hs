@@ -1,10 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Node.KeyGenVrf
-  ( golden_shelleyNodeKeyGenVrf
-  , golden_shelleyNodeKeyGenVrf_bech32
-  , golden_shelleyNodeKeyGenVrf_te
-  ) where
+module Test.Golden.Shelley.Node.KeyGenVrf where
 
 import           Control.Monad (void)
 
@@ -16,8 +12,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyNodeKeyGenVrf :: Property
-golden_shelleyNodeKeyGenVrf = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyNodeKeyGenVrf :: Property
+hprop_golden_shelleyNodeKeyGenVrf = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   verificationKey <- noteTempFile tempDir "kes.vkey"
   signingKey <- noteTempFile tempDir "kes.skey"
 
@@ -33,8 +29,8 @@ golden_shelleyNodeKeyGenVrf = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir 
   H.assertEndsWithSingleNewline verificationKey
   H.assertEndsWithSingleNewline signingKey
 
-golden_shelleyNodeKeyGenVrf_te :: Property
-golden_shelleyNodeKeyGenVrf_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyNodeKeyGenVrf_te :: Property
+hprop_golden_shelleyNodeKeyGenVrf_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   verificationKey <- noteTempFile tempDir "kes.vkey"
   signingKey <- noteTempFile tempDir "kes.skey"
 
@@ -51,8 +47,8 @@ golden_shelleyNodeKeyGenVrf_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempD
   H.assertEndsWithSingleNewline verificationKey
   H.assertEndsWithSingleNewline signingKey
 
-golden_shelleyNodeKeyGenVrf_bech32 :: Property
-golden_shelleyNodeKeyGenVrf_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyNodeKeyGenVrf_bech32 :: Property
+hprop_golden_shelleyNodeKeyGenVrf_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   verificationKey <- noteTempFile tempDir "kes.vkey"
   signingKey <- noteTempFile tempDir "kes.skey"
 

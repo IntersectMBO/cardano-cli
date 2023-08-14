@@ -1,11 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.Golden.Shelley.TextEnvelope.Keys.VRFKeys
-  ( golden_shelleyVRFKeys
-  , golden_shelleyVRFKeys_bech32
-  , golden_shelleyVRFKeys_te
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Keys.VRFKeys where
 
 import           Cardano.Api (AsType (..), HasTextEnvelope (..))
 
@@ -24,8 +20,8 @@ import qualified Hedgehog.Extras.Test.File as H
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyVRFKeys :: Property
-golden_shelleyVRFKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyVRFKeys :: Property
+hprop_golden_shelleyVRFKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   H.note_ tempDir
 
   -- Reference keys
@@ -54,8 +50,8 @@ golden_shelleyVRFKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-golden_shelleyVRFKeys_te :: Property
-golden_shelleyVRFKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyVRFKeys_te :: Property
+hprop_golden_shelleyVRFKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   H.note_ tempDir
 
   -- Reference keys
@@ -85,8 +81,8 @@ golden_shelleyVRFKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> 
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the bech32 serialization format has not changed.
-golden_shelleyVRFKeys_bech32 :: Property
-golden_shelleyVRFKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyVRFKeys_bech32 :: Property
+hprop_golden_shelleyVRFKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   H.note_ tempDir
 
   -- Key filepaths

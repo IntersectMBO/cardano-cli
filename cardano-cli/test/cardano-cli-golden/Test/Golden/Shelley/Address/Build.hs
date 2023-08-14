@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Address.Build
-  ( golden_shelleyAddressBuild
-  ) where
+module Test.Golden.Shelley.Address.Build where
 
 import           Control.Monad (void)
 
@@ -14,8 +12,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyAddressBuild :: Property
-golden_shelleyAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyAddressBuild :: Property
+hprop_golden_shelleyAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   addressVKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/payment_keys/verification_key"
   addressSKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/verification_key"
   goldenStakingAddressHexFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/addresses/staking-address.hex"

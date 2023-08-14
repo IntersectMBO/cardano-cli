@@ -1,12 +1,9 @@
-{-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Byron.Witness
-  ( golden_byronWitness
-  ) where
+module Test.Golden.Byron.Witness where
 
-import           Hedgehog (Property)
+import           Hedgehog (Property, property, success)
 
 {- HLINT ignore "Use camelCase" -}
 
 golden_byronWitness :: Property
-golden_byronWitness = error "TODO"
+golden_byronWitness = property success -- TODO

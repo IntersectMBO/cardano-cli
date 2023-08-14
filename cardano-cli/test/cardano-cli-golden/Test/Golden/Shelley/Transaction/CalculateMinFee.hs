@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Test.Golden.Shelley.Transaction.CalculateMinFee
-  ( golden_shelleyTransactionCalculateMinFee
-  ) where
+   where
 
 import           Test.Cardano.CLI.Util
 
@@ -12,8 +11,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyTransactionCalculateMinFee :: Property
-golden_shelleyTransactionCalculateMinFee = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyTransactionCalculateMinFee :: Property
+hprop_golden_shelleyTransactionCalculateMinFee = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   protocolParamsJsonFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/transaction-calculate-min-fee/protocol-params.json"
   txBodyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/tx/txbody"
   minFeeTxtFile <- noteTempFile tempDir "min-fee.txt"

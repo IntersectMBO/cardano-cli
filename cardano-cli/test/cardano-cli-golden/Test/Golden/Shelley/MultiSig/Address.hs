@@ -1,10 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.MultiSig.Address
-  ( golden_shelleyAllMultiSigAddressBuild
-  , golden_shelleyAnyMultiSigAddressBuild
-  , golden_shelleyAtLeastMultiSigAddressBuild
-  ) where
+module Test.Golden.Shelley.MultiSig.Address where
 
 import           Test.Cardano.CLI.Util as OP
 
@@ -14,8 +10,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyAllMultiSigAddressBuild :: Property
-golden_shelleyAllMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+hprop_golden_shelleyAllMultiSigAddressBuild :: Property
+hprop_golden_shelleyAllMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
   allMultiSigFp <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/all"
 
   allMultiSigAddress <- execCardanoCLI
@@ -30,8 +26,8 @@ golden_shelleyAllMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $
 
   equivalence allMultiSigAddress goldenAllMs
 
-golden_shelleyAnyMultiSigAddressBuild :: Property
-golden_shelleyAnyMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+hprop_golden_shelleyAnyMultiSigAddressBuild :: Property
+hprop_golden_shelleyAnyMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
   anyMultiSigFp <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/any"
 
   anyMultiSigAddress <- execCardanoCLI
@@ -46,8 +42,8 @@ golden_shelleyAnyMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $
 
   equivalence anyMultiSigAddress goldenAnyMs
 
-golden_shelleyAtLeastMultiSigAddressBuild :: Property
-golden_shelleyAtLeastMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+hprop_golden_shelleyAtLeastMultiSigAddressBuild :: Property
+hprop_golden_shelleyAtLeastMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
   atLeastMultiSigFp <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/atleast"
 
   atLeastMultiSigAddress <- execCardanoCLI

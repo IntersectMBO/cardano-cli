@@ -2,9 +2,7 @@
 
 {- HLINT ignore "Use camelCase" -}
 
-module Test.Golden.Governance.Committee
-  ( governanceCommitteeTests
-  ) where
+module Test.Golden.Governance.Committee where
 
 import           Control.Monad (void)
 import           Text.Regex.TDFA ((=~))
@@ -16,17 +14,8 @@ import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
-governanceCommitteeTests :: IO Bool
-governanceCommitteeTests =
-  H.checkSequential $ H.Group "Governance Committee Goldens"
-    [ ("governance committee key-gen-cold", golden_governanceCommitteeKeyGenCold)
-    , ("governance committee key-gen-hot", golden_governanceCommitteeKeyGenHot)
-    , ("governance committee key-hash (cold)", golden_governanceCommitteeKeyHashCold)
-    , ("governance committee key-hash (hot)", golden_governanceCommitteeKeyHashHot)
-    ]
-
-golden_governanceCommitteeKeyGenCold :: Property
-golden_governanceCommitteeKeyGenCold =
+hprop_golden_governanceCommitteeKeyGenCold :: Property
+hprop_golden_governanceCommitteeKeyGenCold =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"
@@ -43,8 +32,8 @@ golden_governanceCommitteeKeyGenCold =
     H.assertEndsWithSingleNewline verificationKeyFile
     H.assertEndsWithSingleNewline signingKeyFile
 
-golden_governanceCommitteeKeyGenHot :: Property
-golden_governanceCommitteeKeyGenHot =
+hprop_golden_governanceCommitteeKeyGenHot :: Property
+hprop_golden_governanceCommitteeKeyGenHot =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"
@@ -64,8 +53,8 @@ golden_governanceCommitteeKeyGenHot =
     H.assertEndsWithSingleNewline verificationKeyFile
     H.assertEndsWithSingleNewline signingKeyFile
 
-golden_governanceCommitteeKeyHashCold :: Property
-golden_governanceCommitteeKeyHashCold =
+hprop_golden_governanceCommitteeKeyHashCold :: Property
+hprop_golden_governanceCommitteeKeyHashCold =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"
@@ -83,8 +72,8 @@ golden_governanceCommitteeKeyHashCold =
 
     H.assert $ result =~ id @String "^[a-f0-9]{56}$"
 
-golden_governanceCommitteeKeyHashHot :: Property
-golden_governanceCommitteeKeyHashHot =
+hprop_golden_governanceCommitteeKeyHashHot :: Property
+hprop_golden_governanceCommitteeKeyHashHot =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"

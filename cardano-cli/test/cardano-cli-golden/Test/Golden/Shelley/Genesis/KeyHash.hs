@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Genesis.KeyHash
-  ( golden_shelleyGenesisKeyHash
-  ) where
+module Test.Golden.Shelley.Genesis.KeyHash where
 
 import           Test.Cardano.CLI.Util as OP
 
@@ -12,8 +10,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyGenesisKeyHash :: Property
-golden_shelleyGenesisKeyHash = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyGenesisKeyHash :: Property
+hprop_golden_shelleyGenesisKeyHash = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   referenceVerificationKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_keys/verification_key"
   goldenGenesisVerificationKeyHashFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_keys/verification_key.key-hash"
   genesisVerificationKeyHashFile <- noteTempFile tempDir "key-hash.hex"

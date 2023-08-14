@@ -2,7 +2,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Test.Golden.Shelley.Genesis.Create
-  ( golden_shelleyGenesisCreate
+  ( hprop_golden_shelleyGenesisCreate
   ) where
 
 import           Control.Monad (void)
@@ -65,8 +65,8 @@ parseTotalSupply = J.withObject "Object" $ \ o -> do
   initialFunds <- (o J..: "initialFunds") >>= parseHashMap
   fmap sum (sequence (fmap (J.parseJSON @Int . snd) (HM.toList initialFunds)))
 
-golden_shelleyGenesisCreate :: Property
-golden_shelleyGenesisCreate = propertyOnce $ do
+hprop_golden_shelleyGenesisCreate :: Property
+hprop_golden_shelleyGenesisCreate = propertyOnce $ do
   H.moduleWorkspace "tmp" $ \tempDir -> do
     sourceGenesisSpecFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/genesis/genesis.spec.json"
     sourceAlonzoGenesisSpecFile <- noteInputFile "test/cardano-cli-golden/files/golden/alonzo/genesis.alonzo.spec.json"

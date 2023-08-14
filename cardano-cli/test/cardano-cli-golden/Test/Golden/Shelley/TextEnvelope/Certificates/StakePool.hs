@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextEnvelope.Certificates.StakePool
-  ( golden_shelleyStakePoolCertificates
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Certificates.StakePool where
 
 import           Cardano.Api (AsType (..), CardanoEra (..), cardanoEraConstraints,
                    textEnvelopeTypeInEra)
@@ -23,8 +21,8 @@ import qualified Hedgehog.Extras.Test.File as H
 --   4. Create stake pool registration certificate.
 --   5. Create stake pool deregistration/retirement certificate.
 --   6. Check the TextEnvelope serialization format has not changed.
-golden_shelleyStakePoolCertificates :: Property
-golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyStakePoolCertificates :: Property
+hprop_golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   let era = BabbageEra -- TODO generate for all eras
 
   -- Reference files

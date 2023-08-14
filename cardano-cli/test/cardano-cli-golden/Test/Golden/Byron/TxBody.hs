@@ -1,12 +1,8 @@
-{-# LANGUAGE OverloadedStrings #-}
+module Test.Golden.Byron.TxBody where
 
-module Test.Golden.Byron.TxBody
-  ( golden_byronTxBody
-  ) where
-
-import           Hedgehog (Property)
+import           Hedgehog (Property, property, success)
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_byronTxBody :: Property
-golden_byronTxBody = error "TODO"
+hprop_golden_byronTxBody :: Property
+hprop_golden_byronTxBody = property success -- TODO

@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Genesis.KeyGenGenesis
-  ( golden_shelleyGenesisKeyGenGenesis
-  ) where
+module Test.Golden.Shelley.Genesis.KeyGenGenesis where
 
 import           Control.Monad (void)
 
@@ -14,8 +12,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_shelleyGenesisKeyGenGenesis :: Property
-golden_shelleyGenesisKeyGenGenesis = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyGenesisKeyGenGenesis :: Property
+hprop_golden_shelleyGenesisKeyGenGenesis = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
   signingKeyFile <- noteTempFile tempDir "key-gen.skey"
 

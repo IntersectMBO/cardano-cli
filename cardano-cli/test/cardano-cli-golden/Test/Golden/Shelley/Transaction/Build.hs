@@ -1,12 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Test.Golden.Shelley.Transaction.Build
-  ( golden_shelleyTransactionBuild
-  , golden_shelleyTransactionBuild_TxInScriptWitnessed
-  , golden_shelleyTransactionBuild_Minting
-  , golden_shelleyTransactionBuild_CertificateScriptWitnessed
-  , golden_shelleyTransactionBuild_WithdrawalScriptWitnessed
-  ) where
+   where
 
 import           Control.Monad (void)
 import qualified Data.ByteString.Base16 as Base16
@@ -26,8 +21,8 @@ txOut = "addr1q94cxl99qvtwunsqqv6g9mgj3zrawtpt4edsgwxkjtwpy5dsezcht90tmwfur7t5hc
 txIn :: String
 txIn = "2392d2b1200b5139fe555c81261697b29a8ccf561c5c783d46e78a479d977053#0"
 
-golden_shelleyTransactionBuild :: Property
-golden_shelleyTransactionBuild =
+hprop_golden_shelleyTransactionBuild :: Property
+hprop_golden_shelleyTransactionBuild =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
@@ -45,8 +40,8 @@ golden_shelleyTransactionBuild =
     H.assertEndsWithSingleNewline txBodyOutFile
 
 
-golden_shelleyTransactionBuild_CertificateScriptWitnessed :: Property
-golden_shelleyTransactionBuild_CertificateScriptWitnessed =
+hprop_golden_shelleyTransactionBuild_CertificateScriptWitnessed :: Property
+hprop_golden_shelleyTransactionBuild_CertificateScriptWitnessed =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     let deregcert = "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_deregistration_certificate"
         scriptWit = "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/any"
@@ -67,8 +62,8 @@ golden_shelleyTransactionBuild_CertificateScriptWitnessed =
 
     H.assertEndsWithSingleNewline txBodyOutFile
 
-golden_shelleyTransactionBuild_Minting :: Property
-golden_shelleyTransactionBuild_Minting =
+hprop_golden_shelleyTransactionBuild_Minting :: Property
+hprop_golden_shelleyTransactionBuild_Minting =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     let scriptWit = "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/any"
 
@@ -99,8 +94,8 @@ golden_shelleyTransactionBuild_Minting =
 
     H.assertEndsWithSingleNewline txBodyOutFile
 
-golden_shelleyTransactionBuild_WithdrawalScriptWitnessed :: Property
-golden_shelleyTransactionBuild_WithdrawalScriptWitnessed =
+hprop_golden_shelleyTransactionBuild_WithdrawalScriptWitnessed :: Property
+hprop_golden_shelleyTransactionBuild_WithdrawalScriptWitnessed =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
@@ -123,8 +118,8 @@ golden_shelleyTransactionBuild_WithdrawalScriptWitnessed =
 
     H.assertEndsWithSingleNewline txBodyOutFile
 
-golden_shelleyTransactionBuild_TxInScriptWitnessed :: Property
-golden_shelleyTransactionBuild_TxInScriptWitnessed =
+hprop_golden_shelleyTransactionBuild_TxInScriptWitnessed :: Property
+hprop_golden_shelleyTransactionBuild_TxInScriptWitnessed =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     let scriptWit = "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/any"
 

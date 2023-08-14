@@ -1,11 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Key.ConvertCardanoAddressKey
-  ( golden_convertCardanoAddressByronSigningKey
-  , golden_convertCardanoAddressIcarusSigningKey
-  , golden_convertCardanoAddressShelleyPaymentSigningKey
-  , golden_convertCardanoAddressShelleyStakeSigningKey
-  ) where
+module Test.Golden.Shelley.Key.ConvertCardanoAddressKey where
 
 import           Control.Monad (void)
 import           Data.Text (Text)
@@ -44,8 +39,8 @@ exampleShelleySigningKey =
 
 -- | Test that converting a @cardano-address@ Byron signing key yields the
 -- expected result.
-golden_convertCardanoAddressByronSigningKey :: Property
-golden_convertCardanoAddressByronSigningKey =
+hprop_golden_convertCardanoAddressByronSigningKey :: Property
+hprop_golden_convertCardanoAddressByronSigningKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
 
     -- `cardano-address` signing key filepath
@@ -81,8 +76,8 @@ golden_convertCardanoAddressByronSigningKey =
 
 -- | Test that converting a @cardano-address@ Icarus signing key yields the
 -- expected result.
-golden_convertCardanoAddressIcarusSigningKey :: Property
-golden_convertCardanoAddressIcarusSigningKey =
+hprop_golden_convertCardanoAddressIcarusSigningKey :: Property
+hprop_golden_convertCardanoAddressIcarusSigningKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
 
     -- `cardano-address` signing key filepath
@@ -118,8 +113,8 @@ golden_convertCardanoAddressIcarusSigningKey =
 
 -- | Test that converting a @cardano-address@ Shelley payment signing key
 -- yields the expected result.
-golden_convertCardanoAddressShelleyPaymentSigningKey :: Property
-golden_convertCardanoAddressShelleyPaymentSigningKey =
+hprop_golden_convertCardanoAddressShelleyPaymentSigningKey :: Property
+hprop_golden_convertCardanoAddressShelleyPaymentSigningKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
 
     -- `cardano-address` signing key filepath
@@ -156,8 +151,8 @@ golden_convertCardanoAddressShelleyPaymentSigningKey =
 
 -- | Test that converting a @cardano-address@ Shelley stake signing key yields
 -- the expected result.
-golden_convertCardanoAddressShelleyStakeSigningKey :: Property
-golden_convertCardanoAddressShelleyStakeSigningKey =
+hprop_golden_convertCardanoAddressShelleyStakeSigningKey :: Property
+hprop_golden_convertCardanoAddressShelleyStakeSigningKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
 
     -- `cardano-address` signing key filepath

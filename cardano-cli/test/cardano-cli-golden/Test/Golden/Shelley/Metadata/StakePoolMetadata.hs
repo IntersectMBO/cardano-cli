@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Metadata.StakePoolMetadata
-  ( golden_stakePoolMetadataHash
-  ) where
+module Test.Golden.Shelley.Metadata.StakePoolMetadata where
 
 import           Control.Monad (void)
 import           Data.Text (Text)
@@ -17,8 +15,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-golden_stakePoolMetadataHash :: Property
-golden_stakePoolMetadataHash = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_stakePoolMetadataHash :: Property
+hprop_golden_stakePoolMetadataHash = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   referenceStakePoolMetadata <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/metadata/stake_pool_metadata_hash"
 
   stakePoolMetadataFile <- noteTempFile tempDir "stake-pool-metadata.json"

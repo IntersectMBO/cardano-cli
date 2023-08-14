@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.TextEnvelope.Tx.TxBody
-  ( golden_shelleyTxBody
-  ) where
+module Test.Golden.Shelley.TextEnvelope.Tx.TxBody where
 
 import           Control.Monad (void)
 
@@ -15,8 +13,8 @@ import qualified Hedgehog.Extras.Test.Base as H
 
 -- | 1. We create a 'TxBody Shelley' file.
 --   2. Check the TextEnvelope serialization format has not changed.
-golden_shelleyTxBody :: Property
-golden_shelleyTxBody = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelleyTxBody :: Property
+hprop_golden_shelleyTxBody = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
   referenceTxBody <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/tx/txbody"
 
