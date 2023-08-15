@@ -2,6 +2,7 @@ Usage: cardano-cli allegra governance
                                         ( registration-certificate
                                         | delegation-certificate
                                         | create-mir-certificate
+                                        | action
                                         )
 
   Era-based governance commands
@@ -14,3 +15,4 @@ Available commands:
   delegation-certificate   Delegation certificate creation.
   create-mir-certificate   Create an MIR (Move Instantaneous Rewards)
                            certificate
+  action                   Governance action commands.
