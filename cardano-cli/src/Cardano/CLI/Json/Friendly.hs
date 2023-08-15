@@ -8,6 +8,7 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS) where
@@ -20,6 +21,7 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    StakeAddress (..), fromShelleyPaymentCredential, fromShelleyScriptHash,
                    fromShelleyStakeReference, toShelleyLovelace, toShelleyStakeCredential)
 
+import qualified Cardano.Ledger.Conway.TxCert as Ledger
 import qualified Cardano.Ledger.Credential as Shelley
 import qualified Cardano.Ledger.Shelley.API as Shelley
 
@@ -312,6 +314,12 @@ stakeCredJson
   -> Aeson.Value
 stakeCredJson sbe c = shelleyBasedEraConstraints sbe $ toJSON c
 
+-- stakeCredJson
+--   :: ShelleyBasedEra era
+--   -> Shelley.Credential (Ledger.EraCrypto (ShelleyLedgerEra era))
+--   -> Aeson.Value
+-- stakeCredJson sbe c = shelleyBasedEraConstraints sbe $ toJSON c
+
 poolIdJson
   :: ShelleyBasedEra era
   -> Ledger.KeyHash Ledger.StakePool (Ledger.EraCrypto (ShelleyLedgerEra era))
@@ -333,7 +341,7 @@ renderCertificate sbe = \case
     shelleyBasedEraConstraints sbe $
       case c of
         Ledger.ShelleyTxCertDelegCert (Ledger.ShelleyRegCert cred) ->
-          "stake address registration" .=  stakeCredJson sbe cred
+          "stake address registration" .= stakeCredJson sbe cred
         Ledger.ShelleyTxCertDelegCert (Ledger.ShelleyUnRegCert cred) ->
           "stake address deregistration" .= stakeCredJson sbe cred
         Ledger.ShelleyTxCertDelegCert (Ledger.ShelleyDelegCert cred poolId) ->
@@ -363,72 +371,79 @@ renderCertificate sbe = \case
   ConwayCertificate w cert ->
     conwayEraOnwardsConstraints w $
       case cert of
-        Ledger.RegDRepTxCert credential coin ->
+        Ledger.RegDRepTxCert credential coin mAnchor ->
           "Drep registration certificate" .= object
             [ "deposit" .= coin
             , "certificate" .= conwayToObject w credential
+            , "anchor" .= mAnchor
             ]
         Ledger.UnRegDRepTxCert credential coin ->
           "Drep unregistration certificate" .= object
             [ "refund" .= coin
             , "certificate" .= conwayToObject w credential
             ]
-        Ledger.AuthCommitteeHotKeyTxCert (Shelley.KeyHash coldKey) (Shelley.KeyHash hotKey) ->
+        Ledger.AuthCommitteeHotKeyTxCert coldCredential hotCredential -> -- AuthCommitteeHotKeyTxCert
           "Constitutional committee member hot key registration" .= object
-            ["cold key hash" .= String (textShow coldKey)
-            , "hot key hash" .= String (textShow hotKey)
+            ["cold key hash" .= coldCredential
+            , "hot key hash" .= hotCredential
             ]
-        Ledger.ResignCommitteeColdTxCert (Shelley.KeyHash coldKey) ->
+        Ledger.ResignCommitteeColdTxCert coldCredential -> -- ResignCommitteeColdTxCert
           "Constitutional committee cold key resignation" .= object
-            [ "cold key hash" .= String (textShow coldKey)
+            [ "cold key hash" .= coldCredential
             ]
-        Ledger.RegTxCert stakeCredential ->
+        Ledger.RegTxCert stakeCredential -> -- RegTxCert
           "Stake address registration" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             ]
-        Ledger.UnRegTxCert stakeCredential ->
+        Ledger.UnRegTxCert stakeCredential -> -- UnRegTxCert
           "Stake address deregistration" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             ]
-        Ledger.RegDepositTxCert stakeCredential deposit ->
+        Ledger.RegDepositTxCert stakeCredential deposit -> -- RegDepositTxCert
           "Stake address registration" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             , "deposit" .= deposit
             ]
-        Ledger.UnRegDepositTxCert stakeCredential refund ->
+        Ledger.UnRegDepositTxCert stakeCredential refund -> -- UnRegDepositTxCert
           "Stake address deregistration" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             , "refund" .= refund
             ]
-        Ledger.DelegTxCert stakeCredential delegatee ->
+        Ledger.DelegTxCert stakeCredential delegatee -> -- DelegTxCert
           "Stake address delegation" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             , "delegatee" .= delegateeJson sbe delegatee
             ]
-        Ledger.RegDepositDelegTxCert stakeCredential delegatee deposit ->
+        Ledger.RegDepositDelegTxCert stakeCredential delegatee deposit -> -- RegDepositDelegTxCert
           "Stake address registration and delegation" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             , "delegatee" .= delegateeJson sbe delegatee
             , "deposit" .= deposit
             ]
-        Ledger.RegPoolTxCert poolParams ->
+        Ledger.RegPoolTxCert poolParams -> -- RegPoolTxCert
           "Pool registration" .= object
             [ "pool params" .= poolParamsJson sbe poolParams
             ]
-        Ledger.RetirePoolTxCert (Shelley.KeyHash kh) epoch ->
+        Ledger.RetirePoolTxCert kh epoch -> -- RetirePoolTxCert
           "Pool retirement" .= object
-            [ "stake pool key hash" .= String (textShow kh)
+            [ "stake pool key hash" .= kh
             , "epoch" .= epoch
             ]
         Ledger.DelegStakeTxCert stakeCredential (Shelley.KeyHash kh) ->
           "Stake address delegation" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
-            , "key hash" .= String (textShow kh)
+            [ "stake credential" .= stakeCredential
+            , "key hash" .= kh
             ]
+        Ledger.UpdateDRepTxCert stakeCredential mAnchor ->
+          "TODO TxCert" .= object
+            [ "stake credential" .= stakeCredential
+            , "anchor" .= mAnchor
+            ]
+
   where
     conwayToObject :: ()
       => ConwayEraOnwards era
-      -> Shelley.Credential 'Shelley.Voting (Ledger.EraCrypto (ShelleyLedgerEra era))
+      -> Ledger.Credential 'Ledger.DRepRole (Ledger.EraCrypto (ShelleyLedgerEra era))
       -> Aeson.Value
     conwayToObject w' =
       conwayEraOnwardsConstraints w' $
