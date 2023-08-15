@@ -37,6 +37,7 @@ pEraBasedGovernanceCmds envCli era =
     , pGovernanceCommitteeCmds era <&> fmap EraBasedGovernanceCommitteeCmds
     , fmap EraBasedGovernanceActionCmds <$> pGovernanceActionCmds era
     , pDRepCommands era
+    , pEraBasedGovernanceUpdateProposal envCli era
     ]
 
 
@@ -313,3 +314,40 @@ pDRepCommands era = do
       subParser "key-gen"
       $ Opt.info (EraBasedGovernanceDRepGenerateKey w <$> pVerificationKeyFileOut <*> pSigningKeyFileOut)
       $ Opt.progDesc "Generate Delegate Representative verification and signing keys."
+
+--------------------------------------------------------------------------------
+
+pEraBasedGovernanceUpdateProposal :: ()
+  => EnvCli
+  -> CardanoEra era
+  -> Maybe (Parser (EraBasedGovernanceCmds era))
+pEraBasedGovernanceUpdateProposal envCli =
+  featureInEra Nothing $ \w ->
+    Just
+      $ subParser "registration-certificate"
+      $ Opt.info (pEraCmd envCli w)
+      $ Opt.progDesc "Create a registration certificate."
+ where
+  pEraCmd :: EnvCli -> AnyEraDecider era -> Parser (EraBasedGovernanceCmds era)
+  pEraCmd envCli' = \case
+    AnyEraDeciderShelleyToBabbage sToB ->
+      EraBasedGovernanceRegistrationCertificateCmd
+        <$> asum [ ShelleyToBabbageStakePoolRegTarget sToB
+                     <$> pStakePoolRegistrationParserRequirements envCli'
+                 , ShelleyToBabbageStakeKeyRegTarget sToB
+                     <$> pStakeIdentifier
+                 ]
+        <*> pOutputFile
+
+    AnyEraDeciderConwayOnwards cOn ->
+      EraBasedGovernanceRegistrationCertificateCmd . ConwayOnwardRegTarget cOn
+        <$> asum [ RegisterStakePool cOn
+                     <$> pStakePoolRegistrationParserRequirements envCli'
+                 , RegisterStakeKey cOn
+                     <$> pStakeIdentifier
+                     <*> pKeyRegistDeposit
+                 , RegisterDRep cOn
+                     <$> pDRepVerificationKeyOrHashOrFile
+                     <*> pKeyRegistDeposit
+                 ]
+        <*> pOutputFile
