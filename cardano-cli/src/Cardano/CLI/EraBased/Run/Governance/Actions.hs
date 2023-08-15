@@ -25,6 +25,7 @@ import           Data.Text.Encoding.Error
 data GovernanceActionsError
   = GovernanceActionsCmdWriteFileError (FileError ())
   | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
+  | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdNonUtf8EncodedConstitution UnicodeException
 
 
@@ -35,8 +36,8 @@ runGovernanceActionCmds = \case
   GovernanceActionCreateConstitution cOn newConstitution ->
     runGovernanceActionCreateConstitution cOn newConstitution
 
-  GovernanceActionProtocolParametersUpdate sbe eraBasedProtocolParametersUpdate ofp ->
-    runGovernanceActionCreateProtocolParametersUpdate sbe eraBasedProtocolParametersUpdate ofp
+  GovernanceActionProtocolParametersUpdate sbe eNo genKeys eraBasedProtocolParametersUpdate ofp ->
+    runGovernanceActionCreateProtocolParametersUpdate sbe eNo genKeys eraBasedProtocolParametersUpdate ofp
 
   GovernanceActionTreasuryWithdrawal cOn treasuryWithdrawal ->
     runGovernanceActionTreasuryWithdrawal cOn treasuryWithdrawal
@@ -74,16 +75,25 @@ runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution deposit anySt
 
 runGovernanceActionCreateProtocolParametersUpdate :: ()
   => ShelleyBasedEra era
+  -> EpochNo
+  -> [VerificationKeyFile In]
+  -- ^ Genesis verification keys
   -> EraBasedProtocolParametersUpdate era
   -> File () Out
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateProtocolParametersUpdate sbe eraBasedPParams oFp = do
+runGovernanceActionCreateProtocolParametersUpdate sbe expEpoch genesisVerKeys eraBasedPParams oFp = do
+  genVKeys <- sequence
+    [ firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT
+        $ readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
+    | vkeyFile <- genesisVerKeys
+    ]
+
   let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
       apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
+      genKeyHashes = fmap verificationKeyHash genVKeys
       -- TODO: Update EraBasedProtocolParametersUpdate to require genesis delegate keys
       -- depending on the era
-      -- TODO: Require expiration epoch no
-      upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType [] (error "runGovernanceActionCreateProtocolParametersUpdate")
+      upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ writeLazyByteStringFile oFp $ textEnvelopeToJSON Nothing upProp

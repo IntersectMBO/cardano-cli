@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -11,6 +12,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Types.Common
 import           Cardano.Ledger.BaseTypes (NonNegativeInterval)
 import qualified Cardano.Ledger.BaseTypes as Ledger
 
@@ -73,27 +75,39 @@ pGovernanceActionProtocolParametersUpdate era =
         case sbe of
          ShelleyBasedEraShelley ->
            GovernanceActionProtocolParametersUpdate sbe
-             <$> dpGovActionProtocolParametersUpdate ShelleyBasedEraShelley
+             <$> pEpochNoUpdateProp
+             <*> pProtocolParametersUpdateGenesisKeys sbe
+             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraShelley
              <*> pOutputFile
          ShelleyBasedEraAllegra ->
            GovernanceActionProtocolParametersUpdate sbe
-             <$> dpGovActionProtocolParametersUpdate ShelleyBasedEraAllegra
+             <$> pEpochNoUpdateProp
+             <*> pProtocolParametersUpdateGenesisKeys sbe
+             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraAllegra
              <*> pOutputFile
          ShelleyBasedEraMary ->
            GovernanceActionProtocolParametersUpdate sbe
-             <$> dpGovActionProtocolParametersUpdate ShelleyBasedEraMary
+             <$> pEpochNoUpdateProp
+             <*> pProtocolParametersUpdateGenesisKeys sbe
+             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraMary
              <*> pOutputFile
          ShelleyBasedEraAlonzo ->
            GovernanceActionProtocolParametersUpdate sbe
-             <$> dpGovActionProtocolParametersUpdate ShelleyBasedEraAlonzo
+             <$> pEpochNoUpdateProp
+             <*> pProtocolParametersUpdateGenesisKeys sbe
+             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraAlonzo
              <*> pOutputFile
          ShelleyBasedEraBabbage ->
            GovernanceActionProtocolParametersUpdate sbe
-             <$> dpGovActionProtocolParametersUpdate ShelleyBasedEraBabbage
+             <$> pEpochNoUpdateProp
+             <*> pProtocolParametersUpdateGenesisKeys sbe
+             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraBabbage
              <*> pOutputFile
          ShelleyBasedEraConway ->
            GovernanceActionProtocolParametersUpdate sbe
-             <$> dpGovActionProtocolParametersUpdate ShelleyBasedEraConway
+             <$> pEpochNoUpdateProp
+             <*> pProtocolParametersUpdateGenesisKeys sbe
+             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraConway
              <*> pOutputFile
 
 convertToLedger :: (a -> b) -> Parser (Maybe a) -> Parser (StrictMaybe b)
@@ -175,7 +189,19 @@ pIntroducedInBabbagePParams =
   IntroducedInBabbagePParams
     <$> convertToLedger (CoinPerByte . toShelleyLovelace) (optional pUTxOCostPerByte)
 
-dpGovActionProtocolParametersUpdate :: ShelleyBasedEra era -> Parser (EraBasedProtocolParametersUpdate era)
+-- Not necessary in Conway era onwards
+pProtocolParametersUpdateGenesisKeys :: ShelleyBasedEra era -> Parser [VerificationKeyFile In]
+pProtocolParametersUpdateGenesisKeys sbe =
+  case sbe of
+    ShelleyBasedEraShelley -> many pGenesisVerificationKeyFile
+    ShelleyBasedEraAllegra -> many pGenesisVerificationKeyFile
+    ShelleyBasedEraMary -> many pGenesisVerificationKeyFile
+    ShelleyBasedEraAlonzo -> many pGenesisVerificationKeyFile
+    ShelleyBasedEraBabbage -> many pGenesisVerificationKeyFile
+    ShelleyBasedEraConway -> empty
+
+dpGovActionProtocolParametersUpdate
+  :: ShelleyBasedEra era -> Parser (EraBasedProtocolParametersUpdate era)
 dpGovActionProtocolParametersUpdate = \case
   ShelleyBasedEraShelley ->
     ShelleyEraBasedProtocolParametersUpdate

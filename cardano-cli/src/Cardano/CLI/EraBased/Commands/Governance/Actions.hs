@@ -25,6 +25,8 @@ data GovernanceActionCmds era
       EraBasedNewConstitution
   | GovernanceActionProtocolParametersUpdate
       (ShelleyBasedEra era)
+      EpochNo
+      [VerificationKeyFile In]
       (EraBasedProtocolParametersUpdate era)
       (File () Out)
   | GovernanceActionTreasuryWithdrawal
