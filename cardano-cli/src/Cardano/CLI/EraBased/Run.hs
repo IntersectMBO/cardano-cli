@@ -82,6 +82,10 @@ runEraBasedGovernanceCmds = \case
     firstExceptT (const ()) -- TODO: Conway era - fix error handling
       $ runGovernanceDRepKeyGen w vrf sgn
 
+  EraBasedGovernanceUpdateProposal sbe out eNo genVKeys ppUp mCostModelFp ->
+    firstExceptT (const ()) -- TODO: Conway era - fix error handling
+      $ runGovernanceUpdateProposal sbe out eNo genVKeys ppUp mCostModelFp
+
 runEraBasedGovernancePreConwayCmd
   :: ShelleyToBabbageEra era
   -> ExceptT () IO ()

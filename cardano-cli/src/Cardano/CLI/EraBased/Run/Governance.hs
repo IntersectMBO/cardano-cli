@@ -4,6 +4,7 @@ module Cardano.CLI.EraBased.Run.Governance
   ( runGovernanceMIRCertificatePayStakeAddrs
   , runGovernanceMIRCertificateTransfer
   , runGovernanceDRepKeyGen
+  , runGovernanceUpdateProposal
   ) where
 
 import           Cardano.Api
@@ -15,7 +16,6 @@ import           Cardano.CLI.Types.Common
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Control.Monad
-
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
@@ -91,3 +91,14 @@ runGovernanceDRepKeyGen _w vkeyPath skeyPath = firstExceptT GovernanceCmdWriteFi
     skeyDesc = "Delegate Representative Signing Key"
     vkeyDesc :: TextEnvelopeDescr
     vkeyDesc = "Delegate Representative Verification Key"
+
+runGovernanceUpdateProposal :: ()
+  => ShelleyBasedEra era
+  -> File () Out
+  -> EpochNo
+  -> [VerificationKeyFile In]
+  -> Ledger.PParamsUpdate (ShelleyLedgerEra era)
+  -> Maybe FilePath
+  -> ExceptT GovernanceCmdError IO ()
+runGovernanceUpdateProposal _sbe _out _eNo _genVKeys _ppUp _mCostModelFp =
+  error "implement me"

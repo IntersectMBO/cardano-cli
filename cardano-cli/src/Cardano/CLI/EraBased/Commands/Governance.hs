@@ -8,6 +8,8 @@ module Cardano.CLI.EraBased.Commands.Governance
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
+import           Cardano.Api.Shelley (ShelleyLedgerEra)
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions (GovernanceActionCmds,
                    renderGovernanceActionCmds)
@@ -50,6 +52,13 @@ data EraBasedGovernanceCmds era
       (ConwayEraOnwards era)
       (File (VerificationKey ()) Out)
       (File (SigningKey ()) Out)
+  | EraBasedGovernanceUpdateProposal
+      (ShelleyBasedEra era)
+      (File () Out)
+      EpochNo
+      [VerificationKeyFile In]
+      (Ledger.PParamsUpdate (ShelleyLedgerEra era))
+      (Maybe FilePath)
 
 renderEraBasedGovernanceCmds :: EraBasedGovernanceCmds era -> Text
 renderEraBasedGovernanceCmds = \case
@@ -74,3 +83,5 @@ renderEraBasedGovernanceCmds = \case
   EraBasedGovernanceActionCmds cmds ->
     renderGovernanceActionCmds cmds
   EraBasedGovernanceDRepGenerateKey{} -> "governance drep key-gen"
+  EraBasedGovernanceUpdateProposal {} ->
+    "governance update-proposal"
