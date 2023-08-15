@@ -125,7 +125,7 @@ runGovernanceCreateVoteCmd
   -> VerificationKeyOrFile StakePoolKey
   -> VoteFile Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceCreateVoteCmd anyEra vChoice vType govActionTxIn votingStakeCred oFp = do
+runGovernanceCreateVoteCmd anyEra vChoice vType (TxIn govTxInIdentifier _govTxId) votingStakeCred oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
   vStakePoolKey <- firstExceptT ReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
   let stakePoolKeyHash = verificationKeyHash vStakePoolKey
@@ -133,18 +133,18 @@ runGovernanceCreateVoteCmd anyEra vChoice vType govActionTxIn votingStakeCred oF
   case vType of
     VCC -> do
       votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
-      let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
+      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier (error "TODO: Conway era - the TxInId does not determine the govActId")
           voteProcedure = createVotingProcedure sbe vChoice (VoterCommittee votingCred) govActIdentifier
       firstExceptT WriteFileError . newExceptT $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
     VDR -> do
       votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
-      let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
+      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier (error "TODO: Conway era - the TxInId does not determine the govActId")
           voteProcedure = createVotingProcedure sbe vChoice (VoterDRep votingCred) govActIdentifier
       firstExceptT WriteFileError . newExceptT $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 
     VSP -> do
-      let govActIdentifier = makeGoveranceActionId sbe govActionTxIn
+      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier (error "TODO: Conway era - the TxInId does not determine the govActId")
           voteProcedure = createVotingProcedure sbe vChoice (VoterSpo stakePoolKeyHash) govActIdentifier
       firstExceptT WriteFileError . newExceptT $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope oFp Nothing voteProcedure
 

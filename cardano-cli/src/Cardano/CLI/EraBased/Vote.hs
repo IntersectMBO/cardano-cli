@@ -23,7 +23,7 @@ runGovernanceVote
   :: AnyVote
   -> File () Out
   -> ExceptT EraBasedVoteError IO ()
-runGovernanceVote (ConwayOnwardsVote cOnwards v govTxInIdentifier anyStake) outFp =
+runGovernanceVote (ConwayOnwardsVote cOnwards v (TxIn govTxInIdentifier _govTxId) anyStake) outFp =
   case anyStake of
     AnyDRepVerificationKeyOrHashOrFile stake -> do
       let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
@@ -32,7 +32,7 @@ runGovernanceVote (ConwayOnwardsVote cOnwards v govTxInIdentifier anyStake) outF
       let vStakeCred = StakeCredentialByKey . StakeKeyHash $ coerceKeyRole h
 
       votingCred <- hoistEither $ first EraBasedVotingCredentialDecodeError $ toVotingCredential sbe vStakeCred
-      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier
+      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier (error "TODO: Conway era - the TxInId does not determine the govActId")
           voteProcedure = createVotingProcedure sbe v (VoterDRep votingCred) govActIdentifier
       firstExceptT EraBasedVoteWriteError . newExceptT
         $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope outFp Nothing voteProcedure
@@ -42,7 +42,7 @@ runGovernanceVote (ConwayOnwardsVote cOnwards v govTxInIdentifier anyStake) outF
       h <- firstExceptT EraBasedVoteReadError
              . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
 
-      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier
+      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier (error "TODO: Conway era - the TxInId does not determine the govActId")
           voteProcedure = createVotingProcedure sbe v (VoterSpo h) govActIdentifier
       firstExceptT EraBasedVoteWriteError . newExceptT
         $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope outFp Nothing voteProcedure
@@ -54,7 +54,7 @@ runGovernanceVote (ConwayOnwardsVote cOnwards v govTxInIdentifier anyStake) outF
       let vStakeCred = StakeCredentialByKey . StakeKeyHash $ coerceKeyRole h
       votingCred <- hoistEither $ first EraBasedVotingCredentialDecodeError $ toVotingCredential sbe vStakeCred
 
-      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier
+      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier (error "TODO: Conway era - the TxInId does not determine the govActId")
           voteProcedure = createVotingProcedure sbe v (VoterCommittee votingCred) govActIdentifier
       firstExceptT EraBasedVoteWriteError . newExceptT
         $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope outFp Nothing voteProcedure

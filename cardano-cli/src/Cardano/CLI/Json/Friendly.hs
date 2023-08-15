@@ -363,7 +363,7 @@ renderCertificate sbe = \case
   ConwayCertificate w cert ->
     conwayEraOnwardsConstraints w $
       case cert of
-        Ledger.RegDRepTxCert credential coin ->
+        Ledger.RegDRepTxCert credential coin _TODO ->  -- TODO Conway: new StrictMaybe Anchor argument
           "Drep registration certificate" .= object
             [ "deposit" .= coin
             , "certificate" .= conwayToObject w credential
@@ -373,15 +373,21 @@ renderCertificate sbe = \case
             [ "refund" .= coin
             , "certificate" .= conwayToObject w credential
             ]
-        Ledger.AuthCommitteeHotKeyTxCert (Shelley.KeyHash coldKey) (Shelley.KeyHash hotKey) ->
+        Ledger.AuthCommitteeHotKeyTxCert coldCred hotCred
+            | Shelley.ScriptHashObj{} <- coldCred -> error "TODO Conway"
+            | Shelley.ScriptHashObj{} <- hotCred -> error "TODO Conway"
+            | Shelley.KeyHashObj (Shelley.KeyHash coldKey) <- coldCred
+            , Shelley.KeyHashObj (Shelley.KeyHash hotKey) <- hotCred ->
           "Constitutional committee member hot key registration" .= object
             ["cold key hash" .= String (textShow coldKey)
             , "hot key hash" .= String (textShow hotKey)
             ]
-        Ledger.ResignCommitteeColdTxCert (Shelley.KeyHash coldKey) ->
-          "Constitutional committee cold key resignation" .= object
-            [ "cold key hash" .= String (textShow coldKey)
-            ]
+        Ledger.ResignCommitteeColdTxCert cred -> case cred of
+          Shelley.ScriptHashObj{} -> error "TODO Conway"
+          Shelley.KeyHashObj (Shelley.KeyHash coldKey) ->
+            "Constitutional committee cold key resignation" .= object
+              [ "cold key hash" .= String (textShow coldKey)
+              ]
         Ledger.RegTxCert stakeCredential ->
           "Stake address registration" .= object
             [ "stake credential" .= stakeCredJson sbe stakeCredential
@@ -428,7 +434,7 @@ renderCertificate sbe = \case
   where
     conwayToObject :: ()
       => ConwayEraOnwards era
-      -> Shelley.Credential 'Shelley.Voting (Ledger.EraCrypto (ShelleyLedgerEra era))
+      -> Shelley.Credential 'Shelley.DRepRole (Ledger.EraCrypto (ShelleyLedgerEra era))
       -> Aeson.Value
     conwayToObject w' =
       conwayEraOnwardsConstraints w' $
