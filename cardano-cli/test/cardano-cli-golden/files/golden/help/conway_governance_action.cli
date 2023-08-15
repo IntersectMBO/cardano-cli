@@ -1,6 +1,7 @@
 Usage: cardano-cli conway governance action 
                                               ( create-constitution
                                               | create-protocol-parameters-update
+                                              | create-treasury-withdrawal
                                               )
 
   Governance action commands.
@@ -12,3 +13,5 @@ Available commands:
   create-constitution      Create a constitution.
   create-protocol-parameters-update
                            Create a protocol parameters update.
+  create-treasury-withdrawal
+                           Create a treasury withdrawal.
