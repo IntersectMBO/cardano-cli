@@ -799,6 +799,7 @@ Usage: cardano-cli conway governance committee key-hash --verification-key-file 
 Usage: cardano-cli conway governance action 
                                               ( create-constitution
                                               | create-new-committee
+                                              | create-no-confidence
                                               | create-protocol-parameters-update
                                               | create-treasury-withdrawal
                                               )
@@ -849,6 +850,20 @@ Usage: cardano-cli conway governance action create-new-committee --governance-ac
                                                                    --out-file FILE
 
   Create a new committee proposal.
+
+Usage: cardano-cli conway governance action create-no-confidence --governance-action-deposit NATURAL
+                                                                   ( --stake-pool-verification-key STRING
+                                                                   | --cold-verification-key-file FILE
+                                                                   | --stake-pool-id STAKE_POOL_ID
+                                                                   | --stake-verification-key STRING
+                                                                   | --stake-verification-key-file FILE
+                                                                   | --stake-key-hash HASH
+                                                                   )
+                                                                   --governance-action-tx-id TXID
+                                                                   --goverenance-action-index WORD32
+                                                                   --out-file FILE
+
+  Create a no confidence proposal.
 
 Usage: cardano-cli conway governance action create-protocol-parameters-update --epoch NATURAL
                                                                                 [--min-fee-constant LOVELACE]
@@ -1166,6 +1181,7 @@ Usage: cardano-cli experimental governance committee key-hash --verification-key
 Usage: cardano-cli experimental governance action 
                                                     ( create-constitution
                                                     | create-new-committee
+                                                    | create-no-confidence
                                                     | create-protocol-parameters-update
                                                     | create-treasury-withdrawal
                                                     )
@@ -1216,6 +1232,20 @@ Usage: cardano-cli experimental governance action create-new-committee --governa
                                                                          --out-file FILE
 
   Create a new committee proposal.
+
+Usage: cardano-cli experimental governance action create-no-confidence --governance-action-deposit NATURAL
+                                                                         ( --stake-pool-verification-key STRING
+                                                                         | --cold-verification-key-file FILE
+                                                                         | --stake-pool-id STAKE_POOL_ID
+                                                                         | --stake-verification-key STRING
+                                                                         | --stake-verification-key-file FILE
+                                                                         | --stake-key-hash HASH
+                                                                         )
+                                                                         --governance-action-tx-id TXID
+                                                                         --goverenance-action-index WORD32
+                                                                         --out-file FILE
+
+  Create a no confidence proposal.
 
 Usage: cardano-cli experimental governance action create-protocol-parameters-update --epoch NATURAL
                                                                                       [--min-fee-constant LOVELACE]
