@@ -41,7 +41,7 @@
         inherit (nixpkgs) lib;
 
         # see flake `variants` below for alternative compilers
-        defaultCompiler = "ghc927";
+        defaultCompiler = "ghc928";
         # We use cabalProject' to ensure we don't build the plan for
         # all systems.
         cabalProject = nixpkgs.haskell-nix.cabalProject' ({config, ...}: {
@@ -168,13 +168,7 @@
               profiling = (p.appendModule {modules = [{enableLibraryProfiling = true;}];}).shell;
             };
           in
-            profillingShell cabalProject
-            # Additional shells for every GHC version supported by haskell.nix, eg. `nix develop .#ghc927`
-            // lib.mapAttrs (compiler-nix-name: _: let
-              p = cabalProject.appendModule {inherit compiler-nix-name;};
-            in
-              p.shell // (profillingShell p))
-            nixpkgs.haskell-nix.compiler;
+            profillingShell cabalProject;
           # formatter used by nix fmt
           formatter = nixpkgs.alejandra;
         }
