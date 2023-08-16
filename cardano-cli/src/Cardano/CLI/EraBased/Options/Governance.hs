@@ -1,6 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
+{- HLINT ignore "Move brackets to avoid $" -}
 
 module Cardano.CLI.EraBased.Options.Governance
   ( EraBasedGovernanceCmds(..)
@@ -9,20 +13,26 @@ module Cardano.CLI.EraBased.Options.Governance
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Domain.ProtocolParametersUpdate as L
+import qualified Cardano.Api.Ledger as L
+import           Cardano.Api.Shelley (ShelleyLedgerEra)
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Governance
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Governance.Committee
+import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
 import           Data.Foldable
+import           Data.Function ((&))
 import           Data.Functor
 import           Data.Maybe
 import           Data.String
+import           Lens.Micro ((.~))
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
@@ -37,7 +47,7 @@ pEraBasedGovernanceCmds envCli era =
     , pGovernanceCommitteeCmds era <&> fmap EraBasedGovernanceCommitteeCmds
     , fmap EraBasedGovernanceActionCmds <$> pGovernanceActionCmds era
     , pDRepCommands era
-    , pEraBasedGovernanceUpdateProposal envCli era
+    , pEraBasedGovernanceUpdateProposal era
     ]
 
 
@@ -318,36 +328,46 @@ pDRepCommands era = do
 --------------------------------------------------------------------------------
 
 pEraBasedGovernanceUpdateProposal :: ()
-  => EnvCli
-  -> CardanoEra era
+  => CardanoEra era
   -> Maybe (Parser (EraBasedGovernanceCmds era))
-pEraBasedGovernanceUpdateProposal envCli =
-  featureInEra Nothing $ \w ->
+pEraBasedGovernanceUpdateProposal era =
+  inEraFeature era Nothing $ \sbe ->
     Just
-      $ subParser "registration-certificate"
-      $ Opt.info (pEraCmd envCli w)
-      $ Opt.progDesc "Create a registration certificate."
+      $ subParser "update-proposal"
+      $ Opt.info (pEraCmd sbe)
+      $ Opt.progDesc "Update proposal."
  where
-  pEraCmd :: EnvCli -> AnyEraDecider era -> Parser (EraBasedGovernanceCmds era)
-  pEraCmd envCli' = \case
-    AnyEraDeciderShelleyToBabbage sToB ->
-      EraBasedGovernanceRegistrationCertificateCmd
-        <$> asum [ ShelleyToBabbageStakePoolRegTarget sToB
-                     <$> pStakePoolRegistrationParserRequirements envCli'
-                 , ShelleyToBabbageStakeKeyRegTarget sToB
-                     <$> pStakeIdentifier
-                 ]
-        <*> pOutputFile
+  pEraCmd :: ()
+    => ShelleyBasedEra era
+    -> Parser (EraBasedGovernanceCmds era)
+  pEraCmd sbe =
+    EraBasedGovernanceUpdateProposal sbe
+      <$> pOutputFile
+      <*> pEpochNoUpdateProp
+      <*> some pGenesisVerificationKeyFile
+      <*> pPParamsUpdate sbe
+      <*> optional pCostModels
 
-    AnyEraDeciderConwayOnwards cOn ->
-      EraBasedGovernanceRegistrationCertificateCmd . ConwayOnwardRegTarget cOn
-        <$> asum [ RegisterStakePool cOn
-                     <$> pStakePoolRegistrationParserRequirements envCli'
-                 , RegisterStakeKey cOn
-                     <$> pStakeIdentifier
-                     <*> pKeyRegistDeposit
-                 , RegisterDRep cOn
-                     <$> pDRepVerificationKeyOrHashOrFile
-                     <*> pKeyRegistDeposit
-                 ]
-        <*> pOutputFile
+pPParamsUpdate :: forall era. ()
+  => ShelleyBasedEra era
+  -> Parser (L.PParamsUpdate (ShelleyLedgerEra era))
+pPParamsUpdate sbe =
+  inShelleyBasedEraFeature sbe (pure (L.emptyProtocolParametersUpdate sbe)) $ \w ->
+    pure (L.emptyProtocolParametersUpdate w)
+      <**>  inEraFeature (toCardanoEra w) (pure id) pCombinedProtocolVersion
+
+pCombinedProtocolVersion :: ()
+  => ShelleyBasedEra era
+  -> Parser (L.PParamsUpdate (ShelleyLedgerEra era) -> L.PParamsUpdate (ShelleyLedgerEra era))
+pCombinedProtocolVersion sbe = do
+  fmap (\protVer ppu -> ppu & L.protocolUpdateProtocolVersionL sbe .~ L.SJust protVer)
+    $ Opt.option readLedgerProtVer $ mconcat
+      [ Opt.long "protocol-version"
+      , Opt.metavar "(NATURAL, NATURAL)"
+      , Opt.help $ mconcat
+          [ "Major and minor protocol versions. "
+          , "An increase in the major protocol version indicates a hard fork."
+          , "An increase in the minor protocol version indicates a soft fork."
+          , " (old software canvalidate but not produce new blocks)."
+          ]
+      ]
