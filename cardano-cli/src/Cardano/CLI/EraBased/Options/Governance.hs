@@ -352,10 +352,10 @@ pPParamsUpdate :: forall era. ()
   => ShelleyBasedEra era
   -> Parser (L.PParamsUpdate (ShelleyLedgerEra era))
 pPParamsUpdate sbe =
-  inShelleyBasedEraFeature sbe (pure (L.emptyProtocolParametersUpdate sbe)) $ \w ->
-    pure (L.emptyProtocolParametersUpdate w)
-      <**>  inEraFeature (toCardanoEra w) (pure id) pCombinedProtocolVersion
-      <**>  inEraFeature (toCardanoEra w) (pure id) pLedgerDecentralizationParameter
+  pure (L.emptyProtocolParametersUpdate sbe)
+    <**>  modRequired (inShelleyBasedEraFeature sbe (pure id) pCombinedProtocolVersion)
+    <**>  modOptional (inShelleyBasedEraFeature sbe (pure id) pLedgerDecentralizationParameter)
+    <**>  modOptional (inShelleyBasedEraFeature sbe (pure id) pLedgerDecentralizationParameter)
 
 pCombinedProtocolVersion :: ()
   => ShelleyBasedEra era
@@ -373,6 +373,12 @@ pCombinedProtocolVersion sbe = do
           ]
       ]
 
+modRequired :: Parser (a -> a) -> Parser (a -> a)
+modRequired p = maybe id id <$> optional p
+
+modOptional :: Parser (a -> a) -> Parser (a -> a)
+modOptional p = maybe id id <$> optional p
+
 pLedgerDecentralizationParameter :: ()
   => ShelleyToAlonzoEra era
   -> Parser (L.PParamsUpdate (ShelleyLedgerEra era) -> L.PParamsUpdate (ShelleyLedgerEra era))
@@ -383,7 +389,6 @@ pLedgerDecentralizationParameter w = do
       , Opt.metavar "RATIONAL"
       , Opt.help "Decentralization parameter."
       ]
-
 
 -- pProtocolParametersUpdate :: Parser ProtocolParametersUpdate
 -- pProtocolParametersUpdate =
