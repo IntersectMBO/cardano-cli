@@ -355,6 +355,7 @@ pPParamsUpdate sbe =
   inShelleyBasedEraFeature sbe (pure (L.emptyProtocolParametersUpdate sbe)) $ \w ->
     pure (L.emptyProtocolParametersUpdate w)
       <**>  inEraFeature (toCardanoEra w) (pure id) pCombinedProtocolVersion
+      <**>  inEraFeature (toCardanoEra w) (pure id) pLedgerDecentralizationParameter
 
 pCombinedProtocolVersion :: ()
   => ShelleyBasedEra era
@@ -371,3 +372,45 @@ pCombinedProtocolVersion sbe = do
           , " (old software canvalidate but not produce new blocks)."
           ]
       ]
+
+pLedgerDecentralizationParameter :: ()
+  => ShelleyToAlonzoEra era
+  -> Parser (L.PParamsUpdate (ShelleyLedgerEra era) -> L.PParamsUpdate (ShelleyLedgerEra era))
+pLedgerDecentralizationParameter w = do
+  fmap (\d ppu -> ppu & L.protocolUpdateDecentralizationL w .~ L.SJust d)
+    $ Opt.option readLedgerUnitInterval $ mconcat
+      [ Opt.long "decentralization-parameter"
+      , Opt.metavar "RATIONAL"
+      , Opt.help "Decentralization parameter."
+      ]
+
+
+-- pProtocolParametersUpdate :: Parser ProtocolParametersUpdate
+-- pProtocolParametersUpdate =
+--   ProtocolParametersUpdate
+--     <$> optional pProtocolVersion
+--     <*> optional pDecentralParam
+--     <*> optional pExtraEntropy
+--     <*> optional pMaxBlockHeaderSize
+--     <*> optional pMaxBodySize
+--     <*> optional pMaxTransactionSize
+--     <*> optional pMinFeeConstantFactor
+--     <*> optional pMinFeePerByteFactor
+--     <*> optional pMinUTxOValue
+--     <*> optional pKeyRegistDeposit
+--     <*> optional pPoolDeposit
+--     <*> optional pMinPoolCost
+--     <*> optional pEpochBoundRetirement
+--     <*> optional pNumberOfPools
+--     <*> optional pPoolInfluence
+--     <*> optional pMonetaryExpansion
+--     <*> optional pTreasuryExpansion
+--     <*> optional pUTxOCostPerWord
+--     <*> pure mempty
+--     <*> optional pExecutionUnitPrices
+--     <*> optional pMaxTxExecutionUnits
+--     <*> optional pMaxBlockExecutionUnits
+--     <*> optional pMaxValueSize
+--     <*> optional pCollateralPercent
+--     <*> optional pMaxCollateralInputs
+--     <*> optional pUTxOCostPerByte

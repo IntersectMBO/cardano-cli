@@ -7,6 +7,7 @@ module Cardano.CLI.Parser
   , readPoolIdOutputFormat
   , readRational
   , readRationalUnitInterval
+  , readLedgerUnitInterval
   , readStringOfMaxLength
   , readURIOfMaxLength
   , readLedgerProtVer
@@ -99,6 +100,21 @@ readLedgerProtVer = readerFromAttoParser pAttoProtVer
       void $ Atto.char ','
       minor <- Atto.decimal @Natural
       pure $ L.ProtVer major minor
+
+readLedgerUnitInterval :: Opt.ReadM L.UnitInterval
+readLedgerUnitInterval = readRationalUnitInterval >>= requireBoundRational "D"
+
+requireBoundRational :: ()
+  => L.BoundedRational b
+  => MonadFail m
+  => String
+  -> Rational
+  -> m b
+requireBoundRational name r =
+  maybe
+    (fail $ "ppce" <> name <> " must be in the range [0,1]: " <> show r)
+    pure
+    (L.boundRational r)
 
 readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
 readerFromAttoParser p =
