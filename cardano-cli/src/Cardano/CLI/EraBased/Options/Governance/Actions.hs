@@ -18,6 +18,7 @@ import qualified Cardano.Ledger.BaseTypes as Ledger
 
 import           Data.Foldable
 import           GHC.Natural (Natural)
+import           GHC.Word
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
@@ -33,6 +34,7 @@ pGovernanceActionCmds era =
     )
     [ pGovernanceActionNewConstitution era
     , pGovernanceActionNewCommittee era
+    , pGovernanceActionNoConfidence era
     , pGovernanceActionProtocolParametersUpdate era
     , pGovernanceActionTreasuryWithdrawal era
     ]
@@ -77,6 +79,44 @@ pEraBasedNewCommittee =
     <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
     <*> pGoveranceActionIdentifier "Previous governance action id of `NewCommittee` or `NoConfidence` type"
     <*> pOutputFile
+
+
+pGovernanceActionNoConfidence
+  :: CardanoEra era  -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionNoConfidence =
+  featureInEra Nothing (\cOn -> Just $
+     subParser "create-no-confidence"
+        $ Opt.info (pCmd cOn)
+        $ Opt.progDesc "Create a no confidence proposal.")
+ where
+  pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
+  pCmd cOn =
+    fmap (GovernanceActionCreateNoConfidence cOn) $
+      EraBasedNoConfidence
+        <$> pGovActionDeposit
+        <*> pAnyStakeIdentifier
+        <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
+        <*> pWord32 "goverenance-action-index" "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
+        <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
+
+
+pWord32 :: String -> String -> Parser Word32
+pWord32 l h =
+  Opt.option auto $ mconcat
+    [ Opt.long l
+    , Opt.metavar "WORD32"
+    , Opt.help h
+    ]
+
+
+pTxId :: String -> String -> Parser TxId
+pTxId l h =
+  Opt.option (readerFromParsecParser parseTxId) $ mconcat
+    [ Opt.long l
+    , Opt.metavar "TXID"
+    , Opt.help h
+    ]
+
 
 pAnyStakeIdentifier :: Parser AnyStakeIdentifier
 pAnyStakeIdentifier =

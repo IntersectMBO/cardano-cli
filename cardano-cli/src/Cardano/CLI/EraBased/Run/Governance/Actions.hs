@@ -45,6 +45,23 @@ runGovernanceActionCmds = \case
   GoveranceActionCreateNewCommittee con newCommittee ->
     runGovernanceActionCreateNewCommittee con newCommittee
 
+  GovernanceActionCreateNoConfidence cOn noConfidence ->
+    runGovernanceActionCreateNoConfidence cOn noConfidence
+
+-- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
+runGovernanceActionCreateNoConfidence
+  :: ConwayEraOnwards era
+  -> EraBasedNoConfidence
+  -> ExceptT GovernanceActionsError IO ()
+runGovernanceActionCreateNoConfidence cOn (EraBasedNoConfidence deposit returnAddr _txid _ind outFp) = do
+  returnKeyHash <- readStakeKeyHash returnAddr
+  let sbe = conwayEraOnwardsToShelleyBasedEra cOn
+      proposal = createProposalProcedure sbe deposit returnKeyHash MotionOfNoConfidence
+
+  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+    $ conwayEraOnwardsConstraints cOn
+    $ writeFileTextEnvelope outFp Nothing proposal
+
 runGovernanceActionCreateConstitution :: ()
   => ConwayEraOnwards era
   -> EraBasedNewConstitution
