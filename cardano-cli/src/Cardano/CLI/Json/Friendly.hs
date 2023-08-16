@@ -15,6 +15,7 @@ module Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS) where
 import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
 import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Ledger.Conway.TxCert as ConwayLedger
 import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), ShelleyLedgerEra,
                    StakeAddress (..), fromShelleyPaymentCredential, fromShelleyScriptHash,
@@ -312,6 +313,12 @@ stakeCredJson
   -> Aeson.Value
 stakeCredJson sbe c = shelleyBasedEraConstraints sbe $ toJSON c
 
+drepCredJson
+  :: ShelleyBasedEra era
+  -> Shelley.Credential 'Shelley.DRepRole (Ledger.EraCrypto (ShelleyLedgerEra era))
+  -> Aeson.Value
+drepCredJson sbe c = shelleyBasedEraConstraints sbe $ toJSON c
+
 poolIdJson
   :: ShelleyBasedEra era
   -> Ledger.KeyHash Ledger.StakePool (Ledger.EraCrypto (ShelleyLedgerEra era))
@@ -379,7 +386,7 @@ renderCertificate sbe = \case
             | Shelley.KeyHashObj (Shelley.KeyHash coldKey) <- coldCred
             , Shelley.KeyHashObj (Shelley.KeyHash hotKey) <- hotCred ->
           "Constitutional committee member hot key registration" .= object
-            ["cold key hash" .= String (textShow coldKey)
+            [ "cold key hash" .= String (textShow coldKey)
             , "hot key hash" .= String (textShow hotKey)
             ]
         Ledger.ResignCommitteeColdTxCert cred -> case cred of
@@ -426,10 +433,10 @@ renderCertificate sbe = \case
             [ "stake pool key hash" .= String (textShow kh)
             , "epoch" .= epoch
             ]
-        Ledger.DelegStakeTxCert stakeCredential (Shelley.KeyHash kh) ->
-          "Stake address delegation" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
-            , "key hash" .= String (textShow kh)
+        ConwayLedger.UpdateDRepTxCert drepCredential mbAnchor ->
+          "Drep certificate update" .= object
+            [ "Drep credential" .= drepCredJson sbe drepCredential
+            , "anchor " .= mbAnchor
             ]
   where
     conwayToObject :: ()
