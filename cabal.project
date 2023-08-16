@@ -96,7 +96,7 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-api
-  tag: 1d8bc06db767c47d653a9fef0b01d8948efb18f6
+  tag: cd92d05e97b173bf51417dea5c4b42e0c9957d04
   subdir:
       cardano-api
       cardano-api-gen
