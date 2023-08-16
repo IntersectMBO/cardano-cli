@@ -93,7 +93,7 @@ pCreateVote envCli =
     ConwayVote
       <$> pVoteChoice
       <*> pVoterType
-      <*> pGoveranceActionIdentifier
+      <*> pGoveranceActionIdentifier "TxIn of governance action (already on chain)."
       <*> pVotingCredential
       <*> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
       <*> pFileOutDirection "out-file" "Output filepath of the vote."

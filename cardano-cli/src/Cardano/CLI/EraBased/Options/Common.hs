@@ -1271,22 +1271,17 @@ pKesPeriod =
     , Opt.help "The start of the KES key validity period."
     ]
 
-pEpochNo :: Parser EpochNo
-pEpochNo =
+pEpochNo :: String -> Parser EpochNo
+pEpochNo h =
   fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
     [ Opt.long "epoch"
     , Opt.metavar "NATURAL"
-    , Opt.help "The epoch number."
+    , Opt.help h
     ]
 
 
 pEpochNoUpdateProp :: Parser EpochNo
-pEpochNoUpdateProp =
-  fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
-    [ Opt.long "epoch"
-    , Opt.metavar "EPOCH"
-    , Opt.help "The epoch number in which the update proposal is valid."
-    ]
+pEpochNoUpdateProp = pEpochNo "The epoch number in which the update proposal is valid."
 
 pGenesisFile :: String -> Parser GenesisFile
 pGenesisFile desc =
@@ -2122,13 +2117,17 @@ pPoolCost =
     , Opt.help "The stake pool's cost."
     ]
 
-pPoolMargin :: Parser Rational
-pPoolMargin =
+pRational :: String -> String -> Parser Rational
+pRational opt h =
   Opt.option readRationalUnitInterval $ mconcat
-    [ Opt.long "pool-margin"
+    [ Opt.long opt
     , Opt.metavar "RATIONAL"
-    , Opt.help "The stake pool's margin."
+    , Opt.help h
     ]
+
+pPoolMargin :: Parser Rational
+pPoolMargin = pRational "pool-margin" "The stake pool's margin."
+
 
 pPoolRelay :: Parser StakePoolRelay
 pPoolRelay =
@@ -2583,12 +2582,12 @@ pVoterType =
    ,  flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
    ]
 
-pGoveranceActionIdentifier :: Parser TxIn
-pGoveranceActionIdentifier =
+pGoveranceActionIdentifier :: String -> Parser TxIn
+pGoveranceActionIdentifier h =
   Opt.option (readerFromParsecParser parseTxIn) $ mconcat
     [ Opt.long "tx-in"
     , Opt.metavar "TX-IN"
-    , Opt.help "TxIn of governance action (already on chain)."
+    , Opt.help h
     ]
 
 -- TODO: Conway era include "normal" stake keys

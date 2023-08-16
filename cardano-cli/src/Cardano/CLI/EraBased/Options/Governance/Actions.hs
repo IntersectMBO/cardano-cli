@@ -32,6 +32,7 @@ pGovernanceActionCmds era =
           ]
     )
     [ pGovernanceActionNewConstitution era
+    , pGovernanceActionNewCommittee era
     , pGovernanceActionProtocolParametersUpdate era
     , pGovernanceActionTreasuryWithdrawal era
     ]
@@ -53,6 +54,29 @@ pGovernanceActionNewConstitution =
         <*> pAnyStakeIdentifier
         <*> pConstitution
         <*> pFileOutDirection "out-file" "Output filepath of the constitution."
+
+pGovernanceActionNewCommittee
+  :: CardanoEra era  -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionNewCommittee =
+  featureInEra Nothing (\cOn -> Just $
+     subParser "create-new-committee"
+        $ Opt.info (pCmd cOn)
+        $ Opt.progDesc "Create a new committee proposal.")
+ where
+  pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
+  pCmd cOn = GoveranceActionCreateNewCommittee cOn
+               <$> pEraBasedNewCommittee
+
+pEraBasedNewCommittee :: Parser EraBasedNewCommittee
+pEraBasedNewCommittee =
+  EraBasedNewCommittee
+    <$> pGovActionDeposit
+    <*> pAnyStakeIdentifier
+    <*> many pAnyStakeIdentifier
+    <*> many ((,) <$> pAnyStakeIdentifier <*> pEpochNo "Committee member expiry epoch")
+    <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
+    <*> pGoveranceActionIdentifier "Previous governance action id of `NewCommittee` or `NoConfidence` type"
+    <*> pOutputFile
 
 pAnyStakeIdentifier :: Parser AnyStakeIdentifier
 pAnyStakeIdentifier =

@@ -231,7 +231,7 @@ pAnyVote :: ConwayEraOnwards era -> Parser AnyVote
 pAnyVote cOnwards =
   ConwayOnwardsVote cOnwards
     <$> pVoteChoice
-    <*> pGoveranceActionIdentifier
+    <*> pGoveranceActionIdentifier "TxIn of governance action (already on chain)."
     <*> pAnyVotingStakeVerificationKeyOrHashOrFile
 
 pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile

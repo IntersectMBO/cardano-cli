@@ -6,6 +6,7 @@
 module Cardano.CLI.EraBased.Commands.Governance.Actions
   ( AnyStakeIdentifier(..)
   , GovernanceActionCmds(..)
+  , EraBasedNewCommittee(..)
   , EraBasedNewConstitution(..)
   , EraBasedTreasuryWithdrawal(..)
   , renderGovernanceActionCmds
@@ -23,6 +24,9 @@ data GovernanceActionCmds era
   = GovernanceActionCreateConstitution
       (ConwayEraOnwards era)
       EraBasedNewConstitution
+  | GoveranceActionCreateNewCommittee
+      (ConwayEraOnwards era)
+      EraBasedNewCommittee
   | GovernanceActionProtocolParametersUpdate
       (ShelleyBasedEra era)
       EpochNo
@@ -33,6 +37,17 @@ data GovernanceActionCmds era
       (ConwayEraOnwards era)
       EraBasedTreasuryWithdrawal
   deriving Show
+
+data EraBasedNewCommittee
+  = EraBasedNewCommittee
+    { ebDeposit :: Lovelace
+    , ebReturnAddress :: AnyStakeIdentifier
+    , ebOldCommittee :: [AnyStakeIdentifier]
+    , ebNewCommittee :: [(AnyStakeIdentifier, EpochNo)]
+    , ebRequiredQuorum :: Rational
+    , ebPreviousGovActionId :: TxIn
+    , ebFilePath :: File () Out
+    } deriving Show
 
 data EraBasedNewConstitution
   = EraBasedNewConstitution
@@ -62,6 +77,9 @@ renderGovernanceActionCmds = \case
 
   GovernanceActionTreasuryWithdrawal {} ->
     "governance action create-treasury-withdrawal"
+
+  GoveranceActionCreateNewCommittee {} ->
+    "governance action create-new-committee"
 
 data AnyStakeIdentifier
   = AnyStakeKey (VerificationKeyOrHashOrFile StakeKey)
