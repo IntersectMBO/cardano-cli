@@ -1,5 +1,5 @@
 Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
-                                                              --epoch EPOCH
+                                                              --epoch NATURAL
                                                               (--genesis-verification-key-file FILE)
                                                               [--protocol-major-version NATURAL
                                                                 --protocol-minor-version NATURAL]
@@ -36,7 +36,7 @@ Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
 
 Available options:
   --out-file FILE          The output file.
-  --epoch EPOCH            The epoch number in which the update proposal is
+  --epoch NATURAL          The epoch number in which the update proposal is
                            valid.
   --genesis-verification-key-file FILE
                            Filepath of the genesis verification key.

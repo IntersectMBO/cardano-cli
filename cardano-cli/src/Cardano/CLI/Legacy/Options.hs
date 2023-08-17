@@ -1406,5 +1406,5 @@ pStakePoolRetirementCert envCli =
   PoolRetirementCert
     <$> pAnyShelleyBasedEra envCli
     <*> pStakePoolVerificationKeyOrFile
-    <*> pEpochNo
+    <*> pEpochNo "The epoch number."
     <*> pOutputFile

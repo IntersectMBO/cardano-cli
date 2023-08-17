@@ -42,6 +42,9 @@ runGovernanceActionCmds = \case
   GovernanceActionTreasuryWithdrawal cOn treasuryWithdrawal ->
     runGovernanceActionTreasuryWithdrawal cOn treasuryWithdrawal
 
+  GoveranceActionCreateNewCommittee con newCommittee ->
+    runGovernanceActionCreateNewCommittee con newCommittee
+
 runGovernanceActionCreateConstitution :: ()
   => ConwayEraOnwards era
   -> EraBasedNewConstitution
@@ -72,6 +75,28 @@ runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution deposit anySt
         $ conwayEraOnwardsConstraints cOn
         $ writeFileTextEnvelope outFp Nothing proposal
 
+-- TODO: Conway era - After ledger bump update this function
+-- with the new ledger types
+runGovernanceActionCreateNewCommittee
+  :: ConwayEraOnwards era
+  -> EraBasedNewCommittee
+  -> ExceptT GovernanceActionsError IO ()
+runGovernanceActionCreateNewCommittee cOn (EraBasedNewCommittee deposit retAddr old new q prevActId oFp) = do
+  let sbe = conwayEraOnwardsToShelleyBasedEra cOn -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
+      _govActIdentifier = makeGoveranceActionId sbe prevActId
+      quorumRational = toRational q
+
+  _oldCommitteeKeyHashes <- mapM readStakeKeyHash old
+  newCommitteeKeyHashes <- mapM (readStakeKeyHash . fst) new
+
+  returnKeyHash <- readStakeKeyHash retAddr
+
+  let proposeNewCommittee = ProposeNewCommittee newCommitteeKeyHashes quorumRational
+      proposal = createProposalProcedure sbe deposit returnKeyHash proposeNewCommittee
+
+  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+    $ conwayEraOnwardsConstraints cOn
+    $ writeFileTextEnvelope oFp Nothing proposal
 
 runGovernanceActionCreateProtocolParametersUpdate :: ()
   => ShelleyBasedEra era

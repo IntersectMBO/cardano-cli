@@ -1,4 +1,4 @@
-Usage: cardano-cli conway governance action create-protocol-parameters-update --epoch EPOCH
+Usage: cardano-cli conway governance action create-protocol-parameters-update --epoch NATURAL
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--max-block-body-size NATURAL]
@@ -27,7 +27,7 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update --
   Create a protocol parameters update.
 
 Available options:
-  --epoch EPOCH            The epoch number in which the update proposal is
+  --epoch NATURAL          The epoch number in which the update proposal is
                            valid.
   --min-fee-constant LOVELACE
                            The constant factor for the minimum fee calculation.
