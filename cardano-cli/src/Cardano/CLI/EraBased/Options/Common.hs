@@ -21,7 +21,6 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
-import           Cardano.Prelude (purer)
 
 import           Control.Monad (mfilter)
 import qualified Data.Aeson as Aeson
@@ -97,7 +96,7 @@ pCardanoEra envCli =
       ]
     , maybeToList $ pure <$> envCliAnyCardanoEra envCli
     -- TODO is this default needed anymore?
-    , purer defaultCardanoEra
+    , pure $ pure defaultCardanoEra
   ]
     where
       defaultCardanoEra = defaultShelleyBasedEra & \(AnyShelleyBasedEra era) ->
@@ -346,7 +345,7 @@ pAnyShelleyBasedEra envCli =
         $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
       ]
     , maybeToList $ pure <$> envCliAnyShelleyBasedEra envCli
-    , purer defaultShelleyBasedEra
+    , pure $ pure defaultShelleyBasedEra
   ]
 
 pAnyShelleyToBabbageEra :: EnvCli -> Parser AnyShelleyToBabbageEra
@@ -364,7 +363,7 @@ pAnyShelleyToBabbageEra envCli =
         $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era (default)"]
       ]
     , maybeToList $ pure <$> envCliAnyShelleyToBabbageEra envCli
-    , purer defaultShelleyToBabbageEra
+    , pure $ pure defaultShelleyToBabbageEra
   ]
 
 pShelleyBasedShelley :: EnvCli -> Parser AnyShelleyBasedEra
