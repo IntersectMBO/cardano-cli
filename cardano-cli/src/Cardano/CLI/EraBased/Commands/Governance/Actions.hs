@@ -41,6 +41,10 @@ data GovernanceActionCmds era
   | GovernanceActionTreasuryWithdrawal
       (ConwayEraOnwards era)
       EraBasedTreasuryWithdrawal
+  | GoveranceActionInfo -- TODO: Conway era - ledger currently provides a placeholder constructor
+      (ConwayEraOnwards era)
+      (File () In)
+      (File () Out)
   deriving Show
 
 data EraBasedNewCommittee
@@ -97,6 +101,9 @@ renderGovernanceActionCmds = \case
 
   GovernanceActionCreateNoConfidence {} ->
     "governance action create-no-confidence"
+
+  GoveranceActionInfo {} ->
+    "governance action create-info"
 
 data AnyStakeIdentifier
   = AnyStakeKey (VerificationKeyOrHashOrFile StakeKey)
