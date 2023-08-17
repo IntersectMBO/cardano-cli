@@ -50,7 +50,6 @@ import           Cardano.Crypto.Hashing (hashRaw)
 import           Cardano.Crypto.ProtocolMagic (AProtocolMagic (..), ProtocolMagic,
                    ProtocolMagicId (..))
 import           Cardano.Ledger.Binary (Annotated (..))
-import           Cardano.Prelude (ConvertText (..))
 
 import           Control.Monad (when)
 import qualified Data.Attoparsec.ByteString.Char8 as Atto
@@ -60,6 +59,7 @@ import qualified Data.ByteString.Lazy.Char8 as C8
 import qualified Data.Char as Char
 import           Data.Foldable
 import           Data.Text (Text)
+import qualified Data.Text as Text
 import           Data.Time (UTCTime)
 import           Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import           Data.Word (Word16, Word64)
@@ -68,7 +68,6 @@ import           GHC.Natural (Natural)
 import           GHC.Word (Word8)
 import           Options.Applicative
 import qualified Options.Applicative as Opt
-
 
 backwardsCompatibilityCommands :: EnvCli -> Parser ClientCommand
 backwardsCompatibilityCommands envCli =
@@ -454,9 +453,9 @@ parseSystemTag = Opt.option (eitherReader checkSysTag)
  where
   checkSysTag :: String -> Either String SystemTag
   checkSysTag name =
-    let tag = SystemTag $ toS name
+    let tag = SystemTag $ Text.pack name
     in case checkSystemTag tag of
-         Left err -> Left . toS $ sformat build err
+         Left err -> Left . Text.unpack $ sformat build err
          Right () -> Right tag
 
 parseInstallerHash :: Parser InstallerHash
@@ -555,9 +554,9 @@ parseApplicationName = Opt.option (eitherReader checkAppNameLength)
  where
   checkAppNameLength :: String -> Either String ApplicationName
   checkAppNameLength name =
-    let appName = ApplicationName $ toS name
+    let appName = ApplicationName $ Text.pack name
     in case checkApplicationName appName of
-         Left err -> Left . toS $ sformat build err
+         Left err -> Left . Text.unpack $ sformat build err
          Right () -> Right appName
 
 parseNumSoftwareVersion :: Parser NumSoftwareVersion
