@@ -13,7 +13,6 @@ import           Cardano.Api (textShow)
 
 import           Cardano.Crypto.Signing (SigningKey (..))
 import qualified Cardano.Crypto.Wallet as Wallet
-import           Cardano.Prelude (cborError)
 
 import qualified Codec.CBOR.Decoding as D
 import qualified Codec.CBOR.Encoding as E
@@ -48,7 +47,7 @@ enforceSize lbl requestedSize = D.decodeListLenCanonical >>= matchSize requested
 matchSize :: Int -> Text -> Int -> D.Decoder s ()
 matchSize requestedSize lbl actualSize =
   when (actualSize /= requestedSize) $
-    cborError (lbl <> " failed the size check. Expected " <> textShow requestedSize <> ", found " <> textShow actualSize)
+    fail $ formatToString build (lbl <> " failed the size check. Expected " <> textShow requestedSize <> ", found " <> textShow actualSize)
 
 -- | Encoder for a Byron/Classic signing key.
 --   Lifted from cardano-sl legacy codebase.
