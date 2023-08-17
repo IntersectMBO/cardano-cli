@@ -1,6 +1,7 @@
 Usage: cardano-cli experimental governance action 
                                                     ( create-constitution
                                                     | create-new-committee
+                                                    | create-no-confidence
                                                     | create-protocol-parameters-update
                                                     | create-treasury-withdrawal
                                                     )
@@ -13,6 +14,7 @@ Available options:
 Available commands:
   create-constitution      Create a constitution.
   create-new-committee     Create a new committee proposal.
+  create-no-confidence     Create a no confidence proposal.
   create-protocol-parameters-update
                            Create a protocol parameters update.
   create-treasury-withdrawal

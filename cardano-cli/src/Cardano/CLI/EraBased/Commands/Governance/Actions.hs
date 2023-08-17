@@ -8,6 +8,7 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   , GovernanceActionCmds(..)
   , EraBasedNewCommittee(..)
   , EraBasedNewConstitution(..)
+  , EraBasedNoConfidence(..)
   , EraBasedTreasuryWithdrawal(..)
   , renderGovernanceActionCmds
   ) where
@@ -19,6 +20,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
+import           Data.Word
 
 data GovernanceActionCmds era
   = GovernanceActionCreateConstitution
@@ -27,6 +29,9 @@ data GovernanceActionCmds era
   | GoveranceActionCreateNewCommittee
       (ConwayEraOnwards era)
       EraBasedNewCommittee
+  | GovernanceActionCreateNoConfidence
+      (ConwayEraOnwards era)
+      EraBasedNoConfidence
   | GovernanceActionProtocolParametersUpdate
       (ShelleyBasedEra era)
       EpochNo
@@ -57,6 +62,15 @@ data EraBasedNewConstitution
       , encFilePath :: File () Out
       } deriving Show
 
+data EraBasedNoConfidence
+  = EraBasedNoConfidence
+      { ncDeposit :: Lovelace
+      , ncStakeCredential :: AnyStakeIdentifier
+      , ncGovAct :: TxId
+      , ncGovActIndex :: Word32
+      , ncFilePath :: File () Out
+      } deriving Show
+
 data EraBasedTreasuryWithdrawal where
   EraBasedTreasuryWithdrawal
     :: Lovelace -- ^ Deposit
@@ -80,6 +94,9 @@ renderGovernanceActionCmds = \case
 
   GoveranceActionCreateNewCommittee {} ->
     "governance action create-new-committee"
+
+  GovernanceActionCreateNoConfidence {} ->
+    "governance action create-no-confidence"
 
 data AnyStakeIdentifier
   = AnyStakeKey (VerificationKeyOrHashOrFile StakeKey)
