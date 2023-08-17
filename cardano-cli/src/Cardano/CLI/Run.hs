@@ -23,7 +23,6 @@ import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run.Ping (PingClientCmdError (..), PingCmd (..),
                    renderPingClientCmdError, runPingCmd)
 import           Cardano.Git.Rev (gitRev)
-import           Cardano.Prelude (toS)
 
 import           Control.Monad (forM_)
 import           Control.Monad.IO.Unlift (MonadIO (..))
@@ -81,7 +80,7 @@ runClientCommand = \case
 renderClientCommandError :: ClientCommandErrors -> Text
 renderClientCommandError = \case
   AnyEraCmdError err ->
-    toS $ displayError err
+    Text.pack $ displayError err
   ByronClientError err ->
     renderByronClientCmdError err
   LegacyClientError cmd err ->

@@ -11,7 +11,8 @@ module Cardano.CLI.EraBased.Errors.StakeAddress
 import           Cardano.Api
 
 import           Cardano.CLI.Read
-import           Cardano.Prelude (toS)
+
+import qualified Data.Text as Text
 
 data ShelleyStakeAddressCmdError
   = ShelleyStakeAddressCmdReadKeyFileError !(FileError InputDecodeError)
@@ -44,5 +45,5 @@ instance Error StakeAddressDelegationError where
       where
         eraTxt :: forall era. ShelleyToBabbageEra era -> String
         eraTxt stbe' = shelleyToBabbageEraConstraints stbe' $
-          toS . renderEra $ AnyCardanoEra (cardanoEra @era)
+          Text.unpack . renderEra $ AnyCardanoEra (cardanoEra @era)
 

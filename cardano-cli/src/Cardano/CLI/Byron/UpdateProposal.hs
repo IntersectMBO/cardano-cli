@@ -20,7 +20,6 @@ import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
 import           Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
 import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS, renderHelpersError)
 import           Cardano.CLI.Types.Common
-import           Cardano.Prelude (ConvertText (..))
 import           Ouroboros.Consensus.Ledger.SupportsMempool (txId)
 import           Ouroboros.Consensus.Util.Condense (condense)
 
@@ -31,6 +30,7 @@ import           Control.Tracer (stdoutTracer, traceWith)
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as BS
 import           Data.Text (Text)
+import qualified Data.Text as Text
 
 data ByronUpdateProposalError
   = ByronReadUpdateProposalFileFailure !FilePath !Text
@@ -76,7 +76,7 @@ runProposalCreation nw sKey@(File sKeyfp) pVer sVer
 
 readByronUpdateProposal :: FilePath -> ExceptT ByronUpdateProposalError IO ByronUpdateProposal
 readByronUpdateProposal fp = do
-  proposalBs <- handleIOExceptT (ByronReadUpdateProposalFileFailure fp . toS . displayException)
+  proposalBs <- handleIOExceptT (ByronReadUpdateProposalFileFailure fp . Text.pack . displayException)
                   $ BS.readFile fp
   let proposalResult = deserialiseFromRawBytes AsByronUpdateProposal proposalBs
   hoistEither $ first (const (UpdateProposalDecodingError fp)) proposalResult
