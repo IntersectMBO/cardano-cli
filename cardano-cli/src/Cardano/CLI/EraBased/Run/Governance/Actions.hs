@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Run.Governance.Actions
   ( runGovernanceActionCmds
@@ -38,6 +39,8 @@ instance Error GovernanceActionsError where
       "Cannot read file: " <> displayError e
     GovernanceActionsCmdNonUtf8EncodedConstitution e ->
       "Cannot read constitution: " <> show e
+    GovernanceActionsCmdReadTextEnvelopeFileError e ->
+      "Cannot read text envelope file: " <> displayError e
 
 runGovernanceActionCmds :: ()
   => GovernanceActionCmds era
@@ -57,6 +60,17 @@ runGovernanceActionCmds = \case
 
   GovernanceActionCreateNoConfidence cOn noConfidence ->
     runGovernanceActionCreateNoConfidence cOn noConfidence
+
+  GoveranceActionInfo cOn iFp oFp ->
+    runGovernanceActionInfo cOn iFp oFp
+
+runGovernanceActionInfo
+  :: ConwayEraOnwards era
+  -> File () In
+  -> File () Out
+  -> ExceptT GovernanceActionsError IO ()
+runGovernanceActionInfo _cOn _iFp _oFp =
+  liftIO $ print @String "TODO: Conway era - implement runGovernanceActionInfo - ledger currently provides a placeholder constructor"
 
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidence
