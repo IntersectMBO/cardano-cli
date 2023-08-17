@@ -22,7 +22,6 @@ import qualified Cardano.Chain.UTxO as UTxO
 import           Cardano.CLI.Types.Common
 import           Cardano.Ledger.Binary (byronProtVer, toPlainDecoder)
 import           Cardano.Ledger.Binary.Plain (Decoder, fromCBOR)
-import           Cardano.Prelude (ConvertText (..))
 
 import           Codec.CBOR.Pretty (prettyHexEnc)
 import           Codec.CBOR.Read (DeserialiseFailure, deserialiseFromBytes)
@@ -98,14 +97,14 @@ pPrintCBOR bs = do
   case deserialiseFromBytes decodeTerm bs of
     Left err -> left $ CBORPrettyPrintError err
     Right (remaining, decodedVal) -> do
-      liftIO . Text.putStrLn . toS . prettyHexEnc $ encodeTerm decodedVal
+      liftIO . Text.putStrLn . Text.pack . prettyHexEnc $ encodeTerm decodedVal
       unless (LB.null remaining) $
         pPrintCBOR remaining
 
 readCBOR :: FilePath -> ExceptT HelpersError IO LB.ByteString
 readCBOR fp =
   handleIOExceptT
-    (ReadCBORFileFailure fp . toS . displayException)
+    (ReadCBORFileFailure fp . Text.pack . displayException)
     (LB.readFile fp)
 
 validateCBOR :: CBORObject -> LB.ByteString -> Either HelpersError Text

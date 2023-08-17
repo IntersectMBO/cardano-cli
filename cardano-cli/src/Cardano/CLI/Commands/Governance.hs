@@ -13,16 +13,18 @@ import           Cardano.CLI.Read (CddlError)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
-import           Cardano.Prelude (intercalate, toS)
 
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, newExceptT)
 import           Data.Bifunctor
 import qualified Data.ByteString as BS
+import qualified Data.List as List
 import           Data.Text (Text)
+import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import           Data.Text.Encoding.Error
+import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
 import qualified Formatting.Buildable as B
 
@@ -94,12 +96,12 @@ instance Error GovernanceCmdError where
       <> " and the number of reward amounts: " <> show nRewards
       <> " are not equivalent."
     GovernanceCmdCostModelsJsonDecodeErr fp msg ->
-      "Error decoding cost model: " <> toS msg <> " at: " <> fp
+      "Error decoding cost model: " <> Text.unpack msg <> " at: " <> fp
     GovernanceCmdEmptyCostModel fp ->
       "The decoded cost model was empty at: " <> fp
     GovernanceCmdUnexpectedKeyType expectedTypes ->
       "Unexpected poll key type; expected one of: "
-      <> intercalate ", " (show <$> expectedTypes)
+      <> List.intercalate ", " (show <$> expectedTypes)
     GovernanceCmdPollOutOfBoundAnswer maxIdx ->
       "Poll answer out of bounds. Choices are between 0 and " <> show maxIdx
     GovernanceCmdPollInvalidChoice ->
@@ -107,7 +109,7 @@ instance Error GovernanceCmdError where
     GovernanceCmdDecoderError decoderError ->
       "Unable to decode metadata: " <> renderDecoderError decoderError
     GovernanceCmdVerifyPollError pollError ->
-      toS (renderGovernancePollError pollError)
+      Text.unpack (renderGovernancePollError pollError)
     GovernanceCmdWriteFileError fileError ->
       "Cannot write file: " <> displayError fileError
     GovernanceCmdMIRCertNotSupportedInConway ->
@@ -115,7 +117,7 @@ instance Error GovernanceCmdError where
     GovernanceCmdGenesisDelegationNotSupportedInConway ->
       "Genesis delegation is not supported in Conway era onwards."
     where
-      renderDecoderError = toS . TL.toLazyText . B.build
+      renderDecoderError = TL.unpack . TL.toLazyText . B.build
 
 runGovernanceCreateVoteCmd
   :: AnyShelleyBasedEra
