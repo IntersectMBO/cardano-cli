@@ -30,18 +30,15 @@ pGovernanceCommitteeCmds era =
 pGovernanceCommitteeKeyGenCold :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
-pGovernanceCommitteeKeyGenCold =
-  featureInEra
-    Nothing
-    ( \w ->
-        Just
-          $ subParser "key-gen-cold"
-          $ Opt.info (pCmd w)
-          $ Opt.progDesc
-          $ mconcat
-              [ "Create a cold key pair for a Constitutional Committee Member"
-              ]
-    )
+pGovernanceCommitteeKeyGenCold era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "key-gen-cold"
+    $ Opt.info (pCmd w)
+    $ Opt.progDesc
+    $ mconcat
+        [ "Create a cold key pair for a Constitutional Committee Member"
+        ]
   where
     pCmd :: ()
       => ConwayEraOnwards era
@@ -54,18 +51,15 @@ pGovernanceCommitteeKeyGenCold =
 pGovernanceCommitteeKeyGenHot :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
-pGovernanceCommitteeKeyGenHot =
-  featureInEra
-    Nothing
-    ( \w ->
-        Just
-          $ subParser "key-gen-hot"
-          $ Opt.info (pCmd w)
-          $ Opt.progDesc
-          $ mconcat
-              [ "Create a cold key pair for a Constitutional Committee Member"
-              ]
-    )
+pGovernanceCommitteeKeyGenHot era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "key-gen-hot"
+    $ Opt.info (pCmd w)
+    $ Opt.progDesc
+    $ mconcat
+        [ "Create a cold key pair for a Constitutional Committee Member"
+        ]
   where
     pCmd :: ()
       => ConwayEraOnwards era
@@ -78,18 +72,15 @@ pGovernanceCommitteeKeyGenHot =
 pGovernanceCommitteeKeyHash :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
-pGovernanceCommitteeKeyHash =
-  featureInEra
-    Nothing
-    ( \w ->
-        Just
-          $ subParser "key-hash"
-          $ Opt.info (pCmd w)
-          $ Opt.progDesc
-          $ mconcat
-              [ "Print the identifier (hash) of a public key"
-              ]
-    )
+pGovernanceCommitteeKeyHash era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "key-hash"
+    $ Opt.info (pCmd w)
+    $ Opt.progDesc
+    $ mconcat
+        [ "Print the identifier (hash) of a public key"
+        ]
   where
     pCmd :: ()
       => ConwayEraOnwards era

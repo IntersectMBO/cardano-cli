@@ -79,13 +79,14 @@ import           Prelude
 import           Control.Exception (bracket)
 import           Control.Monad (forM, unless)
 import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
-                   newExceptT)
+import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither,
+                   hoistMaybe, left, newExceptT)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (first)
 import qualified Data.ByteString.Builder as Builder
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
+import           Data.Function ((&))
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
 import           Data.Text (Text)
@@ -768,15 +769,11 @@ readTxNewConstitutionActions
   -> [NewConstitutionFile In]
   -> IO (Either ConstitutionError (TxGovernanceActions era))
 readTxNewConstitutionActions _ [] = return $ Right TxGovernanceActionsNone
-readTxNewConstitutionActions era files =
-  runExceptT $
-    featureInEra
-      (left $ ConstitutionsNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
-      (\w -> do
-        constitutions <- newExceptT $ sequence <$> mapM (readConstitution w) files
-        pure $ TxGovernanceActions w constitutions
-      )
-      era
+readTxNewConstitutionActions era files = runExceptT $ do
+  w <- maybeFeatureInEra era
+        & hoistMaybe (ConstitutionsNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
+  constitutions <- newExceptT $ sequence <$> mapM (readConstitution w) files
+  pure $ TxGovernanceActions w constitutions
 
 readConstitution
   :: ConwayEraOnwards era
