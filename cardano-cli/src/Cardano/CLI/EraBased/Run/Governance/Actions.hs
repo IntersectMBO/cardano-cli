@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TupleSections #-}
 
 module Cardano.CLI.EraBased.Run.Governance.Actions
   ( runGovernanceActionCmds
@@ -24,6 +25,7 @@ import           Data.Text.Encoding.Error
 data GovernanceActionsError
   = GovernanceActionsCmdWriteFileError (FileError ())
   | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
+  | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdNonUtf8EncodedConstitution UnicodeException
 
 
@@ -34,8 +36,11 @@ runGovernanceActionCmds = \case
   GovernanceActionCreateConstitution cOn newConstitution ->
     runGovernanceActionCreateConstitution cOn newConstitution
 
-  GovernanceActionProtocolParametersUpdate sbe eraBasedProtocolParametersUpdate ofp ->
-    runGovernanceActionCreateProtocolParametersUpdate sbe eraBasedProtocolParametersUpdate ofp
+  GovernanceActionProtocolParametersUpdate sbe eNo genKeys eraBasedProtocolParametersUpdate ofp ->
+    runGovernanceActionCreateProtocolParametersUpdate sbe eNo genKeys eraBasedProtocolParametersUpdate ofp
+
+  GovernanceActionTreasuryWithdrawal cOn treasuryWithdrawal ->
+    runGovernanceActionTreasuryWithdrawal cOn treasuryWithdrawal
 
 runGovernanceActionCreateConstitution :: ()
   => ConwayEraOnwards era
@@ -43,16 +48,7 @@ runGovernanceActionCreateConstitution :: ()
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution deposit anyStake constit outFp) = do
 
-  stakeKeyHash
-    <- case anyStake of
-         AnyStakeKey stake ->
-           firstExceptT GovernanceActionsCmdReadFileError
-             . newExceptT $ readVerificationKeyOrHashOrFile AsStakeKey stake
-
-         AnyStakePoolKey stake -> do
-           StakePoolKeyHash t <- firstExceptT GovernanceActionsCmdReadFileError
-                                   . newExceptT $ readVerificationKeyOrHashOrFile AsStakePoolKey stake
-           return $ StakeKeyHash $ coerceKeyRole t
+  stakeKeyHash <- readStakeKeyHash anyStake
 
   case constit of
     ConstitutionFromFile fp  -> do
@@ -79,16 +75,66 @@ runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution deposit anySt
 
 runGovernanceActionCreateProtocolParametersUpdate :: ()
   => ShelleyBasedEra era
+  -> EpochNo
+  -> [VerificationKeyFile In]
+  -- ^ Genesis verification keys
   -> EraBasedProtocolParametersUpdate era
   -> File () Out
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateProtocolParametersUpdate sbe eraBasedPParams oFp = do
+runGovernanceActionCreateProtocolParametersUpdate sbe expEpoch genesisVerKeys eraBasedPParams oFp = do
+  genVKeys <- sequence
+    [ firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT
+        $ readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
+    | vkeyFile <- genesisVerKeys
+    ]
+
   let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
       apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
+      genKeyHashes = fmap verificationKeyHash genVKeys
       -- TODO: Update EraBasedProtocolParametersUpdate to require genesis delegate keys
       -- depending on the era
-      -- TODO: Require expiration epoch no
-      upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType [] (error "runGovernanceActionCreateProtocolParametersUpdate")
+      upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ writeLazyByteStringFile oFp $ textEnvelopeToJSON Nothing upProp
+
+readStakeKeyHash :: AnyStakeIdentifier -> ExceptT GovernanceActionsError IO (Hash StakeKey)
+readStakeKeyHash anyStake =
+  case anyStake of
+    AnyStakeKey stake ->
+      firstExceptT GovernanceActionsCmdReadFileError
+        . newExceptT $ readVerificationKeyOrHashOrFile AsStakeKey stake
+
+    AnyStakePoolKey stake -> do
+      StakePoolKeyHash t <- firstExceptT GovernanceActionsCmdReadFileError
+                              . newExceptT $ readVerificationKeyOrHashOrFile AsStakePoolKey stake
+      return $ StakeKeyHash $ coerceKeyRole t
+
+runGovernanceActionTreasuryWithdrawal
+  :: ConwayEraOnwards era
+  -> EraBasedTreasuryWithdrawal
+  -> ExceptT GovernanceActionsError IO ()
+runGovernanceActionTreasuryWithdrawal cOn (EraBasedTreasuryWithdrawal deposit returnAddr treasuryWithdrawal outFp) = do
+  returnKeyHash <- readStakeKeyHash returnAddr
+  withdrawals <- sequence [ (,ll) <$> stakeIdentifiertoCredential stakeIdentifier
+                          | (stakeIdentifier,ll) <- treasuryWithdrawal
+                          ]
+  let sbe = conwayEraOnwardsToShelleyBasedEra cOn
+      proposal = createProposalProcedure sbe deposit returnKeyHash (TreasuryWithdrawal withdrawals)
+
+  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+    $ conwayEraOnwardsConstraints cOn
+    $ writeFileTextEnvelope outFp Nothing proposal
+
+stakeIdentifiertoCredential :: AnyStakeIdentifier -> ExceptT GovernanceActionsError IO StakeCredential
+stakeIdentifiertoCredential anyStake =
+  case anyStake of
+    AnyStakeKey stake -> do
+      hash <- firstExceptT GovernanceActionsCmdReadFileError
+                . newExceptT $ readVerificationKeyOrHashOrFile AsStakeKey stake
+      return $ StakeCredentialByKey hash
+    AnyStakePoolKey stake -> do
+      StakePoolKeyHash t <- firstExceptT GovernanceActionsCmdReadFileError
+                              . newExceptT $ readVerificationKeyOrHashOrFile AsStakePoolKey stake
+      -- TODO: Conway era - don't use coerceKeyRole
+      return . StakeCredentialByKey $ StakeKeyHash $ coerceKeyRole t

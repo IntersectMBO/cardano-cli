@@ -118,7 +118,8 @@ Usage: cardano-cli shelley governance action create-protocol-parameters-update
 
   Governance action commands.
 
-Usage: cardano-cli shelley governance action create-protocol-parameters-update 
+Usage: cardano-cli shelley governance action create-protocol-parameters-update --epoch EPOCH
+                                                                                 [--genesis-verification-key-file FILE]
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
                                                                                  [--max-block-body-size NATURAL]
@@ -247,7 +248,8 @@ Usage: cardano-cli allegra governance action create-protocol-parameters-update
 
   Governance action commands.
 
-Usage: cardano-cli allegra governance action create-protocol-parameters-update 
+Usage: cardano-cli allegra governance action create-protocol-parameters-update --epoch EPOCH
+                                                                                 [--genesis-verification-key-file FILE]
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
                                                                                  [--max-block-body-size NATURAL]
@@ -376,7 +378,8 @@ Usage: cardano-cli mary governance action create-protocol-parameters-update
 
   Governance action commands.
 
-Usage: cardano-cli mary governance action create-protocol-parameters-update 
+Usage: cardano-cli mary governance action create-protocol-parameters-update --epoch EPOCH
+                                                                              [--genesis-verification-key-file FILE]
                                                                               [--min-fee-constant LOVELACE]
                                                                               [--min-fee-linear LOVELACE]
                                                                               [--max-block-body-size NATURAL]
@@ -505,7 +508,8 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update
 
   Governance action commands.
 
-Usage: cardano-cli alonzo governance action create-protocol-parameters-update 
+Usage: cardano-cli alonzo governance action create-protocol-parameters-update --epoch EPOCH
+                                                                                [--genesis-verification-key-file FILE]
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--max-block-body-size NATURAL]
@@ -641,7 +645,8 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update
 
   Governance action commands.
 
-Usage: cardano-cli babbage governance action create-protocol-parameters-update 
+Usage: cardano-cli babbage governance action create-protocol-parameters-update --epoch EPOCH
+                                                                                 [--genesis-verification-key-file FILE]
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
                                                                                  [--max-block-body-size NATURAL]
@@ -794,6 +799,7 @@ Usage: cardano-cli conway governance committee key-hash --verification-key-file 
 Usage: cardano-cli conway governance action 
                                               ( create-constitution
                                               | create-protocol-parameters-update
+                                              | create-treasury-withdrawal
                                               )
 
   Governance action commands.
@@ -813,7 +819,7 @@ Usage: cardano-cli conway governance action create-constitution --governance-act
 
   Create a constitution.
 
-Usage: cardano-cli conway governance action create-protocol-parameters-update 
+Usage: cardano-cli conway governance action create-protocol-parameters-update --epoch EPOCH
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--max-block-body-size NATURAL]
@@ -840,6 +846,27 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 --out-file FILE
 
   Create a protocol parameters update.
+
+Usage: cardano-cli conway governance action create-treasury-withdrawal --governance-action-deposit NATURAL
+                                                                         ( --stake-pool-verification-key STRING
+                                                                         | --cold-verification-key-file FILE
+                                                                         | --stake-pool-id STAKE_POOL_ID
+                                                                         | --stake-verification-key STRING
+                                                                         | --stake-verification-key-file FILE
+                                                                         | --stake-key-hash HASH
+                                                                         )
+                                                                         [
+                                                                           ( --stake-pool-verification-key STRING
+                                                                           | --cold-verification-key-file FILE
+                                                                           | --stake-pool-id STAKE_POOL_ID
+                                                                           | --stake-verification-key STRING
+                                                                           | --stake-verification-key-file FILE
+                                                                           | --stake-key-hash HASH
+                                                                           )
+                                                                           --transfer LOVELACE]
+                                                                         --out-file FILE
+
+  Create a treasury withdrawal.
 
 Usage: cardano-cli conway governance drep key-gen
 
@@ -954,7 +981,8 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update
 
   Governance action commands.
 
-Usage: cardano-cli latest governance action create-protocol-parameters-update 
+Usage: cardano-cli latest governance action create-protocol-parameters-update --epoch EPOCH
+                                                                                [--genesis-verification-key-file FILE]
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--max-block-body-size NATURAL]
@@ -1107,6 +1135,7 @@ Usage: cardano-cli experimental governance committee key-hash --verification-key
 Usage: cardano-cli experimental governance action 
                                                     ( create-constitution
                                                     | create-protocol-parameters-update
+                                                    | create-treasury-withdrawal
                                                     )
 
   Governance action commands.
@@ -1126,7 +1155,7 @@ Usage: cardano-cli experimental governance action create-constitution --governan
 
   Create a constitution.
 
-Usage: cardano-cli experimental governance action create-protocol-parameters-update 
+Usage: cardano-cli experimental governance action create-protocol-parameters-update --epoch EPOCH
                                                                                       [--min-fee-constant LOVELACE]
                                                                                       [--min-fee-linear LOVELACE]
                                                                                       [--max-block-body-size NATURAL]
@@ -1153,6 +1182,27 @@ Usage: cardano-cli experimental governance action create-protocol-parameters-upd
                                                                                       --out-file FILE
 
   Create a protocol parameters update.
+
+Usage: cardano-cli experimental governance action create-treasury-withdrawal --governance-action-deposit NATURAL
+                                                                               ( --stake-pool-verification-key STRING
+                                                                               | --cold-verification-key-file FILE
+                                                                               | --stake-pool-id STAKE_POOL_ID
+                                                                               | --stake-verification-key STRING
+                                                                               | --stake-verification-key-file FILE
+                                                                               | --stake-key-hash HASH
+                                                                               )
+                                                                               [
+                                                                                 ( --stake-pool-verification-key STRING
+                                                                                 | --cold-verification-key-file FILE
+                                                                                 | --stake-pool-id STAKE_POOL_ID
+                                                                                 | --stake-verification-key STRING
+                                                                                 | --stake-verification-key-file FILE
+                                                                                 | --stake-key-hash HASH
+                                                                                 )
+                                                                                 --transfer LOVELACE]
+                                                                               --out-file FILE
+
+  Create a treasury withdrawal.
 
 Usage: cardano-cli experimental governance drep key-gen
 
