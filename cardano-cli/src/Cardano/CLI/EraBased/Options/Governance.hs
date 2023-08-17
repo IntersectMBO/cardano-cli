@@ -44,12 +44,12 @@ pEraBasedGovernanceCmds envCli era =
 
 pEraBasedRegistrationCertificateCmd
   :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
-pEraBasedRegistrationCertificateCmd envCli =
-  featureInEra Nothing $ \w ->
-    Just
-      $ subParser "registration-certificate"
-      $ Opt.info (pEraCmd envCli w)
-      $ Opt.progDesc "Create a registration certificate."
+pEraBasedRegistrationCertificateCmd envCli era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "registration-certificate"
+    $ Opt.info (pEraCmd envCli w)
+    $ Opt.progDesc "Create a registration certificate."
  where
   pEraCmd :: EnvCli -> AnyEraDecider era -> Parser (EraBasedGovernanceCmds era)
   pEraCmd envCli' = \case
@@ -94,12 +94,12 @@ instance FeatureInEra AnyEraDecider where
 -- Delegation Certificate related
 
 pEraBasedDelegationCertificateCmd :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
-pEraBasedDelegationCertificateCmd _envCli =
-  featureInEra Nothing $ \w ->
-    Just
-      $ subParser "delegation-certificate"
-      $ Opt.info (pCmd w)
-      $ Opt.progDesc "Delegation certificate creation."
+pEraBasedDelegationCertificateCmd _envCli era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "delegation-certificate"
+    $ Opt.info (pCmd w)
+    $ Opt.progDesc "Delegation certificate creation."
  where
   pCmd :: AnyEraDecider era -> Parser (EraBasedGovernanceCmds era)
   pCmd w =
@@ -213,12 +213,12 @@ pDRepVerificationKeyFile =
 
 pEraBasedVoteCmd
   :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
-pEraBasedVoteCmd envCli =
-  featureInEra Nothing $ \w ->
-    Just
-      $ subParser "vote"
-      $ Opt.info (pEraCmd' envCli w)
-      $ Opt.progDesc "Vote creation."
+pEraBasedVoteCmd envCli era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "vote"
+    $ Opt.info (pEraCmd' envCli w)
+    $ Opt.progDesc "Vote creation."
  where
   pEraCmd'
     :: EnvCli -> ConwayEraOnwards era -> Parser (EraBasedGovernanceCmds era)
@@ -246,12 +246,12 @@ pAnyVotingStakeVerificationKeyOrHashOrFile =
 
 
 pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
-pCreateMirCertificatesCmds =
-  featureInEra Nothing $ \w ->
-    Just
-      $ subParser "create-mir-certificate"
-      $ Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w)
-      $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
+pCreateMirCertificatesCmds era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "create-mir-certificate"
+    $ Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w)
+    $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
 
 mirCertParsers :: ()
   => ShelleyToBabbageEra era

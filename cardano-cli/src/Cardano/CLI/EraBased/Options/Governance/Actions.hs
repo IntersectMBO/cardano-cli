@@ -41,12 +41,14 @@ pGovernanceActionCmds era =
 
 
 pGovernanceActionNewConstitution
-  :: CardanoEra era  -> Maybe (Parser (GovernanceActionCmds era))
-pGovernanceActionNewConstitution =
-  featureInEra Nothing (\cOn -> Just $
-     subParser "create-constitution"
-        $ Opt.info (pCmd cOn)
-        $ Opt.progDesc "Create a constitution.")
+  :: CardanoEra era
+  -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionNewConstitution era = do
+  cOn <- maybeFeatureInEra era
+  pure
+    $ subParser "create-constitution"
+    $ Opt.info (pCmd cOn)
+    $ Opt.progDesc "Create a constitution."
  where
   pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
   pCmd cOn =
@@ -58,12 +60,14 @@ pGovernanceActionNewConstitution =
         <*> pFileOutDirection "out-file" "Output filepath of the constitution."
 
 pGovernanceActionNewCommittee
-  :: CardanoEra era  -> Maybe (Parser (GovernanceActionCmds era))
-pGovernanceActionNewCommittee =
-  featureInEra Nothing (\cOn -> Just $
-     subParser "create-new-committee"
-        $ Opt.info (pCmd cOn)
-        $ Opt.progDesc "Create a new committee proposal.")
+  :: CardanoEra era
+  -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionNewCommittee era = do
+  cOn <- maybeFeatureInEra era
+  pure
+    $ subParser "create-new-committee"
+    $ Opt.info (pCmd cOn)
+    $ Opt.progDesc "Create a new committee proposal."
  where
   pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
   pCmd cOn = GoveranceActionCreateNewCommittee cOn
@@ -82,12 +86,14 @@ pEraBasedNewCommittee =
 
 
 pGovernanceActionNoConfidence
-  :: CardanoEra era  -> Maybe (Parser (GovernanceActionCmds era))
-pGovernanceActionNoConfidence =
-  featureInEra Nothing (\cOn -> Just $
-     subParser "create-no-confidence"
-        $ Opt.info (pCmd cOn)
-        $ Opt.progDesc "Create a no confidence proposal.")
+  :: CardanoEra era
+  -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionNoConfidence era = do
+  cOn <- maybeFeatureInEra era
+  pure
+    $ subParser "create-no-confidence"
+    $ Opt.info (pCmd cOn)
+    $ Opt.progDesc "Create a no confidence proposal."
  where
   pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
   pCmd cOn =
@@ -300,11 +306,12 @@ dpGovActionProtocolParametersUpdate = \case
       <*> pIntroducedInBabbagePParams
 
 pGovernanceActionTreasuryWithdrawal :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
-pGovernanceActionTreasuryWithdrawal =
-  featureInEra Nothing (\cOn -> Just $
-     subParser "create-treasury-withdrawal"
-        $ Opt.info (pCmd cOn)
-        $ Opt.progDesc "Create a treasury withdrawal.")
+pGovernanceActionTreasuryWithdrawal era = do
+  cOn <- maybeFeatureInEra era
+  pure
+    $ subParser "create-treasury-withdrawal"
+    $ Opt.info (pCmd cOn)
+    $ Opt.progDesc "Create a treasury withdrawal."
  where
   pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
   pCmd cOn =
