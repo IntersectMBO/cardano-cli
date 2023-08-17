@@ -1,16 +1,17 @@
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 module Cardano.CLI.EraBased.Errors.StakeAddress
   ( ShelleyStakeAddressCmdError(..)
   , StakeAddressRegistrationError(..)
   , StakeAddressDelegationError(..)
-  , renderShelleyStakeAddressCmdError
   ) where
 
 import           Cardano.Api
 
 import           Cardano.CLI.Read
-
-import           Data.Text (Text)
-import qualified Data.Text as Text
+import           Cardano.Prelude (toS)
 
 data ShelleyStakeAddressCmdError
   = ShelleyStakeAddressCmdReadKeyFileError !(FileError InputDecodeError)
@@ -20,15 +21,28 @@ data ShelleyStakeAddressCmdError
   | StakeDelegationError !StakeAddressDelegationError
   deriving Show
 
-renderShelleyStakeAddressCmdError :: ShelleyStakeAddressCmdError -> Text
-renderShelleyStakeAddressCmdError err =
-  case err of
-    ShelleyStakeAddressCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyStakeAddressCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyStakeAddressCmdReadScriptFileError fileErr -> Text.pack (displayError fileErr)
-    StakeRegistrationError regErr -> Text.pack $ show regErr
-    StakeDelegationError delegErr -> Text.pack $ show delegErr
+
+instance Error ShelleyStakeAddressCmdError where
+  displayError = \case
+    ShelleyStakeAddressCmdReadKeyFileError fileErr    -> displayError fileErr
+    ShelleyStakeAddressCmdWriteFileError fileErr      -> displayError fileErr
+    ShelleyStakeAddressCmdReadScriptFileError fileErr -> displayError fileErr
+    StakeRegistrationError regErr                     -> displayError regErr
+    StakeDelegationError delegErr                     -> displayError delegErr
 
 data StakeAddressRegistrationError = StakeAddressRegistrationDepositRequired deriving Show
 
+instance Error StakeAddressRegistrationError where
+  displayError = \case
+    StakeAddressRegistrationDepositRequired -> "Stake address deposit required."
+
 newtype StakeAddressDelegationError = VoteDelegationNotSupported AnyShelleyToBabbageEra deriving Show
+
+instance Error StakeAddressDelegationError where
+  displayError = \case
+    VoteDelegationNotSupported (AnyShelleyToBabbageEra stbe) -> "Vote delegation not supported in " <> eraTxt stbe <> " era."
+      where
+        eraTxt :: forall era. ShelleyToBabbageEra era -> String
+        eraTxt stbe' = shelleyToBabbageEraConstraints stbe' $
+          toS . renderEra $ AnyCardanoEra (cardanoEra @era)
+

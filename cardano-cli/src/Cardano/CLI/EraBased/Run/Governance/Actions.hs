@@ -4,6 +4,7 @@
 
 module Cardano.CLI.EraBased.Run.Governance.Actions
   ( runGovernanceActionCmds
+  , GovernanceActionsError(..)
   ) where
 
 import           Cardano.Api
@@ -27,7 +28,16 @@ data GovernanceActionsError
   | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
   | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdNonUtf8EncodedConstitution UnicodeException
+  deriving Show
 
+instance Error GovernanceActionsError where
+  displayError = \case
+    GovernanceActionsCmdWriteFileError e ->
+      "Cannot write file: " <> displayError e
+    GovernanceActionsCmdReadFileError e ->
+      "Cannot read file: " <> displayError e
+    GovernanceActionsCmdNonUtf8EncodedConstitution e ->
+      "Cannot read constitution: " <> show e
 
 runGovernanceActionCmds :: ()
   => GovernanceActionCmds era

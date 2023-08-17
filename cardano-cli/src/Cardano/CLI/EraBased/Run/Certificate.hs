@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
@@ -30,6 +31,7 @@ import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
+import           GHC.Generics (Generic)
 
 -- Delegation Certificate related
 
@@ -38,7 +40,18 @@ data EraBasedDelegationError
   | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
   | EraBasedCertificateWriteFileError !(FileError ())
   | EraBasedDRepReadError !(FileError InputDecodeError)
-  | EraBasedDelegationGenericError -- TODO Delete and replace with more specific errors
+  deriving (Show, Generic)
+
+instance Error EraBasedDelegationError where
+  displayError = \case
+    EraBasedDelegReadError e ->
+      "Cannot read delegation target: " <> displayError e
+    EraBasedCredentialError e ->
+      "Cannot get stake credential: " <> displayError e
+    EraBasedCertificateWriteFileError e ->
+      "Cannot write certificate: " <> displayError e
+    EraBasedDRepReadError e ->
+      "Cannot read DRep key: " <> displayError e
 
 runGovernanceDelegationCertificate
   :: StakeIdentifier
@@ -123,7 +136,15 @@ data EraBasedRegistrationError
   = EraBasedRegistReadError !(FileError InputDecodeError)
   | EraBasedRegistWriteFileError !(FileError ())
   | EraBasedRegistStakeCredReadError !ShelleyStakeAddressCmdError -- TODO: Conway era - don't use legacy error type
-  | EraBasedRegistStakeError StakeAddressRegistrationError
+  | EraBasedRegistStakeError !StakeAddressRegistrationError
+  deriving Show
+
+instance Error EraBasedRegistrationError where
+  displayError = \case
+    EraBasedRegistReadError e -> "Cannot read registration certificate: " <> displayError e
+    EraBasedRegistWriteFileError e -> "Cannot write registration certificate: " <> displayError e
+    EraBasedRegistStakeCredReadError e -> "Cannot read stake credential: " <> displayError e
+    EraBasedRegistStakeError e -> "Stake address registation error: " <> displayError e
 
 runGovernanceRegistrationCertificate
   :: AnyRegistrationTarget

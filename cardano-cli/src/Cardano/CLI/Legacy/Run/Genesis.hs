@@ -1,11 +1,12 @@
 {-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -47,16 +48,16 @@ import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
 import qualified Cardano.CLI.IO.Lazy as Lazy
-import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Legacy.Run.Address
 import           Cardano.CLI.Legacy.Run.Node (ShelleyNodeCmdError (..), renderShelleyNodeCmdError,
                    runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
 import           Cardano.CLI.Legacy.Run.Pool (ShelleyPoolCmdError (..), renderShelleyPoolCmdError)
 import           Cardano.CLI.Legacy.Run.StakeAddress (ShelleyStakeAddressCmdError (..),
-                   renderShelleyStakeAddressCmdError, runStakeAddressKeyGenToFile)
-import           Cardano.CLI.Types.Key
+                   runStakeAddressKeyGenToFile)
+import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto as CC
 import           Cardano.Crypto.Hash (HashAlgorithm)
 import qualified Cardano.Crypto.Hash as Crypto
@@ -155,8 +156,8 @@ data ShelleyGenesisCmdError
   deriving Show
 
 instance Error ShelleyGenesisCmdError where
-  displayError err =
-    case err of
+  displayError =
+    \case
       ShelleyGenesisCmdAesonDecodeError fp decErr ->
         "Error while decoding Shelley genesis at: " <> fp <> " Error: " <> Text.unpack decErr
       ShelleyGenesisCmdGenesisFileError fe -> displayError fe
@@ -185,7 +186,7 @@ instance Error ShelleyGenesisCmdError where
       ShelleyGenesisCmdAddressCmdError e -> Text.unpack $ renderShelleyAddressCmdError e
       ShelleyGenesisCmdNodeCmdError e -> Text.unpack $ renderShelleyNodeCmdError e
       ShelleyGenesisCmdPoolCmdError e -> Text.unpack $ renderShelleyPoolCmdError e
-      ShelleyGenesisCmdStakeAddressCmdError e -> Text.unpack $ renderShelleyStakeAddressCmdError e
+      ShelleyGenesisCmdStakeAddressCmdError e -> displayError e
       ShelleyGenesisCmdCostModelsError fp -> "Cost model is invalid: " <> fp
       ShelleyGenesisCmdGenesisFileDecodeError fp e ->
        "Error while decoding Shelley genesis at: " <> fp <>

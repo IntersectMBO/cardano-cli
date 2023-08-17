@@ -1,0 +1,1 @@
+Cannot read registration certificate: path/file.txt: Invalid key.

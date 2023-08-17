@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -9,7 +8,6 @@
 module Cardano.CLI.Legacy.Run.StakeAddress
   ( ShelleyStakeAddressCmdError(ShelleyStakeAddressCmdReadKeyFileError)
   , getStakeCredentialFromIdentifier
-  , renderShelleyStakeAddressCmdError
   , runStakeAddressCmds
   , runStakeAddressKeyGenToFile
 
@@ -38,6 +36,7 @@ import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 import qualified Data.Text.IO as Text
 
+
 runStakeAddressCmds :: LegacyStakeAddressCmds -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeAddressCmds (StakeAddressKeyGen fmt vk sk) = runStakeAddressKeyGenToFile fmt vk sk
 runStakeAddressCmds (StakeAddressKeyHash vk mOutputFp) = runStakeAddressKeyHash vk mOutputFp
@@ -49,7 +48,6 @@ runStakeAddressCmds (StakeCredentialDelegationCert anyEra stakeIdentifier stkPoo
   runStakeCredentialDelegationCert anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp
 runStakeAddressCmds (StakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp) =
   runStakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp
-
 
 --
 -- Stake address command implementations
@@ -138,6 +136,7 @@ runStakeCredentialRegistrationCert anyEra stakeIdentifier mDeposit oFp = do
 
   regCertDesc :: TextEnvelopeDescr
   regCertDesc = "Stake Address Registration Certificate"
+
 
 createRegistrationCertRequirements
   :: ShelleyBasedEra era
