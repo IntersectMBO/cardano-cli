@@ -10,6 +10,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
+import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
 
@@ -20,27 +21,6 @@ import           Control.Monad.Trans.Except.Extra
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function
-
-data GovernanceCommitteeError
-  = GovernanceCommitteeCmdKeyDecodeError InputDecodeError
-  | GovernanceCommitteeCmdKeyReadError (FileError InputDecodeError)
-  | GovernanceCommitteeCmdTextEnvReadFileError (FileError TextEnvelopeError)
-  | GovernanceCommitteeCmdTextEnvWriteError (FileError ())
-  | GovernanceCommitteeCmdWriteFileError (FileError ())
-  deriving Show
-
-instance Error GovernanceCommitteeError where
-  displayError = \case
-    GovernanceCommitteeCmdKeyDecodeError e ->
-      "Cannot decode key: " <> displayError e
-    GovernanceCommitteeCmdKeyReadError e ->
-      "Cannot read key: " <> displayError e
-    GovernanceCommitteeCmdWriteFileError e ->
-      "Cannot write file: " <> displayError e
-    GovernanceCommitteeCmdTextEnvReadFileError e ->
-      "Cannot read text envelope file: " <> displayError e
-    GovernanceCommitteeCmdTextEnvWriteError e ->
-      "Cannot write text envelope file: " <> displayError e
 
 runGovernanceCommitteeCmds :: ()
   => GovernanceCommitteeCmds era

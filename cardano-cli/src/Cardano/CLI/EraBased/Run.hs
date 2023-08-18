@@ -2,8 +2,7 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Run
-  ( AnyEraCmdError(..)
-  , runAnyEraCommand
+  ( runAnyEraCommand
   , runEraBasedCommand
   , runEraBasedGovernanceCmds
   ) where
@@ -17,74 +16,56 @@ import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Vote
-import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import           Cardano.CLI.Types.Errors.CmdError
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
 import           Data.Function ((&))
 
-data AnyEraCmdError
-  = AnyEraCmdGovernanceCmdError        !GovernanceCmdError
-  | AnyEraCmdEraDelegationError        !EraBasedDelegationError
-  | AnyEraCmdEraBasedRegistrationError !EraBasedRegistrationError
-  | AnyEraCmdEraBasedVoteError         !EraBasedVoteError
-  | AnyEraCmdGovernanceCommitteeError  !GovernanceCommitteeError
-  | AnyEraCmdGovernanceActionError     !GovernanceActionsError
-  deriving Show
-
-instance Error AnyEraCmdError where
-  displayError = \case
-    AnyEraCmdGovernanceCmdError e -> displayError e
-    AnyEraCmdEraDelegationError e -> displayError e
-    AnyEraCmdEraBasedRegistrationError e -> displayError e
-    AnyEraCmdEraBasedVoteError e -> displayError e
-    AnyEraCmdGovernanceCommitteeError e -> displayError e
-    AnyEraCmdGovernanceActionError e -> displayError e
-
 runAnyEraCommand :: ()
   => AnyEraCommand
-  -> ExceptT AnyEraCmdError IO ()
+  -> ExceptT CmdError IO ()
 runAnyEraCommand = \case
   AnyEraCommandOf sbe cmd ->
     shelleyBasedEraConstraints sbe $ runEraBasedCommand cmd
 
 runEraBasedCommand :: ()
-  => EraBasedCommand era -> ExceptT AnyEraCmdError IO ()
+  => EraBasedCommand era -> ExceptT CmdError IO ()
 runEraBasedCommand = \case
   EraBasedGovernanceCmds cmd -> runEraBasedGovernanceCmds cmd
 
 runEraBasedGovernanceCmds :: ()
   => EraBasedGovernanceCmds era
-  -> ExceptT AnyEraCmdError IO ()
+  -> ExceptT CmdError IO ()
 runEraBasedGovernanceCmds = \case
   EraBasedGovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
     runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
-      & firstExceptT AnyEraCmdGovernanceCmdError
+      & firstExceptT CmdGovernanceCmdError
 
   EraBasedGovernanceMIRTransfer w ll oFp direction ->
     runGovernanceMIRCertificateTransfer w ll oFp direction
-      & firstExceptT AnyEraCmdGovernanceCmdError
+      & firstExceptT CmdGovernanceCmdError
 
   EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
     runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
-      & firstExceptT AnyEraCmdEraDelegationError
+      & firstExceptT CmdEraDelegationError
 
   EraBasedGovernanceRegistrationCertificateCmd regTarget outFp ->
     runGovernanceRegistrationCertificate regTarget outFp
-      & firstExceptT AnyEraCmdEraBasedRegistrationError
+      & firstExceptT CmdEraBasedRegistrationError
 
   EraBasedGovernanceVoteCmd anyVote outFp ->
     runGovernanceVote anyVote outFp
-      & firstExceptT AnyEraCmdEraBasedVoteError
+      & firstExceptT CmdEraBasedVoteError
 
   EraBasedGovernanceCommitteeCmds cmds ->
     runGovernanceCommitteeCmds cmds
-      & firstExceptT AnyEraCmdGovernanceCommitteeError
+      & firstExceptT CmdGovernanceCommitteeError
 
   EraBasedGovernanceActionCmds cmds ->
     runGovernanceActionCmds cmds
-      & firstExceptT AnyEraCmdGovernanceActionError
+      & firstExceptT CmdGovernanceActionError
 
   EraBasedGovernanceDRepGenerateKey w vrf sgn ->
     runGovernanceDRepKeyGen w vrf sgn
-      & firstExceptT AnyEraCmdGovernanceCmdError
+      & firstExceptT CmdGovernanceCmdError
