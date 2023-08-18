@@ -29,10 +29,14 @@ data GovernanceCommitteeError
 
 instance Error GovernanceCommitteeError where
   displayError = \case
-    GovernanceCommitteeCmdKeyReadError e -> "Cannot read key: " <> displayError e
-    GovernanceCommitteeCmdWriteFileError e -> "Cannot write file: " <> displayError e
-    GovernanceCommitteeCmdTextEnvReadFileError e -> "Cannot read text envelope file: " <> displayError e
-    GovernanceCommitteeCmdTextEnvWriteError e -> "Cannot write text envelope file: " <> displayError e
+    GovernanceCommitteeCmdKeyReadError e ->
+      "Cannot read key: " <> displayError e
+    GovernanceCommitteeCmdWriteFileError e ->
+      "Cannot write file: " <> displayError e
+    GovernanceCommitteeCmdTextEnvReadFileError e ->
+      "Cannot read text envelope file: " <> displayError e
+    GovernanceCommitteeCmdTextEnvWriteError e ->
+      "Cannot write text envelope file: " <> displayError e
 
 runGovernanceCommitteeCmds :: ()
   => GovernanceCommitteeCmds era
@@ -46,6 +50,8 @@ runGovernanceCommitteeCmds = \case
     runGovernanceCommitteeKeyHash era vk
   GovernanceCommitteeCreateHotKeyAuthorizationCertificate w cvk hvk out ->
     runGovernanceCommitteeCreateHotKeyAuthorizationCertificate w cvk hvk out
+  GovernanceCommitteeCreateColdKeyResignationCertificate w cvk out ->
+    runGovernanceCommitteeColdKeyResignationCertificate w cvk out
 
 runGovernanceCommitteeKeyGenCold :: ()
   => ConwayEraOnwards era
@@ -150,3 +156,23 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate w coldVkOrHashOrFp ho
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Constitutional Committee Hot Key Registration Certificate"
+
+runGovernanceCommitteeColdKeyResignationCertificate :: ()
+  => ConwayEraOnwards era
+  -> VerificationKeyOrHashOrFile CommitteeColdKey
+  -> File () Out
+  -> ExceptT GovernanceCommitteeError IO ()
+runGovernanceCommitteeColdKeyResignationCertificate w coldVkOrHashOrFp oFp =
+  conwayEraOnwardsConstraints w $ do
+    CommitteeColdKeyHash coldVKHash <-
+      lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey coldVkOrHashOrFp)
+        & onLeft (left . GovernanceCommitteeCmdKeyReadError)
+
+    makeCommitteeColdkeyResignationCertificate (CommitteeColdkeyResignationRequirements w coldVKHash)
+      & textEnvelopeToJSON (Just genKeyDelegCertDesc)
+      & writeLazyByteStringFile oFp
+      & firstExceptT GovernanceCommitteeCmdTextEnvWriteError . newExceptT
+
+  where
+    genKeyDelegCertDesc :: TextEnvelopeDescr
+    genKeyDelegCertDesc = "Constitutional Committee Cold Key Resignation Certificate"

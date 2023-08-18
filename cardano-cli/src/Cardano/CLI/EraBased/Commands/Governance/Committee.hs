@@ -29,6 +29,10 @@ data GovernanceCommitteeCmds era
       (VerificationKeyOrHashOrFile CommitteeColdKey)
       (VerificationKeyOrHashOrFile CommitteeHotKey)
       (File () Out)
+  | GovernanceCommitteeCreateColdKeyResignationCertificate
+      (ConwayEraOnwards era)
+      (VerificationKeyOrHashOrFile CommitteeColdKey)
+      (File () Out)
   deriving Show
 
 renderGovernanceCommitteeCmds :: GovernanceCommitteeCmds era -> Text
@@ -41,3 +45,5 @@ renderGovernanceCommitteeCmds = \case
     "governance committee key-hash"
   GovernanceCommitteeCreateHotKeyAuthorizationCertificate {} ->
     "governance committee create-hot-key-authorization-certificate"
+  GovernanceCommitteeCreateColdKeyResignationCertificate {} ->
+    "governance committee create-cold-key-resignation-certificate"
