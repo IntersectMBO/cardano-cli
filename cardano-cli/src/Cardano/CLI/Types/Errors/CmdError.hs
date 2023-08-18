@@ -12,6 +12,7 @@ import           Cardano.CLI.Types.Errors.EraBasedRegistrationError
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
+import           Cardano.CLI.Types.Errors.GovernanceQueryError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
 import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
@@ -35,6 +36,7 @@ data CmdError
   | CmdGovernanceCmdError         !GovernanceCmdError
   | CmdGovernanceCommitteeError   !GovernanceCommitteeError
   | CmdGovernanceVoteError        !GovernanceVoteCmdError
+  | CmdGovernanceQueryError       !GovernanceQueryError
   | CmdKeyError                   !ShelleyKeyCmdError
   | CmdNodeError                  !ShelleyNodeCmdError
   | CmdPoolError                  !ShelleyPoolCmdError
@@ -53,6 +55,7 @@ renderCmdError cmdText = \case
   CmdGovernanceCmdError         e -> renderError (Text.pack . displayError) e
   CmdGovernanceCommitteeError   e -> renderError (Text.pack . displayError) e
   CmdGovernanceVoteError        e -> renderError (Text.pack . displayError) e
+  CmdGovernanceQueryError       e -> renderError (Text.pack . displayError) e
   CmdKeyError                   e -> renderError renderShelleyKeyCmdError e
   CmdNodeError                  e -> renderError renderShelleyNodeCmdError e
   CmdPoolError                  e -> renderError renderShelleyPoolCmdError e

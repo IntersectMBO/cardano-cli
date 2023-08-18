@@ -3,11 +3,11 @@
     "CHaP": {
       "flake": false,
       "locked": {
-        "lastModified": 1692973747,
-        "narHash": "sha256-mTlxhYzPUYJ/LggHQzsPomhqslCfTbjq8vqAhMaQN/o=",
+        "lastModified": 1693215643,
+        "narHash": "sha256-39XK/MI5XHSo8LtvC6SXo9gCs1Vj/1yrEv+gd//c8Es=",
         "owner": "input-output-hk",
         "repo": "cardano-haskell-packages",
-        "rev": "1f0aed302bafbf897d3deefd9fc5de8229d04e1a",
+        "rev": "a191af4c97bd1db08853e8f469cbb8b612774489",
         "type": "github"
       },
       "original": {
@@ -154,17 +154,19 @@
       }
     },
     "flake-utils_2": {
+      "inputs": {
+        "systems": "systems_2"
+      },
       "locked": {
-        "lastModified": 1679360468,
-        "narHash": "sha256-LGnza3cfXF10Biw3ZTg0u9o9t7s680Ww200t5KkHTh8=",
-        "owner": "hamishmack",
+        "lastModified": 1692799911,
+        "narHash": "sha256-3eihraek4qL744EvQXsK1Ha6C3CR7nnT8X2qWap4RNk=",
+        "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "e1ea268ff47ad475443dbabcd54744b4e5b9d4f5",
+        "rev": "f9e7cf818399d17d347f847525c5a5a8032e4e44",
         "type": "github"
       },
       "original": {
-        "owner": "hamishmack",
-        "ref": "hkm/nested-hydraJobs",
+        "owner": "numtide",
         "repo": "flake-utils",
         "type": "github"
       }
@@ -189,11 +191,11 @@
     "hackage": {
       "flake": false,
       "locked": {
-        "lastModified": 1692750150,
-        "narHash": "sha256-PQUa3d/xx/ow5+aWAJcbo5ReSfXUUaREmv11iv/gw0I=",
+        "lastModified": 1693182531,
+        "narHash": "sha256-OejogS2E745biMj8NuUYatN7uoMRsg7giVnRQwfiays=",
         "owner": "input-output-hk",
         "repo": "hackage.nix",
-        "rev": "5bdde609b165186227df40511bc0aa43c3fee3ac",
+        "rev": "34cd9fe31d210f2ff041f490eaa4029f6b2812c4",
         "type": "github"
       },
       "original": {
@@ -233,11 +235,11 @@
         "stackage": "stackage"
       },
       "locked": {
-        "lastModified": 1692759275,
-        "narHash": "sha256-OuaF9FgFtXEsoqSqp7yl8fuShpgR+DmYY+jlvh7anTg=",
+        "lastModified": 1693196365,
+        "narHash": "sha256-3fC4Ynlzxbpwwqnwlw+UesIB2808z6bTh3MitM1EVd4=",
         "owner": "input-output-hk",
         "repo": "haskell.nix",
-        "rev": "fc87a1ca9211b05267c9603752f008442db87c8b",
+        "rev": "5ed5f276df29a441ee4991667e7947528fa3cbb9",
         "type": "github"
       },
       "original": {
@@ -345,11 +347,11 @@
         "sodium": "sodium"
       },
       "locked": {
-        "lastModified": 1691469905,
-        "narHash": "sha256-TV0p1dFGYAMl1dLJEfe/tNFjxvV2H7VgHU1I43q+b84=",
+        "lastModified": 1692743532,
+        "narHash": "sha256-OcnZRZBh3pOx5uChTuO+4o9OHiG1ip36C35DaFrwjbM=",
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "2f3760f135616ebc477d3ed74eba9b63c22f83a0",
+        "rev": "e5b4889e4d191cf2cb1495dd16b13ea016b5569a",
         "type": "github"
       },
       "original": {
@@ -654,11 +656,11 @@
     "stackage": {
       "flake": false,
       "locked": {
-        "lastModified": 1692749313,
-        "narHash": "sha256-gBe4uaEOoem6GwL2iN2v4oy4kts6GbQFbg2J9fkcgqs=",
+        "lastModified": 1693181390,
+        "narHash": "sha256-SWcgiVwyYfbd/ypwhkEmjJ92tCCsqQ179vwKH1m2lZE=",
         "owner": "input-output-hk",
         "repo": "stackage.nix",
-        "rev": "347b8f075d0bfc69b4a88fe0bd2f0f0a1b2b1789",
+        "rev": "6479adae3f7559a300d3ee94af92ed9da5030794",
         "type": "github"
       },
       "original": {
@@ -668,6 +670,21 @@
       }
     },
     "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

@@ -688,9 +688,100 @@ Usage: cardano-cli conway governance
 
   Conway era commands
 
-Usage: cardano-cli conway governance (action | committee | drep | vote)
+Usage: cardano-cli conway governance (query | action | committee | drep | vote)
 
   Era-based governance commands
+
+Usage: cardano-cli conway governance query 
+                                             ( constitution
+                                             | gov-state
+                                             | drep-state
+                                             | drep-stake-distribution
+                                             | committee-state
+                                             )
+
+  Query governance-related information
+
+Usage: cardano-cli conway governance query constitution 
+                                                          --socket-path SOCKET_PATH
+                                                          [ --shelley-mode
+                                                          | --byron-mode
+                                                            [--epoch-slots SLOTS]
+                                                          | --cardano-mode
+                                                            [--epoch-slots SLOTS]
+                                                          ]
+                                                          ( --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          )
+                                                          [--out-file FILE]
+
+  Get the constitution
+
+Usage: cardano-cli conway governance query gov-state --socket-path SOCKET_PATH
+                                                       [ --shelley-mode
+                                                       | --byron-mode
+                                                         [--epoch-slots SLOTS]
+                                                       | --cardano-mode
+                                                         [--epoch-slots SLOTS]
+                                                       ]
+                                                       ( --mainnet
+                                                       | --testnet-magic NATURAL
+                                                       )
+                                                       [--out-file FILE]
+
+  Get the governance state
+
+Usage: cardano-cli conway governance query drep-state --socket-path SOCKET_PATH
+                                                        [ --shelley-mode
+                                                        | --byron-mode
+                                                          [--epoch-slots SLOTS]
+                                                        | --cardano-mode
+                                                          [--epoch-slots SLOTS]
+                                                        ]
+                                                        ( --mainnet
+                                                        | --testnet-magic NATURAL
+                                                        )
+                                                        ( --drep-verification-key STRING
+                                                        | --drep-verification-key-file FILE
+                                                        | --drep-key-hash HASH
+                                                        )
+                                                        [--out-file FILE]
+
+  Get the DRep state
+
+Usage: cardano-cli conway governance query drep-stake-distribution 
+                                                                     --socket-path SOCKET_PATH
+                                                                     [ --shelley-mode
+                                                                     | --byron-mode
+                                                                       [--epoch-slots SLOTS]
+                                                                     | --cardano-mode
+                                                                       [--epoch-slots SLOTS]
+                                                                     ]
+                                                                     ( --mainnet
+                                                                     | --testnet-magic NATURAL
+                                                                     )
+                                                                     ( --drep-verification-key STRING
+                                                                     | --drep-verification-key-file FILE
+                                                                     | --drep-key-hash HASH
+                                                                     )
+                                                                     [--out-file FILE]
+
+  Get the DRep stake distribution
+
+Usage: cardano-cli conway governance query committee-state 
+                                                             --socket-path SOCKET_PATH
+                                                             [ --shelley-mode
+                                                             | --byron-mode
+                                                               [--epoch-slots SLOTS]
+                                                             | --cardano-mode
+                                                               [--epoch-slots SLOTS]
+                                                             ]
+                                                             ( --mainnet
+                                                             | --testnet-magic NATURAL
+                                                             )
+                                                             [--out-file FILE]
+
+  Get the committee state
 
 Usage: cardano-cli conway governance action 
                                               ( create-constitution
@@ -1141,9 +1232,108 @@ Usage: cardano-cli experimental governance
 
   Experimental era commands (Conway)
 
-Usage: cardano-cli experimental governance (action | committee | drep | vote)
+Usage: cardano-cli experimental governance 
+                                             ( query
+                                             | action
+                                             | committee
+                                             | drep
+                                             | vote
+                                             )
 
   Era-based governance commands
+
+Usage: cardano-cli experimental governance query 
+                                                   ( constitution
+                                                   | gov-state
+                                                   | drep-state
+                                                   | drep-stake-distribution
+                                                   | committee-state
+                                                   )
+
+  Query governance-related information
+
+Usage: cardano-cli experimental governance query constitution 
+                                                                --socket-path SOCKET_PATH
+                                                                [ --shelley-mode
+                                                                | --byron-mode
+                                                                  [--epoch-slots SLOTS]
+                                                                | --cardano-mode
+                                                                  [--epoch-slots SLOTS]
+                                                                ]
+                                                                ( --mainnet
+                                                                | --testnet-magic NATURAL
+                                                                )
+                                                                [--out-file FILE]
+
+  Get the constitution
+
+Usage: cardano-cli experimental governance query gov-state 
+                                                             --socket-path SOCKET_PATH
+                                                             [ --shelley-mode
+                                                             | --byron-mode
+                                                               [--epoch-slots SLOTS]
+                                                             | --cardano-mode
+                                                               [--epoch-slots SLOTS]
+                                                             ]
+                                                             ( --mainnet
+                                                             | --testnet-magic NATURAL
+                                                             )
+                                                             [--out-file FILE]
+
+  Get the governance state
+
+Usage: cardano-cli experimental governance query drep-state 
+                                                              --socket-path SOCKET_PATH
+                                                              [ --shelley-mode
+                                                              | --byron-mode
+                                                                [--epoch-slots SLOTS]
+                                                              | --cardano-mode
+                                                                [--epoch-slots SLOTS]
+                                                              ]
+                                                              ( --mainnet
+                                                              | --testnet-magic NATURAL
+                                                              )
+                                                              ( --drep-verification-key STRING
+                                                              | --drep-verification-key-file FILE
+                                                              | --drep-key-hash HASH
+                                                              )
+                                                              [--out-file FILE]
+
+  Get the DRep state
+
+Usage: cardano-cli experimental governance query drep-stake-distribution 
+                                                                           --socket-path SOCKET_PATH
+                                                                           [ --shelley-mode
+                                                                           | --byron-mode
+                                                                             [--epoch-slots SLOTS]
+                                                                           | --cardano-mode
+                                                                             [--epoch-slots SLOTS]
+                                                                           ]
+                                                                           ( --mainnet
+                                                                           | --testnet-magic NATURAL
+                                                                           )
+                                                                           ( --drep-verification-key STRING
+                                                                           | --drep-verification-key-file FILE
+                                                                           | --drep-key-hash HASH
+                                                                           )
+                                                                           [--out-file FILE]
+
+  Get the DRep stake distribution
+
+Usage: cardano-cli experimental governance query committee-state 
+                                                                   --socket-path SOCKET_PATH
+                                                                   [ --shelley-mode
+                                                                   | --byron-mode
+                                                                     [--epoch-slots SLOTS]
+                                                                   | --cardano-mode
+                                                                     [--epoch-slots SLOTS]
+                                                                   ]
+                                                                   ( --mainnet
+                                                                   | --testnet-magic NATURAL
+                                                                   )
+                                                                   [--out-file FILE]
+
+  Get the committee state
 
 Usage: cardano-cli experimental governance action 
                                                     ( create-constitution
