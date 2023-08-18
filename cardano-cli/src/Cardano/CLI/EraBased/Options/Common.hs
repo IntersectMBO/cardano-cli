@@ -1395,11 +1395,11 @@ pVerificationKey asType =
     , Opt.help "Verification key (Bech32 or hex-encoded)."
     ]
 
-pVerificationKeyOrFile
+pVerificationKeyOrFileIn
   :: SerialiseAsBech32 (VerificationKey keyrole)
   => AsType keyrole
   -> Parser (VerificationKeyOrFile keyrole)
-pVerificationKeyOrFile asType =
+pVerificationKeyOrFileIn asType =
   asum
     [ VerificationKeyValue <$> pVerificationKey asType
     , VerificationKeyFilePath <$> pVerificationKeyFileIn
