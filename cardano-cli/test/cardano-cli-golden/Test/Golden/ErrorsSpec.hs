@@ -19,7 +19,9 @@ import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import           Cardano.CLI.Types.Errors.StakeAddress
+import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
+import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
+import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 
 import           Data.Text.Encoding.Error
 import           GHC.Stack (HasCallStack)
