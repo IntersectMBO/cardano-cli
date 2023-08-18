@@ -7,25 +7,32 @@ module Cardano.CLI.EraBased.Run.Governance.Committee
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
+import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Except (ExceptT)
 import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad.Trans (lift)
 import           Control.Monad.Trans.Except.Extra
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function
 
 data GovernanceCommitteeError
-  = GovernanceCommitteeCmdWriteFileError (FileError ())
+  = GovernanceCommitteeCmdKeyReadError (FileError InputDecodeError)
   | GovernanceCommitteeCmdTextEnvReadFileError (FileError TextEnvelopeError)
+  | GovernanceCommitteeCmdTextEnvWriteError (FileError ())
+  | GovernanceCommitteeCmdWriteFileError (FileError ())
   deriving Show
 
 instance Error GovernanceCommitteeError where
   displayError = \case
+    GovernanceCommitteeCmdKeyReadError e -> "Cannot read key: " <> displayError e
     GovernanceCommitteeCmdWriteFileError e -> "Cannot write file: " <> displayError e
-    GovernanceCommitteeCmdTextEnvReadFileError e -> "Cannot read file: " <> displayError e
+    GovernanceCommitteeCmdTextEnvReadFileError e -> "Cannot read text envelope file: " <> displayError e
+    GovernanceCommitteeCmdTextEnvWriteError e -> "Cannot write text envelope file: " <> displayError e
 
 runGovernanceCommitteeCmds :: ()
   => GovernanceCommitteeCmds era
@@ -37,6 +44,8 @@ runGovernanceCommitteeCmds = \case
     runGovernanceCommitteeKeyGenHot era vk sk
   GovernanceCommitteeKeyHash era vk ->
     runGovernanceCommitteeKeyHash era vk
+  GovernanceCommitteeCreateHotKeyAuthorizationCertificate w cvk hvk out ->
+    runGovernanceCommitteeCreateHotKeyAuthorizationCertificate w cvk hvk out
 
 runGovernanceCommitteeKeyGenCold :: ()
   => ConwayEraOnwards era
@@ -116,3 +125,28 @@ runGovernanceCommitteeKeyHash _w vkeyPath = do
     renderVerificationKeyHash :: Key keyrole => VerificationKey keyrole -> ByteString
     renderVerificationKeyHash = serialiseToRawBytesHex
                               . verificationKeyHash
+
+runGovernanceCommitteeCreateHotKeyAuthorizationCertificate :: ()
+  => ConwayEraOnwards era
+  -> VerificationKeyOrHashOrFile CommitteeColdKey
+  -> VerificationKeyOrHashOrFile CommitteeHotKey
+  -> File () Out
+  -> ExceptT GovernanceCommitteeError IO ()
+runGovernanceCommitteeCreateHotKeyAuthorizationCertificate w coldVkOrHashOrFp hotVkOrHashOrFp oFp =
+  conwayEraOnwardsConstraints w $ do
+    CommitteeColdKeyHash coldVKHash <-
+      lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey coldVkOrHashOrFp)
+        & onLeft (left . GovernanceCommitteeCmdKeyReadError)
+
+    CommitteeHotKeyHash hotVkHash <-
+      lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey hotVkOrHashOrFp)
+        & onLeft (left . GovernanceCommitteeCmdKeyReadError)
+
+    makeCommitteeHotKeyAuthorizationCertificate (CommitteeHotKeyAuthorizationRequirements w coldVKHash hotVkHash)
+      & textEnvelopeToJSON (Just genKeyDelegCertDesc)
+      & writeLazyByteStringFile oFp
+      & firstExceptT GovernanceCommitteeCmdTextEnvWriteError . newExceptT
+
+  where
+    genKeyDelegCertDesc :: TextEnvelopeDescr
+    genKeyDelegCertDesc = "Constitutional Committee Hot Key Registration Certificate"

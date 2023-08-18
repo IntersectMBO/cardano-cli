@@ -696,6 +696,57 @@ pVerificationKeyFileIn =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
+pCommitteeHotKey :: Parser (VerificationKey CommitteeHotKey)
+pCommitteeHotKey =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "cc-hot-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee hot key (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeHotKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Constitutional Committee hot key: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey)
+        . BSC.pack
+
+pCommitteeHotKeyFile :: Parser (VerificationKeyFile In)
+pCommitteeHotKeyFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "cc-hot-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the Consitutional Committee hot key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pCommitteeHotKeyHash :: Parser (Hash CommitteeHotKey)
+pCommitteeHotKeyHash =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "cc-hot-key-hash"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee key hash (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (Hash CommitteeHotKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Consitutional Committee hot key hash: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
+        . BSC.pack
+
+pCommitteeHotKeyOrFile :: Parser (VerificationKeyOrFile CommitteeHotKey)
+pCommitteeHotKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pCommitteeHotKey
+    , VerificationKeyFilePath <$> pCommitteeHotKeyFile
+    ]
+
+pCommitteeHotKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeHotKey)
+pCommitteeHotKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pCommitteeHotKeyOrFile
+    , VerificationKeyHash <$> pCommitteeHotKeyHash
+    ]
+
 catCommands :: [Parser a] -> Maybe (Parser a)
 catCommands = \case
   [] -> Nothing

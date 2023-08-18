@@ -8,6 +8,8 @@ module Cardano.CLI.EraBased.Commands.Governance.Committee
 
 import           Cardano.Api
 
+import           Cardano.CLI.Types.Key
+
 import           Data.Text (Text)
 
 data GovernanceCommitteeCmds era
@@ -22,6 +24,11 @@ data GovernanceCommitteeCmds era
   | GovernanceCommitteeKeyHash -- TODO to be moved under the top-level command group "key"
       (ConwayEraOnwards era)
       (File (VerificationKey ()) In)
+  | GovernanceCommitteeCreateHotKeyAuthorizationCertificate -- TODO to be moved under the top-level command group "key"
+      (ConwayEraOnwards era)
+      (VerificationKeyOrHashOrFile CommitteeColdKey)
+      (VerificationKeyOrHashOrFile CommitteeHotKey)
+      (File () Out)
   deriving Show
 
 renderGovernanceCommitteeCmds :: GovernanceCommitteeCmds era -> Text
@@ -32,3 +39,5 @@ renderGovernanceCommitteeCmds = \case
     "governance committee key-gen-hot"
   GovernanceCommitteeKeyHash {} ->
     "governance committee key-hash"
+  GovernanceCommitteeCreateHotKeyAuthorizationCertificate {} ->
+    "governance committee create-hot-key-authorization-certificate"

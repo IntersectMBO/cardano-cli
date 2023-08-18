@@ -25,6 +25,7 @@ pGovernanceCommitteeCmds era =
     [ pGovernanceCommitteeKeyGenCold era
     , pGovernanceCommitteeKeyGenHot era
     , pGovernanceCommitteeKeyHash era
+    , pGovernanceCommitteeCreateHotKeyAuthorizationCertificate era
     ]
 
 pGovernanceCommitteeKeyGenCold :: ()
@@ -88,3 +89,28 @@ pGovernanceCommitteeKeyHash era = do
     pCmd w =
       GovernanceCommitteeKeyHash w
         <$> pVerificationKeyFileIn
+
+pGovernanceCommitteeCreateHotKeyAuthorizationCertificate :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceCommitteeCmds era))
+pGovernanceCommitteeCreateHotKeyAuthorizationCertificate =
+  featureInEra
+    Nothing
+    ( \w ->
+        Just
+          $ subParser "create-hot-key-authorization-certificate"
+          $ Opt.info (pCmd w)
+          $ Opt.progDesc
+          $ mconcat
+              [ "Create hot key authorization certificate for a Constitutional Committee Member"
+              ]
+    )
+  where
+    pCmd :: ()
+      => ConwayEraOnwards era
+      -> Parser (GovernanceCommitteeCmds era)
+    pCmd w =
+      GovernanceCommitteeCreateHotKeyAuthorizationCertificate w
+        <$> pCommitteeColdKeyOrHashOrFile
+        <*> pCommitteeHotKeyOrHashOrFile
+        <*> pOutputFile
