@@ -19,10 +19,12 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Errors.StakeAddress
 import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.Legacy.Commands.StakeAddress
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
+import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
+import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Key (DelegationTarget (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,
                    readVerificationKeyOrHashOrFile)

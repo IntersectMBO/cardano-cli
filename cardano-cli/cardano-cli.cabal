@@ -70,8 +70,6 @@ library
                         Cardano.CLI.EraBased.Commands.Governance
                         Cardano.CLI.EraBased.Commands.Governance.Actions
                         Cardano.CLI.EraBased.Commands.Governance.Committee
-                        Cardano.CLI.EraBased.Errors.Common
-                        Cardano.CLI.EraBased.Errors.StakeAddress
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Options.Governance.Actions
@@ -121,6 +119,11 @@ library
                         Cardano.CLI.Run.Ping
                         Cardano.CLI.TopHandler
                         Cardano.CLI.Types.Common
+                        Cardano.CLI.Types.Errors.GovernanceCmdError
+                        Cardano.CLI.Types.Errors.ScriptDecodeError
+                        Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
+                        Cardano.CLI.Types.Errors.StakeAddressDelegationError
+                        Cardano.CLI.Types.Errors.StakeAddressRegistrationError
                         Cardano.CLI.Types.Governance
                         Cardano.CLI.Types.Key
                         Cardano.CLI.Types.Output
