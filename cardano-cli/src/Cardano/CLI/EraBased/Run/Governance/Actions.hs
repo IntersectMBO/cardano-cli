@@ -23,24 +23,23 @@ import qualified Data.ByteString as BS
 import qualified Data.Text.Encoding as Text
 import           Data.Text.Encoding.Error
 
-
 data GovernanceActionsError
-  = GovernanceActionsCmdWriteFileError (FileError ())
+  = GovernanceActionsCmdNonUtf8EncodedConstitution UnicodeException
   | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
   | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
-  | GovernanceActionsCmdNonUtf8EncodedConstitution UnicodeException
+  | GovernanceActionsCmdWriteFileError (FileError ())
   deriving Show
 
 instance Error GovernanceActionsError where
   displayError = \case
-    GovernanceActionsCmdWriteFileError e ->
-      "Cannot write file: " <> displayError e
+    GovernanceActionsCmdNonUtf8EncodedConstitution e ->
+      "Cannot read constitution: " <> show e
     GovernanceActionsCmdReadFileError e ->
       "Cannot read file: " <> displayError e
     GovernanceActionsCmdReadTextEnvelopeFileError e ->
-      "Cannot read text envelope from file: " <> displayError e
-    GovernanceActionsCmdNonUtf8EncodedConstitution e ->
-      "Cannot read constitution: " <> show e
+      "Cannot read text envelope file: " <> displayError e
+    GovernanceActionsCmdWriteFileError e ->
+      "Cannot write file: " <> displayError e
 
 runGovernanceActionCmds :: ()
   => GovernanceActionCmds era

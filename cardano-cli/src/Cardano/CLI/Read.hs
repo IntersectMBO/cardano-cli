@@ -72,6 +72,7 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ScriptDecodeError
 import           Cardano.CLI.Types.Governance
 
 import           Prelude
@@ -378,23 +379,6 @@ readScriptDataOrFile (ScriptDataCborFile fp) = do
   firstExceptT (ScriptDataErrorValidation fp)
           $ hoistEither $ validateScriptData $ getScriptData hSd
   return hSd
-
-
---
--- Handling decoding the variety of script languages and formats
---
-
-data ScriptDecodeError =
-       ScriptDecodeTextEnvelopeError TextEnvelopeError
-     | ScriptDecodeSimpleScriptError JsonDecodeError
-  deriving Show
-
-instance Error ScriptDecodeError where
-  displayError (ScriptDecodeTextEnvelopeError err) =
-    "Error decoding script: " ++ displayError err
-  displayError (ScriptDecodeSimpleScriptError err) =
-    "Syntax error in script: " ++ displayError err
-
 
 -- | Read a script file. The file can either be in the text envelope format
 -- wrapping the binary representation of any of the supported script languages,

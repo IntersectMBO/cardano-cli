@@ -2,7 +2,8 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-module Cardano.CLI.EraBased.Errors.StakeAddress
+
+module Cardano.CLI.Types.Errors.StakeAddress
   ( ShelleyStakeAddressCmdError(..)
   , StakeAddressRegistrationError(..)
   , StakeAddressDelegationError(..)
