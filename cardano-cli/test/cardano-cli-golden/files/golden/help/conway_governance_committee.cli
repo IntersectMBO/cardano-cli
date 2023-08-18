@@ -3,6 +3,7 @@ Usage: cardano-cli conway governance committee
                                                  | key-gen-hot
                                                  | key-hash
                                                  | create-hot-key-authorization-certificate
+                                                 | create-cold-key-resignation-certificate
                                                  )
 
   Committee member commands.
@@ -18,4 +19,7 @@ Available commands:
   key-hash                 Print the identifier (hash) of a public key
   create-hot-key-authorization-certificate
                            Create hot key authorization certificate for a
+                           Constitutional Committee Member
+  create-cold-key-resignation-certificate
+                           Create cold key resignation certificate for a
                            Constitutional Committee Member

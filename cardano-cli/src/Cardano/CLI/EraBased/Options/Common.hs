@@ -636,24 +636,24 @@ pOperatorCertIssueCounterFile =
       ]
     ]
 
-pCommitteeColdKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeColdKey)
-pCommitteeColdKeyOrHashOrFile =
+pCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeColdKey)
+pCommitteeColdVerificationKeyOrHashOrFile =
   asum
-    [ VerificationKeyOrFile <$> pCommitteeColdKeyOrFile
-    , VerificationKeyHash <$> pCommitteeColdKeyHash
+    [ VerificationKeyOrFile <$> pCommitteeColdVerificationKeyOrFile
+    , VerificationKeyHash <$> pCommitteeColdVerificationKeyHash
     ]
 
-pCommitteeColdKeyOrFile :: Parser (VerificationKeyOrFile CommitteeColdKey)
-pCommitteeColdKeyOrFile =
+pCommitteeColdVerificationKeyOrFile :: Parser (VerificationKeyOrFile CommitteeColdKey)
+pCommitteeColdVerificationKeyOrFile =
   asum
-    [ VerificationKeyValue <$> pCommitteeColdKey
-    , VerificationKeyFilePath <$> pCommitteeColdKeyFile
+    [ VerificationKeyValue <$> pCommitteeColdVerificationKey
+    , VerificationKeyFilePath <$> pCommitteeColdVerificationKeyFile
     ]
 
-pCommitteeColdKey :: Parser (VerificationKey CommitteeColdKey)
-pCommitteeColdKey =
+pCommitteeColdVerificationKey :: Parser (VerificationKey CommitteeColdKey)
+pCommitteeColdVerificationKey =
   Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
-    [ Opt.long "cc-cold-key"
+    [ Opt.long "cold-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee cold key (hex-encoded)."
     ]
@@ -664,10 +664,10 @@ pCommitteeColdKey =
         . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
         . BSC.pack
 
-pCommitteeColdKeyHash :: Parser (Hash CommitteeColdKey)
-pCommitteeColdKeyHash =
+pCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
+pCommitteeColdVerificationKeyHash =
   Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
-    [ Opt.long "cc-cold-key-hash"
+    [ Opt.long "cold-verification-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]
@@ -678,10 +678,10 @@ pCommitteeColdKeyHash =
         . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
         . BSC.pack
 
-pCommitteeColdKeyFile :: Parser (File (VerificationKey keyrole) In)
-pCommitteeColdKeyFile =
+pCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
+pCommitteeColdVerificationKeyFile =
   fmap File $ Opt.strOption $ mconcat
-    [ Opt.long "cc-cold-key-file"
+    [ Opt.long "cold-verification-key-file"
     , Opt.metavar "FILE"
     , Opt.help "Filepath of the Consitutional Committee cold key."
     , Opt.completer (Opt.bashCompleter "file")
@@ -699,7 +699,7 @@ pVerificationKeyFileIn =
 pCommitteeHotKey :: Parser (VerificationKey CommitteeHotKey)
 pCommitteeHotKey =
   Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
-    [ Opt.long "cc-hot-key"
+    [ Opt.long "hot-key"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee hot key (hex-encoded)."
     ]
@@ -713,7 +713,7 @@ pCommitteeHotKey =
 pCommitteeHotKeyFile :: Parser (VerificationKeyFile In)
 pCommitteeHotKeyFile =
   fmap File $ Opt.strOption $ mconcat
-    [ Opt.long "cc-hot-key-file"
+    [ Opt.long "hot-key-file"
     , Opt.metavar "FILE"
     , Opt.help "Filepath of the Consitutional Committee hot key."
     , Opt.completer (Opt.bashCompleter "file")
@@ -722,7 +722,7 @@ pCommitteeHotKeyFile =
 pCommitteeHotKeyHash :: Parser (Hash CommitteeHotKey)
 pCommitteeHotKeyHash =
   Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
-    [ Opt.long "cc-hot-key-hash"
+    [ Opt.long "hot-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]

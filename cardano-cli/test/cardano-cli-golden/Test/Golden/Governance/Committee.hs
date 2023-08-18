@@ -98,6 +98,7 @@ hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate =
     ccColdSKey <- noteTempFile tempDir "cc-cold.skey"
     ccHotVKey <- noteTempFile tempDir "cc-hot.vkey"
     ccHotSKey <- noteTempFile tempDir "cc-hot.skey"
+
     certFile <- noteTempFile tempDir "hot-auth.cert"
 
     void $ execCardanoCLI
@@ -113,11 +114,34 @@ hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate =
       ]
 
     void $ execCardanoCLI
-      [  "conway", "governance", "committee", "create-hot-key-authorization-certificate"
-      , "--cc-cold-key-file", ccColdVKey
-      , "--cc-hot-key-file", ccHotVKey
+      [ "conway", "governance", "committee", "create-hot-key-authorization-certificate"
+      , "--cold-verification-key-file", ccColdVKey
+      , "--hot-key-file", ccHotVKey
       , "--out-file", certFile
       ]
 
     H.assertFileOccurences 1 "CertificateShelley" certFile
     H.assertFileOccurences 1 "Constitutional Committee Hot Key Registration Certificate" certFile
+
+hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate :: Property
+hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    ccColdVKey <- noteTempFile tempDir "cold.vkey"
+    ccColdSKey <- noteTempFile tempDir "cold.skey"
+
+    certFile <- noteTempFile tempDir "hot-auth.cert"
+
+    void $ execCardanoCLI
+      [ "conway", "governance", "committee", "key-gen-cold"
+      , "--verification-key-file", ccColdVKey
+      , "--signing-key-file", ccColdSKey
+      ]
+
+    void $ execCardanoCLI
+      [  "conway", "governance", "committee", "create-cold-key-resignation-certificate"
+      , "--cold-verification-key-file", ccColdVKey
+      , "--out-file", certFile
+      ]
+
+    H.assertFileOccurences 1 "CertificateShelley" certFile
+    H.assertFileOccurences 1 "Constitutional Committee Cold Key Resignation Certificate" certFile

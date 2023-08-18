@@ -26,6 +26,7 @@ pGovernanceCommitteeCmds era =
     , pGovernanceCommitteeKeyGenHot era
     , pGovernanceCommitteeKeyHash era
     , pGovernanceCommitteeCreateHotKeyAuthorizationCertificate era
+    , pGovernanceCommitteeCreateColdKeyResignationCertificate era
     ]
 
 pGovernanceCommitteeKeyGenCold :: ()
@@ -93,24 +94,34 @@ pGovernanceCommitteeKeyHash era = do
 pGovernanceCommitteeCreateHotKeyAuthorizationCertificate :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
-pGovernanceCommitteeCreateHotKeyAuthorizationCertificate =
-  featureInEra
-    Nothing
-    ( \w ->
-        Just
-          $ subParser "create-hot-key-authorization-certificate"
-          $ Opt.info (pCmd w)
-          $ Opt.progDesc
-          $ mconcat
-              [ "Create hot key authorization certificate for a Constitutional Committee Member"
-              ]
-    )
-  where
-    pCmd :: ()
-      => ConwayEraOnwards era
-      -> Parser (GovernanceCommitteeCmds era)
-    pCmd w =
-      GovernanceCommitteeCreateHotKeyAuthorizationCertificate w
-        <$> pCommitteeColdKeyOrHashOrFile
-        <*> pCommitteeHotKeyOrHashOrFile
-        <*> pOutputFile
+pGovernanceCommitteeCreateHotKeyAuthorizationCertificate era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "create-hot-key-authorization-certificate"
+    $ Opt.info
+        ( GovernanceCommitteeCreateHotKeyAuthorizationCertificate w
+            <$> pCommitteeColdVerificationKeyOrHashOrFile
+            <*> pCommitteeHotKeyOrHashOrFile
+            <*> pOutputFile
+        )
+    $ Opt.progDesc
+    $ mconcat
+        [ "Create hot key authorization certificate for a Constitutional Committee Member"
+        ]
+
+pGovernanceCommitteeCreateColdKeyResignationCertificate :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceCommitteeCmds era))
+pGovernanceCommitteeCreateColdKeyResignationCertificate era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "create-cold-key-resignation-certificate"
+    $ Opt.info
+        ( GovernanceCommitteeCreateColdKeyResignationCertificate w
+            <$> pCommitteeColdVerificationKeyOrHashOrFile
+            <*> pOutputFile
+        )
+    $ Opt.progDesc
+    $ mconcat
+        [ "Create cold key resignation certificate for a Constitutional Committee Member"
+        ]

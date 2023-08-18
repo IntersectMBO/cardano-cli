@@ -1,0 +1,18 @@
+Usage: cardano-cli conway governance committee create-cold-key-resignation-certificate 
+                                                                                         ( --cold-verification-key STRING
+                                                                                         | --cold-verification-key-file FILE
+                                                                                         | --cold-verification-key-hash STRING
+                                                                                         )
+                                                                                         --out-file FILE
+
+  Create cold key resignation certificate for a Constitutional Committee Member
+
+Available options:
+  --cold-verification-key STRING
+                           Constitutional Committee cold key (hex-encoded).
+  --cold-verification-key-file FILE
+                           Filepath of the Consitutional Committee cold key.
+  --cold-verification-key-hash STRING
+                           Constitutional Committee key hash (hex-encoded).
+  --out-file FILE          The output file.
+  -h,--help                Show this help text
