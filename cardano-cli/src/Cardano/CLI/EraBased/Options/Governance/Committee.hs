@@ -78,18 +78,14 @@ pGovernanceCommitteeKeyHash era = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "key-hash"
-    $ Opt.info (pCmd w)
+    $ Opt.info
+        ( GovernanceCommitteeKeyHash w
+            <$> pAnyVerificationKeySource "Constitutional Committee Member key (hot or cold)"
+        )
     $ Opt.progDesc
     $ mconcat
         [ "Print the identifier (hash) of a public key"
         ]
-  where
-    pCmd :: ()
-      => ConwayEraOnwards era
-      -> Parser (GovernanceCommitteeCmds era)
-    pCmd w =
-      GovernanceCommitteeKeyHash w
-        <$> pVerificationKeyFileIn
 
 pGovernanceCommitteeCreateHotKeyAuthorizationCertificate :: ()
   => CardanoEra era

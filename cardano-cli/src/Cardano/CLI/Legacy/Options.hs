@@ -714,7 +714,7 @@ pNodeCmds =
     pKeyHashVRF :: Parser LegacyNodeCmds
     pKeyHashVRF =
       NodeKeyHashVRF
-        <$> pVerificationKeyOrFile AsVrfKey
+        <$> pVerificationKeyOrFileIn AsVrfKey
         <*> pMaybeOutputFile
 
     pNewCounter :: Parser LegacyNodeCmds

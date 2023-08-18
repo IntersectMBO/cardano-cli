@@ -126,6 +126,7 @@ library
                         Cardano.CLI.Types.Errors.StakeAddressRegistrationError
                         Cardano.CLI.Types.Governance
                         Cardano.CLI.Types.Key
+                        Cardano.CLI.Types.Key.VerificationKey
                         Cardano.CLI.Types.Output
 
   other-modules:        Paths_cardano_cli
