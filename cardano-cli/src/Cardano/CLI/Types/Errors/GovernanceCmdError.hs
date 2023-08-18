@@ -8,8 +8,8 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Legacy.Run.StakeAddress
 import           Cardano.CLI.Read (CddlError)
+import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
 
 import qualified Data.List as List
 import           Data.Text (Text)
