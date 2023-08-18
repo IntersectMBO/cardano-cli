@@ -57,10 +57,6 @@ runEraBasedGovernanceCmds :: ()
   => EraBasedGovernanceCmds era
   -> ExceptT AnyEraCmdError IO ()
 runEraBasedGovernanceCmds = \case
-  EraBasedGovernancePreConwayCmd w ->
-    runEraBasedGovernancePreConwayCmd w
-  EraBasedGovernancePostConwayCmd w ->
-    runEraBasedGovernancePostConwayCmd w
   EraBasedGovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
     runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
       & firstExceptT AnyEraCmdGovernanceCmdError
@@ -92,14 +88,3 @@ runEraBasedGovernanceCmds = \case
   EraBasedGovernanceDRepGenerateKey w vrf sgn ->
     runGovernanceDRepKeyGen w vrf sgn
       & firstExceptT AnyEraCmdGovernanceCmdError
-
-
-runEraBasedGovernancePreConwayCmd
-  :: ShelleyToBabbageEra era
-  -> ExceptT e IO ()
-runEraBasedGovernancePreConwayCmd _w = pure ()
-
-runEraBasedGovernancePostConwayCmd
-  :: ConwayEraOnwards era
-  -> ExceptT e IO ()
-runEraBasedGovernancePostConwayCmd _w = pure ()

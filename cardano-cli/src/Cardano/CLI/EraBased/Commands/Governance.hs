@@ -19,9 +19,7 @@ import           Cardano.CLI.Types.Key
 import           Data.Text (Text)
 
 data EraBasedGovernanceCmds era
-  = EraBasedGovernancePreConwayCmd (ShelleyToBabbageEra era)
-  | EraBasedGovernancePostConwayCmd (ConwayEraOnwards era)
-  | EraBasedGovernanceMIRPayStakeAddressesCertificate
+  = EraBasedGovernanceMIRPayStakeAddressesCertificate
       (ShelleyToBabbageEra era)
       MIRPot
       [StakeAddress]
@@ -53,10 +51,6 @@ data EraBasedGovernanceCmds era
 
 renderEraBasedGovernanceCmds :: EraBasedGovernanceCmds era -> Text
 renderEraBasedGovernanceCmds = \case
-  EraBasedGovernancePreConwayCmd {} ->
-    "governance pre-conway"
-  EraBasedGovernancePostConwayCmd {} ->
-    "governance post-conway"
   EraBasedGovernanceMIRPayStakeAddressesCertificate {} ->
     "governance create-mir-certificate stake-addresses"
   EraBasedGovernanceMIRTransfer _ _ _ TransferToTreasury ->

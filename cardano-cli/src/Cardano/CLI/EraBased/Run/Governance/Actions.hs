@@ -37,10 +37,10 @@ instance Error GovernanceActionsError where
       "Cannot write file: " <> displayError e
     GovernanceActionsCmdReadFileError e ->
       "Cannot read file: " <> displayError e
+    GovernanceActionsCmdReadTextEnvelopeFileError e ->
+      "Cannot read text envelope from file: " <> displayError e
     GovernanceActionsCmdNonUtf8EncodedConstitution e ->
       "Cannot read constitution: " <> show e
-    GovernanceActionsCmdReadTextEnvelopeFileError e ->
-      "Cannot read text envelope file: " <> displayError e
 
 runGovernanceActionCmds :: ()
   => GovernanceActionCmds era
