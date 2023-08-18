@@ -5,6 +5,9 @@ cardano-cli/README.md                                         @Jimbo4350 @newhog
 # Release manager added for notification on dependency updates
 cabal.project                                                 @Jimbo4350 @newhoggy @carbolymer
 
+# General reviewers per PR
+#                        Jordan     John      Mateusz     Kevin         Sam
+*                        @Jimbo4350 @newhoggy @carbolymer @kevinhammond @disassembler
 
 # Specific reviewers for code pieces
 # NB - The last matching pattern takes precedence
