@@ -10,11 +10,11 @@ import           Cardano.Api.Shelley
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
-import           Cardano.Prelude (toS)
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import           Data.Bifunctor
+import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
 import qualified Formatting.Buildable as B
 
@@ -33,7 +33,7 @@ instance Error EraBasedVoteError where
     EraBasedVoteWriteError e ->
       "Cannot write vote: " <> displayError e
     where
-      renderDecoderError = toS . TL.toLazyText . B.build
+      renderDecoderError = TL.unpack . TL.toLazyText . B.build
 
 runGovernanceVote
   :: AnyVote

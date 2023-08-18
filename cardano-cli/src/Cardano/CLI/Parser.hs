@@ -14,7 +14,6 @@ module Cardano.CLI.Parser
 
 import           Cardano.CLI.Types.Common
 import qualified Cardano.Ledger.BaseTypes as Shelley
-import           Cardano.Prelude (ConvertText (..))
 
 import qualified Data.Attoparsec.ByteString.Char8 as Atto
 import           Data.ByteString (ByteString)
@@ -94,6 +93,6 @@ readerFromAttoParser p =
 eDNSName :: String -> Either String ByteString
 eDNSName str =
   -- We're using 'Shelley.textToDns' to validate the string.
-  case Shelley.textToDns (toS str) of
+  case Shelley.textToDns (Text.pack str) of
     Nothing -> Left $ "DNS name is more than 64 bytes: " <> str
     Just dnsName -> Right . Text.encodeUtf8 . Shelley.dnsToText $ dnsName
