@@ -1,8 +1,15 @@
-Usage: cardano-cli experimental governance committee key-hash --verification-key-file FILE
+Usage: cardano-cli experimental governance committee key-hash 
+                                                                ( --verification-key STRING
+                                                                | --verification-key-file FILE
+                                                                )
 
   Print the identifier (hash) of a public key
 
 Available options:
+  --verification-key STRING
+                           Constitutional Committee Member key (hot or cold)
+                           (Bech32-encoded)
   --verification-key-file FILE
-                           Input filepath of the verification key.
+                           Input filepath of the Constitutional Committee Member
+                           key (hot or cold).
   -h,--help                Show this help text

@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.Api
 
 import           Cardano.CLI.Types.Key
+import           Cardano.CLI.Types.Key.VerificationKey
 
 import           Data.Text (Text)
 
@@ -23,7 +24,7 @@ data GovernanceCommitteeCmds era
       (File (SigningKey ()) Out)
   | GovernanceCommitteeKeyHash -- TODO to be moved under the top-level command group "key"
       (ConwayEraOnwards era)
-      (File (VerificationKey ()) In)
+      AnyVerificationKeySource
   | GovernanceCommitteeCreateHotKeyAuthorizationCertificate -- TODO to be moved under the top-level command group "key"
       (ConwayEraOnwards era)
       (VerificationKeyOrHashOrFile CommitteeColdKey)

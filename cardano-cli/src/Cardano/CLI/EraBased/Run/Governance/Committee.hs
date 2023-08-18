@@ -11,6 +11,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.Types.Key
+import           Cardano.CLI.Types.Key.VerificationKey
 
 import           Control.Monad.Except (ExceptT)
 import           Control.Monad.IO.Class (liftIO)
@@ -21,7 +22,8 @@ import qualified Data.ByteString.Char8 as BS
 import           Data.Function
 
 data GovernanceCommitteeError
-  = GovernanceCommitteeCmdKeyReadError (FileError InputDecodeError)
+  = GovernanceCommitteeCmdKeyDecodeError InputDecodeError
+  | GovernanceCommitteeCmdKeyReadError (FileError InputDecodeError)
   | GovernanceCommitteeCmdTextEnvReadFileError (FileError TextEnvelopeError)
   | GovernanceCommitteeCmdTextEnvWriteError (FileError ())
   | GovernanceCommitteeCmdWriteFileError (FileError ())
@@ -29,6 +31,8 @@ data GovernanceCommitteeError
 
 instance Error GovernanceCommitteeError where
   displayError = \case
+    GovernanceCommitteeCmdKeyDecodeError e ->
+      "Cannot decode key: " <> displayError e
     GovernanceCommitteeCmdKeyReadError e ->
       "Cannot read key: " <> displayError e
     GovernanceCommitteeCmdWriteFileError e ->
@@ -109,16 +113,25 @@ data SomeCommitteeKey f
 
 runGovernanceCommitteeKeyHash :: ()
   => ConwayEraOnwards era
-  -> File (VerificationKey ()) In
+  -> AnyVerificationKeySource
   -> ExceptT GovernanceCommitteeError IO ()
-runGovernanceCommitteeKeyHash _w vkeyPath = do
+runGovernanceCommitteeKeyHash _w vkeySource = do
   vkey <-
-    readFileTextEnvelopeAnyOf
-      [ FromSomeType (AsVerificationKey AsCommitteeHotKey ) ACommitteeHotKey
-      , FromSomeType (AsVerificationKey AsCommitteeColdKey) ACommitteeColdKey
-      ]
-      vkeyPath
-    & firstExceptT GovernanceCommitteeCmdTextEnvReadFileError . newExceptT
+    case vkeySource of
+      AnyVerificationKeySourceOfText vkText -> do
+        let asTypes =
+              [ FromSomeType (AsVerificationKey AsCommitteeHotKey ) ACommitteeHotKey
+              , FromSomeType (AsVerificationKey AsCommitteeColdKey) ACommitteeColdKey
+              ]
+        pure (deserialiseAnyOfFromBech32 asTypes (unAnyVerificationKeyText vkText))
+          & onLeft (left . GovernanceCommitteeCmdKeyDecodeError . InputBech32DecodeError)
+      AnyVerificationKeySourceOfFile vkeyPath -> do
+        let asTypes =
+              [ FromSomeType (AsVerificationKey AsCommitteeHotKey ) ACommitteeHotKey
+              , FromSomeType (AsVerificationKey AsCommitteeColdKey) ACommitteeColdKey
+              ]
+        readFileTextEnvelopeAnyOf asTypes vkeyPath
+          & firstExceptT GovernanceCommitteeCmdTextEnvReadFileError . newExceptT
 
   liftIO $ BS.putStrLn (renderKeyHash vkey)
 

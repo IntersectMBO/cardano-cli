@@ -20,6 +20,7 @@ import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
+import           Cardano.CLI.Types.Key.VerificationKey
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Control.Monad (mfilter)
@@ -694,6 +695,30 @@ pVerificationKeyFileIn =
     , Opt.metavar "FILE"
     , Opt.help "Input filepath of the verification key."
     , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pAnyVerificationKeyFileIn :: String -> Parser (VerificationKeyFile In)
+pAnyVerificationKeyFileIn helpText =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "verification-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help $ "Input filepath of the " <> helpText <> "."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+pAnyVerificationKeyText :: String -> Parser AnyVerificationKeyText
+pAnyVerificationKeyText helpText =
+  fmap (AnyVerificationKeyText . Text.pack) $ Opt.strOption $ mconcat
+    [ Opt.long "verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help $ helpText <> " (Bech32-encoded)"
+    ]
+
+pAnyVerificationKeySource :: String -> Parser AnyVerificationKeySource
+pAnyVerificationKeySource helpText =
+  asum
+    [ AnyVerificationKeySourceOfText <$> pAnyVerificationKeyText helpText
+    , AnyVerificationKeySourceOfFile <$> pAnyVerificationKeyFileIn helpText
     ]
 
 pCommitteeHotKey :: Parser (VerificationKey CommitteeHotKey)

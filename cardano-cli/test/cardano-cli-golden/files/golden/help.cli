@@ -794,7 +794,10 @@ Usage: cardano-cli conway governance committee key-gen-hot --verification-key-fi
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli conway governance committee key-hash --verification-key-file FILE
+Usage: cardano-cli conway governance committee key-hash 
+                                                          ( --verification-key STRING
+                                                          | --verification-key-file FILE
+                                                          )
 
   Print the identifier (hash) of a public key
 
@@ -1200,7 +1203,10 @@ Usage: cardano-cli experimental governance committee key-gen-hot --verification-
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli experimental governance committee key-hash --verification-key-file FILE
+Usage: cardano-cli experimental governance committee key-hash 
+                                                                ( --verification-key STRING
+                                                                | --verification-key-file FILE
+                                                                )
 
   Print the identifier (hash) of a public key
 
