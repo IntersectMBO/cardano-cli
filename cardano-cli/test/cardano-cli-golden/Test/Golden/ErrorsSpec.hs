@@ -13,12 +13,12 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary
-import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.StakeAddress
 
 import           Data.Text.Encoding.Error
