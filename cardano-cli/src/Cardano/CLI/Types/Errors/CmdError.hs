@@ -16,6 +16,7 @@ import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
+import           Cardano.CLI.Types.Errors.StakeCredentialError
 
 import           Data.Text.Encoding.Error
 import           GHC.Generics (Generic)
@@ -61,6 +62,7 @@ data EraBasedDelegationError
   | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
   | EraBasedCertificateWriteFileError !(FileError ())
   | EraBasedDRepReadError !(FileError InputDecodeError)
+  | EraBasedDelegationStakeCredentialError !StakeCredentialError
   deriving (Show, Generic)
 
 instance Error EraBasedDelegationError where
@@ -68,6 +70,8 @@ instance Error EraBasedDelegationError where
     EraBasedDelegReadError e ->
       "Cannot read delegation target: " <> displayError e
     EraBasedCredentialError e ->
+      "Cannot get stake credential: " <> displayError e
+    EraBasedDelegationStakeCredentialError e ->
       "Cannot get stake credential: " <> displayError e
     EraBasedCertificateWriteFileError e ->
       "Cannot write certificate: " <> displayError e
@@ -77,16 +81,20 @@ instance Error EraBasedDelegationError where
 data EraBasedRegistrationError
   = EraBasedRegistReadError !(FileError InputDecodeError)
   | EraBasedRegistWriteFileError !(FileError ())
-  | EraBasedRegistStakeCredReadError !ShelleyStakeAddressCmdError -- TODO: Conway era - don't use legacy error type
+  | EraBasedRegistrationStakeCredentialError !StakeCredentialError
   | EraBasedRegistStakeError !StakeAddressRegistrationError
   deriving Show
 
 instance Error EraBasedRegistrationError where
   displayError = \case
-    EraBasedRegistReadError e -> "Cannot read registration certificate: " <> displayError e
-    EraBasedRegistWriteFileError e -> "Cannot write registration certificate: " <> displayError e
-    EraBasedRegistStakeCredReadError e -> "Cannot read stake credential: " <> displayError e
-    EraBasedRegistStakeError e -> "Stake address registation error: " <> displayError e
+    EraBasedRegistReadError e ->
+      "Cannot read registration certificate: " <> displayError e
+    EraBasedRegistWriteFileError e ->
+      "Cannot write registration certificate: " <> displayError e
+    EraBasedRegistrationStakeCredentialError e ->
+      "Cannot read stake credential: " <> displayError e
+    EraBasedRegistStakeError e ->
+      "Stake address registation error: " <> displayError e
 
 data GovernanceCommitteeError
   = GovernanceCommitteeCmdKeyDecodeError InputDecodeError

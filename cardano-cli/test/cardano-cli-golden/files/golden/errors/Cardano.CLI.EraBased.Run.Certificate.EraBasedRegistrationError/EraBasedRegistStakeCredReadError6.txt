@@ -1,1 +1,0 @@
-Cannot read stake credential: Vote delegation not supported in Shelley era.
