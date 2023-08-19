@@ -1,11 +1,4 @@
-Usage: cardano-cli conway governance 
-                                       ( registration-certificate
-                                       | delegation-certificate
-                                       | vote
-                                       | committee
-                                       | action
-                                       | drep
-                                       )
+Usage: cardano-cli conway governance (vote | committee | action | drep)
 
   Era-based governance commands
 
@@ -13,9 +6,7 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  registration-certificate Create a registration certificate.
-  delegation-certificate   Delegation certificate creation.
   vote                     Vote creation.
   committee                Committee member commands.
   action                   Governance action commands.
-  drep                     Delegate Representative commands.
+  drep                     DRep member commands.

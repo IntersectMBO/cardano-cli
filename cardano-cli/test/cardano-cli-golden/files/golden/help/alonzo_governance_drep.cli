@@ -1,0 +1,13 @@
+Usage: cardano-cli alonzo governance drep 
+                                            ( delegation-certificate
+                                            | registration-certificate
+                                            )
+
+  DRep member commands.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  delegation-certificate   Delegation certificate creation.
+  registration-certificate Create a registration certificate.

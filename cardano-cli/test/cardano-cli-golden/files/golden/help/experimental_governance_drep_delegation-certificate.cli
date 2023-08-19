@@ -1,27 +1,27 @@
-Usage: cardano-cli conway governance delegation-certificate 
-                                                              ( --stake-verification-key STRING
-                                                              | --stake-verification-key-file FILE
-                                                              | --stake-script-file FILE
-                                                              | --stake-address ADDRESS
-                                                              )
-                                                              ( --stake-pool-verification-key STRING
-                                                              | --cold-verification-key-file FILE
-                                                              | --stake-pool-id STAKE_POOL_ID
-                                                              | --drep-verification-key STRING
-                                                              | --drep-verification-key-file FILE
-                                                              | --drep-key-hash HASH
-                                                              | ( --drep-verification-key STRING
-                                                                | --drep-verification-key-file FILE
-                                                                | --drep-key-hash HASH
-                                                                )
-                                                                ( --stake-pool-verification-key STRING
-                                                                | --cold-verification-key-file FILE
-                                                                | --stake-pool-id STAKE_POOL_ID
-                                                                )
-                                                              | --always-abstain
-                                                              | --always-no-confidence
-                                                              )
-                                                              --out-file FILE
+Usage: cardano-cli experimental governance drep delegation-certificate 
+                                                                         ( --stake-verification-key STRING
+                                                                         | --stake-verification-key-file FILE
+                                                                         | --stake-script-file FILE
+                                                                         | --stake-address ADDRESS
+                                                                         )
+                                                                         ( --stake-pool-verification-key STRING
+                                                                         | --cold-verification-key-file FILE
+                                                                         | --stake-pool-id STAKE_POOL_ID
+                                                                         | --drep-verification-key STRING
+                                                                         | --drep-verification-key-file FILE
+                                                                         | --drep-key-hash HASH
+                                                                         | ( --drep-verification-key STRING
+                                                                           | --drep-verification-key-file FILE
+                                                                           | --drep-key-hash HASH
+                                                                           )
+                                                                           ( --stake-pool-verification-key STRING
+                                                                           | --cold-verification-key-file FILE
+                                                                           | --stake-pool-id STAKE_POOL_ID
+                                                                           )
+                                                                         | --always-abstain
+                                                                         | --always-no-confidence
+                                                                         )
+                                                                         --out-file FILE
 
   Delegation certificate creation.
 

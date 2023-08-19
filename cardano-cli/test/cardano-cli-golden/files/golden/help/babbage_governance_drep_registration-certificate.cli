@@ -1,4 +1,4 @@
-Usage: cardano-cli experimental governance registration-certificate 
+Usage: cardano-cli babbage governance drep registration-certificate 
                                                                       ( ( --stake-pool-verification-key STRING
                                                                         | --cold-verification-key-file FILE
                                                                         )
@@ -26,17 +26,10 @@ Usage: cardano-cli experimental governance registration-certificate
                                                                         ( --mainnet
                                                                         | --testnet-magic NATURAL
                                                                         )
-                                                                      | ( --stake-verification-key STRING
-                                                                        | --stake-verification-key-file FILE
-                                                                        | --stake-script-file FILE
-                                                                        | --stake-address ADDRESS
-                                                                        )
-                                                                        --key-reg-deposit-amt NATURAL
-                                                                      | ( --drep-verification-key STRING
-                                                                        | --drep-verification-key-file FILE
-                                                                        | --drep-key-hash HASH
-                                                                        )
-                                                                        --key-reg-deposit-amt NATURAL
+                                                                      | --stake-verification-key STRING
+                                                                      | --stake-verification-key-file FILE
+                                                                      | --stake-script-file FILE
+                                                                      | --stake-address ADDRESS
                                                                       )
                                                                       --out-file FILE
 
@@ -87,16 +80,5 @@ Available options:
                            Filepath of the staking verification key.
   --stake-script-file FILE Filepath of the staking script.
   --stake-address ADDRESS  Target stake address (bech32 format).
-  --key-reg-deposit-amt NATURAL
-                           Key registration deposit amount.
-  --drep-verification-key STRING
-                           DRep verification key (Bech32 or hex-encoded).
-  --drep-verification-key-file FILE
-                           Filepath of the DRep verification key.
-  --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
-                           hex-encoded). Zero or more occurences of this option
-                           is allowed.
-  --key-reg-deposit-amt NATURAL
-                           Key registration deposit amount.
   --out-file FILE          The output file.
   -h,--help                Show this help text

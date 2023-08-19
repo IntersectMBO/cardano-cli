@@ -18,65 +18,9 @@ Usage: cardano-cli shelley governance
 
   Shelley era commands
 
-Usage: cardano-cli shelley governance 
-                                        ( registration-certificate
-                                        | delegation-certificate
-                                        | create-mir-certificate
-                                        | action
-                                        )
+Usage: cardano-cli shelley governance (create-mir-certificate | action | drep)
 
   Era-based governance commands
-
-Usage: cardano-cli shelley governance registration-certificate 
-                                                                 ( ( --stake-pool-verification-key STRING
-                                                                   | --cold-verification-key-file FILE
-                                                                   )
-                                                                   ( --vrf-verification-key STRING
-                                                                   | --vrf-verification-key-file FILE
-                                                                   )
-                                                                   --pool-pledge LOVELACE
-                                                                   --pool-cost LOVELACE
-                                                                   --pool-margin RATIONAL
-                                                                   ( --pool-reward-account-verification-key STRING
-                                                                   | --pool-reward-account-verification-key-file FILE
-                                                                   )
-                                                                   ( --pool-owner-verification-key STRING
-                                                                   | --pool-owner-stake-verification-key-file FILE
-                                                                   )
-                                                                   [ [--pool-relay-ipv4 STRING]
-                                                                     [--pool-relay-ipv6 STRING]
-                                                                     --pool-relay-port INT
-                                                                   | --single-host-pool-relay STRING
-                                                                     [--pool-relay-port INT]
-                                                                   | --multi-host-pool-relay STRING
-                                                                   ]
-                                                                   [--metadata-url URL
-                                                                     --metadata-hash HASH]
-                                                                   ( --mainnet
-                                                                   | --testnet-magic NATURAL
-                                                                   )
-                                                                 | --stake-verification-key STRING
-                                                                 | --stake-verification-key-file FILE
-                                                                 | --stake-script-file FILE
-                                                                 | --stake-address ADDRESS
-                                                                 )
-                                                                 --out-file FILE
-
-  Create a registration certificate.
-
-Usage: cardano-cli shelley governance delegation-certificate 
-                                                               ( --stake-verification-key STRING
-                                                               | --stake-verification-key-file FILE
-                                                               | --stake-script-file FILE
-                                                               | --stake-address ADDRESS
-                                                               )
-                                                               ( --stake-pool-verification-key STRING
-                                                               | --cold-verification-key-file FILE
-                                                               | --stake-pool-id STAKE_POOL_ID
-                                                               )
-                                                               --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli shelley governance create-mir-certificate 
                                                                ( ( --reserves
@@ -144,69 +88,71 @@ Usage: cardano-cli shelley governance action create-protocol-parameters-update -
 
   Create a protocol parameters update.
 
+Usage: cardano-cli shelley governance drep 
+                                             ( delegation-certificate
+                                             | registration-certificate
+                                             )
+
+  DRep member commands.
+
+Usage: cardano-cli shelley governance drep delegation-certificate 
+                                                                    ( --stake-verification-key STRING
+                                                                    | --stake-verification-key-file FILE
+                                                                    | --stake-script-file FILE
+                                                                    | --stake-address ADDRESS
+                                                                    )
+                                                                    ( --stake-pool-verification-key STRING
+                                                                    | --cold-verification-key-file FILE
+                                                                    | --stake-pool-id STAKE_POOL_ID
+                                                                    )
+                                                                    --out-file FILE
+
+  Delegation certificate creation.
+
+Usage: cardano-cli shelley governance drep registration-certificate 
+                                                                      ( ( --stake-pool-verification-key STRING
+                                                                        | --cold-verification-key-file FILE
+                                                                        )
+                                                                        ( --vrf-verification-key STRING
+                                                                        | --vrf-verification-key-file FILE
+                                                                        )
+                                                                        --pool-pledge LOVELACE
+                                                                        --pool-cost LOVELACE
+                                                                        --pool-margin RATIONAL
+                                                                        ( --pool-reward-account-verification-key STRING
+                                                                        | --pool-reward-account-verification-key-file FILE
+                                                                        )
+                                                                        ( --pool-owner-verification-key STRING
+                                                                        | --pool-owner-stake-verification-key-file FILE
+                                                                        )
+                                                                        [ [--pool-relay-ipv4 STRING]
+                                                                          [--pool-relay-ipv6 STRING]
+                                                                          --pool-relay-port INT
+                                                                        | --single-host-pool-relay STRING
+                                                                          [--pool-relay-port INT]
+                                                                        | --multi-host-pool-relay STRING
+                                                                        ]
+                                                                        [--metadata-url URL
+                                                                          --metadata-hash HASH]
+                                                                        ( --mainnet
+                                                                        | --testnet-magic NATURAL
+                                                                        )
+                                                                      | --stake-verification-key STRING
+                                                                      | --stake-verification-key-file FILE
+                                                                      | --stake-script-file FILE
+                                                                      | --stake-address ADDRESS
+                                                                      )
+                                                                      --out-file FILE
+
+  Create a registration certificate.
+
 Usage: cardano-cli allegra governance
 
   Allegra era commands
 
-Usage: cardano-cli allegra governance 
-                                        ( registration-certificate
-                                        | delegation-certificate
-                                        | create-mir-certificate
-                                        | action
-                                        )
+Usage: cardano-cli allegra governance (create-mir-certificate | action | drep)
 
   Era-based governance commands
-
-Usage: cardano-cli allegra governance registration-certificate 
-                                                                 ( ( --stake-pool-verification-key STRING
-                                                                   | --cold-verification-key-file FILE
-                                                                   )
-                                                                   ( --vrf-verification-key STRING
-                                                                   | --vrf-verification-key-file FILE
-                                                                   )
-                                                                   --pool-pledge LOVELACE
-                                                                   --pool-cost LOVELACE
-                                                                   --pool-margin RATIONAL
-                                                                   ( --pool-reward-account-verification-key STRING
-                                                                   | --pool-reward-account-verification-key-file FILE
-                                                                   )
-                                                                   ( --pool-owner-verification-key STRING
-                                                                   | --pool-owner-stake-verification-key-file FILE
-                                                                   )
-                                                                   [ [--pool-relay-ipv4 STRING]
-                                                                     [--pool-relay-ipv6 STRING]
-                                                                     --pool-relay-port INT
-                                                                   | --single-host-pool-relay STRING
-                                                                     [--pool-relay-port INT]
-                                                                   | --multi-host-pool-relay STRING
-                                                                   ]
-                                                                   [--metadata-url URL
-                                                                     --metadata-hash HASH]
-                                                                   ( --mainnet
-                                                                   | --testnet-magic NATURAL
-                                                                   )
-                                                                 | --stake-verification-key STRING
-                                                                 | --stake-verification-key-file FILE
-                                                                 | --stake-script-file FILE
-                                                                 | --stake-address ADDRESS
-                                                                 )
-                                                                 --out-file FILE
-
-  Create a registration certificate.
-
-Usage: cardano-cli allegra governance delegation-certificate 
-                                                               ( --stake-verification-key STRING
-                                                               | --stake-verification-key-file FILE
-                                                               | --stake-script-file FILE
-                                                               | --stake-address ADDRESS
-                                                               )
-                                                               ( --stake-pool-verification-key STRING
-                                                               | --cold-verification-key-file FILE
-                                                               | --stake-pool-id STAKE_POOL_ID
-                                                               )
-                                                               --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli allegra governance create-mir-certificate 
                                                                ( ( --reserves
@@ -274,69 +220,71 @@ Usage: cardano-cli allegra governance action create-protocol-parameters-update -
 
   Create a protocol parameters update.
 
+Usage: cardano-cli allegra governance drep 
+                                             ( delegation-certificate
+                                             | registration-certificate
+                                             )
+
+  DRep member commands.
+
+Usage: cardano-cli allegra governance drep delegation-certificate 
+                                                                    ( --stake-verification-key STRING
+                                                                    | --stake-verification-key-file FILE
+                                                                    | --stake-script-file FILE
+                                                                    | --stake-address ADDRESS
+                                                                    )
+                                                                    ( --stake-pool-verification-key STRING
+                                                                    | --cold-verification-key-file FILE
+                                                                    | --stake-pool-id STAKE_POOL_ID
+                                                                    )
+                                                                    --out-file FILE
+
+  Delegation certificate creation.
+
+Usage: cardano-cli allegra governance drep registration-certificate 
+                                                                      ( ( --stake-pool-verification-key STRING
+                                                                        | --cold-verification-key-file FILE
+                                                                        )
+                                                                        ( --vrf-verification-key STRING
+                                                                        | --vrf-verification-key-file FILE
+                                                                        )
+                                                                        --pool-pledge LOVELACE
+                                                                        --pool-cost LOVELACE
+                                                                        --pool-margin RATIONAL
+                                                                        ( --pool-reward-account-verification-key STRING
+                                                                        | --pool-reward-account-verification-key-file FILE
+                                                                        )
+                                                                        ( --pool-owner-verification-key STRING
+                                                                        | --pool-owner-stake-verification-key-file FILE
+                                                                        )
+                                                                        [ [--pool-relay-ipv4 STRING]
+                                                                          [--pool-relay-ipv6 STRING]
+                                                                          --pool-relay-port INT
+                                                                        | --single-host-pool-relay STRING
+                                                                          [--pool-relay-port INT]
+                                                                        | --multi-host-pool-relay STRING
+                                                                        ]
+                                                                        [--metadata-url URL
+                                                                          --metadata-hash HASH]
+                                                                        ( --mainnet
+                                                                        | --testnet-magic NATURAL
+                                                                        )
+                                                                      | --stake-verification-key STRING
+                                                                      | --stake-verification-key-file FILE
+                                                                      | --stake-script-file FILE
+                                                                      | --stake-address ADDRESS
+                                                                      )
+                                                                      --out-file FILE
+
+  Create a registration certificate.
+
 Usage: cardano-cli mary governance
 
   Mary era commands
 
-Usage: cardano-cli mary governance 
-                                     ( registration-certificate
-                                     | delegation-certificate
-                                     | create-mir-certificate
-                                     | action
-                                     )
+Usage: cardano-cli mary governance (create-mir-certificate | action | drep)
 
   Era-based governance commands
-
-Usage: cardano-cli mary governance registration-certificate 
-                                                              ( ( --stake-pool-verification-key STRING
-                                                                | --cold-verification-key-file FILE
-                                                                )
-                                                                ( --vrf-verification-key STRING
-                                                                | --vrf-verification-key-file FILE
-                                                                )
-                                                                --pool-pledge LOVELACE
-                                                                --pool-cost LOVELACE
-                                                                --pool-margin RATIONAL
-                                                                ( --pool-reward-account-verification-key STRING
-                                                                | --pool-reward-account-verification-key-file FILE
-                                                                )
-                                                                ( --pool-owner-verification-key STRING
-                                                                | --pool-owner-stake-verification-key-file FILE
-                                                                )
-                                                                [ [--pool-relay-ipv4 STRING]
-                                                                  [--pool-relay-ipv6 STRING]
-                                                                  --pool-relay-port INT
-                                                                | --single-host-pool-relay STRING
-                                                                  [--pool-relay-port INT]
-                                                                | --multi-host-pool-relay STRING
-                                                                ]
-                                                                [--metadata-url URL
-                                                                  --metadata-hash HASH]
-                                                                ( --mainnet
-                                                                | --testnet-magic NATURAL
-                                                                )
-                                                              | --stake-verification-key STRING
-                                                              | --stake-verification-key-file FILE
-                                                              | --stake-script-file FILE
-                                                              | --stake-address ADDRESS
-                                                              )
-                                                              --out-file FILE
-
-  Create a registration certificate.
-
-Usage: cardano-cli mary governance delegation-certificate 
-                                                            ( --stake-verification-key STRING
-                                                            | --stake-verification-key-file FILE
-                                                            | --stake-script-file FILE
-                                                            | --stake-address ADDRESS
-                                                            )
-                                                            ( --stake-pool-verification-key STRING
-                                                            | --cold-verification-key-file FILE
-                                                            | --stake-pool-id STAKE_POOL_ID
-                                                            )
-                                                            --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli mary governance create-mir-certificate 
                                                             ( ( --reserves
@@ -404,69 +352,71 @@ Usage: cardano-cli mary governance action create-protocol-parameters-update --ep
 
   Create a protocol parameters update.
 
+Usage: cardano-cli mary governance drep 
+                                          ( delegation-certificate
+                                          | registration-certificate
+                                          )
+
+  DRep member commands.
+
+Usage: cardano-cli mary governance drep delegation-certificate 
+                                                                 ( --stake-verification-key STRING
+                                                                 | --stake-verification-key-file FILE
+                                                                 | --stake-script-file FILE
+                                                                 | --stake-address ADDRESS
+                                                                 )
+                                                                 ( --stake-pool-verification-key STRING
+                                                                 | --cold-verification-key-file FILE
+                                                                 | --stake-pool-id STAKE_POOL_ID
+                                                                 )
+                                                                 --out-file FILE
+
+  Delegation certificate creation.
+
+Usage: cardano-cli mary governance drep registration-certificate 
+                                                                   ( ( --stake-pool-verification-key STRING
+                                                                     | --cold-verification-key-file FILE
+                                                                     )
+                                                                     ( --vrf-verification-key STRING
+                                                                     | --vrf-verification-key-file FILE
+                                                                     )
+                                                                     --pool-pledge LOVELACE
+                                                                     --pool-cost LOVELACE
+                                                                     --pool-margin RATIONAL
+                                                                     ( --pool-reward-account-verification-key STRING
+                                                                     | --pool-reward-account-verification-key-file FILE
+                                                                     )
+                                                                     ( --pool-owner-verification-key STRING
+                                                                     | --pool-owner-stake-verification-key-file FILE
+                                                                     )
+                                                                     [ [--pool-relay-ipv4 STRING]
+                                                                       [--pool-relay-ipv6 STRING]
+                                                                       --pool-relay-port INT
+                                                                     | --single-host-pool-relay STRING
+                                                                       [--pool-relay-port INT]
+                                                                     | --multi-host-pool-relay STRING
+                                                                     ]
+                                                                     [--metadata-url URL
+                                                                       --metadata-hash HASH]
+                                                                     ( --mainnet
+                                                                     | --testnet-magic NATURAL
+                                                                     )
+                                                                   | --stake-verification-key STRING
+                                                                   | --stake-verification-key-file FILE
+                                                                   | --stake-script-file FILE
+                                                                   | --stake-address ADDRESS
+                                                                   )
+                                                                   --out-file FILE
+
+  Create a registration certificate.
+
 Usage: cardano-cli alonzo governance
 
   Alonzo era commands
 
-Usage: cardano-cli alonzo governance 
-                                       ( registration-certificate
-                                       | delegation-certificate
-                                       | create-mir-certificate
-                                       | action
-                                       )
+Usage: cardano-cli alonzo governance (create-mir-certificate | action | drep)
 
   Era-based governance commands
-
-Usage: cardano-cli alonzo governance registration-certificate 
-                                                                ( ( --stake-pool-verification-key STRING
-                                                                  | --cold-verification-key-file FILE
-                                                                  )
-                                                                  ( --vrf-verification-key STRING
-                                                                  | --vrf-verification-key-file FILE
-                                                                  )
-                                                                  --pool-pledge LOVELACE
-                                                                  --pool-cost LOVELACE
-                                                                  --pool-margin RATIONAL
-                                                                  ( --pool-reward-account-verification-key STRING
-                                                                  | --pool-reward-account-verification-key-file FILE
-                                                                  )
-                                                                  ( --pool-owner-verification-key STRING
-                                                                  | --pool-owner-stake-verification-key-file FILE
-                                                                  )
-                                                                  [ [--pool-relay-ipv4 STRING]
-                                                                    [--pool-relay-ipv6 STRING]
-                                                                    --pool-relay-port INT
-                                                                  | --single-host-pool-relay STRING
-                                                                    [--pool-relay-port INT]
-                                                                  | --multi-host-pool-relay STRING
-                                                                  ]
-                                                                  [--metadata-url URL
-                                                                    --metadata-hash HASH]
-                                                                  ( --mainnet
-                                                                  | --testnet-magic NATURAL
-                                                                  )
-                                                                | --stake-verification-key STRING
-                                                                | --stake-verification-key-file FILE
-                                                                | --stake-script-file FILE
-                                                                | --stake-address ADDRESS
-                                                                )
-                                                                --out-file FILE
-
-  Create a registration certificate.
-
-Usage: cardano-cli alonzo governance delegation-certificate 
-                                                              ( --stake-verification-key STRING
-                                                              | --stake-verification-key-file FILE
-                                                              | --stake-script-file FILE
-                                                              | --stake-address ADDRESS
-                                                              )
-                                                              ( --stake-pool-verification-key STRING
-                                                              | --cold-verification-key-file FILE
-                                                              | --stake-pool-id STAKE_POOL_ID
-                                                              )
-                                                              --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli alonzo governance create-mir-certificate 
                                                               ( ( --reserves
@@ -541,69 +491,71 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update --
 
   Create a protocol parameters update.
 
+Usage: cardano-cli alonzo governance drep 
+                                            ( delegation-certificate
+                                            | registration-certificate
+                                            )
+
+  DRep member commands.
+
+Usage: cardano-cli alonzo governance drep delegation-certificate 
+                                                                   ( --stake-verification-key STRING
+                                                                   | --stake-verification-key-file FILE
+                                                                   | --stake-script-file FILE
+                                                                   | --stake-address ADDRESS
+                                                                   )
+                                                                   ( --stake-pool-verification-key STRING
+                                                                   | --cold-verification-key-file FILE
+                                                                   | --stake-pool-id STAKE_POOL_ID
+                                                                   )
+                                                                   --out-file FILE
+
+  Delegation certificate creation.
+
+Usage: cardano-cli alonzo governance drep registration-certificate 
+                                                                     ( ( --stake-pool-verification-key STRING
+                                                                       | --cold-verification-key-file FILE
+                                                                       )
+                                                                       ( --vrf-verification-key STRING
+                                                                       | --vrf-verification-key-file FILE
+                                                                       )
+                                                                       --pool-pledge LOVELACE
+                                                                       --pool-cost LOVELACE
+                                                                       --pool-margin RATIONAL
+                                                                       ( --pool-reward-account-verification-key STRING
+                                                                       | --pool-reward-account-verification-key-file FILE
+                                                                       )
+                                                                       ( --pool-owner-verification-key STRING
+                                                                       | --pool-owner-stake-verification-key-file FILE
+                                                                       )
+                                                                       [ [--pool-relay-ipv4 STRING]
+                                                                         [--pool-relay-ipv6 STRING]
+                                                                         --pool-relay-port INT
+                                                                       | --single-host-pool-relay STRING
+                                                                         [--pool-relay-port INT]
+                                                                       | --multi-host-pool-relay STRING
+                                                                       ]
+                                                                       [--metadata-url URL
+                                                                         --metadata-hash HASH]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                     | --stake-verification-key STRING
+                                                                     | --stake-verification-key-file FILE
+                                                                     | --stake-script-file FILE
+                                                                     | --stake-address ADDRESS
+                                                                     )
+                                                                     --out-file FILE
+
+  Create a registration certificate.
+
 Usage: cardano-cli babbage governance
 
   Babbage era commands
 
-Usage: cardano-cli babbage governance 
-                                        ( registration-certificate
-                                        | delegation-certificate
-                                        | create-mir-certificate
-                                        | action
-                                        )
+Usage: cardano-cli babbage governance (create-mir-certificate | action | drep)
 
   Era-based governance commands
-
-Usage: cardano-cli babbage governance registration-certificate 
-                                                                 ( ( --stake-pool-verification-key STRING
-                                                                   | --cold-verification-key-file FILE
-                                                                   )
-                                                                   ( --vrf-verification-key STRING
-                                                                   | --vrf-verification-key-file FILE
-                                                                   )
-                                                                   --pool-pledge LOVELACE
-                                                                   --pool-cost LOVELACE
-                                                                   --pool-margin RATIONAL
-                                                                   ( --pool-reward-account-verification-key STRING
-                                                                   | --pool-reward-account-verification-key-file FILE
-                                                                   )
-                                                                   ( --pool-owner-verification-key STRING
-                                                                   | --pool-owner-stake-verification-key-file FILE
-                                                                   )
-                                                                   [ [--pool-relay-ipv4 STRING]
-                                                                     [--pool-relay-ipv6 STRING]
-                                                                     --pool-relay-port INT
-                                                                   | --single-host-pool-relay STRING
-                                                                     [--pool-relay-port INT]
-                                                                   | --multi-host-pool-relay STRING
-                                                                   ]
-                                                                   [--metadata-url URL
-                                                                     --metadata-hash HASH]
-                                                                   ( --mainnet
-                                                                   | --testnet-magic NATURAL
-                                                                   )
-                                                                 | --stake-verification-key STRING
-                                                                 | --stake-verification-key-file FILE
-                                                                 | --stake-script-file FILE
-                                                                 | --stake-address ADDRESS
-                                                                 )
-                                                                 --out-file FILE
-
-  Create a registration certificate.
-
-Usage: cardano-cli babbage governance delegation-certificate 
-                                                               ( --stake-verification-key STRING
-                                                               | --stake-verification-key-file FILE
-                                                               | --stake-script-file FILE
-                                                               | --stake-address ADDRESS
-                                                               )
-                                                               ( --stake-pool-verification-key STRING
-                                                               | --cold-verification-key-file FILE
-                                                               | --stake-pool-id STAKE_POOL_ID
-                                                               )
-                                                               --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli babbage governance create-mir-certificate 
                                                                ( ( --reserves
@@ -674,91 +626,71 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update -
 
   Create a protocol parameters update.
 
+Usage: cardano-cli babbage governance drep 
+                                             ( delegation-certificate
+                                             | registration-certificate
+                                             )
+
+  DRep member commands.
+
+Usage: cardano-cli babbage governance drep delegation-certificate 
+                                                                    ( --stake-verification-key STRING
+                                                                    | --stake-verification-key-file FILE
+                                                                    | --stake-script-file FILE
+                                                                    | --stake-address ADDRESS
+                                                                    )
+                                                                    ( --stake-pool-verification-key STRING
+                                                                    | --cold-verification-key-file FILE
+                                                                    | --stake-pool-id STAKE_POOL_ID
+                                                                    )
+                                                                    --out-file FILE
+
+  Delegation certificate creation.
+
+Usage: cardano-cli babbage governance drep registration-certificate 
+                                                                      ( ( --stake-pool-verification-key STRING
+                                                                        | --cold-verification-key-file FILE
+                                                                        )
+                                                                        ( --vrf-verification-key STRING
+                                                                        | --vrf-verification-key-file FILE
+                                                                        )
+                                                                        --pool-pledge LOVELACE
+                                                                        --pool-cost LOVELACE
+                                                                        --pool-margin RATIONAL
+                                                                        ( --pool-reward-account-verification-key STRING
+                                                                        | --pool-reward-account-verification-key-file FILE
+                                                                        )
+                                                                        ( --pool-owner-verification-key STRING
+                                                                        | --pool-owner-stake-verification-key-file FILE
+                                                                        )
+                                                                        [ [--pool-relay-ipv4 STRING]
+                                                                          [--pool-relay-ipv6 STRING]
+                                                                          --pool-relay-port INT
+                                                                        | --single-host-pool-relay STRING
+                                                                          [--pool-relay-port INT]
+                                                                        | --multi-host-pool-relay STRING
+                                                                        ]
+                                                                        [--metadata-url URL
+                                                                          --metadata-hash HASH]
+                                                                        ( --mainnet
+                                                                        | --testnet-magic NATURAL
+                                                                        )
+                                                                      | --stake-verification-key STRING
+                                                                      | --stake-verification-key-file FILE
+                                                                      | --stake-script-file FILE
+                                                                      | --stake-address ADDRESS
+                                                                      )
+                                                                      --out-file FILE
+
+  Create a registration certificate.
+
 Usage: cardano-cli conway governance
 
   Conway era commands
 
-Usage: cardano-cli conway governance 
-                                       ( registration-certificate
-                                       | delegation-certificate
-                                       | vote
-                                       | committee
-                                       | action
-                                       | drep
-                                       )
+Usage: cardano-cli conway governance (vote | committee | action | drep)
 
   Era-based governance commands
-
-Usage: cardano-cli conway governance registration-certificate 
-                                                                ( ( --stake-pool-verification-key STRING
-                                                                  | --cold-verification-key-file FILE
-                                                                  )
-                                                                  ( --vrf-verification-key STRING
-                                                                  | --vrf-verification-key-file FILE
-                                                                  )
-                                                                  --pool-pledge LOVELACE
-                                                                  --pool-cost LOVELACE
-                                                                  --pool-margin RATIONAL
-                                                                  ( --pool-reward-account-verification-key STRING
-                                                                  | --pool-reward-account-verification-key-file FILE
-                                                                  )
-                                                                  ( --pool-owner-verification-key STRING
-                                                                  | --pool-owner-stake-verification-key-file FILE
-                                                                  )
-                                                                  [ [--pool-relay-ipv4 STRING]
-                                                                    [--pool-relay-ipv6 STRING]
-                                                                    --pool-relay-port INT
-                                                                  | --single-host-pool-relay STRING
-                                                                    [--pool-relay-port INT]
-                                                                  | --multi-host-pool-relay STRING
-                                                                  ]
-                                                                  [--metadata-url URL
-                                                                    --metadata-hash HASH]
-                                                                  ( --mainnet
-                                                                  | --testnet-magic NATURAL
-                                                                  )
-                                                                | ( --stake-verification-key STRING
-                                                                  | --stake-verification-key-file FILE
-                                                                  | --stake-script-file FILE
-                                                                  | --stake-address ADDRESS
-                                                                  )
-                                                                  --key-reg-deposit-amt NATURAL
-                                                                | ( --drep-verification-key STRING
-                                                                  | --drep-verification-key-file FILE
-                                                                  | --drep-key-hash HASH
-                                                                  )
-                                                                  --key-reg-deposit-amt NATURAL
-                                                                )
-                                                                --out-file FILE
-
-  Create a registration certificate.
-
-Usage: cardano-cli conway governance delegation-certificate 
-                                                              ( --stake-verification-key STRING
-                                                              | --stake-verification-key-file FILE
-                                                              | --stake-script-file FILE
-                                                              | --stake-address ADDRESS
-                                                              )
-                                                              ( --stake-pool-verification-key STRING
-                                                              | --cold-verification-key-file FILE
-                                                              | --stake-pool-id STAKE_POOL_ID
-                                                              | --drep-verification-key STRING
-                                                              | --drep-verification-key-file FILE
-                                                              | --drep-key-hash HASH
-                                                              | ( --drep-verification-key STRING
-                                                                | --drep-verification-key-file FILE
-                                                                | --drep-key-hash HASH
-                                                                )
-                                                                ( --stake-pool-verification-key STRING
-                                                                | --cold-verification-key-file FILE
-                                                                | --stake-pool-id STAKE_POOL_ID
-                                                                )
-                                                              | --always-abstain
-                                                              | --always-no-confidence
-                                                              )
-                                                              --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli conway governance vote (--yes | --no | --abstain)
                                             --tx-in TX-IN
@@ -941,78 +873,97 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal --governa
 
   Create a treasury withdrawal.
 
-Usage: cardano-cli conway governance drep key-gen
+Usage: cardano-cli conway governance drep 
+                                            ( key-gen
+                                            | delegation-certificate
+                                            | registration-certificate
+                                            )
 
-  Delegate Representative commands.
+  DRep member commands.
 
 Usage: cardano-cli conway governance drep key-gen --verification-key-file FILE
                                                     --signing-key-file FILE
 
   Generate Delegate Representative verification and signing keys.
 
+Usage: cardano-cli conway governance drep delegation-certificate 
+                                                                   ( --stake-verification-key STRING
+                                                                   | --stake-verification-key-file FILE
+                                                                   | --stake-script-file FILE
+                                                                   | --stake-address ADDRESS
+                                                                   )
+                                                                   ( --stake-pool-verification-key STRING
+                                                                   | --cold-verification-key-file FILE
+                                                                   | --stake-pool-id STAKE_POOL_ID
+                                                                   | --drep-verification-key STRING
+                                                                   | --drep-verification-key-file FILE
+                                                                   | --drep-key-hash HASH
+                                                                   | ( --drep-verification-key STRING
+                                                                     | --drep-verification-key-file FILE
+                                                                     | --drep-key-hash HASH
+                                                                     )
+                                                                     ( --stake-pool-verification-key STRING
+                                                                     | --cold-verification-key-file FILE
+                                                                     | --stake-pool-id STAKE_POOL_ID
+                                                                     )
+                                                                   | --always-abstain
+                                                                   | --always-no-confidence
+                                                                   )
+                                                                   --out-file FILE
+
+  Delegation certificate creation.
+
+Usage: cardano-cli conway governance drep registration-certificate 
+                                                                     ( ( --stake-pool-verification-key STRING
+                                                                       | --cold-verification-key-file FILE
+                                                                       )
+                                                                       ( --vrf-verification-key STRING
+                                                                       | --vrf-verification-key-file FILE
+                                                                       )
+                                                                       --pool-pledge LOVELACE
+                                                                       --pool-cost LOVELACE
+                                                                       --pool-margin RATIONAL
+                                                                       ( --pool-reward-account-verification-key STRING
+                                                                       | --pool-reward-account-verification-key-file FILE
+                                                                       )
+                                                                       ( --pool-owner-verification-key STRING
+                                                                       | --pool-owner-stake-verification-key-file FILE
+                                                                       )
+                                                                       [ [--pool-relay-ipv4 STRING]
+                                                                         [--pool-relay-ipv6 STRING]
+                                                                         --pool-relay-port INT
+                                                                       | --single-host-pool-relay STRING
+                                                                         [--pool-relay-port INT]
+                                                                       | --multi-host-pool-relay STRING
+                                                                       ]
+                                                                       [--metadata-url URL
+                                                                         --metadata-hash HASH]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                     | ( --stake-verification-key STRING
+                                                                       | --stake-verification-key-file FILE
+                                                                       | --stake-script-file FILE
+                                                                       | --stake-address ADDRESS
+                                                                       )
+                                                                       --key-reg-deposit-amt NATURAL
+                                                                     | ( --drep-verification-key STRING
+                                                                       | --drep-verification-key-file FILE
+                                                                       | --drep-key-hash HASH
+                                                                       )
+                                                                       --key-reg-deposit-amt NATURAL
+                                                                     )
+                                                                     --out-file FILE
+
+  Create a registration certificate.
+
 Usage: cardano-cli latest governance
 
   Latest era commands (Babbage)
 
-Usage: cardano-cli latest governance 
-                                       ( registration-certificate
-                                       | delegation-certificate
-                                       | create-mir-certificate
-                                       | action
-                                       )
+Usage: cardano-cli latest governance (create-mir-certificate | action | drep)
 
   Era-based governance commands
-
-Usage: cardano-cli latest governance registration-certificate 
-                                                                ( ( --stake-pool-verification-key STRING
-                                                                  | --cold-verification-key-file FILE
-                                                                  )
-                                                                  ( --vrf-verification-key STRING
-                                                                  | --vrf-verification-key-file FILE
-                                                                  )
-                                                                  --pool-pledge LOVELACE
-                                                                  --pool-cost LOVELACE
-                                                                  --pool-margin RATIONAL
-                                                                  ( --pool-reward-account-verification-key STRING
-                                                                  | --pool-reward-account-verification-key-file FILE
-                                                                  )
-                                                                  ( --pool-owner-verification-key STRING
-                                                                  | --pool-owner-stake-verification-key-file FILE
-                                                                  )
-                                                                  [ [--pool-relay-ipv4 STRING]
-                                                                    [--pool-relay-ipv6 STRING]
-                                                                    --pool-relay-port INT
-                                                                  | --single-host-pool-relay STRING
-                                                                    [--pool-relay-port INT]
-                                                                  | --multi-host-pool-relay STRING
-                                                                  ]
-                                                                  [--metadata-url URL
-                                                                    --metadata-hash HASH]
-                                                                  ( --mainnet
-                                                                  | --testnet-magic NATURAL
-                                                                  )
-                                                                | --stake-verification-key STRING
-                                                                | --stake-verification-key-file FILE
-                                                                | --stake-script-file FILE
-                                                                | --stake-address ADDRESS
-                                                                )
-                                                                --out-file FILE
-
-  Create a registration certificate.
-
-Usage: cardano-cli latest governance delegation-certificate 
-                                                              ( --stake-verification-key STRING
-                                                              | --stake-verification-key-file FILE
-                                                              | --stake-script-file FILE
-                                                              | --stake-address ADDRESS
-                                                              )
-                                                              ( --stake-pool-verification-key STRING
-                                                              | --cold-verification-key-file FILE
-                                                              | --stake-pool-id STAKE_POOL_ID
-                                                              )
-                                                              --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli latest governance create-mir-certificate 
                                                               ( ( --reserves
@@ -1083,91 +1034,71 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update --
 
   Create a protocol parameters update.
 
+Usage: cardano-cli latest governance drep 
+                                            ( delegation-certificate
+                                            | registration-certificate
+                                            )
+
+  DRep member commands.
+
+Usage: cardano-cli latest governance drep delegation-certificate 
+                                                                   ( --stake-verification-key STRING
+                                                                   | --stake-verification-key-file FILE
+                                                                   | --stake-script-file FILE
+                                                                   | --stake-address ADDRESS
+                                                                   )
+                                                                   ( --stake-pool-verification-key STRING
+                                                                   | --cold-verification-key-file FILE
+                                                                   | --stake-pool-id STAKE_POOL_ID
+                                                                   )
+                                                                   --out-file FILE
+
+  Delegation certificate creation.
+
+Usage: cardano-cli latest governance drep registration-certificate 
+                                                                     ( ( --stake-pool-verification-key STRING
+                                                                       | --cold-verification-key-file FILE
+                                                                       )
+                                                                       ( --vrf-verification-key STRING
+                                                                       | --vrf-verification-key-file FILE
+                                                                       )
+                                                                       --pool-pledge LOVELACE
+                                                                       --pool-cost LOVELACE
+                                                                       --pool-margin RATIONAL
+                                                                       ( --pool-reward-account-verification-key STRING
+                                                                       | --pool-reward-account-verification-key-file FILE
+                                                                       )
+                                                                       ( --pool-owner-verification-key STRING
+                                                                       | --pool-owner-stake-verification-key-file FILE
+                                                                       )
+                                                                       [ [--pool-relay-ipv4 STRING]
+                                                                         [--pool-relay-ipv6 STRING]
+                                                                         --pool-relay-port INT
+                                                                       | --single-host-pool-relay STRING
+                                                                         [--pool-relay-port INT]
+                                                                       | --multi-host-pool-relay STRING
+                                                                       ]
+                                                                       [--metadata-url URL
+                                                                         --metadata-hash HASH]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                     | --stake-verification-key STRING
+                                                                     | --stake-verification-key-file FILE
+                                                                     | --stake-script-file FILE
+                                                                     | --stake-address ADDRESS
+                                                                     )
+                                                                     --out-file FILE
+
+  Create a registration certificate.
+
 Usage: cardano-cli experimental governance
 
   Experimental era commands (Conway)
 
-Usage: cardano-cli experimental governance 
-                                             ( registration-certificate
-                                             | delegation-certificate
-                                             | vote
-                                             | committee
-                                             | action
-                                             | drep
-                                             )
+Usage: cardano-cli experimental governance (vote | committee | action | drep)
 
   Era-based governance commands
-
-Usage: cardano-cli experimental governance registration-certificate 
-                                                                      ( ( --stake-pool-verification-key STRING
-                                                                        | --cold-verification-key-file FILE
-                                                                        )
-                                                                        ( --vrf-verification-key STRING
-                                                                        | --vrf-verification-key-file FILE
-                                                                        )
-                                                                        --pool-pledge LOVELACE
-                                                                        --pool-cost LOVELACE
-                                                                        --pool-margin RATIONAL
-                                                                        ( --pool-reward-account-verification-key STRING
-                                                                        | --pool-reward-account-verification-key-file FILE
-                                                                        )
-                                                                        ( --pool-owner-verification-key STRING
-                                                                        | --pool-owner-stake-verification-key-file FILE
-                                                                        )
-                                                                        [ [--pool-relay-ipv4 STRING]
-                                                                          [--pool-relay-ipv6 STRING]
-                                                                          --pool-relay-port INT
-                                                                        | --single-host-pool-relay STRING
-                                                                          [--pool-relay-port INT]
-                                                                        | --multi-host-pool-relay STRING
-                                                                        ]
-                                                                        [--metadata-url URL
-                                                                          --metadata-hash HASH]
-                                                                        ( --mainnet
-                                                                        | --testnet-magic NATURAL
-                                                                        )
-                                                                      | ( --stake-verification-key STRING
-                                                                        | --stake-verification-key-file FILE
-                                                                        | --stake-script-file FILE
-                                                                        | --stake-address ADDRESS
-                                                                        )
-                                                                        --key-reg-deposit-amt NATURAL
-                                                                      | ( --drep-verification-key STRING
-                                                                        | --drep-verification-key-file FILE
-                                                                        | --drep-key-hash HASH
-                                                                        )
-                                                                        --key-reg-deposit-amt NATURAL
-                                                                      )
-                                                                      --out-file FILE
-
-  Create a registration certificate.
-
-Usage: cardano-cli experimental governance delegation-certificate 
-                                                                    ( --stake-verification-key STRING
-                                                                    | --stake-verification-key-file FILE
-                                                                    | --stake-script-file FILE
-                                                                    | --stake-address ADDRESS
-                                                                    )
-                                                                    ( --stake-pool-verification-key STRING
-                                                                    | --cold-verification-key-file FILE
-                                                                    | --stake-pool-id STAKE_POOL_ID
-                                                                    | --drep-verification-key STRING
-                                                                    | --drep-verification-key-file FILE
-                                                                    | --drep-key-hash HASH
-                                                                    | ( --drep-verification-key STRING
-                                                                      | --drep-verification-key-file FILE
-                                                                      | --drep-key-hash HASH
-                                                                      )
-                                                                      ( --stake-pool-verification-key STRING
-                                                                      | --cold-verification-key-file FILE
-                                                                      | --stake-pool-id STAKE_POOL_ID
-                                                                      )
-                                                                    | --always-abstain
-                                                                    | --always-no-confidence
-                                                                    )
-                                                                    --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli experimental governance vote (--yes | --no | --abstain)
                                                   --tx-in TX-IN
@@ -1350,14 +1281,89 @@ Usage: cardano-cli experimental governance action create-treasury-withdrawal --g
 
   Create a treasury withdrawal.
 
-Usage: cardano-cli experimental governance drep key-gen
+Usage: cardano-cli experimental governance drep 
+                                                  ( key-gen
+                                                  | delegation-certificate
+                                                  | registration-certificate
+                                                  )
 
-  Delegate Representative commands.
+  DRep member commands.
 
 Usage: cardano-cli experimental governance drep key-gen --verification-key-file FILE
                                                           --signing-key-file FILE
 
   Generate Delegate Representative verification and signing keys.
+
+Usage: cardano-cli experimental governance drep delegation-certificate 
+                                                                         ( --stake-verification-key STRING
+                                                                         | --stake-verification-key-file FILE
+                                                                         | --stake-script-file FILE
+                                                                         | --stake-address ADDRESS
+                                                                         )
+                                                                         ( --stake-pool-verification-key STRING
+                                                                         | --cold-verification-key-file FILE
+                                                                         | --stake-pool-id STAKE_POOL_ID
+                                                                         | --drep-verification-key STRING
+                                                                         | --drep-verification-key-file FILE
+                                                                         | --drep-key-hash HASH
+                                                                         | ( --drep-verification-key STRING
+                                                                           | --drep-verification-key-file FILE
+                                                                           | --drep-key-hash HASH
+                                                                           )
+                                                                           ( --stake-pool-verification-key STRING
+                                                                           | --cold-verification-key-file FILE
+                                                                           | --stake-pool-id STAKE_POOL_ID
+                                                                           )
+                                                                         | --always-abstain
+                                                                         | --always-no-confidence
+                                                                         )
+                                                                         --out-file FILE
+
+  Delegation certificate creation.
+
+Usage: cardano-cli experimental governance drep registration-certificate 
+                                                                           ( ( --stake-pool-verification-key STRING
+                                                                             | --cold-verification-key-file FILE
+                                                                             )
+                                                                             ( --vrf-verification-key STRING
+                                                                             | --vrf-verification-key-file FILE
+                                                                             )
+                                                                             --pool-pledge LOVELACE
+                                                                             --pool-cost LOVELACE
+                                                                             --pool-margin RATIONAL
+                                                                             ( --pool-reward-account-verification-key STRING
+                                                                             | --pool-reward-account-verification-key-file FILE
+                                                                             )
+                                                                             ( --pool-owner-verification-key STRING
+                                                                             | --pool-owner-stake-verification-key-file FILE
+                                                                             )
+                                                                             [ [--pool-relay-ipv4 STRING]
+                                                                               [--pool-relay-ipv6 STRING]
+                                                                               --pool-relay-port INT
+                                                                             | --single-host-pool-relay STRING
+                                                                               [--pool-relay-port INT]
+                                                                             | --multi-host-pool-relay STRING
+                                                                             ]
+                                                                             [--metadata-url URL
+                                                                               --metadata-hash HASH]
+                                                                             ( --mainnet
+                                                                             | --testnet-magic NATURAL
+                                                                             )
+                                                                           | ( --stake-verification-key STRING
+                                                                             | --stake-verification-key-file FILE
+                                                                             | --stake-script-file FILE
+                                                                             | --stake-address ADDRESS
+                                                                             )
+                                                                             --key-reg-deposit-amt NATURAL
+                                                                           | ( --drep-verification-key STRING
+                                                                             | --drep-verification-key-file FILE
+                                                                             | --drep-key-hash HASH
+                                                                             )
+                                                                             --key-reg-deposit-amt NATURAL
+                                                                           )
+                                                                           --out-file FILE
+
+  Create a registration certificate.
 
 Usage: cardano-cli legacy Legacy commands
 
