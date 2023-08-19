@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -22,9 +21,7 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
-import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Except
@@ -262,35 +259,3 @@ runGovernanceRegistrationCertificate anyReg outfp =
             . writeLazyByteStringFile outfp
             $ conwayEraOnwardsConstraints cOnwards
             $ textEnvelopeToJSON description registrationCert
-
---------------------------------------------------------------------------------
-
-getStakeCredentialFromVerifier
-  :: StakeVerifier
-  -> ExceptT StakeCredentialError IO StakeCredential
-getStakeCredentialFromVerifier = \case
-  StakeVerifierScriptFile (ScriptFile sFile) -> do
-    ScriptInAnyLang _ script <-
-      readFileScriptInAnyLang sFile
-        & firstExceptT StakeCredentialScriptDecodeError
-    pure $ StakeCredentialByScript $ hashScript script
-
-  StakeVerifierKey stakeVerKeyOrFile -> do
-    stakeVerKey <-
-      ExceptT (readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile)
-        & firstExceptT StakeCredentialInputDecodeError
-    pure $ StakeCredentialByKey $ verificationKeyHash stakeVerKey
-
-getStakeCredentialFromIdentifier
-  :: StakeIdentifier
-  -> ExceptT StakeCredentialError IO StakeCredential
-getStakeCredentialFromIdentifier = \case
-  StakeIdentifierAddress stakeAddr -> pure $ stakeAddressCredential stakeAddr
-  StakeIdentifierVerifier stakeVerifier -> getStakeCredentialFromVerifier stakeVerifier
-
-getStakeAddressFromVerifier
-  :: NetworkId
-  -> StakeVerifier
-  -> ExceptT StakeCredentialError IO StakeAddress
-getStakeAddressFromVerifier networkId stakeVerifier =
-  makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier
