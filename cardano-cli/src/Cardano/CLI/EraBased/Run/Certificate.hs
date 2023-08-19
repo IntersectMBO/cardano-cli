@@ -10,10 +10,6 @@ module Cardano.CLI.EraBased.Run.Certificate
 
   , runGovernanceRegistrationCertificate
   , runGovernanceDelegationCertificate
-
-  , getStakeCredentialFromVerifier
-  , getStakeCredentialFromIdentifier
-  , getStakeAddressFromVerifier
   ) where
 
 import           Cardano.Api
