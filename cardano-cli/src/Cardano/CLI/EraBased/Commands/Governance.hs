@@ -30,13 +30,6 @@ data EraBasedGovernanceCmds era
       Lovelace
       (File () Out)
       TransferDirection
-  | EraBasedGovernanceDelegationCertificateCmd
-      StakeIdentifier
-      AnyDelegationTarget
-      (File () Out)
-  | EraBasedGovernanceRegistrationCertificateCmd
-      AnyRegistrationTarget
-      (File () Out)
   | EraBasedGovernanceVoteCmd
       AnyVote
       (File () Out)
@@ -44,6 +37,13 @@ data EraBasedGovernanceCmds era
       (GovernanceCommitteeCmds era)
   | EraBasedGovernanceActionCmds
       (GovernanceActionCmds era)
+  | EraBasedGovernanceDelegationCertificateCmd
+      StakeIdentifier
+      AnyDelegationTarget
+      (File () Out)
+  | EraBasedGovernanceRegistrationCertificateCmd
+      AnyRegistrationTarget
+      (File () Out)
   | EraBasedGovernanceDRepGenerateKey
       (ConwayEraOnwards era)
       (File (VerificationKey ()) Out)
@@ -57,14 +57,15 @@ renderEraBasedGovernanceCmds = \case
     "governance create-mir-certificate transfer-to-treasury"
   EraBasedGovernanceMIRTransfer _ _ _ TransferToReserves ->
     "governance create-mir-certificate transfer-to-reserves"
-  EraBasedGovernanceDelegationCertificateCmd {} ->
-    "governance delegation-certificate"
-  EraBasedGovernanceRegistrationCertificateCmd {} ->
-    "governance registration-certificate"
   EraBasedGovernanceVoteCmd {} ->
     "goverance vote"
   EraBasedGovernanceCommitteeCmds cmds ->
     renderGovernanceCommitteeCmds cmds
   EraBasedGovernanceActionCmds cmds ->
     renderGovernanceActionCmds cmds
-  EraBasedGovernanceDRepGenerateKey{} -> "governance drep key-gen"
+  EraBasedGovernanceDelegationCertificateCmd {} ->
+    "governance delegation-certificate"
+  EraBasedGovernanceRegistrationCertificateCmd {} ->
+    "governance registration-certificate"
+  EraBasedGovernanceDRepGenerateKey{} ->
+    "governance drep key-gen"
