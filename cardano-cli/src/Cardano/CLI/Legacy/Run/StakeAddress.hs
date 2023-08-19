@@ -19,8 +19,8 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.Legacy.Commands.StakeAddress
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
 import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
@@ -37,7 +37,6 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, le
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 import qualified Data.Text.IO as Text
-
 
 runStakeAddressCmds :: LegacyStakeAddressCmds -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeAddressCmds (StakeAddressKeyGen fmt vk sk) = runStakeAddressKeyGenToFile fmt vk sk
