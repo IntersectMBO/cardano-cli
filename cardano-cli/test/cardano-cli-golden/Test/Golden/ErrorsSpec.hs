@@ -20,7 +20,6 @@ import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
-import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 
@@ -90,30 +89,22 @@ test_EraBasedDelegationError :: TestTree
 test_EraBasedDelegationError =
   testErrorMessagesRendering "Cardano.CLI.EraBased.Run.Certificate" "EraBasedDelegationError"
     [ ("EraBasedDelegReadError"
-      , EraBasedDelegReadError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedCredentialError1"
-      , EraBasedCredentialError
-        $ ShelleyStakeAddressCmdReadKeyFileError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedCredentialError2"
-      , EraBasedCredentialError
-        $ ShelleyStakeAddressCmdReadScriptFileError
+      , EraBasedDelegReadError
+      $ FileError "path/file.txt" InputInvalidError)
+    , ("EraBasedDelegationStakeCredentialError1"
+      , EraBasedDelegationStakeCredentialError
+        $ StakeCredentialInputDecodeError
+        $ FileError "path/file.txt" InputInvalidError)
+    , ("EraBasedDelegationStakeCredentialError2"
+      , EraBasedDelegationStakeCredentialError
+        $ StakeCredentialScriptDecodeError
         $ FileError "path/file.txt"
         $ ScriptDecodeSimpleScriptError
         $ JsonDecodeError "json decode error")
-    , ("EraBasedCredentialError3"
-      , EraBasedCredentialError
-        $ ShelleyStakeAddressCmdReadKeyFileError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedCredentialError4"
-      , EraBasedCredentialError
-        $ ShelleyStakeAddressCmdWriteFileError $ FileError "path/file.txt" ())
-    , ("EraBasedCredentialError5"
-      , EraBasedCredentialError
-        $ StakeRegistrationError StakeAddressRegistrationDepositRequired)
-    , ("EraBasedCredentialError6"
-      , EraBasedCredentialError
-        $ StakeDelegationError
-        $ VoteDelegationNotSupported
-        $ AnyShelleyToBabbageEra ShelleyToBabbageEraShelley)
+    , ("EraBasedDelegationStakeCredentialError3"
+      , EraBasedDelegationStakeCredentialError
+        $ StakeCredentialInputDecodeError
+        $ FileError "path/file.txt" InputInvalidError)
     , ("EraBasedCertificateWriteFileError"
       , EraBasedCertificateWriteFileError $ FileError "path/file.txt" ())
     , ("EraBasedDRepReadError"

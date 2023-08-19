@@ -14,7 +14,6 @@ import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 
@@ -59,7 +58,6 @@ instance Error GovernanceActionsError where
 
 data EraBasedDelegationError
   = EraBasedDelegReadError !(FileError InputDecodeError)
-  | EraBasedCredentialError !ShelleyStakeAddressCmdError -- TODO: Refactor. We shouldn't be using legacy error types
   | EraBasedCertificateWriteFileError !(FileError ())
   | EraBasedDRepReadError !(FileError InputDecodeError)
   | EraBasedDelegationStakeCredentialError !StakeCredentialError
@@ -69,8 +67,6 @@ instance Error EraBasedDelegationError where
   displayError = \case
     EraBasedDelegReadError e ->
       "Cannot read delegation target: " <> displayError e
-    EraBasedCredentialError e ->
-      "Cannot get stake credential: " <> displayError e
     EraBasedDelegationStakeCredentialError e ->
       "Cannot get stake credential: " <> displayError e
     EraBasedCertificateWriteFileError e ->
