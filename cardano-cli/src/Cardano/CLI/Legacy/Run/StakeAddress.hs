@@ -102,7 +102,9 @@ runStakeAddressBuild
   -> Maybe (File () Out)
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeAddressBuild stakeVerifier network mOutputFp = do
-  stakeAddr <- getStakeAddressFromVerifier network stakeVerifier
+  stakeAddr <-
+    getStakeAddressFromVerifier network stakeVerifier
+      & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
   let stakeAddrText = serialiseAddress stakeAddr
   liftIO $
     case mOutputFp of
@@ -118,7 +120,9 @@ runStakeCredentialRegistrationCert
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeCredentialRegistrationCert anyEra stakeIdentifier mDeposit oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
-  stakeCred <- getStakeCredentialFromIdentifier stakeIdentifier
+  stakeCred <-
+    getStakeCredentialFromIdentifier stakeIdentifier
+      & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
   req <- firstExceptT StakeRegistrationError
            . hoistEither $ createRegistrationCertRequirements sbe stakeCred mDeposit
   writeRegistrationCert sbe req
@@ -180,7 +184,9 @@ runStakeCredentialDelegationCert anyEra stakeVerifier delegationTarget outFp = d
       StakePoolKeyHash poolStakeVKeyHash <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile)
         & onLeft (left . ShelleyStakeAddressCmdReadKeyFileError)
       let delegatee = Ledger.DelegStake poolStakeVKeyHash
-      stakeCred <- getStakeCredentialFromIdentifier stakeVerifier
+      stakeCred <-
+        getStakeCredentialFromIdentifier stakeVerifier
+          & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
       req <- firstExceptT StakeDelegationError . hoistEither
                $ createDelegationCertRequirements sbe stakeCred delegatee
       let delegCert = makeStakeAddressDelegationCertificate req
@@ -235,7 +241,9 @@ runStakeCredentialDeRegistrationCert
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeCredentialDeRegistrationCert anyEra stakeVerifier mDeposit oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
-  stakeCred <- getStakeCredentialFromIdentifier stakeVerifier
+  stakeCred <-
+    getStakeCredentialFromIdentifier stakeVerifier
+      & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
   req <- firstExceptT StakeRegistrationError
            . hoistEither $ createRegistrationCertRequirements sbe stakeCred mDeposit
 

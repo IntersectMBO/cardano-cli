@@ -22,6 +22,7 @@ import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
 import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
+import           Cardano.CLI.Types.Errors.StakeCredentialError
 
 import           Data.Text.Encoding.Error
 import           GHC.Stack (HasCallStack)
@@ -127,28 +128,19 @@ test_EraBasedRegistrationError =
     , ("EraBasedRegistWriteFileError"
       , EraBasedRegistWriteFileError $ FileError "path/file.txt" ())
     , ("EraBasedRegistStakeCredReadError1"
-      , EraBasedRegistStakeCredReadError
-        $ ShelleyStakeAddressCmdReadKeyFileError $ FileError "path/file.txt" InputInvalidError)
+      , EraBasedRegistrationStakeCredentialError
+        $ StakeCredentialInputDecodeError
+        $ FileError "path/file.txt" InputInvalidError)
     , ("EraBasedRegistStakeCredReadError2"
-      , EraBasedRegistStakeCredReadError
-        $ ShelleyStakeAddressCmdReadScriptFileError
+      , EraBasedRegistrationStakeCredentialError
+        $ StakeCredentialScriptDecodeError
         $ FileError "path/file.txt"
         $ ScriptDecodeSimpleScriptError
         $ JsonDecodeError "json decode error")
     , ("EraBasedRegistStakeCredReadError3"
-      , EraBasedRegistStakeCredReadError
-        $ ShelleyStakeAddressCmdReadKeyFileError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedRegistStakeCredReadError4"
-      , EraBasedRegistStakeCredReadError
-        $ ShelleyStakeAddressCmdWriteFileError $ FileError "path/file.txt" ())
-    , ("EraBasedRegistStakeCredReadError5"
-      , EraBasedRegistStakeCredReadError
-        $ StakeRegistrationError StakeAddressRegistrationDepositRequired)
-    , ("EraBasedRegistStakeCredReadError6"
-      , EraBasedRegistStakeCredReadError
-        $ StakeDelegationError
-        $ VoteDelegationNotSupported
-        $ AnyShelleyToBabbageEra ShelleyToBabbageEraShelley)
+      , EraBasedRegistrationStakeCredentialError
+        $ StakeCredentialInputDecodeError
+        $ FileError "path/file.txt" InputInvalidError)
     , ("EraBasedRegistStakeError"
       , EraBasedRegistStakeError StakeAddressRegistrationDepositRequired)
     ]

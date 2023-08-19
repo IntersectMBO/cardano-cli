@@ -24,11 +24,10 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
-import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
+import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except (ExceptT)
+import           Control.Monad.Except
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 
@@ -42,7 +41,7 @@ runGovernanceDelegationCertificate
 runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp = do
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
-      & firstExceptT EraBasedCredentialError
+      & firstExceptT EraBasedDelegationStakeCredentialError
 
   case delegationTarget of
     ShelleyToBabbageDelegTarget sTob stakePool -> do
@@ -172,8 +171,9 @@ runGovernanceRegistrationCertificate anyReg outfp =
         $ textEnvelopeToJSON description registrationCert
 
     ShelleyToBabbageStakeKeyRegTarget sToB stakeIdentifier -> do
-      stakeCred <- firstExceptT EraBasedRegistStakeCredReadError
-                     $ getStakeCredentialFromIdentifier stakeIdentifier
+      stakeCred <-
+        getStakeCredentialFromIdentifier stakeIdentifier
+          & firstExceptT EraBasedRegistrationStakeCredentialError
       let req = StakeAddrRegistrationPreConway sToB stakeCred
           registrationCert = makeStakeAddressRegistrationCertificate req
           description = Just @TextEnvelopeDescr "Stake Key Registration Certificate"
@@ -236,8 +236,9 @@ runGovernanceRegistrationCertificate anyReg outfp =
             $ conwayEraOnwardsConstraints cOnwards
             $ textEnvelopeToJSON description registrationCert
         RegisterStakeKey cOnwards sIdentifier deposit -> do
-          stakeCred <- firstExceptT EraBasedRegistStakeCredReadError
-                         $ getStakeCredentialFromIdentifier sIdentifier
+          stakeCred <-
+            getStakeCredentialFromIdentifier sIdentifier
+              & firstExceptT EraBasedRegistrationStakeCredentialError
           let req = StakeAddrRegistrationConway cOnwards deposit stakeCred
               registrationCert = makeStakeAddressRegistrationCertificate req
               description = Just @TextEnvelopeDescr "Stake Key Registration Certificate"
@@ -266,24 +267,23 @@ runGovernanceRegistrationCertificate anyReg outfp =
 
 getStakeCredentialFromVerifier
   :: StakeVerifier
-  -> ExceptT ShelleyStakeAddressCmdError IO StakeCredential
+  -> ExceptT StakeCredentialError IO StakeCredential
 getStakeCredentialFromVerifier = \case
   StakeVerifierScriptFile (ScriptFile sFile) -> do
     ScriptInAnyLang _ script <-
-      firstExceptT ShelleyStakeAddressCmdReadScriptFileError $
-        readFileScriptInAnyLang sFile
+      readFileScriptInAnyLang sFile
+        & firstExceptT StakeCredentialScriptDecodeError
     pure $ StakeCredentialByScript $ hashScript script
 
   StakeVerifierKey stakeVerKeyOrFile -> do
     stakeVerKey <-
-      firstExceptT ShelleyStakeAddressCmdReadKeyFileError
-        . newExceptT
-        $ readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
+      ExceptT (readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile)
+        & firstExceptT StakeCredentialInputDecodeError
     pure $ StakeCredentialByKey $ verificationKeyHash stakeVerKey
 
 getStakeCredentialFromIdentifier
   :: StakeIdentifier
-  -> ExceptT ShelleyStakeAddressCmdError IO StakeCredential
+  -> ExceptT StakeCredentialError IO StakeCredential
 getStakeCredentialFromIdentifier = \case
   StakeIdentifierAddress stakeAddr -> pure $ stakeAddressCredential stakeAddr
   StakeIdentifierVerifier stakeVerifier -> getStakeCredentialFromVerifier stakeVerifier
@@ -291,6 +291,6 @@ getStakeCredentialFromIdentifier = \case
 getStakeAddressFromVerifier
   :: NetworkId
   -> StakeVerifier
-  -> ExceptT ShelleyStakeAddressCmdError IO StakeAddress
+  -> ExceptT StakeCredentialError IO StakeAddress
 getStakeAddressFromVerifier networkId stakeVerifier =
   makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier

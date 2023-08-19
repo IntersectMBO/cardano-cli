@@ -1,1 +1,0 @@
-Cannot read stake credential: path/file.txt: 

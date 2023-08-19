@@ -125,6 +125,7 @@ library
                         Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
                         Cardano.CLI.Types.Errors.StakeAddressDelegationError
                         Cardano.CLI.Types.Errors.StakeAddressRegistrationError
+                        Cardano.CLI.Types.Errors.StakeCredentialError
                         Cardano.CLI.Types.Governance
                         Cardano.CLI.Types.Key
                         Cardano.CLI.Types.Key.VerificationKey
