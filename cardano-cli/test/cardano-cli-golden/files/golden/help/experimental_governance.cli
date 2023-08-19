@@ -1,4 +1,4 @@
-Usage: cardano-cli experimental governance (vote | committee | action | drep)
+Usage: cardano-cli experimental governance (action | committee | drep | vote)
 
   Era-based governance commands
 
@@ -6,7 +6,7 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  vote                     Vote creation.
-  committee                Committee member commands.
   action                   Governance action commands.
+  committee                Committee member commands.
   drep                     DRep member commands.
+  vote                     Vote commands.

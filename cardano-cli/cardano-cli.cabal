@@ -77,11 +77,13 @@ library
                         Cardano.CLI.EraBased.Options.Governance.Actions
                         Cardano.CLI.EraBased.Options.Governance.Committee
                         Cardano.CLI.EraBased.Options.Governance.DRep
+                        Cardano.CLI.EraBased.Options.Governance.Vote
                         Cardano.CLI.EraBased.Run
                         Cardano.CLI.EraBased.Run.Governance
                         Cardano.CLI.EraBased.Run.Governance.Actions
                         Cardano.CLI.EraBased.Run.Governance.Committee
                         Cardano.CLI.EraBased.Run.Governance.DRep
+                        Cardano.CLI.EraBased.Run.Governance.Vote
                         Cardano.CLI.EraBased.Vote
                         Cardano.CLI.Helpers
                         Cardano.CLI.IO.Lazy

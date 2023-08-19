@@ -15,7 +15,7 @@ import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Run.Governance.DRep
-import           Cardano.CLI.EraBased.Vote
+import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.Types.Errors.CmdError
 
 import           Control.Monad.Trans.Except
@@ -46,10 +46,6 @@ runEraBasedGovernanceCmds = \case
     runGovernanceMIRCertificateTransfer w ll oFp direction
       & firstExceptT CmdGovernanceCmdError
 
-  EraBasedGovernanceVoteCmd anyVote outFp ->
-    runGovernanceVote anyVote outFp
-      & firstExceptT CmdEraBasedVoteError
-
   EraBasedGovernanceCommitteeCmds cmds ->
     runGovernanceCommitteeCmds cmds
       & firstExceptT CmdGovernanceCommitteeError
@@ -60,3 +56,6 @@ runEraBasedGovernanceCmds = \case
 
   EraBasedGovernanceDRepCmds cmds ->
     runGovernanceDRepCmds cmds
+
+  EraBasedGovernanceVoteCmds cmds ->
+    runGovernanceVoteCmds cmds

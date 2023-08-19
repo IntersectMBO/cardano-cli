@@ -9,12 +9,11 @@ module Cardano.CLI.EraBased.Commands.Governance
 
 import           Cardano.Api
 
-import           Cardano.CLI.EraBased.Commands.Governance.Actions (GovernanceActionCmds,
-                   renderGovernanceActionCmds)
+import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
+import           Cardano.CLI.EraBased.Commands.Governance.Vote
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Governance
 
 import           Data.Text (Text)
 
@@ -30,15 +29,14 @@ data EraBasedGovernanceCmds era
       Lovelace
       (File () Out)
       TransferDirection
-  | EraBasedGovernanceVoteCmd
-      AnyVote
-      (File () Out)
-  | EraBasedGovernanceCommitteeCmds
-      (GovernanceCommitteeCmds era)
   | EraBasedGovernanceActionCmds
       (GovernanceActionCmds era)
+  | EraBasedGovernanceCommitteeCmds
+      (GovernanceCommitteeCmds era)
   | EraBasedGovernanceDRepCmds
       (GovernanceDRepCmds era)
+  | EraBasedGovernanceVoteCmds
+      (GovernanceVoteCmds era)
 
 renderEraBasedGovernanceCmds :: EraBasedGovernanceCmds era -> Text
 renderEraBasedGovernanceCmds = \case
@@ -48,11 +46,11 @@ renderEraBasedGovernanceCmds = \case
     "governance create-mir-certificate transfer-to-treasury"
   EraBasedGovernanceMIRTransfer _ _ _ TransferToReserves ->
     "governance create-mir-certificate transfer-to-reserves"
-  EraBasedGovernanceVoteCmd {} ->
-    "goverance vote"
-  EraBasedGovernanceCommitteeCmds cmds ->
-    renderGovernanceCommitteeCmds cmds
   EraBasedGovernanceActionCmds cmds ->
     renderGovernanceActionCmds cmds
+  EraBasedGovernanceCommitteeCmds cmds ->
+    renderGovernanceCommitteeCmds cmds
   EraBasedGovernanceDRepCmds cmds ->
     renderGovernanceDRepCmds cmds
+  EraBasedGovernanceVoteCmds cmds ->
+    renderGovernanceVoteCmds cmds

@@ -15,58 +15,27 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Governance.DRep
+import           Cardano.CLI.EraBased.Options.Governance.Vote
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Governance
 
 import           Data.Foldable
 import           Data.Maybe
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
--- TODO: Conway era - move to Cardano.CLI.Conway.Parsers
 pEraBasedGovernanceCmds :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmds era)
 pEraBasedGovernanceCmds envCli era =
   asum $ catMaybes
-    [ pEraBasedVoteCmd envCli era
-    , pCreateMirCertificatesCmds era
-    , fmap EraBasedGovernanceCommitteeCmds  <$> pGovernanceCommitteeCmds era
+    [ pCreateMirCertificatesCmds era
     , fmap EraBasedGovernanceActionCmds     <$> pGovernanceActionCmds era
+    , fmap EraBasedGovernanceCommitteeCmds  <$> pGovernanceCommitteeCmds era
     , fmap EraBasedGovernanceDRepCmds       <$> pGovernanceDRepCmds envCli era
+    , fmap EraBasedGovernanceVoteCmds       <$> pGovernanceVoteCmds era
     ]
 
 --------------------------------------------------------------------------------
 
 -- Vote related
-
-pEraBasedVoteCmd
-  :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
-pEraBasedVoteCmd envCli era = do
-  w <- maybeFeatureInEra era
-  pure
-    $ subParser "vote"
-    $ Opt.info (pEraCmd' envCli w)
-    $ Opt.progDesc "Vote creation."
- where
-  pEraCmd'
-    :: EnvCli -> ConwayEraOnwards era -> Parser (EraBasedGovernanceCmds era)
-  pEraCmd' _envCli cOn =
-      EraBasedGovernanceVoteCmd
-        <$> pAnyVote cOn
-        <*> pOutputFile
-
-pAnyVote :: ConwayEraOnwards era -> Parser AnyVote
-pAnyVote cOnwards =
-  ConwayOnwardsVote cOnwards
-    <$> pVoteChoice
-    <*> pGoveranceActionIdentifier "TxIn of governance action (already on chain)."
-    <*> pAnyVotingStakeVerificationKeyOrHashOrFile
-
-pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile
-pAnyVotingStakeVerificationKeyOrHashOrFile =
-  asum [ AnyDRepVerificationKeyOrHashOrFile <$> pDRepVerificationKeyOrHashOrFile
-       , AnyStakePoolVerificationKeyOrHashOrFile <$> pStakePoolVerificationKeyOrHashOrFile
-       ]
-
 
 
 --------------------------------------------------------------------------------

@@ -688,72 +688,9 @@ Usage: cardano-cli conway governance
 
   Conway era commands
 
-Usage: cardano-cli conway governance (vote | committee | action | drep)
+Usage: cardano-cli conway governance (action | committee | drep | vote)
 
   Era-based governance commands
-
-Usage: cardano-cli conway governance vote (--yes | --no | --abstain)
-                                            --tx-in TX-IN
-                                            ( --drep-verification-key STRING
-                                            | --drep-verification-key-file FILE
-                                            | --drep-key-hash HASH
-                                            | --stake-pool-verification-key STRING
-                                            | --cold-verification-key-file FILE
-                                            | --stake-pool-id STAKE_POOL_ID
-                                            )
-                                            --out-file FILE
-
-  Vote creation.
-
-Usage: cardano-cli conway governance committee 
-                                                 ( key-gen-cold
-                                                 | key-gen-hot
-                                                 | key-hash
-                                                 | create-hot-key-authorization-certificate
-                                                 | create-cold-key-resignation-certificate
-                                                 )
-
-  Committee member commands.
-
-Usage: cardano-cli conway governance committee key-gen-cold 
-                                                              --cold-verification-key-file FILE
-                                                              --cold-signing-key-file FILE
-
-  Create a cold key pair for a Constitutional Committee Member
-
-Usage: cardano-cli conway governance committee key-gen-hot --verification-key-file FILE
-                                                             --signing-key-file FILE
-
-  Create a cold key pair for a Constitutional Committee Member
-
-Usage: cardano-cli conway governance committee key-hash 
-                                                          ( --verification-key STRING
-                                                          | --verification-key-file FILE
-                                                          )
-
-  Print the identifier (hash) of a public key
-
-Usage: cardano-cli conway governance committee create-hot-key-authorization-certificate 
-                                                                                          ( --cold-verification-key STRING
-                                                                                          | --cold-verification-key-file FILE
-                                                                                          | --cold-verification-key-hash STRING
-                                                                                          )
-                                                                                          ( --hot-key STRING
-                                                                                          | --hot-key-file FILE
-                                                                                          | --hot-key-hash STRING
-                                                                                          )
-                                                                                          --out-file FILE
-
-  Create hot key authorization certificate for a Constitutional Committee Member
-
-Usage: cardano-cli conway governance committee create-cold-key-resignation-certificate 
-                                                                                         ( --cold-verification-key STRING
-                                                                                         | --cold-verification-key-file FILE
-                                                                                         | --cold-verification-key-hash STRING
-                                                                                         )
-                                                                                         --out-file FILE
-
-  Create cold key resignation certificate for a Constitutional Committee Member
 
 Usage: cardano-cli conway governance action 
                                               ( create-constitution
@@ -873,6 +810,56 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal --governa
 
   Create a treasury withdrawal.
 
+Usage: cardano-cli conway governance committee 
+                                                 ( key-gen-cold
+                                                 | key-gen-hot
+                                                 | key-hash
+                                                 | create-hot-key-authorization-certificate
+                                                 | create-cold-key-resignation-certificate
+                                                 )
+
+  Committee member commands.
+
+Usage: cardano-cli conway governance committee key-gen-cold 
+                                                              --cold-verification-key-file FILE
+                                                              --cold-signing-key-file FILE
+
+  Create a cold key pair for a Constitutional Committee Member
+
+Usage: cardano-cli conway governance committee key-gen-hot --verification-key-file FILE
+                                                             --signing-key-file FILE
+
+  Create a cold key pair for a Constitutional Committee Member
+
+Usage: cardano-cli conway governance committee key-hash 
+                                                          ( --verification-key STRING
+                                                          | --verification-key-file FILE
+                                                          )
+
+  Print the identifier (hash) of a public key
+
+Usage: cardano-cli conway governance committee create-hot-key-authorization-certificate 
+                                                                                          ( --cold-verification-key STRING
+                                                                                          | --cold-verification-key-file FILE
+                                                                                          | --cold-verification-key-hash STRING
+                                                                                          )
+                                                                                          ( --hot-key STRING
+                                                                                          | --hot-key-file FILE
+                                                                                          | --hot-key-hash STRING
+                                                                                          )
+                                                                                          --out-file FILE
+
+  Create hot key authorization certificate for a Constitutional Committee Member
+
+Usage: cardano-cli conway governance committee create-cold-key-resignation-certificate 
+                                                                                         ( --cold-verification-key STRING
+                                                                                         | --cold-verification-key-file FILE
+                                                                                         | --cold-verification-key-hash STRING
+                                                                                         )
+                                                                                         --out-file FILE
+
+  Create cold key resignation certificate for a Constitutional Committee Member
+
 Usage: cardano-cli conway governance drep 
                                             ( key-gen
                                             | delegation-certificate
@@ -956,6 +943,23 @@ Usage: cardano-cli conway governance drep registration-certificate
                                                                      --out-file FILE
 
   Create a registration certificate.
+
+Usage: cardano-cli conway governance vote create
+
+  Vote commands.
+
+Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
+                                                   --tx-in TX-IN
+                                                   ( --drep-verification-key STRING
+                                                   | --drep-verification-key-file FILE
+                                                   | --drep-key-hash HASH
+                                                   | --stake-pool-verification-key STRING
+                                                   | --cold-verification-key-file FILE
+                                                   | --stake-pool-id STAKE_POOL_ID
+                                                   )
+                                                   --out-file FILE
+
+  Vote creation.
 
 Usage: cardano-cli latest governance
 
@@ -1096,72 +1100,9 @@ Usage: cardano-cli experimental governance
 
   Experimental era commands (Conway)
 
-Usage: cardano-cli experimental governance (vote | committee | action | drep)
+Usage: cardano-cli experimental governance (action | committee | drep | vote)
 
   Era-based governance commands
-
-Usage: cardano-cli experimental governance vote (--yes | --no | --abstain)
-                                                  --tx-in TX-IN
-                                                  ( --drep-verification-key STRING
-                                                  | --drep-verification-key-file FILE
-                                                  | --drep-key-hash HASH
-                                                  | --stake-pool-verification-key STRING
-                                                  | --cold-verification-key-file FILE
-                                                  | --stake-pool-id STAKE_POOL_ID
-                                                  )
-                                                  --out-file FILE
-
-  Vote creation.
-
-Usage: cardano-cli experimental governance committee 
-                                                       ( key-gen-cold
-                                                       | key-gen-hot
-                                                       | key-hash
-                                                       | create-hot-key-authorization-certificate
-                                                       | create-cold-key-resignation-certificate
-                                                       )
-
-  Committee member commands.
-
-Usage: cardano-cli experimental governance committee key-gen-cold 
-                                                                    --cold-verification-key-file FILE
-                                                                    --cold-signing-key-file FILE
-
-  Create a cold key pair for a Constitutional Committee Member
-
-Usage: cardano-cli experimental governance committee key-gen-hot --verification-key-file FILE
-                                                                   --signing-key-file FILE
-
-  Create a cold key pair for a Constitutional Committee Member
-
-Usage: cardano-cli experimental governance committee key-hash 
-                                                                ( --verification-key STRING
-                                                                | --verification-key-file FILE
-                                                                )
-
-  Print the identifier (hash) of a public key
-
-Usage: cardano-cli experimental governance committee create-hot-key-authorization-certificate 
-                                                                                                ( --cold-verification-key STRING
-                                                                                                | --cold-verification-key-file FILE
-                                                                                                | --cold-verification-key-hash STRING
-                                                                                                )
-                                                                                                ( --hot-key STRING
-                                                                                                | --hot-key-file FILE
-                                                                                                | --hot-key-hash STRING
-                                                                                                )
-                                                                                                --out-file FILE
-
-  Create hot key authorization certificate for a Constitutional Committee Member
-
-Usage: cardano-cli experimental governance committee create-cold-key-resignation-certificate 
-                                                                                               ( --cold-verification-key STRING
-                                                                                               | --cold-verification-key-file FILE
-                                                                                               | --cold-verification-key-hash STRING
-                                                                                               )
-                                                                                               --out-file FILE
-
-  Create cold key resignation certificate for a Constitutional Committee Member
 
 Usage: cardano-cli experimental governance action 
                                                     ( create-constitution
@@ -1281,6 +1222,56 @@ Usage: cardano-cli experimental governance action create-treasury-withdrawal --g
 
   Create a treasury withdrawal.
 
+Usage: cardano-cli experimental governance committee 
+                                                       ( key-gen-cold
+                                                       | key-gen-hot
+                                                       | key-hash
+                                                       | create-hot-key-authorization-certificate
+                                                       | create-cold-key-resignation-certificate
+                                                       )
+
+  Committee member commands.
+
+Usage: cardano-cli experimental governance committee key-gen-cold 
+                                                                    --cold-verification-key-file FILE
+                                                                    --cold-signing-key-file FILE
+
+  Create a cold key pair for a Constitutional Committee Member
+
+Usage: cardano-cli experimental governance committee key-gen-hot --verification-key-file FILE
+                                                                   --signing-key-file FILE
+
+  Create a cold key pair for a Constitutional Committee Member
+
+Usage: cardano-cli experimental governance committee key-hash 
+                                                                ( --verification-key STRING
+                                                                | --verification-key-file FILE
+                                                                )
+
+  Print the identifier (hash) of a public key
+
+Usage: cardano-cli experimental governance committee create-hot-key-authorization-certificate 
+                                                                                                ( --cold-verification-key STRING
+                                                                                                | --cold-verification-key-file FILE
+                                                                                                | --cold-verification-key-hash STRING
+                                                                                                )
+                                                                                                ( --hot-key STRING
+                                                                                                | --hot-key-file FILE
+                                                                                                | --hot-key-hash STRING
+                                                                                                )
+                                                                                                --out-file FILE
+
+  Create hot key authorization certificate for a Constitutional Committee Member
+
+Usage: cardano-cli experimental governance committee create-cold-key-resignation-certificate 
+                                                                                               ( --cold-verification-key STRING
+                                                                                               | --cold-verification-key-file FILE
+                                                                                               | --cold-verification-key-hash STRING
+                                                                                               )
+                                                                                               --out-file FILE
+
+  Create cold key resignation certificate for a Constitutional Committee Member
+
 Usage: cardano-cli experimental governance drep 
                                                   ( key-gen
                                                   | delegation-certificate
@@ -1364,6 +1355,27 @@ Usage: cardano-cli experimental governance drep registration-certificate
                                                                            --out-file FILE
 
   Create a registration certificate.
+
+Usage: cardano-cli experimental governance vote create
+
+  Vote commands.
+
+Usage: cardano-cli experimental governance vote create 
+                                                         ( --yes
+                                                         | --no
+                                                         | --abstain
+                                                         )
+                                                         --tx-in TX-IN
+                                                         ( --drep-verification-key STRING
+                                                         | --drep-verification-key-file FILE
+                                                         | --drep-key-hash HASH
+                                                         | --stake-pool-verification-key STRING
+                                                         | --cold-verification-key-file FILE
+                                                         | --stake-pool-id STAKE_POOL_ID
+                                                         )
+                                                         --out-file FILE
+
+  Vote creation.
 
 Usage: cardano-cli legacy Legacy commands
 
