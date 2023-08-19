@@ -12,6 +12,7 @@ import           Cardano.Api
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Governance
+import           Cardano.CLI.EraBased.Commands.Governance.DRep
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Governance.Committee
@@ -30,20 +31,22 @@ import qualified Options.Applicative as Opt
 pEraBasedGovernanceCmds :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmds era)
 pEraBasedGovernanceCmds envCli era =
   asum $ catMaybes
-    [ pEraBasedRegistrationCertificateCmd envCli era
-    , pEraBasedDelegationCertificateCmd envCli era
-    , pEraBasedVoteCmd envCli era
+    [ pEraBasedVoteCmd envCli era
     , pCreateMirCertificatesCmds era
     , pGovernanceCommitteeCmds era <&> fmap EraBasedGovernanceCommitteeCmds
     , fmap EraBasedGovernanceActionCmds <$> pGovernanceActionCmds era
-    , pDRepCommands era
+    , fmap EraBasedGovernanceDRepCmds   <$> pEraBasedDelegationCertificateCmd envCli era
+    , fmap EraBasedGovernanceDRepCmds   <$> pEraBasedRegistrationCertificateCmd envCli era
+    , fmap EraBasedGovernanceDRepCmds   <$> pDRepCommands era
     ]
 
 
 -- Registration Certificate related
 
-pEraBasedRegistrationCertificateCmd
-  :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
+pEraBasedRegistrationCertificateCmd :: ()
+  => EnvCli
+  -> CardanoEra era
+  -> Maybe (Parser (GovernanceDRepCmds era))
 pEraBasedRegistrationCertificateCmd envCli era = do
   w <- maybeFeatureInEra era
   pure
@@ -51,10 +54,10 @@ pEraBasedRegistrationCertificateCmd envCli era = do
     $ Opt.info (pEraCmd envCli w)
     $ Opt.progDesc "Create a registration certificate."
  where
-  pEraCmd :: EnvCli -> AnyEraDecider era -> Parser (EraBasedGovernanceCmds era)
+  pEraCmd :: EnvCli -> AnyEraDecider era -> Parser (GovernanceDRepCmds era)
   pEraCmd envCli' = \case
     AnyEraDeciderShelleyToBabbage sToB ->
-      EraBasedGovernanceRegistrationCertificateCmd
+      GovernanceDRepRegistrationCertificateCmd
         <$> asum [ ShelleyToBabbageStakePoolRegTarget sToB
                      <$> pStakePoolRegistrationParserRequirements envCli'
                  , ShelleyToBabbageStakeKeyRegTarget sToB
@@ -63,7 +66,7 @@ pEraBasedRegistrationCertificateCmd envCli era = do
         <*> pOutputFile
 
     AnyEraDeciderConwayOnwards cOn ->
-      EraBasedGovernanceRegistrationCertificateCmd . ConwayOnwardRegTarget cOn
+      GovernanceDRepRegistrationCertificateCmd . ConwayOnwardRegTarget cOn
         <$> asum [ RegisterStakePool cOn
                      <$> pStakePoolRegistrationParserRequirements envCli'
                  , RegisterStakeKey cOn
@@ -93,7 +96,10 @@ instance FeatureInEra AnyEraDecider where
 
 -- Delegation Certificate related
 
-pEraBasedDelegationCertificateCmd :: EnvCli -> CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
+pEraBasedDelegationCertificateCmd :: ()
+  => EnvCli
+  -> CardanoEra era
+  -> Maybe (Parser (GovernanceDRepCmds era))
 pEraBasedDelegationCertificateCmd _envCli era = do
   w <- maybeFeatureInEra era
   pure
@@ -101,9 +107,9 @@ pEraBasedDelegationCertificateCmd _envCli era = do
     $ Opt.info (pCmd w)
     $ Opt.progDesc "Delegation certificate creation."
  where
-  pCmd :: AnyEraDecider era -> Parser (EraBasedGovernanceCmds era)
+  pCmd :: AnyEraDecider era -> Parser (GovernanceDRepCmds era)
   pCmd w =
-    EraBasedGovernanceDelegationCertificateCmd
+    GovernanceDRepDelegationCertificateCmd
       <$> pStakeIdentifier
       <*> pAnyDelegationCertificateTarget w
       <*> pOutputFile
@@ -301,7 +307,7 @@ pMIRTransferToReserves w =
 
 pDRepCommands :: ()
   => CardanoEra era
-  -> Maybe (Parser (EraBasedGovernanceCmds era))
+  -> Maybe (Parser (GovernanceDRepCmds era))
 pDRepCommands era = do
   w <- maybeFeatureInEra era
   pure $
@@ -311,5 +317,8 @@ pDRepCommands era = do
   where
     pKeyGen w =
       subParser "key-gen"
-      $ Opt.info (EraBasedGovernanceDRepGenerateKey w <$> pVerificationKeyFileOut <*> pSigningKeyFileOut)
+      $ Opt.info
+          ( GovernanceDRepGenerateKey w
+              <$> pVerificationKeyFileOut
+              <*> pSigningKeyFileOut)
       $ Opt.progDesc "Generate Delegate Representative verification and signing keys."
