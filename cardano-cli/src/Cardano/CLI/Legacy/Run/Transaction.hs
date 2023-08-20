@@ -30,6 +30,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyBootstrapWitnessError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Output
+import           Cardano.CLI.Types.TxFeature
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
@@ -243,31 +244,6 @@ renderShelleyTxCmdError err =
       Text.pack $ displayError e
     ShelleyTxCmdScriptValidityValidationError e ->
       Text.pack $ displayError e
-
-renderFeature :: TxFeature -> Text
-renderFeature TxFeatureShelleyAddresses     = "Shelley addresses"
-renderFeature TxFeatureExplicitFees         = "Explicit fees"
-renderFeature TxFeatureImplicitFees         = "Implicit fees"
-renderFeature TxFeatureValidityLowerBound   = "A validity lower bound"
-renderFeature TxFeatureValidityUpperBound   = "A validity upper bound"
-renderFeature TxFeatureValidityNoUpperBound = "An absent validity upper bound"
-renderFeature TxFeatureTxMetadata           = "Transaction metadata"
-renderFeature TxFeatureAuxScripts           = "Auxiliary scripts"
-renderFeature TxFeatureWithdrawals          = "Reward account withdrawals"
-renderFeature TxFeatureCertificates         = "Certificates"
-renderFeature TxFeatureMintValue            = "Asset minting"
-renderFeature TxFeatureMultiAssetOutputs    = "Multi-Asset outputs"
-renderFeature TxFeatureScriptWitnesses      = "Script witnesses"
-renderFeature TxFeatureShelleyKeys          = "Shelley keys"
-renderFeature TxFeatureCollateral           = "Collateral inputs"
-renderFeature TxFeatureProtocolParameters   = "Protocol parameters"
-renderFeature TxFeatureTxOutDatum           = "Transaction output datums"
-renderFeature TxFeatureScriptValidity       = "Script validity"
-renderFeature TxFeatureExtraKeyWits         = "Required signers"
-renderFeature TxFeatureInlineDatums         = "Inline datums"
-renderFeature TxFeatureTotalCollateral      = "Total collateral"
-renderFeature TxFeatureReferenceInputs      = "Reference inputs"
-renderFeature TxFeatureReturnCollateral     = "Return collateral"
 
 runTransactionCmds :: LegacyTransactionCmds -> ExceptT ShelleyTxCmdError IO ()
 runTransactionCmds cmd =
@@ -807,34 +783,6 @@ runTxBuild
 -- ----------------------------------------------------------------------------
 -- Transaction body validation and conversion
 --
-
--- | An enumeration of era-dependent features where we have to check that it
--- is permissible to use this feature in this era.
---
-data TxFeature = TxFeatureShelleyAddresses
-               | TxFeatureExplicitFees
-               | TxFeatureImplicitFees
-               | TxFeatureValidityLowerBound
-               | TxFeatureValidityUpperBound
-               | TxFeatureValidityNoUpperBound
-               | TxFeatureTxMetadata
-               | TxFeatureAuxScripts
-               | TxFeatureWithdrawals
-               | TxFeatureCertificates
-               | TxFeatureMintValue
-               | TxFeatureMultiAssetOutputs
-               | TxFeatureScriptWitnesses
-               | TxFeatureShelleyKeys
-               | TxFeatureCollateral
-               | TxFeatureProtocolParameters
-               | TxFeatureTxOutDatum
-               | TxFeatureScriptValidity
-               | TxFeatureExtraKeyWits
-               | TxFeatureInlineDatums
-               | TxFeatureTotalCollateral
-               | TxFeatureReferenceInputs
-               | TxFeatureReturnCollateral
-  deriving Show
 
 txFeatureMismatch :: ()
   => Monad m

@@ -142,6 +142,7 @@ library
                         Cardano.CLI.Types.Key
                         Cardano.CLI.Types.Key.VerificationKey
                         Cardano.CLI.Types.Output
+                        Cardano.CLI.Types.TxFeature
 
   other-modules:        Paths_cardano_cli
   autogen-modules:      Paths_cardano_cli
