@@ -12,8 +12,8 @@ module Cardano.CLI.Types.Errors.CmdError
 
 import           Cardano.Api
 
-import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 
@@ -21,12 +21,12 @@ import           Data.Text.Encoding.Error
 import           GHC.Generics (Generic)
 
 data CmdError
-  = CmdGovernanceCmdError        !GovernanceCmdError
+  = CmdEraBasedRegistrationError !EraBasedRegistrationError
   | CmdEraDelegationError        !EraBasedDelegationError
-  | CmdEraBasedRegistrationError !EraBasedRegistrationError
-  | CmdEraBasedVoteError         !EraBasedVoteError
-  | CmdGovernanceCommitteeError  !GovernanceCommitteeError
   | CmdGovernanceActionError     !GovernanceActionsError
+  | CmdGovernanceCmdError        !GovernanceCmdError
+  | CmdGovernanceCommitteeError  !GovernanceCommitteeError
+  | CmdGovernanceVoteError       !GovernanceVoteCmdError
   deriving Show
 
 instance Error CmdError where
@@ -34,7 +34,7 @@ instance Error CmdError where
     CmdGovernanceCmdError e -> displayError e
     CmdEraDelegationError e -> displayError e
     CmdEraBasedRegistrationError e -> displayError e
-    CmdEraBasedVoteError e -> displayError e
+    CmdGovernanceVoteError e -> displayError e
     CmdGovernanceCommitteeError e -> displayError e
     CmdGovernanceActionError e -> displayError e
 

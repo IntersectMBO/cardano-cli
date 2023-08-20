@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.EraBased.Vote where
+module Cardano.CLI.Types.Errors.GovernanceVoteCmdError where
 
 import           Cardano.Api.Shelley
 
@@ -12,19 +12,19 @@ import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
 import qualified Formatting.Buildable as B
 
-data EraBasedVoteError
-  = EraBasedVoteReadError !(FileError InputDecodeError)
-  | EraBasedVotingCredentialDecodeError !DecoderError
-  | EraBasedVoteWriteError !(FileError ())
+data GovernanceVoteCmdError
+  = GovernanceVoteCmdReadError !(FileError InputDecodeError)
+  | GovernanceVoteCmdCredentialDecodeError !DecoderError
+  | GovernanceVoteCmeWriteError !(FileError ())
   deriving Show
 
-instance Error EraBasedVoteError where
+instance Error GovernanceVoteCmdError where
   displayError = \case
-    EraBasedVoteReadError e ->
+    GovernanceVoteCmdReadError e ->
       "Cannot read verification key: " <> displayError e
-    EraBasedVotingCredentialDecodeError e ->
+    GovernanceVoteCmdCredentialDecodeError e ->
       "Cannot decode voting credential: " <> renderDecoderError e
-    EraBasedVoteWriteError e ->
+    GovernanceVoteCmeWriteError e ->
       "Cannot write vote: " <> displayError e
     where
       renderDecoderError = TL.unpack . TL.toLazyText . B.build

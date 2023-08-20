@@ -15,10 +15,10 @@ import           Cardano.Api.Shelley
 import           Cardano.Binary
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
-import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
@@ -138,14 +138,14 @@ test_EraBasedRegistrationError =
 
 test_EraBasedVoteReadError :: TestTree
 test_EraBasedVoteReadError =
-  testErrorMessagesRendering "Cardano.CLI.EraBased.Vote" "EraBasedVoteError"
-    [ ("EraBasedVoteReadError"
-      , EraBasedVoteReadError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedVotingCredentialDecodeError"
-      , EraBasedVotingCredentialDecodeError
+  testErrorMessagesRendering "Cardano.CLI.Types.Errors.GovernanceVoteCmdError" "GovernanceVoteCmdError"
+    [ ("GovernanceVoteCmdCredentialDecodeError"
+      , GovernanceVoteCmdCredentialDecodeError
         $ DecoderErrorCustom "<todecode>" "<decodeeerror>")
-    , ("EraBasedVoteWriteError"
-      , EraBasedVoteWriteError $ FileError "path/file.txt" ())
+    , ("GovernanceVoteCmdReadError"
+      , GovernanceVoteCmdReadError $ FileError "path/file.txt" InputInvalidError)
+    , ("GovernanceVoteCmeWriteError"
+      , GovernanceVoteCmeWriteError $ FileError "path/file.txt" ())
     ]
 
 test_GovernanceComitteeError :: TestTree

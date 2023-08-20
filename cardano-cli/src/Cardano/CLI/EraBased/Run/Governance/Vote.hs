@@ -13,8 +13,8 @@ import           Cardano.Api.Ledger (HasKeyRole (coerceKeyRole))
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Vote
-import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Types.Errors.CmdError
+import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
@@ -29,44 +29,44 @@ runGovernanceVoteCmds :: ()
 runGovernanceVoteCmds = \case
   GovernanceVoteCreateCmd anyVote outFp ->
     runGovernanceVoteCreateCmd anyVote outFp
-      & firstExceptT CmdEraBasedVoteError
+      & firstExceptT CmdGovernanceVoteError
 
 runGovernanceVoteCreateCmd
   :: AnyVote
   -> File () Out
-  -> ExceptT EraBasedVoteError IO ()
+  -> ExceptT GovernanceVoteCmdError IO ()
 runGovernanceVoteCreateCmd (ConwayOnwardsVote cOnwards v govTxInIdentifier anyStake) outFp = do
   case anyStake of
     AnyDRepVerificationKeyOrHashOrFile stake -> do
       let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
-      DRepKeyHash h <- firstExceptT  EraBasedVoteReadError
+      DRepKeyHash h <- firstExceptT  GovernanceVoteCmdReadError
                          . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey stake
       let vStakeCred = StakeCredentialByKey . StakeKeyHash $ coerceKeyRole h
 
-      votingCred <- hoistEither $ first EraBasedVotingCredentialDecodeError $ toVotingCredential sbe vStakeCred
+      votingCred <- hoistEither $ first GovernanceVoteCmdCredentialDecodeError $ toVotingCredential sbe vStakeCred
       let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier
           voteProcedure = createVotingProcedure sbe v (VoterDRep votingCred) govActIdentifier
-      firstExceptT EraBasedVoteWriteError . newExceptT
+      firstExceptT GovernanceVoteCmeWriteError . newExceptT
         $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope outFp Nothing voteProcedure
 
     AnyStakePoolVerificationKeyOrHashOrFile stake -> do
       let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
-      h <- firstExceptT EraBasedVoteReadError
+      h <- firstExceptT GovernanceVoteCmdReadError
              . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
 
       let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier
           voteProcedure = createVotingProcedure sbe v (VoterSpo h) govActIdentifier
-      firstExceptT EraBasedVoteWriteError . newExceptT
+      firstExceptT GovernanceVoteCmeWriteError . newExceptT
         $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope outFp Nothing voteProcedure
 
     AnyCommitteeHotVerificationKeyOrHashOrFile stake -> do
       let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
-      CommitteeHotKeyHash h <- firstExceptT EraBasedVoteReadError
+      CommitteeHotKeyHash h <- firstExceptT GovernanceVoteCmdReadError
              . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey stake
       let vStakeCred = StakeCredentialByKey . StakeKeyHash $ coerceKeyRole h
-      votingCred <- hoistEither $ first EraBasedVotingCredentialDecodeError $ toVotingCredential sbe vStakeCred
+      votingCred <- hoistEither $ first GovernanceVoteCmdCredentialDecodeError $ toVotingCredential sbe vStakeCred
 
       let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier
           voteProcedure = createVotingProcedure sbe v (VoterCommittee votingCred) govActIdentifier
-      firstExceptT EraBasedVoteWriteError . newExceptT
+      firstExceptT GovernanceVoteCmeWriteError . newExceptT
         $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope outFp Nothing voteProcedure
