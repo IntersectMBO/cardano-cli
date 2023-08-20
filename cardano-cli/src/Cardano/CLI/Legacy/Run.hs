@@ -26,6 +26,7 @@ import           Cardano.CLI.Types.Errors.ShelleyKeyCmdError
 import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
 import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
 import           Cardano.CLI.Types.Errors.ShelleyQueryCmdError
+import           Cardano.CLI.Types.Errors.ShelleyTextViewFileError
 
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
