@@ -1,9 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 
 module Cardano.CLI.Legacy.Run.Node
-  ( ShelleyNodeCmdError(ShelleyNodeCmdReadFileError)
-  , renderShelleyNodeCmdError
-  , runNodeCmds
+  ( runNodeCmds
   , runNodeIssueOpCert
   , runNodeKeyGenCold
   , runNodeKeyGenKES
@@ -16,6 +14,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Legacy.Commands.Node
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.IO.Class (MonadIO (..))
@@ -23,40 +22,9 @@ import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, newExceptT)
 import qualified Data.ByteString.Char8 as BS
 import           Data.String (fromString)
-import           Data.Text (Text)
-import qualified Data.Text as Text
 import           Data.Word (Word64)
 
 {- HLINT ignore "Reduce duplication" -}
-
-data ShelleyNodeCmdError
-  = ShelleyNodeCmdReadFileError !(FileError TextEnvelopeError)
-  | ShelleyNodeCmdReadKeyFileError !(FileError InputDecodeError)
-  | ShelleyNodeCmdWriteFileError !(FileError ())
-  | ShelleyNodeCmdOperationalCertificateIssueError !OperationalCertIssueError
-  | ShelleyNodeCmdVrfSigningKeyCreationError
-      FilePath
-      -- ^ Target path
-      FilePath
-      -- ^ Temp path
-  deriving Show
-
-renderShelleyNodeCmdError :: ShelleyNodeCmdError -> Text
-renderShelleyNodeCmdError err =
-  case err of
-    ShelleyNodeCmdVrfSigningKeyCreationError targetPath tempPath ->
-      Text.pack $ "Error creating VRF signing key file. Target path: " <> targetPath
-      <> " Temporary path: " <> tempPath
-
-    ShelleyNodeCmdReadFileError fileErr -> Text.pack (displayError fileErr)
-
-    ShelleyNodeCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
-
-    ShelleyNodeCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-
-    ShelleyNodeCmdOperationalCertificateIssueError issueErr ->
-      Text.pack (displayError issueErr)
-
 
 runNodeCmds :: LegacyNodeCmds -> ExceptT ShelleyNodeCmdError IO ()
 runNodeCmds (NodeKeyGenCold fmt vk sk ctr) = runNodeKeyGenCold fmt vk sk ctr

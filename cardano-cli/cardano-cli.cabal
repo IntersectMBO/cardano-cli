@@ -129,6 +129,7 @@ library
                         Cardano.CLI.Types.Errors.ShelleyAddressInfoError
                         Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
                         Cardano.CLI.Types.Errors.ShelleyKeyCmdError
+                        Cardano.CLI.Types.Errors.ShelleyNodeCmdError
                         Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
                         Cardano.CLI.Types.Errors.StakeAddressDelegationError
                         Cardano.CLI.Types.Errors.StakeAddressRegistrationError
