@@ -14,10 +14,10 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Legacy.Run.Genesis
-import           Cardano.CLI.Legacy.Run.Validate
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyBootstrapWitnessError
+import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output
 import           Cardano.CLI.Types.TxFeature
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))

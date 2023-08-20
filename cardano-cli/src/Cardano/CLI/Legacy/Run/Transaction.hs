@@ -25,11 +25,11 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Legacy.Commands.Transaction
 import           Cardano.CLI.Legacy.Run.Genesis
-import           Cardano.CLI.Legacy.Run.Validate
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyBootstrapWitnessError
 import           Cardano.CLI.Types.Errors.ShelleyTxCmdError
+import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Output
 import           Cardano.CLI.Types.TxFeature

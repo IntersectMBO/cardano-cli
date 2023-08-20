@@ -107,7 +107,6 @@ library
                         Cardano.CLI.Legacy.Run.StakeAddress
                         Cardano.CLI.Legacy.Run.TextView
                         Cardano.CLI.Legacy.Run.Transaction
-                        Cardano.CLI.Legacy.Run.Validate
                         Cardano.CLI.Options
                         Cardano.CLI.Orphans
                         Cardano.CLI.OS.Posix
@@ -139,6 +138,7 @@ library
                         Cardano.CLI.Types.Errors.ShelleyTxCmdError
                         Cardano.CLI.Types.Errors.StakeAddressDelegationError
                         Cardano.CLI.Types.Errors.StakeAddressRegistrationError
+                        Cardano.CLI.Types.Errors.TxValidationError
                         Cardano.CLI.Types.Governance
                         Cardano.CLI.Types.Key
                         Cardano.CLI.Types.Key.VerificationKey
