@@ -9,12 +9,12 @@ import           Cardano.Api
 
 import           Cardano.CLI.Byron.Genesis as Byron
 import           Cardano.CLI.Legacy.Run.Address
-import           Cardano.CLI.Legacy.Run.Pool (ShelleyPoolCmdError (..), renderShelleyPoolCmdError)
 import           Cardano.CLI.Legacy.Run.StakeAddress (ShelleyStakeAddressCmdError (..))
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
 import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
+import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
 
 import           Control.Exception (IOException)
 import           Data.Text (Text)
