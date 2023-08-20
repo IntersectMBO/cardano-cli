@@ -119,6 +119,7 @@ library
                         Cardano.CLI.Run.Ping
                         Cardano.CLI.TopHandler
                         Cardano.CLI.Types.Common
+                        Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
                         Cardano.CLI.Types.Errors.CmdError
                         Cardano.CLI.Types.Errors.GovernanceCmdError
                         Cardano.CLI.Types.Errors.ItnKeyConversionError
