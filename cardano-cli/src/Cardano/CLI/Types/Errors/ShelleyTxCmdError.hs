@@ -13,9 +13,9 @@ module Cardano.CLI.Types.Errors.ShelleyTxCmdError
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Errors.ShelleyBootstrapWitnessError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output
