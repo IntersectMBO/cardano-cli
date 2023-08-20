@@ -27,6 +27,7 @@ import           Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.CLI.Legacy.Run.Validate
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ShelleyBootstrapWitnessError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Output
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
@@ -1293,23 +1294,6 @@ partitionSomeWitnesses = reversePartitionedWits . foldl' go mempty
           (byronWit:byronAcc, shelleyKeyAcc)
         AShelleyKeyWitness shelleyKeyWit ->
           (byronAcc, shelleyKeyWit:shelleyKeyAcc)
-
-
--- | Error constructing a Shelley bootstrap witness (i.e. a Byron key witness
--- in the Shelley era).
-data ShelleyBootstrapWitnessError
-  = MissingNetworkIdOrByronAddressError
-  -- ^ Neither a network ID nor a Byron address were provided to construct the
-  -- Shelley bootstrap witness. One or the other is required.
-  deriving Show
-
--- | Render an error message for a 'ShelleyBootstrapWitnessError'.
-renderShelleyBootstrapWitnessError :: ShelleyBootstrapWitnessError -> Text
-renderShelleyBootstrapWitnessError MissingNetworkIdOrByronAddressError =
-  "Transactions witnessed by a Byron signing key must be accompanied by a "
-    <> "network ID. Either provide a network ID or provide a Byron "
-    <> "address with each Byron signing key (network IDs can be derived "
-    <> "from Byron addresses)."
 
 -- | Construct a Shelley bootstrap witness (i.e. a Byron key witness in the
 -- Shelley era).
