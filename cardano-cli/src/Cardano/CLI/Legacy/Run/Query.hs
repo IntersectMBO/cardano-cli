@@ -16,7 +16,6 @@
 module Cardano.CLI.Legacy.Run.Query
   ( DelegationsAndRewards(..)
   , ShelleyQueryCmdError
-  , ShelleyQueryCmdLocalStateQueryError (..)
   , renderOpCertIntervalInformation
   , renderShelleyQueryCmdError
   , renderLocalStateQueryError
@@ -40,6 +39,7 @@ import           Cardano.CLI.Legacy.Run.Genesis (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Pretty
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
+import           Cardano.CLI.Types.Errors.ShelleyQueryCmdLocalStateQueryError
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile)
 import qualified Cardano.CLI.Types.Output as O
@@ -950,19 +950,6 @@ runQueryStakeAddressInfo socketPath (AnyConsensusModeParams cModeParams) (StakeA
     & onLeft left
 
 -- -------------------------------------------------------------------------------------------------
-
--- | An error that can occur while querying a node's local state.
-newtype ShelleyQueryCmdLocalStateQueryError
-  = EraMismatchError EraMismatch
-  -- ^ A query from a certain era was applied to a ledger from a different
-  -- era.
-  deriving (Eq, Show)
-
-renderLocalStateQueryError :: ShelleyQueryCmdLocalStateQueryError -> Text
-renderLocalStateQueryError lsqErr =
-  case lsqErr of
-    EraMismatchError err ->
-      "A query from a certain era was applied to a ledger from a different era: " <> textShow err
 
 writeStakeAddressInfo
   :: Maybe (File () Out)
