@@ -53,6 +53,7 @@ import           Cardano.CLI.Legacy.Run.Pool (ShelleyPoolCmdError (..))
 import           Cardano.CLI.Legacy.Run.StakeAddress (runStakeAddressKeyGenToFile)
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto as CC
@@ -1308,16 +1309,6 @@ readConwayGenesis fpath = do
     . hoistEither $ Aeson.eitherDecode' lbs
 
 -- Protocol Parameters
-
-data ProtocolParamsError
-  = ProtocolParamsErrorFile (FileError ())
-  | ProtocolParamsErrorJSON !FilePath !Text
-
-renderProtocolParamsError :: ProtocolParamsError -> Text
-renderProtocolParamsError (ProtocolParamsErrorFile fileErr) =
-  Text.pack $ displayError fileErr
-renderProtocolParamsError (ProtocolParamsErrorJSON fp jsonErr) =
-  "Error while decoding the protocol parameters at: " <> Text.pack fp <> " Error: " <> jsonErr
 
 --TODO: eliminate this and get only the necessary params, and get them in a more
 -- helpful way rather than requiring them as a local file.
