@@ -22,6 +22,7 @@ import           Cardano.Api.Shelley
 import qualified Cardano.CLI.Byron.Key as Byron
 import           Cardano.CLI.Legacy.Commands.Key
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ItnKeyConversionError
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto.DSIGN as DSIGN
 import qualified Cardano.Crypto.Signing as Byron
@@ -31,7 +32,6 @@ import qualified Cardano.Crypto.Wallet as Crypto
 import qualified Cardano.Ledger.Keys as Shelley
 
 import qualified Codec.Binary.Bech32 as Bech32
-import           Control.Exception (Exception (..), IOException)
 import qualified Control.Exception as Exception
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -39,7 +39,6 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, le
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
-import qualified Data.ByteString.Char8 as BSC
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
@@ -450,31 +449,6 @@ runConvertITNBip32ToStakeKey (ASigningKeyFile (File sk)) outFile = do
   firstExceptT ShelleyKeyCmdWriteFileError . newExceptT
     $ writeLazyByteStringFile outFile
     $ textEnvelopeToJSON Nothing skey
-
--- | An error that can occur while converting an Incentivized Testnet (ITN)
--- key.
-data ItnKeyConversionError
-  = ItnKeyBech32DecodeError !Bech32DecodeError
-  | ItnReadBech32FileError !FilePath !IOException
-  | ItnSigningKeyDeserialisationError !ByteString
-  | ItnVerificationKeyDeserialisationError !ByteString
-  deriving Show
-
--- | Render an error message for an 'ItnKeyConversionError'.
-renderConversionError :: ItnKeyConversionError -> Text
-renderConversionError err =
-  case err of
-    ItnKeyBech32DecodeError decErr ->
-      "Error decoding Bech32 key: " <> Text.pack (displayError decErr)
-    ItnReadBech32FileError fp readErr ->
-      "Error reading Bech32 key at: " <> textShow fp
-                        <> " Error: " <> Text.pack (displayException readErr)
-    ItnSigningKeyDeserialisationError _sKey ->
-      -- Sensitive data, such as the signing key, is purposely not included in
-      -- the error message.
-      "Error deserialising signing key."
-    ItnVerificationKeyDeserialisationError vKey ->
-      "Error deserialising verification key: " <> textShow (BSC.unpack vKey)
 
 -- | Convert public ed25519 key to a Shelley stake verification key
 convertITNVerificationKey :: Text -> Either ItnKeyConversionError (VerificationKey StakeKey)
