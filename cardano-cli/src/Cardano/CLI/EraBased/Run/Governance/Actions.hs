@@ -14,7 +14,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.CmdError
+import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Except (ExceptT)

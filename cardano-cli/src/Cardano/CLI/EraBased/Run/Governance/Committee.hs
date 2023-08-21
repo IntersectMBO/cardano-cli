@@ -10,7 +10,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
-import           Cardano.CLI.Types.Errors.CmdError
+import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
 
