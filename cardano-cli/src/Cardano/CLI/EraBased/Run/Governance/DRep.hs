@@ -19,7 +19,8 @@ import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad.Except
+import           Control.Monad.Trans.Class
+import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 
