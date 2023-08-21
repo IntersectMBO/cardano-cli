@@ -9,6 +9,8 @@ module Test.Cardano.CLI.Util
   , withSnd
   , noteInputFile
   , noteTempFile
+
+  , redactJsonField
   ) where
 
 import           Cardano.Api
@@ -19,9 +21,15 @@ import           Control.Monad.Catch
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Class (lift)
 import           Control.Monad.Trans.Except (runExceptT)
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Encode.Pretty as Aeson
+import qualified Data.Aeson.Key as Aeson
+import qualified Data.Aeson.KeyMap as Aeson
+import qualified Data.ByteString.Lazy as LBS
 import           Data.Function ((&))
 import qualified Data.List as List
 import           Data.Monoid (Last (..))
+import           Data.Text (Text)
 import           GHC.Stack (CallStack, HasCallStack)
 import qualified GHC.Stack as GHC
 import qualified System.Exit as IO
@@ -36,6 +44,7 @@ import           Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
 import qualified Hedgehog.Internal.Property as H
 import           Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import           Hedgehog.Internal.Source (getCaller)
+
 
 -- | Execute cardano-cli via the command line.
 --
@@ -216,3 +225,26 @@ failDiffCustom cS x y =
       GHC.withFrozenCallStack $
         failWithCustom cS (Just $
           H.Diff "━━━ Failed (" "- lhs" ") (" "+ rhs" ") ━━━" vdiff) ""
+
+redactJsonField :: ()
+  => MonadTest m
+  => MonadIO m
+  => HasCallStack
+  => Text
+  -> Text
+  -> FilePath
+  -> FilePath
+  -> m ()
+redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFrozenCallStack $ do
+  contents <- H.evalIO $ LBS.readFile sourceFilePath
+  case Aeson.eitherDecode contents :: Either String Aeson.Value of
+    Left err -> failWithCustom GHC.callStack Nothing err
+    Right json -> do
+      redactedJson <- case json of
+        Aeson.Object obj ->
+          pure $ Aeson.Object $ flip Aeson.mapWithKey obj $ \k v ->
+            if k == Aeson.fromText fieldName
+              then Aeson.String replacement
+              else v
+        v -> pure v
+      H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)

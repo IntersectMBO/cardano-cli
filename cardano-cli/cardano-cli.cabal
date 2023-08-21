@@ -210,12 +210,16 @@ library cardano-cli-test-lib
   visibility:           public
   hs-source-dirs:       test/cardano-cli-test-lib
   exposed-modules:      Test.Cardano.CLI.Util
-  build-depends:        cardano-api
+  build-depends:        aeson
+                      , aeson-pretty
+                      , bytestring
+                      , cardano-api
                       , cardano-cli
                       , exceptions
                       , hedgehog
                       , hedgehog-extras ^>= 0.4.7.0
                       , process
+                      , text
                       , transformers
 
 test-suite cardano-cli-test
@@ -302,6 +306,7 @@ test-suite cardano-cli-golden
                         Test.Golden.Byron.Vote
                         Test.Golden.Byron.Witness
                         Test.Golden.ErrorsSpec
+                        Test.Golden.Governance.Action
                         Test.Golden.Governance.Committee
                         Test.Golden.Governance.DRep
                         Test.Golden.Help
