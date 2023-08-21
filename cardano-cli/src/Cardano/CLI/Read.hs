@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -65,6 +66,11 @@ module Cardano.CLI.Read
   , fileOrPipePath
   , fileOrPipeCache
   , readFileOrPipe
+
+  -- * Stake credentials
+  , getStakeCredentialFromVerifier
+  , getStakeCredentialFromIdentifier
+  , getStakeAddressFromVerifier
   ) where
 
 import           Cardano.Api as Api
@@ -73,7 +79,9 @@ import           Cardano.Api.Shelley
 import qualified Cardano.Binary as CBOR
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ScriptDecodeError
+import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
+import           Cardano.CLI.Types.Key
 
 import           Prelude
 
@@ -874,3 +882,35 @@ readTextEnvelopeCddlFromFileOrPipe file = do
             readFileOrPipe file
     firstExceptT (FileError path . TextEnvelopeCddlAesonDecodeError path)
       . hoistEither $ Aeson.eitherDecode' bs
+
+----------------------------------------------------------------------------------------------------
+
+getStakeCredentialFromVerifier :: ()
+  => StakeVerifier
+  -> ExceptT StakeCredentialError IO StakeCredential
+getStakeCredentialFromVerifier = \case
+  StakeVerifierScriptFile (ScriptFile sFile) -> do
+    ScriptInAnyLang _ script <-
+      readFileScriptInAnyLang sFile
+        & firstExceptT StakeCredentialScriptDecodeError
+    pure $ StakeCredentialByScript $ hashScript script
+
+  StakeVerifierKey stakeVerKeyOrFile -> do
+    stakeVerKey <-
+      ExceptT (readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile)
+        & firstExceptT StakeCredentialInputDecodeError
+    pure $ StakeCredentialByKey $ verificationKeyHash stakeVerKey
+
+getStakeCredentialFromIdentifier :: ()
+  => StakeIdentifier
+  -> ExceptT StakeCredentialError IO StakeCredential
+getStakeCredentialFromIdentifier = \case
+  StakeIdentifierAddress stakeAddr -> pure $ stakeAddressCredential stakeAddr
+  StakeIdentifierVerifier stakeVerifier -> getStakeCredentialFromVerifier stakeVerifier
+
+getStakeAddressFromVerifier :: ()
+  => NetworkId
+  -> StakeVerifier
+  -> ExceptT StakeCredentialError IO StakeAddress
+getStakeAddressFromVerifier networkId stakeVerifier =
+  makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier

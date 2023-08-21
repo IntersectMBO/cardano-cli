@@ -13,15 +13,15 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary
-import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
-import           Cardano.CLI.EraBased.Vote
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
-import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
+import           Cardano.CLI.Types.Errors.StakeCredentialError
 
 import           Data.Text.Encoding.Error
 import           GHC.Stack (HasCallStack)
@@ -87,32 +87,24 @@ test_GovernanceCmdError =
 
 test_EraBasedDelegationError :: TestTree
 test_EraBasedDelegationError =
-  testErrorMessagesRendering "Cardano.CLI.EraBased.Run.Certificate" "EraBasedDelegationError"
+  testErrorMessagesRendering "Cardano.CLI.Types.Errors.CmdError" "EraBasedDelegationError"
     [ ("EraBasedDelegReadError"
-      , EraBasedDelegReadError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedCredentialError1"
-      , EraBasedCredentialError
-        $ ShelleyStakeAddressCmdReadKeyFileError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedCredentialError2"
-      , EraBasedCredentialError
-        $ ShelleyStakeAddressCmdReadScriptFileError
+      , EraBasedDelegReadError
+      $ FileError "path/file.txt" InputInvalidError)
+    , ("EraBasedDelegationStakeCredentialError1"
+      , EraBasedDelegationStakeCredentialError
+        $ StakeCredentialInputDecodeError
+        $ FileError "path/file.txt" InputInvalidError)
+    , ("EraBasedDelegationStakeCredentialError2"
+      , EraBasedDelegationStakeCredentialError
+        $ StakeCredentialScriptDecodeError
         $ FileError "path/file.txt"
         $ ScriptDecodeSimpleScriptError
         $ JsonDecodeError "json decode error")
-    , ("EraBasedCredentialError3"
-      , EraBasedCredentialError
-        $ ShelleyStakeAddressCmdReadKeyFileError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedCredentialError4"
-      , EraBasedCredentialError
-        $ ShelleyStakeAddressCmdWriteFileError $ FileError "path/file.txt" ())
-    , ("EraBasedCredentialError5"
-      , EraBasedCredentialError
-        $ StakeRegistrationError StakeAddressRegistrationDepositRequired)
-    , ("EraBasedCredentialError6"
-      , EraBasedCredentialError
-        $ StakeDelegationError
-        $ VoteDelegationNotSupported
-        $ AnyShelleyToBabbageEra ShelleyToBabbageEraShelley)
+    , ("EraBasedDelegationStakeCredentialError3"
+      , EraBasedDelegationStakeCredentialError
+        $ StakeCredentialInputDecodeError
+        $ FileError "path/file.txt" InputInvalidError)
     , ("EraBasedCertificateWriteFileError"
       , EraBasedCertificateWriteFileError $ FileError "path/file.txt" ())
     , ("EraBasedDRepReadError"
@@ -121,48 +113,39 @@ test_EraBasedDelegationError =
 
 test_EraBasedRegistrationError :: TestTree
 test_EraBasedRegistrationError =
-  testErrorMessagesRendering "Cardano.CLI.EraBased.Run.Certificate" "EraBasedRegistrationError"
+  testErrorMessagesRendering "Cardano.CLI.Types.Errors.CmdError" "EraBasedRegistrationError"
     [ ("EraBasedRegistReadError"
       , EraBasedRegistReadError $ FileError "path/file.txt" InputInvalidError)
     , ("EraBasedRegistWriteFileError"
       , EraBasedRegistWriteFileError $ FileError "path/file.txt" ())
     , ("EraBasedRegistStakeCredReadError1"
-      , EraBasedRegistStakeCredReadError
-        $ ShelleyStakeAddressCmdReadKeyFileError $ FileError "path/file.txt" InputInvalidError)
+      , EraBasedRegistrationStakeCredentialError
+        $ StakeCredentialInputDecodeError
+        $ FileError "path/file.txt" InputInvalidError)
     , ("EraBasedRegistStakeCredReadError2"
-      , EraBasedRegistStakeCredReadError
-        $ ShelleyStakeAddressCmdReadScriptFileError
+      , EraBasedRegistrationStakeCredentialError
+        $ StakeCredentialScriptDecodeError
         $ FileError "path/file.txt"
         $ ScriptDecodeSimpleScriptError
         $ JsonDecodeError "json decode error")
     , ("EraBasedRegistStakeCredReadError3"
-      , EraBasedRegistStakeCredReadError
-        $ ShelleyStakeAddressCmdReadKeyFileError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedRegistStakeCredReadError4"
-      , EraBasedRegistStakeCredReadError
-        $ ShelleyStakeAddressCmdWriteFileError $ FileError "path/file.txt" ())
-    , ("EraBasedRegistStakeCredReadError5"
-      , EraBasedRegistStakeCredReadError
-        $ StakeRegistrationError StakeAddressRegistrationDepositRequired)
-    , ("EraBasedRegistStakeCredReadError6"
-      , EraBasedRegistStakeCredReadError
-        $ StakeDelegationError
-        $ VoteDelegationNotSupported
-        $ AnyShelleyToBabbageEra ShelleyToBabbageEraShelley)
+      , EraBasedRegistrationStakeCredentialError
+        $ StakeCredentialInputDecodeError
+        $ FileError "path/file.txt" InputInvalidError)
     , ("EraBasedRegistStakeError"
       , EraBasedRegistStakeError StakeAddressRegistrationDepositRequired)
     ]
 
 test_EraBasedVoteReadError :: TestTree
 test_EraBasedVoteReadError =
-  testErrorMessagesRendering "Cardano.CLI.EraBased.Vote" "EraBasedVoteError"
-    [ ("EraBasedVoteReadError"
-      , EraBasedVoteReadError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedVotingCredentialDecodeError"
-      , EraBasedVotingCredentialDecodeError
+  testErrorMessagesRendering "Cardano.CLI.Types.Errors.GovernanceVoteCmdError" "GovernanceVoteCmdError"
+    [ ("GovernanceVoteCmdCredentialDecodeError"
+      , GovernanceVoteCmdCredentialDecodeError
         $ DecoderErrorCustom "<todecode>" "<decodeeerror>")
-    , ("EraBasedVoteWriteError"
-      , EraBasedVoteWriteError $ FileError "path/file.txt" ())
+    , ("GovernanceVoteCmdReadError"
+      , GovernanceVoteCmdReadError $ FileError "path/file.txt" InputInvalidError)
+    , ("GovernanceVoteCmeWriteError"
+      , GovernanceVoteCmeWriteError $ FileError "path/file.txt" ())
     ]
 
 test_GovernanceComitteeError :: TestTree

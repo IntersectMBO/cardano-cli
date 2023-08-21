@@ -1,9 +1,4 @@
-Usage: cardano-cli alonzo governance 
-                                       ( registration-certificate
-                                       | delegation-certificate
-                                       | create-mir-certificate
-                                       | action
-                                       )
+Usage: cardano-cli alonzo governance (create-mir-certificate | action | drep)
 
   Era-based governance commands
 
@@ -11,8 +6,7 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  registration-certificate Create a registration certificate.
-  delegation-certificate   Delegation certificate creation.
   create-mir-certificate   Create an MIR (Move Instantaneous Rewards)
                            certificate
   action                   Governance action commands.
+  drep                     DRep member commands.

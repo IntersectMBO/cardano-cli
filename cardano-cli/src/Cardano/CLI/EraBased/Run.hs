@@ -11,11 +11,11 @@ import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Governance
-import           Cardano.CLI.EraBased.Run.Certificate
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
-import           Cardano.CLI.EraBased.Vote
+import           Cardano.CLI.EraBased.Run.Governance.DRep
+import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.Types.Errors.CmdError
 
 import           Control.Monad.Trans.Except
@@ -46,18 +46,6 @@ runEraBasedGovernanceCmds = \case
     runGovernanceMIRCertificateTransfer w ll oFp direction
       & firstExceptT CmdGovernanceCmdError
 
-  EraBasedGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp ->
-    runGovernanceDelegationCertificate stakeIdentifier delegationTarget outFp
-      & firstExceptT CmdEraDelegationError
-
-  EraBasedGovernanceRegistrationCertificateCmd regTarget outFp ->
-    runGovernanceRegistrationCertificate regTarget outFp
-      & firstExceptT CmdEraBasedRegistrationError
-
-  EraBasedGovernanceVoteCmd anyVote outFp ->
-    runGovernanceVote anyVote outFp
-      & firstExceptT CmdEraBasedVoteError
-
   EraBasedGovernanceCommitteeCmds cmds ->
     runGovernanceCommitteeCmds cmds
       & firstExceptT CmdGovernanceCommitteeError
@@ -66,6 +54,8 @@ runEraBasedGovernanceCmds = \case
     runGovernanceActionCmds cmds
       & firstExceptT CmdGovernanceActionError
 
-  EraBasedGovernanceDRepGenerateKey w vrf sgn ->
-    runGovernanceDRepKeyGen w vrf sgn
-      & firstExceptT CmdGovernanceCmdError
+  EraBasedGovernanceDRepCmds cmds ->
+    runGovernanceDRepCmds cmds
+
+  EraBasedGovernanceVoteCmds cmds ->
+    runGovernanceVoteCmds cmds

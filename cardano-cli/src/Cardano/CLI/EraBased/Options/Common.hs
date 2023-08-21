@@ -2669,6 +2669,49 @@ pGoveranceActionIdentifier h =
 pVotingCredential :: Parser (VerificationKeyOrFile StakePoolKey)
 pVotingCredential = pStakePoolVerificationKeyOrFile
 
+pDRepVerificationKeyOrHashOrFile
+  :: Parser (VerificationKeyOrHashOrFile DRepKey)
+pDRepVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pDRepVerificationKeyOrFile
+    , VerificationKeyHash <$> pDRepVerificationKeyHash
+    ]
+
+pDRepVerificationKeyHash :: Parser (Hash DRepKey)
+pDRepVerificationKeyHash =
+    Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey) $ mconcat
+      [ Opt.long "drep-key-hash"
+      , Opt.metavar "HASH"
+      , Opt.help $ mconcat
+          [ "DRep verification key hash (either Bech32-encoded or hex-encoded).  "
+          , "Zero or more occurences of this option is allowed."
+          ]
+      ]
+
+pDRepVerificationKey :: Parser (VerificationKey DRepKey)
+pDRepVerificationKey =
+  Opt.option (readVerificationKey AsDRepKey) $ mconcat
+    [ Opt.long "drep-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "DRep verification key (Bech32 or hex-encoded)."
+    ]
+
+pDRepVerificationKeyOrFile :: Parser (VerificationKeyOrFile DRepKey)
+pDRepVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pDRepVerificationKey
+    , VerificationKeyFilePath <$> pDRepVerificationKeyFile
+    ]
+
+pDRepVerificationKeyFile :: Parser (VerificationKeyFile In)
+pDRepVerificationKeyFile =
+  fmap File . Opt.strOption $ mconcat
+    [ Opt.long "drep-verification-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the DRep verification key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
 --------------------------------------------------------------------------------
 -- Helpers
 --------------------------------------------------------------------------------
