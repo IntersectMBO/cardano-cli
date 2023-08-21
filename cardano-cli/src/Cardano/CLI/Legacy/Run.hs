@@ -1,9 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Legacy.Run
-  ( LegacyClientCmdError
-  , renderLegacyClientCmdError
-  , runLegacyCmds
+  ( runLegacyCmds
   ) where
 
 import           Cardano.CLI.Legacy.Options
@@ -17,20 +15,20 @@ import           Cardano.CLI.Legacy.Run.Query
 import           Cardano.CLI.Legacy.Run.StakeAddress
 import           Cardano.CLI.Legacy.Run.TextView
 import           Cardano.CLI.Legacy.Run.Transaction
-import           Cardano.CLI.Types.Errors.LegacyClientCmdError
+import           Cardano.CLI.Types.Errors.CmdError
 
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
 
-runLegacyCmds :: LegacyCmds -> ExceptT LegacyClientCmdError IO ()
+runLegacyCmds :: LegacyCmds -> ExceptT CmdError IO ()
 runLegacyCmds = \case
-  LegacyAddressCmds      cmd -> firstExceptT LegacyCmdAddressError $ runAddressCmds cmd
-  LegacyStakeAddressCmds cmd -> firstExceptT LegacyCmdStakeAddressError $ runStakeAddressCmds cmd
-  LegacyKeyCmds          cmd -> firstExceptT LegacyCmdKeyError $ runKeyCmds cmd
-  LegacyTransactionCmds  cmd -> firstExceptT LegacyCmdTransactionError $ runTransactionCmds cmd
-  LegacyNodeCmds         cmd -> firstExceptT LegacyCmdNodeError $ runNodeCmds cmd
-  LegacyPoolCmds         cmd -> firstExceptT LegacyCmdPoolError $ runPoolCmds cmd
-  LegacyQueryCmds        cmd -> firstExceptT LegacyCmdQueryError $ runQueryCmds cmd
-  LegacyGovernanceCmds   cmd -> firstExceptT LegacyCmdGovernanceError $ runGovernanceCmds cmd
-  LegacyGenesisCmds      cmd -> firstExceptT LegacyCmdGenesisError $ runGenesisCmds cmd
-  LegacyTextViewCmds     cmd -> firstExceptT LegacyCmdTextViewError $ runTextViewCmds cmd
+  LegacyAddressCmds      cmd -> firstExceptT CmdAddressError $ runAddressCmds cmd
+  LegacyGenesisCmds      cmd -> firstExceptT CmdGenesisError $ runGenesisCmds cmd
+  LegacyGovernanceCmds   cmd -> firstExceptT CmdGovernanceCmdError $ runGovernanceCmds cmd
+  LegacyKeyCmds          cmd -> firstExceptT CmdKeyError $ runKeyCmds cmd
+  LegacyNodeCmds         cmd -> firstExceptT CmdNodeError $ runNodeCmds cmd
+  LegacyPoolCmds         cmd -> firstExceptT CmdPoolError $ runPoolCmds cmd
+  LegacyQueryCmds        cmd -> firstExceptT CmdQueryError $ runQueryCmds cmd
+  LegacyStakeAddressCmds cmd -> firstExceptT CmdStakeAddressError $ runStakeAddressCmds cmd
+  LegacyTextViewCmds     cmd -> firstExceptT CmdTextViewError $ runTextViewCmds cmd
+  LegacyTransactionCmds  cmd -> firstExceptT CmdTransactionError $ runTransactionCmds cmd
