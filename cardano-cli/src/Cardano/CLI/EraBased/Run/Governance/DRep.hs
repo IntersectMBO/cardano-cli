@@ -5,6 +5,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
+{- HLINT ignore "Use let" -}
+
 module Cardano.CLI.EraBased.Run.Governance.DRep
   ( runGovernanceDRepCmds
   ) where
@@ -16,13 +18,16 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
+import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
+import qualified Data.Text.Encoding as Text
 
 runGovernanceDRepCmds :: ()
   => GovernanceDRepCmds era
@@ -32,13 +37,17 @@ runGovernanceDRepCmds = \case
     runGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp
       & firstExceptT CmdEraDelegationError
 
-  GovernanceDRepRegistrationCertificateCmd regTarget outFp ->
-    runGovernanceRegistrationCertificateCmd regTarget outFp
-      & firstExceptT CmdEraBasedRegistrationError
-
   GovernanceDRepGenerateKey w vrf sgn ->
     runGovernanceDRepKeyGen w vrf sgn
       & firstExceptT CmdGovernanceCmdError
+
+  GovernanceDRepIdCmd w vkey idOutputFormat mOutFp ->
+    runGovernanceDRepIdCmd w vkey idOutputFormat mOutFp
+      & firstExceptT CmdGovernanceCmdError
+
+  GovernanceDRepRegistrationCertificateCmd regTarget outFp ->
+    runGovernanceRegistrationCertificateCmd regTarget outFp
+      & firstExceptT CmdEraBasedRegistrationError
 
 runGovernanceDelegationCertificateCmd
   :: StakeIdentifier
@@ -113,6 +122,25 @@ toLedgerDelegatee t =
     TargetVotingDRepScriptHash _cOn (ScriptHash _scriptHash) ->
       error "TODO: Conway era - DRepScriptHash not exposed by ledger yet"
       -- right $ Ledger.DelegVote $ Ledger.DRepScriptHash scriptHash
+
+runGovernanceDRepIdCmd :: ()
+  => ConwayEraOnwards era
+  -> VerificationKeyOrFile DRepKey
+  -> IdOutputFormat
+  -> Maybe (File () Out)
+  -> ExceptT GovernanceCmdError IO ()
+runGovernanceDRepIdCmd _ vkOrFp idOutputFormat mOutFile = do
+  drepVerKey <-
+    lift (readVerificationKeyOrTextEnvFile AsDRepKey vkOrFp)
+      & onLeft (left . ReadFileError)
+
+  content <-
+    pure $ case idOutputFormat of
+      IdOutputFormatHex -> serialiseToRawBytesHex $ verificationKeyHash drepVerKey
+      IdOutputFormatBech32 -> Text.encodeUtf8 $ serialiseToBech32 $ verificationKeyHash drepVerKey
+
+  lift (writeByteStringOutput mOutFile content)
+    & onLeft (left . WriteFileError)
 
 --------------------------------------------------------------------------------
 

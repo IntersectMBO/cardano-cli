@@ -2,6 +2,8 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
+{-# OPTIONS_GHC -Wno-unused-imports #-}
+
 module Cardano.CLI.EraBased.Options.Governance.DRep
   ( pGovernanceDRepCmds
   ) where
@@ -11,8 +13,11 @@ import           Cardano.Api
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
+import           Control.Applicative
 import           Data.Foldable
 import           Data.String
 import           Options.Applicative (Parser)
@@ -30,6 +35,7 @@ pGovernanceDRepCmds envCli era =
           ]
     )
     [ pGovernanceDRepKeyGen era
+    , pGovernanceDRepKeyId era
     , pEraBasedDelegationCertificateCmd envCli era
     , pEraBasedRegistrationCertificateCmd envCli era
     ]
@@ -47,6 +53,33 @@ pGovernanceDRepKeyGen era = do
             <*> pSigningKeyFileOut
         )
     $ Opt.progDesc "Generate Delegate Representative verification and signing keys."
+
+pGovernanceDRepKeyId :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceDRepCmds era))
+pGovernanceDRepKeyId era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "id"
+    $ Opt.info
+        ( GovernanceDRepIdCmd w
+            <$> pDRepVerificationKeyOrFile
+            <*> pDRepIdOutputFormat
+            <*> optional pOutputFile
+        )
+    $ Opt.progDesc "Generate a drep id."
+
+pDRepIdOutputFormat :: Parser IdOutputFormat
+pDRepIdOutputFormat =
+  Opt.option readIdOutputFormat $ mconcat
+    [ Opt.long "output-format"
+    , Opt.metavar "STRING"
+    , Opt.help $ mconcat
+      [ "Optional drep id output format. Accepted output formats are \"hex\" "
+      , "and \"bech32\" (default is \"bech32\")."
+      ]
+    , Opt.value IdOutputFormatBech32
+    ]
 
 -- Registration Certificate related
 

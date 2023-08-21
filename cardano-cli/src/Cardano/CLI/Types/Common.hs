@@ -226,7 +226,9 @@ instance FromJSON GenesisFile where
   parseJSON invalid = error $ "Parsing of GenesisFile failed due to type mismatch. "
                            <> "Encountered: " <> show invalid
 
--- | The desired output format.
+-- | Some entities such as stake pools and dreps have a notion of an ID and that id can be
+-- encoded as either a bech32 or hex string.  This type is used to specify which encoding
+-- to use.
 data IdOutputFormat
   = IdOutputFormatHex
   | IdOutputFormatBech32
