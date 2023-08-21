@@ -205,7 +205,7 @@ createStakePoolRetirementRequirements sbe pid epoch =
 
 runPoolId
   :: VerificationKeyOrFile StakePoolKey
-  -> PoolIdOutputFormat
+  -> IdOutputFormat
   -> Maybe (File () Out)
   -> ExceptT ShelleyPoolCmdError IO ()
 runPoolId verKeyOrFile outputFormat mOutFile = do
@@ -214,12 +214,12 @@ runPoolId verKeyOrFile outputFormat mOutFile = do
     $ readVerificationKeyOrFile AsStakePoolKey verKeyOrFile
 
   case outputFormat of
-    PoolIdOutputFormatHex ->
+    IdOutputFormatHex ->
       firstExceptT ShelleyPoolCmdWriteFileError
         . newExceptT
         $ writeByteStringOutput mOutFile
         $ serialiseToRawBytesHex (verificationKeyHash stakePoolVerKey)
-    PoolIdOutputFormatBech32 ->
+    IdOutputFormatBech32 ->
       firstExceptT ShelleyPoolCmdWriteFileError
         . newExceptT
         $ writeTextOutput mOutFile

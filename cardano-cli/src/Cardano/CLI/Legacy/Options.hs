@@ -759,7 +759,11 @@ pPoolCmds  envCli =
     ]
   where
     pId :: Parser LegacyPoolCmds
-    pId = PoolGetId <$> pStakePoolVerificationKeyOrFile <*> pPoolIdOutputFormat <*> pMaybeOutputFile
+    pId =
+      PoolGetId
+        <$> pStakePoolVerificationKeyOrFile
+        <*> pPoolIdOutputFormat
+        <*> pMaybeOutputFile
 
     pPoolMetadataHashSubCmd :: Parser LegacyPoolCmds
     pPoolMetadataHashSubCmd = PoolMetadataHash <$> pPoolMetadataFile <*> pMaybeOutputFile

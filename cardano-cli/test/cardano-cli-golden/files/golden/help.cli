@@ -862,6 +862,7 @@ Usage: cardano-cli conway governance committee create-cold-key-resignation-certi
 
 Usage: cardano-cli conway governance drep 
                                             ( key-gen
+                                            | id
                                             | delegation-certificate
                                             | registration-certificate
                                             )
@@ -872,6 +873,15 @@ Usage: cardano-cli conway governance drep key-gen --verification-key-file FILE
                                                     --signing-key-file FILE
 
   Generate Delegate Representative verification and signing keys.
+
+Usage: cardano-cli conway governance drep id 
+                                               ( --drep-verification-key STRING
+                                               | --drep-verification-key-file FILE
+                                               )
+                                               [--output-format STRING]
+                                               [--out-file FILE]
+
+  Generate a drep id.
 
 Usage: cardano-cli conway governance drep delegation-certificate 
                                                                    ( --stake-verification-key STRING
@@ -1274,6 +1284,7 @@ Usage: cardano-cli experimental governance committee create-cold-key-resignation
 
 Usage: cardano-cli experimental governance drep 
                                                   ( key-gen
+                                                  | id
                                                   | delegation-certificate
                                                   | registration-certificate
                                                   )
@@ -1284,6 +1295,15 @@ Usage: cardano-cli experimental governance drep key-gen --verification-key-file 
                                                           --signing-key-file FILE
 
   Generate Delegate Representative verification and signing keys.
+
+Usage: cardano-cli experimental governance drep id 
+                                                     ( --drep-verification-key STRING
+                                                     | --drep-verification-key-file FILE
+                                                     )
+                                                     [--output-format STRING]
+                                                     [--out-file FILE]
+
+  Generate a drep id.
 
 Usage: cardano-cli experimental governance drep delegation-certificate 
                                                                          ( --stake-verification-key STRING

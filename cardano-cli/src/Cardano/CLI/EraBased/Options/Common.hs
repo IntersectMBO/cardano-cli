@@ -1388,16 +1388,16 @@ pKeyOutputFormat =
     , Opt.value KeyOutputFormatTextEnvelope
     ]
 
-pPoolIdOutputFormat :: Parser PoolIdOutputFormat
+pPoolIdOutputFormat :: Parser IdOutputFormat
 pPoolIdOutputFormat =
-  Opt.option readPoolIdOutputFormat $ mconcat
+  Opt.option readIdOutputFormat $ mconcat
     [ Opt.long "output-format"
     , Opt.metavar "STRING"
     , Opt.help $ mconcat
       [ "Optional pool id output format. Accepted output formats are \"hex\" "
       , "and \"bech32\" (default is \"bech32\")."
       ]
-    , Opt.value PoolIdOutputFormatBech32
+    , Opt.value IdOutputFormatBech32
     ]
 
 pMaybeOutputFile :: Parser (Maybe (File content Out))
