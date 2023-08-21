@@ -15,8 +15,6 @@
 
 module Cardano.CLI.Legacy.Run.Query
   ( DelegationsAndRewards(..)
-  , ShelleyQueryCmdError
-  , ShelleyQueryCmdLocalStateQueryError (..)
   , renderOpCertIntervalInformation
   , renderShelleyQueryCmdError
   , renderLocalStateQueryError
@@ -33,13 +31,13 @@ import qualified Cardano.Api as Api
 import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Helpers (HelpersError (..), hushM, pPrintCBOR, renderHelpersError)
+import           Cardano.CLI.Helpers (hushM, pPrintCBOR)
 import           Cardano.CLI.Legacy.Commands.Query
-import           Cardano.CLI.Legacy.Run.Genesis (ShelleyGenesisCmdError,
-                   readAndDecodeShelleyGenesis)
+import           Cardano.CLI.Legacy.Run.Genesis (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Pretty
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ShelleyQueryCmdError
+import           Cardano.CLI.Types.Errors.ShelleyQueryCmdLocalStateQueryError
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
                    readVerificationKeyOrHashOrFile)
 import qualified Cardano.CLI.Types.Output as O
@@ -55,9 +53,7 @@ import qualified Cardano.Ledger.Shelley.LedgerState as SL
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import           Ouroboros.Consensus.BlockchainTime.WallClock.Types (RelativeTime (..),
                    toRelativeTime)
-import           Ouroboros.Consensus.Cardano.Block as Consensus (EraMismatch (..))
 import qualified Ouroboros.Consensus.HardFork.History as Consensus
-import qualified Ouroboros.Consensus.HardFork.History.Qry as Qry
 import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
 import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
 import           Ouroboros.Consensus.Protocol.TPraos (StandardCrypto)
@@ -91,11 +87,8 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as T
 import qualified Data.Text.IO as Text
-import           Data.Text.Lazy (toStrict)
-import           Data.Text.Lazy.Builder (toLazyText)
 import           Data.Time.Clock
 import qualified Data.Vector as Vector
-import           Formatting.Buildable (build)
 import           Numeric (showEFloat)
 import           Prettyprinter
 import qualified System.IO as IO
@@ -103,64 +96,6 @@ import           Text.Printf (printf)
 
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Redundant flip" -}
-
-data ShelleyQueryCmdError
-  = ShelleyQueryCmdLocalStateQueryError !ShelleyQueryCmdLocalStateQueryError
-  | ShelleyQueryCmdWriteFileError !(FileError ())
-  | ShelleyQueryCmdHelpersError !HelpersError
-  | ShelleyQueryCmdAcquireFailure !AcquiringFailure
-  | ShelleyQueryCmdEraConsensusModeMismatch !AnyConsensusMode !AnyCardanoEra
-  | ShelleyQueryCmdByronEra
-  | ShelleyQueryCmdEraMismatch !EraMismatch
-  | ShelleyQueryCmdUnsupportedMode !AnyConsensusMode
-  | ShelleyQueryCmdPastHorizon !Qry.PastHorizonException
-  | ShelleyQueryCmdSystemStartUnavailable
-  | ShelleyQueryCmdGenesisReadError !ShelleyGenesisCmdError
-  | ShelleyQueryCmdLeaderShipError !LeadershipError
-  | ShelleyQueryCmdTextEnvelopeReadError !(FileError TextEnvelopeError)
-  | ShelleyQueryCmdTextReadError !(FileError InputDecodeError)
-  | ShelleyQueryCmdOpCertCounterReadError !(FileError TextEnvelopeError)
-  | ShelleyQueryCmdProtocolStateDecodeFailure !(LBS.ByteString, DecoderError)
-  | ShelleyQueryCmdPoolStateDecodeError DecoderError
-  | ShelleyQueryCmdStakeSnapshotDecodeError DecoderError
-  | ShelleyQueryCmdUnsupportedNtcVersion !UnsupportedNtcVersionError
-  | ShelleyQueryCmdProtocolParameterConversionError !ProtocolParametersConversionError
-  deriving Show
-
-renderShelleyQueryCmdError :: ShelleyQueryCmdError -> Text
-renderShelleyQueryCmdError err =
-  case err of
-    ShelleyQueryCmdLocalStateQueryError lsqErr -> renderLocalStateQueryError lsqErr
-    ShelleyQueryCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyQueryCmdHelpersError helpersErr -> renderHelpersError helpersErr
-    ShelleyQueryCmdAcquireFailure acquireFail -> Text.pack $ show acquireFail
-    ShelleyQueryCmdByronEra -> "This query cannot be used for the Byron era"
-    ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra era) ->
-      "Consensus mode and era mismatch. Consensus mode: " <> textShow cMode <>
-      " Era: " <> textShow era
-    ShelleyQueryCmdEraMismatch (EraMismatch ledgerEra queryEra) ->
-      "\nAn error mismatch occurred." <> "\nSpecified query era: " <> queryEra <>
-      "\nCurrent ledger era: " <> ledgerEra
-    ShelleyQueryCmdUnsupportedMode mode -> "Unsupported mode: " <> renderMode mode
-    ShelleyQueryCmdPastHorizon e -> "Past horizon: " <> textShow e
-    ShelleyQueryCmdSystemStartUnavailable -> "System start unavailable"
-    ShelleyQueryCmdGenesisReadError err' -> Text.pack $ displayError err'
-    ShelleyQueryCmdLeaderShipError e -> Text.pack $ displayError e
-    ShelleyQueryCmdTextEnvelopeReadError e -> Text.pack $ displayError e
-    ShelleyQueryCmdTextReadError e -> Text.pack $ displayError e
-    ShelleyQueryCmdOpCertCounterReadError e -> Text.pack $ displayError e
-    ShelleyQueryCmdProtocolStateDecodeFailure (_, decErr) ->
-      "Failed to decode the protocol state: " <> toStrict (toLazyText $ build decErr)
-    ShelleyQueryCmdPoolStateDecodeError decoderError ->
-      "Failed to decode PoolState.  Error: " <> Text.pack (show decoderError)
-    ShelleyQueryCmdStakeSnapshotDecodeError decoderError ->
-      "Failed to decode StakeSnapshot.  Error: " <> Text.pack (show decoderError)
-    ShelleyQueryCmdUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
-      "Unsupported feature for the node-to-client protocol version.\n" <>
-      "This query requires at least " <> textShow minNtcVersion <> " but the node negotiated " <> textShow ntcVersion <> ".\n" <>
-      "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
-    ShelleyQueryCmdProtocolParameterConversionError ppce ->
-      Text.pack $ "Failed to convert protocol parameter: " <> displayError ppce
 
 runQueryCmds :: LegacyQueryCmds -> ExceptT ShelleyQueryCmdError IO ()
 runQueryCmds cmd =
@@ -950,19 +885,6 @@ runQueryStakeAddressInfo socketPath (AnyConsensusModeParams cModeParams) (StakeA
     & onLeft left
 
 -- -------------------------------------------------------------------------------------------------
-
--- | An error that can occur while querying a node's local state.
-newtype ShelleyQueryCmdLocalStateQueryError
-  = EraMismatchError EraMismatch
-  -- ^ A query from a certain era was applied to a ledger from a different
-  -- era.
-  deriving (Eq, Show)
-
-renderLocalStateQueryError :: ShelleyQueryCmdLocalStateQueryError -> Text
-renderLocalStateQueryError lsqErr =
-  case lsqErr of
-    EraMismatchError err ->
-      "A query from a certain era was applied to a ledger from a different era: " <> textShow err
 
 writeStakeAddressInfo
   :: Maybe (File () Out)

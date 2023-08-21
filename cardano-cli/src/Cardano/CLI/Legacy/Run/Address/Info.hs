@@ -3,10 +3,11 @@
 
 module Cardano.CLI.Legacy.Run.Address.Info
   ( runAddressInfo
-  , ShelleyAddressInfoError(..)
   ) where
 
 import           Cardano.Api
+
+import           Cardano.CLI.Types.Errors.ShelleyAddressInfoError
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -16,13 +17,6 @@ import           Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Text (Text)
 import           Options.Applicative (Alternative (..))
-
-newtype ShelleyAddressInfoError = ShelleyAddressInvalid Text
-  deriving Show
-
-instance Error ShelleyAddressInfoError where
-  displayError (ShelleyAddressInvalid addrTxt) =
-    "Invalid address: " <> show addrTxt
 
 data AddressInfo = AddressInfo
   { aiType :: !Text

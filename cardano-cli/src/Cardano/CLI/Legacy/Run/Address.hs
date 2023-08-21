@@ -5,8 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Legacy.Run.Address
-  ( ShelleyAddressCmdError(..)
-  , SomeAddressVerificationKey(..)
+  ( SomeAddressVerificationKey(..)
   , buildShelleyAddress
   , renderShelleyAddressCmdError
   , runAddressCmds
@@ -18,45 +17,19 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Legacy.Commands.Address
-import           Cardano.CLI.Legacy.Run.Address.Info (ShelleyAddressInfoError, runAddressInfo)
+import           Cardano.CLI.Legacy.Run.Address.Info (runAddressInfo)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
-                   StakeVerifier (..), VerificationKeyTextOrFile,
-                   VerificationKeyTextOrFileError (..), generateKeyPair, readVerificationKeyOrFile,
-                   readVerificationKeyTextOrFileAnyOf, renderVerificationKeyTextOrFileError)
+                   StakeVerifier (..), VerificationKeyTextOrFile, generateKeyPair, readVerificationKeyOrFile,
+                   readVerificationKeyTextOrFileAnyOf)
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT)
 import qualified Data.ByteString.Char8 as BS
-import           Data.Text (Text)
-import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
-
-data ShelleyAddressCmdError
-  = ShelleyAddressCmdAddressInfoError !ShelleyAddressInfoError
-  | ShelleyAddressCmdReadKeyFileError !(FileError InputDecodeError)
-  | ShelleyAddressCmdReadScriptFileError !(FileError ScriptDecodeError)
-  | ShelleyAddressCmdVerificationKeyTextOrFileError !VerificationKeyTextOrFileError
-  | ShelleyAddressCmdWriteFileError !(FileError ())
-  | ShelleyAddressCmdExpectedPaymentVerificationKey SomeAddressVerificationKey
-  deriving Show
-
-renderShelleyAddressCmdError :: ShelleyAddressCmdError -> Text
-renderShelleyAddressCmdError err =
-  case err of
-    ShelleyAddressCmdAddressInfoError addrInfoErr ->
-      Text.pack (displayError addrInfoErr)
-    ShelleyAddressCmdReadKeyFileError fileErr ->
-      Text.pack (displayError fileErr)
-    ShelleyAddressCmdVerificationKeyTextOrFileError vkTextOrFileErr ->
-      renderVerificationKeyTextOrFileError vkTextOrFileErr
-    ShelleyAddressCmdReadScriptFileError fileErr ->
-      Text.pack (displayError fileErr)
-    ShelleyAddressCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyAddressCmdExpectedPaymentVerificationKey someAddress ->
-      "Expected payment verification key but got: " <> renderSomeAddressVerificationKey someAddress
 
 runAddressCmds :: LegacyAddressCmds -> ExceptT ShelleyAddressCmdError IO ()
 runAddressCmds cmd =

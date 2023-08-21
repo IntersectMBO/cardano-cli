@@ -20,6 +20,14 @@ import           Cardano.CLI.Legacy.Run.StakeAddress
 import           Cardano.CLI.Legacy.Run.TextView
 import           Cardano.CLI.Legacy.Run.Transaction
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
+import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
+import           Cardano.CLI.Types.Errors.ShelleyKeyCmdError
+import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
+import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
+import           Cardano.CLI.Types.Errors.ShelleyQueryCmdError
+import           Cardano.CLI.Types.Errors.ShelleyTextViewFileError
+import           Cardano.CLI.Types.Errors.ShelleyTxCmdError
 
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT)

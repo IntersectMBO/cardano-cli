@@ -6,7 +6,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -19,8 +18,7 @@
 {- HLINT ignore "Use let" -}
 
 module Cardano.CLI.Legacy.Run.Genesis
-  ( ShelleyGenesisCmdError(..)
-  , readShelleyGenesisWithDefault
+  ( readShelleyGenesisWithDefault
   , readAndDecodeShelleyGenesis
   , readAlonzoGenesis
   , runGenesisCmds
@@ -49,14 +47,15 @@ import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
 import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Legacy.Commands.Genesis
-import           Cardano.CLI.Legacy.Run.Address
-import           Cardano.CLI.Legacy.Run.Node (ShelleyNodeCmdError (..), renderShelleyNodeCmdError,
+import           Cardano.CLI.Legacy.Run.Node (
                    runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
-import           Cardano.CLI.Legacy.Run.Pool (ShelleyPoolCmdError (..), renderShelleyPoolCmdError)
-import           Cardano.CLI.Legacy.Run.StakeAddress (ShelleyStakeAddressCmdError (..),
-                   runStakeAddressKeyGenToFile)
+import           Cardano.CLI.Legacy.Run.StakeAddress (runStakeAddressKeyGenToFile)
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ProtocolParamsError
+import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
+import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
+import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto as CC
 import           Cardano.Crypto.Hash (HashAlgorithm)
@@ -80,7 +79,6 @@ import           Cardano.Slotting.Slot (EpochSize (EpochSize))
 import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, force)
-import           Control.Exception (IOException)
 import           Control.Monad (forM, forM_, unless, when)
 import           Control.Monad.Except (MonadError (..), runExceptT)
 import           Control.Monad.IO.Class (MonadIO (..))
@@ -132,73 +130,6 @@ import           Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
 import           Text.Read (readMaybe)
 
 import           Crypto.Random as Crypto
-
-data ShelleyGenesisCmdError
-  = ShelleyGenesisCmdAesonDecodeError !FilePath !Text
-  | ShelleyGenesisCmdGenesisFileReadError !(FileError IOException)
-  | ShelleyGenesisCmdGenesisFileDecodeError !FilePath !Text
-  | ShelleyGenesisCmdGenesisFileError !(FileError ())
-  | ShelleyGenesisCmdFileError !(FileError ())
-  | ShelleyGenesisCmdMismatchedGenesisKeyFiles [Int] [Int] [Int]
-  | ShelleyGenesisCmdFilesNoIndex [FilePath]
-  | ShelleyGenesisCmdFilesDupIndex [FilePath]
-  | ShelleyGenesisCmdTextEnvReadFileError !(FileError TextEnvelopeError)
-  | ShelleyGenesisCmdUnexpectedAddressVerificationKey !(VerificationKeyFile In) !Text !SomeAddressVerificationKey
-  | ShelleyGenesisCmdTooFewPoolsForBulkCreds !Word !Word !Word
-  | ShelleyGenesisCmdAddressCmdError !ShelleyAddressCmdError
-  | ShelleyGenesisCmdNodeCmdError !ShelleyNodeCmdError
-  | ShelleyGenesisCmdPoolCmdError !ShelleyPoolCmdError
-  | ShelleyGenesisCmdStakeAddressCmdError !ShelleyStakeAddressCmdError
-  | ShelleyGenesisCmdCostModelsError !FilePath
-  | ShelleyGenesisCmdByronError !ByronGenesisError
-  | ShelleyGenesisStakePoolRelayFileError !FilePath !IOException
-  | ShelleyGenesisStakePoolRelayJsonDecodeError !FilePath !String
-  deriving Show
-
-instance Error ShelleyGenesisCmdError where
-  displayError =
-    \case
-      ShelleyGenesisCmdAesonDecodeError fp decErr ->
-        "Error while decoding Shelley genesis at: " <> fp <> " Error: " <> Text.unpack decErr
-      ShelleyGenesisCmdGenesisFileError fe -> displayError fe
-      ShelleyGenesisCmdFileError fe -> displayError fe
-      ShelleyGenesisCmdMismatchedGenesisKeyFiles gfiles dfiles vfiles ->
-        "Mismatch between the files found:\n"
-          <> "Genesis key file indexes:      " <> show gfiles <> "\n"
-          <> "Delegate key file indexes:     " <> show dfiles <> "\n"
-          <> "Delegate VRF key file indexes: " <> show vfiles
-      ShelleyGenesisCmdFilesNoIndex files ->
-        "The genesis keys files are expected to have a numeric index but these do not:\n"
-          <> unlines files
-      ShelleyGenesisCmdFilesDupIndex files ->
-        "The genesis keys files are expected to have a unique numeric index but these do not:\n"
-          <> unlines files
-      ShelleyGenesisCmdTextEnvReadFileError fileErr -> displayError fileErr
-      ShelleyGenesisCmdUnexpectedAddressVerificationKey (File file) expect got -> mconcat
-        [ "Unexpected address verification key type in file ", file
-        , ", expected: ", Text.unpack expect, ", got: ", Text.unpack (renderSomeAddressVerificationKey got)
-        ]
-      ShelleyGenesisCmdTooFewPoolsForBulkCreds pools files perPool -> mconcat
-        [ "Number of pools requested for generation (", show pools
-        , ") is insufficient to fill ", show files
-        , " bulk files, with ", show perPool, " pools per file."
-        ]
-      ShelleyGenesisCmdAddressCmdError e -> Text.unpack $ renderShelleyAddressCmdError e
-      ShelleyGenesisCmdNodeCmdError e -> Text.unpack $ renderShelleyNodeCmdError e
-      ShelleyGenesisCmdPoolCmdError e -> Text.unpack $ renderShelleyPoolCmdError e
-      ShelleyGenesisCmdStakeAddressCmdError e -> displayError e
-      ShelleyGenesisCmdCostModelsError fp -> "Cost model is invalid: " <> fp
-      ShelleyGenesisCmdGenesisFileDecodeError fp e ->
-       "Error while decoding Shelley genesis at: " <> fp <>
-       " Error: " <>  Text.unpack e
-      ShelleyGenesisCmdGenesisFileReadError e -> displayError e
-      ShelleyGenesisCmdByronError e -> show e
-      ShelleyGenesisStakePoolRelayFileError fp e ->
-        "Error occurred while reading the stake pool relay specification file: " <> fp <>
-        " Error: " <> show e
-      ShelleyGenesisStakePoolRelayJsonDecodeError fp e ->
-        "Error occurred while decoding the stake pool relay specification file: " <> fp <>
-        " Error: " <>  e
 
 runGenesisCmds :: LegacyGenesisCmds -> ExceptT ShelleyGenesisCmdError IO ()
 runGenesisCmds (GenesisKeyGenGenesis vk sk) = runGenesisKeyGenGenesis vk sk
@@ -1379,16 +1310,6 @@ readConwayGenesis fpath = do
     . hoistEither $ Aeson.eitherDecode' lbs
 
 -- Protocol Parameters
-
-data ProtocolParamsError
-  = ProtocolParamsErrorFile (FileError ())
-  | ProtocolParamsErrorJSON !FilePath !Text
-
-renderProtocolParamsError :: ProtocolParamsError -> Text
-renderProtocolParamsError (ProtocolParamsErrorFile fileErr) =
-  Text.pack $ displayError fileErr
-renderProtocolParamsError (ProtocolParamsErrorJSON fp jsonErr) =
-  "Error while decoding the protocol parameters at: " <> Text.pack fp <> " Error: " <> jsonErr
 
 --TODO: eliminate this and get only the necessary params, and get them in a more
 -- helpful way rather than requiring them as a local file.

@@ -4,9 +4,7 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Legacy.Run.Pool
-  ( ShelleyPoolCmdError(ShelleyPoolCmdReadFileError)
-  , renderShelleyPoolCmdError
-  , runPoolCmds
+  ( runPoolCmds
   ) where
 
 import           Cardano.Api
@@ -15,6 +13,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Legacy.Commands.Pool
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
 import qualified Cardano.Ledger.Slot as Shelley
 
@@ -25,26 +24,6 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT
                    newExceptT, onLeft)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
-import           Data.Text (Text)
-import qualified Data.Text as Text
-
-data ShelleyPoolCmdError
-  = ShelleyPoolCmdReadFileError !(FileError TextEnvelopeError)
-  | ShelleyPoolCmdReadKeyFileError !(FileError InputDecodeError)
-  | ShelleyPoolCmdWriteFileError !(FileError ())
-  | ShelleyPoolCmdMetadataValidationError !StakePoolMetadataValidationError
-  deriving Show
-
-renderShelleyPoolCmdError :: ShelleyPoolCmdError -> Text
-renderShelleyPoolCmdError err =
-  case err of
-    ShelleyPoolCmdReadFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyPoolCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyPoolCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    ShelleyPoolCmdMetadataValidationError validationErr ->
-      "Error validating stake pool metadata: " <> Text.pack (displayError validationErr)
-
-
 
 runPoolCmds :: LegacyPoolCmds -> ExceptT ShelleyPoolCmdError IO ()
 runPoolCmds = \case
