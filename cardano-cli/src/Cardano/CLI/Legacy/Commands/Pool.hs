@@ -47,7 +47,10 @@ data LegacyPoolCmds
       EpochNo
       -- ^ Epoch in which to retire the stake pool.
       (File () Out)
-  | PoolGetId (VerificationKeyOrFile StakePoolKey) PoolIdOutputFormat (Maybe (File () Out))
+  | PoolGetId
+      (VerificationKeyOrFile StakePoolKey)
+      IdOutputFormat
+      (Maybe (File () Out))
   | PoolMetadataHash (StakePoolMetadataFile In) (Maybe (File () Out))
   deriving Show
 

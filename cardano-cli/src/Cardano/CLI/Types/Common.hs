@@ -36,7 +36,7 @@ module Cardano.CLI.Types.Common
   , OpCertStartingKesPeriod (..)
   , Params (..)
   , ParserFileDirection (..)
-  , PoolIdOutputFormat (..)
+  , IdOutputFormat (..)
   , PrivKeyFile(..)
   , ProtocolParamsFile(..)
   , ReferenceScriptAnyEra (..)
@@ -227,9 +227,9 @@ instance FromJSON GenesisFile where
                            <> "Encountered: " <> show invalid
 
 -- | The desired output format.
-data PoolIdOutputFormat
-  = PoolIdOutputFormatHex
-  | PoolIdOutputFormatBech32
+data IdOutputFormat
+  = IdOutputFormatHex
+  | IdOutputFormatBech32
   deriving (Eq, Show)
 
 data KeyOutputFormat

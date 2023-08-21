@@ -4,7 +4,7 @@ module Cardano.CLI.Parser
   ( readerFromAttoParser
   , readFractionAsRational
   , readKeyOutputFormat
-  , readPoolIdOutputFormat
+  , readIdOutputFormat
   , readRational
   , readRationalUnitInterval
   , readStringOfMaxLength
@@ -25,12 +25,12 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Options.Applicative as Opt
 
-readPoolIdOutputFormat :: Opt.ReadM PoolIdOutputFormat
-readPoolIdOutputFormat = do
+readIdOutputFormat :: Opt.ReadM IdOutputFormat
+readIdOutputFormat = do
   s <- Opt.str @String
   case s of
-    "hex" -> pure PoolIdOutputFormatHex
-    "bech32" -> pure PoolIdOutputFormatBech32
+    "hex" -> pure IdOutputFormatHex
+    "bech32" -> pure IdOutputFormatBech32
     _ ->
       fail $ mconcat
         [ "Invalid output format: " <> show s
