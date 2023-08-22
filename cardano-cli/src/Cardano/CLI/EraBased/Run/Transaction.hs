@@ -207,7 +207,7 @@ runTxBuildCmd
     -- the same collateral input can be used for several plutus scripts
     let filteredTxinsc = Set.toList $ Set.fromList txinsc
 
-    -- We need to construct the txBodycontent outside of runTxBuild
+    -- We need to construct the txBodycontent outside of runLegacyTxBuild
     BalancedTxBody txBodycontent balancedTxBody _ _ <-
       runTxBuild
         era socketPath consensusModeParams nid mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
@@ -359,7 +359,6 @@ runTxBuildRawCmd
   let noWitTx = makeSignedTransaction [] txBody
   lift (getIsCardanoEraConstraint era $ writeTxFileTextEnvelopeCddl out noWitTx)
     & onLeft (left . ShelleyTxCmdWriteFileError)
-
 
 runTxBuildRaw :: ()
   => CardanoEra era
@@ -564,6 +563,7 @@ runTxBuild
 
       validatedPParams <- hoistEither $ first ShelleyTxCmdProtocolParametersValidationError
                                       $ validateProtocolParameters era (Just pparams)
+
       let validatedTxGovernanceActions = proposals
           validatedTxVotes =  votes
           txBodyContent = TxBodyContent
@@ -593,7 +593,7 @@ runTxBuild
         . hoistEither $ notScriptLockedTxIns txinsc nodeEraUTxO
 
       cAddr <- pure (anyAddressInEra era changeAddr)
-        & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
+        & onLeft (error $ "runLegacyTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
 
       -- Why do we cast the era? The user can specify an era prior to the era that the node is currently in.
       -- We cannot use the user specified era to construct a query against a node because it may differ
