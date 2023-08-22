@@ -1,114 +1,71 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.CmdError
   ( CmdError(..)
-  , EraBasedDelegationError(..)
-  , EraBasedRegistrationError(..)
-  , GovernanceActionsError(..)
-  , GovernanceCommitteeError(..)
+  , renderCmdError
   ) where
 
 import           Cardano.Api
 
+import           Cardano.CLI.Types.Errors.EraBasedDelegationError
+import           Cardano.CLI.Types.Errors.EraBasedRegistrationError
+import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
-import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
-import           Cardano.CLI.Types.Errors.StakeCredentialError
+import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
+import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
+import           Cardano.CLI.Types.Errors.ShelleyKeyCmdError
+import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
+import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
+import           Cardano.CLI.Types.Errors.ShelleyQueryCmdError
+import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
+import           Cardano.CLI.Types.Errors.ShelleyTextViewFileError
+import           Cardano.CLI.Types.Errors.ShelleyTxCmdError
 
-import           Data.Text.Encoding.Error
-import           GHC.Generics (Generic)
+import           Data.Text (Text)
+import qualified Data.Text as Text
 
 data CmdError
-  = CmdEraBasedRegistrationError !EraBasedRegistrationError
-  | CmdEraDelegationError        !EraBasedDelegationError
-  | CmdGovernanceActionError     !GovernanceActionsError
-  | CmdGovernanceCmdError        !GovernanceCmdError
-  | CmdGovernanceCommitteeError  !GovernanceCommitteeError
-  | CmdGovernanceVoteError       !GovernanceVoteCmdError
-  deriving Show
+  = CmdAddressError               !ShelleyAddressCmdError
+  | CmdEraBasedRegistrationError  !EraBasedRegistrationError
+  | CmdEraDelegationError         !EraBasedDelegationError
+  | CmdGenesisError               !ShelleyGenesisCmdError
+  | CmdGovernanceActionError      !GovernanceActionsError
+  | CmdGovernanceCmdError         !GovernanceCmdError
+  | CmdGovernanceCommitteeError   !GovernanceCommitteeError
+  | CmdGovernanceVoteError        !GovernanceVoteCmdError
+  | CmdKeyError                   !ShelleyKeyCmdError
+  | CmdNodeError                  !ShelleyNodeCmdError
+  | CmdPoolError                  !ShelleyPoolCmdError
+  | CmdQueryError                 !ShelleyQueryCmdError
+  | CmdStakeAddressError          !ShelleyStakeAddressCmdError
+  | CmdTextViewError              !ShelleyTextViewFileError
+  | CmdTransactionError           !ShelleyTxCmdError
 
-instance Error CmdError where
-  displayError = \case
-    CmdGovernanceCmdError e -> displayError e
-    CmdEraDelegationError e -> displayError e
-    CmdEraBasedRegistrationError e -> displayError e
-    CmdGovernanceVoteError e -> displayError e
-    CmdGovernanceCommitteeError e -> displayError e
-    CmdGovernanceActionError e -> displayError e
-
-data GovernanceActionsError
-  = GovernanceActionsCmdNonUtf8EncodedConstitution UnicodeException
-  | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
-  | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
-  | GovernanceActionsCmdWriteFileError (FileError ())
-  deriving Show
-
-instance Error GovernanceActionsError where
-  displayError = \case
-    GovernanceActionsCmdNonUtf8EncodedConstitution e ->
-      "Cannot read constitution: " <> show e
-    GovernanceActionsCmdReadFileError e ->
-      "Cannot read file: " <> displayError e
-    GovernanceActionsCmdReadTextEnvelopeFileError e ->
-      "Cannot read text envelope file: " <> displayError e
-    GovernanceActionsCmdWriteFileError e ->
-      "Cannot write file: " <> displayError e
-
-data EraBasedDelegationError
-  = EraBasedDelegReadError !(FileError InputDecodeError)
-  | EraBasedCertificateWriteFileError !(FileError ())
-  | EraBasedDRepReadError !(FileError InputDecodeError)
-  | EraBasedDelegationStakeCredentialError !StakeCredentialError
-  deriving (Show, Generic)
-
-instance Error EraBasedDelegationError where
-  displayError = \case
-    EraBasedDelegReadError e ->
-      "Cannot read delegation target: " <> displayError e
-    EraBasedDelegationStakeCredentialError e ->
-      "Cannot get stake credential: " <> displayError e
-    EraBasedCertificateWriteFileError e ->
-      "Cannot write certificate: " <> displayError e
-    EraBasedDRepReadError e ->
-      "Cannot read DRep key: " <> displayError e
-
-data EraBasedRegistrationError
-  = EraBasedRegistReadError !(FileError InputDecodeError)
-  | EraBasedRegistWriteFileError !(FileError ())
-  | EraBasedRegistrationStakeCredentialError !StakeCredentialError
-  | EraBasedRegistStakeError !StakeAddressRegistrationError
-  deriving Show
-
-instance Error EraBasedRegistrationError where
-  displayError = \case
-    EraBasedRegistReadError e ->
-      "Cannot read registration certificate: " <> displayError e
-    EraBasedRegistWriteFileError e ->
-      "Cannot write registration certificate: " <> displayError e
-    EraBasedRegistrationStakeCredentialError e ->
-      "Cannot read stake credential: " <> displayError e
-    EraBasedRegistStakeError e ->
-      "Stake address registation error: " <> displayError e
-
-data GovernanceCommitteeError
-  = GovernanceCommitteeCmdKeyDecodeError InputDecodeError
-  | GovernanceCommitteeCmdKeyReadError (FileError InputDecodeError)
-  | GovernanceCommitteeCmdTextEnvReadFileError (FileError TextEnvelopeError)
-  | GovernanceCommitteeCmdTextEnvWriteError (FileError ())
-  | GovernanceCommitteeCmdWriteFileError (FileError ())
-  deriving Show
-
-instance Error GovernanceCommitteeError where
-  displayError = \case
-    GovernanceCommitteeCmdKeyDecodeError e ->
-      "Cannot decode key: " <> displayError e
-    GovernanceCommitteeCmdKeyReadError e ->
-      "Cannot read key: " <> displayError e
-    GovernanceCommitteeCmdWriteFileError e ->
-      "Cannot write file: " <> displayError e
-    GovernanceCommitteeCmdTextEnvReadFileError e ->
-      "Cannot read text envelope file: " <> displayError e
-    GovernanceCommitteeCmdTextEnvWriteError e ->
-      "Cannot write text envelope file: " <> displayError e
+renderCmdError :: Text -> CmdError -> Text
+renderCmdError cmdText = \case
+  CmdAddressError               e -> renderError renderShelleyAddressCmdError e
+  CmdEraBasedRegistrationError  e -> renderError (Text.pack . displayError) e
+  CmdEraDelegationError         e -> renderError (Text.pack . displayError) e
+  CmdGenesisError               e -> renderError (Text.pack . displayError) e
+  CmdGovernanceActionError      e -> renderError (Text.pack . displayError) e
+  CmdGovernanceCmdError         e -> renderError (Text.pack . displayError) e
+  CmdGovernanceCommitteeError   e -> renderError (Text.pack . displayError) e
+  CmdGovernanceVoteError        e -> renderError (Text.pack . displayError) e
+  CmdKeyError                   e -> renderError renderShelleyKeyCmdError e
+  CmdNodeError                  e -> renderError renderShelleyNodeCmdError e
+  CmdPoolError                  e -> renderError renderShelleyPoolCmdError e
+  CmdQueryError                 e -> renderError renderShelleyQueryCmdError e
+  CmdStakeAddressError          e -> renderError (Text.pack . displayError) e
+  CmdTextViewError              e -> renderError renderShelleyTextViewFileError e
+  CmdTransactionError           e -> renderError renderShelleyTxCmdError e
+  where
+    renderError :: (a -> Text) -> a -> Text
+    renderError renderer shelCliCmdErr =
+      mconcat
+        [ "Command failed: "
+        , cmdText
+        , "  Error: "
+        , renderer shelCliCmdErr
+        ]

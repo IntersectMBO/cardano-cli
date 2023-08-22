@@ -9,16 +9,13 @@ module Cardano.CLI.Run
   , runClientCommand
   ) where
 
-import           Cardano.Api (Error (..))
-
 import           Cardano.CLI.Byron.Commands (ByronCommand)
 import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCmdError,
                    runByronClientCommand)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run
-import           Cardano.CLI.Legacy.Commands (LegacyCmds)
-import           Cardano.CLI.Legacy.Run (LegacyClientCmdError, renderLegacyClientCmdError,
-                   runLegacyCmds)
+import           Cardano.CLI.Legacy.Commands
+import           Cardano.CLI.Legacy.Run (runLegacyCmds)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run.Ping (PingClientCmdError (..), PingCmd (..),
                    renderPingClientCmdError, runPingCmd)
@@ -58,21 +55,20 @@ data ClientCommand =
   | DisplayVersion
 
 data ClientCommandErrors
-  = CmdError CmdError
-  | ByronClientError ByronClientCmdError
-  | LegacyClientError LegacyCmds LegacyClientCmdError
+  = ByronClientError ByronClientCmdError
+  | CmdError Text CmdError
   | PingClientError PingClientCmdError
 
 runClientCommand :: ClientCommand -> ExceptT ClientCommandErrors IO ()
 runClientCommand = \case
-  AnyEraCommand cmd ->
-    firstExceptT CmdError $ runAnyEraCommand cmd
-  ByronCommand c ->
-    firstExceptT ByronClientError $ runByronClientCommand c
-  LegacyCmds c ->
-    firstExceptT (LegacyClientError c) $ runLegacyCmds c
-  CliPingCommand c ->
-    firstExceptT PingClientError $ runPingCmd c
+  AnyEraCommand cmds ->
+    firstExceptT (CmdError (renderAnyEraCommand cmds)) $ runAnyEraCommand cmds
+  ByronCommand cmds ->
+    firstExceptT ByronClientError $ runByronClientCommand cmds
+  LegacyCmds cmds ->
+    firstExceptT (CmdError (renderLegacyCommand cmds)) $ runLegacyCmds cmds
+  CliPingCommand cmds ->
+    firstExceptT PingClientError $ runPingCmd cmds
   Help pprefs allParserInfo ->
     runHelp pprefs allParserInfo
   DisplayVersion ->
@@ -80,12 +76,10 @@ runClientCommand = \case
 
 renderClientCommandError :: ClientCommandErrors -> Text
 renderClientCommandError = \case
-  CmdError err ->
-    Text.pack $ displayError err
+  CmdError cmdText err ->
+    renderCmdError cmdText err
   ByronClientError err ->
     renderByronClientCmdError err
-  LegacyClientError cmd err ->
-    renderLegacyClientCmdError cmd err
   PingClientError err ->
     renderPingClientCmdError err
 

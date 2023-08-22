@@ -20,6 +20,8 @@ import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
+import           Cardano.CLI.Types.Errors.EraBasedDelegationError
+import           Cardano.CLI.Types.Errors.EraBasedRegistrationError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Key
 

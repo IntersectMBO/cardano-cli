@@ -2,8 +2,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands
-  ( EraBasedCommand (..)
-  , AnyEraCommand (..)
+  ( AnyEraCommand (..)
+  , EraBasedCommand (..)
+  , renderAnyEraCommand
   , renderEraBasedCommand
   , pAnyEraCommand
   , pEraBasedCommand
@@ -22,6 +23,10 @@ import qualified Options.Applicative as Opt
 
 data AnyEraCommand where
   AnyEraCommandOf :: ShelleyBasedEra era -> EraBasedCommand era -> AnyEraCommand
+
+renderAnyEraCommand :: AnyEraCommand -> Text
+renderAnyEraCommand = \case
+  AnyEraCommandOf _ cmd -> renderEraBasedCommand cmd
 
 newtype EraBasedCommand era
   = EraBasedGovernanceCmds (EraBasedGovernanceCmds era)

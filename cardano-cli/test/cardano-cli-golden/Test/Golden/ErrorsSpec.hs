@@ -16,7 +16,8 @@ import           Cardano.Binary
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.CmdError
+import           Cardano.CLI.Types.Errors.EraBasedDelegationError
+import           Cardano.CLI.Types.Errors.EraBasedRegistrationError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
