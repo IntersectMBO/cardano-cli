@@ -3,7 +3,8 @@ Usage: cardano-cli experimental governance vote create
                                                          | --no
                                                          | --abstain
                                                          )
-                                                         --tx-in TX-IN
+                                                         --governance-action-tx-id TXID
+                                                         --governance-action-index WORD32
                                                          ( --drep-verification-key STRING
                                                          | --drep-verification-key-file FILE
                                                          | --drep-key-hash HASH
@@ -16,7 +17,10 @@ Usage: cardano-cli experimental governance vote create
   Vote creation.
 
 Available options:
-  --tx-in TX-IN            TxIn of governance action (already on chain).
+  --governance-action-tx-id TXID
+                           Txid of the governance action.
+  --governance-action-index WORD32
+                           Tx's governance action index.
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).
   --drep-verification-key-file FILE
@@ -32,5 +36,5 @@ Available options:
                            Stake pool ID/verification key hash (either
                            Bech32-encoded or hex-encoded). Zero or more
                            occurences of this option is allowed.
-  --out-file FILE          The output file.
+  --out-file FILE          Output filepath of the vote.
   -h,--help                Show this help text

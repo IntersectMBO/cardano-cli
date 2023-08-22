@@ -782,22 +782,22 @@ pConstitution :: Parser Constitution
 pConstitution =
   asum
     [ ConstitutionFromText
-         <$> pUrl "Constitution URL."
+         <$> pUrl "constitution-url" "Constitution URL."
          <*> Opt.strOption (mconcat
                [ Opt.long "constitution"
                , Opt.metavar "TEXT"
                , Opt.help "Input constitution as UTF-8 encoded text."
                ])
     , ConstitutionFromFile
-        <$> pUrl "Constitution URL."
+        <$> pUrl "constitution-url" "Constitution URL."
         <*> pFileInDirection "constitution-file" "Input constitution as a text file."
     ]
 
-pUrl :: String -> Parser Ledger.Url
-pUrl h = fromMaybe (error "Url longer than 64 bytes")
+pUrl :: String -> String -> Parser Ledger.Url
+pUrl l h = fromMaybe (error "Url longer than 64 bytes")
          . Ledger.textToUrl <$>
              Opt.strOption (mconcat
-                            [ Opt.long "url"
+                            [ Opt.long l
                             , Opt.metavar "TEXT"
                             , Opt.help h
                             ])
@@ -2717,7 +2717,16 @@ pDRepVerificationKeyFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 pProposalAnchor :: Parser (Ledger.Url, Text)
-pProposalAnchor = undefined
+pProposalAnchor = (,) <$> pUrl "proposal-url" "Proposal anchor URL"
+                      <*> pAnchorHash
+
+pAnchorHash :: Parser Text
+pAnchorHash =
+  Opt.strOption $ mconcat
+    [ Opt.long "anchor-data-hash"
+    , Opt.metavar "TEXT"
+    , Opt.help "Hash of anchor data."
+    ]
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))
 pPreviousGovernanceAction = optional $

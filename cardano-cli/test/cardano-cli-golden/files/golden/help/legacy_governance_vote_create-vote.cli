@@ -3,7 +3,8 @@ Usage: cardano-cli legacy governance vote create-vote (--yes | --no | --abstain)
                                                         | --drep
                                                         | --spo
                                                         )
-                                                        --tx-in TX-IN
+                                                        --governance-action-tx-id TXID
+                                                        --governance-action-index WORD32
                                                         ( --stake-pool-verification-key STRING
                                                         | --cold-verification-key-file FILE
                                                         )
@@ -17,7 +18,10 @@ Available options:
                            Member of the constiutional committee
   --drep                   Delegate representative
   --spo                    Stake pool operator
-  --tx-in TX-IN            TxIn of governance action (already on chain).
+  --governance-action-tx-id TXID
+                           Txid of the governance action.
+  --governance-action-index WORD32
+                           Tx's governance action index.
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
   --cold-verification-key-file FILE
