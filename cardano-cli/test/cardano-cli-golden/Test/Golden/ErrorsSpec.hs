@@ -145,8 +145,8 @@ test_EraBasedVoteReadError =
         $ DecoderErrorCustom "<todecode>" "<decodeeerror>")
     , ("GovernanceVoteCmdReadError"
       , GovernanceVoteCmdReadError $ FileError "path/file.txt" InputInvalidError)
-    , ("GovernanceVoteCmeWriteError"
-      , GovernanceVoteCmeWriteError $ FileError "path/file.txt" ())
+    , ("GovernanceVoteCmdWriteError"
+      , GovernanceVoteCmdWriteError $ FileError "path/file.txt" ())
     ]
 
 test_GovernanceComitteeError :: TestTree

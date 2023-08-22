@@ -6,16 +6,14 @@ module Cardano.CLI.EraBased.Commands.Governance.Vote
   , renderGovernanceVoteCmds
   ) where
 
-import           Cardano.Api
 
 import           Cardano.CLI.Types.Governance
 
 import           Data.Text (Text)
 
-data GovernanceVoteCmds era
+newtype GovernanceVoteCmds era
   = GovernanceVoteCreateCmd
       AnyVote
-      (File () Out)
 
 renderGovernanceVoteCmds :: ()
   => GovernanceVoteCmds era

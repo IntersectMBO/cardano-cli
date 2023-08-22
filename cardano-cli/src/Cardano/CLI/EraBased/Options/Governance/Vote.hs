@@ -38,16 +38,16 @@ pGovernanceVoteCreateCmd era = do
     $ Opt.info
         ( GovernanceVoteCreateCmd
             <$> pAnyVote w
-            <*> pOutputFile
         )
     $ Opt.progDesc "Vote creation."
 
 pAnyVote :: ConwayEraOnwards era -> Parser AnyVote
 pAnyVote cOnwards =
   ConwayOnwardsVote cOnwards
-    <$> pVoteChoice
-    <*> pGoveranceActionIdentifier "TxIn of governance action (already on chain)."
-    <*> pAnyVotingStakeVerificationKeyOrHashOrFile
+      <$> pVoteChoice
+      <*> pGovernanceActionId
+      <*> pAnyVotingStakeVerificationKeyOrHashOrFile
+      <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
 pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile
 pAnyVotingStakeVerificationKeyOrHashOrFile =

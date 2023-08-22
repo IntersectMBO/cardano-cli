@@ -14,9 +14,10 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Common (Constitution, VerificationKeyFile)
 import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
@@ -49,27 +50,34 @@ data GovernanceActionCmds era
 
 data EraBasedNewCommittee
   = EraBasedNewCommittee
-    { ebDeposit :: Lovelace
+    { ebNetwork :: Ledger.Network
+    , ebDeposit :: Lovelace
     , ebReturnAddress :: AnyStakeIdentifier
+    , ebPropAnchor :: (Ledger.Url, Text)
     , ebOldCommittee :: [AnyStakeIdentifier]
     , ebNewCommittee :: [(AnyStakeIdentifier, EpochNo)]
     , ebRequiredQuorum :: Rational
-    , ebPreviousGovActionId :: TxIn
+    , ebPreviousGovActionId :: Maybe (TxId, Word32)
     , ebFilePath :: File () Out
     } deriving Show
 
 data EraBasedNewConstitution
   = EraBasedNewConstitution
-      { encDeposit :: Lovelace
+      { encNetwork :: Ledger.Network
+      , encDeposit :: Lovelace
       , encStakeCredential :: AnyStakeIdentifier
+      , encPrevGovActId :: Maybe (TxId, Word32)
+      , encPropAnchor :: (Ledger.Url, Text)
       , encConstitution :: Constitution
       , encFilePath :: File () Out
       } deriving Show
 
 data EraBasedNoConfidence
   = EraBasedNoConfidence
-      { ncDeposit :: Lovelace
+      { ncNetwork :: Ledger.Network
+      , ncDeposit :: Lovelace
       , ncStakeCredential :: AnyStakeIdentifier
+      , ncProposalAnchor :: (Ledger.Url, Text)
       , ncGovAct :: TxId
       , ncGovActIndex :: Word32
       , ncFilePath :: File () Out
@@ -77,8 +85,10 @@ data EraBasedNoConfidence
 
 data EraBasedTreasuryWithdrawal where
   EraBasedTreasuryWithdrawal
-    :: Lovelace -- ^ Deposit
+    :: Ledger.Network
+    -> Lovelace -- ^ Deposit
     -> AnyStakeIdentifier -- ^ Return address
+    -> (Ledger.Url, Text) -- ^ Proposal anchor
     -> [(AnyStakeIdentifier, Lovelace)]
     -> File () Out
     -> EraBasedTreasuryWithdrawal

@@ -12,13 +12,13 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Legacy.Commands.Governance (pNetwork)
 import           Cardano.CLI.Types.Common
 import           Cardano.Ledger.BaseTypes (NonNegativeInterval)
 import qualified Cardano.Ledger.BaseTypes as Ledger
 
 import           Data.Foldable
 import           GHC.Natural (Natural)
-import           GHC.Word
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
@@ -54,8 +54,11 @@ pGovernanceActionNewConstitution era = do
   pCmd cOn =
     fmap (GovernanceActionCreateConstitution cOn) $
       EraBasedNewConstitution
-        <$> pGovActionDeposit
+        <$> pNetwork
+        <*> pGovActionDeposit
         <*> pAnyStakeIdentifier
+        <*> pPreviousGovernanceAction
+        <*> pProposalAnchor
         <*> pConstitution
         <*> pFileOutDirection "out-file" "Output filepath of the constitution."
 
@@ -76,12 +79,14 @@ pGovernanceActionNewCommittee era = do
 pEraBasedNewCommittee :: Parser EraBasedNewCommittee
 pEraBasedNewCommittee =
   EraBasedNewCommittee
-    <$> pGovActionDeposit
+    <$> pNetwork
+    <*> pGovActionDeposit
     <*> pAnyStakeIdentifier
+    <*> pProposalAnchor
     <*> many pAnyStakeIdentifier
     <*> many ((,) <$> pAnyStakeIdentifier <*> pEpochNo "Committee member expiry epoch")
     <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
-    <*> pGoveranceActionIdentifier "Previous governance action id of `NewCommittee` or `NoConfidence` type"
+    <*> pPreviousGovernanceAction
     <*> pOutputFile
 
 
@@ -99,30 +104,13 @@ pGovernanceActionNoConfidence era = do
   pCmd cOn =
     fmap (GovernanceActionCreateNoConfidence cOn) $
       EraBasedNoConfidence
-        <$> pGovActionDeposit
+        <$> pNetwork
+        <*> pGovActionDeposit
         <*> pAnyStakeIdentifier
+        <*> pProposalAnchor
         <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
-        <*> pWord32 "goverenance-action-index" "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
+        <*> pWord32 "governance-action-index" "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
         <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
-
-
-pWord32 :: String -> String -> Parser Word32
-pWord32 l h =
-  Opt.option auto $ mconcat
-    [ Opt.long l
-    , Opt.metavar "WORD32"
-    , Opt.help h
-    ]
-
-
-pTxId :: String -> String -> Parser TxId
-pTxId l h =
-  Opt.option (readerFromParsecParser parseTxId) $ mconcat
-    [ Opt.long l
-    , Opt.metavar "TXID"
-    , Opt.help h
-    ]
-
 
 pAnyStakeIdentifier :: Parser AnyStakeIdentifier
 pAnyStakeIdentifier =
@@ -317,8 +305,10 @@ pGovernanceActionTreasuryWithdrawal era = do
   pCmd cOn =
     fmap (GovernanceActionTreasuryWithdrawal cOn) $
       EraBasedTreasuryWithdrawal
-        <$> pGovActionDeposit
+        <$> pNetwork
+        <*> pGovActionDeposit
         <*> pAnyStakeIdentifier
+        <*> pProposalAnchor
         <*> many ((,) <$> pAnyStakeIdentifier <*> pTransferAmt)
         <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
 

@@ -15,7 +15,7 @@ import qualified Formatting.Buildable as B
 data GovernanceVoteCmdError
   = GovernanceVoteCmdReadError !(FileError InputDecodeError)
   | GovernanceVoteCmdCredentialDecodeError !DecoderError
-  | GovernanceVoteCmeWriteError !(FileError ())
+  | GovernanceVoteCmdWriteError !(FileError ())
   deriving Show
 
 instance Error GovernanceVoteCmdError where
@@ -24,7 +24,7 @@ instance Error GovernanceVoteCmdError where
       "Cannot read verification key: " <> displayError e
     GovernanceVoteCmdCredentialDecodeError e ->
       "Cannot decode voting credential: " <> renderDecoderError e
-    GovernanceVoteCmeWriteError e ->
+    GovernanceVoteCmdWriteError e ->
       "Cannot write vote: " <> displayError e
     where
       renderDecoderError = TL.unpack . TL.toLazyText . B.build
