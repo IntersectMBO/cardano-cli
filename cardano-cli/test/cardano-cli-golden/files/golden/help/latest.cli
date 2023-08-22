@@ -1,0 +1,10 @@
+Usage: cardano-cli latest (governance | transaction)
+
+  Latest era commands (Babbage)
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  governance               Era-based governance commands
+  transaction              Era-based transaction commands

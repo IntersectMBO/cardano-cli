@@ -17,6 +17,7 @@ import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Run.Governance.DRep
 import           Cardano.CLI.EraBased.Run.Governance.Query
 import           Cardano.CLI.EraBased.Run.Governance.Vote
+import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.Types.Errors.CmdError
 
 import           Control.Monad.Trans.Except
@@ -33,7 +34,8 @@ runAnyEraCommand = \case
 runEraBasedCommand :: ()
   => EraBasedCommand era -> ExceptT CmdError IO ()
 runEraBasedCommand = \case
-  EraBasedGovernanceCmds cmd -> runEraBasedGovernanceCmds cmd
+  EraBasedGovernanceCmds  cmd -> runEraBasedGovernanceCmds  cmd
+  TransactionCmds         cmd -> runTransactionCmds         cmd & firstExceptT CmdTransactionError
 
 runEraBasedGovernanceCmds :: ()
   => EraBasedGovernanceCmds era
