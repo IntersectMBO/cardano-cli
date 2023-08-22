@@ -70,6 +70,7 @@ module Cardano.CLI.Types.Common
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
 
 import qualified Cardano.Chain.Slotting as Byron
 import qualified Cardano.Ledger.Crypto as Crypto
@@ -91,8 +92,11 @@ data TransferDirection =
 data OpCertCounter
 
 data Constitution
-  = ConstitutionFromFile (File () In)
-  | ConstitutionFromText Text deriving Show
+  = ConstitutionFromFile Ledger.Url (File () In)
+  | ConstitutionFromText
+      Ledger.Url
+      Text -- ^ Constitution text
+  deriving Show
 
 -- | Specify whether to render the script cost as JSON
 -- in the cli's build command.

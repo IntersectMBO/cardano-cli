@@ -43,10 +43,10 @@ import           System.IO (stderr, stdin, stdout)
 
 runGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
 runGovernanceCmds = \case
-  GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
-    runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
-  GovernanceActionCmd (CreateConstitution (Cli.NewConstitution sbe deposit voteStakeCred newconstitution fp)) ->
-    runGovernanceNewConstitutionCmd sbe deposit voteStakeCred newconstitution fp
+  GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice sbe fp)) ->
+    runGovernanceCreateVoteCmd sbe voteChoice  fp
+  GovernanceActionCmd (CreateConstitution (Cli.NewConstitution network sbe deposit voteStakeCred mPrevGovActId propAnchor newconstitution fp)) ->
+    runGovernanceNewConstitutionCmd network sbe deposit voteStakeCred mPrevGovActId propAnchor newconstitution fp
   GovernanceMIRPayStakeAddressesCertificate (AnyShelleyToBabbageEra w) mirpot vKeys rewards out ->
     runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
   GovernanceMIRTransfer (AnyShelleyToBabbageEra w) amt out direction -> do

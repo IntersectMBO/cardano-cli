@@ -12,6 +12,7 @@
 module Cardano.CLI.EraBased.Options.Common where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra,
@@ -41,7 +42,7 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Time.Clock (UTCTime)
 import           Data.Time.Format (defaultTimeLocale, parseTimeOrError)
-import           Data.Word (Word64)
+import           Data.Word
 import           GHC.Natural (Natural)
 import           Network.Socket (PortNumber)
 import           Options.Applicative hiding (help, str)
@@ -780,14 +781,26 @@ catCommands = \case
 pConstitution :: Parser Constitution
 pConstitution =
   asum
-    [ fmap ConstitutionFromText $ Opt.strOption $ mconcat
-        [ Opt.long "constitution"
-        , Opt.metavar "TEXT"
-        , Opt.help "Input constitution as UTF-8 encoded text."
-        ]
+    [ ConstitutionFromText
+         <$> pUrl "Constitution URL."
+         <*> Opt.strOption (mconcat
+               [ Opt.long "constitution"
+               , Opt.metavar "TEXT"
+               , Opt.help "Input constitution as UTF-8 encoded text."
+               ])
     , ConstitutionFromFile
-        <$> pFileInDirection "constitution-file" "Input constitution as a text file."
+        <$> pUrl "Constitution URL."
+        <*> pFileInDirection "constitution-file" "Input constitution as a text file."
     ]
+
+pUrl :: String -> Parser Ledger.Url
+pUrl h = fromMaybe (error "Url longer than 64 bytes")
+         . Ledger.textToUrl <$>
+             Opt.strOption (mconcat
+                            [ Opt.long "url"
+                            , Opt.metavar "TEXT"
+                            , Opt.help h
+                            ])
 
 pGovActionDeposit :: Parser Lovelace
 pGovActionDeposit =
@@ -2711,6 +2724,30 @@ pDRepVerificationKeyFile =
     , Opt.help "Filepath of the DRep verification key."
     , Opt.completer (Opt.bashCompleter "file")
     ]
+pProposalAnchor :: Parser (Ledger.Url, Text)
+pProposalAnchor = undefined
+
+pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))
+pPreviousGovernanceAction = optional $
+  (,) <$> pTxId "governance-action-tx-id" "Previous txid of the governance action."
+      <*> pWord32 "goverenance-action-index" "Previous tx's governance action index."
+
+pWord32 :: String -> String -> Parser Word32
+pWord32 l h =
+  Opt.option auto $ mconcat
+    [ Opt.long l
+    , Opt.metavar "WORD32"
+    , Opt.help h
+    ]
+
+pTxId :: String -> String -> Parser TxId
+pTxId l h =
+  Opt.option (readerFromParsecParser parseTxId) $ mconcat
+    [ Opt.long l
+    , Opt.metavar "TXID"
+    , Opt.help h
+    ]
+
 
 --------------------------------------------------------------------------------
 -- Helpers

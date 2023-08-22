@@ -5,6 +5,7 @@
 module Cardano.CLI.Legacy.Commands.Governance where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment
@@ -92,9 +93,6 @@ pCreateVote envCli =
   fmap CreateVoteCmd $
     ConwayVote
       <$> pVoteChoice
-      <*> pVoterType
-      <*> pGoveranceActionIdentifier "TxIn of governance action (already on chain)."
-      <*> pVotingCredential
       <*> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
       <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
@@ -125,9 +123,24 @@ pCreateConstitution :: EnvCli -> Parser ActionCmd
 pCreateConstitution envCli =
   fmap CreateConstitution $
     NewConstitution
-      <$> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
+      <$> pNetwork
+      <*> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
       <*> pGovActionDeposit
       <*> pVotingCredential
+      <*> pPreviousGovernanceAction
+      <*> pProposalAnchor
       <*> pConstitution
       <*> pFileOutDirection "out-file" "Output filepath of the governance action."
 
+pNetwork :: Parser Ledger.Network
+pNetwork  = asum $ mconcat
+  [ [ Opt.flag' Ledger.Mainnet $ mconcat
+      [ Opt.long "mainnet"
+      , Opt.help "Use the mainnet magic id."
+      ]
+    , Opt.flag' Ledger.Testnet $ mconcat
+      [ Opt.long "testnet-magic"
+      , Opt.help "Use the testnet magic id."
+      ]
+    ]
+  ]
