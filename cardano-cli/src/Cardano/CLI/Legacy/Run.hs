@@ -31,4 +31,4 @@ runLegacyCmds = \case
   LegacyQueryCmds        cmd -> firstExceptT CmdQueryError $ runQueryCmds cmd
   LegacyStakeAddressCmds cmd -> firstExceptT CmdStakeAddressError $ runStakeAddressCmds cmd
   LegacyTextViewCmds     cmd -> firstExceptT CmdTextViewError $ runTextViewCmds cmd
-  LegacyTransactionCmds  cmd -> firstExceptT CmdTransactionError $ runTransactionCmds cmd
+  LegacyTransactionCmds  cmd -> firstExceptT CmdTransactionError $ runLegacyTransactionCmds cmd
