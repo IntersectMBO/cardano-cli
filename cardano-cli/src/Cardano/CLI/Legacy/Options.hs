@@ -518,22 +518,6 @@ pTransaction envCli =
     Opt.subparser
       $ Opt.command "sign-witness" assembleInfo <> Opt.internal
 
-  pScriptValidity :: Parser ScriptValidity
-  pScriptValidity = asum
-    [ Opt.flag' ScriptValid $ mconcat
-      [ Opt.long "script-valid"
-      , Opt.help "Assertion that the script is valid. (default)"
-      ]
-    , Opt.flag' ScriptInvalid $ mconcat
-      [ Opt.long "script-invalid"
-      , Opt.help $ mconcat
-        [ "Assertion that the script is invalid.  "
-        , "If a transaction is submitted with such a script, "
-        , "the script will fail and the collateral will be taken."
-        ]
-      ]
-    ]
-
   pTransactionBuild :: Parser LegacyTransactionCmds
   pTransactionBuild =
     TxBuild
@@ -566,14 +550,6 @@ pTransaction envCli =
       <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
       <*> many (pFileInDirection "constitution-file" "Filepath of the constitution.")
       <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
-
-  pChangeAddress :: Parser TxOutChangeAddress
-  pChangeAddress =
-    fmap TxOutChangeAddress $ Opt.option (readerFromParsecParser parseAddressAny) $ mconcat
-      [ Opt.long "change-address"
-      , Opt.metavar "ADDRESS"
-      , Opt.help "Address where ADA in excess of the tx fee will go to."
-      ]
 
   pTransactionBuildRaw :: Parser LegacyTransactionCmds
   pTransactionBuildRaw =
