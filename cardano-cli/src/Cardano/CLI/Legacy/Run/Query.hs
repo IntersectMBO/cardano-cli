@@ -43,6 +43,7 @@ import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
 import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
+import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Core as Core
 import qualified Cardano.Ledger.Crypto as Crypto
 import           Cardano.Ledger.Keys (KeyHash (..), KeyRole (..))
@@ -70,7 +71,6 @@ import           Data.Aeson as Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Aeson.Types as Aeson
 import           Data.Bifunctor (Bifunctor (..))
-import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Coerce (coerce)
 import           Data.Function ((&))
@@ -160,7 +160,7 @@ runQueryConstitutionHash socketPath (AnyConsensusModeParams cModeParams) network
   where
     writeConstitutionHash
       :: Maybe (File () Out)
-      -> Maybe (SafeHash StandardCrypto ByteString)
+      -> Maybe (SafeHash StandardCrypto L.AnchorData)
       -> ExceptT ShelleyQueryCmdError IO ()
     writeConstitutionHash mOutFile' cHash =
       case mOutFile' of

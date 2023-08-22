@@ -142,7 +142,7 @@ pNetwork  = asum $ mconcat
       , Opt.help "Use the mainnet magic id."
       ]
     , Opt.flag' Ledger.Testnet $ mconcat
-      [ Opt.long "testnet-magic"
+      [ Opt.long "testnet"
       , Opt.help "Use the testnet magic id."
       ]
     ]
