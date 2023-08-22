@@ -46,11 +46,9 @@ pAnyVote :: ConwayEraOnwards era -> Parser AnyVote
 pAnyVote cOnwards =
   ConwayOnwardsVote cOnwards
     <$> pVoteChoice
-    <*> pGoveranceActionIdentifier "TxIn of governance action (already on chain)."
-    <*> pAnyVotingStakeVerificationKeyOrHashOrFile
 
-pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile
-pAnyVotingStakeVerificationKeyOrHashOrFile =
+_pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile
+_pAnyVotingStakeVerificationKeyOrHashOrFile =
   asum [ AnyDRepVerificationKeyOrHashOrFile <$> pDRepVerificationKeyOrHashOrFile
        , AnyStakePoolVerificationKeyOrHashOrFile <$> pStakePoolVerificationKeyOrHashOrFile
        ]
