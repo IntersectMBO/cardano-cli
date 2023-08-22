@@ -1,17 +1,28 @@
 Usage: cardano-cli governance action create-action create-constitution 
+                                                                         ( --mainnet
+                                                                         | --testnet-magic
+                                                                         )
                                                                          [--conway-era]
                                                                          --governance-action-deposit NATURAL
                                                                          ( --stake-pool-verification-key STRING
                                                                          | --cold-verification-key-file FILE
                                                                          )
-                                                                         ( --constitution TEXT
-                                                                         | --constitution-file FILE
+                                                                         [--governance-action-tx-id TXID
+                                                                           --goverenance-action-index WORD32]
+                                                                         --proposal-url TEXT
+                                                                         --anchor-data-hash TEXT
+                                                                         ( --constitution-url TEXT
+                                                                           --constitution TEXT
+                                                                         | --constitution-url TEXT
+                                                                           --constitution-file FILE
                                                                          )
                                                                          --out-file FILE
 
   Create a constitution.
 
 Available options:
+  --mainnet                Use the mainnet magic id.
+  --testnet-magic          Use the testnet magic id.
   --conway-era             Specify the Conway era
   --governance-action-deposit NATURAL
                            Deposit required to submit a governance action.
@@ -19,7 +30,15 @@ Available options:
                            Stake pool verification key (Bech32 or hex-encoded).
   --cold-verification-key-file FILE
                            Filepath of the stake pool verification key.
+  --governance-action-tx-id TXID
+                           Previous txid of the governance action.
+  --goverenance-action-index WORD32
+                           Previous tx's governance action index.
+  --proposal-url TEXT      Proposal anchor URL
+  --anchor-data-hash TEXT  Hash of anchor data.
+  --constitution-url TEXT  Constitution URL.
   --constitution TEXT      Input constitution as UTF-8 encoded text.
+  --constitution-url TEXT  Constitution URL.
   --constitution-file FILE Input constitution as a text file.
   --out-file FILE          Output filepath of the governance action.
   -h,--help                Show this help text

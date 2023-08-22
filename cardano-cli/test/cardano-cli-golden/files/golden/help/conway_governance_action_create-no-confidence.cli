@@ -1,4 +1,8 @@
-Usage: cardano-cli conway governance action create-no-confidence --governance-action-deposit NATURAL
+Usage: cardano-cli conway governance action create-no-confidence 
+                                                                   ( --mainnet
+                                                                   | --testnet-magic
+                                                                   )
+                                                                   --governance-action-deposit NATURAL
                                                                    ( --stake-pool-verification-key STRING
                                                                    | --cold-verification-key-file FILE
                                                                    | --stake-pool-id STAKE_POOL_ID
@@ -6,6 +10,8 @@ Usage: cardano-cli conway governance action create-no-confidence --governance-ac
                                                                    | --stake-verification-key-file FILE
                                                                    | --stake-key-hash HASH
                                                                    )
+                                                                   --proposal-url TEXT
+                                                                   --anchor-data-hash TEXT
                                                                    --governance-action-tx-id TXID
                                                                    --goverenance-action-index WORD32
                                                                    --out-file FILE
@@ -13,6 +19,8 @@ Usage: cardano-cli conway governance action create-no-confidence --governance-ac
   Create a no confidence proposal.
 
 Available options:
+  --mainnet                Use the mainnet magic id.
+  --testnet-magic          Use the testnet magic id.
   --governance-action-deposit NATURAL
                            Deposit required to submit a governance action.
   --stake-pool-verification-key STRING
@@ -28,6 +36,8 @@ Available options:
   --stake-verification-key-file FILE
                            Filepath of the staking verification key.
   --stake-key-hash HASH    Stake verification key hash (hex-encoded).
+  --proposal-url TEXT      Proposal anchor URL
+  --anchor-data-hash TEXT  Hash of anchor data.
   --governance-action-tx-id TXID
                            Previous txid of `NoConfidence` or `NewCommittee`
                            governance action.

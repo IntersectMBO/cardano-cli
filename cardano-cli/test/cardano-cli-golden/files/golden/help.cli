@@ -702,7 +702,11 @@ Usage: cardano-cli conway governance action
 
   Governance action commands.
 
-Usage: cardano-cli conway governance action create-constitution --governance-action-deposit NATURAL
+Usage: cardano-cli conway governance action create-constitution 
+                                                                  ( --mainnet
+                                                                  | --testnet-magic
+                                                                  )
+                                                                  --governance-action-deposit NATURAL
                                                                   ( --stake-pool-verification-key STRING
                                                                   | --cold-verification-key-file FILE
                                                                   | --stake-pool-id STAKE_POOL_ID
@@ -710,14 +714,24 @@ Usage: cardano-cli conway governance action create-constitution --governance-act
                                                                   | --stake-verification-key-file FILE
                                                                   | --stake-key-hash HASH
                                                                   )
-                                                                  ( --constitution TEXT
-                                                                  | --constitution-file FILE
+                                                                  [--governance-action-tx-id TXID
+                                                                    --goverenance-action-index WORD32]
+                                                                  --proposal-url TEXT
+                                                                  --anchor-data-hash TEXT
+                                                                  ( --constitution-url TEXT
+                                                                    --constitution TEXT
+                                                                  | --constitution-url TEXT
+                                                                    --constitution-file FILE
                                                                   )
                                                                   --out-file FILE
 
   Create a constitution.
 
-Usage: cardano-cli conway governance action create-new-committee --governance-action-deposit NATURAL
+Usage: cardano-cli conway governance action create-new-committee 
+                                                                   ( --mainnet
+                                                                   | --testnet-magic
+                                                                   )
+                                                                   --governance-action-deposit NATURAL
                                                                    ( --stake-pool-verification-key STRING
                                                                    | --cold-verification-key-file FILE
                                                                    | --stake-pool-id STAKE_POOL_ID
@@ -725,6 +739,8 @@ Usage: cardano-cli conway governance action create-new-committee --governance-ac
                                                                    | --stake-verification-key-file FILE
                                                                    | --stake-key-hash HASH
                                                                    )
+                                                                   --proposal-url TEXT
+                                                                   --anchor-data-hash TEXT
                                                                    [ --stake-pool-verification-key STRING
                                                                    | --cold-verification-key-file FILE
                                                                    | --stake-pool-id STAKE_POOL_ID
@@ -742,12 +758,17 @@ Usage: cardano-cli conway governance action create-new-committee --governance-ac
                                                                      )
                                                                      --epoch NATURAL]
                                                                    --quorum RATIONAL
-                                                                   --tx-in TX-IN
+                                                                   [--governance-action-tx-id TXID
+                                                                     --goverenance-action-index WORD32]
                                                                    --out-file FILE
 
   Create a new committee proposal.
 
-Usage: cardano-cli conway governance action create-no-confidence --governance-action-deposit NATURAL
+Usage: cardano-cli conway governance action create-no-confidence 
+                                                                   ( --mainnet
+                                                                   | --testnet-magic
+                                                                   )
+                                                                   --governance-action-deposit NATURAL
                                                                    ( --stake-pool-verification-key STRING
                                                                    | --cold-verification-key-file FILE
                                                                    | --stake-pool-id STAKE_POOL_ID
@@ -755,6 +776,8 @@ Usage: cardano-cli conway governance action create-no-confidence --governance-ac
                                                                    | --stake-verification-key-file FILE
                                                                    | --stake-key-hash HASH
                                                                    )
+                                                                   --proposal-url TEXT
+                                                                   --anchor-data-hash TEXT
                                                                    --governance-action-tx-id TXID
                                                                    --goverenance-action-index WORD32
                                                                    --out-file FILE
@@ -789,7 +812,11 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update --
 
   Create a protocol parameters update.
 
-Usage: cardano-cli conway governance action create-treasury-withdrawal --governance-action-deposit NATURAL
+Usage: cardano-cli conway governance action create-treasury-withdrawal 
+                                                                         ( --mainnet
+                                                                         | --testnet-magic
+                                                                         )
+                                                                         --governance-action-deposit NATURAL
                                                                          ( --stake-pool-verification-key STRING
                                                                          | --cold-verification-key-file FILE
                                                                          | --stake-pool-id STAKE_POOL_ID
@@ -797,6 +824,8 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal --governa
                                                                          | --stake-verification-key-file FILE
                                                                          | --stake-key-hash HASH
                                                                          )
+                                                                         --proposal-url TEXT
+                                                                         --anchor-data-hash TEXT
                                                                          [
                                                                            ( --stake-pool-verification-key STRING
                                                                            | --cold-verification-key-file FILE
@@ -959,14 +988,6 @@ Usage: cardano-cli conway governance vote create
   Vote commands.
 
 Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
-                                                   --tx-in TX-IN
-                                                   ( --drep-verification-key STRING
-                                                   | --drep-verification-key-file FILE
-                                                   | --drep-key-hash HASH
-                                                   | --stake-pool-verification-key STRING
-                                                   | --cold-verification-key-file FILE
-                                                   | --stake-pool-id STAKE_POOL_ID
-                                                   )
                                                    --out-file FILE
 
   Vote creation.
@@ -1124,7 +1145,11 @@ Usage: cardano-cli experimental governance action
 
   Governance action commands.
 
-Usage: cardano-cli experimental governance action create-constitution --governance-action-deposit NATURAL
+Usage: cardano-cli experimental governance action create-constitution 
+                                                                        ( --mainnet
+                                                                        | --testnet-magic
+                                                                        )
+                                                                        --governance-action-deposit NATURAL
                                                                         ( --stake-pool-verification-key STRING
                                                                         | --cold-verification-key-file FILE
                                                                         | --stake-pool-id STAKE_POOL_ID
@@ -1132,14 +1157,24 @@ Usage: cardano-cli experimental governance action create-constitution --governan
                                                                         | --stake-verification-key-file FILE
                                                                         | --stake-key-hash HASH
                                                                         )
-                                                                        ( --constitution TEXT
-                                                                        | --constitution-file FILE
+                                                                        [--governance-action-tx-id TXID
+                                                                          --goverenance-action-index WORD32]
+                                                                        --proposal-url TEXT
+                                                                        --anchor-data-hash TEXT
+                                                                        ( --constitution-url TEXT
+                                                                          --constitution TEXT
+                                                                        | --constitution-url TEXT
+                                                                          --constitution-file FILE
                                                                         )
                                                                         --out-file FILE
 
   Create a constitution.
 
-Usage: cardano-cli experimental governance action create-new-committee --governance-action-deposit NATURAL
+Usage: cardano-cli experimental governance action create-new-committee 
+                                                                         ( --mainnet
+                                                                         | --testnet-magic
+                                                                         )
+                                                                         --governance-action-deposit NATURAL
                                                                          ( --stake-pool-verification-key STRING
                                                                          | --cold-verification-key-file FILE
                                                                          | --stake-pool-id STAKE_POOL_ID
@@ -1147,6 +1182,8 @@ Usage: cardano-cli experimental governance action create-new-committee --governa
                                                                          | --stake-verification-key-file FILE
                                                                          | --stake-key-hash HASH
                                                                          )
+                                                                         --proposal-url TEXT
+                                                                         --anchor-data-hash TEXT
                                                                          [ --stake-pool-verification-key STRING
                                                                          | --cold-verification-key-file FILE
                                                                          | --stake-pool-id STAKE_POOL_ID
@@ -1164,12 +1201,17 @@ Usage: cardano-cli experimental governance action create-new-committee --governa
                                                                            )
                                                                            --epoch NATURAL]
                                                                          --quorum RATIONAL
-                                                                         --tx-in TX-IN
+                                                                         [--governance-action-tx-id TXID
+                                                                           --goverenance-action-index WORD32]
                                                                          --out-file FILE
 
   Create a new committee proposal.
 
-Usage: cardano-cli experimental governance action create-no-confidence --governance-action-deposit NATURAL
+Usage: cardano-cli experimental governance action create-no-confidence 
+                                                                         ( --mainnet
+                                                                         | --testnet-magic
+                                                                         )
+                                                                         --governance-action-deposit NATURAL
                                                                          ( --stake-pool-verification-key STRING
                                                                          | --cold-verification-key-file FILE
                                                                          | --stake-pool-id STAKE_POOL_ID
@@ -1177,6 +1219,8 @@ Usage: cardano-cli experimental governance action create-no-confidence --governa
                                                                          | --stake-verification-key-file FILE
                                                                          | --stake-key-hash HASH
                                                                          )
+                                                                         --proposal-url TEXT
+                                                                         --anchor-data-hash TEXT
                                                                          --governance-action-tx-id TXID
                                                                          --goverenance-action-index WORD32
                                                                          --out-file FILE
@@ -1211,7 +1255,11 @@ Usage: cardano-cli experimental governance action create-protocol-parameters-upd
 
   Create a protocol parameters update.
 
-Usage: cardano-cli experimental governance action create-treasury-withdrawal --governance-action-deposit NATURAL
+Usage: cardano-cli experimental governance action create-treasury-withdrawal 
+                                                                               ( --mainnet
+                                                                               | --testnet-magic
+                                                                               )
+                                                                               --governance-action-deposit NATURAL
                                                                                ( --stake-pool-verification-key STRING
                                                                                | --cold-verification-key-file FILE
                                                                                | --stake-pool-id STAKE_POOL_ID
@@ -1219,6 +1267,8 @@ Usage: cardano-cli experimental governance action create-treasury-withdrawal --g
                                                                                | --stake-verification-key-file FILE
                                                                                | --stake-key-hash HASH
                                                                                )
+                                                                               --proposal-url TEXT
+                                                                               --anchor-data-hash TEXT
                                                                                [
                                                                                  ( --stake-pool-verification-key STRING
                                                                                  | --cold-verification-key-file FILE
@@ -1384,14 +1434,6 @@ Usage: cardano-cli experimental governance vote create
                                                          ( --yes
                                                          | --no
                                                          | --abstain
-                                                         )
-                                                         --tx-in TX-IN
-                                                         ( --drep-verification-key STRING
-                                                         | --drep-verification-key-file FILE
-                                                         | --drep-key-hash HASH
-                                                         | --stake-pool-verification-key STRING
-                                                         | --cold-verification-key-file FILE
-                                                         | --stake-pool-id STAKE_POOL_ID
                                                          )
                                                          --out-file FILE
 
@@ -1569,14 +1611,6 @@ Usage: cardano-cli legacy governance vote create-vote
   Vote related commands.
 
 Usage: cardano-cli legacy governance vote create-vote (--yes | --no | --abstain)
-                                                        ( --constitutional-committee-member
-                                                        | --drep
-                                                        | --spo
-                                                        )
-                                                        --tx-in TX-IN
-                                                        ( --stake-pool-verification-key STRING
-                                                        | --cold-verification-key-file FILE
-                                                        )
                                                         [--conway-era]
                                                         --out-file FILE
 
@@ -1591,13 +1625,22 @@ Usage: cardano-cli legacy governance action create-action create-constitution
   Create a governance action.
 
 Usage: cardano-cli legacy governance action create-action create-constitution 
+                                                                                ( --mainnet
+                                                                                | --testnet-magic
+                                                                                )
                                                                                 [--conway-era]
                                                                                 --governance-action-deposit NATURAL
                                                                                 ( --stake-pool-verification-key STRING
                                                                                 | --cold-verification-key-file FILE
                                                                                 )
-                                                                                ( --constitution TEXT
-                                                                                | --constitution-file FILE
+                                                                                [--governance-action-tx-id TXID
+                                                                                  --goverenance-action-index WORD32]
+                                                                                --proposal-url TEXT
+                                                                                --anchor-data-hash TEXT
+                                                                                ( --constitution-url TEXT
+                                                                                  --constitution TEXT
+                                                                                | --constitution-url TEXT
+                                                                                  --constitution-file FILE
                                                                                 )
                                                                                 --out-file FILE
 
@@ -2925,14 +2968,6 @@ Usage: cardano-cli governance vote create-vote
   Vote related commands.
 
 Usage: cardano-cli governance vote create-vote (--yes | --no | --abstain)
-                                                 ( --constitutional-committee-member
-                                                 | --drep
-                                                 | --spo
-                                                 )
-                                                 --tx-in TX-IN
-                                                 ( --stake-pool-verification-key STRING
-                                                 | --cold-verification-key-file FILE
-                                                 )
                                                  [--conway-era]
                                                  --out-file FILE
 
@@ -2947,13 +2982,22 @@ Usage: cardano-cli governance action create-action create-constitution
   Create a governance action.
 
 Usage: cardano-cli governance action create-action create-constitution 
+                                                                         ( --mainnet
+                                                                         | --testnet-magic
+                                                                         )
                                                                          [--conway-era]
                                                                          --governance-action-deposit NATURAL
                                                                          ( --stake-pool-verification-key STRING
                                                                          | --cold-verification-key-file FILE
                                                                          )
-                                                                         ( --constitution TEXT
-                                                                         | --constitution-file FILE
+                                                                         [--governance-action-tx-id TXID
+                                                                           --goverenance-action-index WORD32]
+                                                                         --proposal-url TEXT
+                                                                         --anchor-data-hash TEXT
+                                                                         ( --constitution-url TEXT
+                                                                           --constitution TEXT
+                                                                         | --constitution-url TEXT
+                                                                           --constitution-file FILE
                                                                          )
                                                                          --out-file FILE
 

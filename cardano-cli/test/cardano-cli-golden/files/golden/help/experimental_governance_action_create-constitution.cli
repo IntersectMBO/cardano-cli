@@ -1,4 +1,8 @@
-Usage: cardano-cli experimental governance action create-constitution --governance-action-deposit NATURAL
+Usage: cardano-cli experimental governance action create-constitution 
+                                                                        ( --mainnet
+                                                                        | --testnet-magic
+                                                                        )
+                                                                        --governance-action-deposit NATURAL
                                                                         ( --stake-pool-verification-key STRING
                                                                         | --cold-verification-key-file FILE
                                                                         | --stake-pool-id STAKE_POOL_ID
@@ -6,14 +10,22 @@ Usage: cardano-cli experimental governance action create-constitution --governan
                                                                         | --stake-verification-key-file FILE
                                                                         | --stake-key-hash HASH
                                                                         )
-                                                                        ( --constitution TEXT
-                                                                        | --constitution-file FILE
+                                                                        [--governance-action-tx-id TXID
+                                                                          --goverenance-action-index WORD32]
+                                                                        --proposal-url TEXT
+                                                                        --anchor-data-hash TEXT
+                                                                        ( --constitution-url TEXT
+                                                                          --constitution TEXT
+                                                                        | --constitution-url TEXT
+                                                                          --constitution-file FILE
                                                                         )
                                                                         --out-file FILE
 
   Create a constitution.
 
 Available options:
+  --mainnet                Use the mainnet magic id.
+  --testnet-magic          Use the testnet magic id.
   --governance-action-deposit NATURAL
                            Deposit required to submit a governance action.
   --stake-pool-verification-key STRING
@@ -29,7 +41,15 @@ Available options:
   --stake-verification-key-file FILE
                            Filepath of the staking verification key.
   --stake-key-hash HASH    Stake verification key hash (hex-encoded).
+  --governance-action-tx-id TXID
+                           Previous txid of the governance action.
+  --goverenance-action-index WORD32
+                           Previous tx's governance action index.
+  --proposal-url TEXT      Proposal anchor URL
+  --anchor-data-hash TEXT  Hash of anchor data.
+  --constitution-url TEXT  Constitution URL.
   --constitution TEXT      Input constitution as UTF-8 encoded text.
+  --constitution-url TEXT  Constitution URL.
   --constitution-file FILE Input constitution as a text file.
   --out-file FILE          Output filepath of the constitution.
   -h,--help                Show this help text
