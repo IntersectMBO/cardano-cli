@@ -1,0 +1,1 @@
+Cannot write vote: path/file.txt: 

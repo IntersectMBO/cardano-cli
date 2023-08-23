@@ -8,8 +8,6 @@ module Cardano.CLI.EraBased.Run.Governance.Vote
   ( runGovernanceVoteCmds
   ) where
 
-import           Cardano.Api
-import           Cardano.Api.Ledger (HasKeyRole (coerceKeyRole))
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Vote
@@ -17,6 +15,7 @@ import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
+import           Cardano.Ledger.Keys (coerceKeyRole)
 
 import           Control.Monad.Except
 import           Control.Monad.Trans.Except.Extra
@@ -27,46 +26,57 @@ runGovernanceVoteCmds :: ()
   => GovernanceVoteCmds era
   -> ExceptT CmdError IO ()
 runGovernanceVoteCmds = \case
-  GovernanceVoteCreateCmd anyVote outFp ->
-    runGovernanceVoteCreateCmd anyVote outFp
+  GovernanceVoteCreateCmd anyVote ->
+    runGovernanceVoteCreateCmd anyVote
       & firstExceptT CmdGovernanceVoteError
 
 runGovernanceVoteCreateCmd
   :: AnyVote
-  -> File () Out
   -> ExceptT GovernanceVoteCmdError IO ()
-runGovernanceVoteCreateCmd (ConwayOnwardsVote cOnwards v govTxInIdentifier anyStake) outFp = do
-  case anyStake of
+runGovernanceVoteCreateCmd (ConwayOnwardsVote cOnwards voteChoice (govActionTxId, govActionIndex) voteStakeCred oFp) = do
+  let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
+  case voteStakeCred of
     AnyDRepVerificationKeyOrHashOrFile stake -> do
-      let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
       DRepKeyHash h <- firstExceptT  GovernanceVoteCmdReadError
-                         . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey stake
+                               . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey stake
       let vStakeCred = StakeCredentialByKey . StakeKeyHash $ coerceKeyRole h
 
       votingCred <- hoistEither $ first GovernanceVoteCmdCredentialDecodeError $ toVotingCredential sbe vStakeCred
-      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier
-          voteProcedure = createVotingProcedure sbe v (VoterDRep votingCred) govActIdentifier
-      firstExceptT GovernanceVoteCmeWriteError . newExceptT
-        $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope outFp Nothing voteProcedure
+      let voter = VoterDRep votingCred
+          govActIdentifier = shelleyBasedEraConstraints sbe $ createGovernanceActionId govActionTxId govActionIndex
+          voteProcedure = createVotingProcedure sbe voteChoice Nothing
+          votingEntry = VotingEntry { votingEntryVoter = voter
+                                    , votingEntryGovActionId = GovernanceActionId govActIdentifier
+                                    , votingEntryVotingProcedure = voteProcedure
+                                    }
+      firstExceptT GovernanceVoteCmdWriteError . newExceptT $ shelleyBasedEraConstraints sbe
+        $ writeFileTextEnvelope oFp Nothing votingEntry
 
     AnyStakePoolVerificationKeyOrHashOrFile stake -> do
-      let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
       h <- firstExceptT GovernanceVoteCmdReadError
              . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
 
-      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier
-          voteProcedure = createVotingProcedure sbe v (VoterSpo h) govActIdentifier
-      firstExceptT GovernanceVoteCmeWriteError . newExceptT
-        $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope outFp Nothing voteProcedure
+      let voter = VoterSpo h
+          govActIdentifier = shelleyBasedEraConstraints sbe $ createGovernanceActionId govActionTxId govActionIndex
+          voteProcedure = createVotingProcedure sbe voteChoice Nothing
+          votingEntry = VotingEntry { votingEntryVoter = voter
+                                    , votingEntryGovActionId = GovernanceActionId govActIdentifier
+                                    , votingEntryVotingProcedure = voteProcedure
+                                    }
+      firstExceptT GovernanceVoteCmdWriteError . newExceptT $ shelleyBasedEraConstraints sbe
+        $ writeFileTextEnvelope oFp Nothing votingEntry
 
     AnyCommitteeHotVerificationKeyOrHashOrFile stake -> do
-      let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
       CommitteeHotKeyHash h <- firstExceptT GovernanceVoteCmdReadError
-             . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey stake
+                                 . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey stake
       let vStakeCred = StakeCredentialByKey . StakeKeyHash $ coerceKeyRole h
       votingCred <- hoistEither $ first GovernanceVoteCmdCredentialDecodeError $ toVotingCredential sbe vStakeCred
-
-      let govActIdentifier = makeGoveranceActionId sbe govTxInIdentifier
-          voteProcedure = createVotingProcedure sbe v (VoterCommittee votingCred) govActIdentifier
-      firstExceptT GovernanceVoteCmeWriteError . newExceptT
-        $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope outFp Nothing voteProcedure
+      let voter = VoterCommittee votingCred
+          govActIdentifier = shelleyBasedEraConstraints sbe $ createGovernanceActionId govActionTxId govActionIndex
+          voteProcedure = createVotingProcedure sbe voteChoice Nothing
+          votingEntry = VotingEntry { votingEntryVoter = voter
+                                    , votingEntryGovActionId = GovernanceActionId govActIdentifier
+                                    , votingEntryVotingProcedure = voteProcedure
+                                    }
+      firstExceptT GovernanceVoteCmdWriteError . newExceptT $ shelleyBasedEraConstraints sbe
+        $ writeFileTextEnvelope oFp Nothing votingEntry

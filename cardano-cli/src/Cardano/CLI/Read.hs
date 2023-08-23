@@ -98,6 +98,7 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Function ((&))
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
+import qualified Data.Map.Strict as Map
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Word
@@ -585,6 +586,7 @@ data SomeWitness
   | AGenesisDelegateExtendedSigningKey
                                (SigningKey GenesisDelegateExtendedKey)
   | AGenesisUTxOSigningKey     (SigningKey GenesisUTxOKey)
+  | ADRepSigningKey            (SigningKey DRepKey)
 
 
 -- | Data required for constructing a Shelley bootstrap witness.
@@ -618,6 +620,11 @@ categoriseSomeWitness swsk =
     AGenesisDelegateExtendedSigningKey sk
                                        -> AShelleyKeyWitness (WitnessGenesisDelegateExtendedKey sk)
     AGenesisUTxOSigningKey     sk      -> AShelleyKeyWitness (WitnessGenesisUTxOKey     sk)
+    ADRepSigningKey            sk      -> AShelleyKeyWitness (WitnessPaymentKey $ castDrep sk)
+
+-- TODO: Conway era - Add constrctor for SigningKey DrepKey to ShelleyWitnessSigningKey
+castDrep :: SigningKey DRepKey -> SigningKey PaymentKey
+castDrep (DRepSigningKey sk) = PaymentSigningKey sk
 
 data ReadWitnessSigningDataError
   = ReadWitnessSigningDataSigningKeyDecodeError !(FileError InputDecodeError)
@@ -676,6 +683,7 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
                           AGenesisDelegateExtendedSigningKey
       , FromSomeType (AsSigningKey AsGenesisUTxOKey)
                           AGenesisUTxOSigningKey
+      , FromSomeType (AsSigningKey AsDRepKey) ADRepSigningKey
       ]
 
     bech32FileTypes =
@@ -742,14 +750,21 @@ readTxVotes :: ()
   -> IO (Either VoteError (TxVotes era))
 readTxVotes _ [] = return $ Right TxVotesNone
 readTxVotes w files = runExceptT $ do
-  TxVotes w <$> forM files (ExceptT . readVoteFile w)
+  TxVotes w . Map.fromList . map entryToAssoc <$> forM files (ExceptT . readVoteFile w)
+  where
+    entryToAssoc :: VotingEntry era -> ((Voter era, GovernanceActionId era), VotingProcedure era)
+    entryToAssoc VotingEntry
+      { votingEntryVoter = voter
+      , votingEntryGovActionId = govActId
+      , votingEntryVotingProcedure = vproc
+      } = ((voter, govActId), vproc)
 
 readVoteFile
   :: ConwayEraOnwards era
   -> VoteFile In
-  -> IO (Either VoteError (VotingProcedure era))
+  -> IO (Either VoteError (VotingEntry era))
 readVoteFile w fp =
-  first VoteErrorFile <$> conwayEraOnwardsConstraints w (readFileTextEnvelope AsVote fp)
+  first VoteErrorFile <$> conwayEraOnwardsConstraints w (readFileTextEnvelope AsVotingEntry fp)
 
 data ConstitutionError
   = ConstitutionErrorFile (FileError TextEnvelopeError)

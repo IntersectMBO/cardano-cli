@@ -1,4 +1,8 @@
-Usage: cardano-cli conway governance action create-treasury-withdrawal --governance-action-deposit NATURAL
+Usage: cardano-cli conway governance action create-treasury-withdrawal 
+                                                                         ( --mainnet
+                                                                         | --testnet
+                                                                         )
+                                                                         --governance-action-deposit NATURAL
                                                                          ( --stake-pool-verification-key STRING
                                                                          | --cold-verification-key-file FILE
                                                                          | --stake-pool-id STAKE_POOL_ID
@@ -6,6 +10,8 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal --governa
                                                                          | --stake-verification-key-file FILE
                                                                          | --stake-key-hash HASH
                                                                          )
+                                                                         --proposal-url TEXT
+                                                                         --anchor-data-hash TEXT
                                                                          [
                                                                            ( --stake-pool-verification-key STRING
                                                                            | --cold-verification-key-file FILE
@@ -20,6 +26,8 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal --governa
   Create a treasury withdrawal.
 
 Available options:
+  --mainnet                Use the mainnet magic id.
+  --testnet                Use the testnet magic id.
   --governance-action-deposit NATURAL
                            Deposit required to submit a governance action.
   --stake-pool-verification-key STRING
@@ -35,6 +43,8 @@ Available options:
   --stake-verification-key-file FILE
                            Filepath of the staking verification key.
   --stake-key-hash HASH    Stake verification key hash (hex-encoded).
+  --proposal-url TEXT      Proposal anchor URL
+  --anchor-data-hash TEXT  Hash of anchor data.
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
   --cold-verification-key-file FILE
