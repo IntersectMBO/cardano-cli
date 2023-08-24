@@ -3,11 +3,11 @@
     "CHaP": {
       "flake": false,
       "locked": {
-        "lastModified": 1693560763,
-        "narHash": "sha256-Ta2CkAzPn70QiGn62vYQDfxwYCrqiOFfrONrUuza1u8=",
+        "lastModified": 1693988844,
+        "narHash": "sha256-0fvQy6GxgSkpufa0QeEtYNEY4G5nSQ7L4VIkGdfTt+w=",
         "owner": "input-output-hk",
         "repo": "cardano-haskell-packages",
-        "rev": "f941b803944a7c70e27a8fb02fc6456807053684",
+        "rev": "27f047c00b5d079e6322a3eab53549cad9e77680",
         "type": "github"
       },
       "original": {
@@ -153,24 +153,6 @@
         "type": "github"
       }
     },
-    "flake-utils_2": {
-      "inputs": {
-        "systems": "systems_2"
-      },
-      "locked": {
-        "lastModified": 1692799911,
-        "narHash": "sha256-3eihraek4qL744EvQXsK1Ha6C3CR7nnT8X2qWap4RNk=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "f9e7cf818399d17d347f847525c5a5a8032e4e44",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
     "ghc-8.6.5-iohk": {
       "flake": false,
       "locked": {
@@ -191,11 +173,11 @@
     "hackage": {
       "flake": false,
       "locked": {
-        "lastModified": 1693182531,
-        "narHash": "sha256-OejogS2E745biMj8NuUYatN7uoMRsg7giVnRQwfiays=",
+        "lastModified": 1693959895,
+        "narHash": "sha256-qLmbEucG4NTA507cQzhsqnE3nJqUSVAALQX6MgzDwGo=",
         "owner": "input-output-hk",
         "repo": "hackage.nix",
-        "rev": "34cd9fe31d210f2ff041f490eaa4029f6b2812c4",
+        "rev": "d0d990c3a8daba50aee6ee31794cb87226f4e18f",
         "type": "github"
       },
       "original": {
@@ -212,11 +194,11 @@
         "cabal-36": "cabal-36",
         "cardano-shell": "cardano-shell",
         "flake-compat": "flake-compat",
-        "flake-utils": "flake-utils_2",
         "ghc-8.6.5-iohk": "ghc-8.6.5-iohk",
         "hackage": "hackage",
         "hls-1.10": "hls-1.10",
         "hls-2.0": "hls-2.0",
+        "hls-2.2": "hls-2.2",
         "hpc-coveralls": "hpc-coveralls",
         "hydra": "hydra",
         "iserv-proxy": "iserv-proxy",
@@ -235,11 +217,11 @@
         "stackage": "stackage"
       },
       "locked": {
-        "lastModified": 1693196365,
-        "narHash": "sha256-3fC4Ynlzxbpwwqnwlw+UesIB2808z6bTh3MitM1EVd4=",
+        "lastModified": 1693961398,
+        "narHash": "sha256-+ju59T0KJL0rIDhUXsS+OKrx7TOlE+R4GjbtVEjo9mA=",
         "owner": "input-output-hk",
         "repo": "haskell.nix",
-        "rev": "5ed5f276df29a441ee4991667e7947528fa3cbb9",
+        "rev": "37d562be0e4c0090c230347968eb3d0d813cac02",
         "type": "github"
       },
       "original": {
@@ -278,6 +260,23 @@
       "original": {
         "owner": "haskell",
         "ref": "2.0.0.1",
+        "repo": "haskell-language-server",
+        "type": "github"
+      }
+    },
+    "hls-2.2": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1693064058,
+        "narHash": "sha256-8DGIyz5GjuCFmohY6Fa79hHA/p1iIqubfJUTGQElbNk=",
+        "owner": "haskell",
+        "repo": "haskell-language-server",
+        "rev": "b30f4b6cf5822f3112c35d14a0cba51f3fe23b85",
+        "type": "github"
+      },
+      "original": {
+        "owner": "haskell",
+        "ref": "2.2.0.0",
         "repo": "haskell-language-server",
         "type": "github"
       }
@@ -347,11 +346,11 @@
         "sodium": "sodium"
       },
       "locked": {
-        "lastModified": 1692743532,
-        "narHash": "sha256-OcnZRZBh3pOx5uChTuO+4o9OHiG1ip36C35DaFrwjbM=",
+        "lastModified": 1693968598,
+        "narHash": "sha256-2wFadXHMgNYrF7N6jndfp3Ywm2G0r+QTPifrlzugkjo=",
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "e5b4889e4d191cf2cb1495dd16b13ea016b5569a",
+        "rev": "7d738e59d276336d1e02447e27b0373164d3bc88",
         "type": "github"
       },
       "original": {
@@ -656,11 +655,11 @@
     "stackage": {
       "flake": false,
       "locked": {
-        "lastModified": 1693181390,
-        "narHash": "sha256-SWcgiVwyYfbd/ypwhkEmjJ92tCCsqQ179vwKH1m2lZE=",
+        "lastModified": 1693786159,
+        "narHash": "sha256-IzpBwbwD90CIdhOKfdzS98+o3AtoADNsSz5QBr281Gg=",
         "owner": "input-output-hk",
         "repo": "stackage.nix",
-        "rev": "6479adae3f7559a300d3ee94af92ed9da5030794",
+        "rev": "69d620fde80c1dfbe78b081db1b5725e9c0ce9e2",
         "type": "github"
       },
       "original": {
@@ -670,21 +669,6 @@
       }
     },
     "systems": {
-      "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
-        "owner": "nix-systems",
-        "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "default",
-        "type": "github"
-      }
-    },
-    "systems_2": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

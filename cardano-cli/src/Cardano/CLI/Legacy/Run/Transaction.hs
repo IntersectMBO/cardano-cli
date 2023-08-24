@@ -1,16 +1,8 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TupleSections #-}
-
-{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
-
-{- HLINT ignore "Unused LANGUAGE pragma" -}
-{- HLINT ignore "Use let" -}
 
 module Cardano.CLI.Legacy.Run.Transaction
   ( runLegacyTransactionCmds
@@ -25,6 +17,7 @@ import           Cardano.CLI.Types.Errors.ShelleyTxCmdError
 import           Cardano.CLI.Types.Governance
 
 import           Control.Monad.Trans.Except
+
 
 runLegacyTransactionCmds :: LegacyTransactionCmds -> ExceptT ShelleyTxCmdError IO ()
 runLegacyTransactionCmds cmd =
@@ -49,8 +42,8 @@ runLegacyTransactionCmds cmd =
       runLegacyTxSubmitCmd mNodeSocketPath anyConsensusModeParams network txFp
     TxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
       runLegacyTxCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
-    TxCalculateMinRequiredUTxO era pParamsFile txOuts ->
-      runLegacyTxCalculateMinRequiredUTxOCmd era pParamsFile txOuts
+    TxCalculateMinRequiredUTxO era pParamsFile txOuts' ->
+      runLegacyTxCalculateMinRequiredUTxOCmd era pParamsFile txOuts'
     TxHashScriptData scriptDataOrFile ->
       runLegacyTxHashScriptDataCmd scriptDataOrFile
     TxGetTxId txinfile ->

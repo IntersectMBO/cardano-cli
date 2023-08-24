@@ -309,15 +309,15 @@ instance Error TxProtocolParametersValidationError where
 
 validateProtocolParameters
   :: CardanoEra era
-  -> Maybe ProtocolParameters
-  -> Either TxProtocolParametersValidationError (BuildTxWith BuildTx (Maybe ProtocolParameters))
+  -> Maybe (LedgerProtocolParameters era)
+  -> Either TxProtocolParametersValidationError (BuildTxWith BuildTx (Maybe (LedgerProtocolParameters era)))
 validateProtocolParameters _ Nothing = return (BuildTxWith Nothing)
 validateProtocolParameters era (Just pparams) =
-    case scriptDataSupportedInEra era of
-      Nothing -> Left $ ProtocolParametersNotSupported
+    case cardanoEraStyle era of
+      LegacyByronEra -> Left $ ProtocolParametersNotSupported
                       $ getIsCardanoEraConstraint era
                       $ AnyCardanoEra era
-      Just _  -> return . BuildTxWith $ Just pparams
+      ShelleyBasedEra _  -> return . BuildTxWith $ Just pparams
 
 newtype TxUpdateProposalValidationError
   = TxUpdateProposalNotSupported AnyCardanoEra

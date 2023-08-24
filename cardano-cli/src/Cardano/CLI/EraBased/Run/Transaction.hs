@@ -7,11 +7,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 
-{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
-
-{- HLINT ignore "Unused LANGUAGE pragma" -}
-{- HLINT ignore "Use let" -}
-
 module Cardano.CLI.EraBased.Run.Transaction
   ( runTransactionCmds
   , runTxBuildCmd
@@ -30,6 +25,7 @@ module Cardano.CLI.EraBased.Run.Transaction
 
 import           Cardano.Api
 import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Transaction
@@ -41,8 +37,9 @@ import           Cardano.CLI.Types.Errors.ShelleyBootstrapWitnessError
 import           Cardano.CLI.Types.Errors.ShelleyTxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Output
+import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
+import qualified Cardano.Ledger.Alonzo.Core as Ledger
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 import           Control.Monad (forM)
@@ -58,7 +55,6 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Data ((:~:) (..))
 import           Data.Foldable (Foldable (..))
 import           Data.Function ((&))
-import           Data.Functor
 import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
@@ -69,6 +65,7 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Data.Type.Equality (TestEquality (..))
+import           Lens.Micro ((^.))
 import qualified System.IO as IO
 
 runTransactionCmds :: TransactionCmds era -> ExceptT ShelleyTxCmdError IO ()
@@ -177,7 +174,7 @@ runTxBuildCmd
                                      $ readScriptWitnessFilesThruple era wdrls
   txMetadata <- firstExceptT ShelleyTxCmdMetadataError
                   . newExceptT $ readTxMetadata era metadataSchema metadataFiles
-  valuesWithScriptWits <- readValueScriptWitnesses era $ fromMaybe (mempty, []) mValue
+  valuesWithScriptWits <- readValueScriptWitnesses era $ fromMaybe mempty mValue
   scripts <- firstExceptT ShelleyTxCmdScriptFileError $
                      mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
   txAuxScripts <- hoistEither $ first ShelleyTxCmdAuxScriptsValidationError $ validateTxAuxScripts era scripts
@@ -233,13 +230,7 @@ runTxBuildCmd
       let BuildTxWith mTxProtocolParams = txProtocolParams txBodycontent
 
       pparams <- pure mTxProtocolParams & onNothing (left ShelleyTxCmdProtocolParametersNotPresentInTxBody)
-      pp <- case cardanoEraStyle era of
-              LegacyByronEra -> left ShelleyTxCmdByronEra
-              ShelleyBasedEra sbe ->
-                hoistEither . first ShelleyTxCmdProtocolParamsConverstionError $ toLedgerPParams sbe pparams
-
-      executionUnitPrices <- pure (protocolParamPrices pparams) & onNothing (left ShelleyTxCmdPParamExecutionUnitsNotAvailable)
-
+      executionUnitPrices <- pure (getExecutionUnitPrices era pparams) & onNothing (left ShelleyTxCmdPParamExecutionUnitsNotAvailable)
       let consensusMode = consensusModeOnly cModeParams
 
       case consensusMode of
@@ -262,7 +253,7 @@ runTxBuildCmd
             firstExceptT ShelleyTxCmdTxExecUnitsErr $ hoistEither
               $ evaluateTransactionExecutionUnits
                   systemStart (toLedgerEpochInfo eraHistory)
-                  pp txEraUtxo balancedTxBody
+                  pparams txEraUtxo balancedTxBody
 
           scriptCostOutput <-
             firstExceptT ShelleyTxCmdPlutusScriptCostErr $ hoistEither
@@ -279,8 +270,19 @@ runTxBuildCmd
       in  lift (cardanoEraConstraints era $ writeTxFileTextEnvelopeCddl fpath noWitTx)
             & onLeft (left . ShelleyTxCmdWriteFileError)
 
-runTxBuildRawCmd :: ()
-  => CardanoEra era
+getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe Ledger.Prices
+getExecutionUnitPrices cEra (LedgerProtocolParameters pp) = do
+  ShelleyBasedEra sbe <- pure $ cardanoEraStyle cEra
+  case sbe of
+    ShelleyBasedEraShelley -> Nothing
+    ShelleyBasedEraAllegra -> Nothing
+    ShelleyBasedEraMary -> Nothing
+    ShelleyBasedEraAlonzo -> Just $ pp ^. Ledger.ppPricesL
+    ShelleyBasedEraBabbage -> Just $ pp ^. Ledger.ppPricesL
+    ShelleyBasedEraConway -> Just $ pp ^. Ledger.ppPricesL
+
+runTxBuildRawCmd
+  :: CardanoEra era
   -> Maybe ScriptValidity
   -> [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
   -> [TxIn] -- ^ Read only reference inputs
@@ -326,13 +328,21 @@ runTxBuildRawCmd
                                      $ readScriptWitnessFilesThruple era wdrls
   txMetadata <- firstExceptT ShelleyTxCmdMetadataError
                   . newExceptT $ readTxMetadata era metadataSchema metadataFiles
-  valuesWithScriptWits <- readValueScriptWitnesses era $ fromMaybe (mempty, []) mValue
+  valuesWithScriptWits <- readValueScriptWitnesses era $ fromMaybe mempty mValue
   scripts <- firstExceptT ShelleyTxCmdScriptFileError $
                      mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
   txAuxScripts <- hoistEither $ first ShelleyTxCmdAuxScriptsValidationError $ validateTxAuxScripts era scripts
 
+  -- TODO: Conway era - update readProtocolParameters to rely on Ledger.PParams JSON instances
   pparams <- forM mpParamsFile $ \ppf ->
     firstExceptT ShelleyTxCmdProtocolParamsError (readProtocolParameters ppf)
+
+  mLedgerPParams <- case cardanoEraStyle era of
+    LegacyByronEra -> return Nothing
+    ShelleyBasedEra sbe ->
+      forM pparams $ \pp ->
+        firstExceptT ShelleyTxCmdProtocolParamsConverstionError
+         . hoistEither $ convertToLedgerProtocolParameters sbe pp
 
   mProp <- forM mUpProp $ \(UpdateProposalFile upFp) ->
     firstExceptT ShelleyTxCmdReadTextViewFileError (newExceptT $ readFileTextEnvelope AsUpdateProposal (File upFp))
@@ -347,7 +357,7 @@ runTxBuildRawCmd
   txBody <- hoistEither $ runTxBuildRaw era mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
                           mReturnCollateral mTotColl txOuts mLowBound mUpperBound fee valuesWithScriptWits
                           certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits requiredSigners txAuxScripts
-                          txMetadata pparams mProp
+                          txMetadata mLedgerPParams mProp
 
   let noWitTx = makeSignedTransaction [] txBody
   lift (getIsCardanoEraConstraint era $ writeTxFileTextEnvelopeCddl out noWitTx)
@@ -384,7 +394,7 @@ runTxBuildRaw :: ()
   -- ^ Required signers
   -> TxAuxScripts era
   -> TxMetadataInEra era
-  -> Maybe ProtocolParameters
+  -> Maybe (LedgerProtocolParameters era)
   -> Maybe UpdateProposal
   -> Either ShelleyTxCmdError (TxBody era)
 runTxBuildRaw era
@@ -427,7 +437,7 @@ runTxBuildRaw era
       <- createTxMintValue era valuesWithScriptWits
     validatedTxScriptValidity
       <- first ShelleyTxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
-    let validatedTxGovernanceActions = TxGovernanceActionsNone -- TODO: Conwary era
+    let validatedTxProposalProcedures = Nothing -- TODO: Conwary era
         validatedTxVotes = Nothing -- TODO: Conwary era
     let txBodyContent =
           TxBodyContent
@@ -448,7 +458,7 @@ runTxBuildRaw era
             , txUpdateProposal = validatedTxUpProp
             , txMintValue = validatedMintValue
             , txScriptValidity = validatedTxScriptValidity
-            , txGovernanceActions = validatedTxGovernanceActions
+            , txProposalProcedures = validatedTxProposalProcedures
             , txVotingProcedures = validatedTxVotes
             }
 
@@ -492,7 +502,7 @@ runTxBuild :: ()
   -> Maybe UpdateProposal
   -> Maybe Word
   -> VotingProcedures era
-  -> TxGovernanceActions era
+  -> [Proposal era]
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO (BalancedTxBody era)
 runTxBuild
@@ -530,10 +540,9 @@ runTxBuild
   validatedTxScriptValidity <- hoistEither (first ShelleyTxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity)
 
   case (consensusMode, cardanoEraStyle era) of
-    (CardanoMode, ShelleyBasedEra sbe) -> do
-      void $ pure (toEraInMode era CardanoMode)
-        & onNothing (left (ShelleyTxCmdEraConsensusModeMismatchTxBalance outputOptions
-                            (AnyConsensusMode CardanoMode) (AnyCardanoEra era)))
+    (CardanoMode, ShelleyBasedEra _) -> do
+      _ <- toEraInMode era CardanoMode
+            & hoistMaybe (ShelleyTxCmdEraConsensusModeMismatchTxBalance outputOptions (AnyConsensusMode CardanoMode) (AnyCardanoEra era))
 
       let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
           localNodeConnInfo = LocalNodeConnectInfo
@@ -546,25 +555,26 @@ runTxBuild
         & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . ShelleyTxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
+      Refl <- testEquality era nodeEra
+              & hoistMaybe (ShelleyTxCmdTxEraCastErr $ EraCastError ("nodeEra" :: Text) era nodeEra)
+
       let certs =
             case validatedTxCerts of
               TxCertificates _ cs _ -> cs
               _ -> []
 
-      nodeEraCerts <- pure (forM certs $ eraCast nodeEra)
-        & onLeft (left . ShelleyTxCmdTxEraCastErr)
+      nodeEraCerts <- forM certs (eraCast nodeEra)
+                      & firstExceptT ShelleyTxCmdTxEraCastErr . hoistEither
 
       (nodeEraUTxO, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits) <-
         lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs nodeEraCerts)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError)
 
-      pp <- hoistEither . first ShelleyTxCmdProtocolParamsConverstionError $ toLedgerPParams sbe pparams
-
       validatedPParams <- hoistEither $ first ShelleyTxCmdProtocolParametersValidationError
                                       $ validateProtocolParameters era (Just pparams)
 
-      let validatedTxGovernanceActions = proposals
+      let validatedTxProposalProcedures = proposals
           validatedTxVotes =  votes
           txBodyContent =
             TxBodyContent
@@ -585,8 +595,8 @@ runTxBuild
               , txUpdateProposal = validatedTxUpProp
               , txMintValue = validatedMintValue
               , txScriptValidity = validatedTxScriptValidity
-              , txGovernanceActions = validatedTxGovernanceActions
-              , txVotingProcedures = inEraFeature era Nothing (\w -> Just (Featured w validatedTxVotes))
+              , txProposalProcedures = inEraFeatureMaybe era (`Featured` validatedTxProposalProcedures)
+              , txVotingProcedures = inEraFeatureMaybe era (`Featured` validatedTxVotes)
               }
 
       firstExceptT ShelleyTxCmdTxInsDoNotExist
@@ -606,7 +616,7 @@ runTxBuild
         firstExceptT ShelleyTxCmdBalanceTxBody
           . hoistEither
           $ makeTransactionBodyAutoBalance systemStart (toLedgerEpochInfo eraHistory)
-                                           pp stakePools stakeDelegDeposits txEraUtxo
+                                           pparams stakePools stakeDelegDeposits txEraUtxo
                                            txBodyContent cAddr mOverrideWits
 
       liftIO $ putStrLn $ "Estimated transaction fee: " <> (show fee :: String)

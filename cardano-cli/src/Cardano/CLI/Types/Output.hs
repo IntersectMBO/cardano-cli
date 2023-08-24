@@ -12,6 +12,7 @@ module Cardano.CLI.Types.Output
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Orphans ()
@@ -260,7 +261,7 @@ instance ToJSON ScriptCostOutput where
 data PlutusScriptCostError
   = PlutusScriptCostErrPlutusScriptNotFound ScriptWitnessIndex
   | PlutusScriptCostErrExecError ScriptWitnessIndex (Maybe ScriptHash) ScriptExecutionError
-  | PlutusScriptCostErrRationalExceedsBound ExecutionUnitPrices  ExecutionUnits
+  | PlutusScriptCostErrRationalExceedsBound Ledger.Prices  ExecutionUnits
   | PlutusScriptCostErrRefInputNoScript TxIn
   | PlutusScriptCostErrRefInputNotInUTxO TxIn
   deriving Show
@@ -282,7 +283,7 @@ instance Error PlutusScriptCostError where
 
 renderScriptCosts
   :: UTxO era
-  -> ExecutionUnitPrices
+  -> Ledger.Prices
   -> [(ScriptWitnessIndex, AnyScriptWitness era)]
   -- ^ Initial mapping of script witness index to actual script.
   -- We need this in order to know which script corresponds to the

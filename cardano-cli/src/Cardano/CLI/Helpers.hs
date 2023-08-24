@@ -12,7 +12,6 @@ module Cardano.CLI.Helpers
   , readCBOR
   , renderHelpersError
   , validateCBOR
-  , hushM
   ) where
 
 import           Cardano.Chain.Block (decCBORABlockOrBoundary)
@@ -130,9 +129,3 @@ validateCBOR cborObject bs =
       void $ decodeCBOR bs (fromCBOR :: Decoder s Update.Vote)
       Right "Valid Byron vote."
 
--- | Convert an Either to a Maybe and execute the supplied handler
--- in the Left case.
-hushM :: forall e m a. Monad m => Either e a -> (e -> m ()) -> m (Maybe a)
-hushM r f = case r of
-  Right a -> return (Just a)
-  Left e -> f e >> return Nothing
