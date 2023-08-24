@@ -1020,21 +1020,21 @@ Usage: cardano-cli conway governance drep delegation-certificate
                                                                    | --stake-script-file FILE
                                                                    | --stake-address ADDRESS
                                                                    )
-                                                                   ( --stake-pool-verification-key STRING
+                                                                   ( ( --combined-drep-verification-key STRING
+                                                                     | --combined-drep-verification-key-file FILE
+                                                                     | --combined-drep-key-hash HASH
+                                                                     )
+                                                                     ( --combined-stake-pool-verification-key STRING
+                                                                     | --combined-cold-verification-key-file FILE
+                                                                     | --combined-stake-pool-id STAKE_POOL_ID
+                                                                     )
+                                                                   | --stake-pool-verification-key STRING
                                                                    | --cold-verification-key-file FILE
                                                                    | --stake-pool-id STAKE_POOL_ID
                                                                    | --drep-verification-key STRING
                                                                    | --drep-verification-key-file FILE
                                                                    | --drep-key-hash HASH
                                                                    | --drep-script-hash HASH
-                                                                   | ( --drep-verification-key STRING
-                                                                     | --drep-verification-key-file FILE
-                                                                     | --drep-key-hash HASH
-                                                                     )
-                                                                     ( --stake-pool-verification-key STRING
-                                                                     | --cold-verification-key-file FILE
-                                                                     | --stake-pool-id STAKE_POOL_ID
-                                                                     )
                                                                    | --always-abstain
                                                                    | --always-no-confidence
                                                                    )

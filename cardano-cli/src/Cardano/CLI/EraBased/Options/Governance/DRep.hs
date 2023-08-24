@@ -172,13 +172,16 @@ pEraBasedDelegationCertificateCmd _envCli era = do
 pStakeTarget :: ConwayEraOnwards era -> Parser (StakeTarget era)
 pStakeTarget cOnwards =
   asum
-    [ TargetStakePool cOnwards <$> pStakePoolVerificationKeyOrHashOrFile
+    [ TargetVotingDrepAndStakePool cOnwards
+        <$> pCombinedDRepVerificationKeyOrHashOrFile
+        <*> pCombinedStakePoolVerificationKeyOrHashOrFile
+
+    , TargetStakePool cOnwards <$> pStakePoolVerificationKeyOrHashOrFile
+
     , TargetVotingDrep cOnwards <$> pDRepVerificationKeyOrHashOrFile
     , TargetVotingDRepScriptHash cOnwards <$> pDRepScriptHash
-    , TargetVotingDrepAndStakePool cOnwards
-         <$> pDRepVerificationKeyOrHashOrFile
-         <*> pStakePoolVerificationKeyOrHashOrFile
     , TargetAlwaysAbstain cOnwards <$ pAlwaysAbstain
+
     , TargetAlwaysNoConfidence cOnwards <$ pAlwaysNoConfidence
     ]
 
