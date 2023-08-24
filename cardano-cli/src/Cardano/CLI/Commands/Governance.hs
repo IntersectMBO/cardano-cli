@@ -7,6 +7,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Read (singletonVotingProcedures)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Governance
@@ -21,8 +22,8 @@ import           Data.Text (Text)
 import qualified Data.Text.Encoding as Text
 import           Data.Word
 
-runGovernanceCreateVoteCmd
-  :: AnyShelleyBasedEra
+runGovernanceCreateVoteCmd :: ()
+  => AnyShelleyBasedEra
   -> Vote
   -> VType
   -> (TxId, Word32)
@@ -31,41 +32,34 @@ runGovernanceCreateVoteCmd
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateVoteCmd anyEra vChoice vType (govActionTxId, govActionIndex) votingStakeCred oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
-  vStakePoolKey <- firstExceptT ReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
-  let stakePoolKeyHash = verificationKeyHash vStakePoolKey
-      vStakeCred = StakeCredentialByKey . (verificationKeyHash . castVerificationKey) $ vStakePoolKey
-  case vType of
-    VCC -> do
-      votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
-      let voter = VoterCommittee votingCred
-          govActIdentifier = shelleyBasedEraConstraints sbe $ createGovernanceActionId govActionTxId govActionIndex
-          voteProcedure = createVotingProcedure sbe vChoice Nothing
-          votingEntry = VotingEntry { votingEntryVoter = voter
-                                    , votingEntryGovActionId = GovernanceActionId govActIdentifier
-                                    , votingEntryVotingProcedure = voteProcedure
-                                    }
-      firstExceptT WriteFileError . newExceptT $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope oFp Nothing votingEntry
 
-    VDR -> do
-      votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
-      let voter = VoterDRep votingCred
-          govActIdentifier = shelleyBasedEraConstraints sbe $ createGovernanceActionId govActionTxId govActionIndex
-          voteProcedure = createVotingProcedure sbe vChoice Nothing
-          votingEntry = VotingEntry { votingEntryVoter = voter
-                                    , votingEntryGovActionId = GovernanceActionId govActIdentifier
-                                    , votingEntryVotingProcedure = voteProcedure
-                                    }
-      firstExceptT WriteFileError . newExceptT $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope oFp Nothing votingEntry
+  shelleyBasedEraConstraints sbe $ do
+    vStakePoolKey <- firstExceptT ReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
+    let stakePoolKeyHash = verificationKeyHash vStakePoolKey
+        vStakeCred = StakeCredentialByKey . (verificationKeyHash . castVerificationKey) $ vStakePoolKey
+    case vType of
+      VCC -> do
+        votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
+        let voter = Ledger.CommitteeVoter (Ledger.coerceKeyRole (unVotingCredential votingCred)) -- TODO Conway - remove coerceKeyRole
+            govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
+            voteProcedure = createVotingProcedure sbe vChoice Nothing
+            votingProcedures = singletonVotingProcedures sbe voter govActIdentifier (unVotingProcedure voteProcedure)
+        firstExceptT WriteFileError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
 
-    VSP -> do
-      let voter = VoterSpo stakePoolKeyHash
-          govActIdentifier = shelleyBasedEraConstraints sbe $ createGovernanceActionId govActionTxId govActionIndex
-          voteProcedure = createVotingProcedure sbe vChoice Nothing
-          votingEntry = VotingEntry { votingEntryVoter = voter
-                                    , votingEntryGovActionId = GovernanceActionId govActIdentifier
-                                    , votingEntryVotingProcedure = voteProcedure
-                                    }
-      firstExceptT WriteFileError . newExceptT $ shelleyBasedEraConstraints sbe $ writeFileTextEnvelope oFp Nothing votingEntry
+      VDR -> do
+        votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
+        let voter = Ledger.DRepVoter (unVotingCredential votingCred)
+            govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
+            voteProcedure = createVotingProcedure sbe vChoice Nothing
+            votingProcedures = singletonVotingProcedures sbe voter govActIdentifier (unVotingProcedure voteProcedure)
+        firstExceptT WriteFileError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
+
+      VSP -> do
+        let voter = Ledger.StakePoolVoter (unStakePoolKeyHash stakePoolKeyHash)
+            govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
+            voteProcedure = createVotingProcedure sbe vChoice Nothing
+            votingProcedures = singletonVotingProcedures sbe voter govActIdentifier (unVotingProcedure voteProcedure)
+        firstExceptT WriteFileError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
 
 
 runGovernanceNewConstitutionCmd
