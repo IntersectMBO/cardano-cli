@@ -1,5 +1,146 @@
 # Changelog for cardano-cli
 
+## 8.6.0.0
+
+- conway related commands
+  `create-constitution` now requires:
+     - mainnet or testnet
+     - Optionally the previous governance action id
+     - A proposal url and an anchor data hash of the proposal
+     - A constitution url
+  `create-new-committee` now requires:
+     - mainnet or testnet
+     - A proposal url and an anchor data hash of the proposal
+     - Optionally the previous governance action id
+  `create-no-confidence` now requires:
+     - mainnet or testnet
+     - A proposal url and an anchor data hash of the proposal
+  `create-treasury-withdrawal` now requires:
+     - mainnet or testnet
+     - A proposal url and an anchor data hash of the proposal
+  `governance vote create` now requires:
+     - The governance action identifier
+  (feature, breaking)
+  [PR 174](https://github.com/input-output-hk/cardano-cli/pull/174)
+
+- Merge `LegacyClientCmdError` into `CmdError`
+  (improvement)
+  [PR 195](https://github.com/input-output-hk/cardano-cli/pull/195)
+
+- New `governance drep id` command
+  (feature, compatible)
+  [PR 194](https://github.com/input-output-hk/cardano-cli/pull/194)
+
+- Governance `drep` and `vote` command groups
+  (breaking)
+  [PR 191](https://github.com/input-output-hk/cardano-cli/pull/191)
+
+- Move legacy errors out of legacy command structure modules
+  (improvement)
+  [PR 192](https://github.com/input-output-hk/cardano-cli/pull/192)
+
+- Move command errors from era-based to `CmdError` module
+  (improvement)
+  [PR 188](https://github.com/input-output-hk/cardano-cli/pull/188)
+
+- Add `--verification-key` option to `committee key-hash` command
+  (compatible)
+  [PR 187](https://github.com/input-output-hk/cardano-cli/pull/187)
+
+- Changes:
+  * Move to own modules under `Cardano.CLI.Types.Errors.GovernanceCmdError`:
+    * `GovernanceCmdError`
+    * `ShelleyStakeAddressCmdError`
+    * `StakeAddressDelegationError`
+    * `StakeAddressRegistrationError`
+    * `ScriptDecodeError`
+  (improvement)
+  [PR 186](https://github.com/input-output-hk/cardano-cli/pull/186)
+
+- Implement `conway governance committee create-cold-key-resignation` certificate
+  (compatible)
+  [PR 146](https://github.com/input-output-hk/cardano-cli/pull/146)
+
+- Delete unused module `Cardano.CLI.Legacy.Options`
+  (improvement)
+  [PR 185](https://github.com/input-output-hk/cardano-cli/pull/185)
+
+- Implement `conway governance committee create-hot-key-authorization-certificate` command
+  (compatible)
+  [PR 145](https://github.com/input-output-hk/cardano-cli/pull/145)
+
+- Remove example era-based parsers we don't need anymore
+  (breaking)
+  [PR 180](https://github.com/input-output-hk/cardano-cli/pull/180)
+
+- Remove all uses of `toS`, `purer`, `cborError` and `intercalate` from `Cardano.Prelude`
+  (improvement)
+  [PR 182](https://github.com/input-output-hk/cardano-cli/pull/182)
+
+- Refactor: Use `maybeFeatureInEra` instead of `featureInEra` where possible
+  (improvement)
+  [PR 183](https://github.com/input-output-hk/cardano-cli/pull/183)
+
+- Add goverance info action creation to era based cli. Note this currently does nothing as cardano-ledger provides a placeholder constructor for this governance action.
+  (feature, compatible)
+  [PR 179](https://github.com/input-output-hk/cardano-cli/pull/179)
+
+- Add error type and messages in `Cardano.CLI.EraBased.Run`.
+  (compatible, test)
+  [PR 156](https://github.com/input-output-hk/cardano-cli/pull/156)
+
+- Add create-no-confidence command to era based cardano-cli
+  (feature, compatible)
+  [PR 176](https://github.com/input-output-hk/cardano-cli/pull/176)
+
+- Add create-new-committee command to era based cli
+  (feature, compatible)
+  [PR 175](https://github.com/input-output-hk/cardano-cli/pull/175)
+
+- Add conway governance action create-treasury-withdrawal
+  (feature, breaking)
+  [PR 155](https://github.com/input-output-hk/cardano-cli/pull/155)
+
+- Add create-protocol-parameters-update command to era based commands
+  (feature)
+  [PR 170](https://github.com/input-output-hk/cardano-cli/pull/170)
+
+- Reenable all golden tests
+  (compatible, test)
+  [PR 164](https://github.com/input-output-hk/cardano-cli/pull/164)
+
+- CLI command 'drep cardano-cli conway governance drep key-gen` for DRep key generation
+  (feature, compatible)
+  [PR 163](https://github.com/input-output-hk/cardano-cli/pull/163)
+
+- Structuring legacy code so that era-based code does not depend on it
+  (compatible)
+  [PR 158](https://github.com/input-output-hk/cardano-cli/pull/158)
+
+- Update to `cardano-api-8.13.0.0`
+  (compatible)
+  [PR 169](https://github.com/input-output-hk/cardano-cli/pull/169)
+
+- Wire up constitution creation in the new era based cli commands
+  (feature, compatible)
+  [PR 142](https://github.com/input-output-hk/cardano-cli/pull/142)
+
+- Fix deregistration-certificate: generate deregistration instead of registration certs
+  (compatible, bugfix)
+  [PR 159](https://github.com/input-output-hk/cardano-cli/pull/159)
+
+- Plural for command groups
+  (compatible)
+  [PR 151](https://github.com/input-output-hk/cardano-cli/pull/151)
+
+- Implement `conway governance committee key-hash` command
+  (compatible)
+  [PR 144](https://github.com/input-output-hk/cardano-cli/pull/144)
+
+- Implement conway governance committee hot-key-gen command
+  (feature; compatible)
+  [PR 136](https://github.com/input-output-hk/cardano-cli/pull/136)
+
 ## 8.5.0.0
 
 - Add always abstain, always no confidence and drep script hash options. NB: The drep script hash option is hidden until ledger exposed the necessary constructor.
