@@ -924,6 +924,7 @@ Usage: cardano-cli conway governance drep delegation-certificate
                                                                    | --drep-verification-key STRING
                                                                    | --drep-verification-key-file FILE
                                                                    | --drep-key-hash HASH
+                                                                   | --drep-script-hash HASH
                                                                    | ( --drep-verification-key STRING
                                                                      | --drep-verification-key-file FILE
                                                                      | --drep-key-hash HASH
@@ -1376,6 +1377,7 @@ Usage: cardano-cli experimental governance drep delegation-certificate
                                                                          | --drep-verification-key STRING
                                                                          | --drep-verification-key-file FILE
                                                                          | --drep-key-hash HASH
+                                                                         | --drep-script-hash HASH
                                                                          | ( --drep-verification-key STRING
                                                                            | --drep-verification-key-file FILE
                                                                            | --drep-key-hash HASH

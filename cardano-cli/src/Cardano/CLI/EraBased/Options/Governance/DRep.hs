@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Options.Governance.DRep
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
@@ -173,14 +174,12 @@ pStakeTarget cOnwards =
   asum
     [ TargetStakePool cOnwards <$> pStakePoolVerificationKeyOrHashOrFile
     , TargetVotingDrep cOnwards <$> pDRepVerificationKeyOrHashOrFile
+    , TargetVotingDRepScriptHash cOnwards <$> pDRepScriptHash
     , TargetVotingDrepAndStakePool cOnwards
          <$> pDRepVerificationKeyOrHashOrFile
          <*> pStakePoolVerificationKeyOrHashOrFile
     , TargetAlwaysAbstain cOnwards <$ pAlwaysAbstain
     , TargetAlwaysNoConfidence cOnwards <$ pAlwaysNoConfidence
-   -- TODO: Conway era - necessary constructor not exposed by ledger yet
-   -- so this option is hidden
-    , TargetVotingDRepScriptHash cOnwards <$> pDRepScriptHash
     ]
 
 pAlwaysAbstain :: Parser ()
@@ -205,7 +204,6 @@ pDRepScriptHash =
     , Opt.help $ mconcat
         [ "DRep script hash (hex-encoded).  "
         ]
-    , Opt.hidden
     ]
 
 scriptHashReader :: Opt.ReadM ScriptHash

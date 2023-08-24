@@ -121,9 +121,9 @@ toLedgerDelegatee t =
 
     TargetAlwaysNoConfidence{} -> right $ Ledger.DelegVote Ledger.DRepAlwaysNoConfidence
 
-    TargetVotingDRepScriptHash _cOn (ScriptHash _scriptHash) ->
-      error "TODO: Conway era - DRepScriptHash not exposed by ledger yet"
-      -- right $ Ledger.DelegVote $ Ledger.DRepScriptHash scriptHash
+    TargetVotingDRepScriptHash cOn (ScriptHash scriptHash) ->
+      conwayEraOnwardsConstraints cOn $
+        right $ Ledger.DelegVote $ Ledger.DRepCredential $ Ledger.ScriptHashObj scriptHash
 
 runGovernanceDRepIdCmd :: ()
   => ConwayEraOnwards era

@@ -10,6 +10,7 @@ Usage: cardano-cli experimental governance drep delegation-certificate
                                                                          | --drep-verification-key STRING
                                                                          | --drep-verification-key-file FILE
                                                                          | --drep-key-hash HASH
+                                                                         | --drep-script-hash HASH
                                                                          | ( --drep-verification-key STRING
                                                                            | --drep-verification-key-file FILE
                                                                            | --drep-key-hash HASH
@@ -47,6 +48,7 @@ Available options:
   --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
                            hex-encoded). Zero or more occurences of this option
                            is allowed.
+  --drep-script-hash HASH  DRep script hash (hex-encoded).
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).
   --drep-verification-key-file FILE
@@ -64,6 +66,5 @@ Available options:
                            occurences of this option is allowed.
   --always-abstain         Abstain from voting on all proposals.
   --always-no-confidence   Always vote no confidence
-  --drep-script-hash HASH  DRep script hash (hex-encoded).
   --out-file FILE          The output file.
   -h,--help                Show this help text
