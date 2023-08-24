@@ -171,15 +171,20 @@ pEraBasedDelegationCertificateCmd _envCli era = do
 pStakeTarget :: ConwayEraOnwards era -> Parser (StakeTarget era)
 pStakeTarget cOnwards =
   asum
-    [ TargetStakePool cOnwards <$> pStakePoolVerificationKeyOrHashOrFile
+    [ TargetVotingDrepAndStakePool cOnwards
+        <$> pDRepVerificationKeyOrHashOrFile
+        <*> pStakePoolVerificationKeyOrHashOrFile
+
+    , TargetStakePool cOnwards <$> pStakePoolVerificationKeyOrHashOrFile
+
     , TargetVotingDrep cOnwards <$> pDRepVerificationKeyOrHashOrFile
-    , TargetVotingDrepAndStakePool cOnwards
-         <$> pDRepVerificationKeyOrHashOrFile
-         <*> pStakePoolVerificationKeyOrHashOrFile
+
     , TargetAlwaysAbstain cOnwards <$ pAlwaysAbstain
+
     , TargetAlwaysNoConfidence cOnwards <$ pAlwaysNoConfidence
-   -- TODO: Conway era - necessary constructor not exposed by ledger yet
-   -- so this option is hidden
+
+    -- TODO: Conway era - necessary constructor not exposed by ledger yet
+    -- so this option is hidden
     , TargetVotingDRepScriptHash cOnwards <$> pDRepScriptHash
     ]
 
