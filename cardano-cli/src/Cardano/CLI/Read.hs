@@ -4,6 +4,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
 
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
@@ -77,9 +78,11 @@ module Cardano.CLI.Read
   , mergeVotingProcedures
   , readVotingProceduresFiles
   , readVotingProceduresFile
+  , votingProceduresToTxVotes
   ) where
 
 import           Cardano.Api as Api
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley as Api
 
 import qualified Cardano.Binary as CBOR
@@ -89,7 +92,7 @@ import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Ledger.Conway.Governance as Ledger
-import qualified Cardano.Ledger.Era as Ledger
+import           Ouroboros.Consensus.Shelley.Eras (StandardCrypto)
 
 import           Prelude
 
@@ -99,7 +102,7 @@ import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither,
                    hoistMaybe, left, newExceptT)
 import qualified Data.Aeson as Aeson
-import           Data.Bifunctor (first)
+import           Data.Bifunctor
 import qualified Data.ByteString.Builder as Builder
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS

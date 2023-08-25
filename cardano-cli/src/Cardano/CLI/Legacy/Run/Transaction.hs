@@ -174,8 +174,8 @@ runTxBuildCmd
   -- Conway related
   votes <-
     featureInEra
-      (pure TxVotesNone)
-      (\w -> firstExceptT ShelleyTxCmdVoteError $ ExceptT (readTxVotes w conwayVotes))
+      (pure emptyVotingProcedures)
+      (\w -> firstExceptT ShelleyTxCmdVoteError $ ExceptT (readVotingProceduresFiles w conwayVotes))
       cEra
 
   proposals <- newExceptT $ first ShelleyTxCmdConstitutionError
@@ -473,7 +473,7 @@ runTxBuild
   -> TxMetadataInEra era
   -> Maybe UpdateProposal
   -> Maybe Word
-  -> TxVotes era
+  -> VotingProcedures era
   -> TxGovernanceActions era
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO (BalancedTxBody era)
@@ -545,6 +545,7 @@ runTxBuild
 
       validatedPParams <- hoistEither $ first ShelleyTxCmdProtocolParametersValidationError
                                       $ validateProtocolParameters era (Just pparams)
+
       let validatedTxGovernanceActions = proposals
           validatedTxVotes =  votes
           txBodyContent = TxBodyContent
@@ -566,7 +567,7 @@ runTxBuild
                           validatedMintValue
                           validatedTxScriptValidity
                           validatedTxGovernanceActions
-                          validatedTxVotes
+                          (inEraFeature era TxVotesNone (`votingProceduresToTxVotes` validatedTxVotes)) -- TODO Conway this should probably error if era not supported
 
       firstExceptT ShelleyTxCmdTxInsDoNotExist
         . hoistEither $ txInsExistInUTxO allTxInputs nodeEraUTxO
