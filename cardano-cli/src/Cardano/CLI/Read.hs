@@ -4,6 +4,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
 
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
@@ -71,10 +72,18 @@ module Cardano.CLI.Read
   , getStakeCredentialFromVerifier
   , getStakeCredentialFromIdentifier
   , getStakeAddressFromVerifier
+
+  , emptyVotingProcedures
+  , singletonVotingProcedures
+  , mergeVotingProcedures
+  , readVotingProceduresFiles
+  , readVotingProceduresFile
+  , votingProceduresToTxVotes
   ) where
 
 import           Cardano.Api as Api
-import           Cardano.Api.Shelley
+import qualified Cardano.Api.Ledger as Ledger
+import           Cardano.Api.Shelley as Api
 
 import qualified Cardano.Binary as CBOR
 import           Cardano.CLI.Types.Common
@@ -82,6 +91,8 @@ import           Cardano.CLI.Types.Errors.ScriptDecodeError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.Conway.Governance as Ledger
+import           Ouroboros.Consensus.Shelley.Eras (StandardCrypto)
 
 import           Prelude
 
@@ -91,7 +102,7 @@ import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither,
                    hoistMaybe, left, newExceptT)
 import qualified Data.Aeson as Aeson
-import           Data.Bifunctor (first)
+import           Data.Bifunctor
 import qualified Data.ByteString.Builder as Builder
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
@@ -764,7 +775,77 @@ readVoteFile
   -> VoteFile In
   -> IO (Either VoteError (VotingEntry era))
 readVoteFile w fp =
-  first VoteErrorFile <$> conwayEraOnwardsConstraints w (readFileTextEnvelope AsVotingEntry fp)
+  conwayEraOnwardsConstraints w
+    $ first VoteErrorFile <$> readFileTextEnvelope AsVotingEntry fp
+
+emptyVotingProcedures :: VotingProcedures era
+emptyVotingProcedures = VotingProcedures $ Ledger.VotingProcedures Map.empty
+
+singletonVotingProcedures :: ()
+  => ShelleyBasedEra era
+  -> Ledger.Voter (Ledger.EraCrypto (ShelleyLedgerEra era))
+  -> Ledger.GovActionId (Ledger.EraCrypto (ShelleyLedgerEra era))
+  -> Ledger.VotingProcedure (ShelleyLedgerEra era)
+  -> VotingProcedures era
+singletonVotingProcedures _ voter govActionId votingProcedure =
+  VotingProcedures
+    $ Ledger.VotingProcedures
+    $ Map.singleton voter
+    $ Map.singleton govActionId votingProcedure
+
+mergeVotingProcedures :: ()
+  => VotingProcedures era
+  -> VotingProcedures era
+  -> VotingProcedures era
+mergeVotingProcedures vpsa vpsb =
+  VotingProcedures
+    $ Ledger.VotingProcedures
+    $ Map.unionWith (Map.unionWith const)
+        (Ledger.unVotingProcedures (unVotingProcedures vpsa))
+        (Ledger.unVotingProcedures (unVotingProcedures vpsb))
+
+fromVoterRole :: ()
+  => Ledger.EraCrypto (ShelleyLedgerEra era) ~ StandardCrypto
+  => ShelleyBasedEra era
+  -> Ledger.Voter (Ledger.EraCrypto (ShelleyLedgerEra era))
+  -> Voter era
+fromVoterRole _ = \case
+  Ledger.CommitteeVoter cred ->
+    VoterCommittee (VotingCredential (Ledger.coerceKeyRole cred))    -- TODO: Conway era - We shouldn't be using coerceKeyRole.
+  Ledger.DRepVoter cred ->
+    VoterDRep (VotingCredential cred)
+  Ledger.StakePoolVoter kh ->
+    VoterSpo (StakePoolKeyHash kh)
+
+-- TODO Conway delete this where we aren't using TxVotes anymore
+votingProceduresToTxVotes :: forall era. ConwayEraOnwards era -> VotingProcedures era -> TxVotes era
+votingProceduresToTxVotes w apiVps =
+  conwayEraOnwardsConstraints w $
+    case Map.toList (Ledger.unVotingProcedures (unVotingProcedures apiVps)) >>= reKey . first (fromVoterRole (conwayEraOnwardsToShelleyBasedEra w)) of
+      [] -> TxVotesNone
+      vps -> TxVotes w $ Map.fromList $ bimap (second GovernanceActionId) VotingProcedure <$> vps
+  where
+    reKey :: (a, Map.Map k v) -> [((a, k), v)]
+    reKey (a, m) = map (\(k, v) -> ((a, k), v)) $ Map.toList m
+
+readVotingProceduresFiles :: ()
+  => ConwayEraOnwards era
+  -> [VoteFile In]
+  -> IO (Either VoteError (VotingProcedures era))
+readVotingProceduresFiles w = \case
+  [] -> return $ Right $ VotingProcedures $ Ledger.VotingProcedures Map.empty
+  files -> runExceptT $ do
+    vpss <- forM files (ExceptT . readVotingProceduresFile w)
+
+    pure $ foldl mergeVotingProcedures emptyVotingProcedures vpss
+
+readVotingProceduresFile :: ()
+  => ConwayEraOnwards era
+  -> VoteFile In
+  -> IO (Either VoteError (VotingProcedures era))
+readVotingProceduresFile w fp =
+  conwayEraOnwardsConstraints w
+    $ first VoteErrorFile <$> readFileTextEnvelope AsVotingProcedures fp
 
 data ConstitutionError
   = ConstitutionErrorFile (FileError TextEnvelopeError)
