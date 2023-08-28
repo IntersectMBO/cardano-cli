@@ -149,29 +149,32 @@ txSpendGenesisUTxOByronPBFT
 txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs = do
     let txBodyCont =
           TxBodyContent
-            [ (fromByronTxIn txIn
-              , BuildTxWith (KeyWitness KeyWitnessForSpending))
-            ]
-            TxInsCollateralNone
-            TxInsReferenceNone
-            outs
-            TxTotalCollateralNone
-            TxReturnCollateralNone
-            (TxFeeImplicit TxFeesImplicitInByronEra)
-            ( TxValidityNoLowerBound
-            , TxValidityNoUpperBound ValidityNoUpperBoundInByronEra
-            )
-            TxMetadataNone
-            TxAuxScriptsNone
-            TxExtraKeyWitnessesNone
-            (BuildTxWith Nothing)
-            TxWithdrawalsNone
-            TxCertificatesNone
-            TxUpdateProposalNone
-            TxMintNone
-            TxScriptValidityNone
-            TxGovernanceActionsNone
-            Nothing
+            { txIns =
+                [ (fromByronTxIn txIn, BuildTxWith (KeyWitness KeyWitnessForSpending))
+                ]
+            , txInsCollateral = TxInsCollateralNone
+            , txInsReference = TxInsReferenceNone
+            , txOuts = outs
+            , txTotalCollateral = TxTotalCollateralNone
+            , txReturnCollateral = TxReturnCollateralNone
+            , txFee = TxFeeImplicit TxFeesImplicitInByronEra
+            , txValidityRange =
+                ( TxValidityNoLowerBound
+                , TxValidityNoUpperBound ValidityNoUpperBoundInByronEra
+                )
+            , txMetadata = TxMetadataNone
+            , txAuxScripts = TxAuxScriptsNone
+            , txExtraKeyWits = TxExtraKeyWitnessesNone
+            , txProtocolParams = BuildTxWith Nothing
+            , txWithdrawals = TxWithdrawalsNone
+            , txCertificates = TxCertificatesNone
+            , txUpdateProposal = TxUpdateProposalNone
+            , txMintValue = TxMintNone
+            , txScriptValidity = TxScriptValidityNone
+            , txGovernanceActions = TxGovernanceActionsNone
+            , txVotingProcedures = Nothing
+            }
+
     case createAndValidateTransactionBody txBodyCont of
       Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
       Right txBody -> let bWit = fromByronWitness sk nId txBody
@@ -191,31 +194,36 @@ txSpendUTxOByronPBFT
   -> [TxOut CtxTx ByronEra]
   -> Tx ByronEra
 txSpendUTxOByronPBFT nId sk txIns outs = do
-  let txBodyCont = TxBodyContent
-                     [ ( txIn
-                       , BuildTxWith (KeyWitness KeyWitnessForSpending)
-                       ) | txIn <- txIns
-                     ]
-                     TxInsCollateralNone
-                     TxInsReferenceNone
-                     outs
-                     TxTotalCollateralNone
-                     TxReturnCollateralNone
-                     (TxFeeImplicit TxFeesImplicitInByronEra)
-                     ( TxValidityNoLowerBound
-                     , TxValidityNoUpperBound ValidityNoUpperBoundInByronEra
-                     )
-                     TxMetadataNone
-                     TxAuxScriptsNone
-                     TxExtraKeyWitnessesNone
-                     (BuildTxWith Nothing)
-                     TxWithdrawalsNone
-                     TxCertificatesNone
-                     TxUpdateProposalNone
-                     TxMintNone
-                     TxScriptValidityNone
-                     TxGovernanceActionsNone
-                     Nothing
+  let txBodyCont =
+        TxBodyContent
+          { txIns =
+              [ ( txIn
+                , BuildTxWith (KeyWitness KeyWitnessForSpending)
+                ) | txIn <- txIns
+              ]
+          , txInsCollateral = TxInsCollateralNone
+          , txInsReference = TxInsReferenceNone
+          , txOuts = outs
+          , txTotalCollateral = TxTotalCollateralNone
+          , txReturnCollateral = TxReturnCollateralNone
+          , txFee = TxFeeImplicit TxFeesImplicitInByronEra
+          , txValidityRange =
+              ( TxValidityNoLowerBound
+              , TxValidityNoUpperBound ValidityNoUpperBoundInByronEra
+              )
+          , txMetadata = TxMetadataNone
+          , txAuxScripts = TxAuxScriptsNone
+          , txExtraKeyWits = TxExtraKeyWitnessesNone
+          , txProtocolParams = BuildTxWith Nothing
+          , txWithdrawals = TxWithdrawalsNone
+          , txCertificates = TxCertificatesNone
+          , txUpdateProposal = TxUpdateProposalNone
+          , txMintValue = TxMintNone
+          , txScriptValidity = TxScriptValidityNone
+          , txGovernanceActions = TxGovernanceActionsNone
+          , txVotingProcedures = Nothing
+          }
+
   case createAndValidateTransactionBody txBodyCont of
     Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
     Right txBody -> let bWit = fromByronWitness sk nId txBody

@@ -413,26 +413,28 @@ runTxBuildRaw era
       <- first ShelleyTxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
     let validatedTxGovernanceActions = TxGovernanceActionsNone -- TODO: Conwary era
         validatedTxVotes = Nothing -- TODO: Conwary era
-    let txBodyContent = TxBodyContent
-                          (validateTxIns inputsAndMaybeScriptWits)
-                          validatedCollateralTxIns
-                          validatedRefInputs
-                          txouts
-                          validatedTotCollateral
-                          validatedRetCol
-                          validatedFee
-                          validatedBounds
-                          txMetadata
-                          txAuxScripts
-                          validatedReqSigners
-                          validatedPParams
-                          validatedTxWtdrwls
-                          validatedTxCerts
-                          validatedTxUpProp
-                          validatedMintValue
-                          validatedTxScriptValidity
-                          validatedTxGovernanceActions
-                          validatedTxVotes
+    let txBodyContent =
+          TxBodyContent
+            { txIns = validateTxIns inputsAndMaybeScriptWits
+            , txInsCollateral = validatedCollateralTxIns
+            , txInsReference = validatedRefInputs
+            , txOuts = txouts
+            , txTotalCollateral = validatedTotCollateral
+            , txReturnCollateral = validatedRetCol
+            , txFee = validatedFee
+            , txValidityRange = validatedBounds
+            , txMetadata = txMetadata
+            , txAuxScripts = txAuxScripts
+            , txExtraKeyWits = validatedReqSigners
+            , txProtocolParams = validatedPParams
+            , txWithdrawals = validatedTxWtdrwls
+            , txCertificates = validatedTxCerts
+            , txUpdateProposal = validatedTxUpProp
+            , txMintValue = validatedMintValue
+            , txScriptValidity = validatedTxScriptValidity
+            , txGovernanceActions = validatedTxGovernanceActions
+            , txVotingProcedures = validatedTxVotes
+            }
 
     first ShelleyTxCmdTxBodyError $
       getIsCardanoEraConstraint era $ createAndValidateTransactionBody txBodyContent
@@ -548,26 +550,28 @@ runTxBuild
 
       let validatedTxGovernanceActions = proposals
           validatedTxVotes =  votes
-          txBodyContent = TxBodyContent
-                          (validateTxIns inputsAndMaybeScriptWits)
-                          validatedCollateralTxIns
-                          validatedRefInputs
-                          txouts
-                          validatedTotCollateral
-                          validatedRetCol
-                          dFee
-                          validatedBounds
-                          txMetadata
-                          txAuxScripts
-                          validatedReqSigners
-                          validatedPParams
-                          validatedTxWtdrwls
-                          validatedTxCerts
-                          validatedTxUpProp
-                          validatedMintValue
-                          validatedTxScriptValidity
-                          validatedTxGovernanceActions
-                          (inEraFeature era Nothing (\w -> Just (Featured w validatedTxVotes)))
+          txBodyContent =
+            TxBodyContent
+              { txIns = validateTxIns inputsAndMaybeScriptWits
+              , txInsCollateral = validatedCollateralTxIns
+              , txInsReference = validatedRefInputs
+              , txOuts = txouts
+              , txTotalCollateral = validatedTotCollateral
+              , txReturnCollateral = validatedRetCol
+              , txFee = dFee
+              , txValidityRange = validatedBounds
+              , txMetadata = txMetadata
+              , txAuxScripts = txAuxScripts
+              , txExtraKeyWits = validatedReqSigners
+              , txProtocolParams = validatedPParams
+              , txWithdrawals = validatedTxWtdrwls
+              , txCertificates = validatedTxCerts
+              , txUpdateProposal = validatedTxUpProp
+              , txMintValue = validatedMintValue
+              , txScriptValidity = validatedTxScriptValidity
+              , txGovernanceActions = validatedTxGovernanceActions
+              , txVotingProcedures = inEraFeature era Nothing (\w -> Just (Featured w validatedTxVotes))
+              }
 
       firstExceptT ShelleyTxCmdTxInsDoNotExist
         . hoistEither $ txInsExistInUTxO allTxInputs nodeEraUTxO
