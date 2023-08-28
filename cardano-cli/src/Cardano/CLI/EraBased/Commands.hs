@@ -62,9 +62,6 @@ pAnyEraCommand envCli =
     , subParser "latest"
         $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pEraBasedCommand envCli BabbageEra)
         $ Opt.progDesc "Latest era commands (Babbage)"
-    , subParser "experimental"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pEraBasedCommand envCli ConwayEra)
-        $ Opt.progDesc "Experimental era commands (Conway)"
     ]
 
 pEraBasedCommand :: EnvCli -> CardanoEra era -> Parser (EraBasedCommand era)
