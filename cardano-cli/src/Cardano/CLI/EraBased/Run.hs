@@ -15,6 +15,7 @@ import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Run.Governance.DRep
+import           Cardano.CLI.EraBased.Run.Governance.Query
 import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.Types.Errors.CmdError
 
@@ -59,3 +60,6 @@ runEraBasedGovernanceCmds = \case
 
   EraBasedGovernanceVoteCmds cmds ->
     runGovernanceVoteCmds cmds
+
+  EraBasedGovernanceQueryCmds cmds ->
+    runGovernanceQueryCmds cmds

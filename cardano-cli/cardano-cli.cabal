@@ -71,18 +71,21 @@ library
                         Cardano.CLI.EraBased.Commands.Governance.Actions
                         Cardano.CLI.EraBased.Commands.Governance.Committee
                         Cardano.CLI.EraBased.Commands.Governance.DRep
+                        Cardano.CLI.EraBased.Commands.Governance.Query
                         Cardano.CLI.EraBased.Commands.Governance.Vote
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Options.Governance.Actions
                         Cardano.CLI.EraBased.Options.Governance.Committee
                         Cardano.CLI.EraBased.Options.Governance.DRep
+                        Cardano.CLI.EraBased.Options.Governance.Query
                         Cardano.CLI.EraBased.Options.Governance.Vote
                         Cardano.CLI.EraBased.Run
                         Cardano.CLI.EraBased.Run.Governance
                         Cardano.CLI.EraBased.Run.Governance.Actions
                         Cardano.CLI.EraBased.Run.Governance.Committee
                         Cardano.CLI.EraBased.Run.Governance.DRep
+                        Cardano.CLI.EraBased.Run.Governance.Query
                         Cardano.CLI.EraBased.Run.Governance.Vote
                         Cardano.CLI.Helpers
                         Cardano.CLI.IO.Lazy
@@ -129,6 +132,7 @@ library
                         Cardano.CLI.Types.Errors.GovernanceActionsError
                         Cardano.CLI.Types.Errors.GovernanceCmdError
                         Cardano.CLI.Types.Errors.GovernanceCommitteeError
+                        Cardano.CLI.Types.Errors.GovernanceQueryError
                         Cardano.CLI.Types.Errors.GovernanceVoteCmdError
                         Cardano.CLI.Types.Errors.ItnKeyConversionError
                         Cardano.CLI.Types.Errors.ProtocolParamsError
@@ -167,7 +171,7 @@ library
                       , binary
                       , bytestring
                       , canonical-json
-                      , cardano-api ^>= 8.16.1
+                      , cardano-api ^>= 8.16.2
                       , cardano-binary
                       , cardano-crypto
                       , cardano-crypto-class ^>= 2.1.2
@@ -258,8 +262,8 @@ test-suite cardano-cli-test
                       , base16-bytestring
                       , bech32 >= 1.1.0
                       , bytestring
-                      , cardano-api:{cardano-api, internal} ^>= 8.16.1
-                      , cardano-api-gen ^>= 8.1.1.0
+                      , cardano-api:{cardano-api, internal} ^>= 8.16.2
+                      , cardano-api-gen ^>= 8.2.0.0
                       , cardano-cli
                       , cardano-cli:cardano-cli-test-lib
                       , cardano-slotting ^>= 0.1
@@ -302,7 +306,7 @@ test-suite cardano-cli-golden
   build-depends:        aeson >= 1.5.6.0
                       , base16-bytestring
                       , bytestring
-                      , cardano-api:{cardano-api, gen} ^>= 8.16.1
+                      , cardano-api:{cardano-api, gen} ^>= 8.16.2
                       , cardano-binary
                       , cardano-cli
                       , cardano-cli:cardano-cli-test-lib

@@ -1,4 +1,10 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Governance
   ( runGovernanceMIRCertificatePayStakeAddrs
@@ -90,3 +96,4 @@ runGovernanceDRepKeyGen _w vkeyPath skeyPath = firstExceptT GovernanceCmdWriteFi
     skeyDesc = "Delegate Representative Signing Key"
     vkeyDesc :: TextEnvelopeDescr
     vkeyDesc = "Delegate Representative Verification Key"
+

@@ -15,6 +15,7 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Governance.DRep
+import           Cardano.CLI.EraBased.Options.Governance.Query
 import           Cardano.CLI.EraBased.Options.Governance.Vote
 import           Cardano.CLI.Types.Common
 
@@ -27,6 +28,7 @@ pEraBasedGovernanceCmds :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanc
 pEraBasedGovernanceCmds envCli era =
   asum $ catMaybes
     [ pCreateMirCertificatesCmds era
+    , fmap EraBasedGovernanceQueryCmds      <$> pGovernanceQueryCmds envCli era
     , fmap EraBasedGovernanceActionCmds     <$> pGovernanceActionCmds era
     , fmap EraBasedGovernanceCommitteeCmds  <$> pGovernanceCommitteeCmds era
     , fmap EraBasedGovernanceDRepCmds       <$> pGovernanceDRepCmds envCli era
@@ -34,10 +36,7 @@ pEraBasedGovernanceCmds envCli era =
     ]
 
 --------------------------------------------------------------------------------
-
 -- Vote related
-
-
 --------------------------------------------------------------------------------
 
 

@@ -6,8 +6,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
-{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
-
 module Cardano.CLI.Read
   ( -- * Metadata
     MetadataError(..)
@@ -79,6 +77,9 @@ module Cardano.CLI.Read
   , readVotingProceduresFiles
   , readVotingProceduresFile
   , votingProceduresToTxVotes
+
+  -- * DRep credentials
+  , getDRepCredentialFromVerKeyHashOrFile
   ) where
 
 import           Cardano.Api as Api
@@ -778,21 +779,6 @@ readVoteFile w fp =
   conwayEraOnwardsConstraints w
     $ first VoteErrorFile <$> readFileTextEnvelope AsVotingEntry fp
 
-emptyVotingProcedures :: VotingProcedures era
-emptyVotingProcedures = VotingProcedures $ Ledger.VotingProcedures Map.empty
-
-singletonVotingProcedures :: ()
-  => ShelleyBasedEra era
-  -> Ledger.Voter (Ledger.EraCrypto (ShelleyLedgerEra era))
-  -> Ledger.GovActionId (Ledger.EraCrypto (ShelleyLedgerEra era))
-  -> Ledger.VotingProcedure (ShelleyLedgerEra era)
-  -> VotingProcedures era
-singletonVotingProcedures _ voter govActionId votingProcedure =
-  VotingProcedures
-    $ Ledger.VotingProcedures
-    $ Map.singleton voter
-    $ Map.singleton govActionId votingProcedure
-
 mergeVotingProcedures :: ()
   => VotingProcedures era
   -> VotingProcedures era
@@ -1010,3 +996,13 @@ getStakeAddressFromVerifier :: ()
   -> ExceptT StakeCredentialError IO StakeAddress
 getStakeAddressFromVerifier networkId stakeVerifier =
   makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier
+
+getDRepCredentialFromVerKeyHashOrFile :: ()
+  => VerificationKeyOrHashOrFile DRepKey
+  -> ExceptT (FileError InputDecodeError) IO (Ledger.Credential Ledger.DRepRole Ledger.StandardCrypto)
+getDRepCredentialFromVerKeyHashOrFile = \case
+  VerificationKeyOrFile verKeyOrFile -> do
+    drepVerKey <-
+      ExceptT (readVerificationKeyOrFile AsDRepKey verKeyOrFile)
+    pure . Ledger.KeyHashObj . unDRepKeyHash $ verificationKeyHash drepVerKey
+  VerificationKeyHash kh -> pure . Ledger.KeyHashObj $ unDRepKeyHash kh
