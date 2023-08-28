@@ -412,7 +412,7 @@ runTxBuildRaw era
     validatedTxScriptValidity
       <- first ShelleyTxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
     let validatedTxGovernanceActions = TxGovernanceActionsNone -- TODO: Conwary era
-        validatedTxVotes = TxVotesNone -- TODO: Conwary era
+        validatedTxVotes = Nothing -- TODO: Conwary era
     let txBodyContent = TxBodyContent
                           (validateTxIns inputsAndMaybeScriptWits)
                           validatedCollateralTxIns
@@ -567,7 +567,7 @@ runTxBuild
                           validatedMintValue
                           validatedTxScriptValidity
                           validatedTxGovernanceActions
-                          (inEraFeature era TxVotesNone (`votingProceduresToTxVotes` validatedTxVotes)) -- TODO Conway this should probably error if era not supported
+                          (inEraFeature era Nothing (\w -> Just (Featured w validatedTxVotes)))
 
       firstExceptT ShelleyTxCmdTxInsDoNotExist
         . hoistEither $ txInsExistInUTxO allTxInputs nodeEraUTxO
