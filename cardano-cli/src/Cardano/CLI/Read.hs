@@ -57,7 +57,6 @@ module Cardano.CLI.Read
   , ConstitutionError(..)
   , VoteError (..)
   , readTxNewConstitutionActions
-  , readTxVotes
 
   -- * FileOrPipe
   , FileOrPipe
@@ -71,19 +70,14 @@ module Cardano.CLI.Read
   , getStakeCredentialFromIdentifier
   , getStakeAddressFromVerifier
 
-  , emptyVotingProcedures
-  , singletonVotingProcedures
-  , mergeVotingProcedures
   , readVotingProceduresFiles
   , readVotingProceduresFile
-  , votingProceduresToTxVotes
 
   -- * DRep credentials
   , getDRepCredentialFromVerKeyHashOrFile
   ) where
 
 import           Cardano.Api as Api
-import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley as Api
 
 import qualified Cardano.Binary as CBOR
@@ -93,7 +87,9 @@ import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Ledger.Conway.Governance as Ledger
-import           Ouroboros.Consensus.Shelley.Eras (StandardCrypto)
+import qualified Cardano.Ledger.Credential as Ledger
+import qualified Cardano.Ledger.Crypto as Ledger
+import qualified Cardano.Ledger.Keys as Ledger
 
 import           Prelude
 
@@ -756,64 +752,6 @@ data VoteError
   | VotesNotSupportedInEra AnyCardanoEra
   deriving Show
 
-readTxVotes :: ()
-  => ConwayEraOnwards era
-  -> [VoteFile In]
-  -> IO (Either VoteError (TxVotes era))
-readTxVotes _ [] = return $ Right TxVotesNone
-readTxVotes w files = runExceptT $ do
-  TxVotes w . Map.fromList . map entryToAssoc <$> forM files (ExceptT . readVoteFile w)
-  where
-    entryToAssoc :: VotingEntry era -> ((Voter era, GovernanceActionId era), VotingProcedure era)
-    entryToAssoc VotingEntry
-      { votingEntryVoter = voter
-      , votingEntryGovActionId = govActId
-      , votingEntryVotingProcedure = vproc
-      } = ((voter, govActId), vproc)
-
-readVoteFile
-  :: ConwayEraOnwards era
-  -> VoteFile In
-  -> IO (Either VoteError (VotingEntry era))
-readVoteFile w fp =
-  conwayEraOnwardsConstraints w
-    $ first VoteErrorFile <$> readFileTextEnvelope AsVotingEntry fp
-
-mergeVotingProcedures :: ()
-  => VotingProcedures era
-  -> VotingProcedures era
-  -> VotingProcedures era
-mergeVotingProcedures vpsa vpsb =
-  VotingProcedures
-    $ Ledger.VotingProcedures
-    $ Map.unionWith (Map.unionWith const)
-        (Ledger.unVotingProcedures (unVotingProcedures vpsa))
-        (Ledger.unVotingProcedures (unVotingProcedures vpsb))
-
-fromVoterRole :: ()
-  => Ledger.EraCrypto (ShelleyLedgerEra era) ~ StandardCrypto
-  => ShelleyBasedEra era
-  -> Ledger.Voter (Ledger.EraCrypto (ShelleyLedgerEra era))
-  -> Voter era
-fromVoterRole _ = \case
-  Ledger.CommitteeVoter cred ->
-    VoterCommittee (VotingCredential (Ledger.coerceKeyRole cred))    -- TODO: Conway era - We shouldn't be using coerceKeyRole.
-  Ledger.DRepVoter cred ->
-    VoterDRep (VotingCredential cred)
-  Ledger.StakePoolVoter kh ->
-    VoterSpo (StakePoolKeyHash kh)
-
--- TODO Conway delete this where we aren't using TxVotes anymore
-votingProceduresToTxVotes :: forall era. ConwayEraOnwards era -> VotingProcedures era -> TxVotes era
-votingProceduresToTxVotes w apiVps =
-  conwayEraOnwardsConstraints w $
-    case Map.toList (Ledger.unVotingProcedures (unVotingProcedures apiVps)) >>= reKey . first (fromVoterRole (conwayEraOnwardsToShelleyBasedEra w)) of
-      [] -> TxVotesNone
-      vps -> TxVotes w $ Map.fromList $ bimap (second GovernanceActionId) VotingProcedure <$> vps
-  where
-    reKey :: (a, Map.Map k v) -> [((a, k), v)]
-    reKey (a, m) = map (\(k, v) -> ((a, k), v)) $ Map.toList m
-
 readVotingProceduresFiles :: ()
   => ConwayEraOnwards era
   -> [VoteFile In]
@@ -823,7 +761,7 @@ readVotingProceduresFiles w = \case
   files -> runExceptT $ do
     vpss <- forM files (ExceptT . readVotingProceduresFile w)
 
-    pure $ foldl mergeVotingProcedures emptyVotingProcedures vpss
+    pure $ foldl unsafeMergeVotingProcedures emptyVotingProcedures vpss
 
 readVotingProceduresFile :: ()
   => ConwayEraOnwards era
