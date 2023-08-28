@@ -307,17 +307,17 @@ friendlyCertificates sbe = \case
   TxCertificatesNone -> Null
   TxCertificates _ cs _ -> array $ map (friendlyCertificate sbe) cs
 
+credJson
+  :: ShelleyBasedEra era
+  -> Shelley.Credential kr (Ledger.EraCrypto (ShelleyLedgerEra era))
+  -> Aeson.Value
+credJson sbe c = shelleyBasedEraConstraints sbe $ toJSON c
+
 stakeCredJson
   :: ShelleyBasedEra era
   -> Shelley.StakeCredential (Ledger.EraCrypto (ShelleyLedgerEra era))
   -> Aeson.Value
 stakeCredJson sbe c = shelleyBasedEraConstraints sbe $ toJSON c
-
-drepCredJson
-  :: ShelleyBasedEra era
-  -> Shelley.Credential 'Shelley.DRepRole (Ledger.EraCrypto (ShelleyLedgerEra era))
-  -> Aeson.Value
-drepCredJson sbe c = shelleyBasedEraConstraints sbe $ toJSON c
 
 poolIdJson
   :: ShelleyBasedEra era
@@ -370,10 +370,11 @@ renderCertificate sbe = \case
   ConwayCertificate w cert ->
     conwayEraOnwardsConstraints w $
       case cert of
-        Ledger.RegDRepTxCert credential coin _TODO ->  -- TODO Conway: new StrictMaybe Anchor argument
+        Ledger.RegDRepTxCert credential coin mAnchor ->
           "Drep registration certificate" .= object
             [ "deposit" .= coin
             , "certificate" .= conwayToObject w credential
+            , "anchor" .= mAnchor
             ]
         Ledger.UnRegDRepTxCert credential coin ->
           "Drep unregistration certificate" .= object
@@ -381,16 +382,22 @@ renderCertificate sbe = \case
             , "certificate" .= conwayToObject w credential
             ]
         Ledger.AuthCommitteeHotKeyTxCert coldCred hotCred
-            | Shelley.ScriptHashObj{} <- coldCred -> error "renderCertificate: TODO Conway era"
-            | Shelley.ScriptHashObj{} <- hotCred -> error "renderCertificate: TODO Conway era"
+            | Shelley.ScriptHashObj sh <- coldCred ->
+              "Cold committee authorization" .= object
+                [ "script hash" .= serialiseToRawBytesHexText (fromShelleyScriptHash sh) ]
+            | Shelley.ScriptHashObj sh <- hotCred ->
+              "Hot committee authorization" .= object
+                [ "script hash" .= serialiseToRawBytesHexText (fromShelleyScriptHash sh)]
             | Shelley.KeyHashObj (Shelley.KeyHash coldKey) <- coldCred
             , Shelley.KeyHashObj (Shelley.KeyHash hotKey) <- hotCred ->
-          "Constitutional committee member hot key registration" .= object
-            [ "cold key hash" .= String (textShow coldKey)
-            , "hot key hash" .= String (textShow hotKey)
-            ]
+              "Constitutional committee member hot key registration" .= object
+                [ "cold key hash" .= String (textShow coldKey)
+                , "hot key hash" .= String (textShow hotKey)
+                ]
         Ledger.ResignCommitteeColdTxCert cred -> case cred of
-          Shelley.ScriptHashObj{} -> error "renderCertificate: TODO Conway era"
+          Shelley.ScriptHashObj sh ->
+            "Cold committee resignation" .= object
+              [ "script hash" .= serialiseToRawBytesHexText (fromShelleyScriptHash sh) ]
           Shelley.KeyHashObj (Shelley.KeyHash coldKey) ->
             "Constitutional committee cold key resignation" .= object
               [ "cold key hash" .= String (textShow coldKey)
@@ -435,7 +442,7 @@ renderCertificate sbe = \case
             ]
         ConwayLedger.UpdateDRepTxCert drepCredential mbAnchor ->
           "Drep certificate update" .= object
-            [ "Drep credential" .= drepCredJson sbe drepCredential
+            [ "Drep credential" .= credJson sbe drepCredential
             , "anchor " .= mbAnchor
             ]
   where
