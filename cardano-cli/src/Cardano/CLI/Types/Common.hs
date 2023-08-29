@@ -15,7 +15,7 @@ module Cardano.CLI.Types.Common
   , CardanoAddressKeyType(..)
   , CBORObject (..)
   , CertificateFile (..)
-  , ConstitutionHashSource(..)
+  , ConstitutionAnchorHashSource(..)
   , ConstitutionText(..)
   , ConstitutionUrl(..)
   , CurrentKesPeriod (..)
@@ -102,9 +102,9 @@ newtype ConstitutionText = ConstitutionText
   { unConstitutionText :: Text
   } deriving (Eq, Show)
 
-data ConstitutionHashSource
-  = ConstitutionHashSourceFile (File ConstitutionText In)
-  | ConstitutionHashSourceText Text -- ^ Constitution text
+data ConstitutionAnchorHashSource
+  = ConstitutionAnchorHashSourceFile (File ConstitutionText In)
+  | ConstitutionAnchorHashSourceText Text -- ^ Constitution text
   deriving Show
 
 -- | Specify whether to render the script cost as JSON

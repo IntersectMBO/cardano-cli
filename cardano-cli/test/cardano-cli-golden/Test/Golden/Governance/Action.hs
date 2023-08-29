@@ -30,13 +30,13 @@ hprop_golden_governanceActionCreateConstitution =
     void $ execCardanoCLI
       [ "conway", "governance", "action", "create-constitution"
       , "--mainnet"
-      , "--anchor-data-hash" , "eda258650888d4a7f8ac1127cfa136962f527f341c99db49929c79ae"
-      , "--proposal-url" , "proposal-dummy-url"
+      , "--proposal-anchor-hash" , "eda258650888d4a7f8ac1127cfa136962f527f341c99db49929c79ae"
+      , "--proposal-anchor-url" , "proposal-dummy-url"
       , "--governance-action-deposit", "10"
       , "--stake-verification-key-file", stakeAddressVKeyFile
       , "--out-file", actionFile
-      , "--constitution-url", "constitution-dummy-url"
-      , "--constitution", "This is a test constitution."
+      , "--constitution-anchor-url", "constitution-dummy-url"
+      , "--constitution-text", "This is a test constitution."
       ]
 
     goldenActionFile <-  H.note "test/cardano-cli-golden/files/golden/governance/action/create-constitution-for-stake-address.action.golden"

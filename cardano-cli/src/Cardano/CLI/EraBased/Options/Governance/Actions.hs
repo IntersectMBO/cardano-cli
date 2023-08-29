@@ -59,8 +59,8 @@ pGovernanceActionNewConstitution era = do
         <*> pAnyStakeIdentifier
         <*> pPreviousGovernanceAction
         <*> pProposalAnchor
-        <*> pConstitutionUrl
-        <*> pConstitution
+        <*> pConstitutionAnchorUrl
+        <*> pConstitutionAnchorHashSource
         <*> pFileOutDirection "out-file" "Output filepath of the constitution."
 
 pGovernanceActionNewCommittee

@@ -778,23 +778,23 @@ catCommands = \case
   [] -> Nothing
   ps -> Just $ asum ps
 
-pConstitutionUrl :: Parser ConstitutionUrl
-pConstitutionUrl =
+pConstitutionAnchorUrl :: Parser ConstitutionUrl
+pConstitutionAnchorUrl =
   ConstitutionUrl
-    <$> pUrl "constitution-url" "Constitution URL."
+    <$> pUrl "constitution-anchor-url" "Constitution URL."
 
-pConstitution :: Parser ConstitutionHashSource
-pConstitution =
+pConstitutionAnchorHashSource :: Parser ConstitutionAnchorHashSource
+pConstitutionAnchorHashSource =
   asum
-    [ ConstitutionHashSourceText
+    [ ConstitutionAnchorHashSourceText
         <$> Opt.strOption
             ( mconcat
-                [ Opt.long "constitution"
+                [ Opt.long "constitution-text"
                 , Opt.metavar "TEXT"
                 , Opt.help "Input constitution as UTF-8 encoded text."
                 ]
             )
-    , ConstitutionHashSourceFile
+    , ConstitutionAnchorHashSourceFile
         <$> pFileInDirection "constitution-file" "Input constitution as a text file."
     ]
 
@@ -2721,14 +2721,16 @@ pDRepVerificationKeyFile =
     , Opt.help "Filepath of the DRep verification key."
     , Opt.completer (Opt.bashCompleter "file")
     ]
-pProposalAnchor :: Parser (Ledger.Url, Text)
-pProposalAnchor = (,) <$> pUrl "proposal-url" "Proposal anchor URL"
-                      <*> pAnchorHash
 
-pAnchorHash :: Parser Text
-pAnchorHash =
+pProposalAnchor :: Parser (Ledger.Url, Text)
+pProposalAnchor = (,)
+  <$> pUrl "proposal-anchor-url" "Proposal anchor URL"
+  <*> pProposalAnchorHash
+
+pProposalAnchorHash :: Parser Text
+pProposalAnchorHash =
   Opt.strOption $ mconcat
-    [ Opt.long "anchor-data-hash"
+    [ Opt.long "proposal-anchor-hash"
     , Opt.metavar "TEXT"
     , Opt.help "Hash of anchor data."
     ]

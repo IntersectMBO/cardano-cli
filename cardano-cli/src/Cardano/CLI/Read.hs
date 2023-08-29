@@ -56,6 +56,7 @@ module Cardano.CLI.Read
   , ConstitutionError(..)
   , VoteError (..)
   , readTxGovernanceActions
+  , constitutionHashSourceToHash
 
   -- * FileOrPipe
   , FileOrPipe
@@ -85,22 +86,24 @@ import           Cardano.CLI.Types.Errors.ScriptDecodeError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.BaseTypes as Ledger
 import qualified Cardano.Ledger.Conway.Governance as Ledger
 import qualified Cardano.Ledger.Credential as Ledger
 import qualified Cardano.Ledger.Crypto as Ledger
 import qualified Cardano.Ledger.Keys as Ledger
+import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Prelude
 
 import           Control.Exception (bracket)
 import           Control.Monad (forM, unless)
-import           Control.Monad.Trans.Except (ExceptT (..), runExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither,
-                   hoistMaybe, left, newExceptT)
+import           Control.Monad.IO.Class
+import           Control.Monad.Trans.Except
+import           Control.Monad.Trans.Except.Extra
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
+import qualified Data.ByteString as BS
 import qualified Data.ByteString.Builder as Builder
-import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Function ((&))
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
@@ -108,6 +111,8 @@ import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import           Data.Text (Text)
 import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Text
+import qualified Data.Text.Encoding.Error as Text
 import           Data.Word
 import           GHC.IO.Handle (hClose, hIsSeekable)
 import           GHC.IO.Handle.FD (openFileBlocking)
@@ -773,6 +778,7 @@ readVotingProceduresFile w fp =
 data ConstitutionError
   = ConstitutionErrorFile (FileError TextEnvelopeError)
   | ConstitutionsNotSupportedInEra AnyCardanoEra
+  | ConstitutionNotUnicodeError Text.UnicodeException
   deriving Show
 
 readTxGovernanceActions
@@ -793,6 +799,19 @@ readProposal
 readProposal w fp =
   first ConstitutionErrorFile
     <$> conwayEraOnwardsConstraints w (readFileTextEnvelope AsProposal fp)
+
+constitutionHashSourceToHash :: ()
+  => ConstitutionAnchorHashSource
+  -> ExceptT ConstitutionError IO (Ledger.SafeHash Ledger.StandardCrypto Ledger.AnchorData)
+constitutionHashSourceToHash constitutionHashSource = do
+  case constitutionHashSource of
+    ConstitutionAnchorHashSourceFile fp  -> do
+      cBs <- liftIO $ BS.readFile $ unFile fp
+      _utf8EncodedText <- firstExceptT ConstitutionNotUnicodeError . hoistEither $ Text.decodeUtf8' cBs
+      pure $ Ledger.hashAnchorData $ Ledger.AnchorData cBs
+
+    ConstitutionAnchorHashSourceText c -> do
+      pure $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
 
 -- Misc
 

@@ -9,10 +9,10 @@ Usage: cardano-cli governance action create-action create-constitution
                                                                          )
                                                                          [--governance-action-tx-id TXID
                                                                            --governance-action-index WORD32]
-                                                                         --proposal-url TEXT
-                                                                         --anchor-data-hash TEXT
-                                                                         --constitution-url TEXT
-                                                                         ( --constitution TEXT
+                                                                         --proposal-anchor-url TEXT
+                                                                         --proposal-anchor-hash TEXT
+                                                                         --constitution-anchor-url TEXT
+                                                                         ( --constitution-text TEXT
                                                                          | --constitution-file FILE
                                                                          )
                                                                          --out-file FILE
@@ -33,10 +33,13 @@ Available options:
                            Previous txid of the governance action.
   --governance-action-index WORD32
                            Previous tx's governance action index.
-  --proposal-url TEXT      Proposal anchor URL
-  --anchor-data-hash TEXT  Hash of anchor data.
-  --constitution-url TEXT  Constitution URL.
-  --constitution TEXT      Input constitution as UTF-8 encoded text.
+  --proposal-anchor-url TEXT
+                           Proposal anchor URL
+  --proposal-anchor-hash TEXT
+                           Hash of anchor data.
+  --constitution-anchor-url TEXT
+                           Constitution URL.
+  --constitution-text TEXT Input constitution as UTF-8 encoded text.
   --constitution-file FILE Input constitution as a text file.
   --out-file FILE          Output filepath of the governance action.
   -h,--help                Show this help text

@@ -6,10 +6,10 @@ module Cardano.CLI.Types.Errors.GovernanceActionsError
 
 import           Cardano.Api
 
-import           Data.Text.Encoding.Error
+import           Cardano.CLI.Read
 
 data GovernanceActionsError
-  = GovernanceActionsCmdNonUtf8EncodedConstitution UnicodeException
+  = GovernanceActionsCmdConstitutionError ConstitutionError
   | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
   | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdWriteFileError (FileError ())
@@ -17,8 +17,8 @@ data GovernanceActionsError
 
 instance Error GovernanceActionsError where
   displayError = \case
-    GovernanceActionsCmdNonUtf8EncodedConstitution e ->
-      "Cannot read constitution: " <> show e
+    GovernanceActionsCmdConstitutionError e ->
+      "Cannot read constitution: " <> show e -- TODO Conway render this properly
     GovernanceActionsCmdReadFileError e ->
       "Cannot read file: " <> displayError e
     GovernanceActionsCmdReadTextEnvelopeFileError e ->

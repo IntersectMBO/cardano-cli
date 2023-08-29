@@ -16,14 +16,16 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.Conway.Governance as Ledger
 
 import           Control.Monad.Except (ExceptT)
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Except.Extra
-import qualified Data.ByteString as BS
+import           Data.Function
 import qualified Data.Map.Strict as Map
 import qualified Data.Text.Encoding as Text
 
@@ -85,45 +87,23 @@ runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution network depos
 
   stakeKeyHash <- readStakeKeyHash anyStake
 
-  case constitutionHashSource of
-    ConstitutionHashSourceFile fp  -> do
-      cBs <- liftIO $ BS.readFile $ unFile fp
-      _utf8EncodedText <- firstExceptT GovernanceActionsCmdNonUtf8EncodedConstitution . hoistEither $ Text.decodeUtf8' cBs
-      let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
-          govAct = ProposeNewConstitution
-                     prevGovActId
-                     (createAnchor (unConstitutionUrl constitutionUrl) cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that
-          sbe = conwayEraOnwardsToShelleyBasedEra cOn
-          proposal = createProposalProcedure
-                       sbe
-                       network
-                       deposit
-                       stakeKeyHash
-                       govAct
-                       (uncurry createAnchor (fmap Text.encodeUtf8 propAnchor))
+  constitutionHash <-
+    constitutionHashSourceToHash constitutionHashSource
+      & firstExceptT GovernanceActionsCmdConstitutionError
 
-      firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-        $ conwayEraOnwardsConstraints cOn
-        $ writeFileTextEnvelope outFp Nothing proposal
+  let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
+      constitutionAnchor = Ledger.Anchor
+        { Ledger.anchorUrl = unConstitutionUrl constitutionUrl
+        , Ledger.anchorDataHash = constitutionHash
+        }
+      proposalAnchor = uncurry createAnchor (fmap Text.encodeUtf8 propAnchor)
+      govAct = ProposeNewConstitution prevGovActId constitutionAnchor
+      sbe = conwayEraOnwardsToShelleyBasedEra cOn
+      proposal = createProposalProcedure sbe network deposit stakeKeyHash govAct proposalAnchor
 
-    ConstitutionHashSourceText c -> do
-      let constitBs = Text.encodeUtf8 c
-          sbe = conwayEraOnwardsToShelleyBasedEra cOn
-          prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
-          govAct = ProposeNewConstitution
-                     prevGovActId
-                     (createAnchor (unConstitutionUrl constitutionUrl) constitBs)
-          proposal = createProposalProcedure
-                       sbe
-                       network
-                       deposit
-                       stakeKeyHash
-                       govAct
-                       (uncurry createAnchor (fmap Text.encodeUtf8 propAnchor))
-
-      firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-        $ conwayEraOnwardsConstraints cOn
-        $ writeFileTextEnvelope outFp Nothing proposal
+  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+    $ conwayEraOnwardsConstraints cOn
+    $ writeFileTextEnvelope outFp Nothing proposal
 
 -- TODO: Conway era - After ledger bump update this function
 -- with the new ledger types

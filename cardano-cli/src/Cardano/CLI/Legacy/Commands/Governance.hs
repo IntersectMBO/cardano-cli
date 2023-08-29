@@ -113,7 +113,7 @@ data ActionCmd
       (Maybe (TxId, Word32))
       (Ledger.Url, Text)
       ConstitutionUrl
-      ConstitutionHashSource
+      ConstitutionAnchorHashSource
       (File ConstitutionText Out)
 
   deriving Show
@@ -144,8 +144,8 @@ pCreateConstitution envCli =
     <*> pVotingCredential
     <*> pPreviousGovernanceAction
     <*> pProposalAnchor
-    <*> pConstitutionUrl
-    <*> pConstitution
+    <*> pConstitutionAnchorUrl
+    <*> pConstitutionAnchorHashSource
     <*> pFileOutDirection "out-file" "Output filepath of the governance action."
 
 pNetwork :: Parser Ledger.Network

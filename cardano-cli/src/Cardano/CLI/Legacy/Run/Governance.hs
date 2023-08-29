@@ -15,7 +15,7 @@ import qualified Cardano.Api.Shelley as Api
 
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Legacy.Commands.Governance
-import           Cardano.CLI.Read (fileOrPipe, readFileTx)
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Governance
@@ -110,7 +110,7 @@ runLegacyGovernanceNewConstitutionCmd :: ()
   -> Maybe (TxId, Word32)
   -> (Ledger.Url, Text)
   -> ConstitutionUrl
-  -> ConstitutionHashSource
+  -> ConstitutionAnchorHashSource
   -> File ConstitutionText Out
   -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct propAnchor constitutionUrl constitutionHashSource oFp = do
@@ -119,16 +119,19 @@ runLegacyGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGov
         <$> firstExceptT ReadFileError . newExceptT
               $ readVerificationKeyOrFile AsStakePoolKey stakeVoteCred
   case constitutionHashSource of
-    ConstitutionHashSourceFile fp  -> do
+    ConstitutionAnchorHashSourceFile fp  -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
-      _utf8EncodedText <- firstExceptT NonUtf8EncodedConstitution . hoistEither $ Text.decodeUtf8' cBs
+      _utf8EncodedText <-
+        hoistEither (Text.decodeUtf8' cBs)
+          & firstExceptT ConstitutionNotUnicodeError
+          & firstExceptT GovernanceCmdConstitutionError
       let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
           govAct = ProposeNewConstitution
                      prevGovActId
                      (createAnchor (unConstitutionUrl constitutionUrl) cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that with hashAnchorData
       runLegacyGovernanceCreateActionCmd network sbe deposit vStakePoolKeyHash propAnchor govAct oFp
 
-    ConstitutionHashSourceText c -> do
+    ConstitutionAnchorHashSourceText c -> do
       let constitBs = Text.encodeUtf8 c
           prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
           govAct = ProposeNewConstitution
