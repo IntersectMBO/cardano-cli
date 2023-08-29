@@ -81,18 +81,18 @@ runGovernanceActionCreateConstitution :: ()
   => ConwayEraOnwards era
   -> EraBasedNewConstitution
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution network deposit anyStake mPrevGovActId propAnchor constit outFp) = do
+runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution network deposit anyStake mPrevGovActId propAnchor constitutionUrl constitutionHashSource outFp) = do
 
   stakeKeyHash <- readStakeKeyHash anyStake
 
-  case constit of
-    ConstitutionFromFile url fp  -> do
+  case constitutionHashSource of
+    ConstitutionHashSourceFile fp  -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
       _utf8EncodedText <- firstExceptT GovernanceActionsCmdNonUtf8EncodedConstitution . hoistEither $ Text.decodeUtf8' cBs
       let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
           govAct = ProposeNewConstitution
                      prevGovActId
-                     (createAnchor url cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that
+                     (createAnchor (unConstitutionUrl constitutionUrl) cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that
           sbe = conwayEraOnwardsToShelleyBasedEra cOn
           proposal = createProposalProcedure
                        sbe
@@ -106,13 +106,13 @@ runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution network depos
         $ conwayEraOnwardsConstraints cOn
         $ writeFileTextEnvelope outFp Nothing proposal
 
-    ConstitutionFromText url c -> do
+    ConstitutionHashSourceText c -> do
       let constitBs = Text.encodeUtf8 c
           sbe = conwayEraOnwardsToShelleyBasedEra cOn
           prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
           govAct = ProposeNewConstitution
                      prevGovActId
-                     (createAnchor url constitBs)
+                     (createAnchor (unConstitutionUrl constitutionUrl) constitBs)
           proposal = createProposalProcedure
                        sbe
                        network

@@ -17,7 +17,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common (Constitution, VerificationKeyFile)
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
@@ -68,7 +68,8 @@ data EraBasedNewConstitution
       , encStakeCredential :: AnyStakeIdentifier
       , encPrevGovActId :: Maybe (TxId, Word32)
       , encPropAnchor :: (Ledger.Url, Text)
-      , encConstitution :: Constitution
+      , encConstitutionUrl :: ConstitutionUrl
+      , encConstitutionHashSource :: ConstitutionHashSource
       , encFilePath :: File () Out
       } deriving Show
 

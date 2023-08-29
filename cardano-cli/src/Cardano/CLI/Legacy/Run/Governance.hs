@@ -46,8 +46,8 @@ runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO
 runLegacyGovernanceCmds = \case
   GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
     runLegacyGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
-  GovernanceActionCmd (CreateConstitution network sbe deposit voteStakeCred mPrevGovActId propAnchor newconstitution fp) ->
-    runLegacyGovernanceNewConstitutionCmd network sbe deposit voteStakeCred mPrevGovActId propAnchor newconstitution fp
+  GovernanceActionCmd (CreateConstitution network sbe deposit voteStakeCred mPrevGovActId propAnchor constitutionUrl constitutionHashSource fp) ->
+    runLegacyGovernanceNewConstitutionCmd network sbe deposit voteStakeCred mPrevGovActId propAnchor constitutionUrl constitutionHashSource fp
   GovernanceMIRPayStakeAddressesCertificate anyEra mirpot vKeys rewards out ->
     runLegacyGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
   GovernanceMIRTransfer anyEra amt out direction -> do
@@ -102,37 +102,38 @@ runLegacyGovernanceCreateVoteCmd anyEra vChoice vType (govActionTxId, govActionI
             votingProcedures = singletonVotingProcedures sbe voter govActIdentifier (unVotingProcedure voteProcedure)
         firstExceptT WriteFileError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
 
-runLegacyGovernanceNewConstitutionCmd
-  :: Ledger.Network
+runLegacyGovernanceNewConstitutionCmd :: ()
+  => Ledger.Network
   -> AnyShelleyBasedEra
   -> Lovelace
   -> VerificationKeyOrFile StakePoolKey
   -> Maybe (TxId, Word32)
   -> (Ledger.Url, Text)
-  -> Constitution
-  -> File Constitution Out
+  -> ConstitutionUrl
+  -> ConstitutionHashSource
+  -> File ConstitutionText Out
   -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct propAnchor constitution oFp = do
+runLegacyGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct propAnchor constitutionUrl constitutionHashSource oFp = do
   vStakePoolKeyHash
     <- fmap (verificationKeyHash . castVerificationKey)
         <$> firstExceptT ReadFileError . newExceptT
               $ readVerificationKeyOrFile AsStakePoolKey stakeVoteCred
-  case constitution of
-    ConstitutionFromFile url fp  -> do
+  case constitutionHashSource of
+    ConstitutionHashSourceFile fp  -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
       _utf8EncodedText <- firstExceptT NonUtf8EncodedConstitution . hoistEither $ Text.decodeUtf8' cBs
       let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
           govAct = ProposeNewConstitution
                      prevGovActId
-                     (createAnchor url cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that with hashAnchorData
+                     (createAnchor (unConstitutionUrl constitutionUrl) cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that with hashAnchorData
       runLegacyGovernanceCreateActionCmd network sbe deposit vStakePoolKeyHash propAnchor govAct oFp
 
-    ConstitutionFromText url c -> do
+    ConstitutionHashSourceText c -> do
       let constitBs = Text.encodeUtf8 c
           prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
           govAct = ProposeNewConstitution
                      prevGovActId
-                     (createAnchor url constitBs)
+                     (createAnchor (unConstitutionUrl constitutionUrl) constitBs)
       runLegacyGovernanceCreateActionCmd network sbe deposit vStakePoolKeyHash propAnchor govAct oFp
 
 runLegacyGovernanceMIRCertificatePayStakeAddrs

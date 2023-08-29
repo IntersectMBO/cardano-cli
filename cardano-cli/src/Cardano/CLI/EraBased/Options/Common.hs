@@ -778,19 +778,24 @@ catCommands = \case
   [] -> Nothing
   ps -> Just $ asum ps
 
-pConstitution :: Parser Constitution
+pConstitutionUrl :: Parser ConstitutionUrl
+pConstitutionUrl =
+  ConstitutionUrl
+    <$> pUrl "constitution-url" "Constitution URL."
+
+pConstitution :: Parser ConstitutionHashSource
 pConstitution =
   asum
-    [ ConstitutionFromText
-         <$> pUrl "constitution-url" "Constitution URL."
-         <*> Opt.strOption (mconcat
-               [ Opt.long "constitution"
-               , Opt.metavar "TEXT"
-               , Opt.help "Input constitution as UTF-8 encoded text."
-               ])
-    , ConstitutionFromFile
-        <$> pUrl "constitution-url" "Constitution URL."
-        <*> pFileInDirection "constitution-file" "Input constitution as a text file."
+    [ ConstitutionHashSourceText
+        <$> Opt.strOption
+            ( mconcat
+                [ Opt.long "constitution"
+                , Opt.metavar "TEXT"
+                , Opt.help "Input constitution as UTF-8 encoded text."
+                ]
+            )
+    , ConstitutionHashSourceFile
+        <$> pFileInDirection "constitution-file" "Input constitution as a text file."
     ]
 
 pUrl :: String -> String -> Parser Ledger.Url

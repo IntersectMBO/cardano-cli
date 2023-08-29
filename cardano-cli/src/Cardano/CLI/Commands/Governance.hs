@@ -68,30 +68,31 @@ runGovernanceNewConstitutionCmd
   -> VerificationKeyOrFile StakePoolKey
   -> Maybe (TxId, Word32)
   -> (Ledger.Url, Text)
-  -> Constitution
-  -> File Constitution Out
+  -> ConstitutionUrl
+  -> ConstitutionHashSource
+  -> File ConstitutionText Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct propAnchor constitution oFp = do
+runGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct propAnchor constitutionUrl constitutionHashSource oFp = do
   vStakePoolKeyHash
     <- fmap (verificationKeyHash . castVerificationKey)
         <$> firstExceptT ReadFileError . newExceptT
               $ readVerificationKeyOrFile AsStakePoolKey stakeVoteCred
-  case constitution of
-    ConstitutionFromFile url fp  -> do
+  case constitutionHashSource of
+    ConstitutionHashSourceFile fp  -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
       _utf8EncodedText <- firstExceptT NonUtf8EncodedConstitution . hoistEither $ Text.decodeUtf8' cBs
       let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
           govAct = ProposeNewConstitution
                      prevGovActId
-                     (createAnchor url cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that with hashAnchorData
+                     (createAnchor (unConstitutionUrl constitutionUrl) cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that with hashAnchorData
       runGovernanceCreateActionCmd network sbe deposit vStakePoolKeyHash propAnchor govAct oFp
 
-    ConstitutionFromText url c -> do
+    ConstitutionHashSourceText c -> do
       let constitBs = Text.encodeUtf8 c
           prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
           govAct = ProposeNewConstitution
                      prevGovActId
-                     (createAnchor url constitBs)
+                     (createAnchor (unConstitutionUrl constitutionUrl) constitBs)
       runGovernanceCreateActionCmd network sbe deposit vStakePoolKeyHash propAnchor govAct oFp
 
 runGovernanceCreateActionCmd

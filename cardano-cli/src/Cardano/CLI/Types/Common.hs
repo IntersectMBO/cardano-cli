@@ -15,7 +15,9 @@ module Cardano.CLI.Types.Common
   , CardanoAddressKeyType(..)
   , CBORObject (..)
   , CertificateFile (..)
-  , Constitution(..)
+  , ConstitutionHashSource(..)
+  , ConstitutionText(..)
+  , ConstitutionUrl(..)
   , CurrentKesPeriod (..)
   , EpochLeadershipSchedule (..)
   , File(..)
@@ -92,12 +94,17 @@ data TransferDirection =
 
 data OpCertCounter
 
-data Constitution
-  = ConstitutionFromFile
-      Ledger.Url (File Constitution In)
-  | ConstitutionFromText
-      Ledger.Url
-      Text -- ^ Constitution text
+newtype ConstitutionUrl = ConstitutionUrl
+  { unConstitutionUrl :: Ledger.Url
+  } deriving (Eq, Show)
+
+newtype ConstitutionText = ConstitutionText
+  { unConstitutionText :: Text
+  } deriving (Eq, Show)
+
+data ConstitutionHashSource
+  = ConstitutionHashSourceFile (File ConstitutionText In)
+  | ConstitutionHashSourceText Text -- ^ Constitution text
   deriving Show
 
 -- | Specify whether to render the script cost as JSON

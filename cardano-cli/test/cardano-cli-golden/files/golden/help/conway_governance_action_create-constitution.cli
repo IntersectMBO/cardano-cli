@@ -14,10 +14,9 @@ Usage: cardano-cli conway governance action create-constitution
                                                                     --governance-action-index WORD32]
                                                                   --proposal-url TEXT
                                                                   --anchor-data-hash TEXT
-                                                                  ( --constitution-url TEXT
-                                                                    --constitution TEXT
-                                                                  | --constitution-url TEXT
-                                                                    --constitution-file FILE
+                                                                  --constitution-url TEXT
+                                                                  ( --constitution TEXT
+                                                                  | --constitution-file FILE
                                                                   )
                                                                   --out-file FILE
 
@@ -49,7 +48,6 @@ Available options:
   --anchor-data-hash TEXT  Hash of anchor data.
   --constitution-url TEXT  Constitution URL.
   --constitution TEXT      Input constitution as UTF-8 encoded text.
-  --constitution-url TEXT  Constitution URL.
   --constitution-file FILE Input constitution as a text file.
   --out-file FILE          Output filepath of the constitution.
   -h,--help                Show this help text

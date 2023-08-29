@@ -112,8 +112,9 @@ data ActionCmd
       (VerificationKeyOrFile StakePoolKey)
       (Maybe (TxId, Word32))
       (Ledger.Url, Text)
-      Constitution
-      (File Constitution Out)
+      ConstitutionUrl
+      ConstitutionHashSource
+      (File ConstitutionText Out)
 
   deriving Show
 
@@ -143,6 +144,7 @@ pCreateConstitution envCli =
     <*> pVotingCredential
     <*> pPreviousGovernanceAction
     <*> pProposalAnchor
+    <*> pConstitutionUrl
     <*> pConstitution
     <*> pFileOutDirection "out-file" "Output filepath of the governance action."
 
