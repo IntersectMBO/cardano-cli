@@ -56,7 +56,7 @@ module Cardano.CLI.Read
   -- * Governance related
   , ConstitutionError(..)
   , VoteError (..)
-  , readTxNewConstitutionActions
+  , readTxGovernanceActions
 
   -- * FileOrPipe
   , FileOrPipe
@@ -776,22 +776,22 @@ data ConstitutionError
   | ConstitutionsNotSupportedInEra AnyCardanoEra
   deriving Show
 
-readTxNewConstitutionActions
+readTxGovernanceActions
   :: CardanoEra era
-  -> [NewConstitutionFile In]
+  -> [ProposalFile In]
   -> IO (Either ConstitutionError (TxGovernanceActions era))
-readTxNewConstitutionActions _ [] = return $ Right TxGovernanceActionsNone
-readTxNewConstitutionActions era files = runExceptT $ do
+readTxGovernanceActions _ [] = return $ Right TxGovernanceActionsNone
+readTxGovernanceActions era files = runExceptT $ do
   w <- maybeFeatureInEra era
         & hoistMaybe (ConstitutionsNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
-  constitutions <- newExceptT $ sequence <$> mapM (readConstitution w) files
-  pure $ TxGovernanceActions w constitutions
+  proposals <- newExceptT $ sequence <$> mapM (readProposal w) files
+  pure $ TxGovernanceActions w proposals
 
-readConstitution
+readProposal
   :: ConwayEraOnwards era
-  -> NewConstitutionFile In
+  -> ProposalFile In
   -> IO (Either ConstitutionError (Proposal era))
-readConstitution w fp =
+readProposal w fp =
   first ConstitutionErrorFile
     <$> conwayEraOnwardsConstraints w (readFileTextEnvelope AsProposal fp)
 

@@ -91,7 +91,7 @@ data LegacyTransactionCmds
       [MetadataFile]
       (Maybe UpdateProposalFile)
       [VoteFile In]
-      [NewConstitutionFile In]
+      [ProposalFile In]
       TxBuildOutputOptions
   | TxSign
       InputTxBodyOrTxFile

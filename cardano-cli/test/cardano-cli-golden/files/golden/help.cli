@@ -2234,7 +2234,7 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                               ]
                                               [--update-proposal-file FILE]
                                               [--vote-file FILE]
-                                              [--constitution-file FILE]
+                                              [--proposal-file FILE]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
                                               )
@@ -3548,7 +3548,7 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                        ]
                                        [--update-proposal-file FILE]
                                        [--vote-file FILE]
-                                       [--constitution-file FILE]
+                                       [--proposal-file FILE]
                                        ( --out-file FILE
                                        | --calculate-plutus-script-cost FILE
                                        )
