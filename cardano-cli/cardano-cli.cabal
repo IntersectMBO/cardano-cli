@@ -64,7 +64,6 @@ library
                         Cardano.CLI.Byron.Tx
                         Cardano.CLI.Byron.UpdateProposal
                         Cardano.CLI.Byron.Vote
-                        Cardano.CLI.Commands.Governance
                         Cardano.CLI.Environment
                         Cardano.CLI.EraBased.Commands
                         Cardano.CLI.EraBased.Commands.Governance
