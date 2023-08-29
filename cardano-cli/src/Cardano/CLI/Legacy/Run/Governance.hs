@@ -5,14 +5,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Legacy.Run.Governance
-  ( runGovernanceCmds
+  ( runLegacyGovernanceCmds
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 import qualified Cardano.Api.Shelley as Api
 
-import           Cardano.CLI.Commands.Governance
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Read (fileOrPipe, readFileTx)
@@ -20,15 +20,16 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Governance
 import qualified Cardano.CLI.Types.Governance as Cli
-import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile,
-                   readVerificationKeyOrHashOrFile, readVerificationKeyOrHashOrTextEnvFile)
+import           Cardano.CLI.Types.Key
 
 import           Control.Monad
-import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Class (lift)
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson (eitherDecode)
+import           Data.Bifunctor
+import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LB
 import           Data.Function ((&))
@@ -38,38 +39,153 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
 import qualified Data.Text.Read as Text
+import           Data.Word
 import qualified System.IO as IO
 import           System.IO (stderr, stdin, stdout)
 
-runGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
-runGovernanceCmds = \case
+runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceCmds = \case
   GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
-    runGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
+    runLegacyGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
   GovernanceActionCmd (CreateConstitution (Cli.NewConstitution network sbe deposit voteStakeCred mPrevGovActId propAnchor newconstitution fp)) ->
-    runGovernanceNewConstitutionCmd network sbe deposit voteStakeCred mPrevGovActId propAnchor newconstitution fp
-  GovernanceMIRPayStakeAddressesCertificate (AnyShelleyToBabbageEra w) mirpot vKeys rewards out ->
-    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
-  GovernanceMIRTransfer (AnyShelleyToBabbageEra w) amt out direction -> do
-    runGovernanceMIRCertificateTransfer w amt out direction
+    runLegacyGovernanceNewConstitutionCmd network sbe deposit voteStakeCred mPrevGovActId propAnchor newconstitution fp
+  GovernanceMIRPayStakeAddressesCertificate anyEra mirpot vKeys rewards out ->
+    runLegacyGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
+  GovernanceMIRTransfer anyEra amt out direction -> do
+    runLegacyGovernanceMIRCertificateTransfer anyEra amt out direction
   GovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out ->
-    runGovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out
+    runLegacyGovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
-    runGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
+    runLegacyGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
   GovernanceCreatePoll prompt choices nonce out ->
-    runGovernanceCreatePoll prompt choices nonce out
+    runLegacyGovernanceCreatePoll prompt choices nonce out
   GovernanceAnswerPoll poll ix mOutFile ->
-    runGovernanceAnswerPoll poll ix mOutFile
+    runLegacyGovernanceAnswerPoll poll ix mOutFile
   GovernanceVerifyPoll poll metadata mOutFile ->
-    runGovernanceVerifyPoll poll metadata mOutFile
+    runLegacyGovernanceVerifyPoll poll metadata mOutFile
 
-runGovernanceGenesisKeyDelegationCertificate
+runLegacyGovernanceCreateVoteCmd :: ()
+  => AnyShelleyBasedEra
+  -> Vote
+  -> VType
+  -> (TxId, Word32)
+  -> VerificationKeyOrFile StakePoolKey
+  -> VoteFile Out
+  -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceCreateVoteCmd anyEra vChoice vType (govActionTxId, govActionIndex) votingStakeCred oFp = do
+  AnyShelleyBasedEra sbe <- pure anyEra
+
+  shelleyBasedEraConstraints sbe $ do
+    vStakePoolKey <- firstExceptT ReadFileError . newExceptT $ readVerificationKeyOrFile AsStakePoolKey votingStakeCred
+    let stakePoolKeyHash = verificationKeyHash vStakePoolKey
+        vStakeCred = StakeCredentialByKey . (verificationKeyHash . castVerificationKey) $ vStakePoolKey
+    case vType of
+      VCC -> do
+        votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
+        let voter = Ledger.CommitteeVoter (Ledger.coerceKeyRole (unVotingCredential votingCred)) -- TODO Conway - remove coerceKeyRole
+            govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
+            voteProcedure = createVotingProcedure sbe vChoice Nothing
+            votingProcedures = singletonVotingProcedures sbe voter govActIdentifier (unVotingProcedure voteProcedure)
+        firstExceptT WriteFileError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
+
+      VDR -> do
+        votingCred <- hoistEither $ first VotingCredentialDecodeGovCmdEror $ toVotingCredential sbe vStakeCred
+        let voter = Ledger.DRepVoter (unVotingCredential votingCred)
+            govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
+            voteProcedure = createVotingProcedure sbe vChoice Nothing
+            votingProcedures = singletonVotingProcedures sbe voter govActIdentifier (unVotingProcedure voteProcedure)
+        firstExceptT WriteFileError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
+
+      VSP -> do
+        let voter = Ledger.StakePoolVoter (unStakePoolKeyHash stakePoolKeyHash)
+            govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
+            voteProcedure = createVotingProcedure sbe vChoice Nothing
+            votingProcedures = singletonVotingProcedures sbe voter govActIdentifier (unVotingProcedure voteProcedure)
+        firstExceptT WriteFileError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
+
+runLegacyGovernanceNewConstitutionCmd
+  :: Ledger.Network
+  -> AnyShelleyBasedEra
+  -> Lovelace
+  -> VerificationKeyOrFile StakePoolKey
+  -> Maybe (TxId, Word32)
+  -> (Ledger.Url, Text)
+  -> Constitution
+  -> NewConstitutionFile Out
+  -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct propAnchor constitution oFp = do
+  vStakePoolKeyHash
+    <- fmap (verificationKeyHash . castVerificationKey)
+        <$> firstExceptT ReadFileError . newExceptT
+              $ readVerificationKeyOrFile AsStakePoolKey stakeVoteCred
+  case constitution of
+    ConstitutionFromFile url fp  -> do
+      cBs <- liftIO $ BS.readFile $ unFile fp
+      _utf8EncodedText <- firstExceptT NonUtf8EncodedConstitution . hoistEither $ Text.decodeUtf8' cBs
+      let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
+          govAct = ProposeNewConstitution
+                     prevGovActId
+                     (createAnchor url cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that with hashAnchorData
+      runLegacyGovernanceCreateActionCmd network sbe deposit vStakePoolKeyHash propAnchor govAct oFp
+
+    ConstitutionFromText url c -> do
+      let constitBs = Text.encodeUtf8 c
+          prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
+          govAct = ProposeNewConstitution
+                     prevGovActId
+                     (createAnchor url constitBs)
+      runLegacyGovernanceCreateActionCmd network sbe deposit vStakePoolKeyHash propAnchor govAct oFp
+
+runLegacyGovernanceMIRCertificatePayStakeAddrs
+  :: AnyShelleyToBabbageEra
+  -> Ledger.MIRPot
+  -> [StakeAddress] -- ^ Stake addresses
+  -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
+  -> File () Out
+  -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceMIRCertificatePayStakeAddrs (AnyShelleyToBabbageEra w) =
+  runGovernanceMIRCertificatePayStakeAddrs w
+
+runLegacyGovernanceMIRCertificateTransfer
+  :: AnyShelleyToBabbageEra
+  -> Lovelace
+  -> File () Out
+  -> TransferDirection
+  -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceMIRCertificateTransfer (AnyShelleyToBabbageEra w) =
+  runGovernanceMIRCertificateTransfer w
+
+runLegacyGovernanceCreateActionCmd
+  :: Ledger.Network
+  -> AnyShelleyBasedEra
+  -> Lovelace
+  -> Hash StakeKey
+  -> (Ledger.Url, Text)
+  -> GovernanceAction
+  -> File a Out
+  -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceCreateActionCmd network anyEra deposit depositReturnAddr propAnchor govAction oFp = do
+  AnyShelleyBasedEra sbe <- pure anyEra
+  let proposal = createProposalProcedure
+                   sbe
+                   network
+                   deposit
+                   depositReturnAddr
+                   govAction
+                   (uncurry createAnchor (fmap Text.encodeUtf8 propAnchor))
+
+  firstExceptT WriteFileError . newExceptT
+    $ shelleyBasedEraConstraints sbe
+    $ writeFileTextEnvelope oFp Nothing proposal
+
+runLegacyGovernanceGenesisKeyDelegationCertificate
   :: AnyShelleyBasedEra
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceGenesisKeyDelegationCertificate (AnyShelleyBasedEra sbe)
+runLegacyGovernanceGenesisKeyDelegationCertificate (AnyShelleyBasedEra sbe)
                                              genVkOrHashOrFp
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
@@ -116,7 +232,7 @@ createGenesisDelegationRequirements sbe hGen hGenDeleg hVrf =
     ShelleyBasedEraConway ->
       Left GovernanceCmdGenesisDelegationNotSupportedInConway
 
-runGovernanceUpdateProposal
+runLegacyGovernanceUpdateProposal
   :: File () Out
   -> EpochNo
   -> [VerificationKeyFile In]
@@ -124,7 +240,7 @@ runGovernanceUpdateProposal
   -> ProtocolParametersUpdate
   -> Maybe FilePath -- ^ Cost models file path
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceUpdateProposal upFile eNo genVerKeyFiles upPprams mCostModelFp = do
+runLegacyGovernanceUpdateProposal upFile eNo genVerKeyFiles upPprams mCostModelFp = do
   finalUpPprams <- case mCostModelFp of
     Nothing -> return upPprams
     Just fp -> do
@@ -151,13 +267,13 @@ runGovernanceUpdateProposal upFile eNo genVerKeyFiles upPprams mCostModelFp = do
   firstExceptT GovernanceCmdTextEnvWriteError . newExceptT
     $ writeLazyByteStringFile upFile $ textEnvelopeToJSON Nothing upProp
 
-runGovernanceCreatePoll
+runLegacyGovernanceCreatePoll
   :: Text
   -> [Text]
   -> Maybe Word
   -> File GovernancePoll Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceCreatePoll govPollQuestion govPollAnswers govPollNonce out = do
+runLegacyGovernanceCreatePoll govPollQuestion govPollAnswers govPollNonce out = do
   let poll = GovernancePoll{ govPollQuestion, govPollAnswers, govPollNonce }
 
   let description = fromString $ "An on-chain poll for SPOs: " <> Text.unpack govPollQuestion
@@ -185,12 +301,12 @@ runGovernanceCreatePoll govPollQuestion govPollAnswers govPollNonce out = do
       , "participants has been generated at '" <> outPath <> "'."
       ]
 
-runGovernanceAnswerPoll
+runLegacyGovernanceAnswerPoll
   :: File GovernancePoll In
   -> Maybe Word -- ^ Answer index
   -> Maybe (File () Out) -- ^ Output file
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceAnswerPoll pollFile maybeChoice mOutFile = do
+runLegacyGovernanceAnswerPoll pollFile maybeChoice mOutFile = do
   poll <- firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
     readFileTextEnvelope AsGovernancePoll pollFile
 
@@ -255,12 +371,12 @@ runGovernanceAnswerPoll pollFile maybeChoice mOutFile = do
       _ ->
         left GovernanceCmdPollInvalidChoice
 
-runGovernanceVerifyPoll
+runLegacyGovernanceVerifyPoll
   :: File GovernancePoll In
   -> File (Api.Tx ()) In
   -> Maybe (File () Out) -- ^ Output file
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceVerifyPoll pollFile txFile mOutFile = do
+runLegacyGovernanceVerifyPoll pollFile txFile mOutFile = do
   poll <- firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
     readFileTextEnvelope AsGovernancePoll pollFile
 

@@ -1,1 +1,0 @@
-Cannot read verification key: path/file.txt: Invalid key.

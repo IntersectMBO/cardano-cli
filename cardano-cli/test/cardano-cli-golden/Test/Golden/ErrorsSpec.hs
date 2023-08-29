@@ -32,7 +32,7 @@ import           Test.Tasty
 
 test_GovernanceCmdError :: TestTree
 test_GovernanceCmdError =
-  testErrorMessagesRendering "Cardano.CLI.Commands.Governance" "GovernanceCmdError"
+  testErrorMessagesRendering "Cardano.CLI.Types.Errors.GovernanceCmdError" "GovernanceCmdError"
     [ ("StakeCredGovCmdError"
       , StakeCredGovCmdError
         . ShelleyStakeAddressCmdReadKeyFileError
