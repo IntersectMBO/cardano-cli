@@ -24,7 +24,7 @@ runLegacyCmds :: LegacyCmds -> ExceptT CmdError IO ()
 runLegacyCmds = \case
   LegacyAddressCmds      cmd -> firstExceptT CmdAddressError $ runAddressCmds cmd
   LegacyGenesisCmds      cmd -> firstExceptT CmdGenesisError $ runGenesisCmds cmd
-  LegacyGovernanceCmds   cmd -> firstExceptT CmdGovernanceCmdError $ runGovernanceCmds cmd
+  LegacyGovernanceCmds   cmd -> firstExceptT CmdGovernanceCmdError $ runLegacyGovernanceCmds cmd
   LegacyKeyCmds          cmd -> firstExceptT CmdKeyError $ runKeyCmds cmd
   LegacyNodeCmds         cmd -> firstExceptT CmdNodeError $ runNodeCmds cmd
   LegacyPoolCmds         cmd -> firstExceptT CmdPoolError $ runPoolCmds cmd
