@@ -1,5 +1,39 @@
 # Changelog for cardano-cli
 
+## 8.7.0.0
+
+- Change `--constitution-file` to `--proposal-file` in `transaction build`
+  (breaking, improvement)
+  [PR 219](https://github.com/input-output-hk/cardano-cli/pull/219)
+
+- Remove error placeholders in `Cardano.CLI.Json.Friendly`
+  (improvement)
+  [PR 212](https://github.com/input-output-hk/cardano-cli/pull/212)
+
+- Use record syntax for `TxBodyContent`
+  (improvement)
+  [PR 215](https://github.com/input-output-hk/cardano-cli/pull/215)
+
+- Upgrade to `cardano-api-8.17.0.0`
+  (improvement)
+  [PR 210](https://github.com/input-output-hk/cardano-cli/pull/210)
+
+- Remove `experimental` subcommand
+  (breaking, improvement)
+  [PR 211](https://github.com/input-output-hk/cardano-cli/pull/211)
+
+- Add governance query commands
+  (feature, compatible)
+  [PR 189](https://github.com/input-output-hk/cardano-cli/pull/189)
+
+- Read and write `VotingProcedures` files instead of `VotingEntry` files
+  (breaking)
+  [PR 203](https://github.com/input-output-hk/cardano-cli/pull/203)
+
+- Enable `--drep-script-hash` option
+  (feature, compatible)
+  [PR 204](https://github.com/input-output-hk/cardano-cli/pull/204)
+
 ## 8.6.0.0
 
 - conway related commands
