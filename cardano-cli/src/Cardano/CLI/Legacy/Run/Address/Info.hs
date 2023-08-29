@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs #-}
 
 module Cardano.CLI.Legacy.Run.Address.Info
-  ( runAddressInfo
+  ( runLegacyAddressInfoCmd
   ) where
 
 import           Cardano.Api
@@ -36,8 +36,8 @@ instance ToJSON AddressInfo where
       , "base16" .= aiBase16 addrInfo
       ]
 
-runAddressInfo :: Text -> Maybe (File () Out) -> ExceptT ShelleyAddressInfoError IO ()
-runAddressInfo addrTxt mOutputFp = do
+runLegacyAddressInfoCmd :: Text -> Maybe (File () Out) -> ExceptT ShelleyAddressInfoError IO ()
+runLegacyAddressInfoCmd addrTxt mOutputFp = do
     addrInfo <- case (Left  <$> deserialiseAddress AsAddressAny addrTxt)
                  <|> (Right <$> deserialiseAddress AsStakeAddress addrTxt) of
 

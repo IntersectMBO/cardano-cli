@@ -4,7 +4,7 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Legacy.Run.Pool
-  ( runPoolCmds
+  ( runLegacyPoolCmds
   ) where
 
 import           Cardano.Api
@@ -25,16 +25,16 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 
-runPoolCmds :: LegacyPoolCmds -> ExceptT ShelleyPoolCmdError IO ()
-runPoolCmds = \case
+runLegacyPoolCmds :: LegacyPoolCmds -> ExceptT ShelleyPoolCmdError IO ()
+runLegacyPoolCmds = \case
   PoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
-    runStakePoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
+    runLegacyStakePoolRegistrationCertCmd anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
   PoolRetirementCert anyEra sPvkeyFp retireEpoch outfp ->
-    runStakePoolRetirementCert anyEra sPvkeyFp retireEpoch outfp
+    runLegacyStakePoolRetirementCertCmd anyEra sPvkeyFp retireEpoch outfp
   PoolGetId sPvkey outputFormat mOutFile ->
-    runPoolId sPvkey outputFormat mOutFile
+    runLegacyPoolIdCmd sPvkey outputFormat mOutFile
   PoolMetadataHash poolMdFile mOutFile ->
-    runPoolMetadataHash poolMdFile mOutFile
+    runLegacyPoolMetadataHashCmd poolMdFile mOutFile
 
 --
 -- Stake pool command implementations
@@ -43,7 +43,7 @@ runPoolCmds = \case
 -- | Create a stake pool registration cert.
 -- TODO: Metadata and more stake pool relay support to be
 -- added in the future.
-runStakePoolRegistrationCert
+runLegacyStakePoolRegistrationCertCmd
   :: AnyShelleyBasedEra
   -> VerificationKeyOrFile StakePoolKey
   -- ^ Stake pool verification key.
@@ -66,7 +66,7 @@ runStakePoolRegistrationCert
   -> NetworkId
   -> File () Out
   -> ExceptT ShelleyPoolCmdError IO ()
-runStakePoolRegistrationCert
+runLegacyStakePoolRegistrationCertCmd
   anyEra
   stakePoolVerKeyOrFile
   vrfVerKeyOrFile
@@ -156,13 +156,13 @@ createStakePoolRegistrationRequirements sbe pparams =
      StakePoolRegistrationRequirementsConwayOnwards ConwayEraOnwardsConway pparams
 
 
-runStakePoolRetirementCert
+runLegacyStakePoolRetirementCertCmd
   :: AnyShelleyBasedEra
   -> VerificationKeyOrFile StakePoolKey
   -> Shelley.EpochNo
   -> File () Out
   -> ExceptT ShelleyPoolCmdError IO ()
-runStakePoolRetirementCert anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
+runLegacyStakePoolRetirementCertCmd anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
     AnyShelleyBasedEra sbe <- pure anyEra
 
     -- Pool verification key
@@ -203,12 +203,12 @@ createStakePoolRetirementRequirements sbe pid epoch =
       StakePoolRetirementRequirementsConwayOnwards ConwayEraOnwardsConway pid epoch
 
 
-runPoolId
+runLegacyPoolIdCmd
   :: VerificationKeyOrFile StakePoolKey
   -> IdOutputFormat
   -> Maybe (File () Out)
   -> ExceptT ShelleyPoolCmdError IO ()
-runPoolId verKeyOrFile outputFormat mOutFile = do
+runLegacyPoolIdCmd verKeyOrFile outputFormat mOutFile = do
   stakePoolVerKey <- firstExceptT ShelleyPoolCmdReadKeyFileError
     . newExceptT
     $ readVerificationKeyOrFile AsStakePoolKey verKeyOrFile
@@ -225,8 +225,8 @@ runPoolId verKeyOrFile outputFormat mOutFile = do
         $ writeTextOutput mOutFile
         $ serialiseToBech32 (verificationKeyHash stakePoolVerKey)
 
-runPoolMetadataHash :: StakePoolMetadataFile In -> Maybe (File () Out) -> ExceptT ShelleyPoolCmdError IO ()
-runPoolMetadataHash poolMDPath mOutFile = do
+runLegacyPoolMetadataHashCmd :: StakePoolMetadataFile In -> Maybe (File () Out) -> ExceptT ShelleyPoolCmdError IO ()
+runLegacyPoolMetadataHashCmd poolMDPath mOutFile = do
   metadataBytes <- lift (readByteStringFile poolMDPath)
     & onLeft (left . ShelleyPoolCmdReadFileError)
 

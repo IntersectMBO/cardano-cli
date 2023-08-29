@@ -1,11 +1,12 @@
 {-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -21,7 +22,7 @@ module Cardano.CLI.Legacy.Run.Genesis
   ( readShelleyGenesisWithDefault
   , readAndDecodeShelleyGenesis
   , readAlonzoGenesis
-  , runGenesisCmds
+  , runLegacyGenesisCmds
 
   -- * Protocol Parameters
   , ProtocolParamsError(..)
@@ -48,8 +49,8 @@ import qualified Cardano.CLI.Byron.Key as Byron
 import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Legacy.Run.Node (
-                   runNodeIssueOpCert, runNodeKeyGenCold, runNodeKeyGenKES, runNodeKeyGenVRF)
-import           Cardano.CLI.Legacy.Run.StakeAddress (runStakeAddressKeyGenToFile)
+                   runLegacyNodeIssueOpCertCmd, runLegacyNodeKeyGenColdCmd, runLegacyNodeKeyGenKesCmd, runLegacyNodeKeyGenVrfCmd)
+import           Cardano.CLI.Legacy.Run.StakeAddress (runLegacyStakeAddressKeyGenToFileCmd)
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
@@ -131,29 +132,40 @@ import           Text.Read (readMaybe)
 
 import           Crypto.Random as Crypto
 
-runGenesisCmds :: LegacyGenesisCmds -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisCmds (GenesisKeyGenGenesis vk sk) = runGenesisKeyGenGenesis vk sk
-runGenesisCmds (GenesisKeyGenDelegate vk sk ctr) = runGenesisKeyGenDelegate vk sk ctr
-runGenesisCmds (GenesisKeyGenUTxO vk sk) = runGenesisKeyGenUTxO vk sk
-runGenesisCmds (GenesisCmdKeyHash vk) = runGenesisKeyHash vk
-runGenesisCmds (GenesisVerKey vk sk) = runGenesisVerKey vk sk
-runGenesisCmds (GenesisTxIn vk nw mOutFile) = runGenesisTxIn vk nw mOutFile
-runGenesisCmds (GenesisAddr vk nw mOutFile) = runGenesisAddr vk nw mOutFile
-runGenesisCmds (GenesisCreate fmt gd gn un ms am nw) = runGenesisCreate fmt gd gn un ms am nw
-runGenesisCmds (GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg) = runGenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
-runGenesisCmds (GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp) =
-  runGenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
-runGenesisCmds (GenesisHashFile gf) = runGenesisHashFile gf
+runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT ShelleyGenesisCmdError IO ()
+runLegacyGenesisCmds = \case
+  GenesisKeyGenGenesis vk sk ->
+    runLegacyGenesisKeyGenGenesisCmd vk sk
+  GenesisKeyGenDelegate vk sk ctr ->
+    runLegacyGenesisKeyGenDelegateCmd vk sk ctr
+  GenesisKeyGenUTxO vk sk ->
+    runLegacyGenesisKeyGenUTxOCmd vk sk
+  GenesisCmdKeyHash vk ->
+    runLegacyGenesisKeyHashCmd vk
+  GenesisVerKey vk sk ->
+    runLegacyGenesisVerKeyCmd vk sk
+  GenesisTxIn vk nw mOutFile ->
+    runLegacyGenesisTxInCmd vk nw mOutFile
+  GenesisAddr vk nw mOutFile ->
+    runLegacyGenesisAddrCmd vk nw mOutFile
+  GenesisCreate fmt gd gn un ms am nw ->
+    runLegacyGenesisCreateCmd fmt gd gn un ms am nw
+  GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
+    runLegacyGenesisCreateCardanoCmd gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
+  GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
+    runLegacyGenesisCreateStakedCmd fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
+  GenesisHashFile gf ->
+    runLegacyGenesisHashFileCmd gf
 
 --
 -- Genesis command implementations
 --
 
-runGenesisKeyGenGenesis ::
+runLegacyGenesisKeyGenGenesisCmd ::
      VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisKeyGenGenesis vkeyPath skeyPath = do
+runLegacyGenesisKeyGenGenesisCmd vkeyPath skeyPath = do
     skey <- liftIO $ generateSigningKey AsGenesisKey
     let vkey = getVerificationKey skey
     firstExceptT ShelleyGenesisCmdGenesisFileError
@@ -170,12 +182,12 @@ runGenesisKeyGenGenesis vkeyPath skeyPath = do
     vkeyDesc = "Genesis Verification Key"
 
 
-runGenesisKeyGenDelegate ::
+runLegacyGenesisKeyGenDelegateCmd ::
      VerificationKeyFile Out
   -> SigningKeyFile Out
   -> OpCertCounterFile Out
   -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisKeyGenDelegate vkeyPath skeyPath ocertCtrPath = do
+runLegacyGenesisKeyGenDelegateCmd vkeyPath skeyPath ocertCtrPath = do
     skey <- liftIO $ generateSigningKey AsGenesisDelegateKey
     let vkey = getVerificationKey skey
     firstExceptT ShelleyGenesisCmdGenesisFileError
@@ -225,11 +237,11 @@ runGenesisKeyGenDelegateVRF vkeyPath skeyPath = do
     vkeyDesc = "VRF Verification Key"
 
 
-runGenesisKeyGenUTxO ::
+runLegacyGenesisKeyGenUTxOCmd ::
      VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisKeyGenUTxO vkeyPath skeyPath = do
+runLegacyGenesisKeyGenUTxOCmd vkeyPath skeyPath = do
     skey <- liftIO $ generateSigningKey AsGenesisUTxOKey
     let vkey = getVerificationKey skey
     firstExceptT ShelleyGenesisCmdGenesisFileError
@@ -246,8 +258,8 @@ runGenesisKeyGenUTxO vkeyPath skeyPath = do
     vkeyDesc = "Genesis Initial UTxO Verification Key"
 
 
-runGenesisKeyHash :: VerificationKeyFile In -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisKeyHash vkeyPath = do
+runLegacyGenesisKeyHashCmd :: VerificationKeyFile In -> ExceptT ShelleyGenesisCmdError IO ()
+runLegacyGenesisKeyHashCmd vkeyPath = do
     vkey <- firstExceptT ShelleyGenesisCmdTextEnvReadFileError . newExceptT $
             readFileTextEnvelopeAnyOf
               [ FromSomeType (AsVerificationKey AsGenesisKey)
@@ -270,11 +282,11 @@ runGenesisKeyHash vkeyPath = do
                               . verificationKeyHash
 
 
-runGenesisVerKey ::
+runLegacyGenesisVerKeyCmd ::
      VerificationKeyFile Out
   -> SigningKeyFile In
   -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisVerKey vkeyPath skeyPath = do
+runLegacyGenesisVerKeyCmd vkeyPath skeyPath = do
     skey <- firstExceptT ShelleyGenesisCmdTextEnvReadFileError . newExceptT $
             readFileTextEnvelopeAnyOf
               [ FromSomeType (AsSigningKey AsGenesisKey)
@@ -304,24 +316,24 @@ data SomeGenesisKey f
      | AGenesisUTxOKey     (f GenesisUTxOKey)
 
 
-runGenesisTxIn ::
+runLegacyGenesisTxInCmd ::
      VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisTxIn vkeyPath network mOutFile = do
+runLegacyGenesisTxInCmd vkeyPath network mOutFile = do
     vkey <- firstExceptT ShelleyGenesisCmdTextEnvReadFileError . newExceptT $
             readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) vkeyPath
     let txin = genesisUTxOPseudoTxIn network (verificationKeyHash vkey)
     liftIO $ writeOutput mOutFile (renderTxIn txin)
 
 
-runGenesisAddr ::
+runLegacyGenesisAddrCmd ::
      VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisAddr vkeyPath network mOutFile = do
+runLegacyGenesisAddrCmd vkeyPath network mOutFile = do
     vkey <- firstExceptT ShelleyGenesisCmdTextEnvReadFileError . newExceptT $
             readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) vkeyPath
     let vkh  = verificationKeyHash (castVerificationKey vkey)
@@ -338,7 +350,7 @@ writeOutput Nothing                   = Text.putStrLn
 -- Create Genesis command implementation
 --
 
-runGenesisCreate
+runLegacyGenesisCreateCmd
   :: KeyOutputFormat
   -> GenesisDir
   -> Word  -- ^ num genesis & delegate keys to make
@@ -347,7 +359,7 @@ runGenesisCreate
   -> Maybe Lovelace
   -> NetworkId
   -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisCreate
+runLegacyGenesisCreateCmd
     fmt (GenesisDir rootdir)
     genNumGenesisKeys genNumUTxOKeys
     mStart mAmount network = do
@@ -460,7 +472,7 @@ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys = do
 -- Create Genesis Cardano command implementation
 --
 
-runGenesisCreateCardano :: GenesisDir
+runLegacyGenesisCreateCardanoCmd :: GenesisDir
                  -> Word  -- ^ num genesis & delegate keys to make
                  -> Word  -- ^ num utxo keys to make
                  -> Maybe SystemStart
@@ -475,7 +487,7 @@ runGenesisCreateCardano :: GenesisDir
                  -> FilePath -- ^ Conway Genesis
                  -> Maybe FilePath
                  -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisCreateCardano (GenesisDir rootdir)
+runLegacyGenesisCreateCardanoCmd (GenesisDir rootdir)
                  genNumGenesisKeys genNumUTxOKeys
                  mStart mAmount mSecurity slotLength mSlotCoeff
                  network byronGenesisT shelleyGenesisT alonzoGenesisT conwayGenesisT mNodeCfg = do
@@ -622,7 +634,7 @@ runGenesisCreateCardano (GenesisDir rootdir)
     dlgCertMap :: Genesis.GenesisData -> Map Byron.KeyHash Dlg.Certificate
     dlgCertMap byronGenesis = Genesis.unGenesisDelegation $ Genesis.gdHeavyDelegation byronGenesis
 
-runGenesisCreateStaked
+runLegacyGenesisCreateStakedCmd
   :: KeyOutputFormat    -- ^ key output format
   -> GenesisDir
   -> Word               -- ^ num genesis & delegate keys to make
@@ -638,7 +650,7 @@ runGenesisCreateStaked
   -> Word               -- ^ num stuffed UTxO entries
   -> Maybe FilePath     -- ^ Specified stake pool relays
   -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisCreateStaked
+runLegacyGenesisCreateStakedCmd
     fmt (GenesisDir rootdir)
     genNumGenesisKeys genNumUTxOKeys genNumPools genNumStDelegs
     mStart mNonDlgAmount stDlgAmount network
@@ -772,7 +784,7 @@ runGenesisCreateStaked
 createDelegateKeys :: KeyOutputFormat -> FilePath -> Word -> ExceptT ShelleyGenesisCmdError IO ()
 createDelegateKeys fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
-  runGenesisKeyGenDelegate
+  runLegacyGenesisKeyGenDelegateCmd
         (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vkey")
         (onlyOut coldSK)
         (onlyOut opCertCtr)
@@ -780,11 +792,11 @@ createDelegateKeys fmt dir index = do
         (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.vkey")
         (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.skey")
   firstExceptT ShelleyGenesisCmdNodeCmdError $ do
-    runNodeKeyGenKES
+    runLegacyNodeKeyGenKesCmd
         fmt
         (onlyOut kesVK)
         (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".kes.skey")
-    runNodeIssueOpCert
+    runLegacyNodeIssueOpCertCmd
         (VerificationKeyFilePath (onlyIn kesVK))
         (onlyIn coldSK)
         opCertCtr
@@ -800,7 +812,7 @@ createGenesisKeys :: FilePath -> Word -> ExceptT ShelleyGenesisCmdError IO ()
 createGenesisKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
-  runGenesisKeyGenGenesis
+  runLegacyGenesisKeyGenGenesisCmd
         (File @(VerificationKey ()) $ dir </> "genesis" ++ strIndex ++ ".vkey")
         (File @(SigningKey ()) $ dir </> "genesis" ++ strIndex ++ ".skey")
 
@@ -809,7 +821,7 @@ createUtxoKeys :: FilePath -> Word -> ExceptT ShelleyGenesisCmdError IO ()
 createUtxoKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
-  runGenesisKeyGenUTxO
+  runLegacyGenesisKeyGenUTxOCmd
         (File @(VerificationKey ()) $ dir </> "utxo" ++ strIndex ++ ".vkey")
         (File @(SigningKey ()) $ dir </> "utxo" ++ strIndex ++ ".skey")
 
@@ -817,27 +829,27 @@ createPoolCredentials :: KeyOutputFormat -> FilePath -> Word -> ExceptT ShelleyG
 createPoolCredentials fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   firstExceptT ShelleyGenesisCmdNodeCmdError $ do
-    runNodeKeyGenKES
+    runLegacyNodeKeyGenKesCmd
         fmt
         (onlyOut kesVK)
         (File @(SigningKey ()) $ dir </> "kes" ++ strIndex ++ ".skey")
-    runNodeKeyGenVRF
+    runLegacyNodeKeyGenVrfCmd
         fmt
         (File @(VerificationKey ()) $ dir </> "vrf" ++ strIndex ++ ".vkey")
         (File @(SigningKey ()) $ dir </> "vrf" ++ strIndex ++ ".skey")
-    runNodeKeyGenCold
+    runLegacyNodeKeyGenColdCmd
         fmt
         (File @(VerificationKey ()) $ dir </> "cold" ++ strIndex ++ ".vkey")
         (onlyOut coldSK)
         (onlyOut opCertCtr)
-    runNodeIssueOpCert
+    runLegacyNodeIssueOpCertCmd
         (VerificationKeyFilePath (onlyIn kesVK))
         (onlyIn coldSK)
         opCertCtr
         (KESPeriod 0)
         (File $ dir </> "opcert" ++ strIndex ++ ".cert")
   firstExceptT ShelleyGenesisCmdStakeAddressCmdError $
-    runStakeAddressKeyGenToFile
+    runLegacyStakeAddressKeyGenToFileCmd
         fmt
         (File @(VerificationKey ()) $ dir </> "staking-reward" ++ strIndex ++ ".vkey")
         (File @(SigningKey ()) $ dir </> "staking-reward" ++ strIndex ++ ".skey")
@@ -1285,8 +1297,8 @@ readInitialFundAddresses utxodir nw = do
 
 
 -- | Hash a genesis file
-runGenesisHashFile :: GenesisFile -> ExceptT ShelleyGenesisCmdError IO ()
-runGenesisHashFile (GenesisFile fpath) = do
+runLegacyGenesisHashFileCmd :: GenesisFile -> ExceptT ShelleyGenesisCmdError IO ()
+runLegacyGenesisHashFileCmd (GenesisFile fpath) = do
    content <- handleIOExceptT (ShelleyGenesisCmdGenesisFileError . FileIOError fpath) $
               BS.readFile fpath
    let gh :: Crypto.Hash Crypto.Blake2b_256 ByteString

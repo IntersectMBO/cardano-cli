@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -8,8 +9,7 @@ module Cardano.CLI.Legacy.Run.Address
   ( SomeAddressVerificationKey(..)
   , buildShelleyAddress
   , renderShelleyAddressCmdError
-  , runAddressCmds
-  , runAddressKeyGenToFile
+  , runLegacyAddressCmds
   , makeStakeAddressRef
   ) where
 
@@ -17,7 +17,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Legacy.Commands.Address
-import           Cardano.CLI.Legacy.Run.Address.Info (runAddressInfo)
+import           Cardano.CLI.Legacy.Run.Address.Info (runLegacyAddressInfoCmd)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyTextOrFile, generateKeyPair, readVerificationKeyOrFile,
@@ -31,21 +31,24 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExcept
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.Text.IO as Text
 
-runAddressCmds :: LegacyAddressCmds -> ExceptT ShelleyAddressCmdError IO ()
-runAddressCmds cmd =
-  case cmd of
-    AddressKeyGen fmt kt vkf skf -> runAddressKeyGenToFile fmt kt vkf skf
-    AddressKeyHash vkf mOFp -> runAddressKeyHash vkf mOFp
-    AddressBuild paymentVerifier mbStakeVerifier nw mOutFp -> runAddressBuild paymentVerifier mbStakeVerifier nw mOutFp
-    AddressInfo txt mOFp -> firstExceptT ShelleyAddressCmdAddressInfoError $ runAddressInfo txt mOFp
+runLegacyAddressCmds :: LegacyAddressCmds -> ExceptT ShelleyAddressCmdError IO ()
+runLegacyAddressCmds = \case
+  AddressKeyGen fmt kt vkf skf ->
+    runLegacyAddressKeyGenCmd fmt kt vkf skf
+  AddressKeyHash vkf mOFp ->
+    runLegacyAddressKeyHashCmd vkf mOFp
+  AddressBuild paymentVerifier mbStakeVerifier nw mOutFp ->
+    runLegacyAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp
+  AddressInfo txt mOFp ->
+    firstExceptT ShelleyAddressCmdAddressInfoError $ runLegacyAddressInfoCmd txt mOFp
 
-runAddressKeyGenToFile
+runLegacyAddressKeyGenCmd
   :: KeyOutputFormat
   -> AddressKeyType
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyAddressCmdError IO ()
-runAddressKeyGenToFile fmt kt vkf skf = case kt of
+runLegacyAddressKeyGenCmd fmt kt vkf skf = case kt of
   AddressKeyShelley         -> generateAndWriteKeyFiles fmt  AsPaymentKey          vkf skf
   AddressKeyShelleyExtended -> generateAndWriteKeyFiles fmt  AsPaymentExtendedKey  vkf skf
   AddressKeyByron           -> generateAndWriteByronKeyFiles AsByronKey            vkf skf
@@ -135,10 +138,10 @@ writeByronPaymentKeyFiles vkeyPath skeyPath vkey skey = do
     skeyDesc = "Payment Signing Key"
     vkeyDesc = "Payment Verification Key"
 
-runAddressKeyHash :: VerificationKeyTextOrFile
+runLegacyAddressKeyHashCmd :: VerificationKeyTextOrFile
                   -> Maybe (File () Out)
                   -> ExceptT ShelleyAddressCmdError IO ()
-runAddressKeyHash vkeyTextOrFile mOutputFp = do
+runLegacyAddressKeyHashCmd vkeyTextOrFile mOutputFp = do
   vkey <- firstExceptT ShelleyAddressCmdVerificationKeyTextOrFileError $
              newExceptT $ readVerificationKeyTextOrFileAnyOf vkeyTextOrFile
 
@@ -150,12 +153,12 @@ runAddressKeyHash vkeyTextOrFile mOutputFp = do
     Nothing -> liftIO $ BS.putStrLn hexKeyHash
 
 
-runAddressBuild :: PaymentVerifier
+runLegacyAddressBuildCmd :: PaymentVerifier
                 -> Maybe StakeIdentifier
                 -> NetworkId
                 -> Maybe (File () Out)
                 -> ExceptT ShelleyAddressCmdError IO ()
-runAddressBuild paymentVerifier mbStakeVerifier nw mOutFp = do
+runLegacyAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
   outText <- case paymentVerifier of
     PaymentVerifierKey payVkeyTextOrFile -> do
       payVKey <- firstExceptT ShelleyAddressCmdVerificationKeyTextOrFileError $

@@ -22,13 +22,13 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT)
 
 runLegacyCmds :: LegacyCmds -> ExceptT CmdError IO ()
 runLegacyCmds = \case
-  LegacyAddressCmds      cmd -> firstExceptT CmdAddressError $ runAddressCmds cmd
-  LegacyGenesisCmds      cmd -> firstExceptT CmdGenesisError $ runGenesisCmds cmd
+  LegacyAddressCmds      cmd -> firstExceptT CmdAddressError $ runLegacyAddressCmds cmd
+  LegacyGenesisCmds      cmd -> firstExceptT CmdGenesisError $ runLegacyGenesisCmds cmd
   LegacyGovernanceCmds   cmd -> firstExceptT CmdGovernanceCmdError $ runLegacyGovernanceCmds cmd
-  LegacyKeyCmds          cmd -> firstExceptT CmdKeyError $ runKeyCmds cmd
-  LegacyNodeCmds         cmd -> firstExceptT CmdNodeError $ runNodeCmds cmd
-  LegacyPoolCmds         cmd -> firstExceptT CmdPoolError $ runPoolCmds cmd
-  LegacyQueryCmds        cmd -> firstExceptT CmdQueryError $ runQueryCmds cmd
-  LegacyStakeAddressCmds cmd -> firstExceptT CmdStakeAddressError $ runStakeAddressCmds cmd
-  LegacyTextViewCmds     cmd -> firstExceptT CmdTextViewError $ runTextViewCmds cmd
-  LegacyTransactionCmds  cmd -> firstExceptT CmdTransactionError $ runTransactionCmds cmd
+  LegacyKeyCmds          cmd -> firstExceptT CmdKeyError $ runLegacyKeyCmds cmd
+  LegacyNodeCmds         cmd -> firstExceptT CmdNodeError $ runLegacyNodeCmds cmd
+  LegacyPoolCmds         cmd -> firstExceptT CmdPoolError $ runLegacyPoolCmds cmd
+  LegacyQueryCmds        cmd -> firstExceptT CmdQueryError $ runLegacyQueryCmds cmd
+  LegacyStakeAddressCmds cmd -> firstExceptT CmdStakeAddressError $ runLegacyStakeAddressCmds cmd
+  LegacyTextViewCmds     cmd -> firstExceptT CmdTextViewError $ runLegacyTextViewCmds cmd
+  LegacyTransactionCmds  cmd -> firstExceptT CmdTransactionError $ runLegacyTransactionCmds cmd
