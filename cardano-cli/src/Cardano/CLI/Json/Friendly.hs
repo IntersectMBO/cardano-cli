@@ -8,6 +8,7 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS) where
