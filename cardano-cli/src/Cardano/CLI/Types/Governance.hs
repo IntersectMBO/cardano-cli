@@ -4,13 +4,10 @@
 module Cardano.CLI.Types.Governance where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile, VerificationKeyOrHashOrFile)
 
-import           Data.Text (Text)
 import           Data.Word
 
 type VoteFile = File ConwayVote
@@ -24,20 +21,6 @@ data ConwayVote
     , cvEra :: AnyShelleyBasedEra
     , cvFilepath :: VoteFile Out
     } deriving Show
-
-type NewConstitutionFile = File NewConstitution
-
-data NewConstitution
-  = NewConstitution
-      { ncNetwork :: Ledger.Network
-      , ncEra :: AnyShelleyBasedEra
-      , ncDeposit :: Lovelace
-      , ncVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
-      , ncPrevGovActId :: Maybe (TxId, Word32)
-      , ncPropAnchor :: (Ledger.Url, Text)
-      , ncConstitution :: Constitution
-      , ncFilePath :: NewConstitutionFile Out
-      } deriving Show
 
 -- Vote type -- TODO: Conway era - remove me
 data VType = VCC -- committee

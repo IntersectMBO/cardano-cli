@@ -19,7 +19,6 @@ import           Cardano.CLI.Read (fileOrPipe, readFileTx)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Governance
-import qualified Cardano.CLI.Types.Governance as Cli
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad
@@ -47,7 +46,7 @@ runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO
 runLegacyGovernanceCmds = \case
   GovernanceVoteCmd (CreateVoteCmd (ConwayVote voteChoice voteType govActTcIn voteStakeCred sbe fp)) ->
     runLegacyGovernanceCreateVoteCmd sbe voteChoice voteType govActTcIn voteStakeCred fp
-  GovernanceActionCmd (CreateConstitution (Cli.NewConstitution network sbe deposit voteStakeCred mPrevGovActId propAnchor newconstitution fp)) ->
+  GovernanceActionCmd (CreateConstitution network sbe deposit voteStakeCred mPrevGovActId propAnchor newconstitution fp) ->
     runLegacyGovernanceNewConstitutionCmd network sbe deposit voteStakeCred mPrevGovActId propAnchor newconstitution fp
   GovernanceMIRPayStakeAddressesCertificate anyEra mirpot vKeys rewards out ->
     runLegacyGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
@@ -111,7 +110,7 @@ runLegacyGovernanceNewConstitutionCmd
   -> Maybe (TxId, Word32)
   -> (Ledger.Url, Text)
   -> Constitution
-  -> NewConstitutionFile Out
+  -> File Constitution Out
   -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct propAnchor constitution oFp = do
   vStakePoolKeyHash

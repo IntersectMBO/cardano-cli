@@ -93,7 +93,8 @@ data TransferDirection =
 data OpCertCounter
 
 data Constitution
-  = ConstitutionFromFile Ledger.Url (File () In)
+  = ConstitutionFromFile
+      Ledger.Url (File Constitution In)
   | ConstitutionFromText
       Ledger.Url
       Text -- ^ Constitution text
