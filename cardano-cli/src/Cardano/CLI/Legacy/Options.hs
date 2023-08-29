@@ -564,7 +564,7 @@ pTransaction envCli =
       <*> many pMetadataFile
       <*> optional pUpdateProposalFile
       <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
-      <*> many (pFileInDirection "constitution-file" "Filepath of the constitution.")
+      <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
       <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
   pChangeAddress :: Parser TxOutChangeAddress

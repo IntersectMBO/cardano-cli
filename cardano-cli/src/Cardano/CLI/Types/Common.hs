@@ -38,6 +38,7 @@ module Cardano.CLI.Types.Common
   , ParserFileDirection (..)
   , IdOutputFormat (..)
   , PrivKeyFile(..)
+  , ProposalFile
   , ProtocolParamsFile(..)
   , ReferenceScriptAnyEra (..)
   , RequiredSigner (..)
@@ -269,6 +270,8 @@ instance Crypto.Crypto crypto =>  ToJSON (Params crypto) where
     ]
 
 type SigningKeyFile = File (SigningKey ())
+
+type ProposalFile = File ()
 
 newtype UpdateProposalFile = UpdateProposalFile { unUpdateProposalFile :: FilePath }
                              deriving newtype (Eq, Show)

@@ -113,7 +113,7 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                        ]
                                        [--update-proposal-file FILE]
                                        [--vote-file FILE]
-                                       [--constitution-file FILE]
+                                       [--proposal-file FILE]
                                        ( --out-file FILE
                                        | --calculate-plutus-script-cost FILE
                                        )
@@ -393,7 +393,7 @@ Available options:
   --update-proposal-file FILE
                            Filepath of the update proposal.
   --vote-file FILE         Filepath of the vote.
-  --constitution-file FILE Filepath of the constitution.
+  --proposal-file FILE     Filepath of the proposal.
   --out-file FILE          Output filepath of the JSON TxBody.
   --calculate-plutus-script-cost FILE
                            (File () Out) filepath of the script cost

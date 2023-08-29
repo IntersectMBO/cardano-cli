@@ -123,14 +123,14 @@ runTxBuildCmd
   -> [MetadataFile]
   -> Maybe UpdateProposalFile
   -> [VoteFile In]
-  -> [NewConstitutionFile In] -- TODO: Conway era - we should replace this with a sumtype that handles all governance actions
+  -> [ProposalFile In]
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()
 runTxBuildCmd
     socketPath (AnyCardanoEra cEra) consensusModeParams@(AnyConsensusModeParams cModeParams) nid
     mScriptValidity mOverrideWits txins readOnlyRefIns reqSigners txinsc mReturnColl mTotCollateral txouts
     changeAddr mValue mLowBound mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp
-    conwayVotes newConstitutions outputOptions = do
+    conwayVotes newProposals outputOptions = do
 
   -- The user can specify an era prior to the era that the node is currently in.
   -- We cannot use the user specified era to construct a query against a node because it may differ
@@ -179,8 +179,7 @@ runTxBuildCmd
       cEra
 
   proposals <- newExceptT $ first ShelleyTxCmdConstitutionError
-                  <$> readTxNewConstitutionActions cEra newConstitutions
-
+                  <$> readTxGovernanceActions cEra newProposals
 
   -- the same collateral input can be used for several plutus scripts
   let filteredTxinsc = Set.toList $ Set.fromList txinsc
