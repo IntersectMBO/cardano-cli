@@ -1,7 +1,8 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Legacy.Run.TextView
-  ( runTextViewCmds
+  ( runLegacyTextViewCmds
   ) where
 
 import           Cardano.Api
@@ -15,13 +16,12 @@ import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, newExceptT)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 
-runTextViewCmds :: LegacyTextViewCmds -> ExceptT ShelleyTextViewFileError IO ()
-runTextViewCmds cmd =
-  case cmd of
-    TextViewInfo fpath mOutfile -> runTextViewInfo fpath mOutfile
+runLegacyTextViewCmds :: LegacyTextViewCmds -> ExceptT ShelleyTextViewFileError IO ()
+runLegacyTextViewCmds = \case
+  TextViewInfo fpath mOutfile -> runLegacyTextViewInfoCmd fpath mOutfile
 
-runTextViewInfo :: FilePath -> Maybe (File () Out) -> ExceptT ShelleyTextViewFileError IO ()
-runTextViewInfo fpath mOutFile = do
+runLegacyTextViewInfoCmd :: FilePath -> Maybe (File () Out) -> ExceptT ShelleyTextViewFileError IO ()
+runLegacyTextViewInfoCmd fpath mOutFile = do
   tv <- firstExceptT TextViewReadFileError $ newExceptT (readTextEnvelopeFromFile fpath)
   let lbCBOR = LBS.fromStrict (textEnvelopeRawCBOR tv)
   case mOutFile of
