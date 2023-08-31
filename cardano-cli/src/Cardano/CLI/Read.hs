@@ -54,9 +54,11 @@ module Cardano.CLI.Read
 
   -- * Governance related
   , ConstitutionError(..)
+  , ProposalError(..)
   , VoteError (..)
   , readTxGovernanceActions
   , constitutionHashSourceToHash
+  , proposalHashSourceToHash
 
   -- * FileOrPipe
   , FileOrPipe
@@ -78,7 +80,7 @@ module Cardano.CLI.Read
 
   , ReadSafeHashError(..)
   , readHexAsSafeHash
-  , readConstitutionHash
+  , readSafeHash
   ) where
 
 import           Cardano.Api as Api
@@ -788,8 +790,14 @@ readVotingProceduresFile w fp =
 
 data ConstitutionError
   = ConstitutionErrorFile (FileError TextEnvelopeError)
-  | ConstitutionsNotSupportedInEra AnyCardanoEra
+  | ConstitutionNotSupportedInEra AnyCardanoEra
   | ConstitutionNotUnicodeError Text.UnicodeException
+  deriving Show
+
+data ProposalError
+  = ProposalErrorFile (FileError TextEnvelopeError)
+  | ProposalNotSupportedInEra AnyCardanoEra
+  | ProposalNotUnicodeError Text.UnicodeException
   deriving Show
 
 readTxGovernanceActions
@@ -799,7 +807,7 @@ readTxGovernanceActions
 readTxGovernanceActions _ [] = return $ Right TxGovernanceActionsNone
 readTxGovernanceActions era files = runExceptT $ do
   w <- maybeFeatureInEra era
-        & hoistMaybe (ConstitutionsNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
+        & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
   proposals <- newExceptT $ sequence <$> mapM (readProposal w) files
   pure $ TxGovernanceActions w proposals
 
@@ -825,6 +833,22 @@ constitutionHashSourceToHash constitutionHashSource = do
       pure $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
 
     ConstitutionHashSourceHash h ->
+      pure h
+
+proposalHashSourceToHash :: ()
+  => ProposalHashSource
+  -> ExceptT ProposalError IO (Ledger.SafeHash Ledger.StandardCrypto Ledger.AnchorData)
+proposalHashSourceToHash proposalHashSource = do
+  case proposalHashSource of
+    ProposalHashSourceFile fp  -> do
+      cBs <- liftIO $ BS.readFile $ unFile fp
+      _utf8EncodedText <- firstExceptT ProposalNotUnicodeError . hoistEither $ Text.decodeUtf8' cBs
+      pure $ Ledger.hashAnchorData $ Ledger.AnchorData cBs
+
+    ProposalHashSourceText c -> do
+      pure $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
+
+    ProposalHashSourceHash h ->
       pure h
 
 -- Misc
@@ -1000,8 +1024,8 @@ readHexAsSafeHash hex = do
     Just a -> Right (L.unsafeMakeSafeHash a)
     Nothing -> Left $ ReadSafeHashErrorInvalidHash "Unable to read hash"
 
-readConstitutionHash :: Opt.ReadM (L.SafeHash Crypto.StandardCrypto L.AnchorData)
-readConstitutionHash =
+readSafeHash :: Opt.ReadM (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+readSafeHash =
   Opt.eitherReader $ \s ->
     readHexAsSafeHash (Text.pack s)
       & first (Text.unpack . renderReadSafeHashError)

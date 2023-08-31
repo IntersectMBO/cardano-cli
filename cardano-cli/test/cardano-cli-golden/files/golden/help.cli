@@ -807,7 +807,10 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   [--governance-action-tx-id TXID
                                                                     --governance-action-index WORD32]
                                                                   --proposal-url TEXT
-                                                                  --proposal-text TEXT
+                                                                  ( --proposal-text TEXT
+                                                                  | --proposal-file FILE
+                                                                  | --proposal-hash HASH
+                                                                  )
                                                                   --constitution-url TEXT
                                                                   ( --constitution-text TEXT
                                                                   | --constitution-file FILE
@@ -830,7 +833,10 @@ Usage: cardano-cli conway governance action create-new-committee
                                                                    | --stake-key-hash HASH
                                                                    )
                                                                    --proposal-url TEXT
-                                                                   --proposal-text TEXT
+                                                                   ( --proposal-text TEXT
+                                                                   | --proposal-file FILE
+                                                                   | --proposal-hash HASH
+                                                                   )
                                                                    [ --stake-pool-verification-key STRING
                                                                    | --cold-verification-key-file FILE
                                                                    | --stake-pool-id STAKE_POOL_ID
@@ -867,7 +873,10 @@ Usage: cardano-cli conway governance action create-no-confidence
                                                                    | --stake-key-hash HASH
                                                                    )
                                                                    --proposal-url TEXT
-                                                                   --proposal-text TEXT
+                                                                   ( --proposal-text TEXT
+                                                                   | --proposal-file FILE
+                                                                   | --proposal-hash HASH
+                                                                   )
                                                                    --governance-action-tx-id TXID
                                                                    --governance-action-index WORD32
                                                                    --out-file FILE
@@ -915,7 +924,10 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          | --stake-key-hash HASH
                                                                          )
                                                                          --proposal-url TEXT
-                                                                         --proposal-text TEXT
+                                                                         ( --proposal-text TEXT
+                                                                         | --proposal-file FILE
+                                                                         | --proposal-hash HASH
+                                                                         )
                                                                          [
                                                                            ( --stake-pool-verification-key STRING
                                                                            | --cold-verification-key-file FILE
@@ -1433,7 +1445,10 @@ Usage: cardano-cli legacy governance action create-action create-constitution
                                                                                 [--governance-action-tx-id TXID
                                                                                   --governance-action-index WORD32]
                                                                                 --proposal-url TEXT
-                                                                                --proposal-text TEXT
+                                                                                ( --proposal-text TEXT
+                                                                                | --proposal-file FILE
+                                                                                | --proposal-hash HASH
+                                                                                )
                                                                                 --constitution-url TEXT
                                                                                 ( --constitution-text TEXT
                                                                                 | --constitution-file FILE
@@ -2799,7 +2814,10 @@ Usage: cardano-cli governance action create-action create-constitution
                                                                          [--governance-action-tx-id TXID
                                                                            --governance-action-index WORD32]
                                                                          --proposal-url TEXT
-                                                                         --proposal-text TEXT
+                                                                         ( --proposal-text TEXT
+                                                                         | --proposal-file FILE
+                                                                         | --proposal-hash HASH
+                                                                         )
                                                                          --constitution-url TEXT
                                                                          ( --constitution-text TEXT
                                                                          | --constitution-file FILE

@@ -68,12 +68,13 @@ runGovernanceNewConstitutionCmd
   -> Lovelace
   -> VerificationKeyOrFile StakePoolKey
   -> Maybe (TxId, Word32)
-  -> (Ledger.Url, Text)
+  -> PropposalUrl
+  -> ProposalHashSource
   -> ConstitutionUrl
   -> ConstitutionHashSource
   -> File ConstitutionText Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct propAnchor constitutionUrl constitutionHashSource oFp = do
+runGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct proposalUrl proposalHashSource constitutionUrl constitutionHashSource oFp = do
   vStakePoolKeyHash
     <- fmap (verificationKeyHash . castVerificationKey)
         <$> firstExceptT ReadFileError . newExceptT
@@ -97,11 +98,12 @@ runGovernanceCreateActionCmd
   -> AnyShelleyBasedEra
   -> Lovelace
   -> Hash StakeKey
-  -> (Ledger.Url, Text)
+  -> ProposalUrl
+  -> ProposalHashSource
   -> GovernanceAction
   -> File a Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceCreateActionCmd network anyEra deposit depositReturnAddr propAnchor govAction oFp = do
+runGovernanceCreateActionCmd network anyEra deposit depositReturnAddr proposalUrl proposalHashSource govAction oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
   let proposal = createProposalProcedure
                    sbe

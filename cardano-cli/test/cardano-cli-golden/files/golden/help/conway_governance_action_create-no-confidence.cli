@@ -11,7 +11,10 @@ Usage: cardano-cli conway governance action create-no-confidence
                                                                    | --stake-key-hash HASH
                                                                    )
                                                                    --proposal-url TEXT
-                                                                   --proposal-text TEXT
+                                                                   ( --proposal-text TEXT
+                                                                   | --proposal-file FILE
+                                                                   | --proposal-hash HASH
+                                                                   )
                                                                    --governance-action-tx-id TXID
                                                                    --governance-action-index WORD32
                                                                    --out-file FILE
@@ -37,7 +40,9 @@ Available options:
                            Filepath of the staking verification key.
   --stake-key-hash HASH    Stake verification key hash (hex-encoded).
   --proposal-url TEXT      Proposal anchor URL
-  --proposal-text TEXT     Hash of anchor data.
+  --proposal-text TEXT     Input proposal as UTF-8 encoded text.
+  --proposal-file FILE     Input proposal as a text file.
+  --proposal-hash HASH     Proposal anchor data hash.
   --governance-action-tx-id TXID
                            Previous txid of `NoConfidence` or `NewCommittee`
                            governance action.

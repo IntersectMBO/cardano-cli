@@ -10,7 +10,10 @@ Usage: cardano-cli governance action create-action create-constitution
                                                                          [--governance-action-tx-id TXID
                                                                            --governance-action-index WORD32]
                                                                          --proposal-url TEXT
-                                                                         --proposal-text TEXT
+                                                                         ( --proposal-text TEXT
+                                                                         | --proposal-file FILE
+                                                                         | --proposal-hash HASH
+                                                                         )
                                                                          --constitution-url TEXT
                                                                          ( --constitution-text TEXT
                                                                          | --constitution-file FILE
@@ -35,7 +38,9 @@ Available options:
   --governance-action-index WORD32
                            Previous tx's governance action index.
   --proposal-url TEXT      Proposal anchor URL
-  --proposal-text TEXT     Hash of anchor data.
+  --proposal-text TEXT     Input proposal as UTF-8 encoded text.
+  --proposal-file FILE     Input proposal as a text file.
+  --proposal-hash HASH     Proposal anchor data hash.
   --constitution-url TEXT  Constitution URL.
   --constitution-text TEXT Input constitution as UTF-8 encoded text.
   --constitution-file FILE Input constitution as a text file.

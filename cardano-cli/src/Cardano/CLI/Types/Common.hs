@@ -41,6 +41,9 @@ module Cardano.CLI.Types.Common
   , IdOutputFormat (..)
   , PrivKeyFile(..)
   , ProposalFile
+  , ProposalHashSource(..)
+  , ProposalText(..)
+  , ProposalUrl(..)
   , ProtocolParamsFile(..)
   , ReferenceScriptAnyEra (..)
   , RequiredSigner (..)
@@ -106,8 +109,22 @@ newtype ConstitutionText = ConstitutionText
 
 data ConstitutionHashSource
   = ConstitutionHashSourceFile (File ConstitutionText In)
-  | ConstitutionHashSourceText Text -- ^ Constitution text
+  | ConstitutionHashSourceText Text
   | ConstitutionHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+  deriving Show
+
+newtype ProposalUrl = ProposalUrl
+  { unProposalUrl :: L.Url
+  } deriving (Eq, Show)
+
+newtype ProposalText = ProposalText
+  { unProposalText :: Text
+  } deriving (Eq, Show)
+
+data ProposalHashSource
+  = ProposalHashSourceFile (File ProposalText In)
+  | ProposalHashSourceText Text
+  | ProposalHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
   deriving Show
 
 -- | Specify whether to render the script cost as JSON

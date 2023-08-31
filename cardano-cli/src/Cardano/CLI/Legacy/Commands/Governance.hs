@@ -111,7 +111,8 @@ data ActionCmd
       Lovelace
       (VerificationKeyOrFile StakePoolKey)
       (Maybe (TxId, Word32))
-      (Ledger.Url, Text)
+      ProposalUrl
+      ProposalHashSource
       ConstitutionUrl
       ConstitutionHashSource
       (File ConstitutionText Out)
@@ -143,7 +144,8 @@ pCreateConstitution envCli =
     <*> pGovActionDeposit
     <*> pVotingCredential
     <*> pPreviousGovernanceAction
-    <*> pProposalAnchor
+    <*> pProposalUrl
+    <*> pProposalHashSource
     <*> pConstitutionUrl
     <*> pConstitutionHashSource
     <*> pFileOutDirection "out-file" "Output filepath of the governance action."

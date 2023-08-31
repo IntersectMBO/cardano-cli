@@ -806,7 +806,7 @@ pConstitutionHashSource =
 
 pConstitutionHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pConstitutionHash =
-  Opt.option readConstitutionHash $ mconcat
+  Opt.option readSafeHash $ mconcat
     [ Opt.long "constitution-hash"
     , Opt.metavar "HASH"
     , Opt.help "Constitution anchor data hash."
@@ -2736,17 +2736,34 @@ pDRepVerificationKeyFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pProposalAnchor :: Parser (Ledger.Url, Text)
-pProposalAnchor = (,)
-  <$> pUrl "proposal-url" "Proposal anchor URL"
-  <*> pProposalAnchorText
+pProposalUrl :: Parser ProposalUrl
+pProposalUrl =
+  ProposalUrl
+    <$> pUrl "proposal-url" "Proposal anchor URL"
 
-pProposalAnchorText :: Parser Text
-pProposalAnchorText =
-  Opt.strOption $ mconcat
-    [ Opt.long "proposal-text"
-    , Opt.metavar "TEXT"
-    , Opt.help "Hash of anchor data."
+pProposalHashSource :: Parser ProposalHashSource
+pProposalHashSource =
+  asum
+    [ ProposalHashSourceText
+        <$> Opt.strOption
+            ( mconcat
+                [ Opt.long "proposal-text"
+                , Opt.metavar "TEXT"
+                , Opt.help "Input proposal as UTF-8 encoded text."
+                ]
+            )
+    , ProposalHashSourceFile
+        <$> pFileInDirection "proposal-file" "Input proposal as a text file."
+    , ProposalHashSourceHash
+        <$> pProposalHash
+    ]
+
+pProposalHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pProposalHash =
+  Opt.option readSafeHash $ mconcat
+    [ Opt.long "proposal-hash"
+    , Opt.metavar "HASH"
+    , Opt.help "Proposal anchor data hash."
     ]
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))
