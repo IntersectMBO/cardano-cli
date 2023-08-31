@@ -20,6 +20,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.Conway.Governance as Ledger
 
 import           Control.Monad
 import           Control.Monad.IO.Class
@@ -28,7 +29,6 @@ import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson (eitherDecode)
 import           Data.Bifunctor
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LB
 import           Data.Function ((&))
@@ -110,7 +110,7 @@ runLegacyGovernanceNewConstitutionCmd :: ()
   -> Maybe (TxId, Word32)
   -> (Ledger.Url, Text)
   -> ConstitutionUrl
-  -> ConstitutionAnchorHashSource
+  -> ConstitutionHashSource
   -> File ConstitutionText Out
   -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct propAnchor constitutionUrl constitutionHashSource oFp = do
@@ -118,26 +118,20 @@ runLegacyGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGov
     <- fmap (verificationKeyHash . castVerificationKey)
         <$> firstExceptT ReadFileError . newExceptT
               $ readVerificationKeyOrFile AsStakePoolKey stakeVoteCred
-  case constitutionHashSource of
-    ConstitutionAnchorHashSourceFile fp  -> do
-      cBs <- liftIO $ BS.readFile $ unFile fp
-      _utf8EncodedText <-
-        hoistEither (Text.decodeUtf8' cBs)
-          & firstExceptT ConstitutionNotUnicodeError
-          & firstExceptT GovernanceCmdConstitutionError
-      let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
-          govAct = ProposeNewConstitution
-                     prevGovActId
-                     (createAnchor (unConstitutionUrl constitutionUrl) cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that with hashAnchorData
-      runLegacyGovernanceCreateActionCmd network sbe deposit vStakePoolKeyHash propAnchor govAct oFp
 
-    ConstitutionAnchorHashSourceText c -> do
-      let constitBs = Text.encodeUtf8 c
-          prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
-          govAct = ProposeNewConstitution
-                     prevGovActId
-                     (createAnchor (unConstitutionUrl constitutionUrl) constitBs)
-      runLegacyGovernanceCreateActionCmd network sbe deposit vStakePoolKeyHash propAnchor govAct oFp
+  constitutionHash <-
+    constitutionHashSourceToHash constitutionHashSource
+      & firstExceptT GovernanceCmdConstitutionError
+
+  let constitutionAnchor = Ledger.Anchor
+        { Ledger.anchorUrl = unConstitutionUrl constitutionUrl
+        , Ledger.anchorDataHash = constitutionHash
+        }
+
+  let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovAct
+  let govAct = ProposeNewConstitution prevGovActId constitutionAnchor
+
+  runLegacyGovernanceCreateActionCmd network sbe deposit vStakePoolKeyHash propAnchor govAct oFp
 
 runLegacyGovernanceMIRCertificatePayStakeAddrs
   :: AnyShelleyToBabbageEra

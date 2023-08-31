@@ -18,10 +18,14 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra,
                    envCliAnyShelleyToBabbageEra)
 import           Cardano.CLI.Parser
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
+import qualified Cardano.Ledger.BaseTypes as L
+import qualified Cardano.Ledger.Crypto as Crypto
+import qualified Cardano.Ledger.SafeHash as L
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Control.Monad (mfilter)
@@ -778,15 +782,15 @@ catCommands = \case
   [] -> Nothing
   ps -> Just $ asum ps
 
-pConstitutionAnchorUrl :: Parser ConstitutionUrl
-pConstitutionAnchorUrl =
+pConstitutionUrl :: Parser ConstitutionUrl
+pConstitutionUrl =
   ConstitutionUrl
-    <$> pUrl "constitution-anchor-url" "Constitution URL."
+    <$> pUrl "constitution-url" "Constitution URL."
 
-pConstitutionAnchorHashSource :: Parser ConstitutionAnchorHashSource
-pConstitutionAnchorHashSource =
+pConstitutionHashSource :: Parser ConstitutionHashSource
+pConstitutionHashSource =
   asum
-    [ ConstitutionAnchorHashSourceText
+    [ ConstitutionHashSourceText
         <$> Opt.strOption
             ( mconcat
                 [ Opt.long "constitution-text"
@@ -794,8 +798,18 @@ pConstitutionAnchorHashSource =
                 , Opt.help "Input constitution as UTF-8 encoded text."
                 ]
             )
-    , ConstitutionAnchorHashSourceFile
+    , ConstitutionHashSourceFile
         <$> pFileInDirection "constitution-file" "Input constitution as a text file."
+    , ConstitutionHashSourceHash
+        <$> pConstitutionHash
+    ]
+
+pConstitutionHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pConstitutionHash =
+  Opt.option readConstitutionHash $ mconcat
+    [ Opt.long "constitution-hash"
+    , Opt.metavar "HASH"
+    , Opt.help "Constitution anchor data hash."
     ]
 
 pUrl :: String -> String -> Parser Ledger.Url
@@ -2724,13 +2738,13 @@ pDRepVerificationKeyFile =
 
 pProposalAnchor :: Parser (Ledger.Url, Text)
 pProposalAnchor = (,)
-  <$> pUrl "proposal-anchor-url" "Proposal anchor URL"
-  <*> pProposalAnchorHash
+  <$> pUrl "proposal-url" "Proposal anchor URL"
+  <*> pProposalAnchorText
 
-pProposalAnchorHash :: Parser Text
-pProposalAnchorHash =
+pProposalAnchorText :: Parser Text
+pProposalAnchorText =
   Opt.strOption $ mconcat
-    [ Opt.long "proposal-anchor-hash"
+    [ Opt.long "proposal-text"
     , Opt.metavar "TEXT"
     , Opt.help "Hash of anchor data."
     ]

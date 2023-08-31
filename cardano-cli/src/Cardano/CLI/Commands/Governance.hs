@@ -70,7 +70,7 @@ runGovernanceNewConstitutionCmd
   -> Maybe (TxId, Word32)
   -> (Ledger.Url, Text)
   -> ConstitutionUrl
-  -> ConstitutionAnchorHashSource
+  -> ConstitutionHashSource
   -> File ConstitutionText Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceNewConstitutionCmd network sbe deposit stakeVoteCred mPrevGovAct propAnchor constitutionUrl constitutionHashSource oFp = do

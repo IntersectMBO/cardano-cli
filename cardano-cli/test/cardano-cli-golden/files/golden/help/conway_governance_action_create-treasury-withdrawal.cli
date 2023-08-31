@@ -10,8 +10,8 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          | --stake-verification-key-file FILE
                                                                          | --stake-key-hash HASH
                                                                          )
-                                                                         --proposal-anchor-url TEXT
-                                                                         --proposal-anchor-hash TEXT
+                                                                         --proposal-url TEXT
+                                                                         --proposal-text TEXT
                                                                          [
                                                                            ( --stake-pool-verification-key STRING
                                                                            | --cold-verification-key-file FILE
@@ -43,10 +43,8 @@ Available options:
   --stake-verification-key-file FILE
                            Filepath of the staking verification key.
   --stake-key-hash HASH    Stake verification key hash (hex-encoded).
-  --proposal-anchor-url TEXT
-                           Proposal anchor URL
-  --proposal-anchor-hash TEXT
-                           Hash of anchor data.
+  --proposal-url TEXT      Proposal anchor URL
+  --proposal-text TEXT     Hash of anchor data.
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
   --cold-verification-key-file FILE

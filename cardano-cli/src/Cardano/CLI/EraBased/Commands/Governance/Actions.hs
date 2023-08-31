@@ -69,7 +69,7 @@ data EraBasedNewConstitution
       , encPrevGovActId :: Maybe (TxId, Word32)
       , encPropAnchor :: (Ledger.Url, Text)
       , encConstitutionUrl :: ConstitutionUrl
-      , encConstitutionAnchorHashSource :: ConstitutionAnchorHashSource
+      , encConstitutionHashSource :: ConstitutionHashSource
       , encFilePath :: File () Out
       } deriving Show
 

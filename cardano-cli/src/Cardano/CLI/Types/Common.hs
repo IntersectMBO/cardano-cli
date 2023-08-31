@@ -15,7 +15,7 @@ module Cardano.CLI.Types.Common
   , CardanoAddressKeyType(..)
   , CBORObject (..)
   , CertificateFile (..)
-  , ConstitutionAnchorHashSource(..)
+  , ConstitutionHashSource(..)
   , ConstitutionText(..)
   , ConstitutionUrl(..)
   , CurrentKesPeriod (..)
@@ -73,10 +73,12 @@ module Cardano.CLI.Types.Common
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Chain.Slotting as Byron
+import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Crypto as Crypto
+import qualified Cardano.Ledger.SafeHash as L
 import           Cardano.Ledger.Shelley.TxBody (PoolParams (..))
 
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
@@ -95,16 +97,17 @@ data TransferDirection =
 data OpCertCounter
 
 newtype ConstitutionUrl = ConstitutionUrl
-  { unConstitutionUrl :: Ledger.Url
+  { unConstitutionUrl :: L.Url
   } deriving (Eq, Show)
 
 newtype ConstitutionText = ConstitutionText
   { unConstitutionText :: Text
   } deriving (Eq, Show)
 
-data ConstitutionAnchorHashSource
-  = ConstitutionAnchorHashSourceFile (File ConstitutionText In)
-  | ConstitutionAnchorHashSourceText Text -- ^ Constitution text
+data ConstitutionHashSource
+  = ConstitutionHashSourceFile (File ConstitutionText In)
+  | ConstitutionHashSourceText Text -- ^ Constitution text
+  | ConstitutionHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
   deriving Show
 
 -- | Specify whether to render the script cost as JSON

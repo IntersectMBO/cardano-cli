@@ -75,6 +75,10 @@ module Cardano.CLI.Read
 
   -- * DRep credentials
   , getDRepCredentialFromVerKeyHashOrFile
+
+  , ReadSafeHashError(..)
+  , readHexAsSafeHash
+  , readConstitutionHash
   ) where
 
 import           Cardano.Api as Api
@@ -86,11 +90,15 @@ import           Cardano.CLI.Types.Errors.ScriptDecodeError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Crypto.Hash.Class as Crypto
+import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.BaseTypes as Ledger
 import qualified Cardano.Ledger.Conway.Governance as Ledger
 import qualified Cardano.Ledger.Credential as Ledger
+import qualified Cardano.Ledger.Crypto as Crypto
 import qualified Cardano.Ledger.Crypto as Ledger
 import qualified Cardano.Ledger.Keys as Ledger
+import qualified Cardano.Ledger.SafeHash as L
 import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Prelude
@@ -102,7 +110,9 @@ import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
+import qualified Data.ByteString.Base16 as Base16
 import qualified Data.ByteString.Builder as Builder
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Function ((&))
@@ -116,6 +126,7 @@ import qualified Data.Text.Encoding.Error as Text
 import           Data.Word
 import           GHC.IO.Handle (hClose, hIsSeekable)
 import           GHC.IO.Handle.FD (openFileBlocking)
+import qualified Options.Applicative as Opt
 import           System.IO (IOMode (ReadMode))
 
 -- Metadata
@@ -801,17 +812,20 @@ readProposal w fp =
     <$> conwayEraOnwardsConstraints w (readFileTextEnvelope AsProposal fp)
 
 constitutionHashSourceToHash :: ()
-  => ConstitutionAnchorHashSource
+  => ConstitutionHashSource
   -> ExceptT ConstitutionError IO (Ledger.SafeHash Ledger.StandardCrypto Ledger.AnchorData)
 constitutionHashSourceToHash constitutionHashSource = do
   case constitutionHashSource of
-    ConstitutionAnchorHashSourceFile fp  -> do
+    ConstitutionHashSourceFile fp  -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
       _utf8EncodedText <- firstExceptT ConstitutionNotUnicodeError . hoistEither $ Text.decodeUtf8' cBs
       pure $ Ledger.hashAnchorData $ Ledger.AnchorData cBs
 
-    ConstitutionAnchorHashSourceText c -> do
+    ConstitutionHashSourceText c -> do
       pure $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
+
+    ConstitutionHashSourceHash h ->
+      pure h
 
 -- Misc
 
@@ -962,3 +976,32 @@ getDRepCredentialFromVerKeyHashOrFile = \case
       ExceptT (readVerificationKeyOrFile AsDRepKey verKeyOrFile)
     pure . Ledger.KeyHashObj . unDRepKeyHash $ verificationKeyHash drepVerKey
   VerificationKeyHash kh -> pure . Ledger.KeyHashObj $ unDRepKeyHash kh
+
+data ReadSafeHashError
+  = ReadSafeHashErrorNotHex ByteString String
+  | ReadSafeHashErrorInvalidHash Text
+
+renderReadSafeHashError :: ReadSafeHashError -> Text
+renderReadSafeHashError = \case
+  ReadSafeHashErrorNotHex bs err ->
+    "Error reading anchor data hash: Invalid hex: " <> Text.decodeUtf8 bs <> "\n" <> Text.pack err
+  ReadSafeHashErrorInvalidHash err ->
+    "Error reading anchor data hash: " <> err
+
+readHexAsSafeHash :: ()
+  => Text
+  -> Either ReadSafeHashError (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+readHexAsSafeHash hex = do
+  let bs = Text.encodeUtf8 hex
+
+  raw <- Base16.decode bs & first (ReadSafeHashErrorNotHex bs)
+
+  case Crypto.hashFromBytes raw of
+    Just a -> Right (L.unsafeMakeSafeHash a)
+    Nothing -> Left $ ReadSafeHashErrorInvalidHash "Unable to read hash"
+
+readConstitutionHash :: Opt.ReadM (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+readConstitutionHash =
+  Opt.eitherReader $ \s ->
+    readHexAsSafeHash (Text.pack s)
+      & first (Text.unpack . renderReadSafeHashError)
