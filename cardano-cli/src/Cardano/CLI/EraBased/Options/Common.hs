@@ -18,10 +18,14 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra,
                    envCliAnyShelleyToBabbageEra)
 import           Cardano.CLI.Parser
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
+import qualified Cardano.Ledger.BaseTypes as L
+import qualified Cardano.Ledger.Crypto as Crypto
+import qualified Cardano.Ledger.SafeHash as L
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Control.Monad (mfilter)
@@ -778,19 +782,34 @@ catCommands = \case
   [] -> Nothing
   ps -> Just $ asum ps
 
-pConstitution :: Parser Constitution
-pConstitution =
+pConstitutionUrl :: Parser ConstitutionUrl
+pConstitutionUrl =
+  ConstitutionUrl
+    <$> pUrl "constitution-url" "Constitution URL."
+
+pConstitutionHashSource :: Parser ConstitutionHashSource
+pConstitutionHashSource =
   asum
-    [ ConstitutionFromText
-         <$> pUrl "constitution-url" "Constitution URL."
-         <*> Opt.strOption (mconcat
-               [ Opt.long "constitution"
-               , Opt.metavar "TEXT"
-               , Opt.help "Input constitution as UTF-8 encoded text."
-               ])
-    , ConstitutionFromFile
-        <$> pUrl "constitution-url" "Constitution URL."
-        <*> pFileInDirection "constitution-file" "Input constitution as a text file."
+    [ ConstitutionHashSourceText
+        <$> Opt.strOption
+            ( mconcat
+                [ Opt.long "constitution-text"
+                , Opt.metavar "TEXT"
+                , Opt.help "Input constitution as UTF-8 encoded text."
+                ]
+            )
+    , ConstitutionHashSourceFile
+        <$> pFileInDirection "constitution-file" "Input constitution as a text file."
+    , ConstitutionHashSourceHash
+        <$> pConstitutionHash
+    ]
+
+pConstitutionHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pConstitutionHash =
+  Opt.option readSafeHash $ mconcat
+    [ Opt.long "constitution-hash"
+    , Opt.metavar "HASH"
+    , Opt.help "Constitution anchor data hash."
     ]
 
 pUrl :: String -> String -> Parser Ledger.Url
@@ -2716,16 +2735,35 @@ pDRepVerificationKeyFile =
     , Opt.help "Filepath of the DRep verification key."
     , Opt.completer (Opt.bashCompleter "file")
     ]
-pProposalAnchor :: Parser (Ledger.Url, Text)
-pProposalAnchor = (,) <$> pUrl "proposal-url" "Proposal anchor URL"
-                      <*> pAnchorHash
 
-pAnchorHash :: Parser Text
-pAnchorHash =
-  Opt.strOption $ mconcat
-    [ Opt.long "anchor-data-hash"
-    , Opt.metavar "TEXT"
-    , Opt.help "Hash of anchor data."
+pProposalUrl :: Parser ProposalUrl
+pProposalUrl =
+  ProposalUrl
+    <$> pUrl "proposal-url" "Proposal anchor URL"
+
+pProposalHashSource :: Parser ProposalHashSource
+pProposalHashSource =
+  asum
+    [ ProposalHashSourceText
+        <$> Opt.strOption
+            ( mconcat
+                [ Opt.long "proposal-text"
+                , Opt.metavar "TEXT"
+                , Opt.help "Input proposal as UTF-8 encoded text."
+                ]
+            )
+    , ProposalHashSourceFile
+        <$> pFileInDirection "proposal-file" "Input proposal as a text file."
+    , ProposalHashSourceHash
+        <$> pProposalHash
+    ]
+
+pProposalHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pProposalHash =
+  Opt.option readSafeHash $ mconcat
+    [ Opt.long "proposal-hash"
+    , Opt.metavar "HASH"
+    , Opt.help "Proposal anchor data hash."
     ]
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))

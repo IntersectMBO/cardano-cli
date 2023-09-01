@@ -44,7 +44,9 @@ test_GovernanceCmdError =
     , ("ReadFileError"
       , ReadFileError $ FileError "path/file.txt" InputInvalidError)
     , ("NonUtf8EncodedConstitution"
-      , NonUtf8EncodedConstitution $ DecodeError "seq" Nothing)
+      , GovernanceCmdConstitutionError
+          $ ConstitutionNotUnicodeError
+          $ DecodeError "seq" Nothing)
     , ("GovernanceCmdTextEnvReadError"
       , GovernanceCmdTextEnvReadError
         . FileError  "path/file.txt"
@@ -167,8 +169,10 @@ test_GovernanceActionsError =
       , GovernanceActionsCmdWriteFileError $ FileError "path/file.txt" ())
     , ("GovernanceActionsCmdReadFileError"
       , GovernanceActionsCmdReadFileError $ FileError "path/file.txt" InputInvalidError)
-    , ("GovernanceActionsCmdNonUtf8EncodedConstitution"
-      , GovernanceActionsCmdNonUtf8EncodedConstitution $ DecodeError "seq" Nothing)
+    , ("GovernanceActionsCmdConstitutionError"
+      , GovernanceActionsCmdConstitutionError
+          $ ConstitutionNotUnicodeError
+          $ DecodeError "seq" Nothing)
     ]
 
 

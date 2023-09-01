@@ -16,16 +16,17 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.Conway.Governance as Ledger
 
 import           Control.Monad.Except (ExceptT)
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Except.Extra
-import qualified Data.ByteString as BS
+import           Data.Function
 import qualified Data.Map.Strict as Map
-import qualified Data.Text.Encoding as Text
 
 runGovernanceActionCmds :: ()
   => GovernanceActionCmds era
@@ -62,68 +63,59 @@ runGovernanceActionCreateNoConfidence
   :: ConwayEraOnwards era
   -> EraBasedNoConfidence
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateNoConfidence cOn (EraBasedNoConfidence network deposit returnAddr propAnchor txid ind outFp) = do
+runGovernanceActionCreateNoConfidence cOn (EraBasedNoConfidence network deposit returnAddr proposalUrl proposalHashSource txid ind outFp) = do
   returnKeyHash <- readStakeKeyHash returnAddr
+
+  proposalHash <-
+    proposalHashSourceToHash proposalHashSource
+      & firstExceptT GovernanceActionsCmdProposalError
+
+  let proposalAnchor = Ledger.Anchor
+        { Ledger.anchorUrl = unProposalUrl proposalUrl
+        , Ledger.anchorDataHash = proposalHash
+        }
+
   let sbe = conwayEraOnwardsToShelleyBasedEra cOn
-      proposal = createProposalProcedure
-                   sbe
-                   network
-                   deposit
-                   returnKeyHash
-                   (MotionOfNoConfidence . Ledger.SJust $ createPreviousGovernanceActionId txid ind)
-                   (uncurry createAnchor (fmap Text.encodeUtf8 propAnchor))
+      previousGovernanceAction = MotionOfNoConfidence . Ledger.SJust $ createPreviousGovernanceActionId txid ind
+      proposalProcedure = createProposalProcedure sbe network deposit returnKeyHash previousGovernanceAction proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints cOn
-    $ writeFileTextEnvelope outFp Nothing proposal
+    $ writeFileTextEnvelope outFp Nothing proposalProcedure
 
 runGovernanceActionCreateConstitution :: ()
   => ConwayEraOnwards era
   -> EraBasedNewConstitution
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution network deposit anyStake mPrevGovActId propAnchor constit outFp) = do
+runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution network deposit anyStake mPrevGovActId proposalUrl proposalHashSource constitutionUrl constitutionHashSource outFp) = do
 
   stakeKeyHash <- readStakeKeyHash anyStake
 
-  case constit of
-    ConstitutionFromFile url fp  -> do
-      cBs <- liftIO $ BS.readFile $ unFile fp
-      _utf8EncodedText <- firstExceptT GovernanceActionsCmdNonUtf8EncodedConstitution . hoistEither $ Text.decodeUtf8' cBs
-      let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
-          govAct = ProposeNewConstitution
-                     prevGovActId
-                     (createAnchor url cBs) -- TODO: Conway era - this is wrong, create `AnchorData` then hash that
-          sbe = conwayEraOnwardsToShelleyBasedEra cOn
-          proposal = createProposalProcedure
-                       sbe
-                       network
-                       deposit
-                       stakeKeyHash
-                       govAct
-                       (uncurry createAnchor (fmap Text.encodeUtf8 propAnchor))
+  proposalHash <-
+    proposalHashSourceToHash proposalHashSource
+      & firstExceptT GovernanceActionsCmdProposalError
 
-      firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-        $ conwayEraOnwardsConstraints cOn
-        $ writeFileTextEnvelope outFp Nothing proposal
+  let proposalAnchor = Ledger.Anchor
+        { Ledger.anchorUrl = unProposalUrl proposalUrl
+        , Ledger.anchorDataHash = proposalHash
+        }
 
-    ConstitutionFromText url c -> do
-      let constitBs = Text.encodeUtf8 c
-          sbe = conwayEraOnwardsToShelleyBasedEra cOn
-          prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
-          govAct = ProposeNewConstitution
-                     prevGovActId
-                     (createAnchor url constitBs)
-          proposal = createProposalProcedure
-                       sbe
-                       network
-                       deposit
-                       stakeKeyHash
-                       govAct
-                       (uncurry createAnchor (fmap Text.encodeUtf8 propAnchor))
+  constitutionHash <-
+    constitutionHashSourceToHash constitutionHashSource
+      & firstExceptT GovernanceActionsCmdConstitutionError
 
-      firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-        $ conwayEraOnwardsConstraints cOn
-        $ writeFileTextEnvelope outFp Nothing proposal
+  let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
+      constitutionAnchor = Ledger.Anchor
+        { Ledger.anchorUrl = unConstitutionUrl constitutionUrl
+        , Ledger.anchorDataHash = constitutionHash
+        }
+      govAct = ProposeNewConstitution prevGovActId constitutionAnchor
+      sbe = conwayEraOnwardsToShelleyBasedEra cOn
+      proposalProcedure = createProposalProcedure sbe network deposit stakeKeyHash govAct proposalAnchor
+
+  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+    $ conwayEraOnwardsConstraints cOn
+    $ writeFileTextEnvelope outFp Nothing proposalProcedure
 
 -- TODO: Conway era - After ledger bump update this function
 -- with the new ledger types
@@ -131,10 +123,19 @@ runGovernanceActionCreateNewCommittee
   :: ConwayEraOnwards era
   -> EraBasedNewCommittee
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateNewCommittee cOn (EraBasedNewCommittee network deposit retAddr propAnchor old new q prevActId oFp) = do
+runGovernanceActionCreateNewCommittee cOn (EraBasedNewCommittee network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp) = do
   let sbe = conwayEraOnwardsToShelleyBasedEra cOn -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
       govActIdentifier = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> prevActId
       quorumRational = toRational q
+
+  proposalHash <-
+    proposalHashSourceToHash proposalHashSource
+      & firstExceptT GovernanceActionsCmdProposalError
+
+  let proposalAnchor = Ledger.Anchor
+        { Ledger.anchorUrl = unProposalUrl proposalUrl
+        , Ledger.anchorDataHash = proposalHash
+        }
 
   oldCommitteeKeyHashes <- mapM readStakeKeyHash old
   newCommitteeKeyHashes <- mapM (\(stakeKey, expEpoch) -> (,expEpoch) <$> readStakeKeyHash stakeKey) new
@@ -146,13 +147,7 @@ runGovernanceActionCreateNewCommittee cOn (EraBasedNewCommittee network deposit 
                               oldCommitteeKeyHashes
                               (Map.fromList newCommitteeKeyHashes)
                               quorumRational
-      proposal = createProposalProcedure
-                   sbe
-                   network
-                   deposit
-                   returnKeyHash
-                   proposeNewCommittee
-                   (uncurry createAnchor (fmap Text.encodeUtf8 propAnchor))
+      proposal = createProposalProcedure sbe network deposit returnKeyHash proposeNewCommittee proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints cOn
@@ -199,19 +194,27 @@ runGovernanceActionTreasuryWithdrawal
   :: ConwayEraOnwards era
   -> EraBasedTreasuryWithdrawal
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionTreasuryWithdrawal cOn (EraBasedTreasuryWithdrawal network deposit returnAddr propAnchor treasuryWithdrawal outFp) = do
+runGovernanceActionTreasuryWithdrawal cOn (EraBasedTreasuryWithdrawal network deposit returnAddr proposalUrl proposalHashSource treasuryWithdrawal outFp) = do
+
+  proposalHash <-
+    proposalHashSourceToHash proposalHashSource
+      & firstExceptT GovernanceActionsCmdProposalError
+
+  let proposalAnchor = Ledger.Anchor
+        { Ledger.anchorUrl = unProposalUrl proposalUrl
+        , Ledger.anchorDataHash = proposalHash
+        }
+
   returnKeyHash <- readStakeKeyHash returnAddr
-  withdrawals <- sequence [ (network,,ll) <$> stakeIdentifiertoCredential stakeIdentifier
-                           | (stakeIdentifier,ll) <- treasuryWithdrawal
-                           ]
+
+  withdrawals <- sequence
+    [ (network,,ll) <$> stakeIdentifiertoCredential stakeIdentifier
+    | (stakeIdentifier,ll) <- treasuryWithdrawal
+    ]
+
   let sbe = conwayEraOnwardsToShelleyBasedEra cOn
-      proposal = createProposalProcedure
-                   sbe
-                   network
-                   deposit
-                   returnKeyHash
-                   (TreasuryWithdrawal withdrawals)
-                   (uncurry createAnchor (fmap Text.encodeUtf8 propAnchor))
+      treasuryWithdrawals = TreasuryWithdrawal withdrawals
+      proposal = createProposalProcedure sbe network deposit returnKeyHash treasuryWithdrawals proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints cOn

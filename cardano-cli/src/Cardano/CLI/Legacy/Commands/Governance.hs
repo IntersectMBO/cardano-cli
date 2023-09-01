@@ -16,6 +16,7 @@ import           Cardano.CLI.Types.Key
 
 import           Data.Foldable
 import           Data.Text (Text)
+import           Data.Word
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
@@ -103,7 +104,20 @@ pCreateVote envCli =
 -- Governance action related
 --------------------------------------------------------------------------------
 
-newtype ActionCmd = CreateConstitution NewConstitution deriving Show
+data ActionCmd
+  = CreateConstitution
+      Ledger.Network
+      AnyShelleyBasedEra
+      Lovelace
+      (VerificationKeyOrFile StakePoolKey)
+      (Maybe (TxId, Word32))
+      ProposalUrl
+      ProposalHashSource
+      ConstitutionUrl
+      ConstitutionHashSource
+      (File ConstitutionText Out)
+
+  deriving Show
 
 pActionCommmands :: EnvCli -> Parser ActionCmd
 pActionCommmands envCli =
@@ -124,16 +138,17 @@ pCreateAction envCli =
 
 pCreateConstitution :: EnvCli -> Parser ActionCmd
 pCreateConstitution envCli =
-  fmap CreateConstitution $
-    NewConstitution
-      <$> pNetwork
-      <*> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
-      <*> pGovActionDeposit
-      <*> pVotingCredential
-      <*> pPreviousGovernanceAction
-      <*> pProposalAnchor
-      <*> pConstitution
-      <*> pFileOutDirection "out-file" "Output filepath of the governance action."
+  CreateConstitution
+    <$> pNetwork
+    <*> (pShelleyBasedConway envCli <|> pure (AnyShelleyBasedEra ShelleyBasedEraConway))
+    <*> pGovActionDeposit
+    <*> pVotingCredential
+    <*> pPreviousGovernanceAction
+    <*> pProposalUrl
+    <*> pProposalHashSource
+    <*> pConstitutionUrl
+    <*> pConstitutionHashSource
+    <*> pFileOutDirection "out-file" "Output filepath of the governance action."
 
 pNetwork :: Parser Ledger.Network
 pNetwork  = asum $ mconcat

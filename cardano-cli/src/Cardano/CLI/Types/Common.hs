@@ -15,7 +15,9 @@ module Cardano.CLI.Types.Common
   , CardanoAddressKeyType(..)
   , CBORObject (..)
   , CertificateFile (..)
-  , Constitution(..)
+  , ConstitutionHashSource(..)
+  , ConstitutionText(..)
+  , ConstitutionUrl(..)
   , CurrentKesPeriod (..)
   , EpochLeadershipSchedule (..)
   , File(..)
@@ -39,6 +41,9 @@ module Cardano.CLI.Types.Common
   , IdOutputFormat (..)
   , PrivKeyFile(..)
   , ProposalFile
+  , ProposalHashSource(..)
+  , ProposalText(..)
+  , ProposalUrl(..)
   , ProtocolParamsFile(..)
   , ReferenceScriptAnyEra (..)
   , RequiredSigner (..)
@@ -71,10 +76,12 @@ module Cardano.CLI.Types.Common
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Chain.Slotting as Byron
+import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Crypto as Crypto
+import qualified Cardano.Ledger.SafeHash as L
 import           Cardano.Ledger.Shelley.TxBody (PoolParams (..))
 
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
@@ -92,11 +99,32 @@ data TransferDirection =
 
 data OpCertCounter
 
-data Constitution
-  = ConstitutionFromFile Ledger.Url (File () In)
-  | ConstitutionFromText
-      Ledger.Url
-      Text -- ^ Constitution text
+newtype ConstitutionUrl = ConstitutionUrl
+  { unConstitutionUrl :: L.Url
+  } deriving (Eq, Show)
+
+newtype ConstitutionText = ConstitutionText
+  { unConstitutionText :: Text
+  } deriving (Eq, Show)
+
+data ConstitutionHashSource
+  = ConstitutionHashSourceFile (File ConstitutionText In)
+  | ConstitutionHashSourceText Text
+  | ConstitutionHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+  deriving Show
+
+newtype ProposalUrl = ProposalUrl
+  { unProposalUrl :: L.Url
+  } deriving (Eq, Show)
+
+newtype ProposalText = ProposalText
+  { unProposalText :: Text
+  } deriving (Eq, Show)
+
+data ProposalHashSource
+  = ProposalHashSourceFile (File ProposalText In)
+  | ProposalHashSourceText Text
+  | ProposalHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
   deriving Show
 
 -- | Specify whether to render the script cost as JSON

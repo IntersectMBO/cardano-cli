@@ -17,7 +17,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common (Constitution, VerificationKeyFile)
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
@@ -53,7 +53,8 @@ data EraBasedNewCommittee
     { ebNetwork :: Ledger.Network
     , ebDeposit :: Lovelace
     , ebReturnAddress :: AnyStakeIdentifier
-    , ebPropAnchor :: (Ledger.Url, Text)
+    , ebProposalUrl :: ProposalUrl
+    , ebProposalHashSource :: ProposalHashSource
     , ebOldCommittee :: [AnyStakeIdentifier]
     , ebNewCommittee :: [(AnyStakeIdentifier, EpochNo)]
     , ebRequiredQuorum :: Rational
@@ -67,8 +68,10 @@ data EraBasedNewConstitution
       , encDeposit :: Lovelace
       , encStakeCredential :: AnyStakeIdentifier
       , encPrevGovActId :: Maybe (TxId, Word32)
-      , encPropAnchor :: (Ledger.Url, Text)
-      , encConstitution :: Constitution
+      , encProposalUrl :: ProposalUrl
+      , encProposalHashSource :: ProposalHashSource
+      , encConstitutionUrl :: ConstitutionUrl
+      , encConstitutionHashSource :: ConstitutionHashSource
       , encFilePath :: File () Out
       } deriving Show
 
@@ -77,7 +80,8 @@ data EraBasedNoConfidence
       { ncNetwork :: Ledger.Network
       , ncDeposit :: Lovelace
       , ncStakeCredential :: AnyStakeIdentifier
-      , ncProposalAnchor :: (Ledger.Url, Text)
+      , ncProposalUrl :: ProposalUrl
+      , ncProposalHashSource :: ProposalHashSource
       , ncGovAct :: TxId
       , ncGovActIndex :: Word32
       , ncFilePath :: File () Out
@@ -88,7 +92,8 @@ data EraBasedTreasuryWithdrawal where
     :: Ledger.Network
     -> Lovelace -- ^ Deposit
     -> AnyStakeIdentifier -- ^ Return address
-    -> (Ledger.Url, Text) -- ^ Proposal anchor
+    -> ProposalUrl
+    -> ProposalHashSource
     -> [(AnyStakeIdentifier, Lovelace)]
     -> File () Out
     -> EraBasedTreasuryWithdrawal

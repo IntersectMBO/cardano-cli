@@ -58,8 +58,10 @@ pGovernanceActionNewConstitution era = do
         <*> pGovActionDeposit
         <*> pAnyStakeIdentifier
         <*> pPreviousGovernanceAction
-        <*> pProposalAnchor
-        <*> pConstitution
+        <*> pProposalUrl
+        <*> pProposalHashSource
+        <*> pConstitutionUrl
+        <*> pConstitutionHashSource
         <*> pFileOutDirection "out-file" "Output filepath of the constitution."
 
 pGovernanceActionNewCommittee
@@ -82,7 +84,8 @@ pEraBasedNewCommittee =
     <$> pNetwork
     <*> pGovActionDeposit
     <*> pAnyStakeIdentifier
-    <*> pProposalAnchor
+    <*> pProposalUrl
+    <*> pProposalHashSource
     <*> many pAnyStakeIdentifier
     <*> many ((,) <$> pAnyStakeIdentifier <*> pEpochNo "Committee member expiry epoch")
     <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
@@ -107,7 +110,8 @@ pGovernanceActionNoConfidence era = do
         <$> pNetwork
         <*> pGovActionDeposit
         <*> pAnyStakeIdentifier
-        <*> pProposalAnchor
+        <*> pProposalUrl
+        <*> pProposalHashSource
         <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
         <*> pWord32 "governance-action-index" "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
         <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
@@ -308,7 +312,8 @@ pGovernanceActionTreasuryWithdrawal era = do
         <$> pNetwork
         <*> pGovActionDeposit
         <*> pAnyStakeIdentifier
-        <*> pProposalAnchor
+        <*> pProposalUrl
+        <*> pProposalHashSource
         <*> many ((,) <$> pAnyStakeIdentifier <*> pTransferAmt)
         <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
 
