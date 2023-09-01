@@ -1259,8 +1259,6 @@ Usage: cardano-cli legacy governance
                                        | create-poll
                                        | answer-poll
                                        | verify-poll
-                                       | vote
-                                       | action
                                        )
 
   Governance commands
@@ -1405,58 +1403,6 @@ Usage: cardano-cli legacy governance verify-poll --poll-file FILE
                                                    [--out-file FILE]
 
   Verify an answer to a given SPO poll
-
-Usage: cardano-cli legacy governance vote create-vote
-
-  Vote related commands.
-
-Usage: cardano-cli legacy governance vote create-vote (--yes | --no | --abstain)
-                                                        ( --constitutional-committee-member
-                                                        | --drep
-                                                        | --spo
-                                                        )
-                                                        --governance-action-tx-id TXID
-                                                        --governance-action-index WORD32
-                                                        ( --stake-pool-verification-key STRING
-                                                        | --cold-verification-key-file FILE
-                                                        )
-                                                        [--conway-era]
-                                                        --out-file FILE
-
-  Create a vote for a proposed governance action.
-
-Usage: cardano-cli legacy governance action create-action
-
-  Governance action related commands.
-
-Usage: cardano-cli legacy governance action create-action create-constitution
-
-  Create a governance action.
-
-Usage: cardano-cli legacy governance action create-action create-constitution 
-                                                                                ( --mainnet
-                                                                                | --testnet
-                                                                                )
-                                                                                [--conway-era]
-                                                                                --governance-action-deposit NATURAL
-                                                                                ( --stake-pool-verification-key STRING
-                                                                                | --cold-verification-key-file FILE
-                                                                                )
-                                                                                [--governance-action-tx-id TXID
-                                                                                  --governance-action-index WORD32]
-                                                                                --proposal-url TEXT
-                                                                                ( --proposal-text TEXT
-                                                                                | --proposal-file FILE
-                                                                                | --proposal-hash HASH
-                                                                                )
-                                                                                --constitution-url TEXT
-                                                                                ( --constitution-text TEXT
-                                                                                | --constitution-file FILE
-                                                                                | --constitution-hash HASH
-                                                                                )
-                                                                                --out-file FILE
-
-  Create a constitution.
 
 Usage: cardano-cli legacy genesis 
                                     ( key-gen-genesis
@@ -2628,8 +2574,6 @@ Usage: cardano-cli governance
                                 | create-poll
                                 | answer-poll
                                 | verify-poll
-                                | vote
-                                | action
                                 )
 
   Governance commands
@@ -2774,58 +2718,6 @@ Usage: cardano-cli governance verify-poll --poll-file FILE
                                             [--out-file FILE]
 
   Verify an answer to a given SPO poll
-
-Usage: cardano-cli governance vote create-vote
-
-  Vote related commands.
-
-Usage: cardano-cli governance vote create-vote (--yes | --no | --abstain)
-                                                 ( --constitutional-committee-member
-                                                 | --drep
-                                                 | --spo
-                                                 )
-                                                 --governance-action-tx-id TXID
-                                                 --governance-action-index WORD32
-                                                 ( --stake-pool-verification-key STRING
-                                                 | --cold-verification-key-file FILE
-                                                 )
-                                                 [--conway-era]
-                                                 --out-file FILE
-
-  Create a vote for a proposed governance action.
-
-Usage: cardano-cli governance action create-action
-
-  Governance action related commands.
-
-Usage: cardano-cli governance action create-action create-constitution
-
-  Create a governance action.
-
-Usage: cardano-cli governance action create-action create-constitution 
-                                                                         ( --mainnet
-                                                                         | --testnet
-                                                                         )
-                                                                         [--conway-era]
-                                                                         --governance-action-deposit NATURAL
-                                                                         ( --stake-pool-verification-key STRING
-                                                                         | --cold-verification-key-file FILE
-                                                                         )
-                                                                         [--governance-action-tx-id TXID
-                                                                           --governance-action-index WORD32]
-                                                                         --proposal-url TEXT
-                                                                         ( --proposal-text TEXT
-                                                                         | --proposal-file FILE
-                                                                         | --proposal-hash HASH
-                                                                         )
-                                                                         --constitution-url TEXT
-                                                                         ( --constitution-text TEXT
-                                                                         | --constitution-file FILE
-                                                                         | --constitution-hash HASH
-                                                                         )
-                                                                         --out-file FILE
-
-  Create a constitution.
 
 Usage: cardano-cli genesis 
                              ( key-gen-genesis
