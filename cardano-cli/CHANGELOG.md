@@ -1,5 +1,10 @@
 # Changelog for cardano-cli
 
+## 8.6.1.0
+
+- Fix `kes-period-info`
+  (breaking)
+
 ## 8.6.0.0
 
 - conway related commands
