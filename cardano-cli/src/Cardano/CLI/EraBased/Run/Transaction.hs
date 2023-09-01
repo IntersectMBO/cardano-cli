@@ -14,8 +14,18 @@
 
 module Cardano.CLI.EraBased.Run.Transaction
   ( runLegacyTransactionCmds
-  , readFileTx
-  , toTxOutInAnyEra
+  , runLegacyTxBuildCmd
+  , runLegacyTxBuildRawCmd
+  , runLegacyTxSignCmd
+  , runLegacyTxSubmitCmd
+  , runLegacyTxCalculateMinFeeCmd
+  , runLegacyTxCalculateMinRequiredUTxOCmd
+  , runLegacyTxCreatePolicyIdCmd
+  , runLegacyTxHashScriptDataCmd
+  , runLegacyTxGetTxIdCmd
+  , runLegacyTxViewCmd
+  , runLegacyTxCreateWitnessCmd
+  , runLegacyTxSignWitnessCmd
   ) where
 
 import           Cardano.Api

@@ -113,6 +113,7 @@ library
                         Cardano.CLI.Legacy.Run.Query
                         Cardano.CLI.Legacy.Run.StakeAddress
                         Cardano.CLI.Legacy.Run.TextView
+                        Cardano.CLI.Legacy.Run.Transaction
                         Cardano.CLI.Options
                         Cardano.CLI.Orphans
                         Cardano.CLI.OS.Posix
