@@ -12,7 +12,7 @@
 {- HLINT ignore "Unused LANGUAGE pragma" -}
 {- HLINT ignore "Use let" -}
 
-module Cardano.CLI.Legacy.Run.Transaction
+module Cardano.CLI.EraBased.Run.Transaction
   ( runLegacyTransactionCmds
   , readFileTx
   , toTxOutInAnyEra
@@ -1263,5 +1263,3 @@ onlyInShelleyBasedEras notImplMsg (InAnyCardanoEra era x) =
     case cardanoEraStyle era of
       LegacyByronEra      -> left (ShelleyTxCmdNotImplemented notImplMsg)
       ShelleyBasedEra sbe -> return (InAnyShelleyBasedEra sbe x)
-
-
