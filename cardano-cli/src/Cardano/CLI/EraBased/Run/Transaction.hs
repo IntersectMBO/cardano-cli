@@ -13,7 +13,8 @@
 {- HLINT ignore "Use let" -}
 
 module Cardano.CLI.EraBased.Run.Transaction
-  ( runTxBuildCmd
+  ( runTransactionCmds
+  , runTxBuildCmd
   , runTxBuildRawCmd
   , runTxSignCmd
   , runTxSubmitCmd
@@ -31,6 +32,7 @@ import           Cardano.Api
 import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
 import           Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.CLI.Read
@@ -68,6 +70,47 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Data.Type.Equality (TestEquality (..))
 import qualified System.IO as IO
+
+runTransactionCmds :: TransactionCmds era -> ExceptT ShelleyTxCmdError IO ()
+runTransactionCmds cmd =
+  case cmd of
+    TxBuild
+        era mNodeSocketPath consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
+        reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
+        mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
+        mNewConstitution outputOptions ->
+      runTxBuildCmd
+        era mNodeSocketPath consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
+        reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
+        mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
+        mNewConstitution outputOptions
+    TxBuildRaw
+        era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+        mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
+        metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out ->
+      runTxBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+        mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
+        metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out
+    TxSign txinfile skfiles network txoutfile ->
+      runTxSignCmd txinfile skfiles network txoutfile
+    TxSubmit mNodeSocketPath anyConsensusModeParams network txFp ->
+      runTxSubmitCmd mNodeSocketPath anyConsensusModeParams network txFp
+    TxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
+      runTxCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
+    TxCalculateMinRequiredUTxO era pParamsFile txOuts ->
+      runTxCalculateMinRequiredUTxOCmd era pParamsFile txOuts
+    TxHashScriptData scriptDataOrFile ->
+      runTxHashScriptDataCmd scriptDataOrFile
+    TxGetTxId txinfile ->
+      runTxGetTxIdCmd txinfile
+    TxView txinfile ->
+      runTxViewCmd txinfile
+    TxMintedPolicyId sFile ->
+      runTxCreatePolicyIdCmd sFile
+    TxCreateWitness txBodyfile witSignData mbNw outFile ->
+      runTxCreateWitnessCmd txBodyfile witSignData mbNw outFile
+    TxAssembleTxBodyWitness txBodyFile witnessFile outFile ->
+      runTxSignWitnessCmd txBodyFile witnessFile outFile
 
 -- ----------------------------------------------------------------------------
 -- Building transactions
