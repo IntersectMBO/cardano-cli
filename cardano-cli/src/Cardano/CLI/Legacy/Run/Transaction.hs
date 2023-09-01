@@ -18,7 +18,7 @@ module Cardano.CLI.Legacy.Run.Transaction
 
 import           Cardano.Api
 
-import qualified Cardano.CLI.EraBased.Run.Transaction as EraBased
+import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.Legacy.Commands.Transaction
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyTxCmdError
@@ -68,8 +68,8 @@ runLegacyTransactionCmds cmd =
 -- Building transactions
 --
 
-runLegacyTxBuildCmd
-  :: SocketPath
+runLegacyTxBuildCmd :: ()
+  => SocketPath
   -> AnyCardanoEra
   -> AnyConsensusModeParams
   -> NetworkId
@@ -96,11 +96,10 @@ runLegacyTxBuildCmd
   -> [ProposalFile In]
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxBuildCmd = EraBased.runLegacyTxBuildCmd
+runLegacyTxBuildCmd = runTxBuildCmd
 
-
-runLegacyTxBuildRawCmd
-  :: AnyCardanoEra
+runLegacyTxBuildRawCmd :: ()
+  => AnyCardanoEra
   -> Maybe ScriptValidity
   -> [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
   -> [TxIn] -- ^ Read only reference inputs
@@ -122,25 +121,25 @@ runLegacyTxBuildRawCmd
   -> Maybe UpdateProposalFile
   -> TxBodyFile Out
   -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxBuildRawCmd = EraBased.runLegacyTxBuildRawCmd
+runLegacyTxBuildRawCmd = runTxBuildRawCmd
 
 runLegacyTxSignCmd :: InputTxBodyOrTxFile
           -> [WitnessSigningData]
           -> Maybe NetworkId
           -> TxFile Out
           -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxSignCmd = EraBased.runLegacyTxSignCmd
+runLegacyTxSignCmd = runTxSignCmd
 
-runLegacyTxSubmitCmd
-  :: SocketPath
+runLegacyTxSubmitCmd :: ()
+  => SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> FilePath
   -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxSubmitCmd = EraBased.runLegacyTxSubmitCmd
+runLegacyTxSubmitCmd = runTxSubmitCmd
 
-runLegacyTxCalculateMinFeeCmd
-  :: TxBodyFile In
+runLegacyTxCalculateMinFeeCmd :: ()
+  => TxBodyFile In
   -> NetworkId
   -> ProtocolParamsFile
   -> TxInCount
@@ -148,38 +147,38 @@ runLegacyTxCalculateMinFeeCmd
   -> TxShelleyWitnessCount
   -> TxByronWitnessCount
   -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxCalculateMinFeeCmd = EraBased.runLegacyTxCalculateMinFeeCmd
+runLegacyTxCalculateMinFeeCmd = runTxCalculateMinFeeCmd
 
-runLegacyTxCalculateMinRequiredUTxOCmd
-  :: AnyCardanoEra
+runLegacyTxCalculateMinRequiredUTxOCmd :: ()
+  => AnyCardanoEra
   -> ProtocolParamsFile
   -> TxOutAnyEra
   -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxCalculateMinRequiredUTxOCmd = EraBased.runLegacyTxCalculateMinRequiredUTxOCmd
+runLegacyTxCalculateMinRequiredUTxOCmd = runTxCalculateMinRequiredUTxOCmd
 
 runLegacyTxCreatePolicyIdCmd :: ScriptFile -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxCreatePolicyIdCmd = EraBased.runLegacyTxCreatePolicyIdCmd
+runLegacyTxCreatePolicyIdCmd = runTxCreatePolicyIdCmd
 
 runLegacyTxHashScriptDataCmd :: ScriptDataOrFile -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxHashScriptDataCmd = EraBased.runLegacyTxHashScriptDataCmd
+runLegacyTxHashScriptDataCmd = runTxHashScriptDataCmd
 
 runLegacyTxGetTxIdCmd :: InputTxBodyOrTxFile -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxGetTxIdCmd = EraBased.runLegacyTxGetTxIdCmd
+runLegacyTxGetTxIdCmd = runTxGetTxIdCmd
 
 runLegacyTxViewCmd :: InputTxBodyOrTxFile -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxViewCmd = EraBased.runLegacyTxViewCmd
+runLegacyTxViewCmd = runTxViewCmd
 
-runLegacyTxCreateWitnessCmd
-  :: TxBodyFile In
+runLegacyTxCreateWitnessCmd :: ()
+  => TxBodyFile In
   -> WitnessSigningData
   -> Maybe NetworkId
   -> File () Out
   -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxCreateWitnessCmd = EraBased.runLegacyTxCreateWitnessCmd
+runLegacyTxCreateWitnessCmd = runTxCreateWitnessCmd
 
-runLegacyTxSignWitnessCmd
-  :: TxBodyFile In
+runLegacyTxSignWitnessCmd :: ()
+  => TxBodyFile In
   -> [WitnessFile]
   -> File () Out
   -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxSignWitnessCmd = EraBased.runLegacyTxSignWitnessCmd
+runLegacyTxSignWitnessCmd = runTxSignWitnessCmd
