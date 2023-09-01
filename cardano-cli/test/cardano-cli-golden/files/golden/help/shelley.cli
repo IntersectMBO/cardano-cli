@@ -1,0 +1,10 @@
+Usage: cardano-cli shelley (governance | transaction)
+
+  Shelley era commands
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  governance               Era-based governance commands
+  transaction              Era-based governance commands
