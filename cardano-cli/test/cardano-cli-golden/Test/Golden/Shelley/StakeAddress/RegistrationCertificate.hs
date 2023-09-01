@@ -7,7 +7,7 @@ import           System.FilePath ((</>))
 
 import           Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import           Hedgehog
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Process as H
@@ -42,3 +42,28 @@ hprop_golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.modul
   H.assertFileOccurences 1 "Stake Address Registration Certificate" scriptRegistrationCertFile
 
   H.assertEndsWithSingleNewline registrationCertFile
+
+hprop_golden_shelleyStakeAddressRegistrationCertificateWithBuildRaw :: Property
+hprop_golden_shelleyStakeAddressRegistrationCertificateWithBuildRaw = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/verification_key"
+  registrationCertFile <- noteTempFile tempDir "registration.cert"
+  txRawFile <- noteTempFile tempDir "tx.raw"
+
+  void $ execCardanoCLI
+    [ "stake-address","registration-certificate"
+    , "--conway-era"
+    , "--staking-verification-key-file", keyGenStakingVerificationKeyFile
+    , "--key-reg-deposit-amt", "2000000"
+    , "--out-file", registrationCertFile
+    ]
+
+  H.assertFileOccurences 1 "Stake Address Registration Certificate" registrationCertFile
+
+  void $ execCardanoCLI
+    [ "transaction","build-raw"
+    , "--conway-era"
+    , "--tx-in", "bdfa7d91a29ffe071c028c0143c5d278c0a7ddb829c1e95f54a1676915fd82c2#0"
+    , "--fee", "1"
+    , "--certificate-file", registrationCertFile
+    , "--out-file", txRawFile
+    ]
