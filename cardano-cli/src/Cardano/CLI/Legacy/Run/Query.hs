@@ -397,10 +397,7 @@ runLegacyQueryKesPeriodInfoCmd socketPath (AnyConsensusModeParams cModeParams) n
 
             requireNotByronEraInByronMode eraInMode
 
-            shelleyInMode <- toEraInMode ShelleyEra cMode
-              & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
-
-            gParams <- lift (queryGenesisParameters shelleyInMode ShelleyBasedEraShelley)
+            gParams <- lift (queryGenesisParameters eInMode sbe)
               & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
               & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
