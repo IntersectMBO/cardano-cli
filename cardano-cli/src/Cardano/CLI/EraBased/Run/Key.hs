@@ -1,13 +1,17 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Key
-  ( SomeSigningKey(..)
-  , runLegacyKeyCmds
-  , readSigningKeyFile
+  ( runLegacyConvertByronGenesisVerificationKeyCmd
+  , runLegacyConvertByronKeyCmd
+  , runLegacyConvertCardanoAddressSigningKeyCmd
+  , runLegacyConvertITNBip32ToStakeKeyCmd
+  , runLegacyConvertITNExtendedToStakeKeyCmd
+  , runLegacyConvertITNStakeKeyCmd
+  , runLegacyConvertToNonExtendedKeyCmd
+  , runLegacyGetVerificationKeyCmd
 
     -- * Exports for testing
   , decodeBech32
@@ -19,7 +23,6 @@ import           Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.Byron.Key as Byron
-import           Cardano.CLI.Legacy.Commands.Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
 import           Cardano.CLI.Types.Errors.ItnKeyConversionError
@@ -44,25 +47,6 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import           System.Exit (exitFailure)
-
-runLegacyKeyCmds :: LegacyKeyCmds -> ExceptT ShelleyKeyCmdError IO ()
-runLegacyKeyCmds = \case
-  KeyGetVerificationKey skf vkf ->
-    runLegacyGetVerificationKeyCmd skf vkf
-  KeyNonExtendedKey evkf vkf ->
-    runLegacyConvertToNonExtendedKeyCmd evkf vkf
-  KeyConvertByronKey mPassword keytype skfOld skfNew ->
-    runLegacyConvertByronKeyCmd mPassword keytype skfOld skfNew
-  KeyConvertByronGenesisVKey oldVk newVkf ->
-    runLegacyConvertByronGenesisVerificationKeyCmd oldVk newVkf
-  KeyConvertITNStakeKey itnKeyFile outFile ->
-    runLegacyConvertITNStakeKeyCmd itnKeyFile outFile
-  KeyConvertITNExtendedToStakeKey itnPrivKeyFile outFile ->
-    runLegacyConvertITNExtendedToStakeKeyCmd itnPrivKeyFile outFile
-  KeyConvertITNBip32ToStakeKey itnPrivKeyFile outFile ->
-    runLegacyConvertITNBip32ToStakeKeyCmd itnPrivKeyFile outFile
-  KeyConvertCardanoAddressSigningKey keyType skfOld skfNew ->
-    runLegacyConvertCardanoAddressSigningKeyCmd keyType skfOld skfNew
 
 runLegacyGetVerificationKeyCmd :: SigningKeyFile In
                       -> VerificationKeyFile Out
