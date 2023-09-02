@@ -8,10 +8,6 @@ module Cardano.CLI.EraBased.Run.Address
   ( runLegacyAddressBuildCmd
   , runLegacyAddressKeyGenCmd
   , runLegacyAddressKeyHashCmd
-
-  , buildShelleyAddress
-  , renderShelleyAddressCmdError
-  , makeStakeAddressRef
   ) where
 
 import           Cardano.Api
