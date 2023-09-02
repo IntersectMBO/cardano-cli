@@ -17,15 +17,13 @@
 {- HLINT ignore "Redundant <$>" -}
 {- HLINT ignore "Use let" -}
 
-module Cardano.CLI.Legacy.Run.Genesis
+module Cardano.CLI.EraBased.Run.Genesis
   ( readShelleyGenesisWithDefault
   , readAndDecodeShelleyGenesis
   , readAlonzoGenesis
   , runLegacyGenesisCmds
 
   -- * Protocol Parameters
-  , ProtocolParamsError(..)
-  , renderProtocolParamsError
   , readProtocolParameters
   ) where
 

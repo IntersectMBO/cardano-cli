@@ -91,6 +91,7 @@ library
                         Cardano.CLI.EraBased.Run
                         Cardano.CLI.EraBased.Run.Address
                         Cardano.CLI.EraBased.Run.Address.Info
+                        Cardano.CLI.EraBased.Run.Genesis
                         Cardano.CLI.EraBased.Run.Governance
                         Cardano.CLI.EraBased.Run.Governance.Actions
                         Cardano.CLI.EraBased.Run.Governance.Committee
@@ -121,7 +122,6 @@ library
                         Cardano.CLI.Legacy.Options
                         Cardano.CLI.Legacy.Run
                         Cardano.CLI.Legacy.Run.Address
-                        Cardano.CLI.Legacy.Run.Genesis
                         Cardano.CLI.Legacy.Run.Governance
                         Cardano.CLI.Legacy.Run.Key
                         Cardano.CLI.Legacy.Run.Node
