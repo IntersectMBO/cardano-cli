@@ -6,12 +6,12 @@
 {- HLINT ignore "Monad law, left identity" -}
 
 module Cardano.CLI.EraBased.Run.StakeAddress
-  ( runLegacyStakeAddressBuildCmd
-  , runLegacyStakeAddressKeyGenToFileCmd
-  , runLegacyStakeAddressKeyHashCmd
-  , runLegacyStakeCredentialDelegationCertCmd
-  , runLegacyStakeCredentialDeRegistrationCertCmd
-  , runLegacyStakeCredentialRegistrationCertCmd
+  ( runStakeAddressBuildCmd
+  , runStakeAddressKeyGenToFileCmd
+  , runStakeAddressKeyHashCmd
+  , runStakeCredentialDelegationCertCmd
+  , runStakeCredentialDeRegistrationCertCmd
+  , runStakeCredentialRegistrationCertCmd
   ) where
 
 import           Cardano.Api
@@ -40,12 +40,12 @@ import qualified Data.Text.IO as Text
 -- Stake address command implementations
 --
 
-runLegacyStakeAddressKeyGenToFileCmd
+runStakeAddressKeyGenToFileCmd
   :: KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeAddressKeyGenToFileCmd fmt vkFp skFp = do
+runStakeAddressKeyGenToFileCmd fmt vkFp skFp = do
   let skeyDesc = "Stake Signing Key"
   let vkeyDesc = "Stake Verification Key"
 
@@ -66,11 +66,11 @@ runLegacyStakeAddressKeyGenToFileCmd fmt vkFp skFp = do
       KeyOutputFormatBech32 ->
         newExceptT $ writeTextFile vkFp $ serialiseToBech32 vkey
 
-runLegacyStakeAddressKeyHashCmd
+runStakeAddressKeyHashCmd
   :: VerificationKeyOrFile StakeKey
   -> Maybe (File () Out)
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeAddressKeyHashCmd stakeVerKeyOrFile mOutputFp = do
+runStakeAddressKeyHashCmd stakeVerKeyOrFile mOutputFp = do
   vkey <- firstExceptT ShelleyStakeAddressCmdReadKeyFileError
     . newExceptT
     $ readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
@@ -81,12 +81,12 @@ runLegacyStakeAddressKeyHashCmd stakeVerKeyOrFile mOutputFp = do
     Just (File fpath) -> liftIO $ BS.writeFile fpath hexKeyHash
     Nothing -> liftIO $ BS.putStrLn hexKeyHash
 
-runLegacyStakeAddressBuildCmd
+runStakeAddressBuildCmd
   :: StakeVerifier
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeAddressBuildCmd stakeVerifier network mOutputFp = do
+runStakeAddressBuildCmd stakeVerifier network mOutputFp = do
   stakeAddr <-
     getStakeAddressFromVerifier network stakeVerifier
       & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
@@ -97,13 +97,13 @@ runLegacyStakeAddressBuildCmd stakeVerifier network mOutputFp = do
       Nothing -> Text.putStrLn stakeAddrText
 
 
-runLegacyStakeCredentialRegistrationCertCmd
+runStakeCredentialRegistrationCertCmd
   :: AnyShelleyBasedEra
   -> StakeIdentifier
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialRegistrationCertCmd anyEra stakeIdentifier mDeposit oFp = do
+runStakeCredentialRegistrationCertCmd anyEra stakeIdentifier mDeposit oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
@@ -153,7 +153,7 @@ createRegistrationCertRequirements sbe stakeCred mdeposit =
           return $ StakeAddrRegistrationConway ConwayEraOnwardsConway dep stakeCred
 
 
-runLegacyStakeCredentialDelegationCertCmd
+runStakeCredentialDelegationCertCmd
   :: AnyShelleyBasedEra
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
@@ -162,7 +162,7 @@ runLegacyStakeCredentialDelegationCertCmd
   -- verification key hash.
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialDelegationCertCmd anyEra stakeVerifier delegationTarget outFp = do
+runStakeCredentialDelegationCertCmd anyEra stakeVerifier delegationTarget outFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
   case delegationTarget of
     StakePoolDelegationTarget poolVKeyOrHashOrFile -> do
@@ -218,13 +218,13 @@ onlySpoDelegatee w ledgerDelegatee =
     Ledger.DelegStakeVote{} ->
       Left . VoteDelegationNotSupported $ AnyShelleyToBabbageEra w
 
-runLegacyStakeCredentialDeRegistrationCertCmd
+runStakeCredentialDeRegistrationCertCmd
   :: AnyShelleyBasedEra
   -> StakeIdentifier
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialDeRegistrationCertCmd anyEra stakeVerifier mDeposit oFp = do
+runStakeCredentialDeRegistrationCertCmd anyEra stakeVerifier mDeposit oFp = do
   AnyShelleyBasedEra sbe <- pure anyEra
   stakeCred <-
     getStakeCredentialFromIdentifier stakeVerifier

@@ -7,7 +7,7 @@ module Cardano.CLI.Legacy.Run.StakeAddress
 
 import           Cardano.Api
 
-import qualified Cardano.CLI.EraBased.Run.StakeAddress as EraBased
+import           Cardano.CLI.EraBased.Run.StakeAddress
 import           Cardano.CLI.Legacy.Commands.StakeAddress
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
@@ -38,20 +38,20 @@ runLegacyStakeAddressKeyGenToFileCmd :: ()
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeAddressKeyGenToFileCmd = EraBased.runLegacyStakeAddressKeyGenToFileCmd
+runLegacyStakeAddressKeyGenToFileCmd = runStakeAddressKeyGenToFileCmd
 
 runLegacyStakeAddressKeyHashCmd :: ()
   => VerificationKeyOrFile StakeKey
   -> Maybe (File () Out)
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeAddressKeyHashCmd = EraBased.runLegacyStakeAddressKeyHashCmd
+runLegacyStakeAddressKeyHashCmd = runStakeAddressKeyHashCmd
 
 runLegacyStakeAddressBuildCmd :: ()
   => StakeVerifier
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeAddressBuildCmd = EraBased.runLegacyStakeAddressBuildCmd
+runLegacyStakeAddressBuildCmd = runStakeAddressBuildCmd
 
 runLegacyStakeCredentialRegistrationCertCmd :: ()
   => AnyShelleyBasedEra
@@ -59,7 +59,7 @@ runLegacyStakeCredentialRegistrationCertCmd :: ()
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialRegistrationCertCmd = EraBased.runLegacyStakeCredentialRegistrationCertCmd
+runLegacyStakeCredentialRegistrationCertCmd = runStakeCredentialRegistrationCertCmd
 
 runLegacyStakeCredentialDelegationCertCmd :: ()
   => AnyShelleyBasedEra
@@ -70,7 +70,7 @@ runLegacyStakeCredentialDelegationCertCmd :: ()
   -- verification key hash.
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialDelegationCertCmd = EraBased.runLegacyStakeCredentialDelegationCertCmd
+runLegacyStakeCredentialDelegationCertCmd = runStakeCredentialDelegationCertCmd
 
 runLegacyStakeCredentialDeRegistrationCertCmd :: ()
   => AnyShelleyBasedEra
@@ -78,4 +78,4 @@ runLegacyStakeCredentialDeRegistrationCertCmd :: ()
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialDeRegistrationCertCmd = EraBased.runLegacyStakeCredentialDeRegistrationCertCmd
+runLegacyStakeCredentialDeRegistrationCertCmd = runStakeCredentialDeRegistrationCertCmd
