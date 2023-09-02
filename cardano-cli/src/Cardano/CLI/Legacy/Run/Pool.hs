@@ -9,7 +9,7 @@ module Cardano.CLI.Legacy.Run.Pool
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import qualified Cardano.CLI.EraBased.Run.Pool as EraBased
+import           Cardano.CLI.EraBased.Run.Pool
 import           Cardano.CLI.Legacy.Commands.Pool
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
@@ -57,7 +57,7 @@ runLegacyStakePoolRegistrationCertCmd :: ()
   -> NetworkId
   -> File () Out
   -> ExceptT ShelleyPoolCmdError IO ()
-runLegacyStakePoolRegistrationCertCmd = EraBased.runLegacyStakePoolRegistrationCertCmd
+runLegacyStakePoolRegistrationCertCmd = runStakePoolRegistrationCertCmd
 
 runLegacyStakePoolRetirementCertCmd :: ()
   => AnyShelleyBasedEra
@@ -65,17 +65,17 @@ runLegacyStakePoolRetirementCertCmd :: ()
   -> Shelley.EpochNo
   -> File () Out
   -> ExceptT ShelleyPoolCmdError IO ()
-runLegacyStakePoolRetirementCertCmd = EraBased.runLegacyStakePoolRetirementCertCmd
+runLegacyStakePoolRetirementCertCmd = runStakePoolRetirementCertCmd
 
 runLegacyPoolIdCmd :: ()
   => VerificationKeyOrFile StakePoolKey
   -> IdOutputFormat
   -> Maybe (File () Out)
   -> ExceptT ShelleyPoolCmdError IO ()
-runLegacyPoolIdCmd = EraBased.runLegacyPoolIdCmd
+runLegacyPoolIdCmd = runPoolIdCmd
 
 runLegacyPoolMetadataHashCmd :: ()
   => StakePoolMetadataFile In
   -> Maybe (File () Out)
   -> ExceptT ShelleyPoolCmdError IO ()
-runLegacyPoolMetadataHashCmd = EraBased.runLegacyPoolMetadataHashCmd
+runLegacyPoolMetadataHashCmd = runPoolMetadataHashCmd
