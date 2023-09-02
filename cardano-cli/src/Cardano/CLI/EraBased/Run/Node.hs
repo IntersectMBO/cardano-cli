@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Legacy.Run.Node
+module Cardano.CLI.EraBased.Run.Node
   ( runLegacyNodeCmds
   , runLegacyNodeIssueOpCertCmd
   , runLegacyNodeKeyGenColdCmd

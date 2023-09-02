@@ -45,11 +45,11 @@ import           Cardano.Chain.Update hiding (ProtocolParameters)
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
+import           Cardano.CLI.EraBased.Run.Node (runLegacyNodeIssueOpCertCmd,
+                   runLegacyNodeKeyGenColdCmd, runLegacyNodeKeyGenKesCmd, runLegacyNodeKeyGenVrfCmd)
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
 import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Legacy.Commands.Genesis
-import           Cardano.CLI.Legacy.Run.Node (runLegacyNodeIssueOpCertCmd,
-                   runLegacyNodeKeyGenColdCmd, runLegacyNodeKeyGenKesCmd, runLegacyNodeKeyGenVrfCmd)
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
