@@ -5,9 +5,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Address
-  ( runLegacyAddressBuildCmd
-  , runLegacyAddressKeyGenCmd
-  , runLegacyAddressKeyHashCmd
+  ( runAddressBuildCmd
+  , runAddressKeyGenCmd
+  , runAddressKeyHashCmd
   ) where
 
 import           Cardano.Api
@@ -26,13 +26,13 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExcept
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.Text.IO as Text
 
-runLegacyAddressKeyGenCmd
+runAddressKeyGenCmd
   :: KeyOutputFormat
   -> AddressKeyType
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyAddressCmdError IO ()
-runLegacyAddressKeyGenCmd fmt kt vkf skf = case kt of
+runAddressKeyGenCmd fmt kt vkf skf = case kt of
   AddressKeyShelley         -> generateAndWriteKeyFiles fmt  AsPaymentKey          vkf skf
   AddressKeyShelleyExtended -> generateAndWriteKeyFiles fmt  AsPaymentExtendedKey  vkf skf
   AddressKeyByron           -> generateAndWriteByronKeyFiles AsByronKey            vkf skf
@@ -122,10 +122,10 @@ writeByronPaymentKeyFiles vkeyPath skeyPath vkey skey = do
     skeyDesc = "Payment Signing Key"
     vkeyDesc = "Payment Verification Key"
 
-runLegacyAddressKeyHashCmd :: VerificationKeyTextOrFile
+runAddressKeyHashCmd :: VerificationKeyTextOrFile
                   -> Maybe (File () Out)
                   -> ExceptT ShelleyAddressCmdError IO ()
-runLegacyAddressKeyHashCmd vkeyTextOrFile mOutputFp = do
+runAddressKeyHashCmd vkeyTextOrFile mOutputFp = do
   vkey <- firstExceptT ShelleyAddressCmdVerificationKeyTextOrFileError $
              newExceptT $ readVerificationKeyTextOrFileAnyOf vkeyTextOrFile
 
@@ -137,12 +137,12 @@ runLegacyAddressKeyHashCmd vkeyTextOrFile mOutputFp = do
     Nothing -> liftIO $ BS.putStrLn hexKeyHash
 
 
-runLegacyAddressBuildCmd :: PaymentVerifier
+runAddressBuildCmd :: PaymentVerifier
                 -> Maybe StakeIdentifier
                 -> NetworkId
                 -> Maybe (File () Out)
                 -> ExceptT ShelleyAddressCmdError IO ()
-runLegacyAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
+runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
   outText <- case paymentVerifier of
     PaymentVerifierKey payVkeyTextOrFile -> do
       payVKey <- firstExceptT ShelleyAddressCmdVerificationKeyTextOrFileError $

@@ -11,8 +11,8 @@ module Cardano.CLI.Legacy.Run.Address
 
 import           Cardano.Api
 
-import qualified Cardano.CLI.EraBased.Run.Address as EraBased
-import qualified Cardano.CLI.EraBased.Run.Address.Info as EraBased
+import           Cardano.CLI.EraBased.Run.Address
+import           Cardano.CLI.EraBased.Run.Address.Info
 import           Cardano.CLI.Legacy.Commands.Address
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
@@ -42,13 +42,13 @@ runLegacyAddressKeyGenCmd :: ()
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyAddressCmdError IO ()
-runLegacyAddressKeyGenCmd = EraBased.runLegacyAddressKeyGenCmd
+runLegacyAddressKeyGenCmd = runAddressKeyGenCmd
 
 runLegacyAddressKeyHashCmd :: ()
   => VerificationKeyTextOrFile
   -> Maybe (File () Out)
   -> ExceptT ShelleyAddressCmdError IO ()
-runLegacyAddressKeyHashCmd = EraBased.runLegacyAddressKeyHashCmd
+runLegacyAddressKeyHashCmd = runAddressKeyHashCmd
 
 runLegacyAddressBuildCmd :: ()
   => PaymentVerifier
@@ -56,10 +56,10 @@ runLegacyAddressBuildCmd :: ()
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyAddressCmdError IO ()
-runLegacyAddressBuildCmd = EraBased.runLegacyAddressBuildCmd
+runLegacyAddressBuildCmd = runAddressBuildCmd
 
 runLegacyAddressInfoCmd :: ()
   => Text
   -> Maybe (File () Out)
   -> ExceptT ShelleyAddressInfoError IO ()
-runLegacyAddressInfoCmd = EraBased.runLegacyAddressInfoCmd
+runLegacyAddressInfoCmd = runAddressInfoCmd
