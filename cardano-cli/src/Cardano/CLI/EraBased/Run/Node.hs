@@ -1,19 +1,18 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Run.Node
-  ( runLegacyNodeCmds
-  , runLegacyNodeIssueOpCertCmd
+  ( runLegacyNodeIssueOpCertCmd
   , runLegacyNodeKeyGenColdCmd
   , runLegacyNodeKeyGenKesCmd
   , runLegacyNodeKeyGenVrfCmd
+  , runLegacyNodeKeyHashVrfCmd
+  , runLegacyNodeNewCounterCmd
   , readColdVerificationKeyOrFile
   ) where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Legacy.Commands.Node
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
 import           Cardano.CLI.Types.Key
@@ -26,25 +25,6 @@ import           Data.String (fromString)
 import           Data.Word (Word64)
 
 {- HLINT ignore "Reduce duplication" -}
-
-runLegacyNodeCmds :: LegacyNodeCmds -> ExceptT ShelleyNodeCmdError IO ()
-runLegacyNodeCmds = \case
-  NodeKeyGenCold fmt vk sk ctr ->
-    runLegacyNodeKeyGenColdCmd fmt vk sk ctr
-  NodeKeyGenKES  fmt vk sk ->
-    runLegacyNodeKeyGenKesCmd fmt vk sk
-  NodeKeyGenVRF  fmt vk sk ->
-    runLegacyNodeKeyGenVrfCmd fmt vk sk
-  NodeKeyHashVRF vk mOutFp ->
-    runLegacyNodeKeyHashVrfCmd vk mOutFp
-  NodeNewCounter vk ctr out ->
-    runLegacyNodeNewCounterCmd vk ctr out
-  NodeIssueOpCert vk sk ctr p out ->
-    runLegacyNodeIssueOpCertCmd vk sk ctr p out
-
---
--- Node command implementations
---
 
 runLegacyNodeKeyGenColdCmd
   :: KeyOutputFormat
