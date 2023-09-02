@@ -7,7 +7,7 @@ module Cardano.CLI.Legacy.Run.Key
 
 import           Cardano.Api
 
-import qualified Cardano.CLI.EraBased.Run.Key as EraBased
+import           Cardano.CLI.EraBased.Run.Key
 import           Cardano.CLI.Legacy.Commands.Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyKeyCmdError
@@ -37,13 +37,13 @@ runLegacyKeyCmds = \case
 runLegacyGetVerificationKeyCmd :: SigningKeyFile In
                       -> VerificationKeyFile Out
                       -> ExceptT ShelleyKeyCmdError IO ()
-runLegacyGetVerificationKeyCmd = EraBased.runLegacyGetVerificationKeyCmd
+runLegacyGetVerificationKeyCmd = runGetVerificationKeyCmd
 
 runLegacyConvertToNonExtendedKeyCmd
   :: VerificationKeyFile In
   -> VerificationKeyFile Out
   -> ExceptT ShelleyKeyCmdError IO ()
-runLegacyConvertToNonExtendedKeyCmd = EraBased.runLegacyConvertToNonExtendedKeyCmd
+runLegacyConvertToNonExtendedKeyCmd = runConvertToNonExtendedKeyCmd
 
 runLegacyConvertByronKeyCmd
   :: Maybe Text      -- ^ Password (if applicable)
@@ -51,13 +51,13 @@ runLegacyConvertByronKeyCmd
   -> SomeKeyFile In  -- ^ Input file: old format
   -> File () Out     -- ^ Output file: new format
   -> ExceptT ShelleyKeyCmdError IO ()
-runLegacyConvertByronKeyCmd = EraBased.runLegacyConvertByronKeyCmd
+runLegacyConvertByronKeyCmd = runConvertByronKeyCmd
 
 runLegacyConvertByronGenesisVerificationKeyCmd
   :: VerificationKeyBase64  -- ^ Input key raw old format
   -> File () Out            -- ^ Output file: new format
   -> ExceptT ShelleyKeyCmdError IO ()
-runLegacyConvertByronGenesisVerificationKeyCmd = EraBased.runLegacyConvertByronGenesisVerificationKeyCmd
+runLegacyConvertByronGenesisVerificationKeyCmd = runConvertByronGenesisVerificationKeyCmd
 
 --------------------------------------------------------------------------------
 -- ITN verification/signing key conversion to Haskell verficiation/signing keys
@@ -67,17 +67,17 @@ runLegacyConvertITNStakeKeyCmd
   :: SomeKeyFile In
   -> File () Out
   -> ExceptT ShelleyKeyCmdError IO ()
-runLegacyConvertITNStakeKeyCmd = EraBased.runLegacyConvertITNStakeKeyCmd
+runLegacyConvertITNStakeKeyCmd = runConvertITNStakeKeyCmd
 
 runLegacyConvertITNExtendedToStakeKeyCmd :: SomeKeyFile In -> File () Out -> ExceptT ShelleyKeyCmdError IO ()
-runLegacyConvertITNExtendedToStakeKeyCmd = EraBased.runLegacyConvertITNExtendedToStakeKeyCmd
+runLegacyConvertITNExtendedToStakeKeyCmd = runConvertITNExtendedToStakeKeyCmd
 
 runLegacyConvertITNBip32ToStakeKeyCmd :: SomeKeyFile In -> File () Out -> ExceptT ShelleyKeyCmdError IO ()
-runLegacyConvertITNBip32ToStakeKeyCmd = EraBased.runLegacyConvertITNBip32ToStakeKeyCmd
+runLegacyConvertITNBip32ToStakeKeyCmd = runConvertITNBip32ToStakeKeyCmd
 
 runLegacyConvertCardanoAddressSigningKeyCmd
   :: CardanoAddressKeyType
   -> SigningKeyFile In
   -> File () Out
   -> ExceptT ShelleyKeyCmdError IO ()
-runLegacyConvertCardanoAddressSigningKeyCmd = EraBased.runLegacyConvertCardanoAddressSigningKeyCmd
+runLegacyConvertCardanoAddressSigningKeyCmd = runConvertCardanoAddressSigningKeyCmd
