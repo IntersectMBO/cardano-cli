@@ -1,17 +1,18 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.EraBased.Run.Pool
-  ( runLegacyPoolCmds
+  ( runLegacyPoolIdCmd
+  , runLegacyPoolMetadataHashCmd
+  , runLegacyStakePoolRegistrationCertCmd
+  , runLegacyStakePoolRetirementCertCmd
   ) where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Legacy.Commands.Pool
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
@@ -24,17 +25,6 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT
                    newExceptT, onLeft)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
-
-runLegacyPoolCmds :: LegacyPoolCmds -> ExceptT ShelleyPoolCmdError IO ()
-runLegacyPoolCmds = \case
-  PoolRegistrationCert anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
-    runLegacyStakePoolRegistrationCertCmd anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
-  PoolRetirementCert anyEra sPvkeyFp retireEpoch outfp ->
-    runLegacyStakePoolRetirementCertCmd anyEra sPvkeyFp retireEpoch outfp
-  PoolGetId sPvkey outputFormat mOutFile ->
-    runLegacyPoolIdCmd sPvkey outputFormat mOutFile
-  PoolMetadataHash poolMdFile mOutFile ->
-    runLegacyPoolMetadataHashCmd poolMdFile mOutFile
 
 --
 -- Stake pool command implementations
