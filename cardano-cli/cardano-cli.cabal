@@ -117,6 +117,7 @@ library
                         Cardano.CLI.Legacy.Run.Key
                         Cardano.CLI.Legacy.Run.Node
                         Cardano.CLI.Legacy.Run.Pool
+                        Cardano.CLI.Legacy.Run.Query
                         Cardano.CLI.Legacy.Run.StakeAddress
                         Cardano.CLI.Legacy.Run.TextView
                         Cardano.CLI.Legacy.Run.Transaction
