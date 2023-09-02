@@ -6,10 +6,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Address
-  ( SomeAddressVerificationKey(..)
+  ( runLegacyAddressCmds
+
+  , runLegacyAddressBuildCmd
+  , runLegacyAddressKeyGenCmd
+  , runLegacyAddressKeyHashCmd
+
   , buildShelleyAddress
   , renderShelleyAddressCmdError
-  , runLegacyAddressCmds
   , makeStakeAddressRef
   ) where
 

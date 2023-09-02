@@ -4,8 +4,8 @@ module Cardano.CLI.Legacy.Run
   ( runLegacyCmds
   ) where
 
-import           Cardano.CLI.EraBased.Run.Address
 import           Cardano.CLI.Legacy.Options
+import           Cardano.CLI.Legacy.Run.Address
 import           Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.CLI.Legacy.Run.Governance
 import           Cardano.CLI.Legacy.Run.Key
