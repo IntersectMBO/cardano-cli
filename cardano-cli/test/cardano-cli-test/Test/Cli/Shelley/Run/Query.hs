@@ -2,7 +2,7 @@ module Test.Cli.Shelley.Run.Query
   ( hprop_percentage
   ) where
 
-import qualified Cardano.CLI.Legacy.Run.Query as Q
+import qualified Cardano.CLI.EraBased.Run.Query as Q
 import           Cardano.Slotting.Time (RelativeTime (..))
 
 import           Hedgehog (Property, (===))

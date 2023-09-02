@@ -13,7 +13,7 @@
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Cardano.CLI.Legacy.Run.Query
+module Cardano.CLI.EraBased.Run.Query
   ( DelegationsAndRewards(..)
   , renderOpCertIntervalInformation
   , renderShelleyQueryCmdError
