@@ -50,7 +50,7 @@ import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Legacy.Run.Node (
                    runLegacyNodeIssueOpCertCmd, runLegacyNodeKeyGenColdCmd, runLegacyNodeKeyGenKesCmd, runLegacyNodeKeyGenVrfCmd)
-import           Cardano.CLI.Legacy.Run.StakeAddress (runLegacyStakeAddressKeyGenToFileCmd)
+import           Cardano.CLI.EraBased.Run.StakeAddress (runLegacyStakeAddressKeyGenToFileCmd)
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
