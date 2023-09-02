@@ -4,7 +4,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.Legacy.Run.Key
+module Cardano.CLI.EraBased.Run.Key
   ( SomeSigningKey(..)
   , runLegacyKeyCmds
   , readSigningKeyFile

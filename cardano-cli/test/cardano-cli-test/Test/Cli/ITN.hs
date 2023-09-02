@@ -7,7 +7,7 @@ module Test.Cli.ITN
   , hprop_golden_bech32Decode
   ) where
 
-import           Cardano.CLI.Legacy.Run.Key (decodeBech32)
+import           Cardano.CLI.EraBased.Run.Key (decodeBech32)
 
 import qualified Codec.Binary.Bech32 as Bech32
 import           Control.Monad (void)
