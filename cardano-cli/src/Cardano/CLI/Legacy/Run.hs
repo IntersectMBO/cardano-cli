@@ -4,13 +4,13 @@ module Cardano.CLI.Legacy.Run
   ( runLegacyCmds
   ) where
 
+import           Cardano.CLI.EraBased.Run.Pool
 import           Cardano.CLI.Legacy.Options
 import           Cardano.CLI.Legacy.Run.Address
 import           Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.CLI.Legacy.Run.Governance
 import           Cardano.CLI.Legacy.Run.Key
 import           Cardano.CLI.Legacy.Run.Node
-import           Cardano.CLI.Legacy.Run.Pool
 import           Cardano.CLI.Legacy.Run.Query
 import           Cardano.CLI.Legacy.Run.StakeAddress
 import           Cardano.CLI.Legacy.Run.TextView

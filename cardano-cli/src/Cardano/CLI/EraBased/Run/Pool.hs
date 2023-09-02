@@ -3,7 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
-module Cardano.CLI.Legacy.Run.Pool
+module Cardano.CLI.EraBased.Run.Pool
   ( runLegacyPoolCmds
   ) where
 
