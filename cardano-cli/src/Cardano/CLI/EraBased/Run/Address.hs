@@ -1,14 +1,11 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Address
-  ( runLegacyAddressCmds
-
-  , runLegacyAddressBuildCmd
+  ( runLegacyAddressBuildCmd
   , runLegacyAddressKeyGenCmd
   , runLegacyAddressKeyHashCmd
 
@@ -20,8 +17,6 @@ module Cardano.CLI.EraBased.Run.Address
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Legacy.Commands.Address
-import           Cardano.CLI.EraBased.Run.Address.Info (runLegacyAddressInfoCmd)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyTextOrFile, generateKeyPair, readVerificationKeyOrFile,
@@ -34,17 +29,6 @@ import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.Text.IO as Text
-
-runLegacyAddressCmds :: LegacyAddressCmds -> ExceptT ShelleyAddressCmdError IO ()
-runLegacyAddressCmds = \case
-  AddressKeyGen fmt kt vkf skf ->
-    runLegacyAddressKeyGenCmd fmt kt vkf skf
-  AddressKeyHash vkf mOFp ->
-    runLegacyAddressKeyHashCmd vkf mOFp
-  AddressBuild paymentVerifier mbStakeVerifier nw mOutFp ->
-    runLegacyAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp
-  AddressInfo txt mOFp ->
-    firstExceptT ShelleyAddressCmdAddressInfoError $ runLegacyAddressInfoCmd txt mOFp
 
 runLegacyAddressKeyGenCmd
   :: KeyOutputFormat
