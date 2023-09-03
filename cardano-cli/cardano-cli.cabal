@@ -129,7 +129,7 @@ library
                         Cardano.CLI.Types.Common
                         Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
                         Cardano.CLI.Types.Errors.CmdError
-                        Cardano.CLI.Types.Errors.EraBasedDelegationError
+                        Cardano.CLI.Types.Errors.DelegationError
                         Cardano.CLI.Types.Errors.EraBasedRegistrationError
                         Cardano.CLI.Types.Errors.GovernanceActionsError
                         Cardano.CLI.Types.Errors.GovernanceCmdError

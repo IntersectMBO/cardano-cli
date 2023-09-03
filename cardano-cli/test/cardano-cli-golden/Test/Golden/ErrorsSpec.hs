@@ -1,12 +1,12 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Test.Golden.ErrorsSpec
-  ( test_GovernanceCmdError
-  , test_EraBasedDelegationError
+  ( test_DelegationError
   , test_EraBasedRegistrationError
   , test_EraBasedVoteReadError
-  , test_GovernanceComitteeError
   , test_GovernanceActionsError
+  , test_GovernanceCmdError
+  , test_GovernanceComitteeError
   ) where
 
 import           Cardano.Api
@@ -16,7 +16,7 @@ import           Cardano.Binary
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.EraBasedDelegationError
+import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.EraBasedRegistrationError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
@@ -88,30 +88,31 @@ test_GovernanceCmdError =
       , GovernanceCmdGenesisDelegationNotSupportedInConway)
     ]
 
-test_EraBasedDelegationError :: TestTree
-test_EraBasedDelegationError =
-  testErrorMessagesRendering "Cardano.CLI.Types.Errors.CmdError" "EraBasedDelegationError"
-    [ ("EraBasedDelegReadError"
-      , EraBasedDelegReadError
+test_DelegationError :: TestTree
+test_DelegationError =
+  testErrorMessagesRendering "Cardano.CLI.Types.Errors.CmdError" "DelegationError"
+    [ ("DelegationReadError"
+      , DelegationReadError
       $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedDelegationStakeCredentialError1"
-      , EraBasedDelegationStakeCredentialError
+    , ("DelegationStakeCredentialError1"
+      , DelegationStakeCredentialError
         $ StakeCredentialInputDecodeError
         $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedDelegationStakeCredentialError2"
-      , EraBasedDelegationStakeCredentialError
+    , ("DelegationStakeCredentialError2"
+      , DelegationStakeCredentialError
         $ StakeCredentialScriptDecodeError
         $ FileError "path/file.txt"
         $ ScriptDecodeSimpleScriptError
         $ JsonDecodeError "json decode error")
-    , ("EraBasedDelegationStakeCredentialError3"
-      , EraBasedDelegationStakeCredentialError
+    , ("DelegationStakeCredentialError3"
+      , DelegationStakeCredentialError
         $ StakeCredentialInputDecodeError
         $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedCertificateWriteFileError"
-      , EraBasedCertificateWriteFileError $ FileError "path/file.txt" ())
-    , ("EraBasedDRepReadError"
-      , EraBasedDRepReadError $ FileError "path/file.txt" InputInvalidError)
+    , ("DelegationCertificateWriteFileError"
+      , DelegationCertificateWriteFileError
+        $ FileError "path/file.txt" ())
+    , ("DelegationDRepReadError"
+      , DelegationDRepReadError $ FileError "path/file.txt" InputInvalidError)
     ]
 
 test_EraBasedRegistrationError :: TestTree

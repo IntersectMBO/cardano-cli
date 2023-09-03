@@ -20,7 +20,7 @@ import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
-import           Cardano.CLI.Types.Errors.EraBasedDelegationError
+import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.EraBasedRegistrationError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Key
@@ -55,20 +55,20 @@ runGovernanceDelegationCertificateCmd
   :: StakeIdentifier
   -> AnyDelegationTarget
   -> File () Out
-  -> ExceptT EraBasedDelegationError IO ()
+  -> ExceptT DelegationError IO ()
 runGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp = do
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
-      & firstExceptT EraBasedDelegationStakeCredentialError
+      & firstExceptT DelegationStakeCredentialError
 
   case delegationTarget of
     ShelleyToBabbageDelegTarget sTob stakePool -> do
       poolId <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey stakePool)
-                  & onLeft (left . EraBasedDelegReadError)
+                  & onLeft (left . DelegationReadError)
       let req = StakeDelegationRequirementsPreConway sTob stakeCred poolId
           delegCert = makeStakeAddressDelegationCertificate req
           description = Just @TextEnvelopeDescr "Stake Address Delegation Certificate"
-      firstExceptT EraBasedCertificateWriteFileError
+      firstExceptT DelegationCertificateWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
         $ shelleyToBabbageEraConstraints sTob
@@ -80,7 +80,7 @@ runGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp = d
           delegCert = makeStakeAddressDelegationCertificate req
           -- TODO: Conway era - update description to say if its delegating voting stake or "regular" stake
           description = Just @TextEnvelopeDescr "Stake Address Delegation Certificate"
-      firstExceptT EraBasedCertificateWriteFileError
+      firstExceptT DelegationCertificateWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
         $ conwayEraOnwardsConstraints cOnwards
@@ -88,17 +88,17 @@ runGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp = d
 
 toLedgerDelegatee
   :: StakeTarget era
-  -> ExceptT EraBasedDelegationError IO (Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era)))
+  -> ExceptT DelegationError IO (Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era)))
 toLedgerDelegatee t =
   case t of
     TargetStakePool cOnwards keyOrHashOrFile -> do
       StakePoolKeyHash kHash
         <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey keyOrHashOrFile)
-             & onLeft (left . EraBasedDelegReadError)
+             & onLeft (left . DelegationReadError)
       right $ Ledger.DelegStake $ conwayEraOnwardsConstraints cOnwards kHash
 
     TargetVotingDrep cOnwards keyOrHashOrFile -> do
-      DRepKeyHash drepKeyHash <- firstExceptT EraBasedDRepReadError
+      DRepKeyHash drepKeyHash <- firstExceptT DelegationDRepReadError
                                    . newExceptT
                                    $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey keyOrHashOrFile
       let drepCred = Ledger.DRepCredential $ Ledger.KeyHashObj drepKeyHash
@@ -107,9 +107,9 @@ toLedgerDelegatee t =
     TargetVotingDrepAndStakePool cOnwards drepKeyOrHashOrFile  poolKeyOrHashOrFile -> do
       StakePoolKeyHash kHash
         <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolKeyOrHashOrFile)
-             & onLeft (left . EraBasedDelegReadError)
+             & onLeft (left . DelegationReadError)
       DRepKeyHash drepKeyHash
-        <- firstExceptT EraBasedDRepReadError
+        <- firstExceptT DelegationDRepReadError
              . newExceptT
              $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepKeyOrHashOrFile
       let drepCred = Ledger.DRepCredential $ Ledger.KeyHashObj drepKeyHash

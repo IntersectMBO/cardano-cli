@@ -7,7 +7,7 @@ module Cardano.CLI.Types.Errors.CmdError
 
 import           Cardano.Api
 
-import           Cardano.CLI.Types.Errors.EraBasedDelegationError
+import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.EraBasedRegistrationError
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
@@ -30,7 +30,7 @@ import qualified Data.Text as Text
 data CmdError
   = CmdAddressError               !ShelleyAddressCmdError
   | CmdEraBasedRegistrationError  !EraBasedRegistrationError
-  | CmdEraDelegationError         !EraBasedDelegationError
+  | CmdEraDelegationError         !DelegationError
   | CmdGenesisError               !ShelleyGenesisCmdError
   | CmdGovernanceActionError      !GovernanceActionsError
   | CmdGovernanceCmdError         !GovernanceCmdError
