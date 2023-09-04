@@ -13,7 +13,7 @@ Usage: cardano-cli
                      | version
                      )
 
-Usage: cardano-cli shelley governance
+Usage: cardano-cli shelley (governance | transaction)
 
   Shelley era commands
 
@@ -145,7 +145,390 @@ Usage: cardano-cli shelley governance drep registration-certificate
 
   Create a registration certificate.
 
-Usage: cardano-cli allegra governance
+Usage: cardano-cli shelley transaction 
+                                         ( build-raw
+                                         | build
+                                         | sign
+                                         | witness
+                                         | assemble
+                                         | submit
+                                         | policyid
+                                         | calculate-min-fee
+                                         | calculate-min-required-utxo
+                                         | hash-script-data
+                                         | txid
+                                         | view
+                                         )
+
+  Era-based governance commands
+
+Usage: cardano-cli shelley transaction build-raw 
+                                                   [ --script-valid
+                                                   | --script-invalid
+                                                   ]
+                                                   (--tx-in TX-IN
+                                                     [ --spending-tx-in-reference TX-IN
+                                                       --spending-plutus-script-v2
+                                                       ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                       | --spending-reference-tx-in-datum-file JSON FILE
+                                                       | --spending-reference-tx-in-datum-value JSON VALUE
+                                                       | --spending-reference-tx-in-inline-datum-present
+                                                       )
+                                                       ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                       | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --spending-reference-tx-in-execution-units (INT, INT)
+                                                     | --simple-script-tx-in-reference TX-IN
+                                                     | --tx-in-script-file FILE
+                                                       [
+                                                         ( --tx-in-datum-cbor-file CBOR FILE
+                                                         | --tx-in-datum-file JSON FILE
+                                                         | --tx-in-datum-value JSON VALUE
+                                                         | --tx-in-inline-datum-present
+                                                         )
+                                                         ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                         | --tx-in-redeemer-file JSON FILE
+                                                         | --tx-in-redeemer-value JSON VALUE
+                                                         )
+                                                         --tx-in-execution-units (INT, INT)]
+                                                     ])
+                                                   [--read-only-tx-in-reference TX-IN]
+                                                   [--tx-in-collateral TX-IN]
+                                                   [--tx-out-return-collateral ADDRESS VALUE]
+                                                   [--tx-total-collateral INTEGER]
+                                                   [ --required-signer FILE
+                                                   | --required-signer-hash HASH
+                                                   ]
+                                                   [--tx-out ADDRESS VALUE
+                                                     [ --tx-out-datum-hash HASH
+                                                     | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                     | --tx-out-datum-hash-file JSON FILE
+                                                     | --tx-out-datum-hash-value JSON VALUE
+                                                     | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                     | --tx-out-datum-embed-file JSON FILE
+                                                     | --tx-out-datum-embed-value JSON VALUE
+                                                     | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                     | --tx-out-inline-datum-file JSON FILE
+                                                     | --tx-out-inline-datum-value JSON VALUE
+                                                     ]
+                                                     [--tx-out-reference-script-file FILE]]
+                                                   [--mint VALUE
+                                                     ( --mint-script-file FILE
+                                                       [
+                                                         ( --mint-redeemer-cbor-file CBOR FILE
+                                                         | --mint-redeemer-file JSON FILE
+                                                         | --mint-redeemer-value JSON VALUE
+                                                         )
+                                                         --mint-execution-units (INT, INT)]
+                                                     | --simple-minting-script-tx-in-reference TX-IN
+                                                       --policy-id HASH
+                                                     | --mint-tx-in-reference TX-IN
+                                                       --mint-plutus-script-v2
+                                                       ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                       | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --mint-reference-tx-in-execution-units (INT, INT)
+                                                       --policy-id HASH
+                                                     )]
+                                                   [--invalid-before SLOT]
+                                                   [--invalid-hereafter SLOT]
+                                                   [--fee LOVELACE]
+                                                   [
+                                                     --certificate-file CERTIFICATEFILE
+                                                     [ --certificate-script-file FILE
+                                                       [
+                                                         ( --certificate-redeemer-cbor-file CBOR FILE
+                                                         | --certificate-redeemer-file JSON FILE
+                                                         | --certificate-redeemer-value JSON VALUE
+                                                         )
+                                                         --certificate-execution-units (INT, INT)]
+                                                     | --certificate-tx-in-reference TX-IN
+                                                       --certificate-plutus-script-v2
+                                                       ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                       | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --certificate-reference-tx-in-execution-units (INT, INT)
+                                                     ]]
+                                                   [--withdrawal WITHDRAWAL
+                                                     [ --withdrawal-script-file FILE
+                                                       [
+                                                         ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                         | --withdrawal-redeemer-file JSON FILE
+                                                         | --withdrawal-redeemer-value JSON VALUE
+                                                         )
+                                                         --withdrawal-execution-units (INT, INT)]
+                                                     | --withdrawal-tx-in-reference TX-IN
+                                                       --withdrawal-plutus-script-v2
+                                                       ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                       | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                     ]]
+                                                   [ --json-metadata-no-schema
+                                                   | --json-metadata-detailed-schema
+                                                   ]
+                                                   [--auxiliary-script-file FILE]
+                                                   [ --metadata-json-file FILE
+                                                   | --metadata-cbor-file FILE
+                                                   ]
+                                                   [--protocol-params-file FILE]
+                                                   [--update-proposal-file FILE]
+                                                   --out-file FILE
+
+  Build a transaction (low-level, inconvenient)
+
+  Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
+                                               [ --shelley-mode
+                                               | --byron-mode
+                                                 [--epoch-slots SLOTS]
+                                               | --cardano-mode
+                                                 [--epoch-slots SLOTS]
+                                               ]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               [ --script-valid
+                                               | --script-invalid
+                                               ]
+                                               [--witness-override WORD]
+                                               (--tx-in TX-IN
+                                                 [ --spending-tx-in-reference TX-IN
+                                                   --spending-plutus-script-v2
+                                                   ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                   | --spending-reference-tx-in-datum-file JSON FILE
+                                                   | --spending-reference-tx-in-datum-value JSON VALUE
+                                                   | --spending-reference-tx-in-inline-datum-present
+                                                   )
+                                                   ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                   | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                 | --simple-script-tx-in-reference TX-IN
+                                                 | --tx-in-script-file FILE
+                                                   [
+                                                     ( --tx-in-datum-cbor-file CBOR FILE
+                                                     | --tx-in-datum-file JSON FILE
+                                                     | --tx-in-datum-value JSON VALUE
+                                                     | --tx-in-inline-datum-present
+                                                     )
+                                                     ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                     | --tx-in-redeemer-file JSON FILE
+                                                     | --tx-in-redeemer-value JSON VALUE
+                                                     )]
+                                                 ])
+                                               [--read-only-tx-in-reference TX-IN]
+                                               [ --required-signer FILE
+                                               | --required-signer-hash HASH
+                                               ]
+                                               [--tx-in-collateral TX-IN]
+                                               [--tx-out-return-collateral ADDRESS VALUE]
+                                               [--tx-total-collateral INTEGER]
+                                               [--tx-out ADDRESS VALUE
+                                                 [ --tx-out-datum-hash HASH
+                                                 | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                 | --tx-out-datum-hash-file JSON FILE
+                                                 | --tx-out-datum-hash-value JSON VALUE
+                                                 | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                 | --tx-out-datum-embed-file JSON FILE
+                                                 | --tx-out-datum-embed-value JSON VALUE
+                                                 | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                 | --tx-out-inline-datum-file JSON FILE
+                                                 | --tx-out-inline-datum-value JSON VALUE
+                                                 ]
+                                                 [--tx-out-reference-script-file FILE]]
+                                               --change-address ADDRESS
+                                               [--mint VALUE
+                                                 ( --mint-script-file FILE
+                                                   [ --mint-redeemer-cbor-file CBOR FILE
+                                                   | --mint-redeemer-file JSON FILE
+                                                   | --mint-redeemer-value JSON VALUE
+                                                   ]
+                                                 | --simple-minting-script-tx-in-reference TX-IN
+                                                   --policy-id HASH
+                                                 | --mint-tx-in-reference TX-IN
+                                                   --mint-plutus-script-v2
+                                                   ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                   | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                   --policy-id HASH
+                                                 )]
+                                               [--invalid-before SLOT]
+                                               [--invalid-hereafter SLOT]
+                                               [
+                                                 --certificate-file CERTIFICATEFILE
+                                                 [ --certificate-script-file FILE
+                                                   [ --certificate-redeemer-cbor-file CBOR FILE
+                                                   | --certificate-redeemer-file JSON FILE
+                                                   | --certificate-redeemer-value JSON VALUE
+                                                   ]
+                                                 | --certificate-tx-in-reference TX-IN
+                                                   --certificate-plutus-script-v2
+                                                   ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                   | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                 ]]
+                                               [--withdrawal WITHDRAWAL
+                                                 [ --withdrawal-script-file FILE
+                                                   [ --withdrawal-redeemer-cbor-file CBOR FILE
+                                                   | --withdrawal-redeemer-file JSON FILE
+                                                   | --withdrawal-redeemer-value JSON VALUE
+                                                   ]
+                                                 | --withdrawal-tx-in-reference TX-IN
+                                                   --withdrawal-plutus-script-v2
+                                                   ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                   | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                 ]]
+                                               [ --json-metadata-no-schema
+                                               | --json-metadata-detailed-schema
+                                               ]
+                                               [--auxiliary-script-file FILE]
+                                               [ --metadata-json-file FILE
+                                               | --metadata-cbor-file FILE
+                                               ]
+                                               [--update-proposal-file FILE]
+                                               [--vote-file FILE]
+                                               [--proposal-file FILE]
+                                               ( --out-file FILE
+                                               | --calculate-plutus-script-cost FILE
+                                               )
+
+  Build a balanced transaction (automatically calculates fees)
+
+  Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli shelley transaction sign 
+                                              ( --tx-body-file FILE
+                                              | --tx-file FILE
+                                              )
+                                              [--signing-key-file FILE
+                                                [--address STRING]]
+                                              [ --mainnet
+                                              | --testnet-magic NATURAL
+                                              ]
+                                              --out-file FILE
+
+  Sign a transaction
+
+Usage: cardano-cli shelley transaction witness --tx-body-file FILE
+                                                 --signing-key-file FILE
+                                                 [--address STRING]
+                                                 [ --mainnet
+                                                 | --testnet-magic NATURAL
+                                                 ]
+                                                 --out-file FILE
+
+  Create a transaction witness
+
+Usage: cardano-cli shelley transaction assemble --tx-body-file FILE
+                                                  [--witness-file FILE]
+                                                  --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli shelley transaction sign-witness --tx-body-file FILE
+                                                      [--witness-file FILE]
+                                                      --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli shelley transaction submit --socket-path SOCKET_PATH
+                                                [ --shelley-mode
+                                                | --byron-mode
+                                                  [--epoch-slots SLOTS]
+                                                | --cardano-mode
+                                                  [--epoch-slots SLOTS]
+                                                ]
+                                                ( --mainnet
+                                                | --testnet-magic NATURAL
+                                                )
+                                                --tx-file FILE
+
+  Submit a transaction to the local node whose Unix domain socket is obtained
+  from the CARDANO_NODE_SOCKET_PATH environment variable.
+
+Usage: cardano-cli shelley transaction policyid --script-file FILE
+
+  Calculate the PolicyId from the monetary policy script.
+
+Usage: cardano-cli shelley transaction calculate-min-fee --tx-body-file FILE
+                                                           ( --mainnet
+                                                           | --testnet-magic NATURAL
+                                                           )
+                                                           --protocol-params-file FILE
+                                                           --tx-in-count NATURAL
+                                                           --tx-out-count NATURAL
+                                                           --witness-count NATURAL
+                                                           [--byron-witness-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli shelley transaction calculate-min-required-utxo --protocol-params-file FILE
+                                                                     --tx-out ADDRESS VALUE
+                                                                     [ --tx-out-datum-hash HASH
+                                                                     | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                                     | --tx-out-datum-hash-file JSON FILE
+                                                                     | --tx-out-datum-hash-value JSON VALUE
+                                                                     | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                                     | --tx-out-datum-embed-file JSON FILE
+                                                                     | --tx-out-datum-embed-value JSON VALUE
+                                                                     | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                                     | --tx-out-inline-datum-file JSON FILE
+                                                                     | --tx-out-inline-datum-value JSON VALUE
+                                                                     ]
+                                                                     [--tx-out-reference-script-file FILE]
+
+  Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli shelley transaction calculate-min-value --protocol-params-file FILE
+                                                             --tx-out ADDRESS VALUE
+                                                             [ --tx-out-datum-hash HASH
+                                                             | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                             | --tx-out-datum-hash-file JSON FILE
+                                                             | --tx-out-datum-hash-value JSON VALUE
+                                                             | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                             | --tx-out-datum-embed-file JSON FILE
+                                                             | --tx-out-datum-embed-value JSON VALUE
+                                                             | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                             | --tx-out-inline-datum-file JSON FILE
+                                                             | --tx-out-inline-datum-value JSON VALUE
+                                                             ]
+                                                             [--tx-out-reference-script-file FILE]
+
+  DEPRECATED: Use 'calculate-min-required-utxo' instead.
+
+Usage: cardano-cli shelley transaction hash-script-data 
+                                                          ( --script-data-cbor-file CBOR FILE
+                                                          | --script-data-file JSON FILE
+                                                          | --script-data-value JSON VALUE
+                                                          )
+
+  Calculate the hash of script data.
+
+Usage: cardano-cli shelley transaction txid 
+                                              ( --tx-body-file FILE
+                                              | --tx-file FILE
+                                              )
+
+  Print a transaction identifier.
+
+Usage: cardano-cli shelley transaction view 
+                                              ( --tx-body-file FILE
+                                              | --tx-file FILE
+                                              )
+
+  Print a transaction.
+
+Usage: cardano-cli allegra (governance | transaction)
 
   Allegra era commands
 
@@ -277,7 +660,390 @@ Usage: cardano-cli allegra governance drep registration-certificate
 
   Create a registration certificate.
 
-Usage: cardano-cli mary governance
+Usage: cardano-cli allegra transaction 
+                                         ( build-raw
+                                         | build
+                                         | sign
+                                         | witness
+                                         | assemble
+                                         | submit
+                                         | policyid
+                                         | calculate-min-fee
+                                         | calculate-min-required-utxo
+                                         | hash-script-data
+                                         | txid
+                                         | view
+                                         )
+
+  Era-based governance commands
+
+Usage: cardano-cli allegra transaction build-raw 
+                                                   [ --script-valid
+                                                   | --script-invalid
+                                                   ]
+                                                   (--tx-in TX-IN
+                                                     [ --spending-tx-in-reference TX-IN
+                                                       --spending-plutus-script-v2
+                                                       ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                       | --spending-reference-tx-in-datum-file JSON FILE
+                                                       | --spending-reference-tx-in-datum-value JSON VALUE
+                                                       | --spending-reference-tx-in-inline-datum-present
+                                                       )
+                                                       ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                       | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --spending-reference-tx-in-execution-units (INT, INT)
+                                                     | --simple-script-tx-in-reference TX-IN
+                                                     | --tx-in-script-file FILE
+                                                       [
+                                                         ( --tx-in-datum-cbor-file CBOR FILE
+                                                         | --tx-in-datum-file JSON FILE
+                                                         | --tx-in-datum-value JSON VALUE
+                                                         | --tx-in-inline-datum-present
+                                                         )
+                                                         ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                         | --tx-in-redeemer-file JSON FILE
+                                                         | --tx-in-redeemer-value JSON VALUE
+                                                         )
+                                                         --tx-in-execution-units (INT, INT)]
+                                                     ])
+                                                   [--read-only-tx-in-reference TX-IN]
+                                                   [--tx-in-collateral TX-IN]
+                                                   [--tx-out-return-collateral ADDRESS VALUE]
+                                                   [--tx-total-collateral INTEGER]
+                                                   [ --required-signer FILE
+                                                   | --required-signer-hash HASH
+                                                   ]
+                                                   [--tx-out ADDRESS VALUE
+                                                     [ --tx-out-datum-hash HASH
+                                                     | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                     | --tx-out-datum-hash-file JSON FILE
+                                                     | --tx-out-datum-hash-value JSON VALUE
+                                                     | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                     | --tx-out-datum-embed-file JSON FILE
+                                                     | --tx-out-datum-embed-value JSON VALUE
+                                                     | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                     | --tx-out-inline-datum-file JSON FILE
+                                                     | --tx-out-inline-datum-value JSON VALUE
+                                                     ]
+                                                     [--tx-out-reference-script-file FILE]]
+                                                   [--mint VALUE
+                                                     ( --mint-script-file FILE
+                                                       [
+                                                         ( --mint-redeemer-cbor-file CBOR FILE
+                                                         | --mint-redeemer-file JSON FILE
+                                                         | --mint-redeemer-value JSON VALUE
+                                                         )
+                                                         --mint-execution-units (INT, INT)]
+                                                     | --simple-minting-script-tx-in-reference TX-IN
+                                                       --policy-id HASH
+                                                     | --mint-tx-in-reference TX-IN
+                                                       --mint-plutus-script-v2
+                                                       ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                       | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --mint-reference-tx-in-execution-units (INT, INT)
+                                                       --policy-id HASH
+                                                     )]
+                                                   [--invalid-before SLOT]
+                                                   [--invalid-hereafter SLOT]
+                                                   [--fee LOVELACE]
+                                                   [
+                                                     --certificate-file CERTIFICATEFILE
+                                                     [ --certificate-script-file FILE
+                                                       [
+                                                         ( --certificate-redeemer-cbor-file CBOR FILE
+                                                         | --certificate-redeemer-file JSON FILE
+                                                         | --certificate-redeemer-value JSON VALUE
+                                                         )
+                                                         --certificate-execution-units (INT, INT)]
+                                                     | --certificate-tx-in-reference TX-IN
+                                                       --certificate-plutus-script-v2
+                                                       ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                       | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --certificate-reference-tx-in-execution-units (INT, INT)
+                                                     ]]
+                                                   [--withdrawal WITHDRAWAL
+                                                     [ --withdrawal-script-file FILE
+                                                       [
+                                                         ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                         | --withdrawal-redeemer-file JSON FILE
+                                                         | --withdrawal-redeemer-value JSON VALUE
+                                                         )
+                                                         --withdrawal-execution-units (INT, INT)]
+                                                     | --withdrawal-tx-in-reference TX-IN
+                                                       --withdrawal-plutus-script-v2
+                                                       ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                       | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                     ]]
+                                                   [ --json-metadata-no-schema
+                                                   | --json-metadata-detailed-schema
+                                                   ]
+                                                   [--auxiliary-script-file FILE]
+                                                   [ --metadata-json-file FILE
+                                                   | --metadata-cbor-file FILE
+                                                   ]
+                                                   [--protocol-params-file FILE]
+                                                   [--update-proposal-file FILE]
+                                                   --out-file FILE
+
+  Build a transaction (low-level, inconvenient)
+
+  Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli allegra transaction build --socket-path SOCKET_PATH
+                                               [ --shelley-mode
+                                               | --byron-mode
+                                                 [--epoch-slots SLOTS]
+                                               | --cardano-mode
+                                                 [--epoch-slots SLOTS]
+                                               ]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               [ --script-valid
+                                               | --script-invalid
+                                               ]
+                                               [--witness-override WORD]
+                                               (--tx-in TX-IN
+                                                 [ --spending-tx-in-reference TX-IN
+                                                   --spending-plutus-script-v2
+                                                   ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                   | --spending-reference-tx-in-datum-file JSON FILE
+                                                   | --spending-reference-tx-in-datum-value JSON VALUE
+                                                   | --spending-reference-tx-in-inline-datum-present
+                                                   )
+                                                   ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                   | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                 | --simple-script-tx-in-reference TX-IN
+                                                 | --tx-in-script-file FILE
+                                                   [
+                                                     ( --tx-in-datum-cbor-file CBOR FILE
+                                                     | --tx-in-datum-file JSON FILE
+                                                     | --tx-in-datum-value JSON VALUE
+                                                     | --tx-in-inline-datum-present
+                                                     )
+                                                     ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                     | --tx-in-redeemer-file JSON FILE
+                                                     | --tx-in-redeemer-value JSON VALUE
+                                                     )]
+                                                 ])
+                                               [--read-only-tx-in-reference TX-IN]
+                                               [ --required-signer FILE
+                                               | --required-signer-hash HASH
+                                               ]
+                                               [--tx-in-collateral TX-IN]
+                                               [--tx-out-return-collateral ADDRESS VALUE]
+                                               [--tx-total-collateral INTEGER]
+                                               [--tx-out ADDRESS VALUE
+                                                 [ --tx-out-datum-hash HASH
+                                                 | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                 | --tx-out-datum-hash-file JSON FILE
+                                                 | --tx-out-datum-hash-value JSON VALUE
+                                                 | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                 | --tx-out-datum-embed-file JSON FILE
+                                                 | --tx-out-datum-embed-value JSON VALUE
+                                                 | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                 | --tx-out-inline-datum-file JSON FILE
+                                                 | --tx-out-inline-datum-value JSON VALUE
+                                                 ]
+                                                 [--tx-out-reference-script-file FILE]]
+                                               --change-address ADDRESS
+                                               [--mint VALUE
+                                                 ( --mint-script-file FILE
+                                                   [ --mint-redeemer-cbor-file CBOR FILE
+                                                   | --mint-redeemer-file JSON FILE
+                                                   | --mint-redeemer-value JSON VALUE
+                                                   ]
+                                                 | --simple-minting-script-tx-in-reference TX-IN
+                                                   --policy-id HASH
+                                                 | --mint-tx-in-reference TX-IN
+                                                   --mint-plutus-script-v2
+                                                   ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                   | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                   --policy-id HASH
+                                                 )]
+                                               [--invalid-before SLOT]
+                                               [--invalid-hereafter SLOT]
+                                               [
+                                                 --certificate-file CERTIFICATEFILE
+                                                 [ --certificate-script-file FILE
+                                                   [ --certificate-redeemer-cbor-file CBOR FILE
+                                                   | --certificate-redeemer-file JSON FILE
+                                                   | --certificate-redeemer-value JSON VALUE
+                                                   ]
+                                                 | --certificate-tx-in-reference TX-IN
+                                                   --certificate-plutus-script-v2
+                                                   ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                   | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                 ]]
+                                               [--withdrawal WITHDRAWAL
+                                                 [ --withdrawal-script-file FILE
+                                                   [ --withdrawal-redeemer-cbor-file CBOR FILE
+                                                   | --withdrawal-redeemer-file JSON FILE
+                                                   | --withdrawal-redeemer-value JSON VALUE
+                                                   ]
+                                                 | --withdrawal-tx-in-reference TX-IN
+                                                   --withdrawal-plutus-script-v2
+                                                   ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                   | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                 ]]
+                                               [ --json-metadata-no-schema
+                                               | --json-metadata-detailed-schema
+                                               ]
+                                               [--auxiliary-script-file FILE]
+                                               [ --metadata-json-file FILE
+                                               | --metadata-cbor-file FILE
+                                               ]
+                                               [--update-proposal-file FILE]
+                                               [--vote-file FILE]
+                                               [--proposal-file FILE]
+                                               ( --out-file FILE
+                                               | --calculate-plutus-script-cost FILE
+                                               )
+
+  Build a balanced transaction (automatically calculates fees)
+
+  Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli allegra transaction sign 
+                                              ( --tx-body-file FILE
+                                              | --tx-file FILE
+                                              )
+                                              [--signing-key-file FILE
+                                                [--address STRING]]
+                                              [ --mainnet
+                                              | --testnet-magic NATURAL
+                                              ]
+                                              --out-file FILE
+
+  Sign a transaction
+
+Usage: cardano-cli allegra transaction witness --tx-body-file FILE
+                                                 --signing-key-file FILE
+                                                 [--address STRING]
+                                                 [ --mainnet
+                                                 | --testnet-magic NATURAL
+                                                 ]
+                                                 --out-file FILE
+
+  Create a transaction witness
+
+Usage: cardano-cli allegra transaction assemble --tx-body-file FILE
+                                                  [--witness-file FILE]
+                                                  --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli allegra transaction sign-witness --tx-body-file FILE
+                                                      [--witness-file FILE]
+                                                      --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli allegra transaction submit --socket-path SOCKET_PATH
+                                                [ --shelley-mode
+                                                | --byron-mode
+                                                  [--epoch-slots SLOTS]
+                                                | --cardano-mode
+                                                  [--epoch-slots SLOTS]
+                                                ]
+                                                ( --mainnet
+                                                | --testnet-magic NATURAL
+                                                )
+                                                --tx-file FILE
+
+  Submit a transaction to the local node whose Unix domain socket is obtained
+  from the CARDANO_NODE_SOCKET_PATH environment variable.
+
+Usage: cardano-cli allegra transaction policyid --script-file FILE
+
+  Calculate the PolicyId from the monetary policy script.
+
+Usage: cardano-cli allegra transaction calculate-min-fee --tx-body-file FILE
+                                                           ( --mainnet
+                                                           | --testnet-magic NATURAL
+                                                           )
+                                                           --protocol-params-file FILE
+                                                           --tx-in-count NATURAL
+                                                           --tx-out-count NATURAL
+                                                           --witness-count NATURAL
+                                                           [--byron-witness-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli allegra transaction calculate-min-required-utxo --protocol-params-file FILE
+                                                                     --tx-out ADDRESS VALUE
+                                                                     [ --tx-out-datum-hash HASH
+                                                                     | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                                     | --tx-out-datum-hash-file JSON FILE
+                                                                     | --tx-out-datum-hash-value JSON VALUE
+                                                                     | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                                     | --tx-out-datum-embed-file JSON FILE
+                                                                     | --tx-out-datum-embed-value JSON VALUE
+                                                                     | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                                     | --tx-out-inline-datum-file JSON FILE
+                                                                     | --tx-out-inline-datum-value JSON VALUE
+                                                                     ]
+                                                                     [--tx-out-reference-script-file FILE]
+
+  Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli allegra transaction calculate-min-value --protocol-params-file FILE
+                                                             --tx-out ADDRESS VALUE
+                                                             [ --tx-out-datum-hash HASH
+                                                             | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                             | --tx-out-datum-hash-file JSON FILE
+                                                             | --tx-out-datum-hash-value JSON VALUE
+                                                             | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                             | --tx-out-datum-embed-file JSON FILE
+                                                             | --tx-out-datum-embed-value JSON VALUE
+                                                             | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                             | --tx-out-inline-datum-file JSON FILE
+                                                             | --tx-out-inline-datum-value JSON VALUE
+                                                             ]
+                                                             [--tx-out-reference-script-file FILE]
+
+  DEPRECATED: Use 'calculate-min-required-utxo' instead.
+
+Usage: cardano-cli allegra transaction hash-script-data 
+                                                          ( --script-data-cbor-file CBOR FILE
+                                                          | --script-data-file JSON FILE
+                                                          | --script-data-value JSON VALUE
+                                                          )
+
+  Calculate the hash of script data.
+
+Usage: cardano-cli allegra transaction txid 
+                                              ( --tx-body-file FILE
+                                              | --tx-file FILE
+                                              )
+
+  Print a transaction identifier.
+
+Usage: cardano-cli allegra transaction view 
+                                              ( --tx-body-file FILE
+                                              | --tx-file FILE
+                                              )
+
+  Print a transaction.
+
+Usage: cardano-cli mary (governance | transaction)
 
   Mary era commands
 
@@ -409,7 +1175,375 @@ Usage: cardano-cli mary governance drep registration-certificate
 
   Create a registration certificate.
 
-Usage: cardano-cli alonzo governance
+Usage: cardano-cli mary transaction 
+                                      ( build-raw
+                                      | build
+                                      | sign
+                                      | witness
+                                      | assemble
+                                      | submit
+                                      | policyid
+                                      | calculate-min-fee
+                                      | calculate-min-required-utxo
+                                      | hash-script-data
+                                      | txid
+                                      | view
+                                      )
+
+  Era-based governance commands
+
+Usage: cardano-cli mary transaction build-raw 
+                                                [ --script-valid
+                                                | --script-invalid
+                                                ]
+                                                (--tx-in TX-IN
+                                                  [ --spending-tx-in-reference TX-IN
+                                                    --spending-plutus-script-v2
+                                                    ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                    | --spending-reference-tx-in-datum-file JSON FILE
+                                                    | --spending-reference-tx-in-datum-value JSON VALUE
+                                                    | --spending-reference-tx-in-inline-datum-present
+                                                    )
+                                                    ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                    | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                    | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                    )
+                                                    --spending-reference-tx-in-execution-units (INT, INT)
+                                                  | --simple-script-tx-in-reference TX-IN
+                                                  | --tx-in-script-file FILE
+                                                    [
+                                                      ( --tx-in-datum-cbor-file CBOR FILE
+                                                      | --tx-in-datum-file JSON FILE
+                                                      | --tx-in-datum-value JSON VALUE
+                                                      | --tx-in-inline-datum-present
+                                                      )
+                                                      ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --tx-in-redeemer-file JSON FILE
+                                                      | --tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --tx-in-execution-units (INT, INT)]
+                                                  ])
+                                                [--read-only-tx-in-reference TX-IN]
+                                                [--tx-in-collateral TX-IN]
+                                                [--tx-out-return-collateral ADDRESS VALUE]
+                                                [--tx-total-collateral INTEGER]
+                                                [ --required-signer FILE
+                                                | --required-signer-hash HASH
+                                                ]
+                                                [--tx-out ADDRESS VALUE
+                                                  [ --tx-out-datum-hash HASH
+                                                  | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                  | --tx-out-datum-hash-file JSON FILE
+                                                  | --tx-out-datum-hash-value JSON VALUE
+                                                  | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                  | --tx-out-datum-embed-file JSON FILE
+                                                  | --tx-out-datum-embed-value JSON VALUE
+                                                  | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                  | --tx-out-inline-datum-file JSON FILE
+                                                  | --tx-out-inline-datum-value JSON VALUE
+                                                  ]
+                                                  [--tx-out-reference-script-file FILE]]
+                                                [--mint VALUE
+                                                  ( --mint-script-file FILE
+                                                    [
+                                                      ( --mint-redeemer-cbor-file CBOR FILE
+                                                      | --mint-redeemer-file JSON FILE
+                                                      | --mint-redeemer-value JSON VALUE
+                                                      )
+                                                      --mint-execution-units (INT, INT)]
+                                                  | --simple-minting-script-tx-in-reference TX-IN
+                                                    --policy-id HASH
+                                                  | --mint-tx-in-reference TX-IN
+                                                    --mint-plutus-script-v2
+                                                    ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                    | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                    | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                    )
+                                                    --mint-reference-tx-in-execution-units (INT, INT)
+                                                    --policy-id HASH
+                                                  )]
+                                                [--invalid-before SLOT]
+                                                [--invalid-hereafter SLOT]
+                                                [--fee LOVELACE]
+                                                [
+                                                  --certificate-file CERTIFICATEFILE
+                                                  [ --certificate-script-file FILE
+                                                    [
+                                                      ( --certificate-redeemer-cbor-file CBOR FILE
+                                                      | --certificate-redeemer-file JSON FILE
+                                                      | --certificate-redeemer-value JSON VALUE
+                                                      )
+                                                      --certificate-execution-units (INT, INT)]
+                                                  | --certificate-tx-in-reference TX-IN
+                                                    --certificate-plutus-script-v2
+                                                    ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                    | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                    | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                    )
+                                                    --certificate-reference-tx-in-execution-units (INT, INT)
+                                                  ]]
+                                                [--withdrawal WITHDRAWAL
+                                                  [ --withdrawal-script-file FILE
+                                                    [
+                                                      ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                      | --withdrawal-redeemer-file JSON FILE
+                                                      | --withdrawal-redeemer-value JSON VALUE
+                                                      )
+                                                      --withdrawal-execution-units (INT, INT)]
+                                                  | --withdrawal-tx-in-reference TX-IN
+                                                    --withdrawal-plutus-script-v2
+                                                    ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                    | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                    | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                    )
+                                                    --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                  ]]
+                                                [ --json-metadata-no-schema
+                                                | --json-metadata-detailed-schema
+                                                ]
+                                                [--auxiliary-script-file FILE]
+                                                [ --metadata-json-file FILE
+                                                | --metadata-cbor-file FILE
+                                                ]
+                                                [--protocol-params-file FILE]
+                                                [--update-proposal-file FILE]
+                                                --out-file FILE
+
+  Build a transaction (low-level, inconvenient)
+
+  Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli mary transaction build --socket-path SOCKET_PATH
+                                            [ --shelley-mode
+                                            | --byron-mode [--epoch-slots SLOTS]
+                                            | --cardano-mode
+                                              [--epoch-slots SLOTS]
+                                            ]
+                                            ( --mainnet
+                                            | --testnet-magic NATURAL
+                                            )
+                                            [--script-valid | --script-invalid]
+                                            [--witness-override WORD]
+                                            (--tx-in TX-IN
+                                              [ --spending-tx-in-reference TX-IN
+                                                --spending-plutus-script-v2
+                                                ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                | --spending-reference-tx-in-datum-file JSON FILE
+                                                | --spending-reference-tx-in-datum-value JSON VALUE
+                                                | --spending-reference-tx-in-inline-datum-present
+                                                )
+                                                ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                )
+                                              | --simple-script-tx-in-reference TX-IN
+                                              | --tx-in-script-file FILE
+                                                [
+                                                  ( --tx-in-datum-cbor-file CBOR FILE
+                                                  | --tx-in-datum-file JSON FILE
+                                                  | --tx-in-datum-value JSON VALUE
+                                                  | --tx-in-inline-datum-present
+                                                  )
+                                                  ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --tx-in-redeemer-file JSON FILE
+                                                  | --tx-in-redeemer-value JSON VALUE
+                                                  )]
+                                              ])
+                                            [--read-only-tx-in-reference TX-IN]
+                                            [ --required-signer FILE
+                                            | --required-signer-hash HASH
+                                            ]
+                                            [--tx-in-collateral TX-IN]
+                                            [--tx-out-return-collateral ADDRESS VALUE]
+                                            [--tx-total-collateral INTEGER]
+                                            [--tx-out ADDRESS VALUE
+                                              [ --tx-out-datum-hash HASH
+                                              | --tx-out-datum-hash-cbor-file CBOR FILE
+                                              | --tx-out-datum-hash-file JSON FILE
+                                              | --tx-out-datum-hash-value JSON VALUE
+                                              | --tx-out-datum-embed-cbor-file CBOR FILE
+                                              | --tx-out-datum-embed-file JSON FILE
+                                              | --tx-out-datum-embed-value JSON VALUE
+                                              | --tx-out-inline-datum-cbor-file CBOR FILE
+                                              | --tx-out-inline-datum-file JSON FILE
+                                              | --tx-out-inline-datum-value JSON VALUE
+                                              ]
+                                              [--tx-out-reference-script-file FILE]]
+                                            --change-address ADDRESS
+                                            [--mint VALUE
+                                              ( --mint-script-file FILE
+                                                [ --mint-redeemer-cbor-file CBOR FILE
+                                                | --mint-redeemer-file JSON FILE
+                                                | --mint-redeemer-value JSON VALUE
+                                                ]
+                                              | --simple-minting-script-tx-in-reference TX-IN
+                                                --policy-id HASH
+                                              | --mint-tx-in-reference TX-IN
+                                                --mint-plutus-script-v2
+                                                ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                )
+                                                --policy-id HASH
+                                              )]
+                                            [--invalid-before SLOT]
+                                            [--invalid-hereafter SLOT]
+                                            [--certificate-file CERTIFICATEFILE
+                                              [ --certificate-script-file FILE
+                                                [ --certificate-redeemer-cbor-file CBOR FILE
+                                                | --certificate-redeemer-file JSON FILE
+                                                | --certificate-redeemer-value JSON VALUE
+                                                ]
+                                              | --certificate-tx-in-reference TX-IN
+                                                --certificate-plutus-script-v2
+                                                ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                )
+                                              ]]
+                                            [--withdrawal WITHDRAWAL
+                                              [ --withdrawal-script-file FILE
+                                                [ --withdrawal-redeemer-cbor-file CBOR FILE
+                                                | --withdrawal-redeemer-file JSON FILE
+                                                | --withdrawal-redeemer-value JSON VALUE
+                                                ]
+                                              | --withdrawal-tx-in-reference TX-IN
+                                                --withdrawal-plutus-script-v2
+                                                ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                )
+                                              ]]
+                                            [ --json-metadata-no-schema
+                                            | --json-metadata-detailed-schema
+                                            ]
+                                            [--auxiliary-script-file FILE]
+                                            [ --metadata-json-file FILE
+                                            | --metadata-cbor-file FILE
+                                            ]
+                                            [--update-proposal-file FILE]
+                                            [--vote-file FILE]
+                                            [--proposal-file FILE]
+                                            ( --out-file FILE
+                                            | --calculate-plutus-script-cost FILE
+                                            )
+
+  Build a balanced transaction (automatically calculates fees)
+
+  Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli mary transaction sign (--tx-body-file FILE | --tx-file FILE)
+                                           [--signing-key-file FILE
+                                             [--address STRING]]
+                                           [--mainnet | --testnet-magic NATURAL]
+                                           --out-file FILE
+
+  Sign a transaction
+
+Usage: cardano-cli mary transaction witness --tx-body-file FILE
+                                              --signing-key-file FILE
+                                              [--address STRING]
+                                              [ --mainnet
+                                              | --testnet-magic NATURAL
+                                              ]
+                                              --out-file FILE
+
+  Create a transaction witness
+
+Usage: cardano-cli mary transaction assemble --tx-body-file FILE
+                                               [--witness-file FILE]
+                                               --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli mary transaction sign-witness --tx-body-file FILE
+                                                   [--witness-file FILE]
+                                                   --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli mary transaction submit --socket-path SOCKET_PATH
+                                             [ --shelley-mode
+                                             | --byron-mode
+                                               [--epoch-slots SLOTS]
+                                             | --cardano-mode
+                                               [--epoch-slots SLOTS]
+                                             ]
+                                             ( --mainnet
+                                             | --testnet-magic NATURAL
+                                             )
+                                             --tx-file FILE
+
+  Submit a transaction to the local node whose Unix domain socket is obtained
+  from the CARDANO_NODE_SOCKET_PATH environment variable.
+
+Usage: cardano-cli mary transaction policyid --script-file FILE
+
+  Calculate the PolicyId from the monetary policy script.
+
+Usage: cardano-cli mary transaction calculate-min-fee --tx-body-file FILE
+                                                        ( --mainnet
+                                                        | --testnet-magic NATURAL
+                                                        )
+                                                        --protocol-params-file FILE
+                                                        --tx-in-count NATURAL
+                                                        --tx-out-count NATURAL
+                                                        --witness-count NATURAL
+                                                        [--byron-witness-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli mary transaction calculate-min-required-utxo --protocol-params-file FILE
+                                                                  --tx-out ADDRESS VALUE
+                                                                  [ --tx-out-datum-hash HASH
+                                                                  | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                                  | --tx-out-datum-hash-file JSON FILE
+                                                                  | --tx-out-datum-hash-value JSON VALUE
+                                                                  | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                                  | --tx-out-datum-embed-file JSON FILE
+                                                                  | --tx-out-datum-embed-value JSON VALUE
+                                                                  | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                                  | --tx-out-inline-datum-file JSON FILE
+                                                                  | --tx-out-inline-datum-value JSON VALUE
+                                                                  ]
+                                                                  [--tx-out-reference-script-file FILE]
+
+  Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli mary transaction calculate-min-value --protocol-params-file FILE
+                                                          --tx-out ADDRESS VALUE
+                                                          [ --tx-out-datum-hash HASH
+                                                          | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                          | --tx-out-datum-hash-file JSON FILE
+                                                          | --tx-out-datum-hash-value JSON VALUE
+                                                          | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                          | --tx-out-datum-embed-file JSON FILE
+                                                          | --tx-out-datum-embed-value JSON VALUE
+                                                          | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                          | --tx-out-inline-datum-file JSON FILE
+                                                          | --tx-out-inline-datum-value JSON VALUE
+                                                          ]
+                                                          [--tx-out-reference-script-file FILE]
+
+  DEPRECATED: Use 'calculate-min-required-utxo' instead.
+
+Usage: cardano-cli mary transaction hash-script-data 
+                                                       ( --script-data-cbor-file CBOR FILE
+                                                       | --script-data-file JSON FILE
+                                                       | --script-data-value JSON VALUE
+                                                       )
+
+  Calculate the hash of script data.
+
+Usage: cardano-cli mary transaction txid (--tx-body-file FILE | --tx-file FILE)
+
+  Print a transaction identifier.
+
+Usage: cardano-cli mary transaction view (--tx-body-file FILE | --tx-file FILE)
+
+  Print a transaction.
+
+Usage: cardano-cli alonzo (governance | transaction)
 
   Alonzo era commands
 
@@ -548,7 +1682,390 @@ Usage: cardano-cli alonzo governance drep registration-certificate
 
   Create a registration certificate.
 
-Usage: cardano-cli babbage governance
+Usage: cardano-cli alonzo transaction 
+                                        ( build-raw
+                                        | build
+                                        | sign
+                                        | witness
+                                        | assemble
+                                        | submit
+                                        | policyid
+                                        | calculate-min-fee
+                                        | calculate-min-required-utxo
+                                        | hash-script-data
+                                        | txid
+                                        | view
+                                        )
+
+  Era-based governance commands
+
+Usage: cardano-cli alonzo transaction build-raw 
+                                                  [ --script-valid
+                                                  | --script-invalid
+                                                  ]
+                                                  (--tx-in TX-IN
+                                                    [ --spending-tx-in-reference TX-IN
+                                                      --spending-plutus-script-v2
+                                                      ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                      | --spending-reference-tx-in-datum-file JSON FILE
+                                                      | --spending-reference-tx-in-datum-value JSON VALUE
+                                                      | --spending-reference-tx-in-inline-datum-present
+                                                      )
+                                                      ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                      | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --spending-reference-tx-in-execution-units (INT, INT)
+                                                    | --simple-script-tx-in-reference TX-IN
+                                                    | --tx-in-script-file FILE
+                                                      [
+                                                        ( --tx-in-datum-cbor-file CBOR FILE
+                                                        | --tx-in-datum-file JSON FILE
+                                                        | --tx-in-datum-value JSON VALUE
+                                                        | --tx-in-inline-datum-present
+                                                        )
+                                                        ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                        | --tx-in-redeemer-file JSON FILE
+                                                        | --tx-in-redeemer-value JSON VALUE
+                                                        )
+                                                        --tx-in-execution-units (INT, INT)]
+                                                    ])
+                                                  [--read-only-tx-in-reference TX-IN]
+                                                  [--tx-in-collateral TX-IN]
+                                                  [--tx-out-return-collateral ADDRESS VALUE]
+                                                  [--tx-total-collateral INTEGER]
+                                                  [ --required-signer FILE
+                                                  | --required-signer-hash HASH
+                                                  ]
+                                                  [--tx-out ADDRESS VALUE
+                                                    [ --tx-out-datum-hash HASH
+                                                    | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                    | --tx-out-datum-hash-file JSON FILE
+                                                    | --tx-out-datum-hash-value JSON VALUE
+                                                    | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                    | --tx-out-datum-embed-file JSON FILE
+                                                    | --tx-out-datum-embed-value JSON VALUE
+                                                    | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                    | --tx-out-inline-datum-file JSON FILE
+                                                    | --tx-out-inline-datum-value JSON VALUE
+                                                    ]
+                                                    [--tx-out-reference-script-file FILE]]
+                                                  [--mint VALUE
+                                                    ( --mint-script-file FILE
+                                                      [
+                                                        ( --mint-redeemer-cbor-file CBOR FILE
+                                                        | --mint-redeemer-file JSON FILE
+                                                        | --mint-redeemer-value JSON VALUE
+                                                        )
+                                                        --mint-execution-units (INT, INT)]
+                                                    | --simple-minting-script-tx-in-reference TX-IN
+                                                      --policy-id HASH
+                                                    | --mint-tx-in-reference TX-IN
+                                                      --mint-plutus-script-v2
+                                                      ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                      | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --mint-reference-tx-in-execution-units (INT, INT)
+                                                      --policy-id HASH
+                                                    )]
+                                                  [--invalid-before SLOT]
+                                                  [--invalid-hereafter SLOT]
+                                                  [--fee LOVELACE]
+                                                  [
+                                                    --certificate-file CERTIFICATEFILE
+                                                    [ --certificate-script-file FILE
+                                                      [
+                                                        ( --certificate-redeemer-cbor-file CBOR FILE
+                                                        | --certificate-redeemer-file JSON FILE
+                                                        | --certificate-redeemer-value JSON VALUE
+                                                        )
+                                                        --certificate-execution-units (INT, INT)]
+                                                    | --certificate-tx-in-reference TX-IN
+                                                      --certificate-plutus-script-v2
+                                                      ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                      | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --certificate-reference-tx-in-execution-units (INT, INT)
+                                                    ]]
+                                                  [--withdrawal WITHDRAWAL
+                                                    [ --withdrawal-script-file FILE
+                                                      [
+                                                        ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                        | --withdrawal-redeemer-file JSON FILE
+                                                        | --withdrawal-redeemer-value JSON VALUE
+                                                        )
+                                                        --withdrawal-execution-units (INT, INT)]
+                                                    | --withdrawal-tx-in-reference TX-IN
+                                                      --withdrawal-plutus-script-v2
+                                                      ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                      | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                    ]]
+                                                  [ --json-metadata-no-schema
+                                                  | --json-metadata-detailed-schema
+                                                  ]
+                                                  [--auxiliary-script-file FILE]
+                                                  [ --metadata-json-file FILE
+                                                  | --metadata-cbor-file FILE
+                                                  ]
+                                                  [--protocol-params-file FILE]
+                                                  [--update-proposal-file FILE]
+                                                  --out-file FILE
+
+  Build a transaction (low-level, inconvenient)
+
+  Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
+                                              [ --shelley-mode
+                                              | --byron-mode
+                                                [--epoch-slots SLOTS]
+                                              | --cardano-mode
+                                                [--epoch-slots SLOTS]
+                                              ]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              [ --script-valid
+                                              | --script-invalid
+                                              ]
+                                              [--witness-override WORD]
+                                              (--tx-in TX-IN
+                                                [ --spending-tx-in-reference TX-IN
+                                                  --spending-plutus-script-v2
+                                                  ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                  | --spending-reference-tx-in-datum-file JSON FILE
+                                                  | --spending-reference-tx-in-datum-value JSON VALUE
+                                                  | --spending-reference-tx-in-inline-datum-present
+                                                  )
+                                                  ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                  | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                | --simple-script-tx-in-reference TX-IN
+                                                | --tx-in-script-file FILE
+                                                  [
+                                                    ( --tx-in-datum-cbor-file CBOR FILE
+                                                    | --tx-in-datum-file JSON FILE
+                                                    | --tx-in-datum-value JSON VALUE
+                                                    | --tx-in-inline-datum-present
+                                                    )
+                                                    ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                    | --tx-in-redeemer-file JSON FILE
+                                                    | --tx-in-redeemer-value JSON VALUE
+                                                    )]
+                                                ])
+                                              [--read-only-tx-in-reference TX-IN]
+                                              [ --required-signer FILE
+                                              | --required-signer-hash HASH
+                                              ]
+                                              [--tx-in-collateral TX-IN]
+                                              [--tx-out-return-collateral ADDRESS VALUE]
+                                              [--tx-total-collateral INTEGER]
+                                              [--tx-out ADDRESS VALUE
+                                                [ --tx-out-datum-hash HASH
+                                                | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                | --tx-out-datum-hash-file JSON FILE
+                                                | --tx-out-datum-hash-value JSON VALUE
+                                                | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                | --tx-out-datum-embed-file JSON FILE
+                                                | --tx-out-datum-embed-value JSON VALUE
+                                                | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                | --tx-out-inline-datum-file JSON FILE
+                                                | --tx-out-inline-datum-value JSON VALUE
+                                                ]
+                                                [--tx-out-reference-script-file FILE]]
+                                              --change-address ADDRESS
+                                              [--mint VALUE
+                                                ( --mint-script-file FILE
+                                                  [ --mint-redeemer-cbor-file CBOR FILE
+                                                  | --mint-redeemer-file JSON FILE
+                                                  | --mint-redeemer-value JSON VALUE
+                                                  ]
+                                                | --simple-minting-script-tx-in-reference TX-IN
+                                                  --policy-id HASH
+                                                | --mint-tx-in-reference TX-IN
+                                                  --mint-plutus-script-v2
+                                                  ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                  | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                  --policy-id HASH
+                                                )]
+                                              [--invalid-before SLOT]
+                                              [--invalid-hereafter SLOT]
+                                              [
+                                                --certificate-file CERTIFICATEFILE
+                                                [ --certificate-script-file FILE
+                                                  [ --certificate-redeemer-cbor-file CBOR FILE
+                                                  | --certificate-redeemer-file JSON FILE
+                                                  | --certificate-redeemer-value JSON VALUE
+                                                  ]
+                                                | --certificate-tx-in-reference TX-IN
+                                                  --certificate-plutus-script-v2
+                                                  ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                  | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                ]]
+                                              [--withdrawal WITHDRAWAL
+                                                [ --withdrawal-script-file FILE
+                                                  [ --withdrawal-redeemer-cbor-file CBOR FILE
+                                                  | --withdrawal-redeemer-file JSON FILE
+                                                  | --withdrawal-redeemer-value JSON VALUE
+                                                  ]
+                                                | --withdrawal-tx-in-reference TX-IN
+                                                  --withdrawal-plutus-script-v2
+                                                  ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                  | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                ]]
+                                              [ --json-metadata-no-schema
+                                              | --json-metadata-detailed-schema
+                                              ]
+                                              [--auxiliary-script-file FILE]
+                                              [ --metadata-json-file FILE
+                                              | --metadata-cbor-file FILE
+                                              ]
+                                              [--update-proposal-file FILE]
+                                              [--vote-file FILE]
+                                              [--proposal-file FILE]
+                                              ( --out-file FILE
+                                              | --calculate-plutus-script-cost FILE
+                                              )
+
+  Build a balanced transaction (automatically calculates fees)
+
+  Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli alonzo transaction sign 
+                                             ( --tx-body-file FILE
+                                             | --tx-file FILE
+                                             )
+                                             [--signing-key-file FILE
+                                               [--address STRING]]
+                                             [ --mainnet
+                                             | --testnet-magic NATURAL
+                                             ]
+                                             --out-file FILE
+
+  Sign a transaction
+
+Usage: cardano-cli alonzo transaction witness --tx-body-file FILE
+                                                --signing-key-file FILE
+                                                [--address STRING]
+                                                [ --mainnet
+                                                | --testnet-magic NATURAL
+                                                ]
+                                                --out-file FILE
+
+  Create a transaction witness
+
+Usage: cardano-cli alonzo transaction assemble --tx-body-file FILE
+                                                 [--witness-file FILE]
+                                                 --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli alonzo transaction sign-witness --tx-body-file FILE
+                                                     [--witness-file FILE]
+                                                     --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli alonzo transaction submit --socket-path SOCKET_PATH
+                                               [ --shelley-mode
+                                               | --byron-mode
+                                                 [--epoch-slots SLOTS]
+                                               | --cardano-mode
+                                                 [--epoch-slots SLOTS]
+                                               ]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --tx-file FILE
+
+  Submit a transaction to the local node whose Unix domain socket is obtained
+  from the CARDANO_NODE_SOCKET_PATH environment variable.
+
+Usage: cardano-cli alonzo transaction policyid --script-file FILE
+
+  Calculate the PolicyId from the monetary policy script.
+
+Usage: cardano-cli alonzo transaction calculate-min-fee --tx-body-file FILE
+                                                          ( --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          )
+                                                          --protocol-params-file FILE
+                                                          --tx-in-count NATURAL
+                                                          --tx-out-count NATURAL
+                                                          --witness-count NATURAL
+                                                          [--byron-witness-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli alonzo transaction calculate-min-required-utxo --protocol-params-file FILE
+                                                                    --tx-out ADDRESS VALUE
+                                                                    [ --tx-out-datum-hash HASH
+                                                                    | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                                    | --tx-out-datum-hash-file JSON FILE
+                                                                    | --tx-out-datum-hash-value JSON VALUE
+                                                                    | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                                    | --tx-out-datum-embed-file JSON FILE
+                                                                    | --tx-out-datum-embed-value JSON VALUE
+                                                                    | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                                    | --tx-out-inline-datum-file JSON FILE
+                                                                    | --tx-out-inline-datum-value JSON VALUE
+                                                                    ]
+                                                                    [--tx-out-reference-script-file FILE]
+
+  Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli alonzo transaction calculate-min-value --protocol-params-file FILE
+                                                            --tx-out ADDRESS VALUE
+                                                            [ --tx-out-datum-hash HASH
+                                                            | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                            | --tx-out-datum-hash-file JSON FILE
+                                                            | --tx-out-datum-hash-value JSON VALUE
+                                                            | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                            | --tx-out-datum-embed-file JSON FILE
+                                                            | --tx-out-datum-embed-value JSON VALUE
+                                                            | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                            | --tx-out-inline-datum-file JSON FILE
+                                                            | --tx-out-inline-datum-value JSON VALUE
+                                                            ]
+                                                            [--tx-out-reference-script-file FILE]
+
+  DEPRECATED: Use 'calculate-min-required-utxo' instead.
+
+Usage: cardano-cli alonzo transaction hash-script-data 
+                                                         ( --script-data-cbor-file CBOR FILE
+                                                         | --script-data-file JSON FILE
+                                                         | --script-data-value JSON VALUE
+                                                         )
+
+  Calculate the hash of script data.
+
+Usage: cardano-cli alonzo transaction txid 
+                                             ( --tx-body-file FILE
+                                             | --tx-file FILE
+                                             )
+
+  Print a transaction identifier.
+
+Usage: cardano-cli alonzo transaction view 
+                                             ( --tx-body-file FILE
+                                             | --tx-file FILE
+                                             )
+
+  Print a transaction.
+
+Usage: cardano-cli babbage (governance | transaction)
 
   Babbage era commands
 
@@ -683,7 +2200,390 @@ Usage: cardano-cli babbage governance drep registration-certificate
 
   Create a registration certificate.
 
-Usage: cardano-cli conway governance
+Usage: cardano-cli babbage transaction 
+                                         ( build-raw
+                                         | build
+                                         | sign
+                                         | witness
+                                         | assemble
+                                         | submit
+                                         | policyid
+                                         | calculate-min-fee
+                                         | calculate-min-required-utxo
+                                         | hash-script-data
+                                         | txid
+                                         | view
+                                         )
+
+  Era-based governance commands
+
+Usage: cardano-cli babbage transaction build-raw 
+                                                   [ --script-valid
+                                                   | --script-invalid
+                                                   ]
+                                                   (--tx-in TX-IN
+                                                     [ --spending-tx-in-reference TX-IN
+                                                       --spending-plutus-script-v2
+                                                       ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                       | --spending-reference-tx-in-datum-file JSON FILE
+                                                       | --spending-reference-tx-in-datum-value JSON VALUE
+                                                       | --spending-reference-tx-in-inline-datum-present
+                                                       )
+                                                       ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                       | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --spending-reference-tx-in-execution-units (INT, INT)
+                                                     | --simple-script-tx-in-reference TX-IN
+                                                     | --tx-in-script-file FILE
+                                                       [
+                                                         ( --tx-in-datum-cbor-file CBOR FILE
+                                                         | --tx-in-datum-file JSON FILE
+                                                         | --tx-in-datum-value JSON VALUE
+                                                         | --tx-in-inline-datum-present
+                                                         )
+                                                         ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                         | --tx-in-redeemer-file JSON FILE
+                                                         | --tx-in-redeemer-value JSON VALUE
+                                                         )
+                                                         --tx-in-execution-units (INT, INT)]
+                                                     ])
+                                                   [--read-only-tx-in-reference TX-IN]
+                                                   [--tx-in-collateral TX-IN]
+                                                   [--tx-out-return-collateral ADDRESS VALUE]
+                                                   [--tx-total-collateral INTEGER]
+                                                   [ --required-signer FILE
+                                                   | --required-signer-hash HASH
+                                                   ]
+                                                   [--tx-out ADDRESS VALUE
+                                                     [ --tx-out-datum-hash HASH
+                                                     | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                     | --tx-out-datum-hash-file JSON FILE
+                                                     | --tx-out-datum-hash-value JSON VALUE
+                                                     | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                     | --tx-out-datum-embed-file JSON FILE
+                                                     | --tx-out-datum-embed-value JSON VALUE
+                                                     | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                     | --tx-out-inline-datum-file JSON FILE
+                                                     | --tx-out-inline-datum-value JSON VALUE
+                                                     ]
+                                                     [--tx-out-reference-script-file FILE]]
+                                                   [--mint VALUE
+                                                     ( --mint-script-file FILE
+                                                       [
+                                                         ( --mint-redeemer-cbor-file CBOR FILE
+                                                         | --mint-redeemer-file JSON FILE
+                                                         | --mint-redeemer-value JSON VALUE
+                                                         )
+                                                         --mint-execution-units (INT, INT)]
+                                                     | --simple-minting-script-tx-in-reference TX-IN
+                                                       --policy-id HASH
+                                                     | --mint-tx-in-reference TX-IN
+                                                       --mint-plutus-script-v2
+                                                       ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                       | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --mint-reference-tx-in-execution-units (INT, INT)
+                                                       --policy-id HASH
+                                                     )]
+                                                   [--invalid-before SLOT]
+                                                   [--invalid-hereafter SLOT]
+                                                   [--fee LOVELACE]
+                                                   [
+                                                     --certificate-file CERTIFICATEFILE
+                                                     [ --certificate-script-file FILE
+                                                       [
+                                                         ( --certificate-redeemer-cbor-file CBOR FILE
+                                                         | --certificate-redeemer-file JSON FILE
+                                                         | --certificate-redeemer-value JSON VALUE
+                                                         )
+                                                         --certificate-execution-units (INT, INT)]
+                                                     | --certificate-tx-in-reference TX-IN
+                                                       --certificate-plutus-script-v2
+                                                       ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                       | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --certificate-reference-tx-in-execution-units (INT, INT)
+                                                     ]]
+                                                   [--withdrawal WITHDRAWAL
+                                                     [ --withdrawal-script-file FILE
+                                                       [
+                                                         ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                         | --withdrawal-redeemer-file JSON FILE
+                                                         | --withdrawal-redeemer-value JSON VALUE
+                                                         )
+                                                         --withdrawal-execution-units (INT, INT)]
+                                                     | --withdrawal-tx-in-reference TX-IN
+                                                       --withdrawal-plutus-script-v2
+                                                       ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                       | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                       | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                       )
+                                                       --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                     ]]
+                                                   [ --json-metadata-no-schema
+                                                   | --json-metadata-detailed-schema
+                                                   ]
+                                                   [--auxiliary-script-file FILE]
+                                                   [ --metadata-json-file FILE
+                                                   | --metadata-cbor-file FILE
+                                                   ]
+                                                   [--protocol-params-file FILE]
+                                                   [--update-proposal-file FILE]
+                                                   --out-file FILE
+
+  Build a transaction (low-level, inconvenient)
+
+  Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
+                                               [ --shelley-mode
+                                               | --byron-mode
+                                                 [--epoch-slots SLOTS]
+                                               | --cardano-mode
+                                                 [--epoch-slots SLOTS]
+                                               ]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               [ --script-valid
+                                               | --script-invalid
+                                               ]
+                                               [--witness-override WORD]
+                                               (--tx-in TX-IN
+                                                 [ --spending-tx-in-reference TX-IN
+                                                   --spending-plutus-script-v2
+                                                   ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                   | --spending-reference-tx-in-datum-file JSON FILE
+                                                   | --spending-reference-tx-in-datum-value JSON VALUE
+                                                   | --spending-reference-tx-in-inline-datum-present
+                                                   )
+                                                   ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                   | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                 | --simple-script-tx-in-reference TX-IN
+                                                 | --tx-in-script-file FILE
+                                                   [
+                                                     ( --tx-in-datum-cbor-file CBOR FILE
+                                                     | --tx-in-datum-file JSON FILE
+                                                     | --tx-in-datum-value JSON VALUE
+                                                     | --tx-in-inline-datum-present
+                                                     )
+                                                     ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                     | --tx-in-redeemer-file JSON FILE
+                                                     | --tx-in-redeemer-value JSON VALUE
+                                                     )]
+                                                 ])
+                                               [--read-only-tx-in-reference TX-IN]
+                                               [ --required-signer FILE
+                                               | --required-signer-hash HASH
+                                               ]
+                                               [--tx-in-collateral TX-IN]
+                                               [--tx-out-return-collateral ADDRESS VALUE]
+                                               [--tx-total-collateral INTEGER]
+                                               [--tx-out ADDRESS VALUE
+                                                 [ --tx-out-datum-hash HASH
+                                                 | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                 | --tx-out-datum-hash-file JSON FILE
+                                                 | --tx-out-datum-hash-value JSON VALUE
+                                                 | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                 | --tx-out-datum-embed-file JSON FILE
+                                                 | --tx-out-datum-embed-value JSON VALUE
+                                                 | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                 | --tx-out-inline-datum-file JSON FILE
+                                                 | --tx-out-inline-datum-value JSON VALUE
+                                                 ]
+                                                 [--tx-out-reference-script-file FILE]]
+                                               --change-address ADDRESS
+                                               [--mint VALUE
+                                                 ( --mint-script-file FILE
+                                                   [ --mint-redeemer-cbor-file CBOR FILE
+                                                   | --mint-redeemer-file JSON FILE
+                                                   | --mint-redeemer-value JSON VALUE
+                                                   ]
+                                                 | --simple-minting-script-tx-in-reference TX-IN
+                                                   --policy-id HASH
+                                                 | --mint-tx-in-reference TX-IN
+                                                   --mint-plutus-script-v2
+                                                   ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                   | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                   --policy-id HASH
+                                                 )]
+                                               [--invalid-before SLOT]
+                                               [--invalid-hereafter SLOT]
+                                               [
+                                                 --certificate-file CERTIFICATEFILE
+                                                 [ --certificate-script-file FILE
+                                                   [ --certificate-redeemer-cbor-file CBOR FILE
+                                                   | --certificate-redeemer-file JSON FILE
+                                                   | --certificate-redeemer-value JSON VALUE
+                                                   ]
+                                                 | --certificate-tx-in-reference TX-IN
+                                                   --certificate-plutus-script-v2
+                                                   ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                   | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                 ]]
+                                               [--withdrawal WITHDRAWAL
+                                                 [ --withdrawal-script-file FILE
+                                                   [ --withdrawal-redeemer-cbor-file CBOR FILE
+                                                   | --withdrawal-redeemer-file JSON FILE
+                                                   | --withdrawal-redeemer-value JSON VALUE
+                                                   ]
+                                                 | --withdrawal-tx-in-reference TX-IN
+                                                   --withdrawal-plutus-script-v2
+                                                   ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                   | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                   | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                   )
+                                                 ]]
+                                               [ --json-metadata-no-schema
+                                               | --json-metadata-detailed-schema
+                                               ]
+                                               [--auxiliary-script-file FILE]
+                                               [ --metadata-json-file FILE
+                                               | --metadata-cbor-file FILE
+                                               ]
+                                               [--update-proposal-file FILE]
+                                               [--vote-file FILE]
+                                               [--proposal-file FILE]
+                                               ( --out-file FILE
+                                               | --calculate-plutus-script-cost FILE
+                                               )
+
+  Build a balanced transaction (automatically calculates fees)
+
+  Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli babbage transaction sign 
+                                              ( --tx-body-file FILE
+                                              | --tx-file FILE
+                                              )
+                                              [--signing-key-file FILE
+                                                [--address STRING]]
+                                              [ --mainnet
+                                              | --testnet-magic NATURAL
+                                              ]
+                                              --out-file FILE
+
+  Sign a transaction
+
+Usage: cardano-cli babbage transaction witness --tx-body-file FILE
+                                                 --signing-key-file FILE
+                                                 [--address STRING]
+                                                 [ --mainnet
+                                                 | --testnet-magic NATURAL
+                                                 ]
+                                                 --out-file FILE
+
+  Create a transaction witness
+
+Usage: cardano-cli babbage transaction assemble --tx-body-file FILE
+                                                  [--witness-file FILE]
+                                                  --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli babbage transaction sign-witness --tx-body-file FILE
+                                                      [--witness-file FILE]
+                                                      --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli babbage transaction submit --socket-path SOCKET_PATH
+                                                [ --shelley-mode
+                                                | --byron-mode
+                                                  [--epoch-slots SLOTS]
+                                                | --cardano-mode
+                                                  [--epoch-slots SLOTS]
+                                                ]
+                                                ( --mainnet
+                                                | --testnet-magic NATURAL
+                                                )
+                                                --tx-file FILE
+
+  Submit a transaction to the local node whose Unix domain socket is obtained
+  from the CARDANO_NODE_SOCKET_PATH environment variable.
+
+Usage: cardano-cli babbage transaction policyid --script-file FILE
+
+  Calculate the PolicyId from the monetary policy script.
+
+Usage: cardano-cli babbage transaction calculate-min-fee --tx-body-file FILE
+                                                           ( --mainnet
+                                                           | --testnet-magic NATURAL
+                                                           )
+                                                           --protocol-params-file FILE
+                                                           --tx-in-count NATURAL
+                                                           --tx-out-count NATURAL
+                                                           --witness-count NATURAL
+                                                           [--byron-witness-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli babbage transaction calculate-min-required-utxo --protocol-params-file FILE
+                                                                     --tx-out ADDRESS VALUE
+                                                                     [ --tx-out-datum-hash HASH
+                                                                     | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                                     | --tx-out-datum-hash-file JSON FILE
+                                                                     | --tx-out-datum-hash-value JSON VALUE
+                                                                     | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                                     | --tx-out-datum-embed-file JSON FILE
+                                                                     | --tx-out-datum-embed-value JSON VALUE
+                                                                     | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                                     | --tx-out-inline-datum-file JSON FILE
+                                                                     | --tx-out-inline-datum-value JSON VALUE
+                                                                     ]
+                                                                     [--tx-out-reference-script-file FILE]
+
+  Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli babbage transaction calculate-min-value --protocol-params-file FILE
+                                                             --tx-out ADDRESS VALUE
+                                                             [ --tx-out-datum-hash HASH
+                                                             | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                             | --tx-out-datum-hash-file JSON FILE
+                                                             | --tx-out-datum-hash-value JSON VALUE
+                                                             | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                             | --tx-out-datum-embed-file JSON FILE
+                                                             | --tx-out-datum-embed-value JSON VALUE
+                                                             | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                             | --tx-out-inline-datum-file JSON FILE
+                                                             | --tx-out-inline-datum-value JSON VALUE
+                                                             ]
+                                                             [--tx-out-reference-script-file FILE]
+
+  DEPRECATED: Use 'calculate-min-required-utxo' instead.
+
+Usage: cardano-cli babbage transaction hash-script-data 
+                                                          ( --script-data-cbor-file CBOR FILE
+                                                          | --script-data-file JSON FILE
+                                                          | --script-data-value JSON VALUE
+                                                          )
+
+  Calculate the hash of script data.
+
+Usage: cardano-cli babbage transaction txid 
+                                              ( --tx-body-file FILE
+                                              | --tx-file FILE
+                                              )
+
+  Print a transaction identifier.
+
+Usage: cardano-cli babbage transaction view 
+                                              ( --tx-body-file FILE
+                                              | --tx-file FILE
+                                              )
+
+  Print a transaction.
+
+Usage: cardano-cli conway (governance | transaction)
 
   Conway era commands
 
@@ -1104,7 +3004,390 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
 
   Vote creation.
 
-Usage: cardano-cli latest governance
+Usage: cardano-cli conway transaction 
+                                        ( build-raw
+                                        | build
+                                        | sign
+                                        | witness
+                                        | assemble
+                                        | submit
+                                        | policyid
+                                        | calculate-min-fee
+                                        | calculate-min-required-utxo
+                                        | hash-script-data
+                                        | txid
+                                        | view
+                                        )
+
+  Era-based governance commands
+
+Usage: cardano-cli conway transaction build-raw 
+                                                  [ --script-valid
+                                                  | --script-invalid
+                                                  ]
+                                                  (--tx-in TX-IN
+                                                    [ --spending-tx-in-reference TX-IN
+                                                      --spending-plutus-script-v2
+                                                      ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                      | --spending-reference-tx-in-datum-file JSON FILE
+                                                      | --spending-reference-tx-in-datum-value JSON VALUE
+                                                      | --spending-reference-tx-in-inline-datum-present
+                                                      )
+                                                      ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                      | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --spending-reference-tx-in-execution-units (INT, INT)
+                                                    | --simple-script-tx-in-reference TX-IN
+                                                    | --tx-in-script-file FILE
+                                                      [
+                                                        ( --tx-in-datum-cbor-file CBOR FILE
+                                                        | --tx-in-datum-file JSON FILE
+                                                        | --tx-in-datum-value JSON VALUE
+                                                        | --tx-in-inline-datum-present
+                                                        )
+                                                        ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                        | --tx-in-redeemer-file JSON FILE
+                                                        | --tx-in-redeemer-value JSON VALUE
+                                                        )
+                                                        --tx-in-execution-units (INT, INT)]
+                                                    ])
+                                                  [--read-only-tx-in-reference TX-IN]
+                                                  [--tx-in-collateral TX-IN]
+                                                  [--tx-out-return-collateral ADDRESS VALUE]
+                                                  [--tx-total-collateral INTEGER]
+                                                  [ --required-signer FILE
+                                                  | --required-signer-hash HASH
+                                                  ]
+                                                  [--tx-out ADDRESS VALUE
+                                                    [ --tx-out-datum-hash HASH
+                                                    | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                    | --tx-out-datum-hash-file JSON FILE
+                                                    | --tx-out-datum-hash-value JSON VALUE
+                                                    | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                    | --tx-out-datum-embed-file JSON FILE
+                                                    | --tx-out-datum-embed-value JSON VALUE
+                                                    | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                    | --tx-out-inline-datum-file JSON FILE
+                                                    | --tx-out-inline-datum-value JSON VALUE
+                                                    ]
+                                                    [--tx-out-reference-script-file FILE]]
+                                                  [--mint VALUE
+                                                    ( --mint-script-file FILE
+                                                      [
+                                                        ( --mint-redeemer-cbor-file CBOR FILE
+                                                        | --mint-redeemer-file JSON FILE
+                                                        | --mint-redeemer-value JSON VALUE
+                                                        )
+                                                        --mint-execution-units (INT, INT)]
+                                                    | --simple-minting-script-tx-in-reference TX-IN
+                                                      --policy-id HASH
+                                                    | --mint-tx-in-reference TX-IN
+                                                      --mint-plutus-script-v2
+                                                      ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                      | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --mint-reference-tx-in-execution-units (INT, INT)
+                                                      --policy-id HASH
+                                                    )]
+                                                  [--invalid-before SLOT]
+                                                  [--invalid-hereafter SLOT]
+                                                  [--fee LOVELACE]
+                                                  [
+                                                    --certificate-file CERTIFICATEFILE
+                                                    [ --certificate-script-file FILE
+                                                      [
+                                                        ( --certificate-redeemer-cbor-file CBOR FILE
+                                                        | --certificate-redeemer-file JSON FILE
+                                                        | --certificate-redeemer-value JSON VALUE
+                                                        )
+                                                        --certificate-execution-units (INT, INT)]
+                                                    | --certificate-tx-in-reference TX-IN
+                                                      --certificate-plutus-script-v2
+                                                      ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                      | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --certificate-reference-tx-in-execution-units (INT, INT)
+                                                    ]]
+                                                  [--withdrawal WITHDRAWAL
+                                                    [ --withdrawal-script-file FILE
+                                                      [
+                                                        ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                        | --withdrawal-redeemer-file JSON FILE
+                                                        | --withdrawal-redeemer-value JSON VALUE
+                                                        )
+                                                        --withdrawal-execution-units (INT, INT)]
+                                                    | --withdrawal-tx-in-reference TX-IN
+                                                      --withdrawal-plutus-script-v2
+                                                      ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                      | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                    ]]
+                                                  [ --json-metadata-no-schema
+                                                  | --json-metadata-detailed-schema
+                                                  ]
+                                                  [--auxiliary-script-file FILE]
+                                                  [ --metadata-json-file FILE
+                                                  | --metadata-cbor-file FILE
+                                                  ]
+                                                  [--protocol-params-file FILE]
+                                                  [--update-proposal-file FILE]
+                                                  --out-file FILE
+
+  Build a transaction (low-level, inconvenient)
+
+  Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
+                                              [ --shelley-mode
+                                              | --byron-mode
+                                                [--epoch-slots SLOTS]
+                                              | --cardano-mode
+                                                [--epoch-slots SLOTS]
+                                              ]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              [ --script-valid
+                                              | --script-invalid
+                                              ]
+                                              [--witness-override WORD]
+                                              (--tx-in TX-IN
+                                                [ --spending-tx-in-reference TX-IN
+                                                  --spending-plutus-script-v2
+                                                  ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                  | --spending-reference-tx-in-datum-file JSON FILE
+                                                  | --spending-reference-tx-in-datum-value JSON VALUE
+                                                  | --spending-reference-tx-in-inline-datum-present
+                                                  )
+                                                  ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                  | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                | --simple-script-tx-in-reference TX-IN
+                                                | --tx-in-script-file FILE
+                                                  [
+                                                    ( --tx-in-datum-cbor-file CBOR FILE
+                                                    | --tx-in-datum-file JSON FILE
+                                                    | --tx-in-datum-value JSON VALUE
+                                                    | --tx-in-inline-datum-present
+                                                    )
+                                                    ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                    | --tx-in-redeemer-file JSON FILE
+                                                    | --tx-in-redeemer-value JSON VALUE
+                                                    )]
+                                                ])
+                                              [--read-only-tx-in-reference TX-IN]
+                                              [ --required-signer FILE
+                                              | --required-signer-hash HASH
+                                              ]
+                                              [--tx-in-collateral TX-IN]
+                                              [--tx-out-return-collateral ADDRESS VALUE]
+                                              [--tx-total-collateral INTEGER]
+                                              [--tx-out ADDRESS VALUE
+                                                [ --tx-out-datum-hash HASH
+                                                | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                | --tx-out-datum-hash-file JSON FILE
+                                                | --tx-out-datum-hash-value JSON VALUE
+                                                | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                | --tx-out-datum-embed-file JSON FILE
+                                                | --tx-out-datum-embed-value JSON VALUE
+                                                | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                | --tx-out-inline-datum-file JSON FILE
+                                                | --tx-out-inline-datum-value JSON VALUE
+                                                ]
+                                                [--tx-out-reference-script-file FILE]]
+                                              --change-address ADDRESS
+                                              [--mint VALUE
+                                                ( --mint-script-file FILE
+                                                  [ --mint-redeemer-cbor-file CBOR FILE
+                                                  | --mint-redeemer-file JSON FILE
+                                                  | --mint-redeemer-value JSON VALUE
+                                                  ]
+                                                | --simple-minting-script-tx-in-reference TX-IN
+                                                  --policy-id HASH
+                                                | --mint-tx-in-reference TX-IN
+                                                  --mint-plutus-script-v2
+                                                  ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                  | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                  --policy-id HASH
+                                                )]
+                                              [--invalid-before SLOT]
+                                              [--invalid-hereafter SLOT]
+                                              [
+                                                --certificate-file CERTIFICATEFILE
+                                                [ --certificate-script-file FILE
+                                                  [ --certificate-redeemer-cbor-file CBOR FILE
+                                                  | --certificate-redeemer-file JSON FILE
+                                                  | --certificate-redeemer-value JSON VALUE
+                                                  ]
+                                                | --certificate-tx-in-reference TX-IN
+                                                  --certificate-plutus-script-v2
+                                                  ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                  | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                ]]
+                                              [--withdrawal WITHDRAWAL
+                                                [ --withdrawal-script-file FILE
+                                                  [ --withdrawal-redeemer-cbor-file CBOR FILE
+                                                  | --withdrawal-redeemer-file JSON FILE
+                                                  | --withdrawal-redeemer-value JSON VALUE
+                                                  ]
+                                                | --withdrawal-tx-in-reference TX-IN
+                                                  --withdrawal-plutus-script-v2
+                                                  ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                  | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                ]]
+                                              [ --json-metadata-no-schema
+                                              | --json-metadata-detailed-schema
+                                              ]
+                                              [--auxiliary-script-file FILE]
+                                              [ --metadata-json-file FILE
+                                              | --metadata-cbor-file FILE
+                                              ]
+                                              [--update-proposal-file FILE]
+                                              [--vote-file FILE]
+                                              [--proposal-file FILE]
+                                              ( --out-file FILE
+                                              | --calculate-plutus-script-cost FILE
+                                              )
+
+  Build a balanced transaction (automatically calculates fees)
+
+  Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli conway transaction sign 
+                                             ( --tx-body-file FILE
+                                             | --tx-file FILE
+                                             )
+                                             [--signing-key-file FILE
+                                               [--address STRING]]
+                                             [ --mainnet
+                                             | --testnet-magic NATURAL
+                                             ]
+                                             --out-file FILE
+
+  Sign a transaction
+
+Usage: cardano-cli conway transaction witness --tx-body-file FILE
+                                                --signing-key-file FILE
+                                                [--address STRING]
+                                                [ --mainnet
+                                                | --testnet-magic NATURAL
+                                                ]
+                                                --out-file FILE
+
+  Create a transaction witness
+
+Usage: cardano-cli conway transaction assemble --tx-body-file FILE
+                                                 [--witness-file FILE]
+                                                 --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli conway transaction sign-witness --tx-body-file FILE
+                                                     [--witness-file FILE]
+                                                     --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli conway transaction submit --socket-path SOCKET_PATH
+                                               [ --shelley-mode
+                                               | --byron-mode
+                                                 [--epoch-slots SLOTS]
+                                               | --cardano-mode
+                                                 [--epoch-slots SLOTS]
+                                               ]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --tx-file FILE
+
+  Submit a transaction to the local node whose Unix domain socket is obtained
+  from the CARDANO_NODE_SOCKET_PATH environment variable.
+
+Usage: cardano-cli conway transaction policyid --script-file FILE
+
+  Calculate the PolicyId from the monetary policy script.
+
+Usage: cardano-cli conway transaction calculate-min-fee --tx-body-file FILE
+                                                          ( --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          )
+                                                          --protocol-params-file FILE
+                                                          --tx-in-count NATURAL
+                                                          --tx-out-count NATURAL
+                                                          --witness-count NATURAL
+                                                          [--byron-witness-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-params-file FILE
+                                                                    --tx-out ADDRESS VALUE
+                                                                    [ --tx-out-datum-hash HASH
+                                                                    | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                                    | --tx-out-datum-hash-file JSON FILE
+                                                                    | --tx-out-datum-hash-value JSON VALUE
+                                                                    | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                                    | --tx-out-datum-embed-file JSON FILE
+                                                                    | --tx-out-datum-embed-value JSON VALUE
+                                                                    | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                                    | --tx-out-inline-datum-file JSON FILE
+                                                                    | --tx-out-inline-datum-value JSON VALUE
+                                                                    ]
+                                                                    [--tx-out-reference-script-file FILE]
+
+  Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli conway transaction calculate-min-value --protocol-params-file FILE
+                                                            --tx-out ADDRESS VALUE
+                                                            [ --tx-out-datum-hash HASH
+                                                            | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                            | --tx-out-datum-hash-file JSON FILE
+                                                            | --tx-out-datum-hash-value JSON VALUE
+                                                            | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                            | --tx-out-datum-embed-file JSON FILE
+                                                            | --tx-out-datum-embed-value JSON VALUE
+                                                            | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                            | --tx-out-inline-datum-file JSON FILE
+                                                            | --tx-out-inline-datum-value JSON VALUE
+                                                            ]
+                                                            [--tx-out-reference-script-file FILE]
+
+  DEPRECATED: Use 'calculate-min-required-utxo' instead.
+
+Usage: cardano-cli conway transaction hash-script-data 
+                                                         ( --script-data-cbor-file CBOR FILE
+                                                         | --script-data-file JSON FILE
+                                                         | --script-data-value JSON VALUE
+                                                         )
+
+  Calculate the hash of script data.
+
+Usage: cardano-cli conway transaction txid 
+                                             ( --tx-body-file FILE
+                                             | --tx-file FILE
+                                             )
+
+  Print a transaction identifier.
+
+Usage: cardano-cli conway transaction view 
+                                             ( --tx-body-file FILE
+                                             | --tx-file FILE
+                                             )
+
+  Print a transaction.
+
+Usage: cardano-cli latest (governance | transaction)
 
   Latest era commands (Babbage)
 
@@ -1238,6 +3521,389 @@ Usage: cardano-cli latest governance drep registration-certificate
                                                                      --out-file FILE
 
   Create a registration certificate.
+
+Usage: cardano-cli latest transaction 
+                                        ( build-raw
+                                        | build
+                                        | sign
+                                        | witness
+                                        | assemble
+                                        | submit
+                                        | policyid
+                                        | calculate-min-fee
+                                        | calculate-min-required-utxo
+                                        | hash-script-data
+                                        | txid
+                                        | view
+                                        )
+
+  Era-based governance commands
+
+Usage: cardano-cli latest transaction build-raw 
+                                                  [ --script-valid
+                                                  | --script-invalid
+                                                  ]
+                                                  (--tx-in TX-IN
+                                                    [ --spending-tx-in-reference TX-IN
+                                                      --spending-plutus-script-v2
+                                                      ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                      | --spending-reference-tx-in-datum-file JSON FILE
+                                                      | --spending-reference-tx-in-datum-value JSON VALUE
+                                                      | --spending-reference-tx-in-inline-datum-present
+                                                      )
+                                                      ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                      | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --spending-reference-tx-in-execution-units (INT, INT)
+                                                    | --simple-script-tx-in-reference TX-IN
+                                                    | --tx-in-script-file FILE
+                                                      [
+                                                        ( --tx-in-datum-cbor-file CBOR FILE
+                                                        | --tx-in-datum-file JSON FILE
+                                                        | --tx-in-datum-value JSON VALUE
+                                                        | --tx-in-inline-datum-present
+                                                        )
+                                                        ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                        | --tx-in-redeemer-file JSON FILE
+                                                        | --tx-in-redeemer-value JSON VALUE
+                                                        )
+                                                        --tx-in-execution-units (INT, INT)]
+                                                    ])
+                                                  [--read-only-tx-in-reference TX-IN]
+                                                  [--tx-in-collateral TX-IN]
+                                                  [--tx-out-return-collateral ADDRESS VALUE]
+                                                  [--tx-total-collateral INTEGER]
+                                                  [ --required-signer FILE
+                                                  | --required-signer-hash HASH
+                                                  ]
+                                                  [--tx-out ADDRESS VALUE
+                                                    [ --tx-out-datum-hash HASH
+                                                    | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                    | --tx-out-datum-hash-file JSON FILE
+                                                    | --tx-out-datum-hash-value JSON VALUE
+                                                    | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                    | --tx-out-datum-embed-file JSON FILE
+                                                    | --tx-out-datum-embed-value JSON VALUE
+                                                    | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                    | --tx-out-inline-datum-file JSON FILE
+                                                    | --tx-out-inline-datum-value JSON VALUE
+                                                    ]
+                                                    [--tx-out-reference-script-file FILE]]
+                                                  [--mint VALUE
+                                                    ( --mint-script-file FILE
+                                                      [
+                                                        ( --mint-redeemer-cbor-file CBOR FILE
+                                                        | --mint-redeemer-file JSON FILE
+                                                        | --mint-redeemer-value JSON VALUE
+                                                        )
+                                                        --mint-execution-units (INT, INT)]
+                                                    | --simple-minting-script-tx-in-reference TX-IN
+                                                      --policy-id HASH
+                                                    | --mint-tx-in-reference TX-IN
+                                                      --mint-plutus-script-v2
+                                                      ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                      | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --mint-reference-tx-in-execution-units (INT, INT)
+                                                      --policy-id HASH
+                                                    )]
+                                                  [--invalid-before SLOT]
+                                                  [--invalid-hereafter SLOT]
+                                                  [--fee LOVELACE]
+                                                  [
+                                                    --certificate-file CERTIFICATEFILE
+                                                    [ --certificate-script-file FILE
+                                                      [
+                                                        ( --certificate-redeemer-cbor-file CBOR FILE
+                                                        | --certificate-redeemer-file JSON FILE
+                                                        | --certificate-redeemer-value JSON VALUE
+                                                        )
+                                                        --certificate-execution-units (INT, INT)]
+                                                    | --certificate-tx-in-reference TX-IN
+                                                      --certificate-plutus-script-v2
+                                                      ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                      | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --certificate-reference-tx-in-execution-units (INT, INT)
+                                                    ]]
+                                                  [--withdrawal WITHDRAWAL
+                                                    [ --withdrawal-script-file FILE
+                                                      [
+                                                        ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                        | --withdrawal-redeemer-file JSON FILE
+                                                        | --withdrawal-redeemer-value JSON VALUE
+                                                        )
+                                                        --withdrawal-execution-units (INT, INT)]
+                                                    | --withdrawal-tx-in-reference TX-IN
+                                                      --withdrawal-plutus-script-v2
+                                                      ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                      | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                      | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                      )
+                                                      --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                    ]]
+                                                  [ --json-metadata-no-schema
+                                                  | --json-metadata-detailed-schema
+                                                  ]
+                                                  [--auxiliary-script-file FILE]
+                                                  [ --metadata-json-file FILE
+                                                  | --metadata-cbor-file FILE
+                                                  ]
+                                                  [--protocol-params-file FILE]
+                                                  [--update-proposal-file FILE]
+                                                  --out-file FILE
+
+  Build a transaction (low-level, inconvenient)
+
+  Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
+                                              [ --shelley-mode
+                                              | --byron-mode
+                                                [--epoch-slots SLOTS]
+                                              | --cardano-mode
+                                                [--epoch-slots SLOTS]
+                                              ]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              [ --script-valid
+                                              | --script-invalid
+                                              ]
+                                              [--witness-override WORD]
+                                              (--tx-in TX-IN
+                                                [ --spending-tx-in-reference TX-IN
+                                                  --spending-plutus-script-v2
+                                                  ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                  | --spending-reference-tx-in-datum-file JSON FILE
+                                                  | --spending-reference-tx-in-datum-value JSON VALUE
+                                                  | --spending-reference-tx-in-inline-datum-present
+                                                  )
+                                                  ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                  | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                | --simple-script-tx-in-reference TX-IN
+                                                | --tx-in-script-file FILE
+                                                  [
+                                                    ( --tx-in-datum-cbor-file CBOR FILE
+                                                    | --tx-in-datum-file JSON FILE
+                                                    | --tx-in-datum-value JSON VALUE
+                                                    | --tx-in-inline-datum-present
+                                                    )
+                                                    ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                    | --tx-in-redeemer-file JSON FILE
+                                                    | --tx-in-redeemer-value JSON VALUE
+                                                    )]
+                                                ])
+                                              [--read-only-tx-in-reference TX-IN]
+                                              [ --required-signer FILE
+                                              | --required-signer-hash HASH
+                                              ]
+                                              [--tx-in-collateral TX-IN]
+                                              [--tx-out-return-collateral ADDRESS VALUE]
+                                              [--tx-total-collateral INTEGER]
+                                              [--tx-out ADDRESS VALUE
+                                                [ --tx-out-datum-hash HASH
+                                                | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                | --tx-out-datum-hash-file JSON FILE
+                                                | --tx-out-datum-hash-value JSON VALUE
+                                                | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                | --tx-out-datum-embed-file JSON FILE
+                                                | --tx-out-datum-embed-value JSON VALUE
+                                                | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                | --tx-out-inline-datum-file JSON FILE
+                                                | --tx-out-inline-datum-value JSON VALUE
+                                                ]
+                                                [--tx-out-reference-script-file FILE]]
+                                              --change-address ADDRESS
+                                              [--mint VALUE
+                                                ( --mint-script-file FILE
+                                                  [ --mint-redeemer-cbor-file CBOR FILE
+                                                  | --mint-redeemer-file JSON FILE
+                                                  | --mint-redeemer-value JSON VALUE
+                                                  ]
+                                                | --simple-minting-script-tx-in-reference TX-IN
+                                                  --policy-id HASH
+                                                | --mint-tx-in-reference TX-IN
+                                                  --mint-plutus-script-v2
+                                                  ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                  | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                  --policy-id HASH
+                                                )]
+                                              [--invalid-before SLOT]
+                                              [--invalid-hereafter SLOT]
+                                              [
+                                                --certificate-file CERTIFICATEFILE
+                                                [ --certificate-script-file FILE
+                                                  [ --certificate-redeemer-cbor-file CBOR FILE
+                                                  | --certificate-redeemer-file JSON FILE
+                                                  | --certificate-redeemer-value JSON VALUE
+                                                  ]
+                                                | --certificate-tx-in-reference TX-IN
+                                                  --certificate-plutus-script-v2
+                                                  ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                  | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                ]]
+                                              [--withdrawal WITHDRAWAL
+                                                [ --withdrawal-script-file FILE
+                                                  [ --withdrawal-redeemer-cbor-file CBOR FILE
+                                                  | --withdrawal-redeemer-file JSON FILE
+                                                  | --withdrawal-redeemer-value JSON VALUE
+                                                  ]
+                                                | --withdrawal-tx-in-reference TX-IN
+                                                  --withdrawal-plutus-script-v2
+                                                  ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                  | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                  | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                  )
+                                                ]]
+                                              [ --json-metadata-no-schema
+                                              | --json-metadata-detailed-schema
+                                              ]
+                                              [--auxiliary-script-file FILE]
+                                              [ --metadata-json-file FILE
+                                              | --metadata-cbor-file FILE
+                                              ]
+                                              [--update-proposal-file FILE]
+                                              [--vote-file FILE]
+                                              [--proposal-file FILE]
+                                              ( --out-file FILE
+                                              | --calculate-plutus-script-cost FILE
+                                              )
+
+  Build a balanced transaction (automatically calculates fees)
+
+  Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+
+Usage: cardano-cli latest transaction sign 
+                                             ( --tx-body-file FILE
+                                             | --tx-file FILE
+                                             )
+                                             [--signing-key-file FILE
+                                               [--address STRING]]
+                                             [ --mainnet
+                                             | --testnet-magic NATURAL
+                                             ]
+                                             --out-file FILE
+
+  Sign a transaction
+
+Usage: cardano-cli latest transaction witness --tx-body-file FILE
+                                                --signing-key-file FILE
+                                                [--address STRING]
+                                                [ --mainnet
+                                                | --testnet-magic NATURAL
+                                                ]
+                                                --out-file FILE
+
+  Create a transaction witness
+
+Usage: cardano-cli latest transaction assemble --tx-body-file FILE
+                                                 [--witness-file FILE]
+                                                 --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli latest transaction sign-witness --tx-body-file FILE
+                                                     [--witness-file FILE]
+                                                     --out-file FILE
+
+  Assemble a tx body and witness(es) to form a transaction
+
+Usage: cardano-cli latest transaction submit --socket-path SOCKET_PATH
+                                               [ --shelley-mode
+                                               | --byron-mode
+                                                 [--epoch-slots SLOTS]
+                                               | --cardano-mode
+                                                 [--epoch-slots SLOTS]
+                                               ]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --tx-file FILE
+
+  Submit a transaction to the local node whose Unix domain socket is obtained
+  from the CARDANO_NODE_SOCKET_PATH environment variable.
+
+Usage: cardano-cli latest transaction policyid --script-file FILE
+
+  Calculate the PolicyId from the monetary policy script.
+
+Usage: cardano-cli latest transaction calculate-min-fee --tx-body-file FILE
+                                                          ( --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          )
+                                                          --protocol-params-file FILE
+                                                          --tx-in-count NATURAL
+                                                          --tx-out-count NATURAL
+                                                          --witness-count NATURAL
+                                                          [--byron-witness-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-params-file FILE
+                                                                    --tx-out ADDRESS VALUE
+                                                                    [ --tx-out-datum-hash HASH
+                                                                    | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                                    | --tx-out-datum-hash-file JSON FILE
+                                                                    | --tx-out-datum-hash-value JSON VALUE
+                                                                    | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                                    | --tx-out-datum-embed-file JSON FILE
+                                                                    | --tx-out-datum-embed-value JSON VALUE
+                                                                    | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                                    | --tx-out-inline-datum-file JSON FILE
+                                                                    | --tx-out-inline-datum-value JSON VALUE
+                                                                    ]
+                                                                    [--tx-out-reference-script-file FILE]
+
+  Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli latest transaction calculate-min-value --protocol-params-file FILE
+                                                            --tx-out ADDRESS VALUE
+                                                            [ --tx-out-datum-hash HASH
+                                                            | --tx-out-datum-hash-cbor-file CBOR FILE
+                                                            | --tx-out-datum-hash-file JSON FILE
+                                                            | --tx-out-datum-hash-value JSON VALUE
+                                                            | --tx-out-datum-embed-cbor-file CBOR FILE
+                                                            | --tx-out-datum-embed-file JSON FILE
+                                                            | --tx-out-datum-embed-value JSON VALUE
+                                                            | --tx-out-inline-datum-cbor-file CBOR FILE
+                                                            | --tx-out-inline-datum-file JSON FILE
+                                                            | --tx-out-inline-datum-value JSON VALUE
+                                                            ]
+                                                            [--tx-out-reference-script-file FILE]
+
+  DEPRECATED: Use 'calculate-min-required-utxo' instead.
+
+Usage: cardano-cli latest transaction hash-script-data 
+                                                         ( --script-data-cbor-file CBOR FILE
+                                                         | --script-data-file JSON FILE
+                                                         | --script-data-value JSON VALUE
+                                                         )
+
+  Calculate the hash of script data.
+
+Usage: cardano-cli latest transaction txid 
+                                             ( --tx-body-file FILE
+                                             | --tx-file FILE
+                                             )
+
+  Print a transaction identifier.
+
+Usage: cardano-cli latest transaction view 
+                                             ( --tx-body-file FILE
+                                             | --tx-file FILE
+                                             )
+
+  Print a transaction.
 
 Usage: cardano-cli legacy Legacy commands
 

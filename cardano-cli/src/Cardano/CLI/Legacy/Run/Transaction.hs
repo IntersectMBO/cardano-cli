@@ -96,7 +96,7 @@ runLegacyTxBuildCmd :: ()
   -> [ProposalFile In]
   -> TxBuildOutputOptions
   -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxBuildCmd = runTxBuildCmd
+runLegacyTxBuildCmd socketPath (AnyCardanoEra era) = runTxBuildCmd era socketPath
 
 runLegacyTxBuildRawCmd :: ()
   => AnyCardanoEra
@@ -121,7 +121,7 @@ runLegacyTxBuildRawCmd :: ()
   -> Maybe UpdateProposalFile
   -> TxBodyFile Out
   -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxBuildRawCmd = runTxBuildRawCmd
+runLegacyTxBuildRawCmd (AnyCardanoEra era) = runTxBuildRawCmd era
 
 runLegacyTxSignCmd :: InputTxBodyOrTxFile
           -> [WitnessSigningData]
@@ -154,7 +154,7 @@ runLegacyTxCalculateMinRequiredUTxOCmd :: ()
   -> ProtocolParamsFile
   -> TxOutAnyEra
   -> ExceptT ShelleyTxCmdError IO ()
-runLegacyTxCalculateMinRequiredUTxOCmd = runTxCalculateMinRequiredUTxOCmd
+runLegacyTxCalculateMinRequiredUTxOCmd (AnyCardanoEra era) = runTxCalculateMinRequiredUTxOCmd era
 
 runLegacyTxCreatePolicyIdCmd :: ScriptFile -> ExceptT ShelleyTxCmdError IO ()
 runLegacyTxCreatePolicyIdCmd = runTxCreatePolicyIdCmd
