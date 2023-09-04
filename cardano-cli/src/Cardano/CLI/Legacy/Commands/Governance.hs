@@ -21,9 +21,7 @@ import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
 data LegacyGovernanceCmds
-  = GovernanceVoteCmd VoteCmd
-  | GovernanceActionCmd ActionCmd
-  | GovernanceMIRPayStakeAddressesCertificate
+  = GovernanceMIRPayStakeAddressesCertificate
       AnyShelleyToBabbageEra
       MIRPot
       [StakeAddress]
@@ -62,8 +60,6 @@ data LegacyGovernanceCmds
 
 renderLegacyGovernanceCmds :: LegacyGovernanceCmds -> Text
 renderLegacyGovernanceCmds = \case
-  GovernanceVoteCmd {} -> "governance vote"
-  GovernanceActionCmd {} -> "governance action"
   GovernanceGenesisKeyDelegationCertificate {} -> "governance create-genesis-key-delegation-certificate"
   GovernanceMIRPayStakeAddressesCertificate {} -> "governance create-mir-certificate stake-addresses"
   GovernanceMIRTransfer _ _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
