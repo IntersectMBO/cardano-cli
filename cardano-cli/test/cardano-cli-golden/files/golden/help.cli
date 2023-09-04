@@ -13,7 +13,7 @@ Usage: cardano-cli
                      | version
                      )
 
-Usage: cardano-cli shelley (governance | transaction)
+Usage: cardano-cli shelley (governance | stake-address | transaction)
 
   Shelley era commands
 
@@ -144,6 +144,79 @@ Usage: cardano-cli shelley governance drep registration-certificate
                                                                       --out-file FILE
 
   Create a registration certificate.
+
+Usage: cardano-cli shelley stake-address 
+                                           ( key-gen
+                                           | key-hash
+                                           | build
+                                           | registration-certificate
+                                           | deregistration-certificate
+                                           | delegation-certificate
+                                           )
+
+  Stake address commands.
+
+Usage: cardano-cli shelley stake-address key-gen [--key-output-format STRING]
+                                                   --verification-key-file FILE
+                                                   --signing-key-file FILE
+
+  Create a stake address key pair
+
+Usage: cardano-cli shelley stake-address key-hash 
+                                                    ( --stake-verification-key STRING
+                                                    | --stake-verification-key-file FILE
+                                                    )
+                                                    [--out-file FILE]
+
+  Print the hash of a stake address key
+
+Usage: cardano-cli shelley stake-address build 
+                                                 ( --stake-verification-key STRING
+                                                 | --stake-verification-key-file FILE
+                                                 | --stake-script-file FILE
+                                                 )
+                                                 ( --mainnet
+                                                 | --testnet-magic NATURAL
+                                                 )
+                                                 [--out-file FILE]
+
+  Build a stake address
+
+Usage: cardano-cli shelley stake-address registration-certificate 
+                                                                    ( --stake-verification-key STRING
+                                                                    | --stake-verification-key-file FILE
+                                                                    | --stake-script-file FILE
+                                                                    | --stake-address ADDRESS
+                                                                    )
+                                                                    [--key-reg-deposit-amt NATURAL]
+                                                                    --out-file FILE
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli shelley stake-address deregistration-certificate 
+                                                                      ( --stake-verification-key STRING
+                                                                      | --stake-verification-key-file FILE
+                                                                      | --stake-script-file FILE
+                                                                      | --stake-address ADDRESS
+                                                                      )
+                                                                      [--key-reg-deposit-amt NATURAL]
+                                                                      --out-file FILE
+
+  Create a stake address deregistration certificate
+
+Usage: cardano-cli shelley stake-address delegation-certificate 
+                                                                  ( --stake-verification-key STRING
+                                                                  | --stake-verification-key-file FILE
+                                                                  | --stake-script-file FILE
+                                                                  | --stake-address ADDRESS
+                                                                  )
+                                                                  ( --stake-pool-verification-key STRING
+                                                                  | --cold-verification-key-file FILE
+                                                                  | --stake-pool-id STAKE_POOL_ID
+                                                                  )
+                                                                  --out-file FILE
+
+  Create a stake address pool delegation certificate
 
 Usage: cardano-cli shelley transaction 
                                          ( build-raw
@@ -528,7 +601,7 @@ Usage: cardano-cli shelley transaction view
 
   Print a transaction.
 
-Usage: cardano-cli allegra (governance | transaction)
+Usage: cardano-cli allegra (governance | stake-address | transaction)
 
   Allegra era commands
 
@@ -659,6 +732,79 @@ Usage: cardano-cli allegra governance drep registration-certificate
                                                                       --out-file FILE
 
   Create a registration certificate.
+
+Usage: cardano-cli allegra stake-address 
+                                           ( key-gen
+                                           | key-hash
+                                           | build
+                                           | registration-certificate
+                                           | deregistration-certificate
+                                           | delegation-certificate
+                                           )
+
+  Stake address commands.
+
+Usage: cardano-cli allegra stake-address key-gen [--key-output-format STRING]
+                                                   --verification-key-file FILE
+                                                   --signing-key-file FILE
+
+  Create a stake address key pair
+
+Usage: cardano-cli allegra stake-address key-hash 
+                                                    ( --stake-verification-key STRING
+                                                    | --stake-verification-key-file FILE
+                                                    )
+                                                    [--out-file FILE]
+
+  Print the hash of a stake address key
+
+Usage: cardano-cli allegra stake-address build 
+                                                 ( --stake-verification-key STRING
+                                                 | --stake-verification-key-file FILE
+                                                 | --stake-script-file FILE
+                                                 )
+                                                 ( --mainnet
+                                                 | --testnet-magic NATURAL
+                                                 )
+                                                 [--out-file FILE]
+
+  Build a stake address
+
+Usage: cardano-cli allegra stake-address registration-certificate 
+                                                                    ( --stake-verification-key STRING
+                                                                    | --stake-verification-key-file FILE
+                                                                    | --stake-script-file FILE
+                                                                    | --stake-address ADDRESS
+                                                                    )
+                                                                    [--key-reg-deposit-amt NATURAL]
+                                                                    --out-file FILE
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli allegra stake-address deregistration-certificate 
+                                                                      ( --stake-verification-key STRING
+                                                                      | --stake-verification-key-file FILE
+                                                                      | --stake-script-file FILE
+                                                                      | --stake-address ADDRESS
+                                                                      )
+                                                                      [--key-reg-deposit-amt NATURAL]
+                                                                      --out-file FILE
+
+  Create a stake address deregistration certificate
+
+Usage: cardano-cli allegra stake-address delegation-certificate 
+                                                                  ( --stake-verification-key STRING
+                                                                  | --stake-verification-key-file FILE
+                                                                  | --stake-script-file FILE
+                                                                  | --stake-address ADDRESS
+                                                                  )
+                                                                  ( --stake-pool-verification-key STRING
+                                                                  | --cold-verification-key-file FILE
+                                                                  | --stake-pool-id STAKE_POOL_ID
+                                                                  )
+                                                                  --out-file FILE
+
+  Create a stake address pool delegation certificate
 
 Usage: cardano-cli allegra transaction 
                                          ( build-raw
@@ -1043,7 +1189,7 @@ Usage: cardano-cli allegra transaction view
 
   Print a transaction.
 
-Usage: cardano-cli mary (governance | transaction)
+Usage: cardano-cli mary (governance | stake-address | transaction)
 
   Mary era commands
 
@@ -1174,6 +1320,79 @@ Usage: cardano-cli mary governance drep registration-certificate
                                                                    --out-file FILE
 
   Create a registration certificate.
+
+Usage: cardano-cli mary stake-address 
+                                        ( key-gen
+                                        | key-hash
+                                        | build
+                                        | registration-certificate
+                                        | deregistration-certificate
+                                        | delegation-certificate
+                                        )
+
+  Stake address commands.
+
+Usage: cardano-cli mary stake-address key-gen [--key-output-format STRING]
+                                                --verification-key-file FILE
+                                                --signing-key-file FILE
+
+  Create a stake address key pair
+
+Usage: cardano-cli mary stake-address key-hash 
+                                                 ( --stake-verification-key STRING
+                                                 | --stake-verification-key-file FILE
+                                                 )
+                                                 [--out-file FILE]
+
+  Print the hash of a stake address key
+
+Usage: cardano-cli mary stake-address build 
+                                              ( --stake-verification-key STRING
+                                              | --stake-verification-key-file FILE
+                                              | --stake-script-file FILE
+                                              )
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              [--out-file FILE]
+
+  Build a stake address
+
+Usage: cardano-cli mary stake-address registration-certificate 
+                                                                 ( --stake-verification-key STRING
+                                                                 | --stake-verification-key-file FILE
+                                                                 | --stake-script-file FILE
+                                                                 | --stake-address ADDRESS
+                                                                 )
+                                                                 [--key-reg-deposit-amt NATURAL]
+                                                                 --out-file FILE
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli mary stake-address deregistration-certificate 
+                                                                   ( --stake-verification-key STRING
+                                                                   | --stake-verification-key-file FILE
+                                                                   | --stake-script-file FILE
+                                                                   | --stake-address ADDRESS
+                                                                   )
+                                                                   [--key-reg-deposit-amt NATURAL]
+                                                                   --out-file FILE
+
+  Create a stake address deregistration certificate
+
+Usage: cardano-cli mary stake-address delegation-certificate 
+                                                               ( --stake-verification-key STRING
+                                                               | --stake-verification-key-file FILE
+                                                               | --stake-script-file FILE
+                                                               | --stake-address ADDRESS
+                                                               )
+                                                               ( --stake-pool-verification-key STRING
+                                                               | --cold-verification-key-file FILE
+                                                               | --stake-pool-id STAKE_POOL_ID
+                                                               )
+                                                               --out-file FILE
+
+  Create a stake address pool delegation certificate
 
 Usage: cardano-cli mary transaction 
                                       ( build-raw
@@ -1543,7 +1762,7 @@ Usage: cardano-cli mary transaction view (--tx-body-file FILE | --tx-file FILE)
 
   Print a transaction.
 
-Usage: cardano-cli alonzo (governance | transaction)
+Usage: cardano-cli alonzo (governance | stake-address | transaction)
 
   Alonzo era commands
 
@@ -1681,6 +1900,79 @@ Usage: cardano-cli alonzo governance drep registration-certificate
                                                                      --out-file FILE
 
   Create a registration certificate.
+
+Usage: cardano-cli alonzo stake-address 
+                                          ( key-gen
+                                          | key-hash
+                                          | build
+                                          | registration-certificate
+                                          | deregistration-certificate
+                                          | delegation-certificate
+                                          )
+
+  Stake address commands.
+
+Usage: cardano-cli alonzo stake-address key-gen [--key-output-format STRING]
+                                                  --verification-key-file FILE
+                                                  --signing-key-file FILE
+
+  Create a stake address key pair
+
+Usage: cardano-cli alonzo stake-address key-hash 
+                                                   ( --stake-verification-key STRING
+                                                   | --stake-verification-key-file FILE
+                                                   )
+                                                   [--out-file FILE]
+
+  Print the hash of a stake address key
+
+Usage: cardano-cli alonzo stake-address build 
+                                                ( --stake-verification-key STRING
+                                                | --stake-verification-key-file FILE
+                                                | --stake-script-file FILE
+                                                )
+                                                ( --mainnet
+                                                | --testnet-magic NATURAL
+                                                )
+                                                [--out-file FILE]
+
+  Build a stake address
+
+Usage: cardano-cli alonzo stake-address registration-certificate 
+                                                                   ( --stake-verification-key STRING
+                                                                   | --stake-verification-key-file FILE
+                                                                   | --stake-script-file FILE
+                                                                   | --stake-address ADDRESS
+                                                                   )
+                                                                   [--key-reg-deposit-amt NATURAL]
+                                                                   --out-file FILE
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli alonzo stake-address deregistration-certificate 
+                                                                     ( --stake-verification-key STRING
+                                                                     | --stake-verification-key-file FILE
+                                                                     | --stake-script-file FILE
+                                                                     | --stake-address ADDRESS
+                                                                     )
+                                                                     [--key-reg-deposit-amt NATURAL]
+                                                                     --out-file FILE
+
+  Create a stake address deregistration certificate
+
+Usage: cardano-cli alonzo stake-address delegation-certificate 
+                                                                 ( --stake-verification-key STRING
+                                                                 | --stake-verification-key-file FILE
+                                                                 | --stake-script-file FILE
+                                                                 | --stake-address ADDRESS
+                                                                 )
+                                                                 ( --stake-pool-verification-key STRING
+                                                                 | --cold-verification-key-file FILE
+                                                                 | --stake-pool-id STAKE_POOL_ID
+                                                                 )
+                                                                 --out-file FILE
+
+  Create a stake address pool delegation certificate
 
 Usage: cardano-cli alonzo transaction 
                                         ( build-raw
@@ -2065,7 +2357,7 @@ Usage: cardano-cli alonzo transaction view
 
   Print a transaction.
 
-Usage: cardano-cli babbage (governance | transaction)
+Usage: cardano-cli babbage (governance | stake-address | transaction)
 
   Babbage era commands
 
@@ -2199,6 +2491,79 @@ Usage: cardano-cli babbage governance drep registration-certificate
                                                                       --out-file FILE
 
   Create a registration certificate.
+
+Usage: cardano-cli babbage stake-address 
+                                           ( key-gen
+                                           | key-hash
+                                           | build
+                                           | registration-certificate
+                                           | deregistration-certificate
+                                           | delegation-certificate
+                                           )
+
+  Stake address commands.
+
+Usage: cardano-cli babbage stake-address key-gen [--key-output-format STRING]
+                                                   --verification-key-file FILE
+                                                   --signing-key-file FILE
+
+  Create a stake address key pair
+
+Usage: cardano-cli babbage stake-address key-hash 
+                                                    ( --stake-verification-key STRING
+                                                    | --stake-verification-key-file FILE
+                                                    )
+                                                    [--out-file FILE]
+
+  Print the hash of a stake address key
+
+Usage: cardano-cli babbage stake-address build 
+                                                 ( --stake-verification-key STRING
+                                                 | --stake-verification-key-file FILE
+                                                 | --stake-script-file FILE
+                                                 )
+                                                 ( --mainnet
+                                                 | --testnet-magic NATURAL
+                                                 )
+                                                 [--out-file FILE]
+
+  Build a stake address
+
+Usage: cardano-cli babbage stake-address registration-certificate 
+                                                                    ( --stake-verification-key STRING
+                                                                    | --stake-verification-key-file FILE
+                                                                    | --stake-script-file FILE
+                                                                    | --stake-address ADDRESS
+                                                                    )
+                                                                    [--key-reg-deposit-amt NATURAL]
+                                                                    --out-file FILE
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli babbage stake-address deregistration-certificate 
+                                                                      ( --stake-verification-key STRING
+                                                                      | --stake-verification-key-file FILE
+                                                                      | --stake-script-file FILE
+                                                                      | --stake-address ADDRESS
+                                                                      )
+                                                                      [--key-reg-deposit-amt NATURAL]
+                                                                      --out-file FILE
+
+  Create a stake address deregistration certificate
+
+Usage: cardano-cli babbage stake-address delegation-certificate 
+                                                                  ( --stake-verification-key STRING
+                                                                  | --stake-verification-key-file FILE
+                                                                  | --stake-script-file FILE
+                                                                  | --stake-address ADDRESS
+                                                                  )
+                                                                  ( --stake-pool-verification-key STRING
+                                                                  | --cold-verification-key-file FILE
+                                                                  | --stake-pool-id STAKE_POOL_ID
+                                                                  )
+                                                                  --out-file FILE
+
+  Create a stake address pool delegation certificate
 
 Usage: cardano-cli babbage transaction 
                                          ( build-raw
@@ -2583,7 +2948,7 @@ Usage: cardano-cli babbage transaction view
 
   Print a transaction.
 
-Usage: cardano-cli conway (governance | transaction)
+Usage: cardano-cli conway (governance | stake-address | transaction)
 
   Conway era commands
 
@@ -3004,6 +3369,79 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
 
   Vote creation.
 
+Usage: cardano-cli conway stake-address 
+                                          ( key-gen
+                                          | key-hash
+                                          | build
+                                          | registration-certificate
+                                          | deregistration-certificate
+                                          | delegation-certificate
+                                          )
+
+  Stake address commands.
+
+Usage: cardano-cli conway stake-address key-gen [--key-output-format STRING]
+                                                  --verification-key-file FILE
+                                                  --signing-key-file FILE
+
+  Create a stake address key pair
+
+Usage: cardano-cli conway stake-address key-hash 
+                                                   ( --stake-verification-key STRING
+                                                   | --stake-verification-key-file FILE
+                                                   )
+                                                   [--out-file FILE]
+
+  Print the hash of a stake address key
+
+Usage: cardano-cli conway stake-address build 
+                                                ( --stake-verification-key STRING
+                                                | --stake-verification-key-file FILE
+                                                | --stake-script-file FILE
+                                                )
+                                                ( --mainnet
+                                                | --testnet-magic NATURAL
+                                                )
+                                                [--out-file FILE]
+
+  Build a stake address
+
+Usage: cardano-cli conway stake-address registration-certificate 
+                                                                   ( --stake-verification-key STRING
+                                                                   | --stake-verification-key-file FILE
+                                                                   | --stake-script-file FILE
+                                                                   | --stake-address ADDRESS
+                                                                   )
+                                                                   [--key-reg-deposit-amt NATURAL]
+                                                                   --out-file FILE
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli conway stake-address deregistration-certificate 
+                                                                     ( --stake-verification-key STRING
+                                                                     | --stake-verification-key-file FILE
+                                                                     | --stake-script-file FILE
+                                                                     | --stake-address ADDRESS
+                                                                     )
+                                                                     [--key-reg-deposit-amt NATURAL]
+                                                                     --out-file FILE
+
+  Create a stake address deregistration certificate
+
+Usage: cardano-cli conway stake-address delegation-certificate 
+                                                                 ( --stake-verification-key STRING
+                                                                 | --stake-verification-key-file FILE
+                                                                 | --stake-script-file FILE
+                                                                 | --stake-address ADDRESS
+                                                                 )
+                                                                 ( --stake-pool-verification-key STRING
+                                                                 | --cold-verification-key-file FILE
+                                                                 | --stake-pool-id STAKE_POOL_ID
+                                                                 )
+                                                                 --out-file FILE
+
+  Create a stake address pool delegation certificate
+
 Usage: cardano-cli conway transaction 
                                         ( build-raw
                                         | build
@@ -3387,7 +3825,7 @@ Usage: cardano-cli conway transaction view
 
   Print a transaction.
 
-Usage: cardano-cli latest (governance | transaction)
+Usage: cardano-cli latest (governance | stake-address | transaction)
 
   Latest era commands (Babbage)
 
@@ -3521,6 +3959,79 @@ Usage: cardano-cli latest governance drep registration-certificate
                                                                      --out-file FILE
 
   Create a registration certificate.
+
+Usage: cardano-cli latest stake-address 
+                                          ( key-gen
+                                          | key-hash
+                                          | build
+                                          | registration-certificate
+                                          | deregistration-certificate
+                                          | delegation-certificate
+                                          )
+
+  Stake address commands.
+
+Usage: cardano-cli latest stake-address key-gen [--key-output-format STRING]
+                                                  --verification-key-file FILE
+                                                  --signing-key-file FILE
+
+  Create a stake address key pair
+
+Usage: cardano-cli latest stake-address key-hash 
+                                                   ( --stake-verification-key STRING
+                                                   | --stake-verification-key-file FILE
+                                                   )
+                                                   [--out-file FILE]
+
+  Print the hash of a stake address key
+
+Usage: cardano-cli latest stake-address build 
+                                                ( --stake-verification-key STRING
+                                                | --stake-verification-key-file FILE
+                                                | --stake-script-file FILE
+                                                )
+                                                ( --mainnet
+                                                | --testnet-magic NATURAL
+                                                )
+                                                [--out-file FILE]
+
+  Build a stake address
+
+Usage: cardano-cli latest stake-address registration-certificate 
+                                                                   ( --stake-verification-key STRING
+                                                                   | --stake-verification-key-file FILE
+                                                                   | --stake-script-file FILE
+                                                                   | --stake-address ADDRESS
+                                                                   )
+                                                                   [--key-reg-deposit-amt NATURAL]
+                                                                   --out-file FILE
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli latest stake-address deregistration-certificate 
+                                                                     ( --stake-verification-key STRING
+                                                                     | --stake-verification-key-file FILE
+                                                                     | --stake-script-file FILE
+                                                                     | --stake-address ADDRESS
+                                                                     )
+                                                                     [--key-reg-deposit-amt NATURAL]
+                                                                     --out-file FILE
+
+  Create a stake address deregistration certificate
+
+Usage: cardano-cli latest stake-address delegation-certificate 
+                                                                 ( --stake-verification-key STRING
+                                                                 | --stake-verification-key-file FILE
+                                                                 | --stake-script-file FILE
+                                                                 | --stake-address ADDRESS
+                                                                 )
+                                                                 ( --stake-pool-verification-key STRING
+                                                                 | --cold-verification-key-file FILE
+                                                                 | --stake-pool-id STAKE_POOL_ID
+                                                                 )
+                                                                 --out-file FILE
+
+  Create a stake address pool delegation certificate
 
 Usage: cardano-cli latest transaction 
                                         ( build-raw

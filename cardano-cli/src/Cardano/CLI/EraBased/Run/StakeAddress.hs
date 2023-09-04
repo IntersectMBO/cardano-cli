@@ -7,7 +7,9 @@
 {- HLINT ignore "Monad law, left identity" -}
 
 module Cardano.CLI.EraBased.Run.StakeAddress
-  ( runStakeAddressBuildCmd
+  ( runStakeAddressCmds
+
+  , runStakeAddressBuildCmd
   , runStakeAddressKeyGenToFileCmd
   , runStakeAddressKeyHashCmd
   , runStakeCredentialDelegationCertCmd
@@ -19,6 +21,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.EraBased.Commands.StakeAddress
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
@@ -37,9 +40,22 @@ import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 import qualified Data.Text.IO as Text
 
---
--- Stake address command implementations
---
+runStakeAddressCmds :: ()
+  => StakeAddressCmds era
+  -> ExceptT ShelleyStakeAddressCmdError IO ()
+runStakeAddressCmds = \case
+  StakeAddressKeyGen _ fmt vk sk ->
+    runStakeAddressKeyGenToFileCmd fmt vk sk
+  StakeAddressKeyHash _ vk mOutputFp ->
+    runStakeAddressKeyHashCmd vk mOutputFp
+  StakeAddressBuild _ stakeVerifier nw mOutputFp ->
+    runStakeAddressBuildCmd stakeVerifier nw mOutputFp
+  StakeRegistrationCert sbe stakeIdentifier mDeposit outputFp ->
+    runStakeCredentialRegistrationCertCmd sbe stakeIdentifier mDeposit outputFp
+  StakeCredentialDelegationCert sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp ->
+    runStakeCredentialDelegationCertCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp
+  StakeCredentialDeRegistrationCert sbe stakeIdentifier mDeposit outputFp ->
+    runStakeCredentialDeRegistrationCertCmd sbe stakeIdentifier mDeposit outputFp
 
 runStakeAddressKeyGenToFileCmd :: ()
   => KeyOutputFormat

@@ -17,6 +17,7 @@ import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Run.Governance.DRep
 import           Cardano.CLI.EraBased.Run.Governance.Query
 import           Cardano.CLI.EraBased.Run.Governance.Vote
+import           Cardano.CLI.EraBased.Run.StakeAddress
 import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.Types.Errors.CmdError
 
@@ -36,6 +37,9 @@ runEraBasedCommand :: ()
 runEraBasedCommand = \case
   EraBasedGovernanceCmds cmd ->
     runEraBasedGovernanceCmds cmd
+  StakeAddressCmds cmd ->
+    runStakeAddressCmds cmd
+      & firstExceptT CmdStakeAddressError
   TransactionCmds cmd ->
     runTransactionCmds cmd & firstExceptT CmdTransactionError
 

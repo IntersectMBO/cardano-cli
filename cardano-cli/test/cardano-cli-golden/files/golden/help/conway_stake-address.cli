@@ -1,0 +1,22 @@
+Usage: cardano-cli conway stake-address 
+                                          ( key-gen
+                                          | key-hash
+                                          | build
+                                          | registration-certificate
+                                          | deregistration-certificate
+                                          | delegation-certificate
+                                          )
+
+  Stake address commands.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  key-gen                  Create a stake address key pair
+  key-hash                 Print the hash of a stake address key
+  build                    Build a stake address
+  registration-certificate Create a stake address registration certificate
+  deregistration-certificate
+                           Create a stake address deregistration certificate
+  delegation-certificate   Create a stake address pool delegation certificate
