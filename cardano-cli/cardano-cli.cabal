@@ -188,7 +188,6 @@ library
                       , cardano-ledger-shelley >=1.4.1.0
                       , cardano-ping ^>= 0.2.0.5
                       , cardano-prelude
-                      , cardano-protocol-tpraos >= 1.0
                       , cardano-slotting ^>= 0.1
                       , cardano-strict-containers ^>= 0.1
                       , cborg >= 0.2.4 && < 0.3
