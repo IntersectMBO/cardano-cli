@@ -132,8 +132,7 @@ library
                         Cardano.CLI.Types.Common
                         Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
                         Cardano.CLI.Types.Errors.CmdError
-                        Cardano.CLI.Types.Errors.EraBasedDelegationError
-                        Cardano.CLI.Types.Errors.EraBasedRegistrationError
+                        Cardano.CLI.Types.Errors.DelegationError
                         Cardano.CLI.Types.Errors.GovernanceActionsError
                         Cardano.CLI.Types.Errors.GovernanceCmdError
                         Cardano.CLI.Types.Errors.GovernanceCommitteeError
@@ -141,6 +140,7 @@ library
                         Cardano.CLI.Types.Errors.GovernanceVoteCmdError
                         Cardano.CLI.Types.Errors.ItnKeyConversionError
                         Cardano.CLI.Types.Errors.ProtocolParamsError
+                        Cardano.CLI.Types.Errors.RegistrationError
                         Cardano.CLI.Types.Errors.ScriptDecodeError
                         Cardano.CLI.Types.Errors.ShelleyAddressCmdError
                         Cardano.CLI.Types.Errors.ShelleyAddressInfoError

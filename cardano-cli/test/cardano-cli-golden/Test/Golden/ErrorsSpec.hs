@@ -1,12 +1,12 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Test.Golden.ErrorsSpec
-  ( test_GovernanceCmdError
-  , test_EraBasedDelegationError
-  , test_EraBasedRegistrationError
-  , test_EraBasedVoteReadError
-  , test_GovernanceComitteeError
+  ( test_DelegationError
   , test_GovernanceActionsError
+  , test_GovernanceCmdError
+  , test_GovernanceComitteeError
+  , test_RegistrationError
+  , test_VoteReadError
   ) where
 
 import           Cardano.Api
@@ -16,10 +16,10 @@ import           Cardano.Binary
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.EraBasedDelegationError
-import           Cardano.CLI.Types.Errors.EraBasedRegistrationError
+import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
+import           Cardano.CLI.Types.Errors.RegistrationError
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
@@ -88,59 +88,60 @@ test_GovernanceCmdError =
       , GovernanceCmdGenesisDelegationNotSupportedInConway)
     ]
 
-test_EraBasedDelegationError :: TestTree
-test_EraBasedDelegationError =
-  testErrorMessagesRendering "Cardano.CLI.Types.Errors.CmdError" "EraBasedDelegationError"
-    [ ("EraBasedDelegReadError"
-      , EraBasedDelegReadError
+test_DelegationError :: TestTree
+test_DelegationError =
+  testErrorMessagesRendering "Cardano.CLI.Types.Errors.CmdError" "DelegationError"
+    [ ("DelegationReadError"
+      , DelegationReadError
       $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedDelegationStakeCredentialError1"
-      , EraBasedDelegationStakeCredentialError
+    , ("DelegationStakeCredentialError1"
+      , DelegationStakeCredentialError
         $ StakeCredentialInputDecodeError
         $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedDelegationStakeCredentialError2"
-      , EraBasedDelegationStakeCredentialError
+    , ("DelegationStakeCredentialError2"
+      , DelegationStakeCredentialError
         $ StakeCredentialScriptDecodeError
         $ FileError "path/file.txt"
         $ ScriptDecodeSimpleScriptError
         $ JsonDecodeError "json decode error")
-    , ("EraBasedDelegationStakeCredentialError3"
-      , EraBasedDelegationStakeCredentialError
+    , ("DelegationStakeCredentialError3"
+      , DelegationStakeCredentialError
         $ StakeCredentialInputDecodeError
         $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedCertificateWriteFileError"
-      , EraBasedCertificateWriteFileError $ FileError "path/file.txt" ())
-    , ("EraBasedDRepReadError"
-      , EraBasedDRepReadError $ FileError "path/file.txt" InputInvalidError)
+    , ("DelegationCertificateWriteFileError"
+      , DelegationCertificateWriteFileError
+        $ FileError "path/file.txt" ())
+    , ("DelegationDRepReadError"
+      , DelegationDRepReadError $ FileError "path/file.txt" InputInvalidError)
     ]
 
-test_EraBasedRegistrationError :: TestTree
-test_EraBasedRegistrationError =
-  testErrorMessagesRendering "Cardano.CLI.Types.Errors.CmdError" "EraBasedRegistrationError"
-    [ ("EraBasedRegistReadError"
-      , EraBasedRegistReadError $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedRegistWriteFileError"
-      , EraBasedRegistWriteFileError $ FileError "path/file.txt" ())
-    , ("EraBasedRegistStakeCredReadError1"
-      , EraBasedRegistrationStakeCredentialError
+test_RegistrationError :: TestTree
+test_RegistrationError =
+  testErrorMessagesRendering "Cardano.CLI.Types.Errors.CmdError" "RegistrationError"
+    [ ("RegistrationReadError"
+      , RegistrationReadError $ FileError "path/file.txt" InputInvalidError)
+    , ("RegistrationWriteFileError"
+      , RegistrationWriteFileError $ FileError "path/file.txt" ())
+    , ("RegistrationStakeCredReadError1"
+      , RegistrationStakeCredentialError
         $ StakeCredentialInputDecodeError
         $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedRegistStakeCredReadError2"
-      , EraBasedRegistrationStakeCredentialError
+    , ("RegistrationStakeCredReadError2"
+      , RegistrationStakeCredentialError
         $ StakeCredentialScriptDecodeError
         $ FileError "path/file.txt"
         $ ScriptDecodeSimpleScriptError
         $ JsonDecodeError "json decode error")
-    , ("EraBasedRegistStakeCredReadError3"
-      , EraBasedRegistrationStakeCredentialError
+    , ("RegistrationStakeCredReadError3"
+      , RegistrationStakeCredentialError
         $ StakeCredentialInputDecodeError
         $ FileError "path/file.txt" InputInvalidError)
-    , ("EraBasedRegistStakeError"
-      , EraBasedRegistStakeError StakeAddressRegistrationDepositRequired)
+    , ("RegistrationStakeError"
+      , RegistrationStakeError StakeAddressRegistrationDepositRequired)
     ]
 
-test_EraBasedVoteReadError :: TestTree
-test_EraBasedVoteReadError =
+test_VoteReadError :: TestTree
+test_VoteReadError =
   testErrorMessagesRendering "Cardano.CLI.Types.Errors.GovernanceVoteCmdError" "GovernanceVoteCmdError"
     [ ("GovernanceVoteCmdCredentialDecodeError"
       , GovernanceVoteCmdCredentialDecodeError

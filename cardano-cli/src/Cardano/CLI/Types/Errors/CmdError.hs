@@ -7,13 +7,13 @@ module Cardano.CLI.Types.Errors.CmdError
 
 import           Cardano.Api
 
-import           Cardano.CLI.Types.Errors.EraBasedDelegationError
-import           Cardano.CLI.Types.Errors.EraBasedRegistrationError
+import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Errors.GovernanceQueryError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
+import           Cardano.CLI.Types.Errors.RegistrationError
 import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
 import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
 import           Cardano.CLI.Types.Errors.ShelleyKeyCmdError
@@ -29,18 +29,18 @@ import qualified Data.Text as Text
 
 data CmdError
   = CmdAddressError               !ShelleyAddressCmdError
-  | CmdEraBasedRegistrationError  !EraBasedRegistrationError
-  | CmdEraDelegationError         !EraBasedDelegationError
+  | CmdEraDelegationError         !DelegationError
   | CmdGenesisError               !ShelleyGenesisCmdError
   | CmdGovernanceActionError      !GovernanceActionsError
   | CmdGovernanceCmdError         !GovernanceCmdError
   | CmdGovernanceCommitteeError   !GovernanceCommitteeError
-  | CmdGovernanceVoteError        !GovernanceVoteCmdError
   | CmdGovernanceQueryError       !GovernanceQueryError
+  | CmdGovernanceVoteError        !GovernanceVoteCmdError
   | CmdKeyError                   !ShelleyKeyCmdError
   | CmdNodeError                  !ShelleyNodeCmdError
   | CmdPoolError                  !ShelleyPoolCmdError
   | CmdQueryError                 !ShelleyQueryCmdError
+  | CmdRegistrationError          !RegistrationError
   | CmdStakeAddressError          !ShelleyStakeAddressCmdError
   | CmdTextViewError              !ShelleyTextViewFileError
   | CmdTransactionError           !ShelleyTxCmdError
@@ -48,7 +48,7 @@ data CmdError
 renderCmdError :: Text -> CmdError -> Text
 renderCmdError cmdText = \case
   CmdAddressError               e -> renderError renderShelleyAddressCmdError e
-  CmdEraBasedRegistrationError  e -> renderError (Text.pack . displayError) e
+  CmdRegistrationError          e -> renderError (Text.pack . displayError) e
   CmdEraDelegationError         e -> renderError (Text.pack . displayError) e
   CmdGenesisError               e -> renderError (Text.pack . displayError) e
   CmdGovernanceActionError      e -> renderError (Text.pack . displayError) e
