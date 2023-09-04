@@ -92,6 +92,7 @@ library
                         Cardano.CLI.EraBased.Run.Governance.Vote
                         Cardano.CLI.EraBased.Run.Pool
                         Cardano.CLI.EraBased.Run.StakeAddress
+                        Cardano.CLI.EraBased.Run.TextView
                         Cardano.CLI.EraBased.Run.Transaction
                         Cardano.CLI.Helpers
                         Cardano.CLI.IO.Lazy
