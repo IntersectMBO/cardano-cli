@@ -72,6 +72,7 @@ library
                         Cardano.CLI.EraBased.Commands.Governance.DRep
                         Cardano.CLI.EraBased.Commands.Governance.Query
                         Cardano.CLI.EraBased.Commands.Governance.Vote
+                        Cardano.CLI.EraBased.Commands.StakeAddress
                         Cardano.CLI.EraBased.Commands.Transaction
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
