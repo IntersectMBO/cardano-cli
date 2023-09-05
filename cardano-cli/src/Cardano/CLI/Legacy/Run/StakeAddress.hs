@@ -38,20 +38,23 @@ runLegacyStakeAddressKeyGenToFileCmd :: ()
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeAddressKeyGenToFileCmd = runStakeAddressKeyGenToFileCmd
+runLegacyStakeAddressKeyGenToFileCmd =
+  runStakeAddressKeyGenToFileCmd
 
 runLegacyStakeAddressKeyHashCmd :: ()
   => VerificationKeyOrFile StakeKey
   -> Maybe (File () Out)
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeAddressKeyHashCmd = runStakeAddressKeyHashCmd
+runLegacyStakeAddressKeyHashCmd =
+  runStakeAddressKeyHashCmd
 
 runLegacyStakeAddressBuildCmd :: ()
   => StakeVerifier
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeAddressBuildCmd = runStakeAddressBuildCmd
+runLegacyStakeAddressBuildCmd =
+  runStakeAddressBuildCmd
 
 runLegacyStakeCredentialRegistrationCertCmd :: ()
   => AnyShelleyBasedEra
@@ -59,7 +62,8 @@ runLegacyStakeCredentialRegistrationCertCmd :: ()
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialRegistrationCertCmd = runStakeCredentialRegistrationCertCmd
+runLegacyStakeCredentialRegistrationCertCmd (AnyShelleyBasedEra sbe) =
+  runStakeCredentialRegistrationCertCmd sbe
 
 runLegacyStakeCredentialDelegationCertCmd :: ()
   => AnyShelleyBasedEra
@@ -70,7 +74,8 @@ runLegacyStakeCredentialDelegationCertCmd :: ()
   -- verification key hash.
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialDelegationCertCmd = runStakeCredentialDelegationCertCmd
+runLegacyStakeCredentialDelegationCertCmd (AnyShelleyBasedEra sbe) =
+  runStakeCredentialDelegationCertCmd sbe
 
 runLegacyStakeCredentialDeRegistrationCertCmd :: ()
   => AnyShelleyBasedEra
@@ -78,4 +83,5 @@ runLegacyStakeCredentialDeRegistrationCertCmd :: ()
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialDeRegistrationCertCmd = runStakeCredentialDeRegistrationCertCmd
+runLegacyStakeCredentialDeRegistrationCertCmd (AnyShelleyBasedEra sbe) =
+  runStakeCredentialDeRegistrationCertCmd sbe
