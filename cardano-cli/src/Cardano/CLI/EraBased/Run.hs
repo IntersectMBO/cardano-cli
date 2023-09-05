@@ -3,8 +3,8 @@
 
 module Cardano.CLI.EraBased.Run
   ( runAnyEraCommand
-  , runEraBasedCommand
-  , runEraBasedGovernanceCmds
+  , runCmds
+  , runGovernanceCmds
   ) where
 
 import           Cardano.Api
@@ -31,47 +31,47 @@ runAnyEraCommand :: ()
   -> ExceptT CmdError IO ()
 runAnyEraCommand = \case
   AnyEraCommandOf sbe cmd ->
-    shelleyBasedEraConstraints sbe $ runEraBasedCommand cmd
+    shelleyBasedEraConstraints sbe $ runCmds cmd
 
-runEraBasedCommand :: ()
-  => EraBasedCommand era
+runCmds :: ()
+  => Cmds era
   -> ExceptT CmdError IO ()
-runEraBasedCommand = \case
+runCmds = \case
   AddressCmds cmd ->
     runAddressCmds cmd & firstExceptT CmdAddressError
-  EraBasedGovernanceCmds cmd ->
-    runEraBasedGovernanceCmds cmd
+  GovernanceCmds cmd ->
+    runGovernanceCmds cmd
   StakeAddressCmds cmd ->
     runStakeAddressCmds cmd
       & firstExceptT CmdStakeAddressError
   TransactionCmds cmd ->
     runTransactionCmds cmd & firstExceptT CmdTransactionError
 
-runEraBasedGovernanceCmds :: ()
-  => EraBasedGovernanceCmds era
+runGovernanceCmds :: ()
+  => GovernanceCmds era
   -> ExceptT CmdError IO ()
-runEraBasedGovernanceCmds = \case
-  EraBasedGovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
+runGovernanceCmds = \case
+  GovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
     runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
       & firstExceptT CmdGovernanceCmdError
 
-  EraBasedGovernanceMIRTransfer w ll oFp direction ->
+  GovernanceMIRTransfer w ll oFp direction ->
     runGovernanceMIRCertificateTransfer w ll oFp direction
       & firstExceptT CmdGovernanceCmdError
 
-  EraBasedGovernanceCommitteeCmds cmds ->
+  GovernanceCommitteeCmds cmds ->
     runGovernanceCommitteeCmds cmds
       & firstExceptT CmdGovernanceCommitteeError
 
-  EraBasedGovernanceActionCmds cmds ->
+  GovernanceActionCmds cmds ->
     runGovernanceActionCmds cmds
       & firstExceptT CmdGovernanceActionError
 
-  EraBasedGovernanceDRepCmds cmds ->
+  GovernanceDRepCmds cmds ->
     runGovernanceDRepCmds cmds
 
-  EraBasedGovernanceVoteCmds cmds ->
+  GovernanceVoteCmds cmds ->
     runGovernanceVoteCmds cmds
 
-  EraBasedGovernanceQueryCmds cmds ->
+  GovernanceQueryCmds cmds ->
     runGovernanceQueryCmds cmds

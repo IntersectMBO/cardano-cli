@@ -3,8 +3,8 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance
-  ( EraBasedGovernanceCmds(..)
-  , renderEraBasedGovernanceCmds
+  ( GovernanceCmds(..)
+  , renderGovernanceCmds
   ) where
 
 import           Cardano.Api
@@ -18,44 +18,44 @@ import           Cardano.CLI.Types.Common
 
 import           Data.Text (Text)
 
-data EraBasedGovernanceCmds era
-  = EraBasedGovernanceMIRPayStakeAddressesCertificate
+data GovernanceCmds era
+  = GovernanceMIRPayStakeAddressesCertificate
       (ShelleyToBabbageEra era)
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
-  | EraBasedGovernanceMIRTransfer
+  | GovernanceMIRTransfer
       (ShelleyToBabbageEra era)
       Lovelace
       (File () Out)
       TransferDirection
-  | EraBasedGovernanceActionCmds
+  | GovernanceActionCmds
       (GovernanceActionCmds era)
-  | EraBasedGovernanceCommitteeCmds
+  | GovernanceCommitteeCmds
       (GovernanceCommitteeCmds era)
-  | EraBasedGovernanceDRepCmds
+  | GovernanceDRepCmds
       (GovernanceDRepCmds era)
-  | EraBasedGovernanceVoteCmds
+  | GovernanceVoteCmds
       (GovernanceVoteCmds era)
-  | EraBasedGovernanceQueryCmds
+  | GovernanceQueryCmds
       (GovernanceQueryCmds era)
 
-renderEraBasedGovernanceCmds :: EraBasedGovernanceCmds era -> Text
-renderEraBasedGovernanceCmds = \case
-  EraBasedGovernanceMIRPayStakeAddressesCertificate {} ->
+renderGovernanceCmds :: GovernanceCmds era -> Text
+renderGovernanceCmds = \case
+  GovernanceMIRPayStakeAddressesCertificate {} ->
     "governance create-mir-certificate stake-addresses"
-  EraBasedGovernanceMIRTransfer _ _ _ TransferToTreasury ->
+  GovernanceMIRTransfer _ _ _ TransferToTreasury ->
     "governance create-mir-certificate transfer-to-treasury"
-  EraBasedGovernanceMIRTransfer _ _ _ TransferToReserves ->
+  GovernanceMIRTransfer _ _ _ TransferToReserves ->
     "governance create-mir-certificate transfer-to-reserves"
-  EraBasedGovernanceActionCmds cmds ->
+  GovernanceActionCmds cmds ->
     renderGovernanceActionCmds cmds
-  EraBasedGovernanceCommitteeCmds cmds ->
+  GovernanceCommitteeCmds cmds ->
     renderGovernanceCommitteeCmds cmds
-  EraBasedGovernanceDRepCmds cmds ->
+  GovernanceDRepCmds cmds ->
     renderGovernanceDRepCmds cmds
-  EraBasedGovernanceVoteCmds cmds ->
+  GovernanceVoteCmds cmds ->
     renderGovernanceVoteCmds cmds
-  EraBasedGovernanceQueryCmds cmds ->
+  GovernanceQueryCmds cmds ->
     renderGovernanceQueryCmds cmds
