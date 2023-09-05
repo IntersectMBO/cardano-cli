@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
@@ -323,15 +322,11 @@ readVerificationKeyOrHashOrTextEnvFile asType verKeyOrHashOrFile =
       pure (verificationKeyHash <$> eitherVk)
     VerificationKeyHash vkHash -> pure (Right vkHash)
 
-generateKeyPair ::
-#if __GLASGOW_HASKELL__ >= 904
--- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.4 and above complains if its
--- not present.
-    (Key keyrole, HasTypeProxy keyrole) =>
-#else
-    Key keyrole =>
-#endif
-    AsType keyrole -> IO (VerificationKey keyrole, SigningKey keyrole)
+generateKeyPair :: ()
+  => Key keyrole
+  => HasTypeProxy keyrole
+  => AsType keyrole
+  -> IO (VerificationKey keyrole, SigningKey keyrole)
 generateKeyPair asType = do
   skey <- generateSigningKey asType
   return (getVerificationKey skey, skey)

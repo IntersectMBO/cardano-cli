@@ -51,6 +51,9 @@ library
   if flag(unexpected_thunks)
     cpp-options:        -DUNEXPECTED_THUNKS
 
+  if impl(ghc < 9.6)
+    ghc-options:        -Wno-redundant-constraints
+
   hs-source-dirs:       src
 
   exposed-modules:      Cardano.CLI.Byron.Commands

@@ -1,6 +1,5 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -46,17 +45,17 @@ import           Cardano.Chain.Update hiding (ProtocolParameters)
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
+import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
 import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Legacy.Commands.Genesis
-import           Cardano.CLI.Legacy.Run.Node (
-                   runLegacyNodeIssueOpCertCmd, runLegacyNodeKeyGenColdCmd, runLegacyNodeKeyGenKesCmd, runLegacyNodeKeyGenVrfCmd)
-import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
+import           Cardano.CLI.Legacy.Run.Node (runLegacyNodeIssueOpCertCmd,
+                   runLegacyNodeKeyGenColdCmd, runLegacyNodeKeyGenKesCmd, runLegacyNodeKeyGenVrfCmd)
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
-import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
 import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
+import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto as CC
 import           Cardano.Crypto.Hash (HashAlgorithm)
@@ -403,15 +402,11 @@ runLegacyGenesisCreateCmd
 toSKeyJSON :: Key a => SigningKey a -> ByteString
 toSKeyJSON = LBS.toStrict . textEnvelopeToJSON Nothing
 
-toVkeyJSON ::
-#if __GLASGOW_HASKELL__ >= 904
--- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.4 and above complains if its
--- not present.
-              (Key a, HasTypeProxy a) =>
-#else
-              (Key a) =>
-#endif
-              SigningKey a -> ByteString
+toVkeyJSON :: ()
+  => Key a
+  => HasTypeProxy a
+  => SigningKey a
+  -> ByteString
 toVkeyJSON = LBS.toStrict . textEnvelopeToJSON Nothing . getVerificationKey
 
 toVkeyJSON' :: Key a => VerificationKey a -> ByteString
