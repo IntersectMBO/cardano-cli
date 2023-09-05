@@ -5,7 +5,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -18,10 +17,19 @@
 {- HLINT ignore "Use let" -}
 
 module Cardano.CLI.EraBased.Run.Genesis
-  ( readShelleyGenesisWithDefault
+  ( runLegacyGenesisAddrCmd
+  , runLegacyGenesisCreateCardanoCmd
+  , runLegacyGenesisCreateCmd
+  , runLegacyGenesisCreateStakedCmd
+  , runLegacyGenesisHashFileCmd
+  , runLegacyGenesisKeyGenDelegateCmd
+  , runLegacyGenesisKeyGenGenesisCmd
+  , runLegacyGenesisKeyGenUTxOCmd
+  , runLegacyGenesisKeyHashCmd
+  , runLegacyGenesisTxInCmd
+  , runLegacyGenesisVerKeyCmd
+
   , readAndDecodeShelleyGenesis
-  , readAlonzoGenesis
-  , runLegacyGenesisCmds
 
   -- * Protocol Parameters
   , readProtocolParameters
@@ -47,7 +55,6 @@ import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKe
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
 import qualified Cardano.CLI.IO.Lazy as Lazy
-import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
@@ -128,31 +135,6 @@ import           Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
 import           Text.Read (readMaybe)
 
 import           Crypto.Random as Crypto
-
-runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisCmds = \case
-  GenesisKeyGenGenesis vk sk ->
-    runLegacyGenesisKeyGenGenesisCmd vk sk
-  GenesisKeyGenDelegate vk sk ctr ->
-    runLegacyGenesisKeyGenDelegateCmd vk sk ctr
-  GenesisKeyGenUTxO vk sk ->
-    runLegacyGenesisKeyGenUTxOCmd vk sk
-  GenesisCmdKeyHash vk ->
-    runLegacyGenesisKeyHashCmd vk
-  GenesisVerKey vk sk ->
-    runLegacyGenesisVerKeyCmd vk sk
-  GenesisTxIn vk nw mOutFile ->
-    runLegacyGenesisTxInCmd vk nw mOutFile
-  GenesisAddr vk nw mOutFile ->
-    runLegacyGenesisAddrCmd vk nw mOutFile
-  GenesisCreate fmt gd gn un ms am nw ->
-    runLegacyGenesisCreateCmd fmt gd gn un ms am nw
-  GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
-    runLegacyGenesisCreateCardanoCmd gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
-  GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
-    runLegacyGenesisCreateStakedCmd fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
-  GenesisHashFile gf ->
-    runLegacyGenesisHashFileCmd gf
 
 --
 -- Genesis command implementations

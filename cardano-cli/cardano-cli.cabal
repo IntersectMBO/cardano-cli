@@ -122,6 +122,7 @@ library
                         Cardano.CLI.Legacy.Options
                         Cardano.CLI.Legacy.Run
                         Cardano.CLI.Legacy.Run.Address
+                        Cardano.CLI.Legacy.Run.Genesis
                         Cardano.CLI.Legacy.Run.Governance
                         Cardano.CLI.Legacy.Run.Key
                         Cardano.CLI.Legacy.Run.Node
