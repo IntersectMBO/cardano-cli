@@ -11,7 +11,7 @@ module Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.Api
 
 import           Cardano.Chain.Common (BlockCount)
-import qualified Cardano.CLI.EraBased.Run.Genesis as EraBased
+import           Cardano.CLI.EraBased.Run.Genesis
 import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
@@ -47,43 +47,43 @@ runLegacyGenesisKeyGenGenesisCmd :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisKeyGenGenesisCmd = EraBased.runLegacyGenesisKeyGenGenesisCmd
+runLegacyGenesisKeyGenGenesisCmd = runGenesisKeyGenGenesisCmd
 
 runLegacyGenesisKeyGenDelegateCmd :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> OpCertCounterFile Out
   -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisKeyGenDelegateCmd = EraBased.runLegacyGenesisKeyGenDelegateCmd
+runLegacyGenesisKeyGenDelegateCmd = runGenesisKeyGenDelegateCmd
 
 runLegacyGenesisKeyGenUTxOCmd :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisKeyGenUTxOCmd = EraBased.runLegacyGenesisKeyGenUTxOCmd
+runLegacyGenesisKeyGenUTxOCmd = runGenesisKeyGenUTxOCmd
 
 runLegacyGenesisKeyHashCmd :: VerificationKeyFile In -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisKeyHashCmd = EraBased.runLegacyGenesisKeyHashCmd
+runLegacyGenesisKeyHashCmd = runGenesisKeyHashCmd
 
 runLegacyGenesisVerKeyCmd ::
      VerificationKeyFile Out
   -> SigningKeyFile In
   -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisVerKeyCmd = EraBased.runLegacyGenesisVerKeyCmd
+runLegacyGenesisVerKeyCmd = runGenesisVerKeyCmd
 
 runLegacyGenesisTxInCmd :: ()
   => VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisTxInCmd = EraBased.runLegacyGenesisTxInCmd
+runLegacyGenesisTxInCmd = runGenesisTxInCmd
 
 runLegacyGenesisAddrCmd :: ()
   => VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisAddrCmd = EraBased.runLegacyGenesisAddrCmd
+runLegacyGenesisAddrCmd = runGenesisAddrCmd
 
 runLegacyGenesisCreateCmd :: ()
   => KeyOutputFormat
@@ -94,7 +94,7 @@ runLegacyGenesisCreateCmd :: ()
   -> Maybe Lovelace
   -> NetworkId
   -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisCreateCmd = EraBased.runLegacyGenesisCreateCmd
+runLegacyGenesisCreateCmd = runGenesisCreateCmd
 
 runLegacyGenesisCreateCardanoCmd :: ()
   => GenesisDir
@@ -112,7 +112,7 @@ runLegacyGenesisCreateCardanoCmd :: ()
   -> FilePath -- ^ Conway Genesis
   -> Maybe FilePath
   -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisCreateCardanoCmd = EraBased.runLegacyGenesisCreateCardanoCmd
+runLegacyGenesisCreateCardanoCmd = runGenesisCreateCardanoCmd
 
 runLegacyGenesisCreateStakedCmd :: ()
   => KeyOutputFormat    -- ^ key output format
@@ -130,10 +130,10 @@ runLegacyGenesisCreateStakedCmd :: ()
   -> Word               -- ^ num stuffed UTxO entries
   -> Maybe FilePath     -- ^ Specified stake pool relays
   -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisCreateStakedCmd = EraBased.runLegacyGenesisCreateStakedCmd
+runLegacyGenesisCreateStakedCmd = runGenesisCreateStakedCmd
 
 -- | Hash a genesis file
 runLegacyGenesisHashFileCmd :: ()
   => GenesisFile
   -> ExceptT ShelleyGenesisCmdError IO ()
-runLegacyGenesisHashFileCmd = EraBased.runLegacyGenesisHashFileCmd
+runLegacyGenesisHashFileCmd = runGenesisHashFileCmd
