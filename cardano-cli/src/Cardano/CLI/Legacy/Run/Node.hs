@@ -3,13 +3,12 @@
 
 module Cardano.CLI.Legacy.Run.Node
   ( runLegacyNodeCmds
-
   ) where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import qualified Cardano.CLI.EraBased.Run.Node as EraBased
+import           Cardano.CLI.EraBased.Run.Node
 import           Cardano.CLI.Legacy.Commands.Node
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
@@ -42,34 +41,34 @@ runLegacyNodeKeyGenColdCmd :: ()
   -> SigningKeyFile Out
   -> OpCertCounterFile Out
   -> ExceptT ShelleyNodeCmdError IO ()
-runLegacyNodeKeyGenColdCmd = EraBased.runLegacyNodeKeyGenColdCmd
+runLegacyNodeKeyGenColdCmd = runNodeKeyGenColdCmd
 
 runLegacyNodeKeyGenKesCmd :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyNodeCmdError IO ()
-runLegacyNodeKeyGenKesCmd = EraBased.runLegacyNodeKeyGenKesCmd
+runLegacyNodeKeyGenKesCmd = runNodeKeyGenKesCmd
 
 runLegacyNodeKeyGenVrfCmd :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyNodeCmdError IO ()
-runLegacyNodeKeyGenVrfCmd = EraBased.runLegacyNodeKeyGenVrfCmd
+runLegacyNodeKeyGenVrfCmd = runNodeKeyGenVrfCmd
 
 runLegacyNodeKeyHashVrfCmd :: ()
   => VerificationKeyOrFile VrfKey
   -> Maybe (File () Out)
   -> ExceptT ShelleyNodeCmdError IO ()
-runLegacyNodeKeyHashVrfCmd = EraBased.runLegacyNodeKeyHashVrfCmd
+runLegacyNodeKeyHashVrfCmd = runNodeKeyHashVrfCmd
 
 runLegacyNodeNewCounterCmd :: ()
   => ColdVerificationKeyOrFile
   -> Word
   -> OpCertCounterFile InOut
   -> ExceptT ShelleyNodeCmdError IO ()
-runLegacyNodeNewCounterCmd = EraBased.runLegacyNodeNewCounterCmd
+runLegacyNodeNewCounterCmd = runNodeNewCounterCmd
 
 runLegacyNodeIssueOpCertCmd :: ()
   => VerificationKeyOrFile KesKey
@@ -83,4 +82,4 @@ runLegacyNodeIssueOpCertCmd :: ()
   -- ^ Start of the validity period for this certificate.
   -> File () Out
   -> ExceptT ShelleyNodeCmdError IO ()
-runLegacyNodeIssueOpCertCmd = EraBased.runLegacyNodeIssueOpCertCmd
+runLegacyNodeIssueOpCertCmd = runNodeIssueOpCertCmd
