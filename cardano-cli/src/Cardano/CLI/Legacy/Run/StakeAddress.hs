@@ -20,26 +20,26 @@ runLegacyStakeAddressCmds :: ()
   => LegacyStakeAddressCmds
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runLegacyStakeAddressCmds = \case
-  StakeAddressKeyGen fmt vk sk ->
-    runLegacyStakeAddressKeyGenToFileCmd fmt vk sk
-  StakeAddressKeyHash vk mOutputFp ->
+  StakeAddressKeyGenCmd fmt vk sk ->
+    runLegacyStakeAddressKeyGenCmd fmt vk sk
+  StakeAddressKeyHashCmd vk mOutputFp ->
     runLegacyStakeAddressKeyHashCmd vk mOutputFp
-  StakeAddressBuild stakeVerifier nw mOutputFp ->
+  StakeAddressBuildCmd stakeVerifier nw mOutputFp ->
     runLegacyStakeAddressBuildCmd stakeVerifier nw mOutputFp
-  StakeRegistrationCert anyEra stakeIdentifier mDeposit outputFp ->
-    runLegacyStakeCredentialRegistrationCertCmd anyEra stakeIdentifier mDeposit outputFp
-  StakeCredentialDelegationCert anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp ->
-    runLegacyStakeCredentialDelegationCertCmd anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp
-  StakeCredentialDeRegistrationCert anyEra stakeIdentifier mDeposit outputFp ->
-    runLegacyStakeCredentialDeRegistrationCertCmd anyEra stakeIdentifier mDeposit outputFp
+  StakeAddressRegistrationCertificateCmd anyEra stakeIdentifier mDeposit outputFp ->
+    runLegacyStakeAddressRegistrationCertificateCmd anyEra stakeIdentifier mDeposit outputFp
+  StakeAddressDelegationCertificateCmd anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp ->
+    runLegacyStakeAddresslDelegationCertificateCmd anyEra stakeIdentifier stkPoolVerKeyHashOrFp outputFp
+  StakeAddressDeregistrationCertificateCmd anyEra stakeIdentifier mDeposit outputFp ->
+    runLegacyStakeAddressDeregistrationCertificateCmd anyEra stakeIdentifier mDeposit outputFp
 
-runLegacyStakeAddressKeyGenToFileCmd :: ()
+runLegacyStakeAddressKeyGenCmd :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeAddressKeyGenToFileCmd =
-  runStakeAddressKeyGenToFileCmd
+runLegacyStakeAddressKeyGenCmd =
+  runStakeAddressKeyGenCmd
 
 runLegacyStakeAddressKeyHashCmd :: ()
   => VerificationKeyOrFile StakeKey
@@ -56,16 +56,16 @@ runLegacyStakeAddressBuildCmd :: ()
 runLegacyStakeAddressBuildCmd =
   runStakeAddressBuildCmd
 
-runLegacyStakeCredentialRegistrationCertCmd :: ()
+runLegacyStakeAddressRegistrationCertificateCmd :: ()
   => AnyShelleyBasedEra
   -> StakeIdentifier
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialRegistrationCertCmd (AnyShelleyBasedEra sbe) =
-  runStakeCredentialRegistrationCertCmd sbe
+runLegacyStakeAddressRegistrationCertificateCmd (AnyShelleyBasedEra sbe) =
+  runStakeAddressRegistrationCertificateCmd sbe
 
-runLegacyStakeCredentialDelegationCertCmd :: ()
+runLegacyStakeAddresslDelegationCertificateCmd :: ()
   => AnyShelleyBasedEra
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
@@ -74,14 +74,14 @@ runLegacyStakeCredentialDelegationCertCmd :: ()
   -- verification key hash.
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialDelegationCertCmd (AnyShelleyBasedEra sbe) =
-  runStakeCredentialDelegationCertCmd sbe
+runLegacyStakeAddresslDelegationCertificateCmd (AnyShelleyBasedEra sbe) =
+  runStakeAddressDelegationCertificateCmd sbe
 
-runLegacyStakeCredentialDeRegistrationCertCmd :: ()
+runLegacyStakeAddressDeregistrationCertificateCmd :: ()
   => AnyShelleyBasedEra
   -> StakeIdentifier
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runLegacyStakeCredentialDeRegistrationCertCmd (AnyShelleyBasedEra sbe) =
-  runStakeCredentialDeRegistrationCertCmd sbe
+runLegacyStakeAddressDeregistrationCertificateCmd (AnyShelleyBasedEra sbe) =
+  runStakeAddressDeregistrationCertificateCmd sbe

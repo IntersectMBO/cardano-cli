@@ -148,61 +148,64 @@ pStakeAddressCmds :: EnvCli -> Parser LegacyStakeAddressCmds
 pStakeAddressCmds envCli =
     asum
       [ subParser "key-gen"
-          $ Opt.info pStakeAddressKeyGen
+          $ Opt.info pStakeAddressKeyGenCmd
           $ Opt.progDesc "Create a stake address key pair"
       , subParser "build"
-          $ Opt.info pStakeAddressBuild
+          $ Opt.info pStakeAddressBuildCmd
           $ Opt.progDesc "Build a stake address"
       , subParser "key-hash"
-          $ Opt.info pStakeAddressKeyHash
+          $ Opt.info pStakeAddressKeyHashCmd
           $ Opt.progDesc "Print the hash of a stake address key."
       , subParser "registration-certificate"
-          $ Opt.info pStakeAddressRegistrationCert
+          $ Opt.info pStakeAddressRegistrationCertificateCmd
           $ Opt.progDesc "Create a stake address registration certificate"
       , subParser "deregistration-certificate"
-          $ Opt.info pStakeAddressDeregistrationCert
+          $ Opt.info pStakeAddressDeregistrationCertificateCmd
           $ Opt.progDesc "Create a stake address deregistration certificate"
       , subParser "delegation-certificate"
-          $ Opt.info pStakeAddressPoolDelegationCert
+          $ Opt.info pStakeAddressStakeDelegationCertificateCmd
           $ Opt.progDesc "Create a stake address pool delegation certificate"
       ]
   where
-    pStakeAddressKeyGen :: Parser LegacyStakeAddressCmds
-    pStakeAddressKeyGen =
-      StakeAddressKeyGen
+    pStakeAddressKeyGenCmd :: Parser LegacyStakeAddressCmds
+    pStakeAddressKeyGenCmd =
+      StakeAddressKeyGenCmd
         <$> pKeyOutputFormat
         <*> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-    pStakeAddressKeyHash :: Parser LegacyStakeAddressCmds
-    pStakeAddressKeyHash = StakeAddressKeyHash <$> pStakeVerificationKeyOrFile <*> pMaybeOutputFile
+    pStakeAddressKeyHashCmd :: Parser LegacyStakeAddressCmds
+    pStakeAddressKeyHashCmd =
+      StakeAddressKeyHashCmd
+        <$> pStakeVerificationKeyOrFile
+        <*> pMaybeOutputFile
 
-    pStakeAddressBuild :: Parser LegacyStakeAddressCmds
-    pStakeAddressBuild =
-      StakeAddressBuild
+    pStakeAddressBuildCmd :: Parser LegacyStakeAddressCmds
+    pStakeAddressBuildCmd =
+      StakeAddressBuildCmd
         <$> pStakeVerifier
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
-    pStakeAddressRegistrationCert :: Parser LegacyStakeAddressCmds
-    pStakeAddressRegistrationCert =
-      StakeRegistrationCert
+    pStakeAddressRegistrationCertificateCmd :: Parser LegacyStakeAddressCmds
+    pStakeAddressRegistrationCertificateCmd =
+      StakeAddressRegistrationCertificateCmd
         <$> pAnyShelleyBasedEra envCli
         <*> pStakeIdentifier
         <*> optional pKeyRegistDeposit
         <*> pOutputFile
 
-    pStakeAddressDeregistrationCert :: Parser LegacyStakeAddressCmds
-    pStakeAddressDeregistrationCert =
-      StakeCredentialDeRegistrationCert
+    pStakeAddressDeregistrationCertificateCmd :: Parser LegacyStakeAddressCmds
+    pStakeAddressDeregistrationCertificateCmd =
+      StakeAddressDeregistrationCertificateCmd
         <$> pAnyShelleyBasedEra envCli
         <*> pStakeIdentifier
         <*> optional pKeyRegistDeposit
         <*> pOutputFile
 
-    pStakeAddressPoolDelegationCert :: Parser LegacyStakeAddressCmds
-    pStakeAddressPoolDelegationCert =
-      StakeCredentialDelegationCert
+    pStakeAddressStakeDelegationCertificateCmd :: Parser LegacyStakeAddressCmds
+    pStakeAddressStakeDelegationCertificateCmd =
+      StakeAddressDelegationCertificateCmd
         <$> pAnyShelleyBasedEra envCli
         <*> pStakeIdentifier
         <*> pDelegationTarget

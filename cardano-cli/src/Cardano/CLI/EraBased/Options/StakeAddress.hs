@@ -42,7 +42,7 @@ pStakeAddressKeyGenCmd era = do
   pure
     $ subParser "key-gen"
     $ Opt.info
-        ( StakeAddressKeyGen w
+        ( StakeAddressKeyGenCmd w
             <$> pKeyOutputFormat
             <*> pVerificationKeyFileOut
             <*> pSigningKeyFileOut
@@ -57,7 +57,7 @@ pStakeAddressKeyHashCmd era = do
   pure
     $ subParser "key-hash"
     $ Opt.info
-        ( StakeAddressKeyHash w
+        ( StakeAddressKeyHashCmd w
             <$> pStakeVerificationKeyOrFile
             <*> pMaybeOutputFile
         )
@@ -72,7 +72,7 @@ pStakeAddressBuildCmd era envCli = do
   pure
     $ subParser "build"
     $ Opt.info
-        ( StakeAddressBuild w
+        ( StakeAddressBuildCmd w
             <$> pStakeVerifier
             <*> pNetworkId envCli
             <*> pMaybeOutputFile
@@ -87,7 +87,7 @@ pStakeAddressRegistrationCertificateCmd era = do
   pure
     $ subParser "registration-certificate"
     $ Opt.info
-        ( StakeRegistrationCert w
+        ( StakeAddressRegistrationCertificateCmd w
             <$> pStakeIdentifier
             <*> optional pKeyRegistDeposit
             <*> pOutputFile
@@ -102,7 +102,7 @@ pStakeAddressDeregistrationCertificateCmd era = do
   pure
     $ subParser "deregistration-certificate"
     $ Opt.info
-        ( StakeCredentialDeRegistrationCert w
+        ( StakeAddressDeregistrationCertificateCmd w
             <$> pStakeIdentifier
             <*> optional pKeyRegistDeposit
             <*> pOutputFile
@@ -117,7 +117,7 @@ pStakeAddressDelegationCertificateCmd era = do
   pure
     $ subParser "delegation-certificate"
     $ Opt.info
-        ( StakeCredentialDelegationCert w
+        ( StakeAddressDelegationCertificateCmd w
             <$> pStakeIdentifier
             <*> pDelegationTarget
             <*> pOutputFile
