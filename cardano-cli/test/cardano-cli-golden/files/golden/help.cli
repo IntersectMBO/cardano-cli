@@ -216,7 +216,8 @@ Usage: cardano-cli shelley stake-address stake-delegation-certificate
                                                                         )
                                                                         --out-file FILE
 
-  Create a stake address pool delegation certificate
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
 
 Usage: cardano-cli shelley transaction 
                                          ( build-raw
@@ -804,7 +805,8 @@ Usage: cardano-cli allegra stake-address stake-delegation-certificate
                                                                         )
                                                                         --out-file FILE
 
-  Create a stake address pool delegation certificate
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
 
 Usage: cardano-cli allegra transaction 
                                          ( build-raw
@@ -1392,7 +1394,8 @@ Usage: cardano-cli mary stake-address stake-delegation-certificate
                                                                      )
                                                                      --out-file FILE
 
-  Create a stake address pool delegation certificate
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
 
 Usage: cardano-cli mary transaction 
                                       ( build-raw
@@ -1972,7 +1975,8 @@ Usage: cardano-cli alonzo stake-address stake-delegation-certificate
                                                                        )
                                                                        --out-file FILE
 
-  Create a stake address pool delegation certificate
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
 
 Usage: cardano-cli alonzo transaction 
                                         ( build-raw
@@ -2563,7 +2567,8 @@ Usage: cardano-cli babbage stake-address stake-delegation-certificate
                                                                         )
                                                                         --out-file FILE
 
-  Create a stake address pool delegation certificate
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
 
 Usage: cardano-cli babbage transaction 
                                          ( build-raw
@@ -3440,7 +3445,8 @@ Usage: cardano-cli conway stake-address stake-delegation-certificate
                                                                        )
                                                                        --out-file FILE
 
-  Create a stake address pool delegation certificate
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
 
 Usage: cardano-cli conway transaction 
                                         ( build-raw
@@ -4031,7 +4037,8 @@ Usage: cardano-cli latest stake-address stake-delegation-certificate
                                                                        )
                                                                        --out-file FILE
 
-  Create a stake address pool delegation certificate
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
 
 Usage: cardano-cli latest transaction 
                                         ( build-raw

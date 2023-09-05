@@ -122,4 +122,8 @@ pStakeAddressStakeDelegationCertificateCmd era = do
             <*> pStakePoolVerificationKeyOrHashOrFile
             <*> pOutputFile
         )
-    $ Opt.progDesc "Create a stake address pool delegation certificate"
+    $ Opt.progDesc
+    $ mconcat
+        [ "Create a stake address stake delegation certificate, which when submitted in a transaction "
+        , "delegates stake to a stake pool."
+        ]

@@ -20,4 +20,6 @@ Available commands:
   deregistration-certificate
                            Create a stake address deregistration certificate
   stake-delegation-certificate
-                           Create a stake address pool delegation certificate
+                           Create a stake address stake delegation certificate,
+                           which when submitted in a transaction delegates stake
+                           to a stake pool.
