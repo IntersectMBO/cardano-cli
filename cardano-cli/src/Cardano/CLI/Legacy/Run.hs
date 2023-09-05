@@ -10,9 +10,9 @@ import           Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.CLI.Legacy.Run.Governance
 import           Cardano.CLI.Legacy.Run.Key
 import           Cardano.CLI.Legacy.Run.Node
-import           Cardano.CLI.Legacy.Run.Pool
 import           Cardano.CLI.Legacy.Run.Query
 import           Cardano.CLI.Legacy.Run.StakeAddress
+import           Cardano.CLI.Legacy.Run.StakePool
 import           Cardano.CLI.Legacy.Run.TextView
 import           Cardano.CLI.Legacy.Run.Transaction
 import           Cardano.CLI.Types.Errors.CmdError
@@ -27,8 +27,8 @@ runLegacyCmds = \case
   LegacyGovernanceCmds   cmd -> firstExceptT CmdGovernanceCmdError $ runLegacyGovernanceCmds cmd
   LegacyKeyCmds          cmd -> firstExceptT CmdKeyError $ runLegacyKeyCmds cmd
   LegacyNodeCmds         cmd -> firstExceptT CmdNodeError $ runLegacyNodeCmds cmd
-  LegacyPoolCmds         cmd -> firstExceptT CmdPoolError $ runLegacyPoolCmds cmd
   LegacyQueryCmds        cmd -> firstExceptT CmdQueryError $ runLegacyQueryCmds cmd
   LegacyStakeAddressCmds cmd -> firstExceptT CmdStakeAddressError $ runLegacyStakeAddressCmds cmd
+  LegacyStakePoolCmds    cmd -> firstExceptT CmdStakePoolError $ runLegacyStakePoolCmds cmd
   LegacyTextViewCmds     cmd -> firstExceptT CmdTextViewError $ runLegacyTextViewCmds cmd
   LegacyTransactionCmds  cmd -> firstExceptT CmdTransactionError $ runLegacyTransactionCmds cmd

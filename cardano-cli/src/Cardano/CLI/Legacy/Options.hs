@@ -31,9 +31,9 @@ import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Legacy.Commands.Key
 import           Cardano.CLI.Legacy.Commands.Node
-import           Cardano.CLI.Legacy.Commands.Pool
 import           Cardano.CLI.Legacy.Commands.Query
 import           Cardano.CLI.Legacy.Commands.StakeAddress
+import           Cardano.CLI.Legacy.Commands.StakePool
 import           Cardano.CLI.Legacy.Commands.TextView
 import           Cardano.CLI.Legacy.Commands.Transaction
 import           Cardano.CLI.Parser
@@ -76,7 +76,7 @@ parseLegacyCmds envCli =
         $ Opt.info (LegacyNodeCmds <$> pNodeCmds)
         $ Opt.progDesc "Node operation commands"
     , Opt.command "stake-pool"
-        $ Opt.info (LegacyPoolCmds <$> pPoolCmds envCli)
+        $ Opt.info (LegacyStakePoolCmds <$> pStakePoolCmds envCli)
         $ Opt.progDesc "Stake pool commands"
     , Opt.command "query"
         $ Opt.info (LegacyQueryCmds <$> pQueryCmds envCli) . Opt.progDesc
@@ -744,32 +744,35 @@ pNodeCmds =
         <*> pKesPeriod
         <*> pOutputFile
 
-pPoolCmds :: EnvCli -> Parser LegacyPoolCmds
-pPoolCmds  envCli =
+pStakePoolCmds :: EnvCli -> Parser LegacyStakePoolCmds
+pStakePoolCmds  envCli =
   asum
     [ subParser "registration-certificate"
-        $ Opt.info (pStakePoolRegistrationCert envCli)
+        $ Opt.info (pStakePoolRegistrationCertificiateCmd envCli)
         $ Opt.progDesc "Create a stake pool registration certificate"
     , subParser "deregistration-certificate"
-        $ Opt.info (pStakePoolRetirementCert envCli)
+        $ Opt.info (pStakePoolDeregistrationCertificateCmd envCli)
         $ Opt.progDesc "Create a stake pool deregistration certificate"
     , subParser "id"
-        $ Opt.info pId
+        $ Opt.info pStakePoolId
         $ Opt.progDesc "Build pool id from the offline key"
     , subParser "metadata-hash"
-        $ Opt.info pPoolMetadataHashSubCmd
+        $ Opt.info pStakePoolMetadataHashCmd
         $ Opt.progDesc "Print the hash of pool metadata."
     ]
   where
-    pId :: Parser LegacyPoolCmds
-    pId =
-      PoolGetId
+    pStakePoolId :: Parser LegacyStakePoolCmds
+    pStakePoolId =
+      StakePoolIdCmd
         <$> pStakePoolVerificationKeyOrFile
         <*> pPoolIdOutputFormat
         <*> pMaybeOutputFile
 
-    pPoolMetadataHashSubCmd :: Parser LegacyPoolCmds
-    pPoolMetadataHashSubCmd = PoolMetadataHash <$> pPoolMetadataFile <*> pMaybeOutputFile
+    pStakePoolMetadataHashCmd :: Parser LegacyStakePoolCmds
+    pStakePoolMetadataHashCmd =
+      StakePoolMetadataHashCmd
+        <$> pPoolMetadataFile
+        <*> pMaybeOutputFile
 
 pQueryCmds :: EnvCli -> Parser LegacyQueryCmds
 pQueryCmds envCli =
@@ -1386,9 +1389,9 @@ pGenesisCmds envCli =
         , Opt.value 0
         ]
 
-pStakePoolRegistrationCert :: EnvCli -> Parser LegacyPoolCmds
-pStakePoolRegistrationCert envCli =
-  PoolRegistrationCert
+pStakePoolRegistrationCertificiateCmd :: EnvCli -> Parser LegacyStakePoolCmds
+pStakePoolRegistrationCertificiateCmd envCli =
+  StakePoolRegistrationCertificateCmd
     <$> pAnyShelleyBasedEra envCli
     <*> pStakePoolVerificationKeyOrFile
     <*> pVrfVerificationKeyOrFile
@@ -1402,9 +1405,9 @@ pStakePoolRegistrationCert envCli =
     <*> pNetworkId envCli
     <*> pOutputFile
 
-pStakePoolRetirementCert :: EnvCli -> Parser LegacyPoolCmds
-pStakePoolRetirementCert envCli =
-  PoolRetirementCert
+pStakePoolDeregistrationCertificateCmd :: EnvCli -> Parser LegacyStakePoolCmds
+pStakePoolDeregistrationCertificateCmd envCli =
+  StakePoolDeregistrationCertificateCmd
     <$> pAnyShelleyBasedEra envCli
     <*> pStakePoolVerificationKeyOrFile
     <*> pEpochNo "The epoch number."

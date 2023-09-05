@@ -12,8 +12,8 @@ import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
 import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
-import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
+import           Cardano.CLI.Types.Errors.StakePoolCmdError
 
 import           Control.Exception (IOException)
 import           Data.Text (Text)
@@ -33,8 +33,8 @@ data ShelleyGenesisCmdError
   | ShelleyGenesisCmdTooFewPoolsForBulkCreds !Word !Word !Word
   | ShelleyGenesisCmdAddressCmdError !ShelleyAddressCmdError
   | ShelleyGenesisCmdNodeCmdError !ShelleyNodeCmdError
-  | ShelleyGenesisCmdPoolCmdError !ShelleyPoolCmdError
   | ShelleyGenesisCmdStakeAddressCmdError !ShelleyStakeAddressCmdError
+  | ShelleyGenesisCmdStakePoolCmdError !StakePoolCmdError
   | ShelleyGenesisCmdCostModelsError !FilePath
   | ShelleyGenesisCmdByronError !ByronGenesisError
   | ShelleyGenesisStakePoolRelayFileError !FilePath !IOException
@@ -69,11 +69,16 @@ instance Error ShelleyGenesisCmdError where
         , ") is insufficient to fill ", show files
         , " bulk files, with ", show perPool, " pools per file."
         ]
-      ShelleyGenesisCmdAddressCmdError e -> Text.unpack $ renderShelleyAddressCmdError e
-      ShelleyGenesisCmdNodeCmdError e -> Text.unpack $ renderShelleyNodeCmdError e
-      ShelleyGenesisCmdPoolCmdError e -> Text.unpack $ renderShelleyPoolCmdError e
-      ShelleyGenesisCmdStakeAddressCmdError e -> displayError e
-      ShelleyGenesisCmdCostModelsError fp -> "Cost model is invalid: " <> fp
+      ShelleyGenesisCmdAddressCmdError e ->
+        Text.unpack $ renderShelleyAddressCmdError e
+      ShelleyGenesisCmdNodeCmdError e ->
+        Text.unpack $ renderShelleyNodeCmdError e
+      ShelleyGenesisCmdStakePoolCmdError e ->
+        Text.unpack $ renderStakePoolCmdError e
+      ShelleyGenesisCmdStakeAddressCmdError e ->
+        displayError e
+      ShelleyGenesisCmdCostModelsError fp ->
+        "Cost model is invalid: " <> fp
       ShelleyGenesisCmdGenesisFileDecodeError fp e ->
        "Error while decoding Shelley genesis at: " <> fp <>
        " Error: " <>  Text.unpack e
