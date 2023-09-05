@@ -12,7 +12,7 @@ module Cardano.CLI.EraBased.Run.StakeAddress
   , runStakeAddressBuildCmd
   , runStakeAddressKeyGenCmd
   , runStakeAddressKeyHashCmd
-  , runStakeAddressDelegationCertificateCmd
+  , runStakeAddressStakeDelegationCertificateCmd
   , runStakeAddressDeregistrationCertificateCmd
   , runStakeAddressRegistrationCertificateCmd
   ) where
@@ -52,8 +52,8 @@ runStakeAddressCmds = \case
     runStakeAddressBuildCmd stakeVerifier nw mOutputFp
   StakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp ->
     runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
-  StakeAddressDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp ->
-    runStakeAddressDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp
+  StakeAddressStakeDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp ->
+    runStakeAddressStakeDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp
   StakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp ->
     runStakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
 
@@ -163,7 +163,7 @@ createRegistrationCertRequirements sbe stakeCred mdeposit =
         Just dep ->
           return $ StakeAddrRegistrationConway ConwayEraOnwardsConway dep stakeCred
 
-runStakeAddressDelegationCertificateCmd :: ()
+runStakeAddressStakeDelegationCertificateCmd :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
@@ -172,7 +172,7 @@ runStakeAddressDelegationCertificateCmd :: ()
   -- verification key hash.
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runStakeAddressDelegationCertificateCmd sbe stakeVerifier delegationTarget outFp =
+runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier delegationTarget outFp =
   shelleyBasedEraConstraints sbe $
     case delegationTarget of
       StakePoolDelegationTarget poolVKeyOrHashOrFile -> do

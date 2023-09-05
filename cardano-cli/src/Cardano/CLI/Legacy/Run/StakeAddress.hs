@@ -75,7 +75,7 @@ runLegacyStakeAddresslDelegationCertificateCmd :: ()
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runLegacyStakeAddresslDelegationCertificateCmd (AnyShelleyBasedEra sbe) =
-  runStakeAddressDelegationCertificateCmd sbe
+  runStakeAddressStakeDelegationCertificateCmd sbe
 
 runLegacyStakeAddressDeregistrationCertificateCmd :: ()
   => AnyShelleyBasedEra

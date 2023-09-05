@@ -35,7 +35,7 @@ data StakeAddressCmds era
       StakeIdentifier
       (Maybe Lovelace)
       (File () Out)
-  | StakeAddressDelegationCertificateCmd
+  | StakeAddressStakeDelegationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
       DelegationTarget
@@ -53,5 +53,5 @@ renderStakeAddressCmds = \case
   StakeAddressKeyHashCmd {} -> "stake-address key-hash"
   StakeAddressBuildCmd {} -> "stake-address build"
   StakeAddressRegistrationCertificateCmd {} -> "stake-address registration-certificate"
-  StakeAddressDelegationCertificateCmd {} -> "stake-address delegation-certificate"
+  StakeAddressStakeDelegationCertificateCmd {} -> "stake-address stake-delegation-certificate"
   StakeAddressDeregistrationCertificateCmd {} -> "stake-address deregistration-certificate"

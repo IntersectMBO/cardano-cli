@@ -151,7 +151,7 @@ Usage: cardano-cli shelley stake-address
                                            | build
                                            | registration-certificate
                                            | deregistration-certificate
-                                           | delegation-certificate
+                                           | stake-delegation-certificate
                                            )
 
   Stake address commands.
@@ -204,17 +204,17 @@ Usage: cardano-cli shelley stake-address deregistration-certificate
 
   Create a stake address deregistration certificate
 
-Usage: cardano-cli shelley stake-address delegation-certificate 
-                                                                  ( --stake-verification-key STRING
-                                                                  | --stake-verification-key-file FILE
-                                                                  | --stake-script-file FILE
-                                                                  | --stake-address ADDRESS
-                                                                  )
-                                                                  ( --stake-pool-verification-key STRING
-                                                                  | --cold-verification-key-file FILE
-                                                                  | --stake-pool-id STAKE_POOL_ID
-                                                                  )
-                                                                  --out-file FILE
+Usage: cardano-cli shelley stake-address stake-delegation-certificate 
+                                                                        ( --stake-verification-key STRING
+                                                                        | --stake-verification-key-file FILE
+                                                                        | --stake-script-file FILE
+                                                                        | --stake-address ADDRESS
+                                                                        )
+                                                                        ( --stake-pool-verification-key STRING
+                                                                        | --cold-verification-key-file FILE
+                                                                        | --stake-pool-id STAKE_POOL_ID
+                                                                        )
+                                                                        --out-file FILE
 
   Create a stake address pool delegation certificate
 
@@ -739,7 +739,7 @@ Usage: cardano-cli allegra stake-address
                                            | build
                                            | registration-certificate
                                            | deregistration-certificate
-                                           | delegation-certificate
+                                           | stake-delegation-certificate
                                            )
 
   Stake address commands.
@@ -792,17 +792,17 @@ Usage: cardano-cli allegra stake-address deregistration-certificate
 
   Create a stake address deregistration certificate
 
-Usage: cardano-cli allegra stake-address delegation-certificate 
-                                                                  ( --stake-verification-key STRING
-                                                                  | --stake-verification-key-file FILE
-                                                                  | --stake-script-file FILE
-                                                                  | --stake-address ADDRESS
-                                                                  )
-                                                                  ( --stake-pool-verification-key STRING
-                                                                  | --cold-verification-key-file FILE
-                                                                  | --stake-pool-id STAKE_POOL_ID
-                                                                  )
-                                                                  --out-file FILE
+Usage: cardano-cli allegra stake-address stake-delegation-certificate 
+                                                                        ( --stake-verification-key STRING
+                                                                        | --stake-verification-key-file FILE
+                                                                        | --stake-script-file FILE
+                                                                        | --stake-address ADDRESS
+                                                                        )
+                                                                        ( --stake-pool-verification-key STRING
+                                                                        | --cold-verification-key-file FILE
+                                                                        | --stake-pool-id STAKE_POOL_ID
+                                                                        )
+                                                                        --out-file FILE
 
   Create a stake address pool delegation certificate
 
@@ -1327,7 +1327,7 @@ Usage: cardano-cli mary stake-address
                                         | build
                                         | registration-certificate
                                         | deregistration-certificate
-                                        | delegation-certificate
+                                        | stake-delegation-certificate
                                         )
 
   Stake address commands.
@@ -1380,17 +1380,17 @@ Usage: cardano-cli mary stake-address deregistration-certificate
 
   Create a stake address deregistration certificate
 
-Usage: cardano-cli mary stake-address delegation-certificate 
-                                                               ( --stake-verification-key STRING
-                                                               | --stake-verification-key-file FILE
-                                                               | --stake-script-file FILE
-                                                               | --stake-address ADDRESS
-                                                               )
-                                                               ( --stake-pool-verification-key STRING
-                                                               | --cold-verification-key-file FILE
-                                                               | --stake-pool-id STAKE_POOL_ID
-                                                               )
-                                                               --out-file FILE
+Usage: cardano-cli mary stake-address stake-delegation-certificate 
+                                                                     ( --stake-verification-key STRING
+                                                                     | --stake-verification-key-file FILE
+                                                                     | --stake-script-file FILE
+                                                                     | --stake-address ADDRESS
+                                                                     )
+                                                                     ( --stake-pool-verification-key STRING
+                                                                     | --cold-verification-key-file FILE
+                                                                     | --stake-pool-id STAKE_POOL_ID
+                                                                     )
+                                                                     --out-file FILE
 
   Create a stake address pool delegation certificate
 
@@ -1907,7 +1907,7 @@ Usage: cardano-cli alonzo stake-address
                                           | build
                                           | registration-certificate
                                           | deregistration-certificate
-                                          | delegation-certificate
+                                          | stake-delegation-certificate
                                           )
 
   Stake address commands.
@@ -1960,17 +1960,17 @@ Usage: cardano-cli alonzo stake-address deregistration-certificate
 
   Create a stake address deregistration certificate
 
-Usage: cardano-cli alonzo stake-address delegation-certificate 
-                                                                 ( --stake-verification-key STRING
-                                                                 | --stake-verification-key-file FILE
-                                                                 | --stake-script-file FILE
-                                                                 | --stake-address ADDRESS
-                                                                 )
-                                                                 ( --stake-pool-verification-key STRING
-                                                                 | --cold-verification-key-file FILE
-                                                                 | --stake-pool-id STAKE_POOL_ID
-                                                                 )
-                                                                 --out-file FILE
+Usage: cardano-cli alonzo stake-address stake-delegation-certificate 
+                                                                       ( --stake-verification-key STRING
+                                                                       | --stake-verification-key-file FILE
+                                                                       | --stake-script-file FILE
+                                                                       | --stake-address ADDRESS
+                                                                       )
+                                                                       ( --stake-pool-verification-key STRING
+                                                                       | --cold-verification-key-file FILE
+                                                                       | --stake-pool-id STAKE_POOL_ID
+                                                                       )
+                                                                       --out-file FILE
 
   Create a stake address pool delegation certificate
 
@@ -2498,7 +2498,7 @@ Usage: cardano-cli babbage stake-address
                                            | build
                                            | registration-certificate
                                            | deregistration-certificate
-                                           | delegation-certificate
+                                           | stake-delegation-certificate
                                            )
 
   Stake address commands.
@@ -2551,17 +2551,17 @@ Usage: cardano-cli babbage stake-address deregistration-certificate
 
   Create a stake address deregistration certificate
 
-Usage: cardano-cli babbage stake-address delegation-certificate 
-                                                                  ( --stake-verification-key STRING
-                                                                  | --stake-verification-key-file FILE
-                                                                  | --stake-script-file FILE
-                                                                  | --stake-address ADDRESS
-                                                                  )
-                                                                  ( --stake-pool-verification-key STRING
-                                                                  | --cold-verification-key-file FILE
-                                                                  | --stake-pool-id STAKE_POOL_ID
-                                                                  )
-                                                                  --out-file FILE
+Usage: cardano-cli babbage stake-address stake-delegation-certificate 
+                                                                        ( --stake-verification-key STRING
+                                                                        | --stake-verification-key-file FILE
+                                                                        | --stake-script-file FILE
+                                                                        | --stake-address ADDRESS
+                                                                        )
+                                                                        ( --stake-pool-verification-key STRING
+                                                                        | --cold-verification-key-file FILE
+                                                                        | --stake-pool-id STAKE_POOL_ID
+                                                                        )
+                                                                        --out-file FILE
 
   Create a stake address pool delegation certificate
 
@@ -3375,7 +3375,7 @@ Usage: cardano-cli conway stake-address
                                           | build
                                           | registration-certificate
                                           | deregistration-certificate
-                                          | delegation-certificate
+                                          | stake-delegation-certificate
                                           )
 
   Stake address commands.
@@ -3428,17 +3428,17 @@ Usage: cardano-cli conway stake-address deregistration-certificate
 
   Create a stake address deregistration certificate
 
-Usage: cardano-cli conway stake-address delegation-certificate 
-                                                                 ( --stake-verification-key STRING
-                                                                 | --stake-verification-key-file FILE
-                                                                 | --stake-script-file FILE
-                                                                 | --stake-address ADDRESS
-                                                                 )
-                                                                 ( --stake-pool-verification-key STRING
-                                                                 | --cold-verification-key-file FILE
-                                                                 | --stake-pool-id STAKE_POOL_ID
-                                                                 )
-                                                                 --out-file FILE
+Usage: cardano-cli conway stake-address stake-delegation-certificate 
+                                                                       ( --stake-verification-key STRING
+                                                                       | --stake-verification-key-file FILE
+                                                                       | --stake-script-file FILE
+                                                                       | --stake-address ADDRESS
+                                                                       )
+                                                                       ( --stake-pool-verification-key STRING
+                                                                       | --cold-verification-key-file FILE
+                                                                       | --stake-pool-id STAKE_POOL_ID
+                                                                       )
+                                                                       --out-file FILE
 
   Create a stake address pool delegation certificate
 
@@ -3966,7 +3966,7 @@ Usage: cardano-cli latest stake-address
                                           | build
                                           | registration-certificate
                                           | deregistration-certificate
-                                          | delegation-certificate
+                                          | stake-delegation-certificate
                                           )
 
   Stake address commands.
@@ -4019,17 +4019,17 @@ Usage: cardano-cli latest stake-address deregistration-certificate
 
   Create a stake address deregistration certificate
 
-Usage: cardano-cli latest stake-address delegation-certificate 
-                                                                 ( --stake-verification-key STRING
-                                                                 | --stake-verification-key-file FILE
-                                                                 | --stake-script-file FILE
-                                                                 | --stake-address ADDRESS
-                                                                 )
-                                                                 ( --stake-pool-verification-key STRING
-                                                                 | --cold-verification-key-file FILE
-                                                                 | --stake-pool-id STAKE_POOL_ID
-                                                                 )
-                                                                 --out-file FILE
+Usage: cardano-cli latest stake-address stake-delegation-certificate 
+                                                                       ( --stake-verification-key STRING
+                                                                       | --stake-verification-key-file FILE
+                                                                       | --stake-script-file FILE
+                                                                       | --stake-address ADDRESS
+                                                                       )
+                                                                       ( --stake-pool-verification-key STRING
+                                                                       | --cold-verification-key-file FILE
+                                                                       | --stake-pool-id STAKE_POOL_ID
+                                                                       )
+                                                                       --out-file FILE
 
   Create a stake address pool delegation certificate
 

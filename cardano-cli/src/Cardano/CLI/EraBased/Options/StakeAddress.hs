@@ -31,7 +31,7 @@ pStakeAddressCmds era envCli =
     , pStakeAddressBuildCmd era envCli
     , pStakeAddressRegistrationCertificateCmd era
     , pStakeAddressDeregistrationCertificateCmd era
-    , pStakeAddressDelegationCertificateCmd era
+    , pStakeAddressStakeDelegationCertificateCmd era
     ]
 
 pStakeAddressKeyGenCmd :: ()
@@ -109,15 +109,15 @@ pStakeAddressDeregistrationCertificateCmd era = do
         )
     $ Opt.progDesc "Create a stake address deregistration certificate"
 
-pStakeAddressDelegationCertificateCmd :: ()
+pStakeAddressStakeDelegationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (StakeAddressCmds era))
-pStakeAddressDelegationCertificateCmd era = do
+pStakeAddressStakeDelegationCertificateCmd era = do
   w <- maybeFeatureInEra era
   pure
-    $ subParser "delegation-certificate"
+    $ subParser "stake-delegation-certificate"
     $ Opt.info
-        ( StakeAddressDelegationCertificateCmd w
+        ( StakeAddressStakeDelegationCertificateCmd w
             <$> pStakeIdentifier
             <*> pDelegationTarget
             <*> pOutputFile

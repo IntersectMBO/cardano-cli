@@ -4,7 +4,7 @@ Usage: cardano-cli shelley stake-address
                                            | build
                                            | registration-certificate
                                            | deregistration-certificate
-                                           | delegation-certificate
+                                           | stake-delegation-certificate
                                            )
 
   Stake address commands.
@@ -19,4 +19,5 @@ Available commands:
   registration-certificate Create a stake address registration certificate
   deregistration-certificate
                            Create a stake address deregistration certificate
-  delegation-certificate   Create a stake address pool delegation certificate
+  stake-delegation-certificate
+                           Create a stake address pool delegation certificate
