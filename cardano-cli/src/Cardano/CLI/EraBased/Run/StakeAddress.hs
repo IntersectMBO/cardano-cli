@@ -27,9 +27,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
 import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
-import           Cardano.CLI.Types.Key (DelegationTarget (..), StakeIdentifier (..),
-                   StakeVerifier (..), VerificationKeyOrFile, readVerificationKeyOrFile,
-                   readVerificationKeyOrHashOrFile)
+import           Cardano.CLI.Types.Key
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (lift)
@@ -167,28 +165,32 @@ runStakeAddressStakeDelegationCertificateCmd :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
-  -> DelegationTarget
+  -> VerificationKeyOrHashOrFile StakePoolKey
   -- ^ Delegatee stake pool verification key or verification key file or
   -- verification key hash.
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
-runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier delegationTarget outFp =
-  shelleyBasedEraConstraints sbe $
-    case delegationTarget of
-      StakePoolDelegationTarget poolVKeyOrHashOrFile -> do
-        StakePoolKeyHash poolStakeVKeyHash <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile)
-          & onLeft (left . ShelleyStakeAddressCmdReadKeyFileError)
-        let delegatee = Ledger.DelegStake poolStakeVKeyHash
-        stakeCred <-
-          getStakeCredentialFromIdentifier stakeVerifier
-            & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
-        req <- firstExceptT StakeDelegationError . hoistEither
-                $ createDelegationCertRequirements sbe stakeCred delegatee
-        let delegCert = makeStakeAddressDelegationCertificate req
-        firstExceptT ShelleyStakeAddressCmdWriteFileError
-          . newExceptT
-          $ writeLazyByteStringFile outFp
-          $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Address Delegation Certificate") delegCert
+runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrFile outFp =
+  shelleyBasedEraConstraints sbe $ do
+    StakePoolKeyHash poolStakeVKeyHash <-
+      lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile)
+        & onLeft (left . ShelleyStakeAddressCmdReadKeyFileError)
+
+    let delegatee = Ledger.DelegStake poolStakeVKeyHash
+
+    stakeCred <-
+      getStakeCredentialFromIdentifier stakeVerifier
+        & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
+
+    req <- firstExceptT StakeDelegationError . hoistEither
+            $ createDelegationCertRequirements sbe stakeCred delegatee
+
+    let delegCert = makeStakeAddressDelegationCertificate req
+
+    firstExceptT ShelleyStakeAddressCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringFile outFp
+      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Address Delegation Certificate") delegCert
 
 createDelegationCertRequirements :: ()
   => ShelleyBasedEra era

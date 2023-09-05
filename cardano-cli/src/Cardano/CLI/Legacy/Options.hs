@@ -208,7 +208,7 @@ pStakeAddressCmds envCli =
       StakeAddressDelegationCertificateCmd
         <$> pAnyShelleyBasedEra envCli
         <*> pStakeIdentifier
-        <*> pDelegationTarget
+        <*> pStakePoolVerificationKeyOrHashOrFile
         <*> pOutputFile
 
 pKeyCmds :: Parser LegacyKeyCmds

@@ -38,7 +38,7 @@ data StakeAddressCmds era
   | StakeAddressStakeDelegationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
-      DelegationTarget
+      (VerificationKeyOrHashOrFile StakePoolKey)
       (File () Out)
   | StakeAddressDeregistrationCertificateCmd
       (ShelleyBasedEra era)

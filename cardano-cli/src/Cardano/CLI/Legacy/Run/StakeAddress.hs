@@ -6,13 +6,13 @@ module Cardano.CLI.Legacy.Run.StakeAddress
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Run.StakeAddress
 import           Cardano.CLI.Legacy.Commands.StakeAddress
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
-import           Cardano.CLI.Types.Key (DelegationTarget (..), StakeIdentifier (..),
-                   StakeVerifier (..), VerificationKeyOrFile)
+import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Trans.Except (ExceptT)
 
@@ -69,7 +69,7 @@ runLegacyStakeAddresslDelegationCertificateCmd :: ()
   => AnyShelleyBasedEra
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
-  -> DelegationTarget
+  -> VerificationKeyOrHashOrFile StakePoolKey
   -- ^ Delegatee stake pool verification key or verification key file or
   -- verification key hash.
   -> File () Out

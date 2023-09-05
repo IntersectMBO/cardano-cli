@@ -119,7 +119,7 @@ pStakeAddressStakeDelegationCertificateCmd era = do
     $ Opt.info
         ( StakeAddressStakeDelegationCertificateCmd w
             <$> pStakeIdentifier
-            <*> pDelegationTarget
+            <*> pStakePoolVerificationKeyOrHashOrFile
             <*> pOutputFile
         )
     $ Opt.progDesc "Create a stake address pool delegation certificate"

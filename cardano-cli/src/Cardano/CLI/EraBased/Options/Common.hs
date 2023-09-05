@@ -2147,10 +2147,6 @@ pStakePoolVerificationKeyHash =
           ]
       ]
 
-pDelegationTarget :: ()
-  => Parser DelegationTarget
-pDelegationTarget = StakePoolDelegationTarget <$> pStakePoolVerificationKeyOrHashOrFile
-
 pVrfVerificationKeyFile :: Parser (VerificationKeyFile In)
 pVrfVerificationKeyFile =
   fmap File $ Opt.strOption $ mconcat
