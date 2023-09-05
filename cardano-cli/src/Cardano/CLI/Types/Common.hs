@@ -297,6 +297,13 @@ instance Crypto.Crypto crypto =>  ToJSON (Params crypto) where
     , "retiring" .= r
     ]
 
+instance Crypto.Crypto crypto => FromJSON (Params crypto) where
+  parseJSON = Aeson.withObject "Params" $ \obj -> do
+    Params
+      <$> obj Aeson..: "poolParams"
+      <*> obj Aeson..: "futurePoolParams"
+      <*> obj Aeson..: "retiring"
+
 type SigningKeyFile = File (SigningKey ())
 
 type ProposalFile = File ()
