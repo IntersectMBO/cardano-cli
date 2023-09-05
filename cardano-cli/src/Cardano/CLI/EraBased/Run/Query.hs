@@ -11,24 +11,23 @@
 {-# LANGUAGE TypeOperators #-}
 
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Cardano.CLI.EraBased.Run.Query
-  ( runLegacyQueryConstitutionHashCmd
-  , runLegacyQueryKesPeriodInfoCmd
-  , runLegacyQueryLeadershipScheduleCmd
-  , runLegacyQueryLedgerStateCmd
-  , runLegacyQueryPoolStateCmd
-  , runLegacyQueryProtocolParametersCmd
-  , runLegacyQueryProtocolStateCmd
-  , runLegacyQuerySlotNumberCmd
-  , runLegacyQueryStakeAddressInfoCmd
-  , runLegacyQueryStakeDistributionCmd
-  , runLegacyQueryStakePoolsCmd
-  , runLegacyQueryStakeSnapshotCmd
-  , runLegacyQueryTipCmd
-  , runLegacyQueryTxMempoolCmd
-  , runLegacyQueryUTxOCmd
+  ( runQueryConstitutionHashCmd
+  , runQueryKesPeriodInfoCmd
+  , runQueryLeadershipScheduleCmd
+  , runQueryLedgerStateCmd
+  , runQueryPoolStateCmd
+  , runQueryProtocolParametersCmd
+  , runQueryProtocolStateCmd
+  , runQuerySlotNumberCmd
+  , runQueryStakeAddressInfoCmd
+  , runQueryStakeDistributionCmd
+  , runQueryStakePoolsCmd
+  , runQueryStakeSnapshotCmd
+  , runQueryTipCmd
+  , runQueryTxMempoolCmd
+  , runQueryUTxOCmd
 
   , DelegationsAndRewards(..)
   , renderShelleyQueryCmdError
@@ -106,13 +105,13 @@ import           Text.Printf (printf)
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Redundant flip" -}
 
-runLegacyQueryConstitutionHashCmd
+runQueryConstitutionHashCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryConstitutionHashCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
+runQueryConstitutionHashCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
   result <- liftIO $ executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
@@ -144,13 +143,13 @@ runLegacyQueryConstitutionHashCmd socketPath (AnyConsensusModeParams cModeParams
           handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError fpath) $
             LBS.writeFile fpath (encodePretty cHash)
 
-runLegacyQueryProtocolParametersCmd
+runQueryProtocolParametersCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryProtocolParametersCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
+runQueryProtocolParametersCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
   result <- liftIO $ executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
@@ -217,13 +216,13 @@ queryChainTipViaChainSync localNodeConnInfo = do
     "Warning: Local header state query unavailable. Falling back to chain sync query"
   liftIO $ getLocalChainTip localNodeConnInfo
 
-runLegacyQueryTipCmd
+runQueryTipCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryTipCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
+runQueryTipCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   case consensusModeOnly cModeParams of
     CardanoMode -> do
       let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
@@ -301,14 +300,14 @@ runLegacyQueryTipCmd socketPath (AnyConsensusModeParams cModeParams) network mOu
 
 -- | Query the UTxO, filtered by a given set of addresses, from a Shelley node
 -- via the local state query protocol.
-runLegacyQueryUTxOCmd
+runQueryUTxOCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> QueryUTxOFilter
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryUTxOCmd socketPath (AnyConsensusModeParams cModeParams)
+runQueryUTxOCmd socketPath (AnyConsensusModeParams cModeParams)
              qfilter network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
@@ -339,14 +338,14 @@ runLegacyQueryUTxOCmd socketPath (AnyConsensusModeParams cModeParams)
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft left
 
-runLegacyQueryKesPeriodInfoCmd
+runQueryKesPeriodInfoCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> File () In
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryKesPeriodInfoCmd socketPath (AnyConsensusModeParams cModeParams) network nodeOpCertFile mOutFile = do
+runQueryKesPeriodInfoCmd socketPath (AnyConsensusModeParams cModeParams) network nodeOpCertFile mOutFile = do
   opCert <- lift (readFileTextEnvelope AsOperationalCertificate nodeOpCertFile)
     & onLeft (left . ShelleyQueryCmdOpCertCounterReadError)
 
@@ -620,13 +619,13 @@ renderOpCertIntervalInformation opCertFile opCertInfo = case opCertInfo of
 -- | Query the current and future parameters for a stake pool, including the retirement date.
 -- Any of these may be empty (in which case a null will be displayed).
 --
-runLegacyQueryPoolStateCmd
+runQueryPoolStateCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> [Hash StakePoolKey]
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryPoolStateCmd socketPath (AnyConsensusModeParams cModeParams) network poolIds = do
+runQueryPoolStateCmd socketPath (AnyConsensusModeParams cModeParams) network poolIds = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
   join $ lift
@@ -657,14 +656,14 @@ runLegacyQueryPoolStateCmd socketPath (AnyConsensusModeParams cModeParams) netwo
     & onLeft left
 
 -- | Query the local mempool state
-runLegacyQueryTxMempoolCmd
+runQueryTxMempoolCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> TxMempoolQuery
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryTxMempoolCmd socketPath (AnyConsensusModeParams cModeParams) network query mOutFile = do
+runQueryTxMempoolCmd socketPath (AnyConsensusModeParams cModeParams) network query mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
   localQuery <- case query of
@@ -686,27 +685,27 @@ runLegacyQueryTxMempoolCmd socketPath (AnyConsensusModeParams cModeParams) netwo
     Just (File oFp) -> handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError oFp)
         $ LBS.writeFile oFp renderedResult
 
-runLegacyQuerySlotNumberCmd
+runQuerySlotNumberCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> UTCTime
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQuerySlotNumberCmd sockPath aCmp network utcTime = do
+runQuerySlotNumberCmd sockPath aCmp network utcTime = do
   SlotNo slotNo <- utcTimeToSlotNo sockPath aCmp network utcTime
   liftIO . putStr $ show slotNo
 
 -- | Obtain stake snapshot information for a pool, plus information about the total active stake.
 -- This information can be used for leader slot calculation, for example, and has been requested by SPOs.
 -- Obtaining the information directly is significantly more time and memory efficient than using a full ledger state dump.
-runLegacyQueryStakeSnapshotCmd
+runQueryStakeSnapshotCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> AllOrOnly [Hash StakePoolKey]
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryStakeSnapshotCmd socketPath (AnyConsensusModeParams cModeParams) network allOrOnlyPoolIds mOutFile = do
+runQueryStakeSnapshotCmd socketPath (AnyConsensusModeParams cModeParams) network allOrOnlyPoolIds mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
   join $ lift
@@ -740,13 +739,13 @@ runLegacyQueryStakeSnapshotCmd socketPath (AnyConsensusModeParams cModeParams) n
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft left
 
-runLegacyQueryLedgerStateCmd
+runQueryLedgerStateCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryLedgerStateCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
+runQueryLedgerStateCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
   join $ lift
@@ -776,13 +775,13 @@ runLegacyQueryLedgerStateCmd socketPath (AnyConsensusModeParams cModeParams) net
     & onLeft (left . ShelleyQueryCmdAcquireFailure)
     & onLeft left
 
-runLegacyQueryProtocolStateCmd
+runQueryProtocolStateCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryProtocolStateCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
+runQueryProtocolStateCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
   join $ lift
@@ -817,14 +816,14 @@ runLegacyQueryProtocolStateCmd socketPath (AnyConsensusModeParams cModeParams) n
 -- | Query the current delegations and reward accounts, filtered by a given
 -- set of addresses, from a Shelley node via the local state query protocol.
 
-runLegacyQueryStakeAddressInfoCmd
+runQueryStakeAddressInfoCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> StakeAddress
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryStakeAddressInfoCmd socketPath (AnyConsensusModeParams cModeParams) (StakeAddress _ addr) network mOutFile = do
+runQueryStakeAddressInfoCmd socketPath (AnyConsensusModeParams cModeParams) (StakeAddress _ addr) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
   join $ lift
@@ -1053,13 +1052,13 @@ printUtxo sbe txInOutTuple =
   printableValue (TxOutValue _ val) = renderValue val
   printableValue (TxOutAdaOnly _ (Lovelace i)) = Text.pack $ show i
 
-runLegacyQueryStakePoolsCmd
+runQueryStakePoolsCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryStakePoolsCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
+runQueryStakePoolsCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
   join $ lift
@@ -1098,13 +1097,13 @@ writeStakePools Nothing stakePools =
   forM_ (Set.toList stakePools) $ \poolId ->
     liftIO . putStrLn $ Text.unpack (serialiseToBech32 poolId)
 
-runLegacyQueryStakeDistributionCmd
+runQueryStakeDistributionCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryStakeDistributionCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
+runQueryStakeDistributionCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
 
   join $ lift
@@ -1225,7 +1224,7 @@ instance FromJSON DelegationsAndRewards where
         rewardAccountBalance <- o .:? "rewardAccountBalance"
         pure (address, rewardAccountBalance, delegation)
 
-runLegacyQueryLeadershipScheduleCmd
+runQueryLeadershipScheduleCmd
   :: SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
@@ -1235,7 +1234,7 @@ runLegacyQueryLeadershipScheduleCmd
   -> EpochLeadershipSchedule
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryLeadershipScheduleCmd
+runQueryLeadershipScheduleCmd
     socketPath (AnyConsensusModeParams cModeParams) network
     (GenesisFile genFile) coldVerKeyFile vrfSkeyFp
     whichSchedule mJsonOutputFile = do

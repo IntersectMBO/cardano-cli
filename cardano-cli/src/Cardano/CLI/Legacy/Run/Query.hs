@@ -59,7 +59,7 @@ runLegacyQueryConstitutionHashCmd :: ()
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryConstitutionHashCmd = EraBased.runLegacyQueryConstitutionHashCmd
+runLegacyQueryConstitutionHashCmd = EraBased.runQueryConstitutionHashCmd
 
 runLegacyQueryProtocolParametersCmd :: ()
   => SocketPath
@@ -67,7 +67,7 @@ runLegacyQueryProtocolParametersCmd :: ()
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryProtocolParametersCmd = EraBased.runLegacyQueryProtocolParametersCmd
+runLegacyQueryProtocolParametersCmd = EraBased.runQueryProtocolParametersCmd
 
 runLegacyQueryTipCmd :: ()
   => SocketPath
@@ -75,7 +75,7 @@ runLegacyQueryTipCmd :: ()
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryTipCmd = EraBased.runLegacyQueryTipCmd
+runLegacyQueryTipCmd = EraBased.runQueryTipCmd
 
 -- | Query the UTxO, filtered by a given set of addresses, from a Shelley node
 -- via the local state query protocol.
@@ -86,7 +86,7 @@ runLegacyQueryUTxOCmd :: ()
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryUTxOCmd = EraBased.runLegacyQueryUTxOCmd
+runLegacyQueryUTxOCmd = EraBased.runQueryUTxOCmd
 
 runLegacyQueryKesPeriodInfoCmd :: ()
   => SocketPath
@@ -95,7 +95,7 @@ runLegacyQueryKesPeriodInfoCmd :: ()
   -> File () In
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryKesPeriodInfoCmd = EraBased.runLegacyQueryKesPeriodInfoCmd
+runLegacyQueryKesPeriodInfoCmd = EraBased.runQueryKesPeriodInfoCmd
 
 -- | Query the current and future parameters for a stake pool, including the retirement date.
 -- Any of these may be empty (in which case a null will be displayed).
@@ -106,7 +106,7 @@ runLegacyQueryPoolStateCmd :: ()
   -> NetworkId
   -> [Hash StakePoolKey]
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryPoolStateCmd = EraBased.runLegacyQueryPoolStateCmd
+runLegacyQueryPoolStateCmd = EraBased.runQueryPoolStateCmd
 
 -- | Query the local mempool state
 runLegacyQueryTxMempoolCmd :: ()
@@ -116,7 +116,7 @@ runLegacyQueryTxMempoolCmd :: ()
   -> TxMempoolQuery
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryTxMempoolCmd = EraBased.runLegacyQueryTxMempoolCmd
+runLegacyQueryTxMempoolCmd = EraBased.runQueryTxMempoolCmd
 
 runLegacyQuerySlotNumberCmd :: ()
   => SocketPath
@@ -124,7 +124,7 @@ runLegacyQuerySlotNumberCmd :: ()
   -> NetworkId
   -> UTCTime
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQuerySlotNumberCmd = EraBased.runLegacyQuerySlotNumberCmd
+runLegacyQuerySlotNumberCmd = EraBased.runQuerySlotNumberCmd
 
 -- | Obtain stake snapshot information for a pool, plus information about the total active stake.
 -- This information can be used for leader slot calculation, for example, and has been requested by SPOs.
@@ -136,7 +136,7 @@ runLegacyQueryStakeSnapshotCmd :: ()
   -> AllOrOnly [Hash StakePoolKey]
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryStakeSnapshotCmd = EraBased.runLegacyQueryStakeSnapshotCmd
+runLegacyQueryStakeSnapshotCmd = EraBased.runQueryStakeSnapshotCmd
 
 runLegacyQueryLedgerStateCmd :: ()
   => SocketPath
@@ -144,7 +144,7 @@ runLegacyQueryLedgerStateCmd :: ()
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryLedgerStateCmd = EraBased.runLegacyQueryLedgerStateCmd
+runLegacyQueryLedgerStateCmd = EraBased.runQueryLedgerStateCmd
 
 runLegacyQueryProtocolStateCmd :: ()
   => SocketPath
@@ -152,7 +152,7 @@ runLegacyQueryProtocolStateCmd :: ()
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryProtocolStateCmd = EraBased.runLegacyQueryProtocolStateCmd
+runLegacyQueryProtocolStateCmd = EraBased.runQueryProtocolStateCmd
 
 -- | Query the current delegations and reward accounts, filtered by a given
 -- set of addresses, from a Shelley node via the local state query protocol.
@@ -164,7 +164,7 @@ runLegacyQueryStakeAddressInfoCmd :: ()
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryStakeAddressInfoCmd = EraBased.runLegacyQueryStakeAddressInfoCmd
+runLegacyQueryStakeAddressInfoCmd = EraBased.runQueryStakeAddressInfoCmd
 
 runLegacyQueryStakePoolsCmd :: ()
   => SocketPath
@@ -172,7 +172,7 @@ runLegacyQueryStakePoolsCmd :: ()
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryStakePoolsCmd = EraBased.runLegacyQueryStakePoolsCmd
+runLegacyQueryStakePoolsCmd = EraBased.runQueryStakePoolsCmd
 
 runLegacyQueryStakeDistributionCmd :: ()
   => SocketPath
@@ -180,7 +180,7 @@ runLegacyQueryStakeDistributionCmd :: ()
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryStakeDistributionCmd = EraBased.runLegacyQueryStakeDistributionCmd
+runLegacyQueryStakeDistributionCmd = EraBased.runQueryStakeDistributionCmd
 
 runLegacyQueryLeadershipScheduleCmd :: ()
   => SocketPath
@@ -192,4 +192,4 @@ runLegacyQueryLeadershipScheduleCmd :: ()
   -> EpochLeadershipSchedule
   -> Maybe (File () Out)
   -> ExceptT ShelleyQueryCmdError IO ()
-runLegacyQueryLeadershipScheduleCmd = EraBased.runLegacyQueryLeadershipScheduleCmd
+runLegacyQueryLeadershipScheduleCmd = EraBased.runQueryLeadershipScheduleCmd
