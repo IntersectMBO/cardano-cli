@@ -78,8 +78,7 @@ runGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp = d
       delegatee <- toLedgerDelegatee target
       let req = StakeDelegationRequirementsConwayOnwards cOnwards stakeCred delegatee
           delegCert = makeStakeAddressDelegationCertificate req
-          -- TODO: Conway era - update description to say if its delegating voting stake or "regular" stake
-          description = Just @TextEnvelopeDescr "Stake Address Delegation Certificate"
+          description = Just $ toDelegateeEnvelope delegatee
       firstExceptT DelegationCertificateWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFp
@@ -124,6 +123,12 @@ toLedgerDelegatee t =
     TargetVotingDRepScriptHash cOn (ScriptHash scriptHash) ->
       conwayEraOnwardsConstraints cOn $
         right $ Ledger.DelegVote $ Ledger.DRepCredential $ Ledger.ScriptHashObj scriptHash
+
+toDelegateeEnvelope :: Ledger.Delegatee ledgerera -> TextEnvelopeDescr
+toDelegateeEnvelope = \case
+  Ledger.DelegStake{} -> "Stake Delegation Certificate"
+  Ledger.DelegVote{} -> "Vote Delegation Certificate"
+  Ledger.DelegStakeVote{} -> "Stake and Vote Delegation Certificate"
 
 runGovernanceDRepIdCmd :: ()
   => ConwayEraOnwards era
