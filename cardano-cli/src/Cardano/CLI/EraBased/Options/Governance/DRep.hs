@@ -9,7 +9,6 @@ module Cardano.CLI.EraBased.Options.Governance.DRep
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Governance.DRep

@@ -10,8 +10,6 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
-{-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
-
 module Cardano.CLI.EraBased.Run.Query
   ( runQueryConstitutionHashCmd
   , runQueryKesPeriodInfoCmd
@@ -38,9 +36,10 @@ module Cardano.CLI.EraBased.Run.Query
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
 import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.Helpers (hushM, pPrintCBOR)
+import           Cardano.CLI.Helpers (pPrintCBOR)
 import           Cardano.CLI.Legacy.Run.Genesis (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Pretty
 import           Cardano.CLI.Types.Common
@@ -72,9 +71,8 @@ import           Control.Monad (forM, forM_, join)
 import           Control.Monad.IO.Class (MonadIO)
 import           Control.Monad.IO.Unlift (MonadIO (..))
 import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except (ExceptT (..), except, runExcept, runExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither,
-                   hoistMaybe, left, onLeft, onNothing)
+import           Control.Monad.Trans.Except
+import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson as Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Aeson.Types as Aeson
@@ -151,36 +149,32 @@ runQueryProtocolParametersCmd
   -> ExceptT ShelleyQueryCmdError IO ()
 runQueryProtocolParametersCmd socketPath (AnyConsensusModeParams cModeParams) network mOutFile = do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
+  anyE@(AnyCardanoEra era) <- firstExceptT ShelleyQueryCmdAcquireFailure $ newExceptT $ determineEra cModeParams localNodeConnInfo
+  sbe <- case cardanoEraStyle era of
+            LegacyByronEra -> left ShelleyQueryCmdByronEra
+            ShelleyBasedEra sbe -> return sbe
+  let cMode = consensusModeOnly cModeParams
+  eInMode <- toEraInMode era cMode
+                 & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
 
-  result <- liftIO $ executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-    anyE@(AnyCardanoEra era) <- lift (determineEraExpr cModeParams)
-      & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-
-    sbe <- requireShelleyBasedEra era
-      & onNothing (left ShelleyQueryCmdByronEra)
-
-    let cMode = consensusModeOnly cModeParams
-
-    eInMode <- toEraInMode era cMode
-      & hoistMaybe (ShelleyQueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) anyE)
-
-    lift (queryProtocolParameters eInMode sbe)
-      & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
-      & onLeft (left . ShelleyQueryCmdEraMismatch)
-
-  writeProtocolParameters mOutFile =<< except (join (first ShelleyQueryCmdAcquireFailure result))
-
- where
-  writeProtocolParameters
-    :: Maybe (File () Out)
-    -> ProtocolParameters
-    -> ExceptT ShelleyQueryCmdError IO ()
-  writeProtocolParameters mOutFile' pparams =
-    case mOutFile' of
-      Nothing -> liftIO $ LBS.putStrLn (encodePretty pparams)
-      Just (File fpath) ->
-        handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError fpath) $
-          LBS.writeFile fpath (encodePretty pparams)
+  let qInMode = QueryInEra eInMode $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+  pp <- firstExceptT ShelleyQueryCmdConvenienceError
+          . newExceptT $ executeQueryAnyMode era localNodeConnInfo qInMode
+  writeProtocolParameters sbe mOutFile pp
+  where
+    -- TODO: Conway era - use ledger PParams JSON
+    writeProtocolParameters
+      :: ShelleyBasedEra era
+      -> Maybe (File () Out)
+      -> Ledger.PParams (ShelleyLedgerEra era)
+      -> ExceptT ShelleyQueryCmdError IO ()
+    writeProtocolParameters sbe mOutFile' pparams =
+      let apiPParamsJSON = (encodePretty $ fromLedgerPParams sbe pparams)
+      in case mOutFile' of
+        Nothing -> liftIO $ LBS.putStrLn apiPParamsJSON
+        Just (File fpath) ->
+          handleIOExceptT (ShelleyQueryCmdWriteFileError . FileIOError fpath) $
+            LBS.writeFile fpath apiPParamsJSON
 
 -- | Calculate the percentage sync rendered as text.
 percentage
@@ -417,7 +411,7 @@ runQueryKesPeriodInfoCmd socketPath (AnyConsensusModeParams cModeParams) network
     mode -> left . ShelleyQueryCmdUnsupportedMode $ AnyConsensusMode mode
 
  where
-   currentKesPeriod :: ChainTip -> GenesisParameters -> CurrentKesPeriod
+   currentKesPeriod :: ChainTip -> GenesisParameters era -> CurrentKesPeriod
    currentKesPeriod ChainTipAtGenesis _ = CurrentKesPeriod 0
    currentKesPeriod (ChainTip currSlot _ _) gParams =
      let slotsPerKesPeriod = fromIntegral $ protocolParamSlotsPerKESPeriod gParams
@@ -426,7 +420,7 @@ runQueryKesPeriodInfoCmd socketPath (AnyConsensusModeParams cModeParams) network
    opCertStartingKesPeriod :: OperationalCertificate -> OpCertStartingKesPeriod
    opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . getKesPeriod
 
-   opCertEndKesPeriod :: GenesisParameters -> OperationalCertificate -> OpCertEndingKesPeriod
+   opCertEndKesPeriod :: GenesisParameters era -> OperationalCertificate -> OpCertEndingKesPeriod
    opCertEndKesPeriod gParams oCert =
      let OpCertStartingKesPeriod start = opCertStartingKesPeriod oCert
          maxKesEvo = fromIntegral $ protocolParamMaxKESEvolutions gParams
@@ -434,7 +428,7 @@ runQueryKesPeriodInfoCmd socketPath (AnyConsensusModeParams cModeParams) network
 
    -- See OCERT rule in Shelley Spec: https://hydra.iohk.io/job/Cardano/cardano-ledger-specs/shelleyLedgerSpec/latest/download-by-type/doc-pdf/ledger-spec
    opCertIntervalInfo
-     :: GenesisParameters
+     :: GenesisParameters era
      -> ChainTip
      -> CurrentKesPeriod
      -> OpCertStartingKesPeriod
@@ -460,7 +454,7 @@ runQueryKesPeriodInfoCmd socketPath (AnyConsensusModeParams cModeParams) network
 
    opCertExpiryUtcTime
      :: Tentative (EpochInfo (Either Text))
-     -> GenesisParameters
+     -> GenesisParameters era
      -> OpCertEndingKesPeriod
      -> Maybe UTCTime
    opCertExpiryUtcTime eInfo gParams (OpCertEndingKesPeriod oCertExpiryKesPeriod) =
@@ -521,7 +515,7 @@ runQueryKesPeriodInfoCmd socketPath (AnyConsensusModeParams cModeParams) network
      :: OpCertIntervalInformation
      -> OpCertNodeAndOnDiskCounterInformation
      -> Tentative (EpochInfo (Either Text))
-     -> GenesisParameters
+     -> GenesisParameters era
      -> O.QueryKesPeriodInfoOutput
    createQueryKesPeriodInfoOutput oCertIntervalInfo oCertCounterInfo eInfo gParams  =
      let (e, mStillExp) = case oCertIntervalInfo of
@@ -1285,9 +1279,6 @@ runQueryLeadershipScheduleCmd
               & onLeft (left . ShelleyQueryCmdUnsupportedNtcVersion)
               & onLeft (left . ShelleyQueryCmdLocalStateQueryError . EraMismatchError)
 
-            bpp <- hoistEither . first ShelleyQueryCmdProtocolParameterConversionError $
-              bundleProtocolParams era pparams
-
             case whichSchedule of
               CurrentEpoch -> do
                 serCurrentEpochState <- lift (queryPoolDistribution eInMode sbe (Just (Set.singleton poolid)))
@@ -1301,7 +1292,7 @@ runQueryLeadershipScheduleCmd
                       sbe
                       shelleyGenesis
                       eInfo
-                      bpp
+                      pparams
                       ptclState
                       poolid
                       vrkSkey
@@ -1321,7 +1312,7 @@ runQueryLeadershipScheduleCmd
                   schedule <- firstExceptT ShelleyQueryCmdLeaderShipError $ hoistEither
                     $ shelleyBasedEraConstraints sbe
                     $ nextEpochEligibleLeadershipSlots sbe shelleyGenesis
-                      serCurrentEpochState ptclState poolid vrkSkey bpp
+                      serCurrentEpochState ptclState poolid vrkSkey pparams
                       eInfo (tip, curentEpoch)
 
                   writeSchedule mJsonOutputFile eInfo shelleyGenesis schedule

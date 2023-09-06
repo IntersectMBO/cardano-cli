@@ -803,13 +803,12 @@ data ProposalError
 readTxGovernanceActions
   :: CardanoEra era
   -> [ProposalFile In]
-  -> IO (Either ConstitutionError (TxGovernanceActions era))
-readTxGovernanceActions _ [] = return $ Right TxGovernanceActionsNone
+  -> IO (Either ConstitutionError [Proposal era])
+readTxGovernanceActions _ [] = return $ Right []
 readTxGovernanceActions era files = runExceptT $ do
   w <- maybeFeatureInEra era
         & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
-  proposals <- newExceptT $ sequence <$> mapM (readProposal w) files
-  pure $ TxGovernanceActions w proposals
+  newExceptT $ sequence <$> mapM (readProposal w) files
 
 readProposal
   :: ConwayEraOnwards era

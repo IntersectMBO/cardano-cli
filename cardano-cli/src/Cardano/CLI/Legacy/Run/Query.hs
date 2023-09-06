@@ -17,7 +17,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyQueryCmdError
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile)
 
-import           Control.Monad.Trans.Except (ExceptT)
+import           Control.Monad.Trans.Except
 import           Data.Time.Clock
 
 runLegacyQueryCmds :: LegacyQueryCmds -> ExceptT ShelleyQueryCmdError IO ()

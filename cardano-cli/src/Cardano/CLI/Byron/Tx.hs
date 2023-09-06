@@ -171,7 +171,7 @@ txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs = do
             , txUpdateProposal = TxUpdateProposalNone
             , txMintValue = TxMintNone
             , txScriptValidity = TxScriptValidityNone
-            , txGovernanceActions = TxGovernanceActionsNone
+            , txProposalProcedures = Nothing
             , txVotingProcedures = Nothing
             }
 
@@ -220,7 +220,7 @@ txSpendUTxOByronPBFT nId sk txIns outs = do
           , txUpdateProposal = TxUpdateProposalNone
           , txMintValue = TxMintNone
           , txScriptValidity = TxScriptValidityNone
-          , txGovernanceActions = TxGovernanceActionsNone
+          , txProposalProcedures = Nothing
           , txVotingProcedures = Nothing
           }
 

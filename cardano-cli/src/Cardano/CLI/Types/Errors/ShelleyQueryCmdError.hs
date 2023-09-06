@@ -34,6 +34,7 @@ import           Formatting.Buildable (build)
 
 data ShelleyQueryCmdError
   = ShelleyQueryCmdLocalStateQueryError !ShelleyQueryCmdLocalStateQueryError
+  | ShelleyQueryCmdConvenienceError !QueryConvenienceError
   | ShelleyQueryCmdWriteFileError !(FileError ())
   | ShelleyQueryCmdHelpersError !HelpersError
   | ShelleyQueryCmdAcquireFailure !AcquiringFailure
@@ -89,3 +90,4 @@ renderShelleyQueryCmdError err =
       "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
     ShelleyQueryCmdProtocolParameterConversionError ppce ->
       Text.pack $ "Failed to convert protocol parameter: " <> displayError ppce
+    ShelleyQueryCmdConvenienceError qce -> renderQueryConvenienceError qce
