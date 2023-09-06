@@ -1,4 +1,4 @@
-Usage: cardano-cli allegra (governance | stake-address | transaction)
+Usage: cardano-cli allegra (address | governance | stake-address | transaction)
 
   Allegra era commands
 
@@ -6,6 +6,7 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
+  address                  Era-based address commands
   governance               Era-based governance commands
   stake-address            Stake address commands.
   transaction              Era-based governance commands

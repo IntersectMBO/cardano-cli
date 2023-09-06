@@ -13,8 +13,10 @@ module Cardano.CLI.EraBased.Commands
 import           Cardano.Api (CardanoEra (..), ShelleyBasedEra (..))
 
 import           Cardano.CLI.Environment
+import           Cardano.CLI.EraBased.Commands.Address
 import           Cardano.CLI.EraBased.Commands.StakeAddress
 import           Cardano.CLI.EraBased.Commands.Transaction
+import           Cardano.CLI.EraBased.Options.Address
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.EraBased.Options.StakeAddress
@@ -34,12 +36,15 @@ renderAnyEraCommand = \case
   AnyEraCommandOf _ cmd -> renderEraBasedCommand cmd
 
 data EraBasedCommand era
-  = EraBasedGovernanceCmds (EraBasedGovernanceCmds era)
+  = AddressCmds (AddressCmds era)
+  | EraBasedGovernanceCmds (EraBasedGovernanceCmds era)
   | TransactionCmds (TransactionCmds era)
   | StakeAddressCmds (StakeAddressCmds era)
 
 renderEraBasedCommand :: EraBasedCommand era -> Text
 renderEraBasedCommand = \case
+  AddressCmds cmd ->
+    renderAddressCmds cmd
   EraBasedGovernanceCmds cmd ->
     renderEraBasedGovernanceCmds cmd
   StakeAddressCmds cmd ->
@@ -80,6 +85,10 @@ pEraBasedCommand :: EnvCli -> CardanoEra era -> Parser (EraBasedCommand era)
 pEraBasedCommand envCli era =
   asum $ catMaybes
     [ Just
+        $ subParser "address"
+        $ Opt.info (AddressCmds <$> pAddressCmds era envCli)
+        $ Opt.progDesc "Era-based address commands"
+    , Just
         $ subParser "governance"
         $ Opt.info (EraBasedGovernanceCmds <$> pEraBasedGovernanceCmds envCli era)
         $ Opt.progDesc "Era-based governance commands"

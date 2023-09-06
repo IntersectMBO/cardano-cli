@@ -13,9 +13,50 @@ Usage: cardano-cli
                      | version
                      )
 
-Usage: cardano-cli shelley (governance | stake-address | transaction)
+Usage: cardano-cli shelley (address | governance | stake-address | transaction)
 
   Shelley era commands
+
+Usage: cardano-cli shelley address (key-gen | key-hash | build | info)
+
+  Era-based address commands
+
+Usage: cardano-cli shelley address key-gen [--key-output-format STRING]
+                                             [ --normal-key
+                                             | --extended-key
+                                             | --byron-key
+                                             ]
+                                             --verification-key-file FILE
+                                             --signing-key-file FILE
+
+  Create an address key pair.
+
+Usage: cardano-cli shelley address key-hash 
+                                              ( --payment-verification-key STRING
+                                              | --payment-verification-key-file FILE
+                                              )
+                                              [--out-file FILE]
+
+  Print the hash of an address key.
+
+Usage: cardano-cli shelley address build 
+                                           ( --payment-verification-key STRING
+                                           | --payment-verification-key-file FILE
+                                           | --payment-script-file FILE
+                                           )
+                                           [ --stake-verification-key STRING
+                                           | --stake-verification-key-file FILE
+                                           | --stake-script-file FILE
+                                           | --stake-address ADDRESS
+                                           ]
+                                           (--mainnet | --testnet-magic NATURAL)
+                                           [--out-file FILE]
+
+  Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli shelley address info --address ADDRESS [--out-file FILE]
+
+  Print information about an address.
 
 Usage: cardano-cli shelley governance (create-mir-certificate | action | drep)
 
@@ -602,9 +643,50 @@ Usage: cardano-cli shelley transaction view
 
   Print a transaction.
 
-Usage: cardano-cli allegra (governance | stake-address | transaction)
+Usage: cardano-cli allegra (address | governance | stake-address | transaction)
 
   Allegra era commands
+
+Usage: cardano-cli allegra address (key-gen | key-hash | build | info)
+
+  Era-based address commands
+
+Usage: cardano-cli allegra address key-gen [--key-output-format STRING]
+                                             [ --normal-key
+                                             | --extended-key
+                                             | --byron-key
+                                             ]
+                                             --verification-key-file FILE
+                                             --signing-key-file FILE
+
+  Create an address key pair.
+
+Usage: cardano-cli allegra address key-hash 
+                                              ( --payment-verification-key STRING
+                                              | --payment-verification-key-file FILE
+                                              )
+                                              [--out-file FILE]
+
+  Print the hash of an address key.
+
+Usage: cardano-cli allegra address build 
+                                           ( --payment-verification-key STRING
+                                           | --payment-verification-key-file FILE
+                                           | --payment-script-file FILE
+                                           )
+                                           [ --stake-verification-key STRING
+                                           | --stake-verification-key-file FILE
+                                           | --stake-script-file FILE
+                                           | --stake-address ADDRESS
+                                           ]
+                                           (--mainnet | --testnet-magic NATURAL)
+                                           [--out-file FILE]
+
+  Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli allegra address info --address ADDRESS [--out-file FILE]
+
+  Print information about an address.
 
 Usage: cardano-cli allegra governance (create-mir-certificate | action | drep)
 
@@ -1191,9 +1273,50 @@ Usage: cardano-cli allegra transaction view
 
   Print a transaction.
 
-Usage: cardano-cli mary (governance | stake-address | transaction)
+Usage: cardano-cli mary (address | governance | stake-address | transaction)
 
   Mary era commands
+
+Usage: cardano-cli mary address (key-gen | key-hash | build | info)
+
+  Era-based address commands
+
+Usage: cardano-cli mary address key-gen [--key-output-format STRING]
+                                          [ --normal-key
+                                          | --extended-key
+                                          | --byron-key
+                                          ]
+                                          --verification-key-file FILE
+                                          --signing-key-file FILE
+
+  Create an address key pair.
+
+Usage: cardano-cli mary address key-hash 
+                                           ( --payment-verification-key STRING
+                                           | --payment-verification-key-file FILE
+                                           )
+                                           [--out-file FILE]
+
+  Print the hash of an address key.
+
+Usage: cardano-cli mary address build 
+                                        ( --payment-verification-key STRING
+                                        | --payment-verification-key-file FILE
+                                        | --payment-script-file FILE
+                                        )
+                                        [ --stake-verification-key STRING
+                                        | --stake-verification-key-file FILE
+                                        | --stake-script-file FILE
+                                        | --stake-address ADDRESS
+                                        ]
+                                        (--mainnet | --testnet-magic NATURAL)
+                                        [--out-file FILE]
+
+  Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli mary address info --address ADDRESS [--out-file FILE]
+
+  Print information about an address.
 
 Usage: cardano-cli mary governance (create-mir-certificate | action | drep)
 
@@ -1765,9 +1888,50 @@ Usage: cardano-cli mary transaction view (--tx-body-file FILE | --tx-file FILE)
 
   Print a transaction.
 
-Usage: cardano-cli alonzo (governance | stake-address | transaction)
+Usage: cardano-cli alonzo (address | governance | stake-address | transaction)
 
   Alonzo era commands
+
+Usage: cardano-cli alonzo address (key-gen | key-hash | build | info)
+
+  Era-based address commands
+
+Usage: cardano-cli alonzo address key-gen [--key-output-format STRING]
+                                            [ --normal-key
+                                            | --extended-key
+                                            | --byron-key
+                                            ]
+                                            --verification-key-file FILE
+                                            --signing-key-file FILE
+
+  Create an address key pair.
+
+Usage: cardano-cli alonzo address key-hash 
+                                             ( --payment-verification-key STRING
+                                             | --payment-verification-key-file FILE
+                                             )
+                                             [--out-file FILE]
+
+  Print the hash of an address key.
+
+Usage: cardano-cli alonzo address build 
+                                          ( --payment-verification-key STRING
+                                          | --payment-verification-key-file FILE
+                                          | --payment-script-file FILE
+                                          )
+                                          [ --stake-verification-key STRING
+                                          | --stake-verification-key-file FILE
+                                          | --stake-script-file FILE
+                                          | --stake-address ADDRESS
+                                          ]
+                                          (--mainnet | --testnet-magic NATURAL)
+                                          [--out-file FILE]
+
+  Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli alonzo address info --address ADDRESS [--out-file FILE]
+
+  Print information about an address.
 
 Usage: cardano-cli alonzo governance (create-mir-certificate | action | drep)
 
@@ -2361,9 +2525,50 @@ Usage: cardano-cli alonzo transaction view
 
   Print a transaction.
 
-Usage: cardano-cli babbage (governance | stake-address | transaction)
+Usage: cardano-cli babbage (address | governance | stake-address | transaction)
 
   Babbage era commands
+
+Usage: cardano-cli babbage address (key-gen | key-hash | build | info)
+
+  Era-based address commands
+
+Usage: cardano-cli babbage address key-gen [--key-output-format STRING]
+                                             [ --normal-key
+                                             | --extended-key
+                                             | --byron-key
+                                             ]
+                                             --verification-key-file FILE
+                                             --signing-key-file FILE
+
+  Create an address key pair.
+
+Usage: cardano-cli babbage address key-hash 
+                                              ( --payment-verification-key STRING
+                                              | --payment-verification-key-file FILE
+                                              )
+                                              [--out-file FILE]
+
+  Print the hash of an address key.
+
+Usage: cardano-cli babbage address build 
+                                           ( --payment-verification-key STRING
+                                           | --payment-verification-key-file FILE
+                                           | --payment-script-file FILE
+                                           )
+                                           [ --stake-verification-key STRING
+                                           | --stake-verification-key-file FILE
+                                           | --stake-script-file FILE
+                                           | --stake-address ADDRESS
+                                           ]
+                                           (--mainnet | --testnet-magic NATURAL)
+                                           [--out-file FILE]
+
+  Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli babbage address info --address ADDRESS [--out-file FILE]
+
+  Print information about an address.
 
 Usage: cardano-cli babbage governance (create-mir-certificate | action | drep)
 
@@ -2953,9 +3158,50 @@ Usage: cardano-cli babbage transaction view
 
   Print a transaction.
 
-Usage: cardano-cli conway (governance | stake-address | transaction)
+Usage: cardano-cli conway (address | governance | stake-address | transaction)
 
   Conway era commands
+
+Usage: cardano-cli conway address (key-gen | key-hash | build | info)
+
+  Era-based address commands
+
+Usage: cardano-cli conway address key-gen [--key-output-format STRING]
+                                            [ --normal-key
+                                            | --extended-key
+                                            | --byron-key
+                                            ]
+                                            --verification-key-file FILE
+                                            --signing-key-file FILE
+
+  Create an address key pair.
+
+Usage: cardano-cli conway address key-hash 
+                                             ( --payment-verification-key STRING
+                                             | --payment-verification-key-file FILE
+                                             )
+                                             [--out-file FILE]
+
+  Print the hash of an address key.
+
+Usage: cardano-cli conway address build 
+                                          ( --payment-verification-key STRING
+                                          | --payment-verification-key-file FILE
+                                          | --payment-script-file FILE
+                                          )
+                                          [ --stake-verification-key STRING
+                                          | --stake-verification-key-file FILE
+                                          | --stake-script-file FILE
+                                          | --stake-address ADDRESS
+                                          ]
+                                          (--mainnet | --testnet-magic NATURAL)
+                                          [--out-file FILE]
+
+  Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli conway address info --address ADDRESS [--out-file FILE]
+
+  Print information about an address.
 
 Usage: cardano-cli conway governance (query | action | committee | drep | vote)
 
@@ -3831,9 +4077,50 @@ Usage: cardano-cli conway transaction view
 
   Print a transaction.
 
-Usage: cardano-cli latest (governance | stake-address | transaction)
+Usage: cardano-cli latest (address | governance | stake-address | transaction)
 
   Latest era commands (Babbage)
+
+Usage: cardano-cli latest address (key-gen | key-hash | build | info)
+
+  Era-based address commands
+
+Usage: cardano-cli latest address key-gen [--key-output-format STRING]
+                                            [ --normal-key
+                                            | --extended-key
+                                            | --byron-key
+                                            ]
+                                            --verification-key-file FILE
+                                            --signing-key-file FILE
+
+  Create an address key pair.
+
+Usage: cardano-cli latest address key-hash 
+                                             ( --payment-verification-key STRING
+                                             | --payment-verification-key-file FILE
+                                             )
+                                             [--out-file FILE]
+
+  Print the hash of an address key.
+
+Usage: cardano-cli latest address build 
+                                          ( --payment-verification-key STRING
+                                          | --payment-verification-key-file FILE
+                                          | --payment-script-file FILE
+                                          )
+                                          [ --stake-verification-key STRING
+                                          | --stake-verification-key-file FILE
+                                          | --stake-script-file FILE
+                                          | --stake-address ADDRESS
+                                          ]
+                                          (--mainnet | --testnet-magic NATURAL)
+                                          [--out-file FILE]
+
+  Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli latest address info --address ADDRESS [--out-file FILE]
+
+  Print information about an address.
 
 Usage: cardano-cli latest governance (create-mir-certificate | action | drep)
 
