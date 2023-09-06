@@ -76,9 +76,10 @@ data SomeSigningKey
   | AVrfSigningKey             (SigningKey VrfKey)
   | AKesSigningKey             (SigningKey KesKey)
 
-withSomeSigningKey :: SomeSigningKey
-                   -> (forall keyrole. (Key keyrole, HasTypeProxy keyrole) => SigningKey keyrole -> a)
-                   -> a
+withSomeSigningKey :: ()
+  => SomeSigningKey
+  -> (forall keyrole. (Key keyrole, HasTypeProxy keyrole) => SigningKey keyrole -> a)
+  -> a
 withSomeSigningKey ssk f =
     case ssk of
       AByronSigningKey           sk -> f sk

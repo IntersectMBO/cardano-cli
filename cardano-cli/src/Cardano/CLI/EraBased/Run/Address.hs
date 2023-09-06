@@ -14,11 +14,11 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
-                   StakeVerifier (..), VerificationKeyTextOrFile, generateKeyPair, readVerificationKeyOrFile,
-                   readVerificationKeyTextOrFileAnyOf)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
+import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
+                   StakeVerifier (..), VerificationKeyTextOrFile, generateKeyPair,
+                   readVerificationKeyOrFile, readVerificationKeyTextOrFileAnyOf)
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -37,13 +37,9 @@ runAddressKeyGenCmd fmt kt vkf skf = case kt of
   AddressKeyShelleyExtended -> generateAndWriteKeyFiles fmt  AsPaymentExtendedKey  vkf skf
   AddressKeyByron           -> generateAndWriteByronKeyFiles AsByronKey            vkf skf
 
-generateAndWriteByronKeyFiles
-  :: Key keyrole
-#if __GLASGOW_HASKELL__ >= 904
--- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.4 and above complains if its
--- not present.
+generateAndWriteByronKeyFiles :: ()
+  => Key keyrole
   => HasTypeProxy keyrole
-#endif
   => AsType keyrole
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
@@ -51,13 +47,9 @@ generateAndWriteByronKeyFiles
 generateAndWriteByronKeyFiles asType vkf skf = do
   uncurry (writeByronPaymentKeyFiles vkf skf) =<< liftIO (generateKeyPair asType)
 
-generateAndWriteKeyFiles
-  :: Key keyrole
-#if __GLASGOW_HASKELL__ >= 904
--- GHC 8.10 considers the HasTypeProxy constraint redundant but ghc-9.4 and above complains if its
--- not present.
+generateAndWriteKeyFiles :: ()
+  => Key keyrole
   => HasTypeProxy keyrole
-#endif
   => SerialiseAsBech32 (SigningKey keyrole)
   => SerialiseAsBech32 (VerificationKey keyrole)
   => KeyOutputFormat
