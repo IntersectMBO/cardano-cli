@@ -50,7 +50,7 @@ import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Legacy.Run.Node (
                    runLegacyNodeIssueOpCertCmd, runLegacyNodeKeyGenColdCmd, runLegacyNodeKeyGenKesCmd, runLegacyNodeKeyGenVrfCmd)
-import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenToFileCmd)
+import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
@@ -849,7 +849,7 @@ createPoolCredentials fmt dir index = do
         (KESPeriod 0)
         (File $ dir </> "opcert" ++ strIndex ++ ".cert")
   firstExceptT ShelleyGenesisCmdStakeAddressCmdError $
-    runStakeAddressKeyGenToFileCmd
+    runStakeAddressKeyGenCmd
         fmt
         (File @(VerificationKey ()) $ dir </> "staking-reward" ++ strIndex ++ ".vkey")
         (File @(SigningKey ()) $ dir </> "staking-reward" ++ strIndex ++ ".skey")

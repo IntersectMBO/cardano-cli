@@ -17,28 +17,28 @@ import           Prelude
 import           Data.Text (Text)
 
 data LegacyStakeAddressCmds
-  = StakeAddressKeyGen
+  = StakeAddressKeyGenCmd
       KeyOutputFormat
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
-  | StakeAddressKeyHash
+  | StakeAddressKeyHashCmd
       (VerificationKeyOrFile StakeKey)
       (Maybe (File () Out))
-  | StakeAddressBuild
+  | StakeAddressBuildCmd
       StakeVerifier
       NetworkId
       (Maybe (File () Out))
-  | StakeRegistrationCert
+  | StakeAddressRegistrationCertificateCmd
       AnyShelleyBasedEra
       StakeIdentifier
       (Maybe Lovelace)
       (File () Out)
-  | StakeCredentialDelegationCert
+  | StakeAddressDelegationCertificateCmd
       AnyShelleyBasedEra
       StakeIdentifier
-      DelegationTarget
+      (VerificationKeyOrHashOrFile StakePoolKey)
       (File () Out)
-  | StakeCredentialDeRegistrationCert
+  | StakeAddressDeregistrationCertificateCmd
       AnyShelleyBasedEra
       StakeIdentifier
       (Maybe Lovelace)
@@ -47,9 +47,9 @@ data LegacyStakeAddressCmds
 
 renderLegacyStakeAddressCmds :: LegacyStakeAddressCmds -> Text
 renderLegacyStakeAddressCmds = \case
-  StakeAddressKeyGen {} -> "stake-address key-gen"
-  StakeAddressKeyHash {} -> "stake-address key-hash"
-  StakeAddressBuild {} -> "stake-address build"
-  StakeRegistrationCert {} -> "stake-address registration-certificate"
-  StakeCredentialDelegationCert {} -> "stake-address delegation-certificate"
-  StakeCredentialDeRegistrationCert {} -> "stake-address deregistration-certificate"
+  StakeAddressKeyGenCmd {} -> "stake-address key-gen"
+  StakeAddressKeyHashCmd {} -> "stake-address key-hash"
+  StakeAddressBuildCmd {} -> "stake-address build"
+  StakeAddressRegistrationCertificateCmd {} -> "stake-address registration-certificate"
+  StakeAddressDelegationCertificateCmd {} -> "stake-address delegation-certificate"
+  StakeAddressDeregistrationCertificateCmd {} -> "stake-address deregistration-certificate"

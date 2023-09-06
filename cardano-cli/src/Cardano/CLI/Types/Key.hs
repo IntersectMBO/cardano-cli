@@ -26,8 +26,8 @@ module Cardano.CLI.Types.Key
   , StakeVerifier(..)
 
   , generateKeyPair
+
   --- Legacy
-  , DelegationTarget(..) -- TODO: Remove me
   , StakePoolRegistrationParserRequirements(..)
 
   -- NewEraBased
@@ -236,10 +236,6 @@ data StakeTarget era where
     -> StakeTarget era
 
 deriving instance Show (StakeTarget era)
-
-newtype DelegationTarget
-  = StakePoolDelegationTarget (VerificationKeyOrHashOrFile StakePoolKey)
-  deriving Show
 
 -- | Either an unvalidated text representation of a verification key or a path
 -- to a verification key file.

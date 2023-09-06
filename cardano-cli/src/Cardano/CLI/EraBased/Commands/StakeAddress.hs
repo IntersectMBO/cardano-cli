@@ -16,31 +16,31 @@ import           Prelude
 import           Data.Text (Text)
 
 data StakeAddressCmds era
-  = StakeAddressKeyGen
+  = StakeAddressKeyGenCmd
       (ShelleyBasedEra era)
       KeyOutputFormat
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
-  | StakeAddressKeyHash
+  | StakeAddressKeyHashCmd
       (ShelleyBasedEra era)
       (VerificationKeyOrFile StakeKey)
       (Maybe (File () Out))
-  | StakeAddressBuild
+  | StakeAddressBuildCmd
       (ShelleyBasedEra era)
       StakeVerifier
       NetworkId
       (Maybe (File () Out))
-  | StakeRegistrationCert
+  | StakeAddressRegistrationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
       (Maybe Lovelace)
       (File () Out)
-  | StakeCredentialDelegationCert
+  | StakeAddressStakeDelegationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
-      DelegationTarget
+      (VerificationKeyOrHashOrFile StakePoolKey)
       (File () Out)
-  | StakeCredentialDeRegistrationCert
+  | StakeAddressDeregistrationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
       (Maybe Lovelace)
@@ -49,9 +49,9 @@ data StakeAddressCmds era
 
 renderStakeAddressCmds :: StakeAddressCmds era -> Text
 renderStakeAddressCmds = \case
-  StakeAddressKeyGen {} -> "stake-address key-gen"
-  StakeAddressKeyHash {} -> "stake-address key-hash"
-  StakeAddressBuild {} -> "stake-address build"
-  StakeRegistrationCert {} -> "stake-address registration-certificate"
-  StakeCredentialDelegationCert {} -> "stake-address delegation-certificate"
-  StakeCredentialDeRegistrationCert {} -> "stake-address deregistration-certificate"
+  StakeAddressKeyGenCmd {} -> "stake-address key-gen"
+  StakeAddressKeyHashCmd {} -> "stake-address key-hash"
+  StakeAddressBuildCmd {} -> "stake-address build"
+  StakeAddressRegistrationCertificateCmd {} -> "stake-address registration-certificate"
+  StakeAddressStakeDelegationCertificateCmd {} -> "stake-address stake-delegation-certificate"
+  StakeAddressDeregistrationCertificateCmd {} -> "stake-address deregistration-certificate"
