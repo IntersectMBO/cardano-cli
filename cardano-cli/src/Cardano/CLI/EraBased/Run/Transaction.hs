@@ -7,6 +7,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Unused LANGUAGE pragma" #-}
+
 module Cardano.CLI.EraBased.Run.Transaction
   ( runTransactionCmds
   , runTxBuildCmd
@@ -563,11 +566,8 @@ runTxBuild
               TxCertificates _ cs _ -> cs
               _ -> []
 
-      nodeEraCerts <- forM certs (eraCast nodeEra)
-                      & firstExceptT ShelleyTxCmdTxEraCastErr . hoistEither
-
-      (nodeEraUTxO, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits) <-
-        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs nodeEraCerts)
+      (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits) <-
+        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs certs)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . ShelleyTxCmdQueryConvenienceError)
 
@@ -575,7 +575,7 @@ runTxBuild
                                       $ validateProtocolParameters era (Just pparams)
 
       let validatedTxProposalProcedures = proposals
-          validatedTxVotes =  votes
+          validatedTxVotes = votes
           txBodyContent =
             TxBodyContent
               { txIns = validateTxIns inputsAndMaybeScriptWits
@@ -600,17 +600,12 @@ runTxBuild
               }
 
       firstExceptT ShelleyTxCmdTxInsDoNotExist
-        . hoistEither $ txInsExistInUTxO allTxInputs nodeEraUTxO
+        . hoistEither $ txInsExistInUTxO allTxInputs txEraUtxo
       firstExceptT ShelleyTxCmdQueryNotScriptLocked
-        . hoistEither $ notScriptLockedTxIns txinsc nodeEraUTxO
+        . hoistEither $ notScriptLockedTxIns txinsc txEraUtxo
 
       cAddr <- pure (anyAddressInEra era changeAddr)
         & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
-
-      -- Why do we cast the era? The user can specify an era prior to the era that the node is currently in.
-      -- We cannot use the user specified era to construct a query against a node because it may differ
-      -- from the node's era and this will result in the 'QueryEraMismatch' failure.
-      txEraUtxo <- pure (eraCast era nodeEraUTxO) & onLeft (left . ShelleyTxCmdTxEraCastErr)
 
       balancedTxBody@(BalancedTxBody _ _ _ fee) <-
         firstExceptT ShelleyTxCmdBalanceTxBody
