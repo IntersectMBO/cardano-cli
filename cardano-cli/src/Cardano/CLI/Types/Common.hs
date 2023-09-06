@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 {-# LANGUAGE RankNTypes #-}
@@ -297,7 +298,7 @@ instance Crypto.Crypto crypto =>  ToJSON (Params crypto) where
     , "retiring" .= r
     ]
 
-instance Crypto.Crypto crypto => FromJSON (Params crypto) where
+instance FromJSON (Params Crypto.StandardCrypto) where
   parseJSON = Aeson.withObject "Params" $ \obj -> do
     Params
       <$> obj Aeson..: "poolParams"
