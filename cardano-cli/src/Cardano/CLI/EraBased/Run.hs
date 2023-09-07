@@ -11,6 +11,7 @@ import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Governance
+import           Cardano.CLI.EraBased.Run.Address
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
@@ -33,8 +34,11 @@ runAnyEraCommand = \case
     shelleyBasedEraConstraints sbe $ runEraBasedCommand cmd
 
 runEraBasedCommand :: ()
-  => EraBasedCommand era -> ExceptT CmdError IO ()
+  => EraBasedCommand era
+  -> ExceptT CmdError IO ()
 runEraBasedCommand = \case
+  AddressCmds cmd ->
+    runAddressCmds cmd & firstExceptT CmdAddressError
   EraBasedGovernanceCmds cmd ->
     runEraBasedGovernanceCmds cmd
   StakeAddressCmds cmd ->

@@ -69,6 +69,7 @@ library
                         Cardano.CLI.Byron.Vote
                         Cardano.CLI.Environment
                         Cardano.CLI.EraBased.Commands
+                        Cardano.CLI.EraBased.Commands.Address
                         Cardano.CLI.EraBased.Commands.Governance
                         Cardano.CLI.EraBased.Commands.Governance.Actions
                         Cardano.CLI.EraBased.Commands.Governance.Committee
@@ -77,6 +78,7 @@ library
                         Cardano.CLI.EraBased.Commands.Governance.Vote
                         Cardano.CLI.EraBased.Commands.StakeAddress
                         Cardano.CLI.EraBased.Commands.Transaction
+                        Cardano.CLI.EraBased.Options.Address
                         Cardano.CLI.EraBased.Options.Common
                         Cardano.CLI.EraBased.Options.Governance
                         Cardano.CLI.EraBased.Options.Governance.Actions

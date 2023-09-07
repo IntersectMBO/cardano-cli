@@ -1,4 +1,4 @@
-Usage: cardano-cli latest (governance | stake-address | transaction)
+Usage: cardano-cli latest (address | governance | stake-address | transaction)
 
   Latest era commands (Babbage)
 
@@ -6,6 +6,7 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
+  address                  Era-based address commands
   governance               Era-based governance commands
   stake-address            Stake address commands.
   transaction              Era-based governance commands

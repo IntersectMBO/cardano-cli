@@ -1,11 +1,14 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Address
-  ( runAddressBuildCmd
+  ( runAddressCmds
+
+  , runAddressBuildCmd
   , runAddressKeyGenCmd
   , runAddressKeyHashCmd
   ) where
@@ -13,6 +16,8 @@ module Cardano.CLI.EraBased.Run.Address
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.EraBased.Commands.Address
+import           Cardano.CLI.EraBased.Run.Address.Info
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
@@ -24,7 +29,21 @@ import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT)
 import qualified Data.ByteString.Char8 as BS
+import           Data.Function
 import qualified Data.Text.IO as Text
+
+runAddressCmds :: ()
+  => AddressCmds era
+  -> ExceptT ShelleyAddressCmdError IO ()
+runAddressCmds = \case
+  AddressKeyGen fmt kt vkf skf ->
+    runAddressKeyGenCmd fmt kt vkf skf
+  AddressKeyHash vkf mOFp ->
+    runAddressKeyHashCmd vkf mOFp
+  AddressBuild paymentVerifier mbStakeVerifier nw mOutFp ->
+    runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp
+  AddressInfo txt mOFp ->
+    runAddressInfoCmd txt mOFp & firstExceptT ShelleyAddressCmdAddressInfoError
 
 runAddressKeyGenCmd
   :: KeyOutputFormat
