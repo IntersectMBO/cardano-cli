@@ -168,7 +168,8 @@ renderShelleyTxCmdError err =
       , "likely due to not being in the Alonzo era"
       ]
     ShelleyTxCmdTxEraCastErr (EraCastError value fromEra toEra) ->
-      "Unable to cast era from " <> textShow fromEra <> " to " <> textShow toEra <> " the value " <> textShow value
+      "Transactions can only be produced in the same era as the node. Mismatched eras of "
+      <> textShow value <> ". Requested era: " <> renderEra (AnyCardanoEra toEra) <> ", node era: " <> renderEra (AnyCardanoEra fromEra) <> "."
     ShelleyTxCmdQueryConvenienceError e ->
       renderQueryConvenienceError e
     ShelleyTxCmdQueryNotScriptLocked e ->
