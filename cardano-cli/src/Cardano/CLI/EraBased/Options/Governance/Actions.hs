@@ -47,22 +47,19 @@ pGovernanceActionNewConstitution era = do
   cOn <- maybeFeatureInEra era
   pure
     $ subParser "create-constitution"
-    $ Opt.info (pCmd cOn)
+    $ Opt.info
+        ( GovernanceActionCreateConstitution cOn
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pAnyStakeIdentifier
+            <*> pPreviousGovernanceAction
+            <*> pProposalUrl
+            <*> pProposalHashSource
+            <*> pConstitutionUrl
+            <*> pConstitutionHashSource
+            <*> pFileOutDirection "out-file" "Output filepath of the constitution."
+        )
     $ Opt.progDesc "Create a constitution."
- where
-  pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
-  pCmd cOn =
-    fmap (GovernanceActionCreateConstitution cOn) $
-      EraBasedNewConstitution
-        <$> pNetwork
-        <*> pGovActionDeposit
-        <*> pAnyStakeIdentifier
-        <*> pPreviousGovernanceAction
-        <*> pProposalUrl
-        <*> pProposalHashSource
-        <*> pConstitutionUrl
-        <*> pConstitutionHashSource
-        <*> pFileOutDirection "out-file" "Output filepath of the constitution."
 
 pGovernanceActionNewCommittee
   :: CardanoEra era
@@ -71,27 +68,20 @@ pGovernanceActionNewCommittee era = do
   cOn <- maybeFeatureInEra era
   pure
     $ subParser "create-new-committee"
-    $ Opt.info (pCmd cOn)
+    $ Opt.info
+        ( GoveranceActionCreateNewCommittee cOn
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pAnyStakeIdentifier
+            <*> pProposalUrl
+            <*> pProposalHashSource
+            <*> many pAnyStakeIdentifier
+            <*> many ((,) <$> pAnyStakeIdentifier <*> pEpochNo "Committee member expiry epoch")
+            <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
+            <*> pPreviousGovernanceAction
+            <*> pOutputFile
+        )
     $ Opt.progDesc "Create a new committee proposal."
- where
-  pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
-  pCmd cOn = GoveranceActionCreateNewCommittee cOn
-               <$> pEraBasedNewCommittee
-
-pEraBasedNewCommittee :: Parser EraBasedNewCommittee
-pEraBasedNewCommittee =
-  EraBasedNewCommittee
-    <$> pNetwork
-    <*> pGovActionDeposit
-    <*> pAnyStakeIdentifier
-    <*> pProposalUrl
-    <*> pProposalHashSource
-    <*> many pAnyStakeIdentifier
-    <*> many ((,) <$> pAnyStakeIdentifier <*> pEpochNo "Committee member expiry epoch")
-    <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
-    <*> pPreviousGovernanceAction
-    <*> pOutputFile
-
 
 pGovernanceActionNoConfidence
   :: CardanoEra era
@@ -100,21 +90,18 @@ pGovernanceActionNoConfidence era = do
   cOn <- maybeFeatureInEra era
   pure
     $ subParser "create-no-confidence"
-    $ Opt.info (pCmd cOn)
+    $ Opt.info
+        ( GovernanceActionCreateNoConfidence cOn
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pAnyStakeIdentifier
+            <*> pProposalUrl
+            <*> pProposalHashSource
+            <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
+            <*> pWord32 "governance-action-index" "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
+            <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
+        )
     $ Opt.progDesc "Create a no confidence proposal."
- where
-  pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
-  pCmd cOn =
-    fmap (GovernanceActionCreateNoConfidence cOn) $
-      EraBasedNoConfidence
-        <$> pNetwork
-        <*> pGovActionDeposit
-        <*> pAnyStakeIdentifier
-        <*> pProposalUrl
-        <*> pProposalHashSource
-        <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
-        <*> pWord32 "governance-action-index" "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
-        <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
 
 pAnyStakeIdentifier :: Parser AnyStakeIdentifier
 pAnyStakeIdentifier =
@@ -302,19 +289,14 @@ pGovernanceActionTreasuryWithdrawal era = do
   cOn <- maybeFeatureInEra era
   pure
     $ subParser "create-treasury-withdrawal"
-    $ Opt.info (pCmd cOn)
+    $ Opt.info
+        ( GovernanceActionTreasuryWithdrawal cOn
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pAnyStakeIdentifier
+            <*> pProposalUrl
+            <*> pProposalHashSource
+            <*> many ((,) <$> pAnyStakeIdentifier <*> pTransferAmt)
+            <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
+        )
     $ Opt.progDesc "Create a treasury withdrawal."
- where
-  pCmd :: ConwayEraOnwards era -> Parser (GovernanceActionCmds era)
-  pCmd cOn =
-    fmap (GovernanceActionTreasuryWithdrawal cOn) $
-      EraBasedTreasuryWithdrawal
-        <$> pNetwork
-        <*> pGovActionDeposit
-        <*> pAnyStakeIdentifier
-        <*> pProposalUrl
-        <*> pProposalHashSource
-        <*> many ((,) <$> pAnyStakeIdentifier <*> pTransferAmt)
-        <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
-
-

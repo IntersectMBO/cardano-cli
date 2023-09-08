@@ -27,25 +27,36 @@ import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 import qualified Data.Map.Strict as Map
+import Data.Word
 
 runGovernanceActionCmds :: ()
   => GovernanceActionCmds era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCmds = \case
-  GovernanceActionCreateConstitution cOn newConstitution ->
-    runGovernanceActionCreateConstitution cOn newConstitution
+  GovernanceActionCreateConstitution
+      cOn network deposit anyStake mPrevGovActId proposalUrl
+      proposalHashSource constitutionUrl constitutionHashSource outFp ->
+    runGovernanceActionCreateConstitution
+      cOn network deposit anyStake mPrevGovActId proposalUrl
+      proposalHashSource constitutionUrl constitutionHashSource outFp
 
   GovernanceActionProtocolParametersUpdate sbe eNo genKeys eraBasedProtocolParametersUpdate ofp ->
     runGovernanceActionCreateProtocolParametersUpdate sbe eNo genKeys eraBasedProtocolParametersUpdate ofp
 
-  GovernanceActionTreasuryWithdrawal cOn treasuryWithdrawal ->
-    runGovernanceActionTreasuryWithdrawal cOn treasuryWithdrawal
+  GovernanceActionTreasuryWithdrawal
+      cOn network deposit returnAddr proposalUrl proposalHashSource treasuryWithdrawal outFp ->
+    runGovernanceActionTreasuryWithdrawal
+      cOn network deposit returnAddr proposalUrl proposalHashSource treasuryWithdrawal outFp
 
-  GoveranceActionCreateNewCommittee con newCommittee ->
-    runGovernanceActionCreateNewCommittee con newCommittee
+  GoveranceActionCreateNewCommittee
+      cOn network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp ->
+    runGovernanceActionCreateNewCommittee
+      cOn network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp
 
-  GovernanceActionCreateNoConfidence cOn noConfidence ->
-    runGovernanceActionCreateNoConfidence cOn noConfidence
+  GovernanceActionCreateNoConfidence
+      cOn network deposit returnAddr proposalUrl proposalHashSource txid ind outFp ->
+    runGovernanceActionCreateNoConfidence
+      cOn network deposit returnAddr proposalUrl proposalHashSource txid ind outFp
 
   GoveranceActionInfo cOn iFp oFp ->
     runGovernanceActionInfo cOn iFp oFp
@@ -61,9 +72,16 @@ runGovernanceActionInfo _cOn _iFp _oFp =
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidence
   :: ConwayEraOnwards era
-  -> EraBasedNoConfidence
+  -> Ledger.Network
+  -> Lovelace
+  -> AnyStakeIdentifier
+  -> ProposalUrl
+  -> ProposalHashSource
+  -> TxId
+  -> Word32
+  -> File () Out
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateNoConfidence cOn (EraBasedNoConfidence network deposit returnAddr proposalUrl proposalHashSource txid ind outFp) = do
+runGovernanceActionCreateNoConfidence cOn network deposit returnAddr proposalUrl proposalHashSource txid ind outFp = do
   returnKeyHash <- readStakeKeyHash returnAddr
 
   proposalHash <-
@@ -85,9 +103,17 @@ runGovernanceActionCreateNoConfidence cOn (EraBasedNoConfidence network deposit 
 
 runGovernanceActionCreateConstitution :: ()
   => ConwayEraOnwards era
-  -> EraBasedNewConstitution
+  -> Ledger.Network
+  -> Lovelace
+  -> AnyStakeIdentifier
+  -> Maybe (TxId, Word32)
+  -> ProposalUrl
+  -> ProposalHashSource
+  -> ConstitutionUrl
+  -> ConstitutionHashSource
+  -> File () Out
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution network deposit anyStake mPrevGovActId proposalUrl proposalHashSource constitutionUrl constitutionHashSource outFp) = do
+runGovernanceActionCreateConstitution cOn network deposit anyStake mPrevGovActId proposalUrl proposalHashSource constitutionUrl constitutionHashSource outFp = do
 
   stakeKeyHash <- readStakeKeyHash anyStake
 
@@ -121,9 +147,18 @@ runGovernanceActionCreateConstitution cOn (EraBasedNewConstitution network depos
 -- with the new ledger types
 runGovernanceActionCreateNewCommittee
   :: ConwayEraOnwards era
-  -> EraBasedNewCommittee
+  -> Ledger.Network
+  -> Lovelace
+  -> AnyStakeIdentifier
+  -> ProposalUrl
+  -> ProposalHashSource
+  -> [AnyStakeIdentifier]
+  -> [(AnyStakeIdentifier, EpochNo)]
+  -> Rational
+  -> Maybe (TxId, Word32)
+  -> File () Out
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateNewCommittee cOn (EraBasedNewCommittee network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp) = do
+runGovernanceActionCreateNewCommittee cOn network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp = do
   let sbe = conwayEraOnwardsToShelleyBasedEra cOn -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
       govActIdentifier = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> prevActId
       quorumRational = toRational q
@@ -192,9 +227,15 @@ readStakeKeyHash anyStake =
 
 runGovernanceActionTreasuryWithdrawal
   :: ConwayEraOnwards era
-  -> EraBasedTreasuryWithdrawal
+  -> Ledger.Network
+  -> Lovelace -- ^ Deposit
+  -> AnyStakeIdentifier -- ^ Return address
+  -> ProposalUrl
+  -> ProposalHashSource
+  -> [(AnyStakeIdentifier, Lovelace)]
+  -> File () Out
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionTreasuryWithdrawal cOn (EraBasedTreasuryWithdrawal network deposit returnAddr proposalUrl proposalHashSource treasuryWithdrawal outFp) = do
+runGovernanceActionTreasuryWithdrawal cOn network deposit returnAddr proposalUrl proposalHashSource treasuryWithdrawal outFp = do
 
   proposalHash <-
     proposalHashSourceToHash proposalHashSource
