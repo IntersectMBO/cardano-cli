@@ -159,10 +159,18 @@ jobs:
 
   build-complete:
     needs: [build]
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-    - name: Build complete
-      run: echo 'Build complete'
+    - name: Check if any previous job failed
+      run: |
+        if [[ "${{ needs.build.result }}" == "failure" ]]; then
+          # this ignores skipped dependencies
+          echo 'Required jobs failed to build.'
+          exit 1
+        else
+          echo 'Build complete'
+        fi
 
   release:
     needs: [build]
