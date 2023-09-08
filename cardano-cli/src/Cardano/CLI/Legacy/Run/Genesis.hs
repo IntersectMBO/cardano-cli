@@ -45,11 +45,11 @@ import           Cardano.Chain.Update hiding (ProtocolParameters)
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
+import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
+                   runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
 import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Legacy.Commands.Genesis
-import           Cardano.CLI.Legacy.Run.Node (runLegacyNodeIssueOpCertCmd,
-                   runLegacyNodeKeyGenColdCmd, runLegacyNodeKeyGenKesCmd, runLegacyNodeKeyGenVrfCmd)
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
@@ -787,11 +787,11 @@ createDelegateKeys fmt dir index = do
         (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.vkey")
         (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.skey")
   firstExceptT ShelleyGenesisCmdNodeCmdError $ do
-    runLegacyNodeKeyGenKesCmd
+    runNodeKeyGenKesCmd
         fmt
         (onlyOut kesVK)
         (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".kes.skey")
-    runLegacyNodeIssueOpCertCmd
+    runNodeIssueOpCertCmd
         (VerificationKeyFilePath (onlyIn kesVK))
         (onlyIn coldSK)
         opCertCtr
@@ -824,20 +824,20 @@ createPoolCredentials :: KeyOutputFormat -> FilePath -> Word -> ExceptT ShelleyG
 createPoolCredentials fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   firstExceptT ShelleyGenesisCmdNodeCmdError $ do
-    runLegacyNodeKeyGenKesCmd
+    runNodeKeyGenKesCmd
         fmt
         (onlyOut kesVK)
         (File @(SigningKey ()) $ dir </> "kes" ++ strIndex ++ ".skey")
-    runLegacyNodeKeyGenVrfCmd
+    runNodeKeyGenVrfCmd
         fmt
         (File @(VerificationKey ()) $ dir </> "vrf" ++ strIndex ++ ".vkey")
         (File @(SigningKey ()) $ dir </> "vrf" ++ strIndex ++ ".skey")
-    runLegacyNodeKeyGenColdCmd
+    runNodeKeyGenColdCmd
         fmt
         (File @(VerificationKey ()) $ dir </> "cold" ++ strIndex ++ ".vkey")
         (onlyOut coldSK)
         (onlyOut opCertCtr)
-    runLegacyNodeIssueOpCertCmd
+    runNodeIssueOpCertCmd
         (VerificationKeyFilePath (onlyIn kesVK))
         (onlyIn coldSK)
         opCertCtr
