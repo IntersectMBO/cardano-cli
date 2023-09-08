@@ -8,7 +8,6 @@ module Test.Cli.JSON
 
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Run.Query
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Output (QueryKesPeriodInfoOutput (..), createOpCertIntervalInfo)
 

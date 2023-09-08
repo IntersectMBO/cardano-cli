@@ -78,13 +78,11 @@ import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson as Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
-import           Data.Aeson.Types as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Coerce (coerce)
 import           Data.Function ((&))
 import           Data.Functor ((<&>))
-import           Data.List (nub)
 import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
@@ -97,7 +95,6 @@ import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as T
 import qualified Data.Text.IO as Text
 import           Data.Time.Clock
-import qualified Data.Vector as Vector
 import           Numeric (showEFloat)
 import           Prettyprinter
 import qualified System.IO as IO
@@ -1197,62 +1194,6 @@ printStakeDistribution stakeDistrib = do
        , "   "
        , showEFloat (Just 3) (fromRational stakeFraction :: Double) ""
        ]
-
--- | A mapping of Shelley reward accounts to both the stake pool that they
--- delegate to and their reward account balance.
--- TODO: Move to cardano-api
-newtype DelegationsAndRewards
-  = DelegationsAndRewards (Map StakeAddress Lovelace, Map StakeAddress PoolId)
-    deriving (Eq, Show)
-
-
-mergeDelegsAndRewards :: DelegationsAndRewards -> [(StakeAddress, Maybe Lovelace, Maybe PoolId)]
-mergeDelegsAndRewards (DelegationsAndRewards (rewardsMap, delegMap)) =
- [ (stakeAddr, Map.lookup stakeAddr rewardsMap, Map.lookup stakeAddr delegMap)
- | stakeAddr <- nub $ Map.keys rewardsMap ++ Map.keys delegMap
- ]
-
-
-instance ToJSON DelegationsAndRewards where
-  toJSON delegsAndRwds =
-      Aeson.Array . Vector.fromList
-        . map delegAndRwdToJson $ mergeDelegsAndRewards delegsAndRwds
-    where
-      delegAndRwdToJson :: (StakeAddress, Maybe Lovelace, Maybe PoolId) -> Aeson.Value
-      delegAndRwdToJson (addr, mRewards, mPoolId) =
-        Aeson.object
-          [ "address" .= addr
-          , "delegation" .= mPoolId
-          , "rewardAccountBalance" .= mRewards
-          ]
-
-instance FromJSON DelegationsAndRewards where
-  parseJSON = withArray "DelegationsAndRewards" $ \arr -> do
-    let vals = Vector.toList arr
-    decoded <- mapM decodeObject vals
-    pure $ zipper decoded
-    where
-      zipper :: [(StakeAddress, Maybe Lovelace, Maybe PoolId)]
-              -> DelegationsAndRewards
-      zipper l = do
-        let maps = [ ( maybe mempty (Map.singleton sa) delegAmt
-                     , maybe mempty (Map.singleton sa) mPool
-                     )
-                   | (sa, delegAmt, mPool) <- l
-                   ]
-        DelegationsAndRewards
-          $ foldl
-              (\(amtA, delegA) (amtB, delegB) -> (amtA <> amtB, delegA <> delegB))
-              (mempty, mempty)
-              maps
-
-      decodeObject :: Aeson.Value
-                   -> Aeson.Parser (StakeAddress, Maybe Lovelace, Maybe PoolId)
-      decodeObject  = withObject "DelegationsAndRewards" $ \o -> do
-        address <- o .: "address"
-        delegation <- o .:? "delegation"
-        rewardAccountBalance <- o .:? "rewardAccountBalance"
-        pure (address, rewardAccountBalance, delegation)
 
 runQueryLeadershipScheduleCmd
   :: SocketPath

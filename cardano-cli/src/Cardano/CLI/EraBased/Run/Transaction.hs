@@ -242,7 +242,7 @@ runTxBuildCmd
             & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
             & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
-          (nodeEraUTxO, _, eraHistory, systemStart, _, _) <-
+          (nodeEraUTxO, _, eraHistory, systemStart, _, _, _) <-
             lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (queryStateForBalancedTx nodeEra allTxInputs []))
               & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
               & onLeft (left . TxCmdQueryConvenienceError)
@@ -566,7 +566,7 @@ runTxBuild
               TxCertificates _ cs _ -> cs
               _ -> []
 
-      (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits) <-
+      (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits) <-
         lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs certs)
           & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . TxCmdQueryConvenienceError)
@@ -611,8 +611,8 @@ runTxBuild
         firstExceptT TxCmdBalanceTxBody
           . hoistEither
           $ makeTransactionBodyAutoBalance systemStart (toLedgerEpochInfo eraHistory)
-                                           pparams stakePools stakeDelegDeposits txEraUtxo
-                                           txBodyContent cAddr mOverrideWits
+                                           pparams stakePools stakeDelegDeposits drepDelegDeposits
+                                           txEraUtxo txBodyContent cAddr mOverrideWits
 
       liftIO $ putStrLn $ "Estimated transaction fee: " <> (show fee :: String)
 
