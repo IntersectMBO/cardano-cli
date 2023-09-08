@@ -2,9 +2,9 @@
 {-# LANGUAGE GADTs #-}
 
 module Cardano.CLI.EraBased.Options.Governance
-  ( EraBasedGovernanceCmds(..)
-  , renderEraBasedGovernanceCmds
-  , pEraBasedGovernanceCmds
+  ( GovernanceCmds(..)
+  , renderGovernanceCmds
+  , pGovernanceCmds
   ) where
 
 import           Cardano.Api
@@ -24,23 +24,18 @@ import           Data.Maybe
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
-pEraBasedGovernanceCmds :: EnvCli -> CardanoEra era -> Parser (EraBasedGovernanceCmds era)
-pEraBasedGovernanceCmds envCli era =
+pGovernanceCmds :: EnvCli -> CardanoEra era -> Parser (GovernanceCmds era)
+pGovernanceCmds envCli era =
   asum $ catMaybes
     [ pCreateMirCertificatesCmds era
-    , fmap EraBasedGovernanceQueryCmds      <$> pGovernanceQueryCmds envCli era
-    , fmap EraBasedGovernanceActionCmds     <$> pGovernanceActionCmds era
-    , fmap EraBasedGovernanceCommitteeCmds  <$> pGovernanceCommitteeCmds era
-    , fmap EraBasedGovernanceDRepCmds       <$> pGovernanceDRepCmds envCli era
-    , fmap EraBasedGovernanceVoteCmds       <$> pGovernanceVoteCmds era
+    , fmap GovernanceQueryCmds        <$> pGovernanceQueryCmds envCli era
+    , fmap GovernanceActionCmds       <$> pGovernanceActionCmds era
+    , fmap GovernanceCommitteeCmds    <$> pGovernanceCommitteeCmds era
+    , fmap GovernanceDRepCmds         <$> pGovernanceDRepCmds envCli era
+    , fmap GovernanceVoteCmds         <$> pGovernanceVoteCmds era
     ]
 
---------------------------------------------------------------------------------
--- Vote related
---------------------------------------------------------------------------------
-
-
-pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (EraBasedGovernanceCmds era))
+pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (GovernanceCmds era))
 pCreateMirCertificatesCmds era = do
   w <- maybeFeatureInEra era
   pure
@@ -50,7 +45,7 @@ pCreateMirCertificatesCmds era = do
 
 mirCertParsers :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmds era)
+  -> Parser (GovernanceCmds era)
 mirCertParsers w =
   asum
     [ subParser "stake-addresses"
@@ -66,9 +61,9 @@ mirCertParsers w =
 
 pMIRPayStakeAddresses :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmds era)
+  -> Parser (GovernanceCmds era)
 pMIRPayStakeAddresses w =
-  EraBasedGovernanceMIRPayStakeAddressesCertificate w
+  GovernanceMIRPayStakeAddressesCertificate w
     <$> pMIRPot
     <*> some pStakeAddress
     <*> some pRewardAmt
@@ -76,18 +71,18 @@ pMIRPayStakeAddresses w =
 
 pMIRTransferToTreasury :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmds era)
+  -> Parser (GovernanceCmds era)
 pMIRTransferToTreasury w =
-  EraBasedGovernanceMIRTransfer w
+  GovernanceMIRTransfer w
     <$> pTransferAmt
     <*> pOutputFile
     <*> pure TransferToTreasury
 
 pMIRTransferToReserves :: ()
   => ShelleyToBabbageEra era
-  -> Parser (EraBasedGovernanceCmds era)
+  -> Parser (GovernanceCmds era)
 pMIRTransferToReserves w =
-  EraBasedGovernanceMIRTransfer w
+  GovernanceMIRTransfer w
     <$> pTransferAmt
     <*> pOutputFile
     <*> pure TransferToReserves

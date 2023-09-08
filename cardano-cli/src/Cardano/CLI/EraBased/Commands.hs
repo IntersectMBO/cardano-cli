@@ -3,11 +3,11 @@
 
 module Cardano.CLI.EraBased.Commands
   ( AnyEraCommand (..)
-  , EraBasedCommand (..)
+  , Cmds (..)
   , renderAnyEraCommand
-  , renderEraBasedCommand
+  , renderCmds
   , pAnyEraCommand
-  , pEraBasedCommand
+  , pCmds
   ) where
 
 import           Cardano.Api (CardanoEra (..), ShelleyBasedEra (..))
@@ -29,24 +29,24 @@ import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
 
 data AnyEraCommand where
-  AnyEraCommandOf :: ShelleyBasedEra era -> EraBasedCommand era -> AnyEraCommand
+  AnyEraCommandOf :: ShelleyBasedEra era -> Cmds era -> AnyEraCommand
 
 renderAnyEraCommand :: AnyEraCommand -> Text
 renderAnyEraCommand = \case
-  AnyEraCommandOf _ cmd -> renderEraBasedCommand cmd
+  AnyEraCommandOf _ cmd -> renderCmds cmd
 
-data EraBasedCommand era
-  = AddressCmds (AddressCmds era)
-  | EraBasedGovernanceCmds (EraBasedGovernanceCmds era)
-  | TransactionCmds (TransactionCmds era)
-  | StakeAddressCmds (StakeAddressCmds era)
+data Cmds era
+  = AddressCmds         (AddressCmds era)
+  | GovernanceCmds      (GovernanceCmds era)
+  | StakeAddressCmds    (StakeAddressCmds era)
+  | TransactionCmds     (TransactionCmds era)
 
-renderEraBasedCommand :: EraBasedCommand era -> Text
-renderEraBasedCommand = \case
+renderCmds :: Cmds era -> Text
+renderCmds = \case
   AddressCmds cmd ->
     renderAddressCmds cmd
-  EraBasedGovernanceCmds cmd ->
-    renderEraBasedGovernanceCmds cmd
+  GovernanceCmds cmd ->
+    renderGovernanceCmds cmd
   StakeAddressCmds cmd ->
     renderStakeAddressCmds cmd
   TransactionCmds cmd ->
@@ -58,31 +58,31 @@ pAnyEraCommand envCli =
     [ -- Note, byron is ommitted because there is already a legacy command group for it.
 
       subParser "shelley"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pEraBasedCommand envCli ShelleyEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds envCli ShelleyEra)
         $ Opt.progDesc "Shelley era commands"
     , subParser "allegra"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pEraBasedCommand envCli AllegraEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds envCli AllegraEra)
         $ Opt.progDesc "Allegra era commands"
     , subParser "mary"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pEraBasedCommand envCli MaryEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds envCli MaryEra)
         $ Opt.progDesc "Mary era commands"
     , subParser "alonzo"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pEraBasedCommand envCli AlonzoEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds envCli AlonzoEra)
         $ Opt.progDesc "Alonzo era commands"
     , subParser "babbage"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pEraBasedCommand envCli BabbageEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds envCli BabbageEra)
         $ Opt.progDesc "Babbage era commands"
     , subParser "conway"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pEraBasedCommand envCli ConwayEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds envCli ConwayEra)
         $ Opt.progDesc "Conway era commands"
 
     , subParser "latest"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pEraBasedCommand envCli BabbageEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds envCli BabbageEra)
         $ Opt.progDesc "Latest era commands (Babbage)"
     ]
 
-pEraBasedCommand :: EnvCli -> CardanoEra era -> Parser (EraBasedCommand era)
-pEraBasedCommand envCli era =
+pCmds :: EnvCli -> CardanoEra era -> Parser (Cmds era)
+pCmds envCli era =
   asum $ catMaybes
     [ Just
         $ subParser "address"
@@ -90,7 +90,7 @@ pEraBasedCommand envCli era =
         $ Opt.progDesc "Era-based address commands"
     , Just
         $ subParser "governance"
-        $ Opt.info (EraBasedGovernanceCmds <$> pEraBasedGovernanceCmds envCli era)
+        $ Opt.info (GovernanceCmds <$> pGovernanceCmds envCli era)
         $ Opt.progDesc "Era-based governance commands"
     , fmap StakeAddressCmds <$> pStakeAddressCmds era envCli
     , Just

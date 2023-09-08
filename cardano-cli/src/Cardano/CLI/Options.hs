@@ -24,7 +24,6 @@ import           Options.Applicative
 import qualified Options.Applicative as Opt
 import qualified Prettyprinter as PP
 
-
 opts :: EnvCli -> ParserInfo ClientCommand
 opts envCli =
   Opt.info (parseClientCommand envCli <**> Opt.helper) $ mconcat
@@ -83,7 +82,7 @@ parseLegacy envCli =
 
 _parseTopLevelLatest :: EnvCli -> Parser ClientCommand
 _parseTopLevelLatest envCli =
-  AnyEraCommand . AnyEraCommandOf ShelleyBasedEraBabbage <$> pEraBasedCommand envCli BabbageEra
+  AnyEraCommand . AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds envCli BabbageEra
 
 -- | Parse Legacy commands at the top level of the CLI.
 parseTopLevelLegacy :: EnvCli -> Parser ClientCommand
