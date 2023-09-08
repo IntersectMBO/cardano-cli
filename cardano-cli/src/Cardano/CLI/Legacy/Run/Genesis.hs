@@ -55,7 +55,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
 import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
-import           Cardano.CLI.Types.Errors.ShelleyPoolCmdError
+import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto as CC
 import           Cardano.Crypto.Hash (HashAlgorithm)
@@ -869,7 +869,7 @@ buildPoolParams
   -> ExceptT ShelleyGenesisCmdError IO (Ledger.PoolParams StandardCrypto)
 buildPoolParams nw dir index specifiedRelays = do
     StakePoolVerificationKey poolColdVK
-      <- firstExceptT (ShelleyGenesisCmdPoolCmdError . ShelleyPoolCmdReadFileError)
+      <- firstExceptT (ShelleyGenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
            . newExceptT $ readFileTextEnvelope (AsVerificationKey AsStakePoolKey) poolColdVKF
 
     VrfVerificationKey poolVrfVK
