@@ -7,7 +7,6 @@ module Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
 import           Cardano.Api
 
 import           Cardano.CLI.Types.Errors.ScriptDecodeError
-import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 
@@ -17,7 +16,6 @@ data ShelleyStakeAddressCmdError
   | ShelleyStakeAddressCmdStakeCredentialError !StakeCredentialError
   | ShelleyStakeAddressCmdWriteFileError !(FileError ())
   | StakeRegistrationError !StakeAddressRegistrationError
-  | StakeDelegationError !StakeAddressDelegationError
   deriving Show
 
 instance Error ShelleyStakeAddressCmdError where
@@ -26,5 +24,4 @@ instance Error ShelleyStakeAddressCmdError where
     ShelleyStakeAddressCmdReadScriptFileError e   -> displayError e
     ShelleyStakeAddressCmdStakeCredentialError e  -> displayError e
     ShelleyStakeAddressCmdWriteFileError e        -> displayError e
-    StakeDelegationError e                        -> displayError e
     StakeRegistrationError e                      -> displayError e
