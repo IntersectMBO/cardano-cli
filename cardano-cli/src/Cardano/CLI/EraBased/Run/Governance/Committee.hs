@@ -26,15 +26,15 @@ runGovernanceCommitteeCmds :: ()
   => GovernanceCommitteeCmds era
   -> ExceptT GovernanceCommitteeError IO ()
 runGovernanceCommitteeCmds = \case
-  GovernanceCommitteeKeyGenCold era vk sk ->
+  GovernanceCommitteeKeyGenColdCmd era vk sk ->
     runGovernanceCommitteeKeyGenCold era vk sk
-  GovernanceCommitteeKeyGenHot era vk sk ->
+  GovernanceCommitteeKeyGenHotCmd era vk sk ->
     runGovernanceCommitteeKeyGenHot era vk sk
-  GovernanceCommitteeKeyHash era vk ->
+  GovernanceCommitteeKeyHashCmd era vk ->
     runGovernanceCommitteeKeyHash era vk
-  GovernanceCommitteeCreateHotKeyAuthorizationCertificate w cvk hvk out ->
+  GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd w cvk hvk out ->
     runGovernanceCommitteeCreateHotKeyAuthorizationCertificate w cvk hvk out
-  GovernanceCommitteeCreateColdKeyResignationCertificate w cvk out ->
+  GovernanceCommitteeCreateColdKeyResignationCertificateCmd w cvk out ->
     runGovernanceCommitteeColdKeyResignationCertificate w cvk out
 
 runGovernanceCommitteeKeyGenCold :: ()

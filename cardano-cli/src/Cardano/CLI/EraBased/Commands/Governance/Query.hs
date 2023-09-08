@@ -4,9 +4,9 @@
 
 module Cardano.CLI.EraBased.Commands.Governance.Query
   ( GovernanceQueryCmds(..)
-  , EraBasedNoArgQuery(..)
-  , EraBasedDRepStateQuery(..)
-  , EraBasedDRepStakeDistributionQuery(..)
+  , NoArgQueryCmd(..)
+  , DRepStateQueryCmd(..)
+  , DRepStakeDistributionQueryCmd(..)
   , renderGovernanceQueryCmds
   ) where
 
@@ -17,31 +17,31 @@ import           Cardano.CLI.Types.Key
 import           Data.Text (Text)
 
 data GovernanceQueryCmds era
-  = GovernanceQueryConstitution
+  = GovernanceQueryConstitutionCmd
       (ConwayEraOnwards era)
-      EraBasedNoArgQuery
-  | GovernanceQueryGovState
+      NoArgQueryCmd
+  | GovernanceQueryGovStateCmd
       (ConwayEraOnwards era)
-      EraBasedNoArgQuery
-  | GovernanceQueryDRepState
+      NoArgQueryCmd
+  | GovernanceQueryDRepStateCmd
       (ConwayEraOnwards era)
-      EraBasedDRepStateQuery
-  | GovernanceQueryDRepStakeDistribution
+      DRepStateQueryCmd
+  | GovernanceQueryDRepStakeDistributionCmd
       (ConwayEraOnwards era)
-      EraBasedDRepStakeDistributionQuery
-  | GovernanceQueryCommitteeState
+      DRepStakeDistributionQueryCmd
+  | GovernanceQueryCommitteeStateCmd
       (ConwayEraOnwards era)
-      EraBasedNoArgQuery
+      NoArgQueryCmd
   deriving Show
 
-data EraBasedNoArgQuery = EraBasedNoArgQuery
+data NoArgQueryCmd = NoArgQueryCmd
   { naSocketPath          :: !SocketPath
   , naConsensusModeParams :: !AnyConsensusModeParams
   , naNetworkId           :: !NetworkId
   , naOutputFile          :: !(Maybe (File () Out))
   } deriving Show
 
-data EraBasedDRepStateQuery = EraBasedDRepStateQuery
+data DRepStateQueryCmd = DRepStateQueryCmd
   { dsSocketPath          :: !SocketPath
   , dsConsensusModeParams :: !AnyConsensusModeParams
   , dsNetworkId           :: !NetworkId
@@ -49,7 +49,7 @@ data EraBasedDRepStateQuery = EraBasedDRepStateQuery
   , dsOutputFile          :: !(Maybe (File () Out))
   } deriving Show
 
-data EraBasedDRepStakeDistributionQuery = EraBasedDRepStakeDistributionQuery
+data DRepStakeDistributionQueryCmd = DRepStakeDistributionQueryCmd
   { dsdSocketPath          :: !SocketPath
   , dsdConsensusModeParams :: !AnyConsensusModeParams
   , dsdNetworkId           :: !NetworkId
@@ -59,8 +59,8 @@ data EraBasedDRepStakeDistributionQuery = EraBasedDRepStakeDistributionQuery
 
 renderGovernanceQueryCmds :: GovernanceQueryCmds era -> Text
 renderGovernanceQueryCmds = ("governance query " <>) . \case
-  GovernanceQueryConstitution{}          -> "constitution"
-  GovernanceQueryGovState{}              -> "gov-state"
-  GovernanceQueryDRepState{}             -> "drep-state"
-  GovernanceQueryDRepStakeDistribution{} -> "drep-stake-distribution"
-  GovernanceQueryCommitteeState{}        -> "committee-state"
+  GovernanceQueryConstitutionCmd{}          -> "constitution"
+  GovernanceQueryGovStateCmd{}              -> "gov-state"
+  GovernanceQueryDRepStateCmd{}             -> "drep-state"
+  GovernanceQueryDRepStakeDistributionCmd{} -> "drep-stake-distribution"
+  GovernanceQueryCommitteeStateCmd{}        -> "committee-state"

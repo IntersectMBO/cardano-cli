@@ -39,7 +39,7 @@ runGovernanceDRepCmds = \case
     runGovernanceDelegationCertificateCmd stakeIdentifier delegationTarget outFp
       & firstExceptT CmdEraDelegationError
 
-  GovernanceDRepGenerateKey w vrf sgn ->
+  GovernanceDRepGenerateKeyCmd w vrf sgn ->
     runGovernanceDRepKeyGen w vrf sgn
       & firstExceptT CmdGovernanceCmdError
 

@@ -18,7 +18,7 @@ data GovernanceDRepCmds era
       StakeIdentifier
       AnyDelegationTarget
       (File () Out)
-  | GovernanceDRepGenerateKey
+  | GovernanceDRepGenerateKeyCmd
       (ConwayEraOnwards era)
       (File (VerificationKey ()) Out)
       (File (SigningKey ()) Out)
@@ -37,7 +37,7 @@ renderGovernanceDRepCmds :: ()
 renderGovernanceDRepCmds = \case
   GovernanceDRepDelegationCertificateCmd {} ->
     "governance drep delegation-certificate"
-  GovernanceDRepGenerateKey{} ->
+  GovernanceDRepGenerateKeyCmd{} ->
     "governance drep key-gen"
   GovernanceDRepIdCmd {} ->
     "governance drep id"

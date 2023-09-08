@@ -14,23 +14,23 @@ import           Cardano.CLI.Types.Key.VerificationKey
 import           Data.Text (Text)
 
 data GovernanceCommitteeCmds era
-  = GovernanceCommitteeKeyGenCold
+  = GovernanceCommitteeKeyGenColdCmd
       (ConwayEraOnwards era)
       (File (VerificationKey ()) Out)
       (File (SigningKey ()) Out)
-  | GovernanceCommitteeKeyGenHot
+  | GovernanceCommitteeKeyGenHotCmd
       (ConwayEraOnwards era)
       (File (VerificationKey ()) Out)
       (File (SigningKey ()) Out)
-  | GovernanceCommitteeKeyHash -- TODO to be moved under the top-level command group "key"
+  | GovernanceCommitteeKeyHashCmd -- TODO to be moved under the top-level command group "key"
       (ConwayEraOnwards era)
       AnyVerificationKeySource
-  | GovernanceCommitteeCreateHotKeyAuthorizationCertificate -- TODO to be moved under the top-level command group "key"
+  | GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd -- TODO to be moved under the top-level command group "key"
       (ConwayEraOnwards era)
       (VerificationKeyOrHashOrFile CommitteeColdKey)
       (VerificationKeyOrHashOrFile CommitteeHotKey)
       (File () Out)
-  | GovernanceCommitteeCreateColdKeyResignationCertificate
+  | GovernanceCommitteeCreateColdKeyResignationCertificateCmd
       (ConwayEraOnwards era)
       (VerificationKeyOrHashOrFile CommitteeColdKey)
       (File () Out)
@@ -38,13 +38,13 @@ data GovernanceCommitteeCmds era
 
 renderGovernanceCommitteeCmds :: GovernanceCommitteeCmds era -> Text
 renderGovernanceCommitteeCmds = \case
-  GovernanceCommitteeKeyGenCold {} ->
+  GovernanceCommitteeKeyGenColdCmd {} ->
     "governance committee key-gen-cold"
-  GovernanceCommitteeKeyGenHot {} ->
+  GovernanceCommitteeKeyGenHotCmd {} ->
     "governance committee key-gen-hot"
-  GovernanceCommitteeKeyHash {} ->
+  GovernanceCommitteeKeyHashCmd {} ->
     "governance committee key-hash"
-  GovernanceCommitteeCreateHotKeyAuthorizationCertificate {} ->
+  GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd {} ->
     "governance committee create-hot-key-authorization-certificate"
-  GovernanceCommitteeCreateColdKeyResignationCertificate {} ->
+  GovernanceCommitteeCreateColdKeyResignationCertificateCmd {} ->
     "governance committee create-cold-key-resignation-certificate"

@@ -6,10 +6,10 @@
 module Cardano.CLI.EraBased.Commands.Governance.Actions
   ( AnyStakeIdentifier(..)
   , GovernanceActionCmds(..)
-  , EraBasedNewCommittee(..)
-  , EraBasedNewConstitution(..)
-  , EraBasedNoConfidence(..)
-  , EraBasedTreasuryWithdrawal(..)
+  , NewCommitteeCmd(..)
+  , NewConstitutionCmd(..)
+  , NoConfidenceCmd(..)
+  , TreasuryWithdrawalCmd(..)
   , renderGovernanceActionCmds
   ) where
 
@@ -24,32 +24,32 @@ import           Data.Text (Text)
 import           Data.Word
 
 data GovernanceActionCmds era
-  = GovernanceActionCreateConstitution
+  = GovernanceActionCreateConstitutionCmd
       (ConwayEraOnwards era)
-      EraBasedNewConstitution
-  | GoveranceActionCreateNewCommittee
+      NewConstitutionCmd
+  | GoveranceActionCreateNewCommitteeCmd
       (ConwayEraOnwards era)
-      EraBasedNewCommittee
-  | GovernanceActionCreateNoConfidence
+      NewCommitteeCmd
+  | GovernanceActionCreateNoConfidenceCmd
       (ConwayEraOnwards era)
-      EraBasedNoConfidence
-  | GovernanceActionProtocolParametersUpdate
+      NoConfidenceCmd
+  | GovernanceActionProtocolParametersUpdateCmd
       (ShelleyBasedEra era)
       EpochNo
       [VerificationKeyFile In]
       (EraBasedProtocolParametersUpdate era)
       (File () Out)
-  | GovernanceActionTreasuryWithdrawal
+  | GovernanceActionTreasuryWithdrawalCmd
       (ConwayEraOnwards era)
-      EraBasedTreasuryWithdrawal
-  | GoveranceActionInfo -- TODO: Conway era - ledger currently provides a placeholder constructor
+      TreasuryWithdrawalCmd
+  | GoveranceActionInfoCmd -- TODO: Conway era - ledger currently provides a placeholder constructor
       (ConwayEraOnwards era)
       (File () In)
       (File () Out)
   deriving Show
 
-data EraBasedNewCommittee
-  = EraBasedNewCommittee
+data NewCommitteeCmd
+  = NewCommitteeCmd
     { ebNetwork :: Ledger.Network
     , ebDeposit :: Lovelace
     , ebReturnAddress :: AnyStakeIdentifier
@@ -62,8 +62,8 @@ data EraBasedNewCommittee
     , ebFilePath :: File () Out
     } deriving Show
 
-data EraBasedNewConstitution
-  = EraBasedNewConstitution
+data NewConstitutionCmd
+  = NewConstitutionCmd
       { encNetwork :: Ledger.Network
       , encDeposit :: Lovelace
       , encStakeCredential :: AnyStakeIdentifier
@@ -75,8 +75,8 @@ data EraBasedNewConstitution
       , encFilePath :: File () Out
       } deriving Show
 
-data EraBasedNoConfidence
-  = EraBasedNoConfidence
+data NoConfidenceCmd
+  = NoConfidenceCmd
       { ncNetwork :: Ledger.Network
       , ncDeposit :: Lovelace
       , ncStakeCredential :: AnyStakeIdentifier
@@ -87,8 +87,8 @@ data EraBasedNoConfidence
       , ncFilePath :: File () Out
       } deriving Show
 
-data EraBasedTreasuryWithdrawal where
-  EraBasedTreasuryWithdrawal
+data TreasuryWithdrawalCmd where
+  TreasuryWithdrawalCmd
     :: Ledger.Network
     -> Lovelace -- ^ Deposit
     -> AnyStakeIdentifier -- ^ Return address
@@ -96,28 +96,28 @@ data EraBasedTreasuryWithdrawal where
     -> ProposalHashSource
     -> [(AnyStakeIdentifier, Lovelace)]
     -> File () Out
-    -> EraBasedTreasuryWithdrawal
+    -> TreasuryWithdrawalCmd
 
-deriving instance Show EraBasedTreasuryWithdrawal
+deriving instance Show TreasuryWithdrawalCmd
 
 renderGovernanceActionCmds :: GovernanceActionCmds era -> Text
 renderGovernanceActionCmds = \case
-  GovernanceActionCreateConstitution {} ->
+  GovernanceActionCreateConstitutionCmd {} ->
     "governance action create-constitution"
 
-  GovernanceActionProtocolParametersUpdate {} ->
+  GovernanceActionProtocolParametersUpdateCmd {} ->
     "governance action create-protocol-parameters-update"
 
-  GovernanceActionTreasuryWithdrawal {} ->
+  GovernanceActionTreasuryWithdrawalCmd {} ->
     "governance action create-treasury-withdrawal"
 
-  GoveranceActionCreateNewCommittee {} ->
+  GoveranceActionCreateNewCommitteeCmd {} ->
     "governance action create-new-committee"
 
-  GovernanceActionCreateNoConfidence {} ->
+  GovernanceActionCreateNoConfidenceCmd {} ->
     "governance action create-no-confidence"
 
-  GoveranceActionInfo {} ->
+  GoveranceActionInfoCmd {} ->
     "governance action create-info"
 
 data AnyStakeIdentifier

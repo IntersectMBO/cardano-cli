@@ -54,4 +54,3 @@ pAnyVotingStakeVerificationKeyOrHashOrFile =
   asum [ AnyDRepVerificationKeyOrHashOrFile <$> pDRepVerificationKeyOrHashOrFile
        , AnyStakePoolVerificationKeyOrHashOrFile <$> pStakePoolVerificationKeyOrHashOrFile
        ]
-
