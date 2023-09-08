@@ -34,30 +34,30 @@ pGovernanceDRepCmds envCli era =
           [ "DRep member commands."
           ]
     )
-    [ pGovernanceDRepKeyGen era
-    , pGovernanceDRepKeyId era
-    , pEraBasedDelegationCertificateCmd envCli era
-    , pEraBasedRegistrationCertificateCmd envCli era
+    [ pGovernanceDRepKeyGenCmd era
+    , pGovernanceDRepKeyIdCmd era
+    , pDelegationCertificateCmd envCli era
+    , pRegistrationCertificateCmd envCli era
     ]
 
-pGovernanceDRepKeyGen :: ()
+pGovernanceDRepKeyGenCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
-pGovernanceDRepKeyGen era = do
+pGovernanceDRepKeyGenCmd era = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "key-gen"
     $ Opt.info
-        ( GovernanceDRepGenerateKey w
+        ( GovernanceDRepGenerateKeyCmd w
             <$> pVerificationKeyFileOut
             <*> pSigningKeyFileOut
         )
     $ Opt.progDesc "Generate Delegate Representative verification and signing keys."
 
-pGovernanceDRepKeyId :: ()
+pGovernanceDRepKeyIdCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
-pGovernanceDRepKeyId era = do
+pGovernanceDRepKeyIdCmd era = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "id"
@@ -83,11 +83,11 @@ pDRepIdOutputFormat =
 
 -- Registration Certificate related
 
-pEraBasedRegistrationCertificateCmd :: ()
+pRegistrationCertificateCmd :: ()
   => EnvCli
   -> CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
-pEraBasedRegistrationCertificateCmd envCli era = do
+pRegistrationCertificateCmd envCli era = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "registration-certificate"
@@ -136,11 +136,11 @@ instance FeatureInEra AnyEraDecider where
 
 -- Delegation Certificate related
 
-pEraBasedDelegationCertificateCmd :: ()
+pDelegationCertificateCmd :: ()
   => EnvCli
   -> CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
-pEraBasedDelegationCertificateCmd _envCli era = do
+pDelegationCertificateCmd _envCli era = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "delegation-certificate"

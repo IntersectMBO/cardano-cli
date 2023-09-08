@@ -22,17 +22,17 @@ pGovernanceCommitteeCmds era =
           [ "Committee member commands."
           ]
     )
-    [ pGovernanceCommitteeKeyGenCold era
-    , pGovernanceCommitteeKeyGenHot era
-    , pGovernanceCommitteeKeyHash era
-    , pGovernanceCommitteeCreateHotKeyAuthorizationCertificate era
-    , pGovernanceCommitteeCreateColdKeyResignationCertificate era
+    [ pGovernanceCommitteeKeyGenColdCmd era
+    , pGovernanceCommitteeKeyGenHotCmd era
+    , pGovernanceCommitteeKeyHashCmd era
+    , pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era
+    , pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era
     ]
 
-pGovernanceCommitteeKeyGenCold :: ()
+pGovernanceCommitteeKeyGenColdCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
-pGovernanceCommitteeKeyGenCold era = do
+pGovernanceCommitteeKeyGenColdCmd era = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "key-gen-cold"
@@ -46,14 +46,14 @@ pGovernanceCommitteeKeyGenCold era = do
       => ConwayEraOnwards era
       -> Parser (GovernanceCommitteeCmds era)
     pCmd w =
-      GovernanceCommitteeKeyGenCold w
+      GovernanceCommitteeKeyGenColdCmd w
         <$> pColdVerificationKeyFile
         <*> pColdSigningKeyFile
 
-pGovernanceCommitteeKeyGenHot :: ()
+pGovernanceCommitteeKeyGenHotCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
-pGovernanceCommitteeKeyGenHot era = do
+pGovernanceCommitteeKeyGenHotCmd era = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "key-gen-hot"
@@ -67,19 +67,19 @@ pGovernanceCommitteeKeyGenHot era = do
       => ConwayEraOnwards era
       -> Parser (GovernanceCommitteeCmds era)
     pCmd w =
-      GovernanceCommitteeKeyGenHot w
+      GovernanceCommitteeKeyGenHotCmd w
         <$> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
-pGovernanceCommitteeKeyHash :: ()
+pGovernanceCommitteeKeyHashCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
-pGovernanceCommitteeKeyHash era = do
+pGovernanceCommitteeKeyHashCmd era = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "key-hash"
     $ Opt.info
-        ( GovernanceCommitteeKeyHash w
+        ( GovernanceCommitteeKeyHashCmd w
             <$> pAnyVerificationKeySource "Constitutional Committee Member key (hot or cold)"
         )
     $ Opt.progDesc
@@ -87,15 +87,15 @@ pGovernanceCommitteeKeyHash era = do
         [ "Print the identifier (hash) of a public key"
         ]
 
-pGovernanceCommitteeCreateHotKeyAuthorizationCertificate :: ()
+pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
-pGovernanceCommitteeCreateHotKeyAuthorizationCertificate era = do
+pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "create-hot-key-authorization-certificate"
     $ Opt.info
-        ( GovernanceCommitteeCreateHotKeyAuthorizationCertificate w
+        ( GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd w
             <$> pCommitteeColdVerificationKeyOrHashOrFile
             <*> pCommitteeHotKeyOrHashOrFile
             <*> pOutputFile
@@ -105,15 +105,15 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificate era = do
         [ "Create hot key authorization certificate for a Constitutional Committee Member"
         ]
 
-pGovernanceCommitteeCreateColdKeyResignationCertificate :: ()
+pGovernanceCommitteeCreateColdKeyResignationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
-pGovernanceCommitteeCreateColdKeyResignationCertificate era = do
+pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "create-cold-key-resignation-certificate"
     $ Opt.info
-        ( GovernanceCommitteeCreateColdKeyResignationCertificate w
+        ( GovernanceCommitteeCreateColdKeyResignationCertificateCmd w
             <$> pCommitteeColdVerificationKeyOrHashOrFile
             <*> pOutputFile
         )
