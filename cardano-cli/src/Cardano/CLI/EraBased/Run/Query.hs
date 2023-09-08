@@ -39,8 +39,8 @@ import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
+import           Cardano.CLI.EraBased.Run.Genesis (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Helpers (pPrintCBOR)
-import           Cardano.CLI.Legacy.Run.Genesis (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Pretty
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyQueryCmdError
