@@ -13,7 +13,7 @@ jobs:
       matrix:
         ghc: ["8.10.7", "9.2.7", "9.6.2"]
         cabal: ["3.10.1.0"]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
         exclude:
           - ghc: "9.2.7"
             os: macos-latest
@@ -45,100 +45,8 @@ jobs:
         f+${{ matrix.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
 
-    - name: Install Haskell
-      uses: input-output-hk/actions/haskell@latest
-      id: setup-haskell
-      with:
-        ghc-version: ${{ matrix.ghc }}
-        cabal-version: ${{ matrix.cabal }}
-
-    - name: Install system dependencies
-      uses: input-output-hk/actions/base@latest
-      with:
-        use-sodium-vrf: true # default is true
-
-    - uses: actions/checkout@v3
-
-    - name: Cabal update
-      run: cabal update
-
-    - name: Build dry run
-      run: cabal build all --dry-run --minimize-conflict-set
-
-    # For users who fork cardano-cli and want to define a writable cache, then can set up their own
-    # S3 bucket then define in their forked repository settings the following secrets:
-    #
-    #   CACHE_AWS_ACCESS_KEY_ID
-    #   CACHE_AWS_SECRET_ACCESS_KEY
-    #   CACHE_URI
-    #   CACHE_AWS_REGION
-    - name: Cabal cache over S3
-      uses: action-works/cabal-cache-s3@v1
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.CACHE_AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.CACHE_AWS_SECRET_ACCESS_KEY }}
-      with:
-        region: ${{ vars.CACHE_AWS_REGION }}
-        dist-dir: dist-newstyle
-        store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
-        threads: ${{ vars.CACHE_THREADS }}
-        archive-uri: ${{ vars.CACHE_URI }}/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
-        skip: "${{ vars.CACHE_URI == '' || env.CABAL_CACHE_VERSION == '' }}"
-
-    # It's important to ensure that people who fork this repository can not only successfully build in
-    # CI by default, but also have meaning cabal store caching.
-    #
-    # Because syncing with S3 requires credentials, we cannot rely on S3 for this. For this reason a
-    # https fallback is used. The https server mirrors the content of the S3 bucket. The https cabal
-    # store archive is read-only for security reasons.
-    #
-    # Users who fork this repository who want to have a writable cabal store archive are encouraged
-    # to set up their own S3 bucket.
-    - name: Cabal cache over HTTPS
-      uses: action-works/cabal-cache-s3@v1
-      with:
-        dist-dir: dist-newstyle
-        store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
-        threads: 16
-        archive-uri: https://iohk.cache.haskellworks.io/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
-        skip: "${{ vars.CACHE_URI != '' || env.CABAL_CACHE_VERSION == '' }}"
-        enable-save: false
-
-    - name: Build all
-      run: cabal build all
-
     - name: Run tests
-      env:
-        # these two are msys2 env vars, they have no effect on non-msys2 installs.
-        MSYS2_PATH_TYPE: inherit
-        MSYSTEM: MINGW64
-        TMPDIR: ${{ runner.temp }}
-        TMP: ${{ runner.temp }}
-        KEEP_WORKSPACE: 1
-      run: cabal test all
-
-    - name: "Tar artifacts"
-      shell: bash
-      run: |
-        mkdir -p artifacts
-
-        for exe in $(cat dist-newstyle/cache/plan.json | jq -r '."install-plan"[] | select(.style == "local" and (."component-name" | startswith("exe:"))) | ."bin-file"'); do
-          if [ -f $exe ]; then
-            echo "Including artifact $exe"
-
-            ( cd artifacts
-              tar -C "$(dirname $exe)" -czf "$(basename $exe).tar.gz" "$(basename $exe)"
-            )
-          else
-            echo "Skipping artifact $exe"
-          fi
-        done
-
-    - name: Save Artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: artifacts-${{ matrix.os }}-${{ matrix.ghc }}
-        path: ./artifacts
+      run: exit 1
 
     # Uncomment the following back in for debugging. Remember to launch a `pwsh` from
     # the tmux session to debug `pwsh` issues. And be reminded that the `/msys2` and
@@ -164,8 +72,9 @@ jobs:
     steps:
     - name: Check if any previous job failed
       run: |
-        if [[ -n "${{ job.build.status }}" == "failure" ]]; then
-          echo 'Required job failed to build.'
+        if [[ "${{ needs.build.result }}" == "failure" ]]; then
+          # this ignores skipped jobs
+          echo 'Required jobs failed to build.'
           exit 1
         else
           echo 'Build complete'

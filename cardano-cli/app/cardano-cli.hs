@@ -19,6 +19,7 @@ import qualified Options.Applicative as Opt
 import           Cardano.CLI.OS.Posix
 #endif
 
+BORKED 
 main :: IO ()
 main = toplevelExceptionHandler $ do
   Crypto.cryptoInit
