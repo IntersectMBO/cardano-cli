@@ -2,6 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Monad law, left identity" -}
@@ -25,7 +26,6 @@ import           Cardano.CLI.EraBased.Commands.StakeAddress
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
-import           Cardano.CLI.Types.Errors.StakeAddressDelegationError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Key
 
@@ -172,62 +172,51 @@ runStakeAddressStakeDelegationCertificateCmd :: ()
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrFile outFp =
   shelleyBasedEraConstraints sbe $ do
-    StakePoolKeyHash poolStakeVKeyHash <-
+    poolStakeVKeyHash <-
       lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile)
         & onLeft (left . ShelleyStakeAddressCmdReadKeyFileError)
-
-    let delegatee = Ledger.DelegStake poolStakeVKeyHash
 
     stakeCred <-
       getStakeCredentialFromIdentifier stakeVerifier
         & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
 
-    req <- firstExceptT StakeDelegationError . hoistEither
-            $ createDelegationCertRequirements sbe stakeCred delegatee
-
-    let delegCert = makeStakeAddressDelegationCertificate req
+    let certificate = createStakeDelegationCertificate stakeCred poolStakeVKeyHash sbe
 
     firstExceptT ShelleyStakeAddressCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile outFp
-      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Address Delegation Certificate") delegCert
+      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Address Delegation Certificate") certificate
 
-createDelegationCertRequirements :: ()
-  => ShelleyBasedEra era
-  -> StakeCredential
-  -> Ledger.Delegatee Ledger.StandardCrypto
-  -> Either StakeAddressDelegationError (StakeDelegationRequirements era)
-createDelegationCertRequirements sbe stakeCred delegatee =
-  case sbe of
-    ShelleyBasedEraShelley -> do
-      pId <- onlySpoDelegatee ShelleyToBabbageEraShelley delegatee
-      return $ StakeDelegationRequirementsPreConway ShelleyToBabbageEraShelley stakeCred pId
-    ShelleyBasedEraAllegra -> do
-      pId <- onlySpoDelegatee ShelleyToBabbageEraAllegra delegatee
-      return $ StakeDelegationRequirementsPreConway ShelleyToBabbageEraAllegra stakeCred pId
-    ShelleyBasedEraMary -> do
-      pId <- onlySpoDelegatee ShelleyToBabbageEraMary delegatee
-      return $ StakeDelegationRequirementsPreConway ShelleyToBabbageEraMary stakeCred pId
-    ShelleyBasedEraAlonzo -> do
-      pId <- onlySpoDelegatee ShelleyToBabbageEraAlonzo delegatee
-      return $ StakeDelegationRequirementsPreConway ShelleyToBabbageEraAlonzo stakeCred pId
-    ShelleyBasedEraBabbage -> do
-      pId <- onlySpoDelegatee ShelleyToBabbageEraBabbage delegatee
-      return $ StakeDelegationRequirementsPreConway ShelleyToBabbageEraBabbage stakeCred pId
-    ShelleyBasedEraConway ->
-      return $ StakeDelegationRequirementsConwayOnwards ConwayEraOnwardsConway stakeCred delegatee
+-- TODO use the version in cardano-api
+caseShelleyToBabbageAndConwayEraOnwards :: forall a era. ()
+  => (ShelleyToBabbageEra era -> a)
+  -> (ConwayEraOnwards era -> a)
+  -> ShelleyBasedEra era
+  -> a
+caseShelleyToBabbageAndConwayEraOnwards l r = \case
+  ShelleyBasedEraShelley -> l ShelleyToBabbageEraShelley
+  ShelleyBasedEraAllegra -> l ShelleyToBabbageEraAllegra
+  ShelleyBasedEraMary    -> l ShelleyToBabbageEraMary
+  ShelleyBasedEraAlonzo  -> l ShelleyToBabbageEraAlonzo
+  ShelleyBasedEraBabbage -> l ShelleyToBabbageEraBabbage
+  ShelleyBasedEraConway  -> r ConwayEraOnwardsConway
 
-onlySpoDelegatee
-  :: ShelleyToBabbageEra era
-  -> Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era))
-  -> Either StakeAddressDelegationError PoolId
-onlySpoDelegatee w = \case
-  Ledger.DelegStake stakePoolKeyHash ->
-    Right $ StakePoolKeyHash $ shelleyToBabbageEraConstraints w stakePoolKeyHash
-  Ledger.DelegVote{} ->
-    Left . VoteDelegationNotSupported $ AnyShelleyToBabbageEra w
-  Ledger.DelegStakeVote{} ->
-    Left . VoteDelegationNotSupported $ AnyShelleyToBabbageEra w
+createStakeDelegationCertificate :: forall era. ()
+  => StakeCredential
+  -> Hash StakePoolKey
+  -> ShelleyBasedEra era
+  -> Certificate era
+createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKeyHash) = do
+  caseShelleyToBabbageAndConwayEraOnwards
+    (\w ->
+      shelleyToBabbageEraConstraints w
+        $ ShelleyRelatedCertificate w
+        $ Ledger.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) poolStakeVKeyHash)
+    (\w ->
+      conwayEraOnwardsConstraints w
+        $ ConwayCertificate w
+        $ Ledger.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (Ledger.DelegStake poolStakeVKeyHash)
+    )
 
 runStakeAddressDeregistrationCertificateCmd :: ()
   => ShelleyBasedEra era
