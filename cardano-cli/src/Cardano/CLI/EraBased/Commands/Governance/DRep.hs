@@ -14,11 +14,7 @@ import           Cardano.CLI.Types.Key
 import           Data.Text (Text)
 
 data GovernanceDRepCmds era
-  = GovernanceDRepDelegationCertificateCmd
-      StakeIdentifier
-      AnyDelegationTarget
-      (File () Out)
-  | GovernanceDRepGenerateKeyCmd
+  = GovernanceDRepGenerateKeyCmd
       (ConwayEraOnwards era)
       (File (VerificationKey ()) Out)
       (File (SigningKey ()) Out)
@@ -35,8 +31,6 @@ renderGovernanceDRepCmds :: ()
   => GovernanceDRepCmds era
   -> Text
 renderGovernanceDRepCmds = \case
-  GovernanceDRepDelegationCertificateCmd {} ->
-    "governance drep delegation-certificate"
   GovernanceDRepGenerateKeyCmd{} ->
     "governance drep key-gen"
   GovernanceDRepIdCmd {} ->
