@@ -1,0 +1,31 @@
+Usage: cardano-cli conway stake-address vote-delegation-certificate 
+                                                                      ( --stake-verification-key STRING
+                                                                      | --stake-verification-key-file FILE
+                                                                      | --stake-script-file FILE
+                                                                      | --stake-address ADDRESS
+                                                                      )
+                                                                      ( --drep-verification-key STRING
+                                                                      | --drep-verification-key-file FILE
+                                                                      | --drep-key-hash HASH
+                                                                      )
+                                                                      --out-file FILE
+
+  Create a stake address vote delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool and a DRep.
+
+Available options:
+  --stake-verification-key STRING
+                           Stake verification key (Bech32 or hex-encoded).
+  --stake-verification-key-file FILE
+                           Filepath of the staking verification key.
+  --stake-script-file FILE Filepath of the staking script.
+  --stake-address ADDRESS  Target stake address (bech32 format).
+  --drep-verification-key STRING
+                           DRep verification key (Bech32 or hex-encoded).
+  --drep-verification-key-file FILE
+                           Filepath of the DRep verification key.
+  --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
+                           hex-encoded). Zero or more occurences of this option
+                           is allowed.
+  --out-file FILE          The output file.
+  -h,--help                Show this help text
