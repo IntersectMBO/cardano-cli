@@ -2761,6 +2761,16 @@ pAlwaysNoConfidence =
     , Opt.help "Always vote no confidence"
     ]
 
+pDRepScriptHash :: Parser ScriptHash
+pDRepScriptHash =
+  Opt.option scriptHashReader $ mconcat
+    [ Opt.long "drep-script-hash"
+    , Opt.metavar "HASH"
+    , Opt.help $ mconcat
+        [ "DRep script hash (hex-encoded).  "
+        ]
+    ]
+
 pDRepVerificationKeyOrHashOrFile
   :: Parser (VerificationKeyOrHashOrFile DRepKey)
 pDRepVerificationKeyOrHashOrFile =

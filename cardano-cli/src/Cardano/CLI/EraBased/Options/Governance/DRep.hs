@@ -183,16 +183,3 @@ pStakeTarget cOnwards =
 
     , TargetAlwaysNoConfidence cOnwards <$ pAlwaysNoConfidence
     ]
-
-pDRepScriptHash :: Parser ScriptHash
-pDRepScriptHash =
-  Opt.option scriptHashReader $ mconcat
-    [ Opt.long "drep-script-hash"
-    , Opt.metavar "HASH"
-    , Opt.help $ mconcat
-        [ "DRep script hash (hex-encoded).  "
-        ]
-    ]
-
-scriptHashReader :: Opt.ReadM ScriptHash
-scriptHashReader = Opt.eitherReader $ Right . fromString
