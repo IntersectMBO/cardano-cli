@@ -32,6 +32,7 @@ pStakeAddressCmds era envCli =
     , pStakeAddressRegistrationCertificateCmd era
     , pStakeAddressDeregistrationCertificateCmd era
     , pStakeAddressStakeDelegationCertificateCmd era
+    , pStakeAddressStakeAndVoteDelegationCertificateCmd era
     ]
 
 pStakeAddressKeyGenCmd :: ()
@@ -126,4 +127,24 @@ pStakeAddressStakeDelegationCertificateCmd era = do
     $ mconcat
         [ "Create a stake address stake delegation certificate, which when submitted in a transaction "
         , "delegates stake to a stake pool."
+        ]
+
+pStakeAddressStakeAndVoteDelegationCertificateCmd :: ()
+  => CardanoEra era
+  -> Maybe (Parser (StakeAddressCmds era))
+pStakeAddressStakeAndVoteDelegationCertificateCmd era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "stake-and-vote-delegation-certificate"
+    $ Opt.info
+        ( StakeAddressStakeAndVoteDelegationCertificateCmd w
+            <$> pStakeIdentifier
+            <*> pStakePoolVerificationKeyOrHashOrFile
+            <*> pDRepVerificationKeyOrHashOrFile
+            <*> pOutputFile
+        )
+    $ Opt.progDesc
+    $ mconcat
+        [ "Create a stake address stake and vote delegation certificate, which when submitted in a transaction "
+        , "delegates stake to a stake pool and a DRep."
         ]

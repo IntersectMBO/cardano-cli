@@ -5,6 +5,7 @@ Usage: cardano-cli conway stake-address
                                           | registration-certificate
                                           | deregistration-certificate
                                           | stake-delegation-certificate
+                                          | stake-and-vote-delegation-certificate
                                           )
 
   Stake address commands.
@@ -23,3 +24,7 @@ Available commands:
                            Create a stake address stake delegation certificate,
                            which when submitted in a transaction delegates stake
                            to a stake pool.
+  stake-and-vote-delegation-certificate
+                           Create a stake address stake and vote delegation
+                           certificate, which when submitted in a transaction
+                           delegates stake to a stake pool and a DRep.

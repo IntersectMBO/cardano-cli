@@ -26,6 +26,7 @@ import           Cardano.CLI.EraBased.Commands.StakeAddress
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
+import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Key
 
@@ -52,6 +53,8 @@ runStakeAddressCmds = \case
     runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
   StakeAddressStakeDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp ->
     runStakeAddressStakeDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp
+  StakeAddressStakeAndVoteDelegationCertificateCmd w stakeIdentifier stakePoolVerificationKeyHashSource drepVerificationKeyHashSource outputFp ->
+    runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeIdentifier stakePoolVerificationKeyHashSource drepVerificationKeyHashSource outputFp
   StakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp ->
     runStakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
 
@@ -200,6 +203,46 @@ caseShelleyToBabbageAndConwayEraOnwards l r = \case
   ShelleyBasedEraAlonzo  -> l ShelleyToBabbageEraAlonzo
   ShelleyBasedEraBabbage -> l ShelleyToBabbageEraBabbage
   ShelleyBasedEraConway  -> r ConwayEraOnwardsConway
+
+runStakeAddressStakeAndVoteDelegationCertificateCmd :: ()
+  => ConwayEraOnwards era
+  -> StakeIdentifier
+  -- ^ Delegator stake verification key, verification key file or script file.
+  -> VerificationKeyOrHashOrFile StakePoolKey
+  -- ^ Delegatee stake pool verification key or verification key file or
+  -> VerificationKeyOrHashOrFile DRepKey
+  -- verification key hash.
+  -> File () Out
+  -> ExceptT ShelleyStakeAddressCmdError IO ()
+runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile drepVKeyOrHashOrFile outFp =
+  conwayEraOnwardsConstraints w $ do
+    StakePoolKeyHash poolStakeVKeyHash <-
+      lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile)
+        & onLeft (left . ShelleyStakeAddressCmdReadKeyFileError)
+
+    stakeCredential <-
+      getStakeCredentialFromIdentifier stakeVerifier
+        & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
+
+    DRepKeyHash drepKeyHash <-
+      lift (readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile)
+        & onLeft (left . StakeAddressDelegationError . DelegationDRepReadError)
+
+    let drepCred = Ledger.DRepCredential $ Ledger.KeyHashObj drepKeyHash
+
+    let delegatee =
+          Ledger.DelegStakeVote
+                (conwayEraOnwardsConstraints w poolStakeVKeyHash)
+                (conwayEraOnwardsConstraints w drepCred)
+
+    let certificate =
+          ConwayCertificate w
+            $ Ledger.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+
+    firstExceptT ShelleyStakeAddressCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringFile outFp
+      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Address Delegation Certificate") certificate
 
 createStakeDelegationCertificate :: forall era. ()
   => StakeCredential
