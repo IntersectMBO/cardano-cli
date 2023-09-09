@@ -1,8 +1,8 @@
 {-# LANGUAGE DataKinds #-}
 
-module Cardano.CLI.Types.Errors.ShelleyTextViewFileError
-  ( ShelleyTextViewFileError(..)
-  , renderShelleyTextViewFileError
+module Cardano.CLI.Types.Errors.TextViewFileError
+  ( TextViewFileError(..)
+  , renderTextViewFileError
   ) where
 
 import           Cardano.Api
@@ -12,13 +12,13 @@ import           Cardano.CLI.Helpers (HelpersError, renderHelpersError)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 
-data ShelleyTextViewFileError
+data TextViewFileError
   = TextViewReadFileError (FileError TextEnvelopeError)
   | TextViewCBORPrettyPrintError !HelpersError
   deriving Show
 
-renderShelleyTextViewFileError :: ShelleyTextViewFileError -> Text
-renderShelleyTextViewFileError err =
+renderTextViewFileError :: TextViewFileError -> Text
+renderTextViewFileError err =
   case err of
     TextViewReadFileError fileErr -> Text.pack (displayError fileErr)
     TextViewCBORPrettyPrintError hlprsErr ->

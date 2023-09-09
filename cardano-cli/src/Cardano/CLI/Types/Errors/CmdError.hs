@@ -14,40 +14,40 @@ import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Errors.GovernanceQueryError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Errors.RegistrationError
-import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
-import           Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
-import           Cardano.CLI.Types.Errors.ShelleyKeyCmdError
-import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
-import           Cardano.CLI.Types.Errors.ShelleyQueryCmdError
-import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
-import           Cardano.CLI.Types.Errors.ShelleyTextViewFileError
-import           Cardano.CLI.Types.Errors.ShelleyTxCmdError
+import           Cardano.CLI.Types.Errors.AddressCmdError
+import           Cardano.CLI.Types.Errors.GenesisCmdError
+import           Cardano.CLI.Types.Errors.KeyCmdError
+import           Cardano.CLI.Types.Errors.NodeCmdError
+import           Cardano.CLI.Types.Errors.QueryCmdError
+import           Cardano.CLI.Types.Errors.StakeAddressCmdError
+import           Cardano.CLI.Types.Errors.TextViewFileError
+import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 
 import           Data.Text (Text)
 import qualified Data.Text as Text
 
 data CmdError
-  = CmdAddressError               !ShelleyAddressCmdError
+  = CmdAddressError               !AddressCmdError
   | CmdEraDelegationError         !DelegationError
-  | CmdGenesisError               !ShelleyGenesisCmdError
+  | CmdGenesisError               !GenesisCmdError
   | CmdGovernanceActionError      !GovernanceActionsError
   | CmdGovernanceCmdError         !GovernanceCmdError
   | CmdGovernanceCommitteeError   !GovernanceCommitteeError
   | CmdGovernanceQueryError       !GovernanceQueryError
   | CmdGovernanceVoteError        !GovernanceVoteCmdError
-  | CmdKeyError                   !ShelleyKeyCmdError
-  | CmdNodeError                  !ShelleyNodeCmdError
-  | CmdQueryError                 !ShelleyQueryCmdError
+  | CmdKeyError                   !KeyCmdError
+  | CmdNodeError                  !NodeCmdError
+  | CmdQueryError                 !QueryCmdError
   | CmdRegistrationError          !RegistrationError
-  | CmdStakeAddressError          !ShelleyStakeAddressCmdError
+  | CmdStakeAddressError          !StakeAddressCmdError
   | CmdStakePoolError             !StakePoolCmdError
-  | CmdTextViewError              !ShelleyTextViewFileError
-  | CmdTransactionError           !ShelleyTxCmdError
+  | CmdTextViewError              !TextViewFileError
+  | CmdTransactionError           !TxCmdError
 
 renderCmdError :: Text -> CmdError -> Text
 renderCmdError cmdText = \case
-  CmdAddressError               e -> renderError renderShelleyAddressCmdError e
+  CmdAddressError               e -> renderError renderAddressCmdError e
   CmdEraDelegationError         e -> renderError (Text.pack . displayError) e
   CmdGenesisError               e -> renderError (Text.pack . displayError) e
   CmdGovernanceActionError      e -> renderError (Text.pack . displayError) e
@@ -55,14 +55,14 @@ renderCmdError cmdText = \case
   CmdGovernanceCommitteeError   e -> renderError (Text.pack . displayError) e
   CmdGovernanceQueryError       e -> renderError (Text.pack . displayError) e
   CmdGovernanceVoteError        e -> renderError (Text.pack . displayError) e
-  CmdKeyError                   e -> renderError renderShelleyKeyCmdError e
-  CmdNodeError                  e -> renderError renderShelleyNodeCmdError e
-  CmdQueryError                 e -> renderError renderShelleyQueryCmdError e
+  CmdKeyError                   e -> renderError renderKeyCmdError e
+  CmdNodeError                  e -> renderError renderNodeCmdError e
+  CmdQueryError                 e -> renderError renderQueryCmdError e
   CmdRegistrationError          e -> renderError (Text.pack . displayError) e
   CmdStakeAddressError          e -> renderError (Text.pack . displayError) e
   CmdStakePoolError             e -> renderError renderStakePoolCmdError e
-  CmdTextViewError              e -> renderError renderShelleyTextViewFileError e
-  CmdTransactionError           e -> renderError renderShelleyTxCmdError e
+  CmdTextViewError              e -> renderError renderTextViewFileError e
+  CmdTransactionError           e -> renderError renderTxCmdError e
   where
     renderError :: (a -> Text) -> a -> Text
     renderError renderer shelCliCmdErr =

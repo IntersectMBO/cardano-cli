@@ -11,7 +11,7 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.EraBased.Run.Node
 import           Cardano.CLI.Legacy.Commands.Node
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
+import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Trans.Except (ExceptT)
@@ -20,7 +20,7 @@ import           Control.Monad.Trans.Except (ExceptT)
 
 runLegacyNodeCmds :: ()
   => LegacyNodeCmds
-  -> ExceptT ShelleyNodeCmdError IO ()
+  -> ExceptT NodeCmdError IO ()
 runLegacyNodeCmds = \case
   NodeKeyGenCold fmt vk sk ctr ->
     runLegacyNodeKeyGenColdCmd fmt vk sk ctr
@@ -40,34 +40,34 @@ runLegacyNodeKeyGenColdCmd :: ()
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> OpCertCounterFile Out
-  -> ExceptT ShelleyNodeCmdError IO ()
+  -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyGenColdCmd = runNodeKeyGenColdCmd
 
 runLegacyNodeKeyGenKesCmd :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
-  -> ExceptT ShelleyNodeCmdError IO ()
+  -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyGenKesCmd = runNodeKeyGenKesCmd
 
 runLegacyNodeKeyGenVrfCmd :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
-  -> ExceptT ShelleyNodeCmdError IO ()
+  -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyGenVrfCmd = runNodeKeyGenVrfCmd
 
 runLegacyNodeKeyHashVrfCmd :: ()
   => VerificationKeyOrFile VrfKey
   -> Maybe (File () Out)
-  -> ExceptT ShelleyNodeCmdError IO ()
+  -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyHashVrfCmd = runNodeKeyHashVrfCmd
 
 runLegacyNodeNewCounterCmd :: ()
   => ColdVerificationKeyOrFile
   -> Word
   -> OpCertCounterFile InOut
-  -> ExceptT ShelleyNodeCmdError IO ()
+  -> ExceptT NodeCmdError IO ()
 runLegacyNodeNewCounterCmd = runNodeNewCounterCmd
 
 runLegacyNodeIssueOpCertCmd :: ()
@@ -81,5 +81,5 @@ runLegacyNodeIssueOpCertCmd :: ()
   -> KESPeriod
   -- ^ Start of the validity period for this certificate.
   -> File () Out
-  -> ExceptT ShelleyNodeCmdError IO ()
+  -> ExceptT NodeCmdError IO ()
 runLegacyNodeIssueOpCertCmd = runNodeIssueOpCertCmd

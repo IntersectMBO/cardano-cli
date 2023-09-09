@@ -10,14 +10,14 @@ import           Cardano.Api
 import           Cardano.CLI.EraBased.Run.Key
 import           Cardano.CLI.Legacy.Commands.Key
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.ShelleyKeyCmdError
+import           Cardano.CLI.Types.Errors.KeyCmdError
 
 import           Control.Monad.Trans.Except (ExceptT)
 import           Data.Text (Text)
 
 runLegacyKeyCmds :: ()
   => LegacyKeyCmds
-  -> ExceptT ShelleyKeyCmdError IO ()
+  -> ExceptT KeyCmdError IO ()
 runLegacyKeyCmds = \case
   KeyGetVerificationKey skf vkf ->
     runLegacyGetVerificationKeyCmd skf vkf
@@ -39,13 +39,13 @@ runLegacyKeyCmds = \case
 runLegacyGetVerificationKeyCmd :: ()
   => SigningKeyFile In
   -> VerificationKeyFile Out
-  -> ExceptT ShelleyKeyCmdError IO ()
+  -> ExceptT KeyCmdError IO ()
 runLegacyGetVerificationKeyCmd = runGetVerificationKeyCmd
 
 runLegacyConvertToNonExtendedKeyCmd :: ()
   => VerificationKeyFile In
   -> VerificationKeyFile Out
-  -> ExceptT ShelleyKeyCmdError IO ()
+  -> ExceptT KeyCmdError IO ()
 runLegacyConvertToNonExtendedKeyCmd = runConvertToNonExtendedKeyCmd
 
 runLegacyConvertByronKeyCmd :: ()
@@ -53,13 +53,13 @@ runLegacyConvertByronKeyCmd :: ()
   -> ByronKeyType
   -> SomeKeyFile In  -- ^ Input file: old format
   -> File () Out     -- ^ Output file: new format
-  -> ExceptT ShelleyKeyCmdError IO ()
+  -> ExceptT KeyCmdError IO ()
 runLegacyConvertByronKeyCmd = runConvertByronKeyCmd
 
 runLegacyConvertByronGenesisVerificationKeyCmd :: ()
   => VerificationKeyBase64  -- ^ Input key raw old format
   -> File () Out            -- ^ Output file: new format
-  -> ExceptT ShelleyKeyCmdError IO ()
+  -> ExceptT KeyCmdError IO ()
 runLegacyConvertByronGenesisVerificationKeyCmd = runConvertByronGenesisVerificationKeyCmd
 
 --------------------------------------------------------------------------------
@@ -69,24 +69,24 @@ runLegacyConvertByronGenesisVerificationKeyCmd = runConvertByronGenesisVerificat
 runLegacyConvertITNStakeKeyCmd :: ()
   => SomeKeyFile In
   -> File () Out
-  -> ExceptT ShelleyKeyCmdError IO ()
+  -> ExceptT KeyCmdError IO ()
 runLegacyConvertITNStakeKeyCmd = runConvertITNStakeKeyCmd
 
 runLegacyConvertITNExtendedToStakeKeyCmd :: ()
   => SomeKeyFile In
   -> File () Out
-  -> ExceptT ShelleyKeyCmdError IO ()
+  -> ExceptT KeyCmdError IO ()
 runLegacyConvertITNExtendedToStakeKeyCmd = runConvertITNExtendedToStakeKeyCmd
 
 runLegacyConvertITNBip32ToStakeKeyCmd :: ()
   => SomeKeyFile In
   -> File () Out
-  -> ExceptT ShelleyKeyCmdError IO ()
+  -> ExceptT KeyCmdError IO ()
 runLegacyConvertITNBip32ToStakeKeyCmd = runConvertITNBip32ToStakeKeyCmd
 
 runLegacyConvertCardanoAddressSigningKeyCmd :: ()
   => CardanoAddressKeyType
   -> SigningKeyFile In
   -> File () Out
-  -> ExceptT ShelleyKeyCmdError IO ()
+  -> ExceptT KeyCmdError IO ()
 runLegacyConvertCardanoAddressSigningKeyCmd = runConvertCardanoAddressSigningKeyCmd

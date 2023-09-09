@@ -154,33 +154,33 @@ library
                         Cardano.CLI.Run.Ping
                         Cardano.CLI.TopHandler
                         Cardano.CLI.Types.Common
+                        Cardano.CLI.Types.Errors.AddressCmdError
+                        Cardano.CLI.Types.Errors.AddressInfoError
+                        Cardano.CLI.Types.Errors.BootstrapWitnessError
                         Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
                         Cardano.CLI.Types.Errors.CmdError
                         Cardano.CLI.Types.Errors.DelegationError
+                        Cardano.CLI.Types.Errors.GenesisCmdError
                         Cardano.CLI.Types.Errors.GovernanceActionsError
                         Cardano.CLI.Types.Errors.GovernanceCmdError
                         Cardano.CLI.Types.Errors.GovernanceCommitteeError
                         Cardano.CLI.Types.Errors.GovernanceQueryError
                         Cardano.CLI.Types.Errors.GovernanceVoteCmdError
                         Cardano.CLI.Types.Errors.ItnKeyConversionError
+                        Cardano.CLI.Types.Errors.KeyCmdError
+                        Cardano.CLI.Types.Errors.NodeCmdError
                         Cardano.CLI.Types.Errors.ProtocolParamsError
+                        Cardano.CLI.Types.Errors.QueryCmdError
+                        Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
                         Cardano.CLI.Types.Errors.RegistrationError
                         Cardano.CLI.Types.Errors.ScriptDecodeError
-                        Cardano.CLI.Types.Errors.ShelleyAddressCmdError
-                        Cardano.CLI.Types.Errors.ShelleyAddressInfoError
-                        Cardano.CLI.Types.Errors.ShelleyBootstrapWitnessError
-                        Cardano.CLI.Types.Errors.ShelleyGenesisCmdError
-                        Cardano.CLI.Types.Errors.ShelleyKeyCmdError
-                        Cardano.CLI.Types.Errors.ShelleyNodeCmdError
-                        Cardano.CLI.Types.Errors.ShelleyQueryCmdError
-                        Cardano.CLI.Types.Errors.ShelleyQueryCmdLocalStateQueryError
-                        Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
-                        Cardano.CLI.Types.Errors.ShelleyTextViewFileError
-                        Cardano.CLI.Types.Errors.ShelleyTxCmdError
+                        Cardano.CLI.Types.Errors.StakeAddressCmdError
                         Cardano.CLI.Types.Errors.StakeAddressDelegationError
                         Cardano.CLI.Types.Errors.StakeAddressRegistrationError
                         Cardano.CLI.Types.Errors.StakeCredentialError
                         Cardano.CLI.Types.Errors.StakePoolCmdError
+                        Cardano.CLI.Types.Errors.TextViewFileError
+                        Cardano.CLI.Types.Errors.TxCmdError
                         Cardano.CLI.Types.Errors.TxValidationError
                         Cardano.CLI.Types.Governance
                         Cardano.CLI.Types.Key

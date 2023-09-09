@@ -7,7 +7,7 @@ module Cardano.CLI.EraBased.Run.Address.Info
 
 import           Cardano.Api
 
-import           Cardano.CLI.Types.Errors.ShelleyAddressInfoError
+import           Cardano.CLI.Types.Errors.AddressInfoError
 
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -36,7 +36,7 @@ instance ToJSON AddressInfo where
       , "base16" .= aiBase16 addrInfo
       ]
 
-runAddressInfoCmd :: Text -> Maybe (File () Out) -> ExceptT ShelleyAddressInfoError IO ()
+runAddressInfoCmd :: Text -> Maybe (File () Out) -> ExceptT AddressInfoError IO ()
 runAddressInfoCmd addrTxt mOutputFp = do
     addrInfo <- case (Left  <$> deserialiseAddress AsAddressAny addrTxt)
                  <|> (Right <$> deserialiseAddress AsStakeAddress addrTxt) of

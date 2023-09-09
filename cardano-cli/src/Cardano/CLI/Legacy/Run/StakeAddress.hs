@@ -11,14 +11,14 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.EraBased.Run.StakeAddress
 import           Cardano.CLI.Legacy.Commands.StakeAddress
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
+import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad.Trans.Except (ExceptT)
 
 runLegacyStakeAddressCmds :: ()
   => LegacyStakeAddressCmds
-  -> ExceptT ShelleyStakeAddressCmdError IO ()
+  -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressCmds = \case
   StakeAddressKeyGenCmd fmt vk sk ->
     runLegacyStakeAddressKeyGenCmd fmt vk sk
@@ -37,14 +37,14 @@ runLegacyStakeAddressKeyGenCmd :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
-  -> ExceptT ShelleyStakeAddressCmdError IO ()
+  -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressKeyGenCmd =
   runStakeAddressKeyGenCmd
 
 runLegacyStakeAddressKeyHashCmd :: ()
   => VerificationKeyOrFile StakeKey
   -> Maybe (File () Out)
-  -> ExceptT ShelleyStakeAddressCmdError IO ()
+  -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressKeyHashCmd =
   runStakeAddressKeyHashCmd
 
@@ -52,7 +52,7 @@ runLegacyStakeAddressBuildCmd :: ()
   => StakeVerifier
   -> NetworkId
   -> Maybe (File () Out)
-  -> ExceptT ShelleyStakeAddressCmdError IO ()
+  -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressBuildCmd =
   runStakeAddressBuildCmd
 
@@ -61,7 +61,7 @@ runLegacyStakeAddressRegistrationCertificateCmd :: ()
   -> StakeIdentifier
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
-  -> ExceptT ShelleyStakeAddressCmdError IO ()
+  -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressRegistrationCertificateCmd (AnyShelleyBasedEra sbe) =
   runStakeAddressRegistrationCertificateCmd sbe
 
@@ -73,7 +73,7 @@ runLegacyStakeAddresslDelegationCertificateCmd :: ()
   -- ^ Delegatee stake pool verification key or verification key file or
   -- verification key hash.
   -> File () Out
-  -> ExceptT ShelleyStakeAddressCmdError IO ()
+  -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddresslDelegationCertificateCmd (AnyShelleyBasedEra sbe) =
   runStakeAddressStakeDelegationCertificateCmd sbe
 
@@ -82,6 +82,6 @@ runLegacyStakeAddressDeregistrationCertificateCmd :: ()
   -> StakeIdentifier
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
-  -> ExceptT ShelleyStakeAddressCmdError IO ()
+  -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressDeregistrationCertificateCmd (AnyShelleyBasedEra sbe) =
   runStakeAddressDeregistrationCertificateCmd sbe
