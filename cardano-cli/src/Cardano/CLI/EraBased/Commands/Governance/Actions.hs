@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.Actions
   ( AnyStakeIdentifier(..)
@@ -87,38 +86,36 @@ data NoConfidenceCmd
       , ncFilePath :: File () Out
       } deriving Show
 
-data TreasuryWithdrawalCmd where
-  TreasuryWithdrawalCmd
-    :: Ledger.Network
-    -> Lovelace -- ^ Deposit
-    -> AnyStakeIdentifier -- ^ Return address
-    -> ProposalUrl
-    -> ProposalHashSource
-    -> [(AnyStakeIdentifier, Lovelace)]
-    -> File () Out
-    -> TreasuryWithdrawalCmd
-
-deriving instance Show TreasuryWithdrawalCmd
+data TreasuryWithdrawalCmd
+  = TreasuryWithdrawalCmd
+    { twNetwork :: Ledger.Network
+    , twDeposit :: Lovelace -- ^ Deposit
+    , twReturnAddr :: AnyStakeIdentifier -- ^ Return address
+    , twProposalUrl :: ProposalUrl
+    , twProposalHashSource :: ProposalHashSource
+    , twTreasuryWithdrawal :: [(AnyStakeIdentifier, Lovelace)]
+    , twFilePath :: File () Out
+    } deriving Show
 
 renderGovernanceActionCmds :: GovernanceActionCmds era -> Text
-renderGovernanceActionCmds = \case
+renderGovernanceActionCmds = ("governance action " <>) . \case
   GovernanceActionCreateConstitutionCmd {} ->
-    "governance action create-constitution"
+    "create-constitution"
 
   GovernanceActionProtocolParametersUpdateCmd {} ->
-    "governance action create-protocol-parameters-update"
+    "create-protocol-parameters-update"
 
   GovernanceActionTreasuryWithdrawalCmd {} ->
-    "governance action create-treasury-withdrawal"
+    "create-treasury-withdrawal"
 
   GoveranceActionCreateNewCommitteeCmd {} ->
-    "governance action create-new-committee"
+    "create-new-committee"
 
   GovernanceActionCreateNoConfidenceCmd {} ->
-    "governance action create-no-confidence"
+    "create-no-confidence"
 
   GoveranceActionInfoCmd {} ->
-    "governance action create-info"
+    "create-info"
 
 data AnyStakeIdentifier
   = AnyStakeKey (VerificationKeyOrHashOrFile StakeKey)
