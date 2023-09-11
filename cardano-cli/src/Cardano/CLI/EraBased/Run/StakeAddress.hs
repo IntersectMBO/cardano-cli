@@ -55,6 +55,8 @@ runStakeAddressCmds = \case
     runStakeAddressStakeDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp
   StakeAddressStakeAndVoteDelegationCertificateCmd w stakeIdentifier stakePoolVerificationKeyHashSource drepVerificationKeyHashSource outputFp ->
     runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeIdentifier stakePoolVerificationKeyHashSource drepVerificationKeyHashSource outputFp
+  StakeAddressVoteDelegationCertificateCmd w stakeIdentifier drepVerificationKeyHashSource outputFp ->
+    runStakeAddressVoteDelegationCertificateCmd w stakeIdentifier drepVerificationKeyHashSource outputFp
   StakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp ->
     runStakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
 
@@ -209,9 +211,9 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd :: ()
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
   -> VerificationKeyOrHashOrFile StakePoolKey
-  -- ^ Delegatee stake pool verification key or verification key file or
+  -- ^ Delegatee stake pool verification key or verification key file or verification key hash.
   -> VerificationKeyOrHashOrFile DRepKey
-  -- verification key hash.
+  -- ^ Delegatee DRep verification key or verification key file or verification key hash.
   -> File () Out
   -> ExceptT ShelleyStakeAddressCmdError IO ()
 runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile drepVKeyOrHashOrFile outFp =
@@ -234,6 +236,36 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHa
           Ledger.DelegStakeVote
                 (conwayEraOnwardsConstraints w poolStakeVKeyHash)
                 (conwayEraOnwardsConstraints w drepCred)
+
+    let certificate =
+          ConwayCertificate w
+            $ Ledger.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+
+    firstExceptT ShelleyStakeAddressCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringFile outFp
+      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Address Delegation Certificate") certificate
+
+runStakeAddressVoteDelegationCertificateCmd :: ()
+  => ConwayEraOnwards era
+  -> StakeIdentifier
+  -- ^ Delegator stake verification key, verification key file or script file.
+  -> VerificationKeyOrHashOrFile DRepKey
+  -- ^ Delegatee stake pool verification key or verification key file or verification key hash.
+  -> File () Out
+  -> ExceptT ShelleyStakeAddressCmdError IO ()
+runStakeAddressVoteDelegationCertificateCmd w stakeVerifier drepVKeyOrHashOrFile outFp =
+  conwayEraOnwardsConstraints w $ do
+    stakeCredential <-
+      getStakeCredentialFromIdentifier stakeVerifier
+        & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
+
+    DRepKeyHash drepKeyHash <-
+      lift (readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile)
+        & onLeft (left . StakeAddressDelegationError . DelegationDRepReadError)
+
+    let drepCred = Ledger.DRepCredential $ Ledger.KeyHashObj drepKeyHash
+    let delegatee = Ledger.DelegVote (conwayEraOnwardsConstraints w drepCred)
 
     let certificate =
           ConwayCertificate w

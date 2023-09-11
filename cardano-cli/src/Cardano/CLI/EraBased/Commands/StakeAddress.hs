@@ -46,6 +46,11 @@ data StakeAddressCmds era
       (VerificationKeyOrHashOrFile StakePoolKey)
       (VerificationKeyOrHashOrFile DRepKey)
       (File () Out)
+  | StakeAddressVoteDelegationCertificateCmd
+      (ConwayEraOnwards era)
+      StakeIdentifier
+      (VerificationKeyOrHashOrFile DRepKey)
+      (File () Out)
   | StakeAddressDeregistrationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
@@ -55,10 +60,11 @@ data StakeAddressCmds era
 
 renderStakeAddressCmds :: StakeAddressCmds era -> Text
 renderStakeAddressCmds = \case
-  StakeAddressKeyGenCmd {} -> "stake-address key-gen"
-  StakeAddressKeyHashCmd {} -> "stake-address key-hash"
-  StakeAddressBuildCmd {} -> "stake-address build"
-  StakeAddressRegistrationCertificateCmd {} -> "stake-address registration-certificate"
-  StakeAddressStakeDelegationCertificateCmd {} -> "stake-address stake-delegation-certificate"
-  StakeAddressStakeAndVoteDelegationCertificateCmd {} -> "stake-address stake-and-vote-delegation-certificate"
-  StakeAddressDeregistrationCertificateCmd {} -> "stake-address deregistration-certificate"
+  StakeAddressBuildCmd                              {} -> "stake-address build"
+  StakeAddressDeregistrationCertificateCmd          {} -> "stake-address deregistration-certificate"
+  StakeAddressKeyGenCmd                             {} -> "stake-address key-gen"
+  StakeAddressKeyHashCmd                            {} -> "stake-address key-hash"
+  StakeAddressRegistrationCertificateCmd            {} -> "stake-address registration-certificate"
+  StakeAddressStakeAndVoteDelegationCertificateCmd  {} -> "stake-address stake-and-vote-delegation-certificate"
+  StakeAddressStakeDelegationCertificateCmd         {} -> "stake-address stake-delegation-certificate"
+  StakeAddressVoteDelegationCertificateCmd          {} -> "stake-address vote-delegation-certificate"
