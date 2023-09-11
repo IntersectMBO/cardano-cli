@@ -49,3 +49,9 @@ data AnyVotingStakeVerificationKeyOrHashOrFile where
   AnyCommitteeHotVerificationKeyOrHashOrFile
     :: VerificationKeyOrHashOrFile CommitteeHotKey
     -> AnyVotingStakeVerificationKeyOrHashOrFile
+
+data VoteDelegationTarget
+  = VoteDelegationTargetOfDRep (VerificationKeyOrHashOrFile DRepKey)
+  | VoteDelegationTargetOfAbstain
+  | VoteDelegationTargetOfNoConfidence
+  deriving (Eq, Show)

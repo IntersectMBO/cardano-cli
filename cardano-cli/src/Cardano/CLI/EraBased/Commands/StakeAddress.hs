@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Commands.StakeAddress
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
 import           Prelude
@@ -44,7 +45,7 @@ data StakeAddressCmds era
       (ConwayEraOnwards era)
       StakeIdentifier
       (VerificationKeyOrHashOrFile StakePoolKey)
-      (VerificationKeyOrHashOrFile DRepKey)
+      VoteDelegationTarget
       (File () Out)
   | StakeAddressVoteDelegationCertificateCmd
       (ConwayEraOnwards era)
