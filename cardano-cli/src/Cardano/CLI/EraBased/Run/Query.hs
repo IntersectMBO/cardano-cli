@@ -32,6 +32,7 @@ module Cardano.CLI.EraBased.Run.Query
   , DelegationsAndRewards(..)
   , renderQueryCmdError
   , renderLocalStateQueryError
+  , renderOpCertIntervalInformation
   , percentage
   ) where
 
