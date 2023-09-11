@@ -28,6 +28,7 @@ module Cardano.CLI.EraBased.Run.Query
   , runQueryUTxOCmd
 
   , DelegationsAndRewards(..)
+  , mergeDelegsAndRewards -- Used by cardano-testnet
   , renderShelleyQueryCmdError
   , renderLocalStateQueryError
   , percentage
