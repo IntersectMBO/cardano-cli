@@ -227,21 +227,9 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHa
       getStakeCredentialFromIdentifier stakeVerifier
         & firstExceptT StakeAddressCmdStakeCredentialError
 
-    drep <- case voteDelegationTarget of
-      VoteDelegationTargetOfDRep drepHashSource -> do
-        drepHash <- case drepHashSource of
-          DRepHashSourceScript (ScriptHash scriptHash) ->
-            pure $ Ledger.ScriptHashObj scriptHash
-          DRepHashSourceVerificationKey drepVKeyOrHashOrFile -> do
-            DRepKeyHash drepKeyHash <-
-              lift (readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile)
-                & onLeft (left . StakeAddressCmdDelegationError . DelegationDRepReadError)
-            pure $ Ledger.KeyHashObj drepKeyHash
-        pure $ Ledger.DRepCredential drepHash
-      VoteDelegationTargetOfAbstain ->
-        pure Ledger.DRepAlwaysAbstain
-      VoteDelegationTargetOfNoConfidence ->
-        pure Ledger.DRepAlwaysNoConfidence
+    drep <-
+      readVoteDelegationTarget voteDelegationTarget
+        & firstExceptT StakeAddressCmdDelegationError
 
     let delegatee = Ledger.DelegStakeVote poolStakeVKeyHash drep
 
