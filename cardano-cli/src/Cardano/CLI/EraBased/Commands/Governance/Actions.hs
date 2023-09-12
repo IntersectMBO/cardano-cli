@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   , NewConstitutionCmd(..)
   , NoConfidenceCmd(..)
   , TreasuryWithdrawalCmd(..)
+  , GenTreasuryWithdrawalCmd(..)
   , renderGovernanceActionCmds
   ) where
 
@@ -45,6 +46,9 @@ data GovernanceActionCmds era
       (ConwayEraOnwards era)
       (File () In)
       (File () Out)
+  | GovernanceActionGenSimpleActionCmd
+      (ConwayEraOnwards era)
+      GenTreasuryWithdrawalCmd
   deriving Show
 
 data NewCommitteeCmd
@@ -97,6 +101,11 @@ data TreasuryWithdrawalCmd
     , twFilePath :: File () Out
     } deriving Show
 
+newtype GenTreasuryWithdrawalCmd
+  = GenTreasuryWithdrawalCmd
+    { gtwFilePath :: File () Out
+    } deriving Show
+
 renderGovernanceActionCmds :: GovernanceActionCmds era -> Text
 renderGovernanceActionCmds = ("governance action " <>) . \case
   GovernanceActionCreateConstitutionCmd {} ->
@@ -116,6 +125,9 @@ renderGovernanceActionCmds = ("governance action " <>) . \case
 
   GoveranceActionInfoCmd {} ->
     "create-info"
+
+  GovernanceActionGenSimpleActionCmd {} ->
+    "gen-simple-action"
 
 data AnyStakeIdentifier
   = AnyStakeKey (VerificationKeyOrHashOrFile StakeKey)

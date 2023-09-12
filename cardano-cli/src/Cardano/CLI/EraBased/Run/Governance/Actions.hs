@@ -15,18 +15,24 @@ import           Cardano.Api.Ledger (coerceKeyRole)
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
+import qualified Cardano.Binary as CBOR
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.Address as Ledger
+import qualified Cardano.Ledger.BaseTypes as Ledger
 import qualified Cardano.Ledger.Conway.Governance as Ledger
 
+import           Control.Monad
 import           Control.Monad.Except (ExceptT)
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 import qualified Data.Map.Strict as Map
+import           Data.Maybe
+import qualified Data.Text.Encoding as Text
 
 runGovernanceActionCmds :: ()
   => GovernanceActionCmds era
@@ -49,6 +55,9 @@ runGovernanceActionCmds = \case
 
   GoveranceActionInfoCmd cOn iFp oFp ->
     runGovernanceActionInfoCmd cOn iFp oFp
+
+  GovernanceActionGenSimpleActionCmd cOn treasuryWithdrawal ->
+    runGovernanceActionGenSimpleActionCmd cOn treasuryWithdrawal
 
 runGovernanceActionInfoCmd
   :: ConwayEraOnwards era
@@ -232,3 +241,42 @@ stakeIdentifiertoCredential anyStake =
                               . newExceptT $ readVerificationKeyOrHashOrFile AsStakePoolKey stake
       -- TODO: Conway era - don't use coerceKeyRole
       return . StakeCredentialByKey $ StakeKeyHash $ coerceKeyRole t
+
+runGovernanceActionGenSimpleActionCmd
+  :: ConwayEraOnwards era
+  -> GenTreasuryWithdrawalCmd
+  -> ExceptT GovernanceActionsError IO ()
+runGovernanceActionGenSimpleActionCmd cOn (GenTreasuryWithdrawalCmd outFp) = do
+  returnSk <- liftIO $ generateSigningKey AsStakeKey
+
+  let returnVk = getVerificationKey returnSk
+
+  let proposalHash = Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 "Text"
+
+  let proposalAnchor = Ledger.Anchor
+        { Ledger.anchorUrl = fromJust $ Ledger.textToUrl "http://example.com"
+        , Ledger.anchorDataHash = proposalHash
+        }
+
+  let returnVkh = verificationKeyHash returnVk
+
+  let StakeKeyHash retAddrh = returnVkh
+
+  let sbe = conwayEraOnwardsToShelleyBasedEra cOn
+      proposal = mkProposalProcedure sbe retAddrh proposalAnchor
+
+  void $ liftIO $ writeByteStringFile outFp $ shelleyBasedEraConstraints sbe $ CBOR.serialize' proposal
+
+mkProposalProcedure
+  :: ShelleyBasedEra era
+  -> Ledger.KeyHash 'Ledger.Staking Ledger.StandardCrypto -- ^ Return address
+  -> Ledger.Anchor Ledger.StandardCrypto
+  -> Proposal era
+mkProposalProcedure sbe retAddrh anchor =
+  shelleyBasedEraConstraints sbe $
+    Proposal Ledger.ProposalProcedure
+      { Ledger.pProcDeposit = toShelleyLovelace 123
+      , Ledger.pProcReturnAddr = Ledger.mkRwdAcnt Ledger.Mainnet (Ledger.KeyHashObj retAddrh)
+      , Ledger.pProcGovAction = Ledger.InfoAction
+      , Ledger.pProcAnchor = anchor
+      }

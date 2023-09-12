@@ -37,6 +37,7 @@ pGovernanceActionCmds era =
     , pGovernanceActionNoConfidenceCmd era
     , pGovernanceActionProtocolParametersUpdateCmd era
     , pGovernanceActionTreasuryWithdrawalCmd era
+    , pGovernanceActionGenSimpleAction era
     ]
 
 
@@ -309,3 +310,15 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
               <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
         )
     $ Opt.progDesc "Create a treasury withdrawal."
+
+pGovernanceActionGenSimpleAction :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionGenSimpleAction era = do
+  cOn <- maybeFeatureInEra era
+  pure
+    $ subParser "gen-simple-action"
+    $ Opt.info
+        ( fmap (GovernanceActionGenSimpleActionCmd cOn) $
+            GenTreasuryWithdrawalCmd
+              <$> pFileOutDirection "out-file" "Output filepath of the simple action."
+        )
+    $ Opt.progDesc "Create a simple action."
