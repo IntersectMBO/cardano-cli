@@ -1,10 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Key
-  ( runConvertByronGenesisVerificationKeyCmd
+  ( runKeyCmds
+
+  , runConvertByronGenesisVerificationKeyCmd
   , runConvertByronKeyCmd
   , runConvertCardanoAddressSigningKeyCmd
   , runConvertITNBip32ToStakeKeyCmd
@@ -23,6 +26,7 @@ import           Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.Byron.Key as Byron
+import           Cardano.CLI.EraBased.Commands.Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
 import           Cardano.CLI.Types.Errors.ItnKeyConversionError
@@ -48,9 +52,31 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import           System.Exit (exitFailure)
 
-runGetVerificationKeyCmd :: SigningKeyFile In
-                      -> VerificationKeyFile Out
-                      -> ExceptT ShelleyKeyCmdError IO ()
+runKeyCmds :: ()
+  => KeyCmds era
+  -> ExceptT ShelleyKeyCmdError IO ()
+runKeyCmds = \case
+  KeyGetVerificationKey skf vkf ->
+    runGetVerificationKeyCmd skf vkf
+  KeyNonExtendedKey evkf vkf ->
+    runConvertToNonExtendedKeyCmd evkf vkf
+  KeyConvertByronKey mPassword keytype skfOld skfNew ->
+    runConvertByronKeyCmd mPassword keytype skfOld skfNew
+  KeyConvertByronGenesisVKey oldVk newVkf ->
+    runConvertByronGenesisVerificationKeyCmd oldVk newVkf
+  KeyConvertITNStakeKey itnKeyFile outFile ->
+    runConvertITNStakeKeyCmd itnKeyFile outFile
+  KeyConvertITNExtendedToStakeKey itnPrivKeyFile outFile ->
+    runConvertITNExtendedToStakeKeyCmd itnPrivKeyFile outFile
+  KeyConvertITNBip32ToStakeKey itnPrivKeyFile outFile ->
+    runConvertITNBip32ToStakeKeyCmd itnPrivKeyFile outFile
+  KeyConvertCardanoAddressSigningKey keyType skfOld skfNew ->
+    runConvertCardanoAddressSigningKeyCmd keyType skfOld skfNew
+
+runGetVerificationKeyCmd :: ()
+  => SigningKeyFile In
+  -> VerificationKeyFile Out
+  -> ExceptT ShelleyKeyCmdError IO ()
 runGetVerificationKeyCmd skf vkf = do
     ssk <- firstExceptT ShelleyKeyCmdReadKeyFileError $
              readSigningKeyFile skf
@@ -61,20 +87,19 @@ runGetVerificationKeyCmd skf vkf = do
 
 
 data SomeSigningKey
-  = AByronSigningKey           (SigningKey ByronKey)
-  | APaymentSigningKey         (SigningKey PaymentKey)
-  | APaymentExtendedSigningKey (SigningKey PaymentExtendedKey)
-  | AStakeSigningKey           (SigningKey StakeKey)
-  | AStakeExtendedSigningKey   (SigningKey StakeExtendedKey)
-  | AStakePoolSigningKey       (SigningKey StakePoolKey)
-  | AGenesisSigningKey         (SigningKey GenesisKey)
-  | AGenesisExtendedSigningKey (SigningKey GenesisExtendedKey)
-  | AGenesisDelegateSigningKey (SigningKey GenesisDelegateKey)
-  | AGenesisDelegateExtendedSigningKey
-                               (SigningKey GenesisDelegateExtendedKey)
-  | AGenesisUTxOSigningKey     (SigningKey GenesisUTxOKey)
-  | AVrfSigningKey             (SigningKey VrfKey)
-  | AKesSigningKey             (SigningKey KesKey)
+  = AByronSigningKey                    (SigningKey ByronKey)
+  | APaymentSigningKey                  (SigningKey PaymentKey)
+  | APaymentExtendedSigningKey          (SigningKey PaymentExtendedKey)
+  | AStakeSigningKey                    (SigningKey StakeKey)
+  | AStakeExtendedSigningKey            (SigningKey StakeExtendedKey)
+  | AStakePoolSigningKey                (SigningKey StakePoolKey)
+  | AGenesisSigningKey                  (SigningKey GenesisKey)
+  | AGenesisExtendedSigningKey          (SigningKey GenesisExtendedKey)
+  | AGenesisDelegateSigningKey          (SigningKey GenesisDelegateKey)
+  | AGenesisDelegateExtendedSigningKey  (SigningKey GenesisDelegateExtendedKey)
+  | AGenesisUTxOSigningKey              (SigningKey GenesisUTxOKey)
+  | AVrfSigningKey                      (SigningKey VrfKey)
+  | AKesSigningKey                      (SigningKey KesKey)
 
 withSomeSigningKey :: ()
   => SomeSigningKey
@@ -82,20 +107,19 @@ withSomeSigningKey :: ()
   -> a
 withSomeSigningKey ssk f =
     case ssk of
-      AByronSigningKey           sk -> f sk
-      APaymentSigningKey         sk -> f sk
-      APaymentExtendedSigningKey sk -> f sk
-      AStakeSigningKey           sk -> f sk
-      AStakeExtendedSigningKey   sk -> f sk
-      AStakePoolSigningKey       sk -> f sk
-      AGenesisSigningKey         sk -> f sk
-      AGenesisExtendedSigningKey sk -> f sk
-      AGenesisDelegateSigningKey sk -> f sk
-      AGenesisDelegateExtendedSigningKey
-                                 sk -> f sk
-      AGenesisUTxOSigningKey     sk -> f sk
-      AVrfSigningKey             sk -> f sk
-      AKesSigningKey             sk -> f sk
+      AByronSigningKey                    sk -> f sk
+      APaymentSigningKey                  sk -> f sk
+      APaymentExtendedSigningKey          sk -> f sk
+      AStakeSigningKey                    sk -> f sk
+      AStakeExtendedSigningKey            sk -> f sk
+      AStakePoolSigningKey                sk -> f sk
+      AGenesisSigningKey                  sk -> f sk
+      AGenesisExtendedSigningKey          sk -> f sk
+      AGenesisDelegateSigningKey          sk -> f sk
+      AGenesisDelegateExtendedSigningKey  sk -> f sk
+      AGenesisUTxOSigningKey              sk -> f sk
+      AVrfSigningKey                      sk -> f sk
+      AKesSigningKey                      sk -> f sk
 
 readSigningKeyFile
   :: SigningKeyFile In

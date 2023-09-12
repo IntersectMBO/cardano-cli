@@ -13,7 +13,7 @@ Usage: cardano-cli shelley transaction
                                          | view
                                          )
 
-  Era-based governance commands
+  Era-based transaction commands
 
 Available options:
   -h,--help                Show this help text

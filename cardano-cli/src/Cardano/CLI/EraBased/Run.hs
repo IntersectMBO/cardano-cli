@@ -12,13 +12,18 @@ import           Cardano.Api
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.EraBased.Run.Address
+import           Cardano.CLI.EraBased.Run.Genesis
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Run.Governance.DRep
 import           Cardano.CLI.EraBased.Run.Governance.Query
 import           Cardano.CLI.EraBased.Run.Governance.Vote
+import           Cardano.CLI.EraBased.Run.Key
+import           Cardano.CLI.EraBased.Run.Node
+import           Cardano.CLI.EraBased.Run.Query
 import           Cardano.CLI.EraBased.Run.StakeAddress
+import           Cardano.CLI.EraBased.Run.TextView
 import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.Types.Errors.CmdError
 
@@ -39,13 +44,29 @@ runCmds :: ()
 runCmds = \case
   AddressCmds cmd ->
     runAddressCmds cmd & firstExceptT CmdAddressError
+  KeyCmds cmd ->
+    runKeyCmds cmd
+      & firstExceptT CmdKeyError
   GovernanceCmds cmd ->
     runGovernanceCmds cmd
+  GenesisCmds cmd ->
+    runGenesisCmds cmd
+      & firstExceptT CmdGenesisError
+  NodeCmds cmd ->
+    runNodeCmds cmd
+      & firstExceptT CmdNodeError
+  QueryCmds cmd ->
+    runQueryCmds cmd
+      & firstExceptT CmdQueryError
   StakeAddressCmds cmd ->
     runStakeAddressCmds cmd
       & firstExceptT CmdStakeAddressError
+  TextViewCmds cmd ->
+    runTextViewCmds cmd
+      & firstExceptT CmdTextViewError
   TransactionCmds cmd ->
-    runTransactionCmds cmd & firstExceptT CmdTransactionError
+    runTransactionCmds cmd
+      & firstExceptT CmdTransactionError
 
 runGovernanceCmds :: ()
   => GovernanceCmds era

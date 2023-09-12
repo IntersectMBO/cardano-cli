@@ -11,13 +11,16 @@
 
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# LANGUAGE LambdaCase #-}
 
 {- HLINT ignore "Reduce duplication" -}
 {- HLINT ignore "Redundant <$>" -}
 {- HLINT ignore "Use let" -}
 
 module Cardano.CLI.EraBased.Run.Genesis
-  ( runGenesisAddrCmd
+  ( runGenesisCmds
+
+  , runGenesisAddrCmd
   , runGenesisCreateCardanoCmd
   , runGenesisCreateCmd
   , runGenesisCreateStakedCmd
@@ -51,6 +54,7 @@ import           Cardano.Chain.Update hiding (ProtocolParameters)
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
+import           Cardano.CLI.EraBased.Commands.Genesis
 import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
@@ -135,6 +139,31 @@ import           Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
 import           Text.Read (readMaybe)
 
 import           Crypto.Random as Crypto
+
+runGenesisCmds :: GenesisCmds era -> ExceptT ShelleyGenesisCmdError IO ()
+runGenesisCmds = \case
+  GenesisKeyGenGenesis vk sk ->
+    runGenesisKeyGenGenesisCmd vk sk
+  GenesisKeyGenDelegate vk sk ctr ->
+    runGenesisKeyGenDelegateCmd vk sk ctr
+  GenesisKeyGenUTxO vk sk ->
+    runGenesisKeyGenUTxOCmd vk sk
+  GenesisCmdKeyHash vk ->
+    runGenesisKeyHashCmd vk
+  GenesisVerKey vk sk ->
+    runGenesisVerKeyCmd vk sk
+  GenesisTxIn vk nw mOutFile ->
+    runGenesisTxInCmd vk nw mOutFile
+  GenesisAddr vk nw mOutFile ->
+    runGenesisAddrCmd vk nw mOutFile
+  GenesisCreate fmt gd gn un ms am nw ->
+    runGenesisCreateCmd fmt gd gn un ms am nw
+  GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
+    runGenesisCreateCardanoCmd gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
+  GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
+    runGenesisCreateStakedCmd fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
+  GenesisHashFile gf ->
+    runGenesisHashFileCmd gf
 
 runGenesisKeyGenGenesisCmd ::
      VerificationKeyFile Out

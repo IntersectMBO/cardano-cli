@@ -1,7 +1,10 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Run.Node
-  ( runNodeIssueOpCertCmd
+  ( runNodeCmds
+
+  , runNodeIssueOpCertCmd
   , runNodeKeyGenColdCmd
   , runNodeKeyGenKesCmd
   , runNodeKeyGenVrfCmd
@@ -12,6 +15,7 @@ module Cardano.CLI.EraBased.Run.Node
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.EraBased.Commands.Node
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.ShelleyNodeCmdError
 import           Cardano.CLI.Types.Key
@@ -24,6 +28,23 @@ import           Data.String (fromString)
 import           Data.Word (Word64)
 
 {- HLINT ignore "Reduce duplication" -}
+
+runNodeCmds :: ()
+  => NodeCmds era
+  -> ExceptT ShelleyNodeCmdError IO ()
+runNodeCmds = \case
+  NodeKeyGenCold fmt vk sk ctr ->
+    runNodeKeyGenColdCmd fmt vk sk ctr
+  NodeKeyGenKES  fmt vk sk ->
+    runNodeKeyGenKesCmd fmt vk sk
+  NodeKeyGenVRF  fmt vk sk ->
+    runNodeKeyGenVrfCmd fmt vk sk
+  NodeKeyHashVRF vk mOutFp ->
+    runNodeKeyHashVrfCmd vk mOutFp
+  NodeNewCounter vk ctr out ->
+    runNodeNewCounterCmd vk ctr out
+  NodeIssueOpCert vk sk ctr p out ->
+    runNodeIssueOpCertCmd vk sk ctr p out
 
 runNodeKeyGenColdCmd
   :: KeyOutputFormat
