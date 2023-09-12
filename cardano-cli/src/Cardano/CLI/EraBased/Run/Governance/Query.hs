@@ -112,7 +112,9 @@ runQueryDRepStakeDistribution w (DRepStakeDistributionQueryCmd socketPath (AnyCo
       cEra = conwayEraOnwardsToCardanoEra w
       cMode = consensusModeOnly cModeParams
 
-  let drepFromVrfKey = fmap Ledger.DRepCredential . firstExceptT GovernanceQueryDRepKeyError . getDRepCredentialFromVerKeyHashOrFile
+  let drepFromVrfKey = fmap Ledger.DRepCredential
+                     . firstExceptT GovernanceQueryDRepKeyError
+                     . getDRepCredentialFromVerKeyHashOrFile
   dreps <- Set.fromList <$> mapM drepFromVrfKey drepKeys
 
   eraInMode <- toEraInMode cEra cMode
