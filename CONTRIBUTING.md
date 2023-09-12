@@ -35,7 +35,8 @@ The differences are that it has an independent `index-state`, and that there is 
 Sometimes we need to use an unreleased version of one of our dependencies, either to fix an issue in a package that is not under our control, or to experiment with a pre-release version of one of our own packages.
 You can use a `source-repository-package` stanza to pull in the unreleased version.
 
-Try only to do this for a short time, as it does not play very well with tooling, and will interfere with the ability to release the `cardano-cli` itself.
+Try only to do this for a short time, as it does not play very well with tooling, and will interfere with the ability to release the `cardano-cli` itself. If you do add a temporary `source-repository-package` stanza, you need to
+provide a [`--sha256` comment in `cabal.project`](https://input-output-hk.github.io/haskell.nix/tutorials/source-repository-hashes.html#cabalproject).
 
 For packages that we do not control, we can end up in a situation where we have a fork that looks like it will be long-lived or permanent (e.g. the maintainer is unresponsive, or the change has been merged but not released).
 In that case, release a patched version to the [CHaP repository][CHaP], which allows us to remove the `source-repository-package` stanza.
