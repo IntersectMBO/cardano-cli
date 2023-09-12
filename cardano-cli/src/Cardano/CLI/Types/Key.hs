@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -37,16 +38,25 @@ module Cardano.CLI.Types.Key
   , RegistrationTarget(..)
 
   , ColdVerificationKeyOrFile(..)
+
+  , DRepHashSource(..)
+
+  , readDRepCredential
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.DelegationError
 
-import           Control.Monad.IO.Class (MonadIO (..))
+import           Control.Monad.Trans
+import           Control.Monad.Trans.Except
+import           Control.Monad.Trans.Except.Extra
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as BS
+import           Data.Function
 import qualified Data.List.NonEmpty as NE
 import           Data.Text (Text)
 import qualified Data.Text as Text
@@ -343,3 +353,22 @@ data ColdVerificationKeyOrFile
   | ColdGenesisDelegateVerificationKey !(VerificationKey GenesisDelegateKey)
   | ColdVerificationKeyFile !(VerificationKeyFile In)
   deriving Show
+
+data DRepHashSource
+  = DRepHashSourceScript
+      ScriptHash
+  | DRepHashSourceVerificationKey
+      (VerificationKeyOrHashOrFile DRepKey)
+  deriving (Eq, Show)
+
+readDRepCredential :: ()
+  => DRepHashSource
+  -> ExceptT DelegationError IO (L.Credential 'L.DRepRole L.StandardCrypto)
+readDRepCredential = \case
+  DRepHashSourceScript (ScriptHash scriptHash) ->
+    pure (L.ScriptHashObj scriptHash)
+  DRepHashSourceVerificationKey drepVKeyOrHashOrFile -> do
+    DRepKeyHash drepKeyHash <-
+      lift (readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile)
+        & onLeft (left . DelegationDRepReadError)
+    pure $ L.KeyHashObj drepKeyHash
