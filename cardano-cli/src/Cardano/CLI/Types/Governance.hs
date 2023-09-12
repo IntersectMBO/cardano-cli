@@ -6,7 +6,8 @@ module Cardano.CLI.Types.Governance where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Key (VerificationKeyOrFile, VerificationKeyOrHashOrFile)
+import           Cardano.CLI.Types.Key (DRepHashSource, VerificationKeyOrFile,
+                   VerificationKeyOrHashOrFile)
 
 import           Data.Word
 
@@ -51,7 +52,7 @@ data AnyVotingStakeVerificationKeyOrHashOrFile where
     -> AnyVotingStakeVerificationKeyOrHashOrFile
 
 data VoteDelegationTarget
-  = VoteDelegationTargetOfDRep (VerificationKeyOrHashOrFile DRepKey)
+  = VoteDelegationTargetOfDRep DRepHashSource
   | VoteDelegationTargetOfAbstain
   | VoteDelegationTargetOfNoConfidence
   deriving (Eq, Show)

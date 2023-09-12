@@ -2738,11 +2738,10 @@ pVoterType =
 pVotingCredential :: Parser (VerificationKeyOrFile StakePoolKey)
 pVotingCredential = pStakePoolVerificationKeyOrFile
 
-pVoteDelegationTarget
-  :: Parser VoteDelegationTarget
+pVoteDelegationTarget :: Parser VoteDelegationTarget
 pVoteDelegationTarget =
   asum
-    [ VoteDelegationTargetOfDRep <$> pDRepVerificationKeyOrHashOrFile
+    [ VoteDelegationTargetOfDRep <$> pDRepHashSource
     , VoteDelegationTargetOfAbstain <$ pAlwaysAbstain
     , VoteDelegationTargetOfAbstain <$ pAlwaysNoConfidence
     ]
@@ -2759,6 +2758,23 @@ pAlwaysNoConfidence =
   Opt.flag' () $ mconcat
     [ Opt.long "always-no-confidence"
     , Opt.help "Always vote no confidence"
+    ]
+
+pDRepHashSource :: Parser DRepHashSource
+pDRepHashSource =
+  asum
+    [ DRepHashSourceScript <$> pDRepScriptHash
+    , DRepHashSourceVerificationKey <$> pDRepVerificationKeyOrHashOrFile
+    ]
+
+pDRepScriptHash :: Parser ScriptHash
+pDRepScriptHash =
+  Opt.option scriptHashReader $ mconcat
+    [ Opt.long "drep-script-hash"
+    , Opt.metavar "HASH"
+    , Opt.help $ mconcat
+        [ "DRep script hash (hex-encoded)."
+        ]
     ]
 
 pDRepVerificationKeyOrHashOrFile

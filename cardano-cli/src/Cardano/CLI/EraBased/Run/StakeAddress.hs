@@ -227,23 +227,23 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHa
       getStakeCredentialFromIdentifier stakeVerifier
         & firstExceptT ShelleyStakeAddressCmdStakeCredentialError
 
-    delegatee <-
-      case voteDelegationTarget of
-        VoteDelegationTargetOfDRep drepVKeyOrHashOrFile -> do
-          DRepKeyHash drepKeyHash <-
-            lift (readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile)
-              & onLeft (left . StakeAddressDelegationError . DelegationDRepReadError)
+    drep <- case voteDelegationTarget of
+      VoteDelegationTargetOfDRep drepHashSource -> do
+        drepHash <- case drepHashSource of
+          DRepHashSourceScript (ScriptHash scriptHash) ->
+            pure $ Ledger.ScriptHashObj scriptHash
+          DRepHashSourceVerificationKey drepVKeyOrHashOrFile -> do
+            DRepKeyHash drepKeyHash <-
+              lift (readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile)
+                & onLeft (left . StakeAddressDelegationError . DelegationDRepReadError)
+            pure $ Ledger.KeyHashObj drepKeyHash
+        pure $ Ledger.DRepCredential drepHash
+      VoteDelegationTargetOfAbstain ->
+        pure Ledger.DRepAlwaysAbstain
+      VoteDelegationTargetOfNoConfidence ->
+        pure Ledger.DRepAlwaysNoConfidence
 
-          let drepCred = Ledger.DRepCredential $ Ledger.KeyHashObj drepKeyHash
-
-          pure
-            $ Ledger.DelegStakeVote
-                (conwayEraOnwardsConstraints w poolStakeVKeyHash)
-                (conwayEraOnwardsConstraints w drepCred)
-        VoteDelegationTargetOfAbstain ->
-          pure $ Ledger.DelegVote Ledger.DRepAlwaysAbstain
-        VoteDelegationTargetOfNoConfidence ->
-          pure $ Ledger.DelegVote Ledger.DRepAlwaysNoConfidence
+    let delegatee = Ledger.DelegStakeVote poolStakeVKeyHash drep
 
     let certificate =
           ConwayCertificate w

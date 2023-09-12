@@ -81,6 +81,8 @@ module Cardano.CLI.Read
   , ReadSafeHashError(..)
   , readHexAsSafeHash
   , readSafeHash
+
+  , scriptHashReader
   ) where
 
 import           Cardano.Api as Api
@@ -121,6 +123,7 @@ import           Data.Function ((&))
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
 import qualified Data.Map.Strict as Map
+import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
@@ -1028,3 +1031,6 @@ readSafeHash =
   Opt.eitherReader $ \s ->
     readHexAsSafeHash (Text.pack s)
       & first (Text.unpack . renderReadSafeHashError)
+
+scriptHashReader :: Opt.ReadM ScriptHash
+scriptHashReader = Opt.eitherReader $ Right . fromString

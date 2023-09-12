@@ -6943,7 +6943,8 @@ Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate
                                                                                 | --cold-verification-key-file FILE
                                                                                 | --stake-pool-id STAKE_POOL_ID
                                                                                 )
-                                                                                ( --drep-verification-key STRING
+                                                                                ( --drep-script-hash HASH
+                                                                                | --drep-verification-key STRING
                                                                                 | --drep-verification-key-file FILE
                                                                                 | --drep-key-hash HASH
                                                                                 | --always-abstain
