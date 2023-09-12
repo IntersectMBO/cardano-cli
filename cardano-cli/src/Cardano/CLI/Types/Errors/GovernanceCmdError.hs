@@ -9,7 +9,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
+import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 
 import qualified Data.List as List
 import           Data.Text (Text)
@@ -20,7 +20,7 @@ import qualified Formatting.Buildable as B
 
 data GovernanceCmdError
   = -- Voting related
-    StakeCredGovCmdError ShelleyStakeAddressCmdError
+    StakeCredGovCmdError StakeAddressCmdError
   | VotingCredentialDecodeGovCmdEror DecoderError
   | WriteFileError (FileError ())
   | ReadFileError (FileError InputDecodeError)

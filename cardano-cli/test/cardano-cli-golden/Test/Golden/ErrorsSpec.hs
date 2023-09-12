@@ -20,7 +20,7 @@ import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Errors.RegistrationError
-import           Cardano.CLI.Types.Errors.ShelleyStakeAddressCmdError
+import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 
@@ -35,7 +35,7 @@ test_GovernanceCmdError =
   testErrorMessagesRendering "Cardano.CLI.Types.Errors.GovernanceCmdError" "GovernanceCmdError"
     [ ("StakeCredGovCmdError"
       , StakeCredGovCmdError
-        . ShelleyStakeAddressCmdReadKeyFileError
+        . StakeAddressCmdReadKeyFileError
         $ FileError "path/file.txt" InputInvalidError)
     , ("VotingCredentialDecodeGovCmdEror"
       , VotingCredentialDecodeGovCmdEror $ DecoderErrorEmptyList "emptylist")

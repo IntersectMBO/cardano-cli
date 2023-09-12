@@ -15,8 +15,8 @@ import           Cardano.CLI.EraBased.Run.Address
 import           Cardano.CLI.EraBased.Run.Address.Info
 import           Cardano.CLI.Legacy.Commands.Address
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.ShelleyAddressCmdError
-import           Cardano.CLI.Types.Errors.ShelleyAddressInfoError
+import           Cardano.CLI.Types.Errors.AddressCmdError
+import           Cardano.CLI.Types.Errors.AddressInfoError
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
                    VerificationKeyTextOrFile)
 
@@ -25,7 +25,7 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT)
 import           Data.Function
 import           Data.Text (Text)
 
-runLegacyAddressCmds :: LegacyAddressCmds -> ExceptT ShelleyAddressCmdError IO ()
+runLegacyAddressCmds :: LegacyAddressCmds -> ExceptT AddressCmdError IO ()
 runLegacyAddressCmds = \case
   AddressKeyGen fmt kt vkf skf ->
     runLegacyAddressKeyGenCmd fmt kt vkf skf
@@ -34,20 +34,20 @@ runLegacyAddressCmds = \case
   AddressBuild paymentVerifier mbStakeVerifier nw mOutFp ->
     runLegacyAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp
   AddressInfo txt mOFp ->
-    runLegacyAddressInfoCmd txt mOFp & firstExceptT ShelleyAddressCmdAddressInfoError
+    runLegacyAddressInfoCmd txt mOFp & firstExceptT AddressCmdAddressInfoError
 
 runLegacyAddressKeyGenCmd :: ()
   => KeyOutputFormat
   -> AddressKeyType
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
-  -> ExceptT ShelleyAddressCmdError IO ()
+  -> ExceptT AddressCmdError IO ()
 runLegacyAddressKeyGenCmd = runAddressKeyGenCmd
 
 runLegacyAddressKeyHashCmd :: ()
   => VerificationKeyTextOrFile
   -> Maybe (File () Out)
-  -> ExceptT ShelleyAddressCmdError IO ()
+  -> ExceptT AddressCmdError IO ()
 runLegacyAddressKeyHashCmd = runAddressKeyHashCmd
 
 runLegacyAddressBuildCmd :: ()
@@ -55,11 +55,11 @@ runLegacyAddressBuildCmd :: ()
   -> Maybe StakeIdentifier
   -> NetworkId
   -> Maybe (File () Out)
-  -> ExceptT ShelleyAddressCmdError IO ()
+  -> ExceptT AddressCmdError IO ()
 runLegacyAddressBuildCmd = runAddressBuildCmd
 
 runLegacyAddressInfoCmd :: ()
   => Text
   -> Maybe (File () Out)
-  -> ExceptT ShelleyAddressInfoError IO ()
+  -> ExceptT AddressInfoError IO ()
 runLegacyAddressInfoCmd = runAddressInfoCmd
