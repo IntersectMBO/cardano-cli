@@ -141,7 +141,7 @@ pStakeAddressStakeAndVoteDelegationCertificateCmd era = do
         ( StakeAddressStakeAndVoteDelegationCertificateCmd w
             <$> pStakeIdentifier
             <*> pStakePoolVerificationKeyOrHashOrFile
-            <*> pDRepVerificationKeyOrHashOrFile
+            <*> pVoteDelegationTarget
             <*> pOutputFile
         )
     $ Opt.progDesc

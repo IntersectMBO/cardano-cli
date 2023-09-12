@@ -2738,6 +2738,29 @@ pVoterType =
 pVotingCredential :: Parser (VerificationKeyOrFile StakePoolKey)
 pVotingCredential = pStakePoolVerificationKeyOrFile
 
+pVoteDelegationTarget
+  :: Parser VoteDelegationTarget
+pVoteDelegationTarget =
+  asum
+    [ VoteDelegationTargetOfDRep <$> pDRepVerificationKeyOrHashOrFile
+    , VoteDelegationTargetOfAbstain <$ pAlwaysAbstain
+    , VoteDelegationTargetOfAbstain <$ pAlwaysNoConfidence
+    ]
+
+pAlwaysAbstain :: Parser ()
+pAlwaysAbstain =
+  Opt.flag' () $ mconcat
+    [ Opt.long "always-abstain"
+    , Opt.help "Abstain from voting on all proposals."
+    ]
+
+pAlwaysNoConfidence :: Parser ()
+pAlwaysNoConfidence =
+  Opt.flag' () $ mconcat
+    [ Opt.long "always-no-confidence"
+    , Opt.help "Always vote no confidence"
+    ]
+
 pDRepVerificationKeyOrHashOrFile
   :: Parser (VerificationKeyOrHashOrFile DRepKey)
 pDRepVerificationKeyOrHashOrFile =

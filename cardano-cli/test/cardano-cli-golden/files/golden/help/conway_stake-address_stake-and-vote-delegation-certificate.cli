@@ -11,6 +11,8 @@ Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate
                                                                                 ( --drep-verification-key STRING
                                                                                 | --drep-verification-key-file FILE
                                                                                 | --drep-key-hash HASH
+                                                                                | --always-abstain
+                                                                                | --always-no-confidence
                                                                                 )
                                                                                 --out-file FILE
 
@@ -39,5 +41,7 @@ Available options:
   --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
                            hex-encoded). Zero or more occurences of this option
                            is allowed.
+  --always-abstain         Abstain from voting on all proposals.
+  --always-no-confidence   Always vote no confidence
   --out-file FILE          The output file.
   -h,--help                Show this help text

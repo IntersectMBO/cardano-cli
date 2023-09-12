@@ -3709,6 +3709,8 @@ Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate
                                                                                 ( --drep-verification-key STRING
                                                                                 | --drep-verification-key-file FILE
                                                                                 | --drep-key-hash HASH
+                                                                                | --always-abstain
+                                                                                | --always-no-confidence
                                                                                 )
                                                                                 --out-file FILE
 
