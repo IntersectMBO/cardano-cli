@@ -50,7 +50,7 @@ data StakeAddressCmds era
   | StakeAddressVoteDelegationCertificateCmd
       (ConwayEraOnwards era)
       StakeIdentifier
-      (VerificationKeyOrHashOrFile DRepKey)
+      VoteDelegationTarget
       (File () Out)
   | StakeAddressDeregistrationCertificateCmd
       (ShelleyBasedEra era)

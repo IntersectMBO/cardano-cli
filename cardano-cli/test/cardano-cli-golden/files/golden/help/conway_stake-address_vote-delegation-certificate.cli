@@ -4,9 +4,12 @@ Usage: cardano-cli conway stake-address vote-delegation-certificate
                                                                       | --stake-script-file FILE
                                                                       | --stake-address ADDRESS
                                                                       )
-                                                                      ( --drep-verification-key STRING
+                                                                      ( --drep-script-hash HASH
+                                                                      | --drep-verification-key STRING
                                                                       | --drep-verification-key-file FILE
                                                                       | --drep-key-hash HASH
+                                                                      | --always-abstain
+                                                                      | --always-no-confidence
                                                                       )
                                                                       --out-file FILE
 
@@ -20,6 +23,7 @@ Available options:
                            Filepath of the staking verification key.
   --stake-script-file FILE Filepath of the staking script.
   --stake-address ADDRESS  Target stake address (bech32 format).
+  --drep-script-hash HASH  DRep script hash (hex-encoded).
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).
   --drep-verification-key-file FILE
@@ -27,5 +31,7 @@ Available options:
   --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
                            hex-encoded). Zero or more occurences of this option
                            is allowed.
+  --always-abstain         Abstain from voting on all proposals.
+  --always-no-confidence   Always vote no confidence
   --out-file FILE          The output file.
   -h,--help                Show this help text
