@@ -331,26 +331,9 @@ Usage: cardano-cli shelley governance action create-protocol-parameters-update -
 
   Create a protocol parameters update.
 
-Usage: cardano-cli shelley governance drep 
-                                             ( delegation-certificate
-                                             | registration-certificate
-                                             )
+Usage: cardano-cli shelley governance drep registration-certificate
 
   DRep member commands.
-
-Usage: cardano-cli shelley governance drep delegation-certificate 
-                                                                    ( --stake-verification-key STRING
-                                                                    | --stake-verification-key-file FILE
-                                                                    | --stake-script-file FILE
-                                                                    | --stake-address ADDRESS
-                                                                    )
-                                                                    ( --stake-pool-verification-key STRING
-                                                                    | --cold-verification-key-file FILE
-                                                                    | --stake-pool-id STAKE_POOL_ID
-                                                                    )
-                                                                    --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli shelley governance drep registration-certificate 
                                                                       ( ( --stake-pool-verification-key STRING
@@ -1505,26 +1488,9 @@ Usage: cardano-cli allegra governance action create-protocol-parameters-update -
 
   Create a protocol parameters update.
 
-Usage: cardano-cli allegra governance drep 
-                                             ( delegation-certificate
-                                             | registration-certificate
-                                             )
+Usage: cardano-cli allegra governance drep registration-certificate
 
   DRep member commands.
-
-Usage: cardano-cli allegra governance drep delegation-certificate 
-                                                                    ( --stake-verification-key STRING
-                                                                    | --stake-verification-key-file FILE
-                                                                    | --stake-script-file FILE
-                                                                    | --stake-address ADDRESS
-                                                                    )
-                                                                    ( --stake-pool-verification-key STRING
-                                                                    | --cold-verification-key-file FILE
-                                                                    | --stake-pool-id STAKE_POOL_ID
-                                                                    )
-                                                                    --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli allegra governance drep registration-certificate 
                                                                       ( ( --stake-pool-verification-key STRING
@@ -2677,26 +2643,9 @@ Usage: cardano-cli mary governance action create-protocol-parameters-update --ep
 
   Create a protocol parameters update.
 
-Usage: cardano-cli mary governance drep 
-                                          ( delegation-certificate
-                                          | registration-certificate
-                                          )
+Usage: cardano-cli mary governance drep registration-certificate
 
   DRep member commands.
-
-Usage: cardano-cli mary governance drep delegation-certificate 
-                                                                 ( --stake-verification-key STRING
-                                                                 | --stake-verification-key-file FILE
-                                                                 | --stake-script-file FILE
-                                                                 | --stake-address ADDRESS
-                                                                 )
-                                                                 ( --stake-pool-verification-key STRING
-                                                                 | --cold-verification-key-file FILE
-                                                                 | --stake-pool-id STAKE_POOL_ID
-                                                                 )
-                                                                 --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli mary governance drep registration-certificate 
                                                                    ( ( --stake-pool-verification-key STRING
@@ -3830,26 +3779,9 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update --
 
   Create a protocol parameters update.
 
-Usage: cardano-cli alonzo governance drep 
-                                            ( delegation-certificate
-                                            | registration-certificate
-                                            )
+Usage: cardano-cli alonzo governance drep registration-certificate
 
   DRep member commands.
-
-Usage: cardano-cli alonzo governance drep delegation-certificate 
-                                                                   ( --stake-verification-key STRING
-                                                                   | --stake-verification-key-file FILE
-                                                                   | --stake-script-file FILE
-                                                                   | --stake-address ADDRESS
-                                                                   )
-                                                                   ( --stake-pool-verification-key STRING
-                                                                   | --cold-verification-key-file FILE
-                                                                   | --stake-pool-id STAKE_POOL_ID
-                                                                   )
-                                                                   --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli alonzo governance drep registration-certificate 
                                                                      ( ( --stake-pool-verification-key STRING
@@ -5006,26 +4938,9 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update -
 
   Create a protocol parameters update.
 
-Usage: cardano-cli babbage governance drep 
-                                             ( delegation-certificate
-                                             | registration-certificate
-                                             )
+Usage: cardano-cli babbage governance drep registration-certificate
 
   DRep member commands.
-
-Usage: cardano-cli babbage governance drep delegation-certificate 
-                                                                    ( --stake-verification-key STRING
-                                                                    | --stake-verification-key-file FILE
-                                                                    | --stake-script-file FILE
-                                                                    | --stake-address ADDRESS
-                                                                    )
-                                                                    ( --stake-pool-verification-key STRING
-                                                                    | --cold-verification-key-file FILE
-                                                                    | --stake-pool-id STAKE_POOL_ID
-                                                                    )
-                                                                    --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli babbage governance drep registration-certificate 
                                                                       ( ( --stake-pool-verification-key STRING
@@ -6415,7 +6330,6 @@ Usage: cardano-cli conway governance committee create-cold-key-resignation-certi
 Usage: cardano-cli conway governance drep 
                                             ( key-gen
                                             | id
-                                            | delegation-certificate
                                             | registration-certificate
                                             )
 
@@ -6434,34 +6348,6 @@ Usage: cardano-cli conway governance drep id
                                                [--out-file FILE]
 
   Generate a drep id.
-
-Usage: cardano-cli conway governance drep delegation-certificate 
-                                                                   ( --stake-verification-key STRING
-                                                                   | --stake-verification-key-file FILE
-                                                                   | --stake-script-file FILE
-                                                                   | --stake-address ADDRESS
-                                                                   )
-                                                                   ( ( --combined-drep-verification-key STRING
-                                                                     | --combined-drep-verification-key-file FILE
-                                                                     | --combined-drep-key-hash HASH
-                                                                     )
-                                                                     ( --combined-stake-pool-verification-key STRING
-                                                                     | --combined-cold-verification-key-file FILE
-                                                                     | --combined-stake-pool-id STAKE_POOL_ID
-                                                                     )
-                                                                   | --stake-pool-verification-key STRING
-                                                                   | --cold-verification-key-file FILE
-                                                                   | --stake-pool-id STAKE_POOL_ID
-                                                                   | --drep-verification-key STRING
-                                                                   | --drep-verification-key-file FILE
-                                                                   | --drep-key-hash HASH
-                                                                   | --drep-script-hash HASH
-                                                                   | --always-abstain
-                                                                   | --always-no-confidence
-                                                                   )
-                                                                   --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli conway governance drep registration-certificate 
                                                                      ( ( --stake-pool-verification-key STRING
@@ -7680,26 +7566,9 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update --
 
   Create a protocol parameters update.
 
-Usage: cardano-cli latest governance drep 
-                                            ( delegation-certificate
-                                            | registration-certificate
-                                            )
+Usage: cardano-cli latest governance drep registration-certificate
 
   DRep member commands.
-
-Usage: cardano-cli latest governance drep delegation-certificate 
-                                                                   ( --stake-verification-key STRING
-                                                                   | --stake-verification-key-file FILE
-                                                                   | --stake-script-file FILE
-                                                                   | --stake-address ADDRESS
-                                                                   )
-                                                                   ( --stake-pool-verification-key STRING
-                                                                   | --cold-verification-key-file FILE
-                                                                   | --stake-pool-id STAKE_POOL_ID
-                                                                   )
-                                                                   --out-file FILE
-
-  Delegation certificate creation.
 
 Usage: cardano-cli latest governance drep registration-certificate 
                                                                      ( ( --stake-pool-verification-key STRING

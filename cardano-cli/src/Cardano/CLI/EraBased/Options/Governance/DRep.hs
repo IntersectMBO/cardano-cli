@@ -36,7 +36,6 @@ pGovernanceDRepCmds envCli era =
     )
     [ pGovernanceDRepKeyGenCmd era
     , pGovernanceDRepKeyIdCmd era
-    , pDelegationCertificateCmd envCli era
     , pRegistrationCertificateCmd envCli era
     ]
 
@@ -133,53 +132,3 @@ instance FeatureInEra AnyEraDecider where
     AlonzoEra   -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAlonzo
     BabbageEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraBabbage
     ConwayEra   -> yes $ AnyEraDeciderConwayOnwards ConwayEraOnwardsConway
-
--- Delegation Certificate related
-
-pDelegationCertificateCmd :: ()
-  => EnvCli
-  -> CardanoEra era
-  -> Maybe (Parser (GovernanceDRepCmds era))
-pDelegationCertificateCmd _envCli era = do
-  w <- maybeFeatureInEra era
-  pure
-    $ subParser "delegation-certificate"
-    $ Opt.info (pCmd w)
-    $ Opt.progDesc "Delegation certificate creation."
- where
-  pCmd :: AnyEraDecider era -> Parser (GovernanceDRepCmds era)
-  pCmd w =
-    GovernanceDRepDelegationCertificateCmd
-      <$> pStakeIdentifier
-      <*> pAnyDelegationCertificateTarget w
-      <*> pOutputFile
-
-  pAnyDelegationCertificateTarget :: ()
-    => AnyEraDecider era
-    -> Parser AnyDelegationTarget
-  pAnyDelegationCertificateTarget e =
-    case e of
-      AnyEraDeciderShelleyToBabbage sbe ->
-        ShelleyToBabbageDelegTarget sbe
-          <$> pStakePoolVerificationKeyOrHashOrFile
-      AnyEraDeciderConwayOnwards cOnwards ->
-        ConwayOnwardDelegTarget cOnwards
-          <$> pStakeTarget cOnwards
-
--- TODO: Conway era AFTER sancho net. We probably want to
--- differentiate between delegating voting stake and reward stake
-pStakeTarget :: ConwayEraOnwards era -> Parser (StakeTarget era)
-pStakeTarget cOnwards =
-  asum
-    [ TargetVotingDrepAndStakePool cOnwards
-        <$> pCombinedDRepVerificationKeyOrHashOrFile
-        <*> pCombinedStakePoolVerificationKeyOrHashOrFile
-
-    , TargetStakePool cOnwards <$> pStakePoolVerificationKeyOrHashOrFile
-
-    , TargetVotingDrep cOnwards <$> pDRepVerificationKeyOrHashOrFile
-    , TargetVotingDRepScriptHash cOnwards <$> pDRepScriptHash
-    , TargetAlwaysAbstain cOnwards <$ pAlwaysAbstain
-
-    , TargetAlwaysNoConfidence cOnwards <$ pAlwaysNoConfidence
-    ]
