@@ -1,5 +1,171 @@
 # Changelog for cardano-cli
 
+## 8.8.0.0
+
+- Remove `Shelley` prefix on from errors
+  (compatible, improvement)
+  [PR 262](https://github.com/input-output-hk/cardano-cli/pull/262)
+
+- Delete `governance drep delegation-certificate` command
+  (breaking)
+  [PR 265](https://github.com/input-output-hk/cardano-cli/pull/265)
+
+- Accept script hash in `stake-and-vote-delegation-certificate` command
+  (feature, compatible)
+  [PR 264](https://github.com/input-output-hk/cardano-cli/pull/264)
+
+- Port more commands to era-based command structure:
+  * key
+  * genesis
+  * node
+  * query
+  * stake-pool
+  * text-view
+  (feature, compatible)
+  [PR 266](https://github.com/input-output-hk/cardano-cli/pull/266)
+
+- New `always-abstain-delegation-certificate` and `always-no-confidence-delegation-certificate` commands
+  (feature, compatible)
+  [PR 263](https://github.com/input-output-hk/cardano-cli/pull/263)
+
+- New `stake-address vote-delegation-certificate` command
+  (feature, compatible)
+  [PR 261](https://github.com/input-output-hk/cardano-cli/pull/261)
+
+- Change TreasuryWithdrawalCmd to a record
+  (improvement)
+  [PR 260](https://github.com/input-output-hk/cardano-cli/pull/260)
+
+- New `stake-address stake-and-vote-delegation-certificate` command
+  (feature, compatible)
+  [PR 257](https://github.com/input-output-hk/cardano-cli/pull/257)
+
+- Simplify `stake-address stake-delegation-certificate` command across eras
+  (compatible, improvement)
+  [PR 256](https://github.com/input-output-hk/cardano-cli/pull/256)
+
+- Remove `EraBased` prefix and add `Cmd` suffix
+  (compatible, improvement)
+  [PR 254](https://github.com/input-output-hk/cardano-cli/pull/254)
+
+- Move `genesis` run commands implementation into era based
+  (compatible, improvement)
+  [PR 235](https://github.com/input-output-hk/cardano-cli/pull/235)
+
+- Move `node` run commands implementation into era based
+  (compatible, improvement)
+  [PR 242](https://github.com/input-output-hk/cardano-cli/pull/242)
+
+- Remove `EraBased` prefix from era-based commands
+  (compatible, improvement)
+  [PR 244](https://github.com/input-output-hk/cardano-cli/pull/244)
+
+- Update cardano-cli to newer cardano-ledger
+  (breaking)
+  - Use `cardano-api-8.20`.                                                                                     
+  - Export `renderOpCertIntervalInformation`.                                                                   
+  - `DelegationsAndRewards` and `mergeDelegsAndRewards` moved to `cardano-api` (`8.20.0.0`).                    
+  [PR 247](https://github.com/input-output-hk/cardano-cli/pull/247)
+
+- Consistent naming for `stake-pool` command related types, functions and modules
+  (compatible, improvement)
+  [PR 246](https://github.com/input-output-hk/cardano-cli/pull/246)
+
+- Era based `address` commands
+  (feature, compatible)
+  [PR 248](https://github.com/input-output-hk/cardano-cli/pull/248)
+
+- Update error message for eras mismatch between node and cli
+  (improvement)
+  [PR 249](https://github.com/input-output-hk/cardano-cli/pull/249)
+
+- Disable `redundant-constraints` warning only on `ghc-8.10.7`
+  (improvement)
+  [PR 245](https://github.com/input-output-hk/cardano-cli/pull/245)
+
+- Update description fields in delegation certificates from `Stake Address Delegation Certificate` to respectively (Conway onwards):
+  - `Stake Delegation Certificate` 
+  - `Vote Delegation Certificate`
+  - `Stake and Vote Delegation Certificate`
+  (feature)
+  [PR 250](https://github.com/input-output-hk/cardano-cli/pull/250)
+
+- Rename `delegation-certificate` to `stake-delegation-certificate` only in era-based command structure
+  (breaking, improvement)
+  [PR 243](https://github.com/input-output-hk/cardano-cli/pull/243)
+
+- Update to `cardano-api-8.19`
+  (improvement)
+  [PR 209](https://github.com/input-output-hk/cardano-cli/pull/209)
+
+- Move `query` run commands implementation into era based
+  (compatible, improvement)
+  [PR 236](https://github.com/input-output-hk/cardano-cli/pull/236)
+
+- Move `key` run commands implementation into era based
+  (compatible, improvement)
+  [PR 237](https://github.com/input-output-hk/cardano-cli/pull/237)
+
+- Era-based `stake-address` command group
+  (feature)
+  [PR 241](https://github.com/input-output-hk/cardano-cli/pull/241)
+
+- Move `text-view` run commands implementation into era-based
+  (compatible, improvement)
+  [PR 238](https://github.com/input-output-hk/cardano-cli/pull/238)
+
+- Remove era based prefix from errors
+  (improvement)
+  [PR 239](https://github.com/input-output-hk/cardano-cli/pull/239)
+
+- Move `pool` run commands implementation into era based
+  (compatible, improvement)
+  [PR 234](https://github.com/input-output-hk/cardano-cli/pull/234)
+
+- Prefix complex delegation certificate option
+  (breaking)
+  [PR 225](https://github.com/input-output-hk/cardano-cli/pull/225)
+
+- Remove duplicate instances and add new `FeatureInEra ShelleyBasedEra` instance
+  (compatible)
+  [PR 240](https://github.com/input-output-hk/cardano-cli/pull/240)
+
+- Era sensitive transaction run commands
+  (feature)
+  [PR 230](https://github.com/input-output-hk/cardano-cli/pull/230)
+
+- Delete legacy `conway governance` commands
+  (breaking)
+  [PR 231](https://github.com/input-output-hk/cardano-cli/pull/231)
+
+- Move `address` run command implementation into era-based
+  (compatible)
+  [PR 232](https://github.com/input-output-hk/cardano-cli/pull/232)
+
+- Move `stake-address` run commands implementation into era based
+  (compatible, improvement)
+  [PR 233](https://github.com/input-output-hk/cardano-cli/pull/233)
+
+- Ensure both proposal and constitution related commands will accept text, file and hash
+  (breaking, bugfix)
+  [PR 218](https://github.com/input-output-hk/cardano-cli/pull/218)
+
+- Move transaction command code into era based
+  (improvement)
+  [PR 229](https://github.com/input-output-hk/cardano-cli/pull/229)
+
+- Fix query `key-period-info`
+  (bugfix)
+  [PR 228](https://github.com/input-output-hk/cardano-cli/pull/228)
+
+- Add legacy prefix to legacy run commands
+  (improvement)
+  [PR 217](https://github.com/input-output-hk/cardano-cli/pull/217)
+
+- Consolidate legacy governance commands
+  (improvement)
+  [PR 216](https://github.com/input-output-hk/cardano-cli/pull/216)
+
 ## 8.7.0.0
 
 - Change `--constitution-file` to `--proposal-file` in `transaction build`
