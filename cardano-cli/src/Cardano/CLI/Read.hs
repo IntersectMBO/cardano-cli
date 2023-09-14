@@ -83,13 +83,17 @@ module Cardano.CLI.Read
   , readSafeHash
 
   , scriptHashReader
+
+  , readVoteDelegationTarget
   ) where
 
 import           Cardano.Api as Api
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley as Api
 
 import qualified Cardano.Binary as CBOR
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.ScriptDecodeError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
@@ -110,6 +114,7 @@ import           Prelude
 import           Control.Exception (bracket)
 import           Control.Monad (forM, unless)
 import           Control.Monad.IO.Class
+import           Control.Monad.Trans (MonadTrans (..))
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import qualified Data.Aeson as Aeson
@@ -1034,3 +1039,23 @@ readSafeHash =
 
 scriptHashReader :: Opt.ReadM ScriptHash
 scriptHashReader = Opt.eitherReader $ Right . fromString
+
+readVoteDelegationTarget :: ()
+  => VoteDelegationTarget
+  -> ExceptT DelegationError IO (L.DRep Ledger.StandardCrypto)
+readVoteDelegationTarget voteDelegationTarget =
+  case voteDelegationTarget of
+    VoteDelegationTargetOfDRep drepHashSource -> do
+      drepHash <- case drepHashSource of
+        DRepHashSourceScript (ScriptHash scriptHash) ->
+          pure $ Ledger.ScriptHashObj scriptHash
+        DRepHashSourceVerificationKey drepVKeyOrHashOrFile -> do
+          DRepKeyHash drepKeyHash <-
+            lift (readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile)
+              & onLeft (left . DelegationDRepReadError)
+          pure $ Ledger.KeyHashObj drepKeyHash
+      pure $ L.DRepCredential drepHash
+    VoteDelegationTargetOfAbstain ->
+      pure L.DRepAlwaysAbstain
+    VoteDelegationTargetOfNoConfidence ->
+      pure L.DRepAlwaysNoConfidence

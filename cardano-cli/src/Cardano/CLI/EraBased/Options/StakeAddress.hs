@@ -160,7 +160,7 @@ pStakeAddressVoteDelegationCertificateCmd era = do
     $ Opt.info
         ( StakeAddressVoteDelegationCertificateCmd w
             <$> pStakeIdentifier
-            <*> pDRepVerificationKeyOrHashOrFile
+            <*> pVoteDelegationTarget
             <*> pOutputFile
         )
     $ Opt.progDesc
