@@ -382,7 +382,7 @@ Usage: cardano-cli shelley node
                                   | issue-op-cert
                                   )
 
-  Era-based node commands
+  Node commands.
 
 Usage: cardano-cli shelley node key-gen [--key-output-format STRING]
                                           --cold-verification-key-file FILE
@@ -1604,7 +1604,7 @@ Usage: cardano-cli allegra node
                                   | issue-op-cert
                                   )
 
-  Era-based node commands
+  Node commands.
 
 Usage: cardano-cli allegra node key-gen [--key-output-format STRING]
                                           --cold-verification-key-file FILE
@@ -2824,7 +2824,7 @@ Usage: cardano-cli mary node
                                | issue-op-cert
                                )
 
-  Era-based node commands
+  Node commands.
 
 Usage: cardano-cli mary node key-gen [--key-output-format STRING]
                                        --cold-verification-key-file FILE
@@ -4025,7 +4025,7 @@ Usage: cardano-cli alonzo node
                                  | issue-op-cert
                                  )
 
-  Era-based node commands
+  Node commands.
 
 Usage: cardano-cli alonzo node key-gen [--key-output-format STRING]
                                          --cold-verification-key-file FILE
@@ -5249,7 +5249,7 @@ Usage: cardano-cli babbage node
                                   | issue-op-cert
                                   )
 
-  Era-based node commands
+  Node commands.
 
 Usage: cardano-cli babbage node key-gen [--key-output-format STRING]
                                           --cold-verification-key-file FILE
@@ -6767,7 +6767,7 @@ Usage: cardano-cli conway node
                                  | issue-op-cert
                                  )
 
-  Era-based node commands
+  Node commands.
 
 Usage: cardano-cli conway node key-gen [--key-output-format STRING]
                                          --cold-verification-key-file FILE
@@ -8031,7 +8031,7 @@ Usage: cardano-cli latest node
                                  | issue-op-cert
                                  )
 
-  Era-based node commands
+  Node commands.
 
 Usage: cardano-cli latest node key-gen [--key-output-format STRING]
                                          --cold-verification-key-file FILE

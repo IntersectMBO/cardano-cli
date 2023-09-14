@@ -21,7 +21,7 @@ Available commands:
   key                      Key commands.
   genesis                  Genesis commands.
   governance               Governance commands.
-  node                     Era-based node commands
+  node                     Node commands.
   query                    Era-based query commands
   stake-address            Stake address commands.
   stake-pool               Era-based stake pool commands

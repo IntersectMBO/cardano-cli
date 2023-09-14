@@ -12,22 +12,24 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import           Cardano.CLI.EraBased.Commands.Node
 import           Cardano.CLI.EraBased.Options.Common
 
-import           Data.Foldable
-import           Data.Maybe
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pNodeCmds :: Parser (NodeCmds era)
+pNodeCmds :: Maybe (Parser (NodeCmds era))
 pNodeCmds =
-  asum $ catMaybes
+  subInfoParser "node"
+    ( Opt.progDesc
+        $ mconcat
+          [ "Node commands."
+          ]
+    )
     [ Just
         $ subParser "key-gen"
         $ Opt.info pKeyGenOperator
-        $ Opt.progDesc
-        $ mconcat
+        $ Opt.progDesc $ mconcat
             [ "Create a key pair for a node operator's offline "
             , "key and a new certificate issue counter"
             ]
