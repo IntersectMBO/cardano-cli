@@ -16,7 +16,7 @@ Usage: cardano-cli mary query
                                 | slot-number
                                 )
 
-  Era-based query commands
+  Query commands.
 
 Available options:
   -h,--help                Show this help text

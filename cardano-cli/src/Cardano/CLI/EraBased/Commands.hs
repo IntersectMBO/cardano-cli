@@ -119,10 +119,7 @@ pCmds envCli era =
     , fmap GenesisCmds      <$> pGenesisCmds envCli
     , fmap GovernanceCmds   <$> pGovernanceCmds envCli era
     , fmap NodeCmds         <$> pNodeCmds
-    , Just
-        $ subParser "query"
-        $ Opt.info (QueryCmds <$> pQueryCmds envCli)
-        $ Opt.progDesc "Era-based query commands"
+    , fmap QueryCmds        <$> pQueryCmds envCli
     , fmap StakeAddressCmds <$> pStakeAddressCmds era envCli
     , Just
         $ subParser "stake-pool"

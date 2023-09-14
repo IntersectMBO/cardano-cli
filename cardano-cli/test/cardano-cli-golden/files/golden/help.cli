@@ -451,7 +451,7 @@ Usage: cardano-cli shelley query
                                    | slot-number
                                    )
 
-  Era-based query commands
+  Query commands.
 
 Usage: cardano-cli shelley query protocol-parameters --socket-path SOCKET_PATH
                                                        [ --shelley-mode
@@ -1673,7 +1673,7 @@ Usage: cardano-cli allegra query
                                    | slot-number
                                    )
 
-  Era-based query commands
+  Query commands.
 
 Usage: cardano-cli allegra query protocol-parameters --socket-path SOCKET_PATH
                                                        [ --shelley-mode
@@ -2893,7 +2893,7 @@ Usage: cardano-cli mary query
                                 | slot-number
                                 )
 
-  Era-based query commands
+  Query commands.
 
 Usage: cardano-cli mary query protocol-parameters --socket-path SOCKET_PATH
                                                     [ --shelley-mode
@@ -4094,7 +4094,7 @@ Usage: cardano-cli alonzo query
                                   | slot-number
                                   )
 
-  Era-based query commands
+  Query commands.
 
 Usage: cardano-cli alonzo query protocol-parameters --socket-path SOCKET_PATH
                                                       [ --shelley-mode
@@ -5318,7 +5318,7 @@ Usage: cardano-cli babbage query
                                    | slot-number
                                    )
 
-  Era-based query commands
+  Query commands.
 
 Usage: cardano-cli babbage query protocol-parameters --socket-path SOCKET_PATH
                                                        [ --shelley-mode
@@ -6836,7 +6836,7 @@ Usage: cardano-cli conway query
                                   | slot-number
                                   )
 
-  Era-based query commands
+  Query commands.
 
 Usage: cardano-cli conway query protocol-parameters --socket-path SOCKET_PATH
                                                       [ --shelley-mode
@@ -8100,7 +8100,7 @@ Usage: cardano-cli latest query
                                   | slot-number
                                   )
 
-  Era-based query commands
+  Query commands.
 
 Usage: cardano-cli latest query protocol-parameters --socket-path SOCKET_PATH
                                                       [ --shelley-mode

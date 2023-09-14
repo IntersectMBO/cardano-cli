@@ -16,7 +16,7 @@ Usage: cardano-cli conway query
                                   | slot-number
                                   )
 
-  Era-based query commands
+  Query commands.
 
 Available options:
   -h,--help                Show this help text

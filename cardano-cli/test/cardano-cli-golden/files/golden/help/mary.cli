@@ -22,7 +22,7 @@ Available commands:
   genesis                  Genesis commands.
   governance               Governance commands.
   node                     Node commands.
-  query                    Era-based query commands
+  query                    Query commands.
   stake-address            Stake address commands.
   stake-pool               Era-based stake pool commands
   text-view                Era-based text view commands
