@@ -117,10 +117,7 @@ pCmds envCli era =
     [ fmap AddressCmds      <$> pAddressCmds era envCli
     , fmap KeyCmds          <$> pKeyCmds
     , fmap GenesisCmds      <$> pGenesisCmds envCli
-    , Just
-        $ subParser "governance"
-        $ Opt.info (GovernanceCmds <$> pGovernanceCmds envCli era)
-        $ Opt.progDesc "Era-based governance commands"
+    , fmap GovernanceCmds   <$> pGovernanceCmds envCli era
     , Just
         $ subParser "node"
         $ Opt.info (NodeCmds <$> pNodeCmds)

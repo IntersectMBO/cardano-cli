@@ -20,13 +20,20 @@ import           Cardano.CLI.EraBased.Options.Governance.Vote
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
-import           Data.Maybe
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
-pGovernanceCmds :: EnvCli -> CardanoEra era -> Parser (GovernanceCmds era)
+pGovernanceCmds :: ()
+  => EnvCli
+  -> CardanoEra era
+  -> Maybe (Parser (GovernanceCmds era))
 pGovernanceCmds envCli era =
-  asum $ catMaybes
+  subInfoParser "governance"
+    ( Opt.progDesc
+        $ mconcat
+          [ "Governance commands."
+          ]
+    )
     [ pCreateMirCertificatesCmds era
     , fmap GovernanceQueryCmds        <$> pGovernanceQueryCmds envCli era
     , fmap GovernanceActionCmds       <$> pGovernanceActionCmds era

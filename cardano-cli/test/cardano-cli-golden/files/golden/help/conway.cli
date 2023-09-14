@@ -20,7 +20,7 @@ Available commands:
   address                  Address commands.
   key                      Key commands.
   genesis                  Genesis commands.
-  governance               Era-based governance commands
+  governance               Governance commands.
   node                     Era-based node commands
   query                    Era-based query commands
   stake-address            Stake address commands.

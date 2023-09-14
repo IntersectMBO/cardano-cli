@@ -264,7 +264,7 @@ Usage: cardano-cli shelley genesis hash --genesis FILE
 
 Usage: cardano-cli shelley governance (create-mir-certificate | action | drep)
 
-  Era-based governance commands
+  Governance commands.
 
 Usage: cardano-cli shelley governance create-mir-certificate 
                                                                ( ( --reserves
@@ -1486,7 +1486,7 @@ Usage: cardano-cli allegra genesis hash --genesis FILE
 
 Usage: cardano-cli allegra governance (create-mir-certificate | action | drep)
 
-  Era-based governance commands
+  Governance commands.
 
 Usage: cardano-cli allegra governance create-mir-certificate 
                                                                ( ( --reserves
@@ -2706,7 +2706,7 @@ Usage: cardano-cli mary genesis hash --genesis FILE
 
 Usage: cardano-cli mary governance (create-mir-certificate | action | drep)
 
-  Era-based governance commands
+  Governance commands.
 
 Usage: cardano-cli mary governance create-mir-certificate 
                                                             ( ( --reserves
@@ -3900,7 +3900,7 @@ Usage: cardano-cli alonzo genesis hash --genesis FILE
 
 Usage: cardano-cli alonzo governance (create-mir-certificate | action | drep)
 
-  Era-based governance commands
+  Governance commands.
 
 Usage: cardano-cli alonzo governance create-mir-certificate 
                                                               ( ( --reserves
@@ -5128,7 +5128,7 @@ Usage: cardano-cli babbage genesis hash --genesis FILE
 
 Usage: cardano-cli babbage governance (create-mir-certificate | action | drep)
 
-  Era-based governance commands
+  Governance commands.
 
 Usage: cardano-cli babbage governance create-mir-certificate 
                                                                ( ( --reserves
@@ -6351,7 +6351,7 @@ Usage: cardano-cli conway genesis hash --genesis FILE
 
 Usage: cardano-cli conway governance (query | action | committee | drep | vote)
 
-  Era-based governance commands
+  Governance commands.
 
 Usage: cardano-cli conway governance query 
                                              ( constitution
@@ -7910,7 +7910,7 @@ Usage: cardano-cli latest genesis hash --genesis FILE
 
 Usage: cardano-cli latest governance (create-mir-certificate | action | drep)
 
-  Era-based governance commands
+  Governance commands.
 
 Usage: cardano-cli latest governance create-mir-certificate 
                                                               ( ( --reserves
