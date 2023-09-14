@@ -24,7 +24,7 @@ hprop_golden_byron_yes_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir 
   signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
   createdYesVote <- noteTempFile tempDir "byron-yes-vote"
   void $ execCardanoCLI
-    [ "byron","governance","create-proposal-vote"
+    [ "byron", "governance", "create-proposal-vote"
     , "--mainnet"
     , "--proposal-filepath", proposal
     , "--signing-key", signingKey
@@ -51,7 +51,7 @@ hprop_golden_byron_no_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -
   signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
   createdNoVote <- noteTempFile tempDir "byron-no-vote"
   void $ execCardanoCLI
-    [ "byron","governance","create-proposal-vote"
+    [ "byron", "governance", "create-proposal-vote"
     , "--mainnet"
     , "--proposal-filepath", proposal
     , "--signing-key", signingKey

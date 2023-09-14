@@ -24,8 +24,7 @@ hprop_golden_shelleyTransactionSigningKeyWitness = propertyOnce $ H.moduleWorksp
 
   -- Create tx body file
   void $ execCardanoCLI
-    [ "transaction","build-raw"
-    , "--shelley-era"
+    [ "shelley", "transaction", "build-raw"
     , "--tx-in", txIn
     , "--tx-out", txOut
     , "--invalid-hereafter", "60"

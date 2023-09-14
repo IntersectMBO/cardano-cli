@@ -24,8 +24,7 @@ hprop_golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.modul
   exampleScript <- noteInputFile $ base </> "scripts/plutus/scripts/v1/custom-guess-42-datum-42.plutus"
 
   void $ execCardanoCLI
-    [ "stake-address","registration-certificate"
-    , "--babbage-era"
+    [ "babbage", "stake-address", "registration-certificate"
     , "--staking-verification-key-file", keyGenStakingVerificationKeyFile
     , "--out-file", registrationCertFile
     ]
@@ -33,8 +32,7 @@ hprop_golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.modul
   H.assertFileOccurences 1 "Stake Address Registration Certificate" registrationCertFile
 
   void $ execCardanoCLI
-    [ "stake-address","registration-certificate"
-    , "--babbage-era"
+    [ "babbage", "stake-address", "registration-certificate"
     , "--stake-script-file", exampleScript
     , "--out-file", scriptRegistrationCertFile
     ]
@@ -50,8 +48,7 @@ hprop_golden_shelleyStakeAddressRegistrationCertificateWithBuildRaw = propertyOn
   txRawFile <- noteTempFile tempDir "tx.raw"
 
   void $ execCardanoCLI
-    [ "stake-address","registration-certificate"
-    , "--conway-era"
+    [ "conway", "stake-address", "registration-certificate"
     , "--staking-verification-key-file", keyGenStakingVerificationKeyFile
     , "--key-reg-deposit-amt", "2000000"
     , "--out-file", registrationCertFile
@@ -60,8 +57,7 @@ hprop_golden_shelleyStakeAddressRegistrationCertificateWithBuildRaw = propertyOn
   H.assertFileOccurences 1 "Stake Address Registration Certificate" registrationCertFile
 
   void $ execCardanoCLI
-    [ "transaction","build-raw"
-    , "--conway-era"
+    [ "conway", "transaction", "build-raw"
     , "--tx-in", "bdfa7d91a29ffe071c028c0143c5d278c0a7ddb829c1e95f54a1676915fd82c2#0"
     , "--fee", "1"
     , "--certificate-file", registrationCertFile

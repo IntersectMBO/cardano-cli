@@ -27,8 +27,7 @@ hprop_golden_shelleyTx = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
 
   -- Create transaction body
   void $ execCardanoCLI
-    [ "transaction", "build-raw"
-    , "--alonzo-era"
+    [ "alonzo", "transaction", "build-raw"
     , "--tx-in", "f62cd7bc15d8c6d2c8519fb8d13c57c0157ab6bab50af62bc63706feb966393d#0"
     , "--tx-out", "addr_test1qpmxr8d8jcl25kyz2tz9a9sxv7jxglhddyf475045y8j3zxjcg9vquzkljyfn3rasfwwlkwu7hhm59gzxmsyxf3w9dps8832xh+1199989833223"
     , "--tx-out", "addr_test1vpqgspvmh6m2m5pwangvdg499srfzre2dd96qq57nlnw6yctpasy4+10000000"
