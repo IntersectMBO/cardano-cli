@@ -121,10 +121,7 @@ pCmds envCli era =
     , fmap NodeCmds         <$> pNodeCmds
     , fmap QueryCmds        <$> pQueryCmds envCli
     , fmap StakeAddressCmds <$> pStakeAddressCmds era envCli
-    , Just
-        $ subParser "stake-pool"
-        $ Opt.info (StakePoolCmds <$> pStakePoolCmds era envCli)
-        $ Opt.progDesc "Era-based stake pool commands"
+    , fmap StakePoolCmds    <$> pStakePoolCmds era envCli
     , Just
         $ subParser "text-view"
         $ Opt.info (TextViewCmds <$> pTextViewCmds)

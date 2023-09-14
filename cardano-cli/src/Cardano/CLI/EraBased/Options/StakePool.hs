@@ -13,17 +13,23 @@ import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.StakePool
 import           Cardano.CLI.EraBased.Options.Common
 
-import           Data.Foldable
-import           Data.Maybe
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pStakePoolCmds :: CardanoEra era -> EnvCli -> Parser (StakePoolCmds era)
+pStakePoolCmds :: ()
+  => CardanoEra era
+  -> EnvCli
+  -> Maybe (Parser (StakePoolCmds era))
 pStakePoolCmds era envCli =
-  asum $ catMaybes
+  subInfoParser "stake-pool"
+    ( Opt.progDesc
+        $ mconcat
+          [ "Stake pool commands."
+          ]
+    )
     [ pStakePoolRegistrationCertificateCmd era envCli
     , pStakePoolDeregistrationCertificateCmd era
     , Just

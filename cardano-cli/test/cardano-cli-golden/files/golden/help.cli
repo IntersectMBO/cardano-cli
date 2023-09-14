@@ -786,7 +786,7 @@ Usage: cardano-cli shelley stake-pool
                                         | metadata-hash
                                         )
 
-  Era-based stake pool commands
+  Stake pool commands.
 
 Usage: cardano-cli shelley stake-pool registration-certificate 
                                                                  ( --stake-pool-verification-key STRING
@@ -2008,7 +2008,7 @@ Usage: cardano-cli allegra stake-pool
                                         | metadata-hash
                                         )
 
-  Era-based stake pool commands
+  Stake pool commands.
 
 Usage: cardano-cli allegra stake-pool registration-certificate 
                                                                  ( --stake-pool-verification-key STRING
@@ -3218,7 +3218,7 @@ Usage: cardano-cli mary stake-pool
                                      | metadata-hash
                                      )
 
-  Era-based stake pool commands
+  Stake pool commands.
 
 Usage: cardano-cli mary stake-pool registration-certificate 
                                                               ( --stake-pool-verification-key STRING
@@ -4429,7 +4429,7 @@ Usage: cardano-cli alonzo stake-pool
                                        | metadata-hash
                                        )
 
-  Era-based stake pool commands
+  Stake pool commands.
 
 Usage: cardano-cli alonzo stake-pool registration-certificate 
                                                                 ( --stake-pool-verification-key STRING
@@ -5653,7 +5653,7 @@ Usage: cardano-cli babbage stake-pool
                                         | metadata-hash
                                         )
 
-  Era-based stake pool commands
+  Stake pool commands.
 
 Usage: cardano-cli babbage stake-pool registration-certificate 
                                                                  ( --stake-pool-verification-key STRING
@@ -7213,7 +7213,7 @@ Usage: cardano-cli conway stake-pool
                                        | metadata-hash
                                        )
 
-  Era-based stake pool commands
+  Stake pool commands.
 
 Usage: cardano-cli conway stake-pool registration-certificate 
                                                                 ( --stake-pool-verification-key STRING
@@ -8435,7 +8435,7 @@ Usage: cardano-cli latest stake-pool
                                        | metadata-hash
                                        )
 
-  Era-based stake pool commands
+  Stake pool commands.
 
 Usage: cardano-cli latest stake-pool registration-certificate 
                                                                 ( --stake-pool-verification-key STRING
