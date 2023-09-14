@@ -16,6 +16,7 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
+import           Data.Maybe
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
@@ -24,66 +25,82 @@ import qualified Options.Applicative as Opt
 
 pQueryCmds :: EnvCli -> Parser (QueryCmds era)
 pQueryCmds envCli =
-  asum
-    [ subParser "protocol-parameters"
+  asum $ catMaybes
+    [ Just
+        $ subParser "protocol-parameters"
         $ Opt.info (pQueryProtocolParameters envCli)
         $ Opt.progDesc "Get the node's current protocol parameters"
-    , subParser "constitution-hash"
+    , Just
+        $ subParser "constitution-hash"
         $ Opt.info (pQueryConstitutionHash envCli)
         $ Opt.progDesc "Get the constitution hash"
-    , subParser "tip"
+    , Just
+        $ subParser "tip"
         $ Opt.info (pQueryTip envCli)
         $ Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
-    , subParser "stake-pools"
+    , Just
+        $ subParser "stake-pools"
         $ Opt.info (pQueryStakePools envCli)
         $ Opt.progDesc "Get the node's current set of stake pool ids"
-    , subParser "stake-distribution"
+    , Just
+        $ subParser "stake-distribution"
         $ Opt.info (pQueryStakeDistribution envCli)
         $ Opt.progDesc "Get the node's current aggregated stake distribution"
-    , subParser "stake-address-info"
+    , Just
+        $ subParser "stake-address-info"
         $ Opt.info (pQueryStakeAddressInfo envCli)
         $ Opt.progDesc $ mconcat
             [ "Get the current delegations and reward accounts filtered by stake address."
             ]
-    , subParser "utxo"
+    , Just
+        $ subParser "utxo"
         $ Opt.info (pQueryUTxO envCli)
         $ Opt.progDesc $ mconcat
             [ "Get a portion of the current UTxO: by tx in, by address or the whole."
             ]
-    , subParser "ledger-state"
+    , Just
+        $ subParser "ledger-state"
         $ Opt.info (pQueryLedgerState envCli)
         $ Opt.progDesc $ mconcat
             [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
             ]
-    , subParser "protocol-state"
+    , Just
+        $ subParser "protocol-state"
         $ Opt.info (pQueryProtocolState envCli)
         $ Opt.progDesc $ mconcat
             [ "Dump the current protocol state of the node (Ledger.ChainDepState -- advanced command)"
             ]
-    , subParser "stake-snapshot"
+    , Just
+        $ subParser "stake-snapshot"
         $ Opt.info (pQueryStakeSnapshot envCli)
         $ Opt.progDesc $ mconcat
             [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
             ]
-    , hiddenSubParser "pool-params"
+    , Just
+        $ hiddenSubParser "pool-params"
         $ Opt.info (pQueryPoolState envCli)
         $ Opt.progDesc $ mconcat
             [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
             , "(Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced command)"
             ]
-    , subParser "leadership-schedule"
+    , Just
+        $ subParser "leadership-schedule"
         $ Opt.info (pLeadershipSchedule envCli)
         $ Opt.progDesc "Get the slots the node is expected to mint a block in (advanced command)"
-    , subParser "kes-period-info"
+    , Just
+        $ subParser "kes-period-info"
         $ Opt.info (pKesPeriodInfo envCli)
         $ Opt.progDesc "Get information about the current KES period and your node's operational certificate."
-    , subParser "pool-state"
+    , Just
+        $ subParser "pool-state"
         $ Opt.info (pQueryPoolState envCli)
         $ Opt.progDesc "Dump the pool state"
-    , subParser "tx-mempool"
+    , Just
+        $ subParser "tx-mempool"
         $ Opt.info (pQueryTxMempool envCli)
         $ Opt.progDesc "Local Mempool info"
-    , subParser "slot-number"
+    , Just
+        $ subParser "slot-number"
         $ Opt.info (pQuerySlotNumber envCli)
         $ Opt.progDesc "Query slot number for UTC timestamp"
     ]

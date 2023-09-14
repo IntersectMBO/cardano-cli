@@ -13,6 +13,7 @@ import           Cardano.CLI.EraBased.Commands.Node
 import           Cardano.CLI.EraBased.Options.Common
 
 import           Data.Foldable
+import           Data.Maybe
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
@@ -21,26 +22,49 @@ import qualified Options.Applicative as Opt
 
 pNodeCmds :: Parser (NodeCmds era)
 pNodeCmds =
-  asum
-    [ subParser "key-gen" . Opt.info pKeyGenOperator . Opt.progDesc $ mconcat
-      [ "Create a key pair for a node operator's offline "
-      , "key and a new certificate issue counter"
-      ]
-    , subParser "key-gen-KES" . Opt.info pKeyGenKES . Opt.progDesc $ mconcat
-      [ "Create a key pair for a node KES operational key"
-      ]
-    , subParser "key-gen-VRF" . Opt.info pKeyGenVRF . Opt.progDesc $ mconcat
-      [ "Create a key pair for a node VRF operational key"
-      ]
-    , subParser "key-hash-VRF". Opt.info pKeyHashVRF . Opt.progDesc $ mconcat
-      [ "Print hash of a node's operational VRF key."
-      ]
-    , subParser "new-counter" . Opt.info pNewCounter . Opt.progDesc $ mconcat
-      [ "Create a new certificate issue counter"
-      ]
-    , subParser "issue-op-cert" . Opt.info pIssueOpCert . Opt.progDesc $ mconcat
-      [ "Issue a node operational certificate"
-      ]
+  asum $ catMaybes
+    [ Just
+        $ subParser "key-gen"
+        $ Opt.info pKeyGenOperator
+        $ Opt.progDesc
+        $ mconcat
+            [ "Create a key pair for a node operator's offline "
+            , "key and a new certificate issue counter"
+            ]
+    , Just
+        $ subParser "key-gen-KES"
+        $ Opt.info pKeyGenKES
+        $ Opt.progDesc
+        $ mconcat
+            [ "Create a key pair for a node KES operational key"
+            ]
+    , Just
+        $ subParser "key-gen-VRF"
+        $ Opt.info pKeyGenVRF
+        $ Opt.progDesc
+        $ mconcat
+            [ "Create a key pair for a node VRF operational key"
+            ]
+    , Just
+        $ subParser "key-hash-VRF". Opt.info pKeyHashVRF
+        $ Opt.progDesc
+        $ mconcat
+            [ "Print hash of a node's operational VRF key."
+            ]
+    , Just
+        $ subParser "new-counter"
+        $ Opt.info pNewCounter
+        $ Opt.progDesc
+        $ mconcat
+            [ "Create a new certificate issue counter"
+            ]
+    , Just
+        $ subParser "issue-op-cert"
+        $ Opt.info pIssueOpCert
+        $ Opt.progDesc
+        $ mconcat
+            [ "Issue a node operational certificate"
+            ]
     ]
 
 pKeyGenOperator :: Parser (NodeCmds era)

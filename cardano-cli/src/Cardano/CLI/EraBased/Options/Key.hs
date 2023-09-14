@@ -14,6 +14,7 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
+import           Data.Maybe
 import           Data.Text (Text)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
@@ -23,15 +24,17 @@ import qualified Options.Applicative as Opt
 
 pKeyCmds :: Parser (KeyCmds era)
 pKeyCmds =
-  asum
-    [ subParser "verification-key"
+  asum $ catMaybes
+    [ Just
+        $ subParser "verification-key"
         $ Opt.info pKeyGetVerificationKey
         $ Opt.progDesc
         $ mconcat
             [ "Get a verification key from a signing key. This "
             , " supports all key types."
             ]
-    , subParser "non-extended-key"
+    , Just
+        $ subParser "non-extended-key"
         $ Opt.info pKeyNonExtendedKey
         $ Opt.progDesc
         $ mconcat
@@ -39,7 +42,8 @@ pKeyCmds =
             , "extended verification key. This supports all "
             , "extended key types."
             ]
-    , subParser "convert-byron-key"
+    , Just
+        $ subParser "convert-byron-key"
         $ Opt.info pKeyConvertByronKey
         $ Opt.progDesc
         $ mconcat
@@ -47,7 +51,8 @@ pKeyCmds =
             , "delegate key (signing or verification) to a "
             , "corresponding Shelley-format key."
             ]
-    , subParser "convert-byron-genesis-vkey"
+    , Just
+        $ subParser "convert-byron-genesis-vkey"
         $ Opt.info pKeyConvertByronGenesisVKey
         $ Opt.progDesc
         $ mconcat
@@ -55,7 +60,8 @@ pKeyCmds =
             , "verification key to a Shelley genesis "
             , "verification key"
             ]
-    , subParser "convert-itn-key"
+    , Just
+        $ subParser "convert-itn-key"
         $ Opt.info pKeyConvertITNKey
         $ Opt.progDesc
         $ mconcat
@@ -63,7 +69,8 @@ pKeyCmds =
             , "(Ed25519) signing or verification key to a "
             , "corresponding Shelley stake key"
             ]
-    , subParser "convert-itn-extended-key"
+    , Just
+        $ subParser "convert-itn-extended-key"
         $ Opt.info pKeyConvertITNExtendedKey
         $ Opt.progDesc
         $ mconcat
@@ -71,7 +78,8 @@ pKeyCmds =
             , "(Ed25519Extended) signing key to a corresponding "
             , "Shelley stake signing key"
             ]
-    , subParser "convert-itn-bip32-key"
+    , Just
+        $ subParser "convert-itn-bip32-key"
         $ Opt.info pKeyConvertITNBip32Key
         $ Opt.progDesc
         $ mconcat
@@ -79,7 +87,8 @@ pKeyCmds =
             , "(Ed25519Bip32) signing key to a corresponding "
             , "Shelley stake signing key"
             ]
-    , subParser "convert-cardano-address-key"
+    , Just
+        $ subParser "convert-cardano-address-key"
         $ Opt.info pKeyConvertCardanoAddressSigningKey
         $ Opt.progDesc
         $ mconcat

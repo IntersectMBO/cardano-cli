@@ -16,6 +16,7 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
+import           Data.Maybe
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 import qualified Options.Applicative.Help as H
@@ -26,8 +27,9 @@ import           Prettyprinter (line, pretty)
 
 pTransactionCmds :: EnvCli -> CardanoEra era -> Parser (TransactionCmds era)
 pTransactionCmds envCli era =
-  asum
-    [ subParser "build-raw"
+  asum $ catMaybes
+    [ Just
+        $ subParser "build-raw"
         $ Opt.info (pTransactionBuildRaw era)
         $ Opt.progDescDoc
         $ Just $ mconcat
@@ -39,7 +41,8 @@ pTransactionCmds envCli era =
                 , "undesired tx body. See nested [] notation above for details."
                 ]
             ]
-    , subParser "build"
+    , Just
+        $ subParser "build"
         $ Opt.info (pTransactionBuild envCli era)
         $ Opt.progDescDoc
         $ Just $ mconcat
@@ -53,40 +56,51 @@ pTransactionCmds envCli era =
                 , "undesired tx body. See nested [] notation above for details."
                 ]
             ]
-    , subParser "sign"
+    , Just
+        $ subParser "sign"
         $ Opt.info (pTransactionSign envCli)
         $ Opt.progDesc "Sign a transaction"
-    , subParser "witness"
+    , Just
+        $ subParser "witness"
         $ Opt.info (pTransactionCreateWitness envCli)
         $ Opt.progDesc "Create a transaction witness"
-    , subParser "assemble"
+    , Just
+        $ subParser "assemble"
         $ Opt.info pTransactionAssembleTxBodyWit
         $ Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
-    , pSignWitnessBackwardCompatible
-    , subParser "submit"
+    , Just pSignWitnessBackwardCompatible
+    , Just
+        $ subParser "submit"
         $ Opt.info (pTransactionSubmit envCli)
         $ Opt.progDesc
         $ mconcat
             [ "Submit a transaction to the local node whose Unix domain socket "
             , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
             ]
-    , subParser "policyid"
+    , Just
+        $ subParser "policyid"
         $ Opt.info pTransactionPolicyId
         $ Opt.progDesc "Calculate the PolicyId from the monetary policy script."
-    , subParser "calculate-min-fee"
+    , Just
+        $ subParser "calculate-min-fee"
         $ Opt.info (pTransactionCalculateMinFee envCli)
         $ Opt.progDesc "Calculate the minimum fee for a transaction."
-    , subParser "calculate-min-required-utxo"
+    , Just
+        $ subParser "calculate-min-required-utxo"
         $ Opt.info (pTransactionCalculateMinReqUTxO era)
         $ Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
-    , pCalculateMinRequiredUtxoBackwardCompatible era
-    , subParser "hash-script-data"
+    , Just
+        $ pCalculateMinRequiredUtxoBackwardCompatible era
+    , Just
+        $ subParser "hash-script-data"
         $ Opt.info pTxHashScriptData
         $ Opt.progDesc "Calculate the hash of script data."
-    , subParser "txid"
+    , Just
+        $ subParser "txid"
         $ Opt.info pTransactionId
         $ Opt.progDesc "Print a transaction identifier."
-    , subParser "view"
+    , Just
+        $ subParser "view"
         $ Opt.info pTransactionView
         $ Opt.progDesc "Print a transaction."
     ]

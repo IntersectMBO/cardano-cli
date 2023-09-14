@@ -11,6 +11,7 @@ import           Cardano.CLI.EraBased.Commands.TextView
 import           Cardano.CLI.EraBased.Options.Common
 
 import           Data.Foldable
+import           Data.Maybe
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
@@ -19,8 +20,9 @@ import qualified Options.Applicative as Opt
 
 pTextViewCmds :: Parser (TextViewCmds era)
 pTextViewCmds =
-  asum
-    [ subParser "decode-cbor"
+  asum $ catMaybes
+    [ Just
+        $ subParser "decode-cbor"
         $ Opt.info (TextViewInfo <$> pCBORInFile <*> pMaybeOutputFile)
         $ Opt.progDesc "Print a TextView file as decoded CBOR."
     ]
