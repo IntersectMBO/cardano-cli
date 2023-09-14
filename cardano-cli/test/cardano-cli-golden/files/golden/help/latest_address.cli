@@ -1,6 +1,6 @@
 Usage: cardano-cli latest address (key-gen | key-hash | build | info)
 
-  Era-based address commands
+  Address commands.
 
 Available options:
   -h,--help                Show this help text

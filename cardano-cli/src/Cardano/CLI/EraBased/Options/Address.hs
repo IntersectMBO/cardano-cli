@@ -13,14 +13,20 @@ import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.Address
 import           Cardano.CLI.EraBased.Options.Common
 
-import           Data.Foldable
-import           Data.Maybe
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
-pAddressCmds :: CardanoEra era -> EnvCli -> Parser (AddressCmds era)
+pAddressCmds :: ()
+  => CardanoEra era
+  -> EnvCli
+  -> Maybe (Parser (AddressCmds era))
 pAddressCmds _ envCli =
-  asum $ catMaybes
+  subInfoParser "address"
+    ( Opt.progDesc
+        $ mconcat
+          [ "Address commands."
+          ]
+    )
     [ Just
         $ subParser "key-gen"
         $ Opt.info pAddressKeyGen

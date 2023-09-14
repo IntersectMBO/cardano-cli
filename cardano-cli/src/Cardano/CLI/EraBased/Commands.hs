@@ -114,10 +114,7 @@ pAnyEraCommand envCli =
 pCmds :: EnvCli -> CardanoEra era -> Parser (Cmds era)
 pCmds envCli era =
   asum $ catMaybes
-    [ Just
-        $ subParser "address"
-        $ Opt.info (AddressCmds <$> pAddressCmds era envCli)
-        $ Opt.progDesc "Era-based address commands"
+    [ fmap AddressCmds      <$> pAddressCmds era envCli
     , Just
         $ subParser "key"
         $ Opt.info (KeyCmds <$> pKeyCmds)

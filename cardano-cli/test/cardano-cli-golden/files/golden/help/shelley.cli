@@ -17,7 +17,7 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  address                  Era-based address commands
+  address                  Address commands.
   key                      Era-based key commands
   genesis                  Era-based genesis commands
   governance               Era-based governance commands

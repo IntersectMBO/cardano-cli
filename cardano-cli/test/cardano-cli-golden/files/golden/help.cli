@@ -30,7 +30,7 @@ Usage: cardano-cli shelley
 
 Usage: cardano-cli shelley address (key-gen | key-hash | build | info)
 
-  Era-based address commands
+  Address commands.
 
 Usage: cardano-cli shelley address key-gen [--key-output-format STRING]
                                              [ --normal-key
@@ -1252,7 +1252,7 @@ Usage: cardano-cli allegra
 
 Usage: cardano-cli allegra address (key-gen | key-hash | build | info)
 
-  Era-based address commands
+  Address commands.
 
 Usage: cardano-cli allegra address key-gen [--key-output-format STRING]
                                              [ --normal-key
@@ -2474,7 +2474,7 @@ Usage: cardano-cli mary
 
 Usage: cardano-cli mary address (key-gen | key-hash | build | info)
 
-  Era-based address commands
+  Address commands.
 
 Usage: cardano-cli mary address key-gen [--key-output-format STRING]
                                           [ --normal-key
@@ -3668,7 +3668,7 @@ Usage: cardano-cli alonzo
 
 Usage: cardano-cli alonzo address (key-gen | key-hash | build | info)
 
-  Era-based address commands
+  Address commands.
 
 Usage: cardano-cli alonzo address key-gen [--key-output-format STRING]
                                             [ --normal-key
@@ -4894,7 +4894,7 @@ Usage: cardano-cli babbage
 
 Usage: cardano-cli babbage address (key-gen | key-hash | build | info)
 
-  Era-based address commands
+  Address commands.
 
 Usage: cardano-cli babbage address key-gen [--key-output-format STRING]
                                              [ --normal-key
@@ -6119,7 +6119,7 @@ Usage: cardano-cli conway
 
 Usage: cardano-cli conway address (key-gen | key-hash | build | info)
 
-  Era-based address commands
+  Address commands.
 
 Usage: cardano-cli conway address key-gen [--key-output-format STRING]
                                             [ --normal-key
@@ -7678,7 +7678,7 @@ Usage: cardano-cli latest
 
 Usage: cardano-cli latest address (key-gen | key-hash | build | info)
 
-  Era-based address commands
+  Address commands.
 
 Usage: cardano-cli latest address key-gen [--key-output-format STRING]
                                             [ --normal-key
