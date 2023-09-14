@@ -24,8 +24,7 @@ hprop_golden_shelleyStakeAddressDeregistrationCertificate = propertyOnce . H.mod
   exampleScript <- noteInputFile $ base </> "scripts/plutus/scripts/v1/custom-guess-42-datum-42.plutus"
 
   void $ execCardanoCLI
-    [ "stake-address","deregistration-certificate"
-    , "--babbage-era"
+    [ "babbage", "stake-address","deregistration-certificate"
     , "--staking-verification-key-file", verificationKeyFile
     , "--out-file", deregistrationCertFile
     ]
@@ -33,8 +32,7 @@ hprop_golden_shelleyStakeAddressDeregistrationCertificate = propertyOnce . H.mod
   H.assertFileOccurences 1 "Stake Address Deregistration Certificate" deregistrationCertFile
 
   void $ execCardanoCLI
-    [ "stake-address","deregistration-certificate"
-    , "--babbage-era"
+    [ "babbage", "stake-address","deregistration-certificate"
     , "--stake-script-file", exampleScript
     , "--out-file", scriptDeregistrationCertFile
     ]

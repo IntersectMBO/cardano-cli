@@ -40,7 +40,8 @@ import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
-import           Data.Maybe (fromMaybe)
+import           Data.Function
+import           Data.Maybe (fromMaybe, maybeToList)
 import           Data.Text (Text)
 import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
@@ -541,7 +542,7 @@ pTransaction envCli =
   pTransactionBuild =
     TxBuild
       <$> pSocketPath envCli
-      <*> pCardanoEra envCli
+      <*> pLegacyCardanoEra envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
       <*> optional pScriptValidity
@@ -581,7 +582,7 @@ pTransaction envCli =
   pTransactionBuildRaw :: Parser LegacyTransactionCmds
   pTransactionBuildRaw =
     TxBuildRaw
-      <$> pCardanoEra envCli
+      <$> pLegacyCardanoEra envCli
       <*> optional pScriptValidity
       <*> some (pTxIn ManualBalance)
       <*> many pReadOnlyReferenceTxIn
@@ -650,7 +651,7 @@ pTransaction envCli =
 
   pTransactionCalculateMinReqUTxO :: Parser LegacyTransactionCmds
   pTransactionCalculateMinReqUTxO = TxCalculateMinRequiredUTxO
-    <$> pCardanoEra envCli
+    <$> pLegacyCardanoEra envCli
     <*> pProtocolParamsFile
     <*> pTxOut
 
@@ -1412,3 +1413,39 @@ pStakePoolDeregistrationCertificateCmd envCli =
     <*> pStakePoolVerificationKeyOrFile
     <*> pEpochNo "The epoch number."
     <*> pOutputFile
+
+pLegacyCardanoEra :: EnvCli -> Parser AnyCardanoEra
+pLegacyCardanoEra envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (AnyCardanoEra ByronEra) $ mconcat
+        [ Opt.long "byron-era"
+        , Opt.help "Specify the Byron era"
+        ]
+      , Opt.flag' (AnyCardanoEra ShelleyEra) $ mconcat
+        [ Opt.long "shelley-era"
+        , Opt.help "Specify the Shelley era"
+        ]
+      , Opt.flag' (AnyCardanoEra AllegraEra) $ mconcat
+        [ Opt.long "allegra-era"
+        , Opt.help "Specify the Allegra era"
+        ]
+      , Opt.flag' (AnyCardanoEra MaryEra) $ mconcat
+        [ Opt.long "mary-era"
+        , Opt.help "Specify the Mary era"
+        ]
+      , Opt.flag' (AnyCardanoEra AlonzoEra) $ mconcat
+        [ Opt.long "alonzo-era"
+        , Opt.help "Specify the Alonzo era"
+        ]
+      , Opt.flag' (AnyCardanoEra BabbageEra) $ mconcat
+        [ Opt.long "babbage-era"
+        , Opt.help "Specify the Babbage era (default)"
+        ]
+      ]
+    , maybeToList $ pure <$> envCliAnyCardanoEra envCli
+    -- TODO is this default needed anymore?
+    , pure $ pure defaultCardanoEra
+  ]
+    where
+      defaultCardanoEra = defaultShelleyBasedEra & \(AnyShelleyBasedEra era) ->
+        AnyCardanoEra (shelleyBasedToCardanoEra era)

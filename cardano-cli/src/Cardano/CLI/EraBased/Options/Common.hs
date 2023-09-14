@@ -35,7 +35,6 @@ import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BSC
 import           Data.Foldable
-import           Data.Function
 import           Data.Functor (($>))
 import qualified Data.IP as IP
 import           Data.List.NonEmpty (NonEmpty)
@@ -64,49 +63,6 @@ defaultShelleyBasedEra = AnyShelleyBasedEra ShelleyBasedEraBabbage
 
 defaultShelleyToBabbageEra :: AnyShelleyToBabbageEra
 defaultShelleyToBabbageEra = AnyShelleyToBabbageEra ShelleyToBabbageEraBabbage
-
-pCardanoEra :: EnvCli -> Parser AnyCardanoEra
-pCardanoEra envCli =
-  asum $ mconcat
-    [ [ Opt.flag' (AnyCardanoEra ByronEra) $ mconcat
-        [ Opt.long "byron-era"
-        , Opt.help "Specify the Byron era"
-        ]
-      , Opt.flag' (AnyCardanoEra ShelleyEra) $ mconcat
-        [ Opt.long "shelley-era"
-        , Opt.help "Specify the Shelley era"
-        ]
-      , Opt.flag' (AnyCardanoEra AllegraEra) $ mconcat
-        [ Opt.long "allegra-era"
-        , Opt.help "Specify the Allegra era"
-        ]
-      , Opt.flag' (AnyCardanoEra MaryEra) $ mconcat
-        [ Opt.long "mary-era"
-        , Opt.help "Specify the Mary era"
-        ]
-      , Opt.flag' (AnyCardanoEra AlonzoEra) $ mconcat
-        [ Opt.long "alonzo-era"
-        , Opt.help "Specify the Alonzo era"
-        ]
-      , Opt.flag' (AnyCardanoEra BabbageEra) $ mconcat
-        [ Opt.long "babbage-era"
-        , Opt.help "Specify the Babbage era (default)"
-        ]
-      , Opt.flag' (AnyCardanoEra ConwayEra) $ mconcat
-        [ Opt.long "conway-era"
-        , Opt.help "Specify the Conway era"
-        ]
-
-        -- NEW-ERA-ADD-NEW: When a new era is added, add a new flag here.
-        -- NEW-ERA-SET-DEFAULT: When a new era is working, select a new default above and below.
-      ]
-    , maybeToList $ pure <$> envCliAnyCardanoEra envCli
-    -- TODO is this default needed anymore?
-    , pure $ pure defaultCardanoEra
-  ]
-    where
-      defaultCardanoEra = defaultShelleyBasedEra & \(AnyShelleyBasedEra era) ->
-        AnyCardanoEra (shelleyBasedToCardanoEra era)
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =

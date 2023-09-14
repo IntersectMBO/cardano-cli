@@ -23,7 +23,7 @@ hprop_golden_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \t
   signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
   createdUpdateProposal <- noteTempFile tempDir "byron-update-proposal"
   void $ execCardanoCLI
-    [ "byron","governance","create-update-proposal"
+    [ "byron", "governance", "create-update-proposal"
     , "--mainnet"
     , "--signing-key", signingKey
     , "--protocol-version-major", "1"

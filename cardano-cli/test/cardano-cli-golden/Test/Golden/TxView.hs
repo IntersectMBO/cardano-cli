@@ -105,8 +105,7 @@ hprop_golden_view_shelley = let
     -- Create transaction body
     void $
       execCardanoCLI $
-        [ "transaction", "build-raw"
-        , "--shelley-era"
+        [ "shelley", "transaction", "build-raw"
         , "--tx-in"
         ,   "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#29"
         , "--tx-out"
@@ -136,8 +135,7 @@ hprop_golden_view_allegra =
     -- Create transaction body
     void $
       execCardanoCLI
-        [ "transaction", "build-raw"
-        , "--allegra-era"
+        [ "allegra", "transaction", "build-raw"
         , "--tx-in"
         ,   "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#94"
         , "--tx-out"
@@ -167,8 +165,7 @@ hprop_golden_view_mary =
     -- Create transaction body
     void $
       execCardanoCLI
-        [ "transaction", "build-raw"
-        , "--mary-era"
+        [ "mary", "transaction", "build-raw"
         , "--tx-in"
         ,   "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135"
         , "--tx-out"
@@ -230,8 +227,7 @@ createAlonzoTxBody :: Maybe FilePath -> FilePath -> Integration ()
 createAlonzoTxBody mUpdateProposalFile transactionBodyFile = do
   void $
     execCardanoCLI
-      (   [ "transaction", "build-raw"
-          , "--alonzo-era"
+      (   [ "alonzo", "transaction", "build-raw"
           , "--tx-in"
           ,   "ed7c8f68c194cc763ee65ad22ef0973e26481be058c65005fd39fb93f9c43a20#212"
           , "--tx-in-collateral"

@@ -5,7 +5,6 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                               | --mary-era
                                               | --alonzo-era
                                               | --babbage-era
-                                              | --conway-era
                                               ]
                                               [ --shelley-mode
                                               | --byron-mode
@@ -141,7 +140,6 @@ Available options:
   --mary-era               Specify the Mary era
   --alonzo-era             Specify the Alonzo era
   --babbage-era            Specify the Babbage era (default)
-  --conway-era             Specify the Conway era
   --shelley-mode           For talking to a node running in Shelley-only mode.
   --byron-mode             For talking to a node running in Byron-only mode.
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.

@@ -27,8 +27,7 @@ hprop_golden_shelleyTransactionBuild =
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
     void $ execCardanoCLI
-      [ "transaction","build-raw"
-      , "--mary-era"
+      [ "mary", "transaction", "build-raw"
       , "--tx-in", txIn
       , "--tx-out", txOut
       , "--fee", "12"
@@ -49,8 +48,7 @@ hprop_golden_shelleyTransactionBuild_CertificateScriptWitnessed =
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
     void $ execCardanoCLI
-      [ "transaction","build-raw"
-      , "--mary-era"
+      [ "mary", "transaction", "build-raw"
       , "--tx-in", txIn
       , "--tx-out", txOut
       , "--certificate-file", deregcert, "--certificate-script-file", scriptWit
@@ -81,8 +79,7 @@ hprop_golden_shelleyTransactionBuild_Minting =
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
     void $ execCardanoCLI
-      [ "transaction","build-raw"
-      , "--mary-era"
+      [ "mary", "transaction", "build-raw"
       , "--tx-in", txIn
       , "--tx-out", txOut ++ "+" ++ dummyMA, "--mint-script-file", scriptWit
       , "--mint", dummyMA
@@ -105,8 +102,7 @@ hprop_golden_shelleyTransactionBuild_WithdrawalScriptWitnessed =
         scriptWit = "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/any"
 
     void $ execCardanoCLI
-      [ "transaction","build-raw"
-      , "--mary-era"
+      [ "mary", "transaction", "build-raw"
       , "--tx-in", txIn
       , "--tx-out", txOut
       , "--withdrawal", withdrawal, "--withdrawal-script-file", scriptWit
@@ -126,8 +122,7 @@ hprop_golden_shelleyTransactionBuild_TxInScriptWitnessed =
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
     void $ execCardanoCLI
-      [ "transaction","build-raw"
-      , "--mary-era"
+      [ "mary", "transaction", "build-raw"
       , "--tx-in", txIn, "--txin-script-file", scriptWit
       , "--tx-out", txOut
       , "--fee", "12"

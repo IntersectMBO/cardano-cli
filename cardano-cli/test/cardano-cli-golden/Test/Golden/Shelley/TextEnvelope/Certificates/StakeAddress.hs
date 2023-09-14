@@ -33,7 +33,7 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
 
   -- Generate stake verification key
   void $ execCardanoCLI
-    [ "stake-address","key-gen"
+    [ "stake-address", "key-gen"
     , "--verification-key-file", verKey
     , "--signing-key-file", signKey
     ]
@@ -42,8 +42,7 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
 
   -- Create stake address registration certificate
   void $ execCardanoCLI
-    [ "stake-address","registration-certificate"
-    , "--babbage-era"
+    [ "babbage", "stake-address", "registration-certificate"
     , "--stake-verification-key-file", verKey
     , "--out-file", registrationCertificate
     ]
@@ -56,8 +55,7 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
 
   -- Create stake address deregistration certificate
   void $ execCardanoCLI
-    [ "stake-address","deregistration-certificate"
-    , "--babbage-era"
+    [ "babbage", "stake-address", "deregistration-certificate"
     , "--stake-verification-key-file", verKey
     , "--out-file", deregistrationCertificate
     ]
@@ -70,7 +68,7 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
 {-
   -- Create stake address delegation certificate
   void $ execCardanoCLI
-    [ "stake-address","delegation-certificate"
+    [ "stake-address", "delegation-certificate"
     , "--stake-verification-key-file", verKey
     , "--cold-verification-key-file", verKey --TODO: Should be stake pool's hash
     , "--out-file", deregistrationCertificate

@@ -5,7 +5,6 @@ Usage: cardano-cli legacy transaction build-raw
                                                   | --mary-era
                                                   | --alonzo-era
                                                   | --babbage-era
-                                                  | --conway-era
                                                   ]
                                                   [ --script-valid
                                                   | --script-invalid
@@ -134,7 +133,6 @@ Available options:
   --mary-era               Specify the Mary era
   --alonzo-era             Specify the Alonzo era
   --babbage-era            Specify the Babbage era (default)
-  --conway-era             Specify the Conway era
   --script-valid           Assertion that the script is valid. (default)
   --script-invalid         Assertion that the script is invalid. If a
                            transaction is submitted with such a script, the

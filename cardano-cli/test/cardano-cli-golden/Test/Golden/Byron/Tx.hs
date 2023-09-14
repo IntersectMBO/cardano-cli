@@ -28,7 +28,7 @@ hprop_golden_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir 
   goldenTx <- noteInputFile "test/cardano-cli-golden/files/golden/byron/tx/legacy.tx"
   createdTx <- noteTempFile tempDir "tx"
   void $ execCardanoCLI
-    [ "byron","transaction","issue-utxo-expenditure"
+    [ "byron", "transaction", "issue-utxo-expenditure"
     , "--mainnet"
     , "--byron-legacy-formats"
     , "--wallet-key", signingKey
@@ -45,7 +45,7 @@ hprop_golden_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   goldenTx <- noteInputFile "test/cardano-cli-golden/files/golden/byron/tx/normal.tx"
   createdTx <- noteTempFile tempDir "tx"
   void $ execCardanoCLI
-    [ "byron","transaction","issue-utxo-expenditure"
+    [ "byron", "transaction", "issue-utxo-expenditure"
     , "--mainnet"
     , "--byron-formats"
     , "--wallet-key", signingKey
