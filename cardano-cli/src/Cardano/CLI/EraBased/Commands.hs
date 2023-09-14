@@ -19,6 +19,7 @@ import           Cardano.CLI.EraBased.Commands.Key
 import           Cardano.CLI.EraBased.Commands.Node
 import           Cardano.CLI.EraBased.Commands.Query
 import           Cardano.CLI.EraBased.Commands.StakeAddress
+import           Cardano.CLI.EraBased.Commands.StakePool
 import           Cardano.CLI.EraBased.Commands.TextView
 import           Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.CLI.EraBased.Options.Address
@@ -29,6 +30,7 @@ import           Cardano.CLI.EraBased.Options.Key
 import           Cardano.CLI.EraBased.Options.Node
 import           Cardano.CLI.EraBased.Options.Query
 import           Cardano.CLI.EraBased.Options.StakeAddress
+import           Cardano.CLI.EraBased.Options.StakePool
 import           Cardano.CLI.EraBased.Options.TextView
 import           Cardano.CLI.EraBased.Options.Transaction
 
@@ -53,6 +55,7 @@ data Cmds era
   | NodeCmds            (NodeCmds era)
   | QueryCmds           (QueryCmds era)
   | StakeAddressCmds    (StakeAddressCmds era)
+  | StakePoolCmds       (StakePoolCmds era)
   | TextViewCmds        (TextViewCmds era)
   | TransactionCmds     (TransactionCmds era)
 
@@ -72,6 +75,8 @@ renderCmds = \case
     renderQueryCmds cmd
   StakeAddressCmds cmd ->
     renderStakeAddressCmds cmd
+  StakePoolCmds cmd ->
+    renderStakePoolCmds cmd
   TextViewCmds cmd ->
     renderTextViewCmds cmd
   TransactionCmds cmd ->
@@ -134,6 +139,10 @@ pCmds envCli era =
         $ Opt.info (QueryCmds <$> pQueryCmds envCli)
         $ Opt.progDesc "Era-based query commands"
     , fmap StakeAddressCmds <$> pStakeAddressCmds era envCli
+    , Just
+        $ subParser "stake-pool"
+        $ Opt.info (StakePoolCmds <$> pStakePoolCmds era envCli)
+        $ Opt.progDesc "Era-based text-view commands"
     , Just
         $ subParser "text-view"
         $ Opt.info (TextViewCmds <$> pTextViewCmds)

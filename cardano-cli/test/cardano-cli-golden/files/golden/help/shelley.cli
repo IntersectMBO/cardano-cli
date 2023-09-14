@@ -6,6 +6,7 @@ Usage: cardano-cli shelley
                              | node
                              | query
                              | stake-address
+                             | stake-pool
                              | text-view
                              | transaction
                              )
@@ -23,5 +24,6 @@ Available commands:
   node                     Era-based node commands
   query                    Era-based query commands
   stake-address            Stake address commands.
+  stake-pool               Era-based text-view commands
   text-view                Era-based text-view commands
   transaction              Era-based transaction commands
