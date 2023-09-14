@@ -116,10 +116,7 @@ pCmds envCli era =
   asum $ catMaybes
     [ fmap AddressCmds      <$> pAddressCmds era envCli
     , fmap KeyCmds          <$> pKeyCmds
-    , Just
-        $ subParser "genesis"
-        $ Opt.info (GenesisCmds <$> pGenesisCmds envCli)
-        $ Opt.progDesc "Era-based genesis commands"
+    , fmap GenesisCmds      <$> pGenesisCmds envCli
     , Just
         $ subParser "governance"
         $ Opt.info (GovernanceCmds <$> pGovernanceCmds envCli era)

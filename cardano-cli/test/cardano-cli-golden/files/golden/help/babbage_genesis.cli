@@ -12,7 +12,7 @@ Usage: cardano-cli babbage genesis
                                      | hash
                                      )
 
-  Era-based genesis commands
+  Genesis commands.
 
 Available options:
   -h,--help                Show this help text

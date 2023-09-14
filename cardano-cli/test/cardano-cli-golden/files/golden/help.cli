@@ -162,7 +162,7 @@ Usage: cardano-cli shelley genesis
                                      | hash
                                      )
 
-  Era-based genesis commands
+  Genesis commands.
 
 Usage: cardano-cli shelley genesis key-gen-genesis --verification-key-file FILE
                                                      --signing-key-file FILE
@@ -1384,7 +1384,7 @@ Usage: cardano-cli allegra genesis
                                      | hash
                                      )
 
-  Era-based genesis commands
+  Genesis commands.
 
 Usage: cardano-cli allegra genesis key-gen-genesis --verification-key-file FILE
                                                      --signing-key-file FILE
@@ -2606,7 +2606,7 @@ Usage: cardano-cli mary genesis
                                   | hash
                                   )
 
-  Era-based genesis commands
+  Genesis commands.
 
 Usage: cardano-cli mary genesis key-gen-genesis --verification-key-file FILE
                                                   --signing-key-file FILE
@@ -3800,7 +3800,7 @@ Usage: cardano-cli alonzo genesis
                                     | hash
                                     )
 
-  Era-based genesis commands
+  Genesis commands.
 
 Usage: cardano-cli alonzo genesis key-gen-genesis --verification-key-file FILE
                                                     --signing-key-file FILE
@@ -5026,7 +5026,7 @@ Usage: cardano-cli babbage genesis
                                      | hash
                                      )
 
-  Era-based genesis commands
+  Genesis commands.
 
 Usage: cardano-cli babbage genesis key-gen-genesis --verification-key-file FILE
                                                      --signing-key-file FILE
@@ -6251,7 +6251,7 @@ Usage: cardano-cli conway genesis
                                     | hash
                                     )
 
-  Era-based genesis commands
+  Genesis commands.
 
 Usage: cardano-cli conway genesis key-gen-genesis --verification-key-file FILE
                                                     --signing-key-file FILE
@@ -7810,7 +7810,7 @@ Usage: cardano-cli latest genesis
                                     | hash
                                     )
 
-  Era-based genesis commands
+  Genesis commands.
 
 Usage: cardano-cli latest genesis key-gen-genesis --verification-key-file FILE
                                                     --signing-key-file FILE

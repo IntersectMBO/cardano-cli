@@ -19,7 +19,7 @@ Available options:
 Available commands:
   address                  Address commands.
   key                      Key commands.
-  genesis                  Era-based genesis commands
+  genesis                  Genesis commands.
   governance               Era-based governance commands
   node                     Era-based node commands
   query                    Era-based query commands

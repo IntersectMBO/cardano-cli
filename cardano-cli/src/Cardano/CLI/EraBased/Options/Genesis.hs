@@ -16,7 +16,6 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 
-import           Data.Foldable
 import           Data.Maybe
 import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
@@ -25,9 +24,16 @@ import qualified Options.Applicative as Opt
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pGenesisCmds :: EnvCli -> Parser (GenesisCmds era)
+pGenesisCmds :: ()
+  => EnvCli
+  -> Maybe (Parser (GenesisCmds era))
 pGenesisCmds envCli =
-  asum $ catMaybes
+  subInfoParser "genesis"
+    ( Opt.progDesc
+        $ mconcat
+          [ "Genesis commands."
+          ]
+    )
     [ Just
         $ subParser "key-gen-genesis"
         $ Opt.info pGenesisKeyGen
