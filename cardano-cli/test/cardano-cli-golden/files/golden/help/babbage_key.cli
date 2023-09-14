@@ -9,7 +9,7 @@ Usage: cardano-cli babbage key
                                  | convert-cardano-address-key
                                  )
 
-  Era-based key commands
+  Key commands.
 
 Available options:
   -h,--help                Show this help text

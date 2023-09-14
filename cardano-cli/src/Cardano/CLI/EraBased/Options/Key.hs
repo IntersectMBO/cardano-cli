@@ -14,7 +14,6 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
-import           Data.Maybe
 import           Data.Text (Text)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
@@ -22,9 +21,14 @@ import qualified Options.Applicative as Opt
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pKeyCmds :: Parser (KeyCmds era)
+pKeyCmds :: Maybe (Parser (KeyCmds era))
 pKeyCmds =
-  asum $ catMaybes
+  subInfoParser "key"
+    ( Opt.progDesc
+        $ mconcat
+          [ "Key commands."
+          ]
+    )
     [ Just
         $ subParser "verification-key"
         $ Opt.info pKeyGetVerificationKey

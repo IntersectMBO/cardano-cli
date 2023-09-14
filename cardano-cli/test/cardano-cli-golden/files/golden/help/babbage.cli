@@ -18,7 +18,7 @@ Available options:
 
 Available commands:
   address                  Address commands.
-  key                      Era-based key commands
+  key                      Key commands.
   genesis                  Era-based genesis commands
   governance               Era-based governance commands
   node                     Era-based node commands

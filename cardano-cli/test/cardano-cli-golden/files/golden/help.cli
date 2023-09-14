@@ -80,7 +80,7 @@ Usage: cardano-cli shelley key
                                  | convert-cardano-address-key
                                  )
 
-  Era-based key commands
+  Key commands.
 
 Usage: cardano-cli shelley key verification-key --signing-key-file FILE
                                                   --verification-key-file FILE
@@ -1302,7 +1302,7 @@ Usage: cardano-cli allegra key
                                  | convert-cardano-address-key
                                  )
 
-  Era-based key commands
+  Key commands.
 
 Usage: cardano-cli allegra key verification-key --signing-key-file FILE
                                                   --verification-key-file FILE
@@ -2524,7 +2524,7 @@ Usage: cardano-cli mary key
                               | convert-cardano-address-key
                               )
 
-  Era-based key commands
+  Key commands.
 
 Usage: cardano-cli mary key verification-key --signing-key-file FILE
                                                --verification-key-file FILE
@@ -3718,7 +3718,7 @@ Usage: cardano-cli alonzo key
                                 | convert-cardano-address-key
                                 )
 
-  Era-based key commands
+  Key commands.
 
 Usage: cardano-cli alonzo key verification-key --signing-key-file FILE
                                                  --verification-key-file FILE
@@ -4944,7 +4944,7 @@ Usage: cardano-cli babbage key
                                  | convert-cardano-address-key
                                  )
 
-  Era-based key commands
+  Key commands.
 
 Usage: cardano-cli babbage key verification-key --signing-key-file FILE
                                                   --verification-key-file FILE
@@ -6169,7 +6169,7 @@ Usage: cardano-cli conway key
                                 | convert-cardano-address-key
                                 )
 
-  Era-based key commands
+  Key commands.
 
 Usage: cardano-cli conway key verification-key --signing-key-file FILE
                                                  --verification-key-file FILE
@@ -7728,7 +7728,7 @@ Usage: cardano-cli latest key
                                 | convert-cardano-address-key
                                 )
 
-  Era-based key commands
+  Key commands.
 
 Usage: cardano-cli latest key verification-key --signing-key-file FILE
                                                  --verification-key-file FILE
