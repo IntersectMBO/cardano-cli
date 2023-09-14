@@ -57,8 +57,9 @@ runLegacyStakePoolRegistrationCertificateCmd :: ()
   -> NetworkId
   -> File () Out
   -> ExceptT StakePoolCmdError IO ()
-runLegacyStakePoolRegistrationCertificateCmd =
-  runStakePoolRegistrationCertificateCmd
+runLegacyStakePoolRegistrationCertificateCmd = \case
+  AnyShelleyBasedEra sbe ->
+    runStakePoolRegistrationCertificateCmd sbe
 
 runLegacyStakePoolDeregistrationCertificateCmd :: ()
   => AnyShelleyBasedEra
@@ -66,8 +67,9 @@ runLegacyStakePoolDeregistrationCertificateCmd :: ()
   -> Shelley.EpochNo
   -> File () Out
   -> ExceptT StakePoolCmdError IO ()
-runLegacyStakePoolDeregistrationCertificateCmd =
-  runStakePoolRetirementCertificateCmd
+runLegacyStakePoolDeregistrationCertificateCmd = \case
+  AnyShelleyBasedEra sbe ->
+    runStakePoolRetirementCertificateCmd sbe
 
 runLegacyStakePoolIdCmd :: ()
   => VerificationKeyOrFile StakePoolKey

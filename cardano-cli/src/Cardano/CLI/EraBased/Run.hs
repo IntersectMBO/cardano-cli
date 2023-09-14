@@ -23,6 +23,7 @@ import           Cardano.CLI.EraBased.Run.Key
 import           Cardano.CLI.EraBased.Run.Node
 import           Cardano.CLI.EraBased.Run.Query
 import           Cardano.CLI.EraBased.Run.StakeAddress
+import           Cardano.CLI.EraBased.Run.StakePool
 import           Cardano.CLI.EraBased.Run.TextView
 import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.Types.Errors.CmdError
@@ -61,6 +62,9 @@ runCmds = \case
   StakeAddressCmds cmd ->
     runStakeAddressCmds cmd
       & firstExceptT CmdStakeAddressError
+  StakePoolCmds cmd ->
+    runStakePoolCmds cmd
+      & firstExceptT CmdStakePoolError
   TextViewCmds cmd ->
     runTextViewCmds cmd
       & firstExceptT CmdTextViewError

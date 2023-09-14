@@ -1,9 +1,12 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.EraBased.Run.StakePool
-  ( runStakePoolIdCmd
+  ( runStakePoolCmds
+
+  , runStakePoolIdCmd
   , runStakePoolMetadataHashCmd
   , runStakePoolRegistrationCertificateCmd
   , runStakePoolRetirementCertificateCmd
@@ -13,6 +16,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.EraBased.Commands.StakePool
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
@@ -26,6 +30,19 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 
+runStakePoolCmds :: ()
+  => StakePoolCmds era
+  -> ExceptT StakePoolCmdError IO ()
+runStakePoolCmds = \case
+  StakePoolDeregistrationCertificateCmd sbe sPvkeyFp retireEpoch outfp ->
+    runStakePoolRetirementCertificateCmd sbe sPvkeyFp retireEpoch outfp
+  StakePoolIdCmd sPvkey outputFormat mOutFile ->
+    runStakePoolIdCmd sPvkey outputFormat mOutFile
+  StakePoolMetadataHashCmd poolMdFile mOutFile ->
+    runStakePoolMetadataHashCmd poolMdFile mOutFile
+  StakePoolRegistrationCertificateCmd sbe sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
+    runStakePoolRegistrationCertificateCmd sbe sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
+
 --
 -- Stake pool command implementations
 --
@@ -34,7 +51,7 @@ import           Data.Function ((&))
 -- TODO: Metadata and more stake pool relay support to be
 -- added in the future.
 runStakePoolRegistrationCertificateCmd
-  :: AnyShelleyBasedEra
+  :: ShelleyBasedEra era
   -> VerificationKeyOrFile StakePoolKey
   -- ^ Stake pool verification key.
   -> VerificationKeyOrFile VrfKey
@@ -57,7 +74,7 @@ runStakePoolRegistrationCertificateCmd
   -> File () Out
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolRegistrationCertificateCmd
-  anyEra
+  sbe
   stakePoolVerKeyOrFile
   vrfVerKeyOrFile
   pldg
@@ -68,9 +85,7 @@ runStakePoolRegistrationCertificateCmd
   relays
   mbMetadata
   network
-  outfp = do
-    AnyShelleyBasedEra sbe <- pure anyEra
-
+  outfp = shelleyBasedEraConstraints sbe $ do
     -- Pool verification key
     stakePoolVerKey <- firstExceptT StakePoolCmdReadKeyFileError
       . newExceptT
@@ -126,8 +141,8 @@ runStakePoolRegistrationCertificateCmd
     registrationCertDesc :: TextEnvelopeDescr
     registrationCertDesc = "Stake Pool Registration Certificate"
 
-createStakePoolRegistrationRequirements
-  :: ShelleyBasedEra era
+createStakePoolRegistrationRequirements :: ()
+  => ShelleyBasedEra era
   -> Ledger.PoolParams (Ledger.EraCrypto (ShelleyLedgerEra era))
   -> StakePoolRegistrationRequirements era
 createStakePoolRegistrationRequirements sbe pparams =
@@ -146,15 +161,14 @@ createStakePoolRegistrationRequirements sbe pparams =
      StakePoolRegistrationRequirementsConwayOnwards ConwayEraOnwardsConway pparams
 
 
-runStakePoolRetirementCertificateCmd
-  :: AnyShelleyBasedEra
+runStakePoolRetirementCertificateCmd :: ()
+  => ShelleyBasedEra era
   -> VerificationKeyOrFile StakePoolKey
   -> Shelley.EpochNo
   -> File () Out
   -> ExceptT StakePoolCmdError IO ()
-runStakePoolRetirementCertificateCmd anyEra stakePoolVerKeyOrFile retireEpoch outfp = do
-    AnyShelleyBasedEra sbe <- pure anyEra
-
+runStakePoolRetirementCertificateCmd sbe stakePoolVerKeyOrFile retireEpoch outfp =
+  shelleyBasedEraConstraints sbe $ do
     -- Pool verification key
     stakePoolVerKey <- firstExceptT StakePoolCmdReadKeyFileError
       . newExceptT

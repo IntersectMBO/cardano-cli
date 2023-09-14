@@ -21,6 +21,7 @@ Usage: cardano-cli shelley
                              | node
                              | query
                              | stake-address
+                             | stake-pool
                              | text-view
                              | transaction
                              )
@@ -778,6 +779,70 @@ Usage: cardano-cli shelley stake-address stake-delegation-certificate
   Create a stake address stake delegation certificate, which when submitted in a
   transaction delegates stake to a stake pool.
 
+Usage: cardano-cli shelley stake-pool 
+                                        ( registration-certificate
+                                        | deregistration-certificate
+                                        | id
+                                        | metadata-hash
+                                        )
+
+  Era-based text-view commands
+
+Usage: cardano-cli shelley stake-pool registration-certificate 
+                                                                 ( --stake-pool-verification-key STRING
+                                                                 | --cold-verification-key-file FILE
+                                                                 )
+                                                                 ( --vrf-verification-key STRING
+                                                                 | --vrf-verification-key-file FILE
+                                                                 )
+                                                                 --pool-pledge LOVELACE
+                                                                 --pool-cost LOVELACE
+                                                                 --pool-margin RATIONAL
+                                                                 ( --pool-reward-account-verification-key STRING
+                                                                 | --pool-reward-account-verification-key-file FILE
+                                                                 )
+                                                                 ( --pool-owner-verification-key STRING
+                                                                 | --pool-owner-stake-verification-key-file FILE
+                                                                 )
+                                                                 [ [--pool-relay-ipv4 STRING]
+                                                                   [--pool-relay-ipv6 STRING]
+                                                                   --pool-relay-port INT
+                                                                 | --single-host-pool-relay STRING
+                                                                   [--pool-relay-port INT]
+                                                                 | --multi-host-pool-relay STRING
+                                                                 ]
+                                                                 [--metadata-url URL
+                                                                   --metadata-hash HASH]
+                                                                 ( --mainnet
+                                                                 | --testnet-magic NATURAL
+                                                                 )
+                                                                 --out-file FILE
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli shelley stake-pool deregistration-certificate 
+                                                                   ( --stake-pool-verification-key STRING
+                                                                   | --cold-verification-key-file FILE
+                                                                   )
+                                                                   --epoch NATURAL
+                                                                   --out-file FILE
+
+  Create a stake pool deregistration certificate
+
+Usage: cardano-cli shelley stake-pool id 
+                                           ( --stake-pool-verification-key STRING
+                                           | --cold-verification-key-file FILE
+                                           )
+                                           [--output-format STRING]
+                                           [--out-file FILE]
+
+  Build pool id from the offline key
+
+Usage: cardano-cli shelley stake-pool metadata-hash --pool-metadata-file FILE
+                                                      [--out-file FILE]
+
+  Print the hash of pool metadata.
+
 Usage: cardano-cli shelley text-view decode-cbor
 
   Era-based text-view commands
@@ -1178,6 +1243,7 @@ Usage: cardano-cli allegra
                              | node
                              | query
                              | stake-address
+                             | stake-pool
                              | text-view
                              | transaction
                              )
@@ -1935,6 +2001,70 @@ Usage: cardano-cli allegra stake-address stake-delegation-certificate
   Create a stake address stake delegation certificate, which when submitted in a
   transaction delegates stake to a stake pool.
 
+Usage: cardano-cli allegra stake-pool 
+                                        ( registration-certificate
+                                        | deregistration-certificate
+                                        | id
+                                        | metadata-hash
+                                        )
+
+  Era-based text-view commands
+
+Usage: cardano-cli allegra stake-pool registration-certificate 
+                                                                 ( --stake-pool-verification-key STRING
+                                                                 | --cold-verification-key-file FILE
+                                                                 )
+                                                                 ( --vrf-verification-key STRING
+                                                                 | --vrf-verification-key-file FILE
+                                                                 )
+                                                                 --pool-pledge LOVELACE
+                                                                 --pool-cost LOVELACE
+                                                                 --pool-margin RATIONAL
+                                                                 ( --pool-reward-account-verification-key STRING
+                                                                 | --pool-reward-account-verification-key-file FILE
+                                                                 )
+                                                                 ( --pool-owner-verification-key STRING
+                                                                 | --pool-owner-stake-verification-key-file FILE
+                                                                 )
+                                                                 [ [--pool-relay-ipv4 STRING]
+                                                                   [--pool-relay-ipv6 STRING]
+                                                                   --pool-relay-port INT
+                                                                 | --single-host-pool-relay STRING
+                                                                   [--pool-relay-port INT]
+                                                                 | --multi-host-pool-relay STRING
+                                                                 ]
+                                                                 [--metadata-url URL
+                                                                   --metadata-hash HASH]
+                                                                 ( --mainnet
+                                                                 | --testnet-magic NATURAL
+                                                                 )
+                                                                 --out-file FILE
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli allegra stake-pool deregistration-certificate 
+                                                                   ( --stake-pool-verification-key STRING
+                                                                   | --cold-verification-key-file FILE
+                                                                   )
+                                                                   --epoch NATURAL
+                                                                   --out-file FILE
+
+  Create a stake pool deregistration certificate
+
+Usage: cardano-cli allegra stake-pool id 
+                                           ( --stake-pool-verification-key STRING
+                                           | --cold-verification-key-file FILE
+                                           )
+                                           [--output-format STRING]
+                                           [--out-file FILE]
+
+  Build pool id from the offline key
+
+Usage: cardano-cli allegra stake-pool metadata-hash --pool-metadata-file FILE
+                                                      [--out-file FILE]
+
+  Print the hash of pool metadata.
+
 Usage: cardano-cli allegra text-view decode-cbor
 
   Era-based text-view commands
@@ -2335,6 +2465,7 @@ Usage: cardano-cli mary
                           | node
                           | query
                           | stake-address
+                          | stake-pool
                           | text-view
                           | transaction
                           )
@@ -3080,6 +3211,70 @@ Usage: cardano-cli mary stake-address stake-delegation-certificate
   Create a stake address stake delegation certificate, which when submitted in a
   transaction delegates stake to a stake pool.
 
+Usage: cardano-cli mary stake-pool 
+                                     ( registration-certificate
+                                     | deregistration-certificate
+                                     | id
+                                     | metadata-hash
+                                     )
+
+  Era-based text-view commands
+
+Usage: cardano-cli mary stake-pool registration-certificate 
+                                                              ( --stake-pool-verification-key STRING
+                                                              | --cold-verification-key-file FILE
+                                                              )
+                                                              ( --vrf-verification-key STRING
+                                                              | --vrf-verification-key-file FILE
+                                                              )
+                                                              --pool-pledge LOVELACE
+                                                              --pool-cost LOVELACE
+                                                              --pool-margin RATIONAL
+                                                              ( --pool-reward-account-verification-key STRING
+                                                              | --pool-reward-account-verification-key-file FILE
+                                                              )
+                                                              ( --pool-owner-verification-key STRING
+                                                              | --pool-owner-stake-verification-key-file FILE
+                                                              )
+                                                              [ [--pool-relay-ipv4 STRING]
+                                                                [--pool-relay-ipv6 STRING]
+                                                                --pool-relay-port INT
+                                                              | --single-host-pool-relay STRING
+                                                                [--pool-relay-port INT]
+                                                              | --multi-host-pool-relay STRING
+                                                              ]
+                                                              [--metadata-url URL
+                                                                --metadata-hash HASH]
+                                                              ( --mainnet
+                                                              | --testnet-magic NATURAL
+                                                              )
+                                                              --out-file FILE
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli mary stake-pool deregistration-certificate 
+                                                                ( --stake-pool-verification-key STRING
+                                                                | --cold-verification-key-file FILE
+                                                                )
+                                                                --epoch NATURAL
+                                                                --out-file FILE
+
+  Create a stake pool deregistration certificate
+
+Usage: cardano-cli mary stake-pool id 
+                                        ( --stake-pool-verification-key STRING
+                                        | --cold-verification-key-file FILE
+                                        )
+                                        [--output-format STRING]
+                                        [--out-file FILE]
+
+  Build pool id from the offline key
+
+Usage: cardano-cli mary stake-pool metadata-hash --pool-metadata-file FILE
+                                                   [--out-file FILE]
+
+  Print the hash of pool metadata.
+
 Usage: cardano-cli mary text-view decode-cbor
 
   Era-based text-view commands
@@ -3464,6 +3659,7 @@ Usage: cardano-cli alonzo
                             | node
                             | query
                             | stake-address
+                            | stake-pool
                             | text-view
                             | transaction
                             )
@@ -4226,6 +4422,70 @@ Usage: cardano-cli alonzo stake-address stake-delegation-certificate
   Create a stake address stake delegation certificate, which when submitted in a
   transaction delegates stake to a stake pool.
 
+Usage: cardano-cli alonzo stake-pool 
+                                       ( registration-certificate
+                                       | deregistration-certificate
+                                       | id
+                                       | metadata-hash
+                                       )
+
+  Era-based text-view commands
+
+Usage: cardano-cli alonzo stake-pool registration-certificate 
+                                                                ( --stake-pool-verification-key STRING
+                                                                | --cold-verification-key-file FILE
+                                                                )
+                                                                ( --vrf-verification-key STRING
+                                                                | --vrf-verification-key-file FILE
+                                                                )
+                                                                --pool-pledge LOVELACE
+                                                                --pool-cost LOVELACE
+                                                                --pool-margin RATIONAL
+                                                                ( --pool-reward-account-verification-key STRING
+                                                                | --pool-reward-account-verification-key-file FILE
+                                                                )
+                                                                ( --pool-owner-verification-key STRING
+                                                                | --pool-owner-stake-verification-key-file FILE
+                                                                )
+                                                                [ [--pool-relay-ipv4 STRING]
+                                                                  [--pool-relay-ipv6 STRING]
+                                                                  --pool-relay-port INT
+                                                                | --single-host-pool-relay STRING
+                                                                  [--pool-relay-port INT]
+                                                                | --multi-host-pool-relay STRING
+                                                                ]
+                                                                [--metadata-url URL
+                                                                  --metadata-hash HASH]
+                                                                ( --mainnet
+                                                                | --testnet-magic NATURAL
+                                                                )
+                                                                --out-file FILE
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli alonzo stake-pool deregistration-certificate 
+                                                                  ( --stake-pool-verification-key STRING
+                                                                  | --cold-verification-key-file FILE
+                                                                  )
+                                                                  --epoch NATURAL
+                                                                  --out-file FILE
+
+  Create a stake pool deregistration certificate
+
+Usage: cardano-cli alonzo stake-pool id 
+                                          ( --stake-pool-verification-key STRING
+                                          | --cold-verification-key-file FILE
+                                          )
+                                          [--output-format STRING]
+                                          [--out-file FILE]
+
+  Build pool id from the offline key
+
+Usage: cardano-cli alonzo stake-pool metadata-hash --pool-metadata-file FILE
+                                                     [--out-file FILE]
+
+  Print the hash of pool metadata.
+
 Usage: cardano-cli alonzo text-view decode-cbor
 
   Era-based text-view commands
@@ -4625,6 +4885,7 @@ Usage: cardano-cli babbage
                              | node
                              | query
                              | stake-address
+                             | stake-pool
                              | text-view
                              | transaction
                              )
@@ -5385,6 +5646,70 @@ Usage: cardano-cli babbage stake-address stake-delegation-certificate
   Create a stake address stake delegation certificate, which when submitted in a
   transaction delegates stake to a stake pool.
 
+Usage: cardano-cli babbage stake-pool 
+                                        ( registration-certificate
+                                        | deregistration-certificate
+                                        | id
+                                        | metadata-hash
+                                        )
+
+  Era-based text-view commands
+
+Usage: cardano-cli babbage stake-pool registration-certificate 
+                                                                 ( --stake-pool-verification-key STRING
+                                                                 | --cold-verification-key-file FILE
+                                                                 )
+                                                                 ( --vrf-verification-key STRING
+                                                                 | --vrf-verification-key-file FILE
+                                                                 )
+                                                                 --pool-pledge LOVELACE
+                                                                 --pool-cost LOVELACE
+                                                                 --pool-margin RATIONAL
+                                                                 ( --pool-reward-account-verification-key STRING
+                                                                 | --pool-reward-account-verification-key-file FILE
+                                                                 )
+                                                                 ( --pool-owner-verification-key STRING
+                                                                 | --pool-owner-stake-verification-key-file FILE
+                                                                 )
+                                                                 [ [--pool-relay-ipv4 STRING]
+                                                                   [--pool-relay-ipv6 STRING]
+                                                                   --pool-relay-port INT
+                                                                 | --single-host-pool-relay STRING
+                                                                   [--pool-relay-port INT]
+                                                                 | --multi-host-pool-relay STRING
+                                                                 ]
+                                                                 [--metadata-url URL
+                                                                   --metadata-hash HASH]
+                                                                 ( --mainnet
+                                                                 | --testnet-magic NATURAL
+                                                                 )
+                                                                 --out-file FILE
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli babbage stake-pool deregistration-certificate 
+                                                                   ( --stake-pool-verification-key STRING
+                                                                   | --cold-verification-key-file FILE
+                                                                   )
+                                                                   --epoch NATURAL
+                                                                   --out-file FILE
+
+  Create a stake pool deregistration certificate
+
+Usage: cardano-cli babbage stake-pool id 
+                                           ( --stake-pool-verification-key STRING
+                                           | --cold-verification-key-file FILE
+                                           )
+                                           [--output-format STRING]
+                                           [--out-file FILE]
+
+  Build pool id from the offline key
+
+Usage: cardano-cli babbage stake-pool metadata-hash --pool-metadata-file FILE
+                                                      [--out-file FILE]
+
+  Print the hash of pool metadata.
+
 Usage: cardano-cli babbage text-view decode-cbor
 
   Era-based text-view commands
@@ -5785,6 +6110,7 @@ Usage: cardano-cli conway
                             | node
                             | query
                             | stake-address
+                            | stake-pool
                             | text-view
                             | transaction
                             )
@@ -6859,6 +7185,70 @@ Usage: cardano-cli conway stake-address vote-delegation-certificate
   Create a stake address vote delegation certificate, which when submitted in a
   transaction delegates stake to a stake pool and a DRep.
 
+Usage: cardano-cli conway stake-pool 
+                                       ( registration-certificate
+                                       | deregistration-certificate
+                                       | id
+                                       | metadata-hash
+                                       )
+
+  Era-based text-view commands
+
+Usage: cardano-cli conway stake-pool registration-certificate 
+                                                                ( --stake-pool-verification-key STRING
+                                                                | --cold-verification-key-file FILE
+                                                                )
+                                                                ( --vrf-verification-key STRING
+                                                                | --vrf-verification-key-file FILE
+                                                                )
+                                                                --pool-pledge LOVELACE
+                                                                --pool-cost LOVELACE
+                                                                --pool-margin RATIONAL
+                                                                ( --pool-reward-account-verification-key STRING
+                                                                | --pool-reward-account-verification-key-file FILE
+                                                                )
+                                                                ( --pool-owner-verification-key STRING
+                                                                | --pool-owner-stake-verification-key-file FILE
+                                                                )
+                                                                [ [--pool-relay-ipv4 STRING]
+                                                                  [--pool-relay-ipv6 STRING]
+                                                                  --pool-relay-port INT
+                                                                | --single-host-pool-relay STRING
+                                                                  [--pool-relay-port INT]
+                                                                | --multi-host-pool-relay STRING
+                                                                ]
+                                                                [--metadata-url URL
+                                                                  --metadata-hash HASH]
+                                                                ( --mainnet
+                                                                | --testnet-magic NATURAL
+                                                                )
+                                                                --out-file FILE
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli conway stake-pool deregistration-certificate 
+                                                                  ( --stake-pool-verification-key STRING
+                                                                  | --cold-verification-key-file FILE
+                                                                  )
+                                                                  --epoch NATURAL
+                                                                  --out-file FILE
+
+  Create a stake pool deregistration certificate
+
+Usage: cardano-cli conway stake-pool id 
+                                          ( --stake-pool-verification-key STRING
+                                          | --cold-verification-key-file FILE
+                                          )
+                                          [--output-format STRING]
+                                          [--out-file FILE]
+
+  Build pool id from the offline key
+
+Usage: cardano-cli conway stake-pool metadata-hash --pool-metadata-file FILE
+                                                     [--out-file FILE]
+
+  Print the hash of pool metadata.
+
 Usage: cardano-cli conway text-view decode-cbor
 
   Era-based text-view commands
@@ -7258,6 +7648,7 @@ Usage: cardano-cli latest
                             | node
                             | query
                             | stake-address
+                            | stake-pool
                             | text-view
                             | transaction
                             )
@@ -8015,6 +8406,70 @@ Usage: cardano-cli latest stake-address stake-delegation-certificate
 
   Create a stake address stake delegation certificate, which when submitted in a
   transaction delegates stake to a stake pool.
+
+Usage: cardano-cli latest stake-pool 
+                                       ( registration-certificate
+                                       | deregistration-certificate
+                                       | id
+                                       | metadata-hash
+                                       )
+
+  Era-based text-view commands
+
+Usage: cardano-cli latest stake-pool registration-certificate 
+                                                                ( --stake-pool-verification-key STRING
+                                                                | --cold-verification-key-file FILE
+                                                                )
+                                                                ( --vrf-verification-key STRING
+                                                                | --vrf-verification-key-file FILE
+                                                                )
+                                                                --pool-pledge LOVELACE
+                                                                --pool-cost LOVELACE
+                                                                --pool-margin RATIONAL
+                                                                ( --pool-reward-account-verification-key STRING
+                                                                | --pool-reward-account-verification-key-file FILE
+                                                                )
+                                                                ( --pool-owner-verification-key STRING
+                                                                | --pool-owner-stake-verification-key-file FILE
+                                                                )
+                                                                [ [--pool-relay-ipv4 STRING]
+                                                                  [--pool-relay-ipv6 STRING]
+                                                                  --pool-relay-port INT
+                                                                | --single-host-pool-relay STRING
+                                                                  [--pool-relay-port INT]
+                                                                | --multi-host-pool-relay STRING
+                                                                ]
+                                                                [--metadata-url URL
+                                                                  --metadata-hash HASH]
+                                                                ( --mainnet
+                                                                | --testnet-magic NATURAL
+                                                                )
+                                                                --out-file FILE
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli latest stake-pool deregistration-certificate 
+                                                                  ( --stake-pool-verification-key STRING
+                                                                  | --cold-verification-key-file FILE
+                                                                  )
+                                                                  --epoch NATURAL
+                                                                  --out-file FILE
+
+  Create a stake pool deregistration certificate
+
+Usage: cardano-cli latest stake-pool id 
+                                          ( --stake-pool-verification-key STRING
+                                          | --cold-verification-key-file FILE
+                                          )
+                                          [--output-format STRING]
+                                          [--out-file FILE]
+
+  Build pool id from the offline key
+
+Usage: cardano-cli latest stake-pool metadata-hash --pool-metadata-file FILE
+                                                     [--out-file FILE]
+
+  Print the hash of pool metadata.
 
 Usage: cardano-cli latest text-view decode-cbor
 
