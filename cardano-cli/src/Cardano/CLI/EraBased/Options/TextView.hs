@@ -10,17 +10,20 @@ module Cardano.CLI.EraBased.Options.TextView
 import           Cardano.CLI.EraBased.Commands.TextView
 import           Cardano.CLI.EraBased.Options.Common
 
-import           Data.Foldable
-import           Data.Maybe
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pTextViewCmds :: Parser (TextViewCmds era)
+pTextViewCmds :: Maybe (Parser (TextViewCmds era))
 pTextViewCmds =
-  asum $ catMaybes
+  subInfoParser "text-view"
+    ( Opt.progDesc
+        $ mconcat
+          [ "text-view commands."
+          ]
+    )
     [ Just
         $ subParser "decode-cbor"
         $ Opt.info (TextViewInfo <$> pCBORInFile <*> pMaybeOutputFile)

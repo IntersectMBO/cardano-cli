@@ -122,10 +122,7 @@ pCmds envCli era =
     , fmap QueryCmds        <$> pQueryCmds envCli
     , fmap StakeAddressCmds <$> pStakeAddressCmds era envCli
     , fmap StakePoolCmds    <$> pStakePoolCmds era envCli
-    , Just
-        $ subParser "text-view"
-        $ Opt.info (TextViewCmds <$> pTextViewCmds)
-        $ Opt.progDesc "Era-based text view commands"
+    , fmap TextViewCmds     <$> pTextViewCmds
     , Just
         $ subParser "transaction"
         $ Opt.info (TransactionCmds <$> pTransactionCmds envCli era)

@@ -845,7 +845,7 @@ Usage: cardano-cli shelley stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli shelley text-view decode-cbor
 
-  Era-based text view commands
+  text-view commands.
 
 Usage: cardano-cli shelley text-view decode-cbor --in-file FILE
                                                    [--out-file FILE]
@@ -2067,7 +2067,7 @@ Usage: cardano-cli allegra stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli allegra text-view decode-cbor
 
-  Era-based text view commands
+  text-view commands.
 
 Usage: cardano-cli allegra text-view decode-cbor --in-file FILE
                                                    [--out-file FILE]
@@ -3277,7 +3277,7 @@ Usage: cardano-cli mary stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli mary text-view decode-cbor
 
-  Era-based text view commands
+  text-view commands.
 
 Usage: cardano-cli mary text-view decode-cbor --in-file FILE [--out-file FILE]
 
@@ -4488,7 +4488,7 @@ Usage: cardano-cli alonzo stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli alonzo text-view decode-cbor
 
-  Era-based text view commands
+  text-view commands.
 
 Usage: cardano-cli alonzo text-view decode-cbor --in-file FILE [--out-file FILE]
 
@@ -5712,7 +5712,7 @@ Usage: cardano-cli babbage stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli babbage text-view decode-cbor
 
-  Era-based text view commands
+  text-view commands.
 
 Usage: cardano-cli babbage text-view decode-cbor --in-file FILE
                                                    [--out-file FILE]
@@ -7272,7 +7272,7 @@ Usage: cardano-cli conway stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli conway text-view decode-cbor
 
-  Era-based text view commands
+  text-view commands.
 
 Usage: cardano-cli conway text-view decode-cbor --in-file FILE [--out-file FILE]
 
@@ -8494,7 +8494,7 @@ Usage: cardano-cli latest stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli latest text-view decode-cbor
 
-  Era-based text view commands
+  text-view commands.
 
 Usage: cardano-cli latest text-view decode-cbor --in-file FILE [--out-file FILE]
 

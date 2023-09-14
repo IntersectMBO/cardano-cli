@@ -25,5 +25,5 @@ Available commands:
   query                    Query commands.
   stake-address            Stake address commands.
   stake-pool               Stake pool commands.
-  text-view                Era-based text view commands
+  text-view                text-view commands.
   transaction              Era-based transaction commands
