@@ -235,14 +235,10 @@ pIntroducedInBabbagePParams =
 
 -- Not necessary in Conway era onwards
 pProtocolParametersUpdateGenesisKeys :: ShelleyBasedEra era -> Parser [VerificationKeyFile In]
-pProtocolParametersUpdateGenesisKeys sbe =
-  case sbe of
-    ShelleyBasedEraShelley -> many pGenesisVerificationKeyFile
-    ShelleyBasedEraAllegra -> many pGenesisVerificationKeyFile
-    ShelleyBasedEraMary -> many pGenesisVerificationKeyFile
-    ShelleyBasedEraAlonzo -> many pGenesisVerificationKeyFile
-    ShelleyBasedEraBabbage -> many pGenesisVerificationKeyFile
-    ShelleyBasedEraConway -> empty
+pProtocolParametersUpdateGenesisKeys =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (const (many pGenesisVerificationKeyFile))
+    (const empty)
 
 dpGovActionProtocolParametersUpdate
   :: ShelleyBasedEra era -> Parser (EraBasedProtocolParametersUpdate era)
