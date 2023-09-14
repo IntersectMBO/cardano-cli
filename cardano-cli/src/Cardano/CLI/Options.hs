@@ -82,7 +82,7 @@ parseLegacy envCli =
 
 _parseTopLevelLatest :: EnvCli -> Parser ClientCommand
 _parseTopLevelLatest envCli =
-  AnyEraCommand . AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds envCli BabbageEra
+  AnyEraCommand . AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds BabbageEra envCli
 
 -- | Parse Legacy commands at the top level of the CLI.
 parseTopLevelLegacy :: EnvCli -> Parser ClientCommand

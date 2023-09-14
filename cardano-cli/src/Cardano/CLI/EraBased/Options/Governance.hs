@@ -24,10 +24,10 @@ import           Options.Applicative
 import qualified Options.Applicative as Opt
 
 pGovernanceCmds :: ()
-  => EnvCli
-  -> CardanoEra era
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GovernanceCmds era))
-pGovernanceCmds envCli era =
+pGovernanceCmds era envCli =
   subInfoParser "governance"
     ( Opt.progDesc
         $ mconcat
@@ -35,10 +35,10 @@ pGovernanceCmds envCli era =
           ]
     )
     [ pCreateMirCertificatesCmds era
-    , fmap GovernanceQueryCmds        <$> pGovernanceQueryCmds envCli era
+    , fmap GovernanceQueryCmds        <$> pGovernanceQueryCmds era envCli
     , fmap GovernanceActionCmds       <$> pGovernanceActionCmds era
     , fmap GovernanceCommitteeCmds    <$> pGovernanceCommitteeCmds era
-    , fmap GovernanceDRepCmds         <$> pGovernanceDRepCmds envCli era
+    , fmap GovernanceDRepCmds         <$> pGovernanceDRepCmds era envCli
     , fmap GovernanceVoteCmds         <$> pGovernanceVoteCmds era
     ]
 

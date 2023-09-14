@@ -24,8 +24,11 @@ import           Prettyprinter (line, pretty)
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pTransactionCmds :: EnvCli -> CardanoEra era -> Maybe (Parser (TransactionCmds era))
-pTransactionCmds envCli era =
+pTransactionCmds :: ()
+  => CardanoEra era
+  -> EnvCli
+  -> Maybe (Parser (TransactionCmds era))
+pTransactionCmds era envCli =
   subInfoParser "transaction"
     ( Opt.progDesc
         $ mconcat
@@ -47,7 +50,7 @@ pTransactionCmds envCli era =
             ]
     , Just
         $ subParser "build"
-        $ Opt.info (pTransactionBuild envCli era)
+        $ Opt.info (pTransactionBuild era envCli)
         $ Opt.progDescDoc
         $ Just $ mconcat
             [ pretty @String "Build a balanced transaction (automatically calculates fees)"
@@ -146,8 +149,8 @@ pScriptValidity = asum
     ]
   ]
 
-pTransactionBuild :: EnvCli -> CardanoEra era -> Parser (TransactionCmds era)
-pTransactionBuild envCli era =
+pTransactionBuild :: CardanoEra era -> EnvCli -> Parser (TransactionCmds era)
+pTransactionBuild era envCli =
   TxBuild era
     <$> pSocketPath envCli
     <*> pConsensusModeParams
