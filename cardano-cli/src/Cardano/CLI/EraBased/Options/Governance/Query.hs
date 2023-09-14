@@ -65,7 +65,7 @@ pGovernanceQueryDRepStateCmd env era = do
   pure
     $ subParser "drep-state"
     $ Opt.info (GovernanceQueryDRepStateCmd cOn <$> pDRepStateQueryCmd)
-    $ Opt.progDesc "Get the DRep state"
+    $ Opt.progDesc "Get the DRep state. If no DRep credentials are provided, return states for all of them."
   where
     pDRepStateQueryCmd :: Parser DRepStateQueryCmd
     pDRepStateQueryCmd = DRepStateQueryCmd
@@ -84,7 +84,7 @@ pGovernanceQueryDRepStakeDistributionCmd env era = do
   pure
     $ subParser "drep-stake-distribution"
     $ Opt.info (GovernanceQueryDRepStakeDistributionCmd cOn <$> pDRepStakeDistributionQueryCmd)
-    $ Opt.progDesc "Get the DRep stake distribution"
+    $ Opt.progDesc "Get the DRep stake distribution. If no DRep credentials are provided, return stake distributions for all of them."
   where
     pDRepStakeDistributionQueryCmd :: Parser DRepStakeDistributionQueryCmd
     pDRepStakeDistributionQueryCmd = DRepStakeDistributionQueryCmd

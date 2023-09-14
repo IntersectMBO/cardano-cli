@@ -14,7 +14,8 @@ Usage: cardano-cli conway governance query drep-state --socket-path SOCKET_PATH
                                                         )
                                                         [--out-file FILE]
 
-  Get the DRep state
+  Get the DRep state. If no DRep credentials are provided, return states for all
+  of them.
 
 Available options:
   --socket-path SOCKET_PATH

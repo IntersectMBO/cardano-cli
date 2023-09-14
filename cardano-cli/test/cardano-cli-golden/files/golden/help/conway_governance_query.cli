@@ -14,6 +14,9 @@ Available options:
 Available commands:
   constitution             Get the constitution
   gov-state                Get the governance state
-  drep-state               Get the DRep state
-  drep-stake-distribution  Get the DRep stake distribution
+  drep-state               Get the DRep state. If no DRep credentials are
+                           provided, return states for all of them.
+  drep-stake-distribution  Get the DRep stake distribution. If no DRep
+                           credentials are provided, return stake distributions
+                           for all of them.
   committee-state          Get the committee state

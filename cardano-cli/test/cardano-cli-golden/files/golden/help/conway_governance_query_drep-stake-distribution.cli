@@ -15,7 +15,8 @@ Usage: cardano-cli conway governance query drep-stake-distribution
                                                                      )
                                                                      [--out-file FILE]
 
-  Get the DRep stake distribution
+  Get the DRep stake distribution. If no DRep credentials are provided, return
+  stake distributions for all of them.
 
 Available options:
   --socket-path SOCKET_PATH
