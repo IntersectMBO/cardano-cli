@@ -30,7 +30,7 @@ Usage: cardano-cli shelley
 
 Usage: cardano-cli shelley address (key-gen | key-hash | build | info)
 
-  Address commands.
+  Payment address commands.
 
 Usage: cardano-cli shelley address key-gen [--key-output-format STRING]
                                              [ --normal-key
@@ -80,7 +80,7 @@ Usage: cardano-cli shelley key
                                  | convert-cardano-address-key
                                  )
 
-  Key commands.
+  Key utility commands.
 
 Usage: cardano-cli shelley key verification-key --signing-key-file FILE
                                                   --verification-key-file FILE
@@ -162,7 +162,7 @@ Usage: cardano-cli shelley genesis
                                      | hash
                                      )
 
-  Genesis commands.
+  Genesis block commands.
 
 Usage: cardano-cli shelley genesis key-gen-genesis --verification-key-file FILE
                                                      --signing-key-file FILE
@@ -382,7 +382,7 @@ Usage: cardano-cli shelley node
                                   | issue-op-cert
                                   )
 
-  Node commands.
+  Node operation commands.
 
 Usage: cardano-cli shelley node key-gen [--key-output-format STRING]
                                           --cold-verification-key-file FILE
@@ -451,7 +451,8 @@ Usage: cardano-cli shelley query
                                    | slot-number
                                    )
 
-  Query commands.
+  Node query commands. Will query the local node whose Unix domain socket is
+  obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli shelley query protocol-parameters --socket-path SOCKET_PATH
                                                        [ --shelley-mode
@@ -845,7 +846,8 @@ Usage: cardano-cli shelley stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli shelley text-view decode-cbor
 
-  text-view commands.
+  Commands for dealing with Shelley TextView files. Transactions, addresses etc
+  are stored on disk as TextView files.
 
 Usage: cardano-cli shelley text-view decode-cbor --in-file FILE
                                                    [--out-file FILE]
@@ -1252,7 +1254,7 @@ Usage: cardano-cli allegra
 
 Usage: cardano-cli allegra address (key-gen | key-hash | build | info)
 
-  Address commands.
+  Payment address commands.
 
 Usage: cardano-cli allegra address key-gen [--key-output-format STRING]
                                              [ --normal-key
@@ -1302,7 +1304,7 @@ Usage: cardano-cli allegra key
                                  | convert-cardano-address-key
                                  )
 
-  Key commands.
+  Key utility commands.
 
 Usage: cardano-cli allegra key verification-key --signing-key-file FILE
                                                   --verification-key-file FILE
@@ -1384,7 +1386,7 @@ Usage: cardano-cli allegra genesis
                                      | hash
                                      )
 
-  Genesis commands.
+  Genesis block commands.
 
 Usage: cardano-cli allegra genesis key-gen-genesis --verification-key-file FILE
                                                      --signing-key-file FILE
@@ -1604,7 +1606,7 @@ Usage: cardano-cli allegra node
                                   | issue-op-cert
                                   )
 
-  Node commands.
+  Node operation commands.
 
 Usage: cardano-cli allegra node key-gen [--key-output-format STRING]
                                           --cold-verification-key-file FILE
@@ -1673,7 +1675,8 @@ Usage: cardano-cli allegra query
                                    | slot-number
                                    )
 
-  Query commands.
+  Node query commands. Will query the local node whose Unix domain socket is
+  obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli allegra query protocol-parameters --socket-path SOCKET_PATH
                                                        [ --shelley-mode
@@ -2067,7 +2070,8 @@ Usage: cardano-cli allegra stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli allegra text-view decode-cbor
 
-  text-view commands.
+  Commands for dealing with Shelley TextView files. Transactions, addresses etc
+  are stored on disk as TextView files.
 
 Usage: cardano-cli allegra text-view decode-cbor --in-file FILE
                                                    [--out-file FILE]
@@ -2474,7 +2478,7 @@ Usage: cardano-cli mary
 
 Usage: cardano-cli mary address (key-gen | key-hash | build | info)
 
-  Address commands.
+  Payment address commands.
 
 Usage: cardano-cli mary address key-gen [--key-output-format STRING]
                                           [ --normal-key
@@ -2524,7 +2528,7 @@ Usage: cardano-cli mary key
                               | convert-cardano-address-key
                               )
 
-  Key commands.
+  Key utility commands.
 
 Usage: cardano-cli mary key verification-key --signing-key-file FILE
                                                --verification-key-file FILE
@@ -2606,7 +2610,7 @@ Usage: cardano-cli mary genesis
                                   | hash
                                   )
 
-  Genesis commands.
+  Genesis block commands.
 
 Usage: cardano-cli mary genesis key-gen-genesis --verification-key-file FILE
                                                   --signing-key-file FILE
@@ -2824,7 +2828,7 @@ Usage: cardano-cli mary node
                                | issue-op-cert
                                )
 
-  Node commands.
+  Node operation commands.
 
 Usage: cardano-cli mary node key-gen [--key-output-format STRING]
                                        --cold-verification-key-file FILE
@@ -2893,7 +2897,8 @@ Usage: cardano-cli mary query
                                 | slot-number
                                 )
 
-  Query commands.
+  Node query commands. Will query the local node whose Unix domain socket is
+  obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli mary query protocol-parameters --socket-path SOCKET_PATH
                                                     [ --shelley-mode
@@ -3277,7 +3282,8 @@ Usage: cardano-cli mary stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli mary text-view decode-cbor
 
-  text-view commands.
+  Commands for dealing with Shelley TextView files. Transactions, addresses etc
+  are stored on disk as TextView files.
 
 Usage: cardano-cli mary text-view decode-cbor --in-file FILE [--out-file FILE]
 
@@ -3668,7 +3674,7 @@ Usage: cardano-cli alonzo
 
 Usage: cardano-cli alonzo address (key-gen | key-hash | build | info)
 
-  Address commands.
+  Payment address commands.
 
 Usage: cardano-cli alonzo address key-gen [--key-output-format STRING]
                                             [ --normal-key
@@ -3718,7 +3724,7 @@ Usage: cardano-cli alonzo key
                                 | convert-cardano-address-key
                                 )
 
-  Key commands.
+  Key utility commands.
 
 Usage: cardano-cli alonzo key verification-key --signing-key-file FILE
                                                  --verification-key-file FILE
@@ -3800,7 +3806,7 @@ Usage: cardano-cli alonzo genesis
                                     | hash
                                     )
 
-  Genesis commands.
+  Genesis block commands.
 
 Usage: cardano-cli alonzo genesis key-gen-genesis --verification-key-file FILE
                                                     --signing-key-file FILE
@@ -4025,7 +4031,7 @@ Usage: cardano-cli alonzo node
                                  | issue-op-cert
                                  )
 
-  Node commands.
+  Node operation commands.
 
 Usage: cardano-cli alonzo node key-gen [--key-output-format STRING]
                                          --cold-verification-key-file FILE
@@ -4094,7 +4100,8 @@ Usage: cardano-cli alonzo query
                                   | slot-number
                                   )
 
-  Query commands.
+  Node query commands. Will query the local node whose Unix domain socket is
+  obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli alonzo query protocol-parameters --socket-path SOCKET_PATH
                                                       [ --shelley-mode
@@ -4488,7 +4495,8 @@ Usage: cardano-cli alonzo stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli alonzo text-view decode-cbor
 
-  text-view commands.
+  Commands for dealing with Shelley TextView files. Transactions, addresses etc
+  are stored on disk as TextView files.
 
 Usage: cardano-cli alonzo text-view decode-cbor --in-file FILE [--out-file FILE]
 
@@ -4894,7 +4902,7 @@ Usage: cardano-cli babbage
 
 Usage: cardano-cli babbage address (key-gen | key-hash | build | info)
 
-  Address commands.
+  Payment address commands.
 
 Usage: cardano-cli babbage address key-gen [--key-output-format STRING]
                                              [ --normal-key
@@ -4944,7 +4952,7 @@ Usage: cardano-cli babbage key
                                  | convert-cardano-address-key
                                  )
 
-  Key commands.
+  Key utility commands.
 
 Usage: cardano-cli babbage key verification-key --signing-key-file FILE
                                                   --verification-key-file FILE
@@ -5026,7 +5034,7 @@ Usage: cardano-cli babbage genesis
                                      | hash
                                      )
 
-  Genesis commands.
+  Genesis block commands.
 
 Usage: cardano-cli babbage genesis key-gen-genesis --verification-key-file FILE
                                                      --signing-key-file FILE
@@ -5249,7 +5257,7 @@ Usage: cardano-cli babbage node
                                   | issue-op-cert
                                   )
 
-  Node commands.
+  Node operation commands.
 
 Usage: cardano-cli babbage node key-gen [--key-output-format STRING]
                                           --cold-verification-key-file FILE
@@ -5318,7 +5326,8 @@ Usage: cardano-cli babbage query
                                    | slot-number
                                    )
 
-  Query commands.
+  Node query commands. Will query the local node whose Unix domain socket is
+  obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli babbage query protocol-parameters --socket-path SOCKET_PATH
                                                        [ --shelley-mode
@@ -5712,7 +5721,8 @@ Usage: cardano-cli babbage stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli babbage text-view decode-cbor
 
-  text-view commands.
+  Commands for dealing with Shelley TextView files. Transactions, addresses etc
+  are stored on disk as TextView files.
 
 Usage: cardano-cli babbage text-view decode-cbor --in-file FILE
                                                    [--out-file FILE]
@@ -6119,7 +6129,7 @@ Usage: cardano-cli conway
 
 Usage: cardano-cli conway address (key-gen | key-hash | build | info)
 
-  Address commands.
+  Payment address commands.
 
 Usage: cardano-cli conway address key-gen [--key-output-format STRING]
                                             [ --normal-key
@@ -6169,7 +6179,7 @@ Usage: cardano-cli conway key
                                 | convert-cardano-address-key
                                 )
 
-  Key commands.
+  Key utility commands.
 
 Usage: cardano-cli conway key verification-key --signing-key-file FILE
                                                  --verification-key-file FILE
@@ -6251,7 +6261,7 @@ Usage: cardano-cli conway genesis
                                     | hash
                                     )
 
-  Genesis commands.
+  Genesis block commands.
 
 Usage: cardano-cli conway genesis key-gen-genesis --verification-key-file FILE
                                                     --signing-key-file FILE
@@ -6767,7 +6777,7 @@ Usage: cardano-cli conway node
                                  | issue-op-cert
                                  )
 
-  Node commands.
+  Node operation commands.
 
 Usage: cardano-cli conway node key-gen [--key-output-format STRING]
                                          --cold-verification-key-file FILE
@@ -6836,7 +6846,8 @@ Usage: cardano-cli conway query
                                   | slot-number
                                   )
 
-  Query commands.
+  Node query commands. Will query the local node whose Unix domain socket is
+  obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli conway query protocol-parameters --socket-path SOCKET_PATH
                                                       [ --shelley-mode
@@ -7272,7 +7283,8 @@ Usage: cardano-cli conway stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli conway text-view decode-cbor
 
-  text-view commands.
+  Commands for dealing with Shelley TextView files. Transactions, addresses etc
+  are stored on disk as TextView files.
 
 Usage: cardano-cli conway text-view decode-cbor --in-file FILE [--out-file FILE]
 
@@ -7678,7 +7690,7 @@ Usage: cardano-cli latest
 
 Usage: cardano-cli latest address (key-gen | key-hash | build | info)
 
-  Address commands.
+  Payment address commands.
 
 Usage: cardano-cli latest address key-gen [--key-output-format STRING]
                                             [ --normal-key
@@ -7728,7 +7740,7 @@ Usage: cardano-cli latest key
                                 | convert-cardano-address-key
                                 )
 
-  Key commands.
+  Key utility commands.
 
 Usage: cardano-cli latest key verification-key --signing-key-file FILE
                                                  --verification-key-file FILE
@@ -7810,7 +7822,7 @@ Usage: cardano-cli latest genesis
                                     | hash
                                     )
 
-  Genesis commands.
+  Genesis block commands.
 
 Usage: cardano-cli latest genesis key-gen-genesis --verification-key-file FILE
                                                     --signing-key-file FILE
@@ -8031,7 +8043,7 @@ Usage: cardano-cli latest node
                                  | issue-op-cert
                                  )
 
-  Node commands.
+  Node operation commands.
 
 Usage: cardano-cli latest node key-gen [--key-output-format STRING]
                                          --cold-verification-key-file FILE
@@ -8100,7 +8112,8 @@ Usage: cardano-cli latest query
                                   | slot-number
                                   )
 
-  Query commands.
+  Node query commands. Will query the local node whose Unix domain socket is
+  obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli latest query protocol-parameters --socket-path SOCKET_PATH
                                                       [ --shelley-mode
@@ -8494,7 +8507,8 @@ Usage: cardano-cli latest stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli latest text-view decode-cbor
 
-  text-view commands.
+  Commands for dealing with Shelley TextView files. Transactions, addresses etc
+  are stored on disk as TextView files.
 
 Usage: cardano-cli latest text-view decode-cbor --in-file FILE [--out-file FILE]
 

@@ -31,7 +31,7 @@ pGenesisCmds envCli =
   subInfoParser "genesis"
     ( Opt.progDesc
         $ mconcat
-          [ "Genesis commands."
+          [ "Genesis block commands."
           ]
     )
     [ Just

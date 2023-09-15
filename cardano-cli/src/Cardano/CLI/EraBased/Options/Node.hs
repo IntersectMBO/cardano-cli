@@ -23,7 +23,7 @@ pNodeCmds =
   subInfoParser "node"
     ( Opt.progDesc
         $ mconcat
-          [ "Node commands."
+          [ "Node operation commands."
           ]
     )
     [ Just

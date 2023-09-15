@@ -9,7 +9,7 @@ Usage: cardano-cli alonzo key
                                 | convert-cardano-address-key
                                 )
 
-  Key commands.
+  Key utility commands.
 
 Available options:
   -h,--help                Show this help text

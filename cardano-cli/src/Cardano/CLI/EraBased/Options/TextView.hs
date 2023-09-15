@@ -21,7 +21,8 @@ pTextViewCmds =
   subInfoParser "text-view"
     ( Opt.progDesc
         $ mconcat
-          [ "text-view commands."
+          [ "Commands for dealing with Shelley TextView files. Transactions, addresses etc "
+          , "are stored on disk as TextView files."
           ]
     )
     [ Just

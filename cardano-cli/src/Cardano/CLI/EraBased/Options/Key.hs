@@ -26,7 +26,7 @@ pKeyCmds =
   subInfoParser "key"
     ( Opt.progDesc
         $ mconcat
-          [ "Key commands."
+          [ "Key utility commands."
           ]
     )
     [ Just

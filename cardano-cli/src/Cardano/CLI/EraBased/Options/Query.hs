@@ -29,7 +29,8 @@ pQueryCmds envCli =
   subInfoParser "query"
     ( Opt.progDesc
         $ mconcat
-          [ "Query commands."
+          [ "Node query commands. Will query the local node whose Unix domain socket is "
+          , "obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
           ]
     )
     [ Just

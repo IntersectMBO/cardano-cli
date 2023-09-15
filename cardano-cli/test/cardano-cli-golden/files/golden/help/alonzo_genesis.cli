@@ -12,7 +12,7 @@ Usage: cardano-cli alonzo genesis
                                     | hash
                                     )
 
-  Genesis commands.
+  Genesis block commands.
 
 Available options:
   -h,--help                Show this help text

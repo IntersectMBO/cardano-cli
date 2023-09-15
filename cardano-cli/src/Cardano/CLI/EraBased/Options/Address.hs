@@ -24,7 +24,7 @@ pAddressCmds _ envCli =
   subInfoParser "address"
     ( Opt.progDesc
         $ mconcat
-          [ "Address commands."
+          [ "Payment address commands."
           ]
     )
     [ Just

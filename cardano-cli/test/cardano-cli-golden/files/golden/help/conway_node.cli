@@ -7,7 +7,7 @@ Usage: cardano-cli conway node
                                  | issue-op-cert
                                  )
 
-  Node commands.
+  Node operation commands.
 
 Available options:
   -h,--help                Show this help text
