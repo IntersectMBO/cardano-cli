@@ -786,7 +786,7 @@ Usage: cardano-cli shelley stake-pool
                                         | metadata-hash
                                         )
 
-  Era-based text-view commands
+  Era-based stake pool commands
 
 Usage: cardano-cli shelley stake-pool registration-certificate 
                                                                  ( --stake-pool-verification-key STRING
@@ -845,7 +845,7 @@ Usage: cardano-cli shelley stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli shelley text-view decode-cbor
 
-  Era-based text-view commands
+  Era-based text view commands
 
 Usage: cardano-cli shelley text-view decode-cbor --in-file FILE
                                                    [--out-file FILE]
@@ -2008,7 +2008,7 @@ Usage: cardano-cli allegra stake-pool
                                         | metadata-hash
                                         )
 
-  Era-based text-view commands
+  Era-based stake pool commands
 
 Usage: cardano-cli allegra stake-pool registration-certificate 
                                                                  ( --stake-pool-verification-key STRING
@@ -2067,7 +2067,7 @@ Usage: cardano-cli allegra stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli allegra text-view decode-cbor
 
-  Era-based text-view commands
+  Era-based text view commands
 
 Usage: cardano-cli allegra text-view decode-cbor --in-file FILE
                                                    [--out-file FILE]
@@ -3218,7 +3218,7 @@ Usage: cardano-cli mary stake-pool
                                      | metadata-hash
                                      )
 
-  Era-based text-view commands
+  Era-based stake pool commands
 
 Usage: cardano-cli mary stake-pool registration-certificate 
                                                               ( --stake-pool-verification-key STRING
@@ -3277,7 +3277,7 @@ Usage: cardano-cli mary stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli mary text-view decode-cbor
 
-  Era-based text-view commands
+  Era-based text view commands
 
 Usage: cardano-cli mary text-view decode-cbor --in-file FILE [--out-file FILE]
 
@@ -4429,7 +4429,7 @@ Usage: cardano-cli alonzo stake-pool
                                        | metadata-hash
                                        )
 
-  Era-based text-view commands
+  Era-based stake pool commands
 
 Usage: cardano-cli alonzo stake-pool registration-certificate 
                                                                 ( --stake-pool-verification-key STRING
@@ -4488,7 +4488,7 @@ Usage: cardano-cli alonzo stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli alonzo text-view decode-cbor
 
-  Era-based text-view commands
+  Era-based text view commands
 
 Usage: cardano-cli alonzo text-view decode-cbor --in-file FILE [--out-file FILE]
 
@@ -5653,7 +5653,7 @@ Usage: cardano-cli babbage stake-pool
                                         | metadata-hash
                                         )
 
-  Era-based text-view commands
+  Era-based stake pool commands
 
 Usage: cardano-cli babbage stake-pool registration-certificate 
                                                                  ( --stake-pool-verification-key STRING
@@ -5712,7 +5712,7 @@ Usage: cardano-cli babbage stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli babbage text-view decode-cbor
 
-  Era-based text-view commands
+  Era-based text view commands
 
 Usage: cardano-cli babbage text-view decode-cbor --in-file FILE
                                                    [--out-file FILE]
@@ -6408,7 +6408,8 @@ Usage: cardano-cli conway governance query drep-state --socket-path SOCKET_PATH
                                                         )
                                                         [--out-file FILE]
 
-  Get the DRep state
+  Get the DRep state. If no DRep credentials are provided, return states for all
+  of them.
 
 Usage: cardano-cli conway governance query drep-stake-distribution 
                                                                      --socket-path SOCKET_PATH
@@ -6427,7 +6428,8 @@ Usage: cardano-cli conway governance query drep-stake-distribution
                                                                      )
                                                                      [--out-file FILE]
 
-  Get the DRep stake distribution
+  Get the DRep stake distribution. If no DRep credentials are provided, return
+  stake distributions for all of them.
 
 Usage: cardano-cli conway governance query committee-state 
                                                              --socket-path SOCKET_PATH
@@ -7192,7 +7194,7 @@ Usage: cardano-cli conway stake-pool
                                        | metadata-hash
                                        )
 
-  Era-based text-view commands
+  Era-based stake pool commands
 
 Usage: cardano-cli conway stake-pool registration-certificate 
                                                                 ( --stake-pool-verification-key STRING
@@ -7251,7 +7253,7 @@ Usage: cardano-cli conway stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli conway text-view decode-cbor
 
-  Era-based text-view commands
+  Era-based text view commands
 
 Usage: cardano-cli conway text-view decode-cbor --in-file FILE [--out-file FILE]
 
@@ -8414,7 +8416,7 @@ Usage: cardano-cli latest stake-pool
                                        | metadata-hash
                                        )
 
-  Era-based text-view commands
+  Era-based stake pool commands
 
 Usage: cardano-cli latest stake-pool registration-certificate 
                                                                 ( --stake-pool-verification-key STRING
@@ -8473,7 +8475,7 @@ Usage: cardano-cli latest stake-pool metadata-hash --pool-metadata-file FILE
 
 Usage: cardano-cli latest text-view decode-cbor
 
-  Era-based text-view commands
+  Era-based text view commands
 
 Usage: cardano-cli latest text-view decode-cbor --in-file FILE [--out-file FILE]
 

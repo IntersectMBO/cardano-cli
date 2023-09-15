@@ -142,11 +142,11 @@ pCmds envCli era =
     , Just
         $ subParser "stake-pool"
         $ Opt.info (StakePoolCmds <$> pStakePoolCmds era envCli)
-        $ Opt.progDesc "Era-based text-view commands"
+        $ Opt.progDesc "Era-based stake pool commands"
     , Just
         $ subParser "text-view"
         $ Opt.info (TextViewCmds <$> pTextViewCmds)
-        $ Opt.progDesc "Era-based text-view commands"
+        $ Opt.progDesc "Era-based text view commands"
     , Just
         $ subParser "transaction"
         $ Opt.info (TransactionCmds <$> pTransactionCmds envCli era)
