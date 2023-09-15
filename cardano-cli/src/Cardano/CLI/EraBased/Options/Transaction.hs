@@ -16,7 +16,6 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
-import           Data.Maybe
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 import qualified Options.Applicative.Help as H
@@ -25,9 +24,14 @@ import           Prettyprinter (line, pretty)
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pTransactionCmds :: EnvCli -> CardanoEra era -> Parser (TransactionCmds era)
+pTransactionCmds :: EnvCli -> CardanoEra era -> Maybe (Parser (TransactionCmds era))
 pTransactionCmds envCli era =
-  asum $ catMaybes
+  subInfoParser "transaction"
+    ( Opt.progDesc
+        $ mconcat
+          [ "Transaction commands."
+          ]
+    )
     [ Just
         $ subParser "build-raw"
         $ Opt.info (pTransactionBuildRaw era)

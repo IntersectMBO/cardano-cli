@@ -867,7 +867,7 @@ Usage: cardano-cli shelley transaction
                                          | view
                                          )
 
-  Era-based transaction commands
+  Transaction commands.
 
 Usage: cardano-cli shelley transaction build-raw 
                                                    [ --script-valid
@@ -2089,7 +2089,7 @@ Usage: cardano-cli allegra transaction
                                          | view
                                          )
 
-  Era-based transaction commands
+  Transaction commands.
 
 Usage: cardano-cli allegra transaction build-raw 
                                                    [ --script-valid
@@ -3298,7 +3298,7 @@ Usage: cardano-cli mary transaction
                                       | view
                                       )
 
-  Era-based transaction commands
+  Transaction commands.
 
 Usage: cardano-cli mary transaction build-raw 
                                                 [ --script-valid
@@ -4509,7 +4509,7 @@ Usage: cardano-cli alonzo transaction
                                         | view
                                         )
 
-  Era-based transaction commands
+  Transaction commands.
 
 Usage: cardano-cli alonzo transaction build-raw 
                                                   [ --script-valid
@@ -5734,7 +5734,7 @@ Usage: cardano-cli babbage transaction
                                          | view
                                          )
 
-  Era-based transaction commands
+  Transaction commands.
 
 Usage: cardano-cli babbage transaction build-raw 
                                                    [ --script-valid
@@ -7293,7 +7293,7 @@ Usage: cardano-cli conway transaction
                                         | view
                                         )
 
-  Era-based transaction commands
+  Transaction commands.
 
 Usage: cardano-cli conway transaction build-raw 
                                                   [ --script-valid
@@ -8515,7 +8515,7 @@ Usage: cardano-cli latest transaction
                                         | view
                                         )
 
-  Era-based transaction commands
+  Transaction commands.
 
 Usage: cardano-cli latest transaction build-raw 
                                                   [ --script-valid

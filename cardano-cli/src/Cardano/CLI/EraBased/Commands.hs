@@ -123,8 +123,5 @@ pCmds envCli era =
     , fmap StakeAddressCmds <$> pStakeAddressCmds era envCli
     , fmap StakePoolCmds    <$> pStakePoolCmds era envCli
     , fmap TextViewCmds     <$> pTextViewCmds
-    , Just
-        $ subParser "transaction"
-        $ Opt.info (TransactionCmds <$> pTransactionCmds envCli era)
-        $ Opt.progDesc "Era-based transaction commands"
+    , fmap TransactionCmds  <$> pTransactionCmds envCli era
     ]
