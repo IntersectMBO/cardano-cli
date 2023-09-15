@@ -12,7 +12,6 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Legacy.Commands.Governance (pNetwork)
 import           Cardano.CLI.Types.Common
 import           Cardano.Ledger.BaseTypes (NonNegativeInterval)
 import qualified Cardano.Ledger.BaseTypes as Ledger
@@ -309,3 +308,16 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
               <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
         )
     $ Opt.progDesc "Create a treasury withdrawal."
+
+pNetwork :: Parser Ledger.Network
+pNetwork  = asum $ mconcat
+  [ [ Opt.flag' Ledger.Mainnet $ mconcat
+      [ Opt.long "mainnet"
+      , Opt.help "Use the mainnet magic id."
+      ]
+    , Opt.flag' Ledger.Testnet $ mconcat
+      [ Opt.long "testnet"
+      , Opt.help "Use the testnet magic id."
+      ]
+    ]
+  ]
