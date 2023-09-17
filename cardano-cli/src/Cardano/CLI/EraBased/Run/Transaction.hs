@@ -888,7 +888,7 @@ runTxSignCmd :: ()
 runTxSignCmd txOrTxBody witSigningData mnw outTxFile = do
   sks <-  mapM (firstExceptT TxCmdReadWitnessSigningDataError . newExceptT . readWitnessSigningData) witSigningData
 
-  let (sksByron, sksShelley) = partitionSomeWitnesses $ map categoriseSomeWitness sks
+  let (sksByron, sksShelley) = partitionSomeWitnesses $ map categoriseSomeSigningWitness sks
 
   case txOrTxBody of
     InputTxFile (File inputTxFilePath) -> do
@@ -1191,7 +1191,7 @@ runTxCreateWitnessCmd (File txbodyFilePath) witSignData mbNw oFile = do
      someWit <- firstExceptT TxCmdReadWitnessSigningDataError
                   . newExceptT $ readWitnessSigningData witSignData
      witness <-
-       case categoriseSomeWitness someWit of
+       case categoriseSomeSigningWitness someWit of
          -- Byron witnesses require the network ID. This can either be provided
          -- directly or derived from a provided Byron address.
          AByronWitness bootstrapWitData ->
@@ -1212,7 +1212,7 @@ runTxCreateWitnessCmd (File txbodyFilePath) witSignData mbNw oFile = do
                    . newExceptT $ readWitnessSigningData witSignData
 
       witness <-
-        case categoriseSomeWitness someWit of
+        case categoriseSomeSigningWitness someWit of
           -- Byron witnesses require the network ID. This can either be provided
           -- directly or derived from a provided Byron address.
           AByronWitness bootstrapWitData ->
