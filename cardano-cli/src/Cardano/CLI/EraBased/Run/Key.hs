@@ -23,7 +23,6 @@ module Cardano.CLI.EraBased.Run.Key
 import           Cardano.Api
 import qualified Cardano.Api.Byron as ByronApi
 import           Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
-import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.Byron.Key as Byron
 import           Cardano.CLI.EraBased.Commands.Key
@@ -84,96 +83,6 @@ runGetVerificationKeyCmd skf vkf = do
       let vk = getVerificationKey sk in
       firstExceptT KeyCmdWriteFileError . newExceptT $
         writeLazyByteStringFile vkf $ textEnvelopeToJSON Nothing vk
-
-
-data SomeSigningKey
-  = AByronSigningKey                    (SigningKey ByronKey)
-  | APaymentSigningKey                  (SigningKey PaymentKey)
-  | APaymentExtendedSigningKey          (SigningKey PaymentExtendedKey)
-  | AStakeSigningKey                    (SigningKey StakeKey)
-  | AStakeExtendedSigningKey            (SigningKey StakeExtendedKey)
-  | AStakePoolSigningKey                (SigningKey StakePoolKey)
-  | AGenesisSigningKey                  (SigningKey GenesisKey)
-  | AGenesisExtendedSigningKey          (SigningKey GenesisExtendedKey)
-  | AGenesisDelegateSigningKey          (SigningKey GenesisDelegateKey)
-  | AGenesisDelegateExtendedSigningKey  (SigningKey GenesisDelegateExtendedKey)
-  | AGenesisUTxOSigningKey              (SigningKey GenesisUTxOKey)
-  | AVrfSigningKey                      (SigningKey VrfKey)
-  | AKesSigningKey                      (SigningKey KesKey)
-
-withSomeSigningKey :: ()
-  => SomeSigningKey
-  -> (forall keyrole. (Key keyrole, HasTypeProxy keyrole) => SigningKey keyrole -> a)
-  -> a
-withSomeSigningKey ssk f =
-    case ssk of
-      AByronSigningKey                    sk -> f sk
-      APaymentSigningKey                  sk -> f sk
-      APaymentExtendedSigningKey          sk -> f sk
-      AStakeSigningKey                    sk -> f sk
-      AStakeExtendedSigningKey            sk -> f sk
-      AStakePoolSigningKey                sk -> f sk
-      AGenesisSigningKey                  sk -> f sk
-      AGenesisExtendedSigningKey          sk -> f sk
-      AGenesisDelegateSigningKey          sk -> f sk
-      AGenesisDelegateExtendedSigningKey  sk -> f sk
-      AGenesisUTxOSigningKey              sk -> f sk
-      AVrfSigningKey                      sk -> f sk
-      AKesSigningKey                      sk -> f sk
-
-readSigningKeyFile
-  :: SigningKeyFile In
-  -> ExceptT (FileError InputDecodeError) IO SomeSigningKey
-readSigningKeyFile skFile =
-    newExceptT $
-      readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
-  where
-    textEnvFileTypes =
-      [ FromSomeType (AsSigningKey AsByronKey)
-                      AByronSigningKey
-      , FromSomeType (AsSigningKey AsPaymentKey)
-                      APaymentSigningKey
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey)
-                      APaymentExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakeKey)
-                      AStakeSigningKey
-      , FromSomeType (AsSigningKey AsStakeExtendedKey)
-                      AStakeExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakePoolKey)
-                      AStakePoolSigningKey
-      , FromSomeType (AsSigningKey AsGenesisKey)
-                      AGenesisSigningKey
-      , FromSomeType (AsSigningKey AsGenesisExtendedKey)
-                      AGenesisExtendedSigningKey
-      , FromSomeType (AsSigningKey AsGenesisDelegateKey)
-                      AGenesisDelegateSigningKey
-      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey)
-                      AGenesisDelegateExtendedSigningKey
-      , FromSomeType (AsSigningKey AsGenesisUTxOKey)
-                      AGenesisUTxOSigningKey
-      , FromSomeType (AsSigningKey AsVrfKey)
-                      AVrfSigningKey
-      , FromSomeType (AsSigningKey AsKesKey)
-                      AKesSigningKey
-      ]
-
-    bech32FileTypes =
-      [ FromSomeType (AsSigningKey AsPaymentKey)
-                      APaymentSigningKey
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey)
-                      APaymentExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakeKey)
-                      AStakeSigningKey
-      , FromSomeType (AsSigningKey AsStakeExtendedKey)
-                      AStakeExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakePoolKey)
-                      AStakePoolSigningKey
-      , FromSomeType (AsSigningKey AsVrfKey)
-                      AVrfSigningKey
-      , FromSomeType (AsSigningKey AsKesKey)
-                      AKesSigningKey
-      ]
-
 
 runConvertToNonExtendedKeyCmd
   :: VerificationKeyFile In

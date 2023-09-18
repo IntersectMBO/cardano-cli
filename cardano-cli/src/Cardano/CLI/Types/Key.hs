@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -42,6 +43,10 @@ module Cardano.CLI.Types.Key
   , DRepHashSource(..)
 
   , readDRepCredential
+
+  , SomeSigningKey(..)
+  , withSomeSigningKey
+  , readSigningKeyFile
   ) where
 
 import           Cardano.Api
@@ -372,3 +377,92 @@ readDRepCredential = \case
       lift (readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile)
         & onLeft (left . DelegationDRepReadError)
     pure $ L.KeyHashObj drepKeyHash
+
+
+data SomeSigningKey
+  = AByronSigningKey                    (SigningKey ByronKey)
+  | APaymentSigningKey                  (SigningKey PaymentKey)
+  | APaymentExtendedSigningKey          (SigningKey PaymentExtendedKey)
+  | AStakeSigningKey                    (SigningKey StakeKey)
+  | AStakeExtendedSigningKey            (SigningKey StakeExtendedKey)
+  | AStakePoolSigningKey                (SigningKey StakePoolKey)
+  | AGenesisSigningKey                  (SigningKey GenesisKey)
+  | AGenesisExtendedSigningKey          (SigningKey GenesisExtendedKey)
+  | AGenesisDelegateSigningKey          (SigningKey GenesisDelegateKey)
+  | AGenesisDelegateExtendedSigningKey  (SigningKey GenesisDelegateExtendedKey)
+  | AGenesisUTxOSigningKey              (SigningKey GenesisUTxOKey)
+  | AVrfSigningKey                      (SigningKey VrfKey)
+  | AKesSigningKey                      (SigningKey KesKey)
+
+withSomeSigningKey :: ()
+  => SomeSigningKey
+  -> (forall keyrole. (Key keyrole, HasTypeProxy keyrole) => SigningKey keyrole -> a)
+  -> a
+withSomeSigningKey ssk f =
+    case ssk of
+      AByronSigningKey                    sk -> f sk
+      APaymentSigningKey                  sk -> f sk
+      APaymentExtendedSigningKey          sk -> f sk
+      AStakeSigningKey                    sk -> f sk
+      AStakeExtendedSigningKey            sk -> f sk
+      AStakePoolSigningKey                sk -> f sk
+      AGenesisSigningKey                  sk -> f sk
+      AGenesisExtendedSigningKey          sk -> f sk
+      AGenesisDelegateSigningKey          sk -> f sk
+      AGenesisDelegateExtendedSigningKey  sk -> f sk
+      AGenesisUTxOSigningKey              sk -> f sk
+      AVrfSigningKey                      sk -> f sk
+      AKesSigningKey                      sk -> f sk
+
+readSigningKeyFile :: ()
+  => SigningKeyFile In
+  -> ExceptT (FileError InputDecodeError) IO SomeSigningKey
+readSigningKeyFile skFile =
+    newExceptT $
+      readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
+  where
+    textEnvFileTypes =
+      [ FromSomeType (AsSigningKey AsByronKey)
+                      AByronSigningKey
+      , FromSomeType (AsSigningKey AsPaymentKey)
+                      APaymentSigningKey
+      , FromSomeType (AsSigningKey AsPaymentExtendedKey)
+                      APaymentExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakeKey)
+                      AStakeSigningKey
+      , FromSomeType (AsSigningKey AsStakeExtendedKey)
+                      AStakeExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakePoolKey)
+                      AStakePoolSigningKey
+      , FromSomeType (AsSigningKey AsGenesisKey)
+                      AGenesisSigningKey
+      , FromSomeType (AsSigningKey AsGenesisExtendedKey)
+                      AGenesisExtendedSigningKey
+      , FromSomeType (AsSigningKey AsGenesisDelegateKey)
+                      AGenesisDelegateSigningKey
+      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey)
+                      AGenesisDelegateExtendedSigningKey
+      , FromSomeType (AsSigningKey AsGenesisUTxOKey)
+                      AGenesisUTxOSigningKey
+      , FromSomeType (AsSigningKey AsVrfKey)
+                      AVrfSigningKey
+      , FromSomeType (AsSigningKey AsKesKey)
+                      AKesSigningKey
+      ]
+
+    bech32FileTypes =
+      [ FromSomeType (AsSigningKey AsPaymentKey)
+                      APaymentSigningKey
+      , FromSomeType (AsSigningKey AsPaymentExtendedKey)
+                      APaymentExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakeKey)
+                      AStakeSigningKey
+      , FromSomeType (AsSigningKey AsStakeExtendedKey)
+                      AStakeExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakePoolKey)
+                      AStakePoolSigningKey
+      , FromSomeType (AsSigningKey AsVrfKey)
+                      AVrfSigningKey
+      , FromSomeType (AsSigningKey AsKesKey)
+                      AKesSigningKey
+      ]
