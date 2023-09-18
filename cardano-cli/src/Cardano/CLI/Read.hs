@@ -40,7 +40,7 @@ module Cardano.CLI.Read
   -- * Tx witnesses
   , ReadWitnessSigningDataError(..)
   , renderReadWitnessSigningDataError
-  , SomeWitness(..)
+  , SomeSigningWitness(..)
   , ByronOrShelleyWitness(..)
   , ShelleyBootstrapWitnessSigningKeyData(..)
   , CddlWitnessError(..)
@@ -49,7 +49,7 @@ module Cardano.CLI.Read
 
   -- * Required signer
   , RequiredSignerError(..)
-  , categoriseSomeWitness
+  , categoriseSomeSigningWitness
   , readRequiredSigner
 
   -- * Governance related
@@ -606,20 +606,19 @@ readCddlWitness fp = do
 
 -- Witness handling
 
-data SomeWitness
-  = AByronSigningKey           (SigningKey ByronKey) (Maybe (Address ByronAddr))
-  | APaymentSigningKey         (SigningKey PaymentKey)
-  | APaymentExtendedSigningKey (SigningKey PaymentExtendedKey)
-  | AStakeSigningKey           (SigningKey StakeKey)
-  | AStakeExtendedSigningKey   (SigningKey StakeExtendedKey)
-  | AStakePoolSigningKey       (SigningKey StakePoolKey)
-  | AGenesisSigningKey         (SigningKey GenesisKey)
-  | AGenesisExtendedSigningKey (SigningKey GenesisExtendedKey)
-  | AGenesisDelegateSigningKey (SigningKey GenesisDelegateKey)
-  | AGenesisDelegateExtendedSigningKey
-                               (SigningKey GenesisDelegateExtendedKey)
-  | AGenesisUTxOSigningKey     (SigningKey GenesisUTxOKey)
-  | ADRepSigningKey            (SigningKey DRepKey)
+data SomeSigningWitness
+  = AByronSigningWitness                    (SigningKey ByronKey) (Maybe (Address ByronAddr))
+  | APaymentSigningWitness                  (SigningKey PaymentKey)
+  | APaymentExtendedSigningWitness          (SigningKey PaymentExtendedKey)
+  | AStakeSigningWitness                    (SigningKey StakeKey)
+  | AStakeExtendedSigningWitness            (SigningKey StakeExtendedKey)
+  | AStakePoolSigningWitness                (SigningKey StakePoolKey)
+  | AGenesisSigningWitness                  (SigningKey GenesisKey)
+  | AGenesisExtendedSigningWitness          (SigningKey GenesisExtendedKey)
+  | AGenesisDelegateSigningWitness          (SigningKey GenesisDelegateKey)
+  | AGenesisDelegateExtendedSigningWitness  (SigningKey GenesisDelegateExtendedKey)
+  | AGenesisUTxOSigningWitness              (SigningKey GenesisUTxOKey)
+  | ADRepSigningWitness                     (SigningKey DRepKey)
 
 
 -- | Data required for constructing a Shelley bootstrap witness.
@@ -638,22 +637,21 @@ data ByronOrShelleyWitness
   = AByronWitness !ShelleyBootstrapWitnessSigningKeyData
   | AShelleyKeyWitness !ShelleyWitnessSigningKey
 
-categoriseSomeWitness :: SomeWitness -> ByronOrShelleyWitness
-categoriseSomeWitness swsk =
+categoriseSomeSigningWitness :: SomeSigningWitness -> ByronOrShelleyWitness
+categoriseSomeSigningWitness swsk =
   case swsk of
-    AByronSigningKey           sk addr -> AByronWitness (ShelleyBootstrapWitnessSigningKeyData sk addr)
-    APaymentSigningKey         sk      -> AShelleyKeyWitness (WitnessPaymentKey         sk)
-    APaymentExtendedSigningKey sk      -> AShelleyKeyWitness (WitnessPaymentExtendedKey sk)
-    AStakeSigningKey           sk      -> AShelleyKeyWitness (WitnessStakeKey           sk)
-    AStakeExtendedSigningKey   sk      -> AShelleyKeyWitness (WitnessStakeExtendedKey   sk)
-    AStakePoolSigningKey       sk      -> AShelleyKeyWitness (WitnessStakePoolKey       sk)
-    AGenesisSigningKey         sk      -> AShelleyKeyWitness (WitnessGenesisKey sk)
-    AGenesisExtendedSigningKey sk      -> AShelleyKeyWitness (WitnessGenesisExtendedKey sk)
-    AGenesisDelegateSigningKey sk      -> AShelleyKeyWitness (WitnessGenesisDelegateKey sk)
-    AGenesisDelegateExtendedSigningKey sk
-                                       -> AShelleyKeyWitness (WitnessGenesisDelegateExtendedKey sk)
-    AGenesisUTxOSigningKey     sk      -> AShelleyKeyWitness (WitnessGenesisUTxOKey     sk)
-    ADRepSigningKey            sk      -> AShelleyKeyWitness (WitnessPaymentKey $ castDrep sk)
+    AByronSigningWitness                    sk addr -> AByronWitness      (ShelleyBootstrapWitnessSigningKeyData  sk addr)
+    APaymentSigningWitness                  sk      -> AShelleyKeyWitness (WitnessPaymentKey                      sk)
+    APaymentExtendedSigningWitness          sk      -> AShelleyKeyWitness (WitnessPaymentExtendedKey              sk)
+    AStakeSigningWitness                    sk      -> AShelleyKeyWitness (WitnessStakeKey                        sk)
+    AStakeExtendedSigningWitness            sk      -> AShelleyKeyWitness (WitnessStakeExtendedKey                sk)
+    AStakePoolSigningWitness                sk      -> AShelleyKeyWitness (WitnessStakePoolKey                    sk)
+    AGenesisSigningWitness                  sk      -> AShelleyKeyWitness (WitnessGenesisKey                      sk)
+    AGenesisExtendedSigningWitness          sk      -> AShelleyKeyWitness (WitnessGenesisExtendedKey              sk)
+    AGenesisDelegateSigningWitness          sk      -> AShelleyKeyWitness (WitnessGenesisDelegateKey              sk)
+    AGenesisDelegateExtendedSigningWitness  sk      -> AShelleyKeyWitness (WitnessGenesisDelegateExtendedKey      sk)
+    AGenesisUTxOSigningWitness              sk      -> AShelleyKeyWitness (WitnessGenesisUTxOKey                  sk)
+    ADRepSigningWitness                     sk      -> AShelleyKeyWitness (WitnessPaymentKey $ castDrep           sk)
 
 -- TODO: Conway era - Add constrctor for SigningKey DrepKey to ShelleyWitnessSigningKey
 castDrep :: SigningKey DRepKey -> SigningKey PaymentKey
@@ -679,57 +677,41 @@ renderReadWitnessSigningDataError err =
 
 readWitnessSigningData
   :: WitnessSigningData
-  -> IO (Either ReadWitnessSigningDataError SomeWitness)
+  -> IO (Either ReadWitnessSigningDataError SomeSigningWitness)
 readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
     eRes <- first ReadWitnessSigningDataSigningKeyDecodeError
              <$> readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
     return $ do
       res <- eRes
       case (res, mbByronAddr) of
-        (AByronSigningKey _ _, Just _) -> pure res
-        (AByronSigningKey _ _, Nothing) -> pure res
+        (AByronSigningWitness _ _, Just _) -> pure res
+        (AByronSigningWitness _ _, Nothing) -> pure res
         (_, Nothing) -> pure res
         (_, Just _) ->
           -- A Byron address should only be specified along with a Byron signing key.
           Left ReadWitnessSigningDataSigningKeyAndAddressMismatch
   where
     textEnvFileTypes =
-      [ FromSomeType (AsSigningKey AsByronKey)
-                          (`AByronSigningKey` mbByronAddr)
-      , FromSomeType (AsSigningKey AsPaymentKey)
-                          APaymentSigningKey
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey)
-                          APaymentExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakeKey)
-                          AStakeSigningKey
-      , FromSomeType (AsSigningKey AsStakeExtendedKey)
-                          AStakeExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakePoolKey)
-                          AStakePoolSigningKey
-      , FromSomeType (AsSigningKey AsGenesisKey)
-                          AGenesisSigningKey
-      , FromSomeType (AsSigningKey AsGenesisExtendedKey)
-                          AGenesisExtendedSigningKey
-      , FromSomeType (AsSigningKey AsGenesisDelegateKey)
-                          AGenesisDelegateSigningKey
-      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey)
-                          AGenesisDelegateExtendedSigningKey
-      , FromSomeType (AsSigningKey AsGenesisUTxOKey)
-                          AGenesisUTxOSigningKey
-      , FromSomeType (AsSigningKey AsDRepKey) ADRepSigningKey
+      [ FromSomeType (AsSigningKey AsByronKey                   ) (`AByronSigningWitness` mbByronAddr)
+      , FromSomeType (AsSigningKey AsPaymentKey                 ) APaymentSigningWitness
+      , FromSomeType (AsSigningKey AsPaymentExtendedKey         ) APaymentExtendedSigningWitness
+      , FromSomeType (AsSigningKey AsStakeKey                   ) AStakeSigningWitness
+      , FromSomeType (AsSigningKey AsStakeExtendedKey           ) AStakeExtendedSigningWitness
+      , FromSomeType (AsSigningKey AsStakePoolKey               ) AStakePoolSigningWitness
+      , FromSomeType (AsSigningKey AsGenesisKey                 ) AGenesisSigningWitness
+      , FromSomeType (AsSigningKey AsGenesisExtendedKey         ) AGenesisExtendedSigningWitness
+      , FromSomeType (AsSigningKey AsGenesisDelegateKey         ) AGenesisDelegateSigningWitness
+      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey ) AGenesisDelegateExtendedSigningWitness
+      , FromSomeType (AsSigningKey AsGenesisUTxOKey             ) AGenesisUTxOSigningWitness
+      , FromSomeType (AsSigningKey AsDRepKey                    ) ADRepSigningWitness
       ]
 
     bech32FileTypes =
-      [ FromSomeType (AsSigningKey AsPaymentKey)
-                          APaymentSigningKey
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey)
-                          APaymentExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakeKey)
-                          AStakeSigningKey
-      , FromSomeType (AsSigningKey AsStakeExtendedKey)
-                          AStakeExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakePoolKey)
-                          AStakePoolSigningKey
+      [ FromSomeType (AsSigningKey AsPaymentKey         ) APaymentSigningWitness
+      , FromSomeType (AsSigningKey AsPaymentExtendedKey ) APaymentExtendedSigningWitness
+      , FromSomeType (AsSigningKey AsStakeKey           ) AStakeSigningWitness
+      , FromSomeType (AsSigningKey AsStakeExtendedKey   ) AStakeExtendedSigningWitness
+      , FromSomeType (AsSigningKey AsStakePoolKey       ) AStakePoolSigningWitness
       ]
 
 -- Required signers
@@ -750,17 +732,17 @@ readRequiredSigner (RequiredSignerSkeyFile skFile) = do
   eKeyWit <- first RequiredSignerErrorFile <$> readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
   return $ do
     keyWit <- eKeyWit
-    case categoriseSomeWitness keyWit of
+    case categoriseSomeSigningWitness keyWit of
       AByronWitness _ ->
         Left $ RequiredSignerErrorByronKey skFile
       AShelleyKeyWitness skey ->
         return . getHash $ toShelleySigningKey skey
  where
    textEnvFileTypes =
-     [ FromSomeType (AsSigningKey AsPaymentKey) APaymentSigningKey
-     , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningKey
-     , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningKey
-     , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningKey
+     [ FromSomeType (AsSigningKey AsPaymentKey        ) APaymentSigningWitness
+     , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningWitness
+     , FromSomeType (AsSigningKey AsStakePoolKey      ) AStakePoolSigningWitness
+     , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningWitness
      ]
    bech32FileTypes = []
 
