@@ -1,5 +1,39 @@
 # Changelog for cardano-cli
 
+## 8.9.0.0
+
+- Export `Cardano.CLI.Legacy.Options.pLegacyCardanoEra` for cardano-tesnet
+  (compatible)
+  [PR 286](https://github.com/input-output-hk/cardano-cli/pull/286)
+
+- Include fixes from cardano-api 8.20.1.0: https://github.com/input-output-hk/cardano-api/blob/main/cardano-api/CHANGELOG.md#82010
+  (compatible, bugfix)
+  [PR 283](https://github.com/input-output-hk/cardano-cli/pull/283)
+
+- Remove unused governance-related code
+  (improvement)
+  [PR 282](https://github.com/input-output-hk/cardano-cli/pull/282)
+
+- Fix typo in stake-pool help text and clarify drep queries arguments
+  (compatible)
+  [PR 281](https://github.com/input-output-hk/cardano-cli/pull/281)
+
+- Remove `--conway-era` flag
+  (breaking, improvement)
+  [PR 276](https://github.com/input-output-hk/cardano-cli/pull/276)
+
+- Era-based `stake-pool` command
+  (feature, compatible)
+  [PR 275](https://github.com/input-output-hk/cardano-cli/pull/275)
+
+- Fix git revision in `version` command
+  (compatible, bugfix)
+  [PR 274](https://github.com/input-output-hk/cardano-cli/pull/274)
+
+- Add support for `--drep-script-hash` `--always-abstain` `--always-no-confidence` to `vote-delegation-certificate` command
+  (feature, compatible)
+  [PR 272](https://github.com/input-output-hk/cardano-cli/pull/272)
+
 ## 8.8.0.0
 
 - Remove `Shelley` prefix on from errors
