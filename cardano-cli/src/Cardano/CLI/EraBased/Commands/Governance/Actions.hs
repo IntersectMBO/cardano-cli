@@ -7,6 +7,7 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   , GovernanceActionCmds(..)
   , NewCommitteeCmd(..)
   , NewConstitutionCmd(..)
+  , NewInfoCmd(..)
   , NoConfidenceCmd(..)
   , TreasuryWithdrawalCmd(..)
   , renderGovernanceActionCmds
@@ -41,10 +42,9 @@ data GovernanceActionCmds era
   | GovernanceActionTreasuryWithdrawalCmd
       (ConwayEraOnwards era)
       TreasuryWithdrawalCmd
-  | GoveranceActionInfoCmd -- TODO: Conway era - ledger currently provides a placeholder constructor
+  | GovernanceActionInfoCmd
       (ConwayEraOnwards era)
-      (File () In)
-      (File () Out)
+      NewInfoCmd
   deriving Show
 
 data NewCommitteeCmd
@@ -72,6 +72,17 @@ data NewConstitutionCmd
       , encConstitutionUrl :: ConstitutionUrl
       , encConstitutionHashSource :: ConstitutionHashSource
       , encFilePath :: File () Out
+      } deriving Show
+
+-- | Datatype to carry data for the create-info governance action
+data NewInfoCmd
+   = NewInfoCmd
+      { niNetwork :: Ledger.Network
+      , niDeposit :: Lovelace
+      , niStakeCredential :: AnyStakeIdentifier
+      , niProposalUrl :: ProposalUrl
+      , niProposalHashSource :: ProposalHashSource
+      , niOutputFilePath :: File () Out
       } deriving Show
 
 data NoConfidenceCmd
@@ -114,7 +125,7 @@ renderGovernanceActionCmds = ("governance action " <>) . \case
   GovernanceActionCreateNoConfidenceCmd {} ->
     "create-no-confidence"
 
-  GoveranceActionInfoCmd {} ->
+  GovernanceActionInfoCmd {} ->
     "create-info"
 
 data AnyStakeIdentifier

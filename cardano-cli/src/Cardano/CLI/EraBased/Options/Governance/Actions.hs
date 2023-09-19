@@ -33,10 +33,30 @@ pGovernanceActionCmds era =
     )
     [ pGovernanceActionNewConstitutionCmd era
     , pGovernanceActionNewCommitteeCmd era
+    , pGovernanceActionNewInfoCmd era
     , pGovernanceActionNoConfidenceCmd era
     , pGovernanceActionProtocolParametersUpdateCmd era
     , pGovernanceActionTreasuryWithdrawalCmd era
     ]
+
+pGovernanceActionNewInfoCmd
+  :: CardanoEra era
+  -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionNewInfoCmd era = do
+  cOn <- maybeFeatureInEra era
+  pure
+    $ subParser "create-info"
+    $ Opt.info
+        ( fmap (GovernanceActionInfoCmd cOn) $
+            NewInfoCmd
+              <$> pNetwork
+              <*> pGovActionDeposit
+              <*> pAnyStakeIdentifier
+              <*> pProposalUrl
+              <*> pProposalHashSource
+              <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
+        )
+    $ Opt.progDesc "Create an info action."
 
 
 pGovernanceActionNewConstitutionCmd
