@@ -2,7 +2,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Cardano.CLI.EraBased.Run.Governance.Actions
@@ -23,7 +22,6 @@ import           Cardano.CLI.Types.Key
 import qualified Cardano.Ledger.Conway.Governance as Ledger
 
 import           Control.Monad.Except (ExceptT)
-import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 import qualified Data.Map.Strict as Map
@@ -47,16 +45,32 @@ runGovernanceActionCmds = \case
   GovernanceActionCreateNoConfidenceCmd cOn noConfidence ->
     runGovernanceActionCreateNoConfidenceCmd cOn noConfidence
 
-  GoveranceActionInfoCmd cOn iFp oFp ->
-    runGovernanceActionInfoCmd cOn iFp oFp
+  GovernanceActionInfoCmd cOn newInfo ->
+    runGovernanceActionInfoCmd cOn newInfo
 
 runGovernanceActionInfoCmd
   :: ConwayEraOnwards era
-  -> File () In
-  -> File () Out
+  -> NewInfoCmd
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionInfoCmd _cOn _iFp _oFp =
-  liftIO $ print @String "TODO: Conway era - implement runGovernanceActionInfoCmd - ledger currently provides a placeholder constructor"
+runGovernanceActionInfoCmd cOn (NewInfoCmd network deposit returnAddr proposalUrl proposalHashSource  outFp) = do
+  returnKeyHash <- readStakeKeyHash returnAddr
+
+  proposalHash <-
+    proposalHashSourceToHash proposalHashSource
+      & firstExceptT GovernanceActionsCmdProposalError
+
+  let proposalAnchor = Ledger.Anchor
+        { Ledger.anchorUrl = unProposalUrl proposalUrl
+        , Ledger.anchorDataHash = proposalHash
+        }
+
+  let sbe = conwayEraOnwardsToShelleyBasedEra cOn
+      govAction = InfoAct
+      proposalProcedure = createProposalProcedure sbe network deposit returnKeyHash govAction proposalAnchor
+
+  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+    $ conwayEraOnwardsConstraints cOn
+    $ writeFileTextEnvelope outFp Nothing proposalProcedure
 
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd
