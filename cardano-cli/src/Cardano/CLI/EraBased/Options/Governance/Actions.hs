@@ -290,6 +290,22 @@ dpGovActionProtocolParametersUpdate = \case
       <$> pCommonProtocolParameters
       <*> pAlonzoOnwardsPParams
       <*> pIntroducedInBabbagePParams
+      <*> pIntroducedInConwayPParams
+
+pIntroducedInConwayPParams :: Parser (IntroducedInConwayPParams ledgerera)
+pIntroducedInConwayPParams =
+  IntroducedInConwayPParams
+  <$> pVotingPoolThd
+  <*> pDRepPoolThd
+  <*> pMinCommitteeSize
+  <*> pMinCommitteeTermLength
+  <*> pMinGovActionLifeTime
+  <*> pGovActionDeposit
+  <*> pDRepDeposit
+  <*> ppDRepActivity
+
+pVotingPoolThd :: Parser (StrictMaybe Ledger.PoolVotingThresholds)
+pVotingPoolThd = _
 
 pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionTreasuryWithdrawalCmd era = do
