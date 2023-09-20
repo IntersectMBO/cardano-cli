@@ -1,5 +1,11 @@
 # Changelog for cardano-cli
 
+## 8.10.0.0
+
+- Rename `SomeWitness` to `SomeSigningWitness`.  Rename constructors to avoid name conflicts.  Move to `Key` module.
+  (compatible, improvement)
+  [PR 284](https://github.com/input-output-hk/cardano-cli/pull/284)
+
 ## 8.9.0.0
 
 - Export `Cardano.CLI.Legacy.Options.pLegacyCardanoEra` for cardano-tesnet
