@@ -51,7 +51,7 @@ pGovernanceActionNewInfoCmd era = do
             NewInfoCmd
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier
+              <*> pAnyStakeIdentifier Nothing
               <*> pProposalUrl
               <*> pProposalHashSource
               <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
@@ -71,7 +71,7 @@ pGovernanceActionNewConstitutionCmd era = do
             NewConstitutionCmd
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier
+              <*> pAnyStakeIdentifier Nothing
               <*> pPreviousGovernanceAction
               <*> pProposalUrl
               <*> pProposalHashSource
@@ -99,11 +99,11 @@ pNewCommitteeCmd =
   NewCommitteeCmd
     <$> pNetwork
     <*> pGovActionDeposit
-    <*> pAnyStakeIdentifier
+    <*> pAnyStakeIdentifier Nothing
     <*> pProposalUrl
     <*> pProposalHashSource
-    <*> many pAnyStakeIdentifier
-    <*> many ((,) <$> pAnyStakeIdentifier <*> pEpochNo "Committee member expiry epoch")
+    <*> many (pAnyStakeIdentifier (Just "remove-cc"))
+    <*> many ((,) <$> pAnyStakeIdentifier (Just "add-cc") <*> pEpochNo "Committee member expiry epoch")
     <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
     <*> pPreviousGovernanceAction
     <*> pOutputFile
@@ -121,7 +121,7 @@ pGovernanceActionNoConfidenceCmd era = do
             NoConfidenceCmd
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier
+              <*> pAnyStakeIdentifier Nothing
               <*> pProposalUrl
               <*> pProposalHashSource
               <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
@@ -130,10 +130,11 @@ pGovernanceActionNoConfidenceCmd era = do
         )
     $ Opt.progDesc "Create a no confidence proposal."
 
-pAnyStakeIdentifier :: Parser AnyStakeIdentifier
-pAnyStakeIdentifier =
-  asum [ AnyStakePoolKey <$> pStakePoolVerificationKeyOrHashOrFile
-       , AnyStakeKey <$> pStakeVerificationKeyOrHashOrFile
+-- | The first argument is the optional prefix.
+pAnyStakeIdentifier :: Maybe String -> Parser AnyStakeIdentifier
+pAnyStakeIdentifier prefix =
+  asum [ AnyStakePoolKey <$> pStakePoolVerificationKeyOrHashOrFile prefix
+       , AnyStakeKey <$> pStakeVerificationKeyOrHashOrFile prefix
        ]
 
 pGovernanceActionProtocolParametersUpdateCmd
@@ -321,10 +322,10 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
             TreasuryWithdrawalCmd
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier
+              <*> pAnyStakeIdentifier Nothing
               <*> pProposalUrl
               <*> pProposalHashSource
-              <*> many ((,) <$> pAnyStakeIdentifier <*> pTransferAmt)
+              <*> many ((,) <$> pAnyStakeIdentifier Nothing <*> pTransferAmt) -- TODO we should likely pass a prefix here, becaus pAnyStakeIdentiefier is used twice
               <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
         )
     $ Opt.progDesc "Create a treasury withdrawal."

@@ -74,7 +74,7 @@ pKeyHashVRF =
 pNewCounter :: Parser (NodeCmds era)
 pNewCounter =
   NodeNewCounter
-    <$> pColdVerificationKeyOrFile
+    <$> pColdVerificationKeyOrFile Nothing
     <*> pCounterValue
     <*> pOperatorCertIssueCounterFile
 

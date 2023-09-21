@@ -60,7 +60,7 @@ pStakeAddressKeyHashCmd era = do
     $ subParser "key-hash"
     $ Opt.info
         ( StakeAddressKeyHashCmd w
-            <$> pStakeVerificationKeyOrFile
+            <$> pStakeVerificationKeyOrFile Nothing
             <*> pMaybeOutputFile
         )
     $ Opt.progDesc "Print the hash of a stake address key"
@@ -121,7 +121,7 @@ pStakeAddressStakeDelegationCertificateCmd era = do
     $ Opt.info
         ( StakeAddressStakeDelegationCertificateCmd w
             <$> pStakeIdentifier
-            <*> pStakePoolVerificationKeyOrHashOrFile
+            <*> pStakePoolVerificationKeyOrHashOrFile Nothing
             <*> pOutputFile
         )
     $ Opt.progDesc
@@ -140,7 +140,7 @@ pStakeAddressStakeAndVoteDelegationCertificateCmd era = do
     $ Opt.info
         ( StakeAddressStakeAndVoteDelegationCertificateCmd w
             <$> pStakeIdentifier
-            <*> pStakePoolVerificationKeyOrHashOrFile
+            <*> pStakePoolVerificationKeyOrHashOrFile Nothing
             <*> pVoteDelegationTarget
             <*> pOutputFile
         )

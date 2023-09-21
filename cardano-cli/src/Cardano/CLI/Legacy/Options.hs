@@ -179,7 +179,7 @@ pStakeAddressCmds envCli =
     pStakeAddressKeyHashCmd :: Parser LegacyStakeAddressCmds
     pStakeAddressKeyHashCmd =
       StakeAddressKeyHashCmd
-        <$> pStakeVerificationKeyOrFile
+        <$> pStakeVerificationKeyOrFile Nothing
         <*> pMaybeOutputFile
 
     pStakeAddressBuildCmd :: Parser LegacyStakeAddressCmds
@@ -210,7 +210,7 @@ pStakeAddressCmds envCli =
       StakeAddressDelegationCertificateCmd
         <$> pAnyShelleyBasedEra envCli
         <*> pStakeIdentifier
-        <*> pStakePoolVerificationKeyOrHashOrFile
+        <*> pStakePoolVerificationKeyOrHashOrFile Nothing
         <*> pOutputFile
 
 pKeyCmds :: Parser LegacyKeyCmds
@@ -725,7 +725,7 @@ pNodeCmds =
     pNewCounter :: Parser LegacyNodeCmds
     pNewCounter =
       NodeNewCounter
-        <$> pColdVerificationKeyOrFile
+        <$> pColdVerificationKeyOrFile Nothing
         <*> pCounterValue
         <*> pOperatorCertIssueCounterFile
 
@@ -766,7 +766,7 @@ pStakePoolCmds  envCli =
     pStakePoolId :: Parser LegacyStakePoolCmds
     pStakePoolId =
       StakePoolIdCmd
-        <$> pStakePoolVerificationKeyOrFile
+        <$> pStakePoolVerificationKeyOrFile Nothing
         <*> pPoolIdOutputFormat
         <*> pMaybeOutputFile
 
@@ -924,7 +924,7 @@ pQueryCmds envCli =
               , Opt.help "Query for all stake pools"
               ]
             pOnly :: Parser (AllOrOnly [Hash StakePoolKey])
-            pOnly = Only <$> many pStakePoolVerificationKeyHash
+            pOnly = Only <$> many (pStakePoolVerificationKeyHash Nothing)
 
     pQueryStakeSnapshot :: Parser LegacyQueryCmds
     pQueryStakeSnapshot =
@@ -941,7 +941,7 @@ pQueryCmds envCli =
         <$> pSocketPath envCli
         <*> pConsensusModeParams
         <*> pNetworkId envCli
-        <*> many pStakePoolVerificationKeyHash
+        <*> many (pStakePoolVerificationKeyHash Nothing)
 
     pQueryTxMempool :: Parser LegacyQueryCmds
     pQueryTxMempool =
@@ -971,7 +971,7 @@ pQueryCmds envCli =
         <*> pConsensusModeParams
         <*> pNetworkId envCli
         <*> pGenesisFile "Shelley genesis filepath"
-        <*> pStakePoolVerificationKeyOrHashOrFile
+        <*> pStakePoolVerificationKeyOrHashOrFile Nothing
         <*> pVrfSigningKeyFile
         <*> pWhichLeadershipSchedule
         <*> pMaybeOutputFile
@@ -1395,7 +1395,7 @@ pStakePoolRegistrationCertificiateCmd :: EnvCli -> Parser LegacyStakePoolCmds
 pStakePoolRegistrationCertificiateCmd envCli =
   StakePoolRegistrationCertificateCmd
     <$> pAnyShelleyBasedEra envCli
-    <*> pStakePoolVerificationKeyOrFile
+    <*> pStakePoolVerificationKeyOrFile Nothing
     <*> pVrfVerificationKeyOrFile
     <*> pPoolPledge
     <*> pPoolCost
@@ -1411,7 +1411,7 @@ pStakePoolDeregistrationCertificateCmd :: EnvCli -> Parser LegacyStakePoolCmds
 pStakePoolDeregistrationCertificateCmd envCli =
   StakePoolDeregistrationCertificateCmd
     <$> pAnyShelleyBasedEra envCli
-    <*> pStakePoolVerificationKeyOrFile
+    <*> pStakePoolVerificationKeyOrFile Nothing
     <*> pEpochNo "The epoch number."
     <*> pOutputFile
 
