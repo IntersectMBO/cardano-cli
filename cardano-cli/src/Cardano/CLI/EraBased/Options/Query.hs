@@ -170,7 +170,7 @@ pAllStakePoolsOrOnly = pAll <|> pOnly
           , Opt.help "Query for all stake pools"
           ]
         pOnly :: Parser (AllOrOnly [Hash StakePoolKey])
-        pOnly = Only <$> many pStakePoolVerificationKeyHash
+        pOnly = Only <$> many (pStakePoolVerificationKeyHash Nothing)
 
 pQueryStakeSnapshot :: EnvCli -> Parser (QueryCmds era)
 pQueryStakeSnapshot envCli =
@@ -187,7 +187,7 @@ pQueryPoolState envCli =
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
-    <*> many pStakePoolVerificationKeyHash
+    <*> many (pStakePoolVerificationKeyHash Nothing)
 
 pQueryTxMempool :: EnvCli -> Parser (QueryCmds era)
 pQueryTxMempool envCli =
@@ -217,7 +217,7 @@ pLeadershipSchedule envCli =
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> pGenesisFile "Shelley genesis filepath"
-    <*> pStakePoolVerificationKeyOrHashOrFile
+    <*> pStakePoolVerificationKeyOrHashOrFile Nothing
     <*> pVrfSigningKeyFile
     <*> pWhichLeadershipSchedule
     <*> pMaybeOutputFile

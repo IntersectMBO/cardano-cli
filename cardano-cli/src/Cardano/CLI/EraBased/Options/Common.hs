@@ -71,6 +71,14 @@ command' c descr p =
     , metavar c
     ]
 
+-- | @prefixFlag Nothing bar@ is @bar@, while @prefixFlag (Just "foo") bar@ is @foo-bar@.
+-- This function is used to optionally prefix some long flags
+prefixFlag :: Maybe String -> String -> String
+prefixFlag prefix longFlag =
+  case prefix of
+    Nothing -> longFlag
+    Just prefix' -> prefix' <> "-" <> longFlag
+
 pNetworkId :: EnvCli -> Parser NetworkId
 pNetworkId envCli = asum $ mconcat
   [ [ Opt.flag' Mainnet $ mconcat
@@ -200,7 +208,7 @@ pStakeIdentifier = asum
 
 pStakeVerifier :: Parser StakeVerifier
 pStakeVerifier = asum
-  [ StakeVerifierKey <$> pStakeVerificationKeyOrFile
+  [ StakeVerifierKey <$> pStakeVerificationKeyOrFile Nothing
   , StakeVerifierScriptFile <$> pScriptFor "stake-script-file" Nothing "Filepath of the staking script."
   ]
 
@@ -219,10 +227,11 @@ parseStakeAddress = do
     Nothing   -> fail $ "invalid address: " <> Text.unpack str'
     Just addr -> pure addr
 
-pStakeVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakeKey)
-pStakeVerificationKeyOrFile =
-  VerificationKeyValue <$> pStakeVerificationKey
-    <|> VerificationKeyFilePath <$> pStakeVerificationKeyFile
+-- | First argument is the optional prefix
+pStakeVerificationKeyOrFile :: Maybe String -> Parser (VerificationKeyOrFile StakeKey)
+pStakeVerificationKeyOrFile prefix =
+  VerificationKeyValue <$> pStakeVerificationKey prefix
+    <|> VerificationKeyFilePath <$> pStakeVerificationKeyFile prefix
 
 pScriptFor :: String -> Maybe String -> String -> Parser ScriptFile
 pScriptFor name Nothing help' =
@@ -240,10 +249,11 @@ pScriptFor name (Just deprecated) help' =
         <> Opt.internal
         )
 
-pStakeVerificationKey :: Parser (VerificationKey StakeKey)
-pStakeVerificationKey =
+-- | The first argument is the optional prefix.
+pStakeVerificationKey :: Maybe String -> Parser (VerificationKey StakeKey)
+pStakeVerificationKey prefix =
   Opt.option (readVerificationKey AsStakeKey) $ mconcat
-    [ Opt.long "stake-verification-key"
+    [ Opt.long $ prefixFlag prefix "stake-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Stake verification key (Bech32 or hex-encoded)."
     ]
@@ -266,17 +276,18 @@ readVerificationKey asType =
       first (Text.unpack . renderInputDecodeError) $
         deserialiseInput (AsVerificationKey asType) keyFormats (BSC.pack str')
 
-pStakeVerificationKeyFile :: Parser (VerificationKeyFile In)
-pStakeVerificationKeyFile =
+-- | The first argument is the optional prefix.
+pStakeVerificationKeyFile :: Maybe String -> Parser (VerificationKeyFile In)
+pStakeVerificationKeyFile prefix =
   File <$> asum
     [ Opt.strOption $ mconcat
-      [ Opt.long "stake-verification-key-file"
+      [ Opt.long $ prefixFlag prefix "stake-verification-key-file"
       , Opt.metavar "FILE"
       , Opt.help "Filepath of the staking verification key."
       , Opt.completer (Opt.bashCompleter "file")
       ]
     , Opt.strOption $ mconcat
-      [ Opt.long "staking-verification-key-file"
+      [ Opt.long $ prefixFlag prefix "staking-verification-key-file"
       , Opt.internal
       ]
     ]
@@ -425,32 +436,35 @@ parseLovelace = do
     then fail $ show i <> " lovelace exceeds the Word64 upper bound"
     else return $ Lovelace i
 
-pStakePoolVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakePoolKey)
-pStakePoolVerificationKeyOrFile =
+-- | The first argument is the optional prefix.
+pStakePoolVerificationKeyOrFile :: Maybe String -> Parser (VerificationKeyOrFile StakePoolKey)
+pStakePoolVerificationKeyOrFile prefix =
   asum
-    [ VerificationKeyValue <$> pStakePoolVerificationKey
-    , VerificationKeyFilePath <$> pStakePoolVerificationKeyFile
+    [ VerificationKeyValue <$> pStakePoolVerificationKey prefix
+    , VerificationKeyFilePath <$> pStakePoolVerificationKeyFile prefix
     ]
 
-pStakePoolVerificationKey :: Parser (VerificationKey StakePoolKey)
-pStakePoolVerificationKey =
+-- | The first argument is the optional prefix.
+pStakePoolVerificationKey :: Maybe String -> Parser (VerificationKey StakePoolKey)
+pStakePoolVerificationKey prefix =
   Opt.option (readVerificationKey AsStakePoolKey) $ mconcat
-    [ Opt.long "stake-pool-verification-key"
+    [ Opt.long $ prefixFlag prefix "stake-pool-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Stake pool verification key (Bech32 or hex-encoded)."
     ]
 
-pStakePoolVerificationKeyFile :: Parser (VerificationKeyFile In)
-pStakePoolVerificationKeyFile =
+-- | The first argument is the optional prefix.
+pStakePoolVerificationKeyFile :: Maybe String -> Parser (VerificationKeyFile In)
+pStakePoolVerificationKeyFile prefix =
   File <$> asum
     [ Opt.strOption $ mconcat
-      [ Opt.long "cold-verification-key-file"
+      [ Opt.long $ prefixFlag prefix "cold-verification-key-file"
       , Opt.metavar "FILE"
       , Opt.help "Filepath of the stake pool verification key."
       , Opt.completer (Opt.bashCompleter "file")
       ]
     , Opt.strOption $ mconcat
-      [ Opt.long "stake-pool-verification-key-file"
+      [ Opt.long $ prefixFlag prefix "stake-pool-verification-key-file"
       , Opt.internal
       ]
     ]
@@ -525,10 +539,11 @@ pGenesisDelegateVerificationKey =
         . deserialiseFromRawBytesHex (AsVerificationKey AsGenesisDelegateKey)
         . BSC.pack
 
-pColdVerificationKeyOrFile :: Parser ColdVerificationKeyOrFile
-pColdVerificationKeyOrFile =
+-- | The first argument is the optional prefix.
+pColdVerificationKeyOrFile :: Maybe String -> Parser ColdVerificationKeyOrFile
+pColdVerificationKeyOrFile prefix =
   asum
-    [ ColdStakePoolVerificationKey <$> pStakePoolVerificationKey
+    [ ColdStakePoolVerificationKey <$> pStakePoolVerificationKey prefix
     , ColdGenesisDelegateVerificationKey <$> pGenesisDelegateVerificationKey
     , ColdVerificationKeyFile <$> pColdVerificationKeyFile
     ]
@@ -786,29 +801,30 @@ pGovActionDeposit =
     ]
 
 
-pStakeVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile StakeKey)
-pStakeVerificationKeyOrHashOrFile = asum
-  [ VerificationKeyOrFile <$> pStakeVerificationKeyOrFile
-  , VerificationKeyHash <$> pStakeVerificationKeyHash
+-- | First argument is the optional prefix
+pStakeVerificationKeyOrHashOrFile :: Maybe String -> Parser (VerificationKeyOrHashOrFile StakeKey)
+pStakeVerificationKeyOrHashOrFile prefix = asum
+  [ VerificationKeyOrFile <$> pStakeVerificationKeyOrFile prefix
+  , VerificationKeyHash <$> pStakeVerificationKeyHash prefix
   ]
 
-pStakeVerificationKeyHash :: Parser (Hash StakeKey)
-pStakeVerificationKeyHash =
+-- | First argument is the optional prefix
+pStakeVerificationKeyHash :: Maybe String -> Parser (Hash StakeKey)
+pStakeVerificationKeyHash prefix =
    Opt.option (pHexHash AsStakeKey) $ mconcat
-      [ Opt.long "stake-key-hash"
+      [ Opt.long $ prefixFlag prefix "stake-key-hash"
       , Opt.metavar "HASH"
-      , Opt.help $ mconcat
-          [ "Stake verification key hash (hex-encoded)."
-          ]
+      , Opt.help "Stake verification key hash (hex-encoded)."
       ]
 
 
+-- | The first argument is the optional prefix.
 pStakePoolVerificationKeyOrHashOrFile
-  :: Parser (VerificationKeyOrHashOrFile StakePoolKey)
-pStakePoolVerificationKeyOrHashOrFile =
+  :: Maybe String -> Parser (VerificationKeyOrHashOrFile StakePoolKey)
+pStakePoolVerificationKeyOrHashOrFile prefix =
   asum
-    [ VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile
-    , VerificationKeyHash <$> pStakePoolVerificationKeyHash
+    [ VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile prefix
+    , VerificationKeyHash <$> pStakePoolVerificationKeyHash prefix
     ]
 
 pCombinedStakePoolVerificationKeyOrHashOrFile
@@ -2092,10 +2108,11 @@ pAddress =
     , Opt.help "A Cardano address"
     ]
 
-pStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
-pStakePoolVerificationKeyHash =
+-- | First argument is the prefix to use
+pStakePoolVerificationKeyHash :: Maybe String -> Parser (Hash StakePoolKey)
+pStakePoolVerificationKeyHash prefix =
     Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat
-      [ Opt.long "stake-pool-id"
+      [ Opt.long $ prefixFlag prefix "stake-pool-id"
       , Opt.metavar "STAKE_POOL_ID"
       , Opt.help $ mconcat
           [ "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded).  "
@@ -2347,7 +2364,7 @@ pStakePoolRegistrationParserRequirements
   :: EnvCli -> Parser StakePoolRegistrationParserRequirements
 pStakePoolRegistrationParserRequirements envCli =
   StakePoolRegistrationParserRequirements
-    <$> pStakePoolVerificationKeyOrFile
+    <$> pStakePoolVerificationKeyOrFile Nothing
     <*> pVrfVerificationKeyOrFile
     <*> pPoolPledge
     <*> pPoolCost
@@ -2692,7 +2709,7 @@ pVoterType =
 
 -- TODO: Conway era include "normal" stake keys
 pVotingCredential :: Parser (VerificationKeyOrFile StakePoolKey)
-pVotingCredential = pStakePoolVerificationKeyOrFile
+pVotingCredential = pStakePoolVerificationKeyOrFile Nothing
 
 pVoteDelegationTarget :: Parser VoteDelegationTarget
 pVoteDelegationTarget =

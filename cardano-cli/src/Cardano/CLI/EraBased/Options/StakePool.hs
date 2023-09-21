@@ -24,7 +24,7 @@ import qualified Options.Applicative as Opt
 pStakePoolCmds :: CardanoEra era -> EnvCli -> Parser (StakePoolCmds era)
 pStakePoolCmds era envCli =
   asum $ catMaybes
-    [ pStakePoolRegistrationCertificiateCmd era envCli
+    [ pStakePoolRegistrationCertificateCmd era envCli
     , pStakePoolDeregistrationCertificateCmd era
     , Just
         $ subParser "id"
@@ -39,7 +39,7 @@ pStakePoolCmds era envCli =
 pStakePoolId :: Parser (StakePoolCmds era)
 pStakePoolId =
   StakePoolIdCmd
-    <$> pStakePoolVerificationKeyOrFile
+    <$> pStakePoolVerificationKeyOrFile Nothing
     <*> pPoolIdOutputFormat
     <*> pMaybeOutputFile
 
@@ -49,14 +49,14 @@ pStakePoolMetadataHashCmd =
     <$> pPoolMetadataFile
     <*> pMaybeOutputFile
 
-pStakePoolRegistrationCertificiateCmd :: CardanoEra era -> EnvCli -> Maybe (Parser (StakePoolCmds era))
-pStakePoolRegistrationCertificiateCmd era envCli = do
+pStakePoolRegistrationCertificateCmd :: CardanoEra era -> EnvCli -> Maybe (Parser (StakePoolCmds era))
+pStakePoolRegistrationCertificateCmd era envCli = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "registration-certificate"
     $ Opt.info
         ( StakePoolRegistrationCertificateCmd w
-            <$> pStakePoolVerificationKeyOrFile
+            <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pVrfVerificationKeyOrFile
             <*> pPoolPledge
             <*> pPoolCost
@@ -77,7 +77,7 @@ pStakePoolDeregistrationCertificateCmd era = do
     $ subParser "deregistration-certificate"
     $ Opt.info
         ( StakePoolDeregistrationCertificateCmd w
-            <$> pStakePoolVerificationKeyOrFile
+            <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pEpochNo "The epoch number."
             <*> pOutputFile
         )
