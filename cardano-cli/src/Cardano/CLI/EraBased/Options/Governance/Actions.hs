@@ -133,59 +133,26 @@ pGovernanceActionNoConfidenceCmd era = do
 -- | The first argument is the optional prefix.
 pAnyStakeIdentifier :: Maybe String -> Parser AnyStakeIdentifier
 pAnyStakeIdentifier prefix =
-  asum [ AnyStakePoolKey <$> pStakePoolVerificationKeyOrHashOrFile prefix
-       , AnyStakeKey <$> pStakeVerificationKeyOrHashOrFile prefix
-       ]
+  asum
+    [ AnyStakePoolKey <$> pStakePoolVerificationKeyOrHashOrFile prefix
+    , AnyStakeKey <$> pStakeVerificationKeyOrHashOrFile prefix
+    ]
 
-pGovernanceActionProtocolParametersUpdateCmd
-  :: CardanoEra era  -> Maybe (Parser (GovernanceActionCmds era))
-pGovernanceActionProtocolParametersUpdateCmd era =
-   Just $ subParser "create-protocol-parameters-update"
-        $ Opt.info (pCmd era)
-        $ Opt.progDesc "Create a protocol parameters update."
- where
-  pCmd :: CardanoEra era -> Parser (GovernanceActionCmds era)
-  pCmd era' =
-    case cardanoEraStyle era' of
-      LegacyByronEra -> empty
-      ShelleyBasedEra sbe ->
-        case sbe of
-         ShelleyBasedEraShelley ->
-           GovernanceActionProtocolParametersUpdateCmd sbe
-             <$> pEpochNoUpdateProp
-             <*> pProtocolParametersUpdateGenesisKeys sbe
-             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraShelley
-             <*> pOutputFile
-         ShelleyBasedEraAllegra ->
-           GovernanceActionProtocolParametersUpdateCmd sbe
-             <$> pEpochNoUpdateProp
-             <*> pProtocolParametersUpdateGenesisKeys sbe
-             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraAllegra
-             <*> pOutputFile
-         ShelleyBasedEraMary ->
-           GovernanceActionProtocolParametersUpdateCmd sbe
-             <$> pEpochNoUpdateProp
-             <*> pProtocolParametersUpdateGenesisKeys sbe
-             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraMary
-             <*> pOutputFile
-         ShelleyBasedEraAlonzo ->
-           GovernanceActionProtocolParametersUpdateCmd sbe
-             <$> pEpochNoUpdateProp
-             <*> pProtocolParametersUpdateGenesisKeys sbe
-             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraAlonzo
-             <*> pOutputFile
-         ShelleyBasedEraBabbage ->
-           GovernanceActionProtocolParametersUpdateCmd sbe
-             <$> pEpochNoUpdateProp
-             <*> pProtocolParametersUpdateGenesisKeys sbe
-             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraBabbage
-             <*> pOutputFile
-         ShelleyBasedEraConway ->
-           GovernanceActionProtocolParametersUpdateCmd sbe
-             <$> pEpochNoUpdateProp
-             <*> pProtocolParametersUpdateGenesisKeys sbe
-             <*> dpGovActionProtocolParametersUpdate ShelleyBasedEraConway
-             <*> pOutputFile
+pGovernanceActionProtocolParametersUpdateCmd :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionProtocolParametersUpdateCmd era = do
+  w <- maybeFeatureInEra era
+  pure
+    $ subParser "create-protocol-parameters-update"
+    $ Opt.info
+        ( GovernanceActionProtocolParametersUpdateCmd w
+            <$> pEpochNoUpdateProp
+            <*> pProtocolParametersUpdateGenesisKeys w
+            <*> dpGovActionProtocolParametersUpdate w
+            <*> pOutputFile
+        )
+    $ Opt.progDesc "Create a protocol parameters update."
 
 convertToLedger :: (a -> b) -> Parser (Maybe a) -> Parser (StrictMaybe b)
 convertToLedger conv = fmap (maybeToStrictMaybe . fmap conv)
@@ -268,14 +235,10 @@ pIntroducedInBabbagePParams =
 
 -- Not necessary in Conway era onwards
 pProtocolParametersUpdateGenesisKeys :: ShelleyBasedEra era -> Parser [VerificationKeyFile In]
-pProtocolParametersUpdateGenesisKeys sbe =
-  case sbe of
-    ShelleyBasedEraShelley -> many pGenesisVerificationKeyFile
-    ShelleyBasedEraAllegra -> many pGenesisVerificationKeyFile
-    ShelleyBasedEraMary -> many pGenesisVerificationKeyFile
-    ShelleyBasedEraAlonzo -> many pGenesisVerificationKeyFile
-    ShelleyBasedEraBabbage -> many pGenesisVerificationKeyFile
-    ShelleyBasedEraConway -> empty
+pProtocolParametersUpdateGenesisKeys =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (const (many pGenesisVerificationKeyFile))
+    (const empty)
 
 dpGovActionProtocolParametersUpdate
   :: ShelleyBasedEra era -> Parser (EraBasedProtocolParametersUpdate era)
