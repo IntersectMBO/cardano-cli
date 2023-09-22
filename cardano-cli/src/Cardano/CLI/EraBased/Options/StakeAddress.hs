@@ -40,7 +40,7 @@ pStakeAddressKeyGenCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (StakeAddressCmds era))
 pStakeAddressKeyGenCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "key-gen"
     $ Opt.info
@@ -55,7 +55,7 @@ pStakeAddressKeyHashCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (StakeAddressCmds era))
 pStakeAddressKeyHashCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "key-hash"
     $ Opt.info
@@ -70,7 +70,7 @@ pStakeAddressBuildCmd :: ()
   -> EnvCli
   -> Maybe (Parser (StakeAddressCmds era))
 pStakeAddressBuildCmd era envCli = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "build"
     $ Opt.info
@@ -85,7 +85,7 @@ pStakeAddressRegistrationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (StakeAddressCmds era))
 pStakeAddressRegistrationCertificateCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "registration-certificate"
     $ Opt.info
@@ -100,7 +100,7 @@ pStakeAddressDeregistrationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (StakeAddressCmds era))
 pStakeAddressDeregistrationCertificateCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "deregistration-certificate"
     $ Opt.info
@@ -115,7 +115,7 @@ pStakeAddressStakeDelegationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (StakeAddressCmds era))
 pStakeAddressStakeDelegationCertificateCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "stake-delegation-certificate"
     $ Opt.info
@@ -134,7 +134,7 @@ pStakeAddressStakeAndVoteDelegationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (StakeAddressCmds era))
 pStakeAddressStakeAndVoteDelegationCertificateCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "stake-and-vote-delegation-certificate"
     $ Opt.info
@@ -154,7 +154,7 @@ pStakeAddressVoteDelegationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (StakeAddressCmds era))
 pStakeAddressVoteDelegationCertificateCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "vote-delegation-certificate"
     $ Opt.info

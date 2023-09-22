@@ -191,7 +191,7 @@ runTxBuildCmd
 
   -- Conway related
   votes <-
-    featureInEra
+    inEonForEra
       (pure emptyVotingProcedures)
       (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w conwayVotes))
       era
@@ -595,8 +595,8 @@ runTxBuild
               , txUpdateProposal = validatedTxUpProp
               , txMintValue = validatedMintValue
               , txScriptValidity = validatedTxScriptValidity
-              , txProposalProcedures = inEraFeatureMaybe era (`Featured` validatedTxProposalProcedures)
-              , txVotingProcedures = inEraFeatureMaybe era (`Featured` validatedTxVotes)
+              , txProposalProcedures = inEraEonMaybe era (`Featured` validatedTxProposalProcedures)
+              , txVotingProcedures = inEraEonMaybe era (`Featured` validatedTxVotes)
               }
 
       firstExceptT TxCmdTxInsDoNotExist

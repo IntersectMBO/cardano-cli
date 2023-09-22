@@ -796,8 +796,8 @@ readTxGovernanceActions
   -> IO (Either ConstitutionError [Proposal era])
 readTxGovernanceActions _ [] = return $ Right []
 readTxGovernanceActions era files = runExceptT $ do
-  w <- maybeFeatureInEra era
-        & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
+  w <- maybeEonInEra era
+    & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
   newExceptT $ sequence <$> mapM (readProposal w) files
 
 readProposal

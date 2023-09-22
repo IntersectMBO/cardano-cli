@@ -43,7 +43,7 @@ pGovernanceActionNewInfoCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNewInfoCmd era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "create-info"
     $ Opt.info
@@ -63,7 +63,7 @@ pGovernanceActionNewConstitutionCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNewConstitutionCmd era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "create-constitution"
     $ Opt.info
@@ -85,7 +85,7 @@ pGovernanceActionNewCommitteeCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNewCommitteeCmd era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "create-new-committee"
     $ Opt.info
@@ -113,7 +113,7 @@ pGovernanceActionNoConfidenceCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNoConfidenceCmd era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "create-no-confidence"
     $ Opt.info
@@ -142,7 +142,7 @@ pGovernanceActionProtocolParametersUpdateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionProtocolParametersUpdateCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "create-protocol-parameters-update"
     $ Opt.info
@@ -277,7 +277,7 @@ dpGovActionProtocolParametersUpdate = \case
 
 pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionTreasuryWithdrawalCmd era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "create-treasury-withdrawal"
     $ Opt.info

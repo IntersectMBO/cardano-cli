@@ -5,6 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.TxValidationError
   ( TxAuxScriptsValidationError(..)
@@ -78,17 +79,17 @@ instance Error TxFeeValidationError where
 validateTxFee :: CardanoEra era
               -> Maybe Lovelace
               -> Either TxFeeValidationError (TxFee era)
-validateTxFee era mfee =
-    case (txFeesExplicitInEra era, mfee) of
-      (Left  implicit, Nothing)  -> return (TxFeeImplicit implicit)
-      (Right explicit, Just fee) -> return (TxFeeExplicit explicit fee)
-
-      (Right _, Nothing) -> Left . TxFeatureImplicitFeesE
-                                 $ getIsCardanoEraConstraint era
-                                 $ AnyCardanoEra era
-      (Left  _, Just _)  -> Left . TxFeatureExplicitFeesE
-                                 $ getIsCardanoEraConstraint era
-                                 $ AnyCardanoEra era
+validateTxFee era = \case
+  Nothing ->
+    caseByronOrShelleyBasedEra
+      (pure . TxFeeImplicit)
+      (const $ Left . TxFeatureImplicitFeesE $ getIsCardanoEraConstraint era $ AnyCardanoEra era)
+      era
+  Just fee ->
+    caseByronOrShelleyBasedEra
+      (const $ Left . TxFeatureExplicitFeesE $ getIsCardanoEraConstraint era $ AnyCardanoEra era)
+      (\w -> pure (TxFeeExplicit w fee))
+      era
 
 newtype TxTotalCollateralValidationError
   = TxTotalCollateralNotSupported AnyCardanoEra

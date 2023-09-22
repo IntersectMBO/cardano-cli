@@ -34,7 +34,7 @@ pGovernanceQueryGetConstitutionCmd
   -> CardanoEra era
   -> Maybe (Parser (GovernanceQueryCmds era))
 pGovernanceQueryGetConstitutionCmd env era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "constitution"
     $ Opt.info (GovernanceQueryConstitutionCmd cOn <$> pNoArgQueryCmd env)
@@ -45,7 +45,7 @@ pGovernanceQueryGetGovStateCmd
   -> CardanoEra era
   -> Maybe (Parser (GovernanceQueryCmds era))
 pGovernanceQueryGetGovStateCmd env era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "gov-state"
     $ Opt.info (GovernanceQueryGovStateCmd cOn <$> pNoArgQueryCmd env)
@@ -61,7 +61,7 @@ pGovernanceQueryDRepStateCmd
   -> CardanoEra era
   -> Maybe (Parser (GovernanceQueryCmds era))
 pGovernanceQueryDRepStateCmd env era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "drep-state"
     $ Opt.info (GovernanceQueryDRepStateCmd cOn <$> pDRepStateQueryCmd)
@@ -80,7 +80,7 @@ pGovernanceQueryDRepStakeDistributionCmd
   -> CardanoEra era
   -> Maybe (Parser (GovernanceQueryCmds era))
 pGovernanceQueryDRepStakeDistributionCmd env era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "drep-stake-distribution"
     $ Opt.info (GovernanceQueryDRepStakeDistributionCmd cOn <$> pDRepStakeDistributionQueryCmd)
@@ -99,7 +99,7 @@ pGovernanceQueryGetCommitteeStateCmd
   -> CardanoEra era
   -> Maybe (Parser (GovernanceQueryCmds era))
 pGovernanceQueryGetCommitteeStateCmd env era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "committee-state"
     $ Opt.info (GovernanceQueryCommitteeStateCmd cOn <$> pNoArgQueryCmd env)

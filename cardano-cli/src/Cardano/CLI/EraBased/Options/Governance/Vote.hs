@@ -32,7 +32,7 @@ pGovernanceVoteCreateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceVoteCmds era))
 pGovernanceVoteCreateCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "create"
     $ Opt.info
