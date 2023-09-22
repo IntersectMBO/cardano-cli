@@ -151,8 +151,8 @@ runGovernanceActionCreateNewCommitteeCmd cOn (NewCommitteeCmd network deposit re
         , Ledger.anchorDataHash = proposalHash
         }
 
-  oldCommitteeKeyHashes <- mapM readStakeKeyHash old
-  newCommitteeKeyHashes <- mapM (\(stakeKey, expEpoch) -> (,expEpoch) <$> readStakeKeyHash stakeKey) new
+  oldCommitteeKeyHashes <- mapM readVerificationKeyHash old
+  newCommitteeKeyHashes <- mapM (\(stakeKey, expEpoch) -> (,expEpoch) <$> readVerificationKeyHash stakeKey) new
 
   returnKeyHash <- readStakeKeyHash retAddr
 
@@ -203,6 +203,11 @@ readStakeKeyHash anyStake =
       StakePoolKeyHash t <- firstExceptT GovernanceActionsCmdReadFileError
                               . newExceptT $ readVerificationKeyOrHashOrFile AsStakePoolKey stake
       return $ StakeKeyHash $ coerceKeyRole t
+
+readVerificationKeyHash :: VerificationKeyOrHashOrFile CommitteeColdKey -> ExceptT GovernanceActionsError IO (Hash CommitteeColdKey)
+readVerificationKeyHash keyOrHashOrFile =
+  firstExceptT GovernanceActionsCmdReadFileError
+    . newExceptT $ readVerificationKeyOrHashOrFile AsCommitteeColdKey keyOrHashOrFile
 
 runGovernanceActionTreasuryWithdrawalCmd
   :: ConwayEraOnwards era

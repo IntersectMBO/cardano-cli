@@ -102,8 +102,8 @@ pNewCommitteeCmd =
     <*> pAnyStakeIdentifier Nothing
     <*> pProposalUrl
     <*> pProposalHashSource
-    <*> many (pAnyStakeIdentifier (Just "remove-cc"))
-    <*> many ((,) <$> pAnyStakeIdentifier (Just "add-cc") <*> pEpochNo "Committee member expiry epoch")
+    <*> many (pCommitteeColdVerificationKeyOrHashOrFile {- (Just "remove-cc") -}) -- TODO replug prefix
+    <*> many ((,) <$> pCommitteeColdVerificationKeyOrHashOrFile {- (Just "add-cc") -} <*> pEpochNo "Committee member expiry epoch")
     <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
     <*> pPreviousGovernanceAction
     <*> pOutputFile
