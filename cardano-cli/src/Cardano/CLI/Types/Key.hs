@@ -47,6 +47,8 @@ module Cardano.CLI.Types.Key
   , SomeSigningKey(..)
   , withSomeSigningKey
   , readSigningKeyFile
+
+  , readShelleyWitnessSigningKeyFile
   ) where
 
 import           Cardano.Api
@@ -465,4 +467,31 @@ readSigningKeyFile skFile =
                       AVrfSigningKey
       , FromSomeType (AsSigningKey AsKesKey)
                       AKesSigningKey
+      ]
+
+readShelleyWitnessSigningKeyFile :: ()
+  => SigningKeyFile In
+  -> ExceptT (FileError InputDecodeError) IO ShelleyWitnessSigningKey
+readShelleyWitnessSigningKeyFile skFile =
+  newExceptT $ readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
+  where
+    textEnvFileTypes =
+      [ FromSomeType (AsSigningKey AsPaymentKey                 ) WitnessPaymentKey
+      , FromSomeType (AsSigningKey AsPaymentExtendedKey         ) WitnessPaymentExtendedKey
+      , FromSomeType (AsSigningKey AsStakeKey                   ) WitnessStakeKey
+      , FromSomeType (AsSigningKey AsStakeExtendedKey           ) WitnessStakeExtendedKey
+      , FromSomeType (AsSigningKey AsStakePoolKey               ) WitnessStakePoolKey
+      , FromSomeType (AsSigningKey AsGenesisKey                 ) WitnessGenesisKey
+      , FromSomeType (AsSigningKey AsGenesisExtendedKey         ) WitnessGenesisExtendedKey
+      , FromSomeType (AsSigningKey AsGenesisDelegateKey         ) WitnessGenesisDelegateKey
+      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey ) WitnessGenesisDelegateExtendedKey
+      , FromSomeType (AsSigningKey AsGenesisUTxOKey             ) WitnessGenesisUTxOKey
+      ]
+
+    bech32FileTypes =
+      [ FromSomeType (AsSigningKey AsPaymentKey         ) WitnessPaymentKey
+      , FromSomeType (AsSigningKey AsPaymentExtendedKey ) WitnessPaymentExtendedKey
+      , FromSomeType (AsSigningKey AsStakeKey           ) WitnessStakeKey
+      , FromSomeType (AsSigningKey AsStakeExtendedKey   ) WitnessStakeExtendedKey
+      , FromSomeType (AsSigningKey AsStakePoolKey       ) WitnessStakePoolKey
       ]
