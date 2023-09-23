@@ -315,46 +315,53 @@ readScriptWitness era (PlutusScriptWitnessFiles
 readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
                           anyScrLang@(AnyScriptLanguage anyScriptLanguage)
                           datumOrFile redeemerOrFile execUnits mPid) = do
-  case refInsScriptsAndInlineDatsSupportedInEra era of
-    Nothing -> left $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-                    $ getIsCardanoEraConstraint era (AnyCardanoEra era)
-    Just _ -> do
-
-      case scriptLanguageSupportedInEra era anyScriptLanguage of
-        Just sLangInEra ->
-          case languageOfScriptLanguageInEra sLangInEra of
-            SimpleScriptLanguage ->
-              -- TODO: We likely need another datatype eg data ReferenceScriptWitness lang
-              -- in order to make this branch unrepresentable.
-              error "readScriptWitness: Should not be possible to specify a simple script"
-            PlutusScriptLanguage version -> do
-              datum <- firstExceptT ScriptWitnessErrorScriptData
-                         $ readScriptDatumOrFile    datumOrFile
-              redeemer <- firstExceptT ScriptWitnessErrorScriptData
-                            $ readScriptRedeemerOrFile redeemerOrFile
-              return $ PlutusScriptWitness
-                         sLangInEra
-                         version
-                         (PReferenceScript refTxIn (unPolicyId <$> mPid))
-                         datum redeemer execUnits
-        Nothing ->
-          left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+  caseByronToAlonzoOrBabbageEraOnwards
+    ( const $ left
+        $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
+        $ getIsCardanoEraConstraint era (AnyCardanoEra era)
+    )
+    ( const $ do
+        case scriptLanguageSupportedInEra era anyScriptLanguage of
+          Just sLangInEra ->
+            case languageOfScriptLanguageInEra sLangInEra of
+              SimpleScriptLanguage ->
+                -- TODO: We likely need another datatype eg data ReferenceScriptWitness lang
+                -- in order to make this branch unrepresentable.
+                error "readScriptWitness: Should not be possible to specify a simple script"
+              PlutusScriptLanguage version -> do
+                datum <- firstExceptT ScriptWitnessErrorScriptData
+                          $ readScriptDatumOrFile    datumOrFile
+                redeemer <- firstExceptT ScriptWitnessErrorScriptData
+                              $ readScriptRedeemerOrFile redeemerOrFile
+                return $ PlutusScriptWitness
+                          sLangInEra
+                          version
+                          (PReferenceScript refTxIn (unPolicyId <$> mPid))
+                          datum redeemer execUnits
+          Nothing ->
+            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+    )
+    era
 readScriptWitness era (SimpleReferenceScriptWitnessFiles refTxIn
                          anyScrLang@(AnyScriptLanguage anyScriptLanguage) mPid) = do
-  case refInsScriptsAndInlineDatsSupportedInEra era of
-    Nothing -> left $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-                    $ getIsCardanoEraConstraint era (AnyCardanoEra era)
-    Just _ -> do
-      case scriptLanguageSupportedInEra era anyScriptLanguage of
-        Just sLangInEra ->
-          case languageOfScriptLanguageInEra sLangInEra of
-            SimpleScriptLanguage ->
-              return . SimpleScriptWitness sLangInEra
-                     $ SReferenceScript refTxIn (unPolicyId <$> mPid)
-            PlutusScriptLanguage{} ->
-              error "readScriptWitness: Should not be possible to specify a plutus script"
-        Nothing ->
-          left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+  caseByronToAlonzoOrBabbageEraOnwards
+    ( const $ left
+        $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
+        $ getIsCardanoEraConstraint era (AnyCardanoEra era)
+    )
+    ( const $
+        case scriptLanguageSupportedInEra era anyScriptLanguage of
+          Just sLangInEra ->
+            case languageOfScriptLanguageInEra sLangInEra of
+              SimpleScriptLanguage ->
+                return . SimpleScriptWitness sLangInEra
+                      $ SReferenceScript refTxIn (unPolicyId <$> mPid)
+              PlutusScriptLanguage{} ->
+                error "readScriptWitness: Should not be possible to specify a plutus script"
+          Nothing ->
+            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+    )
+    era
 
 validateScriptSupportedInEra :: CardanoEra era
                              -> ScriptInAnyLang

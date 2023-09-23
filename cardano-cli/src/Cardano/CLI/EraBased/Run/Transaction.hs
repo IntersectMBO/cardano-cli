@@ -672,10 +672,10 @@ validateTxInsReference
   -> Either TxCmdError (TxInsReference BuildTx era)
 validateTxInsReference _ []  = return TxInsReferenceNone
 validateTxInsReference era allRefIns =
-  case refInsScriptsAndInlineDatsSupportedInEra era of
-    Nothing -> txFeatureMismatchPure era TxFeatureReferenceInputs
-    Just supp -> return $ TxInsReference supp allRefIns
-
+  caseByronToAlonzoOrBabbageEraOnwards
+    (const (txFeatureMismatchPure era TxFeatureReferenceInputs))
+    (\w -> return $ TxInsReference w allRefIns)
+    era
 
 getAllReferenceInputs
  :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
@@ -724,12 +724,14 @@ toTxOutValueInAnyEra
   -> Value
   -> Either TxCmdError (TxOutValue era)
 toTxOutValueInAnyEra era val =
-  case multiAssetSupportedInEra era of
-    Left adaOnlyInEra ->
-      case valueToLovelace val of
-        Just l  -> return (TxOutAdaOnly adaOnlyInEra l)
-        Nothing -> txFeatureMismatchPure era TxFeatureMultiAssetOutputs
-    Right multiAssetInEra -> return (TxOutValue multiAssetInEra val)
+  caseByronToAllegraOrMaryEraOnwards
+    ( \w ->
+        case valueToLovelace val of
+          Just l  -> return (TxOutAdaOnly w l)
+          Nothing -> txFeatureMismatchPure era TxFeatureMultiAssetOutputs
+    )
+    (\w -> return (TxOutValue w val))
+    era
 
 toTxOutInAnyEra :: CardanoEra era
                 -> TxOutAnyEra
@@ -737,30 +739,37 @@ toTxOutInAnyEra :: CardanoEra era
 toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
   addr <- hoistEither $ toAddressInAnyEra era addr'
   val <- hoistEither $ toTxOutValueInAnyEra era val'
-  (datum, refScript)
-    <- case (scriptDataSupportedInEra era, refInsScriptsAndInlineDatsSupportedInEra era) of
-         (Nothing, Nothing) -> pure (TxOutDatumNone, ReferenceScriptNone)
-         (Just sup, Nothing)->
-           (,) <$> toTxAlonzoDatum sup mDatumHash <*> pure ReferenceScriptNone
-         (Just sup, Just inlineDatumRefScriptSupp) ->
-           toTxDatumReferenceScriptBabbage sup inlineDatumRefScriptSupp mDatumHash refScriptFp
-         (Nothing, Just _) ->
-           -- TODO: Figure out how to make this state unrepresentable
-           error "toTxOutInAnyEra: Should not be possible that inline datums are allowed but datums are not"
+  (datum, refScript) <-
+    caseByronToMaryOrAlonzoEraOnwards
+      ( const $ caseByronToAlonzoOrBabbageEraOnwards
+          (const (pure (TxOutDatumNone, ReferenceScriptNone)))
+          -- TODO: Figure out how to make this state unrepresentable
+          (const (error "toTxOutInAnyEra: Should not be possible that inline datums are allowed but datums are not"))
+          era
+      )
+      (\wAlonzoEraOnwards ->
+        caseByronToAlonzoOrBabbageEraOnwards
+          (const ((,) <$> toTxAlonzoDatum wAlonzoEraOnwards mDatumHash <*> pure ReferenceScriptNone))
+          (\wBabbageEraOnwards ->
+            toTxDatumReferenceScriptBabbage wAlonzoEraOnwards wBabbageEraOnwards mDatumHash refScriptFp
+          )
+          era
+      )
+      era
   pure $ TxOut addr val datum refScript
  where
   getReferenceScript
     :: ReferenceScriptAnyEra
-    -> ReferenceTxInsScriptsInlineDatumsSupportedInEra era
+    -> BabbageEraOnwards era
     -> ExceptT TxCmdError IO (ReferenceScript era)
   getReferenceScript ReferenceScriptAnyEraNone _ = return ReferenceScriptNone
   getReferenceScript (ReferenceScriptAnyEra fp) supp = do
     ReferenceScript supp
       <$> firstExceptT TxCmdScriptFileError (readFileScriptInAnyLang fp)
 
-  toTxDatumReferenceScriptBabbage
-    :: ScriptDataSupportedInEra era
-    -> ReferenceTxInsScriptsInlineDatumsSupportedInEra era
+  toTxDatumReferenceScriptBabbage :: ()
+    => AlonzoEraOnwards era
+    -> BabbageEraOnwards era
     -> TxOutDatumAnyEra
     -> ReferenceScriptAnyEra
     -> ExceptT TxCmdError IO (TxOutDatum CtxTx era, ReferenceScript era)
@@ -784,8 +793,8 @@ toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
                     $ readScriptDataOrFile fileOrSdata
          pure (TxOutDatumInline inlineRefSupp sData, refScript)
 
-  toTxAlonzoDatum
-    :: ScriptDataSupportedInEra era
+  toTxAlonzoDatum :: ()
+    => AlonzoEraOnwards era
     -> TxOutDatumAnyEra
     -> ExceptT TxCmdError IO (TxOutDatum CtxTx era)
   toTxAlonzoDatum supp cliDatum =
@@ -816,9 +825,9 @@ createTxMintValue era (val, scriptWitnesses) =
   if List.null (valueToList val) && List.null scriptWitnesses
   then return TxMintNone
   else do
-    case multiAssetSupportedInEra era of
-      Left _ -> txFeatureMismatchPure era TxFeatureMintValue
-      Right supported -> do
+    caseByronToAllegraOrMaryEraOnwards
+      (const (txFeatureMismatchPure era TxFeatureMintValue))
+      (\w -> do
         -- The set of policy ids for which we need witnesses:
         let witnessesNeededSet :: Set PolicyId
             witnessesNeededSet =
@@ -833,7 +842,9 @@ createTxMintValue era (val, scriptWitnesses) =
         validateAllWitnessesProvided   witnessesNeededSet witnessesProvidedSet
         validateNoUnnecessaryWitnesses witnessesNeededSet witnessesProvidedSet
 
-        return (TxMintValue supported val (BuildTxWith witnessesProvidedMap))
+        return (TxMintValue w val (BuildTxWith witnessesProvidedMap))
+      )
+      era
  where
   gatherMintingWitnesses
     :: [ScriptWitness WitCtxMint era]

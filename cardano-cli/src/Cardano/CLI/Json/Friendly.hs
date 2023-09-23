@@ -35,7 +35,7 @@ import           Data.Char (isAscii)
 import           Data.Function ((&))
 import           Data.Functor ((<&>))
 import qualified Data.Map.Strict as Map
-import           Data.Maybe (catMaybes, isJust)
+import           Data.Maybe (catMaybes, isJust, maybeToList)
 import           Data.Ratio (numerator)
 import qualified Data.Text as Text
 import           Data.Yaml (array)
@@ -191,21 +191,20 @@ friendlyTxOut (TxOut addr amount mdatum script) =
               , "stake reference" .=
                   friendlyStakeReference (fromShelleyStakeReference stake)
               ]
-            datum =
-              [ "datum" .= renderDatum mdatum
-              | isJust $ scriptDataSupportedInEra $ shelleyBasedToCardanoEra sbe
-              ]
+            datum = ["datum" .= d | d <- maybeToList $ renderDatum mdatum]
             sinceAlonzo = ["reference script" .= script]
         in preAlonzo ++ datum ++ sinceAlonzo
  where
-  renderDatum :: TxOutDatum CtxTx era -> Aeson.Value
-  renderDatum TxOutDatumNone = Aeson.Null
-  renderDatum (TxOutDatumHash _ h) =
-    Aeson.String $ serialiseToRawBytesHexText h
-  renderDatum (TxOutDatumInTx _ sData) =
-    scriptDataToJson ScriptDataJsonDetailedSchema sData
-  renderDatum (TxOutDatumInline _ sData) =
-    scriptDataToJson ScriptDataJsonDetailedSchema sData
+  renderDatum :: TxOutDatum CtxTx era -> Maybe Aeson.Value
+  renderDatum = \case
+    TxOutDatumNone ->
+      Nothing
+    TxOutDatumHash _ h ->
+      Just $ Aeson.String $ serialiseToRawBytesHexText h
+    TxOutDatumInTx _ sData ->
+      Just $ scriptDataToJson ScriptDataJsonDetailedSchema sData
+    TxOutDatumInline _ sData ->
+      Just $ scriptDataToJson ScriptDataJsonDetailedSchema sData
 
 
 friendlyStakeReference :: StakeAddressReference -> Aeson.Value
