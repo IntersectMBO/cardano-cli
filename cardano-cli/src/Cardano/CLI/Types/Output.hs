@@ -15,7 +15,6 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.Ledger.Shelley.Scripts ()
 
