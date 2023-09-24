@@ -88,67 +88,40 @@ pAnyEraCommand envCli =
     [ -- Note, byron is ommitted because there is already a legacy command group for it.
 
       subParser "shelley"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds envCli ShelleyEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds ShelleyEra envCli)
         $ Opt.progDesc "Shelley era commands"
     , subParser "allegra"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds envCli AllegraEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds AllegraEra envCli)
         $ Opt.progDesc "Allegra era commands"
     , subParser "mary"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds envCli MaryEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds MaryEra envCli)
         $ Opt.progDesc "Mary era commands"
     , subParser "alonzo"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds envCli AlonzoEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds AlonzoEra envCli)
         $ Opt.progDesc "Alonzo era commands"
     , subParser "babbage"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds envCli BabbageEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds BabbageEra envCli)
         $ Opt.progDesc "Babbage era commands"
     , subParser "conway"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds envCli ConwayEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ConwayEra envCli)
         $ Opt.progDesc "Conway era commands"
 
     , subParser "latest"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds envCli BabbageEra)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds BabbageEra envCli)
         $ Opt.progDesc "Latest era commands (Babbage)"
     ]
 
-pCmds :: EnvCli -> CardanoEra era -> Parser (Cmds era)
-pCmds envCli era =
+pCmds :: CardanoEra era -> EnvCli -> Parser (Cmds era)
+pCmds era envCli =
   asum $ catMaybes
-    [ Just
-        $ subParser "address"
-        $ Opt.info (AddressCmds <$> pAddressCmds era envCli)
-        $ Opt.progDesc "Era-based address commands"
-    , Just
-        $ subParser "key"
-        $ Opt.info (KeyCmds <$> pKeyCmds)
-        $ Opt.progDesc "Era-based key commands"
-    , Just
-        $ subParser "genesis"
-        $ Opt.info (GenesisCmds <$> pGenesisCmds envCli)
-        $ Opt.progDesc "Era-based genesis commands"
-    , Just
-        $ subParser "governance"
-        $ Opt.info (GovernanceCmds <$> pGovernanceCmds envCli era)
-        $ Opt.progDesc "Era-based governance commands"
-    , Just
-        $ subParser "node"
-        $ Opt.info (NodeCmds <$> pNodeCmds)
-        $ Opt.progDesc "Era-based node commands"
-    , Just
-        $ subParser "query"
-        $ Opt.info (QueryCmds <$> pQueryCmds envCli)
-        $ Opt.progDesc "Era-based query commands"
+    [ fmap AddressCmds      <$> pAddressCmds era envCli
+    , fmap KeyCmds          <$> pKeyCmds
+    , fmap GenesisCmds      <$> pGenesisCmds envCli
+    , fmap GovernanceCmds   <$> pGovernanceCmds era envCli
+    , fmap NodeCmds         <$> pNodeCmds
+    , fmap QueryCmds        <$> pQueryCmds envCli
     , fmap StakeAddressCmds <$> pStakeAddressCmds era envCli
-    , Just
-        $ subParser "stake-pool"
-        $ Opt.info (StakePoolCmds <$> pStakePoolCmds era envCli)
-        $ Opt.progDesc "Era-based stake pool commands"
-    , Just
-        $ subParser "text-view"
-        $ Opt.info (TextViewCmds <$> pTextViewCmds)
-        $ Opt.progDesc "Era-based text view commands"
-    , Just
-        $ subParser "transaction"
-        $ Opt.info (TransactionCmds <$> pTransactionCmds envCli era)
-        $ Opt.progDesc "Era-based transaction commands"
+    , fmap StakePoolCmds    <$> pStakePoolCmds era envCli
+    , fmap TextViewCmds     <$> pTextViewCmds
+    , fmap TransactionCmds  <$> pTransactionCmds era envCli
     ]

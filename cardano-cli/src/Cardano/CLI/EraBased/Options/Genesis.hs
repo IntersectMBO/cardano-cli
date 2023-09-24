@@ -16,8 +16,7 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 
-import           Data.Foldable
-import           Data.Maybe (fromMaybe)
+import           Data.Maybe
 import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
@@ -25,52 +24,70 @@ import qualified Options.Applicative as Opt
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pGenesisCmds :: EnvCli -> Parser (GenesisCmds era)
+pGenesisCmds :: ()
+  => EnvCli
+  -> Maybe (Parser (GenesisCmds era))
 pGenesisCmds envCli =
-  asum
-    [ subParser "key-gen-genesis"
+  subInfoParser "genesis"
+    ( Opt.progDesc
+        $ mconcat
+          [ "Genesis block commands."
+          ]
+    )
+    [ Just
+        $ subParser "key-gen-genesis"
         $ Opt.info pGenesisKeyGen
         $ Opt.progDesc "Create a Shelley genesis key pair"
-    , subParser "key-gen-delegate"
+    , Just
+        $ subParser "key-gen-delegate"
         $ Opt.info pGenesisDelegateKeyGen
         $ Opt.progDesc "Create a Shelley genesis delegate key pair"
-    , subParser "key-gen-utxo"
+    , Just
+        $ subParser "key-gen-utxo"
         $ Opt.info pGenesisUTxOKeyGen
         $ Opt.progDesc "Create a Shelley genesis UTxO key pair"
-    , subParser "key-hash"
+    , Just
+        $ subParser "key-hash"
         $ Opt.info pGenesisKeyHash
         $ Opt.progDesc "Print the identifier (hash) of a public key"
-    , subParser "get-ver-key"
+    , Just
+        $ subParser "get-ver-key"
         $ Opt.info pGenesisVerKey
         $ Opt.progDesc "Derive the verification key from a signing key"
-    , subParser "initial-addr"
+    , Just
+        $ subParser "initial-addr"
         $ Opt.info (pGenesisAddr envCli)
         $ Opt.progDesc "Get the address for an initial UTxO based on the verification key"
-    , subParser "initial-txin"
+    , Just
+        $ subParser "initial-txin"
         $ Opt.info (pGenesisTxIn envCli)
         $ Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
-    , subParser "create-cardano"
+    , Just
+        $ subParser "create-cardano"
         $ Opt.info (pGenesisCreateCardano envCli)
         $ Opt.progDesc
         $ mconcat
             [ "Create a Byron and Shelley genesis file from a genesis "
             , "template and genesis/delegation/spending keys."
             ]
-    , subParser "create"
+    , Just
+        $ subParser "create"
         $ Opt.info (pGenesisCreate envCli)
         $ Opt.progDesc
         $ mconcat
             [ "Create a Shelley genesis file from a genesis "
             , "template and genesis/delegation/spending keys."
             ]
-    , subParser "create-staked"
+    , Just
+        $ subParser "create-staked"
         $ Opt.info (pGenesisCreateStaked envCli)
         $ Opt.progDesc
         $ mconcat
             [ "Create a staked Shelley genesis file from a genesis "
             , "template and genesis/delegation/spending keys."
             ]
-    , subParser "hash"
+    , Just
+        $ subParser "hash"
         $ Opt.info pGenesisHash
         $ Opt.progDesc "Compute the hash of a genesis file"
     ]

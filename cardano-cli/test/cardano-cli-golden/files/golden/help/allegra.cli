@@ -17,13 +17,17 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  address                  Era-based address commands
-  key                      Era-based key commands
-  genesis                  Era-based genesis commands
-  governance               Era-based governance commands
-  node                     Era-based node commands
-  query                    Era-based query commands
+  address                  Payment address commands.
+  key                      Key utility commands.
+  genesis                  Genesis block commands.
+  governance               Governance commands.
+  node                     Node operation commands.
+  query                    Node query commands. Will query the local node whose
+                           Unix domain socket is obtained from the
+                           CARDANO_NODE_SOCKET_PATH environment variable.
   stake-address            Stake address commands.
-  stake-pool               Era-based stake pool commands
-  text-view                Era-based text view commands
-  transaction              Era-based transaction commands
+  stake-pool               Stake pool commands.
+  text-view                Commands for dealing with Shelley TextView files.
+                           Transactions, addresses etc are stored on disk as
+                           TextView files.
+  transaction              Transaction commands.

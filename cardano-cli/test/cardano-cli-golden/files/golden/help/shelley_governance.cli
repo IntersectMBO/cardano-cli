@@ -1,6 +1,6 @@
 Usage: cardano-cli shelley governance (create-mir-certificate | action | drep)
 
-  Era-based governance commands
+  Governance commands.
 
 Available options:
   -h,--help                Show this help text

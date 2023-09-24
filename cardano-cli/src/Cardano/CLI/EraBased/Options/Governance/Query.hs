@@ -14,37 +14,36 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
-pGovernanceQueryCmds
-  :: ()
-  => EnvCli
-  -> CardanoEra era
+pGovernanceQueryCmds :: ()
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GovernanceQueryCmds era))
-pGovernanceQueryCmds env era =
+pGovernanceQueryCmds era env =
   subInfoParser "query"
     ( Opt.progDesc "Query governance-related information" )
-    [ pGovernanceQueryGetConstitutionCmd env era
-    , pGovernanceQueryGetGovStateCmd env era
-    , pGovernanceQueryDRepStateCmd env era
-    , pGovernanceQueryDRepStakeDistributionCmd env era
-    , pGovernanceQueryGetCommitteeStateCmd env era
+    [ pGovernanceQueryGetConstitutionCmd era env
+    , pGovernanceQueryGetGovStateCmd era env
+    , pGovernanceQueryDRepStateCmd era env
+    , pGovernanceQueryDRepStakeDistributionCmd era env
+    , pGovernanceQueryGetCommitteeStateCmd era env
     ]
 
-pGovernanceQueryGetConstitutionCmd
-  :: EnvCli
-  -> CardanoEra era
+pGovernanceQueryGetConstitutionCmd :: ()
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GovernanceQueryCmds era))
-pGovernanceQueryGetConstitutionCmd env era = do
+pGovernanceQueryGetConstitutionCmd era env = do
   cOn <- maybeFeatureInEra era
   pure
     $ subParser "constitution"
     $ Opt.info (GovernanceQueryConstitutionCmd cOn <$> pNoArgQueryCmd env)
     $ Opt.progDesc "Get the constitution"
 
-pGovernanceQueryGetGovStateCmd
-  :: EnvCli
-  -> CardanoEra era
+pGovernanceQueryGetGovStateCmd :: ()
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GovernanceQueryCmds era))
-pGovernanceQueryGetGovStateCmd env era = do
+pGovernanceQueryGetGovStateCmd era env = do
   cOn <- maybeFeatureInEra era
   pure
     $ subParser "gov-state"
@@ -56,11 +55,11 @@ pGovernanceQueryGetGovStateCmd env era = do
 -- What about 'DRep c' - this means that only 'KeyHash' constructor is in use here: should also
 -- 'DRepAlwaysAbstain' and 'DRepAlwaysNoConfidence' be supported here?
 
-pGovernanceQueryDRepStateCmd
-  :: EnvCli
-  -> CardanoEra era
+pGovernanceQueryDRepStateCmd :: ()
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GovernanceQueryCmds era))
-pGovernanceQueryDRepStateCmd env era = do
+pGovernanceQueryDRepStateCmd era env = do
   cOn <- maybeFeatureInEra era
   pure
     $ subParser "drep-state"
@@ -75,11 +74,11 @@ pGovernanceQueryDRepStateCmd env era = do
       <*> some pDRepVerificationKeyOrHashOrFile
       <*> optional pOutputFile
 
-pGovernanceQueryDRepStakeDistributionCmd
-  :: EnvCli
-  -> CardanoEra era
+pGovernanceQueryDRepStakeDistributionCmd :: ()
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GovernanceQueryCmds era))
-pGovernanceQueryDRepStakeDistributionCmd env era = do
+pGovernanceQueryDRepStakeDistributionCmd era env = do
   cOn <- maybeFeatureInEra era
   pure
     $ subParser "drep-stake-distribution"
@@ -94,11 +93,11 @@ pGovernanceQueryDRepStakeDistributionCmd env era = do
       <*> some pDRepVerificationKeyOrHashOrFile
       <*> optional pOutputFile
 
-pGovernanceQueryGetCommitteeStateCmd
-  :: EnvCli
-  -> CardanoEra era
+pGovernanceQueryGetCommitteeStateCmd :: ()
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GovernanceQueryCmds era))
-pGovernanceQueryGetCommitteeStateCmd env era = do
+pGovernanceQueryGetCommitteeStateCmd era env = do
   cOn <- maybeFeatureInEra era
   pure
     $ subParser "committee-state"

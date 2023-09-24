@@ -24,10 +24,10 @@ import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
 
 pGovernanceDRepCmds :: ()
-  => EnvCli
-  -> CardanoEra era
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GovernanceDRepCmds era))
-pGovernanceDRepCmds envCli era =
+pGovernanceDRepCmds era envCli =
   subInfoParser "drep"
     ( Opt.progDesc
         $ mconcat
@@ -36,7 +36,7 @@ pGovernanceDRepCmds envCli era =
     )
     [ pGovernanceDRepKeyGenCmd era
     , pGovernanceDRepKeyIdCmd era
-    , pRegistrationCertificateCmd envCli era
+    , pRegistrationCertificateCmd era envCli
     ]
 
 pGovernanceDRepKeyGenCmd :: ()
@@ -83,10 +83,10 @@ pDRepIdOutputFormat =
 -- Registration Certificate related
 
 pRegistrationCertificateCmd :: ()
-  => EnvCli
-  -> CardanoEra era
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GovernanceDRepCmds era))
-pRegistrationCertificateCmd envCli era = do
+pRegistrationCertificateCmd era envCli = do
   w <- maybeFeatureInEra era
   pure
     $ subParser "registration-certificate"

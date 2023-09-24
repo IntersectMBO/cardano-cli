@@ -1,6 +1,6 @@
 Usage: cardano-cli conway governance (query | action | committee | drep | vote)
 
-  Era-based governance commands
+  Governance commands.
 
 Available options:
   -h,--help                Show this help text

@@ -1,6 +1,6 @@
 Usage: cardano-cli babbage address (key-gen | key-hash | build | info)
 
-  Era-based address commands
+  Payment address commands.
 
 Available options:
   -h,--help                Show this help text

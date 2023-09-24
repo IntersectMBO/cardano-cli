@@ -13,7 +13,7 @@ Usage: cardano-cli conway transaction
                                         | view
                                         )
 
-  Era-based transaction commands
+  Transaction commands.
 
 Available options:
   -h,--help                Show this help text

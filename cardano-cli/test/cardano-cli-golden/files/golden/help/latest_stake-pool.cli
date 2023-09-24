@@ -5,7 +5,7 @@ Usage: cardano-cli latest stake-pool
                                        | metadata-hash
                                        )
 
-  Era-based stake pool commands
+  Stake pool commands.
 
 Available options:
   -h,--help                Show this help text

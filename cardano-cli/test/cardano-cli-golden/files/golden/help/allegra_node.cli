@@ -7,7 +7,7 @@ Usage: cardano-cli allegra node
                                   | issue-op-cert
                                   )
 
-  Era-based node commands
+  Node operation commands.
 
 Available options:
   -h,--help                Show this help text
