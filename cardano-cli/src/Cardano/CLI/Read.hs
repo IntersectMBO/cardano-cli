@@ -139,6 +139,7 @@ import           GHC.IO.Handle.FD (openFileBlocking)
 import qualified Options.Applicative as Opt
 import           System.IO (IOMode (ReadMode))
 
+
 -- Metadata
 
 data MetadataError
@@ -288,9 +289,9 @@ readScriptWitness era (PlutusScriptWitnessFiles
     case script' of
       PlutusScript version pscript -> do
         datum <- firstExceptT ScriptWitnessErrorScriptData
-                   $ readScriptDatumOrFile    datumOrFile
+                   $ readScriptDatumOrFile datumOrFile
         redeemer <- firstExceptT ScriptWitnessErrorScriptData
-                      $ readScriptRedeemerOrFile redeemerOrFile
+                   $ readScriptRedeemerOrFile redeemerOrFile
         return $ PlutusScriptWitness
                    langInEra version (PScript pscript)
                    datum
@@ -620,6 +621,7 @@ data SomeSigningWitness
   | AGenesisUTxOSigningWitness              (SigningKey GenesisUTxOKey)
   | ADRepSigningWitness                     (SigningKey DRepKey)
   | ACommitteeSigningWitness                (SigningKey CommitteeColdKey)
+  deriving Show
 
 
 -- | Data required for constructing a Shelley bootstrap witness.
