@@ -8,7 +8,6 @@ module Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.Api
 
 import           Cardano.CLI.Byron.Genesis as Byron
-import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.AddressCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError

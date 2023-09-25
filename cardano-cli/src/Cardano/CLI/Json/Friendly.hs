@@ -18,8 +18,8 @@ import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), ShelleyLedgerEra,
-                   StakeAddress (..), fromShelleyPaymentCredential, fromShelleyScriptHash,
-                   fromShelleyStakeReference, toShelleyLovelace, toShelleyStakeCredential)
+                   StakeAddress (..), fromShelleyPaymentCredential, fromShelleyStakeReference,
+                   toShelleyLovelace, toShelleyStakeCredential)
 
 import qualified Cardano.Ledger.Conway.TxCert as ConwayLedger
 import qualified Cardano.Ledger.Credential as Shelley
@@ -90,7 +90,7 @@ friendlyTxBody
       , txWithdrawals
       }) =
     [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
-    , "certificates" .= renderShelleyOnly era friendlyCertificates txCertificates
+    , "certificates" .= inEraFeature era Null (`friendlyCertificates` txCertificates)
     , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
     , "era" .= era
     , "fee" .= friendlyFee txFee
@@ -120,8 +120,7 @@ friendlyReturnCollateral (TxReturnCollateral _ collOut) = friendlyTxOut collOut
 friendlyExtraKeyWits :: TxExtraKeyWitnesses era -> Aeson.Value
 friendlyExtraKeyWits = \case
   TxExtraKeyWitnessesNone -> Null
-  TxExtraKeyWitnesses _supported paymentKeyHashes ->
-    toJSON $ map serialiseToRawBytesHexText paymentKeyHashes
+  TxExtraKeyWitnesses _supported paymentKeyHashes -> toJSON paymentKeyHashes
 
 -- | Special case of validity range:
 -- in Shelley, upper bound is TTL, and no lower bound
@@ -200,8 +199,7 @@ friendlyTxOut (TxOut addr amount mdatum script) =
  where
   renderDatum :: TxOutDatum CtxTx era -> Aeson.Value
   renderDatum TxOutDatumNone = Aeson.Null
-  renderDatum (TxOutDatumHash _ h) =
-    Aeson.String $ serialiseToRawBytesHexText h
+  renderDatum (TxOutDatumHash _ h) = toJSON h
   renderDatum (TxOutDatumInTx _ sData) =
     scriptDataToJson ScriptDataJsonDetailedSchema sData
   renderDatum (TxOutDatumInline _ sData) =
@@ -222,7 +220,7 @@ friendlyUpdateProposal = \case
       [ "epoch" .= epoch
       , "updates" .=
         [ object
-            [ "genesis key hash" .= serialiseToRawBytesHexText genesisKeyHash
+            [ "genesis key hash" .= genesisKeyHash
             , "update" .= friendlyProtocolParametersUpdate parameterUpdate
             ]
         | (genesisKeyHash, parameterUpdate) <- Map.assocs parameterUpdates
@@ -308,29 +306,6 @@ friendlyCertificates sbe = \case
   TxCertificatesNone -> Null
   TxCertificates _ cs _ -> array $ map (friendlyCertificate sbe) cs
 
-credJson
-  :: ShelleyBasedEra era
-  -> Shelley.Credential kr (Ledger.EraCrypto (ShelleyLedgerEra era))
-  -> Aeson.Value
-credJson sbe c = shelleyBasedEraConstraints sbe $ toJSON c
-
-stakeCredJson
-  :: ShelleyBasedEra era
-  -> Shelley.StakeCredential (Ledger.EraCrypto (ShelleyLedgerEra era))
-  -> Aeson.Value
-stakeCredJson sbe c = shelleyBasedEraConstraints sbe $ toJSON c
-
-poolIdJson
-  :: ShelleyBasedEra era
-  -> Ledger.KeyHash Ledger.StakePool (Ledger.EraCrypto (ShelleyLedgerEra era))
-  -> Aeson.Value
-poolIdJson sbe pId = shelleyBasedEraConstraints sbe $ toJSON pId
-
-poolParamsJson
-  :: ShelleyBasedEra era -> Shelley.PoolParams (Ledger.EraCrypto (ShelleyLedgerEra era)) -> Aeson.Value
-poolParamsJson sbe pp = shelleyBasedEraConstraints sbe $ toJSON pp
-
-
 friendlyCertificate :: ShelleyBasedEra era -> Certificate era -> Aeson.Value
 friendlyCertificate sbe = withShelleyBasedEraConstraintsForLedger sbe $
   object . (: []) . renderCertificate sbe
@@ -341,13 +316,13 @@ renderCertificate sbe = \case
     shelleyBasedEraConstraints sbe $
       case c of
         Ledger.ShelleyTxCertDelegCert (Ledger.ShelleyRegCert cred) ->
-          "stake address registration" .=  stakeCredJson sbe cred
+          "stake address registration" .=  cred
         Ledger.ShelleyTxCertDelegCert (Ledger.ShelleyUnRegCert cred) ->
-          "stake address deregistration" .= stakeCredJson sbe cred
+          "stake address deregistration" .= cred
         Ledger.ShelleyTxCertDelegCert (Ledger.ShelleyDelegCert cred poolId) ->
           "stake address delegation" .= object
-            [ "credential" .= stakeCredJson sbe cred
-            , "pool" .= poolIdJson sbe poolId
+            [ "credential" .= cred
+            , "pool" .= poolId
             ]
         Ledger.ShelleyTxCertPool (Ledger.RetirePool poolId retirementEpoch) ->
           "stake pool retirement" .= object
@@ -355,12 +330,12 @@ renderCertificate sbe = \case
             , "epoch" .= retirementEpoch
             ]
         Ledger.ShelleyTxCertPool (Ledger.RegPool poolParams) ->
-          "stake pool registration" .= poolParamsJson sbe poolParams
+          "stake pool registration" .= poolParams
         Ledger.ShelleyTxCertGenesisDeleg (Ledger.GenesisDelegCert genesisKeyHash delegateKeyHash vrfKeyHash) ->
           "genesis key delegation" .= object
-            [ "genesis key hash" .= serialiseToRawBytesHexText (GenesisKeyHash genesisKeyHash)
-            , "delegate key hash" .= serialiseToRawBytesHexText (GenesisDelegateKeyHash delegateKeyHash)
-            , "VRF key hash" .= serialiseToRawBytesHexText (VrfKeyHash vrfKeyHash)
+            [ "genesis key hash" .= genesisKeyHash
+            , "delegate key hash" .= delegateKeyHash
+            , "VRF key hash" .= vrfKeyHash
             ]
         Ledger.ShelleyTxCertMir (Ledger.MIRCert pot target) ->
           "MIR" .= object
@@ -385,65 +360,65 @@ renderCertificate sbe = \case
         Ledger.AuthCommitteeHotKeyTxCert coldCred hotCred
             | Shelley.ScriptHashObj sh <- coldCred ->
               "Cold committee authorization" .= object
-                [ "script hash" .= serialiseToRawBytesHexText (fromShelleyScriptHash sh) ]
+                [ "script hash" .= sh ]
             | Shelley.ScriptHashObj sh <- hotCred ->
               "Hot committee authorization" .= object
-                [ "script hash" .= serialiseToRawBytesHexText (fromShelleyScriptHash sh)]
+                [ "script hash" .= sh]
             | Shelley.KeyHashObj ck@Shelley.KeyHash{} <- coldCred
             , Shelley.KeyHashObj hk@Shelley.KeyHash{} <- hotCred ->
               "Constitutional committee member hot key registration" .= object
-                [ "cold key hash" .= serialiseToRawBytesHexText (CommitteeColdKeyHash ck)
-                , "hot key hash" .= serialiseToRawBytesHexText (CommitteeHotKeyHash hk)
+                [ "cold key hash" .= ck
+                , "hot key hash" .= hk
                 ]
         Ledger.ResignCommitteeColdTxCert cred -> case cred of
           Shelley.ScriptHashObj sh ->
             "Cold committee resignation" .= object
-              [ "script hash" .= serialiseToRawBytesHexText (fromShelleyScriptHash sh) ]
+              [ "script hash" .=  sh ]
           Shelley.KeyHashObj ck@Shelley.KeyHash{} ->
             "Constitutional committee cold key resignation" .= object
-              [ "cold key hash" .= serialiseToRawBytesHexText (CommitteeColdKeyHash ck)
+              [ "cold key hash" .= ck
               ]
         Ledger.RegTxCert stakeCredential ->
           "Stake address registration" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             ]
         Ledger.UnRegTxCert stakeCredential ->
           "Stake address deregistration" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             ]
         Ledger.RegDepositTxCert stakeCredential deposit ->
           "Stake address registration" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             , "deposit" .= deposit
             ]
         Ledger.UnRegDepositTxCert stakeCredential refund ->
           "Stake address deregistration" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             , "refund" .= refund
             ]
         Ledger.DelegTxCert stakeCredential delegatee ->
           "Stake address delegation" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             , "delegatee" .= delegateeJson sbe delegatee
             ]
         Ledger.RegDepositDelegTxCert stakeCredential delegatee deposit ->
           "Stake address registration and delegation" .= object
-            [ "stake credential" .= stakeCredJson sbe stakeCredential
+            [ "stake credential" .= stakeCredential
             , "delegatee" .= delegateeJson sbe delegatee
             , "deposit" .= deposit
             ]
         Ledger.RegPoolTxCert poolParams ->
           "Pool registration" .= object
-            [ "pool params" .= poolParamsJson sbe poolParams
+            [ "pool params" .= poolParams
             ]
         Ledger.RetirePoolTxCert kh@Shelley.KeyHash{} epoch ->
           "Pool retirement" .= object
-            [ "stake pool key hash" .= serialiseToRawBytesHexText (StakePoolKeyHash kh)
+            [ "stake pool key hash" .= kh
             , "epoch" .= epoch
             ]
         ConwayLedger.UpdateDRepTxCert drepCredential mbAnchor ->
           "Drep certificate update" .= object
-            [ "Drep credential" .= credJson sbe drepCredential
+            [ "Drep credential" .= drepCredential
             , "anchor " .= mbAnchor
             ]
   where
@@ -454,25 +429,21 @@ renderCertificate sbe = \case
     conwayToObject w' =
       conwayEraOnwardsConstraints w' $
         object . \case
-          Ledger.ScriptHashObj sHash ->
-            ["scriptHash" .= serialiseToRawBytesHexText (ScriptHash sHash)]
-          Ledger.KeyHashObj keyHash ->
-            ["keyHash" .= serialiseToRawBytesHexText (DRepKeyHash keyHash)]
+          Ledger.ScriptHashObj sHash -> ["scriptHash" .= sHash]
+          Ledger.KeyHashObj keyHash -> ["keyHash" .= keyHash]
 
-    delegateeJson :: ( Ledger.Crypto (Ledger.EraCrypto (ShelleyLedgerEra era))
-                     , Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto)
+    delegateeJson :: ( Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto)
                   => ShelleyBasedEra era -> Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era)) -> Aeson.Value
-    delegateeJson _ = \case
+    delegateeJson _ = object . \case
       Ledger.DelegStake hk@Shelley.KeyHash{} ->
-        object
           [ "delegatee type" .= String "stake"
-          , "key hash" .= serialiseToRawBytesHexText (StakePoolKeyHash hk)
+          , "key hash" .= hk
           ]
       Ledger.DelegVote drep -> do
-        object ["delegatee type" .= String "vote", "DRep" .= drep]
+        ["delegatee type" .= String "vote", "DRep" .= drep]
       Ledger.DelegStakeVote kh drep ->
-        object ["delegatee type" .= String "stake vote"
-          , "key hash" .= serialiseToRawBytesHexText (StakePoolKeyHash kh)
+        ["delegatee type" .= String "stake vote"
+          , "key hash" .= kh
           , "DRep" .= drep
           ]
 
@@ -494,16 +465,16 @@ friendlyStakeCredential
   :: Shelley.Credential Shelley.Staking Ledger.StandardCrypto -> Aeson.Pair
 friendlyStakeCredential = \case
   Ledger.KeyHashObj keyHash ->
-    "stake credential key hash" .= serialiseToRawBytesHexText (StakeKeyHash keyHash)
+    "stake credential key hash" .= keyHash
   Ledger.ScriptHashObj scriptHash ->
-    "stake credential script hash" .= serialiseToRawBytesHexText (ScriptHash scriptHash)
+    "stake credential script hash" .= scriptHash
 
 friendlyPaymentCredential :: PaymentCredential -> Aeson.Pair
 friendlyPaymentCredential = \case
   PaymentCredentialByKey keyHash ->
-    "payment credential key hash" .= serialiseToRawBytesHexText keyHash
+    "payment credential key hash" .= keyHash
   PaymentCredentialByScript scriptHash ->
-    "payment credential script hash" .= serialiseToRawBytesHexText scriptHash
+    "payment credential script hash" .= scriptHash
 
 friendlyMirPot :: Shelley.MIRPot -> Aeson.Value
 friendlyMirPot = \case
@@ -598,15 +569,4 @@ friendlyCollateralInputs :: TxInsCollateral era -> Aeson.Value
 friendlyCollateralInputs = \case
   TxInsCollateralNone -> Null
   TxInsCollateral _ txins -> toJSON txins
-
-renderShelleyOnly
-  :: CardanoEra era
-  -> (ShelleyBasedEra era -> a -> Aeson.Value)
-  -> a
-  -> Aeson.Value
-renderShelleyOnly era f a =
-  case cardanoEraStyle era of
-    LegacyByronEra -> Null
-    ShelleyBasedEra sbe -> f sbe a
-
 
