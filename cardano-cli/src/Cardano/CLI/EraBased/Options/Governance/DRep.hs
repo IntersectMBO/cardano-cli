@@ -123,8 +123,8 @@ data AnyEraDecider era where
   AnyEraDeciderShelleyToBabbage :: ShelleyToBabbageEra era -> AnyEraDecider era
   AnyEraDeciderConwayOnwards :: ConwayEraOnwards era -> AnyEraDecider era
 
-instance FeatureInEra AnyEraDecider where
-  featureInEra no yes = \case
+instance Eon AnyEraDecider where
+  inEonForEra no yes = \case
     ByronEra    -> no
     ShelleyEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraShelley
     AllegraEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAllegra

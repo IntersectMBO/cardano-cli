@@ -191,7 +191,7 @@ runTxBuildCmd
 
   -- Conway related
   votes <-
-    featureInEra
+    inEonForEra
       (pure emptyVotingProcedures)
       (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w conwayVotes))
       era
@@ -595,8 +595,8 @@ runTxBuild
               , txUpdateProposal = validatedTxUpProp
               , txMintValue = validatedMintValue
               , txScriptValidity = validatedTxScriptValidity
-              , txProposalProcedures = inEraFeatureMaybe era (`Featured` validatedTxProposalProcedures)
-              , txVotingProcedures = inEraFeatureMaybe era (`Featured` validatedTxVotes)
+              , txProposalProcedures = inEraEonMaybe era (`Featured` validatedTxProposalProcedures)
+              , txVotingProcedures = inEraEonMaybe era (`Featured` validatedTxVotes)
               }
 
       firstExceptT TxCmdTxInsDoNotExist
@@ -672,9 +672,10 @@ validateTxInsReference
   -> Either TxCmdError (TxInsReference BuildTx era)
 validateTxInsReference _ []  = return TxInsReferenceNone
 validateTxInsReference era allRefIns =
-  case refInsScriptsAndInlineDatsSupportedInEra era of
-    Nothing -> txFeatureMismatchPure era TxFeatureReferenceInputs
-    Just supp -> return $ TxInsReference supp allRefIns
+  caseByronToAlonzoOrBabbageEraOnwards
+    (const $ txFeatureMismatchPure era TxFeatureReferenceInputs)
+    (\w -> return $ TxInsReference w allRefIns)
+    era
 
 
 getAllReferenceInputs
@@ -724,12 +725,13 @@ toTxOutValueInAnyEra
   -> Value
   -> Either TxCmdError (TxOutValue era)
 toTxOutValueInAnyEra era val =
-  case multiAssetSupportedInEra era of
-    Left adaOnlyInEra ->
+  caseByronToAllegraOrMaryEraOnwards
+  (\w ->
       case valueToLovelace val of
-        Just l  -> return (TxOutAdaOnly adaOnlyInEra l)
-        Nothing -> txFeatureMismatchPure era TxFeatureMultiAssetOutputs
-    Right multiAssetInEra -> return (TxOutValue multiAssetInEra val)
+        Just l  -> return (TxOutAdaOnly w l)
+        Nothing -> txFeatureMismatchPure era TxFeatureMultiAssetOutputs)
+  (\w -> return (TxOutValue w val))
+  era
 
 toTxOutInAnyEra :: CardanoEra era
                 -> TxOutAnyEra
@@ -751,7 +753,7 @@ toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
  where
   getReferenceScript
     :: ReferenceScriptAnyEra
-    -> ReferenceTxInsScriptsInlineDatumsSupportedInEra era
+    -> BabbageEraOnwards era
     -> ExceptT TxCmdError IO (ReferenceScript era)
   getReferenceScript ReferenceScriptAnyEraNone _ = return ReferenceScriptNone
   getReferenceScript (ReferenceScriptAnyEra fp) supp = do
@@ -759,8 +761,8 @@ toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
       <$> firstExceptT TxCmdScriptFileError (readFileScriptInAnyLang fp)
 
   toTxDatumReferenceScriptBabbage
-    :: ScriptDataSupportedInEra era
-    -> ReferenceTxInsScriptsInlineDatumsSupportedInEra era
+    :: AlonzoEraOnwards era
+    -> BabbageEraOnwards era
     -> TxOutDatumAnyEra
     -> ReferenceScriptAnyEra
     -> ExceptT TxCmdError IO (TxOutDatum CtxTx era, ReferenceScript era)
@@ -785,7 +787,7 @@ toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
          pure (TxOutDatumInline inlineRefSupp sData, refScript)
 
   toTxAlonzoDatum
-    :: ScriptDataSupportedInEra era
+    :: AlonzoEraOnwards era
     -> TxOutDatumAnyEra
     -> ExceptT TxCmdError IO (TxOutDatum CtxTx era)
   toTxAlonzoDatum supp cliDatum =
@@ -816,9 +818,9 @@ createTxMintValue era (val, scriptWitnesses) =
   if List.null (valueToList val) && List.null scriptWitnesses
   then return TxMintNone
   else do
-    case multiAssetSupportedInEra era of
-      Left _ -> txFeatureMismatchPure era TxFeatureMintValue
-      Right supported -> do
+    caseByronToAllegraOrMaryEraOnwards
+      (const $ txFeatureMismatchPure era TxFeatureMintValue)
+      (\w -> do
         -- The set of policy ids for which we need witnesses:
         let witnessesNeededSet :: Set PolicyId
             witnessesNeededSet =
@@ -833,7 +835,8 @@ createTxMintValue era (val, scriptWitnesses) =
         validateAllWitnessesProvided   witnessesNeededSet witnessesProvidedSet
         validateNoUnnecessaryWitnesses witnessesNeededSet witnessesProvidedSet
 
-        return (TxMintValue supported val (BuildTxWith witnessesProvidedMap))
+        return (TxMintValue w val (BuildTxWith witnessesProvidedMap)))
+      era
  where
   gatherMintingWitnesses
     :: [ScriptWitness WitCtxMint era]

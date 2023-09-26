@@ -90,7 +90,7 @@ friendlyTxBody
       , txWithdrawals
       }) =
     [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
-    , "certificates" .= inEraFeature era Null (`friendlyCertificates` txCertificates)
+    , "certificates" .= forEraInEon era Null (`friendlyCertificates` txCertificates)
     , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
     , "era" .= era
     , "fee" .= friendlyFee txFee
