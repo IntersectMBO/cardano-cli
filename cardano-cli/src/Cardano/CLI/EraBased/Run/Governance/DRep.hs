@@ -51,6 +51,10 @@ runGovernanceDRepCmds = \case
     runGovernanceDrepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp
       & firstExceptT CmdGovernanceCmdError
 
+  GovernanceDRepMetadataHashCmd _ inFp mOutFp ->
+    runGovernanceDRepMetadataHashCmd inFp mOutFp
+      & firstExceptT CmdGovernanceCmdError
+
 runGovernanceDRepIdCmd :: ()
   => ConwayEraOnwards era
   -> VerificationKeyOrFile DRepKey
@@ -115,3 +119,19 @@ runGovernanceDrepRetirementCertificateCmd w vKeyOrHashOrFile deposit outFile =
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "DRep Retirement Certificate"
+
+runGovernanceDRepMetadataHashCmd
+  :: DRepMetadataFile In
+  -> Maybe (File () Out)
+  -> ExceptT GovernanceCmdError IO ()
+runGovernanceDRepMetadataHashCmd drepMDPath mOutFile = do
+  metadataBytes <- firstExceptT ReadFileError $ newExceptT (readByteStringFile drepMDPath)
+  (_metadata, metadataHash) <-
+    firstExceptT GovernanceCmdDRepMetadataValidationError
+     . hoistEither
+     $ validateAndHashDRepMetadata metadataBytes
+  firstExceptT WriteFileError
+    . newExceptT
+    . writeByteStringOutput mOutFile
+    . serialiseToRawBytesHex
+    $ metadataHash

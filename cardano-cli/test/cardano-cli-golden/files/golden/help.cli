@@ -6287,6 +6287,7 @@ Usage: cardano-cli conway governance drep
                                             | id
                                             | registration-certificate
                                             | retirement-certificate
+                                            | metadata-hash
                                             )
 
   DRep member commands.
@@ -6327,9 +6328,14 @@ Usage: cardano-cli conway governance drep retirement-certificate
 
   Create a DRep retirement certificate.
 
+Usage: cardano-cli conway governance drep metadata-hash --drep-metadata-file FILE
+                                                          [--out-file FILE]
+
+  Calculate the hash of a metadata file.
+
 Usage: cardano-cli conway governance vote (create | view)
 
-  Vote commands.
+Vote commands.
 
 Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    --governance-action-tx-id TXID

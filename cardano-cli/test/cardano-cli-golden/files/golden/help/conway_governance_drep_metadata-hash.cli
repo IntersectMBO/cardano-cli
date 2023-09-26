@@ -1,0 +1,10 @@
+Usage: cardano-cli conway governance drep metadata-hash --drep-metadata-file FILE
+                                                          [--out-file FILE]
+
+  Calculate the hash of a metadata file.
+
+Available options:
+  --drep-metadata-file FILE
+                           JSON Metadata file to hash.
+  --out-file FILE          Optional output file. Default is to write to stdout.
+  -h,--help                Show this help text

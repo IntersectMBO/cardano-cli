@@ -2,9 +2,10 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.DRep
-  ( GovernanceDRepCmds(..)
-  , renderGovernanceDRepCmds
-  ) where
+  ( GovernanceDRepCmds (..),
+    renderGovernanceDRepCmds,
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
@@ -36,12 +37,16 @@ data GovernanceDRepCmds era
       (VerificationKeyOrHashOrFile DRepKey)
       Lovelace
       (File () Out)
+  | GovernanceDRepMetadataHashCmd
+      (ConwayEraOnwards era)
+      (DRepMetadataFile In)
+      (Maybe (File () Out))
 
 renderGovernanceDRepCmds :: ()
   => GovernanceDRepCmds era
   -> Text
 renderGovernanceDRepCmds = \case
-  GovernanceDRepGenerateKeyCmd{} ->
+  GovernanceDRepGenerateKeyCmd {} ->
     "governance drep key-gen"
   GovernanceDRepIdCmd {} ->
     "governance drep id"
@@ -49,3 +54,5 @@ renderGovernanceDRepCmds = \case
     "governance drep registration-certificate"
   GovernanceDRepRetirementCertificateCmd {} ->
     "governance drep retirement-certificate"
+  GovernanceDRepMetadataHashCmd {} ->
+    "governance drep metadata-hash"
