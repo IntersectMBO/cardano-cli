@@ -41,6 +41,7 @@ import           Cardano.Api.Shelley
 import           Prelude
 
 import           Data.Bifunctor (first)
+import           Data.Function
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
 import qualified Data.Text as Text
@@ -83,11 +84,11 @@ validateTxFee era = \case
   Nothing ->
     caseByronOrShelleyBasedEra
       (pure . TxFeeImplicit)
-      (const $ Left . TxFeatureImplicitFeesE $ getIsCardanoEraConstraint era $ AnyCardanoEra era)
+      (const $ Left . TxFeatureImplicitFeesE $ cardanoEraConstraints era $ AnyCardanoEra era)
       era
   Just fee ->
     caseByronOrShelleyBasedEra
-      (const $ Left . TxFeatureExplicitFeesE $ getIsCardanoEraConstraint era $ AnyCardanoEra era)
+      (const $ Left . TxFeatureExplicitFeesE $ cardanoEraConstraints era $ AnyCardanoEra era)
       (\w -> pure (TxFeeExplicit w fee))
       era
 
@@ -107,7 +108,7 @@ validateTxTotalCollateral era (Just coll) =
   case totalAndReturnCollateralSupportedInEra era of
     Just supp -> return $ TxTotalCollateral supp coll
     Nothing -> Left $ TxTotalCollateralNotSupported
-                    $ getIsCardanoEraConstraint era
+                    $ cardanoEraConstraints era
                     $ AnyCardanoEra era
 
 newtype TxReturnCollateralValidationError
@@ -126,7 +127,7 @@ validateTxReturnCollateral era (Just retColTxOut) = do
   case totalAndReturnCollateralSupportedInEra era of
     Just supp -> return $ TxReturnCollateral supp retColTxOut
     Nothing -> Left $ TxReturnCollateralNotSupported
-                    $ getIsCardanoEraConstraint era
+                    $ cardanoEraConstraints era
                     $ AnyCardanoEra era
 
 newtype TxValidityLowerBoundValidationError
@@ -145,7 +146,7 @@ validateTxValidityLowerBound _ Nothing = return TxValidityNoLowerBound
 validateTxValidityLowerBound era (Just slot) =
     case validityLowerBoundSupportedInEra era of
       Nothing -> Left $ TxValidityLowerBoundNotSupported
-                      $ getIsCardanoEraConstraint era
+                      $ cardanoEraConstraints era
                       $ AnyCardanoEra era
       Just supported -> return (TxValidityLowerBound supported slot)
 
@@ -164,13 +165,13 @@ validateTxValidityUpperBound
 validateTxValidityUpperBound era Nothing =
   case validityNoUpperBoundSupportedInEra era of
     Nothing -> Left $ TxValidityUpperBoundNotSupported
-                    $ getIsCardanoEraConstraint era
+                    $ cardanoEraConstraints era
                     $ AnyCardanoEra era
     Just supported -> return (TxValidityNoUpperBound supported)
 validateTxValidityUpperBound era (Just slot) =
   case validityUpperBoundSupportedInEra era of
     Nothing -> Left $ TxValidityUpperBoundNotSupported
-                    $ getIsCardanoEraConstraint era
+                    $ cardanoEraConstraints era
                     $ AnyCardanoEra era
     Just supported -> return (TxValidityUpperBound supported slot)
 
@@ -193,7 +194,7 @@ validateTxAuxScripts _ [] = return TxAuxScriptsNone
 validateTxAuxScripts era scripts =
   case auxScriptsSupportedInEra era of
     Nothing -> Left $ TxAuxScriptsNotSupportedInEra
-                    $ getIsCardanoEraConstraint era
+                    $ cardanoEraConstraints era
                     $ AnyCardanoEra era
     Just supported -> do
       scriptsInEra <- mapM (first TxAuxScriptsLanguageError . validateScriptSupportedInEra era) scripts
@@ -215,7 +216,7 @@ validateRequiredSigners _ [] = return TxExtraKeyWitnessesNone
 validateRequiredSigners era reqSigs =
   case extraKeyWitnessesSupportedInEra era of
     Nothing -> Left $ TxRequiredSignersValidationError
-                    $ getIsCardanoEraConstraint era
+                    $ cardanoEraConstraints era
                     $ AnyCardanoEra era
     Just supported -> return $ TxExtraKeyWitnesses supported reqSigs
 
@@ -233,14 +234,11 @@ validateTxWithdrawals
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> Either TxWithdrawalsValidationError (TxWithdrawals BuildTx era)
 validateTxWithdrawals _ [] = return TxWithdrawalsNone
-validateTxWithdrawals era withdrawals =
-  case withdrawalsSupportedInEra era of
-    Nothing -> Left $ TxWithdrawalsNotSupported
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
-    Just supported -> do
-      let convWithdrawals = map convert withdrawals
-      return (TxWithdrawals supported convWithdrawals)
+validateTxWithdrawals era withdrawals = do
+  supported <- maybeEonInEra era
+    & maybe (cardanoEraConstraints era $ Left . TxWithdrawalsNotSupported $ AnyCardanoEra era) Right
+  let convWithdrawals = map convert withdrawals
+  pure $ TxWithdrawals supported convWithdrawals
  where
   convert
     :: (StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))
@@ -265,15 +263,12 @@ validateTxCertificates
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -> Either TxCertificatesValidationError (TxCertificates BuildTx era)
 validateTxCertificates _ [] = return TxCertificatesNone
-validateTxCertificates era certsAndScriptWitnesses =
-  case certificatesSupportedInEra era of
-    Nothing -> Left $ TxCertificatesValidationNotSupported
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
-    Just supported -> do
-      let certs = map fst certsAndScriptWitnesses
-          reqWits = Map.fromList $ mapMaybe convert certsAndScriptWitnesses
-      return $ TxCertificates supported certs $ BuildTxWith reqWits
+validateTxCertificates era certsAndScriptWitnesses = cardanoEraConstraints era $ do
+  supported <- maybeEonInEra era
+    & maybe (Left . TxCertificatesValidationNotSupported $ AnyCardanoEra era) Right
+  let certs = map fst certsAndScriptWitnesses
+      reqWits = Map.fromList $ mapMaybe convert certsAndScriptWitnesses
+  pure $ TxCertificates supported certs $ BuildTxWith reqWits
   where
    -- We get the stake credential witness for a certificate that requires it.
    -- NB: Only stake address deregistration and delegation requires
@@ -316,7 +311,7 @@ validateProtocolParameters _ Nothing = return (BuildTxWith Nothing)
 validateProtocolParameters era (Just pparams) =
     case cardanoEraStyle era of
       LegacyByronEra -> Left $ ProtocolParametersNotSupported
-                      $ getIsCardanoEraConstraint era
+                      $ cardanoEraConstraints era
                       $ AnyCardanoEra era
       ShelleyBasedEra _  -> return . BuildTxWith $ Just pparams
 
@@ -333,12 +328,10 @@ validateTxUpdateProposal
   -> Maybe UpdateProposal
   -> Either TxUpdateProposalValidationError (TxUpdateProposal era)
 validateTxUpdateProposal _ Nothing = return TxUpdateProposalNone
-validateTxUpdateProposal era (Just prop) =
-    case updateProposalSupportedInEra era of
-      Nothing -> Left $ TxUpdateProposalNotSupported
-                      $ getIsCardanoEraConstraint era
-                      $ AnyCardanoEra era
-      Just supported -> return $ TxUpdateProposal supported prop
+validateTxUpdateProposal era (Just prop) = do
+  supported <- maybeEonInEra era
+    & maybe (cardanoEraConstraints era $ Left . TxUpdateProposalNotSupported $ AnyCardanoEra era) Right
+  pure $ TxUpdateProposal supported prop
 
 newtype TxScriptValidityValidationError
   = ScriptValidityNotSupported AnyCardanoEra
@@ -356,6 +349,6 @@ validateTxScriptValidity _ Nothing = pure TxScriptValidityNone
 validateTxScriptValidity era (Just scriptValidity) =
   case txScriptValiditySupportedInCardanoEra era of
     Nothing -> Left $ ScriptValidityNotSupported
-                    $ getIsCardanoEraConstraint era
+                    $ cardanoEraConstraints era
                     $ AnyCardanoEra era
     Just supported -> pure $ TxScriptValidity supported scriptValidity

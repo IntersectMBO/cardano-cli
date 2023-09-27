@@ -363,7 +363,7 @@ runTxBuildRawCmd
                           txMetadata mLedgerPParams mProp
 
   let noWitTx = makeSignedTransaction [] txBody
-  lift (getIsCardanoEraConstraint era $ writeTxFileTextEnvelopeCddl out noWitTx)
+  lift (cardanoEraConstraints era $ writeTxFileTextEnvelopeCddl out noWitTx)
     & onLeft (left . TxCmdWriteFileError)
 
 
@@ -466,7 +466,7 @@ runTxBuildRaw era
             }
 
     first TxCmdTxBodyError $
-      getIsCardanoEraConstraint era $ createAndValidateTransactionBody txBodyContent
+      cardanoEraConstraints era $ createAndValidateTransactionBody txBodyContent
 
 runTxBuild :: ()
   => CardanoEra era

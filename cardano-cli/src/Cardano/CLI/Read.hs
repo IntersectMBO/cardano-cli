@@ -175,18 +175,11 @@ readTxMetadata :: CardanoEra era
                -> [MetadataFile]
                -> IO (Either MetadataError (TxMetadataInEra era))
 readTxMetadata _ _ [] = return $ Right TxMetadataNone
-readTxMetadata era schema files =
-  case txMetadataSupportedInEra era of
-    Nothing ->
-      return . Left
-        . MetadataErrorNotAvailableInEra
-        $ getIsCardanoEraConstraint era $ AnyCardanoEra era
-    Just supported -> do
-      let exceptAllTxMetadata = mapM (readFileTxMetadata schema) files
-      eAllTxMetaData <- runExceptT exceptAllTxMetadata
-      return $ do
-        metaData <- eAllTxMetaData
-        Right $ TxMetadataInEra supported $ mconcat metaData
+readTxMetadata era schema files = cardanoEraConstraints era $ runExceptT $ do
+  supported <- maybeEonInEra era
+    & hoistMaybe (MetadataErrorNotAvailableInEra $ AnyCardanoEra era)
+  metadata  <- mapM (readFileTxMetadata schema) files
+  pure $ TxMetadataInEra supported $ mconcat metadata
 
 readFileTxMetadata
   :: TxMetadataJsonSchema
@@ -318,7 +311,7 @@ readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
   caseByronToAlonzoOrBabbageEraOnwards
     ( const $ left
         $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-        $ getIsCardanoEraConstraint era (AnyCardanoEra era)
+        $ cardanoEraConstraints era (AnyCardanoEra era)
     )
     ( const $
         case scriptLanguageSupportedInEra era anyScriptLanguage of
@@ -347,7 +340,7 @@ readScriptWitness era (SimpleReferenceScriptWitnessFiles refTxIn
   caseByronToAlonzoOrBabbageEraOnwards
     ( const $ left
         $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-        $ getIsCardanoEraConstraint era (AnyCardanoEra era)
+        $ cardanoEraConstraints era (AnyCardanoEra era)
     )
     ( const $
         case scriptLanguageSupportedInEra era anyScriptLanguage of
