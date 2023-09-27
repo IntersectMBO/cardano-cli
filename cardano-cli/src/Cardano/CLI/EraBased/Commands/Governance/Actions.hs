@@ -54,8 +54,8 @@ data NewCommitteeCmd
     , ebReturnAddress :: AnyStakeIdentifier
     , ebProposalUrl :: ProposalUrl
     , ebProposalHashSource :: ProposalHashSource
-    , ebOldCommittee :: [AnyStakeIdentifier]
-    , ebNewCommittee :: [(AnyStakeIdentifier, EpochNo)]
+    , ebOldCommittee :: [VerificationKeyOrHashOrFile CommitteeColdKey]
+    , ebNewCommittee :: [(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
     , ebRequiredQuorum :: Rational
     , ebPreviousGovActionId :: Maybe (TxId, Word32)
     , ebFilePath :: File () Out

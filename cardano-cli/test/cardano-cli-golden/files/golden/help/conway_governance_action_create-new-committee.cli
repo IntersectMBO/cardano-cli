@@ -15,20 +15,14 @@ Usage: cardano-cli conway governance action create-new-committee
                                                                    | --proposal-file FILE
                                                                    | --proposal-hash HASH
                                                                    )
-                                                                   [ --remove-cc-stake-pool-verification-key STRING
+                                                                   [ --remove-cc-cold-verification-key STRING
                                                                    | --remove-cc-cold-verification-key-file FILE
-                                                                   | --remove-cc-stake-pool-id STAKE_POOL_ID
-                                                                   | --remove-cc-stake-verification-key STRING
-                                                                   | --remove-cc-stake-verification-key-file FILE
-                                                                   | --remove-cc-stake-key-hash HASH
+                                                                   | --remove-cc-cold-verification-key-hash STRING
                                                                    ]
                                                                    [
-                                                                     ( --add-cc-stake-pool-verification-key STRING
+                                                                     ( --add-cc-cold-verification-key STRING
                                                                      | --add-cc-cold-verification-key-file FILE
-                                                                     | --add-cc-stake-pool-id STAKE_POOL_ID
-                                                                     | --add-cc-stake-verification-key STRING
-                                                                     | --add-cc-stake-verification-key-file FILE
-                                                                     | --add-cc-stake-key-hash HASH
+                                                                     | --add-cc-cold-verification-key-hash STRING
                                                                      )
                                                                      --epoch NATURAL]
                                                                    --quorum RATIONAL
@@ -60,34 +54,18 @@ Available options:
   --proposal-text TEXT     Input proposal as UTF-8 encoded text.
   --proposal-file FILE     Input proposal as a text file.
   --proposal-hash HASH     Proposal anchor data hash.
-  --remove-cc-stake-pool-verification-key STRING
-                           Stake pool verification key (Bech32 or hex-encoded).
+  --remove-cc-cold-verification-key STRING
+                           Constitutional Committee cold key (hex-encoded).
   --remove-cc-cold-verification-key-file FILE
-                           Filepath of the stake pool verification key.
-  --remove-cc-stake-pool-id STAKE_POOL_ID
-                           Stake pool ID/verification key hash (either
-                           Bech32-encoded or hex-encoded). Zero or more
-                           occurences of this option is allowed.
-  --remove-cc-stake-verification-key STRING
-                           Stake verification key (Bech32 or hex-encoded).
-  --remove-cc-stake-verification-key-file FILE
-                           Filepath of the staking verification key.
-  --remove-cc-stake-key-hash HASH
-                           Stake verification key hash (hex-encoded).
-  --add-cc-stake-pool-verification-key STRING
-                           Stake pool verification key (Bech32 or hex-encoded).
+                           Filepath of the Consitutional Committee cold key.
+  --remove-cc-cold-verification-key-hash STRING
+                           Constitutional Committee key hash (hex-encoded).
+  --add-cc-cold-verification-key STRING
+                           Constitutional Committee cold key (hex-encoded).
   --add-cc-cold-verification-key-file FILE
-                           Filepath of the stake pool verification key.
-  --add-cc-stake-pool-id STAKE_POOL_ID
-                           Stake pool ID/verification key hash (either
-                           Bech32-encoded or hex-encoded). Zero or more
-                           occurences of this option is allowed.
-  --add-cc-stake-verification-key STRING
-                           Stake verification key (Bech32 or hex-encoded).
-  --add-cc-stake-verification-key-file FILE
-                           Filepath of the staking verification key.
-  --add-cc-stake-key-hash HASH
-                           Stake verification key hash (hex-encoded).
+                           Filepath of the Consitutional Committee cold key.
+  --add-cc-cold-verification-key-hash STRING
+                           Constitutional Committee key hash (hex-encoded).
   --epoch NATURAL          Committee member expiry epoch
   --quorum RATIONAL        Quorum of the committee that is necessary for a
                            successful vote.

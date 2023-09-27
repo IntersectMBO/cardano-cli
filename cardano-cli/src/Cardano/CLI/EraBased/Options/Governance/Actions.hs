@@ -43,7 +43,7 @@ pGovernanceActionNewInfoCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNewInfoCmd era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "create-info"
     $ Opt.info
@@ -63,7 +63,7 @@ pGovernanceActionNewConstitutionCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNewConstitutionCmd era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "create-constitution"
     $ Opt.info
@@ -85,7 +85,7 @@ pGovernanceActionNewCommitteeCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNewCommitteeCmd era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "create-new-committee"
     $ Opt.info
@@ -102,8 +102,11 @@ pNewCommitteeCmd =
     <*> pAnyStakeIdentifier Nothing
     <*> pProposalUrl
     <*> pProposalHashSource
-    <*> many (pAnyStakeIdentifier (Just "remove-cc"))
-    <*> many ((,) <$> pAnyStakeIdentifier (Just "add-cc") <*> pEpochNo "Committee member expiry epoch")
+    <*> many pRemoveCommitteeColdVerificationKeyOrHashOrFile
+    <*> many
+          ( (,)
+              <$> pAddCommitteeColdVerificationKeyOrHashOrFile
+              <*> pEpochNo "Committee member expiry epoch")
     <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
     <*> pPreviousGovernanceAction
     <*> pOutputFile
@@ -113,7 +116,7 @@ pGovernanceActionNoConfidenceCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNoConfidenceCmd era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "create-no-confidence"
     $ Opt.info
@@ -142,7 +145,7 @@ pGovernanceActionProtocolParametersUpdateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionProtocolParametersUpdateCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "create-protocol-parameters-update"
     $ Opt.info
@@ -277,7 +280,7 @@ dpGovActionProtocolParametersUpdate = \case
 
 pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionTreasuryWithdrawalCmd era = do
-  cOn <- maybeFeatureInEra era
+  cOn <- maybeEonInEra era
   pure
     $ subParser "create-treasury-withdrawal"
     $ Opt.info

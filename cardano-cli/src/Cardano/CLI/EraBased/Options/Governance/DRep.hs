@@ -43,7 +43,7 @@ pGovernanceDRepKeyGenCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDRepKeyGenCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "key-gen"
     $ Opt.info
@@ -57,7 +57,7 @@ pGovernanceDRepKeyIdCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDRepKeyIdCmd era = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "id"
     $ Opt.info
@@ -87,7 +87,7 @@ pRegistrationCertificateCmd :: ()
   -> EnvCli
   -> Maybe (Parser (GovernanceDRepCmds era))
 pRegistrationCertificateCmd era envCli = do
-  w <- maybeFeatureInEra era
+  w <- maybeEonInEra era
   pure
     $ subParser "registration-certificate"
     $ Opt.info (pEraCmd envCli w)
@@ -123,8 +123,8 @@ data AnyEraDecider era where
   AnyEraDeciderShelleyToBabbage :: ShelleyToBabbageEra era -> AnyEraDecider era
   AnyEraDeciderConwayOnwards :: ConwayEraOnwards era -> AnyEraDecider era
 
-instance FeatureInEra AnyEraDecider where
-  featureInEra no yes = \case
+instance Eon AnyEraDecider where
+  inEonForEra no yes = \case
     ByronEra    -> no
     ShelleyEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraShelley
     AllegraEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAllegra

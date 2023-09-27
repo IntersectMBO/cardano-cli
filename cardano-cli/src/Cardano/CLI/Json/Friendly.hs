@@ -35,7 +35,7 @@ import           Data.Char (isAscii)
 import           Data.Function ((&))
 import           Data.Functor ((<&>))
 import qualified Data.Map.Strict as Map
-import           Data.Maybe (catMaybes, isJust)
+import           Data.Maybe (catMaybes, isJust, maybeToList)
 import           Data.Ratio (numerator)
 import qualified Data.Text as Text
 import           Data.Yaml (array)
@@ -90,7 +90,7 @@ friendlyTxBody
       , txWithdrawals
       }) =
     [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
-    , "certificates" .= inEraFeature era Null (`friendlyCertificates` txCertificates)
+    , "certificates" .= forEraInEon era Null (`friendlyCertificates` txCertificates)
     , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
     , "era" .= era
     , "fee" .= friendlyFee txFee
@@ -180,31 +180,25 @@ friendlyTxOut (TxOut addr amount mdatum script) =
         , "address" .= serialiseAddress byronAdr
         , "amount" .= friendlyTxOutValue amount
         ]
-      AddressInEra (ShelleyAddressInEra sbe) saddr@(ShelleyAddress net cred stake) ->
+      AddressInEra (ShelleyAddressInEra _) saddr@(ShelleyAddress net cred stake) ->
         let preAlonzo =
               friendlyPaymentCredential (fromShelleyPaymentCredential cred) :
               [ "address era" .= Aeson.String "Shelley"
               , "network" .= net
               , "address" .= serialiseAddress saddr
               , "amount" .= friendlyTxOutValue amount
-              , "stake reference" .=
-                  friendlyStakeReference (fromShelleyStakeReference stake)
+              , "stake reference" .= friendlyStakeReference (fromShelleyStakeReference stake)
               ]
-            datum =
-              [ "datum" .= renderDatum mdatum
-              | isJust $ scriptDataSupportedInEra $ shelleyBasedToCardanoEra sbe
-              ]
+            datum = ["datum" .= d | d <- maybeToList $ renderDatum mdatum]
             sinceAlonzo = ["reference script" .= script]
         in preAlonzo ++ datum ++ sinceAlonzo
- where
-  renderDatum :: TxOutDatum CtxTx era -> Aeson.Value
-  renderDatum TxOutDatumNone = Aeson.Null
-  renderDatum (TxOutDatumHash _ h) = toJSON h
-  renderDatum (TxOutDatumInTx _ sData) =
-    scriptDataToJson ScriptDataJsonDetailedSchema sData
-  renderDatum (TxOutDatumInline _ sData) =
-    scriptDataToJson ScriptDataJsonDetailedSchema sData
-
+  where
+    renderDatum :: TxOutDatum CtxTx era -> Maybe Aeson.Value
+    renderDatum = \case
+      TxOutDatumNone -> Nothing
+      TxOutDatumHash _ h -> Just $ toJSON h
+      TxOutDatumInTx _ sData -> Just $ scriptDataToJson ScriptDataJsonDetailedSchema sData
+      TxOutDatumInline _ sData -> Just $ scriptDataToJson ScriptDataJsonDetailedSchema sData
 
 friendlyStakeReference :: StakeAddressReference -> Aeson.Value
 friendlyStakeReference = \case
