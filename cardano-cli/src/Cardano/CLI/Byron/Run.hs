@@ -23,8 +23,6 @@ import           Cardano.CLI.Helpers
 import           Cardano.CLI.Types.Common
 import qualified Cardano.Crypto.Hashing as Crypto
 import qualified Cardano.Crypto.Signing as Crypto
-import           Ouroboros.Consensus.Byron.Ledger (ByronBlock)
-import           Ouroboros.Consensus.Ledger.SupportsMempool (ApplyTxErr)
 
 import           Control.Monad.IO.Class (MonadIO (liftIO))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -32,7 +30,6 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, le
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Char8 as BS
 import           Data.Text (Text)
-import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Data.Text.Lazy.IO as TL
@@ -46,7 +43,6 @@ data ByronClientCmdError
   | ByronCmdHelpersError !HelpersError
   | ByronCmdKeyFailure !ByronKeyFailure
   | ByronCmdTxError !ByronTxError
-  | ByronCmdTxSubmitError !(ApplyTxErr ByronBlock)
   | ByronCmdUpdateProposalError !ByronUpdateProposalError
   | ByronCmdVoteError !ByronVoteError
   deriving Show
@@ -59,8 +55,6 @@ renderByronClientCmdError err =
     ByronCmdHelpersError e -> renderHelpersError e
     ByronCmdKeyFailure e -> renderByronKeyFailure e
     ByronCmdTxError e -> renderByronTxError e
-    ByronCmdTxSubmitError e ->
-      "Error while submitting Byron tx: " <> Text.pack (show e)
     ByronCmdUpdateProposalError e -> renderByronUpdateProposalError e
     ByronCmdVoteError e -> renderByronVoteError e
 
