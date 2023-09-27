@@ -21,7 +21,9 @@ import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Ledger.Conway.Governance as Ledger
 
+import           Control.Monad
 import           Control.Monad.Except (ExceptT)
+import           Control.Monad.Trans (MonadTrans (..))
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 import qualified Data.Map.Strict as Map
@@ -151,8 +153,14 @@ runGovernanceActionCreateNewCommitteeCmd cOn (NewCommitteeCmd network deposit re
         , Ledger.anchorDataHash = proposalHash
         }
 
-  oldCommitteeKeyHashes <- mapM readStakeKeyHash old
-  newCommitteeKeyHashes <- mapM (\(stakeKey, expEpoch) -> (,expEpoch) <$> readStakeKeyHash stakeKey) new
+  oldCommitteeKeyHashes <- forM old $ \vkeyOrHashOrTextFile ->
+    lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey vkeyOrHashOrTextFile)
+      & onLeft (left . GovernanceActionsCmdReadFileError)
+
+  newCommitteeKeyHashes <- forM new $ \(vkeyOrHashOrTextFile, expEpoch) -> do
+    kh <- lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey vkeyOrHashOrTextFile)
+      & onLeft (left . GovernanceActionsCmdReadFileError)
+    pure (kh, expEpoch)
 
   returnKeyHash <- readStakeKeyHash retAddr
 

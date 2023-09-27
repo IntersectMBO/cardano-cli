@@ -613,6 +613,113 @@ pOperatorCertIssueCounterFile =
       ]
     ]
 
+---
+
+pAddCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeColdKey)
+pAddCommitteeColdVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pAddCommitteeColdVerificationKeyOrFile
+    , VerificationKeyHash <$> pAddCommitteeColdVerificationKeyHash
+    ]
+
+pAddCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
+pAddCommitteeColdVerificationKeyHash =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "add-cc-cold-verification-key-hash"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee key hash (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Consitutional Committee cold key hash: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
+        . BSC.pack
+
+pAddCommitteeColdVerificationKeyOrFile :: Parser (VerificationKeyOrFile CommitteeColdKey)
+pAddCommitteeColdVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pAddCommitteeColdVerificationKey
+    , VerificationKeyFilePath <$> pAddCommitteeColdVerificationKeyFile
+    ]
+
+pAddCommitteeColdVerificationKey :: Parser (VerificationKey CommitteeColdKey)
+pAddCommitteeColdVerificationKey =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "add-cc-cold-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee cold key (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Constitutional Committee cold key: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
+        . BSC.pack
+
+pAddCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
+pAddCommitteeColdVerificationKeyFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "add-cc-cold-verification-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the Consitutional Committee cold key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+---
+pRemoveCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeColdKey)
+pRemoveCommitteeColdVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pRemoveCommitteeColdVerificationKeyOrFile
+    , VerificationKeyHash <$> pRemoveCommitteeColdVerificationKeyHash
+    ]
+
+pRemoveCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
+pRemoveCommitteeColdVerificationKeyHash =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "remove-cc-cold-verification-key-hash"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee key hash (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Consitutional Committee cold key hash: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
+        . BSC.pack
+
+pRemoveCommitteeColdVerificationKeyOrFile :: Parser (VerificationKeyOrFile CommitteeColdKey)
+pRemoveCommitteeColdVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pRemoveCommitteeColdVerificationKey
+    , VerificationKeyFilePath <$> pRemoveCommitteeColdVerificationKeyFile
+    ]
+
+pRemoveCommitteeColdVerificationKey :: Parser (VerificationKey CommitteeColdKey)
+pRemoveCommitteeColdVerificationKey =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "remove-cc-cold-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee cold key (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
+    deserialiseFromHex =
+      first (\e -> "Invalid Constitutional Committee cold key: " ++ displayError e)
+        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
+        . BSC.pack
+
+pRemoveCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
+pRemoveCommitteeColdVerificationKeyFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "remove-cc-cold-verification-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the Consitutional Committee cold key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+---
+
 pCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeColdKey)
 pCommitteeColdVerificationKeyOrHashOrFile =
   asum

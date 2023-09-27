@@ -6512,20 +6512,14 @@ Usage: cardano-cli conway governance action create-new-committee
                                                                    | --proposal-file FILE
                                                                    | --proposal-hash HASH
                                                                    )
-                                                                   [ --remove-cc-stake-pool-verification-key STRING
+                                                                   [ --remove-cc-cold-verification-key STRING
                                                                    | --remove-cc-cold-verification-key-file FILE
-                                                                   | --remove-cc-stake-pool-id STAKE_POOL_ID
-                                                                   | --remove-cc-stake-verification-key STRING
-                                                                   | --remove-cc-stake-verification-key-file FILE
-                                                                   | --remove-cc-stake-key-hash HASH
+                                                                   | --remove-cc-cold-verification-key-hash STRING
                                                                    ]
                                                                    [
-                                                                     ( --add-cc-stake-pool-verification-key STRING
+                                                                     ( --add-cc-cold-verification-key STRING
                                                                      | --add-cc-cold-verification-key-file FILE
-                                                                     | --add-cc-stake-pool-id STAKE_POOL_ID
-                                                                     | --add-cc-stake-verification-key STRING
-                                                                     | --add-cc-stake-verification-key-file FILE
-                                                                     | --add-cc-stake-key-hash HASH
+                                                                     | --add-cc-cold-verification-key-hash STRING
                                                                      )
                                                                      --epoch NATURAL]
                                                                    --quorum RATIONAL
