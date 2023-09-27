@@ -71,3 +71,6 @@ cardano-tracer/cardano-tracer-test
 
 # IntellIJ project folder
 .idea/
+
+# pre-commit-hooks config file, which is generated from the flake
+.pre-commit-config.yaml

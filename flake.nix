@@ -7,6 +7,10 @@
     iohkNix.url = "github:input-output-hk/iohk-nix";
     incl.url = "github:divnix/incl";
     flake-utils.url = "github:hamishmack/flake-utils/hkm/nested-hydraJobs";
+    pre-commit-hooks = {
+      url = "github:cachix/pre-commit-hooks.nix";
+      inputs.nixpkgs.follows = "haskellNix/nixpkgs-unstable";
+    };
 
     CHaP.url = "github:input-output-hk/cardano-haskell-packages?ref=repo";
     CHaP.flake = false;
@@ -40,6 +44,27 @@
         };
         inherit (nixpkgs) lib;
 
+        # Set up our pre-commit hooks. These will be added to the shellHook of all shells.
+        pre-commit = inputs.pre-commit-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            alejandra.enable = true;
+            ormolu.enable = true;
+            hlint.enable = true;
+          };
+          # make sure the tools are exactly the ones from the cabalProject.shell below.
+          tools = let
+            findToolHack = name:
+              nixpkgs.lib.lists.findSingle (d: nixpkgs.lib.strings.hasInfix name d.name)
+              (builtins.throw "no suitable tool \"${name}\" found")
+              (builtins.throw "no unique tool \"${name}\" found")
+              cabalProject.shell.nativeBuildInputs;
+          in {
+            hlint = findToolHack "hlint";
+            ormolu = findToolHack "ormolu";
+          };
+        };
+
         # see flake `variants` below for alternative compilers
         defaultCompiler = "ghc928";
         # We use cabalProject' to ensure we don't build the plan for
@@ -70,26 +95,27 @@
             }
             // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
               # tools that work only with default compiler
-              stylish-haskell = "0.14.4.0";
+              ormolu = "0.7.1.0";
               hlint = "3.5";
               haskell-language-server = "2.0.0.0";
             };
           # and from nixpkgs or other inputs
-          shell.nativeBuildInputs = with nixpkgs; [ gh jq yq-go ];
+          shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go];
           # disable Hoogle until someone request it
           shell.withHoogle = false;
           # Skip cross compilers for the shell
           shell.crossPlatforms = _: [];
+
+          # add the shell hook with pre-commit
+          shell.shellHook = pre-commit.shellHook;
 
           # package customizations as needed. Where cabal.project is not
           # specific enough, or doesn't allow setting these.
           modules = [
             ({pkgs, ...}: {
               packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"];
-              packages.cardano-cli.components.tests.cardano-cli-test.build-tools =
-                with pkgs.buildPackages; [ jq coreutils shellcheck ];
-              packages.cardano-cli.components.tests.cardano-cli-golden.build-tools =
-                with pkgs.buildPackages; [ jq coreutils shellcheck ];
+              packages.cardano-cli.components.tests.cardano-cli-test.build-tools = with pkgs.buildPackages; [jq coreutils shellcheck];
+              packages.cardano-cli.components.tests.cardano-cli-golden.build-tools = with pkgs.buildPackages; [jq coreutils shellcheck];
             })
             ({
               pkgs,
@@ -126,9 +152,9 @@
               '';
             })
             {
-               packages.crypton-x509-system.postPatch = ''
-                  substituteInPlace crypton-x509-system.cabal --replace 'Crypt32' 'crypt32'
-               '';
+              packages.crypton-x509-system.postPatch = ''
+                substituteInPlace crypton-x509-system.cabal --replace 'Crypt32' 'crypt32'
+              '';
             }
           ];
         });
@@ -162,13 +188,15 @@
             # expose cardano-cli binary at top-level
             cardano-cli = cabalProject.hsPkgs.cardano-cli.components.exes.cardano-cli;
           };
+
           devShells = let
-            profillingShell = p: {
+            profilingShell = p: {
               # `nix develop .#profiling` (or `.#ghc927.profiling): a shell with profiling enabled
               profiling = (p.appendModule {modules = [{enableLibraryProfiling = true;}];}).shell;
             };
           in
-            profillingShell cabalProject;
+            profilingShell cabalProject;
+
           # formatter used by nix fmt
           formatter = nixpkgs.alejandra;
         }
