@@ -25,9 +25,8 @@ import qualified Options.Applicative as Opt
 
 pGovernanceDRepCmds :: ()
   => CardanoEra era
-  -> EnvCli
   -> Maybe (Parser (GovernanceDRepCmds era))
-pGovernanceDRepCmds era envCli =
+pGovernanceDRepCmds era =
   subInfoParser "drep"
     ( Opt.progDesc
         $ mconcat
@@ -36,7 +35,7 @@ pGovernanceDRepCmds era envCli =
     )
     [ pGovernanceDRepKeyGenCmd era
     , pGovernanceDRepKeyIdCmd era
-    , pRegistrationCertificateCmd era envCli
+    , pRegistrationCertificateCmd era
     ]
 
 pGovernanceDRepKeyGenCmd :: ()
@@ -84,37 +83,17 @@ pDRepIdOutputFormat =
 
 pRegistrationCertificateCmd :: ()
   => CardanoEra era
-  -> EnvCli
   -> Maybe (Parser (GovernanceDRepCmds era))
-pRegistrationCertificateCmd era envCli = do
+pRegistrationCertificateCmd era = do
   w <- maybeEonInEra era
   pure
     $ subParser "registration-certificate"
-    $ Opt.info (pEraCmd envCli w)
+    $ Opt.info (mkParser w)
     $ Opt.progDesc "Create a registration certificate."
  where
-  pEraCmd :: EnvCli -> AnyEraDecider era -> Parser (GovernanceDRepCmds era)
-  pEraCmd envCli' = \case
-    AnyEraDeciderShelleyToBabbage sToB ->
-      GovernanceDRepRegistrationCertificateCmd
-        <$> asum [ ShelleyToBabbageStakePoolRegTarget sToB
-                     <$> pStakePoolRegistrationParserRequirements envCli'
-                 , ShelleyToBabbageStakeKeyRegTarget sToB
-                     <$> pStakeIdentifier
-                 ]
-        <*> pOutputFile
-
-    AnyEraDeciderConwayOnwards cOn ->
-      GovernanceDRepRegistrationCertificateCmd . ConwayOnwardRegTarget cOn
-        <$> asum [ RegisterStakePool cOn
-                     <$> pStakePoolRegistrationParserRequirements envCli'
-                 , RegisterStakeKey cOn
-                     <$> pStakeIdentifier
-                     <*> pKeyRegistDeposit
-                 , RegisterDRep cOn
-                     <$> pDRepVerificationKeyOrHashOrFile
-                     <*> pKeyRegistDeposit
-                 ]
+  mkParser w = GovernanceDRepRegistrationCertificateCmd w
+        <$> pDRepVerificationKeyOrHashOrFile
+        <*> pKeyRegistDeposit
         <*> pOutputFile
 
 --------------------------------------------------------------------------------

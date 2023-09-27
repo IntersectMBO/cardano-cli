@@ -35,9 +35,6 @@ module Cardano.CLI.Types.Key
   , AnyDelegationTarget(..)
   , StakeTarget (..)
 
-  , AnyRegistrationTarget(..)
-  , RegistrationTarget(..)
-
   , ColdVerificationKeyOrFile(..)
 
   , DRepHashSource(..)
@@ -138,23 +135,6 @@ data StakeIdentifier
   | StakeIdentifierAddress StakeAddress
   deriving (Eq, Show)
 
-
-data AnyRegistrationTarget where
-  ShelleyToBabbageStakePoolRegTarget
-    :: ShelleyToBabbageEra era
-    -> StakePoolRegistrationParserRequirements
-    -> AnyRegistrationTarget
-
-  ShelleyToBabbageStakeKeyRegTarget
-    :: ShelleyToBabbageEra era
-    -> StakeIdentifier
-    -> AnyRegistrationTarget
-
-  ConwayOnwardRegTarget
-    :: ConwayEraOnwards era
-    -> RegistrationTarget era
-    -> AnyRegistrationTarget
-
 data StakePoolRegistrationParserRequirements
  = StakePoolRegistrationParserRequirements
      { sprStakePoolKey :: VerificationKeyOrFile StakePoolKey
@@ -178,24 +158,6 @@ data StakePoolRegistrationParserRequirements
      , sprNetworkId :: NetworkId
      }
 
-
-data RegistrationTarget era where
-  RegisterStakePool
-    :: ConwayEraOnwards era
-    -> StakePoolRegistrationParserRequirements
-    -> RegistrationTarget era
-
-  RegisterStakeKey
-    :: ConwayEraOnwards era
-    -> StakeIdentifier
-    -> Lovelace
-    -> RegistrationTarget era
-
-  RegisterDRep
-    :: ConwayEraOnwards era
-    -> VerificationKeyOrHashOrFile DRepKey
-    -> Lovelace
-    -> RegistrationTarget era
 
 -- | A resource that identifies the delegation target. We can delegate
 -- our stake for two reasons:
