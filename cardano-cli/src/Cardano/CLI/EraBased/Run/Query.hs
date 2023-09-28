@@ -106,35 +106,35 @@ import           Text.Printf (printf)
 
 runQueryCmds :: QueryCmds era -> ExceptT QueryCmdError IO ()
 runQueryCmds = \case
-  QueryLeadershipSchedule mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs ->
+  QueryLeadershipScheduleCmd mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs ->
     runQueryLeadershipScheduleCmd mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs
-  QueryProtocolParameters' mNodeSocketPath consensusModeParams network mOutFile ->
+  QueryProtocolParametersCmd mNodeSocketPath consensusModeParams network mOutFile ->
     runQueryProtocolParametersCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryConstitutionHash mNodeSocketPath consensusModeParams network mOutFile ->
+  QueryConstitutionHashCmd mNodeSocketPath consensusModeParams network mOutFile ->
     runQueryConstitutionHashCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryTip mNodeSocketPath consensusModeParams network mOutFile ->
+  QueryTipCmd mNodeSocketPath consensusModeParams network mOutFile ->
     runQueryTipCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakePools' mNodeSocketPath consensusModeParams network mOutFile ->
+  QueryStakePoolsCmd mNodeSocketPath consensusModeParams network mOutFile ->
     runQueryStakePoolsCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeDistribution' mNodeSocketPath consensusModeParams network mOutFile ->
+  QueryStakeDistributionCmd mNodeSocketPath consensusModeParams network mOutFile ->
     runQueryStakeDistributionCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeAddressInfo mNodeSocketPath consensusModeParams addr network mOutFile ->
+  QueryStakeAddressInfoCmd mNodeSocketPath consensusModeParams addr network mOutFile ->
     runQueryStakeAddressInfoCmd mNodeSocketPath consensusModeParams addr network mOutFile
-  QueryDebugLedgerState' mNodeSocketPath consensusModeParams network mOutFile ->
+  QueryDebugLedgerStateCmd mNodeSocketPath consensusModeParams network mOutFile ->
     runQueryLedgerStateCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeSnapshot' mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile ->
+  QueryStakeSnapshotCmd mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile ->
     runQueryStakeSnapshotCmd mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile
-  QueryProtocolState' mNodeSocketPath consensusModeParams network mOutFile ->
+  QueryProtocolStateCmd mNodeSocketPath consensusModeParams network mOutFile ->
     runQueryProtocolStateCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryUTxO' mNodeSocketPath consensusModeParams qFilter networkId mOutFile ->
+  QueryUTxOCmd mNodeSocketPath consensusModeParams qFilter networkId mOutFile ->
     runQueryUTxOCmd mNodeSocketPath consensusModeParams qFilter networkId mOutFile
-  QueryKesPeriodInfo mNodeSocketPath consensusModeParams network nodeOpCert mOutFile ->
+  QueryKesPeriodInfoCmd mNodeSocketPath consensusModeParams network nodeOpCert mOutFile ->
     runQueryKesPeriodInfoCmd mNodeSocketPath consensusModeParams network nodeOpCert mOutFile
-  QueryPoolState' mNodeSocketPath consensusModeParams network poolid ->
+  QueryPoolStateCmd mNodeSocketPath consensusModeParams network poolid ->
     runQueryPoolStateCmd mNodeSocketPath consensusModeParams network poolid
-  QueryTxMempool mNodeSocketPath consensusModeParams network op mOutFile ->
+  QueryTxMempoolCmd mNodeSocketPath consensusModeParams network op mOutFile ->
     runQueryTxMempoolCmd mNodeSocketPath consensusModeParams network op mOutFile
-  QuerySlotNumber mNodeSocketPath consensusModeParams network utcTime ->
+  QuerySlotNumberCmd mNodeSocketPath consensusModeParams network utcTime ->
     runQuerySlotNumberCmd mNodeSocketPath consensusModeParams network utcTime
 
 runQueryConstitutionHashCmd

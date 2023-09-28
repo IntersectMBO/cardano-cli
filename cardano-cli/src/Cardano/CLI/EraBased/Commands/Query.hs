@@ -14,8 +14,8 @@ import           Cardano.CLI.Types.Key
 import           Data.Text (Text)
 import           Data.Time.Clock
 
-data QueryCmds era =
-    QueryLeadershipSchedule
+data QueryCmds era
+  = QueryLeadershipScheduleCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
@@ -24,78 +24,78 @@ data QueryCmds era =
       (SigningKeyFile In)
       EpochLeadershipSchedule
       (Maybe (File () Out))
-  | QueryProtocolParameters'
+  | QueryProtocolParametersCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       (Maybe (File () Out))
-  | QueryConstitutionHash
+  | QueryConstitutionHashCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       (Maybe (File () Out))
-  | QueryTip
+  | QueryTipCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       (Maybe (File () Out))
-  | QueryStakePools'
+  | QueryStakePoolsCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       (Maybe (File () Out))
-  | QueryStakeDistribution'
+  | QueryStakeDistributionCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       (Maybe (File () Out))
-  | QueryStakeAddressInfo
+  | QueryStakeAddressInfoCmd
       SocketPath
       AnyConsensusModeParams
       StakeAddress
       NetworkId
       (Maybe (File () Out))
-  | QueryUTxO'
+  | QueryUTxOCmd
       SocketPath
       AnyConsensusModeParams
       QueryUTxOFilter
       NetworkId
       (Maybe (File () Out))
-  | QueryDebugLedgerState'
+  | QueryDebugLedgerStateCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       (Maybe (File () Out))
-  | QueryProtocolState'
+  | QueryProtocolStateCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       (Maybe (File () Out))
-  | QueryStakeSnapshot'
+  | QueryStakeSnapshotCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       (AllOrOnly [Hash StakePoolKey])
       (Maybe (File () Out))
-  | QueryKesPeriodInfo
+  | QueryKesPeriodInfoCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       (File () In)
       -- ^ Node operational certificate
       (Maybe (File () Out))
-  | QueryPoolState'
+  | QueryPoolStateCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       [Hash StakePoolKey]
-  | QueryTxMempool
+  | QueryTxMempoolCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       TxMempoolQuery
       (Maybe (File () Out))
-  | QuerySlotNumber
+  | QuerySlotNumberCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
@@ -104,35 +104,35 @@ data QueryCmds era =
 
 renderQueryCmds :: QueryCmds era -> Text
 renderQueryCmds = \case
-  QueryLeadershipSchedule {} ->
+  QueryLeadershipScheduleCmd {} ->
     "query leadership-schedule"
-  QueryProtocolParameters' {} ->
+  QueryProtocolParametersCmd {} ->
     "query protocol-parameters "
-  QueryConstitutionHash {} ->
+  QueryConstitutionHashCmd {} ->
     "query constitution-hash "
-  QueryTip {} ->
+  QueryTipCmd {} ->
     "query tip"
-  QueryStakePools' {} ->
+  QueryStakePoolsCmd {} ->
     "query stake-pools"
-  QueryStakeDistribution' {} ->
+  QueryStakeDistributionCmd {} ->
     "query stake-distribution"
-  QueryStakeAddressInfo {} ->
+  QueryStakeAddressInfoCmd {} ->
     "query stake-address-info"
-  QueryUTxO' {} ->
+  QueryUTxOCmd {} ->
     "query utxo"
-  QueryDebugLedgerState' {} ->
+  QueryDebugLedgerStateCmd {} ->
     "query ledger-state"
-  QueryProtocolState' {} ->
+  QueryProtocolStateCmd {} ->
     "query protocol-state"
-  QueryStakeSnapshot' {} ->
+  QueryStakeSnapshotCmd {} ->
     "query stake-snapshot"
-  QueryKesPeriodInfo {} ->
+  QueryKesPeriodInfoCmd {} ->
     "query kes-period-info"
-  QueryPoolState' {} ->
+  QueryPoolStateCmd {} ->
     "query pool-state"
-  QueryTxMempool _ _ _ query _ ->
+  QueryTxMempoolCmd _ _ _ query _ ->
     "query tx-mempool" <> renderTxMempoolQuery query
-  QuerySlotNumber {} ->
+  QuerySlotNumberCmd {} ->
     "query slot-number"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text

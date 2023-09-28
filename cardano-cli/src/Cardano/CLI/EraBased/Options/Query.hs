@@ -35,152 +35,152 @@ pQueryCmds envCli =
     )
     [ Just
         $ subParser "protocol-parameters"
-        $ Opt.info (pQueryProtocolParameters envCli)
+        $ Opt.info (pQueryProtocolParametersCmd envCli)
         $ Opt.progDesc "Get the node's current protocol parameters"
     , Just
         $ subParser "constitution-hash"
-        $ Opt.info (pQueryConstitutionHash envCli)
+        $ Opt.info (pQueryConstitutionHashCmd envCli)
         $ Opt.progDesc "Get the constitution hash"
     , Just
         $ subParser "tip"
-        $ Opt.info (pQueryTip envCli)
+        $ Opt.info (pQueryTipCmd envCli)
         $ Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
     , Just
         $ subParser "stake-pools"
-        $ Opt.info (pQueryStakePools envCli)
+        $ Opt.info (pQueryStakePoolsCmd envCli)
         $ Opt.progDesc "Get the node's current set of stake pool ids"
     , Just
         $ subParser "stake-distribution"
-        $ Opt.info (pQueryStakeDistribution envCli)
+        $ Opt.info (pQueryStakeDistributionCmd envCli)
         $ Opt.progDesc "Get the node's current aggregated stake distribution"
     , Just
         $ subParser "stake-address-info"
-        $ Opt.info (pQueryStakeAddressInfo envCli)
+        $ Opt.info (pQueryStakeAddressInfoCmd envCli)
         $ Opt.progDesc $ mconcat
             [ "Get the current delegations and reward accounts filtered by stake address."
             ]
     , Just
         $ subParser "utxo"
-        $ Opt.info (pQueryUTxO envCli)
+        $ Opt.info (pQueryUTxOCmd envCli)
         $ Opt.progDesc $ mconcat
             [ "Get a portion of the current UTxO: by tx in, by address or the whole."
             ]
     , Just
         $ subParser "ledger-state"
-        $ Opt.info (pQueryLedgerState envCli)
+        $ Opt.info (pQueryLedgerStateCmd envCli)
         $ Opt.progDesc $ mconcat
             [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
             ]
     , Just
         $ subParser "protocol-state"
-        $ Opt.info (pQueryProtocolState envCli)
+        $ Opt.info (pQueryProtocolStateCmd envCli)
         $ Opt.progDesc $ mconcat
             [ "Dump the current protocol state of the node (Ledger.ChainDepState -- advanced command)"
             ]
     , Just
         $ subParser "stake-snapshot"
-        $ Opt.info (pQueryStakeSnapshot envCli)
+        $ Opt.info (pQueryStakeSnapshotCmd envCli)
         $ Opt.progDesc $ mconcat
             [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
             ]
     , Just
         $ hiddenSubParser "pool-params"
-        $ Opt.info (pQueryPoolState envCli)
+        $ Opt.info (pQueryPoolStateCmd envCli)
         $ Opt.progDesc $ mconcat
             [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
             , "(Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced command)"
             ]
     , Just
         $ subParser "leadership-schedule"
-        $ Opt.info (pLeadershipSchedule envCli)
+        $ Opt.info (pLeadershipScheduleCmd envCli)
         $ Opt.progDesc "Get the slots the node is expected to mint a block in (advanced command)"
     , Just
         $ subParser "kes-period-info"
-        $ Opt.info (pKesPeriodInfo envCli)
+        $ Opt.info (pKesPeriodInfoCmd envCli)
         $ Opt.progDesc "Get information about the current KES period and your node's operational certificate."
     , Just
         $ subParser "pool-state"
-        $ Opt.info (pQueryPoolState envCli)
+        $ Opt.info (pQueryPoolStateCmd envCli)
         $ Opt.progDesc "Dump the pool state"
     , Just
         $ subParser "tx-mempool"
-        $ Opt.info (pQueryTxMempool envCli)
+        $ Opt.info (pQueryTxMempoolCmd envCli)
         $ Opt.progDesc "Local Mempool info"
     , Just
         $ subParser "slot-number"
-        $ Opt.info (pQuerySlotNumber envCli)
+        $ Opt.info (pQuerySlotNumberCmd envCli)
         $ Opt.progDesc "Query slot number for UTC timestamp"
     ]
 
-pQueryProtocolParameters :: EnvCli -> Parser (QueryCmds era)
-pQueryProtocolParameters envCli =
-  QueryProtocolParameters'
+pQueryProtocolParametersCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryProtocolParametersCmd envCli =
+  QueryProtocolParametersCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
-pQueryConstitutionHash :: EnvCli -> Parser (QueryCmds era)
-pQueryConstitutionHash envCli =
-  QueryConstitutionHash
+pQueryConstitutionHashCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryConstitutionHashCmd envCli =
+  QueryConstitutionHashCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
-pQueryTip :: EnvCli -> Parser (QueryCmds era)
-pQueryTip envCli =
-  QueryTip
+pQueryTipCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryTipCmd envCli =
+  QueryTipCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
-pQueryUTxO :: EnvCli -> Parser (QueryCmds era)
-pQueryUTxO envCli =
-  QueryUTxO'
+pQueryUTxOCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryUTxOCmd envCli =
+  QueryUTxOCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pQueryUTxOFilter
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
-pQueryStakePools :: EnvCli -> Parser (QueryCmds era)
-pQueryStakePools envCli =
-  QueryStakePools'
+pQueryStakePoolsCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryStakePoolsCmd envCli =
+  QueryStakePoolsCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
-pQueryStakeDistribution :: EnvCli -> Parser (QueryCmds era)
-pQueryStakeDistribution envCli =
-  QueryStakeDistribution'
+pQueryStakeDistributionCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryStakeDistributionCmd envCli =
+  QueryStakeDistributionCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
-pQueryStakeAddressInfo :: EnvCli -> Parser (QueryCmds era)
-pQueryStakeAddressInfo envCli =
-  QueryStakeAddressInfo
+pQueryStakeAddressInfoCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryStakeAddressInfoCmd envCli =
+  QueryStakeAddressInfoCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pFilterByStakeAddress
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
-pQueryLedgerState :: EnvCli -> Parser (QueryCmds era)
-pQueryLedgerState envCli =
-  QueryDebugLedgerState'
+pQueryLedgerStateCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryLedgerStateCmd envCli =
+  QueryDebugLedgerStateCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
-pQueryProtocolState :: EnvCli -> Parser (QueryCmds era)
-pQueryProtocolState envCli =
-  QueryProtocolState'
+pQueryProtocolStateCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryProtocolStateCmd envCli =
+  QueryProtocolStateCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
@@ -196,26 +196,26 @@ pAllStakePoolsOrOnly = pAll <|> pOnly
         pOnly :: Parser (AllOrOnly [Hash StakePoolKey])
         pOnly = Only <$> many (pStakePoolVerificationKeyHash Nothing)
 
-pQueryStakeSnapshot :: EnvCli -> Parser (QueryCmds era)
-pQueryStakeSnapshot envCli =
-  QueryStakeSnapshot'
+pQueryStakeSnapshotCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryStakeSnapshotCmd envCli =
+  QueryStakeSnapshotCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> pAllStakePoolsOrOnly
     <*> pMaybeOutputFile
 
-pQueryPoolState :: EnvCli -> Parser (QueryCmds era)
-pQueryPoolState envCli =
-  QueryPoolState'
+pQueryPoolStateCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryPoolStateCmd envCli =
+  QueryPoolStateCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> many (pStakePoolVerificationKeyHash Nothing)
 
-pQueryTxMempool :: EnvCli -> Parser (QueryCmds era)
-pQueryTxMempool envCli =
-  QueryTxMempool
+pQueryTxMempoolCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryTxMempoolCmd envCli =
+  QueryTxMempoolCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
@@ -234,9 +234,9 @@ pQueryTxMempool envCli =
           $ Opt.info (TxMempoolQueryTxExists <$> argument Opt.str (metavar "TX_ID"))
           $ Opt.progDesc "Query if a particular transaction exists in the mempool"
       ]
-pLeadershipSchedule :: EnvCli -> Parser (QueryCmds era)
-pLeadershipSchedule envCli =
-  QueryLeadershipSchedule
+pLeadershipScheduleCmd :: EnvCli -> Parser (QueryCmds era)
+pLeadershipScheduleCmd envCli =
+  QueryLeadershipScheduleCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
@@ -246,18 +246,18 @@ pLeadershipSchedule envCli =
     <*> pWhichLeadershipSchedule
     <*> pMaybeOutputFile
 
-pKesPeriodInfo :: EnvCli -> Parser (QueryCmds era)
-pKesPeriodInfo envCli =
-  QueryKesPeriodInfo
+pKesPeriodInfoCmd :: EnvCli -> Parser (QueryCmds era)
+pKesPeriodInfoCmd envCli =
+  QueryKesPeriodInfoCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> pOperationalCertificateFile
     <*> pMaybeOutputFile
 
-pQuerySlotNumber :: EnvCli -> Parser (QueryCmds era)
-pQuerySlotNumber envCli =
-  QuerySlotNumber
+pQuerySlotNumberCmd :: EnvCli -> Parser (QueryCmds era)
+pQuerySlotNumberCmd envCli =
+  QuerySlotNumberCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
