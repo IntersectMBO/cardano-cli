@@ -1,0 +1,22 @@
+Usage: cardano-cli conway governance drep retirement-certificate 
+                                                                   ( --drep-verification-key STRING
+                                                                   | --drep-verification-key-file FILE
+                                                                   | --drep-key-hash HASH
+                                                                   )
+                                                                   --deposit-amt LOVELACE
+                                                                   --out-file FILE
+
+  Create a DRep retirement certificate.
+
+Available options:
+  --drep-verification-key STRING
+                           DRep verification key (Bech32 or hex-encoded).
+  --drep-verification-key-file FILE
+                           Filepath of the DRep verification key.
+  --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
+                           hex-encoded). Zero or more occurences of this option
+                           is allowed.
+  --deposit-amt LOVELACE   DRep deposit amount (same at registration and
+                           retirement).
+  --out-file FILE          The output file.
+  -h,--help                Show this help text

@@ -34,7 +34,7 @@ data GovernanceDRepCmds era
   | GovernanceDRepRetirementCertificateCmd
       (ConwayEraOnwards era)
       (VerificationKeyOrHashOrFile DRepKey)
-      EpochNo
+      Lovelace
       (File () Out)
 
 renderGovernanceDRepCmds :: ()

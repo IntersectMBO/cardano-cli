@@ -127,13 +127,13 @@ pRetirementCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pRetirementCertificateCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "retirement-certificate"
     $ Opt.info
       ( GovernanceDRepRetirementCertificateCmd w
           <$> pDRepVerificationKeyOrHashOrFile
-          <*> pEpochNo "epoch after which the DRep will retire."
+          <*> pDrepDeposit
           <*> pOutputFile
       )
     $ Opt.progDesc "Create a DRep retirement certificate."

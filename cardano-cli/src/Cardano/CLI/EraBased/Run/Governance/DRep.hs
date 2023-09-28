@@ -12,6 +12,7 @@ module Cardano.CLI.EraBased.Run.Governance.DRep
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Ledger (Credential (KeyHashObj))
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
@@ -46,8 +47,8 @@ runGovernanceDRepCmds = \case
       runGovernanceRegistrationCertificateCmd w vkey lovelace anchor outFp
         & firstExceptT CmdRegistrationError
 
-  GovernanceDRepRetirementCertificateCmd w vkeyOrHashOrFile epoch outFp ->
-    runGovernanceDrepRetirementCertificateCmd w vkeyOrHashOrFile epoch outFp
+  GovernanceDRepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp ->
+    runGovernanceDrepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp
       & firstExceptT CmdGovernanceCmdError
 
 runGovernanceDRepIdCmd :: ()
@@ -99,14 +100,18 @@ runGovernanceRegistrationCertificateCmd cOnwards drepKOrHOrF deposit anchor outf
 runGovernanceDrepRetirementCertificateCmd
   :: ConwayEraOnwards era
   -> VerificationKeyOrHashOrFile DRepKey
-  -> EpochNo
+  -> Lovelace
   -> File () 'Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceDrepRetirementCertificateCmd = undefined
--- w vKeyOrHashOrFile outFile =
---   conwayEraOnwardsConstraints w $ do
---     DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
---       . newExceptT
---       $ readVerificationKeyOrHashOrFile AsDRepKey vKeyOrHashOrFile
---     undefined
---
+runGovernanceDrepRetirementCertificateCmd w vKeyOrHashOrFile deposit outFile =
+   conwayEraOnwardsConstraints w $ do
+     DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
+       . newExceptT
+       $ readVerificationKeyOrHashOrFile AsDRepKey vKeyOrHashOrFile
+     makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w (VotingCredential $ KeyHashObj drepKeyHash) deposit)
+      & writeFileTextEnvelope outFile (Just genKeyDelegCertDesc)
+      & firstExceptT GovernanceCmdTextEnvWriteError . newExceptT
+
+  where
+    genKeyDelegCertDesc :: TextEnvelopeDescr
+    genKeyDelegCertDesc = "DRep Retirement Certificate"

@@ -2,6 +2,7 @@ Usage: cardano-cli conway governance drep
                                             ( key-gen
                                             | id
                                             | registration-certificate
+                                            | retirement-certificate
                                             )
 
   DRep member commands.
@@ -14,3 +15,4 @@ Available commands:
                            signing keys.
   id                       Generate a drep id.
   registration-certificate Create a registration certificate.
+  retirement-certificate   Create a DRep retirement certificate.
