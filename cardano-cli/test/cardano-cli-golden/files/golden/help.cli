@@ -6335,7 +6335,7 @@ Usage: cardano-cli conway governance drep metadata-hash --drep-metadata-file FIL
 
 Usage: cardano-cli conway governance vote (create | view)
 
-Vote commands.
+  Vote commands.
 
 Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    --governance-action-tx-id TXID
