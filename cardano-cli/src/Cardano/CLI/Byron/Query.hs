@@ -10,9 +10,9 @@ module Cardano.CLI.Byron.Query
 import Cardano.Api
 
 import Data.Aeson.Encode.Pretty (encodePretty)
-import qualified Data.ByteString.Lazy as LB
-import qualified Data.Text.Encoding as Text
-import qualified Data.Text.IO as Text
+import Data.ByteString.Lazy qualified as LB
+import Data.Text.Encoding qualified as Text
+import Data.Text.IO qualified as Text
 
 {- HLINT ignore "Reduce duplication" -}
 

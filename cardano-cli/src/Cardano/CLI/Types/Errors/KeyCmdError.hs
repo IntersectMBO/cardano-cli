@@ -10,13 +10,13 @@ module Cardano.CLI.Types.Errors.KeyCmdError
 
 import Cardano.Api
 
-import qualified Cardano.CLI.Byron.Key as Byron
+import Cardano.CLI.Byron.Key qualified as Byron
 import Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
 import Cardano.CLI.Types.Errors.ItnKeyConversionError
 import Cardano.CLI.Types.Key
 
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 data KeyCmdError
   = KeyCmdReadFileError !(FileError TextEnvelopeError)

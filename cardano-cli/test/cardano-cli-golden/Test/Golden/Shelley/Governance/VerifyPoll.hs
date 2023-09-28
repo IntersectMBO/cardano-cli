@@ -11,13 +11,13 @@ import Cardano.CLI.Types.Key
   )
 
 import Control.Monad.IO.Class (liftIO)
-import qualified Data.ByteString.Char8 as BSC
+import Data.ByteString.Char8 qualified as BSC
 
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property)
-import qualified Hedgehog as H
-import qualified Hedgehog.Internal.Property as H
+import Hedgehog qualified as H
+import Hedgehog.Internal.Property qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

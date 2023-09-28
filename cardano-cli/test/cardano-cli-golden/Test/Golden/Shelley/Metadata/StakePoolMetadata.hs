@@ -4,14 +4,14 @@ module Test.Golden.Shelley.Metadata.StakePoolMetadata where
 
 import Control.Monad (void)
 import Data.Text (Text)
-import qualified Data.Text.IO as Text
+import Data.Text.IO qualified as Text
 
 import Test.Cardano.CLI.Util as OP
 
 import Hedgehog (Property)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import Hedgehog qualified as H
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

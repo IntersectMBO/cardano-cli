@@ -12,7 +12,7 @@ module Cardano.CLI.EraBased.Run.Governance.DRep
   ) where
 
 import Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Commands.Governance.DRep
@@ -28,7 +28,7 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Except.Extra
 import Data.Function
-import qualified Data.Text.Encoding as Text
+import Data.Text.Encoding qualified as Text
 
 runGovernanceDRepCmds
   :: ()

@@ -10,9 +10,9 @@ import Text.Regex.TDFA ((=~))
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import Hedgehog qualified as H
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.File qualified as H
 
 hprop_golden_governanceCommitteeKeyGenCold :: Property
 hprop_golden_governanceCommitteeKeyGenCold =

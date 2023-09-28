@@ -9,7 +9,7 @@ module Cardano.CLI.EraBased.Run.Governance.Vote
   ) where
 
 import Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Commands.Governance.Vote

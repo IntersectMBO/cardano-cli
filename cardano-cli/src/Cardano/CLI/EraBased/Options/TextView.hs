@@ -11,7 +11,7 @@ import Cardano.CLI.EraBased.Commands.TextView
 import Cardano.CLI.EraBased.Options.Common
 
 import Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}

@@ -37,9 +37,9 @@ import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither)
 import Control.Tracer (stdoutTracer, traceWith)
 import Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString as BS
+import Data.ByteString qualified as BS
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 data ByronUpdateProposalError
   = ByronReadUpdateProposalFileFailure !FilePath !Text

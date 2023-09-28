@@ -39,7 +39,7 @@ module Cardano.CLI.Types.Key
   ) where
 
 import Cardano.Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
 import Cardano.CLI.Types.Common
@@ -49,12 +49,12 @@ import Control.Monad.Trans
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Except.Extra
 import Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString as BS
+import Data.ByteString qualified as BS
 import Data.Function
-import qualified Data.List.NonEmpty as NE
+import Data.List.NonEmpty qualified as NE
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
 
 ------------------------------------------------------------------------------
 -- Verification key deserialisation

@@ -14,7 +14,7 @@ import Control.Monad.Trans.Except (runExceptT)
 import Test.Cardano.CLI.Util (execCardanoCLI)
 
 import Hedgehog (Property, success)
-import qualified Hedgehog.Extras.Test.Base as H
+import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Internal.Property (failWith)
 
 -- | This property ensures that the VRF signing key file is created only with owner permissions

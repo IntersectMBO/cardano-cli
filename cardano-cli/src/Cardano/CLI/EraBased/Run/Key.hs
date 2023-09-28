@@ -20,34 +20,34 @@ module Cardano.CLI.EraBased.Run.Key
   ) where
 
 import Cardano.Api
-import qualified Cardano.Api.Byron as ByronApi
+import Cardano.Api.Byron qualified as ByronApi
 import Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
 
-import qualified Cardano.CLI.Byron.Key as Byron
+import Cardano.CLI.Byron.Key qualified as Byron
 import Cardano.CLI.EraBased.Commands.Key
 import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
 import Cardano.CLI.Types.Errors.ItnKeyConversionError
 import Cardano.CLI.Types.Errors.KeyCmdError
 import Cardano.CLI.Types.Key
-import qualified Cardano.Crypto.DSIGN as DSIGN
-import qualified Cardano.Crypto.Signing as Byron
-import qualified Cardano.Crypto.Signing as Byron.Crypto
-import qualified Cardano.Crypto.Signing as Crypto
-import qualified Cardano.Crypto.Wallet as Crypto
-import qualified Cardano.Ledger.Keys as Shelley
+import Cardano.Crypto.DSIGN qualified as DSIGN
+import Cardano.Crypto.Signing qualified as Byron
+import Cardano.Crypto.Signing qualified as Byron.Crypto
+import Cardano.Crypto.Signing qualified as Crypto
+import Cardano.Crypto.Wallet qualified as Crypto
+import Cardano.Ledger.Keys qualified as Shelley
 
-import qualified Codec.Binary.Bech32 as Bech32
-import qualified Control.Exception as Exception
+import Codec.Binary.Bech32 qualified as Bech32
+import Control.Exception qualified as Exception
 import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, left, newExceptT)
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString (ByteString)
-import qualified Data.ByteString as BS
+import Data.ByteString qualified as BS
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
 import System.Exit (exitFailure)
 
 runKeyCmds

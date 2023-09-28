@@ -14,7 +14,7 @@ import Cardano.CLI.EraBased.Commands.Address
 import Cardano.CLI.EraBased.Options.Common
 
 import Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 
 pAddressCmds
   :: ()

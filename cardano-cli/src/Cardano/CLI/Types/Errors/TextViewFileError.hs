@@ -10,7 +10,7 @@ import Cardano.Api
 import Cardano.CLI.Helpers (HelpersError, renderHelpersError)
 
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 data TextViewFileError
   = TextViewReadFileError (FileError TextEnvelopeError)

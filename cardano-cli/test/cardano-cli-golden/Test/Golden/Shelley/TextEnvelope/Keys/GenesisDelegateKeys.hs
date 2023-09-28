@@ -9,7 +9,7 @@ import Control.Monad (void)
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property)
-import qualified Hedgehog.Extras.Test.Base as H
+import Hedgehog.Extras.Test.Base qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

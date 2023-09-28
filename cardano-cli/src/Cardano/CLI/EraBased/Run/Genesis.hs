@@ -45,7 +45,7 @@ import Cardano.Api.Shelley
 
 import Cardano.CLI.Byron.Delegation
 import Cardano.CLI.Byron.Genesis as Byron
-import qualified Cardano.CLI.Byron.Key as Byron
+import Cardano.CLI.Byron.Key qualified as Byron
 import Cardano.CLI.EraBased.Commands.Genesis
 import Cardano.CLI.EraBased.Run.Node
   ( runNodeIssueOpCertCmd
@@ -54,7 +54,7 @@ import Cardano.CLI.EraBased.Run.Node
   , runNodeKeyGenVrfCmd
   )
 import Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
-import qualified Cardano.CLI.IO.Lazy as Lazy
+import Cardano.CLI.IO.Lazy qualified as Lazy
 import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Errors.GenesisCmdError
 import Cardano.CLI.Types.Errors.NodeCmdError
@@ -62,9 +62,9 @@ import Cardano.CLI.Types.Errors.ProtocolParamsError
 import Cardano.CLI.Types.Errors.StakePoolCmdError
 import Cardano.CLI.Types.Key
 import Cardano.Chain.Common (BlockCount (unBlockCount))
-import qualified Cardano.Chain.Common as Byron (KeyHash, mkKnownLovelace, rationalToLovelacePortion)
+import Cardano.Chain.Common qualified as Byron (KeyHash, mkKnownLovelace, rationalToLovelacePortion)
 import Cardano.Chain.Delegation (delegateVK)
-import qualified Cardano.Chain.Delegation as Dlg
+import Cardano.Chain.Delegation qualified as Dlg
 import Cardano.Chain.Genesis
   ( FakeAvvmOptions (..)
   , TestnetBalanceOptions (..)
@@ -73,24 +73,24 @@ import Cardano.Chain.Genesis
   , gsPoorSecrets
   , gsRichSecrets
   )
-import qualified Cardano.Chain.Genesis as Genesis
+import Cardano.Chain.Genesis qualified as Genesis
 import Cardano.Chain.Update hiding (ProtocolParameters)
-import qualified Cardano.Crypto as CC
+import Cardano.Crypto qualified as CC
 import Cardano.Crypto.Hash (HashAlgorithm)
-import qualified Cardano.Crypto.Hash as Crypto
-import qualified Cardano.Crypto.Hash as Hash
-import qualified Cardano.Crypto.Random as Crypto
-import qualified Cardano.Crypto.Signing as Byron
-import qualified Cardano.Ledger.Alonzo.Genesis as Alonzo
-import qualified Cardano.Ledger.BaseTypes as Ledger
+import Cardano.Crypto.Hash qualified as Crypto
+import Cardano.Crypto.Hash qualified as Hash
+import Cardano.Crypto.Random qualified as Crypto
+import Cardano.Crypto.Signing qualified as Byron
+import Cardano.Ledger.Alonzo.Genesis qualified as Alonzo
+import Cardano.Ledger.BaseTypes qualified as Ledger
 import Cardano.Ledger.Binary (Annotated (Annotated), ToCBOR (..))
 import Cardano.Ledger.Coin (Coin (..))
-import qualified Cardano.Ledger.Conway.Genesis as Conway
+import Cardano.Ledger.Conway.Genesis qualified as Conway
 import Cardano.Ledger.Core (ppMinUTxOValueL)
 import Cardano.Ledger.Crypto (ADDRHASH, Crypto, StandardCrypto)
 import Cardano.Ledger.Era ()
-import qualified Cardano.Ledger.Keys as Ledger
-import qualified Cardano.Ledger.Shelley.API as Ledger
+import Cardano.Ledger.Keys qualified as Ledger
+import Cardano.Ledger.Shelley.API qualified as Ledger
 import Cardano.Ledger.Shelley.Genesis (secondsToNominalDiffTimeMicro)
 import Cardano.Prelude (canonicalEncodePretty)
 import Cardano.Slotting.Slot (EpochSize (EpochSize))
@@ -109,14 +109,14 @@ import Control.Monad.Trans.Except.Extra
   , newExceptT
   )
 import Data.Aeson hiding (Key)
-import qualified Data.Aeson as Aeson
+import Data.Aeson qualified as Aeson
 import Data.Aeson.Encode.Pretty (encodePretty)
-import qualified Data.Aeson.KeyMap as Aeson
+import Data.Aeson.KeyMap qualified as Aeson
 import Data.Bifunctor (Bifunctor (..))
-import qualified Data.Binary.Get as Bin
+import Data.Binary.Get qualified as Bin
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as BS
-import qualified Data.ByteString.Lazy.Char8 as LBS
+import Data.ByteString.Char8 qualified as BS
+import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Char (isDigit)
 import Data.Coerce (coerce)
 import Data.Data (Proxy (..))
@@ -125,31 +125,31 @@ import Data.Fixed (Fixed (MkFixed))
 import Data.Function (on)
 import Data.Functor (void)
 import Data.Functor.Identity
-import qualified Data.List as List
-import qualified Data.List.Split as List
+import Data.List qualified as List
+import Data.List.Split qualified as List
 import Data.ListMap (ListMap (..))
-import qualified Data.ListMap as ListMap
+import Data.ListMap qualified as ListMap
 import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 import Data.Maybe (fromMaybe)
-import qualified Data.Sequence.Strict as Seq
+import Data.Sequence.Strict qualified as Seq
 import Data.String (fromString)
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
+import Data.Text qualified as Text
+import Data.Text.IO qualified as Text
 import Data.Time.Clock (NominalDiffTime, UTCTime, addUTCTime, getCurrentTime)
 import Data.Word (Word64)
-import qualified Data.Yaml as Yaml
+import Data.Yaml qualified as Yaml
 import GHC.Generics (Generic)
 import Lens.Micro ((^.))
 import System.Directory (createDirectoryIfMissing, listDirectory)
 import System.FilePath (takeExtension, takeExtensions, (</>))
-import qualified System.IO as IO
+import System.IO qualified as IO
 import System.IO.Error (isDoesNotExistError)
 import System.Random (StdGen)
-import qualified System.Random as Random
+import System.Random qualified as Random
 import Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
-import qualified Text.JSON.Canonical (ToJSON)
+import Text.JSON.Canonical qualified (ToJSON)
 import Text.Read (readMaybe)
 
 import Crypto.Random as Crypto

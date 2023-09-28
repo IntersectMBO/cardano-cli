@@ -7,12 +7,12 @@ import Cardano.CLI.Byron.UpdateProposal
 import Control.Monad (void)
 import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Trans.Except (runExceptT)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property, (===))
-import qualified Hedgehog.Extras.Test.Base as H
+import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}

@@ -10,21 +10,21 @@ module Test.Golden.Help
 import Prelude hiding (lines)
 
 import Control.Monad (forM_, unless, (<=<))
-import qualified Data.Char as Char
-import qualified Data.List as List
+import Data.Char qualified as Char
+import Data.List qualified as List
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 import System.FilePath ((</>))
 import Text.Regex (Regex, mkRegex, subRegex)
 
 import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
-import qualified Test.Cardano.CLI.Util as H
+import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (Property)
 import Hedgehog.Extras.Stock.OS (isWin32)
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.Golden as H
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
 
 ansiRegex :: Regex
 ansiRegex = mkRegex "\\[[0-9]+m"

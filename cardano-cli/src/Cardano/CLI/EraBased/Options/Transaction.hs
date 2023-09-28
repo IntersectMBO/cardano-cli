@@ -17,8 +17,8 @@ import Cardano.CLI.Types.Common
 
 import Data.Foldable
 import Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
-import qualified Options.Applicative.Help as H
+import Options.Applicative qualified as Opt
+import Options.Applicative.Help qualified as H
 import Prettyprinter (line, pretty)
 
 {- HLINT ignore "Use <$>" -}

@@ -14,15 +14,15 @@ module Cardano.CLI.Pretty
   , white
   ) where
 
-import qualified Control.Concurrent.QSem as IO
+import Control.Concurrent.QSem qualified as IO
 import Control.Exception (bracket_)
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import qualified Data.Text.Lazy as TextLazy
-import qualified Data.Text.Lazy.IO as TextLazy
+import Data.Text.Lazy qualified as TextLazy
+import Data.Text.Lazy.IO qualified as TextLazy
 import Prettyprinter
 import Prettyprinter.Render.Terminal
-import qualified System.IO as IO
-import qualified System.IO.Unsafe as IO
+import System.IO qualified as IO
+import System.IO.Unsafe qualified as IO
 
 type Ann = AnsiStyle
 

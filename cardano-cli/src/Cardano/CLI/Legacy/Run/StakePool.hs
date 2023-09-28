@@ -14,7 +14,7 @@ import Cardano.CLI.Legacy.Commands.StakePool
 import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Errors.StakePoolCmdError
 import Cardano.CLI.Types.Key (VerificationKeyOrFile)
-import qualified Cardano.Ledger.Slot as Shelley
+import Cardano.Ledger.Slot qualified as Shelley
 
 import Control.Monad.Trans.Except (ExceptT)
 

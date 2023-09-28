@@ -14,7 +14,7 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   ) where
 
 import Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley
 
 import Cardano.CLI.Types.Common

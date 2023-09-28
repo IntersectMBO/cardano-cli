@@ -23,8 +23,8 @@ import Cardano.Api
   )
 
 import Data.Word (Word32)
-import qualified System.Environment as IO
-import qualified System.IO as IO
+import System.Environment qualified as IO
+import System.IO qualified as IO
 import Text.Read (readMaybe)
 
 data EnvCli = EnvCli

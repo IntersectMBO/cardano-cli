@@ -2,11 +2,11 @@ module Test.Cli.Shelley.Run.Query
   ( hprop_percentage
   ) where
 
-import qualified Cardano.CLI.EraBased.Run.Query as Q
+import Cardano.CLI.EraBased.Run.Query qualified as Q
 import Cardano.Slotting.Time (RelativeTime (..))
 
 import Hedgehog (Property, (===))
-import qualified Hedgehog.Extras.Test.Base as H
+import Hedgehog.Extras.Test.Base qualified as H
 
 hprop_percentage :: Property
 hprop_percentage = H.propertyOnce $ do

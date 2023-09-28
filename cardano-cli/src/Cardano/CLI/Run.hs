@@ -33,10 +33,10 @@ import Control.Monad (forM_)
 import Control.Monad.IO.Unlift (MonadIO (..))
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (firstExceptT)
-import qualified Data.List as L
+import Data.List qualified as L
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
+import Data.Text qualified as Text
+import Data.Text.IO qualified as Text
 import Data.Version (showVersion)
 import Options.Applicative.Help.Core
 import Options.Applicative.Types
@@ -46,7 +46,7 @@ import Options.Applicative.Types
   , ParserInfo (..)
   , ParserPrefs (..)
   )
-import qualified System.IO as IO
+import System.IO qualified as IO
 import System.Info (arch, compilerName, compilerVersion, os)
 
 import Paths_cardano_cli (version)

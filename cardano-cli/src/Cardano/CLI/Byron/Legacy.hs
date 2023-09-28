@@ -12,10 +12,10 @@ module Cardano.CLI.Byron.Legacy
 import Cardano.Api (textShow)
 
 import Cardano.Crypto.Signing (SigningKey (..))
-import qualified Cardano.Crypto.Wallet as Wallet
+import Cardano.Crypto.Wallet qualified as Wallet
 
-import qualified Codec.CBOR.Decoding as D
-import qualified Codec.CBOR.Encoding as E
+import Codec.CBOR.Decoding qualified as D
+import Codec.CBOR.Encoding qualified as E
 import Control.Monad (when)
 import Data.Text (Text)
 import Formatting (build, formatToString)

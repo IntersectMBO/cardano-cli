@@ -16,7 +16,7 @@ import Cardano.CLI.Types.Errors.StakePoolCmdError
 
 import Control.Exception (IOException)
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 data GenesisCmdError
   = GenesisCmdAesonDecodeError !FilePath !Text

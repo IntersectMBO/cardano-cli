@@ -16,9 +16,9 @@ module Cardano.CLI.Helpers
 
 import Cardano.CLI.Types.Common
 import Cardano.Chain.Block (decCBORABlockOrBoundary)
-import qualified Cardano.Chain.Delegation as Delegation
-import qualified Cardano.Chain.UTxO as UTxO
-import qualified Cardano.Chain.Update as Update
+import Cardano.Chain.Delegation qualified as Delegation
+import Cardano.Chain.UTxO qualified as UTxO
+import Cardano.Chain.Update qualified as Update
 import Cardano.Ledger.Binary (byronProtVer, toPlainDecoder)
 import Cardano.Ledger.Binary.Plain (Decoder, fromCBOR)
 
@@ -32,16 +32,16 @@ import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (handleIOExceptT, left)
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString (ByteString)
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy as LB
+import Data.ByteString qualified as BS
+import Data.ByteString.Lazy qualified as LB
 import Data.Functor (void)
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
+import Data.Text qualified as Text
+import Data.Text.IO qualified as Text
 import System.Console.ANSI
-import qualified System.Console.ANSI as ANSI
-import qualified System.Directory as IO
-import qualified System.IO as IO
+import System.Console.ANSI qualified as ANSI
+import System.Directory qualified as IO
+import System.IO qualified as IO
 
 data HelpersError
   = CBORPrettyPrintError !DeserialiseFailure

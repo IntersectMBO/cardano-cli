@@ -9,9 +9,9 @@ module Cardano.CLI.Legacy.Run.Governance
   ) where
 
 import Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley
-import qualified Cardano.Api.Shelley as Api
+import Cardano.Api.Shelley qualified as Api
 
 import Cardano.CLI.EraBased.Run.Governance
 import Cardano.CLI.Legacy.Commands.Governance
@@ -26,17 +26,17 @@ import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra
 import Data.Aeson (eitherDecode)
-import qualified Data.ByteString.Char8 as BSC
-import qualified Data.ByteString.Lazy as LB
+import Data.ByteString.Char8 qualified as BSC
+import Data.ByteString.Lazy qualified as LB
 import Data.Function ((&))
 import Data.String (fromString)
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import qualified Data.Text.IO as Text
-import qualified Data.Text.Read as Text
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Data.Text.IO qualified as Text
+import Data.Text.Read qualified as Text
 import System.IO (stderr, stdin, stdout)
-import qualified System.IO as IO
+import System.IO qualified as IO
 
 runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceCmds = \case

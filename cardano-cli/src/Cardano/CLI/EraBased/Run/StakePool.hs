@@ -12,14 +12,14 @@ module Cardano.CLI.EraBased.Run.StakePool
   ) where
 
 import Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Commands.StakePool
 import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Errors.StakePoolCmdError
 import Cardano.CLI.Types.Key (VerificationKeyOrFile, readVerificationKeyOrFile)
-import qualified Cardano.Ledger.Slot as Shelley
+import Cardano.Ledger.Slot qualified as Shelley
 
 import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Trans (lift)
@@ -32,7 +32,7 @@ import Control.Monad.Trans.Except.Extra
   , newExceptT
   , onLeft
   )
-import qualified Data.ByteString.Char8 as BS
+import Data.ByteString.Char8 qualified as BS
 import Data.Function ((&))
 
 runStakePoolCmds

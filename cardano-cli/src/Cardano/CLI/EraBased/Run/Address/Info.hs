@@ -14,7 +14,7 @@ import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (left)
 import Data.Aeson (ToJSON (..), object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
-import qualified Data.ByteString.Lazy.Char8 as LBS
+import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Text (Text)
 import Options.Applicative (Alternative (..))
 

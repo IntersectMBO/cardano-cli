@@ -40,9 +40,9 @@ import Cardano.Api.Shelley
 import Prelude
 
 import Data.Bifunctor (first)
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 import Data.Maybe
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 data ScriptLanguageValidationError
   = ScriptLanguageValidationError AnyScriptLanguage AnyCardanoEra

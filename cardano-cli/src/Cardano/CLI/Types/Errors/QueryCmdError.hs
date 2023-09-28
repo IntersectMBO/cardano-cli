@@ -20,11 +20,11 @@ import Cardano.CLI.Helpers (HelpersError (..), renderHelpersError)
 import Cardano.CLI.Types.Errors.GenesisCmdError
 import Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
 import Ouroboros.Consensus.Cardano.Block as Consensus (EraMismatch (..))
-import qualified Ouroboros.Consensus.HardFork.History.Qry as Qry
+import Ouroboros.Consensus.HardFork.History.Qry qualified as Qry
 
-import qualified Data.ByteString.Lazy.Char8 as LBS
+import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 import Data.Text.Lazy (toStrict)
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (build)

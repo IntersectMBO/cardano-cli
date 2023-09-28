@@ -9,19 +9,19 @@ module Test.Cli.ITN
 
 import Cardano.CLI.EraBased.Run.Key (decodeBech32)
 
-import qualified Codec.Binary.Bech32 as Bech32
+import Codec.Binary.Bech32 qualified as Bech32
 import Control.Monad (void)
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Base16 as Base16
+import Data.ByteString.Base16 qualified as Base16
 import Data.Text (Text)
-import qualified Data.Text.IO as Text
+import Data.Text.IO qualified as Text
 
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property, (===))
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import Hedgehog qualified as H
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Reduce duplication" -}
 

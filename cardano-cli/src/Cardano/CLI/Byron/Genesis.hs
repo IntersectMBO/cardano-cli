@@ -22,12 +22,12 @@ import Cardano.Api.Byron
 import Cardano.CLI.Byron.Delegation
 import Cardano.CLI.Byron.Key
 import Cardano.CLI.Types.Common (GenesisFile (..))
-import qualified Cardano.Chain.Common as Common
+import Cardano.Chain.Common qualified as Common
 import Cardano.Chain.Delegation hiding (Map, epoch)
 import Cardano.Chain.Genesis (GeneratedSecrets (..))
-import qualified Cardano.Chain.Genesis as Genesis
-import qualified Cardano.Chain.UTxO as UTxO
-import qualified Cardano.Crypto as Crypto
+import Cardano.Chain.Genesis qualified as Genesis
+import Cardano.Chain.UTxO qualified as UTxO
+import Cardano.Crypto qualified as Crypto
 import Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 
 import Control.Monad.IO.Class (MonadIO (..))
@@ -35,13 +35,13 @@ import Control.Monad.Trans (MonadTrans (..))
 import Control.Monad.Trans.Except (ExceptT (..), withExceptT)
 import Control.Monad.Trans.Except.Extra (firstExceptT, left, right)
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Lazy as LB
-import qualified Data.List as List
+import Data.ByteString.Lazy qualified as LB
+import Data.List qualified as List
 import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 import Data.String (IsString)
 import Data.Text (Text)
-import qualified Data.Text.Encoding as Text
+import Data.Text.Encoding qualified as Text
 import Data.Text.Lazy (toStrict)
 import Data.Text.Lazy.Builder (toLazyText)
 import Data.Time (UTCTime)

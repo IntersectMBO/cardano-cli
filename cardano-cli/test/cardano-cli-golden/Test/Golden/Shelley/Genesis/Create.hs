@@ -6,26 +6,26 @@ module Test.Golden.Shelley.Genesis.Create
   ) where
 
 import Control.Monad (void)
-import qualified Data.Aeson as J
-import qualified Data.Aeson.Key as J
-import qualified Data.Aeson.KeyMap as KeyMap
-import qualified Data.Aeson.Types as J
+import Data.Aeson qualified as J
+import Data.Aeson.Key qualified as J
+import Data.Aeson.KeyMap qualified as KeyMap
+import Data.Aeson.Types qualified as J
 import Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString.Lazy as LBS
+import Data.ByteString.Lazy qualified as LBS
 import Data.Foldable (for_)
-import qualified Data.HashMap.Lazy as HM
-import qualified Data.Set as S
-import qualified Data.Time.Clock as DT
+import Data.HashMap.Lazy qualified as HM
+import Data.Set qualified as S
+import Data.Time.Clock qualified as DT
 
 import Test.Cardano.CLI.Util as OP
 
 import Hedgehog (Property, forAll, (===))
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Stock.Time as H
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
-import qualified Hedgehog.Gen as G
-import qualified Hedgehog.Range as R
+import Hedgehog qualified as H
+import Hedgehog.Extras.Stock.Time qualified as H
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.File qualified as H
+import Hedgehog.Gen qualified as G
+import Hedgehog.Range qualified as R
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Use camelCase" -}

@@ -27,7 +27,7 @@ import Cardano.CLI.Types.Errors.StakeCredentialError
 import Data.Text.Encoding.Error
 import GHC.Stack (HasCallStack)
 
-import qualified Test.Hedgehog.Golden.ErrorMessage as ErrorMessage
+import Test.Hedgehog.Golden.ErrorMessage qualified as ErrorMessage
 import Test.Tasty
 
 test_GovernanceCmdError :: TestTree

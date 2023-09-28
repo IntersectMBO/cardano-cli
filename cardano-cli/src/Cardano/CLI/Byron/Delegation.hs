@@ -16,10 +16,10 @@ import Cardano.Api.Byron
 
 import Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
 import Cardano.CLI.Types.Common (CertificateFile (..))
-import qualified Cardano.Chain.Delegation as Dlg
+import Cardano.Chain.Delegation qualified as Dlg
 import Cardano.Chain.Slotting (EpochNumber)
 import Cardano.Crypto (ProtocolMagicId)
-import qualified Cardano.Crypto as Crypto
+import Cardano.Crypto qualified as Crypto
 import Cardano.Ledger.Binary (Annotated (..), byronProtVer, serialize')
 import Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 
@@ -31,7 +31,7 @@ import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (left)
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Lazy as LB
+import Data.ByteString.Lazy qualified as LB
 import Data.Text (Text)
 import Formatting (Format, sformat)
 

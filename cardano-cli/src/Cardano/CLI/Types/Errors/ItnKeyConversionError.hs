@@ -12,9 +12,9 @@ import Cardano.Api
 
 import Control.Exception (Exception (..), IOException)
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as BSC
+import Data.ByteString.Char8 qualified as BSC
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 -- | An error that can occur while converting an Incentivized Testnet (ITN)
 -- key.

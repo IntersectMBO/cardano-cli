@@ -18,8 +18,8 @@ where
 import Cardano.Api.Byron
 
 import Cardano.CLI.Types.Common
-import qualified Cardano.Chain.Common as Common
-import qualified Cardano.Crypto.Signing as Crypto
+import Cardano.Chain.Common qualified as Common
+import Cardano.Crypto.Signing qualified as Crypto
 
 import Control.Exception (Exception (..))
 import Control.Monad.Trans.Except (ExceptT)
@@ -30,11 +30,11 @@ import Control.Monad.Trans.Except.Extra
   , left
   , right
   )
-import qualified Data.ByteString as SB
-import qualified Data.ByteString.UTF8 as UTF8
+import Data.ByteString qualified as SB
+import Data.ByteString.UTF8 qualified as UTF8
 import Data.String (IsString, fromString)
 import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Formatting (build, sformat, (%))
 
 data ByronKeyFailure

@@ -28,7 +28,7 @@ module Cardano.CLI.EraBased.Run.Transaction
 
 import Cardano.Api
 import Cardano.Api.Byron hiding (SomeByronSigningKey (..))
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Commands.Transaction
@@ -42,8 +42,8 @@ import Cardano.CLI.Types.Errors.TxValidationError
 import Cardano.CLI.Types.Governance
 import Cardano.CLI.Types.Output (renderScriptCosts)
 import Cardano.CLI.Types.TxFeature
-import qualified Cardano.Ledger.Alonzo.Core as Ledger
-import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
+import Cardano.Ledger.Alonzo.Core qualified as Ledger
+import Ouroboros.Network.Protocol.LocalTxSubmission.Client qualified as Net.Tx
 
 import Control.Monad (forM)
 import Control.Monad.IO.Class (MonadIO (..))
@@ -60,23 +60,23 @@ import Control.Monad.Trans.Except.Extra
   )
 import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString.Char8 as BS
-import qualified Data.ByteString.Lazy.Char8 as LBS
+import Data.ByteString.Char8 qualified as BS
+import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Data ((:~:) (..))
 import Data.Foldable (Foldable (..))
 import Data.Function ((&))
-import qualified Data.List as List
+import Data.List qualified as List
 import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 import Data.Maybe (catMaybes, fromMaybe)
 import Data.Set (Set)
-import qualified Data.Set as Set
+import Data.Set qualified as Set
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
+import Data.Text qualified as Text
+import Data.Text.IO qualified as Text
 import Data.Type.Equality (TestEquality (..))
 import Lens.Micro ((^.))
-import qualified System.IO as IO
+import System.IO qualified as IO
 
 runTransactionCmds :: TransactionCmds era -> ExceptT TxCmdError IO ()
 runTransactionCmds cmd =

@@ -20,27 +20,27 @@ import Control.Monad.Catch
 import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.Except (runExceptT)
-import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.Encode.Pretty as Aeson
-import qualified Data.Aeson.Key as Aeson
-import qualified Data.Aeson.KeyMap as Aeson
-import qualified Data.ByteString.Lazy as LBS
+import Data.Aeson qualified as Aeson
+import Data.Aeson.Encode.Pretty qualified as Aeson
+import Data.Aeson.Key qualified as Aeson
+import Data.Aeson.KeyMap qualified as Aeson
+import Data.ByteString.Lazy qualified as LBS
 import Data.Function ((&))
-import qualified Data.List as List
+import Data.List qualified as List
 import Data.Monoid (Last (..))
 import Data.Text (Text)
 import GHC.Stack (CallStack, HasCallStack)
-import qualified GHC.Stack as GHC
-import qualified System.Exit as IO
+import GHC.Stack qualified as GHC
+import System.Exit qualified as IO
 import System.Process (CreateProcess)
-import qualified System.Process as IO
+import System.Process qualified as IO
 
-import qualified Hedgehog as H
+import Hedgehog qualified as H
 import Hedgehog.Extras (ExecConfig)
-import qualified Hedgehog.Extras as H
+import Hedgehog.Extras qualified as H
 import Hedgehog.Extras.Test (ExecConfig (..))
 import Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
-import qualified Hedgehog.Internal.Property as H
+import Hedgehog.Internal.Property qualified as H
 import Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import Hedgehog.Internal.Source (getCaller)
 

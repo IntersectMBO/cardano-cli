@@ -11,12 +11,12 @@ import Cardano.Binary (DecoderError)
 import Cardano.CLI.Read
 import Cardano.CLI.Types.Errors.StakeAddressCmdError
 
-import qualified Data.List as List
+import Data.List qualified as List
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Builder as TL
-import qualified Formatting.Buildable as B
+import Data.Text qualified as Text
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Builder qualified as TL
+import Formatting.Buildable qualified as B
 
 data GovernanceCmdError
   = -- Voting related

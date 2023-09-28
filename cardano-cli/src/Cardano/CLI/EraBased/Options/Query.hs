@@ -17,7 +17,7 @@ import Cardano.CLI.Types.Common
 
 import Data.Foldable
 import Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}

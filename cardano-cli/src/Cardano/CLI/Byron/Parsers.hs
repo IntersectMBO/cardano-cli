@@ -46,7 +46,7 @@ import Cardano.Chain.Common
   , decodeAddressBase58
   , rationalToLovelacePortion
   )
-import qualified Cardano.Chain.Common as Byron
+import Cardano.Chain.Common qualified as Byron
 import Cardano.Chain.Genesis (FakeAvvmOptions (..), TestnetBalanceOptions (..))
 import Cardano.Chain.Slotting (EpochNumber (..), SlotNumber (..))
 import Cardano.Chain.Update
@@ -70,14 +70,14 @@ import Cardano.Crypto.ProtocolMagic
 import Cardano.Ledger.Binary (Annotated (..))
 
 import Control.Monad (when)
-import qualified Data.Attoparsec.ByteString.Char8 as Atto
+import Data.Attoparsec.ByteString.Char8 qualified as Atto
 import Data.Attoparsec.Combinator ((<?>))
-import qualified Data.ByteString.Char8 as BSC
-import qualified Data.ByteString.Lazy.Char8 as C8
-import qualified Data.Char as Char
+import Data.ByteString.Char8 qualified as BSC
+import Data.ByteString.Lazy.Char8 qualified as C8
+import Data.Char qualified as Char
 import Data.Foldable
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 import Data.Time (UTCTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Word (Word16, Word64)
@@ -85,7 +85,7 @@ import Formatting (build, sformat)
 import GHC.Natural (Natural)
 import GHC.Word (Word8)
 import Options.Applicative
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 
 backwardsCompatibilityCommands :: EnvCli -> Parser ClientCommand
 backwardsCompatibilityCommands envCli =

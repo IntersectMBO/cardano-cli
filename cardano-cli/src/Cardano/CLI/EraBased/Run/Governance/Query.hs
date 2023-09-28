@@ -13,25 +13,25 @@ module Cardano.CLI.EraBased.Run.Governance.Query
   ) where
 
 import Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 
 import Cardano.CLI.EraBased.Commands.Governance.Query
 import Cardano.CLI.Read
 import Cardano.CLI.Types.Errors.CmdError
 import Cardano.CLI.Types.Errors.GovernanceQueryError
-import qualified Ouroboros.Consensus.Cardano.Block as Consensus
+import Ouroboros.Consensus.Cardano.Block qualified as Consensus
 
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra
 import Data.Aeson ((.=))
-import qualified Data.Aeson as A
+import Data.Aeson qualified as A
 import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.Bifunctor (second)
-import qualified Data.ByteString.Lazy.Char8 as LBS
+import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Function
-import qualified Data.Map.Strict as Map
-import qualified Data.Set as Set
+import Data.Map.Strict qualified as Map
+import Data.Set qualified as Set
 import Lens.Micro ((^.))
 
 runGovernanceQueryCmds

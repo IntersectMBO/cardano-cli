@@ -12,7 +12,7 @@
 module Cardano.CLI.EraBased.Options.Common where
 
 import Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley
 
 import Cardano.CLI.Environment
@@ -26,39 +26,39 @@ import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Governance
 import Cardano.CLI.Types.Key
 import Cardano.CLI.Types.Key.VerificationKey
-import qualified Cardano.Ledger.BaseTypes as L
-import qualified Cardano.Ledger.Crypto as Crypto
-import qualified Cardano.Ledger.SafeHash as L
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
+import Cardano.Ledger.BaseTypes qualified as L
+import Cardano.Ledger.Crypto qualified as Crypto
+import Cardano.Ledger.SafeHash qualified as L
+import Cardano.Ledger.Shelley.TxBody qualified as Shelley
 
 import Control.Monad (mfilter)
-import qualified Data.Aeson as Aeson
+import Data.Aeson qualified as Aeson
 import Data.Bifunctor
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Base16 as B16
-import qualified Data.ByteString.Char8 as BSC
+import Data.ByteString.Base16 qualified as B16
+import Data.ByteString.Char8 qualified as BSC
 import Data.Foldable
 import Data.Functor (($>))
-import qualified Data.IP as IP
+import Data.IP qualified as IP
 import Data.List.NonEmpty (NonEmpty)
-import qualified Data.List.NonEmpty as NE
+import Data.List.NonEmpty qualified as NE
 import Data.Maybe
-import qualified Data.Set as Set
+import Data.Set qualified as Set
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 import Data.Time.Clock (UTCTime)
 import Data.Time.Format (defaultTimeLocale, parseTimeOrError)
 import Data.Word
 import GHC.Natural (Natural)
 import Network.Socket (PortNumber)
 import Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 import Text.Parsec ((<?>))
-import qualified Text.Parsec as Parsec
-import qualified Text.Parsec.Error as Parsec
-import qualified Text.Parsec.Language as Parsec
-import qualified Text.Parsec.String as Parsec
-import qualified Text.Parsec.Token as Parsec
+import Text.Parsec qualified as Parsec
+import Text.Parsec.Error qualified as Parsec
+import Text.Parsec.Language qualified as Parsec
+import Text.Parsec.String qualified as Parsec
+import Text.Parsec.Token qualified as Parsec
 import Text.Read (readEither, readMaybe)
 
 defaultShelleyBasedEra :: AnyShelleyBasedEra

@@ -8,7 +8,7 @@ module Cardano.CLI.Types.Errors.StakeAddressDelegationError
 
 import Cardano.Api
 
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 newtype StakeAddressDelegationError = VoteDelegationNotSupported AnyShelleyToBabbageEra
   deriving (Show)

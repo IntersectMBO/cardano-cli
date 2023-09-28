@@ -21,8 +21,8 @@ import Cardano.CLI.Run.Ping (parsePingCmd)
 
 import Data.Foldable
 import Options.Applicative
-import qualified Options.Applicative as Opt
-import qualified Prettyprinter as PP
+import Options.Applicative qualified as Opt
+import Prettyprinter qualified as PP
 
 opts :: EnvCli -> ParserInfo ClientCommand
 opts envCli =

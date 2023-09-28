@@ -11,7 +11,7 @@ module Cardano.CLI.Types.Errors.StakePoolCmdError
 import Cardano.Api
 
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 data StakePoolCmdError
   = StakePoolCmdReadFileError !(FileError TextEnvelopeError)

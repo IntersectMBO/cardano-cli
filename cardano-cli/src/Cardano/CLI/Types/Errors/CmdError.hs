@@ -25,7 +25,7 @@ import Cardano.CLI.Types.Errors.TextViewFileError
 import Cardano.CLI.Types.Errors.TxCmdError
 
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 data CmdError
   = CmdAddressError !AddressCmdError

@@ -5,12 +5,12 @@ module Test.Golden.Governance.Action where
 import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
-import qualified Test.Cardano.CLI.Util as H
+import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (Property)
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
-import qualified Hedgehog.Extras.Test.Golden as H
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.File qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
 
 hprop_golden_governanceActionCreateConstitution :: Property
 hprop_golden_governanceActionCreateConstitution =

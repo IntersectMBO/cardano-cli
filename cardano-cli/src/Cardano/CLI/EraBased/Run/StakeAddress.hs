@@ -18,7 +18,7 @@ module Cardano.CLI.EraBased.Run.StakeAddress
   ) where
 
 import Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Commands.StakeAddress
@@ -39,9 +39,9 @@ import Control.Monad.Trans.Except.Extra
   , newExceptT
   , onLeft
   )
-import qualified Data.ByteString.Char8 as BS
+import Data.ByteString.Char8 qualified as BS
 import Data.Function ((&))
-import qualified Data.Text.IO as Text
+import Data.Text.IO qualified as Text
 
 runStakeAddressCmds
   :: ()

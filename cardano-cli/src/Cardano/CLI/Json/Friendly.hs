@@ -15,7 +15,7 @@ module Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS) where
 
 import Cardano.Api as Api
 import Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley
   ( Address (ShelleyAddress)
   , Hash (..)
@@ -28,26 +28,26 @@ import Cardano.Api.Shelley
   , toShelleyStakeCredential
   )
 
-import qualified Cardano.Ledger.Conway.TxCert as ConwayLedger
-import qualified Cardano.Ledger.Credential as Shelley
-import qualified Cardano.Ledger.Shelley.API as Shelley
+import Cardano.Ledger.Conway.TxCert qualified as ConwayLedger
+import Cardano.Ledger.Credential qualified as Shelley
+import Cardano.Ledger.Shelley.API qualified as Shelley
 
 import Data.Aeson (Value (..), object, toJSON, (.=))
-import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.Key as Aeson
-import qualified Data.Aeson.Types as Aeson
+import Data.Aeson qualified as Aeson
+import Data.Aeson.Key qualified as Aeson
+import Data.Aeson.Types qualified as Aeson
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as BSC
+import Data.ByteString.Char8 qualified as BSC
 import Data.Char (isAscii)
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 import Data.Maybe (catMaybes, isJust, maybeToList)
 import Data.Ratio (numerator)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 import Data.Yaml (array)
 import Data.Yaml.Pretty (setConfCompare)
-import qualified Data.Yaml.Pretty as Yaml
+import Data.Yaml.Pretty qualified as Yaml
 import GHC.Real (denominator)
 import GHC.Unicode (isAlphaNum)
 

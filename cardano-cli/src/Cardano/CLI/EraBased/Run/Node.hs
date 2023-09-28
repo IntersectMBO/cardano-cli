@@ -22,7 +22,7 @@ import Cardano.CLI.Types.Key
 import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, newExceptT)
-import qualified Data.ByteString.Char8 as BS
+import Data.ByteString.Char8 qualified as BS
 import Data.String (fromString)
 import Data.Word (Word64)
 

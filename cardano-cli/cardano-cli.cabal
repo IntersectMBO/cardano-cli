@@ -22,7 +22,7 @@ Flag unexpected_thunks
 common project-config
   default-language:     Haskell2010
 
-  default-extensions:   OverloadedStrings
+  default-extensions:   OverloadedStrings, ImportQualifiedPost
   build-depends:        base >= 4.14 && < 4.19
 
   ghc-options:          -Wall

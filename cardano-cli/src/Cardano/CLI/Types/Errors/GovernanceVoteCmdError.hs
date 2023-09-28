@@ -8,9 +8,9 @@ import Cardano.Api.Shelley
 
 import Cardano.Binary (DecoderError)
 
-import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Builder as TL
-import qualified Formatting.Buildable as B
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Builder qualified as TL
+import Formatting.Buildable qualified as B
 
 data GovernanceVoteCmdError
   = GovernanceVoteCmdReadError !(FileError InputDecodeError)

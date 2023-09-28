@@ -10,7 +10,7 @@ module Cardano.CLI.Legacy.Run.Query
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import qualified Cardano.CLI.EraBased.Run.Query as EraBased
+import Cardano.CLI.EraBased.Run.Query qualified as EraBased
 import Cardano.CLI.Legacy.Commands.Query
 import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Errors.QueryCmdError

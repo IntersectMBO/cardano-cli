@@ -11,11 +11,11 @@ module Cardano.CLI.Run.Ping
   , parsePingCmd
   ) where
 
-import qualified Cardano.Network.Ping as CNP
+import Cardano.Network.Ping qualified as CNP
 
 import Control.Applicative ((<|>))
 import Control.Concurrent.Class.MonadSTM.Strict (StrictTMVar)
-import qualified Control.Concurrent.Class.MonadSTM.Strict as STM
+import Control.Concurrent.Class.MonadSTM.Strict qualified as STM
 import Control.Exception (SomeException)
 import Control.Monad (forM, unless)
 import Control.Monad.Class.MonadAsync (MonadAsync (async, wait, waitCatch))
@@ -24,16 +24,16 @@ import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (left)
 import Control.Tracer (Tracer (..))
 import Data.List (foldl')
-import qualified Data.List as L
+import Data.List qualified as L
 import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Data.Word (Word32)
 import Network.Socket (AddrInfo)
-import qualified Network.Socket as Socket
-import qualified Options.Applicative as Opt
-import qualified Prettyprinter as PP
-import qualified System.Exit as IO
-import qualified System.IO as IO
+import Network.Socket qualified as Socket
+import Options.Applicative qualified as Opt
+import Prettyprinter qualified as PP
+import System.Exit qualified as IO
+import System.IO qualified as IO
 
 newtype PingClientCmdError = PingClientCmdError [(AddrInfo, SomeException)]
 

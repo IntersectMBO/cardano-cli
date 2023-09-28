@@ -76,19 +76,19 @@ module Cardano.CLI.Types.Common
   ) where
 
 import Cardano.Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api.Ledger qualified as L
 
-import qualified Cardano.Chain.Slotting as Byron
-import qualified Cardano.Ledger.BaseTypes as L
-import qualified Cardano.Ledger.Crypto as Crypto
-import qualified Cardano.Ledger.SafeHash as L
+import Cardano.Chain.Slotting qualified as Byron
+import Cardano.Ledger.BaseTypes qualified as L
+import Cardano.Ledger.Crypto qualified as Crypto
+import Cardano.Ledger.SafeHash qualified as L
 import Cardano.Ledger.Shelley.TxBody (PoolParams (..))
 
 import Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
-import qualified Data.Aeson as Aeson
+import Data.Aeson qualified as Aeson
 import Data.String (IsString)
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 import Data.Word (Word64)
 
 -- | Determines the direction in which the MIR certificate will transfer ADA.

@@ -23,7 +23,7 @@ import Cardano.CLI.Types.TxFeature
 import Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 
 import Data.Text (Text)
-import qualified Data.Text as Text
+import Data.Text qualified as Text
 
 {- HLINT ignore "Use let" -}
 

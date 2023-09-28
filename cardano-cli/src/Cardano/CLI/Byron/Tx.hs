@@ -25,34 +25,34 @@ where
 import Cardano.Api
 import Cardano.Api.Byron
 
-import qualified Cardano.Binary as Binary
+import Cardano.Binary qualified as Binary
 import Cardano.CLI.Byron.Key (byronWitnessToVerKey)
 import Cardano.CLI.Types.Common (TxFile)
-import qualified Cardano.Chain.Common as Common
+import Cardano.Chain.Common qualified as Common
 import Cardano.Chain.Genesis as Genesis
-import qualified Cardano.Chain.UTxO as UTxO
-import qualified Cardano.Crypto.Signing as Crypto
-import qualified Cardano.Ledger.Binary.Decoding as LedgerBinary
+import Cardano.Chain.UTxO qualified as UTxO
+import Cardano.Crypto.Signing qualified as Crypto
+import Cardano.Ledger.Binary.Decoding qualified as LedgerBinary
 import Ouroboros.Consensus.Byron.Ledger (ByronBlock, GenTx (..))
-import qualified Ouroboros.Consensus.Byron.Ledger as Byron
+import Ouroboros.Consensus.Byron.Ledger qualified as Byron
 import Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
-import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
+import Ouroboros.Network.Protocol.LocalTxSubmission.Client qualified as Net.Tx
 
 import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (left)
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString (ByteString)
-import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as LB
-import qualified Data.List as List
+import Data.ByteString qualified as B
+import Data.ByteString.Lazy qualified as LB
+import Data.List qualified as List
 import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 import Data.Maybe (fromMaybe, mapMaybe)
 import Data.String (IsString)
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
+import Data.Text qualified as Text
+import Data.Text.IO qualified as Text
 import Formatting (sformat, (%))
 
 data ByronTxError

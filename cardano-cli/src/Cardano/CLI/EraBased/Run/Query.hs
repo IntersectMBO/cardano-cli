@@ -35,9 +35,9 @@ module Cardano.CLI.EraBased.Run.Query
   ) where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import qualified Cardano.Api as Api
+import Cardano.Api qualified as Api
 import Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import Cardano.CLI.EraBased.Commands.Query
@@ -51,26 +51,26 @@ import Cardano.CLI.Types.Key
   ( VerificationKeyOrHashOrFile
   , readVerificationKeyOrHashOrFile
   )
-import qualified Cardano.CLI.Types.Output as O
+import Cardano.CLI.Types.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
-import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
-import qualified Cardano.Ledger.BaseTypes as L
-import qualified Cardano.Ledger.Core as Core
-import qualified Cardano.Ledger.Crypto as Crypto
+import Cardano.Crypto.Hash.Blake2b qualified as Blake2b
+import Cardano.Ledger.BaseTypes qualified as L
+import Cardano.Ledger.Core qualified as Core
+import Cardano.Ledger.Crypto qualified as Crypto
 import Cardano.Ledger.Keys (KeyHash (..), KeyRole (..))
 import Cardano.Ledger.SafeHash (SafeHash)
 import Cardano.Ledger.Shelley.LedgerState
   ( PState (psFutureStakePoolParams, psRetiring, psStakePoolParams)
   )
-import qualified Cardano.Ledger.Shelley.LedgerState as SL
+import Cardano.Ledger.Shelley.LedgerState qualified as SL
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Ouroboros.Consensus.BlockchainTime.WallClock.Types
   ( RelativeTime (..)
   , toRelativeTime
   )
-import qualified Ouroboros.Consensus.HardFork.History as Consensus
-import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
-import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
+import Ouroboros.Consensus.HardFork.History qualified as Consensus
+import Ouroboros.Consensus.Protocol.Abstract qualified as Consensus
+import Ouroboros.Consensus.Protocol.Praos.Common qualified as Consensus
 import Ouroboros.Consensus.Protocol.TPraos (StandardCrypto)
 import Ouroboros.Network.Block (Serialised (..))
 
@@ -83,25 +83,25 @@ import Control.Monad.Trans.Except.Extra
 import Data.Aeson as Aeson
 import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString.Lazy.Char8 as LBS
+import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import qualified Data.List as List
+import Data.List qualified as List
 import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 import Data.Proxy (Proxy (..))
 import Data.Set (Set)
-import qualified Data.Set as Set
+import Data.Set qualified as Set
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import qualified Data.Text.IO as T
-import qualified Data.Text.IO as Text
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Data.Text.IO qualified as T
+import Data.Text.IO qualified as Text
 import Data.Time.Clock
 import Numeric (showEFloat)
 import Prettyprinter
-import qualified System.IO as IO
+import System.IO qualified as IO
 import Text.Printf (printf)
 
 {- HLINT ignore "Move brackets to avoid $" -}

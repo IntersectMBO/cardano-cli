@@ -10,7 +10,7 @@ import Cardano.CLI.EraBased.Commands.Governance.Committee
 import Cardano.CLI.EraBased.Options.Common
 
 import Options.Applicative (Parser)
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 
 pGovernanceCommitteeCmds
   :: ()

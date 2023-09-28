@@ -84,26 +84,26 @@ module Cardano.CLI.Read
   ) where
 
 import Cardano.Api as Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley as Api
 
-import qualified Cardano.Binary as CBOR
+import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Errors.DelegationError
 import Cardano.CLI.Types.Errors.ScriptDecodeError
 import Cardano.CLI.Types.Errors.StakeCredentialError
 import Cardano.CLI.Types.Governance
 import Cardano.CLI.Types.Key
-import qualified Cardano.Crypto.Hash.Class as Crypto
-import qualified Cardano.Ledger.BaseTypes as L
-import qualified Cardano.Ledger.BaseTypes as Ledger
-import qualified Cardano.Ledger.Conway.Governance as Ledger
-import qualified Cardano.Ledger.Credential as Ledger
-import qualified Cardano.Ledger.Crypto as Crypto
-import qualified Cardano.Ledger.Crypto as Ledger
-import qualified Cardano.Ledger.Keys as Ledger
-import qualified Cardano.Ledger.SafeHash as L
-import qualified Cardano.Ledger.SafeHash as Ledger
+import Cardano.Crypto.Hash.Class qualified as Crypto
+import Cardano.Ledger.BaseTypes qualified as L
+import Cardano.Ledger.BaseTypes qualified as Ledger
+import Cardano.Ledger.Conway.Governance qualified as Ledger
+import Cardano.Ledger.Credential qualified as Ledger
+import Cardano.Ledger.Crypto qualified as Crypto
+import Cardano.Ledger.Crypto qualified as Ledger
+import Cardano.Ledger.Keys qualified as Ledger
+import Cardano.Ledger.SafeHash qualified as L
+import Cardano.Ledger.SafeHash qualified as Ledger
 
 import Prelude
 
@@ -113,26 +113,26 @@ import Control.Monad.IO.Class
 import Control.Monad.Trans (MonadTrans (..))
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Except.Extra
-import qualified Data.Aeson as Aeson
+import Data.Aeson qualified as Aeson
 import Data.Bifunctor
 import Data.ByteString (ByteString)
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Base16 as Base16
-import qualified Data.ByteString.Builder as Builder
-import qualified Data.ByteString.Lazy.Char8 as LBS
+import Data.ByteString qualified as BS
+import Data.ByteString.Base16 qualified as Base16
+import Data.ByteString.Builder qualified as Builder
+import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Function ((&))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
-import qualified Data.List as List
-import qualified Data.Map.Strict as Map
+import Data.List qualified as List
+import Data.Map.Strict qualified as Map
 import Data.String
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import qualified Data.Text.Encoding.Error as Text
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Data.Text.Encoding.Error qualified as Text
 import Data.Word
 import GHC.IO.Handle (hClose, hIsSeekable)
 import GHC.IO.Handle.FD (openFileBlocking)
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 import System.IO (IOMode (ReadMode))
 
 -- Metadata

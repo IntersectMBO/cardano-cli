@@ -11,7 +11,7 @@ import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Output (QueryKesPeriodInfoOutput (..), createOpCertIntervalInfo)
 
 import Data.Aeson
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 import Data.Time
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Word (Word64)

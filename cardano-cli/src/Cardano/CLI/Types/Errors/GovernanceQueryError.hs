@@ -7,7 +7,7 @@ import Cardano.Api.Shelley
 
 import Ouroboros.Consensus.Cardano.Block (EraMismatch)
 
-import qualified Data.Text as T
+import Data.Text qualified as T
 
 data GovernanceQueryError
   = GovernanceQueryWriteFileError !(FileError ())

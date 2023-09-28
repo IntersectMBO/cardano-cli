@@ -14,12 +14,12 @@ import Cardano.CLI.EraBased.Commands.Governance.Actions
 import Cardano.CLI.EraBased.Options.Common
 import Cardano.CLI.Types.Common
 import Cardano.Ledger.BaseTypes (NonNegativeInterval)
-import qualified Cardano.Ledger.BaseTypes as Ledger
+import Cardano.Ledger.BaseTypes qualified as Ledger
 
 import Data.Foldable
 import GHC.Natural (Natural)
 import Options.Applicative
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 
 pGovernanceActionCmds
   :: ()

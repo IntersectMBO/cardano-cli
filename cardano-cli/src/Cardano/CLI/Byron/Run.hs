@@ -20,9 +20,9 @@ import Cardano.CLI.Byron.UpdateProposal
 import Cardano.CLI.Byron.Vote
 import Cardano.CLI.Helpers
 import Cardano.CLI.Types.Common
-import qualified Cardano.Chain.Genesis as Genesis
-import qualified Cardano.Crypto.Hashing as Crypto
-import qualified Cardano.Crypto.Signing as Crypto
+import Cardano.Chain.Genesis qualified as Genesis
+import Cardano.Crypto.Hashing qualified as Crypto
+import Cardano.Crypto.Signing qualified as Crypto
 import Ouroboros.Consensus.Byron.Ledger (ByronBlock)
 import Ouroboros.Consensus.Ledger.SupportsMempool (ApplyTxErr)
 
@@ -30,13 +30,13 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, left)
 import Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString.Char8 as BS
+import Data.ByteString.Char8 qualified as BS
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
-import qualified Data.Text.Lazy.Builder as Builder
-import qualified Data.Text.Lazy.IO as TL
-import qualified Formatting as F
+import Data.Text qualified as Text
+import Data.Text.IO qualified as Text
+import Data.Text.Lazy.Builder qualified as Builder
+import Data.Text.Lazy.IO qualified as TL
+import Formatting qualified as F
 
 -- | Data type that encompasses all the possible errors of the
 -- Byron client.

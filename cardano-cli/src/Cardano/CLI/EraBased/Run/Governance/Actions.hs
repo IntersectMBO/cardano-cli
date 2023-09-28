@@ -11,7 +11,7 @@ module Cardano.CLI.EraBased.Run.Governance.Actions
 
 import Cardano.Api
 import Cardano.Api.Ledger (coerceKeyRole)
-import qualified Cardano.Api.Ledger as Ledger
+import Cardano.Api.Ledger qualified as Ledger
 import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Commands.Governance.Actions
@@ -19,14 +19,14 @@ import Cardano.CLI.Read
 import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Errors.GovernanceActionsError
 import Cardano.CLI.Types.Key
-import qualified Cardano.Ledger.Conway.Governance as Ledger
+import Cardano.Ledger.Conway.Governance qualified as Ledger
 
 import Control.Monad
 import Control.Monad.Except (ExceptT)
 import Control.Monad.Trans (MonadTrans (..))
 import Control.Monad.Trans.Except.Extra
 import Data.Function
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 
 runGovernanceActionCmds
   :: ()

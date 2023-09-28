@@ -13,7 +13,7 @@ import Cardano.CLI.Types.Governance
 
 import Data.Foldable
 import Options.Applicative (Parser)
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 
 pGovernanceVoteCmds
   :: ()

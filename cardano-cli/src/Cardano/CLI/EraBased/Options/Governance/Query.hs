@@ -12,7 +12,7 @@ import Cardano.CLI.EraBased.Commands.Governance.Query
 import Cardano.CLI.EraBased.Options.Common
 
 import Options.Applicative
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 
 pGovernanceQueryCmds
   :: ()

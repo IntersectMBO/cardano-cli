@@ -13,17 +13,17 @@ module Cardano.CLI.Parser
   ) where
 
 import Cardano.CLI.Types.Common
-import qualified Cardano.Ledger.BaseTypes as Shelley
+import Cardano.Ledger.BaseTypes qualified as Shelley
 
-import qualified Data.Attoparsec.ByteString.Char8 as Atto
+import Data.Attoparsec.ByteString.Char8 qualified as Atto
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as BSC
+import Data.ByteString.Char8 qualified as BSC
 import Data.Foldable
 import Data.Ratio ((%))
 import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import qualified Options.Applicative as Opt
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Options.Applicative qualified as Opt
 
 readIdOutputFormat :: Opt.ReadM IdOutputFormat
 readIdOutputFormat = do

@@ -38,7 +38,7 @@ import Data.Foldable
 import Data.Maybe
 import Data.Text (Text)
 import Options.Applicative (Parser)
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 
 data AnyEraCommand where
   AnyEraCommandOf :: ShelleyBasedEra era -> Cmds era -> AnyEraCommand
