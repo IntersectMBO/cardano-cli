@@ -7,32 +7,38 @@
 
 module Cardano.CLI.EraBased.Run.Address
   ( runAddressCmds
-
   , runAddressBuildCmd
   , runAddressKeyGenCmd
   , runAddressKeyHashCmd
   ) where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Commands.Address
-import           Cardano.CLI.EraBased.Run.Address.Info
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.AddressCmdError
-import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
-                   StakeVerifier (..), VerificationKeyTextOrFile, generateKeyPair,
-                   readVerificationKeyOrFile, readVerificationKeyTextOrFileAnyOf)
+import Cardano.CLI.EraBased.Commands.Address
+import Cardano.CLI.EraBased.Run.Address.Info
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.AddressCmdError
+import Cardano.CLI.Types.Key
+  ( PaymentVerifier (..)
+  , StakeIdentifier (..)
+  , StakeVerifier (..)
+  , VerificationKeyTextOrFile
+  , generateKeyPair
+  , readVerificationKeyOrFile
+  , readVerificationKeyTextOrFileAnyOf
+  )
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT)
+import Control.Monad.IO.Class (MonadIO (..))
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT)
 import qualified Data.ByteString.Char8 as BS
-import           Data.Function
+import Data.Function
 import qualified Data.Text.IO as Text
 
-runAddressCmds :: ()
+runAddressCmds
+  :: ()
   => AddressCmds era
   -> ExceptT AddressCmdError IO ()
 runAddressCmds = \case
@@ -52,13 +58,14 @@ runAddressKeyGenCmd
   -> SigningKeyFile Out
   -> ExceptT AddressCmdError IO ()
 runAddressKeyGenCmd fmt kt vkf skf = case kt of
-  AddressKeyShelley         -> generateAndWriteKeyFiles fmt  AsPaymentKey          vkf skf
-  AddressKeyShelleyExtended -> generateAndWriteKeyFiles fmt  AsPaymentExtendedKey  vkf skf
-  AddressKeyByron           -> generateAndWriteByronKeyFiles AsByronKey            vkf skf
+  AddressKeyShelley -> generateAndWriteKeyFiles fmt AsPaymentKey vkf skf
+  AddressKeyShelleyExtended -> generateAndWriteKeyFiles fmt AsPaymentExtendedKey vkf skf
+  AddressKeyByron -> generateAndWriteByronKeyFiles AsByronKey vkf skf
 
-generateAndWriteByronKeyFiles :: ()
-  => Key keyrole
-  => HasTypeProxy keyrole
+generateAndWriteByronKeyFiles
+  :: ()
+  => (Key keyrole)
+  => (HasTypeProxy keyrole)
   => AsType keyrole
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
@@ -66,11 +73,12 @@ generateAndWriteByronKeyFiles :: ()
 generateAndWriteByronKeyFiles asType vkf skf = do
   uncurry (writeByronPaymentKeyFiles vkf skf) =<< liftIO (generateKeyPair asType)
 
-generateAndWriteKeyFiles :: ()
-  => Key keyrole
-  => HasTypeProxy keyrole
-  => SerialiseAsBech32 (SigningKey keyrole)
-  => SerialiseAsBech32 (VerificationKey keyrole)
+generateAndWriteKeyFiles
+  :: ()
+  => (Key keyrole)
+  => (HasTypeProxy keyrole)
+  => (SerialiseAsBech32 (SigningKey keyrole))
+  => (SerialiseAsBech32 (VerificationKey keyrole))
   => KeyOutputFormat
   -> AsType keyrole
   -> VerificationKeyFile Out
@@ -80,9 +88,9 @@ generateAndWriteKeyFiles fmt asType vkf skf = do
   uncurry (writePaymentKeyFiles fmt vkf skf) =<< liftIO (generateKeyPair asType)
 
 writePaymentKeyFiles
-  :: Key keyrole
-  => SerialiseAsBech32 (SigningKey keyrole)
-  => SerialiseAsBech32 (VerificationKey keyrole)
+  :: (Key keyrole)
+  => (SerialiseAsBech32 (SigningKey keyrole))
+  => (SerialiseAsBech32 (VerificationKey keyrole))
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
@@ -93,88 +101,90 @@ writePaymentKeyFiles fmt vkeyPath skeyPath vkey skey = do
   firstExceptT AddressCmdWriteFileError $ do
     case fmt of
       KeyOutputFormatTextEnvelope ->
-        newExceptT
-          $ writeLazyByteStringFile skeyPath
-          $ textEnvelopeToJSON (Just skeyDesc) skey
+        newExceptT $
+          writeLazyByteStringFile skeyPath $
+            textEnvelopeToJSON (Just skeyDesc) skey
       KeyOutputFormatBech32 ->
-        newExceptT
-          $ writeTextFile skeyPath
-          $ serialiseToBech32 skey
+        newExceptT $
+          writeTextFile skeyPath $
+            serialiseToBech32 skey
 
     case fmt of
       KeyOutputFormatTextEnvelope ->
-        newExceptT
-          $ writeLazyByteStringFile vkeyPath
-          $ textEnvelopeToJSON (Just vkeyDesc) vkey
+        newExceptT $
+          writeLazyByteStringFile vkeyPath $
+            textEnvelopeToJSON (Just vkeyDesc) vkey
       KeyOutputFormatBech32 ->
-        newExceptT
-          $ writeTextFile vkeyPath
-          $ serialiseToBech32 vkey
-
-  where
-    skeyDesc, vkeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Payment Signing Key"
-    vkeyDesc = "Payment Verification Key"
+        newExceptT $
+          writeTextFile vkeyPath $
+            serialiseToBech32 vkey
+ where
+  skeyDesc, vkeyDesc :: TextEnvelopeDescr
+  skeyDesc = "Payment Signing Key"
+  vkeyDesc = "Payment Verification Key"
 
 writeByronPaymentKeyFiles
-   :: Key keyrole
-   => VerificationKeyFile Out
-   -> SigningKeyFile Out
-   -> VerificationKey keyrole
-   -> SigningKey keyrole
-   -> ExceptT AddressCmdError IO ()
+  :: (Key keyrole)
+  => VerificationKeyFile Out
+  -> SigningKeyFile Out
+  -> VerificationKey keyrole
+  -> SigningKey keyrole
+  -> ExceptT AddressCmdError IO ()
 writeByronPaymentKeyFiles vkeyPath skeyPath vkey skey = do
   firstExceptT AddressCmdWriteFileError $ do
     -- No bech32 encoding for Byron keys
     newExceptT $ writeLazyByteStringFile skeyPath $ textEnvelopeToJSON (Just skeyDesc) skey
     newExceptT $ writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON (Just vkeyDesc) vkey
-  where
-    skeyDesc, vkeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Payment Signing Key"
-    vkeyDesc = "Payment Verification Key"
+ where
+  skeyDesc, vkeyDesc :: TextEnvelopeDescr
+  skeyDesc = "Payment Signing Key"
+  vkeyDesc = "Payment Verification Key"
 
-runAddressKeyHashCmd :: VerificationKeyTextOrFile
-                  -> Maybe (File () Out)
-                  -> ExceptT AddressCmdError IO ()
+runAddressKeyHashCmd
+  :: VerificationKeyTextOrFile
+  -> Maybe (File () Out)
+  -> ExceptT AddressCmdError IO ()
 runAddressKeyHashCmd vkeyTextOrFile mOutputFp = do
-  vkey <- firstExceptT AddressCmdVerificationKeyTextOrFileError $
-             newExceptT $ readVerificationKeyTextOrFileAnyOf vkeyTextOrFile
+  vkey <-
+    firstExceptT AddressCmdVerificationKeyTextOrFileError $
+      newExceptT $
+        readVerificationKeyTextOrFileAnyOf vkeyTextOrFile
 
-  let hexKeyHash = foldSomeAddressVerificationKey
-                     (serialiseToRawBytesHex . verificationKeyHash) vkey
+  let hexKeyHash =
+        foldSomeAddressVerificationKey
+          (serialiseToRawBytesHex . verificationKeyHash)
+          vkey
 
   case mOutputFp of
     Just (File fpath) -> liftIO $ BS.writeFile fpath hexKeyHash
     Nothing -> liftIO $ BS.putStrLn hexKeyHash
 
-
-runAddressBuildCmd :: PaymentVerifier
-                -> Maybe StakeIdentifier
-                -> NetworkId
-                -> Maybe (File () Out)
-                -> ExceptT AddressCmdError IO ()
+runAddressBuildCmd
+  :: PaymentVerifier
+  -> Maybe StakeIdentifier
+  -> NetworkId
+  -> Maybe (File () Out)
+  -> ExceptT AddressCmdError IO ()
 runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
   outText <- case paymentVerifier of
     PaymentVerifierKey payVkeyTextOrFile -> do
-      payVKey <- firstExceptT AddressCmdVerificationKeyTextOrFileError $
-         newExceptT $ readVerificationKeyTextOrFileAnyOf payVkeyTextOrFile
+      payVKey <-
+        firstExceptT AddressCmdVerificationKeyTextOrFileError $
+          newExceptT $
+            readVerificationKeyTextOrFileAnyOf payVkeyTextOrFile
 
       addr <- case payVKey of
         AByronVerificationKey vk ->
           return (AddressByron (makeByronAddress nw vk))
-
         APaymentVerificationKey vk ->
           AddressShelley <$> buildShelleyAddress vk mbStakeVerifier nw
-
         APaymentExtendedVerificationKey vk ->
           AddressShelley <$> buildShelleyAddress (castVerificationKey vk) mbStakeVerifier nw
-
         AGenesisUTxOVerificationKey vk ->
           AddressShelley <$> buildShelleyAddress (castVerificationKey vk) mbStakeVerifier nw
         nonPaymentKey ->
           left $ AddressCmdExpectedPaymentVerificationKey nonPaymentKey
       return $ serialiseAddress (addr :: AddressAny)
-
     PaymentVerifierScriptFile (ScriptFile fp) -> do
       ScriptInAnyLang _lang script <-
         firstExceptT AddressCmdReadScriptFileError $
@@ -188,7 +198,7 @@ runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
 
   case mOutFp of
     Just (File fpath) -> liftIO $ Text.writeFile fpath outText
-    Nothing           -> liftIO $ Text.putStr          outText
+    Nothing -> liftIO $ Text.putStr outText
 
 makeStakeAddressRef
   :: StakeIdentifier
@@ -198,11 +208,12 @@ makeStakeAddressRef stakeIdentifier =
     StakeIdentifierVerifier stakeVerifier ->
       case stakeVerifier of
         StakeVerifierKey stkVkeyOrFile -> do
-          stakeVKey <- firstExceptT AddressCmdReadKeyFileError $
-            newExceptT $ readVerificationKeyOrFile AsStakeKey stkVkeyOrFile
+          stakeVKey <-
+            firstExceptT AddressCmdReadKeyFileError $
+              newExceptT $
+                readVerificationKeyOrFile AsStakeKey stkVkeyOrFile
 
           return . StakeAddressByValue . StakeCredentialByKey . verificationKeyHash $ stakeVKey
-
         StakeVerifierScriptFile (ScriptFile fp) -> do
           ScriptInAnyLang _lang script <-
             firstExceptT AddressCmdReadScriptFileError $
@@ -211,7 +222,7 @@ makeStakeAddressRef stakeIdentifier =
           let stakeCred = StakeCredentialByScript (hashScript script)
           return (StakeAddressByValue stakeCred)
     StakeIdentifierAddress stakeAddr ->
-        pure $ StakeAddressByValue $ stakeAddressCredential stakeAddr
+      pure $ StakeAddressByValue $ stakeAddressCredential stakeAddr
 
 buildShelleyAddress
   :: VerificationKey PaymentKey
@@ -219,24 +230,28 @@ buildShelleyAddress
   -> NetworkId
   -> ExceptT AddressCmdError IO (Address ShelleyAddr)
 buildShelleyAddress vkey mbStakeVerifier nw =
-  makeShelleyAddress nw (PaymentCredentialByKey (verificationKeyHash vkey)) <$> maybe (return NoStakeAddress) makeStakeAddressRef mbStakeVerifier
-
+  makeShelleyAddress nw (PaymentCredentialByKey (verificationKeyHash vkey))
+    <$> maybe (return NoStakeAddress) makeStakeAddressRef mbStakeVerifier
 
 --
 -- Handling the variety of address key types
 --
 
-
-foldSomeAddressVerificationKey :: (forall keyrole. Key keyrole =>
-                                   VerificationKey keyrole -> a)
-                               -> SomeAddressVerificationKey -> a
-foldSomeAddressVerificationKey f (AByronVerificationKey           vk) = f vk
-foldSomeAddressVerificationKey f (APaymentVerificationKey         vk) = f vk
+foldSomeAddressVerificationKey
+  :: ( forall keyrole
+        . (Key keyrole)
+       => VerificationKey keyrole
+       -> a
+     )
+  -> SomeAddressVerificationKey
+  -> a
+foldSomeAddressVerificationKey f (AByronVerificationKey vk) = f vk
+foldSomeAddressVerificationKey f (APaymentVerificationKey vk) = f vk
 foldSomeAddressVerificationKey f (APaymentExtendedVerificationKey vk) = f vk
-foldSomeAddressVerificationKey f (AGenesisUTxOVerificationKey     vk) = f vk
-foldSomeAddressVerificationKey f (AKesVerificationKey             vk) = f vk
+foldSomeAddressVerificationKey f (AGenesisUTxOVerificationKey vk) = f vk
+foldSomeAddressVerificationKey f (AKesVerificationKey vk) = f vk
 foldSomeAddressVerificationKey f (AGenesisDelegateExtendedVerificationKey vk) = f vk
 foldSomeAddressVerificationKey f (AGenesisExtendedVerificationKey vk) = f vk
-foldSomeAddressVerificationKey f (AVrfVerificationKey             vk) = f vk
-foldSomeAddressVerificationKey f (AStakeVerificationKey           vk) = f vk
-foldSomeAddressVerificationKey f (AStakeExtendedVerificationKey   vk) = f vk
+foldSomeAddressVerificationKey f (AVrfVerificationKey vk) = f vk
+foldSomeAddressVerificationKey f (AStakeVerificationKey vk) = f vk
+foldSomeAddressVerificationKey f (AStakeExtendedVerificationKey vk) = f vk

@@ -1,22 +1,22 @@
 module Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
-  ( CardanoAddressSigningKeyConversionError(..)
+  ( CardanoAddressSigningKeyConversionError (..)
   , renderCardanoAddressSigningKeyConversionError
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Data.ByteString (ByteString)
-import           Data.Text (Text)
+import Data.ByteString (ByteString)
+import Data.Text (Text)
 import qualified Data.Text as Text
 
 -- | An error that can occur while converting a @cardano-address@ extended
 -- signing key.
 data CardanoAddressSigningKeyConversionError
-  = CardanoAddressSigningKeyBech32DecodeError !Bech32DecodeError
-  -- ^ There was an error in decoding the string as Bech32.
-  | CardanoAddressSigningKeyDeserialisationError !ByteString
-  -- ^ There was an error in converting the @cardano-address@ extended signing
-  -- key.
+  = -- | There was an error in decoding the string as Bech32.
+    CardanoAddressSigningKeyBech32DecodeError !Bech32DecodeError
+  | -- | There was an error in converting the @cardano-address@ extended signing
+    -- key.
+    CardanoAddressSigningKeyDeserialisationError !ByteString
   deriving (Show, Eq)
 
 instance Error CardanoAddressSigningKeyConversionError where

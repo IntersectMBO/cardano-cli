@@ -3,14 +3,14 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.DelegationError
-  ( DelegationError(..)
+  ( DelegationError (..)
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Errors.StakeCredentialError
+import Cardano.CLI.Types.Errors.StakeCredentialError
 
-import           GHC.Generics (Generic)
+import GHC.Generics (Generic)
 
 data DelegationError
   = DelegationReadError !(FileError InputDecodeError)

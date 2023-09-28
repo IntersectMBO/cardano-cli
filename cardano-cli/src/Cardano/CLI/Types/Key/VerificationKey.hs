@@ -1,13 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 
 module Cardano.CLI.Types.Key.VerificationKey
-  ( AnyVerificationKeySource(..)
-  , AnyVerificationKeyText(..)
+  ( AnyVerificationKeySource (..)
+  , AnyVerificationKeyText (..)
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 -- | A bech32 text encoded verification key of an unspecified key role.
 newtype AnyVerificationKeyText = AnyVerificationKeyText

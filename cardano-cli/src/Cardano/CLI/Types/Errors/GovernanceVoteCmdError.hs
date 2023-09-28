@@ -4,9 +4,9 @@
 
 module Cardano.CLI.Types.Errors.GovernanceVoteCmdError where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.Binary (DecoderError)
+import Cardano.Binary (DecoderError)
 
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
@@ -16,7 +16,7 @@ data GovernanceVoteCmdError
   = GovernanceVoteCmdReadError !(FileError InputDecodeError)
   | GovernanceVoteCmdCredentialDecodeError !DecoderError
   | GovernanceVoteCmdWriteError !(FileError ())
-  deriving Show
+  deriving (Show)
 
 instance Error GovernanceVoteCmdError where
   displayError = \case
@@ -26,5 +26,5 @@ instance Error GovernanceVoteCmdError where
       "Cannot decode voting credential: " <> renderDecoderError e
     GovernanceVoteCmdWriteError e ->
       "Cannot write vote: " <> displayError e
-    where
-      renderDecoderError = TL.unpack . TL.toLazyText . B.build
+   where
+    renderDecoderError = TL.unpack . TL.toLazyText . B.build

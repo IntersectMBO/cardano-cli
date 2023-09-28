@@ -4,15 +4,15 @@
 
 module Cardano.CLI.Types.Errors.GovernanceCmdError where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.StakeAddressCmdError
+import Cardano.Binary (DecoderError)
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Errors.StakeAddressCmdError
 
 import qualified Data.List as List
-import           Data.Text (Text)
+import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
@@ -24,8 +24,8 @@ data GovernanceCmdError
   | VotingCredentialDecodeGovCmdEror DecoderError
   | WriteFileError (FileError ())
   | ReadFileError (FileError InputDecodeError)
-    -- Governance action related
-  | GovernanceCmdConstitutionError ConstitutionError
+  | -- Governance action related
+    GovernanceCmdConstitutionError ConstitutionError
   | GovernanceCmdProposalError ProposalError
   | GovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
   | GovernanceCmdCddlError !CddlError
@@ -41,20 +41,20 @@ data GovernanceCmdError
       -- ^ Number of reward amounts
   | GovernanceCmdCostModelsJsonDecodeErr !FilePath !Text
   | GovernanceCmdEmptyCostModel !FilePath
-  | GovernanceCmdUnexpectedKeyType
+  | -- | Expected key types
+    GovernanceCmdUnexpectedKeyType
       ![TextEnvelopeType]
-      -- ^ Expected key types
-  | GovernanceCmdPollOutOfBoundAnswer
+  | -- | Maximum answer index
+    GovernanceCmdPollOutOfBoundAnswer
       !Int
-      -- ^ Maximum answer index
   | GovernanceCmdPollInvalidChoice
   | GovernanceCmdDecoderError !DecoderError
   | GovernanceCmdVerifyPollError !GovernancePollError
   | GovernanceCmdWriteFileError !(FileError ())
-  -- Legacy - remove me after cardano-cli transitions to new era based structure
-  | GovernanceCmdMIRCertNotSupportedInConway
+  | -- Legacy - remove me after cardano-cli transitions to new era based structure
+    GovernanceCmdMIRCertNotSupportedInConway
   | GovernanceCmdGenesisDelegationNotSupportedInConway
-  deriving Show
+  deriving (Show)
 
 instance Error GovernanceCmdError where
   displayError = \case
@@ -83,17 +83,20 @@ instance Error GovernanceCmdError where
     GovernanceCmdEmptyUpdateProposalError ->
       "Empty update proposals are not allowed."
     GovernanceCmdMIRCertificateKeyRewardMistmach fp nStakeVerKeys nRewards ->
-      "Error creating the MIR certificate at: " <> fp
-      <> " The number of staking keys: " <> show nStakeVerKeys
-      <> " and the number of reward amounts: " <> show nRewards
-      <> " are not equivalent."
+      "Error creating the MIR certificate at: "
+        <> fp
+        <> " The number of staking keys: "
+        <> show nStakeVerKeys
+        <> " and the number of reward amounts: "
+        <> show nRewards
+        <> " are not equivalent."
     GovernanceCmdCostModelsJsonDecodeErr fp msg ->
       "Error decoding cost model: " <> Text.unpack msg <> " at: " <> fp
     GovernanceCmdEmptyCostModel fp ->
       "The decoded cost model was empty at: " <> fp
     GovernanceCmdUnexpectedKeyType expectedTypes ->
       "Unexpected poll key type; expected one of: "
-      <> List.intercalate ", " (show <$> expectedTypes)
+        <> List.intercalate ", " (show <$> expectedTypes)
     GovernanceCmdPollOutOfBoundAnswer maxIdx ->
       "Poll answer out of bounds. Choices are between 0 and " <> show maxIdx
     GovernanceCmdPollInvalidChoice ->
@@ -108,5 +111,5 @@ instance Error GovernanceCmdError where
       "MIR certificates are not supported in Conway era onwards."
     GovernanceCmdGenesisDelegationNotSupportedInConway ->
       "Genesis delegation is not supported in Conway era onwards."
-    where
-      renderDecoderError = TL.unpack . TL.toLazyText . B.build
+   where
+    renderDecoderError = TL.unpack . TL.toLazyText . B.build

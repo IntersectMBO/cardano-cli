@@ -7,22 +7,22 @@ module Test.Golden.Help
   , hprop_golden_HelpCmds
   ) where
 
-import           Prelude hiding (lines)
+import Prelude hiding (lines)
 
-import           Control.Monad (forM_, unless, (<=<))
+import Control.Monad (forM_, unless, (<=<))
 import qualified Data.Char as Char
 import qualified Data.List as List
-import           Data.Maybe (maybeToList)
-import           Data.Text (Text)
+import Data.Maybe (maybeToList)
+import Data.Text (Text)
 import qualified Data.Text as Text
-import           System.FilePath ((</>))
-import           Text.Regex (Regex, mkRegex, subRegex)
+import System.FilePath ((</>))
+import Text.Regex (Regex, mkRegex, subRegex)
 
+import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
 import qualified Test.Cardano.CLI.Util as H
-import           Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
 
-import           Hedgehog (Property)
-import           Hedgehog.Extras.Stock.OS (isWin32)
+import Hedgehog (Property)
+import Hedgehog.Extras.Stock.OS (isWin32)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
@@ -31,20 +31,23 @@ ansiRegex = mkRegex "\\[[0-9]+m"
 
 filterAnsi :: String -> String
 filterAnsi line = subRegex ansiRegex stripped ""
-  where stripped = filter (/= '\ESC') line
+ where
+  stripped = filter (/= '\ESC') line
 
 {- HLINT ignore "Use camelCase" -}
 
 extractCmd :: Text -> [Text]
-extractCmd = id
-  . takeWhile nonSwitch
-  . Text.split Char.isSpace
-  . Text.strip
-  where nonSwitch :: Text -> Bool
-        nonSwitch s =
-          case Text.unpack (Text.take 1 s) of
-            (c:_) -> Char.isAlpha c
-            [] -> False
+extractCmd =
+  id
+    . takeWhile nonSwitch
+    . Text.split Char.isSpace
+    . Text.strip
+ where
+  nonSwitch :: Text -> Bool
+  nonSwitch s =
+    case Text.unpack (Text.take 1 s) of
+      (c : _) -> Char.isAlpha c
+      [] -> False
 
 -- | Test that converting a @cardano-address@ Byron signing key yields the
 -- expected result.
@@ -57,9 +60,11 @@ hprop_golden_HelpAll =
     unless isWin32 $ do
       helpFp <- H.note "test/cardano-cli-golden/files/golden/help.cli"
 
-      help <- filterAnsi <$> execCardanoCLI
-        [ "help"
-        ]
+      help <-
+        filterAnsi
+          <$> execCardanoCLI
+            [ "help"
+            ]
 
       H.diffVsGoldenFile help helpFp
 
@@ -89,16 +94,19 @@ hprop_golden_HelpCmds =
     -- output is slightly different on Windows.  For example it uses
     -- "cardano-cli.exe" instead of "cardano-cli".
     unless isWin32 $ do
-      help <- filterAnsi <$> execCardanoCLI
-        [ "help"
-        ]
+      help <-
+        filterAnsi
+          <$> execCardanoCLI
+            [ "help"
+            ]
 
       let lines = Text.lines $ Text.pack help
       let usages = List.filter (not . null) $ fmap extractCmd $ maybeToList . selectCmd =<< lines
 
       forM_ usages $ \usage -> do
         H.noteShow_ usage
-        let expectedCmdHelpFp = "test/cardano-cli-golden/files/golden/help" </> Text.unpack (Text.intercalate "_" usage) <> ".cli"
+        let expectedCmdHelpFp =
+              "test/cardano-cli-golden/files/golden/help" </> Text.unpack (Text.intercalate "_" usage) <> ".cli"
 
         cmdHelp <- filterAnsi . third <$> H.execDetailCardanoCli (fmap Text.unpack usage)
 

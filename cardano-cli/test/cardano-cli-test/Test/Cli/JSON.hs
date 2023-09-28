@@ -1,28 +1,31 @@
 {-# LANGUAGE NumericUnderscores #-}
-{-# LANGUAGE OverloadedStrings #-}
 
 module Test.Cli.JSON
   ( hprop_json_roundtrip_delegations_and_rewards
   , hprop_roundtrip_kes_period_info_output_JSON
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Output (QueryKesPeriodInfoOutput (..), createOpCertIntervalInfo)
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Output (QueryKesPeriodInfoOutput (..), createOpCertIntervalInfo)
 
-import           Data.Aeson
+import Data.Aeson
 import qualified Data.Map.Strict as Map
-import           Data.Time
-import           Data.Time.Clock.POSIX (posixSecondsToUTCTime)
-import           Data.Word (Word64)
+import Data.Time
+import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+import Data.Word (Word64)
 
-import           Test.Gen.Cardano.Api.Typed (genLovelace, genSlotNo, genStakeAddress,
-                   genVerificationKeyHash)
+import Test.Gen.Cardano.Api.Typed
+  ( genLovelace
+  , genSlotNo
+  , genStakeAddress
+  , genVerificationKeyHash
+  )
 
-import           Hedgehog (Gen, Property, forAll, property, tripping)
-import           Hedgehog.Gen as Gen
-import           Hedgehog.Range as Range
+import Hedgehog (Gen, Property, forAll, property, tripping)
+import Hedgehog.Gen as Gen
+import Hedgehog.Range as Range
 
 -- TODO: Move to cardano-api
 hprop_json_roundtrip_delegations_and_rewards :: Property

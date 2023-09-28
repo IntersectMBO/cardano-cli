@@ -4,15 +4,15 @@ module Cardano.CLI.Render
   ( customRenderHelp
   ) where
 
-import           Cardano.Api (textShow)
+import Cardano.Api (textShow)
 
-import           Data.Text (Text)
+import Data.Text (Text)
 import qualified Data.Text as T
-import           Options.Applicative
-import           Options.Applicative.Help.Ann
-import           Options.Applicative.Help.Types (helpText, renderHelp)
-import           Prettyprinter
-import           Prettyprinter.Render.Util.SimpleDocTree
+import Options.Applicative
+import Options.Applicative.Help.Ann
+import Options.Applicative.Help.Types (helpText, renderHelp)
+import Prettyprinter
+import Prettyprinter.Render.Util.SimpleDocTree
 import qualified System.Environment as IO
 import qualified System.IO.Unsafe as IO
 
@@ -27,33 +27,37 @@ cliHelpTraceEnabled = IO.unsafePerformIO $ do
 -- tools can be used to inspect tracing that aids in describing the structure of the output
 -- document.
 customRenderHelp :: Int -> ParserHelp -> String
-customRenderHelp = if cliHelpTraceEnabled
-  then customRenderHelpAsHtml
-  else customRenderHelpAsAnsi
+customRenderHelp =
+  if cliHelpTraceEnabled
+    then customRenderHelpAsHtml
+    else customRenderHelpAsAnsi
 
 customRenderHelpAsHtml :: Int -> ParserHelp -> String
-customRenderHelpAsHtml cols
-  = T.unpack
-  . wrapper
-  . renderSimplyDecorated id renderElement
-  . treeForm
-  . layoutSmart (LayoutOptions (AvailablePerLine cols 1.0))
-  . helpText
-  where
-    renderElement :: Ann -> Text -> Text
-    renderElement ann x = if cliHelpTraceEnabled
+customRenderHelpAsHtml cols =
+  T.unpack
+    . wrapper
+    . renderSimplyDecorated id renderElement
+    . treeForm
+    . layoutSmart (LayoutOptions (AvailablePerLine cols 1.0))
+    . helpText
+ where
+  renderElement :: Ann -> Text -> Text
+  renderElement ann x =
+    if cliHelpTraceEnabled
       then case ann of
         AnnTrace _ name -> "<span name=" <> textShow name <> ">" <> x <> "</span>"
         AnnStyle _ -> x
       else x
-    wrapper = if cliHelpTraceEnabled
-      then id
-        . ("<html>\n" <>)
-        . ("<body>\n" <>)
-        . ("<pre>\n" <>)
-        . (<> "\n</html>")
-        . (<> "\n</body>")
-        . (<> "\n</pre>")
+  wrapper =
+    if cliHelpTraceEnabled
+      then
+        id
+          . ("<html>\n" <>)
+          . ("<body>\n" <>)
+          . ("<pre>\n" <>)
+          . (<> "\n</html>")
+          . (<> "\n</body>")
+          . (<> "\n</pre>")
       else id
 
 customRenderHelpAsAnsi :: Int -> ParserHelp -> String

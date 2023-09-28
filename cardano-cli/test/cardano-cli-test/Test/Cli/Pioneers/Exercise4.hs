@@ -4,11 +4,11 @@ module Test.Cli.Pioneers.Exercise4
   ( hprop_createStakeAddressRegistrationCertificate
   ) where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -22,18 +22,27 @@ hprop_createStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspa
   stakeRegCert <- noteTempFile tempDir "stake-registration-certificate-file"
 
   -- Generate stake verification key
-  void $ execCardanoCLI
-    [ "stake-address", "key-gen"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "key-gen"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
   H.assertFilesExist [verKey, signKey]
 
   -- Create stake address registration certificate
-  void $ execCardanoCLI
-    [ "babbage", "stake-address", "registration-certificate"
-    , "--stake-verification-key-file", verKey
-    , "--out-file", stakeRegCert
-    ]
+  void $
+    execCardanoCLI
+      [ "babbage"
+      , "stake-address"
+      , "registration-certificate"
+      , "--stake-verification-key-file"
+      , verKey
+      , "--out-file"
+      , stakeRegCert
+      ]
 
   H.assertFilesExist [verKey, signKey, stakeRegCert]

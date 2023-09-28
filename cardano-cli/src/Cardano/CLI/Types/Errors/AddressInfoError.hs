@@ -1,13 +1,13 @@
 module Cardano.CLI.Types.Errors.AddressInfoError
-  ( AddressInfoError(..)
+  ( AddressInfoError (..)
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 newtype AddressInfoError = ShelleyAddressInvalid Text
-  deriving Show
+  deriving (Show)
 
 instance Error AddressInfoError where
   displayError (ShelleyAddressInvalid addrTxt) =

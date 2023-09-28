@@ -2,11 +2,11 @@
 
 module Test.Golden.Governance.DRep where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util (execCardanoCLI, noteInputFile, propertyOnce)
+import Test.Cardano.CLI.Util (execCardanoCLI, noteInputFile, propertyOnce)
 
-import           Hedgehog
+import Hedgehog
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Golden as H
@@ -17,11 +17,17 @@ hprop_golden_governanceDRepKeyGen =
     verificationKeyFile <- H.noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- H.noteTempFile tempDir "key-gen.skey"
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "drep", "key-gen"
-      , "--verification-key-file", verificationKeyFile
-      , "--signing-key-file", signingKeyFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "drep"
+        , "key-gen"
+        , "--verification-key-file"
+        , verificationKeyFile
+        , "--signing-key-file"
+        , signingKeyFile
+        ]
 
     H.assertFileOccurences 1 "DRepVerificationKey_ed25519" verificationKeyFile
     H.assertFileOccurences 1 "DRepSigningKey_ed25519" signingKeyFile
@@ -36,12 +42,19 @@ hprop_golden_governance_drep_id_bech32 =
     idFile <- H.noteTempFile tempDir "drep.id.bech32"
     idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.bech32"
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "drep", "id"
-      , "--drep-verification-key-file", vkeyFile
-      , "--output-format", "bech32"
-      , "--out-file", idFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "drep"
+        , "id"
+        , "--drep-verification-key-file"
+        , vkeyFile
+        , "--output-format"
+        , "bech32"
+        , "--out-file"
+        , idFile
+        ]
 
     H.diffFileVsGoldenFile idFile idGold
 
@@ -52,11 +65,18 @@ hprop_golden_governance_drep_id_hex =
     idFile <- H.noteTempFile tempDir "drep.id.hex"
     idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.hex"
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "drep", "id"
-      , "--drep-verification-key-file", vkeyFile
-      , "--output-format", "hex"
-      , "--out-file", idFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "drep"
+        , "id"
+        , "--drep-verification-key-file"
+        , vkeyFile
+        , "--output-format"
+        , "hex"
+        , "--out-file"
+        , idFile
+        ]
 
     H.diffFileVsGoldenFile idFile idGold

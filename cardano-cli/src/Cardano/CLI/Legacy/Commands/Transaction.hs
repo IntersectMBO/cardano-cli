@@ -6,12 +6,12 @@ module Cardano.CLI.Legacy.Commands.Transaction
   , renderLegacyTransactionCmds
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Governance
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Governance
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyTransactionCmds
   = TxBuildRaw
@@ -49,14 +49,14 @@ data LegacyTransactionCmds
       (Maybe ProtocolParamsFile)
       (Maybe UpdateProposalFile)
       (TxBodyFile Out)
-
-    -- | Like 'TxBuildRaw' but without the fee, and with a change output.
-  | TxBuild
+  | -- | Like 'TxBuildRaw' but without the fee, and with a change output.
+    TxBuild
       SocketPath
       AnyCardanoEra
       AnyConsensusModeParams
       NetworkId
-      (Maybe ScriptValidity) -- ^ Mark script as expected to pass or fail validation
+      (Maybe ScriptValidity)
+      -- ^ Mark script as expected to pass or fail validation
       (Maybe Word)
       -- ^ Override the required number of tx witnesses
       [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]

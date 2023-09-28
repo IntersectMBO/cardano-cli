@@ -6,13 +6,13 @@ module Cardano.CLI.Legacy.Commands.TextView
   , renderLegacyTextViewCmds
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyTextViewCmds
   = TextViewInfo !FilePath (Maybe (File () Out))
-  deriving Show
+  deriving (Show)
 
 renderLegacyTextViewCmds :: LegacyTextViewCmds -> Text
 renderLegacyTextViewCmds = \case

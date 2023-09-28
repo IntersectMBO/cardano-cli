@@ -2,16 +2,16 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.Committee
-  ( GovernanceCommitteeCmds(..)
+  ( GovernanceCommitteeCmds (..)
   , renderGovernanceCommitteeCmds
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Key.VerificationKey
+import Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Key.VerificationKey
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data GovernanceCommitteeCmds era
   = GovernanceCommitteeKeyGenColdCmd
@@ -34,7 +34,7 @@ data GovernanceCommitteeCmds era
       (ConwayEraOnwards era)
       (VerificationKeyOrHashOrFile CommitteeColdKey)
       (File () Out)
-  deriving Show
+  deriving (Show)
 
 renderGovernanceCommitteeCmds :: GovernanceCommitteeCmds era -> Text
 renderGovernanceCommitteeCmds = \case

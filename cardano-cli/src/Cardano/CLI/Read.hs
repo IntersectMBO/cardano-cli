@@ -7,13 +7,13 @@
 
 module Cardano.CLI.Read
   ( -- * Metadata
-    MetadataError(..)
+    MetadataError (..)
   , renderMetadataError
   , readFileTxMetadata
   , readTxMetadata
 
     -- * Script
-  , ScriptWitnessError(..)
+  , ScriptWitnessError (..)
   , renderScriptWitnessError
   , readScriptDataOrFile
   , readScriptWitness
@@ -23,81 +23,77 @@ module Cardano.CLI.Read
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
 
-  -- * Script data (datums and redeemers)
-  , ScriptDataError(..)
+    -- * Script data (datums and redeemers)
+  , ScriptDataError (..)
   , readScriptDatumOrFile
   , readScriptRedeemerOrFile
   , renderScriptDataError
 
-  -- * Tx
-  , CddlError(..)
-  , CddlTx(..)
-  , IncompleteTx(..)
+    -- * Tx
+  , CddlError (..)
+  , CddlTx (..)
+  , IncompleteTx (..)
   , readFileTx
   , readFileTxBody
   , readCddlTx -- For testing purposes
 
-  -- * Tx witnesses
-  , ReadWitnessSigningDataError(..)
+    -- * Tx witnesses
+  , ReadWitnessSigningDataError (..)
   , renderReadWitnessSigningDataError
-  , SomeSigningWitness(..)
-  , ByronOrShelleyWitness(..)
-  , ShelleyBootstrapWitnessSigningKeyData(..)
-  , CddlWitnessError(..)
+  , SomeSigningWitness (..)
+  , ByronOrShelleyWitness (..)
+  , ShelleyBootstrapWitnessSigningKeyData (..)
+  , CddlWitnessError (..)
   , readFileTxKeyWitness
   , readWitnessSigningData
 
-  -- * Required signer
-  , RequiredSignerError(..)
+    -- * Required signer
+  , RequiredSignerError (..)
   , categoriseSomeSigningWitness
   , readRequiredSigner
 
-  -- * Governance related
-  , ConstitutionError(..)
-  , ProposalError(..)
+    -- * Governance related
+  , ConstitutionError (..)
+  , ProposalError (..)
   , VoteError (..)
   , readTxGovernanceActions
   , constitutionHashSourceToHash
   , proposalHashSourceToHash
 
-  -- * FileOrPipe
+    -- * FileOrPipe
   , FileOrPipe
   , fileOrPipe
   , fileOrPipePath
   , fileOrPipeCache
   , readFileOrPipe
 
-  -- * Stake credentials
+    -- * Stake credentials
   , getStakeCredentialFromVerifier
   , getStakeCredentialFromIdentifier
   , getStakeAddressFromVerifier
-
   , readVotingProceduresFiles
   , readVotingProceduresFile
 
-  -- * DRep credentials
+    -- * DRep credentials
   , getDRepCredentialFromVerKeyHashOrFile
-
-  , ReadSafeHashError(..)
+  , ReadSafeHashError (..)
   , readHexAsSafeHash
   , readSafeHash
-
   , scriptHashReader
-
   , readVoteDelegationTarget
   ) where
 
-import           Cardano.Api as Api
+import Cardano.Api as Api
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley as Api
+import Cardano.Api.Shelley as Api
 
 import qualified Cardano.Binary as CBOR
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.DelegationError
-import           Cardano.CLI.Types.Errors.ScriptDecodeError
-import           Cardano.CLI.Types.Errors.StakeCredentialError
-import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.DelegationError
+import Cardano.CLI.Types.Errors.ScriptDecodeError
+import Cardano.CLI.Types.Errors.StakeCredentialError
+import Cardano.CLI.Types.Governance
+import Cardano.CLI.Types.Key
 import qualified Cardano.Crypto.Hash.Class as Crypto
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.BaseTypes as Ledger
@@ -109,35 +105,35 @@ import qualified Cardano.Ledger.Keys as Ledger
 import qualified Cardano.Ledger.SafeHash as L
 import qualified Cardano.Ledger.SafeHash as Ledger
 
-import           Prelude
+import Prelude
 
-import           Control.Exception (bracket)
-import           Control.Monad (forM, unless)
-import           Control.Monad.IO.Class
-import           Control.Monad.Trans (MonadTrans (..))
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
+import Control.Exception (bracket)
+import Control.Monad (forM, unless)
+import Control.Monad.IO.Class
+import Control.Monad.Trans (MonadTrans (..))
+import Control.Monad.Trans.Except
+import Control.Monad.Trans.Except.Extra
 import qualified Data.Aeson as Aeson
-import           Data.Bifunctor
-import           Data.ByteString (ByteString)
+import Data.Bifunctor
+import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Base16 as Base16
 import qualified Data.ByteString.Builder as Builder
 import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Function ((&))
-import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import Data.Function ((&))
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
 import qualified Data.Map.Strict as Map
-import           Data.String
-import           Data.Text (Text)
+import Data.String
+import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.Encoding.Error as Text
-import           Data.Word
-import           GHC.IO.Handle (hClose, hIsSeekable)
-import           GHC.IO.Handle.FD (openFileBlocking)
+import Data.Word
+import GHC.IO.Handle (hClose, hIsSeekable)
+import GHC.IO.Handle.FD (openFileBlocking)
 import qualified Options.Applicative as Opt
-import           System.IO (IOMode (ReadMode))
+import System.IO (IOMode (ReadMode))
 
 -- Metadata
 
@@ -148,39 +144,56 @@ data MetadataError
   | MetadataErrorValidationError !FilePath ![(Word64, TxMetadataRangeError)]
   | MetadataErrorDecodeError !FilePath !CBOR.DecoderError
   | MetadataErrorNotAvailableInEra AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 renderMetadataError :: MetadataError -> Text
 renderMetadataError (MetadataErrorFile fileErr) =
   Text.pack $ displayError fileErr
 renderMetadataError (MetadataErrorJsonParseError fp jsonErr) =
-  Text.pack $ "Invalid JSON format in file: " <> show fp <>
-              "\nJSON parse error: " <> jsonErr
+  Text.pack $
+    "Invalid JSON format in file: "
+      <> show fp
+      <> "\nJSON parse error: "
+      <> jsonErr
 renderMetadataError (MetadataErrorConversionError fp metadataErr) =
-  Text.pack $ "Error reading metadata at: " <> show fp <>
-              "\n" <> displayError metadataErr
+  Text.pack $
+    "Error reading metadata at: "
+      <> show fp
+      <> "\n"
+      <> displayError metadataErr
 renderMetadataError (MetadataErrorValidationError fp errs) =
-  Text.pack $ "Error validating transaction metadata at: " <> fp <> "\n" <>
-      List.intercalate "\n"
+  Text.pack $
+    "Error validating transaction metadata at: "
+      <> fp
+      <> "\n"
+      <> List.intercalate
+        "\n"
         [ "key " <> show k <> ":" <> displayError valErr
-        | (k, valErr) <- errs ]
+        | (k, valErr) <- errs
+        ]
 renderMetadataError (MetadataErrorDecodeError fp metadataErr) =
-  Text.pack $ "Error decoding CBOR metadata at: " <> show fp <>
-              " Error: " <> show metadataErr
+  Text.pack $
+    "Error decoding CBOR metadata at: "
+      <> show fp
+      <> " Error: "
+      <> show metadataErr
 renderMetadataError (MetadataErrorNotAvailableInEra e) =
   "Transaction metadata not supported in " <> renderEra e
 
-readTxMetadata :: CardanoEra era
-               -> TxMetadataJsonSchema
-               -> [MetadataFile]
-               -> IO (Either MetadataError (TxMetadataInEra era))
+readTxMetadata
+  :: CardanoEra era
+  -> TxMetadataJsonSchema
+  -> [MetadataFile]
+  -> IO (Either MetadataError (TxMetadataInEra era))
 readTxMetadata _ _ [] = return $ Right TxMetadataNone
 readTxMetadata era schema files =
   case txMetadataSupportedInEra era of
     Nothing ->
-      return . Left
+      return
+        . Left
         . MetadataErrorNotAvailableInEra
-        $ getIsCardanoEraConstraint era $ AnyCardanoEra era
+        $ getIsCardanoEraConstraint era
+        $ AnyCardanoEra era
     Just supported -> do
       let exceptAllTxMetadata = mapM (readFileTxMetadata schema) files
       eAllTxMetaData <- runExceptT exceptAllTxMetadata
@@ -193,23 +206,33 @@ readFileTxMetadata
   -> MetadataFile
   -> ExceptT MetadataError IO TxMetadata
 readFileTxMetadata mapping (MetadataFileJSON fp) = do
-  bs <- handleIOExceptT (MetadataErrorFile . FileIOError (unFile fp))
-          $ LBS.readFile (unFile fp)
-  v <- firstExceptT (MetadataErrorJsonParseError (unFile fp))
-          $ hoistEither $ Aeson.eitherDecode' bs
-  txMetadata' <- firstExceptT (MetadataErrorConversionError (unFile fp))
-                  . hoistEither $ metadataFromJson mapping v
+  bs <-
+    handleIOExceptT (MetadataErrorFile . FileIOError (unFile fp)) $
+      LBS.readFile (unFile fp)
+  v <-
+    firstExceptT (MetadataErrorJsonParseError (unFile fp)) $
+      hoistEither $
+        Aeson.eitherDecode' bs
+  txMetadata' <-
+    firstExceptT (MetadataErrorConversionError (unFile fp))
+      . hoistEither
+      $ metadataFromJson mapping v
   firstExceptT (MetadataErrorValidationError (unFile fp))
-    . hoistEither $ do
+    . hoistEither
+    $ do
       validateTxMetadata txMetadata'
       return txMetadata'
 readFileTxMetadata _ (MetadataFileCBOR fp) = do
-  bs <- handleIOExceptT (MetadataErrorFile . FileIOError (unFile fp))
-          $ BS.readFile (unFile fp)
-  txMetadata' <- firstExceptT (MetadataErrorDecodeError (unFile fp))
-                  . hoistEither $ deserialiseFromCBOR AsTxMetadata bs
+  bs <-
+    handleIOExceptT (MetadataErrorFile . FileIOError (unFile fp)) $
+      BS.readFile (unFile fp)
+  txMetadata' <-
+    firstExceptT (MetadataErrorDecodeError (unFile fp))
+      . hoistEither
+      $ deserialiseFromCBOR AsTxMetadata bs
   firstExceptT (MetadataErrorValidationError (unFile fp))
-    . hoistEither $ do
+    . hoistEither
+    $ do
       validateTxMetadata txMetadata'
       return txMetadata'
 
@@ -227,16 +250,27 @@ renderScriptWitnessError :: ScriptWitnessError -> Text
 renderScriptWitnessError (ScriptWitnessErrorFile err) =
   Text.pack $ displayError err
 renderScriptWitnessError (ScriptWitnessErrorScriptLanguageNotSupportedInEra (AnyScriptLanguage lang) anyEra) =
-  "The script language " <> Text.pack (show lang) <> " is not supported in the " <>
-  renderEra anyEra <> " era."
+  "The script language "
+    <> Text.pack (show lang)
+    <> " is not supported in the "
+    <> renderEra anyEra
+    <> " era."
 renderScriptWitnessError (ScriptWitnessErrorExpectedSimple file (AnyScriptLanguage lang)) =
-  Text.pack $ file <> ": expected a script in the simple script language, " <>
-  "but it is actually using " <> show lang <> ". Alternatively, to use " <>
-  "a Plutus script, you must also specify the redeemer " <>
-  "(datum if appropriate) and script execution units."
+  Text.pack $
+    file
+      <> ": expected a script in the simple script language, "
+      <> "but it is actually using "
+      <> show lang
+      <> ". Alternatively, to use "
+      <> "a Plutus script, you must also specify the redeemer "
+      <> "(datum if appropriate) and script execution units."
 renderScriptWitnessError (ScriptWitnessErrorExpectedPlutus file (AnyScriptLanguage lang)) =
-  Text.pack $ file <> ": expected a script in the Plutus script language, " <>
-  "but it is actually using " <> show lang <> "."
+  Text.pack $
+    file
+      <> ": expected a script in the Plutus script language, "
+      <> "but it is actually using "
+      <> show lang
+      <> "."
 renderScriptWitnessError (ScriptWitnessErrorReferenceScriptsNotSupportedInEra anyEra) =
   "Reference scripts not supported in era: " <> renderEra anyEra
 renderScriptWitnessError (ScriptWitnessErrorScriptData sDataError) =
@@ -249,8 +283,8 @@ readScriptWitnessFiles
 readScriptWitnessFiles era = mapM readSwitFile
  where
   readSwitFile (tIn, Just switFile) = do
-      sWit <- readScriptWitness era switFile
-      return (tIn, Just sWit)
+    sWit <- readScriptWitness era switFile
+    return (tIn, Just sWit)
   readSwitFile (tIn, Nothing) = return (tIn, Nothing)
 
 readScriptWitnessFilesThruple
@@ -260,8 +294,8 @@ readScriptWitnessFilesThruple
 readScriptWitnessFilesThruple era = mapM readSwitFile
  where
   readSwitFile (tIn, b, Just switFile) = do
-      sWit <- readScriptWitness era switFile
-      return (tIn, b, Just sWit)
+    sWit <- readScriptWitness era switFile
+    return (tIn, b, Just sWit)
   readSwitFile (tIn, b, Nothing) = return (tIn, b, Nothing)
 
 readScriptWitness
@@ -269,111 +303,143 @@ readScriptWitness
   -> ScriptWitnessFiles witctx
   -> ExceptT ScriptWitnessError IO (ScriptWitness witctx era)
 readScriptWitness era (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
-    script@(ScriptInAnyLang lang _) <- firstExceptT ScriptWitnessErrorFile $
-                                         readFileScriptInAnyLang scriptFile
-    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era script
-    case script' of
-      SimpleScript sscript ->
-        return . SimpleScriptWitness langInEra $ SScript sscript
-
-      -- If the supplied cli flags were for a simple script (i.e. the user did
-      -- not supply the datum, redeemer or ex units), but the script file turns
-      -- out to be a valid plutus script, then we must fail.
-      PlutusScript{} ->
-        left $ ScriptWitnessErrorExpectedSimple
-                 scriptFile
-                 (AnyScriptLanguage lang)
-
-readScriptWitness era (PlutusScriptWitnessFiles
-                          (ScriptFile scriptFile)
-                          datumOrFile
-                          redeemerOrFile
-                          execUnits) = do
-    script@(ScriptInAnyLang lang _) <- firstExceptT ScriptWitnessErrorFile $
-                                         readFileScriptInAnyLang scriptFile
-    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era script
+  script@(ScriptInAnyLang lang _) <-
+    firstExceptT ScriptWitnessErrorFile $
+      readFileScriptInAnyLang scriptFile
+  ScriptInEra langInEra script' <- validateScriptSupportedInEra era script
+  case script' of
+    SimpleScript sscript ->
+      return . SimpleScriptWitness langInEra $ SScript sscript
+    -- If the supplied cli flags were for a simple script (i.e. the user did
+    -- not supply the datum, redeemer or ex units), but the script file turns
+    -- out to be a valid plutus script, then we must fail.
+    PlutusScript {} ->
+      left $
+        ScriptWitnessErrorExpectedSimple
+          scriptFile
+          (AnyScriptLanguage lang)
+readScriptWitness
+  era
+  ( PlutusScriptWitnessFiles
+      (ScriptFile scriptFile)
+      datumOrFile
+      redeemerOrFile
+      execUnits
+    ) = do
+    script@(ScriptInAnyLang lang _) <-
+      firstExceptT ScriptWitnessErrorFile $
+        readFileScriptInAnyLang scriptFile
+    ScriptInEra langInEra script' <- validateScriptSupportedInEra era script
     case script' of
       PlutusScript version pscript -> do
-        datum <- firstExceptT ScriptWitnessErrorScriptData
-                   $ readScriptDatumOrFile    datumOrFile
-        redeemer <- firstExceptT ScriptWitnessErrorScriptData
-                      $ readScriptRedeemerOrFile redeemerOrFile
-        return $ PlutusScriptWitness
-                   langInEra version (PScript pscript)
-                   datum
-                   redeemer
-                   execUnits
+        datum <-
+          firstExceptT ScriptWitnessErrorScriptData $
+            readScriptDatumOrFile datumOrFile
+        redeemer <-
+          firstExceptT ScriptWitnessErrorScriptData $
+            readScriptRedeemerOrFile redeemerOrFile
+        return $
+          PlutusScriptWitness
+            langInEra
+            version
+            (PScript pscript)
+            datum
+            redeemer
+            execUnits
 
       -- If the supplied cli flags were for a plutus script (i.e. the user did
       -- supply the datum, redeemer and ex units), but the script file turns
       -- out to be a valid simple script, then we must fail.
-      SimpleScript{} ->
-        left $ ScriptWitnessErrorExpectedPlutus
-                 scriptFile
-                 (AnyScriptLanguage lang)
+      SimpleScript {} ->
+        left $
+          ScriptWitnessErrorExpectedPlutus
+            scriptFile
+            (AnyScriptLanguage lang)
+readScriptWitness
+  era
+  ( PlutusReferenceScriptWitnessFiles
+      refTxIn
+      anyScrLang@(AnyScriptLanguage anyScriptLanguage)
+      datumOrFile
+      redeemerOrFile
+      execUnits
+      mPid
+    ) = do
+    caseByronToAlonzoOrBabbageEraOnwards
+      ( const $
+          left $
+            ScriptWitnessErrorReferenceScriptsNotSupportedInEra $
+              getIsCardanoEraConstraint era (AnyCardanoEra era)
+      )
+      ( const $
+          case scriptLanguageSupportedInEra era anyScriptLanguage of
+            Just sLangInEra ->
+              case languageOfScriptLanguageInEra sLangInEra of
+                SimpleScriptLanguage ->
+                  -- TODO: We likely need another datatype eg data ReferenceScriptWitness lang
+                  -- in order to make this branch unrepresentable.
+                  error "readScriptWitness: Should not be possible to specify a simple script"
+                PlutusScriptLanguage version -> do
+                  datum <-
+                    firstExceptT ScriptWitnessErrorScriptData $
+                      readScriptDatumOrFile datumOrFile
+                  redeemer <-
+                    firstExceptT ScriptWitnessErrorScriptData $
+                      readScriptRedeemerOrFile redeemerOrFile
+                  return $
+                    PlutusScriptWitness
+                      sLangInEra
+                      version
+                      (PReferenceScript refTxIn (unPolicyId <$> mPid))
+                      datum
+                      redeemer
+                      execUnits
+            Nothing ->
+              left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+      )
+      era
+readScriptWitness
+  era
+  ( SimpleReferenceScriptWitnessFiles
+      refTxIn
+      anyScrLang@(AnyScriptLanguage anyScriptLanguage)
+      mPid
+    ) = do
+    caseByronToAlonzoOrBabbageEraOnwards
+      ( const $
+          left $
+            ScriptWitnessErrorReferenceScriptsNotSupportedInEra $
+              getIsCardanoEraConstraint era (AnyCardanoEra era)
+      )
+      ( const $
+          case scriptLanguageSupportedInEra era anyScriptLanguage of
+            Just sLangInEra ->
+              case languageOfScriptLanguageInEra sLangInEra of
+                SimpleScriptLanguage ->
+                  return . SimpleScriptWitness sLangInEra $
+                    SReferenceScript refTxIn (unPolicyId <$> mPid)
+                PlutusScriptLanguage {} ->
+                  error "readScriptWitness: Should not be possible to specify a plutus script"
+            Nothing ->
+              left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+      )
+      era
 
-readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
-                          anyScrLang@(AnyScriptLanguage anyScriptLanguage)
-                          datumOrFile redeemerOrFile execUnits mPid) = do
-  caseByronToAlonzoOrBabbageEraOnwards
-    ( const $ left
-        $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-        $ getIsCardanoEraConstraint era (AnyCardanoEra era)
-    )
-    ( const $
-        case scriptLanguageSupportedInEra era anyScriptLanguage of
-          Just sLangInEra ->
-            case languageOfScriptLanguageInEra sLangInEra of
-              SimpleScriptLanguage ->
-                -- TODO: We likely need another datatype eg data ReferenceScriptWitness lang
-                -- in order to make this branch unrepresentable.
-                error "readScriptWitness: Should not be possible to specify a simple script"
-              PlutusScriptLanguage version -> do
-                datum <- firstExceptT ScriptWitnessErrorScriptData
-                          $ readScriptDatumOrFile    datumOrFile
-                redeemer <- firstExceptT ScriptWitnessErrorScriptData
-                              $ readScriptRedeemerOrFile redeemerOrFile
-                return $ PlutusScriptWitness
-                          sLangInEra
-                          version
-                          (PReferenceScript refTxIn (unPolicyId <$> mPid))
-                          datum redeemer execUnits
-          Nothing ->
-            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
-    )
-    era
-readScriptWitness era (SimpleReferenceScriptWitnessFiles refTxIn
-                         anyScrLang@(AnyScriptLanguage anyScriptLanguage) mPid) = do
-  caseByronToAlonzoOrBabbageEraOnwards
-    ( const $ left
-        $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-        $ getIsCardanoEraConstraint era (AnyCardanoEra era)
-    )
-    ( const $
-        case scriptLanguageSupportedInEra era anyScriptLanguage of
-          Just sLangInEra ->
-            case languageOfScriptLanguageInEra sLangInEra of
-              SimpleScriptLanguage ->
-                return . SimpleScriptWitness sLangInEra
-                      $ SReferenceScript refTxIn (unPolicyId <$> mPid)
-              PlutusScriptLanguage{} ->
-                error "readScriptWitness: Should not be possible to specify a plutus script"
-          Nothing ->
-            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
-    )
-    era
-
-validateScriptSupportedInEra :: CardanoEra era
-                             -> ScriptInAnyLang
-                             -> ExceptT ScriptWitnessError IO (ScriptInEra era)
+validateScriptSupportedInEra
+  :: CardanoEra era
+  -> ScriptInAnyLang
+  -> ExceptT ScriptWitnessError IO (ScriptInEra era)
 validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
-    case toScriptInEra era script of
-      Nothing -> left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra
-                          (AnyScriptLanguage lang) (anyCardanoEra era)
-      Just script' -> pure script'
+  case toScriptInEra era script of
+    Nothing ->
+      left $
+        ScriptWitnessErrorScriptLanguageNotSupportedInEra
+          (AnyScriptLanguage lang)
+          (anyCardanoEra era)
+    Just script' -> pure script'
 
-data ScriptDataError =
-    ScriptDataErrorFile (FileError ())
+data ScriptDataError
+  = ScriptDataErrorFile (FileError ())
   | ScriptDataErrorJsonParse !FilePath !String
   | ScriptDataErrorConversion !FilePath !ScriptDataJsonError
   | ScriptDataErrorValidation !FilePath !ScriptDataRangeError
@@ -384,35 +450,50 @@ renderScriptDataError :: ScriptDataError -> Text
 renderScriptDataError (ScriptDataErrorFile err) =
   Text.pack $ displayError err
 renderScriptDataError (ScriptDataErrorJsonParse fp jsonErr) =
-  Text.pack $ "Invalid JSON format in file: " <> show fp <>
-              "\nJSON parse error: " <> jsonErr
+  Text.pack $
+    "Invalid JSON format in file: "
+      <> show fp
+      <> "\nJSON parse error: "
+      <> jsonErr
 renderScriptDataError (ScriptDataErrorConversion fp sDataJsonErr) =
-  Text.pack $ "Error reading metadata at: " <> show fp <>
-              "\n" <> displayError sDataJsonErr
+  Text.pack $
+    "Error reading metadata at: "
+      <> show fp
+      <> "\n"
+      <> displayError sDataJsonErr
 renderScriptDataError (ScriptDataErrorValidation fp sDataRangeErr) =
-  Text.pack $ "Error validating script data at: " <> show fp <> ":\n" <>
-              displayError sDataRangeErr
+  Text.pack $
+    "Error validating script data at: "
+      <> show fp
+      <> ":\n"
+      <> displayError sDataRangeErr
 renderScriptDataError (ScriptDataErrorMetadataDecode fp decoderErr) =
-  Text.pack $ "Error decoding CBOR metadata at: " <> show fp <>
-              " Error: " <> show decoderErr
+  Text.pack $
+    "Error decoding CBOR metadata at: "
+      <> show fp
+      <> " Error: "
+      <> show decoderErr
 renderScriptDataError (ScriptDataErrorJsonBytes e) =
   Text.pack $ displayError e
 
+readScriptDatumOrFile
+  :: ScriptDatumOrFile witctx
+  -> ExceptT ScriptDataError IO (ScriptDatum witctx)
+readScriptDatumOrFile (ScriptDatumOrFileForTxIn df) =
+  ScriptDatumForTxIn
+    <$> readScriptDataOrFile df
+readScriptDatumOrFile InlineDatumPresentAtTxIn = pure InlineScriptDatum
+readScriptDatumOrFile NoScriptDatumOrFileForMint = pure NoScriptDatumForMint
+readScriptDatumOrFile NoScriptDatumOrFileForStake = pure NoScriptDatumForStake
 
-readScriptDatumOrFile :: ScriptDatumOrFile witctx
-                      -> ExceptT ScriptDataError IO (ScriptDatum witctx)
-readScriptDatumOrFile (ScriptDatumOrFileForTxIn df) = ScriptDatumForTxIn <$>
-                                                        readScriptDataOrFile df
-readScriptDatumOrFile InlineDatumPresentAtTxIn      = pure InlineScriptDatum
-readScriptDatumOrFile NoScriptDatumOrFileForMint    = pure NoScriptDatumForMint
-readScriptDatumOrFile NoScriptDatumOrFileForStake   = pure NoScriptDatumForStake
-
-readScriptRedeemerOrFile :: ScriptRedeemerOrFile
-                         -> ExceptT ScriptDataError IO ScriptRedeemer
+readScriptRedeemerOrFile
+  :: ScriptRedeemerOrFile
+  -> ExceptT ScriptDataError IO ScriptRedeemer
 readScriptRedeemerOrFile = readScriptDataOrFile
 
-readScriptDataOrFile :: ScriptDataOrFile
-                     -> ExceptT ScriptDataError IO HashableScriptData
+readScriptDataOrFile
+  :: ScriptDataOrFile
+  -> ExceptT ScriptDataError IO HashableScriptData
 readScriptDataOrFile (ScriptDataValue d) = return d
 readScriptDataOrFile (ScriptDataJsonFile fp) = do
   sDataBs <- handleIOExceptT (ScriptDataErrorFile . FileIOError fp) $ LBS.readFile fp
@@ -420,62 +501,67 @@ readScriptDataOrFile (ScriptDataJsonFile fp) = do
   hoistEither
     . first ScriptDataErrorJsonBytes
     $ scriptDataJsonToHashable ScriptDataJsonDetailedSchema sDataValue
-
 readScriptDataOrFile (ScriptDataCborFile fp) = do
   origBs <- handleIOExceptT (ScriptDataErrorFile . FileIOError fp) (BS.readFile fp)
-  hSd <- firstExceptT (ScriptDataErrorMetadataDecode fp)
-          $ hoistEither $ deserialiseFromCBOR AsHashableScriptData origBs
-  firstExceptT (ScriptDataErrorValidation fp)
-          $ hoistEither $ validateScriptData $ getScriptData hSd
+  hSd <-
+    firstExceptT (ScriptDataErrorMetadataDecode fp) $
+      hoistEither $
+        deserialiseFromCBOR AsHashableScriptData origBs
+  firstExceptT (ScriptDataErrorValidation fp) $
+    hoistEither $
+      validateScriptData $
+        getScriptData hSd
   return hSd
 
 -- | Read a script file. The file can either be in the text envelope format
 -- wrapping the binary representation of any of the supported script languages,
 -- or alternatively it can be a JSON format file for one of the simple script
 -- language versions.
---
-readFileScriptInAnyLang :: FilePath
-                        -> ExceptT (FileError ScriptDecodeError) IO
-                                   ScriptInAnyLang
+readFileScriptInAnyLang
+  :: FilePath
+  -> ExceptT
+      (FileError ScriptDecodeError)
+      IO
+      ScriptInAnyLang
 readFileScriptInAnyLang file = do
   scriptBytes <- handleIOExceptT (FileIOError file) $ BS.readFile file
-  firstExceptT (FileError file) $ hoistEither $
-    deserialiseScriptInAnyLang scriptBytes
+  firstExceptT (FileError file) $
+    hoistEither $
+      deserialiseScriptInAnyLang scriptBytes
 
-
-deserialiseScriptInAnyLang :: BS.ByteString
-                           -> Either ScriptDecodeError ScriptInAnyLang
+deserialiseScriptInAnyLang
+  :: BS.ByteString
+  -> Either ScriptDecodeError ScriptInAnyLang
 deserialiseScriptInAnyLang bs =
-    -- Accept either the text envelope format wrapping the binary serialisation,
-    -- or accept the simple script language in its JSON format.
-    --
-    case deserialiseFromJSON AsTextEnvelope bs of
-      Left _   ->
-        -- In addition to the TextEnvelope format, we also try to
-        -- deserialize the JSON representation of SimpleScripts.
-        case Aeson.eitherDecodeStrict' bs of
-          Left  err    -> Left (ScriptDecodeSimpleScriptError $ JsonDecodeError err)
-          Right script -> Right $ ScriptInAnyLang SimpleScriptLanguage $ SimpleScript script
-
-      Right te ->
-        case deserialiseFromTextEnvelopeAnyOf textEnvTypes te of
-          Left  err    -> Left (ScriptDecodeTextEnvelopeError err)
-          Right script -> Right script
-
-  where
-    -- TODO: Think of a way to get type checker to warn when there is a missing
-    -- script version.
-    textEnvTypes :: [FromSomeType HasTextEnvelope ScriptInAnyLang]
-    textEnvTypes =
-      [ FromSomeType (AsScript AsSimpleScript)
-                     (ScriptInAnyLang SimpleScriptLanguage)
-
-      , FromSomeType (AsScript AsPlutusScriptV1)
-                     (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1))
-
-      , FromSomeType (AsScript AsPlutusScriptV2)
-                     (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV2))
-      ]
+  -- Accept either the text envelope format wrapping the binary serialisation,
+  -- or accept the simple script language in its JSON format.
+  --
+  case deserialiseFromJSON AsTextEnvelope bs of
+    Left _ ->
+      -- In addition to the TextEnvelope format, we also try to
+      -- deserialize the JSON representation of SimpleScripts.
+      case Aeson.eitherDecodeStrict' bs of
+        Left err -> Left (ScriptDecodeSimpleScriptError $ JsonDecodeError err)
+        Right script -> Right $ ScriptInAnyLang SimpleScriptLanguage $ SimpleScript script
+    Right te ->
+      case deserialiseFromTextEnvelopeAnyOf textEnvTypes te of
+        Left err -> Left (ScriptDecodeTextEnvelopeError err)
+        Right script -> Right script
+ where
+  -- TODO: Think of a way to get type checker to warn when there is a missing
+  -- script version.
+  textEnvTypes :: [FromSomeType HasTextEnvelope ScriptInAnyLang]
+  textEnvTypes =
+    [ FromSomeType
+        (AsScript AsSimpleScript)
+        (ScriptInAnyLang SimpleScriptLanguage)
+    , FromSomeType
+        (AsScript AsPlutusScriptV1)
+        (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1))
+    , FromSomeType
+        (AsScript AsPlutusScriptV2)
+        (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV2))
+    ]
 
 -- Tx & TxBody
 
@@ -504,17 +590,21 @@ readFileTxBody file = do
     Left e -> fmap (IncompleteCddlFormattedTx . unCddlTx) <$> acceptTxCDDLSerialisation file e
     Right txBody -> return $ Right $ UnwitnessedCliFormattedTxBody txBody
 
-data CddlError = CddlErrorTextEnv
-                   !(FileError TextEnvelopeError)
-                   !(FileError TextEnvelopeCddlError)
-               | CddlIOError (FileError TextEnvelopeError)
-               deriving Show
+data CddlError
+  = CddlErrorTextEnv
+      !(FileError TextEnvelopeError)
+      !(FileError TextEnvelopeCddlError)
+  | CddlIOError (FileError TextEnvelopeError)
+  deriving (Show)
 
 instance Error CddlError where
   displayError (CddlErrorTextEnv textEnvErr cddlErr) =
     "Failed to decode neither the cli's serialisation format nor the ledger's \
-    \CDDL serialisation format. TextEnvelope error: " <> displayError textEnvErr <> "\n" <>
-    "TextEnvelopeCddl error: " <> displayError cddlErr
+    \CDDL serialisation format. TextEnvelope error: "
+      <> displayError textEnvErr
+      <> "\n"
+      <> "TextEnvelopeCddl error: "
+      <> displayError cddlErr
   displayError (CddlIOError e) = displayError e
 
 acceptTxCDDLSerialisation
@@ -523,41 +613,43 @@ acceptTxCDDLSerialisation
   -> IO (Either CddlError CddlTx)
 acceptTxCDDLSerialisation file err =
   case err of
-   e@(FileError _ (TextEnvelopeDecodeError _)) ->
+    e@(FileError _ (TextEnvelopeDecodeError _)) ->
       first (CddlErrorTextEnv e) <$> readCddlTx file
-   e@(FileError _ (TextEnvelopeAesonDecodeError _)) ->
+    e@(FileError _ (TextEnvelopeAesonDecodeError _)) ->
       first (CddlErrorTextEnv e) <$> readCddlTx file
-   e@(FileError _ (TextEnvelopeTypeError _ _)) ->
+    e@(FileError _ (TextEnvelopeTypeError _ _)) ->
       first (CddlErrorTextEnv e) <$> readCddlTx file
-   e@FileErrorTempFile{} -> return . Left $ CddlIOError e
-   e@FileDoesNotExistError{} -> return . Left $ CddlIOError e
-   e@FileIOError{} -> return . Left $ CddlIOError e
+    e@FileErrorTempFile {} -> return . Left $ CddlIOError e
+    e@FileDoesNotExistError {} -> return . Left $ CddlIOError e
+    e@FileIOError {} -> return . Left $ CddlIOError e
 
 readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
 readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
  where
-    teTypes = [ FromCDDLTx "Witnessed Tx ByronEra" CddlTx
-              , FromCDDLTx "Witnessed Tx ShelleyEra" CddlTx
-              , FromCDDLTx "Witnessed Tx AllegraEra" CddlTx
-              , FromCDDLTx "Witnessed Tx MaryEra" CddlTx
-              , FromCDDLTx "Witnessed Tx AlonzoEra" CddlTx
-              , FromCDDLTx "Witnessed Tx BabbageEra" CddlTx
-              , FromCDDLTx "Witnessed Tx ConwayEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx ByronEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx ShelleyEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx AllegraEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx MaryEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx AlonzoEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx BabbageEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx ConwayEra" CddlTx
-              ]
+  teTypes =
+    [ FromCDDLTx "Witnessed Tx ByronEra" CddlTx
+    , FromCDDLTx "Witnessed Tx ShelleyEra" CddlTx
+    , FromCDDLTx "Witnessed Tx AllegraEra" CddlTx
+    , FromCDDLTx "Witnessed Tx MaryEra" CddlTx
+    , FromCDDLTx "Witnessed Tx AlonzoEra" CddlTx
+    , FromCDDLTx "Witnessed Tx BabbageEra" CddlTx
+    , FromCDDLTx "Witnessed Tx ConwayEra" CddlTx
+    , FromCDDLTx "Unwitnessed Tx ByronEra" CddlTx
+    , FromCDDLTx "Unwitnessed Tx ShelleyEra" CddlTx
+    , FromCDDLTx "Unwitnessed Tx AllegraEra" CddlTx
+    , FromCDDLTx "Unwitnessed Tx MaryEra" CddlTx
+    , FromCDDLTx "Unwitnessed Tx AlonzoEra" CddlTx
+    , FromCDDLTx "Unwitnessed Tx BabbageEra" CddlTx
+    , FromCDDLTx "Unwitnessed Tx ConwayEra" CddlTx
+    ]
 
 -- Tx witnesses
 
-newtype CddlWitness = CddlWitness { unCddlWitness :: InAnyCardanoEra KeyWitness}
+newtype CddlWitness = CddlWitness {unCddlWitness :: InAnyCardanoEra KeyWitness}
 
-readFileTxKeyWitness :: FilePath
-                -> IO (Either CddlWitnessError (InAnyCardanoEra KeyWitness))
+readFileTxKeyWitness
+  :: FilePath
+  -> IO (Either CddlWitnessError (InAnyCardanoEra KeyWitness))
 readFileTxKeyWitness fp = do
   file <- fileOrPipe fp
   eWitness <- readFileInAnyCardanoEra AsKeyWitness file
@@ -570,15 +662,17 @@ data CddlWitnessError
       (FileError TextEnvelopeError)
       (FileError TextEnvelopeCddlError)
   | CddlWitnessIOError (FileError TextEnvelopeError)
-  deriving Show
+  deriving (Show)
 
 instance Error CddlWitnessError where
   displayError (CddlWitnessErrorTextEnv teErr cddlErr) =
     "Failed to decode neither the cli's serialisation format nor the ledger's \
-    \CDDL serialisation format. TextEnvelope error: " <> displayError teErr <> "\n" <>
-    "TextEnvelopeCddl error: " <> displayError cddlErr
+    \CDDL serialisation format. TextEnvelope error: "
+      <> displayError teErr
+      <> "\n"
+      <> "TextEnvelopeCddl error: "
+      <> displayError cddlErr
   displayError (CddlWitnessIOError fileE) = displayError fileE
-
 
 -- TODO: This is a stop gap to avoid modifying the TextEnvelope
 -- related functions. We intend to remove this after fully deprecating
@@ -594,9 +688,9 @@ acceptKeyWitnessCDDLSerialisation err =
       first (CddlWitnessErrorTextEnv e) <$> readCddlWitness fp
     e@(FileError fp (TextEnvelopeTypeError _ _)) ->
       first (CddlWitnessErrorTextEnv e) <$> readCddlWitness fp
-    e@FileErrorTempFile{} -> return . Left $ CddlWitnessIOError e
-    e@FileDoesNotExistError{} -> return . Left $ CddlWitnessIOError e
-    e@FileIOError{} -> return . Left $ CddlWitnessIOError e
+    e@FileErrorTempFile {} -> return . Left $ CddlWitnessIOError e
+    e@FileDoesNotExistError {} -> return . Left $ CddlWitnessIOError e
+    e@FileIOError {} -> return . Left $ CddlWitnessIOError e
 
 readCddlWitness
   :: FilePath
@@ -604,29 +698,29 @@ readCddlWitness
 readCddlWitness fp = do
   readFileTextEnvelopeCddlAnyOf teTypes fp
  where
-  teTypes = [ FromCDDLWitness "TxWitness ShelleyEra" CddlWitness
-            , FromCDDLWitness "TxWitness AllegraEra" CddlWitness
-            , FromCDDLWitness "TxWitness MaryEra" CddlWitness
-            , FromCDDLWitness "TxWitness AlonzoEra" CddlWitness
-            , FromCDDLWitness "TxWitness BabbageEra" CddlWitness
-            ]
+  teTypes =
+    [ FromCDDLWitness "TxWitness ShelleyEra" CddlWitness
+    , FromCDDLWitness "TxWitness AllegraEra" CddlWitness
+    , FromCDDLWitness "TxWitness MaryEra" CddlWitness
+    , FromCDDLWitness "TxWitness AlonzoEra" CddlWitness
+    , FromCDDLWitness "TxWitness BabbageEra" CddlWitness
+    ]
 
 -- Witness handling
 
 data SomeSigningWitness
-  = AByronSigningWitness                    (SigningKey ByronKey) (Maybe (Address ByronAddr))
-  | APaymentSigningWitness                  (SigningKey PaymentKey)
-  | APaymentExtendedSigningWitness          (SigningKey PaymentExtendedKey)
-  | AStakeSigningWitness                    (SigningKey StakeKey)
-  | AStakeExtendedSigningWitness            (SigningKey StakeExtendedKey)
-  | AStakePoolSigningWitness                (SigningKey StakePoolKey)
-  | AGenesisSigningWitness                  (SigningKey GenesisKey)
-  | AGenesisExtendedSigningWitness          (SigningKey GenesisExtendedKey)
-  | AGenesisDelegateSigningWitness          (SigningKey GenesisDelegateKey)
-  | AGenesisDelegateExtendedSigningWitness  (SigningKey GenesisDelegateExtendedKey)
-  | AGenesisUTxOSigningWitness              (SigningKey GenesisUTxOKey)
-  | ADRepSigningWitness                     (SigningKey DRepKey)
-
+  = AByronSigningWitness (SigningKey ByronKey) (Maybe (Address ByronAddr))
+  | APaymentSigningWitness (SigningKey PaymentKey)
+  | APaymentExtendedSigningWitness (SigningKey PaymentExtendedKey)
+  | AStakeSigningWitness (SigningKey StakeKey)
+  | AStakeExtendedSigningWitness (SigningKey StakeExtendedKey)
+  | AStakePoolSigningWitness (SigningKey StakePoolKey)
+  | AGenesisSigningWitness (SigningKey GenesisKey)
+  | AGenesisExtendedSigningWitness (SigningKey GenesisExtendedKey)
+  | AGenesisDelegateSigningWitness (SigningKey GenesisDelegateKey)
+  | AGenesisDelegateExtendedSigningWitness (SigningKey GenesisDelegateExtendedKey)
+  | AGenesisUTxOSigningWitness (SigningKey GenesisUTxOKey)
+  | ADRepSigningWitness (SigningKey DRepKey)
 
 -- | Data required for constructing a Shelley bootstrap witness.
 data ShelleyBootstrapWitnessSigningKeyData
@@ -647,18 +741,18 @@ data ByronOrShelleyWitness
 categoriseSomeSigningWitness :: SomeSigningWitness -> ByronOrShelleyWitness
 categoriseSomeSigningWitness swsk =
   case swsk of
-    AByronSigningWitness                    sk addr -> AByronWitness      (ShelleyBootstrapWitnessSigningKeyData  sk addr)
-    APaymentSigningWitness                  sk      -> AShelleyKeyWitness (WitnessPaymentKey                      sk)
-    APaymentExtendedSigningWitness          sk      -> AShelleyKeyWitness (WitnessPaymentExtendedKey              sk)
-    AStakeSigningWitness                    sk      -> AShelleyKeyWitness (WitnessStakeKey                        sk)
-    AStakeExtendedSigningWitness            sk      -> AShelleyKeyWitness (WitnessStakeExtendedKey                sk)
-    AStakePoolSigningWitness                sk      -> AShelleyKeyWitness (WitnessStakePoolKey                    sk)
-    AGenesisSigningWitness                  sk      -> AShelleyKeyWitness (WitnessGenesisKey                      sk)
-    AGenesisExtendedSigningWitness          sk      -> AShelleyKeyWitness (WitnessGenesisExtendedKey              sk)
-    AGenesisDelegateSigningWitness          sk      -> AShelleyKeyWitness (WitnessGenesisDelegateKey              sk)
-    AGenesisDelegateExtendedSigningWitness  sk      -> AShelleyKeyWitness (WitnessGenesisDelegateExtendedKey      sk)
-    AGenesisUTxOSigningWitness              sk      -> AShelleyKeyWitness (WitnessGenesisUTxOKey                  sk)
-    ADRepSigningWitness                     sk      -> AShelleyKeyWitness (WitnessPaymentKey $ castDrep           sk)
+    AByronSigningWitness sk addr -> AByronWitness (ShelleyBootstrapWitnessSigningKeyData sk addr)
+    APaymentSigningWitness sk -> AShelleyKeyWitness (WitnessPaymentKey sk)
+    APaymentExtendedSigningWitness sk -> AShelleyKeyWitness (WitnessPaymentExtendedKey sk)
+    AStakeSigningWitness sk -> AShelleyKeyWitness (WitnessStakeKey sk)
+    AStakeExtendedSigningWitness sk -> AShelleyKeyWitness (WitnessStakeExtendedKey sk)
+    AStakePoolSigningWitness sk -> AShelleyKeyWitness (WitnessStakePoolKey sk)
+    AGenesisSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisKey sk)
+    AGenesisExtendedSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisExtendedKey sk)
+    AGenesisDelegateSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisDelegateKey sk)
+    AGenesisDelegateExtendedSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisDelegateExtendedKey sk)
+    AGenesisUTxOSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisUTxOKey sk)
+    ADRepSigningWitness sk -> AShelleyKeyWitness (WitnessPaymentKey $ castDrep sk)
 
 -- TODO: Conway era - Add constrctor for SigningKey DrepKey to ShelleyWitnessSigningKey
 castDrep :: SigningKey DRepKey -> SigningKey PaymentKey
@@ -667,9 +761,9 @@ castDrep (DRepSigningKey sk) = PaymentSigningKey sk
 data ReadWitnessSigningDataError
   = ReadWitnessSigningDataSigningKeyDecodeError !(FileError InputDecodeError)
   | ReadWitnessSigningDataScriptError !(FileError JsonDecodeError)
-  | ReadWitnessSigningDataSigningKeyAndAddressMismatch
-  -- ^ A Byron address was specified alongside a non-Byron signing key.
-  deriving Show
+  | -- | A Byron address was specified alongside a non-Byron signing key.
+    ReadWitnessSigningDataSigningKeyAndAddressMismatch
+  deriving (Show)
 
 -- | Render an error message for a 'ReadWitnessSigningDataError'.
 renderReadWitnessSigningDataError :: ReadWitnessSigningDataError -> Text
@@ -686,47 +780,48 @@ readWitnessSigningData
   :: WitnessSigningData
   -> IO (Either ReadWitnessSigningDataError SomeSigningWitness)
 readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
-    eRes <- first ReadWitnessSigningDataSigningKeyDecodeError
-             <$> readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
-    return $ do
-      res <- eRes
-      case (res, mbByronAddr) of
-        (AByronSigningWitness _ _, Just _) -> pure res
-        (AByronSigningWitness _ _, Nothing) -> pure res
-        (_, Nothing) -> pure res
-        (_, Just _) ->
-          -- A Byron address should only be specified along with a Byron signing key.
-          Left ReadWitnessSigningDataSigningKeyAndAddressMismatch
-  where
-    textEnvFileTypes =
-      [ FromSomeType (AsSigningKey AsByronKey                   ) (`AByronSigningWitness` mbByronAddr)
-      , FromSomeType (AsSigningKey AsPaymentKey                 ) APaymentSigningWitness
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey         ) APaymentExtendedSigningWitness
-      , FromSomeType (AsSigningKey AsStakeKey                   ) AStakeSigningWitness
-      , FromSomeType (AsSigningKey AsStakeExtendedKey           ) AStakeExtendedSigningWitness
-      , FromSomeType (AsSigningKey AsStakePoolKey               ) AStakePoolSigningWitness
-      , FromSomeType (AsSigningKey AsGenesisKey                 ) AGenesisSigningWitness
-      , FromSomeType (AsSigningKey AsGenesisExtendedKey         ) AGenesisExtendedSigningWitness
-      , FromSomeType (AsSigningKey AsGenesisDelegateKey         ) AGenesisDelegateSigningWitness
-      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey ) AGenesisDelegateExtendedSigningWitness
-      , FromSomeType (AsSigningKey AsGenesisUTxOKey             ) AGenesisUTxOSigningWitness
-      , FromSomeType (AsSigningKey AsDRepKey                    ) ADRepSigningWitness
-      ]
+  eRes <-
+    first ReadWitnessSigningDataSigningKeyDecodeError
+      <$> readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
+  return $ do
+    res <- eRes
+    case (res, mbByronAddr) of
+      (AByronSigningWitness _ _, Just _) -> pure res
+      (AByronSigningWitness _ _, Nothing) -> pure res
+      (_, Nothing) -> pure res
+      (_, Just _) ->
+        -- A Byron address should only be specified along with a Byron signing key.
+        Left ReadWitnessSigningDataSigningKeyAndAddressMismatch
+ where
+  textEnvFileTypes =
+    [ FromSomeType (AsSigningKey AsByronKey) (`AByronSigningWitness` mbByronAddr)
+    , FromSomeType (AsSigningKey AsPaymentKey) APaymentSigningWitness
+    , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningWitness
+    , FromSomeType (AsSigningKey AsStakeKey) AStakeSigningWitness
+    , FromSomeType (AsSigningKey AsStakeExtendedKey) AStakeExtendedSigningWitness
+    , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningWitness
+    , FromSomeType (AsSigningKey AsGenesisKey) AGenesisSigningWitness
+    , FromSomeType (AsSigningKey AsGenesisExtendedKey) AGenesisExtendedSigningWitness
+    , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningWitness
+    , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey) AGenesisDelegateExtendedSigningWitness
+    , FromSomeType (AsSigningKey AsGenesisUTxOKey) AGenesisUTxOSigningWitness
+    , FromSomeType (AsSigningKey AsDRepKey) ADRepSigningWitness
+    ]
 
-    bech32FileTypes =
-      [ FromSomeType (AsSigningKey AsPaymentKey         ) APaymentSigningWitness
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey ) APaymentExtendedSigningWitness
-      , FromSomeType (AsSigningKey AsStakeKey           ) AStakeSigningWitness
-      , FromSomeType (AsSigningKey AsStakeExtendedKey   ) AStakeExtendedSigningWitness
-      , FromSomeType (AsSigningKey AsStakePoolKey       ) AStakePoolSigningWitness
-      ]
+  bech32FileTypes =
+    [ FromSomeType (AsSigningKey AsPaymentKey) APaymentSigningWitness
+    , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningWitness
+    , FromSomeType (AsSigningKey AsStakeKey) AStakeSigningWitness
+    , FromSomeType (AsSigningKey AsStakeExtendedKey) AStakeExtendedSigningWitness
+    , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningWitness
+    ]
 
 -- Required signers
 
 data RequiredSignerError
   = RequiredSignerErrorFile (FileError InputDecodeError)
   | RequiredSignerErrorByronKey (SigningKeyFile In)
-  deriving Show
+  deriving (Show)
 
 instance Error RequiredSignerError where
   displayError (RequiredSignerErrorFile e) = displayError e
@@ -736,7 +831,8 @@ instance Error RequiredSignerError where
 readRequiredSigner :: RequiredSigner -> IO (Either RequiredSignerError (Hash PaymentKey))
 readRequiredSigner (RequiredSignerHash h) = return $ Right h
 readRequiredSigner (RequiredSignerSkeyFile skFile) = do
-  eKeyWit <- first RequiredSignerErrorFile <$> readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
+  eKeyWit <-
+    first RequiredSignerErrorFile <$> readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
   return $ do
     keyWit <- eKeyWit
     case categoriseSomeSigningWitness keyWit of
@@ -745,28 +841,29 @@ readRequiredSigner (RequiredSignerSkeyFile skFile) = do
       AShelleyKeyWitness skey ->
         return . getHash $ toShelleySigningKey skey
  where
-   textEnvFileTypes =
-     [ FromSomeType (AsSigningKey AsPaymentKey        ) APaymentSigningWitness
-     , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningWitness
-     , FromSomeType (AsSigningKey AsStakePoolKey      ) AStakePoolSigningWitness
-     , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningWitness
-     ]
-   bech32FileTypes = []
+  textEnvFileTypes =
+    [ FromSomeType (AsSigningKey AsPaymentKey) APaymentSigningWitness
+    , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningWitness
+    , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningWitness
+    , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningWitness
+    ]
+  bech32FileTypes = []
 
-   getHash :: ShelleySigningKey -> Hash PaymentKey
-   getHash (ShelleyExtendedSigningKey sk) =
-     let extSKey = PaymentExtendedSigningKey sk
-         payVKey = castVerificationKey $ getVerificationKey extSKey
+  getHash :: ShelleySigningKey -> Hash PaymentKey
+  getHash (ShelleyExtendedSigningKey sk) =
+    let extSKey = PaymentExtendedSigningKey sk
+        payVKey = castVerificationKey $ getVerificationKey extSKey
      in verificationKeyHash payVKey
-   getHash (ShelleyNormalSigningKey sk) =
-     verificationKeyHash . getVerificationKey $ PaymentSigningKey sk
+  getHash (ShelleyNormalSigningKey sk) =
+    verificationKeyHash . getVerificationKey $ PaymentSigningKey sk
 
 data VoteError
   = VoteErrorFile (FileError TextEnvelopeError)
   | VotesNotSupportedInEra AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
-readVotingProceduresFiles :: ()
+readVotingProceduresFiles
+  :: ()
   => ConwayEraOnwards era
   -> [VoteFile In]
   -> IO (Either VoteError (VotingProcedures era))
@@ -777,25 +874,26 @@ readVotingProceduresFiles w = \case
 
     pure $ foldl unsafeMergeVotingProcedures emptyVotingProcedures vpss
 
-readVotingProceduresFile :: ()
+readVotingProceduresFile
+  :: ()
   => ConwayEraOnwards era
   -> VoteFile In
   -> IO (Either VoteError (VotingProcedures era))
 readVotingProceduresFile w fp =
-  conwayEraOnwardsConstraints w
-    $ first VoteErrorFile <$> readFileTextEnvelope AsVotingProcedures fp
+  conwayEraOnwardsConstraints w $
+    first VoteErrorFile <$> readFileTextEnvelope AsVotingProcedures fp
 
 data ConstitutionError
   = ConstitutionErrorFile (FileError TextEnvelopeError)
   | ConstitutionNotSupportedInEra AnyCardanoEra
   | ConstitutionNotUnicodeError Text.UnicodeException
-  deriving Show
+  deriving (Show)
 
 data ProposalError
   = ProposalErrorFile (FileError TextEnvelopeError)
   | ProposalNotSupportedInEra AnyCardanoEra
   | ProposalNotUnicodeError Text.UnicodeException
-  deriving Show
+  deriving (Show)
 
 readTxGovernanceActions
   :: CardanoEra era
@@ -803,8 +901,9 @@ readTxGovernanceActions
   -> IO (Either ConstitutionError [Proposal era])
 readTxGovernanceActions _ [] = return $ Right []
 readTxGovernanceActions era files = runExceptT $ do
-  w <- maybeEonInEra era
-    & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
+  w <-
+    maybeEonInEra era
+      & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
   newExceptT $ sequence <$> mapM (readProposal w) files
 
 readProposal
@@ -815,35 +914,33 @@ readProposal w fp =
   first ConstitutionErrorFile
     <$> conwayEraOnwardsConstraints w (readFileTextEnvelope AsProposal fp)
 
-constitutionHashSourceToHash :: ()
+constitutionHashSourceToHash
+  :: ()
   => ConstitutionHashSource
   -> ExceptT ConstitutionError IO (Ledger.SafeHash Ledger.StandardCrypto Ledger.AnchorData)
 constitutionHashSourceToHash constitutionHashSource = do
   case constitutionHashSource of
-    ConstitutionHashSourceFile fp  -> do
+    ConstitutionHashSourceFile fp -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
       _utf8EncodedText <- firstExceptT ConstitutionNotUnicodeError . hoistEither $ Text.decodeUtf8' cBs
       pure $ Ledger.hashAnchorData $ Ledger.AnchorData cBs
-
     ConstitutionHashSourceText c -> do
       pure $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
-
     ConstitutionHashSourceHash h ->
       pure h
 
-proposalHashSourceToHash :: ()
+proposalHashSourceToHash
+  :: ()
   => ProposalHashSource
   -> ExceptT ProposalError IO (Ledger.SafeHash Ledger.StandardCrypto Ledger.AnchorData)
 proposalHashSourceToHash proposalHashSource = do
   case proposalHashSource of
-    ProposalHashSourceFile fp  -> do
+    ProposalHashSourceFile fp -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
       _utf8EncodedText <- firstExceptT ProposalNotUnicodeError . hoistEither $ Text.decodeUtf8' cBs
       pure $ Ledger.hashAnchorData $ Ledger.AnchorData cBs
-
     ProposalHashSourceText c -> do
       pure $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
-
     ProposalHashSourceHash h ->
       pure h
 
@@ -861,14 +958,14 @@ readFileInAnyCardanoEra
   -> FileOrPipe
   -> IO (Either (FileError TextEnvelopeError) (InAnyCardanoEra thing))
 readFileInAnyCardanoEra asThing =
- readFileOrPipeTextEnvelopeAnyOf
-   [ FromSomeType (asThing AsByronEra)   (InAnyCardanoEra ByronEra)
-   , FromSomeType (asThing AsShelleyEra) (InAnyCardanoEra ShelleyEra)
-   , FromSomeType (asThing AsAllegraEra) (InAnyCardanoEra AllegraEra)
-   , FromSomeType (asThing AsMaryEra)    (InAnyCardanoEra MaryEra)
-   , FromSomeType (asThing AsAlonzoEra)  (InAnyCardanoEra AlonzoEra)
-   , FromSomeType (asThing AsBabbageEra) (InAnyCardanoEra BabbageEra)
-   ]
+  readFileOrPipeTextEnvelopeAnyOf
+    [ FromSomeType (asThing AsByronEra) (InAnyCardanoEra ByronEra)
+    , FromSomeType (asThing AsShelleyEra) (InAnyCardanoEra ShelleyEra)
+    , FromSomeType (asThing AsAllegraEra) (InAnyCardanoEra AllegraEra)
+    , FromSomeType (asThing AsMaryEra) (InAnyCardanoEra MaryEra)
+    , FromSomeType (asThing AsAlonzoEra) (InAnyCardanoEra AlonzoEra)
+    , FromSomeType (asThing AsBabbageEra) (InAnyCardanoEra BabbageEra)
+    ]
 
 -- | We need a type for handling files that may be actually be things like
 -- pipes. Currently the CLI makes no guarantee that a "file" will only
@@ -879,9 +976,8 @@ readFileInAnyCardanoEra asThing =
 -- from pipes, but at present that's not an issue.
 data FileOrPipe = FileOrPipe FilePath (IORef (Maybe LBS.ByteString))
 
-
 instance Show FileOrPipe where
-    show (FileOrPipe fp _) = show fp
+  show (FileOrPipe fp _) = show fp
 
 fileOrPipe :: FilePath -> IO FileOrPipe
 fileOrPipe fp = FileOrPipe fp <$> newIORef Nothing
@@ -899,39 +995,41 @@ fileOrPipeCache (FileOrPipe _ c) = readIORef c
 -- contents of the file or pipe, and is blocking.
 readFileOrPipe :: FileOrPipe -> IO LBS.ByteString
 readFileOrPipe (FileOrPipe fp cacheRef) = do
-    cached <- readIORef cacheRef
-    case cached of
-      Just dat -> pure dat
-      Nothing -> bracket
+  cached <- readIORef cacheRef
+  case cached of
+    Just dat -> pure dat
+    Nothing ->
+      bracket
         (openFileBlocking fp ReadMode)
         hClose
-        (\handle -> do
-          -- An arbitrary block size.
-          let blockSize = 4096
-          let go acc = do
-                next <- BS.hGet handle blockSize
-                if BS.null next
-                then pure acc
-                else go (acc <> Builder.byteString next)
-          contents <- go mempty
-          let dat = Builder.toLazyByteString contents
-          -- If our file is not seekable, it's likely a pipe, so we need to
-          -- save the result for subsequent calls
-          seekable <- hIsSeekable handle
-          unless seekable (writeIORef cacheRef (Just dat))
-          pure dat)
+        ( \handle -> do
+            -- An arbitrary block size.
+            let blockSize = 4096
+            let go acc = do
+                  next <- BS.hGet handle blockSize
+                  if BS.null next
+                    then pure acc
+                    else go (acc <> Builder.byteString next)
+            contents <- go mempty
+            let dat = Builder.toLazyByteString contents
+            -- If our file is not seekable, it's likely a pipe, so we need to
+            -- save the result for subsequent calls
+            seekable <- hIsSeekable handle
+            unless seekable (writeIORef cacheRef (Just dat))
+            pure dat
+        )
 
 readFileOrPipeTextEnvelopeAnyOf
   :: [FromSomeType HasTextEnvelope b]
   -> FileOrPipe
   -> IO (Either (FileError TextEnvelopeError) b)
 readFileOrPipeTextEnvelopeAnyOf types file = do
-    let path = fileOrPipePath file
-    runExceptT $ do
-      content <- handleIOExceptT (FileIOError path) $ readFileOrPipe file
-      firstExceptT (FileError path) $ hoistEither $ do
-        te <- first TextEnvelopeAesonDecodeError $ Aeson.eitherDecode' content
-        deserialiseFromTextEnvelopeAnyOf types te
+  let path = fileOrPipePath file
+  runExceptT $ do
+    content <- handleIOExceptT (FileIOError path) $ readFileOrPipe file
+    firstExceptT (FileError path) $ hoistEither $ do
+      te <- first TextEnvelopeAesonDecodeError $ Aeson.eitherDecode' content
+      deserialiseFromTextEnvelopeAnyOf types te
 
 readFileOrPipeTextEnvelopeCddlAnyOf
   :: [FromSomeTypeCDDL TextEnvelopeCddl b]
@@ -950,14 +1048,17 @@ readTextEnvelopeCddlFromFileOrPipe
 readTextEnvelopeCddlFromFileOrPipe file = do
   let path = fileOrPipePath file
   runExceptT $ do
-    bs <- handleIOExceptT (FileIOError path) $
-            readFileOrPipe file
+    bs <-
+      handleIOExceptT (FileIOError path) $
+        readFileOrPipe file
     firstExceptT (FileError path . TextEnvelopeCddlAesonDecodeError path)
-      . hoistEither $ Aeson.eitherDecode' bs
+      . hoistEither
+      $ Aeson.eitherDecode' bs
 
 ----------------------------------------------------------------------------------------------------
 
-getStakeCredentialFromVerifier :: ()
+getStakeCredentialFromVerifier
+  :: ()
   => StakeVerifier
   -> ExceptT StakeCredentialError IO StakeCredential
 getStakeCredentialFromVerifier = \case
@@ -966,28 +1067,30 @@ getStakeCredentialFromVerifier = \case
       readFileScriptInAnyLang sFile
         & firstExceptT StakeCredentialScriptDecodeError
     pure $ StakeCredentialByScript $ hashScript script
-
   StakeVerifierKey stakeVerKeyOrFile -> do
     stakeVerKey <-
       ExceptT (readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile)
         & firstExceptT StakeCredentialInputDecodeError
     pure $ StakeCredentialByKey $ verificationKeyHash stakeVerKey
 
-getStakeCredentialFromIdentifier :: ()
+getStakeCredentialFromIdentifier
+  :: ()
   => StakeIdentifier
   -> ExceptT StakeCredentialError IO StakeCredential
 getStakeCredentialFromIdentifier = \case
   StakeIdentifierAddress stakeAddr -> pure $ stakeAddressCredential stakeAddr
   StakeIdentifierVerifier stakeVerifier -> getStakeCredentialFromVerifier stakeVerifier
 
-getStakeAddressFromVerifier :: ()
+getStakeAddressFromVerifier
+  :: ()
   => NetworkId
   -> StakeVerifier
   -> ExceptT StakeCredentialError IO StakeAddress
 getStakeAddressFromVerifier networkId stakeVerifier =
   makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier
 
-getDRepCredentialFromVerKeyHashOrFile :: ()
+getDRepCredentialFromVerKeyHashOrFile
+  :: ()
   => VerificationKeyOrHashOrFile DRepKey
   -> ExceptT (FileError InputDecodeError) IO (Ledger.Credential Ledger.DRepRole Ledger.StandardCrypto)
 getDRepCredentialFromVerKeyHashOrFile = \case
@@ -1008,7 +1111,8 @@ renderReadSafeHashError = \case
   ReadSafeHashErrorInvalidHash err ->
     "Error reading anchor data hash: " <> err
 
-readHexAsSafeHash :: ()
+readHexAsSafeHash
+  :: ()
   => Text
   -> Either ReadSafeHashError (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 readHexAsSafeHash hex = do
@@ -1029,7 +1133,8 @@ readSafeHash =
 scriptHashReader :: Opt.ReadM ScriptHash
 scriptHashReader = Opt.eitherReader $ Right . fromString
 
-readVoteDelegationTarget :: ()
+readVoteDelegationTarget
+  :: ()
   => VoteDelegationTarget
   -> ExceptT DelegationError IO (L.DRep Ledger.StandardCrypto)
 readVoteDelegationTarget voteDelegationTarget =

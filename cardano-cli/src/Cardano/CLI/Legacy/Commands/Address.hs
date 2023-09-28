@@ -6,14 +6,14 @@ module Cardano.CLI.Legacy.Commands.Address
   , renderLegacyAddressCmds
   ) where
 
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Prelude
+import Prelude
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyAddressCmds
   = AddressKeyGen
@@ -32,7 +32,7 @@ data LegacyAddressCmds
   | AddressInfo
       Text
       (Maybe (File () Out))
-  deriving Show
+  deriving (Show)
 
 renderLegacyAddressCmds :: LegacyAddressCmds -> Text
 renderLegacyAddressCmds = \case

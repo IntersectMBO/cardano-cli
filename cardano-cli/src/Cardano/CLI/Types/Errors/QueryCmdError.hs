@@ -8,26 +8,26 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.QueryCmdError
-  ( QueryCmdError(..)
+  ( QueryCmdError (..)
   , renderQueryCmdError
   ) where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Helpers (HelpersError (..), renderHelpersError)
-import           Cardano.CLI.Types.Errors.GenesisCmdError
-import           Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
-import           Ouroboros.Consensus.Cardano.Block as Consensus (EraMismatch (..))
+import Cardano.Binary (DecoderError)
+import Cardano.CLI.Helpers (HelpersError (..), renderHelpersError)
+import Cardano.CLI.Types.Errors.GenesisCmdError
+import Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
+import Ouroboros.Consensus.Cardano.Block as Consensus (EraMismatch (..))
 import qualified Ouroboros.Consensus.HardFork.History.Qry as Qry
 
 import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Text (Text)
+import Data.Text (Text)
 import qualified Data.Text as Text
-import           Data.Text.Lazy (toStrict)
-import           Data.Text.Lazy.Builder (toLazyText)
-import           Formatting.Buildable (build)
+import Data.Text.Lazy (toStrict)
+import Data.Text.Lazy.Builder (toLazyText)
+import Formatting.Buildable (build)
 
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Redundant flip" -}
@@ -54,7 +54,7 @@ data QueryCmdError
   | QueryCmdStakeSnapshotDecodeError DecoderError
   | QueryCmdUnsupportedNtcVersion !UnsupportedNtcVersionError
   | QueryCmdProtocolParameterConversionError !ProtocolParametersConversionError
-  deriving Show
+  deriving (Show)
 
 renderQueryCmdError :: QueryCmdError -> Text
 renderQueryCmdError err =
@@ -65,11 +65,16 @@ renderQueryCmdError err =
     QueryCmdAcquireFailure acquireFail -> Text.pack $ show acquireFail
     QueryCmdByronEra -> "This query cannot be used for the Byron era"
     QueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra era) ->
-      "Consensus mode and era mismatch. Consensus mode: " <> textShow cMode <>
-      " Era: " <> textShow era
+      "Consensus mode and era mismatch. Consensus mode: "
+        <> textShow cMode
+        <> " Era: "
+        <> textShow era
     QueryCmdEraMismatch (EraMismatch ledgerEra queryEra) ->
-      "\nAn error mismatch occurred." <> "\nSpecified query era: " <> queryEra <>
-      "\nCurrent ledger era: " <> ledgerEra
+      "\nAn error mismatch occurred."
+        <> "\nSpecified query era: "
+        <> queryEra
+        <> "\nCurrent ledger era: "
+        <> ledgerEra
     QueryCmdUnsupportedMode mode -> "Unsupported mode: " <> renderMode mode
     QueryCmdPastHorizon e -> "Past horizon: " <> textShow e
     QueryCmdSystemStartUnavailable -> "System start unavailable"
@@ -85,9 +90,13 @@ renderQueryCmdError err =
     QueryCmdStakeSnapshotDecodeError decoderError ->
       "Failed to decode StakeSnapshot.  Error: " <> Text.pack (show decoderError)
     QueryCmdUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
-      "Unsupported feature for the node-to-client protocol version.\n" <>
-      "This query requires at least " <> textShow minNtcVersion <> " but the node negotiated " <> textShow ntcVersion <> ".\n" <>
-      "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
+      "Unsupported feature for the node-to-client protocol version.\n"
+        <> "This query requires at least "
+        <> textShow minNtcVersion
+        <> " but the node negotiated "
+        <> textShow ntcVersion
+        <> ".\n"
+        <> "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
     QueryCmdProtocolParameterConversionError ppce ->
       Text.pack $ "Failed to convert protocol parameter: " <> displayError ppce
     QueryCmdConvenienceError qce -> renderQueryConvenienceError qce

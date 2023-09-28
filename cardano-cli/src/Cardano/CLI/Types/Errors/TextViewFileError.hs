@@ -1,21 +1,21 @@
 {-# LANGUAGE DataKinds #-}
 
 module Cardano.CLI.Types.Errors.TextViewFileError
-  ( TextViewFileError(..)
+  ( TextViewFileError (..)
   , renderTextViewFileError
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Helpers (HelpersError, renderHelpersError)
+import Cardano.CLI.Helpers (HelpersError, renderHelpersError)
 
-import           Data.Text (Text)
+import Data.Text (Text)
 import qualified Data.Text as Text
 
 data TextViewFileError
   = TextViewReadFileError (FileError TextEnvelopeError)
   | TextViewCBORPrettyPrintError !HelpersError
-  deriving Show
+  deriving (Show)
 
 renderTextViewFileError :: TextViewFileError -> Text
 renderTextViewFileError err =

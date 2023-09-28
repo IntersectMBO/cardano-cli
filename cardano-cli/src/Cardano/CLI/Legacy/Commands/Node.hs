@@ -6,12 +6,12 @@ module Cardano.CLI.Legacy.Commands.Node
   , renderLegacyNodeCmds
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyNodeCmds
   = NodeKeyGenCold
@@ -38,8 +38,9 @@ data LegacyNodeCmds
       (VerificationKeyOrFile KesKey)
       (SigningKeyFile In)
       (OpCertCounterFile InOut)
-      KESPeriod (File () Out)
-  deriving Show
+      KESPeriod
+      (File () Out)
+  deriving (Show)
 
 renderLegacyNodeCmds :: LegacyNodeCmds -> Text
 renderLegacyNodeCmds = \case
@@ -48,4 +49,4 @@ renderLegacyNodeCmds = \case
   NodeKeyGenVRF {} -> "node key-gen-VRF"
   NodeKeyHashVRF {} -> "node key-hash-VRF"
   NodeNewCounter {} -> "node new-counter"
-  NodeIssueOpCert{} -> "node issue-op-cert"
+  NodeIssueOpCert {} -> "node issue-op-cert"

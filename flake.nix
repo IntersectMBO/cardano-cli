@@ -49,7 +49,7 @@
           src = ./.;
           hooks = {
             alejandra.enable = true;
-            ormolu.enable = true;
+            fourmolu.enable = true;
             hlint.enable = true;
           };
           # make sure the tools are exactly the ones from the cabalProject.shell below.
@@ -61,7 +61,7 @@
               cabalProject.shell.nativeBuildInputs;
           in {
             hlint = findToolHack "hlint";
-            ormolu = findToolHack "ormolu";
+            fourmolu = findToolHack "fourmolu";
           };
         };
 
@@ -95,7 +95,7 @@
             }
             // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
               # tools that work only with default compiler
-              ormolu = "0.7.1.0";
+              fourmolu = "0.13.0.0";
               hlint = "3.5";
               haskell-language-server = "2.0.0.0";
             };

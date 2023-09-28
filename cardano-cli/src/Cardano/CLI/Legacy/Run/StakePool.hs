@@ -6,19 +6,20 @@ module Cardano.CLI.Legacy.Run.StakePool
   ( runLegacyStakePoolCmds
   ) where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Run.StakePool
-import           Cardano.CLI.Legacy.Commands.StakePool
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.StakePoolCmdError
-import           Cardano.CLI.Types.Key (VerificationKeyOrFile)
+import Cardano.CLI.EraBased.Run.StakePool
+import Cardano.CLI.Legacy.Commands.StakePool
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.StakePoolCmdError
+import Cardano.CLI.Types.Key (VerificationKeyOrFile)
 import qualified Cardano.Ledger.Slot as Shelley
 
-import           Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except (ExceptT)
 
-runLegacyStakePoolCmds :: ()
+runLegacyStakePoolCmds
+  :: ()
   => LegacyStakePoolCmds
   -> ExceptT StakePoolCmdError IO ()
 runLegacyStakePoolCmds = \case
@@ -28,13 +29,38 @@ runLegacyStakePoolCmds = \case
     runLegacyStakePoolIdCmd sPvkey outputFormat mOutFile
   StakePoolMetadataHashCmd poolMdFile mOutFile ->
     runLegacyStakePoolMetadataHashCmd poolMdFile mOutFile
-  StakePoolRegistrationCertificateCmd anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
-    runLegacyStakePoolRegistrationCertificateCmd anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
+  StakePoolRegistrationCertificateCmd
+    anyEra
+    sPvkey
+    vrfVkey
+    pldg
+    pCost
+    pMrgn
+    rwdVerFp
+    ownerVerFps
+    relays
+    mbMetadata
+    network
+    outfp ->
+      runLegacyStakePoolRegistrationCertificateCmd
+        anyEra
+        sPvkey
+        vrfVkey
+        pldg
+        pCost
+        pMrgn
+        rwdVerFp
+        ownerVerFps
+        relays
+        mbMetadata
+        network
+        outfp
 
 -- | Create a stake pool registration cert.
 -- TODO: Metadata and more stake pool relay support to be
 -- added in the future.
-runLegacyStakePoolRegistrationCertificateCmd :: ()
+runLegacyStakePoolRegistrationCertificateCmd
+  :: ()
   => AnyShelleyBasedEra
   -> VerificationKeyOrFile StakePoolKey
   -- ^ Stake pool verification key.
@@ -61,7 +87,8 @@ runLegacyStakePoolRegistrationCertificateCmd = \case
   AnyShelleyBasedEra sbe ->
     runStakePoolRegistrationCertificateCmd sbe
 
-runLegacyStakePoolDeregistrationCertificateCmd :: ()
+runLegacyStakePoolDeregistrationCertificateCmd
+  :: ()
   => AnyShelleyBasedEra
   -> VerificationKeyOrFile StakePoolKey
   -> Shelley.EpochNo
@@ -71,7 +98,8 @@ runLegacyStakePoolDeregistrationCertificateCmd = \case
   AnyShelleyBasedEra sbe ->
     runStakePoolRetirementCertificateCmd sbe
 
-runLegacyStakePoolIdCmd :: ()
+runLegacyStakePoolIdCmd
+  :: ()
   => VerificationKeyOrFile StakePoolKey
   -> IdOutputFormat
   -> Maybe (File () Out)
@@ -79,7 +107,8 @@ runLegacyStakePoolIdCmd :: ()
 runLegacyStakePoolIdCmd =
   runStakePoolIdCmd
 
-runLegacyStakePoolMetadataHashCmd :: ()
+runLegacyStakePoolMetadataHashCmd
+  :: ()
   => StakePoolMetadataFile In
   -> Maybe (File () Out)
   -> ExceptT StakePoolCmdError IO ()

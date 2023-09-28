@@ -8,146 +8,156 @@ module Cardano.CLI.EraBased.Options.Transaction
   ( pTransactionCmds
   ) where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.EraBased.Commands.Transaction
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Environment (EnvCli (..))
+import Cardano.CLI.EraBased.Commands.Transaction
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Types.Common
 
-import           Data.Foldable
-import           Options.Applicative hiding (help, str)
+import Data.Foldable
+import Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 import qualified Options.Applicative.Help as H
-import           Prettyprinter (line, pretty)
+import Prettyprinter (line, pretty)
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pTransactionCmds :: ()
+pTransactionCmds
+  :: ()
   => CardanoEra era
   -> EnvCli
   -> Maybe (Parser (TransactionCmds era))
 pTransactionCmds era envCli =
-  subInfoParser "transaction"
-    ( Opt.progDesc
-        $ mconcat
+  subInfoParser
+    "transaction"
+    ( Opt.progDesc $
+        mconcat
           [ "Transaction commands."
           ]
     )
-    [ Just
-        $ subParser "build-raw"
-        $ Opt.info (pTransactionBuildRaw era)
-        $ Opt.progDescDoc
-        $ Just $ mconcat
-            [ pretty @String "Build a transaction (low-level, inconvenient)"
-            , line
-            , line
-            , H.yellow $ mconcat
-                [ "Please note the order of some cmd options is crucial. If used incorrectly may produce "
-                , "undesired tx body. See nested [] notation above for details."
-                ]
-            ]
-    , Just
-        $ subParser "build"
-        $ Opt.info (pTransactionBuild era envCli)
-        $ Opt.progDescDoc
-        $ Just $ mconcat
-            [ pretty @String "Build a balanced transaction (automatically calculates fees)"
-            , line
-            , line
-            , H.yellow $ mconcat
-                [ "Please note "
-                , H.underline "the order"
-                , " of some cmd options is crucial. If used incorrectly may produce "
-                , "undesired tx body. See nested [] notation above for details."
-                ]
-            ]
-    , Just
-        $ subParser "sign"
-        $ Opt.info (pTransactionSign envCli)
-        $ Opt.progDesc "Sign a transaction"
-    , Just
-        $ subParser "witness"
-        $ Opt.info (pTransactionCreateWitness envCli)
-        $ Opt.progDesc "Create a transaction witness"
-    , Just
-        $ subParser "assemble"
-        $ Opt.info pTransactionAssembleTxBodyWit
-        $ Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
+    [ Just $
+        subParser "build-raw" $
+          Opt.info (pTransactionBuildRaw era) $
+            Opt.progDescDoc $
+              Just $
+                mconcat
+                  [ pretty @String "Build a transaction (low-level, inconvenient)"
+                  , line
+                  , line
+                  , H.yellow $
+                      mconcat
+                        [ "Please note the order of some cmd options is crucial. If used incorrectly may produce "
+                        , "undesired tx body. See nested [] notation above for details."
+                        ]
+                  ]
+    , Just $
+        subParser "build" $
+          Opt.info (pTransactionBuild era envCli) $
+            Opt.progDescDoc $
+              Just $
+                mconcat
+                  [ pretty @String "Build a balanced transaction (automatically calculates fees)"
+                  , line
+                  , line
+                  , H.yellow $
+                      mconcat
+                        [ "Please note "
+                        , H.underline "the order"
+                        , " of some cmd options is crucial. If used incorrectly may produce "
+                        , "undesired tx body. See nested [] notation above for details."
+                        ]
+                  ]
+    , Just $
+        subParser "sign" $
+          Opt.info (pTransactionSign envCli) $
+            Opt.progDesc "Sign a transaction"
+    , Just $
+        subParser "witness" $
+          Opt.info (pTransactionCreateWitness envCli) $
+            Opt.progDesc "Create a transaction witness"
+    , Just $
+        subParser "assemble" $
+          Opt.info pTransactionAssembleTxBodyWit $
+            Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
     , Just pSignWitnessBackwardCompatible
-    , Just
-        $ subParser "submit"
-        $ Opt.info (pTransactionSubmit envCli)
-        $ Opt.progDesc
-        $ mconcat
-            [ "Submit a transaction to the local node whose Unix domain socket "
-            , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
-            ]
-    , Just
-        $ subParser "policyid"
-        $ Opt.info pTransactionPolicyId
-        $ Opt.progDesc "Calculate the PolicyId from the monetary policy script."
-    , Just
-        $ subParser "calculate-min-fee"
-        $ Opt.info (pTransactionCalculateMinFee envCli)
-        $ Opt.progDesc "Calculate the minimum fee for a transaction."
-    , Just
-        $ subParser "calculate-min-required-utxo"
-        $ Opt.info (pTransactionCalculateMinReqUTxO era)
-        $ Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
-    , Just
-        $ pCalculateMinRequiredUtxoBackwardCompatible era
-    , Just
-        $ subParser "hash-script-data"
-        $ Opt.info pTxHashScriptData
-        $ Opt.progDesc "Calculate the hash of script data."
-    , Just
-        $ subParser "txid"
-        $ Opt.info pTransactionId
-        $ Opt.progDesc "Print a transaction identifier."
-    , Just
-        $ subParser "view"
-        $ Opt.info pTransactionView
-        $ Opt.progDesc "Print a transaction."
+    , Just $
+        subParser "submit" $
+          Opt.info (pTransactionSubmit envCli) $
+            Opt.progDesc $
+              mconcat
+                [ "Submit a transaction to the local node whose Unix domain socket "
+                , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
+                ]
+    , Just $
+        subParser "policyid" $
+          Opt.info pTransactionPolicyId $
+            Opt.progDesc "Calculate the PolicyId from the monetary policy script."
+    , Just $
+        subParser "calculate-min-fee" $
+          Opt.info (pTransactionCalculateMinFee envCli) $
+            Opt.progDesc "Calculate the minimum fee for a transaction."
+    , Just $
+        subParser "calculate-min-required-utxo" $
+          Opt.info (pTransactionCalculateMinReqUTxO era) $
+            Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
+    , Just $
+        pCalculateMinRequiredUtxoBackwardCompatible era
+    , Just $
+        subParser "hash-script-data" $
+          Opt.info pTxHashScriptData $
+            Opt.progDesc "Calculate the hash of script data."
+    , Just $
+        subParser "txid" $
+          Opt.info pTransactionId $
+            Opt.progDesc "Print a transaction identifier."
+    , Just $
+        subParser "view" $
+          Opt.info pTransactionView $
+            Opt.progDesc "Print a transaction."
     ]
 
 -- Backwards compatible parsers
 calcMinValueInfo :: CardanoEra era -> ParserInfo (TransactionCmds era)
 calcMinValueInfo era =
-  Opt.info (pTransactionCalculateMinReqUTxO era)
-    $ Opt.progDesc "DEPRECATED: Use 'calculate-min-required-utxo' instead."
+  Opt.info (pTransactionCalculateMinReqUTxO era) $
+    Opt.progDesc "DEPRECATED: Use 'calculate-min-required-utxo' instead."
 
 pCalculateMinRequiredUtxoBackwardCompatible :: CardanoEra era -> Parser (TransactionCmds era)
 pCalculateMinRequiredUtxoBackwardCompatible era =
-  Opt.subparser
-    $ Opt.command "calculate-min-value" (calcMinValueInfo era) <> Opt.internal
+  Opt.subparser $
+    Opt.command "calculate-min-value" (calcMinValueInfo era) <> Opt.internal
 
 assembleInfo :: ParserInfo (TransactionCmds era)
 assembleInfo =
-  Opt.info pTransactionAssembleTxBodyWit
-    $ Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
+  Opt.info pTransactionAssembleTxBodyWit $
+    Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
 
 pSignWitnessBackwardCompatible :: Parser (TransactionCmds era)
 pSignWitnessBackwardCompatible =
-  Opt.subparser
-    $ Opt.command "sign-witness" assembleInfo <> Opt.internal
+  Opt.subparser $
+    Opt.command "sign-witness" assembleInfo <> Opt.internal
 
 pScriptValidity :: Parser ScriptValidity
-pScriptValidity = asum
-  [ Opt.flag' ScriptValid $ mconcat
-    [ Opt.long "script-valid"
-    , Opt.help "Assertion that the script is valid. (default)"
+pScriptValidity =
+  asum
+    [ Opt.flag' ScriptValid $
+        mconcat
+          [ Opt.long "script-valid"
+          , Opt.help "Assertion that the script is valid. (default)"
+          ]
+    , Opt.flag' ScriptInvalid $
+        mconcat
+          [ Opt.long "script-invalid"
+          , Opt.help $
+              mconcat
+                [ "Assertion that the script is invalid.  "
+                , "If a transaction is submitted with such a script, "
+                , "the script will fail and the collateral will be taken."
+                ]
+          ]
     ]
-  , Opt.flag' ScriptInvalid $ mconcat
-    [ Opt.long "script-invalid"
-    , Opt.help $ mconcat
-      [ "Assertion that the script is invalid.  "
-      , "If a transaction is submitted with such a script, "
-      , "the script will fail and the collateral will be taken."
-      ]
-    ]
-  ]
 
 pTransactionBuild :: CardanoEra era -> EnvCli -> Parser (TransactionCmds era)
 pTransactionBuild era envCli =
@@ -171,10 +181,12 @@ pTransactionBuild era envCli =
     <*> many (pCertificateFile AutoBalance)
     <*> many (pWithdrawal AutoBalance)
     <*> pTxMetadataJsonSchema
-    <*> many (pScriptFor
-                "auxiliary-script-file"
-                Nothing
-                "Filepath of auxiliary script(s)")
+    <*> many
+      ( pScriptFor
+          "auxiliary-script-file"
+          Nothing
+          "Filepath of auxiliary script(s)"
+      )
     <*> many pMetadataFile
     <*> optional pUpdateProposalFile
     <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
@@ -183,11 +195,13 @@ pTransactionBuild era envCli =
 
 pChangeAddress :: Parser TxOutChangeAddress
 pChangeAddress =
-  fmap TxOutChangeAddress $ Opt.option (readerFromParsecParser parseAddressAny) $ mconcat
-    [ Opt.long "change-address"
-    , Opt.metavar "ADDRESS"
-    , Opt.help "Address where ADA in excess of the tx fee will go to."
-    ]
+  fmap TxOutChangeAddress $
+    Opt.option (readerFromParsecParser parseAddressAny) $
+      mconcat
+        [ Opt.long "change-address"
+        , Opt.metavar "ADDRESS"
+        , Opt.help "Address where ADA in excess of the tx fee will go to."
+        ]
 
 pTransactionBuildRaw :: CardanoEra era -> Parser (TransactionCmds era)
 pTransactionBuildRaw era =
@@ -204,7 +218,7 @@ pTransactionBuildRaw era =
     <*> optional pInvalidBefore
     <*> optional pInvalidHereafter
     <*> optional pTxFee
-    <*> many (pCertificateFile ManualBalance )
+    <*> many (pCertificateFile ManualBalance)
     <*> many (pWithdrawal ManualBalance)
     <*> pTxMetadataJsonSchema
     <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
@@ -213,7 +227,7 @@ pTransactionBuildRaw era =
     <*> optional pUpdateProposalFile
     <*> pTxBodyFileOut
 
-pTransactionSign  :: EnvCli -> Parser (TransactionCmds era)
+pTransactionSign :: EnvCli -> Parser (TransactionCmds era)
 pTransactionSign envCli =
   TxSign
     <$> pInputTxOrTxBodyFile
@@ -248,7 +262,7 @@ pTransactionPolicyId :: Parser (TransactionCmds era)
 pTransactionPolicyId = TxMintedPolicyId <$> pScript
 
 pTransactionCalculateMinFee :: EnvCli -> Parser (TransactionCmds era)
-pTransactionCalculateMinFee envCli  =
+pTransactionCalculateMinFee envCli =
   TxCalculateMinFee
     <$> pTxBodyFileIn
     <*> pNetworkId envCli
@@ -266,13 +280,13 @@ pTransactionCalculateMinReqUTxO era =
 
 pTxHashScriptData :: Parser (TransactionCmds era)
 pTxHashScriptData =
-  fmap TxHashScriptData
-    $ pScriptDataOrFile
-        "script-data"
-        "The script data, in JSON syntax."
-        "The script data, in the given JSON file."
+  fmap TxHashScriptData $
+    pScriptDataOrFile
+      "script-data"
+      "The script data, in JSON syntax."
+      "The script data, in the given JSON file."
 
-pTransactionId  :: Parser (TransactionCmds era)
+pTransactionId :: Parser (TransactionCmds era)
 pTransactionId = TxGetTxId <$> pInputTxOrTxBodyFile
 
 pTransactionView :: Parser (TransactionCmds era)

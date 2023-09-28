@@ -2,14 +2,18 @@
 
 module Test.Golden.Shelley.TextEnvelope.Certificates.GenesisKeyDelegation where
 
-import           Cardano.Api (AsType (..), CardanoEra (..), cardanoEraConstraints,
-                   textEnvelopeTypeInEra)
+import Cardano.Api
+  ( AsType (..)
+  , CardanoEra (..)
+  , cardanoEraConstraints
+  , textEnvelopeTypeInEra
+  )
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -42,29 +46,40 @@ hprop_golden_shelleyGenesisKeyDelegationCertificate =
 
     genesisDelegOpCertCounterFilePath <- noteTempFile tempDir "genesis-delegate-opcert-counter"
 
-
     -- Generate genesis key pair
-    void $ execCardanoCLI
-      [ "genesis","key-gen-genesis"
-      , "--verification-key-file", genesisVerKeyFilePath
-      , "--signing-key-file", genesisSignKeyFilePath
-      ]
+    void $
+      execCardanoCLI
+        [ "genesis"
+        , "key-gen-genesis"
+        , "--verification-key-file"
+        , genesisVerKeyFilePath
+        , "--signing-key-file"
+        , genesisSignKeyFilePath
+        ]
 
     -- Generate genesis delegate key pair
-    void $ execCardanoCLI
-      [ "genesis","key-gen-delegate"
-      , "--verification-key-file", genesisDelegVerKeyFilePath
-      , "--signing-key-file", genesisDelegSignKeyFilePath
-      , "--operational-certificate-issue-counter-file"
-      , genesisDelegOpCertCounterFilePath
-      ]
+    void $
+      execCardanoCLI
+        [ "genesis"
+        , "key-gen-delegate"
+        , "--verification-key-file"
+        , genesisDelegVerKeyFilePath
+        , "--signing-key-file"
+        , genesisDelegSignKeyFilePath
+        , "--operational-certificate-issue-counter-file"
+        , genesisDelegOpCertCounterFilePath
+        ]
 
     -- Generate VRF key pair
-    void $ execCardanoCLI
-      [ "node","key-gen-VRF"
-      , "--verification-key-file", vrfVerKeyFilePath
-      , "--signing-key-file", vrfSignKeyFilePath
-      ]
+    void $
+      execCardanoCLI
+        [ "node"
+        , "key-gen-VRF"
+        , "--verification-key-file"
+        , vrfVerKeyFilePath
+        , "--signing-key-file"
+        , vrfSignKeyFilePath
+        ]
 
     H.assertFilesExist
       [ genesisVerKeyFilePath
@@ -73,14 +88,21 @@ hprop_golden_shelleyGenesisKeyDelegationCertificate =
       ]
 
     -- Create genesis key delegation certificate
-    void $ execCardanoCLI
-      [ "legacy", "governance", "create-genesis-key-delegation-certificate"
-      , "--babbage-era"
-      , "--genesis-verification-key-file", genesisVerKeyFilePath
-      , "--genesis-delegate-verification-key-file", genesisDelegVerKeyFilePath
-      , "--vrf-verification-key-file", vrfVerKeyFilePath
-      , "--out-file", genesisKeyDelegCertFilePath
-      ]
+    void $
+      execCardanoCLI
+        [ "legacy"
+        , "governance"
+        , "create-genesis-key-delegation-certificate"
+        , "--babbage-era"
+        , "--genesis-verification-key-file"
+        , genesisVerKeyFilePath
+        , "--genesis-delegate-verification-key-file"
+        , genesisDelegVerKeyFilePath
+        , "--vrf-verification-key-file"
+        , vrfVerKeyFilePath
+        , "--out-file"
+        , genesisKeyDelegCertFilePath
+        ]
 
     H.assertFilesExist [genesisKeyDelegCertFilePath]
 

@@ -3,14 +3,14 @@
 
 module Test.Golden.Shelley.TextEnvelope.Keys.ExtendedPaymentKeys where
 
-import           Cardano.Api (AsType (..), HasTextEnvelope (..))
+import Cardano.Api (AsType (..), HasTextEnvelope (..))
 
-import           Control.Monad (void)
-import           Text.Regex.TDFA ((=~))
+import Control.Monad (void)
+import Text.Regex.TDFA ((=~))
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
@@ -23,20 +23,27 @@ import qualified Hedgehog.Extras.Test.File as H
 hprop_golden_shelleyExtendedPaymentKeys :: Property
 hprop_golden_shelleyExtendedPaymentKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/signing_key"
+  referenceVerKey <-
+    noteInputFile
+      "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/verification_key"
+  referenceSignKey <-
+    noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "extended-payment-verification-key-file"
   signKey <- noteTempFile tempDir "extended-payment-signing-key-file"
 
   -- Generate payment verification key
-  void $ execCardanoCLI
-    [ "address","key-gen"
-    , "--extended-key"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "address"
+      , "key-gen"
+      , "--extended-key"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   let signingKeyType = textEnvelopeType (AsSigningKey AsPaymentExtendedKey)
       verificationKeyType = textEnvelopeType (AsVerificationKey AsPaymentExtendedKey)
@@ -52,21 +59,29 @@ hprop_golden_shelleyExtendedPaymentKeys = propertyOnce . H.moduleWorkspace "tmp"
 hprop_golden_shelleyExtendedPaymentKeys_te :: Property
 hprop_golden_shelleyExtendedPaymentKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/signing_key"
+  referenceVerKey <-
+    noteInputFile
+      "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/verification_key"
+  referenceSignKey <-
+    noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/extended_payment_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "extended-payment-verification-key-file"
   signKey <- noteTempFile tempDir "extended-payment-signing-key-file"
 
   -- Generate payment verification key
-  void $ execCardanoCLI
-    [ "address","key-gen"
-    , "--key-output-format", "text-envelope"
-    , "--extended-key"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "address"
+      , "key-gen"
+      , "--key-output-format"
+      , "text-envelope"
+      , "--extended-key"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   let signingKeyType = textEnvelopeType (AsSigningKey AsPaymentExtendedKey)
       verificationKeyType = textEnvelopeType (AsVerificationKey AsPaymentExtendedKey)
@@ -88,13 +103,18 @@ hprop_golden_shelleyExtendedPaymentKeys_bech32 = propertyOnce . H.moduleWorkspac
   signKeyFile <- noteTempFile tempDir "payment-signing-key-file"
 
   -- Generate payment verification key
-  void $ execCardanoCLI
-    [ "address","key-gen"
-    , "--key-output-format", "bech32"
-    , "--extended-key"
-    , "--verification-key-file", verKeyFile
-    , "--signing-key-file", signKeyFile
-    ]
+  void $
+    execCardanoCLI
+      [ "address"
+      , "key-gen"
+      , "--key-output-format"
+      , "bech32"
+      , "--extended-key"
+      , "--verification-key-file"
+      , verKeyFile
+      , "--signing-key-file"
+      , signKeyFile
+      ]
 
   verKey <- H.readFile verKeyFile
   H.assert $ verKey =~ id @String "^addr_xvk[a-z0-9]{110}$"

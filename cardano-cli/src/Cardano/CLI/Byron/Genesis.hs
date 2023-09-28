@@ -1,10 +1,9 @@
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 
-
 module Cardano.CLI.Byron.Genesis
-  ( ByronGenesisError(..)
-  , GenesisParameters(..)
-  , NewDirectory(..)
+  ( ByronGenesisError (..)
+  , GenesisParameters (..)
+  , NewDirectory (..)
   , dumpGenesis
   , mkGenesis
   , readGenesis
@@ -12,38 +11,42 @@ module Cardano.CLI.Byron.Genesis
   )
 where
 
-import           Cardano.Api (Key (..), NetworkId, textShow, writeSecrets)
-import           Cardano.Api.Byron (ByronKey, SerialiseAsRawBytes (..), SigningKey (..),
-                   toByronRequiresNetworkMagic)
+import Cardano.Api (Key (..), NetworkId, textShow, writeSecrets)
+import Cardano.Api.Byron
+  ( ByronKey
+  , SerialiseAsRawBytes (..)
+  , SigningKey (..)
+  , toByronRequiresNetworkMagic
+  )
 
+import Cardano.CLI.Byron.Delegation
+import Cardano.CLI.Byron.Key
+import Cardano.CLI.Types.Common (GenesisFile (..))
 import qualified Cardano.Chain.Common as Common
-import           Cardano.Chain.Delegation hiding (Map, epoch)
-import           Cardano.Chain.Genesis (GeneratedSecrets (..))
+import Cardano.Chain.Delegation hiding (Map, epoch)
+import Cardano.Chain.Genesis (GeneratedSecrets (..))
 import qualified Cardano.Chain.Genesis as Genesis
 import qualified Cardano.Chain.UTxO as UTxO
-import           Cardano.CLI.Byron.Delegation
-import           Cardano.CLI.Byron.Key
-import           Cardano.CLI.Types.Common (GenesisFile (..))
 import qualified Cardano.Crypto as Crypto
-import           Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
+import Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans (MonadTrans (..))
-import           Control.Monad.Trans.Except (ExceptT (..), withExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, left, right)
-import           Data.ByteString (ByteString)
+import Control.Monad.IO.Class (MonadIO (..))
+import Control.Monad.Trans (MonadTrans (..))
+import Control.Monad.Trans.Except (ExceptT (..), withExceptT)
+import Control.Monad.Trans.Except.Extra (firstExceptT, left, right)
+import Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy as LB
 import qualified Data.List as List
-import           Data.Map.Strict (Map)
+import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import           Data.String (IsString)
-import           Data.Text (Text)
+import Data.String (IsString)
+import Data.Text (Text)
 import qualified Data.Text.Encoding as Text
-import           Data.Text.Lazy (toStrict)
-import           Data.Text.Lazy.Builder (toLazyText)
-import           Data.Time (UTCTime)
-import           Formatting.Buildable
-import           System.Directory (createDirectory, doesPathExist)
+import Data.Text.Lazy (toStrict)
+import Data.Text.Lazy.Builder (toLazyText)
+import Data.Time (UTCTime)
+import Formatting.Buildable
+import System.Directory (createDirectory, doesPathExist)
 
 data ByronGenesisError
   = ByronDelegationCertSerializationError !ByronDelegationError
@@ -56,8 +59,7 @@ data ByronGenesisError
   | NoGenesisDelegationForKey !Text
   | ProtocolParametersParseFailed !FilePath !Text
   | PoorKeyFailure !ByronKeyFailure
-
-  deriving Show
+  deriving (Show)
 
 renderByronGenesisError :: ByronGenesisError -> Text
 renderByronGenesisError err =
@@ -81,10 +83,11 @@ renderByronGenesisError err =
     GenesisSpecError genSpecError ->
       "Error while creating genesis spec" <> textShow genSpecError
     NoGenesisDelegationForKey verKey ->
-      "Error while creating genesis, no delegation certificate for this verification key:" <> textShow verKey
+      "Error while creating genesis, no delegation certificate for this verification key:"
+        <> textShow verKey
 
-newtype NewDirectory =
-  NewDirectory FilePath
+newtype NewDirectory
+  = NewDirectory FilePath
   deriving (Eq, Ord, Show, IsString)
 
 -- | Parameters required for generation of new genesis.
@@ -97,34 +100,37 @@ data GenesisParameters = GenesisParameters
   , gpFakeAvvmOptions :: !Genesis.FakeAvvmOptions
   , gpAvvmBalanceFactor :: !Common.LovelacePortion
   , gpSeed :: !(Maybe Integer)
-  } deriving Show
-
+  }
+  deriving (Show)
 
 mkGenesisSpec :: GenesisParameters -> ExceptT ByronGenesisError IO Genesis.GenesisSpec
 mkGenesisSpec gp = do
   protoParamsRaw <- lift . LB.readFile $ gpProtocolParamsFile gp
 
-  protocolParameters <- withExceptT
-    (ProtocolParametersParseFailed (gpProtocolParamsFile gp)) $
-    ExceptT . pure $ canonicalDecodePretty protoParamsRaw
+  protocolParameters <-
+    withExceptT
+      (ProtocolParametersParseFailed (gpProtocolParamsFile gp))
+      $ ExceptT . pure
+      $ canonicalDecodePretty protoParamsRaw
 
   -- We're relying on the generator to fake AVVM and delegation.
-  genesisDelegation <- withExceptT MakeGenesisDelegationError $
-    Genesis.mkGenesisDelegation []
+  genesisDelegation <-
+    withExceptT MakeGenesisDelegationError $
+      Genesis.mkGenesisDelegation []
 
   withExceptT GenesisSpecError $
-    ExceptT . pure $ Genesis.mkGenesisSpec
-      (Genesis.GenesisAvvmBalances mempty)
-      genesisDelegation
-      protocolParameters
-      (gpK gp)
-      (gpProtocolMagic gp)
-      (mkGenesisInitialiser True)
-
-  where
-    mkGenesisInitialiser :: Bool -> Genesis.GenesisInitializer
-    mkGenesisInitialiser =
-      Genesis.GenesisInitializer
+    ExceptT . pure $
+      Genesis.mkGenesisSpec
+        (Genesis.GenesisAvvmBalances mempty)
+        genesisDelegation
+        protocolParameters
+        (gpK gp)
+        (gpProtocolMagic gp)
+        (mkGenesisInitialiser True)
+ where
+  mkGenesisInitialiser :: Bool -> Genesis.GenesisInitializer
+  mkGenesisInitialiser =
+    Genesis.GenesisInitializer
       (gpTestnetBalance gp)
       (gpFakeAvvmOptions gp)
       (Common.lovelacePortionToRational (gpAvvmBalanceFactor gp))
@@ -145,18 +151,20 @@ mkGenesis gp = do
     Genesis.generateGenesisData (gpStartTime gp) genesisSpec
 
 -- | Read genesis from a file.
-readGenesis :: GenesisFile
-            -> NetworkId
-            -> ExceptT ByronGenesisError IO Genesis.Config
+readGenesis
+  :: GenesisFile
+  -> NetworkId
+  -> ExceptT ByronGenesisError IO Genesis.Config
 readGenesis (GenesisFile file) nw =
   firstExceptT (GenesisReadError file) $ do
     (genesisData, genesisHash) <- Genesis.readGenesisData file
-    return Genesis.Config {
-      Genesis.configGenesisData       = genesisData,
-      Genesis.configGenesisHash       = genesisHash,
-      Genesis.configReqNetMagic       = toByronRequiresNetworkMagic nw,
-      Genesis.configUTxOConfiguration = UTxO.defaultUTxOConfiguration
-    }
+    return
+      Genesis.Config
+        { Genesis.configGenesisData = genesisData
+        , Genesis.configGenesisHash = genesisHash
+        , Genesis.configReqNetMagic = toByronRequiresNetworkMagic nw
+        , Genesis.configUTxOConfiguration = UTxO.defaultUTxOConfiguration
+        }
 
 -- | Write out genesis into a directory that must not yet exist.  An error is
 -- thrown if the directory already exists, or the genesis has delegate keys that
@@ -169,21 +177,30 @@ dumpGenesis
 dumpGenesis (NewDirectory outDir) genesisData gs = do
   exists <- liftIO $ doesPathExist outDir
   if exists
-  then left $ GenesisOutputDirAlreadyExists outDir
-  else liftIO $ createDirectory outDir
+    then left $ GenesisOutputDirAlreadyExists outDir
+    else liftIO $ createDirectory outDir
   liftIO $ LB.writeFile genesisJSONFile (canonicalEncodePretty genesisData)
 
   dlgCerts <- mapM (findDelegateCert . ByronSigningKey) $ gsRichSecrets gs
 
-  liftIO $ wOut "genesis-keys" "key"
-                serialiseToRawBytes
-                (map ByronSigningKey $ gsDlgIssuersSecrets gs)
-  liftIO $ wOut "delegate-keys" "key"
-                serialiseToRawBytes
-                (map ByronSigningKey $ gsRichSecrets gs)
-  liftIO $ wOut "poor-keys" "key"
-                serialiseToRawBytes
-                (map (ByronSigningKey . Genesis.poorSecretToKey) $ gsPoorSecrets gs)
+  liftIO $
+    wOut
+      "genesis-keys"
+      "key"
+      serialiseToRawBytes
+      (map ByronSigningKey $ gsDlgIssuersSecrets gs)
+  liftIO $
+    wOut
+      "delegate-keys"
+      "key"
+      serialiseToRawBytes
+      (map ByronSigningKey $ gsRichSecrets gs)
+  liftIO $
+    wOut
+      "poor-keys"
+      "key"
+      serialiseToRawBytes
+      (map (ByronSigningKey . Genesis.poorSecretToKey) $ gsPoorSecrets gs)
   liftIO $ wOut "delegation-cert" "json" serialiseDelegationCert dlgCerts
   liftIO $ wOut "avvm-secrets" "secret" printFakeAvvmSecrets $ gsFakeAvvmSecrets gs
  where
@@ -193,9 +210,12 @@ dumpGenesis (NewDirectory outDir) genesisData gs = do
   findDelegateCert :: SigningKey ByronKey -> ExceptT ByronGenesisError IO Certificate
   findDelegateCert bSkey@(ByronSigningKey sk) =
     case List.find (isCertForSK sk) (Map.elems dlgCertMap) of
-      Nothing -> left . NoGenesisDelegationForKey
-                 . prettyPublicKey $ getVerificationKey bSkey
-      Just x  -> right x
+      Nothing ->
+        left
+          . NoGenesisDelegationForKey
+          . prettyPublicKey
+          $ getVerificationKey bSkey
+      Just x -> right x
 
   genesisJSONFile :: FilePath
   genesisJSONFile = outDir <> "/genesis.json"

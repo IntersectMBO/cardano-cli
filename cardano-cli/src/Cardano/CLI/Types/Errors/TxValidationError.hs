@@ -1,25 +1,24 @@
-{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
-
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
 module Cardano.CLI.Types.Errors.TxValidationError
-  ( TxAuxScriptsValidationError(..)
-  , TxCertificatesValidationError(..)
-  , TxFeeValidationError(..)
+  ( TxAuxScriptsValidationError (..)
+  , TxCertificatesValidationError (..)
+  , TxFeeValidationError (..)
   , TxProtocolParametersValidationError
-  , TxScriptValidityValidationError(..)
-  , TxUpdateProposalValidationError(..)
-  , TxValidityLowerBoundValidationError(..)
-  , TxValidityUpperBoundValidationError(..)
+  , TxScriptValidityValidationError (..)
+  , TxUpdateProposalValidationError (..)
+  , TxValidityLowerBoundValidationError (..)
+  , TxValidityUpperBoundValidationError (..)
   , TxRequiredSignersValidationError
-  , TxReturnCollateralValidationError(..)
-  , TxTotalCollateralValidationError(..)
-  , TxWithdrawalsValidationError(..)
+  , TxReturnCollateralValidationError (..)
+  , TxTotalCollateralValidationError (..)
+  , TxWithdrawalsValidationError (..)
   , validateProtocolParameters
   , validateScriptSupportedInEra
   , validateTxAuxScripts
@@ -35,24 +34,27 @@ module Cardano.CLI.Types.Errors.TxValidationError
   , validateTxWithdrawals
   ) where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Prelude
+import Prelude
 
-import           Data.Bifunctor (first)
+import Data.Bifunctor (first)
 import qualified Data.Map.Strict as Map
-import           Data.Maybe
+import Data.Maybe
 import qualified Data.Text as Text
 
 data ScriptLanguageValidationError
   = ScriptLanguageValidationError AnyScriptLanguage AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error ScriptLanguageValidationError where
   displayError (ScriptLanguageValidationError lang era) =
-    "The script language " <> show lang <> " is not supported in the " <>
-    Text.unpack (renderEra era) <> " era."
+    "The script language "
+      <> show lang
+      <> " is not supported in the "
+      <> Text.unpack (renderEra era)
+      <> " era."
 
 validateScriptSupportedInEra
   :: CardanoEra era
@@ -60,15 +62,19 @@ validateScriptSupportedInEra
   -> Either ScriptLanguageValidationError (ScriptInEra era)
 validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
   case toScriptInEra era script of
-    Nothing -> Left $ ScriptLanguageValidationError
-                        (AnyScriptLanguage lang) (anyCardanoEra era)
+    Nothing ->
+      Left $
+        ScriptLanguageValidationError
+          (AnyScriptLanguage lang)
+          (anyCardanoEra era)
     Just script' -> pure script'
 
-
 data TxFeeValidationError
-  = TxFeatureImplicitFeesE AnyCardanoEra -- ^ Expected an explicit fee
-  | TxFeatureExplicitFeesE AnyCardanoEra -- ^ Expected an implicit fee
-  deriving Show
+  = -- | Expected an explicit fee
+    TxFeatureImplicitFeesE AnyCardanoEra
+  | -- | Expected an implicit fee
+    TxFeatureExplicitFeesE AnyCardanoEra
+  deriving (Show)
 
 instance Error TxFeeValidationError where
   displayError (TxFeatureImplicitFeesE era) =
@@ -76,9 +82,10 @@ instance Error TxFeeValidationError where
   displayError (TxFeatureExplicitFeesE era) =
     "Explicit transaction fee not supported in " <> Text.unpack (renderEra era)
 
-validateTxFee :: CardanoEra era
-              -> Maybe Lovelace
-              -> Either TxFeeValidationError (TxFee era)
+validateTxFee
+  :: CardanoEra era
+  -> Maybe Lovelace
+  -> Either TxFeeValidationError (TxFee era)
 validateTxFee era = \case
   Nothing ->
     caseByronOrShelleyBasedEra
@@ -93,65 +100,73 @@ validateTxFee era = \case
 
 newtype TxTotalCollateralValidationError
   = TxTotalCollateralNotSupported AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error TxTotalCollateralValidationError where
   displayError (TxTotalCollateralNotSupported era) =
     "Transaction collateral not supported in " <> Text.unpack (renderEra era)
 
-validateTxTotalCollateral :: CardanoEra era
-                          -> Maybe Lovelace
-                          -> Either TxTotalCollateralValidationError (TxTotalCollateral era)
+validateTxTotalCollateral
+  :: CardanoEra era
+  -> Maybe Lovelace
+  -> Either TxTotalCollateralValidationError (TxTotalCollateral era)
 validateTxTotalCollateral _ Nothing = return TxTotalCollateralNone
 validateTxTotalCollateral era (Just coll) =
   case totalAndReturnCollateralSupportedInEra era of
     Just supp -> return $ TxTotalCollateral supp coll
-    Nothing -> Left $ TxTotalCollateralNotSupported
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
+    Nothing ->
+      Left $
+        TxTotalCollateralNotSupported $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
 
 newtype TxReturnCollateralValidationError
   = TxReturnCollateralNotSupported AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error TxReturnCollateralValidationError where
   displayError (TxReturnCollateralNotSupported era) =
     "Transaction return collateral not supported in " <> Text.unpack (renderEra era)
 
-validateTxReturnCollateral :: CardanoEra era
-                           -> Maybe (TxOut CtxTx era)
-                           -> Either TxReturnCollateralValidationError (TxReturnCollateral CtxTx era)
+validateTxReturnCollateral
+  :: CardanoEra era
+  -> Maybe (TxOut CtxTx era)
+  -> Either TxReturnCollateralValidationError (TxReturnCollateral CtxTx era)
 validateTxReturnCollateral _ Nothing = return TxReturnCollateralNone
 validateTxReturnCollateral era (Just retColTxOut) = do
   case totalAndReturnCollateralSupportedInEra era of
     Just supp -> return $ TxReturnCollateral supp retColTxOut
-    Nothing -> Left $ TxReturnCollateralNotSupported
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
+    Nothing ->
+      Left $
+        TxReturnCollateralNotSupported $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
 
 newtype TxValidityLowerBoundValidationError
   = TxValidityLowerBoundNotSupported AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error TxValidityLowerBoundValidationError where
   displayError (TxValidityLowerBoundNotSupported era) =
     "Transaction validity lower bound not supported in " <> Text.unpack (renderEra era)
 
-
-validateTxValidityLowerBound :: CardanoEra era
-                             -> Maybe SlotNo
-                             -> Either TxValidityLowerBoundValidationError (TxValidityLowerBound era)
+validateTxValidityLowerBound
+  :: CardanoEra era
+  -> Maybe SlotNo
+  -> Either TxValidityLowerBoundValidationError (TxValidityLowerBound era)
 validateTxValidityLowerBound _ Nothing = return TxValidityNoLowerBound
 validateTxValidityLowerBound era (Just slot) =
-    case validityLowerBoundSupportedInEra era of
-      Nothing -> Left $ TxValidityLowerBoundNotSupported
-                      $ getIsCardanoEraConstraint era
-                      $ AnyCardanoEra era
-      Just supported -> return (TxValidityLowerBound supported slot)
+  case validityLowerBoundSupportedInEra era of
+    Nothing ->
+      Left $
+        TxValidityLowerBoundNotSupported $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
+    Just supported -> return (TxValidityLowerBound supported slot)
 
 newtype TxValidityUpperBoundValidationError
   = TxValidityUpperBoundNotSupported AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error TxValidityUpperBoundValidationError where
   displayError (TxValidityUpperBoundNotSupported era) =
@@ -163,21 +178,25 @@ validateTxValidityUpperBound
   -> Either TxValidityUpperBoundValidationError (TxValidityUpperBound era)
 validateTxValidityUpperBound era Nothing =
   case validityNoUpperBoundSupportedInEra era of
-    Nothing -> Left $ TxValidityUpperBoundNotSupported
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
+    Nothing ->
+      Left $
+        TxValidityUpperBoundNotSupported $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
     Just supported -> return (TxValidityNoUpperBound supported)
 validateTxValidityUpperBound era (Just slot) =
   case validityUpperBoundSupportedInEra era of
-    Nothing -> Left $ TxValidityUpperBoundNotSupported
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
+    Nothing ->
+      Left $
+        TxValidityUpperBoundNotSupported $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
     Just supported -> return (TxValidityUpperBound supported slot)
 
 data TxAuxScriptsValidationError
   = TxAuxScriptsNotSupportedInEra AnyCardanoEra
   | TxAuxScriptsLanguageError ScriptLanguageValidationError
-  deriving Show
+  deriving (Show)
 
 instance Error TxAuxScriptsValidationError where
   displayError (TxAuxScriptsNotSupportedInEra era) =
@@ -192,16 +211,18 @@ validateTxAuxScripts
 validateTxAuxScripts _ [] = return TxAuxScriptsNone
 validateTxAuxScripts era scripts =
   case auxScriptsSupportedInEra era of
-    Nothing -> Left $ TxAuxScriptsNotSupportedInEra
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
+    Nothing ->
+      Left $
+        TxAuxScriptsNotSupportedInEra $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
     Just supported -> do
       scriptsInEra <- mapM (first TxAuxScriptsLanguageError . validateScriptSupportedInEra era) scripts
       return $ TxAuxScripts supported scriptsInEra
 
 newtype TxRequiredSignersValidationError
   = TxRequiredSignersValidationError AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error TxRequiredSignersValidationError where
   displayError (TxRequiredSignersValidationError e) =
@@ -214,30 +235,34 @@ validateRequiredSigners
 validateRequiredSigners _ [] = return TxExtraKeyWitnessesNone
 validateRequiredSigners era reqSigs =
   case extraKeyWitnessesSupportedInEra era of
-    Nothing -> Left $ TxRequiredSignersValidationError
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
+    Nothing ->
+      Left $
+        TxRequiredSignersValidationError $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
     Just supported -> return $ TxExtraKeyWitnesses supported reqSigs
 
 newtype TxWithdrawalsValidationError
   = TxWithdrawalsNotSupported AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error TxWithdrawalsValidationError where
   displayError (TxWithdrawalsNotSupported e) =
     "Transaction withdrawals are not supported in " <> Text.unpack (renderEra e)
 
 validateTxWithdrawals
-  :: forall era.
-     CardanoEra era
+  :: forall era
+   . CardanoEra era
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> Either TxWithdrawalsValidationError (TxWithdrawals BuildTx era)
 validateTxWithdrawals _ [] = return TxWithdrawalsNone
 validateTxWithdrawals era withdrawals =
   case withdrawalsSupportedInEra era of
-    Nothing -> Left $ TxWithdrawalsNotSupported
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
+    Nothing ->
+      Left $
+        TxWithdrawalsNotSupported $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
     Just supported -> do
       let convWithdrawals = map convert withdrawals
       return (TxWithdrawals supported convWithdrawals)
@@ -249,60 +274,63 @@ validateTxWithdrawals era withdrawals =
     case mScriptWitnessFiles of
       Just sWit -> do
         (sAddr, ll, BuildTxWith $ ScriptWitness ScriptWitnessForStakeAddr sWit)
-      Nothing -> (sAddr,ll, BuildTxWith $ KeyWitness KeyWitnessForStakeAddr)
+      Nothing -> (sAddr, ll, BuildTxWith $ KeyWitness KeyWitnessForStakeAddr)
 
 newtype TxCertificatesValidationError
   = TxCertificatesValidationNotSupported AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error TxCertificatesValidationError where
   displayError (TxCertificatesValidationNotSupported e) =
     "Transaction certificates are not supported in " <> Text.unpack (renderEra e)
 
 validateTxCertificates
-  :: forall era.
-     CardanoEra era
+  :: forall era
+   . CardanoEra era
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -> Either TxCertificatesValidationError (TxCertificates BuildTx era)
 validateTxCertificates _ [] = return TxCertificatesNone
 validateTxCertificates era certsAndScriptWitnesses =
   case certificatesSupportedInEra era of
-    Nothing -> Left $ TxCertificatesValidationNotSupported
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
+    Nothing ->
+      Left $
+        TxCertificatesValidationNotSupported $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
     Just supported -> do
       let certs = map fst certsAndScriptWitnesses
           reqWits = Map.fromList $ mapMaybe convert certsAndScriptWitnesses
       return $ TxCertificates supported certs $ BuildTxWith reqWits
-  where
-   -- We get the stake credential witness for a certificate that requires it.
-   -- NB: Only stake address deregistration and delegation requires
-   -- witnessing (witness can be script or key)
-   deriveStakeCredentialWitness
-     :: Certificate era
-     -> Maybe StakeCredential
-   deriveStakeCredentialWitness _cert = Nothing
-    --  case cert of
-    --    -- TODO: Conway era
-    --    -- StakeAddressDeregistrationCertificate sCred -> Just sCred
-    --    -- StakeAddressPoolDelegationCertificate sCred _ -> Just sCred
-    --    _ -> Nothing
+ where
+  -- We get the stake credential witness for a certificate that requires it.
+  -- NB: Only stake address deregistration and delegation requires
+  -- witnessing (witness can be script or key)
+  deriveStakeCredentialWitness
+    :: Certificate era
+    -> Maybe StakeCredential
+  deriveStakeCredentialWitness _cert = Nothing
+  --  case cert of
+  --    -- TODO: Conway era
+  --    -- StakeAddressDeregistrationCertificate sCred -> Just sCred
+  --    -- StakeAddressPoolDelegationCertificate sCred _ -> Just sCred
+  --    _ -> Nothing
 
-   convert
-     :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
-     -> Maybe (StakeCredential, Witness WitCtxStake era)
-   convert (cert, mScriptWitnessFiles) = do
-     sCred <- deriveStakeCredentialWitness cert
-     case mScriptWitnessFiles of
-       Just sWit -> do
-         Just ( sCred
-              , ScriptWitness ScriptWitnessForStakeAddr sWit
-              )
-       Nothing -> Just (sCred, KeyWitness KeyWitnessForStakeAddr)
+  convert
+    :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
+    -> Maybe (StakeCredential, Witness WitCtxStake era)
+  convert (cert, mScriptWitnessFiles) = do
+    sCred <- deriveStakeCredentialWitness cert
+    case mScriptWitnessFiles of
+      Just sWit -> do
+        Just
+          ( sCred
+          , ScriptWitness ScriptWitnessForStakeAddr sWit
+          )
+      Nothing -> Just (sCred, KeyWitness KeyWitnessForStakeAddr)
 
 newtype TxProtocolParametersValidationError
   = ProtocolParametersNotSupported AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error TxProtocolParametersValidationError where
   displayError (ProtocolParametersNotSupported e) =
@@ -311,18 +339,22 @@ instance Error TxProtocolParametersValidationError where
 validateProtocolParameters
   :: CardanoEra era
   -> Maybe (LedgerProtocolParameters era)
-  -> Either TxProtocolParametersValidationError (BuildTxWith BuildTx (Maybe (LedgerProtocolParameters era)))
+  -> Either
+      TxProtocolParametersValidationError
+      (BuildTxWith BuildTx (Maybe (LedgerProtocolParameters era)))
 validateProtocolParameters _ Nothing = return (BuildTxWith Nothing)
 validateProtocolParameters era (Just pparams) =
-    case cardanoEraStyle era of
-      LegacyByronEra -> Left $ ProtocolParametersNotSupported
-                      $ getIsCardanoEraConstraint era
-                      $ AnyCardanoEra era
-      ShelleyBasedEra _  -> return . BuildTxWith $ Just pparams
+  case cardanoEraStyle era of
+    LegacyByronEra ->
+      Left $
+        ProtocolParametersNotSupported $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
+    ShelleyBasedEra _ -> return . BuildTxWith $ Just pparams
 
 newtype TxUpdateProposalValidationError
   = TxUpdateProposalNotSupported AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error TxUpdateProposalValidationError where
   displayError (TxUpdateProposalNotSupported e) =
@@ -334,15 +366,17 @@ validateTxUpdateProposal
   -> Either TxUpdateProposalValidationError (TxUpdateProposal era)
 validateTxUpdateProposal _ Nothing = return TxUpdateProposalNone
 validateTxUpdateProposal era (Just prop) =
-    case updateProposalSupportedInEra era of
-      Nothing -> Left $ TxUpdateProposalNotSupported
-                      $ getIsCardanoEraConstraint era
-                      $ AnyCardanoEra era
-      Just supported -> return $ TxUpdateProposal supported prop
+  case updateProposalSupportedInEra era of
+    Nothing ->
+      Left $
+        TxUpdateProposalNotSupported $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
+    Just supported -> return $ TxUpdateProposal supported prop
 
 newtype TxScriptValidityValidationError
   = ScriptValidityNotSupported AnyCardanoEra
-  deriving Show
+  deriving (Show)
 
 instance Error TxScriptValidityValidationError where
   displayError (ScriptValidityNotSupported e) =
@@ -355,7 +389,9 @@ validateTxScriptValidity
 validateTxScriptValidity _ Nothing = pure TxScriptValidityNone
 validateTxScriptValidity era (Just scriptValidity) =
   case txScriptValiditySupportedInCardanoEra era of
-    Nothing -> Left $ ScriptValidityNotSupported
-                    $ getIsCardanoEraConstraint era
-                    $ AnyCardanoEra era
+    Nothing ->
+      Left $
+        ScriptValidityNotSupported $
+          getIsCardanoEraConstraint era $
+            AnyCardanoEra era
     Just supported -> pure $ TxScriptValidity supported scriptValidity

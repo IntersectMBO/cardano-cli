@@ -4,13 +4,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.ProtocolParamsError
-  ( ProtocolParamsError(..)
+  ( ProtocolParamsError (..)
   , renderProtocolParamsError
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Data.Text (Text)
+import Data.Text (Text)
 import qualified Data.Text as Text
 
 data ProtocolParamsError

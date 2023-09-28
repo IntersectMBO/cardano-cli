@@ -2,11 +2,11 @@
 
 module Test.Golden.Shelley.TextEnvelope.Tx.TxBody where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 
 {- HLINT ignore "Use camelCase" -}
@@ -22,15 +22,22 @@ hprop_golden_shelleyTxBody = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -
   transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
 
   -- Create transaction body
-  void $ execCardanoCLI
-    [ "mary", "transaction", "build-raw"
-    , "--tx-in", "91999ea21177b33ebe6b8690724a0c026d410a11ad7521caa350abdafa5394c3#0"
-    , "--tx-out", "addr1v9wmu83pzajplrtpsq6tsqdgwr98x888trpmah2u0ezznsge7del3+100000000"
-    , "--fee", "1000000"
-    , "--invalid-hereafter", "500000"
-    , "--out-file", transactionBodyFile
-    ]
-
+  void $
+    execCardanoCLI
+      [ "mary"
+      , "transaction"
+      , "build-raw"
+      , "--tx-in"
+      , "91999ea21177b33ebe6b8690724a0c026d410a11ad7521caa350abdafa5394c3#0"
+      , "--tx-out"
+      , "addr1v9wmu83pzajplrtpsq6tsqdgwr98x888trpmah2u0ezznsge7del3+100000000"
+      , "--fee"
+      , "1000000"
+      , "--invalid-hereafter"
+      , "500000"
+      , "--out-file"
+      , transactionBodyFile
+      ]
 
   -- Check the newly created files have not deviated from the
   -- golden files

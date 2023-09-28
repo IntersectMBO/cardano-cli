@@ -1,13 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Test.Golden.Shelley.Node.KeyGen
-   where
+where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -19,12 +19,17 @@ hprop_golden_shelleyNodeKeyGen = propertyOnce . H.moduleWorkspace "tmp" $ \tempD
   signingKeyFile <- noteTempFile tempDir "key-gen.skey"
   opCertCounterFile <- noteTempFile tempDir "op-cert.counter"
 
-  void $ execCardanoCLI
-    [ "node","key-gen"
-    , "--verification-key-file", verificationKeyFile
-    , "--signing-key-file", signingKeyFile
-    , "--operational-certificate-issue-counter", opCertCounterFile
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen"
+      , "--verification-key-file"
+      , verificationKeyFile
+      , "--signing-key-file"
+      , signingKeyFile
+      , "--operational-certificate-issue-counter"
+      , opCertCounterFile
+      ]
 
   H.assertFileOccurences 1 "StakePoolVerificationKey_ed25519" verificationKeyFile
   H.assertFileOccurences 1 "StakePoolSigningKey_ed25519" signingKeyFile
@@ -40,12 +45,17 @@ hprop_golden_shelleyNodeKeyGen_te = propertyOnce . H.moduleWorkspace "tmp" $ \te
   signingKeyFile <- noteTempFile tempDir "key-gen.skey"
   opCertCounterFile <- noteTempFile tempDir "op-cert.counter"
 
-  void $ execCardanoCLI
-    [ "node","key-gen"
-    , "--verification-key-file", verificationKeyFile
-    , "--signing-key-file", signingKeyFile
-    , "--operational-certificate-issue-counter", opCertCounterFile
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen"
+      , "--verification-key-file"
+      , verificationKeyFile
+      , "--signing-key-file"
+      , signingKeyFile
+      , "--operational-certificate-issue-counter"
+      , opCertCounterFile
+      ]
 
   H.assertFileOccurences 1 "StakePoolVerificationKey_ed25519" verificationKeyFile
   H.assertFileOccurences 1 "StakePoolSigningKey_ed25519" signingKeyFile
@@ -61,13 +71,19 @@ hprop_golden_shelleyNodeKeyGen_bech32 = propertyOnce . H.moduleWorkspace "tmp" $
   signingKeyFile <- noteTempFile tempDir "key-gen.skey"
   opCertCounterFile <- noteTempFile tempDir "op-cert.counter"
 
-  void $ execCardanoCLI
-    [ "node","key-gen"
-    , "--key-output-format", "bech32"
-    , "--verification-key-file", verificationKeyFile
-    , "--signing-key-file", signingKeyFile
-    , "--operational-certificate-issue-counter", opCertCounterFile
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen"
+      , "--key-output-format"
+      , "bech32"
+      , "--verification-key-file"
+      , verificationKeyFile
+      , "--signing-key-file"
+      , signingKeyFile
+      , "--operational-certificate-issue-counter"
+      , opCertCounterFile
+      ]
 
   H.assertFileOccurences 1 "pool_vk" verificationKeyFile
   H.assertFileOccurences 1 "pool_sk" signingKeyFile

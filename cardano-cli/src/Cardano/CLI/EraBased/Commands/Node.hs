@@ -6,12 +6,12 @@ module Cardano.CLI.EraBased.Commands.Node
   , renderNodeCmds
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data NodeCmds era
   = NodeKeyGenCold
@@ -38,8 +38,9 @@ data NodeCmds era
       (VerificationKeyOrFile KesKey)
       (SigningKeyFile In)
       (OpCertCounterFile InOut)
-      KESPeriod (File () Out)
-  deriving Show
+      KESPeriod
+      (File () Out)
+  deriving (Show)
 
 renderNodeCmds :: NodeCmds era -> Text
 renderNodeCmds = \case
@@ -53,5 +54,5 @@ renderNodeCmds = \case
     "node key-hash-VRF"
   NodeNewCounter {} ->
     "node new-counter"
-  NodeIssueOpCert{} ->
+  NodeIssueOpCert {} ->
     "node issue-op-cert"

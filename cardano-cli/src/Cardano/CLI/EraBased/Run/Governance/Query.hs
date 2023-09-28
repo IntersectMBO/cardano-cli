@@ -9,41 +9,41 @@
 
 module Cardano.CLI.EraBased.Run.Governance.Query
   ( runGovernanceQueryCmds
-  , GovernanceQueryError(..)
+  , GovernanceQueryError (..)
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 
-import           Cardano.CLI.EraBased.Commands.Governance.Query
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.CmdError
-import           Cardano.CLI.Types.Errors.GovernanceQueryError
+import Cardano.CLI.EraBased.Commands.Governance.Query
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.Types.Errors.GovernanceQueryError
 import qualified Ouroboros.Consensus.Cardano.Block as Consensus
 
-import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra
-import           Data.Aeson ((.=))
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except.Extra
+import Data.Aeson ((.=))
 import qualified Data.Aeson as A
-import           Data.Aeson.Encode.Pretty (encodePretty)
-import           Data.Bifunctor (second)
+import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.Bifunctor (second)
 import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Function
+import Data.Function
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
-import           Lens.Micro ((^.))
-
+import Lens.Micro ((^.))
 
 runGovernanceQueryCmds
   :: GovernanceQueryCmds era
   -> ExceptT CmdError IO ()
-runGovernanceQueryCmds = firstExceptT CmdGovernanceQueryError . \case
-  GovernanceQueryConstitutionCmd cOn args           -> runQueryConstitution cOn args
-  GovernanceQueryGovStateCmd cOn args               -> runQueryGovState cOn args
-  GovernanceQueryDRepStateCmd cOn args              -> runQueryDRepState cOn args
-  GovernanceQueryDRepStakeDistributionCmd cOn args  -> runQueryDRepStakeDistribution cOn args
-  GovernanceQueryCommitteeStateCmd cOn args         -> runQueryCommitteeState cOn args
+runGovernanceQueryCmds =
+  firstExceptT CmdGovernanceQueryError . \case
+    GovernanceQueryConstitutionCmd cOn args -> runQueryConstitution cOn args
+    GovernanceQueryGovStateCmd cOn args -> runQueryGovState cOn args
+    GovernanceQueryDRepStateCmd cOn args -> runQueryDRepState cOn args
+    GovernanceQueryDRepStakeDistributionCmd cOn args -> runQueryDRepStakeDistribution cOn args
+    GovernanceQueryCommitteeStateCmd cOn args -> runQueryCommitteeState cOn args
 
 runQueryConstitution
   :: ConwayEraOnwards era
@@ -55,8 +55,9 @@ runQueryConstitution w (NoArgQueryCmd socketPath (AnyConsensusModeParams cModePa
       cEra = conwayEraOnwardsToCardanoEra w
       cMode = consensusModeOnly cModeParams
 
-  eraInMode <- toEraInMode cEra cMode
-    & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
+  eraInMode <-
+    toEraInMode cEra cMode
+      & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
 
   constitution <- runQuery localNodeConnInfo $ queryConstitution eraInMode sbe
   writeOutput mFile constitution
@@ -71,8 +72,9 @@ runQueryGovState w (NoArgQueryCmd socketPath (AnyConsensusModeParams cModeParams
       cEra = conwayEraOnwardsToCardanoEra w
       cMode = consensusModeOnly cModeParams
 
-  eraInMode <- toEraInMode cEra cMode
-    & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
+  eraInMode <-
+    toEraInMode cEra cMode
+      & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
 
   govState <- runQuery localNodeConnInfo $ queryGovState eraInMode sbe
   writeOutput mFile govState
@@ -87,16 +89,20 @@ runQueryDRepState w (DRepStateQueryCmd socketPath (AnyConsensusModeParams cModeP
       cEra = conwayEraOnwardsToCardanoEra w
       cMode = consensusModeOnly cModeParams
 
-  eraInMode <- toEraInMode cEra cMode
-    & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
+  eraInMode <-
+    toEraInMode cEra cMode
+      & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
 
-  drepCreds <- Set.fromList <$> mapM (firstExceptT GovernanceQueryDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
+  drepCreds <-
+    Set.fromList
+      <$> mapM (firstExceptT GovernanceQueryDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
 
   drepState <- runQuery localNodeConnInfo $ queryDRepState eraInMode sbe drepCreds
   writeOutput mFile $
     second drepStateToJson <$> Map.assocs drepState
-  where
-    drepStateToJson ds = A.object
+ where
+  drepStateToJson ds =
+    A.object
       [ "expiry" .= (ds ^. Ledger.drepExpiryL)
       , "anchor" .= (ds ^. Ledger.drepAnchorL)
       , "deposit" .= (ds ^. Ledger.drepDepositL)
@@ -112,13 +118,15 @@ runQueryDRepStakeDistribution w (DRepStakeDistributionQueryCmd socketPath (AnyCo
       cEra = conwayEraOnwardsToCardanoEra w
       cMode = consensusModeOnly cModeParams
 
-  let drepFromVrfKey = fmap Ledger.DRepCredential
-                     . firstExceptT GovernanceQueryDRepKeyError
-                     . getDRepCredentialFromVerKeyHashOrFile
+  let drepFromVrfKey =
+        fmap Ledger.DRepCredential
+          . firstExceptT GovernanceQueryDRepKeyError
+          . getDRepCredentialFromVerKeyHashOrFile
   dreps <- Set.fromList <$> mapM drepFromVrfKey drepKeys
 
-  eraInMode <- toEraInMode cEra cMode
-    & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
+  eraInMode <-
+    toEraInMode cEra cMode
+      & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
 
   drepStakeDistribution <- runQuery localNodeConnInfo $ queryDRepStakeDistribution eraInMode sbe dreps
   writeOutput mFile $
@@ -134,37 +142,42 @@ runQueryCommitteeState w (NoArgQueryCmd socketPath (AnyConsensusModeParams cMode
       cEra = conwayEraOnwardsToCardanoEra w
       cMode = consensusModeOnly cModeParams
 
-  eraInMode <- toEraInMode cEra cMode
-    & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
+  eraInMode <-
+    toEraInMode cEra cMode
+      & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
 
   committeeState <- runQuery localNodeConnInfo $ queryCommitteeState eraInMode sbe
   writeOutput mFile $
-    Map.assocs $ committeeState ^. Ledger.csCommitteeCredsL
+    Map.assocs $
+      committeeState ^. Ledger.csCommitteeCredsL
 
-runQuery :: LocalNodeConnectInfo mode
-         -> LocalStateQueryExpr
-             (BlockInMode mode)
-             ChainPoint
-             (QueryInMode mode)
-             ()
-             IO
-             (Either
-                UnsupportedNtcVersionError
-                (Either Consensus.EraMismatch a))
-         -> ExceptT GovernanceQueryError IO a
+runQuery
+  :: LocalNodeConnectInfo mode
+  -> LocalStateQueryExpr
+      (BlockInMode mode)
+      ChainPoint
+      (QueryInMode mode)
+      ()
+      IO
+      ( Either
+          UnsupportedNtcVersionError
+          (Either Consensus.EraMismatch a)
+      )
+  -> ExceptT GovernanceQueryError IO a
 runQuery localNodeConnInfo query =
-  firstExceptT GovernanceQueryAcqireFailureError
-    ( newExceptT $ executeLocalStateQueryExpr localNodeConnInfo Nothing query)
-      & onLeft (left . GovernanceQueryUnsupportedNtcVersion)
-      & onLeft (left . GovernanceQueryEraMismatch)
+  firstExceptT
+    GovernanceQueryAcqireFailureError
+    (newExceptT $ executeLocalStateQueryExpr localNodeConnInfo Nothing query)
+    & onLeft (left . GovernanceQueryUnsupportedNtcVersion)
+    & onLeft (left . GovernanceQueryEraMismatch)
 
-writeOutput :: ToJSON b
-            => Maybe (File a Out)
-            -> b
-            -> ExceptT GovernanceQueryError IO ()
+writeOutput
+  :: (ToJSON b)
+  => Maybe (File a Out)
+  -> b
+  -> ExceptT GovernanceQueryError IO ()
 writeOutput mFile content = case mFile of
   Nothing -> liftIO . LBS.putStrLn . encodePretty $ content
   Just (File f) ->
     handleIOExceptT (GovernanceQueryWriteFileError . FileIOError f) $
       LBS.writeFile f (encodePretty content)
-

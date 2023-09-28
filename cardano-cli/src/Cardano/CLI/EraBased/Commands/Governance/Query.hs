@@ -3,18 +3,18 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.Query
-  ( GovernanceQueryCmds(..)
-  , NoArgQueryCmd(..)
-  , DRepStateQueryCmd(..)
-  , DRepStakeDistributionQueryCmd(..)
+  ( GovernanceQueryCmds (..)
+  , NoArgQueryCmd (..)
+  , DRepStateQueryCmd (..)
+  , DRepStakeDistributionQueryCmd (..)
   , renderGovernanceQueryCmds
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data GovernanceQueryCmds era
   = GovernanceQueryConstitutionCmd
@@ -32,35 +32,39 @@ data GovernanceQueryCmds era
   | GovernanceQueryCommitteeStateCmd
       (ConwayEraOnwards era)
       NoArgQueryCmd
-  deriving Show
+  deriving (Show)
 
 data NoArgQueryCmd = NoArgQueryCmd
-  { naSocketPath          :: !SocketPath
+  { naSocketPath :: !SocketPath
   , naConsensusModeParams :: !AnyConsensusModeParams
-  , naNetworkId           :: !NetworkId
-  , naOutputFile          :: !(Maybe (File () Out))
-  } deriving Show
+  , naNetworkId :: !NetworkId
+  , naOutputFile :: !(Maybe (File () Out))
+  }
+  deriving (Show)
 
 data DRepStateQueryCmd = DRepStateQueryCmd
-  { dsSocketPath          :: !SocketPath
+  { dsSocketPath :: !SocketPath
   , dsConsensusModeParams :: !AnyConsensusModeParams
-  , dsNetworkId           :: !NetworkId
-  , dsDRepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
-  , dsOutputFile          :: !(Maybe (File () Out))
-  } deriving Show
+  , dsNetworkId :: !NetworkId
+  , dsDRepKeys :: ![VerificationKeyOrHashOrFile DRepKey]
+  , dsOutputFile :: !(Maybe (File () Out))
+  }
+  deriving (Show)
 
 data DRepStakeDistributionQueryCmd = DRepStakeDistributionQueryCmd
-  { dsdSocketPath          :: !SocketPath
+  { dsdSocketPath :: !SocketPath
   , dsdConsensusModeParams :: !AnyConsensusModeParams
-  , dsdNetworkId           :: !NetworkId
-  , dsdDRepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
-  , dsdOutputFile          :: !(Maybe (File () Out))
-  } deriving Show
+  , dsdNetworkId :: !NetworkId
+  , dsdDRepKeys :: ![VerificationKeyOrHashOrFile DRepKey]
+  , dsdOutputFile :: !(Maybe (File () Out))
+  }
+  deriving (Show)
 
 renderGovernanceQueryCmds :: GovernanceQueryCmds era -> Text
-renderGovernanceQueryCmds = ("governance query " <>) . \case
-  GovernanceQueryConstitutionCmd{}          -> "constitution"
-  GovernanceQueryGovStateCmd{}              -> "gov-state"
-  GovernanceQueryDRepStateCmd{}             -> "drep-state"
-  GovernanceQueryDRepStakeDistributionCmd{} -> "drep-stake-distribution"
-  GovernanceQueryCommitteeStateCmd{}        -> "committee-state"
+renderGovernanceQueryCmds =
+  ("governance query " <>) . \case
+    GovernanceQueryConstitutionCmd {} -> "constitution"
+    GovernanceQueryGovStateCmd {} -> "gov-state"
+    GovernanceQueryDRepStateCmd {} -> "drep-state"
+    GovernanceQueryDRepStakeDistributionCmd {} -> "drep-stake-distribution"
+    GovernanceQueryCommitteeStateCmd {} -> "committee-state"

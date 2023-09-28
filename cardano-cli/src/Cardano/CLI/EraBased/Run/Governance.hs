@@ -12,49 +12,57 @@ module Cardano.CLI.EraBased.Run.Governance
   , runGovernanceDRepKeyGen
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.GovernanceCmdError
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
-import           Control.Monad
-import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra
+import Control.Monad
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except.Extra
 import qualified Data.Map.Strict as Map
 
 runGovernanceMIRCertificatePayStakeAddrs
   :: ShelleyToBabbageEra era
   -> Shelley.MIRPot
-  -> [StakeAddress] -- ^ Stake addresses
-  -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
+  -> [StakeAddress]
+  -- ^ Stake addresses
+  -> [Lovelace]
+  -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
   unless (length sAddrs == length rwdAmts) $
-    left $ GovernanceCmdMIRCertificateKeyRewardMistmach
-              (unFile oFp) (length sAddrs) (length rwdAmts)
+    left $
+      GovernanceCmdMIRCertificateKeyRewardMistmach
+        (unFile oFp)
+        (length sAddrs)
+        (length rwdAmts)
 
-  let sCreds  = map stakeAddressCredential sAddrs
-      mirTarget = Ledger.StakeAddressesMIR
-                    $ Map.fromList [ (toShelleyStakeCredential scred, Ledger.toDeltaCoin (toShelleyLovelace rwdAmt))
-                                    | (scred, rwdAmt) <- zip sCreds rwdAmts
-                                    ]
-  let mirCert = makeMIRCertificate
-        $ MirCertificateRequirements w mirPot
-        $ shelleyToBabbageEraConstraints w mirTarget
+  let sCreds = map stakeAddressCredential sAddrs
+      mirTarget =
+        Ledger.StakeAddressesMIR $
+          Map.fromList
+            [ (toShelleyStakeCredential scred, Ledger.toDeltaCoin (toShelleyLovelace rwdAmt))
+            | (scred, rwdAmt) <- zip sCreds rwdAmts
+            ]
+  let mirCert =
+        makeMIRCertificate $
+          MirCertificateRequirements w mirPot $
+            shelleyToBabbageEraConstraints w mirTarget
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
     $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
     $ writeLazyByteStringFile oFp
     $ textEnvelopeToJSON (Just mirCertDesc) mirCert
-  where
-    mirCertDesc :: TextEnvelopeDescr
-    mirCertDesc = "Move Instantaneous Rewards Certificate"
+ where
+  mirCertDesc :: TextEnvelopeDescr
+  mirCertDesc = "Move Instantaneous Rewards Certificate"
 
 runGovernanceMIRCertificateTransfer
   :: ShelleyToBabbageEra era
@@ -76,10 +84,10 @@ runGovernanceMIRCertificateTransfer w ll oFp direction = do
     $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
     $ writeLazyByteStringFile oFp
     $ textEnvelopeToJSON (Just $ mirCertDesc direction) mirCert
-  where
-    mirCertDesc :: TransferDirection -> TextEnvelopeDescr
-    mirCertDesc TransferToTreasury = "MIR Certificate Send To Treasury"
-    mirCertDesc TransferToReserves = "MIR Certificate Send To Reserves"
+ where
+  mirCertDesc :: TransferDirection -> TextEnvelopeDescr
+  mirCertDesc TransferToTreasury = "MIR Certificate Send To Treasury"
+  mirCertDesc TransferToReserves = "MIR Certificate Send To Reserves"
 
 runGovernanceDRepKeyGen
   :: ConwayEraOnwards era
@@ -91,9 +99,8 @@ runGovernanceDRepKeyGen _w vkeyPath skeyPath = firstExceptT GovernanceCmdWriteFi
   let vkey = getVerificationKey skey
   newExceptT $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just skeyDesc) skey)
   newExceptT $ writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just vkeyDesc) vkey)
-  where
-    skeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Delegate Representative Signing Key"
-    vkeyDesc :: TextEnvelopeDescr
-    vkeyDesc = "Delegate Representative Verification Key"
-
+ where
+  skeyDesc :: TextEnvelopeDescr
+  skeyDesc = "Delegate Representative Signing Key"
+  vkeyDesc :: TextEnvelopeDescr
+  vkeyDesc = "Delegate Representative Verification Key"

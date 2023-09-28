@@ -5,18 +5,20 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.AddressCmdError
-  ( AddressCmdError(..)
+  ( AddressCmdError (..)
   , renderAddressCmdError
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.AddressInfoError
-import           Cardano.CLI.Types.Key (VerificationKeyTextOrFileError (..),
-                   renderVerificationKeyTextOrFileError)
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Errors.AddressInfoError
+import Cardano.CLI.Types.Key
+  ( VerificationKeyTextOrFileError (..)
+  , renderVerificationKeyTextOrFileError
+  )
 
-import           Data.Text (Text)
+import Data.Text (Text)
 import qualified Data.Text as Text
 
 data AddressCmdError
@@ -26,7 +28,7 @@ data AddressCmdError
   | AddressCmdVerificationKeyTextOrFileError !VerificationKeyTextOrFileError
   | AddressCmdWriteFileError !(FileError ())
   | AddressCmdExpectedPaymentVerificationKey SomeAddressVerificationKey
-  deriving Show
+  deriving (Show)
 
 renderAddressCmdError :: AddressCmdError -> Text
 renderAddressCmdError err =

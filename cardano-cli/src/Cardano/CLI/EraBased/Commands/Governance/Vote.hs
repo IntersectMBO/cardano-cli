@@ -2,20 +2,20 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.Vote
-  ( GovernanceVoteCmds(..)
+  ( GovernanceVoteCmds (..)
   , renderGovernanceVoteCmds
   ) where
 
+import Cardano.CLI.Types.Governance
 
-import           Cardano.CLI.Types.Governance
-
-import           Data.Text (Text)
+import Data.Text (Text)
 
 newtype GovernanceVoteCmds era
   = GovernanceVoteCreateCmd
       AnyVote
 
-renderGovernanceVoteCmds :: ()
+renderGovernanceVoteCmds
+  :: ()
   => GovernanceVoteCmds era
   -> Text
 renderGovernanceVoteCmds = \case

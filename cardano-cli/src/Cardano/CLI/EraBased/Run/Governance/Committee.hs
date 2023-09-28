@@ -3,26 +3,27 @@
 
 module Cardano.CLI.EraBased.Run.Governance.Committee
   ( runGovernanceCommitteeCmds
-  , GovernanceCommitteeError(..)
+  , GovernanceCommitteeError (..)
   ) where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Commands.Governance.Committee
-import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
-import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Key.VerificationKey
+import Cardano.CLI.EraBased.Commands.Governance.Committee
+import Cardano.CLI.Types.Errors.GovernanceCommitteeError
+import Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Key.VerificationKey
 
-import           Control.Monad.Except (ExceptT)
-import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad.Trans (lift)
-import           Control.Monad.Trans.Except.Extra
-import           Data.ByteString (ByteString)
+import Control.Monad.Except (ExceptT)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans (lift)
+import Control.Monad.Trans.Except.Extra
+import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
-import           Data.Function
+import Data.Function
 
-runGovernanceCommitteeCmds :: ()
+runGovernanceCommitteeCmds
+  :: ()
   => GovernanceCommitteeCmds era
   -> ExceptT GovernanceCommitteeError IO ()
 runGovernanceCommitteeCmds = \case
@@ -37,7 +38,8 @@ runGovernanceCommitteeCmds = \case
   GovernanceCommitteeCreateColdKeyResignationCertificateCmd w cvk out ->
     runGovernanceCommitteeColdKeyResignationCertificate w cvk out
 
-runGovernanceCommitteeKeyGenCold :: ()
+runGovernanceCommitteeKeyGenCold
+  :: ()
   => ConwayEraOnwards era
   -> File (VerificationKey ()) Out
   -> File (SigningKey ()) Out
@@ -52,15 +54,15 @@ runGovernanceCommitteeKeyGenCold _w vkeyPath skeyPath = do
 
   writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just vkeyDesc) vkey)
     & onLeft (left . GovernanceCommitteeCmdWriteFileError)
+ where
+  skeyDesc :: TextEnvelopeDescr
+  skeyDesc = "Constitutional Committee Cold Signing Key"
 
-  where
-    skeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Constitutional Committee Cold Signing Key"
+  vkeyDesc :: TextEnvelopeDescr
+  vkeyDesc = "Constitutional Committee Cold Verification Key"
 
-    vkeyDesc :: TextEnvelopeDescr
-    vkeyDesc = "Constitutional Committee Cold Verification Key"
-
-runGovernanceCommitteeKeyGenHot :: ()
+runGovernanceCommitteeKeyGenHot
+  :: ()
   => ConwayEraOnwards era
   -> File (VerificationKey ()) Out
   -> File (SigningKey ()) Out
@@ -79,19 +81,19 @@ runGovernanceCommitteeKeyGenHot _w vkeyPath skeyPath = do
     . newExceptT
     $ writeLazyByteStringFile vkeyPath
     $ textEnvelopeToJSON (Just vkeyDesc) vkey
+ where
+  skeyDesc :: TextEnvelopeDescr
+  skeyDesc = "Constitutional Committee Hot Signing Key"
 
-  where
-    skeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Constitutional Committee Hot Signing Key"
-
-    vkeyDesc :: TextEnvelopeDescr
-    vkeyDesc = "Constitutional Committee Hot Verification Key"
+  vkeyDesc :: TextEnvelopeDescr
+  vkeyDesc = "Constitutional Committee Hot Verification Key"
 
 data SomeCommitteeKey f
-  = ACommitteeHotKey  (f CommitteeHotKey)
+  = ACommitteeHotKey (f CommitteeHotKey)
   | ACommitteeColdKey (f CommitteeColdKey)
 
-runGovernanceCommitteeKeyHash :: ()
+runGovernanceCommitteeKeyHash
+  :: ()
   => ConwayEraOnwards era
   -> AnyVerificationKeySource
   -> ExceptT GovernanceCommitteeError IO ()
@@ -100,32 +102,33 @@ runGovernanceCommitteeKeyHash _w vkeySource = do
     case vkeySource of
       AnyVerificationKeySourceOfText vkText -> do
         let asTypes =
-              [ FromSomeType (AsVerificationKey AsCommitteeHotKey ) ACommitteeHotKey
+              [ FromSomeType (AsVerificationKey AsCommitteeHotKey) ACommitteeHotKey
               , FromSomeType (AsVerificationKey AsCommitteeColdKey) ACommitteeColdKey
               ]
         pure (deserialiseAnyOfFromBech32 asTypes (unAnyVerificationKeyText vkText))
           & onLeft (left . GovernanceCommitteeCmdKeyDecodeError . InputBech32DecodeError)
       AnyVerificationKeySourceOfFile vkeyPath -> do
         let asTypes =
-              [ FromSomeType (AsVerificationKey AsCommitteeHotKey ) ACommitteeHotKey
+              [ FromSomeType (AsVerificationKey AsCommitteeHotKey) ACommitteeHotKey
               , FromSomeType (AsVerificationKey AsCommitteeColdKey) ACommitteeColdKey
               ]
         readFileTextEnvelopeAnyOf asTypes vkeyPath
           & firstExceptT GovernanceCommitteeCmdTextEnvReadFileError . newExceptT
 
   liftIO $ BS.putStrLn (renderKeyHash vkey)
+ where
+  renderKeyHash :: SomeCommitteeKey VerificationKey -> ByteString
+  renderKeyHash = \case
+    ACommitteeHotKey vk -> renderVerificationKeyHash vk
+    ACommitteeColdKey vk -> renderVerificationKeyHash vk
 
-  where
-    renderKeyHash :: SomeCommitteeKey VerificationKey -> ByteString
-    renderKeyHash = \case
-      ACommitteeHotKey  vk -> renderVerificationKeyHash vk
-      ACommitteeColdKey vk -> renderVerificationKeyHash vk
+  renderVerificationKeyHash :: (Key keyrole) => VerificationKey keyrole -> ByteString
+  renderVerificationKeyHash =
+    serialiseToRawBytesHex
+      . verificationKeyHash
 
-    renderVerificationKeyHash :: Key keyrole => VerificationKey keyrole -> ByteString
-    renderVerificationKeyHash = serialiseToRawBytesHex
-                              . verificationKeyHash
-
-runGovernanceCommitteeCreateHotKeyAuthorizationCertificate :: ()
+runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
+  :: ()
   => ConwayEraOnwards era
   -> VerificationKeyOrHashOrFile CommitteeColdKey
   -> VerificationKeyOrHashOrFile CommitteeHotKey
@@ -141,16 +144,17 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate w coldVkOrHashOrFp ho
       lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey hotVkOrHashOrFp)
         & onLeft (left . GovernanceCommitteeCmdKeyReadError)
 
-    makeCommitteeHotKeyAuthorizationCertificate (CommitteeHotKeyAuthorizationRequirements w coldVKHash hotVkHash)
+    makeCommitteeHotKeyAuthorizationCertificate
+      (CommitteeHotKeyAuthorizationRequirements w coldVKHash hotVkHash)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)
       & writeLazyByteStringFile oFp
       & firstExceptT GovernanceCommitteeCmdTextEnvWriteError . newExceptT
+ where
+  genKeyDelegCertDesc :: TextEnvelopeDescr
+  genKeyDelegCertDesc = "Constitutional Committee Hot Key Registration Certificate"
 
-  where
-    genKeyDelegCertDesc :: TextEnvelopeDescr
-    genKeyDelegCertDesc = "Constitutional Committee Hot Key Registration Certificate"
-
-runGovernanceCommitteeColdKeyResignationCertificate :: ()
+runGovernanceCommitteeColdKeyResignationCertificate
+  :: ()
   => ConwayEraOnwards era
   -> VerificationKeyOrHashOrFile CommitteeColdKey
   -> File () Out
@@ -165,7 +169,6 @@ runGovernanceCommitteeColdKeyResignationCertificate w coldVkOrHashOrFp oFp =
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)
       & writeLazyByteStringFile oFp
       & firstExceptT GovernanceCommitteeCmdTextEnvWriteError . newExceptT
-
-  where
-    genKeyDelegCertDesc :: TextEnvelopeDescr
-    genKeyDelegCertDesc = "Constitutional Committee Cold Key Resignation Certificate"
+ where
+  genKeyDelegCertDesc :: TextEnvelopeDescr
+  genKeyDelegCertDesc = "Constitutional Committee Cold Key Resignation Certificate"

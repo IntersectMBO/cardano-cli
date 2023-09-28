@@ -3,7 +3,7 @@
 
 -- | This module defines constants derived from the environment.
 module Cardano.CLI.Environment
-  ( EnvCli(..)
+  ( EnvCli (..)
   , envCliAnyShelleyBasedEra
   , envCliAnyShelleyToBabbageEra
   , getEnvCli
@@ -11,14 +11,21 @@ module Cardano.CLI.Environment
   , getEnvSocketPath
   ) where
 
-import           Cardano.Api (AnyCardanoEra (..), AnyShelleyBasedEra (..),
-                   AnyShelleyToBabbageEra (..), CardanoEra (..), NetworkId (..), NetworkMagic (..),
-                   ShelleyBasedEra (..), ShelleyToBabbageEra (..))
+import Cardano.Api
+  ( AnyCardanoEra (..)
+  , AnyShelleyBasedEra (..)
+  , AnyShelleyToBabbageEra (..)
+  , CardanoEra (..)
+  , NetworkId (..)
+  , NetworkMagic (..)
+  , ShelleyBasedEra (..)
+  , ShelleyToBabbageEra (..)
+  )
 
-import           Data.Word (Word32)
+import Data.Word (Word32)
 import qualified System.Environment as IO
 import qualified System.IO as IO
-import           Text.Read (readMaybe)
+import Text.Read (readMaybe)
 
 data EnvCli = EnvCli
   { envCliNetworkId :: Maybe NetworkId
@@ -32,11 +39,12 @@ getEnvCli = do
   mSocketPath <- getEnvSocketPath
   mCardanoEra <- getCardanoEra
 
-  pure EnvCli
-    { envCliNetworkId = mNetworkId
-    , envCliSocketPath = mSocketPath
-    , envCliAnyCardanoEra = mCardanoEra
-    }
+  pure
+    EnvCli
+      { envCliNetworkId = mNetworkId
+      , envCliSocketPath = mSocketPath
+      , envCliAnyCardanoEra = mCardanoEra
+      }
 
 envCliAnyShelleyBasedEra :: EnvCli -> Maybe AnyShelleyBasedEra
 envCliAnyShelleyBasedEra envCli = do
@@ -79,10 +87,11 @@ getEnvNetworkId = do
           case readMaybe @Word32 networkIdString of
             Just networkId -> pure $ Just $ Testnet $ NetworkMagic networkId
             Nothing -> do
-              IO.hPutStrLn IO.stderr $ mconcat
-                [ "The network id specified in CARDANO_NODE_NETWORK_ID invalid: " <> networkIdString
-                , " It should be either 'mainnet' or a number."
-                ]
+              IO.hPutStrLn IO.stderr $
+                mconcat
+                  [ "The network id specified in CARDANO_NODE_NETWORK_ID invalid: " <> networkIdString
+                  , " It should be either 'mainnet' or a number."
+                  ]
               pure Nothing
 
 -- | If the environment variable @CARDANO_NODE_SOCKET_PATH@ is set, then return the set value.
@@ -107,5 +116,4 @@ getCardanoEra = do
         "babbage" -> pure $ Just $ AnyCardanoEra BabbageEra
         "conway" -> pure $ Just $ AnyCardanoEra ConwayEra
         unknown -> error $ "Unknown era: " <> unknown -- TODO improve error handling
-
     Nothing -> pure Nothing

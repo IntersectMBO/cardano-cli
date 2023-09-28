@@ -6,11 +6,11 @@ module Cardano.CLI.EraBased.Commands.Key
   , renderKeyCmds
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data KeyCmds era
   = KeyGetVerificationKey
@@ -40,7 +40,7 @@ data KeyCmds era
       CardanoAddressKeyType
       (SigningKeyFile In)
       (File () Out)
-  deriving Show
+  deriving (Show)
 
 renderKeyCmds :: KeyCmds era -> Text
 renderKeyCmds = \case

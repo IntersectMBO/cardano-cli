@@ -4,13 +4,13 @@
 
 module Cardano.CLI.Legacy.Commands.Governance where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyGovernanceCmds
   = GovernanceMIRPayStakeAddressesCertificate
@@ -31,7 +31,8 @@ data LegacyGovernanceCmds
       (VerificationKeyOrHashOrFile VrfKey)
       (File () Out)
   | GovernanceUpdateProposal
-      (File () Out) EpochNo
+      (File () Out)
+      EpochNo
       [VerificationKeyFile In]
       ProtocolParametersUpdate
       (Maybe FilePath)
@@ -48,7 +49,7 @@ data LegacyGovernanceCmds
       (File GovernancePoll In) -- Poll file
       (File (Tx ()) In) -- Tx file
       (Maybe (File () Out)) -- Tx file
-  deriving Show
+  deriving (Show)
 
 renderLegacyGovernanceCmds :: LegacyGovernanceCmds -> Text
 renderLegacyGovernanceCmds = \case
@@ -57,7 +58,6 @@ renderLegacyGovernanceCmds = \case
   GovernanceMIRTransfer _ _ _ TransferToTreasury -> "governance create-mir-certificate transfer-to-treasury"
   GovernanceMIRTransfer _ _ _ TransferToReserves -> "governance create-mir-certificate transfer-to-reserves"
   GovernanceUpdateProposal {} -> "governance create-update-proposal"
-  GovernanceCreatePoll{} -> "governance create-poll"
-  GovernanceAnswerPoll{} -> "governance answer-poll"
-  GovernanceVerifyPoll{} -> "governance verify-poll"
-
+  GovernanceCreatePoll {} -> "governance create-poll"
+  GovernanceAnswerPoll {} -> "governance answer-poll"
+  GovernanceVerifyPoll {} -> "governance verify-poll"

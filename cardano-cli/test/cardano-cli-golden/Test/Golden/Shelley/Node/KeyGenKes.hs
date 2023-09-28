@@ -2,11 +2,11 @@
 
 module Test.Golden.Shelley.Node.KeyGenKes where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -17,11 +17,15 @@ hprop_golden_shelleyNodeKeyGenKes = propertyOnce . H.moduleWorkspace "tmp" $ \te
   verificationKey <- noteTempFile tempDir "kes.vkey"
   signingKey <- noteTempFile tempDir "kes.skey"
 
-  void $ execCardanoCLI
-    [ "node","key-gen-KES"
-    , "--verification-key-file", verificationKey
-    , "--signing-key-file", signingKey
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen-KES"
+      , "--verification-key-file"
+      , verificationKey
+      , "--signing-key-file"
+      , signingKey
+      ]
 
   H.assertFileOccurences 1 "KesVerificationKey_ed25519_kes_2^6" verificationKey
   H.assertFileOccurences 1 "KesSigningKey_ed25519_kes_2^6" signingKey
@@ -34,12 +38,17 @@ hprop_golden_shelleyNodeKeyGenKes_te = propertyOnce . H.moduleWorkspace "tmp" $ 
   verificationKey <- noteTempFile tempDir "kes.vkey"
   signingKey <- noteTempFile tempDir "kes.skey"
 
-  void $ execCardanoCLI
-    [ "node","key-gen-KES"
-    , "--key-output-format", "text-envelope"
-    , "--verification-key-file", verificationKey
-    , "--signing-key-file", signingKey
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen-KES"
+      , "--key-output-format"
+      , "text-envelope"
+      , "--verification-key-file"
+      , verificationKey
+      , "--signing-key-file"
+      , signingKey
+      ]
 
   H.assertFileOccurences 1 "KesVerificationKey_ed25519_kes_2^6" verificationKey
   H.assertFileOccurences 1 "KesSigningKey_ed25519_kes_2^6" signingKey
@@ -52,12 +61,17 @@ hprop_golden_shelleyNodeKeyGenKes_bech32 = propertyOnce . H.moduleWorkspace "tmp
   verificationKey <- noteTempFile tempDir "kes.vkey"
   signingKey <- noteTempFile tempDir "kes.skey"
 
-  void $ execCardanoCLI
-    [ "node","key-gen-KES"
-    , "--key-output-format", "bech32"
-    , "--verification-key-file", verificationKey
-    , "--signing-key-file", signingKey
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen-KES"
+      , "--key-output-format"
+      , "bech32"
+      , "--verification-key-file"
+      , verificationKey
+      , "--signing-key-file"
+      , signingKey
+      ]
 
   H.assertFileOccurences 1 "kes_vk" verificationKey
   H.assertFileOccurences 1 "kes_sk" signingKey

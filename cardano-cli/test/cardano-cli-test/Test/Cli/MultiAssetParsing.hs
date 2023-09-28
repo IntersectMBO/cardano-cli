@@ -5,14 +5,14 @@ module Test.Cli.MultiAssetParsing
   , hprop_roundtrip_Value_parse_renderPretty
   ) where
 
-import           Cardano.Api (parseValue, renderValue, renderValuePretty, valueToList)
+import Cardano.Api (parseValue, renderValue, renderValuePretty, valueToList)
 
 import qualified Data.Text as Text
 import qualified Text.Parsec as Parsec (parse)
 
-import           Test.Gen.Cardano.Api.Typed (genValueDefault)
+import Test.Gen.Cardano.Api.Typed (genValueDefault)
 
-import           Hedgehog (Property, forAll, property, tripping)
+import Hedgehog (Property, forAll, property, tripping)
 import qualified Hedgehog.Gen as Gen
 
 hprop_roundtrip_Value_parse_render :: Property

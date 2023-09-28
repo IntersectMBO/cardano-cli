@@ -6,14 +6,14 @@ module Cardano.CLI.Legacy.Commands.StakePool
   , renderLegacyStakePoolCmds
   ) where
 
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Prelude
+import Prelude
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyStakePoolCmds
   = StakePoolDeregistrationCertificateCmd
@@ -54,7 +54,7 @@ data LegacyStakePoolCmds
       -- ^ Stake pool metadata.
       NetworkId
       (File () Out)
-  deriving Show
+  deriving (Show)
 
 renderLegacyStakePoolCmds :: LegacyStakePoolCmds -> Text
 renderLegacyStakePoolCmds = \case

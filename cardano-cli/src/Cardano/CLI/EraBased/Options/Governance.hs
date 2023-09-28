@@ -2,71 +2,75 @@
 {-# LANGUAGE GADTs #-}
 
 module Cardano.CLI.EraBased.Options.Governance
-  ( GovernanceCmds(..)
+  ( GovernanceCmds (..)
   , renderGovernanceCmds
   , pGovernanceCmds
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Environment
-import           Cardano.CLI.EraBased.Commands.Governance
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.EraBased.Options.Governance.Actions
-import           Cardano.CLI.EraBased.Options.Governance.Committee
-import           Cardano.CLI.EraBased.Options.Governance.DRep
-import           Cardano.CLI.EraBased.Options.Governance.Query
-import           Cardano.CLI.EraBased.Options.Governance.Vote
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Environment
+import Cardano.CLI.EraBased.Commands.Governance
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.EraBased.Options.Governance.Actions
+import Cardano.CLI.EraBased.Options.Governance.Committee
+import Cardano.CLI.EraBased.Options.Governance.DRep
+import Cardano.CLI.EraBased.Options.Governance.Query
+import Cardano.CLI.EraBased.Options.Governance.Vote
+import Cardano.CLI.Types.Common
 
-import           Data.Foldable
-import           Options.Applicative
+import Data.Foldable
+import Options.Applicative
 import qualified Options.Applicative as Opt
 
-pGovernanceCmds :: ()
+pGovernanceCmds
+  :: ()
   => CardanoEra era
   -> EnvCli
   -> Maybe (Parser (GovernanceCmds era))
 pGovernanceCmds era envCli =
-  subInfoParser "governance"
-    ( Opt.progDesc
-        $ mconcat
+  subInfoParser
+    "governance"
+    ( Opt.progDesc $
+        mconcat
           [ "Governance commands."
           ]
     )
     [ pCreateMirCertificatesCmds era
-    , fmap GovernanceQueryCmds        <$> pGovernanceQueryCmds era envCli
-    , fmap GovernanceActionCmds       <$> pGovernanceActionCmds era
-    , fmap GovernanceCommitteeCmds    <$> pGovernanceCommitteeCmds era
-    , fmap GovernanceDRepCmds         <$> pGovernanceDRepCmds era envCli
-    , fmap GovernanceVoteCmds         <$> pGovernanceVoteCmds era
+    , fmap GovernanceQueryCmds <$> pGovernanceQueryCmds era envCli
+    , fmap GovernanceActionCmds <$> pGovernanceActionCmds era
+    , fmap GovernanceCommitteeCmds <$> pGovernanceCommitteeCmds era
+    , fmap GovernanceDRepCmds <$> pGovernanceDRepCmds era envCli
+    , fmap GovernanceVoteCmds <$> pGovernanceVoteCmds era
     ]
 
 pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (GovernanceCmds era))
 pCreateMirCertificatesCmds era = do
   w <- maybeEonInEra era
-  pure
-    $ subParser "create-mir-certificate"
-    $ Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w)
-    $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
+  pure $
+    subParser "create-mir-certificate" $
+      Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w) $
+        Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
 
-mirCertParsers :: ()
+mirCertParsers
+  :: ()
   => ShelleyToBabbageEra era
   -> Parser (GovernanceCmds era)
 mirCertParsers w =
   asum
-    [ subParser "stake-addresses"
-      $ Opt.info (pMIRPayStakeAddresses w)
-      $ Opt.progDesc "Create an MIR certificate to pay stake addresses"
-    , subParser "transfer-to-treasury"
-      $ Opt.info (pMIRTransferToTreasury w)
-      $ Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
-    , subParser "transfer-to-rewards"
-      $ Opt.info (pMIRTransferToReserves w)
-      $ Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
+    [ subParser "stake-addresses" $
+        Opt.info (pMIRPayStakeAddresses w) $
+          Opt.progDesc "Create an MIR certificate to pay stake addresses"
+    , subParser "transfer-to-treasury" $
+        Opt.info (pMIRTransferToTreasury w) $
+          Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
+    , subParser "transfer-to-rewards" $
+        Opt.info (pMIRTransferToReserves w) $
+          Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
     ]
 
-pMIRPayStakeAddresses :: ()
+pMIRPayStakeAddresses
+  :: ()
   => ShelleyToBabbageEra era
   -> Parser (GovernanceCmds era)
 pMIRPayStakeAddresses w =
@@ -76,7 +80,8 @@ pMIRPayStakeAddresses w =
     <*> some pRewardAmt
     <*> pOutputFile
 
-pMIRTransferToTreasury :: ()
+pMIRTransferToTreasury
+  :: ()
   => ShelleyToBabbageEra era
   -> Parser (GovernanceCmds era)
 pMIRTransferToTreasury w =
@@ -85,7 +90,8 @@ pMIRTransferToTreasury w =
     <*> pOutputFile
     <*> pure TransferToTreasury
 
-pMIRTransferToReserves :: ()
+pMIRTransferToReserves
+  :: ()
   => ShelleyToBabbageEra era
   -> Parser (GovernanceCmds era)
 pMIRTransferToReserves w =

@@ -4,13 +4,13 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Types.Errors.StakePoolCmdError
-  ( StakePoolCmdError(..)
+  ( StakePoolCmdError (..)
   , renderStakePoolCmdError
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Data.Text (Text)
+import Data.Text (Text)
 import qualified Data.Text as Text
 
 data StakePoolCmdError
@@ -18,7 +18,7 @@ data StakePoolCmdError
   | StakePoolCmdReadKeyFileError !(FileError InputDecodeError)
   | StakePoolCmdWriteFileError !(FileError ())
   | StakePoolCmdMetadataValidationError !StakePoolMetadataValidationError
-  deriving Show
+  deriving (Show)
 
 renderStakePoolCmdError :: StakePoolCmdError -> Text
 renderStakePoolCmdError = \case

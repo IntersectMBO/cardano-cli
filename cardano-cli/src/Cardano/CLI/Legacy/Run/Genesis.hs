@@ -1,22 +1,21 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 
 module Cardano.CLI.Legacy.Run.Genesis
   ( runLegacyGenesisCmds
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.Chain.Common (BlockCount)
-import           Cardano.CLI.EraBased.Run.Genesis
-import           Cardano.CLI.Legacy.Commands.Genesis
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.GenesisCmdError
+import Cardano.CLI.EraBased.Run.Genesis
+import Cardano.CLI.Legacy.Commands.Genesis
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.GenesisCmdError
+import Cardano.Chain.Common (BlockCount)
 
-import           Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except (ExceptT)
 
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCmds = \case
@@ -43,20 +42,23 @@ runLegacyGenesisCmds = \case
   GenesisHashFile gf ->
     runLegacyGenesisHashFileCmd gf
 
-runLegacyGenesisKeyGenGenesisCmd :: ()
+runLegacyGenesisKeyGenGenesisCmd
+  :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisKeyGenGenesisCmd = runGenesisKeyGenGenesisCmd
 
-runLegacyGenesisKeyGenDelegateCmd :: ()
+runLegacyGenesisKeyGenDelegateCmd
+  :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> OpCertCounterFile Out
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisKeyGenDelegateCmd = runGenesisKeyGenDelegateCmd
 
-runLegacyGenesisKeyGenUTxOCmd :: ()
+runLegacyGenesisKeyGenUTxOCmd
+  :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
@@ -65,75 +67,101 @@ runLegacyGenesisKeyGenUTxOCmd = runGenesisKeyGenUTxOCmd
 runLegacyGenesisKeyHashCmd :: VerificationKeyFile In -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisKeyHashCmd = runGenesisKeyHashCmd
 
-runLegacyGenesisVerKeyCmd ::
-     VerificationKeyFile Out
+runLegacyGenesisVerKeyCmd
+  :: VerificationKeyFile Out
   -> SigningKeyFile In
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisVerKeyCmd = runGenesisVerKeyCmd
 
-runLegacyGenesisTxInCmd :: ()
+runLegacyGenesisTxInCmd
+  :: ()
   => VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisTxInCmd = runGenesisTxInCmd
 
-runLegacyGenesisAddrCmd :: ()
+runLegacyGenesisAddrCmd
+  :: ()
   => VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisAddrCmd = runGenesisAddrCmd
 
-runLegacyGenesisCreateCmd :: ()
+runLegacyGenesisCreateCmd
+  :: ()
   => KeyOutputFormat
   -> GenesisDir
-  -> Word  -- ^ num genesis & delegate keys to make
-  -> Word  -- ^ num utxo keys to make
+  -> Word
+  -- ^ num genesis & delegate keys to make
+  -> Word
+  -- ^ num utxo keys to make
   -> Maybe SystemStart
   -> Maybe Lovelace
   -> NetworkId
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCreateCmd = runGenesisCreateCmd
 
-runLegacyGenesisCreateCardanoCmd :: ()
+runLegacyGenesisCreateCardanoCmd
+  :: ()
   => GenesisDir
-  -> Word  -- ^ num genesis & delegate keys to make
-  -> Word  -- ^ num utxo keys to make
+  -> Word
+  -- ^ num genesis & delegate keys to make
+  -> Word
+  -- ^ num utxo keys to make
   -> Maybe SystemStart
   -> Maybe Lovelace
   -> BlockCount
-  -> Word     -- ^ slot length in ms
+  -> Word
+  -- ^ slot length in ms
   -> Rational
   -> NetworkId
-  -> FilePath -- ^ Byron Genesis
-  -> FilePath -- ^ Shelley Genesis
-  -> FilePath -- ^ Alonzo Genesis
-  -> FilePath -- ^ Conway Genesis
+  -> FilePath
+  -- ^ Byron Genesis
+  -> FilePath
+  -- ^ Shelley Genesis
+  -> FilePath
+  -- ^ Alonzo Genesis
+  -> FilePath
+  -- ^ Conway Genesis
   -> Maybe FilePath
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCreateCardanoCmd = runGenesisCreateCardanoCmd
 
-runLegacyGenesisCreateStakedCmd :: ()
-  => KeyOutputFormat    -- ^ key output format
+runLegacyGenesisCreateStakedCmd
+  :: ()
+  => KeyOutputFormat
+  -- ^ key output format
   -> GenesisDir
-  -> Word               -- ^ num genesis & delegate keys to make
-  -> Word               -- ^ num utxo keys to make
-  -> Word               -- ^ num pools to make
-  -> Word               -- ^ num delegators to make
+  -> Word
+  -- ^ num genesis & delegate keys to make
+  -> Word
+  -- ^ num utxo keys to make
+  -> Word
+  -- ^ num pools to make
+  -> Word
+  -- ^ num delegators to make
   -> Maybe SystemStart
-  -> Maybe Lovelace     -- ^ supply going to non-delegators
-  -> Lovelace           -- ^ supply going to delegators
+  -> Maybe Lovelace
+  -- ^ supply going to non-delegators
+  -> Lovelace
+  -- ^ supply going to delegators
   -> NetworkId
-  -> Word               -- ^ bulk credential files to write
-  -> Word               -- ^ pool credentials per bulk file
-  -> Word               -- ^ num stuffed UTxO entries
-  -> Maybe FilePath     -- ^ Specified stake pool relays
+  -> Word
+  -- ^ bulk credential files to write
+  -> Word
+  -- ^ pool credentials per bulk file
+  -> Word
+  -- ^ num stuffed UTxO entries
+  -> Maybe FilePath
+  -- ^ Specified stake pool relays
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCreateStakedCmd = runGenesisCreateStakedCmd
 
 -- | Hash a genesis file
-runLegacyGenesisHashFileCmd :: ()
+runLegacyGenesisHashFileCmd
+  :: ()
   => GenesisFile
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisHashFileCmd = runGenesisHashFileCmd

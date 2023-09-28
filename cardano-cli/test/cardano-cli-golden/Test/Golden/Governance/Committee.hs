@@ -4,12 +4,12 @@
 
 module Test.Golden.Governance.Committee where
 
-import           Control.Monad (void)
-import           Text.Regex.TDFA ((=~))
+import Control.Monad (void)
+import Text.Regex.TDFA ((=~))
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
@@ -20,11 +20,17 @@ hprop_golden_governanceCommitteeKeyGenCold =
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "committee", "key-gen-cold"
-      , "--verification-key-file", verificationKeyFile
-      , "--signing-key-file", signingKeyFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "key-gen-cold"
+        , "--verification-key-file"
+        , verificationKeyFile
+        , "--signing-key-file"
+        , signingKeyFile
+        ]
 
     H.assertFileOccurences 1 "ConstitutionalCommitteeColdVerificationKey_ed25519" verificationKeyFile
     H.assertFileOccurences 1 "ConstitutionalCommitteeColdSigningKey_ed25519" signingKeyFile
@@ -38,11 +44,17 @@ hprop_golden_governanceCommitteeKeyGenHot =
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "committee", "key-gen-hot"
-      , "--verification-key-file", verificationKeyFile
-      , "--signing-key-file", signingKeyFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "key-gen-hot"
+        , "--verification-key-file"
+        , verificationKeyFile
+        , "--signing-key-file"
+        , signingKeyFile
+        ]
 
     H.assertFileOccurences 1 "ConstitutionalCommitteeHotVerificationKey_ed25519" verificationKeyFile
     H.assertFileOccurences 1 "ConstitutionalCommitteeHotSigningKey_ed25519" signingKeyFile
@@ -59,16 +71,27 @@ hprop_golden_governanceCommitteeKeyHashCold =
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "committee", "key-gen-cold"
-      , "--verification-key-file", verificationKeyFile
-      , "--signing-key-file", signingKeyFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "key-gen-cold"
+        , "--verification-key-file"
+        , verificationKeyFile
+        , "--signing-key-file"
+        , signingKeyFile
+        ]
 
-    result <- execCardanoCLI
-      [  "conway", "governance", "committee", "key-hash"
-      , "--verification-key-file", verificationKeyFile
-      ]
+    result <-
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "key-hash"
+        , "--verification-key-file"
+        , verificationKeyFile
+        ]
 
     H.assert $ result =~ id @String "^[a-f0-9]{56}$"
 
@@ -78,16 +101,27 @@ hprop_golden_governanceCommitteeKeyHashHot =
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "committee", "key-gen-hot"
-      , "--verification-key-file", verificationKeyFile
-      , "--signing-key-file", signingKeyFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "key-gen-hot"
+        , "--verification-key-file"
+        , verificationKeyFile
+        , "--signing-key-file"
+        , signingKeyFile
+        ]
 
-    result <- execCardanoCLI
-      [  "conway", "governance", "committee", "key-hash"
-      , "--verification-key-file", verificationKeyFile
-      ]
+    result <-
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "key-hash"
+        , "--verification-key-file"
+        , verificationKeyFile
+        ]
 
     H.assert $ result =~ id @String "^[a-f0-9]{56}$"
 
@@ -101,24 +135,43 @@ hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate =
 
     certFile <- noteTempFile tempDir "hot-auth.cert"
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "committee", "key-gen-cold"
-      , "--verification-key-file", ccColdVKey
-      , "--signing-key-file", ccColdSKey
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "key-gen-cold"
+        , "--verification-key-file"
+        , ccColdVKey
+        , "--signing-key-file"
+        , ccColdSKey
+        ]
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "committee", "key-gen-hot"
-      , "--verification-key-file", ccHotVKey
-      , "--signing-key-file", ccHotSKey
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "key-gen-hot"
+        , "--verification-key-file"
+        , ccHotVKey
+        , "--signing-key-file"
+        , ccHotSKey
+        ]
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "committee", "create-hot-key-authorization-certificate"
-      , "--cold-verification-key-file", ccColdVKey
-      , "--hot-key-file", ccHotVKey
-      , "--out-file", certFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "create-hot-key-authorization-certificate"
+        , "--cold-verification-key-file"
+        , ccColdVKey
+        , "--hot-key-file"
+        , ccHotVKey
+        , "--out-file"
+        , certFile
+        ]
 
     H.assertFileOccurences 1 "CertificateShelley" certFile
     H.assertFileOccurences 1 "Constitutional Committee Hot Key Registration Certificate" certFile
@@ -131,17 +184,29 @@ hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate =
 
     certFile <- noteTempFile tempDir "hot-auth.cert"
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "committee", "key-gen-cold"
-      , "--verification-key-file", ccColdVKey
-      , "--signing-key-file", ccColdSKey
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "key-gen-cold"
+        , "--verification-key-file"
+        , ccColdVKey
+        , "--signing-key-file"
+        , ccColdSKey
+        ]
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "committee", "create-cold-key-resignation-certificate"
-      , "--cold-verification-key-file", ccColdVKey
-      , "--out-file", certFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "create-cold-key-resignation-certificate"
+        , "--cold-verification-key-file"
+        , ccColdVKey
+        , "--out-file"
+        , certFile
+        ]
 
     H.assertFileOccurences 1 "CertificateShelley" certFile
     H.assertFileOccurences 1 "Constitutional Committee Cold Key Resignation Certificate" certFile

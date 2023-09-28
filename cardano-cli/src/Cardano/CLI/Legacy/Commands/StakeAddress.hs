@@ -7,14 +7,14 @@ module Cardano.CLI.Legacy.Commands.StakeAddress
   , renderLegacyStakeAddressCmds
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Prelude
+import Prelude
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyStakeAddressCmds
   = StakeAddressKeyGenCmd
@@ -43,7 +43,7 @@ data LegacyStakeAddressCmds
       StakeIdentifier
       (Maybe Lovelace)
       (File () Out)
-  deriving Show
+  deriving (Show)
 
 renderLegacyStakeAddressCmds :: LegacyStakeAddressCmds -> Text
 renderLegacyStakeAddressCmds = \case

@@ -2,11 +2,11 @@
 
 module Test.Golden.Shelley.Genesis.KeyGenUtxo where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -17,11 +17,15 @@ hprop_golden_shelleyGenesisKeyGenUtxo = propertyOnce . H.moduleWorkspace "tmp" $
   utxoVerificationKeyFile <- noteTempFile tempDir "utxo.vkey"
   utxoSigningKeyFile <- noteTempFile tempDir "utxo.skey"
 
-  void $ execCardanoCLI
-    [ "genesis","key-gen-utxo"
-    , "--verification-key-file", utxoVerificationKeyFile
-    , "--signing-key-file", utxoSigningKeyFile
-    ]
+  void $
+    execCardanoCLI
+      [ "genesis"
+      , "key-gen-utxo"
+      , "--verification-key-file"
+      , utxoVerificationKeyFile
+      , "--signing-key-file"
+      , utxoSigningKeyFile
+      ]
 
   H.assertFileOccurences 1 "GenesisUTxOVerificationKey_ed25519" utxoVerificationKeyFile
   H.assertFileOccurences 1 "GenesisUTxOSigningKey_ed25519" utxoSigningKeyFile

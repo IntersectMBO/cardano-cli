@@ -6,12 +6,12 @@ module Cardano.CLI.Legacy.Commands.Genesis
   , renderLegacyGenesisCmds
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.Chain.Common (BlockCount)
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
+import Cardano.Chain.Common (BlockCount)
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyGenesisCmds
   = GenesisCreate
@@ -37,7 +37,8 @@ data LegacyGenesisCmds
       FilePath
       FilePath
       (Maybe FilePath)
-  | GenesisCreateStaked
+  | -- | Relay specification filepath
+    GenesisCreateStaked
       KeyOutputFormat
       GenesisDir
       Word
@@ -51,7 +52,7 @@ data LegacyGenesisCmds
       Word
       Word
       Word
-      (Maybe FilePath) -- ^ Relay specification filepath
+      (Maybe FilePath)
   | GenesisKeyGenGenesis
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
@@ -77,7 +78,7 @@ data LegacyGenesisCmds
       (Maybe (File () Out))
   | GenesisHashFile
       GenesisFile
-  deriving Show
+  deriving (Show)
 
 renderLegacyGenesisCmds :: LegacyGenesisCmds -> Text
 renderLegacyGenesisCmds = \case

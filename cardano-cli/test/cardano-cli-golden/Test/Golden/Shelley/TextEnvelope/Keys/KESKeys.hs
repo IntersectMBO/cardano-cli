@@ -3,14 +3,14 @@
 
 module Test.Golden.Shelley.TextEnvelope.Keys.KESKeys where
 
-import           Cardano.Api (AsType (..), HasTextEnvelope (..))
+import Cardano.Api (AsType (..), HasTextEnvelope (..))
 
-import           Control.Monad (void)
-import           Text.Regex.TDFA ((=~))
+import Control.Monad (void)
+import Text.Regex.TDFA ((=~))
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
@@ -23,19 +23,25 @@ import qualified Hedgehog.Extras.Test.File as H
 hprop_golden_shelleyKESKeys :: Property
 hprop_golden_shelleyKESKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/signing_key"
+  referenceVerKey <-
+    noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/verification_key"
+  referenceSignKey <-
+    noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "kes-verification-key-file"
   signKey <- noteTempFile tempDir "kes-signing-key-file"
 
   -- Generate payment verification key
-  void $ execCardanoCLI
-    [ "node","key-gen-KES"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen-KES"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   let signingKeyType = textEnvelopeType (AsSigningKey AsKesKey)
       verificationKeyType = textEnvelopeType (AsVerificationKey AsKesKey)
@@ -51,20 +57,27 @@ hprop_golden_shelleyKESKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir 
 hprop_golden_shelleyKESKeys_te :: Property
 hprop_golden_shelleyKESKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/signing_key"
+  referenceVerKey <-
+    noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/verification_key"
+  referenceSignKey <-
+    noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "kes-verification-key-file"
   signKey <- noteTempFile tempDir "kes-signing-key-file"
 
   -- Generate payment verification key
-  void $ execCardanoCLI
-    [ "node","key-gen-KES"
-    , "--key-output-format", "text-envelope"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen-KES"
+      , "--key-output-format"
+      , "text-envelope"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   let signingKeyType = textEnvelopeType (AsSigningKey AsKesKey)
       verificationKeyType = textEnvelopeType (AsVerificationKey AsKesKey)
@@ -84,12 +97,17 @@ hprop_golden_shelleyKESKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \t
   signKeyFile <- noteTempFile tempDir "kes-signing-key-file"
 
   -- Generate payment verification key
-  void $ execCardanoCLI
-    [ "node","key-gen-KES"
-    , "--key-output-format", "bech32"
-    , "--verification-key-file", verKeyFile
-    , "--signing-key-file", signKeyFile
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen-KES"
+      , "--key-output-format"
+      , "bech32"
+      , "--verification-key-file"
+      , verKeyFile
+      , "--signing-key-file"
+      , signKeyFile
+      ]
 
   -- Check the newly created files have not deviated from the
   -- golden files

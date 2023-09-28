@@ -4,18 +4,18 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.KeyCmdError
-  ( KeyCmdError(..)
+  ( KeyCmdError (..)
   , renderKeyCmdError
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
 import qualified Cardano.CLI.Byron.Key as Byron
-import           Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
-import           Cardano.CLI.Types.Errors.ItnKeyConversionError
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
+import Cardano.CLI.Types.Errors.ItnKeyConversionError
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
+import Data.Text (Text)
 import qualified Data.Text as Text
 
 data KeyCmdError
@@ -23,10 +23,10 @@ data KeyCmdError
   | KeyCmdReadKeyFileError !(FileError InputDecodeError)
   | KeyCmdWriteFileError !(FileError ())
   | KeyCmdByronKeyFailure !Byron.ByronKeyFailure
-  | KeyCmdByronKeyParseError
+  | -- | Text representation of the parse error. Unfortunately, the actual
+    -- error type isn't exported.
+    KeyCmdByronKeyParseError
       !Text
-      -- ^ Text representation of the parse error. Unfortunately, the actual
-      -- error type isn't exported.
   | KeyCmdItnKeyConvError !ItnKeyConversionError
   | KeyCmdWrongKeyTypeError
   | KeyCmdCardanoAddressSigningKeyFileError
@@ -34,7 +34,7 @@ data KeyCmdError
   | KeyCmdNonLegacyKey !FilePath
   | KeyCmdExpectedExtendedVerificationKey SomeAddressVerificationKey
   | KeyCmdVerificationKeyReadError VerificationKeyTextOrFileError
-  deriving Show
+  deriving (Show)
 
 renderKeyCmdError :: KeyCmdError -> Text
 renderKeyCmdError err =
@@ -50,7 +50,9 @@ renderKeyCmdError err =
     KeyCmdCardanoAddressSigningKeyFileError fileErr ->
       Text.pack (displayError fileErr)
     KeyCmdNonLegacyKey fp ->
-      "Signing key at: " <> Text.pack fp <> " is not a legacy Byron signing key and should not need to be converted."
+      "Signing key at: "
+        <> Text.pack fp
+        <> " is not a legacy Byron signing key and should not need to be converted."
     KeyCmdVerificationKeyReadError e -> renderVerificationKeyTextOrFileError e
     KeyCmdExpectedExtendedVerificationKey someVerKey ->
       "Expected an extended verification key but got: " <> renderSomeAddressVerificationKey someVerKey

@@ -3,20 +3,20 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance
-  ( GovernanceCmds(..)
+  ( GovernanceCmds (..)
   , renderGovernanceCmds
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.EraBased.Commands.Governance.Actions
-import           Cardano.CLI.EraBased.Commands.Governance.Committee
-import           Cardano.CLI.EraBased.Commands.Governance.DRep
-import           Cardano.CLI.EraBased.Commands.Governance.Query
-import           Cardano.CLI.EraBased.Commands.Governance.Vote
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.EraBased.Commands.Governance.Actions
+import Cardano.CLI.EraBased.Commands.Governance.Committee
+import Cardano.CLI.EraBased.Commands.Governance.DRep
+import Cardano.CLI.EraBased.Commands.Governance.Query
+import Cardano.CLI.EraBased.Commands.Governance.Vote
+import Cardano.CLI.Types.Common
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data GovernanceCmds era
   = GovernanceMIRPayStakeAddressesCertificate

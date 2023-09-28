@@ -2,9 +2,9 @@
 
 module Test.Golden.Shelley.TextView.DecodeCbor where
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -17,10 +17,13 @@ hprop_golden_shelleyTextViewDecodeCbor = propertyOnce $ H.moduleWorkspace "tmp" 
 
   -- Defaults to signing a Mainnet transaction.
 
-  decodedTxt <- execCardanoCLI
-    [ "text-view","decode-cbor"
-    , "--file", unsignedTxFile
-    ]
+  decodedTxt <-
+    execCardanoCLI
+      [ "text-view"
+      , "decode-cbor"
+      , "--file"
+      , unsignedTxFile
+      ]
 
   H.writeFile decodedTxtFile decodedTxt
 

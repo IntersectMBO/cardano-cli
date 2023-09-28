@@ -2,12 +2,12 @@
 
 module Test.Golden.Shelley.Key.ConvertCardanoAddressKey where
 
-import           Control.Monad (void)
-import           Data.Text (Text)
+import Control.Monad (void)
+import Data.Text (Text)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property, (===))
+import Hedgehog (Property, (===))
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -42,7 +42,6 @@ exampleShelleySigningKey =
 hprop_golden_convertCardanoAddressByronSigningKey :: Property
 hprop_golden_convertCardanoAddressByronSigningKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-
     -- `cardano-address` signing key filepath
     signingKeyFp <- noteTempFile tempDir "cardano-address-byron.skey"
 
@@ -55,12 +54,16 @@ hprop_golden_convertCardanoAddressByronSigningKey =
     H.assertFilesExist [signingKeyFp]
 
     -- Convert the `cardano-address` signing key
-    void $ execCardanoCLI
-      [ "key","convert-cardano-address-key"
-      , "--byron-payment-key"
-      , "--signing-key-file", signingKeyFp
-      , "--out-file", convertedSigningKeyFp
-      ]
+    void $
+      execCardanoCLI
+        [ "key"
+        , "convert-cardano-address-key"
+        , "--byron-payment-key"
+        , "--signing-key-file"
+        , signingKeyFp
+        , "--out-file"
+        , convertedSigningKeyFp
+        ]
 
     -- Check for existence of the converted signing key file
     H.assertFilesExist [convertedSigningKeyFp]
@@ -79,7 +82,6 @@ hprop_golden_convertCardanoAddressByronSigningKey =
 hprop_golden_convertCardanoAddressIcarusSigningKey :: Property
 hprop_golden_convertCardanoAddressIcarusSigningKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-
     -- `cardano-address` signing key filepath
     signingKeyFp <- H.noteTempFile tempDir "cardano-address-icarus.skey"
 
@@ -92,12 +94,16 @@ hprop_golden_convertCardanoAddressIcarusSigningKey =
     H.assertFilesExist [signingKeyFp]
 
     -- Convert the `cardano-address` signing key
-    void $ execCardanoCLI
-      [ "key","convert-cardano-address-key"
-      , "--icarus-payment-key"
-      , "--signing-key-file", signingKeyFp
-      , "--out-file", convertedSigningKeyFp
-      ]
+    void $
+      execCardanoCLI
+        [ "key"
+        , "convert-cardano-address-key"
+        , "--icarus-payment-key"
+        , "--signing-key-file"
+        , signingKeyFp
+        , "--out-file"
+        , convertedSigningKeyFp
+        ]
 
     -- Check for existence of the converted signing key file
     H.assertFilesExist [convertedSigningKeyFp]
@@ -116,7 +122,6 @@ hprop_golden_convertCardanoAddressIcarusSigningKey =
 hprop_golden_convertCardanoAddressShelleyPaymentSigningKey :: Property
 hprop_golden_convertCardanoAddressShelleyPaymentSigningKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-
     -- `cardano-address` signing key filepath
     signingKeyFp <-
       noteTempFile tempDir "cardano-address-shelley-payment.skey"
@@ -130,12 +135,16 @@ hprop_golden_convertCardanoAddressShelleyPaymentSigningKey =
     H.assertFilesExist [signingKeyFp]
 
     -- Convert the `cardano-address` signing key
-    void $ execCardanoCLI
-      [ "key","convert-cardano-address-key"
-      , "--shelley-payment-key"
-      , "--signing-key-file", signingKeyFp
-      , "--out-file", convertedSigningKeyFp
-      ]
+    void $
+      execCardanoCLI
+        [ "key"
+        , "convert-cardano-address-key"
+        , "--shelley-payment-key"
+        , "--signing-key-file"
+        , signingKeyFp
+        , "--out-file"
+        , convertedSigningKeyFp
+        ]
 
     -- Check for existence of the converted signing key file
     H.assertFilesExist [convertedSigningKeyFp]
@@ -154,7 +163,6 @@ hprop_golden_convertCardanoAddressShelleyPaymentSigningKey =
 hprop_golden_convertCardanoAddressShelleyStakeSigningKey :: Property
 hprop_golden_convertCardanoAddressShelleyStakeSigningKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-
     -- `cardano-address` signing key filepath
     signingKeyFp <-
       noteTempFile tempDir "cardano-address-shelley-stake.skey"
@@ -168,12 +176,16 @@ hprop_golden_convertCardanoAddressShelleyStakeSigningKey =
     H.assertFilesExist [signingKeyFp]
 
     -- Convert the `cardano-address` signing key
-    void $ execCardanoCLI
-      [ "key","convert-cardano-address-key"
-      , "--shelley-stake-key"
-      , "--signing-key-file", signingKeyFp
-      , "--out-file", convertedSigningKeyFp
-      ]
+    void $
+      execCardanoCLI
+        [ "key"
+        , "convert-cardano-address-key"
+        , "--shelley-stake-key"
+        , "--signing-key-file"
+        , signingKeyFp
+        , "--out-file"
+        , convertedSigningKeyFp
+        ]
 
     -- Check for existence of the converted signing key file
     H.assertFilesExist [convertedSigningKeyFp]

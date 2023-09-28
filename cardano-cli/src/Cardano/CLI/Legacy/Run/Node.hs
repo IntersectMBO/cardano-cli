@@ -5,28 +5,29 @@ module Cardano.CLI.Legacy.Run.Node
   ( runLegacyNodeCmds
   ) where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Run.Node
-import           Cardano.CLI.Legacy.Commands.Node
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.NodeCmdError
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.EraBased.Run.Node
+import Cardano.CLI.Legacy.Commands.Node
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.NodeCmdError
+import Cardano.CLI.Types.Key
 
-import           Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except (ExceptT)
 
 {- HLINT ignore "Reduce duplication" -}
 
-runLegacyNodeCmds :: ()
+runLegacyNodeCmds
+  :: ()
   => LegacyNodeCmds
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeCmds = \case
   NodeKeyGenCold fmt vk sk ctr ->
     runLegacyNodeKeyGenColdCmd fmt vk sk ctr
-  NodeKeyGenKES  fmt vk sk ->
+  NodeKeyGenKES fmt vk sk ->
     runLegacyNodeKeyGenKesCmd fmt vk sk
-  NodeKeyGenVRF  fmt vk sk ->
+  NodeKeyGenVRF fmt vk sk ->
     runLegacyNodeKeyGenVrfCmd fmt vk sk
   NodeKeyHashVRF vk mOutFp ->
     runLegacyNodeKeyHashVrfCmd vk mOutFp
@@ -35,7 +36,8 @@ runLegacyNodeCmds = \case
   NodeIssueOpCert vk sk ctr p out ->
     runLegacyNodeIssueOpCertCmd vk sk ctr p out
 
-runLegacyNodeKeyGenColdCmd :: ()
+runLegacyNodeKeyGenColdCmd
+  :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
@@ -43,34 +45,39 @@ runLegacyNodeKeyGenColdCmd :: ()
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyGenColdCmd = runNodeKeyGenColdCmd
 
-runLegacyNodeKeyGenKesCmd :: ()
+runLegacyNodeKeyGenKesCmd
+  :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyGenKesCmd = runNodeKeyGenKesCmd
 
-runLegacyNodeKeyGenVrfCmd :: ()
+runLegacyNodeKeyGenVrfCmd
+  :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyGenVrfCmd = runNodeKeyGenVrfCmd
 
-runLegacyNodeKeyHashVrfCmd :: ()
+runLegacyNodeKeyHashVrfCmd
+  :: ()
   => VerificationKeyOrFile VrfKey
   -> Maybe (File () Out)
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyHashVrfCmd = runNodeKeyHashVrfCmd
 
-runLegacyNodeNewCounterCmd :: ()
+runLegacyNodeNewCounterCmd
+  :: ()
   => ColdVerificationKeyOrFile
   -> Word
   -> OpCertCounterFile InOut
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeNewCounterCmd = runNodeNewCounterCmd
 
-runLegacyNodeIssueOpCertCmd :: ()
+runLegacyNodeIssueOpCertCmd
+  :: ()
   => VerificationKeyOrFile KesKey
   -- ^ This is the hot KES verification key.
   -> SigningKeyFile In

@@ -6,12 +6,12 @@ module Cardano.CLI.EraBased.Commands.Genesis
   , renderGenesisCmds
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.Chain.Common (BlockCount)
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
+import Cardano.Chain.Common (BlockCount)
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data GenesisCmds era
   = GenesisCreate
@@ -37,7 +37,8 @@ data GenesisCmds era
       FilePath
       FilePath
       (Maybe FilePath)
-  | GenesisCreateStaked
+  | -- | Relay specification filepath
+    GenesisCreateStaked
       KeyOutputFormat
       GenesisDir
       Word
@@ -51,7 +52,7 @@ data GenesisCmds era
       Word
       Word
       Word
-      (Maybe FilePath) -- ^ Relay specification filepath
+      (Maybe FilePath)
   | GenesisKeyGenGenesis
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
@@ -77,7 +78,7 @@ data GenesisCmds era
       (Maybe (File () Out))
   | GenesisHashFile
       GenesisFile
-  deriving Show
+  deriving (Show)
 
 renderGenesisCmds :: GenesisCmds era -> Text
 renderGenesisCmds = \case

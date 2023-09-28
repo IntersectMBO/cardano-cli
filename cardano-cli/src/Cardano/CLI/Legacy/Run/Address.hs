@@ -9,21 +9,24 @@ module Cardano.CLI.Legacy.Run.Address
   ( runLegacyAddressCmds
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.EraBased.Run.Address
-import           Cardano.CLI.EraBased.Run.Address.Info
-import           Cardano.CLI.Legacy.Commands.Address
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.AddressCmdError
-import           Cardano.CLI.Types.Errors.AddressInfoError
-import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
-                   VerificationKeyTextOrFile)
+import Cardano.CLI.EraBased.Run.Address
+import Cardano.CLI.EraBased.Run.Address.Info
+import Cardano.CLI.Legacy.Commands.Address
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.AddressCmdError
+import Cardano.CLI.Types.Errors.AddressInfoError
+import Cardano.CLI.Types.Key
+  ( PaymentVerifier (..)
+  , StakeIdentifier (..)
+  , VerificationKeyTextOrFile
+  )
 
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT)
-import           Data.Function
-import           Data.Text (Text)
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except.Extra (firstExceptT)
+import Data.Function
+import Data.Text (Text)
 
 runLegacyAddressCmds :: LegacyAddressCmds -> ExceptT AddressCmdError IO ()
 runLegacyAddressCmds = \case
@@ -36,7 +39,8 @@ runLegacyAddressCmds = \case
   AddressInfo txt mOFp ->
     runLegacyAddressInfoCmd txt mOFp & firstExceptT AddressCmdAddressInfoError
 
-runLegacyAddressKeyGenCmd :: ()
+runLegacyAddressKeyGenCmd
+  :: ()
   => KeyOutputFormat
   -> AddressKeyType
   -> VerificationKeyFile Out
@@ -44,13 +48,15 @@ runLegacyAddressKeyGenCmd :: ()
   -> ExceptT AddressCmdError IO ()
 runLegacyAddressKeyGenCmd = runAddressKeyGenCmd
 
-runLegacyAddressKeyHashCmd :: ()
+runLegacyAddressKeyHashCmd
+  :: ()
   => VerificationKeyTextOrFile
   -> Maybe (File () Out)
   -> ExceptT AddressCmdError IO ()
 runLegacyAddressKeyHashCmd = runAddressKeyHashCmd
 
-runLegacyAddressBuildCmd :: ()
+runLegacyAddressBuildCmd
+  :: ()
   => PaymentVerifier
   -> Maybe StakeIdentifier
   -> NetworkId
@@ -58,7 +64,8 @@ runLegacyAddressBuildCmd :: ()
   -> ExceptT AddressCmdError IO ()
 runLegacyAddressBuildCmd = runAddressBuildCmd
 
-runLegacyAddressInfoCmd :: ()
+runLegacyAddressInfoCmd
+  :: ()
   => Text
   -> Maybe (File () Out)
   -> ExceptT AddressInfoError IO ()

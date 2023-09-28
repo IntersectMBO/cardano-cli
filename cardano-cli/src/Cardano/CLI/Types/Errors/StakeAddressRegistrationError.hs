@@ -1,13 +1,13 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.StakeAddressRegistrationError
-  ( StakeAddressRegistrationError(..)
+  ( StakeAddressRegistrationError (..)
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
 data StakeAddressRegistrationError = StakeAddressRegistrationDepositRequired
-  deriving Show
+  deriving (Show)
 
 instance Error StakeAddressRegistrationError where
   displayError = \case

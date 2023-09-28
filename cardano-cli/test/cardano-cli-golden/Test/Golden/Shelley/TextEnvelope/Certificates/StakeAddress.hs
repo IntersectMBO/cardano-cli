@@ -2,13 +2,13 @@
 
 module Test.Golden.Shelley.TextEnvelope.Certificates.StakeAddress where
 
-import           Cardano.Api (AsType (..), CardanoEra (..), textEnvelopeTypeInEra)
+import Cardano.Api (AsType (..), CardanoEra (..), textEnvelopeTypeInEra)
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -22,8 +22,12 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   let era = BabbageEra
 
   -- Reference files
-  referenceRegistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_registration_certificate"
-  referenceDeregistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_deregistration_certificate"
+  referenceRegistrationCertificate <-
+    noteInputFile
+      "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_registration_certificate"
+  referenceDeregistrationCertificate <-
+    noteInputFile
+      "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_deregistration_certificate"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "stake-verification-key-file"
@@ -32,37 +36,57 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   registrationCertificate <- noteTempFile tempDir "stake-address-registration-certificate"
 
   -- Generate stake verification key
-  void $ execCardanoCLI
-    [ "stake-address", "key-gen"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "key-gen"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   H.assertFilesExist [verKey, signKey]
 
   -- Create stake address registration certificate
-  void $ execCardanoCLI
-    [ "babbage", "stake-address", "registration-certificate"
-    , "--stake-verification-key-file", verKey
-    , "--out-file", registrationCertificate
-    ]
+  void $
+    execCardanoCLI
+      [ "babbage"
+      , "stake-address"
+      , "registration-certificate"
+      , "--stake-verification-key-file"
+      , verKey
+      , "--out-file"
+      , registrationCertificate
+      ]
 
   let registrationCertificateType = textEnvelopeTypeInEra era AsCertificate
 
   -- Check the newly created files have not deviated from the
   -- golden files
-  checkTextEnvelopeFormat registrationCertificateType referenceRegistrationCertificate registrationCertificate
+  checkTextEnvelopeFormat
+    registrationCertificateType
+    referenceRegistrationCertificate
+    registrationCertificate
 
   -- Create stake address deregistration certificate
-  void $ execCardanoCLI
-    [ "babbage", "stake-address", "deregistration-certificate"
-    , "--stake-verification-key-file", verKey
-    , "--out-file", deregistrationCertificate
-    ]
+  void $
+    execCardanoCLI
+      [ "babbage"
+      , "stake-address"
+      , "deregistration-certificate"
+      , "--stake-verification-key-file"
+      , verKey
+      , "--out-file"
+      , deregistrationCertificate
+      ]
 
   -- Check the newly created files have not deviated from the
   -- golden files
-  checkTextEnvelopeFormat registrationCertificateType referenceDeregistrationCertificate deregistrationCertificate
+  checkTextEnvelopeFormat
+    registrationCertificateType
+    referenceDeregistrationCertificate
+    deregistrationCertificate
 
 -- TODO: After delegation-certificate command is fixed to take a hash instead of a verification key
 {-

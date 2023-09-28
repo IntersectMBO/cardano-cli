@@ -18,4 +18,4 @@ posixSetOtherAndGroupModes = do
   _ <- setFileCreationMask (otherModes `unionFileModes` groupModes)
 #endif
 
-  pure ()
+pure ()

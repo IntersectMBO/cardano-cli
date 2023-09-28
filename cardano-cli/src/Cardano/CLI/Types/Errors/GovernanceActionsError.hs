@@ -1,12 +1,12 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.GovernanceActionsError
-  ( GovernanceActionsError(..)
+  ( GovernanceActionsError (..)
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Read
+import Cardano.CLI.Read
 
 data GovernanceActionsError
   = GovernanceActionsCmdConstitutionError ConstitutionError
@@ -14,7 +14,7 @@ data GovernanceActionsError
   | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
   | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdWriteFileError (FileError ())
-  deriving Show
+  deriving (Show)
 
 instance Error GovernanceActionsError where
   displayError = \case

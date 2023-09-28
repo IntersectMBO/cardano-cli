@@ -2,12 +2,12 @@
 
 module Test.Golden.Key.NonExtendedKey where
 
-import           Control.Monad (void)
-import           System.FilePath ((</>))
+import Control.Monad (void)
+import System.FilePath ((</>))
 
-import           Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
+import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Golden as H
@@ -19,18 +19,24 @@ import qualified Hedgehog.Extras.Test.Golden as H
 hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey :: Property
 hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    genesisVKeyFp <- H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/shelley.000.vkey"
-    nonExtendedFp <-  H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-shelley.000.vkey"
+    genesisVKeyFp <-
+      H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/shelley.000.vkey"
+    nonExtendedFp <-
+      H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-shelley.000.vkey"
     outFp <- H.note $ tempDir </> "non-extended-shelley.000.vkey"
 
     H.assertFilesExist [genesisVKeyFp]
 
     -- Convert the `cardano-address` signing key
-    void $ execCardanoCLI
-      [ "key", "non-extended-key"
-      , "--extended-verification-key-file", genesisVKeyFp
-      , "--verification-key-file", outFp
-      ]
+    void $
+      execCardanoCLI
+        [ "key"
+        , "non-extended-key"
+        , "--extended-verification-key-file"
+        , genesisVKeyFp
+        , "--verification-key-file"
+        , outFp
+        ]
 
     -- Check for existence of the converted signing key file
     H.assertFilesExist [outFp]
@@ -43,17 +49,22 @@ hprop_golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley :: Property
 hprop_golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     genesisVKeyFp <- H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/stake.000.vkey"
-    nonExtendedFp <-  H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-stake.000.vkey"
+    nonExtendedFp <-
+      H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-stake.000.vkey"
     outFp <- H.note $ tempDir </> "non-extended-stake.000.vkey"
 
     H.assertFilesExist [genesisVKeyFp]
 
     -- Convert the `cardano-address` signing key
-    void $ execCardanoCLI
-      [ "key", "non-extended-key"
-      , "--extended-verification-key-file", genesisVKeyFp
-      , "--verification-key-file", outFp
-      ]
+    void $
+      execCardanoCLI
+        [ "key"
+        , "non-extended-key"
+        , "--extended-verification-key-file"
+        , genesisVKeyFp
+        , "--verification-key-file"
+        , outFp
+        ]
 
     -- Check for existence of the converted signing key file
     H.assertFilesExist [outFp]

@@ -3,7 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Helpers
-  ( HelpersError(..)
+  ( HelpersError (..)
   , printWarning
   , deprecationWarning
   , ensureNewFile
@@ -14,32 +14,32 @@ module Cardano.CLI.Helpers
   , validateCBOR
   ) where
 
-import           Cardano.Chain.Block (decCBORABlockOrBoundary)
+import Cardano.CLI.Types.Common
+import Cardano.Chain.Block (decCBORABlockOrBoundary)
 import qualified Cardano.Chain.Delegation as Delegation
-import qualified Cardano.Chain.Update as Update
 import qualified Cardano.Chain.UTxO as UTxO
-import           Cardano.CLI.Types.Common
-import           Cardano.Ledger.Binary (byronProtVer, toPlainDecoder)
-import           Cardano.Ledger.Binary.Plain (Decoder, fromCBOR)
+import qualified Cardano.Chain.Update as Update
+import Cardano.Ledger.Binary (byronProtVer, toPlainDecoder)
+import Cardano.Ledger.Binary.Plain (Decoder, fromCBOR)
 
-import           Codec.CBOR.Pretty (prettyHexEnc)
-import           Codec.CBOR.Read (DeserialiseFailure, deserialiseFromBytes)
-import           Codec.CBOR.Term (decodeTerm, encodeTerm)
-import           Control.Exception (Exception (..), IOException)
-import           Control.Monad (unless, when)
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (handleIOExceptT, left)
-import           Data.Bifunctor (Bifunctor (..))
-import           Data.ByteString (ByteString)
+import Codec.CBOR.Pretty (prettyHexEnc)
+import Codec.CBOR.Read (DeserialiseFailure, deserialiseFromBytes)
+import Codec.CBOR.Term (decodeTerm, encodeTerm)
+import Control.Exception (Exception (..), IOException)
+import Control.Monad (unless, when)
+import Control.Monad.IO.Class (MonadIO (..))
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except.Extra (handleIOExceptT, left)
+import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LB
-import           Data.Functor (void)
-import           Data.Text (Text)
+import Data.Functor (void)
+import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
+import System.Console.ANSI
 import qualified System.Console.ANSI as ANSI
-import           System.Console.ANSI
 import qualified System.Directory as IO
 import qualified System.IO as IO
 
@@ -49,7 +49,7 @@ data HelpersError
   | IOError' !FilePath !IOException
   | OutputMustNotAlreadyExist FilePath
   | ReadCBORFileFailure !FilePath !Text
-  deriving Show
+  deriving (Show)
 
 renderHelpersError :: HelpersError -> Text
 renderHelpersError err =
@@ -72,20 +72,22 @@ printWarning warning = do
   ANSI.hSetSGR IO.stderr [SetColor Foreground Vivid Yellow]
   IO.hPutStrLn IO.stderr $ "WARNING: " <> warning
   ANSI.hSetSGR IO.stderr [Reset]
-    -- We need to flush, or otherwise what's on stdout may have the wrong colour
-    -- since it's likely sharing a console with stderr
+  -- We need to flush, or otherwise what's on stdout may have the wrong colour
+  -- since it's likely sharing a console with stderr
   IO.hFlush IO.stderr
 
 deprecationWarning :: String -> IO ()
-deprecationWarning cmd = printWarning $
-  "This CLI command is deprecated.  Please use " <> cmd <> " command instead."
+deprecationWarning cmd =
+  printWarning $
+    "This CLI command is deprecated.  Please use " <> cmd <> " command instead."
 
 -- | Checks if a path exists and throws and error if it does.
 ensureNewFile :: (FilePath -> a -> IO ()) -> FilePath -> a -> ExceptT HelpersError IO ()
 ensureNewFile writer outFile blob = do
   exists <- liftIO $ IO.doesPathExist outFile
   when exists $
-    left $ OutputMustNotAlreadyExist outFile
+    left $
+      OutputMustNotAlreadyExist outFile
   liftIO $ writer outFile blob
 
 ensureNewFileLBS :: FilePath -> ByteString -> ExceptT HelpersError IO ()
@@ -112,20 +114,15 @@ validateCBOR cborObject bs =
     CBORBlockByron epochSlots -> do
       void $ decodeCBOR bs (toPlainDecoder byronProtVer (decCBORABlockOrBoundary epochSlots))
       Right "Valid Byron block."
-
     CBORDelegationCertificateByron -> do
       void $ decodeCBOR bs (fromCBOR :: Decoder s Delegation.Certificate)
       Right "Valid Byron delegation certificate."
-
     CBORTxByron -> do
       void $ decodeCBOR bs (fromCBOR :: Decoder s UTxO.Tx)
       Right "Valid Byron Tx."
-
     CBORUpdateProposalByron -> do
       void $ decodeCBOR bs (fromCBOR :: Decoder s Update.Proposal)
       Right "Valid Byron update proposal."
-
     CBORVoteByron -> do
       void $ decodeCBOR bs (fromCBOR :: Decoder s Update.Vote)
       Right "Valid Byron vote."
-

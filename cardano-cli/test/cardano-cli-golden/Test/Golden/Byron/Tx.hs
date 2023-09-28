@@ -2,23 +2,23 @@
 
 module Test.Golden.Byron.Tx where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.Chain.UTxO (ATxAux)
-import           Cardano.CLI.Byron.Tx
+import Cardano.CLI.Byron.Tx
+import Cardano.Chain.UTxO (ATxAux)
 
-import           Control.Monad (void)
-import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad.Trans.Except (runExceptT)
-import           Data.ByteString (ByteString)
+import Control.Monad (void)
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Except (runExceptT)
+import Data.ByteString (ByteString)
 import qualified Data.Text as Text
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property, (===))
+import Hedgehog (Property, (===))
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
-import           Hedgehog.Internal.Property (failWith)
+import Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -27,15 +27,22 @@ hprop_golden_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir 
   signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/legacy.skey"
   goldenTx <- noteInputFile "test/cardano-cli-golden/files/golden/byron/tx/legacy.tx"
   createdTx <- noteTempFile tempDir "tx"
-  void $ execCardanoCLI
-    [ "byron", "transaction", "issue-utxo-expenditure"
-    , "--mainnet"
-    , "--byron-legacy-formats"
-    , "--wallet-key", signingKey
-    , "--tx", createdTx
-    , "--txin", "(796a90e0a89b292d53a6129b9f0d757429063b529d27e4f56565192a8c8da5e3,10)"
-    , "--txout", "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
-    ]
+  void $
+    execCardanoCLI
+      [ "byron"
+      , "transaction"
+      , "issue-utxo-expenditure"
+      , "--mainnet"
+      , "--byron-legacy-formats"
+      , "--wallet-key"
+      , signingKey
+      , "--tx"
+      , createdTx
+      , "--txin"
+      , "(796a90e0a89b292d53a6129b9f0d757429063b529d27e4f56565192a8c8da5e3,10)"
+      , "--txout"
+      , "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
+      ]
 
   compareByronTxs createdTx goldenTx
 
@@ -44,15 +51,22 @@ hprop_golden_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
   goldenTx <- noteInputFile "test/cardano-cli-golden/files/golden/byron/tx/normal.tx"
   createdTx <- noteTempFile tempDir "tx"
-  void $ execCardanoCLI
-    [ "byron", "transaction", "issue-utxo-expenditure"
-    , "--mainnet"
-    , "--byron-formats"
-    , "--wallet-key", signingKey
-    , "--tx", createdTx
-    , "--txin", "(796a90e0a89b292d53a6129b9f0d757429063b529d27e4f56565192a8c8da5e3,10)"
-    , "--txout", "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
-    ]
+  void $
+    execCardanoCLI
+      [ "byron"
+      , "transaction"
+      , "issue-utxo-expenditure"
+      , "--mainnet"
+      , "--byron-formats"
+      , "--wallet-key"
+      , signingKey
+      , "--tx"
+      , createdTx
+      , "--txin"
+      , "(796a90e0a89b292d53a6129b9f0d757429063b529d27e4f56565192a8c8da5e3,10)"
+      , "--txout"
+      , "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
+      ]
 
   compareByronTxs createdTx goldenTx
 

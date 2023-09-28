@@ -5,11 +5,11 @@ module Test.Cli.Pioneers.Exercise1
   , hprop_buildShelleyStakeAddress
   ) where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -23,20 +23,27 @@ hprop_buildShelleyPaymentAddress = propertyOnce . H.moduleWorkspace "tmp" $ \tem
   signKey <- noteTempFile tempDir "payment-signing-key-file"
 
   -- Generate payment verification key
-  void $ execCardanoCLI
-    [ "address","key-gen"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "address"
+      , "key-gen"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   H.assertFilesExist [verKey, signKey]
 
   -- Build shelley payment address
-  void $ execCardanoCLI
-    [ "address", "build"
-    , "--payment-verification-key-file", verKey
-    , "--mainnet"
-    ]
+  void $
+    execCardanoCLI
+      [ "address"
+      , "build"
+      , "--payment-verification-key-file"
+      , verKey
+      , "--mainnet"
+      ]
 
 -- | 1. We generate a key payment pair
 --   2. We generate a staking key pair
@@ -52,25 +59,37 @@ hprop_buildShelleyStakeAddress = propertyOnce . H.moduleWorkspace "tmp" $ \tempD
   paymentSignKey <- noteTempFile tempDir "payment-signing-key-file"
 
   -- Generate payment verification key
-  void $ execCardanoCLI
-    [ "address","key-gen"
-    , "--verification-key-file", paymentVerKey
-    , "--signing-key-file", paymentSignKey
-    ]
+  void $
+    execCardanoCLI
+      [ "address"
+      , "key-gen"
+      , "--verification-key-file"
+      , paymentVerKey
+      , "--signing-key-file"
+      , paymentSignKey
+      ]
 
   -- Generate stake verification key
-  void $ execCardanoCLI
-    [ "stake-address","key-gen"
-    , "--verification-key-file", stakeVerKey
-    , "--signing-key-file", stakeSignKey
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "key-gen"
+      , "--verification-key-file"
+      , stakeVerKey
+      , "--signing-key-file"
+      , stakeSignKey
+      ]
 
   H.assertFilesExist [stakeVerKey, stakeSignKey, paymentVerKey, paymentSignKey]
 
   -- Build shelley stake address
-  void $ execCardanoCLI
-    [ "address", "build"
-    , "--payment-verification-key-file", paymentVerKey
-    , "--stake-verification-key-file", stakeVerKey
-    , "--mainnet"
-    ]
+  void $
+    execCardanoCLI
+      [ "address"
+      , "build"
+      , "--payment-verification-key-file"
+      , paymentVerKey
+      , "--stake-verification-key-file"
+      , stakeVerKey
+      , "--mainnet"
+      ]

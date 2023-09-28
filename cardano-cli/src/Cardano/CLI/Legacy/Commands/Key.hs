@@ -6,22 +6,22 @@ module Cardano.CLI.Legacy.Commands.Key
   , renderLegacyKeyCmds
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyKeyCmds
   = KeyGetVerificationKey (SigningKeyFile In) (VerificationKeyFile Out)
-  | KeyNonExtendedKey  (VerificationKeyFile In) (VerificationKeyFile Out)
+  | KeyNonExtendedKey (VerificationKeyFile In) (VerificationKeyFile Out)
   | KeyConvertByronKey (Maybe Text) ByronKeyType (SomeKeyFile In) (File () Out)
   | KeyConvertByronGenesisVKey VerificationKeyBase64 (File () Out)
   | KeyConvertITNStakeKey (SomeKeyFile In) (File () Out)
   | KeyConvertITNExtendedToStakeKey (SomeKeyFile In) (File () Out)
   | KeyConvertITNBip32ToStakeKey (SomeKeyFile In) (File () Out)
   | KeyConvertCardanoAddressSigningKey CardanoAddressKeyType (SigningKeyFile In) (File () Out)
-  deriving Show
+  deriving (Show)
 
 renderLegacyKeyCmds :: LegacyKeyCmds -> Text
 renderLegacyKeyCmds = \case

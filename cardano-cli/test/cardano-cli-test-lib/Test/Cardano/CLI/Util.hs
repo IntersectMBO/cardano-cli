@@ -9,42 +9,40 @@ module Test.Cardano.CLI.Util
   , withSnd
   , noteInputFile
   , noteTempFile
-
   , redactJsonField
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Read
+import Cardano.CLI.Read
 
-import           Control.Monad.Catch
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Class (lift)
-import           Control.Monad.Trans.Except (runExceptT)
+import Control.Monad.Catch
+import Control.Monad.IO.Class (MonadIO (..))
+import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.Except (runExceptT)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson
 import qualified Data.Aeson.KeyMap as Aeson
 import qualified Data.ByteString.Lazy as LBS
-import           Data.Function ((&))
+import Data.Function ((&))
 import qualified Data.List as List
-import           Data.Monoid (Last (..))
-import           Data.Text (Text)
-import           GHC.Stack (CallStack, HasCallStack)
+import Data.Monoid (Last (..))
+import Data.Text (Text)
+import GHC.Stack (CallStack, HasCallStack)
 import qualified GHC.Stack as GHC
 import qualified System.Exit as IO
+import System.Process (CreateProcess)
 import qualified System.Process as IO
-import           System.Process (CreateProcess)
 
 import qualified Hedgehog as H
-import           Hedgehog.Extras (ExecConfig)
+import Hedgehog.Extras (ExecConfig)
 import qualified Hedgehog.Extras as H
-import           Hedgehog.Extras.Test (ExecConfig (..))
-import           Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
+import Hedgehog.Extras.Test (ExecConfig (..))
+import Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
 import qualified Hedgehog.Internal.Property as H
-import           Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
-import           Hedgehog.Internal.Source (getCaller)
-
+import Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
+import Hedgehog.Internal.Source (getCaller)
 
 -- | Execute cardano-cli via the command line.
 --
@@ -81,10 +79,11 @@ procFlex'
   -- ^ Captured stdout
 procFlex' execConfig pkg binaryEnv arguments = GHC.withFrozenCallStack . H.evalM $ do
   bin <- H.binFlex pkg binaryEnv
-  return (IO.proc bin arguments)
-    { IO.env = getLast $ execConfigEnv execConfig
-    , IO.cwd = getLast $ execConfigCwd execConfig
-    }
+  return
+    (IO.proc bin arguments)
+      { IO.env = getLast $ execConfigEnv execConfig
+      , IO.cwd = getLast $ execConfigCwd execConfig
+      }
 
 execDetailFlex
   :: (MonadTest m, MonadCatch m, MonadIO m, HasCallStack)
@@ -130,22 +129,26 @@ checkTextEnvelopeFormat tve reference created = GHC.withFrozenCallStack $ do
 
   typeTitleEquivalence refTextEnvelope createdTextEnvelope
  where
-   handleTextEnvelope :: MonadTest m
-                      => Either (FileError TextEnvelopeError) TextEnvelope
-                      -> m TextEnvelope
-   handleTextEnvelope (Right refTextEnvelope) = return refTextEnvelope
-   handleTextEnvelope (Left fileErr) = failWithCustom GHC.callStack Nothing . displayError $ fileErr
+  handleTextEnvelope
+    :: (MonadTest m)
+    => Either (FileError TextEnvelopeError) TextEnvelope
+    -> m TextEnvelope
+  handleTextEnvelope (Right refTextEnvelope) = return refTextEnvelope
+  handleTextEnvelope (Left fileErr) = failWithCustom GHC.callStack Nothing . displayError $ fileErr
 
-   typeTitleEquivalence :: (MonadTest m, HasCallStack) => TextEnvelope -> TextEnvelope -> m ()
-   typeTitleEquivalence (TextEnvelope refType refTitle _)
-                        (TextEnvelope createdType createdTitle _) = GHC.withFrozenCallStack $ do
-     equivalence refType createdType
-     equivalence refTitle createdTitle
+  typeTitleEquivalence :: (MonadTest m, HasCallStack) => TextEnvelope -> TextEnvelope -> m ()
+  typeTitleEquivalence
+    (TextEnvelope refType refTitle _)
+    (TextEnvelope createdType createdTitle _) = GHC.withFrozenCallStack $ do
+      equivalence refType createdType
+      equivalence refTitle createdTitle
 
 checkTxCddlFormat
   :: (MonadTest m, MonadIO m, HasCallStack)
-  => FilePath -- ^ Reference/golden file
-  -> FilePath -- ^ Newly created file
+  => FilePath
+  -- ^ Reference/golden file
+  -> FilePath
+  -- ^ Newly created file
   -> m ()
 checkTxCddlFormat referencePath createdPath = do
   reference <- H.evalIO $ fileOrPipe referencePath
@@ -153,7 +156,6 @@ checkTxCddlFormat referencePath createdPath = do
   r <- H.evalIO $ readCddlTx reference
   c <- H.evalIO $ readCddlTx created
   r H.=== c
-
 
 --------------------------------------------------------------------------------
 -- Helpers, Error rendering & Clean up
@@ -182,7 +184,7 @@ withSnd f a = (a, f a)
 -- These were lifted from hedgehog and slightly modified
 
 propertyOnce :: H.PropertyT IO () -> H.Property
-propertyOnce =  H.withTests 1 . H.withShrinks 0 . H.property
+propertyOnce = H.withTests 1 . H.withShrinks 0 . H.property
 
 -- | Check for equivalence between two types and perform a file cleanup on failure.
 equivalence
@@ -197,7 +199,7 @@ equivalence x y = do
     else failDiffCustom GHC.callStack x y
 
 -- | Takes a 'CallStack' so the error can be rendered at the appropriate call site.
-failWithCustom :: MonadTest m => CallStack -> Maybe Diff -> String -> m a
+failWithCustom :: (MonadTest m) => CallStack -> Maybe Diff -> String -> m a
 failWithCustom cs mdiff msg =
   liftTest $ mkTest (Left $ H.Failure (getCaller cs) msg mdiff, mempty)
 
@@ -208,28 +210,35 @@ failDiffCustom cS x y =
     Nothing ->
       GHC.withFrozenCallStack $
         failWithCustom cS Nothing $
-        Prelude.unlines [
-            "Failed"
-          , "━━ lhs ━━"
-          , showPretty x
-          , "━━ rhs ━━"
-          , showPretty y
-          ]
-
+          Prelude.unlines
+            [ "Failed"
+            , "━━ lhs ━━"
+            , showPretty x
+            , "━━ rhs ━━"
+            , showPretty y
+            ]
     Just vdiff@(ValueSame _) ->
       GHC.withFrozenCallStack $
-        failWithCustom cS (Just $
-          H.Diff "━━━ Failed ("  "" "no differences" "" ") ━━━" vdiff) ""
-
+        failWithCustom
+          cS
+          ( Just $
+              H.Diff "━━━ Failed (" "" "no differences" "" ") ━━━" vdiff
+          )
+          ""
     Just vdiff ->
       GHC.withFrozenCallStack $
-        failWithCustom cS (Just $
-          H.Diff "━━━ Failed (" "- lhs" ") (" "+ rhs" ") ━━━" vdiff) ""
+        failWithCustom
+          cS
+          ( Just $
+              H.Diff "━━━ Failed (" "- lhs" ") (" "+ rhs" ") ━━━" vdiff
+          )
+          ""
 
-redactJsonField :: ()
-  => MonadTest m
-  => MonadIO m
-  => HasCallStack
+redactJsonField
+  :: ( MonadTest m
+     , MonadIO m
+     , HasCallStack
+     )
   => Text
   -> Text
   -> FilePath

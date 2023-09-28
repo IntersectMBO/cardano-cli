@@ -6,15 +6,15 @@ module Cardano.CLI.EraBased.Commands.TextView
   , renderTextViewCmds
   ) where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data TextViewCmds era
   = TextViewInfo
       !FilePath
       (Maybe (File () Out))
-  deriving Show
+  deriving (Show)
 
 renderTextViewCmds :: TextViewCmds era -> Text
 renderTextViewCmds = \case

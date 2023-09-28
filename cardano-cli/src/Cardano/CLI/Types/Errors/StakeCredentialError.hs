@@ -1,17 +1,17 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.StakeCredentialError
-  ( StakeCredentialError(..)
+  ( StakeCredentialError (..)
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Errors.ScriptDecodeError
+import Cardano.CLI.Types.Errors.ScriptDecodeError
 
 data StakeCredentialError
   = StakeCredentialScriptDecodeError (FileError ScriptDecodeError)
   | StakeCredentialInputDecodeError (FileError InputDecodeError)
-  deriving Show
+  deriving (Show)
 
 instance Error StakeCredentialError where
   displayError = \case

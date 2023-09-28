@@ -6,16 +6,16 @@ module Cardano.CLI.Legacy.Commands.Query
   , renderLegacyQueryCmds
   ) where
 
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
-import           Data.Time.Clock
+import Data.Text (Text)
+import Data.Time.Clock
 
-data LegacyQueryCmds =
-    QueryLeadershipSchedule
+data LegacyQueryCmds
+  = QueryLeadershipSchedule
       SocketPath
       AnyConsensusModeParams
       NetworkId
@@ -100,7 +100,7 @@ data LegacyQueryCmds =
       AnyConsensusModeParams
       NetworkId
       UTCTime
-  deriving Show
+  deriving (Show)
 
 renderLegacyQueryCmds :: LegacyQueryCmds -> Text
 renderLegacyQueryCmds = \case
@@ -119,9 +119,9 @@ renderLegacyQueryCmds = \case
   QueryPoolState' {} -> "query pool-state"
   QueryTxMempool _ _ _ query _ -> "query tx-mempool" <> renderTxMempoolQuery query
   QuerySlotNumber {} -> "query slot-number"
-  where
-    renderTxMempoolQuery query =
-      case query of
-        TxMempoolQueryTxExists tx -> "tx-exists " <> serialiseToRawBytesHexText tx
-        TxMempoolQueryNextTx -> "next-tx"
-        TxMempoolQueryInfo -> "info"
+ where
+  renderTxMempoolQuery query =
+    case query of
+      TxMempoolQueryTxExists tx -> "tx-exists " <> serialiseToRawBytesHexText tx
+      TxMempoolQueryNextTx -> "next-tx"
+      TxMempoolQueryInfo -> "info"

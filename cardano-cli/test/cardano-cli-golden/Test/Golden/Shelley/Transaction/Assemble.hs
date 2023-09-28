@@ -2,11 +2,11 @@
 
 module Test.Golden.Shelley.Transaction.Assemble where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
@@ -18,13 +18,20 @@ hprop_golden_shelleyTransactionAssembleWitness_SigningKey :: Property
 hprop_golden_shelleyTransactionAssembleWitness_SigningKey = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   witnessTx <- noteTempFile tempDir "single-signing-key-witness-tx"
   txBodyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/tx/txbody"
-  signingKeyWitnessFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/witnesses/singleSigningKeyWitness"
-  void $ execCardanoCLI
-    [ "transaction","sign-witness"
-    , "--tx-body-file", txBodyFile
-    , "--witness-file", signingKeyWitnessFile
-    , "--witness-file", signingKeyWitnessFile
-    , "--out-file", witnessTx
-    ]
+  signingKeyWitnessFile <-
+    noteInputFile "test/cardano-cli-golden/files/golden/shelley/witnesses/singleSigningKeyWitness"
+  void $
+    execCardanoCLI
+      [ "transaction"
+      , "sign-witness"
+      , "--tx-body-file"
+      , txBodyFile
+      , "--witness-file"
+      , signingKeyWitnessFile
+      , "--witness-file"
+      , signingKeyWitnessFile
+      , "--out-file"
+      , witnessTx
+      ]
 
   H.assertFileOccurences 1 "Tx MaryEra" witnessTx

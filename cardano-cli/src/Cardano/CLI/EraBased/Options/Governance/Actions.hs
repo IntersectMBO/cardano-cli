@@ -6,28 +6,30 @@ module Cardano.CLI.EraBased.Options.Governance.Actions
   ( pGovernanceActionCmds
   ) where
 
-import           Cardano.Api
-import           Cardano.Api.Ledger
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Commands.Governance.Actions
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Types.Common
-import           Cardano.Ledger.BaseTypes (NonNegativeInterval)
+import Cardano.CLI.EraBased.Commands.Governance.Actions
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Types.Common
+import Cardano.Ledger.BaseTypes (NonNegativeInterval)
 import qualified Cardano.Ledger.BaseTypes as Ledger
 
-import           Data.Foldable
-import           GHC.Natural (Natural)
-import           Options.Applicative
+import Data.Foldable
+import GHC.Natural (Natural)
+import Options.Applicative
 import qualified Options.Applicative as Opt
 
-pGovernanceActionCmds :: ()
+pGovernanceActionCmds
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionCmds era =
-  subInfoParser "action"
-    ( Opt.progDesc
-        $ mconcat
+  subInfoParser
+    "action"
+    ( Opt.progDesc $
+        mconcat
           [ "Governance action commands."
           ]
     )
@@ -47,17 +49,16 @@ pGovernanceActionNewInfoCmd era = do
   pure
     $ subParser "create-info"
     $ Opt.info
-        ( fmap (GovernanceActionInfoCmd cOn) $
-            NewInfoCmd
-              <$> pNetwork
-              <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier Nothing
-              <*> pProposalUrl
-              <*> pProposalHashSource
-              <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
-        )
+      ( fmap (GovernanceActionInfoCmd cOn) $
+          NewInfoCmd
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pAnyStakeIdentifier Nothing
+            <*> pProposalUrl
+            <*> pProposalHashSource
+            <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
+      )
     $ Opt.progDesc "Create an info action."
-
 
 pGovernanceActionNewConstitutionCmd
   :: CardanoEra era
@@ -67,18 +68,18 @@ pGovernanceActionNewConstitutionCmd era = do
   pure
     $ subParser "create-constitution"
     $ Opt.info
-        ( fmap (GovernanceActionCreateConstitutionCmd cOn) $
-            NewConstitutionCmd
-              <$> pNetwork
-              <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier Nothing
-              <*> pPreviousGovernanceAction
-              <*> pProposalUrl
-              <*> pProposalHashSource
-              <*> pConstitutionUrl
-              <*> pConstitutionHashSource
-              <*> pFileOutDirection "out-file" "Output filepath of the constitution."
-        )
+      ( fmap (GovernanceActionCreateConstitutionCmd cOn) $
+          NewConstitutionCmd
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pAnyStakeIdentifier Nothing
+            <*> pPreviousGovernanceAction
+            <*> pProposalUrl
+            <*> pProposalHashSource
+            <*> pConstitutionUrl
+            <*> pConstitutionHashSource
+            <*> pFileOutDirection "out-file" "Output filepath of the constitution."
+      )
     $ Opt.progDesc "Create a constitution."
 
 pGovernanceActionNewCommitteeCmd
@@ -104,13 +105,13 @@ pNewCommitteeCmd =
     <*> pProposalHashSource
     <*> many pRemoveCommitteeColdVerificationKeyOrHashOrFile
     <*> many
-          ( (,)
-              <$> pAddCommitteeColdVerificationKeyOrHashOrFile
-              <*> pEpochNo "Committee member expiry epoch")
+      ( (,)
+          <$> pAddCommitteeColdVerificationKeyOrHashOrFile
+          <*> pEpochNo "Committee member expiry epoch"
+      )
     <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
     <*> pPreviousGovernanceAction
     <*> pOutputFile
-
 
 pGovernanceActionNoConfidenceCmd
   :: CardanoEra era
@@ -120,17 +121,21 @@ pGovernanceActionNoConfidenceCmd era = do
   pure
     $ subParser "create-no-confidence"
     $ Opt.info
-        ( fmap (GovernanceActionCreateNoConfidenceCmd cOn) $
-            NoConfidenceCmd
-              <$> pNetwork
-              <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier Nothing
-              <*> pProposalUrl
-              <*> pProposalHashSource
-              <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
-              <*> pWord32 "governance-action-index" "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
-              <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
-        )
+      ( fmap (GovernanceActionCreateNoConfidenceCmd cOn) $
+          NoConfidenceCmd
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pAnyStakeIdentifier Nothing
+            <*> pProposalUrl
+            <*> pProposalHashSource
+            <*> pTxId
+              "governance-action-tx-id"
+              "Previous txid of `NoConfidence` or `NewCommittee` governance action."
+            <*> pWord32
+              "governance-action-index"
+              "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
+            <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
+      )
     $ Opt.progDesc "Create a no confidence proposal."
 
 -- | The first argument is the optional prefix.
@@ -141,7 +146,8 @@ pAnyStakeIdentifier prefix =
     , AnyStakeKey <$> pStakeVerificationKeyOrHashOrFile prefix
     ]
 
-pGovernanceActionProtocolParametersUpdateCmd :: ()
+pGovernanceActionProtocolParametersUpdateCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionProtocolParametersUpdateCmd era = do
@@ -149,12 +155,12 @@ pGovernanceActionProtocolParametersUpdateCmd era = do
   pure
     $ subParser "create-protocol-parameters-update"
     $ Opt.info
-        ( GovernanceActionProtocolParametersUpdateCmd w
-            <$> pEpochNoUpdateProp
-            <*> pProtocolParametersUpdateGenesisKeys w
-            <*> dpGovActionProtocolParametersUpdate w
-            <*> pOutputFile
-        )
+      ( GovernanceActionProtocolParametersUpdateCmd w
+          <$> pEpochNoUpdateProp
+          <*> pProtocolParametersUpdateGenesisKeys w
+          <*> dpGovActionProtocolParametersUpdate w
+          <*> pOutputFile
+      )
     $ Opt.progDesc "Create a protocol parameters update."
 
 convertToLedger :: (a -> b) -> Parser (Maybe a) -> Parser (StrictMaybe b)
@@ -162,19 +168,23 @@ convertToLedger conv = fmap (maybeToStrictMaybe . fmap conv)
 
 toNonNegativeIntervalOrErr :: Rational -> NonNegativeInterval
 toNonNegativeIntervalOrErr r = case Ledger.boundRational r of
-                         Nothing ->
-                           error $ mconcat [ "toNonNegativeIntervalOrErr: "
-                                           , "rational out of bounds " <> show r
-                                           ]
-                         Just n -> n
+  Nothing ->
+    error $
+      mconcat
+        [ "toNonNegativeIntervalOrErr: "
+        , "rational out of bounds " <> show r
+        ]
+  Just n -> n
 
 toUnitIntervalOrErr :: Rational -> Ledger.UnitInterval
 toUnitIntervalOrErr r = case Ledger.boundRational r of
-                         Nothing ->
-                           error $ mconcat [ "toUnitIntervalOrErr: "
-                                           , "rational out of bounds " <> show r
-                                           ]
-                         Just n -> n
+  Nothing ->
+    error $
+      mconcat
+        [ "toUnitIntervalOrErr: "
+        , "rational out of bounds " <> show r
+        ]
+  Just n -> n
 
 mkProtocolVersionOrErr :: (Natural, Natural) -> Ledger.ProtVer
 mkProtocolVersionOrErr (majorProtVer, minorProtVer) =
@@ -201,7 +211,6 @@ pCommonProtocolParameters =
     <*> convertToLedger mkProtocolVersionOrErr (optional pProtocolVersion)
     <*> convertToLedger toShelleyLovelace (optional pMinPoolCost)
 
-
 pDeprecatedAfterMaryPParams :: Parser (DeprecatedAfterMaryPParams ledgerera)
 pDeprecatedAfterMaryPParams =
   DeprecatedAfterMaryPParams
@@ -218,18 +227,17 @@ pShelleyToAlonzoPParams =
   ShelleyToAlonzoPParams
     <$> convertToLedger (CoinPerWord . toShelleyLovelace) (optional pUTxOCostPerWord)
 
-
 pAlonzoOnwardsPParams :: Parser (AlonzoOnwardsPParams ledgerera)
 pAlonzoOnwardsPParams =
   AlonzoOnwardsPParams SNothing -- TODO: Conway era cost model
-    <$> convertToLedger (either (\e -> error $ "pAlonzoOnwardsPParams: " <> show e) id . toAlonzoPrices)
-                        (optional pExecutionUnitPrices)
+    <$> convertToLedger
+      (either (\e -> error $ "pAlonzoOnwardsPParams: " <> show e) id . toAlonzoPrices)
+      (optional pExecutionUnitPrices)
     <*> convertToLedger toAlonzoExUnits (optional pMaxTxExecutionUnits)
     <*> convertToLedger toAlonzoExUnits (optional pMaxBlockExecutionUnits)
     <*> convertToLedger id (optional pMaxValueSize)
     <*> convertToLedger id (optional pCollateralPercent)
     <*> convertToLedger id (optional pMaxCollateralInputs)
-
 
 pIntroducedInBabbagePParams :: Parser (IntroducedInBabbagePParams ledgerera)
 pIntroducedInBabbagePParams =
@@ -278,33 +286,39 @@ dpGovActionProtocolParametersUpdate = \case
       <*> pAlonzoOnwardsPParams
       <*> pIntroducedInBabbagePParams
 
-pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionTreasuryWithdrawalCmd
+  :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionTreasuryWithdrawalCmd era = do
   cOn <- maybeEonInEra era
   pure
     $ subParser "create-treasury-withdrawal"
     $ Opt.info
-        ( fmap (GovernanceActionTreasuryWithdrawalCmd cOn) $
-            TreasuryWithdrawalCmd
-              <$> pNetwork
-              <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier Nothing
-              <*> pProposalUrl
-              <*> pProposalHashSource
-              <*> many ((,) <$> pAnyStakeIdentifier Nothing <*> pTransferAmt) -- TODO we should likely pass a prefix here, becaus pAnyStakeIdentiefier is used twice
-              <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
-        )
+      ( fmap (GovernanceActionTreasuryWithdrawalCmd cOn) $
+          TreasuryWithdrawalCmd
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pAnyStakeIdentifier Nothing
+            <*> pProposalUrl
+            <*> pProposalHashSource
+            <*> many ((,) <$> pAnyStakeIdentifier Nothing <*> pTransferAmt) -- TODO we should likely pass a prefix here, becaus pAnyStakeIdentiefier is used twice
+            <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
+      )
     $ Opt.progDesc "Create a treasury withdrawal."
 
 pNetwork :: Parser Ledger.Network
-pNetwork  = asum $ mconcat
-  [ [ Opt.flag' Ledger.Mainnet $ mconcat
-      [ Opt.long "mainnet"
-      , Opt.help "Use the mainnet magic id."
+pNetwork =
+  asum $
+    mconcat
+      [
+        [ Opt.flag' Ledger.Mainnet $
+            mconcat
+              [ Opt.long "mainnet"
+              , Opt.help "Use the mainnet magic id."
+              ]
+        , Opt.flag' Ledger.Testnet $
+            mconcat
+              [ Opt.long "testnet"
+              , Opt.help "Use the testnet magic id."
+              ]
+        ]
       ]
-    , Opt.flag' Ledger.Testnet $ mconcat
-      [ Opt.long "testnet"
-      , Opt.help "Use the testnet magic id."
-      ]
-    ]
-  ]

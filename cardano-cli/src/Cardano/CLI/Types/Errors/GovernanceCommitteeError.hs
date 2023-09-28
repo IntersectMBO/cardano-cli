@@ -1,10 +1,10 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.GovernanceCommitteeError
-  ( GovernanceCommitteeError(..)
+  ( GovernanceCommitteeError (..)
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
 data GovernanceCommitteeError
   = GovernanceCommitteeCmdKeyDecodeError InputDecodeError
@@ -12,7 +12,7 @@ data GovernanceCommitteeError
   | GovernanceCommitteeCmdTextEnvReadFileError (FileError TextEnvelopeError)
   | GovernanceCommitteeCmdTextEnvWriteError (FileError ())
   | GovernanceCommitteeCmdWriteFileError (FileError ())
-  deriving Show
+  deriving (Show)
 
 instance Error GovernanceCommitteeError where
   displayError = \case

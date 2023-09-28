@@ -2,16 +2,16 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.DRep
-  ( GovernanceDRepCmds(..)
+  ( GovernanceDRepCmds (..)
   , renderGovernanceDRepCmds
   ) where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data GovernanceDRepCmds era
   = GovernanceDRepGenerateKeyCmd
@@ -27,11 +27,12 @@ data GovernanceDRepCmds era
       AnyRegistrationTarget
       (File () Out)
 
-renderGovernanceDRepCmds :: ()
+renderGovernanceDRepCmds
+  :: ()
   => GovernanceDRepCmds era
   -> Text
 renderGovernanceDRepCmds = \case
-  GovernanceDRepGenerateKeyCmd{} ->
+  GovernanceDRepGenerateKeyCmd {} ->
     "governance drep key-gen"
   GovernanceDRepIdCmd {} ->
     "governance drep id"
