@@ -53,9 +53,9 @@ data LegacyQueryCmds
 data LegacyQueryLeadershipScheduleCmdArgs = LegacyQueryLeadershipScheduleCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , genesisFp           :: !GenesisFile
-  , poolId              :: !(VerificationKeyOrHashOrFile StakePoolKey)
+  , poolColdVerKeyFile  :: !(VerificationKeyOrHashOrFile StakePoolKey)
   , vrkSkeyFp           :: !(SigningKeyFile In)
   , whichSchedule       :: !EpochLeadershipSchedule
   , mOutFile            :: !(Maybe (File () Out))
@@ -64,43 +64,43 @@ data LegacyQueryLeadershipScheduleCmdArgs = LegacyQueryLeadershipScheduleCmdArgs
 data LegacyQueryProtocolParametersCmdArgs = LegacyQueryProtocolParametersCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data LegacyQueryConstitutionHashCmdArgs = LegacyQueryConstitutionHashCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data LegacyQueryTipCmdArgs = LegacyQueryTipCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data LegacyQueryStakePoolsCmdArgs = LegacyQueryStakePoolsCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data LegacyQueryStakeDistributionCmdArgs = LegacyQueryStakeDistributionCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data LegacyQueryStakeAddressInfoCmdArgs = LegacyQueryStakeAddressInfoCmdArgs
-  { mNodeSocketPath     :: !SocketPath
+  { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
   , addr                :: !StakeAddress
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -115,21 +115,21 @@ data LegacyQueryUTxOCmdArgs = LegacyQueryUTxOCmdArgs
 data LegacyQueryLedgerStateCmdArgs = LegacyQueryLedgerStateCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data LegacyQueryProtocolStateCmdArgs = LegacyQueryProtocolStateCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data LegacyQueryStakeSnapshotCmdArgs = LegacyQueryStakeSnapshotCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , allOrOnlyPoolIds    :: !(AllOrOnly [Hash StakePoolKey])
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
@@ -137,23 +137,23 @@ data LegacyQueryStakeSnapshotCmdArgs = LegacyQueryStakeSnapshotCmdArgs
 data LegacyQueryKesPeriodInfoCmdArgs = LegacyQueryKesPeriodInfoCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
-  , nodeOpCert          :: !(File () In) -- ^ Node operational certificate
+  , networkId           :: !NetworkId
+  , nodeOpCertFp        :: !(File () In) -- ^ Node operational certificate
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data LegacyQueryPoolStateCmdArgs = LegacyQueryPoolStateCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
-  , poolid              :: ![Hash StakePoolKey]
+  , networkId           :: !NetworkId
+  , poolIds             :: ![Hash StakePoolKey]
   } deriving (Generic, Show)
 
 data LegacyQueryTxMempoolCmdArgs = LegacyQueryTxMempoolCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
-  , op                  :: !TxMempoolQuery
+  , networkId           :: !NetworkId
+  , query               :: !TxMempoolQuery
   , mOutFile            :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -161,7 +161,7 @@ data LegacyQueryTxMempoolCmdArgs = LegacyQueryTxMempoolCmdArgs
 data LegacyQuerySlotNumberCmdArgs = LegacyQuerySlotNumberCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
-  , network             :: !NetworkId
+  , networkId           :: !NetworkId
   , utcTime             :: !UTCTime
   } deriving (Generic, Show)
 
@@ -180,11 +180,10 @@ renderLegacyQueryCmds = \case
   QueryStakeSnapshotCmd {} -> "query stake-snapshot"
   QueryKesPeriodInfoCmd {} -> "query kes-period-info"
   QueryPoolStateCmd {} -> "query pool-state"
-  QueryTxMempoolCmd (LegacyQueryTxMempoolCmdArgs _ _ _ query _) -> "query tx-mempool" <> renderTxMempoolQuery query
+  QueryTxMempoolCmd (LegacyQueryTxMempoolCmdArgs _ _ _ txMempoolQuery _) -> "query tx-mempool" <> renderTxMempoolQuery txMempoolQuery
   QuerySlotNumberCmd {} -> "query slot-number"
   where
-    renderTxMempoolQuery query =
-      case query of
-        TxMempoolQueryTxExists tx -> "tx-exists " <> serialiseToRawBytesHexText tx
-        TxMempoolQueryNextTx -> "next-tx"
-        TxMempoolQueryInfo -> "info"
+    renderTxMempoolQuery = \case
+      TxMempoolQueryTxExists tx -> "tx-exists " <> serialiseToRawBytesHexText tx
+      TxMempoolQueryNextTx -> "next-tx"
+      TxMempoolQueryInfo -> "info"
