@@ -24,7 +24,9 @@ data GovernanceDRepCmds era
       IdOutputFormat
       (Maybe (File () Out))
   | GovernanceDRepRegistrationCertificateCmd
-      AnyRegistrationTarget
+      (ConwayEraOnwards era)
+      (VerificationKeyOrHashOrFile DRepKey)
+      Lovelace
       (File () Out)
 
 renderGovernanceDRepCmds :: ()

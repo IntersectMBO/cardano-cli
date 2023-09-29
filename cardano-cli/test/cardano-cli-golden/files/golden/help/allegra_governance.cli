@@ -1,4 +1,4 @@
-Usage: cardano-cli allegra governance (create-mir-certificate | action | drep)
+Usage: cardano-cli allegra governance (create-mir-certificate | action)
 
   Governance commands.
 
@@ -9,4 +9,3 @@ Available commands:
   create-mir-certificate   Create an MIR (Move Instantaneous Rewards)
                            certificate
   action                   Governance action commands.
-  drep                     DRep member commands.

@@ -38,7 +38,7 @@ pGovernanceCmds era envCli =
     , fmap GovernanceQueryCmds        <$> pGovernanceQueryCmds era envCli
     , fmap GovernanceActionCmds       <$> pGovernanceActionCmds era
     , fmap GovernanceCommitteeCmds    <$> pGovernanceCommitteeCmds era
-    , fmap GovernanceDRepCmds         <$> pGovernanceDRepCmds era envCli
+    , fmap GovernanceDRepCmds         <$> pGovernanceDRepCmds era
     , fmap GovernanceVoteCmds         <$> pGovernanceVoteCmds era
     ]
 

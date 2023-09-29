@@ -262,7 +262,7 @@ Usage: cardano-cli shelley genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli shelley governance (create-mir-certificate | action | drep)
+Usage: cardano-cli shelley governance (create-mir-certificate | action)
 
   Governance commands.
 
@@ -331,47 +331,6 @@ Usage: cardano-cli shelley governance action create-protocol-parameters-update -
                                                                                  --out-file FILE
 
   Create a protocol parameters update.
-
-Usage: cardano-cli shelley governance drep registration-certificate
-
-  DRep member commands.
-
-Usage: cardano-cli shelley governance drep registration-certificate 
-                                                                      ( ( --stake-pool-verification-key STRING
-                                                                        | --cold-verification-key-file FILE
-                                                                        )
-                                                                        ( --vrf-verification-key STRING
-                                                                        | --vrf-verification-key-file FILE
-                                                                        )
-                                                                        --pool-pledge LOVELACE
-                                                                        --pool-cost LOVELACE
-                                                                        --pool-margin RATIONAL
-                                                                        ( --pool-reward-account-verification-key STRING
-                                                                        | --pool-reward-account-verification-key-file FILE
-                                                                        )
-                                                                        ( --pool-owner-verification-key STRING
-                                                                        | --pool-owner-stake-verification-key-file FILE
-                                                                        )
-                                                                        [ [--pool-relay-ipv4 STRING]
-                                                                          [--pool-relay-ipv6 STRING]
-                                                                          --pool-relay-port INT
-                                                                        | --single-host-pool-relay STRING
-                                                                          [--pool-relay-port INT]
-                                                                        | --multi-host-pool-relay STRING
-                                                                        ]
-                                                                        [--metadata-url URL
-                                                                          --metadata-hash HASH]
-                                                                        ( --mainnet
-                                                                        | --testnet-magic NATURAL
-                                                                        )
-                                                                      | --stake-verification-key STRING
-                                                                      | --stake-verification-key-file FILE
-                                                                      | --stake-script-file FILE
-                                                                      | --stake-address ADDRESS
-                                                                      )
-                                                                      --out-file FILE
-
-  Create a registration certificate.
 
 Usage: cardano-cli shelley node 
                                   ( key-gen
@@ -1486,7 +1445,7 @@ Usage: cardano-cli allegra genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli allegra governance (create-mir-certificate | action | drep)
+Usage: cardano-cli allegra governance (create-mir-certificate | action)
 
   Governance commands.
 
@@ -1555,47 +1514,6 @@ Usage: cardano-cli allegra governance action create-protocol-parameters-update -
                                                                                  --out-file FILE
 
   Create a protocol parameters update.
-
-Usage: cardano-cli allegra governance drep registration-certificate
-
-  DRep member commands.
-
-Usage: cardano-cli allegra governance drep registration-certificate 
-                                                                      ( ( --stake-pool-verification-key STRING
-                                                                        | --cold-verification-key-file FILE
-                                                                        )
-                                                                        ( --vrf-verification-key STRING
-                                                                        | --vrf-verification-key-file FILE
-                                                                        )
-                                                                        --pool-pledge LOVELACE
-                                                                        --pool-cost LOVELACE
-                                                                        --pool-margin RATIONAL
-                                                                        ( --pool-reward-account-verification-key STRING
-                                                                        | --pool-reward-account-verification-key-file FILE
-                                                                        )
-                                                                        ( --pool-owner-verification-key STRING
-                                                                        | --pool-owner-stake-verification-key-file FILE
-                                                                        )
-                                                                        [ [--pool-relay-ipv4 STRING]
-                                                                          [--pool-relay-ipv6 STRING]
-                                                                          --pool-relay-port INT
-                                                                        | --single-host-pool-relay STRING
-                                                                          [--pool-relay-port INT]
-                                                                        | --multi-host-pool-relay STRING
-                                                                        ]
-                                                                        [--metadata-url URL
-                                                                          --metadata-hash HASH]
-                                                                        ( --mainnet
-                                                                        | --testnet-magic NATURAL
-                                                                        )
-                                                                      | --stake-verification-key STRING
-                                                                      | --stake-verification-key-file FILE
-                                                                      | --stake-script-file FILE
-                                                                      | --stake-address ADDRESS
-                                                                      )
-                                                                      --out-file FILE
-
-  Create a registration certificate.
 
 Usage: cardano-cli allegra node 
                                   ( key-gen
@@ -2708,7 +2626,7 @@ Usage: cardano-cli mary genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli mary governance (create-mir-certificate | action | drep)
+Usage: cardano-cli mary governance (create-mir-certificate | action)
 
   Governance commands.
 
@@ -2777,47 +2695,6 @@ Usage: cardano-cli mary governance action create-protocol-parameters-update --ep
                                                                               --out-file FILE
 
   Create a protocol parameters update.
-
-Usage: cardano-cli mary governance drep registration-certificate
-
-  DRep member commands.
-
-Usage: cardano-cli mary governance drep registration-certificate 
-                                                                   ( ( --stake-pool-verification-key STRING
-                                                                     | --cold-verification-key-file FILE
-                                                                     )
-                                                                     ( --vrf-verification-key STRING
-                                                                     | --vrf-verification-key-file FILE
-                                                                     )
-                                                                     --pool-pledge LOVELACE
-                                                                     --pool-cost LOVELACE
-                                                                     --pool-margin RATIONAL
-                                                                     ( --pool-reward-account-verification-key STRING
-                                                                     | --pool-reward-account-verification-key-file FILE
-                                                                     )
-                                                                     ( --pool-owner-verification-key STRING
-                                                                     | --pool-owner-stake-verification-key-file FILE
-                                                                     )
-                                                                     [ [--pool-relay-ipv4 STRING]
-                                                                       [--pool-relay-ipv6 STRING]
-                                                                       --pool-relay-port INT
-                                                                     | --single-host-pool-relay STRING
-                                                                       [--pool-relay-port INT]
-                                                                     | --multi-host-pool-relay STRING
-                                                                     ]
-                                                                     [--metadata-url URL
-                                                                       --metadata-hash HASH]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
-                                                                     )
-                                                                   | --stake-verification-key STRING
-                                                                   | --stake-verification-key-file FILE
-                                                                   | --stake-script-file FILE
-                                                                   | --stake-address ADDRESS
-                                                                   )
-                                                                   --out-file FILE
-
-  Create a registration certificate.
 
 Usage: cardano-cli mary node 
                                ( key-gen
@@ -3904,7 +3781,7 @@ Usage: cardano-cli alonzo genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli alonzo governance (create-mir-certificate | action | drep)
+Usage: cardano-cli alonzo governance (create-mir-certificate | action)
 
   Governance commands.
 
@@ -3980,47 +3857,6 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update --
                                                                                 --out-file FILE
 
   Create a protocol parameters update.
-
-Usage: cardano-cli alonzo governance drep registration-certificate
-
-  DRep member commands.
-
-Usage: cardano-cli alonzo governance drep registration-certificate 
-                                                                     ( ( --stake-pool-verification-key STRING
-                                                                       | --cold-verification-key-file FILE
-                                                                       )
-                                                                       ( --vrf-verification-key STRING
-                                                                       | --vrf-verification-key-file FILE
-                                                                       )
-                                                                       --pool-pledge LOVELACE
-                                                                       --pool-cost LOVELACE
-                                                                       --pool-margin RATIONAL
-                                                                       ( --pool-reward-account-verification-key STRING
-                                                                       | --pool-reward-account-verification-key-file FILE
-                                                                       )
-                                                                       ( --pool-owner-verification-key STRING
-                                                                       | --pool-owner-stake-verification-key-file FILE
-                                                                       )
-                                                                       [ [--pool-relay-ipv4 STRING]
-                                                                         [--pool-relay-ipv6 STRING]
-                                                                         --pool-relay-port INT
-                                                                       | --single-host-pool-relay STRING
-                                                                         [--pool-relay-port INT]
-                                                                       | --multi-host-pool-relay STRING
-                                                                       ]
-                                                                       [--metadata-url URL
-                                                                         --metadata-hash HASH]
-                                                                       ( --mainnet
-                                                                       | --testnet-magic NATURAL
-                                                                       )
-                                                                     | --stake-verification-key STRING
-                                                                     | --stake-verification-key-file FILE
-                                                                     | --stake-script-file FILE
-                                                                     | --stake-address ADDRESS
-                                                                     )
-                                                                     --out-file FILE
-
-  Create a registration certificate.
 
 Usage: cardano-cli alonzo node 
                                  ( key-gen
@@ -5134,7 +4970,7 @@ Usage: cardano-cli babbage genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli babbage governance (create-mir-certificate | action | drep)
+Usage: cardano-cli babbage governance (create-mir-certificate | action)
 
   Governance commands.
 
@@ -5206,47 +5042,6 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update -
                                                                                  --out-file FILE
 
   Create a protocol parameters update.
-
-Usage: cardano-cli babbage governance drep registration-certificate
-
-  DRep member commands.
-
-Usage: cardano-cli babbage governance drep registration-certificate 
-                                                                      ( ( --stake-pool-verification-key STRING
-                                                                        | --cold-verification-key-file FILE
-                                                                        )
-                                                                        ( --vrf-verification-key STRING
-                                                                        | --vrf-verification-key-file FILE
-                                                                        )
-                                                                        --pool-pledge LOVELACE
-                                                                        --pool-cost LOVELACE
-                                                                        --pool-margin RATIONAL
-                                                                        ( --pool-reward-account-verification-key STRING
-                                                                        | --pool-reward-account-verification-key-file FILE
-                                                                        )
-                                                                        ( --pool-owner-verification-key STRING
-                                                                        | --pool-owner-stake-verification-key-file FILE
-                                                                        )
-                                                                        [ [--pool-relay-ipv4 STRING]
-                                                                          [--pool-relay-ipv6 STRING]
-                                                                          --pool-relay-port INT
-                                                                        | --single-host-pool-relay STRING
-                                                                          [--pool-relay-port INT]
-                                                                        | --multi-host-pool-relay STRING
-                                                                        ]
-                                                                        [--metadata-url URL
-                                                                          --metadata-hash HASH]
-                                                                        ( --mainnet
-                                                                        | --testnet-magic NATURAL
-                                                                        )
-                                                                      | --stake-verification-key STRING
-                                                                      | --stake-verification-key-file FILE
-                                                                      | --stake-script-file FILE
-                                                                      | --stake-address ADDRESS
-                                                                      )
-                                                                      --out-file FILE
-
-  Create a registration certificate.
 
 Usage: cardano-cli babbage node 
                                   ( key-gen
@@ -6701,45 +6496,11 @@ Usage: cardano-cli conway governance drep id
   Generate a drep id.
 
 Usage: cardano-cli conway governance drep registration-certificate 
-                                                                     ( ( --stake-pool-verification-key STRING
-                                                                       | --cold-verification-key-file FILE
-                                                                       )
-                                                                       ( --vrf-verification-key STRING
-                                                                       | --vrf-verification-key-file FILE
-                                                                       )
-                                                                       --pool-pledge LOVELACE
-                                                                       --pool-cost LOVELACE
-                                                                       --pool-margin RATIONAL
-                                                                       ( --pool-reward-account-verification-key STRING
-                                                                       | --pool-reward-account-verification-key-file FILE
-                                                                       )
-                                                                       ( --pool-owner-verification-key STRING
-                                                                       | --pool-owner-stake-verification-key-file FILE
-                                                                       )
-                                                                       [ [--pool-relay-ipv4 STRING]
-                                                                         [--pool-relay-ipv6 STRING]
-                                                                         --pool-relay-port INT
-                                                                       | --single-host-pool-relay STRING
-                                                                         [--pool-relay-port INT]
-                                                                       | --multi-host-pool-relay STRING
-                                                                       ]
-                                                                       [--metadata-url URL
-                                                                         --metadata-hash HASH]
-                                                                       ( --mainnet
-                                                                       | --testnet-magic NATURAL
-                                                                       )
-                                                                     | ( --stake-verification-key STRING
-                                                                       | --stake-verification-key-file FILE
-                                                                       | --stake-script-file FILE
-                                                                       | --stake-address ADDRESS
-                                                                       )
-                                                                       --key-reg-deposit-amt NATURAL
-                                                                     | ( --drep-verification-key STRING
-                                                                       | --drep-verification-key-file FILE
-                                                                       | --drep-key-hash HASH
-                                                                       )
-                                                                       --key-reg-deposit-amt NATURAL
+                                                                     ( --drep-verification-key STRING
+                                                                     | --drep-verification-key-file FILE
+                                                                     | --drep-key-hash HASH
                                                                      )
+                                                                     --key-reg-deposit-amt NATURAL
                                                                      --out-file FILE
 
   Create a registration certificate.
@@ -7914,7 +7675,7 @@ Usage: cardano-cli latest genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli latest governance (create-mir-certificate | action | drep)
+Usage: cardano-cli latest governance (create-mir-certificate | action)
 
   Governance commands.
 
@@ -7986,47 +7747,6 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update --
                                                                                 --out-file FILE
 
   Create a protocol parameters update.
-
-Usage: cardano-cli latest governance drep registration-certificate
-
-  DRep member commands.
-
-Usage: cardano-cli latest governance drep registration-certificate 
-                                                                     ( ( --stake-pool-verification-key STRING
-                                                                       | --cold-verification-key-file FILE
-                                                                       )
-                                                                       ( --vrf-verification-key STRING
-                                                                       | --vrf-verification-key-file FILE
-                                                                       )
-                                                                       --pool-pledge LOVELACE
-                                                                       --pool-cost LOVELACE
-                                                                       --pool-margin RATIONAL
-                                                                       ( --pool-reward-account-verification-key STRING
-                                                                       | --pool-reward-account-verification-key-file FILE
-                                                                       )
-                                                                       ( --pool-owner-verification-key STRING
-                                                                       | --pool-owner-stake-verification-key-file FILE
-                                                                       )
-                                                                       [ [--pool-relay-ipv4 STRING]
-                                                                         [--pool-relay-ipv6 STRING]
-                                                                         --pool-relay-port INT
-                                                                       | --single-host-pool-relay STRING
-                                                                         [--pool-relay-port INT]
-                                                                       | --multi-host-pool-relay STRING
-                                                                       ]
-                                                                       [--metadata-url URL
-                                                                         --metadata-hash HASH]
-                                                                       ( --mainnet
-                                                                       | --testnet-magic NATURAL
-                                                                       )
-                                                                     | --stake-verification-key STRING
-                                                                     | --stake-verification-key-file FILE
-                                                                     | --stake-script-file FILE
-                                                                     | --stake-address ADDRESS
-                                                                     )
-                                                                     --out-file FILE
-
-  Create a registration certificate.
 
 Usage: cardano-cli latest node 
                                  ( key-gen
