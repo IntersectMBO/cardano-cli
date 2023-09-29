@@ -1,8 +1,16 @@
-Usage: cardano-cli mary transaction view (--tx-body-file FILE | --tx-file FILE)
+Usage: cardano-cli mary transaction view [--output-format STRING]
+                                           [--out-file FILE]
+                                           ( --tx-body-file FILE
+                                           | --tx-file FILE
+                                           )
 
   Print a transaction.
 
 Available options:
+  --output-format STRING   Optional transaction view output format. Accepted
+                           output formats are "json" and "yaml" (default is
+                           "json").
+  --out-file FILE          Optional output file. Default is to write to stdout.
   --tx-body-file FILE      Input filepath of the JSON TxBody.
   --tx-file FILE           Input filepath of the JSON Tx.
   -h,--help                Show this help text
