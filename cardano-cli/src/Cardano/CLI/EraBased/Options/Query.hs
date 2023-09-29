@@ -179,8 +179,8 @@ pQueryStakeAddressInfoCmd envCli =
 
 pQueryLedgerStateCmd :: EnvCli -> Parser (QueryCmds era)
 pQueryLedgerStateCmd envCli =
-  fmap QueryDebugLedgerStateCmd $
-    QueryDebugLedgerStateCmdArgs
+  fmap QueryLedgerStateCmd $
+    QueryLedgerStateCmdArgs
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli

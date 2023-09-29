@@ -42,7 +42,7 @@ import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.EraBased.Commands.Query
+import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Helpers (pPrintCBOR)
 import           Cardano.CLI.Pretty
@@ -104,37 +104,37 @@ import           Text.Printf (printf)
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Redundant flip" -}
 
-runQueryCmds :: QueryCmds era -> ExceptT QueryCmdError IO ()
+runQueryCmds :: Cmd.QueryCmds era -> ExceptT QueryCmdError IO ()
 runQueryCmds = \case
-  QueryLeadershipScheduleCmd (QueryLeadershipScheduleCmdArgs mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs) ->
+  Cmd.QueryLeadershipScheduleCmd (Cmd.QueryLeadershipScheduleCmdArgs mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs) ->
     runQueryLeadershipScheduleCmd mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs
-  QueryProtocolParametersCmd (QueryProtocolParametersCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryProtocolParametersCmd (Cmd.QueryProtocolParametersCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runQueryProtocolParametersCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryConstitutionHashCmd (QueryConstitutionHashCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryConstitutionHashCmd (Cmd.QueryConstitutionHashCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runQueryConstitutionHashCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryTipCmd (QueryTipCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryTipCmd (Cmd.QueryTipCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runQueryTipCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakePoolsCmd (QueryStakePoolsCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryStakePoolsCmd (Cmd.QueryStakePoolsCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runQueryStakePoolsCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeDistributionCmd (QueryStakeDistributionCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryStakeDistributionCmd (Cmd.QueryStakeDistributionCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runQueryStakeDistributionCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeAddressInfoCmd (QueryStakeAddressInfoCmdArgs mNodeSocketPath consensusModeParams addr network mOutFile) ->
+  Cmd.QueryStakeAddressInfoCmd (Cmd.QueryStakeAddressInfoCmdArgs mNodeSocketPath consensusModeParams addr network mOutFile) ->
     runQueryStakeAddressInfoCmd mNodeSocketPath consensusModeParams addr network mOutFile
-  QueryDebugLedgerStateCmd (QueryDebugLedgerStateCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryLedgerStateCmd (Cmd.QueryLedgerStateCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runQueryLedgerStateCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeSnapshotCmd (QueryStakeSnapshotCmdArgs mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile) ->
+  Cmd.QueryStakeSnapshotCmd (Cmd.QueryStakeSnapshotCmdArgs mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile) ->
     runQueryStakeSnapshotCmd mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile
-  QueryProtocolStateCmd (QueryProtocolStateCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryProtocolStateCmd (Cmd.QueryProtocolStateCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runQueryProtocolStateCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryUTxOCmd (QueryUTxOCmdArgs mNodeSocketPath consensusModeParams qFilter networkId mOutFile) ->
+  Cmd.QueryUTxOCmd (Cmd.QueryUTxOCmdArgs mNodeSocketPath consensusModeParams qFilter networkId mOutFile) ->
     runQueryUTxOCmd mNodeSocketPath consensusModeParams qFilter networkId mOutFile
-  QueryKesPeriodInfoCmd (QueryKesPeriodInfoCmdArgs mNodeSocketPath consensusModeParams network nodeOpCert mOutFile) ->
+  Cmd.QueryKesPeriodInfoCmd (Cmd.QueryKesPeriodInfoCmdArgs mNodeSocketPath consensusModeParams network nodeOpCert mOutFile) ->
     runQueryKesPeriodInfoCmd mNodeSocketPath consensusModeParams network nodeOpCert mOutFile
-  QueryPoolStateCmd (QueryPoolStateCmdArgs mNodeSocketPath consensusModeParams network poolid) ->
+  Cmd.QueryPoolStateCmd (Cmd.QueryPoolStateCmdArgs mNodeSocketPath consensusModeParams network poolid) ->
     runQueryPoolStateCmd mNodeSocketPath consensusModeParams network poolid
-  QueryTxMempoolCmd (QueryTxMempoolCmdArgs mNodeSocketPath consensusModeParams network op mOutFile) ->
+  Cmd.QueryTxMempoolCmd (Cmd.QueryTxMempoolCmdArgs mNodeSocketPath consensusModeParams network op mOutFile) ->
     runQueryTxMempoolCmd mNodeSocketPath consensusModeParams network op mOutFile
-  QuerySlotNumberCmd (QuerySlotNumberCmdArgs mNodeSocketPath consensusModeParams network utcTime) ->
+  Cmd.QuerySlotNumberCmd (Cmd.QuerySlotNumberCmdArgs mNodeSocketPath consensusModeParams network utcTime) ->
     runQuerySlotNumberCmd mNodeSocketPath consensusModeParams network utcTime
 
 runQueryConstitutionHashCmd

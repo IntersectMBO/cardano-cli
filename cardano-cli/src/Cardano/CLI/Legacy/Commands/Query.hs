@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Legacy.Commands.Query
@@ -50,119 +51,119 @@ data LegacyQueryCmds
   deriving (Generic, Show)
 
 data LegacyQueryLeadershipScheduleCmdArgs = LegacyQueryLeadershipScheduleCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !GenesisFile
-  !(VerificationKeyOrHashOrFile StakePoolKey)
-  !(SigningKeyFile In)
-  !EpochLeadershipSchedule
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , genesisFp           :: !GenesisFile
+  , poolId              :: !(VerificationKeyOrHashOrFile StakePoolKey)
+  , vrkSkeyFp           :: !(SigningKeyFile In)
+  , whichSchedule       :: !EpochLeadershipSchedule
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryProtocolParametersCmdArgs = LegacyQueryProtocolParametersCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryConstitutionHashCmdArgs = LegacyQueryConstitutionHashCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryTipCmdArgs = LegacyQueryTipCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryStakePoolsCmdArgs = LegacyQueryStakePoolsCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryStakeDistributionCmdArgs = LegacyQueryStakeDistributionCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryStakeAddressInfoCmdArgs = LegacyQueryStakeAddressInfoCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !StakeAddress
-  !NetworkId
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { mNodeSocketPath     :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , addr                :: !StakeAddress
+  , network             :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryUTxOCmdArgs = LegacyQueryUTxOCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !QueryUTxOFilter
-  !NetworkId
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , queryFilter         :: !QueryUTxOFilter
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryLedgerStateCmdArgs = LegacyQueryLedgerStateCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryProtocolStateCmdArgs = LegacyQueryProtocolStateCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryStakeSnapshotCmdArgs = LegacyQueryStakeSnapshotCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !(AllOrOnly [Hash StakePoolKey])
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , allOrOnlyPoolIds    :: !(AllOrOnly [Hash StakePoolKey])
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryKesPeriodInfoCmdArgs = LegacyQueryKesPeriodInfoCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !(File () In)
-  -- ^ Node operational certificate
-  !(Maybe (File () Out))
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , nodeOpCert          :: !(File () In) -- ^ Node operational certificate
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
 
 data LegacyQueryPoolStateCmdArgs = LegacyQueryPoolStateCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  ![Hash StakePoolKey]
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , poolid              :: ![Hash StakePoolKey]
+  } deriving (Generic, Show)
 
 data LegacyQueryTxMempoolCmdArgs = LegacyQueryTxMempoolCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !TxMempoolQuery
-  !(Maybe (File () Out))
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , op                  :: !TxMempoolQuery
+  , mOutFile            :: !(Maybe (File () Out))
+  }
   deriving (Generic, Show)
 
 data LegacyQuerySlotNumberCmdArgs = LegacyQuerySlotNumberCmdArgs
-  !SocketPath
-  !AnyConsensusModeParams
-  !NetworkId
-  !UTCTime
-  deriving (Generic, Show)
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , network             :: !NetworkId
+  , utcTime             :: !UTCTime
+  } deriving (Generic, Show)
 
 renderLegacyQueryCmds :: LegacyQueryCmds -> Text
 renderLegacyQueryCmds = \case

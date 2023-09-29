@@ -12,7 +12,7 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import qualified Cardano.CLI.EraBased.Run.Query as EraBased
-import           Cardano.CLI.Legacy.Commands.Query
+import qualified Cardano.CLI.Legacy.Commands.Query as Cmd
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.QueryCmdError
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile)
@@ -20,52 +20,52 @@ import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile)
 import           Control.Monad.Trans.Except
 import           Data.Time.Clock
 
-runLegacyQueryCmds :: LegacyQueryCmds -> ExceptT QueryCmdError IO ()
+runLegacyQueryCmds :: Cmd.LegacyQueryCmds -> ExceptT QueryCmdError IO ()
 runLegacyQueryCmds = \case
-  QueryLeadershipScheduleCmd
-      (LegacyQueryLeadershipScheduleCmdArgs mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs) ->
+  Cmd.QueryLeadershipScheduleCmd
+      (Cmd.LegacyQueryLeadershipScheduleCmdArgs mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs) ->
     runLegacyQueryLeadershipScheduleCmd mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs
-  QueryProtocolParametersCmd
-      (LegacyQueryProtocolParametersCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryProtocolParametersCmd
+      (Cmd.LegacyQueryProtocolParametersCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runLegacyQueryProtocolParametersCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryConstitutionHashCmd
-      (LegacyQueryConstitutionHashCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryConstitutionHashCmd
+      (Cmd.LegacyQueryConstitutionHashCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runLegacyQueryConstitutionHashCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryTipCmd
-      (LegacyQueryTipCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryTipCmd
+      (Cmd.LegacyQueryTipCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runLegacyQueryTipCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakePoolsCmd
-      (LegacyQueryStakePoolsCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryStakePoolsCmd
+      (Cmd.LegacyQueryStakePoolsCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runLegacyQueryStakePoolsCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeDistributionCmd
-      (LegacyQueryStakeDistributionCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryStakeDistributionCmd
+      (Cmd.LegacyQueryStakeDistributionCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runLegacyQueryStakeDistributionCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeAddressInfoCmd
-      (LegacyQueryStakeAddressInfoCmdArgs mNodeSocketPath consensusModeParams addr network mOutFile) ->
+  Cmd.QueryStakeAddressInfoCmd
+      (Cmd.LegacyQueryStakeAddressInfoCmdArgs mNodeSocketPath consensusModeParams addr network mOutFile) ->
     runLegacyQueryStakeAddressInfoCmd mNodeSocketPath consensusModeParams addr network mOutFile
-  QueryLedgerStateCmd
-      (LegacyQueryLedgerStateCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryLedgerStateCmd
+      (Cmd.LegacyQueryLedgerStateCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runLegacyQueryLedgerStateCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeSnapshotCmd
-      (LegacyQueryStakeSnapshotCmdArgs mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile) ->
+  Cmd.QueryStakeSnapshotCmd
+      (Cmd.LegacyQueryStakeSnapshotCmdArgs mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile) ->
     runLegacyQueryStakeSnapshotCmd mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile
-  QueryProtocolStateCmd
-      (LegacyQueryProtocolStateCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
+  Cmd.QueryProtocolStateCmd
+      (Cmd.LegacyQueryProtocolStateCmdArgs mNodeSocketPath consensusModeParams network mOutFile) ->
     runLegacyQueryProtocolStateCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryUTxOCmd
-      (LegacyQueryUTxOCmdArgs mNodeSocketPath consensusModeParams qFilter networkId mOutFile) ->
+  Cmd.QueryUTxOCmd
+      (Cmd.LegacyQueryUTxOCmdArgs mNodeSocketPath consensusModeParams qFilter networkId mOutFile) ->
     runLegacyQueryUTxOCmd mNodeSocketPath consensusModeParams qFilter networkId mOutFile
-  QueryKesPeriodInfoCmd
-      (LegacyQueryKesPeriodInfoCmdArgs mNodeSocketPath consensusModeParams network nodeOpCert mOutFile) ->
+  Cmd.QueryKesPeriodInfoCmd
+      (Cmd.LegacyQueryKesPeriodInfoCmdArgs mNodeSocketPath consensusModeParams network nodeOpCert mOutFile) ->
     runLegacyQueryKesPeriodInfoCmd mNodeSocketPath consensusModeParams network nodeOpCert mOutFile
-  QueryPoolStateCmd
-      (LegacyQueryPoolStateCmdArgs mNodeSocketPath consensusModeParams network poolid) ->
+  Cmd.QueryPoolStateCmd
+      (Cmd.LegacyQueryPoolStateCmdArgs mNodeSocketPath consensusModeParams network poolid) ->
     runLegacyQueryPoolStateCmd mNodeSocketPath consensusModeParams network poolid
-  QueryTxMempoolCmd
-      (LegacyQueryTxMempoolCmdArgs mNodeSocketPath consensusModeParams network op mOutFile) ->
+  Cmd.QueryTxMempoolCmd
+      (Cmd.LegacyQueryTxMempoolCmdArgs mNodeSocketPath consensusModeParams network op mOutFile) ->
     runLegacyQueryTxMempoolCmd mNodeSocketPath consensusModeParams network op mOutFile
-  QuerySlotNumberCmd
-      (LegacyQuerySlotNumberCmdArgs mNodeSocketPath consensusModeParams network utcTime) ->
+  Cmd.QuerySlotNumberCmd
+      (Cmd.LegacyQuerySlotNumberCmdArgs mNodeSocketPath consensusModeParams network utcTime) ->
     runLegacyQuerySlotNumberCmd mNodeSocketPath consensusModeParams network utcTime
 
 runLegacyQueryConstitutionHashCmd :: ()
