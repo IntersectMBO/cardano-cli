@@ -1,8 +1,24 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Legacy.Commands.Query
   ( LegacyQueryCmds (..)
+  , LegacyQueryLeadershipScheduleCmdArgs (..)
+  , LegacyQueryProtocolParametersCmdArgs (..)
+  , LegacyQueryConstitutionHashCmdArgs (..)
+  , LegacyQueryTipCmdArgs (..)
+  , LegacyQueryStakePoolsCmdArgs (..)
+  , LegacyQueryStakeDistributionCmdArgs (..)
+  , LegacyQueryStakeAddressInfoCmdArgs (..)
+  , LegacyQueryUTxOCmdArgs (..)
+  , LegacyQueryLedgerStateCmdArgs (..)
+  , LegacyQueryProtocolStateCmdArgs (..)
+  , LegacyQueryStakeSnapshotCmdArgs (..)
+  , LegacyQueryKesPeriodInfoCmdArgs (..)
+  , LegacyQueryPoolStateCmdArgs (..)
+  , LegacyQueryTxMempoolCmdArgs (..)
+  , LegacyQuerySlotNumberCmdArgs (..)
   , renderLegacyQueryCmds
   ) where
 
@@ -13,112 +29,158 @@ import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
 import           Data.Time.Clock
+import           GHC.Generics
 
-data LegacyQueryCmds =
-    QueryLeadershipSchedule
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      GenesisFile
-      (VerificationKeyOrHashOrFile StakePoolKey)
-      (SigningKeyFile In)
-      EpochLeadershipSchedule
-      (Maybe (File () Out))
-  | QueryProtocolParameters'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryConstitutionHash
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryTip
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryStakePools'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryStakeDistribution'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryStakeAddressInfo
-      SocketPath
-      AnyConsensusModeParams
-      StakeAddress
-      NetworkId
-      (Maybe (File () Out))
-  | QueryUTxO'
-      SocketPath
-      AnyConsensusModeParams
-      QueryUTxOFilter
-      NetworkId
-      (Maybe (File () Out))
-  | QueryDebugLedgerState'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryProtocolState'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryStakeSnapshot'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (AllOrOnly [Hash StakePoolKey])
-      (Maybe (File () Out))
-  | QueryKesPeriodInfo
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (File () In)
-      -- ^ Node operational certificate
-      (Maybe (File () Out))
-  | QueryPoolState'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      [Hash StakePoolKey]
-  | QueryTxMempool
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      TxMempoolQuery
-      (Maybe (File () Out))
-  | QuerySlotNumber
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      UTCTime
-  deriving Show
+data LegacyQueryCmds
+  = QueryLeadershipScheduleCmd  !LegacyQueryLeadershipScheduleCmdArgs
+  | QueryProtocolParametersCmd  !LegacyQueryProtocolParametersCmdArgs
+  | QueryConstitutionHashCmd    !LegacyQueryConstitutionHashCmdArgs
+  | QueryTipCmd                 !LegacyQueryTipCmdArgs
+  | QueryStakePoolsCmd          !LegacyQueryStakePoolsCmdArgs
+  | QueryStakeDistributionCmd   !LegacyQueryStakeDistributionCmdArgs
+  | QueryStakeAddressInfoCmd    !LegacyQueryStakeAddressInfoCmdArgs
+  | QueryUTxOCmd                !LegacyQueryUTxOCmdArgs
+  | QueryLedgerStateCmd         !LegacyQueryLedgerStateCmdArgs
+  | QueryProtocolStateCmd       !LegacyQueryProtocolStateCmdArgs
+  | QueryStakeSnapshotCmd       !LegacyQueryStakeSnapshotCmdArgs
+  | QueryKesPeriodInfoCmd       !LegacyQueryKesPeriodInfoCmdArgs
+  | QueryPoolStateCmd           !LegacyQueryPoolStateCmdArgs
+  | QueryTxMempoolCmd           !LegacyQueryTxMempoolCmdArgs
+  | QuerySlotNumberCmd          !LegacyQuerySlotNumberCmdArgs
+  deriving (Generic, Show)
+
+data LegacyQueryLeadershipScheduleCmdArgs = LegacyQueryLeadershipScheduleCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !GenesisFile
+  !(VerificationKeyOrHashOrFile StakePoolKey)
+  !(SigningKeyFile In)
+  !EpochLeadershipSchedule
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryProtocolParametersCmdArgs = LegacyQueryProtocolParametersCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryConstitutionHashCmdArgs = LegacyQueryConstitutionHashCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryTipCmdArgs = LegacyQueryTipCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryStakePoolsCmdArgs = LegacyQueryStakePoolsCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryStakeDistributionCmdArgs = LegacyQueryStakeDistributionCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryStakeAddressInfoCmdArgs = LegacyQueryStakeAddressInfoCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !StakeAddress
+  !NetworkId
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryUTxOCmdArgs = LegacyQueryUTxOCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !QueryUTxOFilter
+  !NetworkId
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryLedgerStateCmdArgs = LegacyQueryLedgerStateCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryProtocolStateCmdArgs = LegacyQueryProtocolStateCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryStakeSnapshotCmdArgs = LegacyQueryStakeSnapshotCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !(AllOrOnly [Hash StakePoolKey])
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryKesPeriodInfoCmdArgs = LegacyQueryKesPeriodInfoCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !(File () In)
+  -- ^ Node operational certificate
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQueryPoolStateCmdArgs = LegacyQueryPoolStateCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  ![Hash StakePoolKey]
+  deriving (Generic, Show)
+
+data LegacyQueryTxMempoolCmdArgs = LegacyQueryTxMempoolCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !TxMempoolQuery
+  !(Maybe (File () Out))
+  deriving (Generic, Show)
+
+data LegacyQuerySlotNumberCmdArgs = LegacyQuerySlotNumberCmdArgs
+  !SocketPath
+  !AnyConsensusModeParams
+  !NetworkId
+  !UTCTime
+  deriving (Generic, Show)
 
 renderLegacyQueryCmds :: LegacyQueryCmds -> Text
 renderLegacyQueryCmds = \case
-  QueryLeadershipSchedule {} -> "query leadership-schedule"
-  QueryProtocolParameters' {} -> "query protocol-parameters "
-  QueryConstitutionHash {} -> "query constitution-hash "
-  QueryTip {} -> "query tip"
-  QueryStakePools' {} -> "query stake-pools"
-  QueryStakeDistribution' {} -> "query stake-distribution"
-  QueryStakeAddressInfo {} -> "query stake-address-info"
-  QueryUTxO' {} -> "query utxo"
-  QueryDebugLedgerState' {} -> "query ledger-state"
-  QueryProtocolState' {} -> "query protocol-state"
-  QueryStakeSnapshot' {} -> "query stake-snapshot"
-  QueryKesPeriodInfo {} -> "query kes-period-info"
-  QueryPoolState' {} -> "query pool-state"
-  QueryTxMempool _ _ _ query _ -> "query tx-mempool" <> renderTxMempoolQuery query
-  QuerySlotNumber {} -> "query slot-number"
+  QueryLeadershipScheduleCmd {} -> "query leadership-schedule"
+  QueryProtocolParametersCmd {} -> "query protocol-parameters "
+  QueryConstitutionHashCmd {} -> "query constitution-hash "
+  QueryTipCmd {} -> "query tip"
+  QueryStakePoolsCmd {} -> "query stake-pools"
+  QueryStakeDistributionCmd {} -> "query stake-distribution"
+  QueryStakeAddressInfoCmd {} -> "query stake-address-info"
+  QueryUTxOCmd {} -> "query utxo"
+  QueryLedgerStateCmd {} -> "query ledger-state"
+  QueryProtocolStateCmd {} -> "query protocol-state"
+  QueryStakeSnapshotCmd {} -> "query stake-snapshot"
+  QueryKesPeriodInfoCmd {} -> "query kes-period-info"
+  QueryPoolStateCmd {} -> "query pool-state"
+  QueryTxMempoolCmd (LegacyQueryTxMempoolCmdArgs _ _ _ query _) -> "query tx-mempool" <> renderTxMempoolQuery query
+  QuerySlotNumberCmd {} -> "query slot-number"
   where
     renderTxMempoolQuery query =
       case query of
