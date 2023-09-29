@@ -192,20 +192,6 @@ runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrF
       $ writeLazyByteStringFile outFp
       $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Address Delegation Certificate") certificate
 
--- TODO use the version in cardano-api
-caseShelleyToBabbageAndConwayEraOnwards :: forall a era. ()
-  => (ShelleyToBabbageEra era -> a)
-  -> (ConwayEraOnwards era -> a)
-  -> ShelleyBasedEra era
-  -> a
-caseShelleyToBabbageAndConwayEraOnwards l r = \case
-  ShelleyBasedEraShelley -> l ShelleyToBabbageEraShelley
-  ShelleyBasedEraAllegra -> l ShelleyToBabbageEraAllegra
-  ShelleyBasedEraMary    -> l ShelleyToBabbageEraMary
-  ShelleyBasedEraAlonzo  -> l ShelleyToBabbageEraAlonzo
-  ShelleyBasedEraBabbage -> l ShelleyToBabbageEraBabbage
-  ShelleyBasedEraConway  -> r ConwayEraOnwardsConway
-
 runStakeAddressStakeAndVoteDelegationCertificateCmd :: ()
   => ConwayEraOnwards era
   -> StakeIdentifier
@@ -276,7 +262,7 @@ createStakeDelegationCertificate :: forall era. ()
   -> ShelleyBasedEra era
   -> Certificate era
 createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKeyHash) = do
-  caseShelleyToBabbageAndConwayEraOnwards
+  caseShelleyToBabbageOrConwayEraOnwards
     (\w ->
       shelleyToBabbageEraConstraints w
         $ ShelleyRelatedCertificate w
