@@ -13,6 +13,7 @@ import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
 import           Cardano.CLI.EraBased.Commands.Governance.Query
+import           Cardano.CLI.EraBased.Commands.Governance.Poll
 import           Cardano.CLI.EraBased.Commands.Governance.Vote
 import           Cardano.CLI.Types.Common
 
@@ -36,6 +37,8 @@ data GovernanceCmds era
       (GovernanceCommitteeCmds era)
   | GovernanceDRepCmds
       (GovernanceDRepCmds era)
+  | GovernancePollCmds
+      (GovernancePollCmds era)
   | GovernanceVoteCmds
       (GovernanceVoteCmds era)
   | GovernanceQueryCmds
@@ -55,6 +58,8 @@ renderGovernanceCmds = \case
     renderGovernanceCommitteeCmds cmds
   GovernanceDRepCmds cmds ->
     renderGovernanceDRepCmds cmds
+  GovernancePollCmds cmds ->
+    renderGovernancePollCmds cmds
   GovernanceVoteCmds cmds ->
     renderGovernanceVoteCmds cmds
   GovernanceQueryCmds cmds ->
