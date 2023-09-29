@@ -131,6 +131,8 @@ data LegacyTransactionCmds
   | TxGetTxId
       InputTxBodyOrTxFile
   | TxView
+      TxViewOutputFormat
+      (Maybe (File () Out))
       InputTxBodyOrTxFile
 
 renderLegacyTransactionCmds :: LegacyTransactionCmds -> Text

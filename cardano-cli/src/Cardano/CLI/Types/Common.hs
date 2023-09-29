@@ -68,6 +68,7 @@ module Cardano.CLI.Types.Common
   , TxOutCount(..)
   , TxOutDatumAnyEra (..)
   , TxShelleyWitnessCount(..)
+  , TxViewOutputFormat(..)
   , UpdateProposalFile (..)
   , VerificationKeyBase64(..)
   , VerificationKeyFile
@@ -429,6 +430,11 @@ data TxMempoolQuery =
       TxMempoolQueryTxExists TxId
     | TxMempoolQueryNextTx
     | TxMempoolQueryInfo
+  deriving Show
+
+data TxViewOutputFormat
+  = TxViewOutputFormatJson
+  | TxViewOutputFormatYaml
   deriving Show
 
 --

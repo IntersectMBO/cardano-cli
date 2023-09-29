@@ -131,6 +131,8 @@ data TransactionCmds era
   | TxGetTxId
       InputTxBodyOrTxFile
   | TxView
+      TxViewOutputFormat
+      (Maybe (File () Out))
       InputTxBodyOrTxFile
 
 renderTransactionCmds :: TransactionCmds era -> Text

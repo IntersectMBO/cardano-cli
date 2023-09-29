@@ -1560,6 +1560,18 @@ pPoolIdOutputFormat =
     , Opt.value IdOutputFormatBech32
     ]
 
+pTxViewOutputFormat :: Parser TxViewOutputFormat
+pTxViewOutputFormat =
+  Opt.option readTxViewOutputFormat $ mconcat
+    [ Opt.long "output-format"
+    , Opt.metavar "STRING"
+    , Opt.help $ mconcat
+      [ "Optional transaction view output format. Accepted output formats are \"json\" "
+      , "and \"yaml\" (default is \"json\")."
+      ]
+    , Opt.value TxViewOutputFormatJson
+    ]
+
 pMaybeOutputFile :: Parser (Maybe (File content Out))
 pMaybeOutputFile =
   optional $ fmap File $ Opt.strOption $ mconcat
