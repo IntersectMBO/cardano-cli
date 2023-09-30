@@ -844,48 +844,54 @@ pQueryCmds envCli =
   where
     pQueryProtocolParameters :: Parser LegacyQueryCmds
     pQueryProtocolParameters =
-      QueryProtocolParameters'
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pMaybeOutputFile
+      fmap QueryProtocolParametersCmd $
+        LegacyQueryProtocolParametersCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> pMaybeOutputFile
 
     pQueryConstitutionHash :: Parser LegacyQueryCmds
     pQueryConstitutionHash =
-      QueryConstitutionHash
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pMaybeOutputFile
+      fmap QueryConstitutionHashCmd $
+        LegacyQueryConstitutionHashCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> pMaybeOutputFile
 
     pQueryTip :: Parser LegacyQueryCmds
     pQueryTip =
-      QueryTip
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pMaybeOutputFile
+      fmap QueryTipCmd $
+        LegacyQueryTipCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> pMaybeOutputFile
 
     pQueryUTxO :: Parser LegacyQueryCmds
     pQueryUTxO =
-      QueryUTxO'
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pQueryUTxOFilter
-        <*> pNetworkId envCli
-        <*> pMaybeOutputFile
+      fmap QueryUTxOCmd $
+        LegacyQueryUTxOCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pQueryUTxOFilter
+          <*> pNetworkId envCli
+          <*> pMaybeOutputFile
 
     pQueryStakePools :: Parser LegacyQueryCmds
     pQueryStakePools =
-      QueryStakePools'
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pMaybeOutputFile
+      fmap QueryStakePoolsCmd $
+        LegacyQueryStakePoolsCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> pMaybeOutputFile
 
     pQueryStakeDistribution :: Parser LegacyQueryCmds
     pQueryStakeDistribution =
-      QueryStakeDistribution'
+      fmap QueryStakeDistributionCmd $
+        LegacyQueryStakeDistributionCmdArgs
         <$> pSocketPath envCli
         <*> pConsensusModeParams
         <*> pNetworkId envCli
@@ -893,7 +899,8 @@ pQueryCmds envCli =
 
     pQueryStakeAddressInfo :: Parser LegacyQueryCmds
     pQueryStakeAddressInfo =
-      QueryStakeAddressInfo
+      fmap QueryStakeAddressInfoCmd $
+        LegacyQueryStakeAddressInfoCmdArgs
         <$> pSocketPath envCli
         <*> pConsensusModeParams
         <*> pFilterByStakeAddress
@@ -902,7 +909,8 @@ pQueryCmds envCli =
 
     pQueryLedgerState :: Parser LegacyQueryCmds
     pQueryLedgerState =
-      QueryDebugLedgerState'
+      fmap QueryLedgerStateCmd $
+        LegacyQueryLedgerStateCmdArgs
         <$> pSocketPath envCli
         <*> pConsensusModeParams
         <*> pNetworkId envCli
@@ -910,11 +918,12 @@ pQueryCmds envCli =
 
     pQueryProtocolState :: Parser LegacyQueryCmds
     pQueryProtocolState =
-      QueryProtocolState'
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pMaybeOutputFile
+      fmap QueryProtocolStateCmd $
+        LegacyQueryProtocolStateCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> pMaybeOutputFile
 
     pAllStakePoolsOrOnly :: Parser (AllOrOnly [Hash StakePoolKey])
     pAllStakePoolsOrOnly = pAll <|> pOnly
@@ -928,29 +937,32 @@ pQueryCmds envCli =
 
     pQueryStakeSnapshot :: Parser LegacyQueryCmds
     pQueryStakeSnapshot =
-      QueryStakeSnapshot'
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pAllStakePoolsOrOnly
-        <*> pMaybeOutputFile
+      fmap QueryStakeSnapshotCmd $
+        LegacyQueryStakeSnapshotCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> pAllStakePoolsOrOnly
+          <*> pMaybeOutputFile
 
     pQueryPoolState :: Parser LegacyQueryCmds
     pQueryPoolState =
-      QueryPoolState'
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> many (pStakePoolVerificationKeyHash Nothing)
+      fmap QueryPoolStateCmd $
+        LegacyQueryPoolStateCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> many (pStakePoolVerificationKeyHash Nothing)
 
     pQueryTxMempool :: Parser LegacyQueryCmds
     pQueryTxMempool =
-      QueryTxMempool
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pTxMempoolQuery
-        <*> pMaybeOutputFile
+      fmap QueryTxMempoolCmd $
+        LegacyQueryTxMempoolCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> pTxMempoolQuery
+          <*> pMaybeOutputFile
       where
         pTxMempoolQuery :: Parser TxMempoolQuery
         pTxMempoolQuery = asum
@@ -966,38 +978,41 @@ pQueryCmds envCli =
           ]
     pLeadershipSchedule :: Parser LegacyQueryCmds
     pLeadershipSchedule =
-      QueryLeadershipSchedule
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pGenesisFile "Shelley genesis filepath"
-        <*> pStakePoolVerificationKeyOrHashOrFile Nothing
-        <*> pVrfSigningKeyFile
-        <*> pWhichLeadershipSchedule
-        <*> pMaybeOutputFile
+      fmap QueryLeadershipScheduleCmd $
+        LegacyQueryLeadershipScheduleCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> pGenesisFile "Shelley genesis filepath"
+          <*> pStakePoolVerificationKeyOrHashOrFile Nothing
+          <*> pVrfSigningKeyFile
+          <*> pWhichLeadershipSchedule
+          <*> pMaybeOutputFile
 
     pKesPeriodInfo :: Parser LegacyQueryCmds
     pKesPeriodInfo =
-      QueryKesPeriodInfo
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pOperationalCertificateFile
-        <*> pMaybeOutputFile
+      fmap QueryKesPeriodInfoCmd $
+        LegacyQueryKesPeriodInfoCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> pOperationalCertificateFile
+          <*> pMaybeOutputFile
 
     pQuerySlotNumber :: Parser LegacyQueryCmds
     pQuerySlotNumber =
-      QuerySlotNumber
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pUtcTimestamp
-          where
-            pUtcTimestamp =
-              convertTime <$> (Opt.strArgument . mconcat)
-                [ Opt.metavar "TIMESTAMP"
-                , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
-                ]
+      fmap QuerySlotNumberCmd $
+        LegacyQuerySlotNumberCmdArgs
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> pUtcTimestamp
+            where
+              pUtcTimestamp =
+                convertTime <$> (Opt.strArgument . mconcat)
+                  [ Opt.metavar "TIMESTAMP"
+                  , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
+                  ]
 
 
 -- TODO: Conway era - move to Cardano.CLI.Conway.Parsers

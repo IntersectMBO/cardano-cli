@@ -1,195 +1,137 @@
+{-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
+
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-
-{-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Cardano.CLI.Legacy.Run.Query
   ( runLegacyQueryCmds
   ) where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
-
+import qualified Cardano.CLI.EraBased.Commands.Query as EraBased
 import qualified Cardano.CLI.EraBased.Run.Query as EraBased
-import           Cardano.CLI.Legacy.Commands.Query
-import           Cardano.CLI.Types.Common
+import qualified Cardano.CLI.Legacy.Commands.Query as Cmd
 import           Cardano.CLI.Types.Errors.QueryCmdError
-import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile)
 
 import           Control.Monad.Trans.Except
-import           Data.Time.Clock
 
-runLegacyQueryCmds :: LegacyQueryCmds -> ExceptT QueryCmdError IO ()
+runLegacyQueryCmds :: Cmd.LegacyQueryCmds -> ExceptT QueryCmdError IO ()
 runLegacyQueryCmds = \case
-  QueryLeadershipSchedule mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs ->
-    runLegacyQueryLeadershipScheduleCmd mNodeSocketPath consensusModeParams network shelleyGenFp poolid vrkSkeyFp whichSchedule outputAs
-  QueryProtocolParameters' mNodeSocketPath consensusModeParams network mOutFile ->
-    runLegacyQueryProtocolParametersCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryConstitutionHash mNodeSocketPath consensusModeParams network mOutFile ->
-    runLegacyQueryConstitutionHashCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryTip mNodeSocketPath consensusModeParams network mOutFile ->
-    runLegacyQueryTipCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakePools' mNodeSocketPath consensusModeParams network mOutFile ->
-    runLegacyQueryStakePoolsCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeDistribution' mNodeSocketPath consensusModeParams network mOutFile ->
-    runLegacyQueryStakeDistributionCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeAddressInfo mNodeSocketPath consensusModeParams addr network mOutFile ->
-    runLegacyQueryStakeAddressInfoCmd mNodeSocketPath consensusModeParams addr network mOutFile
-  QueryDebugLedgerState' mNodeSocketPath consensusModeParams network mOutFile ->
-    runLegacyQueryLedgerStateCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryStakeSnapshot' mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile ->
-    runLegacyQueryStakeSnapshotCmd mNodeSocketPath consensusModeParams network allOrOnlyPoolIds mOutFile
-  QueryProtocolState' mNodeSocketPath consensusModeParams network mOutFile ->
-    runLegacyQueryProtocolStateCmd mNodeSocketPath consensusModeParams network mOutFile
-  QueryUTxO' mNodeSocketPath consensusModeParams qFilter networkId mOutFile ->
-    runLegacyQueryUTxOCmd mNodeSocketPath consensusModeParams qFilter networkId mOutFile
-  QueryKesPeriodInfo mNodeSocketPath consensusModeParams network nodeOpCert mOutFile ->
-    runLegacyQueryKesPeriodInfoCmd mNodeSocketPath consensusModeParams network nodeOpCert mOutFile
-  QueryPoolState' mNodeSocketPath consensusModeParams network poolid ->
-    runLegacyQueryPoolStateCmd mNodeSocketPath consensusModeParams network poolid
-  QueryTxMempool mNodeSocketPath consensusModeParams network op mOutFile ->
-    runLegacyQueryTxMempoolCmd mNodeSocketPath consensusModeParams network op mOutFile
-  QuerySlotNumber mNodeSocketPath consensusModeParams network utcTime ->
-    runLegacyQuerySlotNumberCmd mNodeSocketPath consensusModeParams network utcTime
+  Cmd.QueryLeadershipScheduleCmd  args -> runLegacyQueryLeadershipScheduleCmd args
+  Cmd.QueryProtocolParametersCmd  args -> runLegacyQueryProtocolParametersCmd args
+  Cmd.QueryConstitutionHashCmd    args -> runLegacyQueryConstitutionHashCmd args
+  Cmd.QueryTipCmd                 args -> runLegacyQueryTipCmd args
+  Cmd.QueryStakePoolsCmd          args -> runLegacyQueryStakePoolsCmd args
+  Cmd.QueryStakeDistributionCmd   args -> runLegacyQueryStakeDistributionCmd args
+  Cmd.QueryStakeAddressInfoCmd    args -> runLegacyQueryStakeAddressInfoCmd args
+  Cmd.QueryLedgerStateCmd         args -> runLegacyQueryLedgerStateCmd args
+  Cmd.QueryStakeSnapshotCmd       args -> runLegacyQueryStakeSnapshotCmd args
+  Cmd.QueryProtocolStateCmd       args -> runLegacyQueryProtocolStateCmd args
+  Cmd.QueryUTxOCmd                args -> runLegacyQueryUTxOCmd args
+  Cmd.QueryKesPeriodInfoCmd       args -> runLegacyQueryKesPeriodInfoCmd args
+  Cmd.QueryPoolStateCmd           args -> runLegacyQueryPoolStateCmd args
+  Cmd.QueryTxMempoolCmd           args -> runLegacyQueryTxMempoolCmd args
+  Cmd.QuerySlotNumberCmd          args -> runLegacyQuerySlotNumberCmd args
 
 runLegacyQueryConstitutionHashCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryConstitutionHashCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryConstitutionHashCmd = EraBased.runQueryConstitutionHashCmd
+runLegacyQueryConstitutionHashCmd Cmd.LegacyQueryConstitutionHashCmdArgs {..} =
+  EraBased.runQueryConstitutionHashCmd EraBased.QueryConstitutionHashCmdArgs {..}
 
 runLegacyQueryProtocolParametersCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryProtocolParametersCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryProtocolParametersCmd = EraBased.runQueryProtocolParametersCmd
+runLegacyQueryProtocolParametersCmd Cmd.LegacyQueryProtocolParametersCmdArgs {..} =
+  EraBased.runQueryProtocolParametersCmd EraBased.QueryProtocolParametersCmdArgs {..}
 
 runLegacyQueryTipCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryTipCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryTipCmd = EraBased.runQueryTipCmd
+runLegacyQueryTipCmd Cmd.LegacyQueryTipCmdArgs {..} =
+  EraBased.runQueryTipCmd EraBased.QueryTipCmdArgs {..}
 
 -- | Query the UTxO, filtered by a given set of addresses, from a Shelley node
 -- via the local state query protocol.
 runLegacyQueryUTxOCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> QueryUTxOFilter
-  -> NetworkId
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryUTxOCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryUTxOCmd = EraBased.runQueryUTxOCmd
+runLegacyQueryUTxOCmd Cmd.LegacyQueryUTxOCmdArgs {..} =
+  EraBased.runQueryUTxOCmd EraBased.QueryUTxOCmdArgs {..}
 
 runLegacyQueryKesPeriodInfoCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> File () In
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryKesPeriodInfoCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryKesPeriodInfoCmd = EraBased.runQueryKesPeriodInfoCmd
+runLegacyQueryKesPeriodInfoCmd Cmd.LegacyQueryKesPeriodInfoCmdArgs {..} =
+  EraBased.runQueryKesPeriodInfoCmd EraBased.QueryKesPeriodInfoCmdArgs {..}
 
 -- | Query the current and future parameters for a stake pool, including the retirement date.
 -- Any of these may be empty (in which case a null will be displayed).
 --
 runLegacyQueryPoolStateCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> [Hash StakePoolKey]
+  => Cmd.LegacyQueryPoolStateCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryPoolStateCmd = EraBased.runQueryPoolStateCmd
+runLegacyQueryPoolStateCmd Cmd.LegacyQueryPoolStateCmdArgs {..} =
+  EraBased.runQueryPoolStateCmd EraBased.QueryPoolStateCmdArgs {..}
 
 -- | Query the local mempool state
 runLegacyQueryTxMempoolCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> TxMempoolQuery
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryTxMempoolCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryTxMempoolCmd = EraBased.runQueryTxMempoolCmd
+runLegacyQueryTxMempoolCmd Cmd.LegacyQueryTxMempoolCmdArgs {..} =
+  EraBased.runQueryTxMempoolCmd EraBased.QueryTxMempoolCmdArgs {..}
 
 runLegacyQuerySlotNumberCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> UTCTime
+  => Cmd.LegacyQuerySlotNumberCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQuerySlotNumberCmd = EraBased.runQuerySlotNumberCmd
+runLegacyQuerySlotNumberCmd Cmd.LegacyQuerySlotNumberCmdArgs {..} =
+  EraBased.runQuerySlotNumberCmd EraBased.QuerySlotNumberCmdArgs {..}
 
 -- | Obtain stake snapshot information for a pool, plus information about the total active stake.
 -- This information can be used for leader slot calculation, for example, and has been requested by SPOs.
 -- Obtaining the information directly is significantly more time and memory efficient than using a full ledger state dump.
 runLegacyQueryStakeSnapshotCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> AllOrOnly [Hash StakePoolKey]
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryStakeSnapshotCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryStakeSnapshotCmd = EraBased.runQueryStakeSnapshotCmd
+runLegacyQueryStakeSnapshotCmd Cmd.LegacyQueryStakeSnapshotCmdArgs {..} =
+  EraBased.runQueryStakeSnapshotCmd EraBased.QueryStakeSnapshotCmdArgs {..}
 
 runLegacyQueryLedgerStateCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryLedgerStateCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryLedgerStateCmd = EraBased.runQueryLedgerStateCmd
+runLegacyQueryLedgerStateCmd Cmd.LegacyQueryLedgerStateCmdArgs {..} =
+  EraBased.runQueryLedgerStateCmd EraBased.QueryLedgerStateCmdArgs {..}
 
 runLegacyQueryProtocolStateCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryProtocolStateCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryProtocolStateCmd = EraBased.runQueryProtocolStateCmd
+runLegacyQueryProtocolStateCmd Cmd.LegacyQueryProtocolStateCmdArgs {..} =
+  EraBased.runQueryProtocolStateCmd EraBased.QueryProtocolStateCmdArgs {..}
 
 -- | Query the current delegations and reward accounts, filtered by a given
 -- set of addresses, from a Shelley node via the local state query protocol.
 
 runLegacyQueryStakeAddressInfoCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> StakeAddress
-  -> NetworkId
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryStakeAddressInfoCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryStakeAddressInfoCmd = EraBased.runQueryStakeAddressInfoCmd
+runLegacyQueryStakeAddressInfoCmd Cmd.LegacyQueryStakeAddressInfoCmdArgs {..} =
+  EraBased.runQueryStakeAddressInfoCmd EraBased.QueryStakeAddressInfoCmdArgs {..}
 
 runLegacyQueryStakePoolsCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryStakePoolsCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryStakePoolsCmd = EraBased.runQueryStakePoolsCmd
+runLegacyQueryStakePoolsCmd Cmd.LegacyQueryStakePoolsCmdArgs {..} =
+  EraBased.runQueryStakePoolsCmd EraBased.QueryStakePoolsCmdArgs {..}
 
 runLegacyQueryStakeDistributionCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryStakeDistributionCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryStakeDistributionCmd = EraBased.runQueryStakeDistributionCmd
+runLegacyQueryStakeDistributionCmd Cmd.LegacyQueryStakeDistributionCmdArgs {..} =
+  EraBased.runQueryStakeDistributionCmd EraBased.QueryStakeDistributionCmdArgs {..}
 
 runLegacyQueryLeadershipScheduleCmd :: ()
-  => SocketPath
-  -> AnyConsensusModeParams
-  -> NetworkId
-  -> GenesisFile -- ^ Shelley genesis
-  -> VerificationKeyOrHashOrFile StakePoolKey
-  -> SigningKeyFile In -- ^ VRF signing key
-  -> EpochLeadershipSchedule
-  -> Maybe (File () Out)
+  => Cmd.LegacyQueryLeadershipScheduleCmdArgs
   -> ExceptT QueryCmdError IO ()
-runLegacyQueryLeadershipScheduleCmd = EraBased.runQueryLeadershipScheduleCmd
+runLegacyQueryLeadershipScheduleCmd Cmd.LegacyQueryLeadershipScheduleCmdArgs {..} =
+  EraBased.runQueryLeadershipScheduleCmd EraBased.QueryLeadershipScheduleCmdArgs {..}
