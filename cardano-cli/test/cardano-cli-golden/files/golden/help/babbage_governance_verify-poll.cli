@@ -1,6 +1,6 @@
-Usage: cardano-cli governance verify-poll --poll-file FILE
-                                            --tx-file FILE
-                                            [--out-file FILE]
+Usage: cardano-cli babbage governance verify-poll --poll-file FILE
+                                                    --tx-file FILE
+                                                    [--out-file FILE]
 
   Verify an answer to a given SPO poll
 

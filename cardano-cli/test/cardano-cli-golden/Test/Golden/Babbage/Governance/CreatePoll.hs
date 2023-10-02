@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Governance.CreatePoll where
+module Test.Golden.Babbage.Governance.CreatePoll where
 
 import           Control.Monad (void)
 
@@ -13,13 +13,13 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyGovernanceCreatePoll :: Property
-hprop_golden_shelleyGovernanceCreatePoll =
+hprop_golden_babbageGovernanceCreatePoll :: Property
+hprop_golden_babbageGovernanceCreatePoll =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     pollFile <- noteTempFile tempDir "poll.json"
 
     stdout <- execCardanoCLI
-      [ "legacy", "governance", "create-poll"
+      [ "babbage", "governance", "create-poll"
       , "--question", "Pineapples on pizza?"
       , "--answer", "yes"
       , "--answer", "no"
@@ -27,19 +27,19 @@ hprop_golden_shelleyGovernanceCreatePoll =
       ]
 
     void $ H.readFile pollFile
-    noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/create/basic.json"
+    noteInputFile "test/cardano-cli-golden/files/golden/babbage/governance/create/basic.json"
       >>= H.readFile
       >>= (H.===) stdout
     H.assertFileOccurences 1 "GovernancePoll" pollFile
     H.assertEndsWithSingleNewline pollFile
 
-hprop_golden_shelleyGovernanceCreateLongPoll :: Property
-hprop_golden_shelleyGovernanceCreateLongPoll =
+hprop_golden_babbageGovernanceCreateLongPoll :: Property
+hprop_golden_babbageGovernanceCreateLongPoll =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     pollFile <- noteTempFile tempDir "poll.json"
 
     stdout <- execCardanoCLI
-      [ "legacy", "governance", "create-poll"
+      [ "babbage", "governance", "create-poll"
       , "--question", "What is the most adequate topping to put on a pizza (please consider all possibilities and take time to answer)?"
       , "--answer", "pineapples"
       , "--answer", "only traditional topics should go on a pizza, this isn't room for jokes"
@@ -47,7 +47,7 @@ hprop_golden_shelleyGovernanceCreateLongPoll =
       ]
 
     void $ H.readFile pollFile
-    noteInputFile "test/cardano-cli-golden/files/golden/shelley/governance/create/long-text.json"
+    noteInputFile "test/cardano-cli-golden/files/golden/babbage/governance/create/long-text.json"
       >>= H.readFile
       >>= (H.===) stdout
     H.assertFileOccurences 1 "GovernancePoll" pollFile

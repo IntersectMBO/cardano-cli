@@ -1,4 +1,4 @@
-Usage: cardano-cli legacy governance create-poll --question STRING
+Usage: cardano-cli latest governance create-poll --question STRING
                                                    (--answer STRING)
                                                    [--nonce UINT]
                                                    --out-file FILE
