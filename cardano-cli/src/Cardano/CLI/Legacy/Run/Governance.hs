@@ -56,32 +56,32 @@ runLegacyGovernanceCmds = \case
     runLegacyGovernanceVerifyPoll poll metadata mOutFile
 
 runLegacyGovernanceMIRCertificatePayStakeAddrs
-  :: AnyShelleyToBabbageEra
+  :: AnyEraInEon ShelleyToBabbageEra
   -> Ledger.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceMIRCertificatePayStakeAddrs (AnyShelleyToBabbageEra w) =
+runLegacyGovernanceMIRCertificatePayStakeAddrs (AnyEraInEon w) =
   runGovernanceMIRCertificatePayStakeAddrs w
 
 runLegacyGovernanceMIRCertificateTransfer
-  :: AnyShelleyToBabbageEra
+  :: AnyEraInEon ShelleyToBabbageEra
   -> Lovelace
   -> File () Out
   -> TransferDirection
   -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceMIRCertificateTransfer (AnyShelleyToBabbageEra w) =
+runLegacyGovernanceMIRCertificateTransfer (AnyEraInEon w) =
   runGovernanceMIRCertificateTransfer w
 
 runLegacyGovernanceGenesisKeyDelegationCertificate
-  :: AnyShelleyBasedEra
+  :: AnyEraInEon ShelleyBasedEra
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceGenesisKeyDelegationCertificate (AnyShelleyBasedEra sbe)
+runLegacyGovernanceGenesisKeyDelegationCertificate (AnyEraInEon sbe)
                                              genVkOrHashOrFp
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
@@ -102,6 +102,7 @@ runLegacyGovernanceGenesisKeyDelegationCertificate (AnyShelleyBasedEra sbe)
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
     $ writeLazyByteStringFile oFp
+    $ shelleyBasedEraConstraints sbe
     $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr

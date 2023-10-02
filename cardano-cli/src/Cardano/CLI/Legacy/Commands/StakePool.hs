@@ -17,7 +17,7 @@ import           Data.Text (Text)
 
 data LegacyStakePoolCmds
   = StakePoolDeregistrationCertificateCmd
-      AnyShelleyBasedEra
+      (AnyEraInEon ShelleyBasedEra)
       -- ^ Era in which to retire the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.
@@ -32,7 +32,7 @@ data LegacyStakePoolCmds
       (StakePoolMetadataFile In)
       (Maybe (File () Out))
   | StakePoolRegistrationCertificateCmd
-      AnyShelleyBasedEra
+      (AnyEraInEon ShelleyBasedEra)
       -- ^ Era in which to register the stake pool.
       (VerificationKeyOrFile StakePoolKey)
       -- ^ Stake pool verification key.

@@ -44,7 +44,7 @@ pGovernanceCmds era envCli =
 
 pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (GovernanceCmds era))
 pCreateMirCertificatesCmds era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "create-mir-certificate"
     $ Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w)

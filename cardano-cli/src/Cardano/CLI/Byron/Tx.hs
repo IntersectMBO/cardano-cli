@@ -160,7 +160,7 @@ txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs = do
             , txFee = TxFeeImplicit ByronEraOnlyByron
             , txValidityRange =
                 ( TxValidityNoLowerBound
-                , TxValidityNoUpperBound ValidityNoUpperBoundInByronEra
+                , defaultTxValidityUpperBound
                 )
             , txMetadata = TxMetadataNone
             , txAuxScripts = TxAuxScriptsNone
@@ -209,7 +209,7 @@ txSpendUTxOByronPBFT nId sk txIns outs = do
           , txFee = TxFeeImplicit ByronEraOnlyByron
           , txValidityRange =
               ( TxValidityNoLowerBound
-              , TxValidityNoUpperBound ValidityNoUpperBoundInByronEra
+              , defaultTxValidityUpperBound
               )
           , txMetadata = TxMetadataNone
           , txAuxScripts = TxAuxScriptsNone

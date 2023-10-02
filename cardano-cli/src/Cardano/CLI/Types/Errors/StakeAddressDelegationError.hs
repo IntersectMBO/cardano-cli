@@ -1,6 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Types.Errors.StakeAddressDelegationError
   ( StakeAddressDelegationError(..)
@@ -10,12 +9,11 @@ import           Cardano.Api
 
 import qualified Data.Text as Text
 
-newtype StakeAddressDelegationError = VoteDelegationNotSupported AnyShelleyToBabbageEra deriving Show
+newtype StakeAddressDelegationError = VoteDelegationNotSupported (AnyEraInEon ShelleyToBabbageEra) deriving Show
 
 instance Error StakeAddressDelegationError where
   displayError = \case
-    VoteDelegationNotSupported (AnyShelleyToBabbageEra stbe) -> "Vote delegation not supported in " <> eraTxt stbe <> " era."
+    VoteDelegationNotSupported (AnyEraInEon eraInEon) -> "Vote delegation not supported in " <> eraTxt <> " era."
       where
-        eraTxt :: forall era. ShelleyToBabbageEra era -> String
-        eraTxt stbe' = shelleyToBabbageEraConstraints stbe' $
-          Text.unpack . renderEra $ AnyCardanoEra (cardanoEra @era)
+        cEra = toCardanoEra eraInEon
+        eraTxt = cardanoEraConstraints cEra $ Text.unpack . renderEra $ AnyCardanoEra cEra

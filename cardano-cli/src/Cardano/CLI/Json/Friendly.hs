@@ -128,7 +128,7 @@ pattern ShelleyTtl
   :: SlotNo -> (TxValidityLowerBound era, TxValidityUpperBound era)
 pattern ShelleyTtl ttl <-
   ( TxValidityNoLowerBound
-  , TxValidityUpperBound ValidityUpperBoundInShelleyEra ttl
+  , TxValidityUpperBound _ ttl
   )
 
 friendlyValidityRange
@@ -151,8 +151,8 @@ friendlyValidityRange era = \case
           ]
     | otherwise -> Null
  where
-  isLowerBoundSupported = isJust $ validityLowerBoundSupportedInEra era
-  isUpperBoundSupported = isJust $ validityUpperBoundSupportedInEra era
+  isLowerBoundSupported = isJust $ inEonForEraMaybe TxValidityLowerBound era
+  isUpperBoundSupported = isJust $ inEonForEraMaybe TxValidityUpperBound era
 
 friendlyWithdrawals :: TxWithdrawals ViewTx era -> Aeson.Value
 friendlyWithdrawals TxWithdrawalsNone = Null
