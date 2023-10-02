@@ -203,17 +203,15 @@ runTxBuildCmd
   let filteredTxinsc = Set.toList $ Set.fromList txinsc
 
   -- We need to construct the txBodycontent outside of runTxBuild
-  BalancedTxBody txBodycontent balancedTxBody _ _ <-
+  BalancedTxBody txBodyContent balancedTxBody _ _ <-
     runTxBuild
       era socketPath consensusModeParams nid mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
       mReturnCollateral mTotCollateral txOuts changeAddr valuesWithScriptWits mLowBound
       mUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
       requiredSigners txAuxScripts txMetadata mProp mOverrideWits votes proposals outputOptions
 
-  mScriptWits <-
-    case cardanoEraStyle era of
-      LegacyByronEra -> return []
-      ShelleyBasedEra sbe -> return $ collectTxBodyScriptWitnesses sbe txBodycontent
+  let mScriptWits =
+        forEraInEon era [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
 
   let allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
@@ -230,7 +228,7 @@ runTxBuildCmd
   -- the script cost vs having to build the tx body each time
   case outputOptions of
     OutputScriptCostOnly fp -> do
-      let BuildTxWith mTxProtocolParams = txProtocolParams txBodycontent
+      let BuildTxWith mTxProtocolParams = txProtocolParams txBodyContent
 
       pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
       executionUnitPrices <- pure (getExecutionUnitPrices era pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
@@ -595,8 +593,8 @@ runTxBuild
               , txUpdateProposal = validatedTxUpProp
               , txMintValue = validatedMintValue
               , txScriptValidity = validatedTxScriptValidity
-              , txProposalProcedures = inEraEonMaybe era (`Featured` validatedTxProposalProcedures)
-              , txVotingProcedures = inEraEonMaybe era (`Featured` validatedTxVotes)
+              , txProposalProcedures = forEraInEonMaybe era (`Featured` validatedTxProposalProcedures)
+              , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedTxVotes)
               }
 
       firstExceptT TxCmdTxInsDoNotExist
@@ -661,21 +659,20 @@ validateTxInsCollateral :: CardanoEra era
                         -> [TxIn]
                         -> Either TxCmdError (TxInsCollateral era)
 validateTxInsCollateral _   []    = return TxInsCollateralNone
-validateTxInsCollateral era txins =
-    case collateralSupportedInEra era of
-      Nothing -> txFeatureMismatchPure era TxFeatureCollateral
-      Just supported -> return (TxInsCollateral supported txins)
+validateTxInsCollateral era txins = do
+  supported <- forEraMaybeEon era
+    & maybe (txFeatureMismatchPure era TxFeatureCollateral) Right
+  pure $ TxInsCollateral supported txins
 
 validateTxInsReference
   :: CardanoEra era
   -> [TxIn]
   -> Either TxCmdError (TxInsReference BuildTx era)
 validateTxInsReference _ []  = return TxInsReferenceNone
-validateTxInsReference era allRefIns =
-  caseByronToAlonzoOrBabbageEraOnwards
-    (const $ txFeatureMismatchPure era TxFeatureReferenceInputs)
-    (\w -> return $ TxInsReference w allRefIns)
-    era
+validateTxInsReference era allRefIns = do
+  supported <- forEraMaybeEon era
+    & maybe (txFeatureMismatchPure era TxFeatureReferenceInputs) Right
+  pure $ TxInsReference supported allRefIns
 
 getAllReferenceInputs
  :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
@@ -732,24 +729,6 @@ toTxOutValueInAnyEra era val =
     )
     (\w -> return (TxOutValue w val))
     era
-
--- TODO move this to cardano-api
-caseAlonzoOnlyOrBabbageEraOnwards :: ()
-  => (AlonzoEraOnly era -> a)
-  -> (BabbageEraOnwards era -> a)
-  -> AlonzoEraOnwards era
-  -> a
-caseAlonzoOnlyOrBabbageEraOnwards l r = \case
-  AlonzoEraOnwardsAlonzo -> l AlonzoEraOnlyAlonzo
-  AlonzoEraOnwardsBabbage -> r BabbageEraOnwardsBabbage
-  AlonzoEraOnwardsConway  -> r BabbageEraOnwardsConway
-
--- TODO move this to cardano-api
-alonzoEraOnlyToAlonzoEraOnwards :: ()
-  => AlonzoEraOnly era
-  -> AlonzoEraOnwards era
-alonzoEraOnlyToAlonzoEraOnwards = \case
-  AlonzoEraOnlyAlonzo -> AlonzoEraOnwardsAlonzo
 
 toTxOutInAnyEra :: CardanoEra era
                 -> TxOutAnyEra

@@ -11,9 +11,9 @@ module Cardano.CLI.Environment
   , getEnvSocketPath
   ) where
 
-import           Cardano.Api (AnyCardanoEra (..), AnyShelleyBasedEra (..),
-                   AnyShelleyToBabbageEra (..), CardanoEra (..), NetworkId (..), NetworkMagic (..),
-                   ShelleyBasedEra (..), ShelleyToBabbageEra (..))
+import           Cardano.Api (AnyCardanoEra (..), AnyEraInEon (..), CardanoEra (..), NetworkId (..),
+                   NetworkMagic (..), ShelleyBasedEra (..), ShelleyToBabbageEra (..),
+                   forEraInEonMaybe)
 
 import           Data.Word (Word32)
 import qualified System.Environment as IO
@@ -38,31 +38,15 @@ getEnvCli = do
     , envCliAnyCardanoEra = mCardanoEra
     }
 
-envCliAnyShelleyBasedEra :: EnvCli -> Maybe AnyShelleyBasedEra
+envCliAnyShelleyBasedEra :: EnvCli -> Maybe (AnyEraInEon ShelleyBasedEra)
 envCliAnyShelleyBasedEra envCli = do
   AnyCardanoEra era <- envCliAnyCardanoEra envCli
+  forEraInEonMaybe era AnyEraInEon
 
-  case era of
-    ByronEra -> Nothing
-    ShelleyEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraShelley
-    AllegraEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraAllegra
-    MaryEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraMary
-    AlonzoEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraAlonzo
-    BabbageEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraBabbage
-    ConwayEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraConway
-
-envCliAnyShelleyToBabbageEra :: EnvCli -> Maybe AnyShelleyToBabbageEra
+envCliAnyShelleyToBabbageEra :: EnvCli -> Maybe (AnyEraInEon ShelleyToBabbageEra)
 envCliAnyShelleyToBabbageEra envCli = do
   AnyCardanoEra era <- envCliAnyCardanoEra envCli
-
-  case era of
-    ByronEra -> Nothing
-    ShelleyEra -> Just $ AnyShelleyToBabbageEra ShelleyToBabbageEraShelley
-    AllegraEra -> Just $ AnyShelleyToBabbageEra ShelleyToBabbageEraAllegra
-    MaryEra -> Just $ AnyShelleyToBabbageEra ShelleyToBabbageEraMary
-    AlonzoEra -> Just $ AnyShelleyToBabbageEra ShelleyToBabbageEraAlonzo
-    BabbageEra -> Just $ AnyShelleyToBabbageEra ShelleyToBabbageEraBabbage
-    ConwayEra -> Nothing
+  forEraInEonMaybe era AnyEraInEon
 
 -- | If the environment variable @CARDANO_NODE_NETWORK_ID@ is set, then return the network id therein.
 -- Otherwise, return 'Nothing'.

@@ -57,7 +57,7 @@ pStakePoolMetadataHashCmd =
 
 pStakePoolRegistrationCertificateCmd :: CardanoEra era -> EnvCli -> Maybe (Parser (StakePoolCmds era))
 pStakePoolRegistrationCertificateCmd era envCli = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "registration-certificate"
     $ Opt.info
@@ -78,7 +78,7 @@ pStakePoolRegistrationCertificateCmd era envCli = do
 
 pStakePoolDeregistrationCertificateCmd :: CardanoEra era -> Maybe (Parser (StakePoolCmds era))
 pStakePoolDeregistrationCertificateCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "deregistration-certificate"
     $ Opt.info

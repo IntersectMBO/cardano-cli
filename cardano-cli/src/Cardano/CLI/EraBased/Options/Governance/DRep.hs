@@ -42,7 +42,7 @@ pGovernanceDRepKeyGenCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDRepKeyGenCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "key-gen"
     $ Opt.info
@@ -56,7 +56,7 @@ pGovernanceDRepKeyIdCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDRepKeyIdCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "id"
     $ Opt.info
@@ -85,7 +85,7 @@ pRegistrationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pRegistrationCertificateCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "registration-certificate"
     $ Opt.info (mkParser w)

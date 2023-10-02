@@ -176,7 +176,7 @@ readTxMetadata :: CardanoEra era
                -> IO (Either MetadataError (TxMetadataInEra era))
 readTxMetadata _ _ [] = return $ Right TxMetadataNone
 readTxMetadata era schema files = cardanoEraConstraints era $ runExceptT $ do
-  supported <- maybeEonInEra era
+  supported <- forEraMaybeEon era
     & hoistMaybe (MetadataErrorNotAvailableInEra $ AnyCardanoEra era)
   metadata  <- mapM (readFileTxMetadata schema) files
   pure $ TxMetadataInEra supported $ mconcat metadata
@@ -796,7 +796,7 @@ readTxGovernanceActions
   -> IO (Either ConstitutionError [Proposal era])
 readTxGovernanceActions _ [] = return $ Right []
 readTxGovernanceActions era files = runExceptT $ do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
     & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
   newExceptT $ sequence <$> mapM (readProposal w) files
 
