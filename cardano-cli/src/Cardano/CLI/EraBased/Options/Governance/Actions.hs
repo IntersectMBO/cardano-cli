@@ -168,14 +168,6 @@ toNonNegativeIntervalOrErr r = case Ledger.boundRational r of
                                            ]
                          Just n -> n
 
-toUnitIntervalOrErr :: Rational -> Ledger.UnitInterval
-toUnitIntervalOrErr r = case Ledger.boundRational r of
-                         Nothing ->
-                           error $ mconcat [ "toUnitIntervalOrErr: "
-                                           , "rational out of bounds " <> show r
-                                           ]
-                         Just n -> n
-
 mkProtocolVersionOrErr :: (Natural, Natural) -> Ledger.ProtVer
 mkProtocolVersionOrErr (majorProtVer, minorProtVer) =
   case (`Ledger.ProtVer` minorProtVer) <$> Ledger.mkVersion majorProtVer of
@@ -236,6 +228,18 @@ pIntroducedInBabbagePParams =
   IntroducedInBabbagePParams
     <$> convertToLedger (CoinPerByte . toShelleyLovelace) (optional pUTxOCostPerByte)
 
+pIntroducedInConwayPParams :: Parser (IntroducedInConwayPParams ledgerera)
+pIntroducedInConwayPParams =
+  IntroducedInConwayPParams
+    <$> convertToLedger id (optional pPoolVotingThresholds)
+    <*> convertToLedger id (optional pDRepVotingThresholds)
+    <*> convertToLedger id (optional pMinCommitteeSize)
+    <*> convertToLedger id (optional pCommitteeTermLength)
+    <*> convertToLedger id (optional pGovActionLifetime)
+    <*> convertToLedger toShelleyLovelace (optional pGovActionDeposit)
+    <*> convertToLedger toShelleyLovelace (optional pDRepDeposit)
+    <*> convertToLedger id (optional pDRepActivity)
+
 -- Not necessary in Conway era onwards
 pProtocolParametersUpdateGenesisKeys :: ShelleyBasedEra era -> Parser [VerificationKeyFile In]
 pProtocolParametersUpdateGenesisKeys =
@@ -277,6 +281,7 @@ dpGovActionProtocolParametersUpdate = \case
       <$> pCommonProtocolParameters
       <*> pAlonzoOnwardsPParams
       <*> pIntroducedInBabbagePParams
+      <*> pIntroducedInConwayPParams
 
 pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionTreasuryWithdrawalCmd era = do

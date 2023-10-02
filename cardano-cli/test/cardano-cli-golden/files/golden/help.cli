@@ -6389,6 +6389,26 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update --
                                                                                 [--collateral-percent INT]
                                                                                 [--max-collateral-inputs INT]
                                                                                 [--utxo-cost-per-byte LOVELACE]
+                                                                                [--pool-voting-threshold-motion-no-confidence RATIONAL
+                                                                                  --pool-voting-threshold-committee-normal RATIONAL
+                                                                                  --pool-voting-threshold-committee-no-confidence RATIONAL
+                                                                                  --pool-voting-threshold-hard-fork-initiation RATIONAL]
+                                                                                [--drep-voting-threshold-motion-no-confidence RATIONAL
+                                                                                  --drep-voting-threshold-committee-normal RATIONAL
+                                                                                  --drep-voting-threshold-committee-no-confidence RATIONAL
+                                                                                  --drep-voting-threshold-update-to-constitution RATIONAL
+                                                                                  --drep-voting-threshold-hard-fork-initiation RATIONAL
+                                                                                  --drep-voting-threshold-pp-network-group RATIONAL
+                                                                                  --drep-voting-threshold-pp-economic-group RATIONAL
+                                                                                  --drep-voting-threshold-pp-technical-group RATIONAL
+                                                                                  --drep-voting-threshold-pp-governance-group RATIONAL
+                                                                                  --drep-voting-threshold-treasury-withdrawal RATIONAL]
+                                                                                [--min-committee-size INT]
+                                                                                [--committee-term-length INT]
+                                                                                [--governance-action-lifetime NATURAL]
+                                                                                [--governance-action-deposit NATURAL]
+                                                                                [--drep-deposit LOVELACE]
+                                                                                [--drep-activity NATURAL]
                                                                                 --out-file FILE
 
   Create a protocol parameters update.
