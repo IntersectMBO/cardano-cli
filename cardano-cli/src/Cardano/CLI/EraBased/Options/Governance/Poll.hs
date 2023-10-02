@@ -7,8 +7,9 @@ import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Commands.Governance.Poll (GovernancePollCmds (..))
 import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.Prelude (catMaybes)
+import           Cardano.Prelude (catMaybes, isInfixOf)
 
+import           Control.Monad (when)
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
@@ -42,7 +43,8 @@ pGovernancePollCmds era =
 
 pGovernanceCreatePoll :: CardanoEra era -> Maybe (Parser (GovernancePollCmds era))
 pGovernanceCreatePoll era = do
-  w <- maybeEonInEra era
+  w <- forEonInEra era
+  when ("BabbageEraOnwardsConway" `isInfixOf` show w) Nothing -- TODO smelc remove this when BabbageEraBabbageOnly is introduced
   pure $
     GovernanceCreatePoll w
       <$> pPollQuestion
@@ -53,6 +55,7 @@ pGovernanceCreatePoll era = do
 pGovernanceAnswerPoll :: CardanoEra era -> Maybe (Parser (GovernancePollCmds era))
 pGovernanceAnswerPoll era = do
   w <- maybeEonInEra era
+  when ("BabbageEraOnwardsConway" `isInfixOf` show w) Nothing -- TODO smelc remove this when BabbageEraBabbageOnly is introduced
   pure $
     GovernanceAnswerPoll w
       <$> pPollFile
@@ -62,6 +65,7 @@ pGovernanceAnswerPoll era = do
 pGovernanceVerifyPoll :: CardanoEra era -> Maybe (Parser (GovernancePollCmds era))
 pGovernanceVerifyPoll era = do
   w <- maybeEonInEra era
+  when ("BabbageEraOnwardsConway" `isInfixOf` show w) Nothing -- TODO smelc remove this when BabbageEraBabbageOnly is introduced
   pure $
     GovernanceVerifyPoll w
       <$> pPollFile
