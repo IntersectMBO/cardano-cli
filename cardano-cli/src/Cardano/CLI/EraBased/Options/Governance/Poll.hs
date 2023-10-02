@@ -43,7 +43,7 @@ pGovernancePollCmds era =
 
 pGovernanceCreatePoll :: CardanoEra era -> Maybe (Parser (GovernancePollCmds era))
 pGovernanceCreatePoll era = do
-  w <- forEonInEra era
+  w <- forEraMaybeEon era
   when ("BabbageEraOnwardsConway" `isInfixOf` show w) Nothing -- TODO smelc remove this when BabbageEraBabbageOnly is introduced
   pure $
     GovernanceCreatePoll w
@@ -54,7 +54,7 @@ pGovernanceCreatePoll era = do
 
 pGovernanceAnswerPoll :: CardanoEra era -> Maybe (Parser (GovernancePollCmds era))
 pGovernanceAnswerPoll era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   when ("BabbageEraOnwardsConway" `isInfixOf` show w) Nothing -- TODO smelc remove this when BabbageEraBabbageOnly is introduced
   pure $
     GovernanceAnswerPoll w
@@ -64,7 +64,7 @@ pGovernanceAnswerPoll era = do
 
 pGovernanceVerifyPoll :: CardanoEra era -> Maybe (Parser (GovernancePollCmds era))
 pGovernanceVerifyPoll era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   when ("BabbageEraOnwardsConway" `isInfixOf` show w) Nothing -- TODO smelc remove this when BabbageEraBabbageOnly is introduced
   pure $
     GovernanceVerifyPoll w
