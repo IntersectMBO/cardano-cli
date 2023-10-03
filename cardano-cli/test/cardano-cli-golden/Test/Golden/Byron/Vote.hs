@@ -17,11 +17,11 @@ import           Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_byron_yes_vote :: Property
-hprop_golden_byron_yes_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  goldenYesVote <- noteInputFile "test/cardano-cli-golden/files/golden/byron/votes/vote-yes"
-  proposal <- noteInputFile "test/cardano-cli-golden/files/golden/byron/update-proposal"
-  signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
+hprop_byron_yes_vote :: Property
+hprop_byron_yes_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  expectedYesVote <- noteInputFile "test/cardano-cli-golden/files/input/byron/votes/vote-yes"
+  proposal <- noteInputFile "test/cardano-cli-golden/files/input/byron/update-proposal"
+  signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
   createdYesVote <- noteTempFile tempDir "byron-yes-vote"
   void $ execCardanoCLI
     [ "byron", "governance", "create-proposal-vote"
@@ -32,8 +32,8 @@ hprop_golden_byron_yes_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir 
     , "--output-filepath", createdYesVote
     ]
 
-  eGolden <- liftIO . runExceptT $ readByronVote goldenYesVote
-  golden <- case eGolden of
+  eExpected <- liftIO . runExceptT $ readByronVote expectedYesVote
+  expected <- case eExpected of
               Left err -> failWith Nothing . Text.unpack $ renderByronVoteError err
               Right prop -> return prop
 
@@ -42,13 +42,13 @@ hprop_golden_byron_yes_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir 
                Left err -> failWith Nothing . Text.unpack $ renderByronVoteError err
                Right prop -> return prop
 
-  golden === created
+  expected === created
 
-hprop_golden_byron_no_vote :: Property
-hprop_golden_byron_no_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  goldenNoVote <- noteInputFile "test/cardano-cli-golden/files/golden/byron/votes/vote-no"
-  proposal <- noteInputFile "test/cardano-cli-golden/files/golden/byron/update-proposal"
-  signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
+hprop_byron_no_vote :: Property
+hprop_byron_no_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  expectedNoVote <- noteInputFile "test/cardano-cli-golden/files/input/byron/votes/vote-no"
+  proposal <- noteInputFile "test/cardano-cli-golden/files/input/byron/update-proposal"
+  signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
   createdNoVote <- noteTempFile tempDir "byron-no-vote"
   void $ execCardanoCLI
     [ "byron", "governance", "create-proposal-vote"
@@ -59,8 +59,8 @@ hprop_golden_byron_no_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -
     , "--output-filepath", createdNoVote
     ]
 
-  eGolden <- liftIO . runExceptT $ readByronVote goldenNoVote
-  golden <- case eGolden of
+  eExpected <- liftIO . runExceptT $ readByronVote expectedNoVote
+  expected <- case eExpected of
               Left err -> failWith Nothing . Text.unpack $ renderByronVoteError err
               Right prop -> return prop
 
@@ -69,4 +69,4 @@ hprop_golden_byron_no_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -
                Left err -> failWith Nothing . Text.unpack $ renderByronVoteError err
                Right prop -> return prop
 
-  golden === created
+  expected === created

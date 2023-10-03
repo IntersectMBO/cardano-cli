@@ -18,7 +18,7 @@ hprop_golden_shelleyStakeAddressRegistrationCertificate :: Property
 hprop_golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   base <- H.getProjectBase
 
-  keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/verification_key"
+  keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
   registrationCertFile <- noteTempFile tempDir "registration.cert"
   scriptRegistrationCertFile <- noteTempFile tempDir "script-registration.cert"
   exampleScript <- noteInputFile $ base </> "scripts/plutus/scripts/v1/custom-guess-42-datum-42.plutus"
@@ -43,7 +43,7 @@ hprop_golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.modul
 
 hprop_golden_shelleyStakeAddressRegistrationCertificateWithBuildRaw :: Property
 hprop_golden_shelleyStakeAddressRegistrationCertificateWithBuildRaw = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/verification_key"
+  keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
   registrationCertFile <- noteTempFile tempDir "registration.cert"
   txRawFile <- noteTempFile tempDir "tx.raw"
 

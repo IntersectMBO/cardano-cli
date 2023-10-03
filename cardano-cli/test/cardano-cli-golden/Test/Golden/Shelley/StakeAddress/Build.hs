@@ -12,8 +12,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 hprop_golden_shelleyStakeAddressBuild :: Property
 hprop_golden_shelleyStakeAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
-  verificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/verification_key"
-  goldenRewardAddressFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/reward_address"
+  verificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
+  goldenRewardAddressFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/reward_address"
 
   rewardAddress <- execCardanoCLI
     [ "stake-address","build"

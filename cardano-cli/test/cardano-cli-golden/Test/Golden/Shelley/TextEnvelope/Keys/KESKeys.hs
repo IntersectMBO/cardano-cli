@@ -23,8 +23,8 @@ import qualified Hedgehog.Extras.Test.File as H
 hprop_golden_shelleyKESKeys :: Property
 hprop_golden_shelleyKESKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/signing_key"
+  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/kes_keys/verification_key"
+  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/kes_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "kes-verification-key-file"
@@ -51,8 +51,8 @@ hprop_golden_shelleyKESKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir 
 hprop_golden_shelleyKESKeys_te :: Property
 hprop_golden_shelleyKESKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/signing_key"
+  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/kes_keys/verification_key"
+  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/kes_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "kes-verification-key-file"

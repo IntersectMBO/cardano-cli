@@ -18,10 +18,10 @@ import qualified Hedgehog.Extras.Test.Base as H
 hprop_golden_shelleyTx :: Property
 hprop_golden_shelleyTx = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  let referenceTx = "test/cardano-cli-golden/files/golden/alonzo/tx"
+  let goldenReferenceTx = "test/cardano-cli-golden/files/golden/alonzo/tx"
 
   -- Key filepaths
-  paymentSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/transaction-sign/utxo.skey"
+  paymentSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-sign/utxo.skey"
   transactionFile <- noteTempFile tempDir "tx-file"
   transactionBodyFile <- noteTempFile tempDir "tx-body-file"
 
@@ -46,7 +46,7 @@ hprop_golden_shelleyTx = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
 
   -- Check the newly created files have not deviated from the
   -- golden files
-  checkTxCddlFormat referenceTx transactionFile
+  checkTxCddlFormat goldenReferenceTx transactionFile
 
 -- TODO Re-enable this test
 disable_hprop_golden_checkIfConstitutionalCommitteeKeyCanSign :: Property
@@ -55,9 +55,9 @@ disable_hprop_golden_checkIfConstitutionalCommitteeKeyCanSign = propertyOnce . H
   let referenceTx = "test/cardano-cli-golden/files/input/conway/tx"
 
   -- Key filepaths
-  paymentSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/transaction-sign/utxo.skey"
+  paymentSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-sign/utxo.skey"
   -- constitutional committee signing key
-  paymentSignKey2 <- noteInputFile "test/cardano-cli-golden/files/golden/conway/cold1-cc.skey"
+  paymentSignKey2 <- noteInputFile "test/cardano-cli-golden/files/input/conway/cold1-cc.skey"
   transactionFile <- noteTempFile tempDir "tx-file"
   transactionBodyFile <- noteTempFile tempDir "tx-body-file"
 

@@ -32,7 +32,11 @@ import           Data.Monoid (Last (..))
 import           Data.Text (Text)
 import           GHC.Stack (CallStack, HasCallStack)
 import qualified GHC.Stack as GHC
+import qualified System.Directory as IO
+import qualified System.Environment as IO
 import qualified System.Exit as IO
+import           System.FilePath (takeDirectory)
+import qualified System.IO.Unsafe as IO
 import qualified System.Process as IO
 import           System.Process (CreateProcess)
 
@@ -148,12 +152,35 @@ checkTxCddlFormat
   -> FilePath -- ^ Newly created file
   -> m ()
 checkTxCddlFormat referencePath createdPath = do
-  reference <- H.evalIO $ fileOrPipe referencePath
-  created <- H.evalIO $ fileOrPipe createdPath
-  r <- H.evalIO $ readCddlTx reference
-  c <- H.evalIO $ readCddlTx created
-  r H.=== c
 
+  fileExists <- liftIO $ IO.doesFileExist referencePath
+
+  if fileExists
+    then do
+      reference <- H.evalIO $ fileOrPipe referencePath
+      created <- H.evalIO $ fileOrPipe createdPath
+      r <- H.evalIO $ readCddlTx reference
+      c <- H.evalIO $ readCddlTx created
+      r H.=== c
+    else if createFiles
+      then do
+        -- CREATE_GOLDEN_FILES is set, so we create any golden files that don't
+        -- already exist.
+        H.note_ $ "Creating golden file " <> referencePath
+        H.createDirectoryIfMissing_ (takeDirectory referencePath)
+        H.readFile createdPath >>= H.writeFile referencePath
+      else do
+        H.note_ $ mconcat
+          [ "Golden file " <> referencePath
+          , " does not exist.  To create, run with CREATE_GOLDEN_FILES=1"
+          ]
+        H.failure
+
+-- | Whether the test should create the golden files if the file does ont exist.
+createFiles :: Bool
+createFiles = IO.unsafePerformIO $ do
+  value <- IO.lookupEnv "CREATE_GOLDEN_FILES"
+  return $ value == Just "1"
 
 --------------------------------------------------------------------------------
 -- Helpers, Error rendering & Clean up

@@ -25,8 +25,8 @@ hprop_golden_shelleyVRFKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir 
   H.note_ tempDir
 
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/vrf_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/vrf_keys/signing_key"
+  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/vrf_keys/verification_key"
+  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/vrf_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "vrf-verification-key-file"
@@ -55,8 +55,8 @@ hprop_golden_shelleyVRFKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempD
   H.note_ tempDir
 
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/vrf_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/vrf_keys/signing_key"
+  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/vrf_keys/verification_key"
+  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/vrf_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "vrf-verification-key-file"

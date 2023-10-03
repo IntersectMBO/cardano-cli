@@ -34,7 +34,7 @@ hprop_golden_shelleyTransactionSigningKeyWitness = propertyOnce $ H.moduleWorksp
 
   -- Create all multisig witness
   witnessOutFile <- noteTempFile tempDir "signingkey-witness"
-  signingKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/payment_keys/signing_key"
+  signingKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/payment_keys/signing_key"
   void $ execCardanoCLI
     [ "transaction","witness"
     , "--tx-body-file", txBodyOutFile

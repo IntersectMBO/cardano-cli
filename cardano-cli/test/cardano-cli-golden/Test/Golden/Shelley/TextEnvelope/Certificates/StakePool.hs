@@ -26,8 +26,8 @@ hprop_golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tm
   let era = BabbageEra -- TODO generate for all eras
 
   -- Reference files
-  referenceRegistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_pool_registration_certificate"
-  referenceDeregistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_pool_deregistration_certificate"
+  referenceRegistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_pool_registration_certificate"
+  referenceDeregistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_pool_deregistration_certificate"
 
   -- Key filepaths
   coldVerKey <- noteTempFile tempDir "cold-verification-key-file"

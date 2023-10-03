@@ -16,7 +16,7 @@ import qualified Hedgehog.Extras.Test.Base as H
 hprop_golden_shelleyTxBody :: Property
 hprop_golden_shelleyTxBody = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceTxBody <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/tx/txbody"
+  referenceTxBody <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
 
   -- Key filepaths
   transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
