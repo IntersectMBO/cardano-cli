@@ -19,6 +19,11 @@ Flag unexpected_thunks
   Description:          Turn on unexpected thunks checks
   Default:              False
 
+flag systemd
+  description:          Enable systemd support
+  default:              True
+  manual:               False
+
 common project-config
   default-language:     Haskell2010
 
@@ -33,8 +38,6 @@ common project-config
                         -Wpartial-fields
                         -Wredundant-constraints
 
-  if impl(ghc >= 9.6)
-    ghc-options:        -Wunused-packages
 
 common maybe-unix
   if !os(windows)
@@ -47,6 +50,11 @@ common maybe-bytestring
 library
   import:               project-config
                       , maybe-unix
+
+  if os(linux) && flag(systemd)
+    cpp-options:        -DSYSTEMD
+    build-depends:      lobemo-scribe-systemd
+                      , systemd >= 2.3.0
 
   if flag(unexpected_thunks)
     cpp-options:        -DUNEXPECTED_THUNKS
