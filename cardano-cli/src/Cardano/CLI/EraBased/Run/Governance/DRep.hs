@@ -82,6 +82,8 @@ runGovernanceRegistrationCertificateCmd cOnwards drepKOrHOrF deposit outfp = do
         votingCredential = VotingCredential drepCred
         req = DRepRegistrationRequirements cOnwards votingCredential deposit
         registrationCert = makeDrepRegistrationCertificate req
+          -- TODO https://github.com/input-output-hk/cardano-cli/issues/198#issuecomment-1739874922
+          Nothing
         description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
 
     firstExceptT RegistrationWriteFileError

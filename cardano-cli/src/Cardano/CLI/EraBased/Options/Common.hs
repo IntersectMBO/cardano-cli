@@ -101,6 +101,14 @@ pNetworkId envCli = asum $ mconcat
     pure <$> maybeToList (envCliNetworkId envCli)
   ]
 
+toUnitIntervalOrErr :: Rational -> L.UnitInterval
+toUnitIntervalOrErr r = case Ledger.boundRational r of
+                         Nothing ->
+                           error $ mconcat [ "toUnitIntervalOrErr: "
+                                           , "rational out of bounds " <> show r
+                                           ]
+                         Just n -> n
+
 pConsensusModeParams :: Parser AnyConsensusModeParams
 pConsensusModeParams = asum
   [ pShelleyMode *> pShelleyConsensusMode
@@ -2783,7 +2791,153 @@ pProtocolVersion =
           ]
         ]
 
---------------------------------------------------------------------------------
+pPoolVotingThresholds :: Parser Ledger.PoolVotingThresholds
+pPoolVotingThresholds =
+    Ledger.PoolVotingThresholds
+      <$> pMotionNoConfidence
+      <*> pCommitteeNormal
+      <*> pCommitteeNoConfidence
+      <*> pHardForkInitiation
+  where
+    pMotionNoConfidence =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "pool-voting-threshold-motion-no-confidence"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pCommitteeNormal =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "pool-voting-threshold-committee-normal"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pCommitteeNoConfidence =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "pool-voting-threshold-committee-no-confidence"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pHardForkInitiation =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "pool-voting-threshold-hard-fork-initiation"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+
+pDRepVotingThresholds :: Parser Ledger.DRepVotingThresholds
+pDRepVotingThresholds =
+    Ledger.DRepVotingThresholds
+      <$> pMotionNoConfidence
+      <*> pCommitteeNormal
+      <*> pCommitteeNoConfidence
+      <*> pUpdateToConstitution
+      <*> pHardForkInitiation
+      <*> pPPNetworkGroup
+      <*> pPPEconomicGroup
+      <*> pPPTechnicalGroup
+      <*> pPPGovGroup
+      <*> pTreasuryWithdrawal
+  where
+    pMotionNoConfidence =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-motion-no-confidence"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pCommitteeNormal =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-committee-normal"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pCommitteeNoConfidence =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-committee-no-confidence"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pUpdateToConstitution =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-update-to-constitution"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pHardForkInitiation =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-hard-fork-initiation"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pPPNetworkGroup =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-pp-network-group"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pPPEconomicGroup =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-pp-economic-group"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pPPTechnicalGroup =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-pp-technical-group"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pPPGovGroup =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-pp-governance-group"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pTreasuryWithdrawal =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-treasury-withdrawal"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+
+pMinCommitteeSize :: Parser Natural
+pMinCommitteeSize =
+  Opt.option Opt.auto $ mconcat
+    [ Opt.long "min-committee-size"
+    , Opt.metavar "INT"
+    , Opt.help "TODO"
+    ]
+
+pCommitteeTermLength :: Parser Natural
+pCommitteeTermLength =
+  Opt.option Opt.auto $ mconcat
+    [ Opt.long "committee-term-length"
+    , Opt.metavar "INT"
+    , Opt.help "TODO"
+    ]
+
+pGovActionLifetime :: Parser EpochNo
+pGovActionLifetime =
+  fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
+    [ Opt.long "governance-action-lifetime"
+    , Opt.metavar "NATURAL"
+    , Opt.help "TODO"
+    ]
+
+pDRepDeposit :: Parser Lovelace
+pDRepDeposit =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "drep-deposit"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "TODO"
+    ]
+
+pDRepActivity :: Parser EpochNo
+pDRepActivity =
+  fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
+    [ Opt.long "drep-activity"
+    , Opt.metavar "NATURAL"
+    , Opt.help "TODO"
+    ]
 
 parseTxOutAnyEra
   :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)

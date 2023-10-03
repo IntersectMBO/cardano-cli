@@ -10,9 +10,9 @@ certificates:
     - amount: 1000 Lovelace
       stake credential key hash: ee475cade27e95faf1093541b0783498016cdcfba0d6441055b2dfcb
 - stake address deregistration:
-    key hash: d0efd9836e62225a47baf9bedfeaccbb86ba3f49d9edc4ac0aa26df5
+    keyHash: d0efd9836e62225a47baf9bedfeaccbb86ba3f49d9edc4ac0aa26df5
 - stake address registration:
-    key hash: c6ea7e348d300b32798888497290db24a99a36f2238ed9668f602d7a
+    keyHash: c6ea7e348d300b32798888497290db24a99a36f2238ed9668f602d7a
 - stake pool retirement:
     epoch: 42
     pool: pool13lllruv6rd63l70vkpgye2ea856f22k8xhujmf2vvlul5ytw7mx
@@ -27,7 +27,7 @@ certificates:
     relays: []
     rewardAccount:
       credential:
-        key hash: f25fc5c9f341ec3bd785ddea746f76b6a9ac7f38fdd7aef1779bbe81
+        keyHash: f25fc5c9f341ec3bd785ddea746f76b6a9ac7f38fdd7aef1779bbe81
       network: Mainnet
     vrf: 8d445260282cef45e4c6a862b8a924aeed1b316ccba779dd39f9517220e96407
 collateral inputs: null
