@@ -619,6 +619,7 @@ data SomeSigningWitness
   | AGenesisDelegateExtendedSigningWitness  (SigningKey GenesisDelegateExtendedKey)
   | AGenesisUTxOSigningWitness              (SigningKey GenesisUTxOKey)
   | ADRepSigningWitness                     (SigningKey DRepKey)
+  | ACommitteeSigningWitness                (SigningKey CommitteeColdKey)
 
 
 -- | Data required for constructing a Shelley bootstrap witness.
@@ -652,6 +653,7 @@ categoriseSomeSigningWitness swsk =
     AGenesisDelegateExtendedSigningWitness  sk      -> AShelleyKeyWitness (WitnessGenesisDelegateExtendedKey      sk)
     AGenesisUTxOSigningWitness              sk      -> AShelleyKeyWitness (WitnessGenesisUTxOKey                  sk)
     ADRepSigningWitness                     sk      -> AShelleyKeyWitness (WitnessPaymentKey $ castDrep           sk)
+    ACommitteeSigningWitness                sk      -> AShelleyKeyWitness (WitnessCommitteeColdKey                sk)
 
 -- TODO: Conway era - Add constrctor for SigningKey DrepKey to ShelleyWitnessSigningKey
 castDrep :: SigningKey DRepKey -> SigningKey PaymentKey
@@ -704,6 +706,7 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
       , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey ) AGenesisDelegateExtendedSigningWitness
       , FromSomeType (AsSigningKey AsGenesisUTxOKey             ) AGenesisUTxOSigningWitness
       , FromSomeType (AsSigningKey AsDRepKey                    ) ADRepSigningWitness
+      , FromSomeType (AsSigningKey AsCommitteeColdKey           ) ACommitteeSigningWitness
       ]
 
     bech32FileTypes =
