@@ -14,18 +14,18 @@ import           Data.Text (Text)
 
 data LegacyGovernanceCmds
   = GovernanceMIRPayStakeAddressesCertificate
-      (AnyEraInEon ShelleyToBabbageEra)
+      (EraInEon ShelleyToBabbageEra)
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
   | GovernanceMIRTransfer
-      (AnyEraInEon ShelleyToBabbageEra)
+      (EraInEon ShelleyToBabbageEra)
       Lovelace
       (File () Out)
       TransferDirection
   | GovernanceGenesisKeyDelegationCertificate
-      (AnyEraInEon ShelleyBasedEra)
+      (EraInEon ShelleyBasedEra)
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)

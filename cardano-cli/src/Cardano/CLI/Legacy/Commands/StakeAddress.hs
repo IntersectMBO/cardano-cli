@@ -29,17 +29,17 @@ data LegacyStakeAddressCmds
       NetworkId
       (Maybe (File () Out))
   | StakeAddressRegistrationCertificateCmd
-      (AnyEraInEon ShelleyBasedEra)
+      (EraInEon ShelleyBasedEra)
       StakeIdentifier
       (Maybe Lovelace)
       (File () Out)
   | StakeAddressDelegationCertificateCmd
-      (AnyEraInEon ShelleyBasedEra)
+      (EraInEon ShelleyBasedEra)
       StakeIdentifier
       (VerificationKeyOrHashOrFile StakePoolKey)
       (File () Out)
   | StakeAddressDeregistrationCertificateCmd
-      (AnyEraInEon ShelleyBasedEra)
+      (EraInEon ShelleyBasedEra)
       StakeIdentifier
       (Maybe Lovelace)
       (File () Out)

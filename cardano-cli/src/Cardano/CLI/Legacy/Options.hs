@@ -1463,6 +1463,6 @@ pLegacyCardanoEra envCli =
     , pure $ pure defaultCardanoEra
   ]
     where
-      defaultCardanoEra = defaultShelleyBasedEra & \(AnyEraInEon era) ->
+      defaultCardanoEra = defaultShelleyBasedEra & \(EraInEon era) ->
         let cera = toCardanoEra era
          in cardanoEraConstraints cera (AnyCardanoEra cera)

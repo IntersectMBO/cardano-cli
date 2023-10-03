@@ -56,32 +56,32 @@ runLegacyGovernanceCmds = \case
     runLegacyGovernanceVerifyPoll poll metadata mOutFile
 
 runLegacyGovernanceMIRCertificatePayStakeAddrs
-  :: AnyEraInEon ShelleyToBabbageEra
+  :: EraInEon ShelleyToBabbageEra
   -> Ledger.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceMIRCertificatePayStakeAddrs (AnyEraInEon w) =
+runLegacyGovernanceMIRCertificatePayStakeAddrs (EraInEon w) =
   runGovernanceMIRCertificatePayStakeAddrs w
 
 runLegacyGovernanceMIRCertificateTransfer
-  :: AnyEraInEon ShelleyToBabbageEra
+  :: EraInEon ShelleyToBabbageEra
   -> Lovelace
   -> File () Out
   -> TransferDirection
   -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceMIRCertificateTransfer (AnyEraInEon w) =
+runLegacyGovernanceMIRCertificateTransfer (EraInEon w) =
   runGovernanceMIRCertificateTransfer w
 
 runLegacyGovernanceGenesisKeyDelegationCertificate
-  :: AnyEraInEon ShelleyBasedEra
+  :: EraInEon ShelleyBasedEra
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceGenesisKeyDelegationCertificate (AnyEraInEon sbe)
+runLegacyGovernanceGenesisKeyDelegationCertificate (EraInEon sbe)
                                              genVkOrHashOrFp
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
