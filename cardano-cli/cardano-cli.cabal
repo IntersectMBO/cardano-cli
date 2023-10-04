@@ -358,15 +358,15 @@ test-suite cardano-cli-golden
   build-tool-depends:   cardano-cli:cardano-cli
                       , tasty-discover:tasty-discover
 
-  other-modules:        Test.Golden.Babbage.Governance.AnswerPoll
-                        Test.Golden.Babbage.Governance.CreatePoll
-                        Test.Golden.Babbage.Governance.VerifyPoll
-                        Test.Golden.Byron.SigningKeys
+  other-modules:        Test.Golden.Byron.SigningKeys
                         Test.Golden.Byron.Tx
                         Test.Golden.Byron.TxBody
                         Test.Golden.Byron.UpdateProposal
                         Test.Golden.Byron.Vote
                         Test.Golden.Byron.Witness
+                        Test.Golden.EraBased.Governance.AnswerPoll
+                        Test.Golden.EraBased.Governance.CreatePoll
+                        Test.Golden.EraBased.Governance.VerifyPoll
                         Test.Golden.ErrorsSpec
                         Test.Golden.Governance.Action
                         Test.Golden.Governance.Committee

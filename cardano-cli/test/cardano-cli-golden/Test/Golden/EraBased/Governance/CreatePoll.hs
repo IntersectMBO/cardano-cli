@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Babbage.Governance.CreatePoll where
+module Test.Golden.EraBased.Governance.CreatePoll where
 
 import           Control.Monad (void)
 
@@ -13,8 +13,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_babbageGovernanceCreatePoll :: Property
-hprop_golden_babbageGovernanceCreatePoll =
+hprop_golden_governanceCreatePoll :: Property
+hprop_golden_governanceCreatePoll =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     pollFile <- noteTempFile tempDir "poll.json"
 
@@ -27,14 +27,14 @@ hprop_golden_babbageGovernanceCreatePoll =
       ]
 
     void $ H.readFile pollFile
-    noteInputFile "test/cardano-cli-golden/files/golden/babbage/governance/create/basic.json"
+    noteInputFile "test/cardano-cli-golden/files/golden/governance/create/basic.json"
       >>= H.readFile
       >>= (H.===) stdout
     H.assertFileOccurences 1 "GovernancePoll" pollFile
     H.assertEndsWithSingleNewline pollFile
 
-hprop_golden_babbageGovernanceCreateLongPoll :: Property
-hprop_golden_babbageGovernanceCreateLongPoll =
+hprop_golden_governanceCreateLongPoll :: Property
+hprop_golden_governanceCreateLongPoll =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     pollFile <- noteTempFile tempDir "poll.json"
 
@@ -47,7 +47,7 @@ hprop_golden_babbageGovernanceCreateLongPoll =
       ]
 
     void $ H.readFile pollFile
-    noteInputFile "test/cardano-cli-golden/files/golden/babbage/governance/create/long-text.json"
+    noteInputFile "test/cardano-cli-golden/files/golden/governance/create/long-text.json"
       >>= H.readFile
       >>= (H.===) stdout
     H.assertFileOccurences 1 "GovernancePoll" pollFile
