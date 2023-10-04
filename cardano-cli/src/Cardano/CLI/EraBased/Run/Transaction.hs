@@ -71,6 +71,7 @@ import           Data.Type.Equality (TestEquality (..))
 import           Lens.Micro ((^.))
 import qualified System.IO as IO
 
+
 runTransactionCmds :: TransactionCmds era -> ExceptT TxCmdError IO ()
 runTransactionCmds cmd =
   case cmd of
@@ -173,13 +174,13 @@ runTxBuildCmd
               readFileTextEnvelope AsCertificate (File certFile))
           | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
           ]
-  withdrawalsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
-                                     $ readScriptWitnessFilesThruple era wdrls
-  txMetadata <- firstExceptT TxCmdMetadataError
-                  . newExceptT $ readTxMetadata era metadataSchema metadataFiles
+  withdrawalsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $
+    readScriptWitnessFilesThruple era wdrls
+  txMetadata <- firstExceptT TxCmdMetadataError . newExceptT $
+    readTxMetadata era metadataSchema metadataFiles
   valuesWithScriptWits <- readValueScriptWitnesses era $ fromMaybe mempty mValue
   scripts <- firstExceptT TxCmdScriptFileError $
-                     mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
+    mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
   txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts era scripts
 
   mProp <- forM mUpProp $ \(UpdateProposalFile upFp) ->
@@ -517,12 +518,12 @@ runTxBuild
       dummyFee = Just $ Lovelace 0
       inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
 
-  -- Pure
   let allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
                              (snd valuesWithScriptWits)
                              certsAndMaybeScriptWits
-                             withdrawals readOnlyRefIns
+                             withdrawals
+                             readOnlyRefIns
 
   validatedCollateralTxIns <- hoistEither $ validateTxInsCollateral era txinsc
   validatedRefInputs <- hoistEither $ validateTxInsReference era allReferenceInputs
