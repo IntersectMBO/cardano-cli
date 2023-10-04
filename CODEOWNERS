@@ -21,5 +21,5 @@ README.*                                                      @input-output-hk/d
 
 *.nix                                                         @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
 flake.lock                                                    @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
-.github/workflows                                             @input-output-hk/core-tech-devx @input-output-hk/core-tech-release @input-output-hk/core-tech
+.github/workflows                                             @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
 configuration/                                                @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
