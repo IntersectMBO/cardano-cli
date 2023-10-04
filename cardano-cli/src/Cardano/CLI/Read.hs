@@ -653,8 +653,7 @@ categoriseSomeSigningWitness swsk =
     AGenesisDelegateExtendedSigningWitness  sk      -> AShelleyKeyWitness (WitnessGenesisDelegateExtendedKey      sk)
     AGenesisUTxOSigningWitness              sk      -> AShelleyKeyWitness (WitnessGenesisUTxOKey                  sk)
     ADRepSigningWitness                     sk      -> AShelleyKeyWitness (WitnessPaymentKey $ castDrep           sk)
-    ACommitteeSigningWitness               _sk      -> error "TODO"
-                                                    -- AShelleyKeyWitness (WitnessCommitteeColdKey                sk)
+    ACommitteeSigningWitness                sk      -> AShelleyKeyWitness (WitnessCommitteeColdKey                sk)
 
 -- TODO: Conway era - Add constrctor for SigningKey DrepKey to ShelleyWitnessSigningKey
 castDrep :: SigningKey DRepKey -> SigningKey PaymentKey
