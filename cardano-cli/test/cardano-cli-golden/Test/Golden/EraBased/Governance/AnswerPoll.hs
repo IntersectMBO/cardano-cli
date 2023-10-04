@@ -16,7 +16,7 @@ import qualified Hedgehog.Extras.Test.Golden as H
 
 hprop_golden_governanceAnswerPollNeg1Invalid :: Property
 hprop_golden_governanceAnswerPollNeg1Invalid = propertyOnce . H.moduleWorkspace "governance-answer-poll" $ \tempDir -> do
-  pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.json"
+  pollFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/polls/basic.json"
   outFile <- H.noteTempFile tempDir "answer-file.json"
 
   result <- tryExecCardanoCLI
@@ -32,8 +32,8 @@ hprop_golden_governanceAnswerPollNeg1Invalid = propertyOnce . H.moduleWorkspace 
 
 hprop_golden_governanceAnswerPoll0 :: Property
 hprop_golden_governanceAnswerPoll0 = propertyOnce . H.moduleWorkspace "governance-answer-poll" $ \tempDir -> do
-  pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.json"
-  expectedAnswerFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.answer.0.json"
+  pollFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/polls/basic.json"
+  goldenAnswerFile <- H.note "test/cardano-cli-golden/files/golden/governance/polls/basic.answer.0.json"
   outFile <- H.noteTempFile tempDir "answer-file.json"
 
   void $ execCardanoCLI
@@ -43,12 +43,12 @@ hprop_golden_governanceAnswerPoll0 = propertyOnce . H.moduleWorkspace "governanc
     , "--out-file", outFile
     ]
 
-  H.diffFileVsGoldenFile outFile expectedAnswerFile
+  H.diffFileVsGoldenFile outFile goldenAnswerFile
 
 hprop_golden_governanceAnswerPollPos1 :: Property
 hprop_golden_governanceAnswerPollPos1 = propertyOnce . H.moduleWorkspace "governance-answer-poll" $ \tempDir -> do
-  pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.json"
-  expectedAnswerFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.answer.1.json"
+  pollFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/polls/basic.json"
+  goldenAnswerFile <- H.note "test/cardano-cli-golden/files/golden/governance/polls/basic.answer.1.json"
   outFile <- H.noteTempFile tempDir "answer-file.json"
 
   void $ execCardanoCLI
@@ -58,11 +58,11 @@ hprop_golden_governanceAnswerPollPos1 = propertyOnce . H.moduleWorkspace "govern
     , "--out-file", outFile
     ]
 
-  H.diffFileVsGoldenFile outFile expectedAnswerFile
+  H.diffFileVsGoldenFile outFile goldenAnswerFile
 
 hprop_golden_governanceAnswerPollPos2Invalid :: Property
 hprop_golden_governanceAnswerPollPos2Invalid = propertyOnce . H.moduleWorkspace "governance-answer-poll" $ \tempDir -> do
-  pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.json"
+  pollFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/polls/basic.json"
   outFile <- H.noteTempFile tempDir "answer-file.json"
 
   result <- tryExecCardanoCLI

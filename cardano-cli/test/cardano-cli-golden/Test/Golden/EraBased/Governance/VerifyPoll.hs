@@ -16,15 +16,16 @@ import           Test.Cardano.CLI.Util
 import           Hedgehog (Property)
 import qualified Hedgehog as H
 import qualified Hedgehog.Internal.Property as H
+import qualified Hedgehog.Extras as H
 
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_governanceVerifyPoll :: Property
 hprop_golden_governanceVerifyPoll = propertyOnce $ do
-  pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.json"
-  txFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/verify/valid"
-  vkFile <- VerificationKeyFilePath . File <$>
-    noteInputFile "test/cardano-cli-golden/files/golden/governance/cold.vk"
+  pollFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/polls/basic.json"
+  txFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/verify/valid"
+  goldenVkFile <- VerificationKeyFilePath . File <$>
+    H.note "test/cardano-cli-golden/files/golden/governance/cold.vk"
 
   stdout <- BSC.pack <$> execCardanoCLI
     [ "babbage", "governance", "verify-poll"
@@ -32,7 +33,7 @@ hprop_golden_governanceVerifyPoll = propertyOnce $ do
     , "--tx-file", txFile
     ]
 
-  liftIO (readVerificationKeyOrTextEnvFile AsStakePoolKey vkFile) >>= \case
+  liftIO (readVerificationKeyOrTextEnvFile AsStakePoolKey goldenVkFile) >>= \case
     Left e ->
       H.failWith Nothing (displayError e)
     Right vk -> do
@@ -41,8 +42,8 @@ hprop_golden_governanceVerifyPoll = propertyOnce $ do
 
 hprop_golden_governanceVerifyPollMismatch :: Property
 hprop_golden_governanceVerifyPollMismatch = propertyOnce $ do
-  pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.json"
-  txFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/verify/mismatch"
+  pollFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/polls/basic.json"
+  txFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/verify/mismatch"
 
   result <- tryExecCardanoCLI
     [ "babbage", "governance", "verify-poll"
@@ -54,8 +55,8 @@ hprop_golden_governanceVerifyPollMismatch = propertyOnce $ do
 
 hprop_golden_governanceVerifyPollNoAnswer :: Property
 hprop_golden_governanceVerifyPollNoAnswer = propertyOnce $ do
-  pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.json"
-  txFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/verify/none"
+  pollFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/polls/basic.json"
+  txFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/verify/none"
 
   result <- tryExecCardanoCLI
     [ "babbage", "governance", "verify-poll"
@@ -67,8 +68,8 @@ hprop_golden_governanceVerifyPollNoAnswer = propertyOnce $ do
 
 hprop_golden_governanceVerifyPollMalformedAnswer :: Property
 hprop_golden_governanceVerifyPollMalformedAnswer = propertyOnce $ do
-  pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.json"
-  txFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/verify/malformed"
+  pollFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/polls/basic.json"
+  txFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/verify/malformed"
 
   result <- tryExecCardanoCLI
     [ "babbage", "governance", "verify-poll"
@@ -80,8 +81,8 @@ hprop_golden_governanceVerifyPollMalformedAnswer = propertyOnce $ do
 
 hprop_golden_governanceVerifyPollInvalidAnswer :: Property
 hprop_golden_governanceVerifyPollInvalidAnswer = propertyOnce $ do
-  pollFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/polls/basic.json"
-  txFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/verify/invalid"
+  pollFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/polls/basic.json"
+  txFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/verify/invalid"
 
   result <- tryExecCardanoCLI
     [ "babbage", "governance", "verify-poll"

@@ -27,7 +27,7 @@ hprop_golden_governanceCreatePoll =
       ]
 
     void $ H.readFile pollFile
-    noteInputFile "test/cardano-cli-golden/files/golden/governance/create/basic.json"
+    noteInputFile "test/cardano-cli-golden/files/input/governance/create/basic.json"
       >>= H.readFile
       >>= (H.===) stdout
     H.assertFileOccurences 1 "GovernancePoll" pollFile
@@ -47,7 +47,7 @@ hprop_golden_governanceCreateLongPoll =
       ]
 
     void $ H.readFile pollFile
-    noteInputFile "test/cardano-cli-golden/files/golden/governance/create/long-text.json"
+    noteInputFile "test/cardano-cli-golden/files/input/governance/create/long-text.json"
       >>= H.readFile
       >>= (H.===) stdout
     H.assertFileOccurences 1 "GovernancePoll" pollFile
