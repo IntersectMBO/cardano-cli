@@ -35,7 +35,7 @@ runLegacyStakePoolCmds = \case
 -- TODO: Metadata and more stake pool relay support to be
 -- added in the future.
 runLegacyStakePoolRegistrationCertificateCmd :: ()
-  => AnyEraInEon ShelleyBasedEra
+  => EraInEon ShelleyBasedEra
   -> VerificationKeyOrFile StakePoolKey
   -- ^ Stake pool verification key.
   -> VerificationKeyOrFile VrfKey
@@ -58,17 +58,17 @@ runLegacyStakePoolRegistrationCertificateCmd :: ()
   -> File () Out
   -> ExceptT StakePoolCmdError IO ()
 runLegacyStakePoolRegistrationCertificateCmd = \case
-  AnyEraInEon sbe ->
+  EraInEon sbe ->
     runStakePoolRegistrationCertificateCmd sbe
 
 runLegacyStakePoolDeregistrationCertificateCmd :: ()
-  => AnyEraInEon ShelleyBasedEra
+  => EraInEon ShelleyBasedEra
   -> VerificationKeyOrFile StakePoolKey
   -> Shelley.EpochNo
   -> File () Out
   -> ExceptT StakePoolCmdError IO ()
 runLegacyStakePoolDeregistrationCertificateCmd = \case
-  AnyEraInEon sbe ->
+  EraInEon sbe ->
     runStakePoolRetirementCertificateCmd sbe
 
 runLegacyStakePoolIdCmd :: ()

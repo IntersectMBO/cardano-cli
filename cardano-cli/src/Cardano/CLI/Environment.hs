@@ -11,7 +11,7 @@ module Cardano.CLI.Environment
   , getEnvSocketPath
   ) where
 
-import           Cardano.Api (AnyCardanoEra (..), AnyEraInEon (..), CardanoEra (..), NetworkId (..),
+import           Cardano.Api (AnyCardanoEra (..), CardanoEra (..), EraInEon (..), NetworkId (..),
                    NetworkMagic (..), ShelleyBasedEra (..), ShelleyToBabbageEra (..),
                    forEraInEonMaybe)
 
@@ -38,15 +38,15 @@ getEnvCli = do
     , envCliAnyCardanoEra = mCardanoEra
     }
 
-envCliAnyShelleyBasedEra :: EnvCli -> Maybe (AnyEraInEon ShelleyBasedEra)
+envCliAnyShelleyBasedEra :: EnvCli -> Maybe (EraInEon ShelleyBasedEra)
 envCliAnyShelleyBasedEra envCli = do
   AnyCardanoEra era <- envCliAnyCardanoEra envCli
-  forEraInEonMaybe era AnyEraInEon
+  forEraInEonMaybe era EraInEon
 
-envCliAnyShelleyToBabbageEra :: EnvCli -> Maybe (AnyEraInEon ShelleyToBabbageEra)
+envCliAnyShelleyToBabbageEra :: EnvCli -> Maybe (EraInEon ShelleyToBabbageEra)
 envCliAnyShelleyToBabbageEra envCli = do
   AnyCardanoEra era <- envCliAnyCardanoEra envCli
-  forEraInEonMaybe era AnyEraInEon
+  forEraInEonMaybe era EraInEon
 
 -- | If the environment variable @CARDANO_NODE_NETWORK_ID@ is set, then return the network id therein.
 -- Otherwise, return 'Nothing'.
