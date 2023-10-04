@@ -19,7 +19,6 @@ import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
-import qualified Cardano.Ledger.Conway.Governance as Ledger
 
 import           Control.Monad
 import           Control.Monad.Except (ExceptT)
