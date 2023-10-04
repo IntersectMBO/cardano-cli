@@ -1,5 +1,66 @@
 # Changelog for cardano-cli
 
+## 8.11.0.0
+
+- Fix missing redeemers in certificate delegation and deregistration
+  (bugfix)
+  [PR 306](https://github.com/input-output-hk/cardano-cli/pull/306)
+
+- Upgrade to `cardano-api-8.25.0.1`
+  (compatible, maintenance)
+  [PR 329](https://github.com/input-output-hk/cardano-cli/pull/329)
+
+- Update to cardano-api-8.24
+  (feature)
+  [PR 324](https://github.com/input-output-hk/cardano-cli/pull/324)
+
+- Add Cold Committee Key text envelope
+  (bugfix)
+  [PR 323](https://github.com/input-output-hk/cardano-cli/pull/323)
+
+- Update to `cardano-api-8.23.1.0`
+  (feature, compatible)
+  [PR 320](https://github.com/input-output-hk/cardano-cli/pull/320)
+
+- Tidy up query command structure
+  (compatible, improvement)
+  [PR 318](https://github.com/input-output-hk/cardano-cli/pull/318)
+
+- - Remove SPO registration bits from drep registration-certificate command
+  - Remove drep command from eras before Conway
+  - Remove `AnyRegistrationTarget`
+  - Remove `RegistrationTarget`
+  (breaking, improvement)
+  [PR 309](https://github.com/input-output-hk/cardano-cli/pull/309)
+
+- Use `caseShelleyToBabbageOrConwayEraOnwards` from `cardano-api`
+  (compatible, improvement)
+  [PR 317](https://github.com/input-output-hk/cardano-cli/pull/317)
+
+- Remove redundant conversions in JSON friendly instances
+  (improvement)
+  [PR 280](https://github.com/input-output-hk/cardano-cli/pull/280)
+
+- Regularise era based command structure
+  (improvement)
+  [PR 279](https://github.com/input-output-hk/cardano-cli/pull/279)
+
+- Simplify era handling
+  (improvement)
+  [PR 277](https://github.com/input-output-hk/cardano-cli/pull/277)
+
+- A number of flags appeared in the parameters of new-committee multiple times, with the same long flag, making the parser break. This PR disambiguates the repeated occurences.
+  (breaking)
+  [PR 302](https://github.com/input-output-hk/cardano-cli/pull/302)
+
+- Implementation of the create-info command
+  (feature)
+  [PR 292](https://github.com/input-output-hk/cardano-cli/pull/292)
+
+- Update to the pre-commit script, so that it fails on hlint errors
+  (improvement)
+  [PR 296](https://github.com/input-output-hk/cardano-cli/pull/296)
+
 ## 8.10.0.0
 
 - Rename `SomeWitness` to `SomeSigningWitness`.  Rename constructors to avoid name conflicts.  Move to `Key` module.
