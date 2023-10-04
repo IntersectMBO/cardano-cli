@@ -14,8 +14,12 @@ import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Parser
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.BaseTypes as L
+import qualified Cardano.Ledger.Crypto as Crypto
+import qualified Cardano.Ledger.SafeHash as L
 
 import           Control.Applicative
 import           Data.Foldable
@@ -88,13 +92,35 @@ pRegistrationCertificateCmd era = do
   w <- forEraMaybeEon era
   pure
     $ subParser "registration-certificate"
-    $ Opt.info (mkParser w)
+    $ Opt.info (conwayEraOnwardsConstraints w $ mkParser w)
     $ Opt.progDesc "Create a registration certificate."
  where
   mkParser w = GovernanceDRepRegistrationCertificateCmd w
         <$> pDRepVerificationKeyOrHashOrFile
         <*> pKeyRegistDeposit
+        <*> pDRepMetadata
         <*> pOutputFile
+
+pDRepMetadata :: Parser (Maybe (L.Anchor Crypto.StandardCrypto))
+pDRepMetadata =
+  optional $
+    L.Anchor
+      <$> fmap unAnchorUrl pDrepMetadataUrl
+      <*> pDrepMetadataHash
+
+pDrepMetadataUrl :: Parser AnchorUrl
+pDrepMetadataUrl =
+  AnchorUrl
+    <$> pUrl "drep-metadata-url" "DRep anchor URL"
+
+pDrepMetadataHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pDrepMetadataHash =
+  Opt.option readSafeHash $ mconcat
+    [ Opt.long "drep-metadata-hash"
+    , Opt.metavar "HASH"
+    , Opt.help "DRep anchor data hash."
+    ]
+
 
 --------------------------------------------------------------------------------
 

@@ -41,9 +41,10 @@ runGovernanceDRepCmds = \case
     runGovernanceDRepIdCmd w vkey idOutputFormat mOutFp
       & firstExceptT CmdGovernanceCmdError
 
-  GovernanceDRepRegistrationCertificateCmd w vkey lovelace outFp ->
-    runGovernanceRegistrationCertificateCmd w vkey lovelace outFp
-      & firstExceptT CmdRegistrationError
+  GovernanceDRepRegistrationCertificateCmd w vkey lovelace anchor outFp ->
+    conwayEraOnwardsConstraints w $ do
+      runGovernanceRegistrationCertificateCmd w vkey lovelace anchor outFp
+        & firstExceptT CmdRegistrationError
 
 runGovernanceDRepIdCmd :: ()
   => ConwayEraOnwards era
@@ -72,18 +73,17 @@ runGovernanceRegistrationCertificateCmd
   :: ConwayEraOnwards era
   -> VerificationKeyOrHashOrFile DRepKey
   -> Lovelace
+  -> Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era)))
   -> File () Out
   -> ExceptT RegistrationError IO ()
-runGovernanceRegistrationCertificateCmd cOnwards drepKOrHOrF deposit outfp = do
+runGovernanceRegistrationCertificateCmd cOnwards drepKOrHOrF deposit anchor outfp = do
     DRepKeyHash drepKeyHash <- firstExceptT RegistrationReadError
       . newExceptT
       $ readVerificationKeyOrHashOrFile AsDRepKey drepKOrHOrF
     let drepCred = Ledger.KeyHashObj $ conwayEraOnwardsConstraints cOnwards drepKeyHash
         votingCredential = VotingCredential drepCred
         req = DRepRegistrationRequirements cOnwards votingCredential deposit
-        registrationCert = makeDrepRegistrationCertificate req
-          -- TODO https://github.com/input-output-hk/cardano-cli/issues/198#issuecomment-1739874922
-          Nothing
+        registrationCert = makeDrepRegistrationCertificate req anchor
         description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
 
     firstExceptT RegistrationWriteFileError
