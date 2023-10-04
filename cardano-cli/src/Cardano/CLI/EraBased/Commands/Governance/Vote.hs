@@ -3,17 +3,31 @@
 
 module Cardano.CLI.EraBased.Commands.Governance.Vote
   ( GovernanceVoteCmds(..)
+  , AnyVoteViewCmd(..)
   , renderGovernanceVoteCmds
   ) where
 
+
+import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Governance
 
 import           Data.Text (Text)
 
-newtype GovernanceVoteCmds era
+data GovernanceVoteCmds era
   = GovernanceVoteCreateCmd
       AnyVote
+  | GovernanceVoteViewCmd
+      (AnyVoteViewCmd era)
+
+data AnyVoteViewCmd era
+  = AnyVoteViewCmd
+    { governanceVoteViewCmdYamlOutput :: Bool
+    , governanceVoteViewCmdEra :: ConwayEraOnwards era
+    , governanceVoteViewCmdVoteFile :: VoteFile In
+    , governanceVoteViewCmdOutputFile :: Maybe (File () Out)
+    }
+
 
 renderGovernanceVoteCmds :: ()
   => GovernanceVoteCmds era
@@ -21,3 +35,5 @@ renderGovernanceVoteCmds :: ()
 renderGovernanceVoteCmds = \case
   GovernanceVoteCreateCmd {} ->
     "governance vote create"
+  GovernanceVoteViewCmd {} ->
+    "governance vote view"

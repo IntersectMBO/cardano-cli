@@ -20,12 +20,9 @@ pGovernanceVoteCmds :: ()
   -> Maybe (Parser (GovernanceVoteCmds era))
 pGovernanceVoteCmds era =
   subInfoParser "vote"
-    ( Opt.progDesc
-        $ mconcat
-          [ "Vote commands."
-          ]
-    )
-    [ pGovernanceVoteCreateCmd era
+    (Opt.progDesc "Vote commands.")
+    [ pGovernanceVoteCreateCmd era,
+      pGovernanceVoteViewCmd era
     ]
 
 pGovernanceVoteCreateCmd :: ()
@@ -54,3 +51,29 @@ pAnyVotingStakeVerificationKeyOrHashOrFile =
   asum [ AnyDRepVerificationKeyOrHashOrFile <$> pDRepVerificationKeyOrHashOrFile
        , AnyStakePoolVerificationKeyOrHashOrFile <$> pStakePoolVerificationKeyOrHashOrFile Nothing
        ]
+
+pGovernanceVoteViewCmd :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceVoteCmds era))
+pGovernanceVoteViewCmd era = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "view"
+    $ Opt.info
+        (GovernanceVoteViewCmd <$> pAnyVoteViewCmd w)
+    $ Opt.progDesc "Vote viewing."
+
+pAnyVoteViewCmd :: ConwayEraOnwards era -> Parser (AnyVoteViewCmd era)
+pAnyVoteViewCmd cOnwards =
+  AnyVoteViewCmd
+    <$> pYamlOutput
+    <*> pure cOnwards
+    <*> pFileInDirection "vote-file" "Input filepath of the vote."
+    <*> pMaybeOutputFile
+  where
+    pYamlOutput :: Parser Bool
+    pYamlOutput =
+      Opt.switch
+        ( Opt.long "yaml"
+            <> Opt.help "Output vote in YAML format (and not JSON)."
+        )

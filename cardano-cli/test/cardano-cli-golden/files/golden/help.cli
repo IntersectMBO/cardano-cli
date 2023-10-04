@@ -6525,7 +6525,7 @@ Usage: cardano-cli conway governance drep registration-certificate
 
   Create a registration certificate.
 
-Usage: cardano-cli conway governance vote create
+Usage: cardano-cli conway governance vote (create | view)
 
   Vote commands.
 
@@ -6542,6 +6542,12 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    --out-file FILE
 
   Vote creation.
+
+Usage: cardano-cli conway governance vote view [--yaml]
+                                                 --vote-file FILE
+                                                 [--out-file FILE]
+
+  Vote viewing.
 
 Usage: cardano-cli conway node 
                                  ( key-gen
