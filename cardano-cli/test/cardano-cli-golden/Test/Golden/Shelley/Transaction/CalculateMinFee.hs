@@ -13,8 +13,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 hprop_golden_shelleyTransactionCalculateMinFee :: Property
 hprop_golden_shelleyTransactionCalculateMinFee = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  protocolParamsJsonFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/transaction-calculate-min-fee/protocol-params.json"
-  txBodyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/tx/txbody"
+  protocolParamsJsonFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-calculate-min-fee/protocol-params.json"
+  txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
   minFeeTxtFile <- noteTempFile tempDir "min-fee.txt"
 
   minFeeTxt <- execCardanoCLI

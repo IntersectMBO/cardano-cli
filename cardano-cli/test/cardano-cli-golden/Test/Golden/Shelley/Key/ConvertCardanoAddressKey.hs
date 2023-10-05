@@ -7,9 +7,10 @@ import           Data.Text (Text)
 
 import           Test.Cardano.CLI.Util
 
-import           Hedgehog (Property, (===))
+import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
+import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -67,12 +68,8 @@ hprop_golden_convertCardanoAddressByronSigningKey =
 
     -- Check that the contents of the converted signing key file match that of
     -- the golden file.
-    actualConvertedSigningKey <- H.readFile convertedSigningKeyFp
-    expectedConvertedSigningKey <-
-      H.readFile $
-        "test/cardano-cli-golden/files/golden/shelley/keys/converted_cardano-address_keys/"
-          <> "byron_signing_key"
-    expectedConvertedSigningKey === actualConvertedSigningKey
+    H.diffFileVsGoldenFile convertedSigningKeyFp
+      "test/cardano-cli-golden/files/golden/shelley/keys/converted_cardano-address_keys/byron_signing_key"
 
 -- | Test that converting a @cardano-address@ Icarus signing key yields the
 -- expected result.
@@ -104,12 +101,8 @@ hprop_golden_convertCardanoAddressIcarusSigningKey =
 
     -- Check that the contents of the converted signing key file match that of
     -- the golden file.
-    actualConvertedSigningKey <- H.readFile convertedSigningKeyFp
-    expectedConvertedSigningKey <-
-      H.readFile $
-        "test/cardano-cli-golden/files/golden/shelley/keys/converted_cardano-address_keys/"
-          <> "icarus_signing_key"
-    expectedConvertedSigningKey === actualConvertedSigningKey
+    H.diffFileVsGoldenFile convertedSigningKeyFp
+      "test/cardano-cli-golden/files/golden/shelley/keys/converted_cardano-address_keys/icarus_signing_key"
 
 -- | Test that converting a @cardano-address@ Shelley payment signing key
 -- yields the expected result.
@@ -142,12 +135,8 @@ hprop_golden_convertCardanoAddressShelleyPaymentSigningKey =
 
     -- Check that the contents of the converted signing key file match that of
     -- the golden file.
-    actualConvertedSigningKey <- H.readFile convertedSigningKeyFp
-    expectedConvertedSigningKey <-
-      H.readFile $
-        "test/cardano-cli-golden/files/golden/shelley/keys/converted_cardano-address_keys/"
-          <> "shelley_payment_signing_key"
-    expectedConvertedSigningKey === actualConvertedSigningKey
+    H.diffFileVsGoldenFile convertedSigningKeyFp
+      "test/cardano-cli-golden/files/golden/shelley/keys/converted_cardano-address_keys/shelley_payment_signing_key"
 
 -- | Test that converting a @cardano-address@ Shelley stake signing key yields
 -- the expected result.
@@ -180,9 +169,5 @@ hprop_golden_convertCardanoAddressShelleyStakeSigningKey =
 
     -- Check that the contents of the converted signing key file match that of
     -- the golden file.
-    actualConvertedSigningKey <- H.readFile convertedSigningKeyFp
-    expectedConvertedSigningKey <-
-      H.readFile $
-        "test/cardano-cli-golden/files/golden/shelley/keys/converted_cardano-address_keys/"
-          <> "shelley_stake_signing_key"
-    expectedConvertedSigningKey === actualConvertedSigningKey
+    H.diffFileVsGoldenFile convertedSigningKeyFp
+      "test/cardano-cli-golden/files/golden/shelley/keys/converted_cardano-address_keys/shelley_stake_signing_key"

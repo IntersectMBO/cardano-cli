@@ -274,7 +274,9 @@ library cardano-cli-test-lib
                       , bytestring
                       , cardano-api
                       , cardano-cli
+                      , directory
                       , exceptions
+                      , filepath
                       , hedgehog
                       , hedgehog-extras ^>= 0.4.7.0
                       , process

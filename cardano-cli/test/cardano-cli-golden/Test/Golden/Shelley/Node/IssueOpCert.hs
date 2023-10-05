@@ -14,9 +14,9 @@ import qualified Hedgehog.Extras.Test.File as H
 
 hprop_golden_shelleyNodeIssueOpCert :: Property
 hprop_golden_shelleyNodeIssueOpCert = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  hotKesVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/kes_keys/verification_key"
-  coldSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_delegate_keys/signing_key"
-  originalOperationalCertificateIssueCounterFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_delegate_keys/operational_certificate_counter"
+  hotKesVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/kes_keys/verification_key"
+  coldSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/signing_key"
+  originalOperationalCertificateIssueCounterFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/operational_certificate_counter"
   operationalCertificateIssueCounterFile <- noteTempFile tempDir "delegate-op-cert.counter"
   operationalCertFile <- noteTempFile tempDir "operational.cert"
 

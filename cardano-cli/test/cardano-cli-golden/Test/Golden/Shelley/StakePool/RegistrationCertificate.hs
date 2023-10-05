@@ -14,9 +14,9 @@ import qualified Hedgehog.Extras.Test.File as H
 
 hprop_golden_shelleyStakePoolRegistrationCertificate :: Property
 hprop_golden_shelleyStakePoolRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  operatorVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/node-pool/operator.vkey"
-  vrfVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/node-pool/vrf.vkey"
-  ownerVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/node-pool/owner.vkey"
+  operatorVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/operator.vkey"
+  vrfVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/vrf.vkey"
+  ownerVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/owner.vkey"
   registrationCertFile <- noteTempFile tempDir "registration.cert"
 
   void $ execCardanoCLI

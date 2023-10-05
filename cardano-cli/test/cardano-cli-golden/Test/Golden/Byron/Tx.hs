@@ -22,10 +22,10 @@ import           Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_byronTx_legacy :: Property
-hprop_golden_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/legacy.skey"
-  goldenTx <- noteInputFile "test/cardano-cli-golden/files/golden/byron/tx/legacy.tx"
+hprop_byronTx_legacy :: Property
+hprop_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
+  expectedTx <- noteInputFile "test/cardano-cli-golden/files/input/byron/tx/legacy.tx"
   createdTx <- noteTempFile tempDir "tx"
   void $ execCardanoCLI
     [ "byron", "transaction", "issue-utxo-expenditure"
@@ -37,12 +37,12 @@ hprop_golden_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir 
     , "--txout", "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
     ]
 
-  compareByronTxs createdTx goldenTx
+  compareByronTxs createdTx expectedTx
 
-hprop_golden_byronTx :: Property
-hprop_golden_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
-  goldenTx <- noteInputFile "test/cardano-cli-golden/files/golden/byron/tx/normal.tx"
+hprop_byronTx :: Property
+hprop_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
+  expectedTx <- noteInputFile "test/cardano-cli-golden/files/input/byron/tx/normal.tx"
   createdTx <- noteTempFile tempDir "tx"
   void $ execCardanoCLI
     [ "byron", "transaction", "issue-utxo-expenditure"
@@ -54,7 +54,7 @@ hprop_golden_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     , "--txout", "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
     ]
 
-  compareByronTxs createdTx goldenTx
+  compareByronTxs createdTx expectedTx
 
 getTxByteString :: FilePath -> H.PropertyT IO (ATxAux ByteString)
 getTxByteString txFp = do
@@ -64,8 +64,8 @@ getTxByteString txFp = do
     Right aTxAuxBS -> return aTxAuxBS
 
 compareByronTxs :: FilePath -> FilePath -> H.PropertyT IO ()
-compareByronTxs createdTx goldenTx = do
+compareByronTxs createdTx expectedTx = do
   createdATxAuxBS <- getTxByteString createdTx
-  goldenATxAuxBS <- getTxByteString goldenTx
+  expectedATxAuxBS <- getTxByteString expectedTx
 
-  normalByronTxToGenTx goldenATxAuxBS === normalByronTxToGenTx createdATxAuxBS
+  normalByronTxToGenTx expectedATxAuxBS === normalByronTxToGenTx createdATxAuxBS

@@ -22,10 +22,10 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   let era = BabbageEra
 
   -- Reference files
-  referenceRegistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_registration_certificate"
-  referenceDeregistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_deregistration_certificate"
-  referenceDelegationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_delegation_certificate"
-  operatorVkey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/node-pool/operator.vkey"
+  referenceRegistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_registration_certificate"
+  referenceDeregistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_deregistration_certificate"
+  referenceDelegationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_delegation_certificate"
+  operatorVkey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/operator.vkey"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "stake-verification-key-file"

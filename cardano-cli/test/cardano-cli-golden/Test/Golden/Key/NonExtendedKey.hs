@@ -5,6 +5,7 @@ module Test.Golden.Key.NonExtendedKey where
 import           Control.Monad (void)
 import           System.FilePath ((</>))
 
+import qualified Test.Cardano.CLI.Util as H
 import           Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
 
 import           Hedgehog (Property)
@@ -19,7 +20,7 @@ import qualified Hedgehog.Extras.Test.Golden as H
 hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey :: Property
 hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    genesisVKeyFp <- H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/shelley.000.vkey"
+    genesisVKeyFp <- H.noteInputFile "test/cardano-cli-golden/files/input/key/non-extended-keys/shelley.000.vkey"
     nonExtendedFp <-  H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-shelley.000.vkey"
     outFp <- H.note $ tempDir </> "non-extended-shelley.000.vkey"
 
@@ -42,7 +43,7 @@ hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey =
 hprop_golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley :: Property
 hprop_golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    genesisVKeyFp <- H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/stake.000.vkey"
+    genesisVKeyFp <- H.noteInputFile "test/cardano-cli-golden/files/input/key/non-extended-keys/stake.000.vkey"
     nonExtendedFp <-  H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-stake.000.vkey"
     outFp <- H.note $ tempDir </> "non-extended-stake.000.vkey"
 

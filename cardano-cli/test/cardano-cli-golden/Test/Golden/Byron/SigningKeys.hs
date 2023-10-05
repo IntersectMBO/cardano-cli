@@ -32,21 +32,21 @@ import           Hedgehog.Internal.Property (failWith)
 
 hprop_deserialise_legacy_signing_Key :: Property
 hprop_deserialise_legacy_signing_Key = propertyOnce $ do
-  legSkeyBs <- H.evalIO $ LB.readFile "test/cardano-cli-golden/files/golden/byron/keys/legacy.skey"
+  legSkeyBs <- H.evalIO $ LB.readFile "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
   case deserialiseFromBytes decodeLegacyDelegateKey legSkeyBs of
     Left deSerFail -> failWith Nothing $ show deSerFail
     Right _ -> success
 
 hprop_deserialise_nonLegacy_signing_Key :: Property
 hprop_deserialise_nonLegacy_signing_Key = propertyOnce $ do
-  skeyBs <- H.evalIO $ LB.readFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
+  skeyBs <- H.evalIO $ LB.readFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
   case deserialiseFromBytes Crypto.fromCBORXPrv skeyBs of
     Left deSerFail -> failWith Nothing $ show deSerFail
     Right _ -> success
 
 hprop_print_legacy_signing_key_address :: Property
 hprop_print_legacy_signing_key_address = propertyOnce $ do
-  let legKeyFp = "test/cardano-cli-golden/files/golden/byron/keys/legacy.skey"
+  let legKeyFp = "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
 
   void $ execCardanoCLI
    [ "signing-key-address", "--byron-legacy-formats"
@@ -62,7 +62,7 @@ hprop_print_legacy_signing_key_address = propertyOnce $ do
 
 hprop_print_nonLegacy_signing_key_address :: Property
 hprop_print_nonLegacy_signing_key_address = propertyOnce $ do
-  let nonLegKeyFp = "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
+  let nonLegKeyFp = "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
 
   void $ execCardanoCLI
    [ "signing-key-address", "--byron-formats"
@@ -86,7 +86,7 @@ hprop_generate_and_read_nonlegacy_signingkeys = property $ do
 hprop_migrate_legacy_to_nonlegacy_signingkeys :: Property
 hprop_migrate_legacy_to_nonlegacy_signingkeys =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    let legKeyFp = "test/cardano-cli-golden/files/golden/byron/keys/legacy.skey"
+    let legKeyFp = "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
     nonLegacyKeyFp <- noteTempFile tempDir "nonlegacy.skey"
 
     void $ execCardanoCLI
@@ -104,14 +104,14 @@ hprop_migrate_legacy_to_nonlegacy_signingkeys =
 
 hprop_deserialise_NonLegacy_Signing_Key_API :: Property
 hprop_deserialise_NonLegacy_Signing_Key_API = propertyOnce $ do
-  eFailOrWit <- H.evalIO . runExceptT $ readByronSigningKey NonLegacyByronKeyFormat "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
+  eFailOrWit <- H.evalIO . runExceptT $ readByronSigningKey NonLegacyByronKeyFormat "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
   case eFailOrWit of
     Left keyFailure -> failWith Nothing $ show keyFailure
     Right _ -> success
 
 hprop_deserialiseLegacy_Signing_Key_API :: Property
 hprop_deserialiseLegacy_Signing_Key_API = propertyOnce $ do
-  eFailOrWit <- H.evalIO . runExceptT $ readByronSigningKey LegacyByronKeyFormat "test/cardano-cli-golden/files/golden/byron/keys/legacy.skey"
+  eFailOrWit <- H.evalIO . runExceptT $ readByronSigningKey LegacyByronKeyFormat "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
   case eFailOrWit of
     Left keyFailure -> failWith Nothing $ show keyFailure
     Right _ -> success
