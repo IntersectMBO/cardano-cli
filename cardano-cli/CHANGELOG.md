@@ -1,5 +1,23 @@
 # Changelog for cardano-cli
 
+## 8.12.0.0
+
+- Add support for committee hot key witnesses
+  (feature, compatible)
+  [PR 338](https://github.com/input-output-hk/cardano-cli/pull/338)
+
+- Make it possible to use cc hot keys for `conway governance vote create`
+  (feature, compatible)
+  [PR 337](https://github.com/input-output-hk/cardano-cli/pull/337)
+
+- Move files that are not golden files into `input` directory
+  (compatible, improvement)
+  [PR 327](https://github.com/input-output-hk/cardano-cli/pull/327)
+
+- create-poll, answer-poll, verify-poll: move to 'babbage governance' block
+  (breaking, improvement)
+  [PR 322](https://github.com/input-output-hk/cardano-cli/pull/322)
+
 ## 8.11.0.0
 
 - Fix missing redeemers in certificate delegation and deregistration
