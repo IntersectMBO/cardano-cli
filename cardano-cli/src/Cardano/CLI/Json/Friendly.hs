@@ -301,7 +301,7 @@ friendlyCertificates sbe = \case
   TxCertificates _ cs _ -> array $ map (friendlyCertificate sbe) cs
 
 friendlyCertificate :: ShelleyBasedEra era -> Certificate era -> Aeson.Value
-friendlyCertificate sbe = withShelleyBasedEraConstraintsForLedger sbe $
+friendlyCertificate sbe = shelleyBasedEraConstraints sbe $
   object . (: []) . renderCertificate sbe
 
 renderCertificate :: ShelleyBasedEra era -> Certificate era -> (Aeson.Key, Aeson.Value)
