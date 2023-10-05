@@ -814,17 +814,25 @@ pAnyVerificationKeySource helpText =
 
 pCommitteeHotKey :: Parser (VerificationKey CommitteeHotKey)
 pCommitteeHotKey =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option (Opt.eitherReader deserialiseHotCCKeyFromHex) $ mconcat
     [ Opt.long "hot-key"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee hot key (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeHotKey)
-    deserialiseFromHex =
-      first (\e -> "Invalid Constitutional Committee hot key: " ++ displayError e)
-        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey)
-        . BSC.pack
+
+pCommitteeHotVerificationKey :: Parser (VerificationKey CommitteeHotKey)
+pCommitteeHotVerificationKey =
+  Opt.option (Opt.eitherReader deserialiseHotCCKeyFromHex) $ mconcat
+    [ Opt.long "cc-hot-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee hot key (hex-encoded)."
+    ]
+
+deserialiseHotCCKeyFromHex :: String -> Either String (VerificationKey CommitteeHotKey)
+deserialiseHotCCKeyFromHex =
+  first (\e -> "Invalid Constitutional Committee hot key: " ++ displayError e)
+    . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey)
+    . BSC.pack
 
 pCommitteeHotKeyFile :: Parser (VerificationKeyFile In)
 pCommitteeHotKeyFile =
@@ -835,10 +843,20 @@ pCommitteeHotKeyFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pCommitteeHotKeyHash :: Parser (Hash CommitteeHotKey)
-pCommitteeHotKeyHash =
+pCommitteeHotVerificationKeyFile :: Parser (VerificationKeyFile In)
+pCommitteeHotVerificationKeyFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "cc-hot-verification-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the Consitutional Committee hot key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+-- | The first argument is the optional prefix.
+pCommitteeHotKeyHash :: Maybe String -> Parser (Hash CommitteeHotKey)
+pCommitteeHotKeyHash prefix =
   Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
-    [ Opt.long "hot-key-hash"
+    [ Opt.long $ prefixFlag prefix "hot-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]
@@ -860,7 +878,15 @@ pCommitteeHotKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeHot
 pCommitteeHotKeyOrHashOrFile =
   asum
     [ VerificationKeyOrFile <$> pCommitteeHotKeyOrFile
-    , VerificationKeyHash <$> pCommitteeHotKeyHash
+    , VerificationKeyHash <$> pCommitteeHotKeyHash Nothing
+    ]
+
+pCommitteeHotVerificationKeyOrHashOrVerificationFile :: Parser (VerificationKeyOrHashOrFile CommitteeHotKey)
+pCommitteeHotVerificationKeyOrHashOrVerificationFile =
+  asum
+    [ VerificationKeyOrFile . VerificationKeyValue <$> pCommitteeHotVerificationKey,
+      VerificationKeyOrFile . VerificationKeyFilePath <$> pCommitteeHotVerificationKeyFile,
+      VerificationKeyHash <$> pCommitteeHotKeyHash (Just "cc")
     ]
 
 catCommands :: [Parser a] -> Maybe (Parser a)

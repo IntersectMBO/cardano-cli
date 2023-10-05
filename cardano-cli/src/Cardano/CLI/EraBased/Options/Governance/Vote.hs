@@ -53,4 +53,5 @@ pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationK
 pAnyVotingStakeVerificationKeyOrHashOrFile =
   asum [ AnyDRepVerificationKeyOrHashOrFile <$> pDRepVerificationKeyOrHashOrFile
        , AnyStakePoolVerificationKeyOrHashOrFile <$> pStakePoolVerificationKeyOrHashOrFile Nothing
+       , AnyCommitteeHotVerificationKeyOrHashOrFile <$> pCommitteeHotVerificationKeyOrHashOrVerificationFile
        ]
