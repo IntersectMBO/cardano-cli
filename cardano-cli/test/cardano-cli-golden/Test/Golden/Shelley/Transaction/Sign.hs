@@ -19,6 +19,7 @@ hprop_golden_shelleyTransactionSign = propertyOnce $ H.moduleWorkspace "tmp" $ \
   utxoSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-sign/utxo.skey"
   stakeSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-sign/stake.skey"
   nodeColdSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-sign/node-cold.skey"
+  ccHotSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/cc-hot.skey"
   signedTransactionFile <- noteTempFile tempDir "signed.tx"
   transactionPoolRegSignedFile <- noteTempFile tempDir "tx-pool-reg.signed"
 
@@ -59,6 +60,17 @@ hprop_golden_shelleyTransactionSign = propertyOnce $ H.moduleWorkspace "tmp" $ \
     , "--signing-key-file", utxoSigningKeyFile
     , "--signing-key-file", stakeSigningKeyFile
     , "--signing-key-file", nodeColdSigningKeyFile
+    , "--tx-file", transactionPoolRegSignedFile
+    ]
+
+  H.assertFileOccurences 1 "Tx MaryEra" transactionPoolRegSignedFile
+  H.assertEndsWithSingleNewline transactionPoolRegSignedFile
+
+  void $ execCardanoCLI
+    [ "transaction","sign"
+    , "--mainnet"
+    , "--tx-body-file", txBodyFile
+    , "--signing-key-file", ccHotSigningKeyFile
     , "--tx-file", transactionPoolRegSignedFile
     ]
 

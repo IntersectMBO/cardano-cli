@@ -620,7 +620,8 @@ data SomeSigningWitness
   | AGenesisDelegateExtendedSigningWitness  (SigningKey GenesisDelegateExtendedKey)
   | AGenesisUTxOSigningWitness              (SigningKey GenesisUTxOKey)
   | ADRepSigningWitness                     (SigningKey DRepKey)
-  | ACommitteeSigningWitness                (SigningKey CommitteeColdKey)
+  | ACommitteeColdSigningWitness            (SigningKey CommitteeColdKey)
+  | ACommitteeHotSigningWitness             (SigningKey CommitteeHotKey)
   deriving Show
 
 
@@ -655,7 +656,8 @@ categoriseSomeSigningWitness swsk =
     AGenesisDelegateExtendedSigningWitness  sk      -> AShelleyKeyWitness (WitnessGenesisDelegateExtendedKey      sk)
     AGenesisUTxOSigningWitness              sk      -> AShelleyKeyWitness (WitnessGenesisUTxOKey                  sk)
     ADRepSigningWitness                     sk      -> AShelleyKeyWitness (WitnessPaymentKey $ castDrep           sk)
-    ACommitteeSigningWitness                sk      -> AShelleyKeyWitness (WitnessCommitteeColdKey                sk)
+    ACommitteeColdSigningWitness            sk      -> AShelleyKeyWitness (WitnessCommitteeColdKey                sk)
+    ACommitteeHotSigningWitness             sk      -> AShelleyKeyWitness (WitnessCommitteeHotKey                 sk)
 
 -- TODO: Conway era - Add constrctor for SigningKey DrepKey to ShelleyWitnessSigningKey
 castDrep :: SigningKey DRepKey -> SigningKey PaymentKey
@@ -708,7 +710,8 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
       , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey ) AGenesisDelegateExtendedSigningWitness
       , FromSomeType (AsSigningKey AsGenesisUTxOKey             ) AGenesisUTxOSigningWitness
       , FromSomeType (AsSigningKey AsDRepKey                    ) ADRepSigningWitness
-      , FromSomeType (AsSigningKey AsCommitteeColdKey           ) ACommitteeSigningWitness
+      , FromSomeType (AsSigningKey AsCommitteeColdKey           ) ACommitteeColdSigningWitness
+      , FromSomeType (AsSigningKey AsCommitteeHotKey            ) ACommitteeHotSigningWitness
       ]
 
     bech32FileTypes =
