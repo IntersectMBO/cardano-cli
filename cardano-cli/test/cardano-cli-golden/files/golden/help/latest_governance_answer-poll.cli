@@ -1,6 +1,6 @@
-Usage: cardano-cli governance answer-poll --poll-file FILE
-                                            [--answer INT]
-                                            [--out-file FILE]
+Usage: cardano-cli latest governance answer-poll --poll-file FILE
+                                                   [--answer INT]
+                                                   [--out-file FILE]
 
   Answer an SPO poll
 

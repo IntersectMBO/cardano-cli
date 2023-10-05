@@ -1,7 +1,7 @@
-Usage: cardano-cli governance create-poll --question STRING
-                                            (--answer STRING)
-                                            [--nonce UINT]
-                                            --out-file FILE
+Usage: cardano-cli babbage governance create-poll --question STRING
+                                                    (--answer STRING)
+                                                    [--nonce UINT]
+                                                    --out-file FILE
 
   Create an SPO poll
 

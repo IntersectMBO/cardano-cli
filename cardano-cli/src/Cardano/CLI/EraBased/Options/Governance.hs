@@ -15,6 +15,7 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Governance.DRep
+import           Cardano.CLI.EraBased.Options.Governance.Poll
 import           Cardano.CLI.EraBased.Options.Governance.Query
 import           Cardano.CLI.EraBased.Options.Governance.Vote
 import           Cardano.CLI.Types.Common
@@ -39,6 +40,7 @@ pGovernanceCmds era envCli =
     , fmap GovernanceActionCmds       <$> pGovernanceActionCmds era
     , fmap GovernanceCommitteeCmds    <$> pGovernanceCommitteeCmds era
     , fmap GovernanceDRepCmds         <$> pGovernanceDRepCmds era
+    , fmap GovernancePollCmds         <$> pGovernancePollCmds era
     , fmap GovernanceVoteCmds         <$> pGovernanceVoteCmds era
     ]
 

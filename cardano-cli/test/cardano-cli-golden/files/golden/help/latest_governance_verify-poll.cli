@@ -1,4 +1,4 @@
-Usage: cardano-cli legacy governance verify-poll --poll-file FILE
+Usage: cardano-cli latest governance verify-poll --poll-file FILE
                                                    --tx-file FILE
                                                    [--out-file FILE]
 
