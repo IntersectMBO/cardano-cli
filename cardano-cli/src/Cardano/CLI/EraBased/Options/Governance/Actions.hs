@@ -32,7 +32,7 @@ pGovernanceActionCmds era =
           ]
     )
     [ pGovernanceActionNewConstitutionCmd era
-    , pGovernanceActionNewCommitteeCmd era
+    , pGovernanceActionUpdateCommitteeCmd era
     , pGovernanceActionNewInfoCmd era
     , pGovernanceActionNoConfidenceCmd era
     , pGovernanceActionProtocolParametersUpdateCmd era
@@ -81,22 +81,22 @@ pGovernanceActionNewConstitutionCmd era = do
         )
     $ Opt.progDesc "Create a constitution."
 
-pGovernanceActionNewCommitteeCmd
+pGovernanceActionUpdateCommitteeCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
-pGovernanceActionNewCommitteeCmd era = do
+pGovernanceActionUpdateCommitteeCmd era = do
   cOn <- forEraMaybeEon era
   pure
-    $ subParser "create-new-committee"
+    $ subParser "update-committee"
     $ Opt.info
-      ( GoveranceActionCreateNewCommitteeCmd cOn
-          <$> pNewCommitteeCmd
+      ( GoveranceActionUpdateCommitteeCmd cOn
+          <$> pUpdateCommitteeCmd
       )
-    $ Opt.progDesc "Create a new committee proposal."
+    $ Opt.progDesc "Create or update a new committee proposal."
 
-pNewCommitteeCmd :: Parser NewCommitteeCmd
-pNewCommitteeCmd =
-  NewCommitteeCmd
+pUpdateCommitteeCmd :: Parser UpdateCommitteeCmd
+pUpdateCommitteeCmd =
+  UpdateCommitteeCmd
     <$> pNetwork
     <*> pGovActionDeposit
     <*> pAnyStakeIdentifier Nothing
