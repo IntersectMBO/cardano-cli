@@ -6546,6 +6546,8 @@ Usage: cardano-cli conway governance drep registration-certificate
                                                                      | --drep-key-hash HASH
                                                                      )
                                                                      --key-reg-deposit-amt NATURAL
+                                                                     [--drep-metadata-url TEXT
+                                                                       --drep-metadata-hash HASH]
                                                                      --out-file FILE
 
   Create a registration certificate.
