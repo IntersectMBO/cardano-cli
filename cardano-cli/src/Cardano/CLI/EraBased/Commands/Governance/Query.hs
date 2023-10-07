@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -35,26 +36,26 @@ data GovernanceQueryCmds era
   deriving Show
 
 data NoArgQueryCmd = NoArgQueryCmd
-  { naSocketPath          :: !SocketPath
-  , naConsensusModeParams :: !AnyConsensusModeParams
-  , naNetworkId           :: !NetworkId
-  , naOutputFile          :: !(Maybe (File () Out))
+  { socketPath          :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , outputFile          :: !(Maybe (File () Out))
   } deriving Show
 
 data DRepStateQueryCmd = DRepStateQueryCmd
-  { dsSocketPath          :: !SocketPath
-  , dsConsensusModeParams :: !AnyConsensusModeParams
-  , dsNetworkId           :: !NetworkId
-  , dsDRepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
-  , dsOutputFile          :: !(Maybe (File () Out))
+  { socketPath          :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
+  , outputFile          :: !(Maybe (File () Out))
   } deriving Show
 
 data DRepStakeDistributionQueryCmd = DRepStakeDistributionQueryCmd
-  { dsdSocketPath          :: !SocketPath
-  , dsdConsensusModeParams :: !AnyConsensusModeParams
-  , dsdNetworkId           :: !NetworkId
-  , dsdDRepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
-  , dsdOutputFile          :: !(Maybe (File () Out))
+  { socketPath          :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
+  , outputFile          :: !(Maybe (File () Out))
   } deriving Show
 
 renderGovernanceQueryCmds :: GovernanceQueryCmds era -> Text
