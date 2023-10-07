@@ -27,6 +27,7 @@ module Cardano.CLI.EraBased.Run.Transaction
   , runTransactionViewCmd
   , runTransactionWitnessCmd
   , runTransactionSignWitnessCmd
+  , toTxOutInAnyEra
   ) where
 
 import           Cardano.Api
