@@ -39,17 +39,16 @@ runGovernanceQueryCmds
   :: Cmd.GovernanceQueryCmds era
   -> ExceptT CmdError IO ()
 runGovernanceQueryCmds = firstExceptT CmdGovernanceQueryError . \case
-  Cmd.GovernanceQueryConstitutionCmd cOn args           -> runQueryConstitution cOn args
-  Cmd.GovernanceQueryGovStateCmd cOn args               -> runQueryGovState cOn args
-  Cmd.GovernanceQueryDRepStateCmd cOn args              -> runQueryDRepState cOn args
-  Cmd.GovernanceQueryDRepStakeDistributionCmd cOn args  -> runQueryDRepStakeDistribution cOn args
-  Cmd.GovernanceQueryCommitteeStateCmd cOn args         -> runQueryCommitteeState cOn args
+  Cmd.GovernanceQueryConstitutionCmd args           -> runQueryConstitution args
+  Cmd.GovernanceQueryGovStateCmd args               -> runQueryGovState args
+  Cmd.GovernanceQueryDRepStateCmd args              -> runQueryDRepState args
+  Cmd.GovernanceQueryDRepStakeDistributionCmd args  -> runQueryDRepStakeDistribution args
+  Cmd.GovernanceQueryCommitteeStateCmd args         -> runQueryCommitteeState args
 
 runQueryConstitution
-  :: ConwayEraOnwards era
-  -> Cmd.NoArgQueryCmd
+  :: Cmd.NoArgQueryCmd era
   -> ExceptT GovernanceQueryError IO ()
-runQueryConstitution w (Cmd.NoArgQueryCmd socketPath (AnyConsensusModeParams cModeParams) network mFile) = conwayEraOnwardsConstraints w $ do
+runQueryConstitution (Cmd.NoArgQueryCmd w socketPath (AnyConsensusModeParams cModeParams) network mFile) = conwayEraOnwardsConstraints w $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
       sbe = conwayEraOnwardsToShelleyBasedEra w
       cEra = conwayEraOnwardsToCardanoEra w
@@ -62,10 +61,9 @@ runQueryConstitution w (Cmd.NoArgQueryCmd socketPath (AnyConsensusModeParams cMo
   writeOutput mFile constitution
 
 runQueryGovState
-  :: ConwayEraOnwards era
-  -> Cmd.NoArgQueryCmd
+  :: Cmd.NoArgQueryCmd era
   -> ExceptT GovernanceQueryError IO ()
-runQueryGovState w (Cmd.NoArgQueryCmd socketPath (AnyConsensusModeParams cModeParams) network mFile) = conwayEraOnwardsConstraints w $ do
+runQueryGovState (Cmd.NoArgQueryCmd w socketPath (AnyConsensusModeParams cModeParams) network mFile) = conwayEraOnwardsConstraints w $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
       sbe = conwayEraOnwardsToShelleyBasedEra w
       cEra = conwayEraOnwardsToCardanoEra w
@@ -78,10 +76,9 @@ runQueryGovState w (Cmd.NoArgQueryCmd socketPath (AnyConsensusModeParams cModePa
   writeOutput mFile govState
 
 runQueryDRepState
-  :: ConwayEraOnwards era
-  -> Cmd.DRepStateQueryCmd
+  :: Cmd.DRepStateQueryCmd era
   -> ExceptT GovernanceQueryError IO ()
-runQueryDRepState w (Cmd.DRepStateQueryCmd socketPath (AnyConsensusModeParams cModeParams) network drepKeys mFile) = conwayEraOnwardsConstraints w $ do
+runQueryDRepState (Cmd.DRepStateQueryCmd w socketPath (AnyConsensusModeParams cModeParams) network drepKeys mFile) = conwayEraOnwardsConstraints w $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
       sbe = conwayEraOnwardsToShelleyBasedEra w
       cEra = conwayEraOnwardsToCardanoEra w
@@ -103,10 +100,9 @@ runQueryDRepState w (Cmd.DRepStateQueryCmd socketPath (AnyConsensusModeParams cM
       ]
 
 runQueryDRepStakeDistribution
-  :: ConwayEraOnwards era
-  -> Cmd.DRepStakeDistributionQueryCmd
+  :: Cmd.DRepStakeDistributionQueryCmd era
   -> ExceptT GovernanceQueryError IO ()
-runQueryDRepStakeDistribution w (Cmd.DRepStakeDistributionQueryCmd socketPath (AnyConsensusModeParams cModeParams) network drepKeys mFile) = conwayEraOnwardsConstraints w $ do
+runQueryDRepStakeDistribution (Cmd.DRepStakeDistributionQueryCmd w socketPath (AnyConsensusModeParams cModeParams) network drepKeys mFile) = conwayEraOnwardsConstraints w $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
       sbe = conwayEraOnwardsToShelleyBasedEra w
       cEra = conwayEraOnwardsToCardanoEra w
@@ -125,10 +121,9 @@ runQueryDRepStakeDistribution w (Cmd.DRepStakeDistributionQueryCmd socketPath (A
     Map.assocs drepStakeDistribution
 
 runQueryCommitteeState
-  :: ConwayEraOnwards era
-  -> Cmd.NoArgQueryCmd
+  :: Cmd.NoArgQueryCmd era
   -> ExceptT GovernanceQueryError IO ()
-runQueryCommitteeState w (Cmd.NoArgQueryCmd socketPath (AnyConsensusModeParams cModeParams) network mFile) = conwayEraOnwardsConstraints w $ do
+runQueryCommitteeState (Cmd.NoArgQueryCmd w socketPath (AnyConsensusModeParams cModeParams) network mFile) = conwayEraOnwardsConstraints w $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
       sbe = conwayEraOnwardsToShelleyBasedEra w
       cEra = conwayEraOnwardsToCardanoEra w
@@ -167,4 +162,3 @@ writeOutput mFile content = case mFile of
   Just (File f) ->
     handleIOExceptT (GovernanceQueryWriteFileError . FileIOError f) $
       LBS.writeFile f (encodePretty content)
-

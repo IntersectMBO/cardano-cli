@@ -18,40 +18,33 @@ import           Cardano.CLI.Types.Key
 import           Data.Text (Text)
 
 data GovernanceQueryCmds era
-  = GovernanceQueryConstitutionCmd
-      (ConwayEraOnwards era)
-      NoArgQueryCmd
-  | GovernanceQueryGovStateCmd
-      (ConwayEraOnwards era)
-      NoArgQueryCmd
-  | GovernanceQueryDRepStateCmd
-      (ConwayEraOnwards era)
-      DRepStateQueryCmd
-  | GovernanceQueryDRepStakeDistributionCmd
-      (ConwayEraOnwards era)
-      DRepStakeDistributionQueryCmd
-  | GovernanceQueryCommitteeStateCmd
-      (ConwayEraOnwards era)
-      NoArgQueryCmd
+  = GovernanceQueryConstitutionCmd            (NoArgQueryCmd era)
+  | GovernanceQueryGovStateCmd                (NoArgQueryCmd era)
+  | GovernanceQueryDRepStateCmd               (DRepStateQueryCmd era)
+  | GovernanceQueryDRepStakeDistributionCmd   (DRepStakeDistributionQueryCmd era)
+  | GovernanceQueryCommitteeStateCmd          (NoArgQueryCmd era)
   deriving Show
 
-data NoArgQueryCmd = NoArgQueryCmd
-  { socketPath          :: !SocketPath
+data NoArgQueryCmd era = NoArgQueryCmd
+  { cmdEon              :: ConwayEraOnwards era
+  , socketPath          :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
   , networkId           :: !NetworkId
   , outputFile          :: !(Maybe (File () Out))
   } deriving Show
 
-data DRepStateQueryCmd = DRepStateQueryCmd
-  { socketPath          :: !SocketPath
+data DRepStateQueryCmd era = DRepStateQueryCmd
+  { cmdEon              :: ConwayEraOnwards era
+  , socketPath          :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
   , networkId           :: !NetworkId
   , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
   , outputFile          :: !(Maybe (File () Out))
   } deriving Show
 
-data DRepStakeDistributionQueryCmd = DRepStakeDistributionQueryCmd
-  { socketPath          :: !SocketPath
+data DRepStakeDistributionQueryCmd era = DRepStakeDistributionQueryCmd
+  { cmdEon              :: ConwayEraOnwards era
+  , socketPath          :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
   , networkId           :: !NetworkId
   , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
