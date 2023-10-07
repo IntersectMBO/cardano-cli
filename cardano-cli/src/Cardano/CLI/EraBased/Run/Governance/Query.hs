@@ -1,5 +1,6 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
@@ -48,7 +49,14 @@ runGovernanceQueryCmds = firstExceptT CmdGovernanceQueryError . \case
 runQueryConstitution
   :: Cmd.NoArgQueryCmd era
   -> ExceptT GovernanceQueryError IO ()
-runQueryConstitution (Cmd.NoArgQueryCmd w socketPath (AnyConsensusModeParams cModeParams) network mFile) = conwayEraOnwardsConstraints w $ do
+runQueryConstitution
+    Cmd.NoArgQueryCmd
+      { Cmd.cmdEon = w
+      , Cmd.socketPath = socketPath
+      , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
+      , Cmd.networkId = network
+      , Cmd.outputFile = mFile
+      } = conwayEraOnwardsConstraints w $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
       sbe = conwayEraOnwardsToShelleyBasedEra w
       cEra = conwayEraOnwardsToCardanoEra w
@@ -63,7 +71,14 @@ runQueryConstitution (Cmd.NoArgQueryCmd w socketPath (AnyConsensusModeParams cMo
 runQueryGovState
   :: Cmd.NoArgQueryCmd era
   -> ExceptT GovernanceQueryError IO ()
-runQueryGovState (Cmd.NoArgQueryCmd w socketPath (AnyConsensusModeParams cModeParams) network mFile) = conwayEraOnwardsConstraints w $ do
+runQueryGovState
+    Cmd.NoArgQueryCmd
+      { Cmd.cmdEon = w
+      , Cmd.socketPath = socketPath
+      , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
+      , Cmd.networkId = network
+      , Cmd.outputFile = mFile
+      } = conwayEraOnwardsConstraints w $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
       sbe = conwayEraOnwardsToShelleyBasedEra w
       cEra = conwayEraOnwardsToCardanoEra w
@@ -78,7 +93,15 @@ runQueryGovState (Cmd.NoArgQueryCmd w socketPath (AnyConsensusModeParams cModePa
 runQueryDRepState
   :: Cmd.DRepStateQueryCmd era
   -> ExceptT GovernanceQueryError IO ()
-runQueryDRepState (Cmd.DRepStateQueryCmd w socketPath (AnyConsensusModeParams cModeParams) network drepKeys mFile) = conwayEraOnwardsConstraints w $ do
+runQueryDRepState
+    Cmd.DRepStateQueryCmd
+      { Cmd.cmdEon = w
+      , Cmd.socketPath = socketPath
+      , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
+      , Cmd.networkId = network
+      , Cmd.drepKeys = drepKeys
+      , Cmd.outputFile = mFile
+      } = conwayEraOnwardsConstraints w $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
       sbe = conwayEraOnwardsToShelleyBasedEra w
       cEra = conwayEraOnwardsToCardanoEra w
@@ -102,7 +125,15 @@ runQueryDRepState (Cmd.DRepStateQueryCmd w socketPath (AnyConsensusModeParams cM
 runQueryDRepStakeDistribution
   :: Cmd.DRepStakeDistributionQueryCmd era
   -> ExceptT GovernanceQueryError IO ()
-runQueryDRepStakeDistribution (Cmd.DRepStakeDistributionQueryCmd w socketPath (AnyConsensusModeParams cModeParams) network drepKeys mFile) = conwayEraOnwardsConstraints w $ do
+runQueryDRepStakeDistribution
+    Cmd.DRepStakeDistributionQueryCmd
+      { Cmd.cmdEon = w
+      , Cmd.socketPath = socketPath
+      , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
+      , Cmd.networkId = network
+      , Cmd.drepKeys = drepKeys
+      , Cmd.outputFile = mFile
+      } = conwayEraOnwardsConstraints w $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
       sbe = conwayEraOnwardsToShelleyBasedEra w
       cEra = conwayEraOnwardsToCardanoEra w
@@ -123,7 +154,15 @@ runQueryDRepStakeDistribution (Cmd.DRepStakeDistributionQueryCmd w socketPath (A
 runQueryCommitteeState
   :: Cmd.NoArgQueryCmd era
   -> ExceptT GovernanceQueryError IO ()
-runQueryCommitteeState (Cmd.NoArgQueryCmd w socketPath (AnyConsensusModeParams cModeParams) network mFile) = conwayEraOnwardsConstraints w $ do
+runQueryCommitteeState
+    Cmd.NoArgQueryCmd
+      { Cmd.cmdEon = w
+      , Cmd.socketPath = socketPath
+      , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
+      , Cmd.networkId = network
+      , Cmd.outputFile = mFile
+      }
+    = conwayEraOnwardsConstraints w $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
       sbe = conwayEraOnwardsToShelleyBasedEra w
       cEra = conwayEraOnwardsToCardanoEra w
