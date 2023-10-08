@@ -5,6 +5,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -47,64 +48,64 @@ runGovernanceQueryCmds = firstExceptT CmdGovernanceQueryError . \case
   Cmd.GovernanceQueryCommitteeStateCmd args         -> runQueryCommitteeState args
 
 runQueryConstitution
-  :: Cmd.NoArgQueryCmd era
+  :: Cmd.QueryNoArgCmdArgs era
   -> ExceptT GovernanceQueryError IO ()
 runQueryConstitution
-    Cmd.NoArgQueryCmd
-      { Cmd.cmdEon = w
-      , Cmd.socketPath = socketPath
+    Cmd.QueryNoArgCmdArgs
+      { Cmd.eon
+      , Cmd.nodeSocketPath
       , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
-      , Cmd.networkId = network
-      , Cmd.outputFile = mFile
-      } = conwayEraOnwardsConstraints w $ do
-  let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
-      sbe = conwayEraOnwardsToShelleyBasedEra w
-      cEra = conwayEraOnwardsToCardanoEra w
+      , Cmd.networkId
+      , Cmd.mOutFile
+      } = conwayEraOnwardsConstraints eon $ do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
+      cEra = conwayEraOnwardsToCardanoEra eon
       cMode = consensusModeOnly cModeParams
 
   eraInMode <- toEraInMode cEra cMode
     & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
 
   constitution <- runQuery localNodeConnInfo $ queryConstitution eraInMode sbe
-  writeOutput mFile constitution
+  writeOutput mOutFile constitution
 
 runQueryGovState
-  :: Cmd.NoArgQueryCmd era
+  :: Cmd.QueryNoArgCmdArgs era
   -> ExceptT GovernanceQueryError IO ()
 runQueryGovState
-    Cmd.NoArgQueryCmd
-      { Cmd.cmdEon = w
-      , Cmd.socketPath = socketPath
+    Cmd.QueryNoArgCmdArgs
+      { Cmd.eon
+      , Cmd.nodeSocketPath
       , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
-      , Cmd.networkId = network
-      , Cmd.outputFile = mFile
-      } = conwayEraOnwardsConstraints w $ do
-  let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
-      sbe = conwayEraOnwardsToShelleyBasedEra w
-      cEra = conwayEraOnwardsToCardanoEra w
+      , Cmd.networkId
+      , Cmd.mOutFile
+      } = conwayEraOnwardsConstraints eon $ do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
+      cEra = conwayEraOnwardsToCardanoEra eon
       cMode = consensusModeOnly cModeParams
 
   eraInMode <- toEraInMode cEra cMode
     & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
 
   govState <- runQuery localNodeConnInfo $ queryGovState eraInMode sbe
-  writeOutput mFile govState
+  writeOutput mOutFile govState
 
 runQueryDRepState
-  :: Cmd.DRepStateQueryCmd era
+  :: Cmd.QueryDRepStateCmdArgs era
   -> ExceptT GovernanceQueryError IO ()
 runQueryDRepState
-    Cmd.DRepStateQueryCmd
-      { Cmd.cmdEon = w
-      , Cmd.socketPath = socketPath
+    Cmd.QueryDRepStateCmdArgs
+      { Cmd.eon
+      , Cmd.nodeSocketPath
       , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
-      , Cmd.networkId = network
+      , Cmd.networkId
       , Cmd.drepKeys = drepKeys
-      , Cmd.outputFile = mFile
-      } = conwayEraOnwardsConstraints w $ do
-  let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
-      sbe = conwayEraOnwardsToShelleyBasedEra w
-      cEra = conwayEraOnwardsToCardanoEra w
+      , Cmd.mOutFile
+      } = conwayEraOnwardsConstraints eon $ do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
+      cEra = conwayEraOnwardsToCardanoEra eon
       cMode = consensusModeOnly cModeParams
 
   eraInMode <- toEraInMode cEra cMode
@@ -113,7 +114,7 @@ runQueryDRepState
   drepCreds <- Set.fromList <$> mapM (firstExceptT GovernanceQueryDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
 
   drepState <- runQuery localNodeConnInfo $ queryDRepState eraInMode sbe drepCreds
-  writeOutput mFile $
+  writeOutput mOutFile $
     second drepStateToJson <$> Map.assocs drepState
   where
     drepStateToJson ds = A.object
@@ -123,20 +124,20 @@ runQueryDRepState
       ]
 
 runQueryDRepStakeDistribution
-  :: Cmd.DRepStakeDistributionQueryCmd era
+  :: Cmd.QueryDRepStakeDistributionCmdArgs era
   -> ExceptT GovernanceQueryError IO ()
 runQueryDRepStakeDistribution
-    Cmd.DRepStakeDistributionQueryCmd
-      { Cmd.cmdEon = w
-      , Cmd.socketPath = socketPath
+    Cmd.QueryDRepStakeDistributionCmdArgs
+      { Cmd.eon
+      , Cmd.nodeSocketPath
       , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
-      , Cmd.networkId = network
+      , Cmd.networkId
       , Cmd.drepKeys = drepKeys
-      , Cmd.outputFile = mFile
-      } = conwayEraOnwardsConstraints w $ do
-  let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
-      sbe = conwayEraOnwardsToShelleyBasedEra w
-      cEra = conwayEraOnwardsToCardanoEra w
+      , Cmd.mOutFile
+      } = conwayEraOnwardsConstraints eon $ do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
+      cEra = conwayEraOnwardsToCardanoEra eon
       cMode = consensusModeOnly cModeParams
 
   let drepFromVrfKey = fmap Ledger.DRepCredential
@@ -148,31 +149,31 @@ runQueryDRepStakeDistribution
     & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
 
   drepStakeDistribution <- runQuery localNodeConnInfo $ queryDRepStakeDistribution eraInMode sbe dreps
-  writeOutput mFile $
+  writeOutput mOutFile $
     Map.assocs drepStakeDistribution
 
 runQueryCommitteeState
-  :: Cmd.NoArgQueryCmd era
+  :: Cmd.QueryNoArgCmdArgs era
   -> ExceptT GovernanceQueryError IO ()
 runQueryCommitteeState
-    Cmd.NoArgQueryCmd
-      { Cmd.cmdEon = w
-      , Cmd.socketPath = socketPath
+    Cmd.QueryNoArgCmdArgs
+      { Cmd.eon
+      , Cmd.nodeSocketPath
       , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
-      , Cmd.networkId = network
-      , Cmd.outputFile = mFile
+      , Cmd.networkId
+      , Cmd.mOutFile
       }
-    = conwayEraOnwardsConstraints w $ do
-  let localNodeConnInfo = LocalNodeConnectInfo cModeParams network socketPath
-      sbe = conwayEraOnwardsToShelleyBasedEra w
-      cEra = conwayEraOnwardsToCardanoEra w
+    = conwayEraOnwardsConstraints eon $ do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
+      cEra = conwayEraOnwardsToCardanoEra eon
       cMode = consensusModeOnly cModeParams
 
   eraInMode <- toEraInMode cEra cMode
     & hoistMaybe (GovernanceQueryEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
 
   committeeState <- runQuery localNodeConnInfo $ queryCommitteeState eraInMode sbe
-  writeOutput mFile $
+  writeOutput mOutFile $
     Map.assocs $ committeeState ^. Ledger.csCommitteeCredsL
 
 runQuery :: LocalNodeConnectInfo mode
@@ -196,7 +197,7 @@ writeOutput :: ToJSON b
             => Maybe (File a Out)
             -> b
             -> ExceptT GovernanceQueryError IO ()
-writeOutput mFile content = case mFile of
+writeOutput mOutFile content = case mOutFile of
   Nothing -> liftIO . LBS.putStrLn . encodePretty $ content
   Just (File f) ->
     handleIOExceptT (GovernanceQueryWriteFileError . FileIOError f) $

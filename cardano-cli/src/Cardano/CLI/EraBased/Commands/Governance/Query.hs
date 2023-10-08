@@ -5,9 +5,9 @@
 
 module Cardano.CLI.EraBased.Commands.Governance.Query
   ( GovernanceQueryCmds(..)
-  , NoArgQueryCmd(..)
-  , DRepStateQueryCmd(..)
-  , DRepStakeDistributionQueryCmd(..)
+  , QueryDRepStakeDistributionCmdArgs(..)
+  , QueryDRepStateCmdArgs(..)
+  , QueryNoArgCmdArgs(..)
   , renderGovernanceQueryCmds
   ) where
 
@@ -18,37 +18,37 @@ import           Cardano.CLI.Types.Key
 import           Data.Text (Text)
 
 data GovernanceQueryCmds era
-  = GovernanceQueryConstitutionCmd            (NoArgQueryCmd era)
-  | GovernanceQueryGovStateCmd                (NoArgQueryCmd era)
-  | GovernanceQueryDRepStateCmd               (DRepStateQueryCmd era)
-  | GovernanceQueryDRepStakeDistributionCmd   (DRepStakeDistributionQueryCmd era)
-  | GovernanceQueryCommitteeStateCmd          (NoArgQueryCmd era)
+  = GovernanceQueryConstitutionCmd            !(QueryNoArgCmdArgs era)
+  | GovernanceQueryGovStateCmd                !(QueryNoArgCmdArgs era)
+  | GovernanceQueryDRepStateCmd               !(QueryDRepStateCmdArgs era)
+  | GovernanceQueryDRepStakeDistributionCmd   !(QueryDRepStakeDistributionCmdArgs era)
+  | GovernanceQueryCommitteeStateCmd          !(QueryNoArgCmdArgs era)
   deriving Show
 
-data NoArgQueryCmd era = NoArgQueryCmd
-  { cmdEon              :: ConwayEraOnwards era
-  , socketPath          :: !SocketPath
+data QueryNoArgCmdArgs era = QueryNoArgCmdArgs
+  { eon                 :: !(ConwayEraOnwards era)
+  , nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
   , networkId           :: !NetworkId
-  , outputFile          :: !(Maybe (File () Out))
+  , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
 
-data DRepStateQueryCmd era = DRepStateQueryCmd
-  { cmdEon              :: ConwayEraOnwards era
-  , socketPath          :: !SocketPath
+data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
+  { eon                 :: !(ConwayEraOnwards era)
+  , nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
   , networkId           :: !NetworkId
   , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
-  , outputFile          :: !(Maybe (File () Out))
+  , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
 
-data DRepStakeDistributionQueryCmd era = DRepStakeDistributionQueryCmd
-  { cmdEon              :: ConwayEraOnwards era
-  , socketPath          :: !SocketPath
+data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
+  { eon                 :: !(ConwayEraOnwards era)
+  , nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !AnyConsensusModeParams
   , networkId           :: !NetworkId
   , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
-  , outputFile          :: !(Maybe (File () Out))
+  , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
 
 renderGovernanceQueryCmds :: GovernanceQueryCmds era -> Text
