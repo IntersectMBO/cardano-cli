@@ -14,6 +14,11 @@ Usage: cardano-cli conway query
                                   | pool-state
                                   | tx-mempool
                                   | slot-number
+                                  | constitution
+                                  | gov-state
+                                  | drep-state
+                                  | drep-stake-distribution
+                                  | committee-state
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -49,3 +54,11 @@ Available commands:
   pool-state               Dump the pool state
   tx-mempool               Local Mempool info
   slot-number              Query slot number for UTC timestamp
+  constitution             Get the constitution
+  gov-state                Get the governance state
+  drep-state               Get the DRep state. If no DRep credentials are
+                           provided, return states for all of them.
+  drep-stake-distribution  Get the DRep stake distribution. If no DRep
+                           credentials are provided, return stake distributions
+                           for all of them.
+  committee-state          Get the committee state

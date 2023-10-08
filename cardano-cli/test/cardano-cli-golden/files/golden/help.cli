@@ -6179,102 +6179,9 @@ Usage: cardano-cli conway genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli conway governance (query | action | committee | drep | vote)
+Usage: cardano-cli conway governance (action | committee | drep | vote)
 
   Governance commands.
-
-Usage: cardano-cli conway governance query 
-                                             ( constitution
-                                             | gov-state
-                                             | drep-state
-                                             | drep-stake-distribution
-                                             | committee-state
-                                             )
-
-  Query governance-related information
-
-Usage: cardano-cli conway governance query constitution 
-                                                          --socket-path SOCKET_PATH
-                                                          [ --shelley-mode
-                                                          | --byron-mode
-                                                            [--epoch-slots SLOTS]
-                                                          | --cardano-mode
-                                                            [--epoch-slots SLOTS]
-                                                          ]
-                                                          ( --mainnet
-                                                          | --testnet-magic NATURAL
-                                                          )
-                                                          [--out-file FILE]
-
-  Get the constitution
-
-Usage: cardano-cli conway governance query gov-state --socket-path SOCKET_PATH
-                                                       [ --shelley-mode
-                                                       | --byron-mode
-                                                         [--epoch-slots SLOTS]
-                                                       | --cardano-mode
-                                                         [--epoch-slots SLOTS]
-                                                       ]
-                                                       ( --mainnet
-                                                       | --testnet-magic NATURAL
-                                                       )
-                                                       [--out-file FILE]
-
-  Get the governance state
-
-Usage: cardano-cli conway governance query drep-state --socket-path SOCKET_PATH
-                                                        [ --shelley-mode
-                                                        | --byron-mode
-                                                          [--epoch-slots SLOTS]
-                                                        | --cardano-mode
-                                                          [--epoch-slots SLOTS]
-                                                        ]
-                                                        ( --mainnet
-                                                        | --testnet-magic NATURAL
-                                                        )
-                                                        ( --drep-verification-key STRING
-                                                        | --drep-verification-key-file FILE
-                                                        | --drep-key-hash HASH
-                                                        )
-                                                        [--out-file FILE]
-
-  Get the DRep state. If no DRep credentials are provided, return states for all
-  of them.
-
-Usage: cardano-cli conway governance query drep-stake-distribution 
-                                                                     --socket-path SOCKET_PATH
-                                                                     [ --shelley-mode
-                                                                     | --byron-mode
-                                                                       [--epoch-slots SLOTS]
-                                                                     | --cardano-mode
-                                                                       [--epoch-slots SLOTS]
-                                                                     ]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
-                                                                     )
-                                                                     ( --drep-verification-key STRING
-                                                                     | --drep-verification-key-file FILE
-                                                                     | --drep-key-hash HASH
-                                                                     )
-                                                                     [--out-file FILE]
-
-  Get the DRep stake distribution. If no DRep credentials are provided, return
-  stake distributions for all of them.
-
-Usage: cardano-cli conway governance query committee-state 
-                                                             --socket-path SOCKET_PATH
-                                                             [ --shelley-mode
-                                                             | --byron-mode
-                                                               [--epoch-slots SLOTS]
-                                                             | --cardano-mode
-                                                               [--epoch-slots SLOTS]
-                                                             ]
-                                                             ( --mainnet
-                                                             | --testnet-magic NATURAL
-                                                             )
-                                                             [--out-file FILE]
-
-  Get the committee state
 
 Usage: cardano-cli conway governance action 
                                               ( create-constitution
@@ -6649,6 +6556,11 @@ Usage: cardano-cli conway query
                                   | pool-state
                                   | tx-mempool
                                   | slot-number
+                                  | constitution
+                                  | gov-state
+                                  | drep-state
+                                  | drep-stake-distribution
+                                  | committee-state
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -6905,6 +6817,86 @@ Usage: cardano-cli conway query slot-number --socket-path SOCKET_PATH
                                               TIMESTAMP
 
   Query slot number for UTC timestamp
+
+Usage: cardano-cli conway query constitution --socket-path SOCKET_PATH
+                                               [ --shelley-mode
+                                               | --byron-mode
+                                                 [--epoch-slots SLOTS]
+                                               | --cardano-mode
+                                                 [--epoch-slots SLOTS]
+                                               ]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               [--out-file FILE]
+
+  Get the constitution
+
+Usage: cardano-cli conway query gov-state --socket-path SOCKET_PATH
+                                            [ --shelley-mode
+                                            | --byron-mode [--epoch-slots SLOTS]
+                                            | --cardano-mode
+                                              [--epoch-slots SLOTS]
+                                            ]
+                                            ( --mainnet
+                                            | --testnet-magic NATURAL
+                                            )
+                                            [--out-file FILE]
+
+  Get the governance state
+
+Usage: cardano-cli conway query drep-state --socket-path SOCKET_PATH
+                                             [ --shelley-mode
+                                             | --byron-mode
+                                               [--epoch-slots SLOTS]
+                                             | --cardano-mode
+                                               [--epoch-slots SLOTS]
+                                             ]
+                                             ( --mainnet
+                                             | --testnet-magic NATURAL
+                                             )
+                                             ( --drep-verification-key STRING
+                                             | --drep-verification-key-file FILE
+                                             | --drep-key-hash HASH
+                                             )
+                                             [--out-file FILE]
+
+  Get the DRep state. If no DRep credentials are provided, return states for all
+  of them.
+
+Usage: cardano-cli conway query drep-stake-distribution 
+                                                          --socket-path SOCKET_PATH
+                                                          [ --shelley-mode
+                                                          | --byron-mode
+                                                            [--epoch-slots SLOTS]
+                                                          | --cardano-mode
+                                                            [--epoch-slots SLOTS]
+                                                          ]
+                                                          ( --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          )
+                                                          ( --drep-verification-key STRING
+                                                          | --drep-verification-key-file FILE
+                                                          | --drep-key-hash HASH
+                                                          )
+                                                          [--out-file FILE]
+
+  Get the DRep stake distribution. If no DRep credentials are provided, return
+  stake distributions for all of them.
+
+Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
+                                                  [ --shelley-mode
+                                                  | --byron-mode
+                                                    [--epoch-slots SLOTS]
+                                                  | --cardano-mode
+                                                    [--epoch-slots SLOTS]
+                                                  ]
+                                                  ( --mainnet
+                                                  | --testnet-magic NATURAL
+                                                  )
+                                                  [--out-file FILE]
+
+  Get the committee state
 
 Usage: cardano-cli conway stake-address 
                                           ( key-gen

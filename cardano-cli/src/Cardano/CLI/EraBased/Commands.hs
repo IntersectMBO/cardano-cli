@@ -117,9 +117,9 @@ pCmds era envCli =
     [ fmap AddressCmds      <$> pAddressCmds era envCli
     , fmap KeyCmds          <$> pKeyCmds
     , fmap GenesisCmds      <$> pGenesisCmds envCli
-    , fmap GovernanceCmds   <$> pGovernanceCmds era envCli
+    , fmap GovernanceCmds   <$> pGovernanceCmds era
     , fmap NodeCmds         <$> pNodeCmds
-    , fmap QueryCmds        <$> pQueryCmds envCli
+    , fmap QueryCmds        <$> pQueryCmds era envCli
     , fmap StakeAddressCmds <$> pStakeAddressCmds era envCli
     , fmap StakePoolCmds    <$> pStakePoolCmds era envCli
     , fmap TextViewCmds     <$> pTextViewCmds
