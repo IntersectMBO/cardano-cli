@@ -7,6 +7,8 @@ module Cardano.CLI.EraBased.Commands.Governance.DRep
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
+import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
@@ -27,6 +29,7 @@ data GovernanceDRepCmds era
       (ConwayEraOnwards era)
       (VerificationKeyOrHashOrFile DRepKey)
       Lovelace
+      (Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era))))
       (File () Out)
 
 renderGovernanceDRepCmds :: ()

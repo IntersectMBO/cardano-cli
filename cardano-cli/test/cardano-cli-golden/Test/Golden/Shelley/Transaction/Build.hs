@@ -42,8 +42,8 @@ hprop_golden_shelleyTransactionBuild =
 hprop_golden_shelleyTransactionBuild_CertificateScriptWitnessed :: Property
 hprop_golden_shelleyTransactionBuild_CertificateScriptWitnessed =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-    let deregcert = "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_deregistration_certificate"
-        scriptWit = "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/any"
+    let deregcert = "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_deregistration_certificate"
+        scriptWit = "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
 
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
@@ -63,7 +63,7 @@ hprop_golden_shelleyTransactionBuild_CertificateScriptWitnessed =
 hprop_golden_shelleyTransactionBuild_Minting :: Property
 hprop_golden_shelleyTransactionBuild_Minting =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-    let scriptWit = "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/any"
+    let scriptWit = "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
 
     polid <- execCardanoCLI
                [ "transaction"
@@ -96,10 +96,10 @@ hprop_golden_shelleyTransactionBuild_WithdrawalScriptWitnessed =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
-    stakeAddress <- H.readFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/reward_address"
+    stakeAddress <- H.readFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/reward_address"
 
     let withdrawal = filter (/= '\n') $ stakeAddress <> "+100"
-        scriptWit = "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/any"
+        scriptWit = "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
 
     void $ execCardanoCLI
       [ "mary", "transaction", "build-raw"
@@ -117,7 +117,7 @@ hprop_golden_shelleyTransactionBuild_WithdrawalScriptWitnessed =
 hprop_golden_shelleyTransactionBuild_TxInScriptWitnessed :: Property
 hprop_golden_shelleyTransactionBuild_TxInScriptWitnessed =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-    let scriptWit = "test/cardano-cli-golden/files/golden/shelley/multisig/scripts/any"
+    let scriptWit = "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
 
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 

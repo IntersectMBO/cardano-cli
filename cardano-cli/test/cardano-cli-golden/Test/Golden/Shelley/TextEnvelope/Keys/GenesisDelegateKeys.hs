@@ -19,9 +19,9 @@ import qualified Hedgehog.Extras.Test.Base as H
 hprop_golden_shelleyGenesisDelegateKeys :: Property
 hprop_golden_shelleyGenesisDelegateKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_delegate_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_delegate_keys/signing_key"
-  referenceOpCertCounter <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/genesis_delegate_keys/operational_certificate_counter"
+  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/verification_key"
+  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/signing_key"
+  referenceOpCertCounter <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/operational_certificate_counter"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "genesis-delegate-verification-key-file"

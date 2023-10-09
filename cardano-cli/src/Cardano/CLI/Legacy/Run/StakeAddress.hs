@@ -57,16 +57,16 @@ runLegacyStakeAddressBuildCmd =
   runStakeAddressBuildCmd
 
 runLegacyStakeAddressRegistrationCertificateCmd :: ()
-  => AnyShelleyBasedEra
+  => EraInEon ShelleyBasedEra
   -> StakeIdentifier
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
-runLegacyStakeAddressRegistrationCertificateCmd (AnyShelleyBasedEra sbe) =
+runLegacyStakeAddressRegistrationCertificateCmd (EraInEon sbe) =
   runStakeAddressRegistrationCertificateCmd sbe
 
 runLegacyStakeAddresslDelegationCertificateCmd :: ()
-  => AnyShelleyBasedEra
+  => EraInEon ShelleyBasedEra
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
   -> VerificationKeyOrHashOrFile StakePoolKey
@@ -74,14 +74,14 @@ runLegacyStakeAddresslDelegationCertificateCmd :: ()
   -- verification key hash.
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
-runLegacyStakeAddresslDelegationCertificateCmd (AnyShelleyBasedEra sbe) =
+runLegacyStakeAddresslDelegationCertificateCmd (EraInEon sbe) =
   runStakeAddressStakeDelegationCertificateCmd sbe
 
 runLegacyStakeAddressDeregistrationCertificateCmd :: ()
-  => AnyShelleyBasedEra
+  => EraInEon ShelleyBasedEra
   -> StakeIdentifier
   -> Maybe Lovelace -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
-runLegacyStakeAddressDeregistrationCertificateCmd (AnyShelleyBasedEra sbe) =
+runLegacyStakeAddressDeregistrationCertificateCmd (EraInEon sbe) =
   runStakeAddressDeregistrationCertificateCmd sbe

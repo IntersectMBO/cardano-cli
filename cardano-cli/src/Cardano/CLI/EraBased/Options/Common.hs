@@ -58,11 +58,11 @@ import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
 import           Text.Read (readEither, readMaybe)
 
-defaultShelleyBasedEra :: AnyShelleyBasedEra
-defaultShelleyBasedEra = AnyShelleyBasedEra ShelleyBasedEraBabbage
+defaultShelleyBasedEra :: EraInEon ShelleyBasedEra
+defaultShelleyBasedEra = EraInEon ShelleyBasedEraBabbage
 
-defaultShelleyToBabbageEra :: AnyShelleyToBabbageEra
-defaultShelleyToBabbageEra = AnyShelleyToBabbageEra ShelleyToBabbageEraBabbage
+defaultShelleyToBabbageEra :: EraInEon ShelleyToBabbageEra
+defaultShelleyToBabbageEra = EraInEon ShelleyToBabbageEraBabbage
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
@@ -100,6 +100,14 @@ pNetworkId envCli = asum $ mconcat
   , -- Default to the network id specified by the environment variable if it is available.
     pure <$> maybeToList (envCliNetworkId envCli)
   ]
+
+toUnitIntervalOrErr :: Rational -> L.UnitInterval
+toUnitIntervalOrErr r = case Ledger.boundRational r of
+                         Nothing ->
+                           error $ mconcat [ "toUnitIntervalOrErr: "
+                                           , "rational out of bounds " <> show r
+                                           ]
+                         Just n -> n
 
 pConsensusModeParams :: Parser AnyConsensusModeParams
 pConsensusModeParams = asum
@@ -301,113 +309,113 @@ subInfoParser name i mps = case catMaybes mps of
   [] -> Nothing
   parsers -> Just $ subParser name $ Opt.info (asum parsers) i
 
-pAnyShelleyBasedEra :: EnvCli -> Parser AnyShelleyBasedEra
+pAnyShelleyBasedEra :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
 pAnyShelleyBasedEra envCli =
   asum $ mconcat
-    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraShelley)
+    [ [ Opt.flag' (EraInEon ShelleyBasedEraShelley)
         $ mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
-      , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra)
+      , Opt.flag' (EraInEon ShelleyBasedEraAllegra)
         $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
-      , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraMary)
+      , Opt.flag' (EraInEon ShelleyBasedEraMary)
         $ mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
-      , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo)
+      , Opt.flag' (EraInEon ShelleyBasedEraAlonzo)
         $ mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
-      , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage)
+      , Opt.flag' (EraInEon ShelleyBasedEraBabbage)
         $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era (default)"]
-      , Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraConway)
+      , Opt.flag' (EraInEon ShelleyBasedEraConway)
         $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
       ]
     , maybeToList $ pure <$> envCliAnyShelleyBasedEra envCli
     , pure $ pure defaultShelleyBasedEra
   ]
 
-pAnyShelleyToBabbageEra :: EnvCli -> Parser AnyShelleyToBabbageEra
+pAnyShelleyToBabbageEra :: EnvCli -> Parser (EraInEon ShelleyToBabbageEra)
 pAnyShelleyToBabbageEra envCli =
   asum $ mconcat
-    [ [ Opt.flag' (AnyShelleyToBabbageEra ShelleyToBabbageEraShelley)
+    [ [ Opt.flag' (EraInEon ShelleyToBabbageEraShelley)
         $ mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
-      , Opt.flag' (AnyShelleyToBabbageEra ShelleyToBabbageEraAllegra)
+      , Opt.flag' (EraInEon ShelleyToBabbageEraAllegra)
         $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
-      , Opt.flag' (AnyShelleyToBabbageEra ShelleyToBabbageEraMary)
+      , Opt.flag' (EraInEon ShelleyToBabbageEraMary)
         $ mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
-      , Opt.flag' (AnyShelleyToBabbageEra ShelleyToBabbageEraAlonzo)
+      , Opt.flag' (EraInEon ShelleyToBabbageEraAlonzo)
         $ mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
-      , Opt.flag' (AnyShelleyToBabbageEra ShelleyToBabbageEraBabbage)
+      , Opt.flag' (EraInEon ShelleyToBabbageEraBabbage)
         $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era (default)"]
       ]
     , maybeToList $ pure <$> envCliAnyShelleyToBabbageEra envCli
     , pure $ pure defaultShelleyToBabbageEra
   ]
 
-pShelleyBasedShelley :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedShelley :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
 pShelleyBasedShelley envCli =
   asum $ mconcat
-    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraShelley)
+    [ [ Opt.flag' (EraInEon ShelleyBasedEraShelley)
           $ mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
       ]
     , maybeToList
         $ fmap pure
-        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraShelley)
+        $ mfilter (== EraInEon ShelleyBasedEraShelley)
         $ envCliAnyShelleyBasedEra envCli
     ]
 
-pShelleyBasedAllegra :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedAllegra :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
 pShelleyBasedAllegra envCli =
   asum $ mconcat
-    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra)
+    [ [ Opt.flag' (EraInEon ShelleyBasedEraAllegra)
           $ mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
       ]
     , maybeToList
         $ fmap pure
-        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraAllegra)
+        $ mfilter (== EraInEon ShelleyBasedEraAllegra)
         $ envCliAnyShelleyBasedEra envCli
     ]
 
-pShelleyBasedMary :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedMary :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
 pShelleyBasedMary envCli =
   asum $ mconcat
-    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraMary)
+    [ [ Opt.flag' (EraInEon ShelleyBasedEraMary)
           $ mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
       ]
     , maybeToList
         $ fmap pure
-        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraMary)
+        $ mfilter (== EraInEon ShelleyBasedEraMary)
         $ envCliAnyShelleyBasedEra envCli
     ]
 
-pShelleyBasedAlonzo :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedAlonzo :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
 pShelleyBasedAlonzo envCli =
   asum $ mconcat
-    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo)
+    [ [ Opt.flag' (EraInEon ShelleyBasedEraAlonzo)
           $ mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
       ]
     , maybeToList
         $ fmap pure
-        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraAlonzo)
+        $ mfilter (== EraInEon ShelleyBasedEraAlonzo)
         $ envCliAnyShelleyBasedEra envCli
     ]
 
-pShelleyBasedBabbage :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedBabbage :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
 pShelleyBasedBabbage envCli =
   asum $ mconcat
-    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage)
+    [ [ Opt.flag' (EraInEon ShelleyBasedEraBabbage)
           $ mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era (default)"]
       ]
     , maybeToList
         $ fmap pure
-        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraBabbage)
+        $ mfilter (== EraInEon ShelleyBasedEraBabbage)
         $ envCliAnyShelleyBasedEra envCli
     ]
 
-pShelleyBasedConway :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedConway :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
 pShelleyBasedConway envCli =
   asum $ mconcat
-    [ [ Opt.flag' (AnyShelleyBasedEra ShelleyBasedEraConway)
+    [ [ Opt.flag' (EraInEon ShelleyBasedEraConway)
           $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
       ]
     , maybeToList
         $ fmap pure
-        $ mfilter (== AnyShelleyBasedEra ShelleyBasedEraConway)
+        $ mfilter (== EraInEon ShelleyBasedEraConway)
         $ envCliAnyShelleyBasedEra envCli
     ]
 
@@ -806,17 +814,25 @@ pAnyVerificationKeySource helpText =
 
 pCommitteeHotKey :: Parser (VerificationKey CommitteeHotKey)
 pCommitteeHotKey =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option (Opt.eitherReader deserialiseHotCCKeyFromHex) $ mconcat
     [ Opt.long "hot-key"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee hot key (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeHotKey)
-    deserialiseFromHex =
-      first (\e -> "Invalid Constitutional Committee hot key: " ++ displayError e)
-        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey)
-        . BSC.pack
+
+pCommitteeHotVerificationKey :: Parser (VerificationKey CommitteeHotKey)
+pCommitteeHotVerificationKey =
+  Opt.option (Opt.eitherReader deserialiseHotCCKeyFromHex) $ mconcat
+    [ Opt.long "cc-hot-verification-key"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee hot key (hex-encoded)."
+    ]
+
+deserialiseHotCCKeyFromHex :: String -> Either String (VerificationKey CommitteeHotKey)
+deserialiseHotCCKeyFromHex =
+  first (\e -> "Invalid Constitutional Committee hot key: " ++ displayError e)
+    . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey)
+    . BSC.pack
 
 pCommitteeHotKeyFile :: Parser (VerificationKeyFile In)
 pCommitteeHotKeyFile =
@@ -827,10 +843,20 @@ pCommitteeHotKeyFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pCommitteeHotKeyHash :: Parser (Hash CommitteeHotKey)
-pCommitteeHotKeyHash =
+pCommitteeHotVerificationKeyFile :: Parser (VerificationKeyFile In)
+pCommitteeHotVerificationKeyFile =
+  fmap File $ Opt.strOption $ mconcat
+    [ Opt.long "cc-hot-verification-key-file"
+    , Opt.metavar "FILE"
+    , Opt.help "Filepath of the Consitutional Committee hot key."
+    , Opt.completer (Opt.bashCompleter "file")
+    ]
+
+-- | The first argument is the optional prefix.
+pCommitteeHotKeyHash :: Maybe String -> Parser (Hash CommitteeHotKey)
+pCommitteeHotKeyHash prefix =
   Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
-    [ Opt.long "hot-key-hash"
+    [ Opt.long $ prefixFlag prefix "hot-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]
@@ -852,7 +878,15 @@ pCommitteeHotKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeHot
 pCommitteeHotKeyOrHashOrFile =
   asum
     [ VerificationKeyOrFile <$> pCommitteeHotKeyOrFile
-    , VerificationKeyHash <$> pCommitteeHotKeyHash
+    , VerificationKeyHash <$> pCommitteeHotKeyHash Nothing
+    ]
+
+pCommitteeHotVerificationKeyOrHashOrVerificationFile :: Parser (VerificationKeyOrHashOrFile CommitteeHotKey)
+pCommitteeHotVerificationKeyOrHashOrVerificationFile =
+  asum
+    [ VerificationKeyOrFile . VerificationKeyValue <$> pCommitteeHotVerificationKey,
+      VerificationKeyOrFile . VerificationKeyFilePath <$> pCommitteeHotVerificationKeyFile,
+      VerificationKeyHash <$> pCommitteeHotKeyHash (Just "cc")
     ]
 
 catCommands :: [Parser a] -> Maybe (Parser a)
@@ -2795,7 +2829,153 @@ pProtocolVersion =
           ]
         ]
 
---------------------------------------------------------------------------------
+pPoolVotingThresholds :: Parser Ledger.PoolVotingThresholds
+pPoolVotingThresholds =
+    Ledger.PoolVotingThresholds
+      <$> pMotionNoConfidence
+      <*> pCommitteeNormal
+      <*> pCommitteeNoConfidence
+      <*> pHardForkInitiation
+  where
+    pMotionNoConfidence =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "pool-voting-threshold-motion-no-confidence"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pCommitteeNormal =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "pool-voting-threshold-committee-normal"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pCommitteeNoConfidence =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "pool-voting-threshold-committee-no-confidence"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pHardForkInitiation =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "pool-voting-threshold-hard-fork-initiation"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+
+pDRepVotingThresholds :: Parser Ledger.DRepVotingThresholds
+pDRepVotingThresholds =
+    Ledger.DRepVotingThresholds
+      <$> pMotionNoConfidence
+      <*> pCommitteeNormal
+      <*> pCommitteeNoConfidence
+      <*> pUpdateToConstitution
+      <*> pHardForkInitiation
+      <*> pPPNetworkGroup
+      <*> pPPEconomicGroup
+      <*> pPPTechnicalGroup
+      <*> pPPGovGroup
+      <*> pTreasuryWithdrawal
+  where
+    pMotionNoConfidence =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-motion-no-confidence"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pCommitteeNormal =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-committee-normal"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pCommitteeNoConfidence =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-committee-no-confidence"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pUpdateToConstitution =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-update-to-constitution"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pHardForkInitiation =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-hard-fork-initiation"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pPPNetworkGroup =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-pp-network-group"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pPPEconomicGroup =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-pp-economic-group"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pPPTechnicalGroup =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-pp-technical-group"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pPPGovGroup =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-pp-governance-group"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+    pTreasuryWithdrawal =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "drep-voting-threshold-treasury-withdrawal"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "TODO"
+        ]
+
+pMinCommitteeSize :: Parser Natural
+pMinCommitteeSize =
+  Opt.option Opt.auto $ mconcat
+    [ Opt.long "min-committee-size"
+    , Opt.metavar "INT"
+    , Opt.help "TODO"
+    ]
+
+pCommitteeTermLength :: Parser Natural
+pCommitteeTermLength =
+  Opt.option Opt.auto $ mconcat
+    [ Opt.long "committee-term-length"
+    , Opt.metavar "INT"
+    , Opt.help "TODO"
+    ]
+
+pGovActionLifetime :: Parser EpochNo
+pGovActionLifetime =
+  fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
+    [ Opt.long "governance-action-lifetime"
+    , Opt.metavar "NATURAL"
+    , Opt.help "TODO"
+    ]
+
+pDRepDeposit :: Parser Lovelace
+pDRepDeposit =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "drep-deposit"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "TODO"
+    ]
+
+pDRepActivity :: Parser EpochNo
+pDRepActivity =
+  fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
+    [ Opt.long "drep-activity"
+    , Opt.metavar "NATURAL"
+    , Opt.help "TODO"
+    ]
 
 parseTxOutAnyEra
   :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)

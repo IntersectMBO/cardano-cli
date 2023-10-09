@@ -21,7 +21,7 @@ import qualified Hedgehog.Extras.Test.File as H
 hprop_golden_shelleyOperationalCertificate :: Property
 hprop_golden_shelleyOperationalCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceOperationalCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/operational_certificate"
+  referenceOperationalCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/operational_certificate"
 
   -- Key filepaths
   kesVerKey <- noteTempFile tempDir "KES-verification-key-file"

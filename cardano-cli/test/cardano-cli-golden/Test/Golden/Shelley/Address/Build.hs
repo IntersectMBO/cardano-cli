@@ -14,10 +14,10 @@ import qualified Hedgehog.Extras.Test.File as H
 
 hprop_golden_shelleyAddressBuild :: Property
 hprop_golden_shelleyAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  addressVKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/payment_keys/verification_key"
-  addressSKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/stake_keys/verification_key"
-  goldenStakingAddressHexFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/addresses/staking-address.hex"
-  goldenEnterpriseAddressHexFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/addresses/enterprise-address.hex"
+  addressVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/payment_keys/verification_key"
+  addressSKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
+  goldenStakingAddressHexFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/addresses/staking-address.hex"
+  goldenEnterpriseAddressHexFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/addresses/enterprise-address.hex"
   stakingAddressHexFile <- noteTempFile tempDir "staking-address.hex"
   enterpriseAddressHexFile <- noteTempFile tempDir "enterprise-address.hex"
 

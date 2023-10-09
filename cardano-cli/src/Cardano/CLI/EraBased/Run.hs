@@ -31,6 +31,7 @@ import           Cardano.CLI.Types.Errors.CmdError
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
 import           Data.Function ((&))
+import Cardano.CLI.EraBased.Run.Governance.Poll (runGovernancePollCmds)
 
 runAnyEraCommand :: ()
   => AnyEraCommand
@@ -94,6 +95,10 @@ runGovernanceCmds = \case
 
   GovernanceDRepCmds cmds ->
     runGovernanceDRepCmds cmds
+
+  GovernancePollCmds cmds ->
+    runGovernancePollCmds cmds
+      & firstExceptT CmdGovernanceCmdError
 
   GovernanceVoteCmds cmds ->
     runGovernanceVoteCmds cmds

@@ -23,7 +23,7 @@ hprop_golden_shelleyGenesisKeyDelegationCertificate =
     -- Reference certificate
     referenceCertificateFilePath <-
       noteInputFile $
-        "test/cardano-cli-golden/files/golden/shelley/certificates/"
+        "test/cardano-cli-golden/files/input/shelley/certificates/"
           <> "genesis_key_delegation_certificate"
 
     -- Verification key and certificate filepaths

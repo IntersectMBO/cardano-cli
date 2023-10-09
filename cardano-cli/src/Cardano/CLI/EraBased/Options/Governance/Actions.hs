@@ -43,7 +43,7 @@ pGovernanceActionNewInfoCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNewInfoCmd era = do
-  cOn <- maybeEonInEra era
+  cOn <- forEraMaybeEon era
   pure
     $ subParser "create-info"
     $ Opt.info
@@ -63,7 +63,7 @@ pGovernanceActionNewConstitutionCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNewConstitutionCmd era = do
-  cOn <- maybeEonInEra era
+  cOn <- forEraMaybeEon era
   pure
     $ subParser "create-constitution"
     $ Opt.info
@@ -85,7 +85,7 @@ pGovernanceActionNewCommitteeCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNewCommitteeCmd era = do
-  cOn <- maybeEonInEra era
+  cOn <- forEraMaybeEon era
   pure
     $ subParser "create-new-committee"
     $ Opt.info
@@ -116,7 +116,7 @@ pGovernanceActionNoConfidenceCmd
   :: CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionNoConfidenceCmd era = do
-  cOn <- maybeEonInEra era
+  cOn <- forEraMaybeEon era
   pure
     $ subParser "create-no-confidence"
     $ Opt.info
@@ -145,7 +145,7 @@ pGovernanceActionProtocolParametersUpdateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionProtocolParametersUpdateCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "create-protocol-parameters-update"
     $ Opt.info
@@ -164,14 +164,6 @@ toNonNegativeIntervalOrErr :: Rational -> NonNegativeInterval
 toNonNegativeIntervalOrErr r = case Ledger.boundRational r of
                          Nothing ->
                            error $ mconcat [ "toNonNegativeIntervalOrErr: "
-                                           , "rational out of bounds " <> show r
-                                           ]
-                         Just n -> n
-
-toUnitIntervalOrErr :: Rational -> Ledger.UnitInterval
-toUnitIntervalOrErr r = case Ledger.boundRational r of
-                         Nothing ->
-                           error $ mconcat [ "toUnitIntervalOrErr: "
                                            , "rational out of bounds " <> show r
                                            ]
                          Just n -> n
@@ -236,6 +228,18 @@ pIntroducedInBabbagePParams =
   IntroducedInBabbagePParams
     <$> convertToLedger (CoinPerByte . toShelleyLovelace) (optional pUTxOCostPerByte)
 
+pIntroducedInConwayPParams :: Parser (IntroducedInConwayPParams ledgerera)
+pIntroducedInConwayPParams =
+  IntroducedInConwayPParams
+    <$> convertToLedger id (optional pPoolVotingThresholds)
+    <*> convertToLedger id (optional pDRepVotingThresholds)
+    <*> convertToLedger id (optional pMinCommitteeSize)
+    <*> convertToLedger id (optional pCommitteeTermLength)
+    <*> convertToLedger id (optional pGovActionLifetime)
+    <*> convertToLedger toShelleyLovelace (optional pGovActionDeposit)
+    <*> convertToLedger toShelleyLovelace (optional pDRepDeposit)
+    <*> convertToLedger id (optional pDRepActivity)
+
 -- Not necessary in Conway era onwards
 pProtocolParametersUpdateGenesisKeys :: ShelleyBasedEra era -> Parser [VerificationKeyFile In]
 pProtocolParametersUpdateGenesisKeys =
@@ -277,10 +281,11 @@ dpGovActionProtocolParametersUpdate = \case
       <$> pCommonProtocolParameters
       <*> pAlonzoOnwardsPParams
       <*> pIntroducedInBabbagePParams
+      <*> pIntroducedInConwayPParams
 
 pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionTreasuryWithdrawalCmd era = do
-  cOn <- maybeEonInEra era
+  cOn <- forEraMaybeEon era
   pure
     $ subParser "create-treasury-withdrawal"
     $ Opt.info

@@ -14,11 +14,12 @@ import qualified Hedgehog.Extras.Test.File as H
 
 hprop_golden_shelleyTransactionSign :: Property
 hprop_golden_shelleyTransactionSign = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  txBodyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/tx/txbody"
-  initialUtxo1SigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/keys/payment_keys/signing_key"
-  utxoSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/transaction-sign/utxo.skey"
-  stakeSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/transaction-sign/stake.skey"
-  nodeColdSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/transaction-sign/node-cold.skey"
+  txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
+  initialUtxo1SigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/payment_keys/signing_key"
+  utxoSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-sign/utxo.skey"
+  stakeSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-sign/stake.skey"
+  nodeColdSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-sign/node-cold.skey"
+  ccHotSigningKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/cc-hot.skey"
   signedTransactionFile <- noteTempFile tempDir "signed.tx"
   transactionPoolRegSignedFile <- noteTempFile tempDir "tx-pool-reg.signed"
 
@@ -59,6 +60,17 @@ hprop_golden_shelleyTransactionSign = propertyOnce $ H.moduleWorkspace "tmp" $ \
     , "--signing-key-file", utxoSigningKeyFile
     , "--signing-key-file", stakeSigningKeyFile
     , "--signing-key-file", nodeColdSigningKeyFile
+    , "--tx-file", transactionPoolRegSignedFile
+    ]
+
+  H.assertFileOccurences 1 "Tx MaryEra" transactionPoolRegSignedFile
+  H.assertEndsWithSingleNewline transactionPoolRegSignedFile
+
+  void $ execCardanoCLI
+    [ "transaction","sign"
+    , "--mainnet"
+    , "--tx-body-file", txBodyFile
+    , "--signing-key-file", ccHotSigningKeyFile
     , "--tx-file", transactionPoolRegSignedFile
     ]
 

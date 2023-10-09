@@ -177,7 +177,7 @@ pattern ShelleyTtl
   :: SlotNo -> (TxValidityLowerBound era, TxValidityUpperBound era)
 pattern ShelleyTtl ttl <-
   ( TxValidityNoLowerBound
-  , TxValidityUpperBound ValidityUpperBoundInShelleyEra ttl
+  , TxValidityUpperBound _ ttl
   )
 
 friendlyValidityRange
@@ -200,8 +200,8 @@ friendlyValidityRange era = \case
           ]
     | otherwise -> Null
  where
-  isLowerBoundSupported = isJust $ validityLowerBoundSupportedInEra era
-  isUpperBoundSupported = isJust $ validityUpperBoundSupportedInEra era
+  isLowerBoundSupported = isJust $ inEonForEraMaybe TxValidityLowerBound era
+  isUpperBoundSupported = isJust $ inEonForEraMaybe TxValidityUpperBound era
 
 friendlyWithdrawals :: TxWithdrawals ViewTx era -> Aeson.Value
 friendlyWithdrawals TxWithdrawalsNone = Null
@@ -350,7 +350,7 @@ friendlyCertificates sbe = \case
   TxCertificates _ cs _ -> array $ map (friendlyCertificate sbe) cs
 
 friendlyCertificate :: ShelleyBasedEra era -> Certificate era -> Aeson.Value
-friendlyCertificate sbe = withShelleyBasedEraConstraintsForLedger sbe $
+friendlyCertificate sbe = shelleyBasedEraConstraints sbe $
   object . (: []) . renderCertificate sbe
 
 renderCertificate :: ShelleyBasedEra era -> Certificate era -> (Aeson.Key, Aeson.Value)

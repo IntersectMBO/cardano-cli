@@ -22,8 +22,10 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   let era = BabbageEra
 
   -- Reference files
-  referenceRegistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_registration_certificate"
-  referenceDeregistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/stake_address_deregistration_certificate"
+  referenceRegistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_registration_certificate"
+  referenceDeregistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_deregistration_certificate"
+  referenceDelegationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_delegation_certificate"
+  operatorVkey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/operator.vkey"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "stake-verification-key-file"
@@ -64,17 +66,14 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   -- golden files
   checkTextEnvelopeFormat registrationCertificateType referenceDeregistrationCertificate deregistrationCertificate
 
--- TODO: After delegation-certificate command is fixed to take a hash instead of a verification key
-{-
   -- Create stake address delegation certificate
   void $ execCardanoCLI
     [ "stake-address", "delegation-certificate"
     , "--stake-verification-key-file", verKey
-    , "--cold-verification-key-file", verKey --TODO: Should be stake pool's hash
+    , "--cold-verification-key-file", operatorVkey
     , "--out-file", deregistrationCertificate
     ]
 
   -- Check the newly created files have not deviated from the
   -- golden files
-  checkTextEnvelopeFormat registrationCertificateType referenceDeregistrationCertificate deregistrationCertificate
--}
+  checkTextEnvelopeFormat registrationCertificateType referenceDelegationCertificate deregistrationCertificate

@@ -12,7 +12,7 @@ import qualified Hedgehog.Extras.Test.File as H
 
 hprop_golden_shelleyTextViewDecodeCbor :: Property
 hprop_golden_shelleyTextViewDecodeCbor = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  unsignedTxFile <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/tx/unsigned.tx"
+  unsignedTxFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/unsigned.tx"
   decodedTxtFile <- noteTempFile tempDir "decoded.txt"
 
   -- Defaults to signing a Mainnet transaction.

@@ -6,7 +6,9 @@
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.Types.Common
-  ( AllOrOnly(..)
+  ( AnchorDataHash(..)
+  , AnchorUrl(..)
+  , AllOrOnly(..)
   , AddressKeyType(..)
   , BalanceTxExecUnits (..)
   , BlockId(..)
@@ -127,6 +129,14 @@ data ProposalHashSource
   | ProposalHashSourceText Text
   | ProposalHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
   deriving Show
+
+newtype AnchorUrl = AnchorUrl
+  { unAnchorUrl :: L.Url
+  } deriving (Eq, Show)
+
+newtype AnchorDataHash = AnchorDataHash
+  { unAnchorDataHash :: L.SafeHash Crypto.StandardCrypto L.AnchorData
+  } deriving (Eq, Show)
 
 -- | Specify whether to render the script cost as JSON
 -- in the cli's build command.

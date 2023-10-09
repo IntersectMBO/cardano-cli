@@ -33,7 +33,7 @@ pGovernanceCommitteeKeyGenColdCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyGenColdCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "key-gen-cold"
     $ Opt.info (pCmd w)
@@ -54,7 +54,7 @@ pGovernanceCommitteeKeyGenHotCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyGenHotCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "key-gen-hot"
     $ Opt.info (pCmd w)
@@ -75,7 +75,7 @@ pGovernanceCommitteeKeyHashCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyHashCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "key-hash"
     $ Opt.info
@@ -91,7 +91,7 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "create-hot-key-authorization-certificate"
     $ Opt.info
@@ -109,7 +109,7 @@ pGovernanceCommitteeCreateColdKeyResignationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "create-cold-key-resignation-certificate"
     $ Opt.info

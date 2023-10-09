@@ -4977,7 +4977,13 @@ Usage: cardano-cli babbage genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli babbage governance (create-mir-certificate | action)
+Usage: cardano-cli babbage governance 
+                                        ( create-mir-certificate
+                                        | action
+                                        | create-poll
+                                        | answer-poll
+                                        | verify-poll
+                                        )
 
   Governance commands.
 
@@ -5049,6 +5055,25 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update -
                                                                                  --out-file FILE
 
   Create a protocol parameters update.
+
+Usage: cardano-cli babbage governance create-poll --question STRING
+                                                    (--answer STRING)
+                                                    [--nonce UINT]
+                                                    --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli babbage governance answer-poll --poll-file FILE
+                                                    [--answer INT]
+                                                    [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli babbage governance verify-poll --poll-file FILE
+                                                    --tx-file FILE
+                                                    [--out-file FILE]
+
+  Verify an answer to a given SPO poll
 
 Usage: cardano-cli babbage node 
                                   ( key-gen
@@ -6397,6 +6422,26 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update --
                                                                                 [--collateral-percent INT]
                                                                                 [--max-collateral-inputs INT]
                                                                                 [--utxo-cost-per-byte LOVELACE]
+                                                                                [--pool-voting-threshold-motion-no-confidence RATIONAL
+                                                                                  --pool-voting-threshold-committee-normal RATIONAL
+                                                                                  --pool-voting-threshold-committee-no-confidence RATIONAL
+                                                                                  --pool-voting-threshold-hard-fork-initiation RATIONAL]
+                                                                                [--drep-voting-threshold-motion-no-confidence RATIONAL
+                                                                                  --drep-voting-threshold-committee-normal RATIONAL
+                                                                                  --drep-voting-threshold-committee-no-confidence RATIONAL
+                                                                                  --drep-voting-threshold-update-to-constitution RATIONAL
+                                                                                  --drep-voting-threshold-hard-fork-initiation RATIONAL
+                                                                                  --drep-voting-threshold-pp-network-group RATIONAL
+                                                                                  --drep-voting-threshold-pp-economic-group RATIONAL
+                                                                                  --drep-voting-threshold-pp-technical-group RATIONAL
+                                                                                  --drep-voting-threshold-pp-governance-group RATIONAL
+                                                                                  --drep-voting-threshold-treasury-withdrawal RATIONAL]
+                                                                                [--min-committee-size INT]
+                                                                                [--committee-term-length INT]
+                                                                                [--governance-action-lifetime NATURAL]
+                                                                                [--governance-action-deposit NATURAL]
+                                                                                [--drep-deposit LOVELACE]
+                                                                                [--drep-activity NATURAL]
                                                                                 --out-file FILE
 
   Create a protocol parameters update.
@@ -6509,6 +6554,8 @@ Usage: cardano-cli conway governance drep registration-certificate
                                                                      | --drep-key-hash HASH
                                                                      )
                                                                      --key-reg-deposit-amt NATURAL
+                                                                     [--drep-metadata-url TEXT
+                                                                       --drep-metadata-hash HASH]
                                                                      --out-file FILE
 
   Create a registration certificate.
@@ -6526,6 +6573,9 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    | --stake-pool-verification-key STRING
                                                    | --cold-verification-key-file FILE
                                                    | --stake-pool-id STAKE_POOL_ID
+                                                   | --cc-hot-verification-key STRING
+                                                   | --cc-hot-verification-key-file FILE
+                                                   | --cc-hot-key-hash STRING
                                                    )
                                                    --out-file FILE
 
@@ -7684,7 +7734,13 @@ Usage: cardano-cli latest genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli latest governance (create-mir-certificate | action)
+Usage: cardano-cli latest governance 
+                                       ( create-mir-certificate
+                                       | action
+                                       | create-poll
+                                       | answer-poll
+                                       | verify-poll
+                                       )
 
   Governance commands.
 
@@ -7756,6 +7812,25 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update --
                                                                                 --out-file FILE
 
   Create a protocol parameters update.
+
+Usage: cardano-cli latest governance create-poll --question STRING
+                                                   (--answer STRING)
+                                                   [--nonce UINT]
+                                                   --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli latest governance answer-poll --poll-file FILE
+                                                   [--answer INT]
+                                                   [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli latest governance verify-poll --poll-file FILE
+                                                   --tx-file FILE
+                                                   [--out-file FILE]
+
+  Verify an answer to a given SPO poll
 
 Usage: cardano-cli latest node 
                                  ( key-gen
@@ -8638,9 +8713,6 @@ Usage: cardano-cli legacy governance
                                        ( create-mir-certificate
                                        | create-genesis-key-delegation-certificate
                                        | create-update-proposal
-                                       | create-poll
-                                       | answer-poll
-                                       | verify-poll
                                        )
 
   Governance commands
@@ -8766,25 +8838,6 @@ Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
                                                               [--cost-model-file FILE]
 
   Create an update proposal
-
-Usage: cardano-cli legacy governance create-poll --question STRING
-                                                   (--answer STRING)
-                                                   [--nonce UINT]
-                                                   --out-file FILE
-
-  Create an SPO poll
-
-Usage: cardano-cli legacy governance answer-poll --poll-file FILE
-                                                   [--answer INT]
-                                                   [--out-file FILE]
-
-  Answer an SPO poll
-
-Usage: cardano-cli legacy governance verify-poll --poll-file FILE
-                                                   --tx-file FILE
-                                                   [--out-file FILE]
-
-  Verify an answer to a given SPO poll
 
 Usage: cardano-cli legacy genesis 
                                     ( key-gen-genesis
@@ -9950,9 +10003,6 @@ Usage: cardano-cli governance
                                 ( create-mir-certificate
                                 | create-genesis-key-delegation-certificate
                                 | create-update-proposal
-                                | create-poll
-                                | answer-poll
-                                | verify-poll
                                 )
 
   Governance commands
@@ -10078,25 +10128,6 @@ Usage: cardano-cli governance create-update-proposal --out-file FILE
                                                        [--cost-model-file FILE]
 
   Create an update proposal
-
-Usage: cardano-cli governance create-poll --question STRING
-                                            (--answer STRING)
-                                            [--nonce UINT]
-                                            --out-file FILE
-
-  Create an SPO poll
-
-Usage: cardano-cli governance answer-poll --poll-file FILE
-                                            [--answer INT]
-                                            [--out-file FILE]
-
-  Answer an SPO poll
-
-Usage: cardano-cli governance verify-poll --poll-file FILE
-                                            --tx-file FILE
-                                            [--out-file FILE]
-
-  Verify an answer to a given SPO poll
 
 Usage: cardano-cli genesis 
                              ( key-gen-genesis

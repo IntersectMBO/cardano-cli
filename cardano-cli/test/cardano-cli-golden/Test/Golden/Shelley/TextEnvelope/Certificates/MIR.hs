@@ -22,7 +22,7 @@ hprop_golden_shelleyMIRCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \t
   let era = BabbageEra
 
   -- Reference keys
-  referenceMIRCertificate <- noteInputFile "test/cardano-cli-golden/files/golden/shelley/certificates/mir_certificate"
+  referenceMIRCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/mir_certificate"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "stake-verification-key-file"

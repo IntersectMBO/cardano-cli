@@ -17,10 +17,10 @@ import           Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_byron_update_proposal :: Property
-hprop_golden_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  goldenUpdateProposal <- noteInputFile "test/cardano-cli-golden/files/golden/byron/update-proposal"
-  signingKey <- noteInputFile "test/cardano-cli-golden/files/golden/byron/keys/byron.skey"
+hprop_byron_update_proposal :: Property
+hprop_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  expectedUpdateProposal <- noteInputFile "test/cardano-cli-golden/files/input/byron/update-proposal"
+  signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
   createdUpdateProposal <- noteTempFile tempDir "byron-update-proposal"
   void $ execCardanoCLI
     [ "byron", "governance", "create-update-proposal"
@@ -36,8 +36,8 @@ hprop_golden_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \t
     , "--filepath", createdUpdateProposal
     ]
 
-  eGolden <- liftIO . runExceptT $ readByronUpdateProposal goldenUpdateProposal
-  golden <- case eGolden of
+  eExpected <- liftIO . runExceptT $ readByronUpdateProposal expectedUpdateProposal
+  expected <- case eExpected of
               Left err -> failWith Nothing . Text.unpack $ renderByronUpdateProposalError err
               Right prop -> return prop
 
@@ -46,4 +46,4 @@ hprop_golden_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \t
                Left err -> failWith Nothing . Text.unpack $ renderByronUpdateProposalError err
                Right prop -> return prop
 
-  golden === created
+  expected === created

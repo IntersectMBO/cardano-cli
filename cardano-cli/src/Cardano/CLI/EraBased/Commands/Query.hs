@@ -1,8 +1,25 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Query
   ( QueryCmds (..)
+  , QueryLeadershipScheduleCmdArgs(..)
+  , QueryProtocolParametersCmdArgs(..)
+  , QueryConstitutionHashCmdArgs(..)
+  , QueryTipCmdArgs(..)
+  , QueryStakePoolsCmdArgs(..)
+  , QueryStakeDistributionCmdArgs(..)
+  , QueryStakeAddressInfoCmdArgs(..)
+  , QueryUTxOCmdArgs(..)
+  , QueryLedgerStateCmdArgs(..)
+  , QueryProtocolStateCmdArgs(..)
+  , QueryStakeSnapshotCmdArgs(..)
+  , QueryKesPeriodInfoCmdArgs(..)
+  , QueryPoolStateCmdArgs(..)
+  , QueryTxMempoolCmdArgs(..)
+  , QuerySlotNumberCmdArgs(..)
   , renderQueryCmds
   ) where
 
@@ -13,126 +30,172 @@ import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
 import           Data.Time.Clock
+import           GHC.Generics
 
-data QueryCmds era =
-    QueryLeadershipSchedule
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      GenesisFile
-      (VerificationKeyOrHashOrFile StakePoolKey)
-      (SigningKeyFile In)
-      EpochLeadershipSchedule
-      (Maybe (File () Out))
-  | QueryProtocolParameters'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryConstitutionHash
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryTip
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryStakePools'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryStakeDistribution'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryStakeAddressInfo
-      SocketPath
-      AnyConsensusModeParams
-      StakeAddress
-      NetworkId
-      (Maybe (File () Out))
-  | QueryUTxO'
-      SocketPath
-      AnyConsensusModeParams
-      QueryUTxOFilter
-      NetworkId
-      (Maybe (File () Out))
-  | QueryDebugLedgerState'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryProtocolState'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (Maybe (File () Out))
-  | QueryStakeSnapshot'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (AllOrOnly [Hash StakePoolKey])
-      (Maybe (File () Out))
-  | QueryKesPeriodInfo
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      (File () In)
-      -- ^ Node operational certificate
-      (Maybe (File () Out))
-  | QueryPoolState'
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      [Hash StakePoolKey]
-  | QueryTxMempool
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      TxMempoolQuery
-      (Maybe (File () Out))
-  | QuerySlotNumber
-      SocketPath
-      AnyConsensusModeParams
-      NetworkId
-      UTCTime
-  deriving Show
+data QueryCmds era
+  = QueryLeadershipScheduleCmd  !QueryLeadershipScheduleCmdArgs
+  | QueryProtocolParametersCmd  !QueryProtocolParametersCmdArgs
+  | QueryConstitutionHashCmd    !QueryConstitutionHashCmdArgs
+  | QueryTipCmd                 !QueryTipCmdArgs
+  | QueryStakePoolsCmd          !QueryStakePoolsCmdArgs
+  | QueryStakeDistributionCmd   !QueryStakeDistributionCmdArgs
+  | QueryStakeAddressInfoCmd    !QueryStakeAddressInfoCmdArgs
+  | QueryUTxOCmd                !QueryUTxOCmdArgs
+  | QueryLedgerStateCmd         !QueryLedgerStateCmdArgs
+  | QueryProtocolStateCmd       !QueryProtocolStateCmdArgs
+  | QueryStakeSnapshotCmd       !QueryStakeSnapshotCmdArgs
+  | QueryKesPeriodInfoCmd       !QueryKesPeriodInfoCmdArgs
+  | QueryPoolStateCmd           !QueryPoolStateCmdArgs
+  | QueryTxMempoolCmd           !QueryTxMempoolCmdArgs
+  | QuerySlotNumberCmd          !QuerySlotNumberCmdArgs
+  deriving (Generic, Show)
+
+data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , genesisFp           :: !GenesisFile
+  , poolColdVerKeyFile  :: !(VerificationKeyOrHashOrFile StakePoolKey)
+  , vrkSkeyFp           :: !(SigningKeyFile In)
+  , whichSchedule       :: !EpochLeadershipSchedule
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryProtocolParametersCmdArgs = QueryProtocolParametersCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryConstitutionHashCmdArgs = QueryConstitutionHashCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryTipCmdArgs = QueryTipCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryStakePoolsCmdArgs = QueryStakePoolsCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryStakeDistributionCmdArgs = QueryStakeDistributionCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , addr                :: !StakeAddress
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryUTxOCmdArgs = QueryUTxOCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , queryFilter         :: !QueryUTxOFilter
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryProtocolStateCmdArgs = QueryProtocolStateCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryStakeSnapshotCmdArgs = QueryStakeSnapshotCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , allOrOnlyPoolIds    :: !(AllOrOnly [Hash StakePoolKey])
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryKesPeriodInfoCmdArgs = QueryKesPeriodInfoCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , nodeOpCertFp        :: !(File () In) -- ^ Node operational certificate
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , poolIds             :: ![Hash StakePoolKey]
+  } deriving (Generic, Show)
+
+data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , query               :: !TxMempoolQuery
+  , mOutFile            :: !(Maybe (File () Out))
+  }
+  deriving (Generic, Show)
+
+data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , utcTime             :: !UTCTime
+  } deriving (Generic, Show)
 
 renderQueryCmds :: QueryCmds era -> Text
 renderQueryCmds = \case
-  QueryLeadershipSchedule {} ->
+  QueryLeadershipScheduleCmd {} ->
     "query leadership-schedule"
-  QueryProtocolParameters' {} ->
+  QueryProtocolParametersCmd {} ->
     "query protocol-parameters "
-  QueryConstitutionHash {} ->
+  QueryConstitutionHashCmd {} ->
     "query constitution-hash "
-  QueryTip {} ->
+  QueryTipCmd {} ->
     "query tip"
-  QueryStakePools' {} ->
+  QueryStakePoolsCmd {} ->
     "query stake-pools"
-  QueryStakeDistribution' {} ->
+  QueryStakeDistributionCmd {} ->
     "query stake-distribution"
-  QueryStakeAddressInfo {} ->
+  QueryStakeAddressInfoCmd {} ->
     "query stake-address-info"
-  QueryUTxO' {} ->
+  QueryUTxOCmd {} ->
     "query utxo"
-  QueryDebugLedgerState' {} ->
+  QueryLedgerStateCmd {} ->
     "query ledger-state"
-  QueryProtocolState' {} ->
+  QueryProtocolStateCmd {} ->
     "query protocol-state"
-  QueryStakeSnapshot' {} ->
+  QueryStakeSnapshotCmd {} ->
     "query stake-snapshot"
-  QueryKesPeriodInfo {} ->
+  QueryKesPeriodInfoCmd {} ->
     "query kes-period-info"
-  QueryPoolState' {} ->
+  QueryPoolStateCmd {} ->
     "query pool-state"
-  QueryTxMempool _ _ _ query _ ->
-    "query tx-mempool" <> renderTxMempoolQuery query
-  QuerySlotNumber {} ->
+  QueryTxMempoolCmd (QueryTxMempoolCmdArgs _ _ _ q _) ->
+    "query tx-mempool" <> renderTxMempoolQuery q
+  QuerySlotNumberCmd {} ->
     "query slot-number"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text

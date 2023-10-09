@@ -139,6 +139,7 @@ import           GHC.IO.Handle.FD (openFileBlocking)
 import qualified Options.Applicative as Opt
 import           System.IO (IOMode (ReadMode))
 
+
 -- Metadata
 
 data MetadataError
@@ -176,7 +177,7 @@ readTxMetadata :: CardanoEra era
                -> IO (Either MetadataError (TxMetadataInEra era))
 readTxMetadata _ _ [] = return $ Right TxMetadataNone
 readTxMetadata era schema files = cardanoEraConstraints era $ runExceptT $ do
-  supported <- maybeEonInEra era
+  supported <- forEraMaybeEon era
     & hoistMaybe (MetadataErrorNotAvailableInEra $ AnyCardanoEra era)
   metadata  <- mapM (readFileTxMetadata schema) files
   pure $ TxMetadataInEra supported $ mconcat metadata
@@ -288,9 +289,9 @@ readScriptWitness era (PlutusScriptWitnessFiles
     case script' of
       PlutusScript version pscript -> do
         datum <- firstExceptT ScriptWitnessErrorScriptData
-                   $ readScriptDatumOrFile    datumOrFile
+                   $ readScriptDatumOrFile datumOrFile
         redeemer <- firstExceptT ScriptWitnessErrorScriptData
-                      $ readScriptRedeemerOrFile redeemerOrFile
+                   $ readScriptRedeemerOrFile redeemerOrFile
         return $ PlutusScriptWitness
                    langInEra version (PScript pscript)
                    datum
@@ -619,6 +620,9 @@ data SomeSigningWitness
   | AGenesisDelegateExtendedSigningWitness  (SigningKey GenesisDelegateExtendedKey)
   | AGenesisUTxOSigningWitness              (SigningKey GenesisUTxOKey)
   | ADRepSigningWitness                     (SigningKey DRepKey)
+  | ACommitteeColdSigningWitness            (SigningKey CommitteeColdKey)
+  | ACommitteeHotSigningWitness             (SigningKey CommitteeHotKey)
+  deriving Show
 
 
 -- | Data required for constructing a Shelley bootstrap witness.
@@ -652,6 +656,8 @@ categoriseSomeSigningWitness swsk =
     AGenesisDelegateExtendedSigningWitness  sk      -> AShelleyKeyWitness (WitnessGenesisDelegateExtendedKey      sk)
     AGenesisUTxOSigningWitness              sk      -> AShelleyKeyWitness (WitnessGenesisUTxOKey                  sk)
     ADRepSigningWitness                     sk      -> AShelleyKeyWitness (WitnessPaymentKey $ castDrep           sk)
+    ACommitteeColdSigningWitness            sk      -> AShelleyKeyWitness (WitnessCommitteeColdKey                sk)
+    ACommitteeHotSigningWitness             sk      -> AShelleyKeyWitness (WitnessCommitteeHotKey                 sk)
 
 -- TODO: Conway era - Add constrctor for SigningKey DrepKey to ShelleyWitnessSigningKey
 castDrep :: SigningKey DRepKey -> SigningKey PaymentKey
@@ -704,6 +710,8 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
       , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey ) AGenesisDelegateExtendedSigningWitness
       , FromSomeType (AsSigningKey AsGenesisUTxOKey             ) AGenesisUTxOSigningWitness
       , FromSomeType (AsSigningKey AsDRepKey                    ) ADRepSigningWitness
+      , FromSomeType (AsSigningKey AsCommitteeColdKey           ) ACommitteeColdSigningWitness
+      , FromSomeType (AsSigningKey AsCommitteeHotKey            ) ACommitteeHotSigningWitness
       ]
 
     bech32FileTypes =
@@ -796,7 +804,7 @@ readTxGovernanceActions
   -> IO (Either ConstitutionError [Proposal era])
 readTxGovernanceActions _ [] = return $ Right []
 readTxGovernanceActions era files = runExceptT $ do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
     & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
   newExceptT $ sequence <$> mapM (readProposal w) files
 

@@ -32,7 +32,7 @@ pGovernanceVoteCreateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceVoteCmds era))
 pGovernanceVoteCreateCmd era = do
-  w <- maybeEonInEra era
+  w <- forEraMaybeEon era
   pure
     $ subParser "create"
     $ Opt.info
@@ -53,4 +53,5 @@ pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationK
 pAnyVotingStakeVerificationKeyOrHashOrFile =
   asum [ AnyDRepVerificationKeyOrHashOrFile <$> pDRepVerificationKeyOrHashOrFile
        , AnyStakePoolVerificationKeyOrHashOrFile <$> pStakePoolVerificationKeyOrHashOrFile Nothing
+       , AnyCommitteeHotVerificationKeyOrHashOrFile <$> pCommitteeHotVerificationKeyOrHashOrVerificationFile
        ]
