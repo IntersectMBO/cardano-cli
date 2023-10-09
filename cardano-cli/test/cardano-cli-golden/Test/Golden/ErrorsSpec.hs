@@ -146,8 +146,10 @@ test_VoteReadError =
     [ ("GovernanceVoteCmdCredentialDecodeError"
       , GovernanceVoteCmdCredentialDecodeError
         $ DecoderErrorCustom "<todecode>" "<decodeeerror>")
-    , ("GovernanceVoteCmdReadError"
-      , GovernanceVoteCmdReadError $ FileError "path/file.txt" InputInvalidError)
+    , ("GovernanceVoteCmdReadVerificationKeyError"
+      , GovernanceVoteCmdReadVerificationKeyError $ FileError "path/file.txt" InputInvalidError)
+    , ("GovernanceVoteCmdReadVoteFileError"
+      , GovernanceVoteCmdReadVoteFileError $ VoteErrorFile $ FileError "path/file.txt" $ TextEnvelopeAesonDecodeError "some error description")
     , ("GovernanceVoteCmdWriteError"
       , GovernanceVoteCmdWriteError $ FileError "path/file.txt" ())
     ]

@@ -762,10 +762,13 @@ readRequiredSigner (RequiredSignerSkeyFile skFile) = do
    getHash (ShelleyNormalSigningKey sk) =
      verificationKeyHash . getVerificationKey $ PaymentSigningKey sk
 
-data VoteError
+newtype VoteError
   = VoteErrorFile (FileError TextEnvelopeError)
-  | VotesNotSupportedInEra AnyCardanoEra
   deriving Show
+
+instance Error VoteError where
+  displayError = \case
+    VoteErrorFile e -> displayError e
 
 readVotingProceduresFiles :: ()
   => ConwayEraOnwards era
