@@ -40,7 +40,6 @@ to the issue.
   - [ ] Code is linted with `hlint`.  See `.github/workflows/check-hlint.yml` to get the `hlint` version
   - [ ] Code is formatted with `stylish-haskell`.  See `.github/workflows/stylish-haskell.yml` to get the `stylish-haskell` version
   - [ ] Code builds on Linux, MacOS and Windows for `ghc-8.10.7` and `ghc-9.2.7`
-- [ ] The changelog section in the PR is updated to describe the change
 - [ ] Self-reviewed the diff
 
 <!-- 
