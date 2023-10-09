@@ -46,6 +46,10 @@ runGovernanceDRepCmds = \case
       runGovernanceRegistrationCertificateCmd w vkey lovelace anchor outFp
         & firstExceptT CmdRegistrationError
 
+  GovernanceDRepRetirementCertificateCmd w vkeyOrHashOrFile epoch outFp ->
+    runGovernanceDrepRetirementCertificateCmd w vkeyOrHashOrFile epoch outFp
+      & firstExceptT CmdGovernanceCmdError
+
 runGovernanceDRepIdCmd :: ()
   => ConwayEraOnwards era
   -> VerificationKeyOrFile DRepKey
@@ -91,3 +95,18 @@ runGovernanceRegistrationCertificateCmd cOnwards drepKOrHOrF deposit anchor outf
       . writeLazyByteStringFile outfp
       $ conwayEraOnwardsConstraints cOnwards
       $ textEnvelopeToJSON description registrationCert
+
+runGovernanceDrepRetirementCertificateCmd
+  :: ConwayEraOnwards era
+  -> VerificationKeyOrHashOrFile DRepKey
+  -> EpochNo
+  -> File () 'Out
+  -> ExceptT GovernanceCmdError IO ()
+runGovernanceDrepRetirementCertificateCmd = undefined
+-- w vKeyOrHashOrFile outFile =
+--   conwayEraOnwardsConstraints w $ do
+--     DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
+--       . newExceptT
+--       $ readVerificationKeyOrHashOrFile AsDRepKey vKeyOrHashOrFile
+--     undefined
+--
