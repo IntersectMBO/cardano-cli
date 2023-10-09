@@ -49,51 +49,59 @@ jsonConfig :: Aeson.Config
 jsonConfig = Aeson.defConfig {Aeson.confCompare = compare}
 
 friendlyTxJson ::
-  (MonadIO m, IsCardanoEra era)
+  (MonadIO m)
   => Maybe (File () Out)
   -> CardanoEra era
   -> Tx era
   -> m (Either (FileError e) ())
-friendlyTxJson mOutFile era = writeLazyByteStringOutput mOutFile .
-  Aeson.encodePretty' jsonConfig .
-  object .
-  friendlyTx era
+friendlyTxJson mOutFile era =
+  cardanoEraConstraints era $
+    writeLazyByteStringOutput mOutFile .
+    Aeson.encodePretty' jsonConfig .
+    object .
+    friendlyTx era
 
 friendlyTxBodyJson ::
-  (MonadIO m, IsCardanoEra era)
+  (MonadIO m)
   => Maybe (File () Out)
   -> CardanoEra era
   -> TxBody era
   -> m (Either (FileError e) ())
-friendlyTxBodyJson mOutFile era = writeLazyByteStringOutput mOutFile .
-  Aeson.encodePretty' jsonConfig .
-  object .
-  friendlyTxBody era
+friendlyTxBodyJson mOutFile era =
+  cardanoEraConstraints era $
+    writeLazyByteStringOutput mOutFile .
+    Aeson.encodePretty' jsonConfig .
+    object .
+    friendlyTxBody era
 
 yamlConfig :: Yaml.Config
 yamlConfig = Yaml.defConfig & setConfCompare compare
 
 friendlyTxYaml ::
-  (MonadIO m, IsCardanoEra era)
+  (MonadIO m)
   => Maybe (File () Out)
   -> CardanoEra era
   -> Tx era
   -> m (Either (FileError e) ())
-friendlyTxYaml mOutFile era = writeByteStringOutput mOutFile .
-  Yaml.encodePretty yamlConfig .
-  object .
-  friendlyTx era
+friendlyTxYaml mOutFile era =
+  cardanoEraConstraints era $
+    writeByteStringOutput mOutFile .
+    Yaml.encodePretty yamlConfig .
+    object .
+    friendlyTx era
 
 friendlyTxBodyYaml ::
-  (MonadIO m, IsCardanoEra era)
+  (MonadIO m)
   => Maybe (File () Out)
   -> CardanoEra era
   -> TxBody era
   -> m (Either (FileError e) ())
-friendlyTxBodyYaml mOutFile era = writeByteStringOutput mOutFile .
-  Yaml.encodePretty yamlConfig .
-  object .
-  friendlyTxBody era
+friendlyTxBodyYaml mOutFile era =
+  cardanoEraConstraints era $
+    writeByteStringOutput mOutFile .
+    Yaml.encodePretty yamlConfig .
+    object .
+    friendlyTxBody era
 
 friendlyTx :: IsCardanoEra era => CardanoEra era -> Tx era -> [Aeson.Pair]
 friendlyTx era (Tx body witnesses) =
