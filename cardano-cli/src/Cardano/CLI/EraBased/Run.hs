@@ -17,7 +17,7 @@ import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Run.Governance.DRep
-import           Cardano.CLI.EraBased.Run.Governance.Query
+import           Cardano.CLI.EraBased.Run.Governance.Poll (runGovernancePollCmds)
 import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.EraBased.Run.Key
 import           Cardano.CLI.EraBased.Run.Node
@@ -31,7 +31,6 @@ import           Cardano.CLI.Types.Errors.CmdError
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra (firstExceptT)
 import           Data.Function ((&))
-import Cardano.CLI.EraBased.Run.Governance.Poll (runGovernancePollCmds)
 
 runAnyEraCommand :: ()
   => AnyEraCommand
@@ -102,6 +101,3 @@ runGovernanceCmds = \case
 
   GovernanceVoteCmds cmds ->
     runGovernanceVoteCmds cmds
-
-  GovernanceQueryCmds cmds ->
-    runGovernanceQueryCmds cmds

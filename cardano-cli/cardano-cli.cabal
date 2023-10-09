@@ -76,7 +76,6 @@ library
                         Cardano.CLI.EraBased.Commands.Governance.Committee
                         Cardano.CLI.EraBased.Commands.Governance.DRep
                         Cardano.CLI.EraBased.Commands.Governance.Poll
-                        Cardano.CLI.EraBased.Commands.Governance.Query
                         Cardano.CLI.EraBased.Commands.Governance.Vote
                         Cardano.CLI.EraBased.Commands.Key
                         Cardano.CLI.EraBased.Commands.Node
@@ -93,7 +92,6 @@ library
                         Cardano.CLI.EraBased.Options.Governance.Committee
                         Cardano.CLI.EraBased.Options.Governance.DRep
                         Cardano.CLI.EraBased.Options.Governance.Poll
-                        Cardano.CLI.EraBased.Options.Governance.Query
                         Cardano.CLI.EraBased.Options.Governance.Vote
                         Cardano.CLI.EraBased.Options.Key
                         Cardano.CLI.EraBased.Options.Node
@@ -111,7 +109,6 @@ library
                         Cardano.CLI.EraBased.Run.Governance.Committee
                         Cardano.CLI.EraBased.Run.Governance.DRep
                         Cardano.CLI.EraBased.Run.Governance.Poll
-                        Cardano.CLI.EraBased.Run.Governance.Query
                         Cardano.CLI.EraBased.Run.Governance.Vote
                         Cardano.CLI.EraBased.Run.Key
                         Cardano.CLI.EraBased.Run.Node

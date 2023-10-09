@@ -47,6 +47,7 @@ import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Helpers (pPrintCBOR)
 import           Cardano.CLI.Pretty
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.QueryCmdError
 import           Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
@@ -65,6 +66,7 @@ import qualified Cardano.Ledger.Shelley.LedgerState as SL
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import           Ouroboros.Consensus.BlockchainTime.WallClock.Types (RelativeTime (..),
                    toRelativeTime)
+import qualified Ouroboros.Consensus.Cardano.Block as Consensus
 import qualified Ouroboros.Consensus.HardFork.History as Consensus
 import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
 import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
@@ -78,6 +80,7 @@ import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson as Aeson
+import qualified Data.Aeson as A
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
@@ -96,6 +99,7 @@ import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as T
 import qualified Data.Text.IO as Text
 import           Data.Time.Clock
+import           Lens.Micro ((^.))
 import           Numeric (showEFloat)
 import           Prettyprinter
 import qualified System.IO as IO
@@ -106,21 +110,26 @@ import           Text.Printf (printf)
 
 runQueryCmds :: Cmd.QueryCmds era -> ExceptT QueryCmdError IO ()
 runQueryCmds = \case
-  Cmd.QueryLeadershipScheduleCmd  args -> runQueryLeadershipScheduleCmd args
-  Cmd.QueryProtocolParametersCmd  args -> runQueryProtocolParametersCmd args
-  Cmd.QueryConstitutionHashCmd    args -> runQueryConstitutionHashCmd args
-  Cmd.QueryTipCmd                 args -> runQueryTipCmd args
-  Cmd.QueryStakePoolsCmd          args -> runQueryStakePoolsCmd args
-  Cmd.QueryStakeDistributionCmd   args -> runQueryStakeDistributionCmd args
-  Cmd.QueryStakeAddressInfoCmd    args -> runQueryStakeAddressInfoCmd args
-  Cmd.QueryLedgerStateCmd         args -> runQueryLedgerStateCmd args
-  Cmd.QueryStakeSnapshotCmd       args -> runQueryStakeSnapshotCmd args
-  Cmd.QueryProtocolStateCmd       args -> runQueryProtocolStateCmd args
-  Cmd.QueryUTxOCmd                args -> runQueryUTxOCmd args
-  Cmd.QueryKesPeriodInfoCmd       args -> runQueryKesPeriodInfoCmd args
-  Cmd.QueryPoolStateCmd           args -> runQueryPoolStateCmd args
-  Cmd.QueryTxMempoolCmd           args -> runQueryTxMempoolCmd args
-  Cmd.QuerySlotNumberCmd          args -> runQuerySlotNumberCmd args
+  Cmd.QueryLeadershipScheduleCmd    args -> runQueryLeadershipScheduleCmd args
+  Cmd.QueryProtocolParametersCmd    args -> runQueryProtocolParametersCmd args
+  Cmd.QueryConstitutionHashCmd      args -> runQueryConstitutionHashCmd args
+  Cmd.QueryTipCmd                   args -> runQueryTipCmd args
+  Cmd.QueryStakePoolsCmd            args -> runQueryStakePoolsCmd args
+  Cmd.QueryStakeDistributionCmd     args -> runQueryStakeDistributionCmd args
+  Cmd.QueryStakeAddressInfoCmd      args -> runQueryStakeAddressInfoCmd args
+  Cmd.QueryLedgerStateCmd           args -> runQueryLedgerStateCmd args
+  Cmd.QueryStakeSnapshotCmd         args -> runQueryStakeSnapshotCmd args
+  Cmd.QueryProtocolStateCmd         args -> runQueryProtocolStateCmd args
+  Cmd.QueryUTxOCmd                  args -> runQueryUTxOCmd args
+  Cmd.QueryKesPeriodInfoCmd         args -> runQueryKesPeriodInfoCmd args
+  Cmd.QueryPoolStateCmd             args -> runQueryPoolStateCmd args
+  Cmd.QueryTxMempoolCmd             args -> runQueryTxMempoolCmd args
+  Cmd.QuerySlotNumberCmd            args -> runQuerySlotNumberCmd args
+  Cmd.QueryConstitutionCmd          args -> runQueryConstitution args
+  Cmd.QueryGovStateCmd              args -> runQueryGovState args
+  Cmd.QueryDRepStateCmd             args -> runQueryDRepState args
+  Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
+  Cmd.QueryCommitteeStateCmd        args -> runQueryCommitteeState args
 
 runQueryConstitutionHashCmd :: ()
   => Cmd.QueryConstitutionHashCmdArgs
@@ -1392,6 +1401,162 @@ runQueryLeadershipScheduleCmd
                 [ "slotNumber" Aeson..= sn
                 , "error" Aeson..= Text.unpack err
                 ]
+
+runQueryConstitution
+  :: Cmd.QueryNoArgCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryConstitution
+    Cmd.QueryNoArgCmdArgs
+      { Cmd.eon
+      , Cmd.nodeSocketPath
+      , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
+      , Cmd.networkId
+      , Cmd.mOutFile
+      } = conwayEraOnwardsConstraints eon $ do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
+      cEra = conwayEraOnwardsToCardanoEra eon
+      cMode = consensusModeOnly cModeParams
+
+  eraInMode <- toEraInMode cEra cMode
+    & hoistMaybe (QueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
+
+  constitution <- runQuery localNodeConnInfo $ queryConstitution eraInMode sbe
+  writeOutput mOutFile constitution
+
+runQueryGovState
+  :: Cmd.QueryNoArgCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryGovState
+    Cmd.QueryNoArgCmdArgs
+      { Cmd.eon
+      , Cmd.nodeSocketPath
+      , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
+      , Cmd.networkId
+      , Cmd.mOutFile
+      } = conwayEraOnwardsConstraints eon $ do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
+      cEra = conwayEraOnwardsToCardanoEra eon
+      cMode = consensusModeOnly cModeParams
+
+  eraInMode <- toEraInMode cEra cMode
+    & hoistMaybe (QueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
+
+  govState <- runQuery localNodeConnInfo $ queryGovState eraInMode sbe
+  writeOutput mOutFile govState
+
+runQueryDRepState
+  :: Cmd.QueryDRepStateCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryDRepState
+    Cmd.QueryDRepStateCmdArgs
+      { Cmd.eon
+      , Cmd.nodeSocketPath
+      , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
+      , Cmd.networkId
+      , Cmd.drepKeys = drepKeys
+      , Cmd.mOutFile
+      } = conwayEraOnwardsConstraints eon $ do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
+      cEra = conwayEraOnwardsToCardanoEra eon
+      cMode = consensusModeOnly cModeParams
+
+  eraInMode <- toEraInMode cEra cMode
+    & hoistMaybe (QueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
+
+  drepCreds <- Set.fromList <$> mapM (firstExceptT QueryCmdDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
+
+  drepState <- runQuery localNodeConnInfo $ queryDRepState eraInMode sbe drepCreds
+  writeOutput mOutFile $
+    second drepStateToJson <$> Map.assocs drepState
+  where
+    drepStateToJson ds = A.object
+      [ "expiry" .= (ds ^. Ledger.drepExpiryL)
+      , "anchor" .= (ds ^. Ledger.drepAnchorL)
+      , "deposit" .= (ds ^. Ledger.drepDepositL)
+      ]
+
+runQueryDRepStakeDistribution
+  :: Cmd.QueryDRepStakeDistributionCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryDRepStakeDistribution
+    Cmd.QueryDRepStakeDistributionCmdArgs
+      { Cmd.eon
+      , Cmd.nodeSocketPath
+      , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
+      , Cmd.networkId
+      , Cmd.drepKeys = drepKeys
+      , Cmd.mOutFile
+      } = conwayEraOnwardsConstraints eon $ do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
+      cEra = conwayEraOnwardsToCardanoEra eon
+      cMode = consensusModeOnly cModeParams
+
+  let drepFromVrfKey = fmap Ledger.DRepCredential
+                     . firstExceptT QueryCmdDRepKeyError
+                     . getDRepCredentialFromVerKeyHashOrFile
+  dreps <- Set.fromList <$> mapM drepFromVrfKey drepKeys
+
+  eraInMode <- toEraInMode cEra cMode
+    & hoistMaybe (QueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
+
+  drepStakeDistribution <- runQuery localNodeConnInfo $ queryDRepStakeDistribution eraInMode sbe dreps
+  writeOutput mOutFile $
+    Map.assocs drepStakeDistribution
+
+runQueryCommitteeState
+  :: Cmd.QueryNoArgCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryCommitteeState
+    Cmd.QueryNoArgCmdArgs
+      { Cmd.eon
+      , Cmd.nodeSocketPath
+      , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
+      , Cmd.networkId
+      , Cmd.mOutFile
+      }
+    = conwayEraOnwardsConstraints eon $ do
+  let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
+      cEra = conwayEraOnwardsToCardanoEra eon
+      cMode = consensusModeOnly cModeParams
+
+  eraInMode <- toEraInMode cEra cMode
+    & hoistMaybe (QueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
+
+  committeeState <- runQuery localNodeConnInfo $ queryCommitteeState eraInMode sbe
+  writeOutput mOutFile $
+    Map.assocs $ committeeState ^. Ledger.csCommitteeCredsL
+
+runQuery :: LocalNodeConnectInfo mode
+         -> LocalStateQueryExpr
+             (BlockInMode mode)
+             ChainPoint
+             (QueryInMode mode)
+             ()
+             IO
+             (Either
+                UnsupportedNtcVersionError
+                (Either Consensus.EraMismatch a))
+         -> ExceptT QueryCmdError IO a
+runQuery localNodeConnInfo query =
+  firstExceptT QueryCmdAcquireFailure
+    ( newExceptT $ executeLocalStateQueryExpr localNodeConnInfo Nothing query)
+      & onLeft (left . QueryCmdUnsupportedNtcVersion)
+      & onLeft (left . QueryCmdEraMismatch)
+
+writeOutput :: ToJSON b
+            => Maybe (File a Out)
+            -> b
+            -> ExceptT QueryCmdError IO ()
+writeOutput mOutFile content = case mOutFile of
+  Nothing -> liftIO . LBS.putStrLn . encodePretty $ content
+  Just (File f) ->
+    handleIOExceptT (QueryCmdWriteFileError . FileIOError f) $
+      LBS.writeFile f (encodePretty content)
 
 
 -- Helpers

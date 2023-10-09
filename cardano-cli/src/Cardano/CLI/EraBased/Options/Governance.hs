@@ -9,14 +9,12 @@ module Cardano.CLI.EraBased.Options.Governance
 
 import           Cardano.Api
 
-import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Governance
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Governance.Actions
 import           Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Governance.DRep
 import           Cardano.CLI.EraBased.Options.Governance.Poll
-import           Cardano.CLI.EraBased.Options.Governance.Query
 import           Cardano.CLI.EraBased.Options.Governance.Vote
 import           Cardano.CLI.Types.Common
 
@@ -26,9 +24,8 @@ import qualified Options.Applicative as Opt
 
 pGovernanceCmds :: ()
   => CardanoEra era
-  -> EnvCli
   -> Maybe (Parser (GovernanceCmds era))
-pGovernanceCmds era envCli =
+pGovernanceCmds era =
   subInfoParser "governance"
     ( Opt.progDesc
         $ mconcat
@@ -36,7 +33,6 @@ pGovernanceCmds era envCli =
           ]
     )
     [ pCreateMirCertificatesCmds era
-    , fmap GovernanceQueryCmds        <$> pGovernanceQueryCmds era envCli
     , fmap GovernanceActionCmds       <$> pGovernanceActionCmds era
     , fmap GovernanceCommitteeCmds    <$> pGovernanceCommitteeCmds era
     , fmap GovernanceDRepCmds         <$> pGovernanceDRepCmds era

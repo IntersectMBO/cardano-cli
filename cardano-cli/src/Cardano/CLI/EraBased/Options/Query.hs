@@ -23,9 +23,10 @@ import qualified Options.Applicative as Opt
 {- HLINT ignore "Move brackets to avoid $" -}
 
 pQueryCmds :: ()
-  => EnvCli
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryCmds envCli =
+pQueryCmds era envCli =
   subInfoParser "query"
     ( Opt.progDesc
         $ mconcat
@@ -110,6 +111,11 @@ pQueryCmds envCli =
         $ subParser "slot-number"
         $ Opt.info (pQuerySlotNumberCmd envCli)
         $ Opt.progDesc "Query slot number for UTC timestamp"
+    , pQueryGetConstitutionCmd era envCli
+    , pQueryGetGovStateCmd era envCli
+    , pQueryDRepStateCmd era envCli
+    , pQueryDRepStakeDistributionCmd era envCli
+    , pQueryGetCommitteeStateCmd era envCli
     ]
 
 pQueryProtocolParametersCmd :: EnvCli -> Parser (QueryCmds era)
@@ -283,3 +289,91 @@ pQuerySlotNumberCmd envCli =
         [ Opt.metavar "TIMESTAMP"
         , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
         ]
+
+pQueryGetConstitutionCmd :: ()
+  => CardanoEra era
+  -> EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryGetConstitutionCmd era envCli = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "constitution"
+    $ Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs w envCli)
+    $ Opt.progDesc "Get the constitution"
+
+pQueryGetGovStateCmd :: ()
+  => CardanoEra era
+  -> EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryGetGovStateCmd era envCli = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "gov-state"
+    $ Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w envCli)
+    $ Opt.progDesc "Get the governance state"
+
+-- TODO Conway: DRep State and DRep Stake Distribution parsers use DRep keys to obtain DRep credentials. This only
+-- makes use of 'KeyHashObj' constructor of 'Credential kr c'. Should we also support here 'ScriptHashObj'?
+-- What about 'DRep c' - this means that only 'KeyHash' constructor is in use here: should also
+-- 'DRepAlwaysAbstain' and 'DRepAlwaysNoConfidence' be supported here?
+
+pQueryDRepStateCmd :: ()
+  => CardanoEra era
+  -> EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryDRepStateCmd era envCli = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "drep-state"
+    $ Opt.info (QueryDRepStateCmd <$> pQueryDRepStateCmdArgs w)
+    $ Opt.progDesc "Get the DRep state. If no DRep credentials are provided, return states for all of them."
+  where
+    pQueryDRepStateCmdArgs :: ConwayEraOnwards era -> Parser (QueryDRepStateCmdArgs era)
+    pQueryDRepStateCmdArgs w =
+      QueryDRepStateCmdArgs w
+        <$> pSocketPath envCli
+        <*> pConsensusModeParams
+        <*> pNetworkId envCli
+        <*> some pDRepVerificationKeyOrHashOrFile
+        <*> optional pOutputFile
+
+pQueryDRepStakeDistributionCmd :: ()
+  => CardanoEra era
+  -> EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryDRepStakeDistributionCmd era envCli = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "drep-stake-distribution"
+    $ Opt.info (QueryDRepStakeDistributionCmd <$> pQueryDRepStakeDistributionCmdArgs w)
+    $ Opt.progDesc "Get the DRep stake distribution. If no DRep credentials are provided, return stake distributions for all of them."
+  where
+    pQueryDRepStakeDistributionCmdArgs :: ConwayEraOnwards era -> Parser (QueryDRepStakeDistributionCmdArgs era)
+    pQueryDRepStakeDistributionCmdArgs w = QueryDRepStakeDistributionCmdArgs w
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> some pDRepVerificationKeyOrHashOrFile
+      <*> optional pOutputFile
+
+pQueryGetCommitteeStateCmd :: ()
+  => CardanoEra era
+  -> EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryGetCommitteeStateCmd era envCli = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "committee-state"
+    $ Opt.info (QueryCommitteeStateCmd <$> pQueryNoArgCmdArgs w envCli)
+    $ Opt.progDesc "Get the committee state"
+
+pQueryNoArgCmdArgs :: ()
+  => ConwayEraOnwards era
+  -> EnvCli
+  -> Parser (QueryNoArgCmdArgs era)
+pQueryNoArgCmdArgs w envCli =
+  QueryNoArgCmdArgs w
+    <$> pSocketPath envCli
+    <*> pConsensusModeParams
+    <*> pNetworkId envCli
+    <*> optional pOutputFile

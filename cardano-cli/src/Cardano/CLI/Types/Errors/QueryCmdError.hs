@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -54,40 +55,42 @@ data QueryCmdError
   | QueryCmdStakeSnapshotDecodeError DecoderError
   | QueryCmdUnsupportedNtcVersion !UnsupportedNtcVersionError
   | QueryCmdProtocolParameterConversionError !ProtocolParametersConversionError
+  | QueryCmdDRepKeyError !(FileError InputDecodeError)
   deriving Show
 
 renderQueryCmdError :: QueryCmdError -> Text
-renderQueryCmdError err =
-  case err of
-    QueryCmdLocalStateQueryError lsqErr -> renderLocalStateQueryError lsqErr
-    QueryCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    QueryCmdHelpersError helpersErr -> renderHelpersError helpersErr
-    QueryCmdAcquireFailure acquireFail -> Text.pack $ show acquireFail
-    QueryCmdByronEra -> "This query cannot be used for the Byron era"
-    QueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra era) ->
-      "Consensus mode and era mismatch. Consensus mode: " <> textShow cMode <>
-      " Era: " <> textShow era
-    QueryCmdEraMismatch (EraMismatch ledgerEra queryEra) ->
-      "\nAn error mismatch occurred." <> "\nSpecified query era: " <> queryEra <>
-      "\nCurrent ledger era: " <> ledgerEra
-    QueryCmdUnsupportedMode mode -> "Unsupported mode: " <> renderMode mode
-    QueryCmdPastHorizon e -> "Past horizon: " <> textShow e
-    QueryCmdSystemStartUnavailable -> "System start unavailable"
-    QueryCmdGenesisReadError err' -> Text.pack $ displayError err'
-    QueryCmdLeaderShipError e -> Text.pack $ displayError e
-    QueryCmdTextEnvelopeReadError e -> Text.pack $ displayError e
-    QueryCmdTextReadError e -> Text.pack $ displayError e
-    QueryCmdOpCertCounterReadError e -> Text.pack $ displayError e
-    QueryCmdProtocolStateDecodeFailure (_, decErr) ->
-      "Failed to decode the protocol state: " <> toStrict (toLazyText $ build decErr)
-    QueryCmdPoolStateDecodeError decoderError ->
-      "Failed to decode PoolState.  Error: " <> Text.pack (show decoderError)
-    QueryCmdStakeSnapshotDecodeError decoderError ->
-      "Failed to decode StakeSnapshot.  Error: " <> Text.pack (show decoderError)
-    QueryCmdUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
-      "Unsupported feature for the node-to-client protocol version.\n" <>
-      "This query requires at least " <> textShow minNtcVersion <> " but the node negotiated " <> textShow ntcVersion <> ".\n" <>
-      "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
-    QueryCmdProtocolParameterConversionError ppce ->
-      Text.pack $ "Failed to convert protocol parameter: " <> displayError ppce
-    QueryCmdConvenienceError qce -> renderQueryConvenienceError qce
+renderQueryCmdError = \case
+  QueryCmdLocalStateQueryError lsqErr -> renderLocalStateQueryError lsqErr
+  QueryCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
+  QueryCmdHelpersError helpersErr -> renderHelpersError helpersErr
+  QueryCmdAcquireFailure acquireFail -> Text.pack $ show acquireFail
+  QueryCmdByronEra -> "This query cannot be used for the Byron era"
+  QueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra era) ->
+    "Consensus mode and era mismatch. Consensus mode: " <> textShow cMode <>
+    " Era: " <> textShow era
+  QueryCmdEraMismatch (EraMismatch ledgerEra queryEra) ->
+    "\nAn error mismatch occurred." <> "\nSpecified query era: " <> queryEra <>
+    "\nCurrent ledger era: " <> ledgerEra
+  QueryCmdUnsupportedMode mode -> "Unsupported mode: " <> renderMode mode
+  QueryCmdPastHorizon e -> "Past horizon: " <> textShow e
+  QueryCmdSystemStartUnavailable -> "System start unavailable"
+  QueryCmdGenesisReadError err' -> Text.pack $ displayError err'
+  QueryCmdLeaderShipError e -> Text.pack $ displayError e
+  QueryCmdTextEnvelopeReadError e -> Text.pack $ displayError e
+  QueryCmdTextReadError e -> Text.pack $ displayError e
+  QueryCmdOpCertCounterReadError e -> Text.pack $ displayError e
+  QueryCmdProtocolStateDecodeFailure (_, decErr) ->
+    "Failed to decode the protocol state: " <> toStrict (toLazyText $ build decErr)
+  QueryCmdPoolStateDecodeError decoderError ->
+    "Failed to decode PoolState.  Error: " <> Text.pack (show decoderError)
+  QueryCmdStakeSnapshotDecodeError decoderError ->
+    "Failed to decode StakeSnapshot.  Error: " <> Text.pack (show decoderError)
+  QueryCmdUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
+    "Unsupported feature for the node-to-client protocol version.\n" <>
+    "This query requires at least " <> textShow minNtcVersion <> " but the node negotiated " <> textShow ntcVersion <> ".\n" <>
+    "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
+  QueryCmdProtocolParameterConversionError ppce ->
+    Text.pack $ "Failed to convert protocol parameter: " <> displayError ppce
+  QueryCmdConvenienceError qce -> renderQueryConvenienceError qce
+  QueryCmdDRepKeyError e ->
+    "Error reading delegation representative key: " <> Text.pack (displayError e)

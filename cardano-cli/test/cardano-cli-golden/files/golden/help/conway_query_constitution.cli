@@ -1,15 +1,14 @@
-Usage: cardano-cli conway governance query constitution 
-                                                          --socket-path SOCKET_PATH
-                                                          [ --shelley-mode
-                                                          | --byron-mode
-                                                            [--epoch-slots SLOTS]
-                                                          | --cardano-mode
-                                                            [--epoch-slots SLOTS]
-                                                          ]
-                                                          ( --mainnet
-                                                          | --testnet-magic NATURAL
-                                                          )
-                                                          [--out-file FILE]
+Usage: cardano-cli conway query constitution --socket-path SOCKET_PATH
+                                               [ --shelley-mode
+                                               | --byron-mode
+                                                 [--epoch-slots SLOTS]
+                                               | --cardano-mode
+                                                 [--epoch-slots SLOTS]
+                                               ]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               [--out-file FILE]
 
   Get the constitution
 

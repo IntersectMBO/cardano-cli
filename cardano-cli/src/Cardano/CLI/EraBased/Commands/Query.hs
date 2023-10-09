@@ -20,6 +20,9 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryPoolStateCmdArgs(..)
   , QueryTxMempoolCmdArgs(..)
   , QuerySlotNumberCmdArgs(..)
+  , QueryNoArgCmdArgs(..)
+  , QueryDRepStateCmdArgs(..)
+  , QueryDRepStakeDistributionCmdArgs(..)
   , renderQueryCmds
   ) where
 
@@ -33,21 +36,26 @@ import           Data.Time.Clock
 import           GHC.Generics
 
 data QueryCmds era
-  = QueryLeadershipScheduleCmd  !QueryLeadershipScheduleCmdArgs
-  | QueryProtocolParametersCmd  !QueryProtocolParametersCmdArgs
-  | QueryConstitutionHashCmd    !QueryConstitutionHashCmdArgs
-  | QueryTipCmd                 !QueryTipCmdArgs
-  | QueryStakePoolsCmd          !QueryStakePoolsCmdArgs
-  | QueryStakeDistributionCmd   !QueryStakeDistributionCmdArgs
-  | QueryStakeAddressInfoCmd    !QueryStakeAddressInfoCmdArgs
-  | QueryUTxOCmd                !QueryUTxOCmdArgs
-  | QueryLedgerStateCmd         !QueryLedgerStateCmdArgs
-  | QueryProtocolStateCmd       !QueryProtocolStateCmdArgs
-  | QueryStakeSnapshotCmd       !QueryStakeSnapshotCmdArgs
-  | QueryKesPeriodInfoCmd       !QueryKesPeriodInfoCmdArgs
-  | QueryPoolStateCmd           !QueryPoolStateCmdArgs
-  | QueryTxMempoolCmd           !QueryTxMempoolCmdArgs
-  | QuerySlotNumberCmd          !QuerySlotNumberCmdArgs
+  = QueryLeadershipScheduleCmd      !QueryLeadershipScheduleCmdArgs
+  | QueryProtocolParametersCmd      !QueryProtocolParametersCmdArgs
+  | QueryConstitutionHashCmd        !QueryConstitutionHashCmdArgs
+  | QueryTipCmd                     !QueryTipCmdArgs
+  | QueryStakePoolsCmd              !QueryStakePoolsCmdArgs
+  | QueryStakeDistributionCmd       !QueryStakeDistributionCmdArgs
+  | QueryStakeAddressInfoCmd        !QueryStakeAddressInfoCmdArgs
+  | QueryUTxOCmd                    !QueryUTxOCmdArgs
+  | QueryLedgerStateCmd             !QueryLedgerStateCmdArgs
+  | QueryProtocolStateCmd           !QueryProtocolStateCmdArgs
+  | QueryStakeSnapshotCmd           !QueryStakeSnapshotCmdArgs
+  | QueryKesPeriodInfoCmd           !QueryKesPeriodInfoCmdArgs
+  | QueryPoolStateCmd               !QueryPoolStateCmdArgs
+  | QueryTxMempoolCmd               !QueryTxMempoolCmdArgs
+  | QuerySlotNumberCmd              !QuerySlotNumberCmdArgs
+  | QueryConstitutionCmd            !(QueryNoArgCmdArgs era)
+  | QueryGovStateCmd                !(QueryNoArgCmdArgs era)
+  | QueryDRepStateCmd               !(QueryDRepStateCmdArgs era)
+  | QueryDRepStakeDistributionCmd   !(QueryDRepStakeDistributionCmdArgs era)
+  | QueryCommitteeStateCmd          !(QueryNoArgCmdArgs era)
   deriving (Generic, Show)
 
 data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
@@ -165,6 +173,32 @@ data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
   , utcTime             :: !UTCTime
   } deriving (Generic, Show)
 
+data QueryNoArgCmdArgs era = QueryNoArgCmdArgs
+  { eon                 :: !(ConwayEraOnwards era)
+  , nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving Show
+
+data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
+  { eon                 :: !(ConwayEraOnwards era)
+  , nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving Show
+
+data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
+  { eon                 :: !(ConwayEraOnwards era)
+  , nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !AnyConsensusModeParams
+  , networkId           :: !NetworkId
+  , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving Show
+
 renderQueryCmds :: QueryCmds era -> Text
 renderQueryCmds = \case
   QueryLeadershipScheduleCmd {} ->
@@ -197,6 +231,16 @@ renderQueryCmds = \case
     "query tx-mempool" <> renderTxMempoolQuery q
   QuerySlotNumberCmd {} ->
     "query slot-number"
+  QueryConstitutionCmd {} ->
+    "constitution"
+  QueryGovStateCmd {} ->
+    "gov-state"
+  QueryDRepStateCmd {} ->
+    "drep-state"
+  QueryDRepStakeDistributionCmd {} ->
+    "drep-stake-distribution"
+  QueryCommitteeStateCmd {} ->
+    "committee-state"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
 renderTxMempoolQuery = \case
