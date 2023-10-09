@@ -1,6 +1,6 @@
 Usage: cardano-cli conway governance action 
                                               ( create-constitution
-                                              | create-new-committee
+                                              | update-committee
                                               | create-info
                                               | create-no-confidence
                                               | create-protocol-parameters-update
@@ -14,7 +14,7 @@ Available options:
 
 Available commands:
   create-constitution      Create a constitution.
-  create-new-committee     Create a new committee proposal.
+  update-committee         Create or update a new committee proposal.
   create-info              Create an info action.
   create-no-confidence     Create a no confidence proposal.
   create-protocol-parameters-update

@@ -40,7 +40,7 @@ runGovernanceActionCmds = \case
   GovernanceActionTreasuryWithdrawalCmd cOn treasuryWithdrawal ->
     runGovernanceActionTreasuryWithdrawalCmd cOn treasuryWithdrawal
 
-  GoveranceActionCreateNewCommitteeCmd con newCommittee ->
+  GoveranceActionUpdateCommitteeCmd con newCommittee ->
     runGovernanceActionCreateNewCommitteeCmd con newCommittee
 
   GovernanceActionCreateNoConfidenceCmd cOn noConfidence ->
@@ -136,9 +136,9 @@ runGovernanceActionCreateConstitutionCmd cOn (NewConstitutionCmd network deposit
 -- with the new ledger types
 runGovernanceActionCreateNewCommitteeCmd
   :: ConwayEraOnwards era
-  -> NewCommitteeCmd
+  -> UpdateCommitteeCmd
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateNewCommitteeCmd cOn (NewCommitteeCmd network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp) = do
+runGovernanceActionCreateNewCommitteeCmd cOn (UpdateCommitteeCmd network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp) = do
   let sbe = conwayEraOnwardsToShelleyBasedEra cOn -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
       govActIdentifier = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> prevActId
       quorumRational = toRational q

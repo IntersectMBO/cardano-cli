@@ -5,7 +5,7 @@
 module Cardano.CLI.EraBased.Commands.Governance.Actions
   ( AnyStakeIdentifier(..)
   , GovernanceActionCmds(..)
-  , NewCommitteeCmd(..)
+  , UpdateCommitteeCmd(..)
   , NewConstitutionCmd(..)
   , NewInfoCmd(..)
   , NoConfidenceCmd(..)
@@ -27,9 +27,9 @@ data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd
       (ConwayEraOnwards era)
       NewConstitutionCmd
-  | GoveranceActionCreateNewCommitteeCmd
+  | GoveranceActionUpdateCommitteeCmd
       (ConwayEraOnwards era)
-      NewCommitteeCmd
+      UpdateCommitteeCmd
   | GovernanceActionCreateNoConfidenceCmd
       (ConwayEraOnwards era)
       NoConfidenceCmd
@@ -47,18 +47,18 @@ data GovernanceActionCmds era
       NewInfoCmd
   deriving Show
 
-data NewCommitteeCmd
-  = NewCommitteeCmd
-    { ebNetwork :: Ledger.Network
-    , ebDeposit :: Lovelace
-    , ebReturnAddress :: AnyStakeIdentifier
-    , ebProposalUrl :: ProposalUrl
-    , ebProposalHashSource :: ProposalHashSource
-    , ebOldCommittee :: [VerificationKeyOrHashOrFile CommitteeColdKey]
-    , ebNewCommittee :: [(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
-    , ebRequiredQuorum :: Rational
-    , ebPreviousGovActionId :: Maybe (TxId, Word32)
-    , ebFilePath :: File () Out
+data UpdateCommitteeCmd
+  = UpdateCommitteeCmd
+    { ucNetwork :: Ledger.Network
+    , ucDeposit :: Lovelace
+    , ucReturnAddress :: AnyStakeIdentifier
+    , ucProposalUrl :: ProposalUrl
+    , ucProposalHashSource :: ProposalHashSource
+    , ucOldCommittee :: [VerificationKeyOrHashOrFile CommitteeColdKey]
+    , ucNewCommittee :: [(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
+    , ucRequiredQuorum :: Rational
+    , ucPreviousGovActionId :: Maybe (TxId, Word32)
+    , ucFilePath :: File () Out
     } deriving Show
 
 data NewConstitutionCmd
@@ -119,8 +119,8 @@ renderGovernanceActionCmds = ("governance action " <>) . \case
   GovernanceActionTreasuryWithdrawalCmd {} ->
     "create-treasury-withdrawal"
 
-  GoveranceActionCreateNewCommitteeCmd {} ->
-    "create-new-committee"
+  GoveranceActionUpdateCommitteeCmd {} ->
+    "update-committee"
 
   GovernanceActionCreateNoConfidenceCmd {} ->
     "create-no-confidence"
