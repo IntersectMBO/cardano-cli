@@ -12,6 +12,7 @@ module Cardano.CLI.EraBased.Run.Governance.DRep
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Ledger (Credential (KeyHashObj))
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
@@ -45,6 +46,10 @@ runGovernanceDRepCmds = \case
     conwayEraOnwardsConstraints w $ do
       runGovernanceRegistrationCertificateCmd w vkey lovelace anchor outFp
         & firstExceptT CmdRegistrationError
+
+  GovernanceDRepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp ->
+    runGovernanceDrepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp
+      & firstExceptT CmdGovernanceCmdError
 
 runGovernanceDRepIdCmd :: ()
   => ConwayEraOnwards era
@@ -91,3 +96,22 @@ runGovernanceRegistrationCertificateCmd cOnwards drepKOrHOrF deposit anchor outf
       . writeLazyByteStringFile outfp
       $ conwayEraOnwardsConstraints cOnwards
       $ textEnvelopeToJSON description registrationCert
+
+runGovernanceDrepRetirementCertificateCmd
+  :: ConwayEraOnwards era
+  -> VerificationKeyOrHashOrFile DRepKey
+  -> Lovelace
+  -> File () 'Out
+  -> ExceptT GovernanceCmdError IO ()
+runGovernanceDrepRetirementCertificateCmd w vKeyOrHashOrFile deposit outFile =
+   conwayEraOnwardsConstraints w $ do
+     DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
+       . newExceptT
+       $ readVerificationKeyOrHashOrFile AsDRepKey vKeyOrHashOrFile
+     makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w (VotingCredential $ KeyHashObj drepKeyHash) deposit)
+      & writeFileTextEnvelope outFile (Just genKeyDelegCertDesc)
+      & firstExceptT GovernanceCmdTextEnvWriteError . newExceptT
+
+  where
+    genKeyDelegCertDesc :: TextEnvelopeDescr
+    genKeyDelegCertDesc = "DRep Retirement Certificate"

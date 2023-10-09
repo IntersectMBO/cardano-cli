@@ -2631,6 +2631,14 @@ pKeyRegistDeposit =
    , Opt.help "Key registration deposit amount."
    ]
 
+pDrepDeposit :: Parser Lovelace
+pDrepDeposit =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+   [ Opt.long "deposit-amt"
+   , Opt.metavar "LOVELACE"
+   , Opt.help "DRep deposit amount (same at registration and retirement)."
+   ]
+
 pPoolDeposit :: Parser Lovelace
 pPoolDeposit =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat

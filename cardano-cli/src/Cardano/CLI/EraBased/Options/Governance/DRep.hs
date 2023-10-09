@@ -40,6 +40,7 @@ pGovernanceDRepCmds era =
     [ pGovernanceDRepKeyGenCmd era
     , pGovernanceDRepKeyIdCmd era
     , pRegistrationCertificateCmd era
+    , pRetirementCertificateCmd era
     ]
 
 pGovernanceDRepKeyGenCmd :: ()
@@ -121,6 +122,21 @@ pDrepMetadataHash =
     , Opt.help "DRep anchor data hash."
     ]
 
+
+pRetirementCertificateCmd :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceDRepCmds era))
+pRetirementCertificateCmd era = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "retirement-certificate"
+    $ Opt.info
+      ( GovernanceDRepRetirementCertificateCmd w
+          <$> pDRepVerificationKeyOrHashOrFile
+          <*> pDrepDeposit
+          <*> pOutputFile
+      )
+    $ Opt.progDesc "Create a DRep retirement certificate."
 
 --------------------------------------------------------------------------------
 

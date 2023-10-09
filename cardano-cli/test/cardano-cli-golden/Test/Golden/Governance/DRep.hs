@@ -60,3 +60,19 @@ hprop_golden_governance_drep_id_hex =
       ]
 
     H.diffFileVsGoldenFile idFile idGold
+
+hprop_golden_governance_drep_retirement_certificate :: Property
+hprop_golden_governance_drep_retirement_certificate =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+    certFile <- H.noteTempFile tempDir "drep.retirement.cert"
+
+    void $ execCardanoCLI
+      [  "conway", "governance", "drep", "retirement-certificate"
+      , "--drep-verification-key-file", drepVKeyFile
+      , "--deposit-amt", "1000000"
+      , "--out-file", certFile
+      ]
+
+    H.assertFileOccurences 1 "CertificateShelley" certFile
+    H.assertFileOccurences 1 "DRep Retirement Certificate" certFile

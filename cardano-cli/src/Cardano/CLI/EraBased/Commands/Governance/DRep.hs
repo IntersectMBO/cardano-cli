@@ -31,6 +31,11 @@ data GovernanceDRepCmds era
       Lovelace
       (Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era))))
       (File () Out)
+  | GovernanceDRepRetirementCertificateCmd
+      (ConwayEraOnwards era)
+      (VerificationKeyOrHashOrFile DRepKey)
+      Lovelace
+      (File () Out)
 
 renderGovernanceDRepCmds :: ()
   => GovernanceDRepCmds era
@@ -42,3 +47,5 @@ renderGovernanceDRepCmds = \case
     "governance drep id"
   GovernanceDRepRegistrationCertificateCmd {} ->
     "governance drep registration-certificate"
+  GovernanceDRepRetirementCertificateCmd {} ->
+    "governance drep retirement-certificate"

@@ -6530,6 +6530,7 @@ Usage: cardano-cli conway governance drep
                                             ( key-gen
                                             | id
                                             | registration-certificate
+                                            | retirement-certificate
                                             )
 
   DRep member commands.
@@ -6559,6 +6560,16 @@ Usage: cardano-cli conway governance drep registration-certificate
                                                                      --out-file FILE
 
   Create a registration certificate.
+
+Usage: cardano-cli conway governance drep retirement-certificate 
+                                                                   ( --drep-verification-key STRING
+                                                                   | --drep-verification-key-file FILE
+                                                                   | --drep-key-hash HASH
+                                                                   )
+                                                                   --deposit-amt LOVELACE
+                                                                   --out-file FILE
+
+  Create a DRep retirement certificate.
 
 Usage: cardano-cli conway governance vote (create | view)
 
