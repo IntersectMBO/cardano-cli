@@ -276,4 +276,8 @@ pTransactionId  :: Parser (TransactionCmds era)
 pTransactionId = TxGetTxId <$> pInputTxOrTxBodyFile
 
 pTransactionView :: Parser (TransactionCmds era)
-pTransactionView = TxView <$> pInputTxOrTxBodyFile
+pTransactionView =
+  TxView
+    <$> pTxViewOutputFormat
+    <*> pMaybeOutputFile
+    <*> pInputTxOrTxBodyFile

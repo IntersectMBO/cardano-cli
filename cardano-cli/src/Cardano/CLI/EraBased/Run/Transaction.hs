@@ -33,7 +33,8 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.CLI.EraBased.Run.Genesis
-import           Cardano.CLI.Json.Friendly (friendlyTxBS, friendlyTxBodyBS)
+import           Cardano.CLI.Json.Friendly (friendlyTxBodyJson, friendlyTxBodyYaml, friendlyTxJson,
+                   friendlyTxYaml)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -104,8 +105,8 @@ runTransactionCmds cmd =
       runTxHashScriptDataCmd scriptDataOrFile
     TxGetTxId txinfile ->
       runTxGetTxIdCmd txinfile
-    TxView txinfile ->
-      runTxViewCmd txinfile
+    TxView outFormat mOutFile txinfile ->
+      runTxViewCmd outFormat mOutFile txinfile
     TxMintedPolicyId sFile ->
       runTxCreatePolicyIdCmd sFile
     TxCreateWitness txBodyfile witSignData mbNw outFile ->
@@ -1153,9 +1154,11 @@ runTxGetTxIdCmd txfile = do
     liftIO $ BS.putStrLn $ serialiseToRawBytesHex (getTxId txbody)
 
 runTxViewCmd :: ()
-  => InputTxBodyOrTxFile
+  => TxViewOutputFormat
+  -> Maybe (File () Out)
+  -> InputTxBodyOrTxFile
   -> ExceptT TxCmdError IO ()
-runTxViewCmd = \case
+runTxViewCmd yamlOrJson mOutFile = \case
   InputTxBodyFile (File txbodyFilePath) -> do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     unwitnessed <- firstExceptT TxCmdCddlError . newExceptT
@@ -1165,14 +1168,22 @@ runTxViewCmd = \case
         UnwitnessedCliFormattedTxBody anyTxBody -> pure anyTxBody
         IncompleteCddlFormattedTx (InAnyCardanoEra era tx) ->
           pure $ InAnyCardanoEra era (getTxBody tx)
-    --TODO: Why are we maintaining friendlyTxBodyBS and friendlyTxBS?
-    -- In the case of a transaction body, we can simply call makeSignedTransaction []
-    -- to get a transaction which allows us to reuse friendlyTxBS!
-    liftIO $ BS.putStr $ friendlyTxBodyBS era txbody
+    -- Why are we differentiating between a transaction body and a transaction?
+    -- In the case of a transaction body, we /could/ simply call @makeSignedTransaction []@
+    -- to get a transaction which would allow us to reuse friendlyTxBS. However,
+    -- this would mean that we'd have an empty list of witnesses mentioned in the output, which
+    -- is arguably not part of the transaction body.
+    firstExceptT TxCmdWriteFileError . newExceptT $
+      case yamlOrJson of
+        TxViewOutputFormatYaml -> friendlyTxBodyYaml mOutFile era txbody
+        TxViewOutputFormatJson -> friendlyTxBodyJson mOutFile era txbody
   InputTxFile (File txFilePath) -> do
     txFile <- liftIO $ fileOrPipe txFilePath
     InAnyCardanoEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdCddlError)
-    liftIO $ BS.putStr $ friendlyTxBS era tx
+    firstExceptT TxCmdWriteFileError . newExceptT $
+      case yamlOrJson of
+        TxViewOutputFormatYaml -> friendlyTxYaml mOutFile era tx
+        TxViewOutputFormatJson -> friendlyTxJson mOutFile era tx
 
 
 -- ----------------------------------------------------------------------------

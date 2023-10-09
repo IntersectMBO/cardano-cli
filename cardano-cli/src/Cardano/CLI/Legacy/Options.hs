@@ -668,7 +668,11 @@ pTransaction envCli =
   pTransactionId = TxGetTxId <$> pInputTxOrTxBodyFile
 
   pTransactionView :: Parser LegacyTransactionCmds
-  pTransactionView = TxView <$> pInputTxOrTxBodyFile
+  pTransactionView =
+    TxView
+      <$> pTxViewOutputFormat
+      <*> pMaybeOutputFile
+      <*> pInputTxOrTxBodyFile
 
 pNodeCmds :: Parser LegacyNodeCmds
 pNodeCmds =

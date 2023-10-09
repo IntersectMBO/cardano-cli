@@ -1189,7 +1189,8 @@ Usage: cardano-cli shelley transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli shelley transaction view 
+Usage: cardano-cli shelley transaction view [--output-format STRING]
+                                              [--out-file FILE]
                                               ( --tx-body-file FILE
                                               | --tx-file FILE
                                               )
@@ -2372,7 +2373,8 @@ Usage: cardano-cli allegra transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli allegra transaction view 
+Usage: cardano-cli allegra transaction view [--output-format STRING]
+                                              [--out-file FILE]
                                               ( --tx-body-file FILE
                                               | --tx-file FILE
                                               )
@@ -3530,7 +3532,11 @@ Usage: cardano-cli mary transaction txid (--tx-body-file FILE | --tx-file FILE)
 
   Print a transaction identifier.
 
-Usage: cardano-cli mary transaction view (--tx-body-file FILE | --tx-file FILE)
+Usage: cardano-cli mary transaction view [--output-format STRING]
+                                           [--out-file FILE]
+                                           ( --tx-body-file FILE
+                                           | --tx-file FILE
+                                           )
 
   Print a transaction.
 
@@ -4714,7 +4720,8 @@ Usage: cardano-cli alonzo transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli alonzo transaction view 
+Usage: cardano-cli alonzo transaction view [--output-format STRING]
+                                             [--out-file FILE]
                                              ( --tx-body-file FILE
                                              | --tx-file FILE
                                              )
@@ -5925,7 +5932,8 @@ Usage: cardano-cli babbage transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli babbage transaction view 
+Usage: cardano-cli babbage transaction view [--output-format STRING]
+                                              [--out-file FILE]
                                               ( --tx-body-file FILE
                                               | --tx-file FILE
                                               )
@@ -7471,7 +7479,8 @@ Usage: cardano-cli conway transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli conway transaction view 
+Usage: cardano-cli conway transaction view [--output-format STRING]
+                                             [--out-file FILE]
                                              ( --tx-body-file FILE
                                              | --tx-file FILE
                                              )
@@ -8679,7 +8688,8 @@ Usage: cardano-cli latest transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli latest transaction view 
+Usage: cardano-cli latest transaction view [--output-format STRING]
+                                             [--out-file FILE]
                                              ( --tx-body-file FILE
                                              | --tx-file FILE
                                              )
@@ -9758,7 +9768,8 @@ Usage: cardano-cli legacy transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli legacy transaction view 
+Usage: cardano-cli legacy transaction view [--output-format STRING]
+                                             [--out-file FILE]
                                              ( --tx-body-file FILE
                                              | --tx-file FILE
                                              )
@@ -10981,7 +10992,9 @@ Usage: cardano-cli transaction txid (--tx-body-file FILE | --tx-file FILE)
 
   Print a transaction identifier.
 
-Usage: cardano-cli transaction view (--tx-body-file FILE | --tx-file FILE)
+Usage: cardano-cli transaction view [--output-format STRING]
+                                      [--out-file FILE]
+                                      (--tx-body-file FILE | --tx-file FILE)
 
   Print a transaction.
 

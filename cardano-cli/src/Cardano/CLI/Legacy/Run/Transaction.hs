@@ -48,8 +48,8 @@ runLegacyTransactionCmds cmd =
       runLegacyTxHashScriptDataCmd scriptDataOrFile
     TxGetTxId txinfile ->
       runLegacyTxGetTxIdCmd txinfile
-    TxView txinfile ->
-      runLegacyTxViewCmd txinfile
+    TxView yamlOrJson mOutFile txinfile ->
+      runLegacyTxViewCmd yamlOrJson mOutFile txinfile
     TxMintedPolicyId sFile ->
       runLegacyTxCreatePolicyIdCmd sFile
     TxCreateWitness txBodyfile witSignData mbNw outFile ->
@@ -158,7 +158,7 @@ runLegacyTxHashScriptDataCmd = runTxHashScriptDataCmd
 runLegacyTxGetTxIdCmd :: InputTxBodyOrTxFile -> ExceptT TxCmdError IO ()
 runLegacyTxGetTxIdCmd = runTxGetTxIdCmd
 
-runLegacyTxViewCmd :: InputTxBodyOrTxFile -> ExceptT TxCmdError IO ()
+runLegacyTxViewCmd :: TxViewOutputFormat -> Maybe (File () Out) -> InputTxBodyOrTxFile -> ExceptT TxCmdError IO ()
 runLegacyTxViewCmd = runTxViewCmd
 
 runLegacyTxCreateWitnessCmd :: ()

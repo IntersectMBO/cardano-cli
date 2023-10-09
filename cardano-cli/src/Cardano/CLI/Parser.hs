@@ -5,6 +5,7 @@ module Cardano.CLI.Parser
   , readFractionAsRational
   , readKeyOutputFormat
   , readIdOutputFormat
+  , readTxViewOutputFormat
   , readRational
   , readRationalUnitInterval
   , readStringOfMaxLength
@@ -47,6 +48,18 @@ readKeyOutputFormat = do
       fail $ mconcat
         [ "Invalid key output format: " <> show s
         , ". Accepted output formats are \"text-envelope\" and \"bech32\"."
+        ]
+
+readTxViewOutputFormat :: Opt.ReadM TxViewOutputFormat
+readTxViewOutputFormat = do
+  s <- Opt.str @String
+  case s of
+    "json" -> pure TxViewOutputFormatJson
+    "yaml" -> pure TxViewOutputFormatYaml
+    _ ->
+      fail $ mconcat
+        [ "Invalid transaction view output format: " <> show s
+        , ". Accepted output formats are \"json\" and \"yaml\"."
         ]
 
 readURIOfMaxLength :: Int -> Opt.ReadM Text
