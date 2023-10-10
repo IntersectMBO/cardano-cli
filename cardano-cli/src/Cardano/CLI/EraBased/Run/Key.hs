@@ -144,58 +144,53 @@ runConvertByronKeyCmd
   -> SomeKeyFile In  -- ^ Input file: old format
   -> File () Out     -- ^ Output file: new format
   -> ExceptT KeyCmdError IO ()
-runConvertByronKeyCmd mPwd (ByronPaymentKey format) (ASigningKeyFile skeyPathOld) =
-    convertByronSigningKey mPwd format convert skeyPathOld
-  where
-    convert :: Byron.SigningKey -> SigningKey ByronKey
-    convert = ByronSigningKey
+runConvertByronKeyCmd mPwd byronKeyType inFile outFile =
+  case (byronKeyType, inFile) of
+    (ByronPaymentKey format, ASigningKeyFile skeyPathOld) ->
+      convertByronSigningKey mPwd format convert skeyPathOld outFile
+      where
+        convert :: Byron.SigningKey -> SigningKey ByronKey
+        convert = ByronSigningKey
 
-runConvertByronKeyCmd mPwd (ByronGenesisKey format) (ASigningKeyFile skeyPathOld) =
-    convertByronSigningKey mPwd format convert skeyPathOld
-  where
-    convert :: Byron.SigningKey -> SigningKey GenesisExtendedKey
-    convert (Byron.SigningKey xsk) = GenesisExtendedSigningKey xsk
+    (ByronGenesisKey format, ASigningKeyFile skeyPathOld) ->
+      convertByronSigningKey mPwd format convert skeyPathOld outFile
+      where
+        convert :: Byron.SigningKey -> SigningKey GenesisExtendedKey
+        convert (Byron.SigningKey xsk) = GenesisExtendedSigningKey xsk
 
-runConvertByronKeyCmd mPwd (ByronDelegateKey format) (ASigningKeyFile skeyPathOld) =
-    convertByronSigningKey mPwd format convert skeyPathOld
-  where
-    convert :: Byron.SigningKey -> SigningKey GenesisDelegateExtendedKey
-    convert (Byron.SigningKey xsk) = GenesisDelegateExtendedSigningKey xsk
+    (ByronDelegateKey format, ASigningKeyFile skeyPathOld) ->
+      convertByronSigningKey mPwd format convert skeyPathOld outFile
+      where
+        convert :: Byron.SigningKey -> SigningKey GenesisDelegateExtendedKey
+        convert (Byron.SigningKey xsk) = GenesisDelegateExtendedSigningKey xsk
 
-runConvertByronKeyCmd _ (ByronPaymentKey NonLegacyByronKeyFormat)
-                     (AVerificationKeyFile vkeyPathOld) =
-    convertByronVerificationKey convert vkeyPathOld
-  where
-    convert :: Byron.VerificationKey -> VerificationKey ByronKey
-    convert = ByronVerificationKey
+    (ByronPaymentKey NonLegacyByronKeyFormat, AVerificationKeyFile vkeyPathOld) ->
+      convertByronVerificationKey convert vkeyPathOld outFile
+      where
+        convert :: Byron.VerificationKey -> VerificationKey ByronKey
+        convert = ByronVerificationKey
 
-runConvertByronKeyCmd _ (ByronGenesisKey NonLegacyByronKeyFormat)
-                     (AVerificationKeyFile vkeyPathOld) =
-    convertByronVerificationKey convert vkeyPathOld
-  where
-    convert :: Byron.VerificationKey -> VerificationKey GenesisExtendedKey
-    convert (Byron.VerificationKey xvk) = GenesisExtendedVerificationKey xvk
+    (ByronGenesisKey NonLegacyByronKeyFormat, AVerificationKeyFile vkeyPathOld) ->
+      convertByronVerificationKey convert vkeyPathOld outFile
+      where
+        convert :: Byron.VerificationKey -> VerificationKey GenesisExtendedKey
+        convert (Byron.VerificationKey xvk) = GenesisExtendedVerificationKey xvk
 
-runConvertByronKeyCmd _ (ByronDelegateKey NonLegacyByronKeyFormat)
-                     (AVerificationKeyFile vkeyPathOld) =
-    convertByronVerificationKey convert vkeyPathOld
-  where
-    convert :: Byron.VerificationKey
-            -> VerificationKey GenesisDelegateExtendedKey
-    convert (Byron.VerificationKey xvk) =
-      GenesisDelegateExtendedVerificationKey xvk
+    (ByronDelegateKey NonLegacyByronKeyFormat, AVerificationKeyFile vkeyPathOld) ->
+      convertByronVerificationKey convert vkeyPathOld outFile
+      where
+        convert :: Byron.VerificationKey -> VerificationKey GenesisDelegateExtendedKey
+        convert (Byron.VerificationKey xvk) =
+          GenesisDelegateExtendedVerificationKey xvk
 
-runConvertByronKeyCmd _ (ByronPaymentKey  LegacyByronKeyFormat)
-                      AVerificationKeyFile{} =
-    const legacyVerificationKeysNotSupported
+    (ByronPaymentKey  LegacyByronKeyFormat, AVerificationKeyFile{}) ->
+      legacyVerificationKeysNotSupported
 
-runConvertByronKeyCmd _ (ByronGenesisKey  LegacyByronKeyFormat)
-                      AVerificationKeyFile{} =
-    const legacyVerificationKeysNotSupported
+    (ByronGenesisKey  LegacyByronKeyFormat, AVerificationKeyFile{}) ->
+      legacyVerificationKeysNotSupported
 
-runConvertByronKeyCmd _ (ByronDelegateKey LegacyByronKeyFormat)
-                      AVerificationKeyFile{} =
-    const legacyVerificationKeysNotSupported
+    (ByronDelegateKey LegacyByronKeyFormat, AVerificationKeyFile{}) ->
+      legacyVerificationKeysNotSupported
 
 legacyVerificationKeysNotSupported :: ExceptT e IO a
 legacyVerificationKeysNotSupported =
@@ -204,7 +199,6 @@ legacyVerificationKeysNotSupported =
               ++ "verification keys. Convert the signing key and then get the "
               ++ "verification key."
       exitFailure
-
 
 convertByronSigningKey
   :: forall keyrole.
