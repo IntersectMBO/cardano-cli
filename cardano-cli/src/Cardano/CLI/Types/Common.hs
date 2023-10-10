@@ -74,6 +74,9 @@ module Cardano.CLI.Types.Common
   , UpdateProposalFile (..)
   , VerificationKeyBase64(..)
   , VerificationKeyFile
+  , VoteUrl(..)
+  , VoteText(..)
+  , VoteHashSource(..)
   , WitnessFile(..)
   , WitnessSigningData(..)
   ) where
@@ -128,6 +131,20 @@ data ProposalHashSource
   = ProposalHashSourceFile (File ProposalText In)
   | ProposalHashSourceText Text
   | ProposalHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+  deriving Show
+
+newtype VoteUrl = VoteUrl
+  { unVoteUrl :: L.Url
+  } deriving (Eq, Show)
+
+newtype VoteText = VoteText
+  { unVoteText :: Text
+  } deriving (Eq, Show)
+
+data VoteHashSource
+  = VoteHashSourceFile (File VoteText In)
+  | VoteHashSourceText Text
+  | VoteHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
   deriving Show
 
 newtype AnchorUrl = AnchorUrl
