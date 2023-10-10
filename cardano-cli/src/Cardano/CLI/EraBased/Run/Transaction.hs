@@ -38,6 +38,7 @@ import           Cardano.CLI.Json.Friendly (friendlyTxBodyJson, friendlyTxBodyYa
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
+import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Governance
@@ -246,15 +247,13 @@ runTxBuildCmd
             & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
             & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
-          (nodeEraUTxO, _, eraHistory, systemStart, _, _, _) <-
+          (txEraUtxo, _, eraHistory, systemStart, _, _, _) <-
             lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (queryStateForBalancedTx nodeEra allTxInputs []))
               & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
               & onLeft (left . TxCmdQueryConvenienceError)
 
-          -- Why do we cast the era? The user can specify an era prior to the era that the node is currently in.
-          -- We cannot use the user specified era to construct a query against a node because it may differ
-          -- from the node's era and this will result in the 'QueryEraMismatch' failure.
-          txEraUtxo <- cardanoEraConstraints era $ pure (eraCast era nodeEraUTxO) & onLeft (left . TxCmdTxEraCastErr)
+          Refl <- testEquality era nodeEra
+            & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
           scriptExecUnitsMap <-
             firstExceptT TxCmdTxExecUnitsErr $ hoistEither
@@ -579,7 +578,7 @@ runTxBuild
         & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
       Refl <- testEquality era nodeEra
-              & hoistMaybe (TxCmdTxEraCastErr $ EraCastError ("nodeEra" :: Text) era nodeEra)
+        & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
       let certs =
             case validatedTxCerts of

@@ -16,6 +16,7 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
+import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output
@@ -68,7 +69,7 @@ data TxCmdError
   | TxCmdPParamExecutionUnitsNotAvailable
   | TxCmdPlutusScriptsRequireCardanoMode
   | TxCmdProtocolParametersNotPresentInTxBody
-  | TxCmdTxEraCastErr EraCastError
+  | TxCmdTxNodeEraMismatchError !NodeEraMismatchError
   | TxCmdQueryConvenienceError !QueryConvenienceError
   | TxCmdQueryNotScriptLocked !ScriptLockedTxInsError
   | TxCmdScriptDataError !ScriptDataError
@@ -167,9 +168,12 @@ renderTxCmdError err =
       [ "Execution units not available in the protocol parameters. This is "
       , "likely due to not being in the Alonzo era"
       ]
-    TxCmdTxEraCastErr (EraCastError value fromEra toEra) ->
-      "Transactions can only be produced in the same era as the node. Mismatched eras of "
-      <> textShow value <> ". Requested era: " <> renderEra (AnyCardanoEra toEra) <> ", node era: " <> renderEra (AnyCardanoEra fromEra) <> "."
+    TxCmdTxNodeEraMismatchError (NodeEraMismatchError nodeEra valueEra) ->
+      cardanoEraConstraints nodeEra $ cardanoEraConstraints valueEra $ mconcat
+        [ "Transactions can only be produced in the same era as the node. Requested era: "
+        , renderEra (AnyCardanoEra valueEra) <> ", node era: "
+        , renderEra (AnyCardanoEra nodeEra) <> "."
+        ]
     TxCmdQueryConvenienceError e ->
       renderQueryConvenienceError e
     TxCmdQueryNotScriptLocked e ->

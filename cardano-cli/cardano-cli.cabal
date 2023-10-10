@@ -170,6 +170,7 @@ library
                         Cardano.CLI.Types.Errors.ItnKeyConversionError
                         Cardano.CLI.Types.Errors.KeyCmdError
                         Cardano.CLI.Types.Errors.NodeCmdError
+                        Cardano.CLI.Types.Errors.NodeEraMismatchError
                         Cardano.CLI.Types.Errors.ProtocolParamsError
                         Cardano.CLI.Types.Errors.QueryCmdError
                         Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
