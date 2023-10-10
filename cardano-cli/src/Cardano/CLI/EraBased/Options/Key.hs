@@ -103,23 +103,26 @@ pKeyCmds =
 
 pKeyVerificationKeyCmd :: Parser (KeyCmds era)
 pKeyVerificationKeyCmd =
-  KeyVerificationKeyCmd
-    <$> pSigningKeyFileIn
-    <*> pVerificationKeyFileOut
+  fmap KeyVerificationKeyCmd $
+    KeyVerificationKeyCmdArgs
+      <$> pSigningKeyFileIn
+      <*> pVerificationKeyFileOut
 
 pKeyNonExtendedKeyCmd :: Parser (KeyCmds era)
 pKeyNonExtendedKeyCmd =
-  KeyNonExtendedKeyCmd
-    <$> pExtendedVerificationKeyFileIn
-    <*> pVerificationKeyFileOut
+  fmap KeyNonExtendedKeyCmd $
+    KeyNonExtendedKeyCmdArgs
+      <$> pExtendedVerificationKeyFileIn
+      <*> pVerificationKeyFileOut
 
 pKeyConvertByronKeyCmd :: Parser (KeyCmds era)
 pKeyConvertByronKeyCmd =
-  KeyConvertByronKeyCmd
-    <$> optional pPassword
-    <*> pByronKeyType
-    <*> pByronKeyFile
-    <*> pOutputFile
+  fmap KeyConvertByronKeyCmd $
+    KeyConvertByronKeyCmdArgs
+      <$> optional pPassword
+      <*> pByronKeyType
+      <*> pByronKeyFile
+      <*> pOutputFile
 
 pPassword :: Parser Text
 pPassword =
@@ -185,9 +188,10 @@ pByronVerificationKeyFile =
 
 pKeyConvertByronGenesisKeyCmd :: Parser (KeyCmds era)
 pKeyConvertByronGenesisKeyCmd =
-  KeyConvertByronGenesisKeyCmd
-    <$> pByronGenesisVKeyBase64
-    <*> pOutputFile
+  fmap KeyConvertByronGenesisKeyCmd $
+    KeyConvertByronGenesisKeyCmdArgs
+      <$> pByronGenesisVKeyBase64
+      <*> pOutputFile
 
 pByronGenesisVKeyBase64 :: Parser VerificationKeyBase64
 pByronGenesisVKeyBase64 =
@@ -199,21 +203,24 @@ pByronGenesisVKeyBase64 =
 
 pKeyConvertITNKeyCmd :: Parser (KeyCmds era)
 pKeyConvertITNKeyCmd =
-  KeyConvertITNKeyCmd
-    <$> pITNKeyFIle
-    <*> pOutputFile
+  fmap KeyConvertITNKeyCmd $
+    KeyConvertITNKeyCmdArgs
+      <$> pITNKeyFIle
+      <*> pOutputFile
 
 pKeyConvertITNExtendedKeyCmd :: Parser (KeyCmds era)
 pKeyConvertITNExtendedKeyCmd =
-  KeyConvertITNExtendedKeyCmd
-    <$> pITNSigningKeyFile
-    <*> pOutputFile
+  fmap KeyConvertITNExtendedKeyCmd $
+    KeyConvertITNExtendedKeyCmdArgs
+      <$> pITNSigningKeyFile
+      <*> pOutputFile
 
 pKeyConvertITNBip32KeyCmd :: Parser (KeyCmds era)
 pKeyConvertITNBip32KeyCmd =
-  KeyConvertITNBip32KeyCmd
-    <$> pITNSigningKeyFile
-    <*> pOutputFile
+  fmap KeyConvertITNBip32KeyCmd $
+    KeyConvertITNBip32KeyCmdArgs
+      <$> pITNSigningKeyFile
+      <*> pOutputFile
 
 pITNKeyFIle :: Parser (SomeKeyFile direction)
 pITNKeyFIle =
@@ -242,10 +249,11 @@ pITNVerificationKeyFile =
 
 pKeyConvertCardanoAddressKeyCmd :: Parser (KeyCmds era)
 pKeyConvertCardanoAddressKeyCmd =
-  KeyConvertCardanoAddressKeyCmd
-    <$> pCardanoAddressKeyType
-    <*> pSigningKeyFileIn
-    <*> pOutputFile
+  fmap KeyConvertCardanoAddressKeyCmd $
+    KeyConvertCardanoAddressKeyCmdArgs
+      <$> pCardanoAddressKeyType
+      <*> pSigningKeyFileIn
+      <*> pOutputFile
 
 pCardanoAddressKeyType :: Parser CardanoAddressKeyType
 pCardanoAddressKeyType =

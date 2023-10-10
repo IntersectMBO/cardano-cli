@@ -1,8 +1,17 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Key
   ( KeyCmds (..)
+  , KeyVerificationKeyCmdArgs(..)
+  , KeyNonExtendedKeyCmdArgs(..)
+  , KeyConvertByronKeyCmdArgs(..)
+  , KeyConvertByronGenesisKeyCmdArgs(..)
+  , KeyConvertITNKeyCmdArgs(..)
+  , KeyConvertITNExtendedKeyCmdArgs(..)
+  , KeyConvertITNBip32KeyCmdArgs(..)
+  , KeyConvertCardanoAddressKeyCmdArgs(..)
   , renderKeyCmds
   ) where
 
@@ -13,34 +22,58 @@ import           Cardano.CLI.Types.Common
 import           Data.Text (Text)
 
 data KeyCmds era
-  = KeyVerificationKeyCmd
-      (SigningKeyFile In)
-      (VerificationKeyFile Out)
-  | KeyNonExtendedKeyCmd
-      (VerificationKeyFile In)
-      (VerificationKeyFile Out)
-  | KeyConvertByronKeyCmd
-      (Maybe Text)
-      ByronKeyType
-      (SomeKeyFile In)
-      (File () Out)
-  | KeyConvertByronGenesisKeyCmd
-      VerificationKeyBase64
-      (File () Out)
-  | KeyConvertITNKeyCmd
-      (SomeKeyFile In)
-      (File () Out)
-  | KeyConvertITNExtendedKeyCmd
-      (SomeKeyFile In)
-      (File () Out)
-  | KeyConvertITNBip32KeyCmd
-      (SomeKeyFile In)
-      (File () Out)
-  | KeyConvertCardanoAddressKeyCmd
-      CardanoAddressKeyType
-      (SigningKeyFile In)
-      (File () Out)
+  = KeyVerificationKeyCmd           !KeyVerificationKeyCmdArgs
+  | KeyNonExtendedKeyCmd            !KeyNonExtendedKeyCmdArgs
+  | KeyConvertByronKeyCmd           !KeyConvertByronKeyCmdArgs
+  | KeyConvertByronGenesisKeyCmd    !KeyConvertByronGenesisKeyCmdArgs
+  | KeyConvertITNKeyCmd             !KeyConvertITNKeyCmdArgs
+  | KeyConvertITNExtendedKeyCmd     !KeyConvertITNExtendedKeyCmdArgs
+  | KeyConvertITNBip32KeyCmd        !KeyConvertITNBip32KeyCmdArgs
+  | KeyConvertCardanoAddressKeyCmd  !KeyConvertCardanoAddressKeyCmdArgs
   deriving Show
+
+data KeyVerificationKeyCmdArgs = KeyVerificationKeyCmdArgs
+  { skeyFile  :: !(SigningKeyFile In)
+  , vkeyFile  :: !(VerificationKeyFile Out)
+  } deriving Show
+
+data KeyNonExtendedKeyCmdArgs = KeyNonExtendedKeyCmdArgs
+  { extendedVkeyFileIn      :: !(VerificationKeyFile In)
+  , nonExtendedVkeyFileOut  :: !(VerificationKeyFile Out)
+  } deriving Show
+
+data KeyConvertByronKeyCmdArgs = KeyConvertByronKeyCmdArgs
+  { mPassword       :: !(Maybe Text)      -- ^ Password (if applicable)
+  , byronKeyType    :: !ByronKeyType
+  , someKeyFileIn   :: !(SomeKeyFile In)  -- ^ Input file: old format
+  , someKeyFileOut  :: !(File () Out)     -- ^ Output file: new format
+  } deriving Show
+
+data KeyConvertByronGenesisKeyCmdArgs = KeyConvertByronGenesisKeyCmdArgs
+  { vkey        :: VerificationKeyBase64  -- ^ Input key raw old format
+  , vkeyFileOut :: !(File () Out)         -- ^ Output file: new format
+  } deriving Show
+
+data KeyConvertITNKeyCmdArgs = KeyConvertITNKeyCmdArgs
+  { itnKeyFile  :: !(SomeKeyFile In)
+  , outFile     :: !(File () Out)
+  } deriving Show
+
+data KeyConvertITNExtendedKeyCmdArgs = KeyConvertITNExtendedKeyCmdArgs
+  { itnPrivKeyFile  :: !(SomeKeyFile In)
+  , outFile         :: !(File () Out)
+  } deriving Show
+
+data KeyConvertITNBip32KeyCmdArgs = KeyConvertITNBip32KeyCmdArgs
+  { itnPrivKeyFile  :: !(SomeKeyFile In)
+  , outFile         :: !(File () Out)
+  } deriving Show
+
+data KeyConvertCardanoAddressKeyCmdArgs = KeyConvertCardanoAddressKeyCmdArgs
+  { cardanoAddressKeyType :: !CardanoAddressKeyType
+  , skeyFileIn            :: !(SigningKeyFile In)
+  , skeyFileOut           :: !(File () Out)
+  } deriving Show
 
 renderKeyCmds :: KeyCmds era -> Text
 renderKeyCmds = \case
