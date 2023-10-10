@@ -188,8 +188,8 @@ pByronVerificationKeyFile =
 
 pKeyConvertByronGenesisKeyCmd :: Parser (KeyCmds era)
 pKeyConvertByronGenesisKeyCmd =
-  fmap KeyConvertByronGenesisKeyCmd $
-    KeyConvertByronGenesisKeyCmdArgs
+  fmap KeyConvertByronGenesisVKeyCmd $
+    KeyConvertByronGenesisVKeyCmdArgs
       <$> pByronGenesisVKeyBase64
       <*> pOutputFile
 

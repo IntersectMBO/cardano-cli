@@ -24,7 +24,7 @@ data LegacyKeyCmds
       ByronKeyType
       (SomeKeyFile In)
       (File () Out)
-  | KeyConvertByronGenesisKeyCmd
+  | KeyConvertByronGenesisVKeyCmd
       VerificationKeyBase64
       (File () Out)
   | KeyConvertITNKeyCmd
@@ -46,7 +46,7 @@ renderLegacyKeyCmds = \case
   KeyVerificationKeyCmd {} -> "key verification-key"
   KeyNonExtendedKeyCmd {} -> "key non-extended-key"
   KeyConvertByronKeyCmd {} -> "key convert-byron-key"
-  KeyConvertByronGenesisKeyCmd {} -> "key convert-byron-genesis-key"
+  KeyConvertByronGenesisVKeyCmd {} -> "key convert-byron-genesis-vkey"
   KeyConvertITNKeyCmd {} -> "key convert-itn-key"
   KeyConvertITNExtendedKeyCmd {} -> "key convert-itn-extended-key"
   KeyConvertITNBip32KeyCmd {} -> "key convert-itn-bip32-key"

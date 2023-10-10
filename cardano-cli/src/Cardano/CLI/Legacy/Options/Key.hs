@@ -45,7 +45,7 @@ pKeyCmds =
             , "corresponding Shelley-format key."
             ]
     , subParser "convert-byron-genesis-vkey"
-        $ Opt.info pKeyConvertByronGenesisKeyCmd
+        $ Opt.info pKeyConvertByronGenesisVKeyCmd
         $ Opt.progDesc
         $ mconcat
             [ "Convert a Base64-encoded Byron genesis "
@@ -167,9 +167,9 @@ pByronVerificationKeyFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pKeyConvertByronGenesisKeyCmd :: Parser LegacyKeyCmds
-pKeyConvertByronGenesisKeyCmd =
-  KeyConvertByronGenesisKeyCmd
+pKeyConvertByronGenesisVKeyCmd :: Parser LegacyKeyCmds
+pKeyConvertByronGenesisVKeyCmd =
+  KeyConvertByronGenesisVKeyCmd
     <$> pByronGenesisVKeyBase64
     <*> pOutputFile
 

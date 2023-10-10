@@ -9,7 +9,7 @@
 module Cardano.CLI.EraBased.Run.Key
   ( runKeyCmds
 
-  , runConvertByronGenesisKeyCmd
+  , runConvertByronGenesisVKeyCmd
   , runConvertByronKeyCmd
   , runConvertCardanoAddressKeyCmd
   , runConvertITNBip32KeyCmd
@@ -64,8 +64,8 @@ runKeyCmds = \case
     runNonExtendedKeyCmd cmd
   Cmd.KeyConvertByronKeyCmd cmd ->
     runConvertByronKeyCmd cmd
-  Cmd.KeyConvertByronGenesisKeyCmd cmd ->
-    runConvertByronGenesisKeyCmd cmd
+  Cmd.KeyConvertByronGenesisVKeyCmd cmd ->
+    runConvertByronGenesisVKeyCmd cmd
   Cmd.KeyConvertITNKeyCmd cmd ->
     runConvertITNKeyCmd cmd
   Cmd.KeyConvertITNExtendedKeyCmd cmd ->
@@ -260,11 +260,11 @@ convertByronVerificationKey convert vkeyPathOld vkeyPathNew = do
       writeLazyByteStringFile vkeyPathNew $ textEnvelopeToJSON Nothing vk'
 
 
-runConvertByronGenesisKeyCmd
-  :: Cmd.KeyConvertByronGenesisKeyCmdArgs
+runConvertByronGenesisVKeyCmd
+  :: Cmd.KeyConvertByronGenesisVKeyCmdArgs
   -> ExceptT KeyCmdError IO ()
-runConvertByronGenesisKeyCmd
-    Cmd.KeyConvertByronGenesisKeyCmdArgs
+runConvertByronGenesisVKeyCmd
+    Cmd.KeyConvertByronGenesisVKeyCmdArgs
       { Cmd.vkey        = VerificationKeyBase64 b64ByronVKey
       , Cmd.vkeyFileOut = vkeyPathNew
       } = do

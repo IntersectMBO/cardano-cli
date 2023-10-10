@@ -26,8 +26,8 @@ runLegacyKeyCmds = \case
     runLegacyNonExtendedKeyCmd evkf vkf
   KeyConvertByronKeyCmd mPassword keytype skfOld skfNew ->
     runLegacyConvertByronKeyCmd mPassword keytype skfOld skfNew
-  KeyConvertByronGenesisKeyCmd oldVk newVkf ->
-    runLegacyConvertByronGenesisKeyCmd oldVk newVkf
+  KeyConvertByronGenesisVKeyCmd oldVk newVkf ->
+    runLegacyConvertByronGenesisVKeyCmd oldVk newVkf
   KeyConvertITNKeyCmd itnKeyFile outFile ->
     runLegacyConvertITNStakeKeyCmd itnKeyFile outFile
   KeyConvertITNExtendedKeyCmd itnPrivKeyFile outFile ->
@@ -63,13 +63,13 @@ runLegacyConvertByronKeyCmd mPassword keytype skfOld skfNew =
   runConvertByronKeyCmd $
     Cmd.KeyConvertByronKeyCmdArgs mPassword keytype skfOld skfNew
 
-runLegacyConvertByronGenesisKeyCmd :: ()
+runLegacyConvertByronGenesisVKeyCmd :: ()
   => VerificationKeyBase64  -- ^ Input key raw old format
   -> File () Out            -- ^ Output file: new format
   -> ExceptT KeyCmdError IO ()
-runLegacyConvertByronGenesisKeyCmd oldVk newVkf =
-  runConvertByronGenesisKeyCmd $
-    Cmd.KeyConvertByronGenesisKeyCmdArgs oldVk newVkf
+runLegacyConvertByronGenesisVKeyCmd oldVk newVkf =
+  runConvertByronGenesisVKeyCmd $
+    Cmd.KeyConvertByronGenesisVKeyCmdArgs oldVk newVkf
 
 --------------------------------------------------------------------------------
 -- ITN verification/signing key conversion to Haskell verficiation/signing keys

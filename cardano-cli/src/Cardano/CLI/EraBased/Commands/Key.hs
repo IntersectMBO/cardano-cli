@@ -7,7 +7,7 @@ module Cardano.CLI.EraBased.Commands.Key
   , KeyVerificationKeyCmdArgs(..)
   , KeyNonExtendedKeyCmdArgs(..)
   , KeyConvertByronKeyCmdArgs(..)
-  , KeyConvertByronGenesisKeyCmdArgs(..)
+  , KeyConvertByronGenesisVKeyCmdArgs(..)
   , KeyConvertITNKeyCmdArgs(..)
   , KeyConvertITNExtendedKeyCmdArgs(..)
   , KeyConvertITNBip32KeyCmdArgs(..)
@@ -25,54 +25,69 @@ data KeyCmds era
   = KeyVerificationKeyCmd           !KeyVerificationKeyCmdArgs
   | KeyNonExtendedKeyCmd            !KeyNonExtendedKeyCmdArgs
   | KeyConvertByronKeyCmd           !KeyConvertByronKeyCmdArgs
-  | KeyConvertByronGenesisKeyCmd    !KeyConvertByronGenesisKeyCmdArgs
+  | KeyConvertByronGenesisVKeyCmd   !KeyConvertByronGenesisVKeyCmdArgs
   | KeyConvertITNKeyCmd             !KeyConvertITNKeyCmdArgs
   | KeyConvertITNExtendedKeyCmd     !KeyConvertITNExtendedKeyCmdArgs
   | KeyConvertITNBip32KeyCmd        !KeyConvertITNBip32KeyCmdArgs
   | KeyConvertCardanoAddressKeyCmd  !KeyConvertCardanoAddressKeyCmdArgs
   deriving Show
 
+-- | Get a verification key from a signing key. This supports all key types
 data KeyVerificationKeyCmdArgs = KeyVerificationKeyCmdArgs
-  { skeyFile  :: !(SigningKeyFile In)
-  , vkeyFile  :: !(VerificationKeyFile Out)
+  { skeyFile  :: !(SigningKeyFile In)       -- ^ Input filepath of the signing key
+  , vkeyFile  :: !(VerificationKeyFile Out) -- ^ Output filepath of the verification key
   } deriving Show
 
+-- | Get a non-extended verification key from an extended verification key. This
+-- supports all extended key types.
 data KeyNonExtendedKeyCmdArgs = KeyNonExtendedKeyCmdArgs
-  { extendedVkeyFileIn      :: !(VerificationKeyFile In)
-  , nonExtendedVkeyFileOut  :: !(VerificationKeyFile Out)
+  { extendedVkeyFileIn      :: !(VerificationKeyFile In)  -- ^ Input filepath of the ed25519-bip32 verification key
+  , nonExtendedVkeyFileOut  :: !(VerificationKeyFile Out) -- ^ Output filepath of the verification key
   } deriving Show
 
+-- | Convert a Byron payment, genesis or genesis delegate key (signing or
+-- verification) to a corresponding Shelley-format key.
 data KeyConvertByronKeyCmdArgs = KeyConvertByronKeyCmdArgs
-  { mPassword       :: !(Maybe Text)      -- ^ Password (if applicable)
-  , byronKeyType    :: !ByronKeyType
-  , someKeyFileIn   :: !(SomeKeyFile In)  -- ^ Input file: old format
-  , someKeyFileOut  :: !(File () Out)     -- ^ Output file: new format
+  { mPassword       :: !(Maybe Text)      -- ^ Password for signing key (if applicable)
+  , byronKeyType    :: !ByronKeyType      -- ^ The byron key type of the input file
+  , someKeyFileIn   :: !(SomeKeyFile In)  -- ^ Input file containing the byron key
+  , someKeyFileOut  :: !(File () Out)     -- ^ The output file to which the Shelley-format key will be written
   } deriving Show
 
-data KeyConvertByronGenesisKeyCmdArgs = KeyConvertByronGenesisKeyCmdArgs
-  { vkey        :: VerificationKeyBase64  -- ^ Input key raw old format
-  , vkeyFileOut :: !(File () Out)         -- ^ Output file: new format
+-- Convert a Base64-encoded Byron genesis verification key to a Shelley genesis
+-- verification key
+data KeyConvertByronGenesisVKeyCmdArgs = KeyConvertByronGenesisVKeyCmdArgs
+  { vkey        :: !VerificationKeyBase64 -- ^ Base64 string for the Byron genesis verification key
+  , vkeyFileOut :: !(File () Out)         -- ^ The output file
   } deriving Show
 
+-- | Convert an Incentivized Testnet (ITN) non-extended (Ed25519) signing or
+-- verification key to a corresponding Shelley stake key
 data KeyConvertITNKeyCmdArgs = KeyConvertITNKeyCmdArgs
-  { itnKeyFile  :: !(SomeKeyFile In)
-  , outFile     :: !(File () Out)
+  { itnKeyFile  :: !(SomeKeyFile In)      -- ^ Filepath of the ITN key (signing or verification)
+  , outFile     :: !(File () Out)         -- ^ The output file
   } deriving Show
 
+-- | Convert an Incentivized Testnet (ITN) extended (Ed25519Extended) signing key
+-- to a corresponding Shelley stake signing key
 data KeyConvertITNExtendedKeyCmdArgs = KeyConvertITNExtendedKeyCmdArgs
-  { itnPrivKeyFile  :: !(SomeKeyFile In)
-  , outFile         :: !(File () Out)
+  { itnPrivKeyFile  :: !(SomeKeyFile In)  -- ^ Filepath of the ITN signing key
+  , outFile         :: !(File () Out)     -- ^ The output file
   } deriving Show
 
+-- | Convert an Incentivized Testnet (ITN) BIP32 (Ed25519Bip32) signing key to a
+-- corresponding Shelley stake signing key
 data KeyConvertITNBip32KeyCmdArgs = KeyConvertITNBip32KeyCmdArgs
-  { itnPrivKeyFile  :: !(SomeKeyFile In)
-  , outFile         :: !(File () Out)
+  { itnPrivKeyFile  :: !(SomeKeyFile In)  -- ^ Filepath of the ITN signing key
+  , outFile         :: !(File () Out)     -- ^ The output file
   } deriving Show
 
+-- | Convert a cardano-address extended signing key to a corresponding
+-- Shelley-format key
 data KeyConvertCardanoAddressKeyCmdArgs = KeyConvertCardanoAddressKeyCmdArgs
-  { cardanoAddressKeyType :: !CardanoAddressKeyType
-  , skeyFileIn            :: !(SigningKeyFile In)
-  , skeyFileOut           :: !(File () Out)
+  { cardanoAddressKeyType :: !CardanoAddressKeyType -- ^ Address key type of th signing key input file
+  , skeyFileIn            :: !(SigningKeyFile In)   -- ^ Input filepath of the signing key
+  , skeyFileOut           :: !(File () Out)         -- ^ The output file
   } deriving Show
 
 renderKeyCmds :: KeyCmds era -> Text
@@ -83,8 +98,8 @@ renderKeyCmds = \case
     "key non-extended-key"
   KeyConvertByronKeyCmd {} ->
     "key convert-byron-key"
-  KeyConvertByronGenesisKeyCmd {} ->
-    "key convert-byron-genesis-key"
+  KeyConvertByronGenesisVKeyCmd {} ->
+    "key convert-byron-genesis-vkey"
   KeyConvertITNKeyCmd {} ->
     "key convert-itn-key"
   KeyConvertITNExtendedKeyCmd {} ->
