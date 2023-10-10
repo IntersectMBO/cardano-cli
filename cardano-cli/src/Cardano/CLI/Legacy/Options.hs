@@ -1032,6 +1032,15 @@ pGovernanceCmds envCli =
     , subParser "create-update-proposal"
         $ Opt.info pUpdateProposal
         $ Opt.progDesc "Create an update proposal"
+    , subParser "create-poll"
+        $ Opt.info pGovernanceCreatePoll
+        $ Opt.progDesc "Create an SPO poll"
+    , subParser "answer-poll"
+        $ Opt.info pGovernanceAnswerPoll
+        $ Opt.progDesc "Answer an SPO poll"
+    , subParser "verify-poll"
+        $ Opt.info pGovernanceVerifyPoll
+        $ Opt.progDesc "Verify an answer to a given SPO poll"
     ]
   where
     mirCertParsers :: Parser LegacyGovernanceCmds
@@ -1089,6 +1098,28 @@ pGovernanceCmds envCli =
         <*> some pGenesisVerificationKeyFile
         <*> pProtocolParametersUpdate
         <*> optional pCostModels
+
+    pGovernanceCreatePoll :: Parser LegacyGovernanceCmds
+    pGovernanceCreatePoll =
+      GovernanceCreatePoll
+        <$> pPollQuestion
+        <*> some pPollAnswer
+        <*> optional pPollNonce
+        <*> pOutputFile
+
+    pGovernanceAnswerPoll :: Parser LegacyGovernanceCmds
+    pGovernanceAnswerPoll =
+      GovernanceAnswerPoll
+        <$> pPollFile
+        <*> optional pPollAnswerIndex
+        <*> optional pOutputFile
+
+    pGovernanceVerifyPoll :: Parser LegacyGovernanceCmds
+    pGovernanceVerifyPoll =
+      GovernanceVerifyPoll
+        <$> pPollFile
+        <*> pPollTxFile
+        <*> optional pOutputFile
 
 pGenesisCmds :: EnvCli -> Parser LegacyGenesisCmds
 pGenesisCmds envCli =

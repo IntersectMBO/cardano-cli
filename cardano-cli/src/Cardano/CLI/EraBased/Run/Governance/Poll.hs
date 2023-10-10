@@ -4,7 +4,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Governance.Poll
-  ( runGovernancePollCmds
+  ( runGovernancePollCmds,
+    runGovernanceCreatePoll,
+    runGovernanceAnswerPoll,
+    runGovernanceVerifyPoll
   ) where
 
 import           Cardano.Api

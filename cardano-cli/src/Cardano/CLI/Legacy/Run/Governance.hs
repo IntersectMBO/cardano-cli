@@ -24,6 +24,7 @@ import           Data.Aeson (eitherDecode)
 import qualified Data.ByteString.Lazy as LB
 import           Data.Function ((&))
 import qualified Data.Text as Text
+import Cardano.CLI.EraBased.Run.Governance.Poll
 
 runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceCmds = \case
@@ -35,6 +36,13 @@ runLegacyGovernanceCmds = \case
     runLegacyGovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
     runLegacyGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
+  GovernanceCreatePoll prompt choices nonce out ->
+    runGovernanceCreatePoll BabbageEraOnwardsBabbage  prompt choices nonce out
+  GovernanceAnswerPoll poll ix mOutFile ->
+    runGovernanceAnswerPoll BabbageEraOnwardsBabbage poll ix mOutFile
+  GovernanceVerifyPoll poll metadata mOutFile ->
+    runGovernanceVerifyPoll BabbageEraOnwardsBabbage poll metadata mOutFile
+
 
 runLegacyGovernanceMIRCertificatePayStakeAddrs
   :: EraInEon ShelleyToBabbageEra

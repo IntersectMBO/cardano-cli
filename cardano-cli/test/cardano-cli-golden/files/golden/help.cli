@@ -8722,6 +8722,9 @@ Usage: cardano-cli legacy governance
                                        ( create-mir-certificate
                                        | create-genesis-key-delegation-certificate
                                        | create-update-proposal
+                                       | create-poll
+                                       | answer-poll
+                                       | verify-poll
                                        )
 
   Governance commands
@@ -8847,6 +8850,25 @@ Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
                                                               [--cost-model-file FILE]
 
   Create an update proposal
+
+Usage: cardano-cli legacy governance create-poll --question STRING
+                                                   (--answer STRING)
+                                                   [--nonce UINT]
+                                                   --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli legacy governance answer-poll --poll-file FILE
+                                                   [--answer INT]
+                                                   [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli legacy governance verify-poll --poll-file FILE
+                                                   --tx-file FILE
+                                                   [--out-file FILE]
+
+  Verify an answer to a given SPO poll
 
 Usage: cardano-cli legacy genesis 
                                     ( key-gen-genesis
@@ -10012,6 +10034,9 @@ Usage: cardano-cli governance
                                 ( create-mir-certificate
                                 | create-genesis-key-delegation-certificate
                                 | create-update-proposal
+                                | create-poll
+                                | answer-poll
+                                | verify-poll
                                 )
 
   Governance commands
@@ -10137,6 +10162,25 @@ Usage: cardano-cli governance create-update-proposal --out-file FILE
                                                        [--cost-model-file FILE]
 
   Create an update proposal
+
+Usage: cardano-cli governance create-poll --question STRING
+                                            (--answer STRING)
+                                            [--nonce UINT]
+                                            --out-file FILE
+
+  Create an SPO poll
+
+Usage: cardano-cli governance answer-poll --poll-file FILE
+                                            [--answer INT]
+                                            [--out-file FILE]
+
+  Answer an SPO poll
+
+Usage: cardano-cli governance verify-poll --poll-file FILE
+                                            --tx-file FILE
+                                            [--out-file FILE]
+
+  Verify an answer to a given SPO poll
 
 Usage: cardano-cli genesis 
                              ( key-gen-genesis
