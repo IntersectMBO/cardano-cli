@@ -13,30 +13,30 @@ import           Cardano.CLI.Types.Common
 import           Data.Text (Text)
 
 data KeyCmds era
-  = KeyGetVerificationKey
+  = KeyVerificationKeyCmd
       (SigningKeyFile In)
       (VerificationKeyFile Out)
-  | KeyNonExtendedKey
+  | KeyNonExtendedKeyCmd
       (VerificationKeyFile In)
       (VerificationKeyFile Out)
-  | KeyConvertByronKey
+  | KeyConvertByronKeyCmd
       (Maybe Text)
       ByronKeyType
       (SomeKeyFile In)
       (File () Out)
-  | KeyConvertByronGenesisVKey
+  | KeyConvertByronGenesisKeyCmd
       VerificationKeyBase64
       (File () Out)
-  | KeyConvertITNStakeKey
+  | KeyConvertITNKeyCmd
       (SomeKeyFile In)
       (File () Out)
-  | KeyConvertITNExtendedToStakeKey
+  | KeyConvertITNExtendedKeyCmd
       (SomeKeyFile In)
       (File () Out)
-  | KeyConvertITNBip32ToStakeKey
+  | KeyConvertITNBip32KeyCmd
       (SomeKeyFile In)
       (File () Out)
-  | KeyConvertCardanoAddressSigningKey
+  | KeyConvertCardanoAddressKeyCmd
       CardanoAddressKeyType
       (SigningKeyFile In)
       (File () Out)
@@ -44,19 +44,19 @@ data KeyCmds era
 
 renderKeyCmds :: KeyCmds era -> Text
 renderKeyCmds = \case
-  KeyGetVerificationKey {} ->
+  KeyVerificationKeyCmd {} ->
     "key verification-key"
-  KeyNonExtendedKey {} ->
+  KeyNonExtendedKeyCmd {} ->
     "key non-extended-key"
-  KeyConvertByronKey {} ->
+  KeyConvertByronKeyCmd {} ->
     "key convert-byron-key"
-  KeyConvertByronGenesisVKey {} ->
+  KeyConvertByronGenesisKeyCmd {} ->
     "key convert-byron-genesis-key"
-  KeyConvertITNStakeKey {} ->
+  KeyConvertITNKeyCmd {} ->
     "key convert-itn-key"
-  KeyConvertITNExtendedToStakeKey {} ->
+  KeyConvertITNExtendedKeyCmd {} ->
     "key convert-itn-extended-key"
-  KeyConvertITNBip32ToStakeKey {} ->
+  KeyConvertITNBip32KeyCmd {} ->
     "key convert-itn-bip32-key"
-  KeyConvertCardanoAddressSigningKey {} ->
-    "key convert-cardano-address-signing-key"
+  KeyConvertCardanoAddressKeyCmd {} ->
+    "key convert-cardano-address-key"

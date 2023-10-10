@@ -217,14 +217,14 @@ pKeyCmds :: Parser LegacyKeyCmds
 pKeyCmds =
   asum
     [ subParser "verification-key"
-        $ Opt.info pKeyGetVerificationKey
+        $ Opt.info pKeyVerificationKeyCmd
         $ Opt.progDesc
         $ mconcat
             [ "Get a verification key from a signing key. This "
             , " supports all key types."
             ]
     , subParser "non-extended-key"
-        $ Opt.info pKeyNonExtendedKey
+        $ Opt.info pKeyNonExtendedKeyCmd
         $ Opt.progDesc
         $ mconcat
             [ "Get a non-extended verification key from an "
@@ -232,7 +232,7 @@ pKeyCmds =
             , "extended key types."
             ]
     , subParser "convert-byron-key"
-        $ Opt.info pKeyConvertByronKey
+        $ Opt.info pKeyConvertByronKeyCmd
         $ Opt.progDesc
         $ mconcat
             [ "Convert a Byron payment, genesis or genesis "
@@ -240,7 +240,7 @@ pKeyCmds =
             , "corresponding Shelley-format key."
             ]
     , subParser "convert-byron-genesis-vkey"
-        $ Opt.info pKeyConvertByronGenesisVKey
+        $ Opt.info pKeyConvertByronGenesisKeyCmd
         $ Opt.progDesc
         $ mconcat
             [ "Convert a Base64-encoded Byron genesis "
@@ -248,7 +248,7 @@ pKeyCmds =
             , "verification key"
             ]
     , subParser "convert-itn-key"
-        $ Opt.info pKeyConvertITNKey
+        $ Opt.info pKeyConvertITNKeyCmd
         $ Opt.progDesc
         $ mconcat
             [ "Convert an Incentivized Testnet (ITN) non-extended "
@@ -256,7 +256,7 @@ pKeyCmds =
             , "corresponding Shelley stake key"
             ]
     , subParser "convert-itn-extended-key"
-        $ Opt.info pKeyConvertITNExtendedKey
+        $ Opt.info pKeyConvertITNExtendedKeyCmd
         $ Opt.progDesc
         $ mconcat
             [ "Convert an Incentivized Testnet (ITN) extended "
@@ -264,7 +264,7 @@ pKeyCmds =
             , "Shelley stake signing key"
             ]
     , subParser "convert-itn-bip32-key"
-        $ Opt.info pKeyConvertITNBip32Key
+        $ Opt.info pKeyConvertITNBip32KeyCmd
         $ Opt.progDesc
         $ mconcat
             [ "Convert an Incentivized Testnet (ITN) BIP32 "
@@ -272,7 +272,7 @@ pKeyCmds =
             , "Shelley stake signing key"
             ]
     , subParser "convert-cardano-address-key"
-        $ Opt.info pKeyConvertCardanoAddressSigningKey
+        $ Opt.info pKeyConvertCardanoAddressKeyCmd
         $ Opt.progDesc
         $ mconcat
             [ "Convert a cardano-address extended signing key "
@@ -280,21 +280,21 @@ pKeyCmds =
             ]
     ]
   where
-    pKeyGetVerificationKey :: Parser LegacyKeyCmds
-    pKeyGetVerificationKey =
-      KeyGetVerificationKey
+    pKeyVerificationKeyCmd :: Parser LegacyKeyCmds
+    pKeyVerificationKeyCmd =
+      KeyVerificationKeyCmd
         <$> pSigningKeyFileIn
         <*> pVerificationKeyFileOut
 
-    pKeyNonExtendedKey :: Parser LegacyKeyCmds
-    pKeyNonExtendedKey =
-      KeyNonExtendedKey
+    pKeyNonExtendedKeyCmd :: Parser LegacyKeyCmds
+    pKeyNonExtendedKeyCmd =
+      KeyNonExtendedKeyCmd
         <$> pExtendedVerificationKeyFileIn
         <*> pVerificationKeyFileOut
 
-    pKeyConvertByronKey :: Parser LegacyKeyCmds
-    pKeyConvertByronKey =
-      KeyConvertByronKey
+    pKeyConvertByronKeyCmd :: Parser LegacyKeyCmds
+    pKeyConvertByronKeyCmd =
+      KeyConvertByronKeyCmd
         <$> optional pPassword
         <*> pByronKeyType
         <*> pByronKeyFile
@@ -362,9 +362,9 @@ pKeyCmds =
         , Opt.completer (Opt.bashCompleter "file")
         ]
 
-    pKeyConvertByronGenesisVKey :: Parser LegacyKeyCmds
-    pKeyConvertByronGenesisVKey =
-      KeyConvertByronGenesisVKey
+    pKeyConvertByronGenesisKeyCmd :: Parser LegacyKeyCmds
+    pKeyConvertByronGenesisKeyCmd =
+      KeyConvertByronGenesisKeyCmd
         <$> pByronGenesisVKeyBase64
         <*> pOutputFile
 
@@ -376,21 +376,21 @@ pKeyCmds =
         , Opt.help "Base64 string for the Byron genesis verification key."
         ]
 
-    pKeyConvertITNKey :: Parser LegacyKeyCmds
-    pKeyConvertITNKey =
-      KeyConvertITNStakeKey
+    pKeyConvertITNKeyCmd :: Parser LegacyKeyCmds
+    pKeyConvertITNKeyCmd =
+      KeyConvertITNKeyCmd
         <$> pITNKeyFIle
         <*> pOutputFile
 
-    pKeyConvertITNExtendedKey :: Parser LegacyKeyCmds
-    pKeyConvertITNExtendedKey =
-      KeyConvertITNExtendedToStakeKey
+    pKeyConvertITNExtendedKeyCmd :: Parser LegacyKeyCmds
+    pKeyConvertITNExtendedKeyCmd =
+      KeyConvertITNExtendedKeyCmd
         <$> pITNSigningKeyFile
         <*> pOutputFile
 
-    pKeyConvertITNBip32Key :: Parser LegacyKeyCmds
-    pKeyConvertITNBip32Key =
-      KeyConvertITNBip32ToStakeKey
+    pKeyConvertITNBip32KeyCmd :: Parser LegacyKeyCmds
+    pKeyConvertITNBip32KeyCmd =
+      KeyConvertITNBip32KeyCmd
         <$> pITNSigningKeyFile
         <*> pOutputFile
 
@@ -419,9 +419,9 @@ pKeyCmds =
         , Opt.completer (Opt.bashCompleter "file")
         ]
 
-    pKeyConvertCardanoAddressSigningKey :: Parser LegacyKeyCmds
-    pKeyConvertCardanoAddressSigningKey =
-      KeyConvertCardanoAddressSigningKey
+    pKeyConvertCardanoAddressKeyCmd :: Parser LegacyKeyCmds
+    pKeyConvertCardanoAddressKeyCmd =
+      KeyConvertCardanoAddressKeyCmd
         <$> pCardanoAddressKeyType
         <*> pSigningKeyFileIn
         <*> pOutputFile
