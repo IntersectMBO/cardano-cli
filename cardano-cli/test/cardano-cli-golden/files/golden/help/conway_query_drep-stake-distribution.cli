@@ -9,10 +9,10 @@ Usage: cardano-cli conway query drep-stake-distribution
                                                           ( --mainnet
                                                           | --testnet-magic NATURAL
                                                           )
-                                                          ( --drep-verification-key STRING
+                                                          [ --drep-verification-key STRING
                                                           | --drep-verification-key-file FILE
                                                           | --drep-key-hash HASH
-                                                          )
+                                                          ]
                                                           [--out-file FILE]
 
   Get the DRep stake distribution. If no DRep credentials are provided, return
