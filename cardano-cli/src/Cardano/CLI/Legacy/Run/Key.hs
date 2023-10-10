@@ -7,6 +7,7 @@ module Cardano.CLI.Legacy.Run.Key
 
 import           Cardano.Api
 
+import qualified Cardano.CLI.EraBased.Commands.Key as Cmd
 import           Cardano.CLI.EraBased.Run.Key
 import           Cardano.CLI.Legacy.Commands.Key
 import           Cardano.CLI.Types.Common
@@ -19,34 +20,38 @@ runLegacyKeyCmds :: ()
   => LegacyKeyCmds
   -> ExceptT KeyCmdError IO ()
 runLegacyKeyCmds = \case
-  KeyGetVerificationKey skf vkf ->
-    runLegacyGetVerificationKeyCmd skf vkf
-  KeyNonExtendedKey evkf vkf ->
-    runLegacyConvertToNonExtendedKeyCmd evkf vkf
-  KeyConvertByronKey mPassword keytype skfOld skfNew ->
+  KeyVerificationKeyCmd skf vkf ->
+    runLegacyVerificationKeyCmd skf vkf
+  KeyNonExtendedKeyCmd evkf vkf ->
+    runLegacyNonExtendedKeyCmd evkf vkf
+  KeyConvertByronKeyCmd mPassword keytype skfOld skfNew ->
     runLegacyConvertByronKeyCmd mPassword keytype skfOld skfNew
-  KeyConvertByronGenesisVKey oldVk newVkf ->
-    runLegacyConvertByronGenesisVerificationKeyCmd oldVk newVkf
-  KeyConvertITNStakeKey itnKeyFile outFile ->
+  KeyConvertByronGenesisVKeyCmd oldVk newVkf ->
+    runLegacyConvertByronGenesisVKeyCmd oldVk newVkf
+  KeyConvertITNKeyCmd itnKeyFile outFile ->
     runLegacyConvertITNStakeKeyCmd itnKeyFile outFile
-  KeyConvertITNExtendedToStakeKey itnPrivKeyFile outFile ->
-    runLegacyConvertITNExtendedToStakeKeyCmd itnPrivKeyFile outFile
-  KeyConvertITNBip32ToStakeKey itnPrivKeyFile outFile ->
-    runLegacyConvertITNBip32ToStakeKeyCmd itnPrivKeyFile outFile
-  KeyConvertCardanoAddressSigningKey keyType skfOld skfNew ->
-    runLegacyConvertCardanoAddressSigningKeyCmd keyType skfOld skfNew
+  KeyConvertITNExtendedKeyCmd itnPrivKeyFile outFile ->
+    runLegacyConvertITNExtendedKeyCmd itnPrivKeyFile outFile
+  KeyConvertITNBip32KeyCmd itnPrivKeyFile outFile ->
+    runLegacyConvertITNBip32KeyCmd itnPrivKeyFile outFile
+  KeyConvertCardanoAddressKeyCmd keyType skfOld skfNew ->
+    runLegacyConvertCardanoAddressKeyCmd keyType skfOld skfNew
 
-runLegacyGetVerificationKeyCmd :: ()
+runLegacyVerificationKeyCmd :: ()
   => SigningKeyFile In
   -> VerificationKeyFile Out
   -> ExceptT KeyCmdError IO ()
-runLegacyGetVerificationKeyCmd = runGetVerificationKeyCmd
+runLegacyVerificationKeyCmd skf vkf =
+  runVerificationKeyCmd $
+    Cmd.KeyVerificationKeyCmdArgs skf vkf
 
-runLegacyConvertToNonExtendedKeyCmd :: ()
+runLegacyNonExtendedKeyCmd :: ()
   => VerificationKeyFile In
   -> VerificationKeyFile Out
   -> ExceptT KeyCmdError IO ()
-runLegacyConvertToNonExtendedKeyCmd = runConvertToNonExtendedKeyCmd
+runLegacyNonExtendedKeyCmd evkf vkf =
+  runNonExtendedKeyCmd $
+    Cmd.KeyNonExtendedKeyCmdArgs evkf vkf
 
 runLegacyConvertByronKeyCmd :: ()
   => Maybe Text      -- ^ Password (if applicable)
@@ -54,13 +59,17 @@ runLegacyConvertByronKeyCmd :: ()
   -> SomeKeyFile In  -- ^ Input file: old format
   -> File () Out     -- ^ Output file: new format
   -> ExceptT KeyCmdError IO ()
-runLegacyConvertByronKeyCmd = runConvertByronKeyCmd
+runLegacyConvertByronKeyCmd mPassword keytype skfOld skfNew =
+  runConvertByronKeyCmd $
+    Cmd.KeyConvertByronKeyCmdArgs mPassword keytype skfOld skfNew
 
-runLegacyConvertByronGenesisVerificationKeyCmd :: ()
+runLegacyConvertByronGenesisVKeyCmd :: ()
   => VerificationKeyBase64  -- ^ Input key raw old format
   -> File () Out            -- ^ Output file: new format
   -> ExceptT KeyCmdError IO ()
-runLegacyConvertByronGenesisVerificationKeyCmd = runConvertByronGenesisVerificationKeyCmd
+runLegacyConvertByronGenesisVKeyCmd oldVk newVkf =
+  runConvertByronGenesisVKeyCmd $
+    Cmd.KeyConvertByronGenesisVKeyCmdArgs oldVk newVkf
 
 --------------------------------------------------------------------------------
 -- ITN verification/signing key conversion to Haskell verficiation/signing keys
@@ -70,23 +79,31 @@ runLegacyConvertITNStakeKeyCmd :: ()
   => SomeKeyFile In
   -> File () Out
   -> ExceptT KeyCmdError IO ()
-runLegacyConvertITNStakeKeyCmd = runConvertITNStakeKeyCmd
+runLegacyConvertITNStakeKeyCmd itnKeyFile outFile =
+  runConvertITNKeyCmd $
+    Cmd.KeyConvertITNKeyCmdArgs itnKeyFile outFile
 
-runLegacyConvertITNExtendedToStakeKeyCmd :: ()
+runLegacyConvertITNExtendedKeyCmd :: ()
   => SomeKeyFile In
   -> File () Out
   -> ExceptT KeyCmdError IO ()
-runLegacyConvertITNExtendedToStakeKeyCmd = runConvertITNExtendedToStakeKeyCmd
+runLegacyConvertITNExtendedKeyCmd itnPrivKeyFile outFile =
+  runConvertITNExtendedKeyCmd $
+    Cmd.KeyConvertITNExtendedKeyCmdArgs itnPrivKeyFile outFile
 
-runLegacyConvertITNBip32ToStakeKeyCmd :: ()
+runLegacyConvertITNBip32KeyCmd :: ()
   => SomeKeyFile In
   -> File () Out
   -> ExceptT KeyCmdError IO ()
-runLegacyConvertITNBip32ToStakeKeyCmd = runConvertITNBip32ToStakeKeyCmd
+runLegacyConvertITNBip32KeyCmd itnPrivKeyFile outFile =
+  runConvertITNBip32KeyCmd $
+    Cmd.KeyConvertITNBip32KeyCmdArgs itnPrivKeyFile outFile
 
-runLegacyConvertCardanoAddressSigningKeyCmd :: ()
+runLegacyConvertCardanoAddressKeyCmd :: ()
   => CardanoAddressKeyType
   -> SigningKeyFile In
   -> File () Out
   -> ExceptT KeyCmdError IO ()
-runLegacyConvertCardanoAddressSigningKeyCmd = runConvertCardanoAddressSigningKeyCmd
+runLegacyConvertCardanoAddressKeyCmd keyType skfOld skfNew =
+  runConvertCardanoAddressKeyCmd $
+    Cmd.KeyConvertCardanoAddressKeyCmdArgs keyType skfOld skfNew
