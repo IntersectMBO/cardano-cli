@@ -46,9 +46,10 @@ pGovernanceCommitteeKeyGenColdCmd era = do
       => ConwayEraOnwards era
       -> Parser (GovernanceCommitteeCmds era)
     pCmd w =
-      GovernanceCommitteeKeyGenColdCmd w
-        <$> pColdVerificationKeyFile
-        <*> pColdSigningKeyFile
+      fmap GovernanceCommitteeKeyGenColdCmd $
+        GovernanceCommitteeKeyGenColdCmdArgs w
+          <$> pColdVerificationKeyFile
+          <*> pColdSigningKeyFile
 
 pGovernanceCommitteeKeyGenHotCmd :: ()
   => CardanoEra era
@@ -67,9 +68,10 @@ pGovernanceCommitteeKeyGenHotCmd era = do
       => ConwayEraOnwards era
       -> Parser (GovernanceCommitteeCmds era)
     pCmd w =
-      GovernanceCommitteeKeyGenHotCmd w
-        <$> pVerificationKeyFileOut
-        <*> pSigningKeyFileOut
+      fmap GovernanceCommitteeKeyGenHotCmd $
+        GovernanceCommitteeKeyGenHotCmdArgs w
+          <$> pVerificationKeyFileOut
+          <*> pSigningKeyFileOut
 
 pGovernanceCommitteeKeyHashCmd :: ()
   => CardanoEra era
@@ -79,8 +81,9 @@ pGovernanceCommitteeKeyHashCmd era = do
   pure
     $ subParser "key-hash"
     $ Opt.info
-        ( GovernanceCommitteeKeyHashCmd w
-            <$> pAnyVerificationKeySource "Constitutional Committee Member key (hot or cold)"
+        ( fmap GovernanceCommitteeKeyHashCmd $
+            GovernanceCommitteeKeyHashCmdArgs w
+              <$> pAnyVerificationKeySource "Constitutional Committee Member key (hot or cold)"
         )
     $ Opt.progDesc
     $ mconcat
@@ -95,10 +98,11 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
   pure
     $ subParser "create-hot-key-authorization-certificate"
     $ Opt.info
-        ( GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd w
-            <$> pCommitteeColdVerificationKeyOrHashOrFile
-            <*> pCommitteeHotKeyOrHashOrFile
-            <*> pOutputFile
+        ( fmap GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd $
+            GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs w
+              <$> pCommitteeColdVerificationKeyOrHashOrFile
+              <*> pCommitteeHotKeyOrHashOrFile
+              <*> pOutputFile
         )
     $ Opt.progDesc
     $ mconcat
@@ -113,9 +117,10 @@ pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
   pure
     $ subParser "create-cold-key-resignation-certificate"
     $ Opt.info
-        ( GovernanceCommitteeCreateColdKeyResignationCertificateCmd w
-            <$> pCommitteeColdVerificationKeyOrHashOrFile
-            <*> pOutputFile
+        ( fmap GovernanceCommitteeCreateColdKeyResignationCertificateCmd $
+            GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs w
+              <$> pCommitteeColdVerificationKeyOrHashOrFile
+              <*> pOutputFile
         )
     $ Opt.progDesc
     $ mconcat

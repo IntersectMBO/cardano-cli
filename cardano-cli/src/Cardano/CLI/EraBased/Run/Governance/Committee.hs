@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 module Cardano.CLI.EraBased.Run.Governance.Committee
   ( runGovernanceCommitteeCmds
@@ -10,6 +12,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
+import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as Cmd
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
@@ -26,23 +29,26 @@ runGovernanceCommitteeCmds :: ()
   => GovernanceCommitteeCmds era
   -> ExceptT GovernanceCommitteeError IO ()
 runGovernanceCommitteeCmds = \case
-  GovernanceCommitteeKeyGenColdCmd era vk sk ->
-    runGovernanceCommitteeKeyGenCold era vk sk
-  GovernanceCommitteeKeyGenHotCmd era vk sk ->
-    runGovernanceCommitteeKeyGenHot era vk sk
-  GovernanceCommitteeKeyHashCmd era vk ->
-    runGovernanceCommitteeKeyHash era vk
-  GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd w cvk hvk out ->
-    runGovernanceCommitteeCreateHotKeyAuthorizationCertificate w cvk hvk out
-  GovernanceCommitteeCreateColdKeyResignationCertificateCmd w cvk out ->
-    runGovernanceCommitteeColdKeyResignationCertificate w cvk out
+  GovernanceCommitteeKeyGenColdCmd cmd ->
+    runGovernanceCommitteeKeyGenCold cmd
+  GovernanceCommitteeKeyGenHotCmd cmd ->
+    runGovernanceCommitteeKeyGenHot cmd
+  GovernanceCommitteeKeyHashCmd cmd ->
+    runGovernanceCommitteeKeyHash cmd
+  GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd cmd ->
+    runGovernanceCommitteeCreateHotKeyAuthorizationCertificate cmd
+  GovernanceCommitteeCreateColdKeyResignationCertificateCmd cmd ->
+    runGovernanceCommitteeColdKeyResignationCertificate cmd
 
 runGovernanceCommitteeKeyGenCold :: ()
-  => ConwayEraOnwards era
-  -> File (VerificationKey ()) Out
-  -> File (SigningKey ()) Out
+  => Cmd.GovernanceCommitteeKeyGenColdCmdArgs era
   -> ExceptT GovernanceCommitteeError IO ()
-runGovernanceCommitteeKeyGenCold _w vkeyPath skeyPath = do
+runGovernanceCommitteeKeyGenCold
+    Cmd.GovernanceCommitteeKeyGenColdCmdArgs
+      { Cmd.eon = _eon
+      , Cmd.vkeyOutFile = vkeyPath
+      , Cmd.skeyOutFile = skeyPath
+      } = do
   skey <- liftIO $ generateSigningKey AsCommitteeColdKey
 
   let vkey = getVerificationKey skey
@@ -61,11 +67,14 @@ runGovernanceCommitteeKeyGenCold _w vkeyPath skeyPath = do
     vkeyDesc = "Constitutional Committee Cold Verification Key"
 
 runGovernanceCommitteeKeyGenHot :: ()
-  => ConwayEraOnwards era
-  -> File (VerificationKey ()) Out
-  -> File (SigningKey ()) Out
+  => Cmd.GovernanceCommitteeKeyGenHotCmdArgs era
   -> ExceptT GovernanceCommitteeError IO ()
-runGovernanceCommitteeKeyGenHot _w vkeyPath skeyPath = do
+runGovernanceCommitteeKeyGenHot
+    Cmd.GovernanceCommitteeKeyGenHotCmdArgs
+      { Cmd.eon         = _eon
+      , Cmd.vkeyOutFile = vkeyPath
+      , Cmd.skeyOutFile = skeyPath
+      } = do
   skey <- liftIO $ generateSigningKey AsCommitteeHotKey
 
   let vkey = getVerificationKey skey
@@ -92,10 +101,13 @@ data SomeCommitteeKey f
   | ACommitteeColdKey (f CommitteeColdKey)
 
 runGovernanceCommitteeKeyHash :: ()
-  => ConwayEraOnwards era
-  -> AnyVerificationKeySource
+  => Cmd.GovernanceCommitteeKeyHashCmdArgs era
   -> ExceptT GovernanceCommitteeError IO ()
-runGovernanceCommitteeKeyHash _w vkeySource = do
+runGovernanceCommitteeKeyHash
+    Cmd.GovernanceCommitteeKeyHashCmdArgs
+      { Cmd.eon = _w
+      , Cmd.vkeySource
+      } = do
   vkey <-
     case vkeySource of
       AnyVerificationKeySourceOfText vkText -> do
@@ -126,13 +138,16 @@ runGovernanceCommitteeKeyHash _w vkeySource = do
                               . verificationKeyHash
 
 runGovernanceCommitteeCreateHotKeyAuthorizationCertificate :: ()
-  => ConwayEraOnwards era
-  -> VerificationKeyOrHashOrFile CommitteeColdKey
-  -> VerificationKeyOrHashOrFile CommitteeHotKey
-  -> File () Out
+  => Cmd.GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
   -> ExceptT GovernanceCommitteeError IO ()
-runGovernanceCommitteeCreateHotKeyAuthorizationCertificate w coldVkOrHashOrFp hotVkOrHashOrFp oFp =
-  conwayEraOnwardsConstraints w $ do
+runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
+    Cmd.GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+      { Cmd.eon = eon
+      , Cmd.vkeyColdKeySource = coldVkOrHashOrFp
+      , Cmd.vkeyHotKeySource = hotVkOrHashOrFp
+      , Cmd.outFile = oFp
+      } =
+  conwayEraOnwardsConstraints eon $ do
     CommitteeColdKeyHash coldVKHash <-
       lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey coldVkOrHashOrFp)
         & onLeft (left . GovernanceCommitteeCmdKeyReadError)
@@ -141,7 +156,7 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate w coldVkOrHashOrFp ho
       lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey hotVkOrHashOrFp)
         & onLeft (left . GovernanceCommitteeCmdKeyReadError)
 
-    makeCommitteeHotKeyAuthorizationCertificate (CommitteeHotKeyAuthorizationRequirements w coldVKHash hotVkHash)
+    makeCommitteeHotKeyAuthorizationCertificate (CommitteeHotKeyAuthorizationRequirements eon coldVKHash hotVkHash)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)
       & writeLazyByteStringFile oFp
       & firstExceptT GovernanceCommitteeCmdTextEnvWriteError . newExceptT
@@ -151,11 +166,14 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate w coldVkOrHashOrFp ho
     genKeyDelegCertDesc = "Constitutional Committee Hot Key Registration Certificate"
 
 runGovernanceCommitteeColdKeyResignationCertificate :: ()
-  => ConwayEraOnwards era
-  -> VerificationKeyOrHashOrFile CommitteeColdKey
-  -> File () Out
+  => Cmd.GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
   -> ExceptT GovernanceCommitteeError IO ()
-runGovernanceCommitteeColdKeyResignationCertificate w coldVkOrHashOrFp oFp =
+runGovernanceCommitteeColdKeyResignationCertificate
+    Cmd.GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+      { Cmd.eon               = w
+      , Cmd.vkeyColdKeySource = coldVkOrHashOrFp
+      , Cmd.outFile           = oFp
+      } =
   conwayEraOnwardsConstraints w $ do
     CommitteeColdKeyHash coldVKHash <-
       lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey coldVkOrHashOrFp)
