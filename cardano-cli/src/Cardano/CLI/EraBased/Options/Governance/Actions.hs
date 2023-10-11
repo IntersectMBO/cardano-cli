@@ -10,7 +10,7 @@ import           Cardano.Api
 import           Cardano.Api.Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Commands.Governance.Actions
+import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 import           Cardano.Ledger.BaseTypes (NonNegativeInterval)
@@ -23,7 +23,7 @@ import qualified Options.Applicative as Opt
 
 pGovernanceActionCmds :: ()
   => CardanoEra era
-  -> Maybe (Parser (GovernanceActionCmds era))
+  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionCmds era =
   subInfoParser "action"
     ( Opt.progDesc
@@ -41,14 +41,14 @@ pGovernanceActionCmds era =
 
 pGovernanceActionNewInfoCmd
   :: CardanoEra era
-  -> Maybe (Parser (GovernanceActionCmds era))
+  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionNewInfoCmd era = do
   cOn <- forEraMaybeEon era
   pure
     $ subParser "create-info"
     $ Opt.info
-        ( fmap (GovernanceActionInfoCmd cOn) $
-            GovernanceActionInfoCmdArgs
+        ( fmap (Cmd.GovernanceActionInfoCmd cOn) $
+            Cmd.GovernanceActionInfoCmdArgs
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing
@@ -61,14 +61,14 @@ pGovernanceActionNewInfoCmd era = do
 
 pGovernanceActionNewConstitutionCmd
   :: CardanoEra era
-  -> Maybe (Parser (GovernanceActionCmds era))
+  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionNewConstitutionCmd era = do
   cOn <- forEraMaybeEon era
   pure
     $ subParser "create-constitution"
     $ Opt.info
-        ( fmap (GovernanceActionCreateConstitutionCmd cOn) $
-            GovernanceActionCreateConstitutionCmdArgs
+        ( fmap (Cmd.GovernanceActionCreateConstitutionCmd cOn) $
+            Cmd.GovernanceActionCreateConstitutionCmdArgs
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing
@@ -83,20 +83,20 @@ pGovernanceActionNewConstitutionCmd era = do
 
 pGovernanceActionUpdateCommitteeCmd
   :: CardanoEra era
-  -> Maybe (Parser (GovernanceActionCmds era))
+  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionUpdateCommitteeCmd era = do
   cOn <- forEraMaybeEon era
   pure
     $ subParser "update-committee"
     $ Opt.info
-      ( GoveranceActionUpdateCommitteeCmd cOn
+      ( Cmd.GoveranceActionUpdateCommitteeCmd cOn
           <$> pUpdateCommitteeCmd
       )
     $ Opt.progDesc "Create or update a new committee proposal."
 
-pUpdateCommitteeCmd :: Parser (GoveranceActionUpdateCommitteeCmdArgs era)
+pUpdateCommitteeCmd :: Parser (Cmd.GoveranceActionUpdateCommitteeCmdArgs era)
 pUpdateCommitteeCmd =
-  GoveranceActionUpdateCommitteeCmdArgs
+  Cmd.GoveranceActionUpdateCommitteeCmdArgs
     <$> pNetwork
     <*> pGovActionDeposit
     <*> pAnyStakeIdentifier Nothing
@@ -114,14 +114,14 @@ pUpdateCommitteeCmd =
 
 pGovernanceActionNoConfidenceCmd
   :: CardanoEra era
-  -> Maybe (Parser (GovernanceActionCmds era))
+  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionNoConfidenceCmd era = do
   cOn <- forEraMaybeEon era
   pure
     $ subParser "create-no-confidence"
     $ Opt.info
-        ( fmap (GovernanceActionCreateNoConfidenceCmd cOn) $
-            GovernanceActionCreateNoConfidenceCmdArgs
+        ( fmap (Cmd.GovernanceActionCreateNoConfidenceCmd cOn) $
+            Cmd.GovernanceActionCreateNoConfidenceCmdArgs
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing
@@ -134,27 +134,28 @@ pGovernanceActionNoConfidenceCmd era = do
     $ Opt.progDesc "Create a no confidence proposal."
 
 -- | The first argument is the optional prefix.
-pAnyStakeIdentifier :: Maybe String -> Parser AnyStakeIdentifier
+pAnyStakeIdentifier :: Maybe String -> Parser Cmd.AnyStakeIdentifier
 pAnyStakeIdentifier prefix =
   asum
-    [ AnyStakePoolKey <$> pStakePoolVerificationKeyOrHashOrFile prefix
-    , AnyStakeKey <$> pStakeVerificationKeyOrHashOrFile prefix
+    [ Cmd.AnyStakePoolKey <$> pStakePoolVerificationKeyOrHashOrFile prefix
+    , Cmd.AnyStakeKey <$> pStakeVerificationKeyOrHashOrFile prefix
     ]
 
 pGovernanceActionProtocolParametersUpdateCmd :: ()
   => CardanoEra era
-  -> Maybe (Parser (GovernanceActionCmds era))
+  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionProtocolParametersUpdateCmd era = do
   eon <- forEraMaybeEon era
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
   pure
     $ subParser "create-protocol-parameters-update"
     $ Opt.info
-        ( GovernanceActionProtocolParametersUpdateCmd eon
-            <$> pEpochNoUpdateProp
-            <*> pProtocolParametersUpdateGenesisKeys sbe
-            <*> dpGovActionProtocolParametersUpdate sbe
-            <*> pOutputFile
+        ( fmap Cmd.GovernanceActionProtocolParametersUpdateCmd $
+            Cmd.GovernanceActionProtocolParametersUpdateCmdArgs eon
+              <$> pEpochNoUpdateProp
+              <*> pProtocolParametersUpdateGenesisKeys sbe
+              <*> dpGovActionProtocolParametersUpdate sbe
+              <*> pOutputFile
         )
     $ Opt.progDesc "Create a protocol parameters update."
 
@@ -284,14 +285,14 @@ dpGovActionProtocolParametersUpdate = \case
       <*> pIntroducedInBabbagePParams
       <*> pIntroducedInConwayPParams
 
-pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionTreasuryWithdrawalCmd era = do
   cOn <- forEraMaybeEon era
   pure
     $ subParser "create-treasury-withdrawal"
     $ Opt.info
-        ( fmap (GovernanceActionTreasuryWithdrawalCmd cOn) $
-            GovernanceActionTreasuryWithdrawalCmdArgs
+        ( fmap (Cmd.GovernanceActionTreasuryWithdrawalCmd cOn) $
+            Cmd.GovernanceActionTreasuryWithdrawalCmdArgs
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing

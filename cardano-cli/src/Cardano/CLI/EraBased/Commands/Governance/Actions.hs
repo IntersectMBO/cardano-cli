@@ -6,8 +6,9 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   ( GovernanceActionCmds(..)
   , GoveranceActionUpdateCommitteeCmdArgs(..)
   , GovernanceActionCreateConstitutionCmdArgs(..)
-  , GovernanceActionInfoCmdArgs(..)
   , GovernanceActionCreateNoConfidenceCmdArgs(..)
+  , GovernanceActionInfoCmdArgs(..)
+  , GovernanceActionProtocolParametersUpdateCmdArgs(..)
   , GovernanceActionTreasuryWithdrawalCmdArgs(..)
   , renderGovernanceActionCmds
 
@@ -34,12 +35,7 @@ data GovernanceActionCmds era
   | GovernanceActionCreateNoConfidenceCmd
       (ConwayEraOnwards era)
       (GovernanceActionCreateNoConfidenceCmdArgs era)
-  | GovernanceActionProtocolParametersUpdateCmd
-      (ConwayEraOnwards era)
-      EpochNo
-      [VerificationKeyFile In]
-      (EraBasedProtocolParametersUpdate era)
-      (File () Out)
+  | GovernanceActionProtocolParametersUpdateCmd   !(GovernanceActionProtocolParametersUpdateCmdArgs era)
   | GovernanceActionTreasuryWithdrawalCmd
       (ConwayEraOnwards era)
       (GovernanceActionTreasuryWithdrawalCmdArgs era)
@@ -96,6 +92,15 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
       , ncGovAct :: TxId
       , ncGovActIndex :: Word32
       , ncFilePath :: File () Out
+      } deriving Show
+
+data GovernanceActionProtocolParametersUpdateCmdArgs era
+  = GovernanceActionProtocolParametersUpdateCmdArgs
+      { eon               :: !(ConwayEraOnwards era)
+      , epochNo           :: !EpochNo
+      , genesisVkeyFiles  :: ![VerificationKeyFile In]
+      , pparamsUpdate     :: !(EraBasedProtocolParametersUpdate era)
+      , outFile           :: !(File () Out)
       } deriving Show
 
 data GovernanceActionTreasuryWithdrawalCmdArgs era

@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -15,6 +16,7 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
+import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
@@ -34,8 +36,8 @@ runGovernanceActionCmds = \case
   GovernanceActionCreateConstitutionCmd eon newConstitution ->
     runGovernanceActionCreateConstitutionCmd eon newConstitution
 
-  GovernanceActionProtocolParametersUpdateCmd eon eNo genKeys eraBasedProtocolParametersUpdate ofp ->
-    runGovernanceActionCreateProtocolParametersUpdateCmd eon eNo genKeys eraBasedProtocolParametersUpdate ofp
+  GovernanceActionProtocolParametersUpdateCmd args ->
+    runGovernanceActionCreateProtocolParametersUpdateCmd args
 
   GovernanceActionTreasuryWithdrawalCmd eon treasuryWithdrawal ->
     runGovernanceActionTreasuryWithdrawalCmd eon treasuryWithdrawal
@@ -175,23 +177,25 @@ runGovernanceActionCreateNewCommitteeCmd cOn (GoveranceActionUpdateCommitteeCmdA
     $ writeFileTextEnvelope oFp Nothing proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd :: ()
-  => ConwayEraOnwards era
-  -> EpochNo
-  -> [VerificationKeyFile In]
-  -- ^ Genesis verification keys
-  -> EraBasedProtocolParametersUpdate era
-  -> File () Out
+  => Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateProtocolParametersUpdateCmd eon expEpoch genesisVerKeys eraBasedPParams oFp = do
+runGovernanceActionCreateProtocolParametersUpdateCmd
+    Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
+      { Cmd.eon
+      , Cmd.epochNo = expEpoch
+      , Cmd.genesisVkeyFiles
+      , Cmd.pparamsUpdate = pparamsUpdate
+      , Cmd.outFile
+      } = do
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
 
   genVKeys <- sequence
     [ firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT
         $ readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
-    | vkeyFile <- genesisVerKeys
+    | vkeyFile <- genesisVkeyFiles
     ]
 
-  let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
+  let updateProtocolParams = createEraBasedProtocolParamUpdate sbe pparamsUpdate
       apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
       genKeyHashes = fmap verificationKeyHash genVKeys
       -- TODO: Update EraBasedProtocolParametersUpdate to require genesis delegate keys
@@ -199,7 +203,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eon expEpoch genesisVerKeys
       upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-    $ writeLazyByteStringFile oFp $ textEnvelopeToJSON Nothing upProp
+    $ writeLazyByteStringFile outFile $ textEnvelopeToJSON Nothing upProp
 
 readStakeKeyHash :: AnyStakeIdentifier -> ExceptT GovernanceActionsError IO (Hash StakeKey)
 readStakeKeyHash anyStake =
