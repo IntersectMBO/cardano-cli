@@ -14,6 +14,7 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
+
 pStakeAddressCmds :: ()
   => CardanoEra era
   -> EnvCli
@@ -99,16 +100,27 @@ pStakeAddressDeregistrationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (StakeAddressCmds era))
 pStakeAddressDeregistrationCertificateCmd era = do
-  w <- forEraMaybeEon era
-  pure
-    $ subParser "deregistration-certificate"
-    $ Opt.info
-        ( StakeAddressDeregistrationCertificateCmd w
-            <$> pStakeIdentifier
-            <*> optional pKeyRegistDeposit
-            <*> pOutputFile
-        )
-    $ Opt.progDesc "Create a stake address deregistration certificate"
+  forEraInEonMaybe era $ \sbe ->
+    caseShelleyToBabbageOrConwayEraOnwards
+      (\shelleyToBabbage -> subParser "deregistration-certificate"
+           $ Opt.info
+               ( StakeAddressDeregistrationCertificateCmd (shelleyToBabbageEraToShelleyBasedEra shelleyToBabbage)
+                   <$> pStakeIdentifier
+                   <*> pure Nothing
+                   <*> pOutputFile
+               )
+           $ Opt.progDesc "Create a stake address deregistration certificate"
+      )
+      (\conwayOnwards -> subParser "deregistration-certificate"
+           $ Opt.info
+               ( StakeAddressDeregistrationCertificateCmd (conwayEraOnwardsToShelleyBasedEra conwayOnwards)
+                   <$> pStakeIdentifier
+                   <*> fmap Just pKeyRegistDeposit
+                   <*> pOutputFile
+               )
+           $ Opt.progDesc "Create a stake address deregistration certificate"
+      )
+      sbe
 
 pStakeAddressStakeDelegationCertificateCmd :: ()
   => CardanoEra era

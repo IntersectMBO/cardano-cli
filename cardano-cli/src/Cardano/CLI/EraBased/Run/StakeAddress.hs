@@ -162,6 +162,7 @@ createRegistrationCertRequirements sbe stakeCred mdeposit =
       return $ StakeAddrRegistrationPreConway ShelleyToBabbageEraBabbage stakeCred
     ShelleyBasedEraConway ->
       case mdeposit of
+        -- TODO: This error constructor will never be called
         Nothing -> Left StakeAddressRegistrationDepositRequired
         Just dep ->
           return $ StakeAddrRegistrationConway ConwayEraOnwardsConway dep stakeCred
