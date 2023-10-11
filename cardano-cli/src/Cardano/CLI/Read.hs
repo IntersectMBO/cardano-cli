@@ -603,6 +603,7 @@ readCddlWitness fp = do
             , FromCDDLWitness "TxWitness MaryEra" CddlWitness
             , FromCDDLWitness "TxWitness AlonzoEra" CddlWitness
             , FromCDDLWitness "TxWitness BabbageEra" CddlWitness
+            , FromCDDLWitness "TxWitness ConwayEra" CddlWitness
             ]
 
 -- Witness handling
@@ -860,6 +861,7 @@ readFileInAnyCardanoEra
      , HasTextEnvelope (thing MaryEra)
      , HasTextEnvelope (thing AlonzoEra)
      , HasTextEnvelope (thing BabbageEra)
+     , HasTextEnvelope (thing ConwayEra)
      )
   => (forall era. AsType era -> AsType (thing era))
   -> FileOrPipe
@@ -872,6 +874,7 @@ readFileInAnyCardanoEra asThing =
    , FromSomeType (asThing AsMaryEra)    (InAnyCardanoEra MaryEra)
    , FromSomeType (asThing AsAlonzoEra)  (InAnyCardanoEra AlonzoEra)
    , FromSomeType (asThing AsBabbageEra) (InAnyCardanoEra BabbageEra)
+   , FromSomeType (asThing AsConwayEra)  (InAnyCardanoEra ConwayEra)
    ]
 
 -- | We need a type for handling files that may be actually be things like
