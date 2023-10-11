@@ -1,7 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE StandaloneDeriving #-}
+
 
 module Cardano.CLI.EraBased.Commands.Governance.Actions
   ( GovernanceActionCmds(..)
@@ -12,6 +15,8 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   , GovernanceActionViewCmdArgs(..)
   , GovernanceActionProtocolParametersUpdateCmdArgs(..)
   , GovernanceActionTreasuryWithdrawalCmdArgs(..)
+  , UpdateProtocolParametersConwayOnwards(..)
+  , UpdateProtocolParametersPreConway(..)
   , renderGovernanceActionCmds
 
   , AnyStakeIdentifier(..)
@@ -31,7 +36,9 @@ data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd         !(GovernanceActionCreateConstitutionCmdArgs era)
   | GoveranceActionUpdateCommitteeCmd             !(GoveranceActionUpdateCommitteeCmdArgs era)
   | GovernanceActionCreateNoConfidenceCmd         !(GovernanceActionCreateNoConfidenceCmdArgs era)
-  | GovernanceActionProtocolParametersUpdateCmd   !(GovernanceActionProtocolParametersUpdateCmdArgs era)
+  | GovernanceActionProtocolParametersUpdateCmd
+     (ShelleyBasedEra era)
+     !(GovernanceActionProtocolParametersUpdateCmdArgs era)
   | GovernanceActionTreasuryWithdrawalCmd         !(GovernanceActionTreasuryWithdrawalCmdArgs era)
   | GovernanceActionInfoCmd                       !(GovernanceActionInfoCmdArgs era)
   | GovernanceActionViewCmd                       !(GovernanceActionViewCmdArgs era)
@@ -93,11 +100,10 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
 
 data GovernanceActionProtocolParametersUpdateCmdArgs era
   = GovernanceActionProtocolParametersUpdateCmdArgs
-      { eon               :: !(ConwayEraOnwards era)
-      , epochNo           :: !EpochNo
-      , genesisVkeyFiles  :: ![VerificationKeyFile In]
-      , pparamsUpdate     :: !(EraBasedProtocolParametersUpdate era)
-      , outFile           :: !(File () Out)
+      { uppPreConway :: Maybe (UpdateProtocolParametersPreConway era)
+      , uppConwayOnwards :: Maybe (UpdateProtocolParametersConwayOnwards era)
+      , uppNewPParams :: EraBasedProtocolParametersUpdate era
+      , uppFilePath :: File () Out
       } deriving Show
 
 data GovernanceActionTreasuryWithdrawalCmdArgs era
@@ -119,6 +125,29 @@ data GovernanceActionViewCmdArgs era
       , outFormat  :: !GovernanceActionViewOutputFormat
       , mOutFile   :: !(Maybe (File () Out))
       } deriving Show
+
+data UpdateProtocolParametersConwayOnwards era
+  = UpdateProtocolParametersConwayOnwards
+      { eon                 :: !(ConwayEraOnwards era)
+      , networkId           :: !Ledger.Network
+      , deposit             :: !Lovelace
+      , returnAddr          :: !AnyStakeIdentifier
+      , proposalUrl         :: !ProposalUrl
+      , proposalHashSource  :: !ProposalHashSource
+      , governanceActionId  :: !(Maybe (TxId, Word32))
+      }
+
+deriving instance Show (UpdateProtocolParametersConwayOnwards era)
+
+data UpdateProtocolParametersPreConway era
+  = UpdateProtocolParametersPreConway
+      { eon                     :: ShelleyToBabbageEra era
+      , expiryEpoch             :: EpochNo
+      , genesisVerificationKeys :: [VerificationKeyFile In]
+      }
+
+
+deriving instance Show (UpdateProtocolParametersPreConway era)
 
 renderGovernanceActionCmds :: GovernanceActionCmds era -> Text
 renderGovernanceActionCmds = ("governance action " <>) . \case
