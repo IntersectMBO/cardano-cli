@@ -66,3 +66,57 @@ hprop_golden_governance_governance_vote_view_yaml =
       ]
 
     H.diffVsGoldenFile voteView voteViewGold
+
+hprop_golden_governance_governance_vote_create_yes_cc_hot_key :: Property
+hprop_golden_governance_governance_vote_create_yes_cc_hot_key =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    ccVkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/cc.vkey"
+    voteFile <- H.noteTempFile tempDir "vote"
+    voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_yes.json"
+
+    void $ execCardanoCLI
+      [ "conway", "governance", "vote", "create"
+      , "--yes"
+      , "--governance-action-tx-id", "d21d997b5dbdd90180b642c3f4f2653cea629f6134cd9dc820d0fe6f11b54af4"
+      , "--governance-action-index", "0"
+      , "--cc-hot-verification-key-file", ccVkeyFile
+      , "--out-file", voteFile
+      ]
+
+    H.diffFileVsGoldenFile voteFile voteGold
+
+hprop_golden_governance_governance_vote_create_no_cc_hot_key :: Property
+hprop_golden_governance_governance_vote_create_no_cc_hot_key =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    ccVkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/cc.vkey"
+    voteFile <- H.noteTempFile tempDir "vote"
+    voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_no.json"
+
+    void $ execCardanoCLI
+      [ "conway", "governance", "vote", "create"
+      , "--no"
+      , "--governance-action-tx-id", "d21d997b5dbdd90180b642c3f4f2653cea629f6134cd9dc820d0fe6f11b54af4"
+      , "--governance-action-index", "0"
+      , "--cc-hot-verification-key-file", ccVkeyFile
+      , "--out-file", voteFile
+      ]
+
+    H.diffFileVsGoldenFile voteFile voteGold
+
+hprop_golden_governance_governance_vote_create_abstain_cc_hot_key :: Property
+hprop_golden_governance_governance_vote_create_abstain_cc_hot_key =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    ccVkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/cc.vkey"
+    voteFile <- H.noteTempFile tempDir "vote"
+    voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_abstain.json"
+
+    void $ execCardanoCLI
+      [ "conway", "governance", "vote", "create"
+      , "--abstain"
+      , "--governance-action-tx-id", "d21d997b5dbdd90180b642c3f4f2653cea629f6134cd9dc820d0fe6f11b54af4"
+      , "--governance-action-index", "0"
+      , "--cc-hot-verification-key-file", ccVkeyFile
+      , "--out-file", voteFile
+      ]
+
+    H.diffFileVsGoldenFile voteFile voteGold
