@@ -48,7 +48,7 @@ pGovernanceActionNewInfoCmd era = do
     $ subParser "create-info"
     $ Opt.info
         ( fmap (GovernanceActionInfoCmd cOn) $
-            NewInfoCmd
+            GovernanceActionInfoCmdArgs
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing
@@ -68,7 +68,7 @@ pGovernanceActionNewConstitutionCmd era = do
     $ subParser "create-constitution"
     $ Opt.info
         ( fmap (GovernanceActionCreateConstitutionCmd cOn) $
-            NewConstitutionCmd
+            GovernanceActionCreateConstitutionCmdArgs
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing
@@ -94,9 +94,9 @@ pGovernanceActionUpdateCommitteeCmd era = do
       )
     $ Opt.progDesc "Create or update a new committee proposal."
 
-pUpdateCommitteeCmd :: Parser UpdateCommitteeCmd
+pUpdateCommitteeCmd :: Parser GoveranceActionUpdateCommitteeCmdArgs
 pUpdateCommitteeCmd =
-  UpdateCommitteeCmd
+  GoveranceActionUpdateCommitteeCmdArgs
     <$> pNetwork
     <*> pGovActionDeposit
     <*> pAnyStakeIdentifier Nothing
@@ -121,7 +121,7 @@ pGovernanceActionNoConfidenceCmd era = do
     $ subParser "create-no-confidence"
     $ Opt.info
         ( fmap (GovernanceActionCreateNoConfidenceCmd cOn) $
-            NoConfidenceCmd
+            GovernanceActionCreateNoConfidenceCmdArgs
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing
@@ -290,7 +290,7 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
     $ subParser "create-treasury-withdrawal"
     $ Opt.info
         ( fmap (GovernanceActionTreasuryWithdrawalCmd cOn) $
-            TreasuryWithdrawalCmd
+            GovernanceActionTreasuryWithdrawalCmdArgs
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing

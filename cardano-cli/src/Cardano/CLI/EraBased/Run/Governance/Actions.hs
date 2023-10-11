@@ -51,9 +51,9 @@ runGovernanceActionCmds = \case
 
 runGovernanceActionInfoCmd
   :: ConwayEraOnwards era
-  -> NewInfoCmd
+  -> GovernanceActionInfoCmdArgs
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionInfoCmd cOn (NewInfoCmd network deposit returnAddr proposalUrl proposalHashSource  outFp) = do
+runGovernanceActionInfoCmd cOn (GovernanceActionInfoCmdArgs network deposit returnAddr proposalUrl proposalHashSource  outFp) = do
   returnKeyHash <- readStakeKeyHash returnAddr
 
   proposalHash <-
@@ -76,9 +76,9 @@ runGovernanceActionInfoCmd cOn (NewInfoCmd network deposit returnAddr proposalUr
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd
   :: ConwayEraOnwards era
-  -> NoConfidenceCmd
+  -> GovernanceActionCreateNoConfidenceCmdArgs
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateNoConfidenceCmd cOn (NoConfidenceCmd network deposit returnAddr proposalUrl proposalHashSource txid ind outFp) = do
+runGovernanceActionCreateNoConfidenceCmd cOn (GovernanceActionCreateNoConfidenceCmdArgs network deposit returnAddr proposalUrl proposalHashSource txid ind outFp) = do
   returnKeyHash <- readStakeKeyHash returnAddr
 
   proposalHash <-
@@ -100,9 +100,9 @@ runGovernanceActionCreateNoConfidenceCmd cOn (NoConfidenceCmd network deposit re
 
 runGovernanceActionCreateConstitutionCmd :: ()
   => ConwayEraOnwards era
-  -> NewConstitutionCmd
+  -> GovernanceActionCreateConstitutionCmdArgs
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateConstitutionCmd cOn (NewConstitutionCmd network deposit anyStake mPrevGovActId proposalUrl proposalHashSource constitutionUrl constitutionHashSource outFp) = do
+runGovernanceActionCreateConstitutionCmd cOn (GovernanceActionCreateConstitutionCmdArgs network deposit anyStake mPrevGovActId proposalUrl proposalHashSource constitutionUrl constitutionHashSource outFp) = do
 
   stakeKeyHash <- readStakeKeyHash anyStake
 
@@ -136,9 +136,9 @@ runGovernanceActionCreateConstitutionCmd cOn (NewConstitutionCmd network deposit
 -- with the new ledger types
 runGovernanceActionCreateNewCommitteeCmd
   :: ConwayEraOnwards era
-  -> UpdateCommitteeCmd
+  -> GoveranceActionUpdateCommitteeCmdArgs
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateNewCommitteeCmd cOn (UpdateCommitteeCmd network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp) = do
+runGovernanceActionCreateNewCommitteeCmd cOn (GoveranceActionUpdateCommitteeCmdArgs network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp) = do
   let sbe = conwayEraOnwardsToShelleyBasedEra cOn -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
       govActIdentifier = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> prevActId
       quorumRational = toRational q
@@ -213,9 +213,9 @@ readStakeKeyHash anyStake =
 
 runGovernanceActionTreasuryWithdrawalCmd
   :: ConwayEraOnwards era
-  -> TreasuryWithdrawalCmd
+  -> GovernanceActionTreasuryWithdrawalCmdArgs
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionTreasuryWithdrawalCmd cOn (TreasuryWithdrawalCmd network deposit returnAddr proposalUrl proposalHashSource treasuryWithdrawal outFp) = do
+runGovernanceActionTreasuryWithdrawalCmd cOn (GovernanceActionTreasuryWithdrawalCmdArgs network deposit returnAddr proposalUrl proposalHashSource treasuryWithdrawal outFp) = do
 
   proposalHash <-
     proposalHashSourceToHash proposalHashSource

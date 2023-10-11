@@ -3,14 +3,15 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.Actions
-  ( AnyStakeIdentifier(..)
-  , GovernanceActionCmds(..)
-  , UpdateCommitteeCmd(..)
-  , NewConstitutionCmd(..)
-  , NewInfoCmd(..)
-  , NoConfidenceCmd(..)
-  , TreasuryWithdrawalCmd(..)
+  ( GovernanceActionCmds(..)
+  , GoveranceActionUpdateCommitteeCmdArgs(..)
+  , GovernanceActionCreateConstitutionCmdArgs(..)
+  , GovernanceActionInfoCmdArgs(..)
+  , GovernanceActionCreateNoConfidenceCmdArgs(..)
+  , GovernanceActionTreasuryWithdrawalCmdArgs(..)
   , renderGovernanceActionCmds
+
+  , AnyStakeIdentifier(..)
   ) where
 
 import           Cardano.Api
@@ -26,13 +27,13 @@ import           Data.Word
 data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd
       (ConwayEraOnwards era)
-      NewConstitutionCmd
+      GovernanceActionCreateConstitutionCmdArgs
   | GoveranceActionUpdateCommitteeCmd
       (ConwayEraOnwards era)
-      UpdateCommitteeCmd
+      GoveranceActionUpdateCommitteeCmdArgs
   | GovernanceActionCreateNoConfidenceCmd
       (ConwayEraOnwards era)
-      NoConfidenceCmd
+      GovernanceActionCreateNoConfidenceCmdArgs
   | GovernanceActionProtocolParametersUpdateCmd
       (ShelleyBasedEra era)
       EpochNo
@@ -41,14 +42,14 @@ data GovernanceActionCmds era
       (File () Out)
   | GovernanceActionTreasuryWithdrawalCmd
       (ConwayEraOnwards era)
-      TreasuryWithdrawalCmd
+      GovernanceActionTreasuryWithdrawalCmdArgs
   | GovernanceActionInfoCmd
       (ConwayEraOnwards era)
-      NewInfoCmd
+      GovernanceActionInfoCmdArgs
   deriving Show
 
-data UpdateCommitteeCmd
-  = UpdateCommitteeCmd
+data GoveranceActionUpdateCommitteeCmdArgs
+  = GoveranceActionUpdateCommitteeCmdArgs
     { ucNetwork :: Ledger.Network
     , ucDeposit :: Lovelace
     , ucReturnAddress :: AnyStakeIdentifier
@@ -61,8 +62,8 @@ data UpdateCommitteeCmd
     , ucFilePath :: File () Out
     } deriving Show
 
-data NewConstitutionCmd
-  = NewConstitutionCmd
+data GovernanceActionCreateConstitutionCmdArgs
+  = GovernanceActionCreateConstitutionCmdArgs
       { encNetwork :: Ledger.Network
       , encDeposit :: Lovelace
       , encStakeCredential :: AnyStakeIdentifier
@@ -75,8 +76,8 @@ data NewConstitutionCmd
       } deriving Show
 
 -- | Datatype to carry data for the create-info governance action
-data NewInfoCmd
-   = NewInfoCmd
+data GovernanceActionInfoCmdArgs
+   = GovernanceActionInfoCmdArgs
       { niNetwork :: Ledger.Network
       , niDeposit :: Lovelace
       , niStakeCredential :: AnyStakeIdentifier
@@ -85,8 +86,8 @@ data NewInfoCmd
       , niOutputFilePath :: File () Out
       } deriving Show
 
-data NoConfidenceCmd
-  = NoConfidenceCmd
+data GovernanceActionCreateNoConfidenceCmdArgs
+  = GovernanceActionCreateNoConfidenceCmdArgs
       { ncNetwork :: Ledger.Network
       , ncDeposit :: Lovelace
       , ncStakeCredential :: AnyStakeIdentifier
@@ -97,8 +98,8 @@ data NoConfidenceCmd
       , ncFilePath :: File () Out
       } deriving Show
 
-data TreasuryWithdrawalCmd
-  = TreasuryWithdrawalCmd
+data GovernanceActionTreasuryWithdrawalCmdArgs
+  = GovernanceActionTreasuryWithdrawalCmdArgs
     { twNetwork :: Ledger.Network
     , twDeposit :: Lovelace -- ^ Deposit
     , twReturnAddr :: AnyStakeIdentifier -- ^ Return address
