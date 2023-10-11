@@ -364,6 +364,7 @@ test-suite cardano-cli-golden
                         Test.Golden.Byron.UpdateProposal
                         Test.Golden.Byron.Vote
                         Test.Golden.Byron.Witness
+                        Test.Golden.Conway.Transaction.Assemble
                         Test.Golden.EraBased.Governance.AnswerPoll
                         Test.Golden.EraBased.Governance.CreatePoll
                         Test.Golden.EraBased.Governance.VerifyPoll
