@@ -27,13 +27,13 @@ import           Data.Word
 data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd
       (ConwayEraOnwards era)
-      GovernanceActionCreateConstitutionCmdArgs
+      (GovernanceActionCreateConstitutionCmdArgs era)
   | GoveranceActionUpdateCommitteeCmd
       (ConwayEraOnwards era)
-      GoveranceActionUpdateCommitteeCmdArgs
+      (GoveranceActionUpdateCommitteeCmdArgs era)
   | GovernanceActionCreateNoConfidenceCmd
       (ConwayEraOnwards era)
-      GovernanceActionCreateNoConfidenceCmdArgs
+      (GovernanceActionCreateNoConfidenceCmdArgs era)
   | GovernanceActionProtocolParametersUpdateCmd
       (ShelleyBasedEra era)
       EpochNo
@@ -42,13 +42,13 @@ data GovernanceActionCmds era
       (File () Out)
   | GovernanceActionTreasuryWithdrawalCmd
       (ConwayEraOnwards era)
-      GovernanceActionTreasuryWithdrawalCmdArgs
+      (GovernanceActionTreasuryWithdrawalCmdArgs era)
   | GovernanceActionInfoCmd
       (ConwayEraOnwards era)
-      GovernanceActionInfoCmdArgs
+      (GovernanceActionInfoCmdArgs era)
   deriving Show
 
-data GoveranceActionUpdateCommitteeCmdArgs
+data GoveranceActionUpdateCommitteeCmdArgs era
   = GoveranceActionUpdateCommitteeCmdArgs
     { ucNetwork :: Ledger.Network
     , ucDeposit :: Lovelace
@@ -62,7 +62,7 @@ data GoveranceActionUpdateCommitteeCmdArgs
     , ucFilePath :: File () Out
     } deriving Show
 
-data GovernanceActionCreateConstitutionCmdArgs
+data GovernanceActionCreateConstitutionCmdArgs era
   = GovernanceActionCreateConstitutionCmdArgs
       { encNetwork :: Ledger.Network
       , encDeposit :: Lovelace
@@ -76,7 +76,7 @@ data GovernanceActionCreateConstitutionCmdArgs
       } deriving Show
 
 -- | Datatype to carry data for the create-info governance action
-data GovernanceActionInfoCmdArgs
+data GovernanceActionInfoCmdArgs era
    = GovernanceActionInfoCmdArgs
       { niNetwork :: Ledger.Network
       , niDeposit :: Lovelace
@@ -86,7 +86,7 @@ data GovernanceActionInfoCmdArgs
       , niOutputFilePath :: File () Out
       } deriving Show
 
-data GovernanceActionCreateNoConfidenceCmdArgs
+data GovernanceActionCreateNoConfidenceCmdArgs era
   = GovernanceActionCreateNoConfidenceCmdArgs
       { ncNetwork :: Ledger.Network
       , ncDeposit :: Lovelace
@@ -98,7 +98,7 @@ data GovernanceActionCreateNoConfidenceCmdArgs
       , ncFilePath :: File () Out
       } deriving Show
 
-data GovernanceActionTreasuryWithdrawalCmdArgs
+data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
     { twNetwork :: Ledger.Network
     , twDeposit :: Lovelace -- ^ Deposit

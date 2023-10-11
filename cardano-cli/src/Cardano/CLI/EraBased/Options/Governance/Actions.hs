@@ -94,7 +94,7 @@ pGovernanceActionUpdateCommitteeCmd era = do
       )
     $ Opt.progDesc "Create or update a new committee proposal."
 
-pUpdateCommitteeCmd :: Parser GoveranceActionUpdateCommitteeCmdArgs
+pUpdateCommitteeCmd :: Parser (GoveranceActionUpdateCommitteeCmdArgs era)
 pUpdateCommitteeCmd =
   GoveranceActionUpdateCommitteeCmdArgs
     <$> pNetwork

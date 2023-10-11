@@ -51,7 +51,7 @@ runGovernanceActionCmds = \case
 
 runGovernanceActionInfoCmd
   :: ConwayEraOnwards era
-  -> GovernanceActionInfoCmdArgs
+  -> GovernanceActionInfoCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionInfoCmd cOn (GovernanceActionInfoCmdArgs network deposit returnAddr proposalUrl proposalHashSource  outFp) = do
   returnKeyHash <- readStakeKeyHash returnAddr
@@ -76,7 +76,7 @@ runGovernanceActionInfoCmd cOn (GovernanceActionInfoCmdArgs network deposit retu
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd
   :: ConwayEraOnwards era
-  -> GovernanceActionCreateNoConfidenceCmdArgs
+  -> GovernanceActionCreateNoConfidenceCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateNoConfidenceCmd cOn (GovernanceActionCreateNoConfidenceCmdArgs network deposit returnAddr proposalUrl proposalHashSource txid ind outFp) = do
   returnKeyHash <- readStakeKeyHash returnAddr
@@ -100,7 +100,7 @@ runGovernanceActionCreateNoConfidenceCmd cOn (GovernanceActionCreateNoConfidence
 
 runGovernanceActionCreateConstitutionCmd :: ()
   => ConwayEraOnwards era
-  -> GovernanceActionCreateConstitutionCmdArgs
+  -> GovernanceActionCreateConstitutionCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateConstitutionCmd cOn (GovernanceActionCreateConstitutionCmdArgs network deposit anyStake mPrevGovActId proposalUrl proposalHashSource constitutionUrl constitutionHashSource outFp) = do
 
@@ -136,7 +136,7 @@ runGovernanceActionCreateConstitutionCmd cOn (GovernanceActionCreateConstitution
 -- with the new ledger types
 runGovernanceActionCreateNewCommitteeCmd
   :: ConwayEraOnwards era
-  -> GoveranceActionUpdateCommitteeCmdArgs
+  -> GoveranceActionUpdateCommitteeCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateNewCommitteeCmd cOn (GoveranceActionUpdateCommitteeCmdArgs network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp) = do
   let sbe = conwayEraOnwardsToShelleyBasedEra cOn -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
@@ -213,7 +213,7 @@ readStakeKeyHash anyStake =
 
 runGovernanceActionTreasuryWithdrawalCmd
   :: ConwayEraOnwards era
-  -> GovernanceActionTreasuryWithdrawalCmdArgs
+  -> GovernanceActionTreasuryWithdrawalCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionTreasuryWithdrawalCmd cOn (GovernanceActionTreasuryWithdrawalCmdArgs network deposit returnAddr proposalUrl proposalHashSource treasuryWithdrawal outFp) = do
 
