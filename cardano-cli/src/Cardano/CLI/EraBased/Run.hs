@@ -17,6 +17,8 @@ import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Run.Governance.DRep
+import           Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
+                   (runGovernanceGenesisKeyDelegationCertificate)
 import           Cardano.CLI.EraBased.Run.Governance.Poll (runGovernancePollCmds)
 import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.EraBased.Run.Key
@@ -82,6 +84,11 @@ runGovernanceCmds = \case
 
   GovernanceMIRTransfer w ll oFp direction ->
     runGovernanceMIRCertificateTransfer w ll oFp direction
+      & firstExceptT CmdGovernanceCmdError
+
+  GovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
+    let sbe = shelleyToAlonzoEraToShelleyBasedEra sta in
+    runGovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out
       & firstExceptT CmdGovernanceCmdError
 
   GovernanceCommitteeCmds cmds ->

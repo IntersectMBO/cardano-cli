@@ -12,10 +12,12 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Run.Governance
+import           Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
+                   (runGovernanceGenesisKeyDelegationCertificate)
+import           Cardano.CLI.EraBased.Run.Governance.Poll
 import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import           Cardano.CLI.Types.Key
 
 import           Control.Monad
 import           Control.Monad.Trans.Except (ExceptT)
@@ -24,7 +26,6 @@ import           Data.Aeson (eitherDecode)
 import qualified Data.ByteString.Lazy as LB
 import           Data.Function ((&))
 import qualified Data.Text as Text
-import Cardano.CLI.EraBased.Run.Governance.Poll
 
 runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceCmds = \case
@@ -32,8 +33,8 @@ runLegacyGovernanceCmds = \case
     runLegacyGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
   GovernanceMIRTransfer anyEra amt out direction -> do
     runLegacyGovernanceMIRCertificateTransfer anyEra amt out direction
-  GovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out ->
-    runLegacyGovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out
+  GovernanceGenesisKeyDelegationCertificate (EraInEon sbe) genVk genDelegVk vrfVk out ->
+    runGovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
     runLegacyGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
   GovernanceCreatePoll prompt choices nonce out ->
@@ -62,61 +63,6 @@ runLegacyGovernanceMIRCertificateTransfer
   -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceMIRCertificateTransfer (EraInEon w) =
   runGovernanceMIRCertificateTransfer w
-
-runLegacyGovernanceGenesisKeyDelegationCertificate
-  :: EraInEon ShelleyBasedEra
-  -> VerificationKeyOrHashOrFile GenesisKey
-  -> VerificationKeyOrHashOrFile GenesisDelegateKey
-  -> VerificationKeyOrHashOrFile VrfKey
-  -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceGenesisKeyDelegationCertificate (EraInEon sbe)
-                                             genVkOrHashOrFp
-                                             genDelVkOrHashOrFp
-                                             vrfVkOrHashOrFp
-                                             oFp = do
-  genesisVkHash <- firstExceptT GovernanceCmdKeyReadError
-    . newExceptT
-    $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
-  genesisDelVkHash <-firstExceptT GovernanceCmdKeyReadError
-    . newExceptT
-    $ readVerificationKeyOrHashOrTextEnvFile AsGenesisDelegateKey genDelVkOrHashOrFp
-  vrfVkHash <- firstExceptT GovernanceCmdKeyReadError
-    . newExceptT
-    $ readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
-
-  req <- hoistEither $ createGenesisDelegationRequirements sbe genesisVkHash genesisDelVkHash vrfVkHash
-  let genKeyDelegCert = makeGenesisKeyDelegationCertificate req
-
-  firstExceptT GovernanceCmdTextEnvWriteError
-    . newExceptT
-    $ writeLazyByteStringFile oFp
-    $ shelleyBasedEraConstraints sbe
-    $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
-  where
-    genKeyDelegCertDesc :: TextEnvelopeDescr
-    genKeyDelegCertDesc = "Genesis Key Delegation Certificate"
-
-createGenesisDelegationRequirements
-  :: ShelleyBasedEra era
-  -> Hash GenesisKey
-  -> Hash GenesisDelegateKey
-  -> Hash VrfKey
-  -> Either GovernanceCmdError (GenesisKeyDelegationRequirements era)
-createGenesisDelegationRequirements sbe hGen hGenDeleg hVrf =
-  case sbe of
-    ShelleyBasedEraShelley -> do
-      return $ GenesisKeyDelegationRequirements ShelleyToBabbageEraShelley hGen hGenDeleg hVrf
-    ShelleyBasedEraAllegra -> do
-      return $ GenesisKeyDelegationRequirements ShelleyToBabbageEraAllegra hGen hGenDeleg hVrf
-    ShelleyBasedEraMary -> do
-      return $ GenesisKeyDelegationRequirements ShelleyToBabbageEraMary hGen hGenDeleg hVrf
-    ShelleyBasedEraAlonzo -> do
-      return $ GenesisKeyDelegationRequirements ShelleyToBabbageEraAlonzo hGen hGenDeleg hVrf
-    ShelleyBasedEraBabbage -> do
-      return $ GenesisKeyDelegationRequirements ShelleyToBabbageEraBabbage hGen hGenDeleg hVrf
-    ShelleyBasedEraConway ->
-      Left GovernanceCmdGenesisDelegationNotSupportedInConway
 
 runLegacyGovernanceUpdateProposal
   :: File () Out

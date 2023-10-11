@@ -33,6 +33,7 @@ pGovernanceCmds era =
           ]
     )
     [ pCreateMirCertificatesCmds era
+    , pGovernanceGenesisKeyDelegationCertificate era
     , fmap GovernanceActionCmds       <$> pGovernanceActionCmds era
     , fmap GovernanceCommitteeCmds    <$> pGovernanceCommitteeCmds era
     , fmap GovernanceDRepCmds         <$> pGovernanceDRepCmds era
@@ -91,3 +92,19 @@ pMIRTransferToReserves w =
     <$> pTransferAmt
     <*> pOutputFile
     <*> pure TransferToReserves
+
+pGovernanceGenesisKeyDelegationCertificate :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceCmds era))
+pGovernanceGenesisKeyDelegationCertificate era = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "create-genesis-key-delegation-certificate"
+    $ Opt.info (parser w)
+    $ Opt.progDesc "Create a genesis key delegation certificate"
+  where
+    parser w = GovernanceGenesisKeyDelegationCertificate w
+         <$> pGenesisVerificationKeyOrHashOrFile
+         <*> pGenesisDelegateVerificationKeyOrHashOrFile
+         <*> pVrfVerificationKeyOrHashOrFile
+         <*> pOutputFile
