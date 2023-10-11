@@ -31,23 +31,23 @@ runGovernanceActionCmds :: ()
   => GovernanceActionCmds era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCmds = \case
-  GovernanceActionCreateConstitutionCmd cOn newConstitution ->
-    runGovernanceActionCreateConstitutionCmd cOn newConstitution
+  GovernanceActionCreateConstitutionCmd eon newConstitution ->
+    runGovernanceActionCreateConstitutionCmd eon newConstitution
 
-  GovernanceActionProtocolParametersUpdateCmd sbe eNo genKeys eraBasedProtocolParametersUpdate ofp ->
-    runGovernanceActionCreateProtocolParametersUpdateCmd sbe eNo genKeys eraBasedProtocolParametersUpdate ofp
+  GovernanceActionProtocolParametersUpdateCmd eon eNo genKeys eraBasedProtocolParametersUpdate ofp ->
+    runGovernanceActionCreateProtocolParametersUpdateCmd eon eNo genKeys eraBasedProtocolParametersUpdate ofp
 
-  GovernanceActionTreasuryWithdrawalCmd cOn treasuryWithdrawal ->
-    runGovernanceActionTreasuryWithdrawalCmd cOn treasuryWithdrawal
+  GovernanceActionTreasuryWithdrawalCmd eon treasuryWithdrawal ->
+    runGovernanceActionTreasuryWithdrawalCmd eon treasuryWithdrawal
 
-  GoveranceActionUpdateCommitteeCmd con newCommittee ->
-    runGovernanceActionCreateNewCommitteeCmd con newCommittee
+  GoveranceActionUpdateCommitteeCmd eon newCommittee ->
+    runGovernanceActionCreateNewCommitteeCmd eon newCommittee
 
-  GovernanceActionCreateNoConfidenceCmd cOn noConfidence ->
-    runGovernanceActionCreateNoConfidenceCmd cOn noConfidence
+  GovernanceActionCreateNoConfidenceCmd eon noConfidence ->
+    runGovernanceActionCreateNoConfidenceCmd eon noConfidence
 
-  GovernanceActionInfoCmd cOn newInfo ->
-    runGovernanceActionInfoCmd cOn newInfo
+  GovernanceActionInfoCmd eon newInfo ->
+    runGovernanceActionInfoCmd eon newInfo
 
 runGovernanceActionInfoCmd
   :: ConwayEraOnwards era
@@ -175,14 +175,16 @@ runGovernanceActionCreateNewCommitteeCmd cOn (GoveranceActionUpdateCommitteeCmdA
     $ writeFileTextEnvelope oFp Nothing proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd :: ()
-  => ShelleyBasedEra era
+  => ConwayEraOnwards era
   -> EpochNo
   -> [VerificationKeyFile In]
   -- ^ Genesis verification keys
   -> EraBasedProtocolParametersUpdate era
   -> File () Out
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateProtocolParametersUpdateCmd sbe expEpoch genesisVerKeys eraBasedPParams oFp = do
+runGovernanceActionCreateProtocolParametersUpdateCmd eon expEpoch genesisVerKeys eraBasedPParams oFp = do
+  let sbe = conwayEraOnwardsToShelleyBasedEra eon
+
   genVKeys <- sequence
     [ firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT
         $ readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile

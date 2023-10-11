@@ -35,7 +35,7 @@ data GovernanceActionCmds era
       (ConwayEraOnwards era)
       (GovernanceActionCreateNoConfidenceCmdArgs era)
   | GovernanceActionProtocolParametersUpdateCmd
-      (ShelleyBasedEra era)
+      (ConwayEraOnwards era)
       EpochNo
       [VerificationKeyFile In]
       (EraBasedProtocolParametersUpdate era)

@@ -262,7 +262,7 @@ Usage: cardano-cli shelley genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli shelley governance (create-mir-certificate | action)
+Usage: cardano-cli shelley governance create-mir-certificate
 
   Governance commands.
 
@@ -301,36 +301,6 @@ Usage: cardano-cli shelley governance create-mir-certificate transfer-to-rewards
 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
-
-Usage: cardano-cli shelley governance action create-protocol-parameters-update
-
-  Governance action commands.
-
-Usage: cardano-cli shelley governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                 [--genesis-verification-key-file FILE]
-                                                                                 [--min-fee-constant LOVELACE]
-                                                                                 [--min-fee-linear LOVELACE]
-                                                                                 [--max-block-body-size NATURAL]
-                                                                                 [--max-tx-size NATURAL]
-                                                                                 [--max-block-header-size NATURAL]
-                                                                                 [--key-reg-deposit-amt NATURAL]
-                                                                                 [--pool-reg-deposit NATURAL]
-                                                                                 [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
-                                                                                 [--number-of-pools NATURAL]
-                                                                                 [--pool-influence RATIONAL]
-                                                                                 [--treasury-expansion RATIONAL]
-                                                                                 [--monetary-expansion RATIONAL]
-                                                                                 [--protocol-major-version NATURAL
-                                                                                   --protocol-minor-version NATURAL]
-                                                                                 [--min-pool-cost NATURAL]
-                                                                                 [--min-utxo-value NATURAL]
-                                                                                 [ --extra-entropy HEX
-                                                                                 | --reset-extra-entropy
-                                                                                 ]
-                                                                                 [--decentralization-parameter RATIONAL]
-                                                                                 --out-file FILE
-
-  Create a protocol parameters update.
 
 Usage: cardano-cli shelley node 
                                   ( key-gen
@@ -1446,7 +1416,7 @@ Usage: cardano-cli allegra genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli allegra governance (create-mir-certificate | action)
+Usage: cardano-cli allegra governance create-mir-certificate
 
   Governance commands.
 
@@ -1485,36 +1455,6 @@ Usage: cardano-cli allegra governance create-mir-certificate transfer-to-rewards
 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
-
-Usage: cardano-cli allegra governance action create-protocol-parameters-update
-
-  Governance action commands.
-
-Usage: cardano-cli allegra governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                 [--genesis-verification-key-file FILE]
-                                                                                 [--min-fee-constant LOVELACE]
-                                                                                 [--min-fee-linear LOVELACE]
-                                                                                 [--max-block-body-size NATURAL]
-                                                                                 [--max-tx-size NATURAL]
-                                                                                 [--max-block-header-size NATURAL]
-                                                                                 [--key-reg-deposit-amt NATURAL]
-                                                                                 [--pool-reg-deposit NATURAL]
-                                                                                 [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
-                                                                                 [--number-of-pools NATURAL]
-                                                                                 [--pool-influence RATIONAL]
-                                                                                 [--treasury-expansion RATIONAL]
-                                                                                 [--monetary-expansion RATIONAL]
-                                                                                 [--protocol-major-version NATURAL
-                                                                                   --protocol-minor-version NATURAL]
-                                                                                 [--min-pool-cost NATURAL]
-                                                                                 [--min-utxo-value NATURAL]
-                                                                                 [ --extra-entropy HEX
-                                                                                 | --reset-extra-entropy
-                                                                                 ]
-                                                                                 [--decentralization-parameter RATIONAL]
-                                                                                 --out-file FILE
-
-  Create a protocol parameters update.
 
 Usage: cardano-cli allegra node 
                                   ( key-gen
@@ -2628,7 +2568,7 @@ Usage: cardano-cli mary genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli mary governance (create-mir-certificate | action)
+Usage: cardano-cli mary governance create-mir-certificate
 
   Governance commands.
 
@@ -2667,36 +2607,6 @@ Usage: cardano-cli mary governance create-mir-certificate transfer-to-rewards --
 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
-
-Usage: cardano-cli mary governance action create-protocol-parameters-update
-
-  Governance action commands.
-
-Usage: cardano-cli mary governance action create-protocol-parameters-update --epoch NATURAL
-                                                                              [--genesis-verification-key-file FILE]
-                                                                              [--min-fee-constant LOVELACE]
-                                                                              [--min-fee-linear LOVELACE]
-                                                                              [--max-block-body-size NATURAL]
-                                                                              [--max-tx-size NATURAL]
-                                                                              [--max-block-header-size NATURAL]
-                                                                              [--key-reg-deposit-amt NATURAL]
-                                                                              [--pool-reg-deposit NATURAL]
-                                                                              [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
-                                                                              [--number-of-pools NATURAL]
-                                                                              [--pool-influence RATIONAL]
-                                                                              [--treasury-expansion RATIONAL]
-                                                                              [--monetary-expansion RATIONAL]
-                                                                              [--protocol-major-version NATURAL
-                                                                                --protocol-minor-version NATURAL]
-                                                                              [--min-pool-cost NATURAL]
-                                                                              [--min-utxo-value NATURAL]
-                                                                              [ --extra-entropy HEX
-                                                                              | --reset-extra-entropy
-                                                                              ]
-                                                                              [--decentralization-parameter RATIONAL]
-                                                                              --out-file FILE
-
-  Create a protocol parameters update.
 
 Usage: cardano-cli mary node 
                                ( key-gen
@@ -3787,7 +3697,7 @@ Usage: cardano-cli alonzo genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli alonzo governance (create-mir-certificate | action)
+Usage: cardano-cli alonzo governance create-mir-certificate
 
   Governance commands.
 
@@ -3826,43 +3736,6 @@ Usage: cardano-cli alonzo governance create-mir-certificate transfer-to-rewards 
 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
-
-Usage: cardano-cli alonzo governance action create-protocol-parameters-update
-
-  Governance action commands.
-
-Usage: cardano-cli alonzo governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                [--genesis-verification-key-file FILE]
-                                                                                [--min-fee-constant LOVELACE]
-                                                                                [--min-fee-linear LOVELACE]
-                                                                                [--max-block-body-size NATURAL]
-                                                                                [--max-tx-size NATURAL]
-                                                                                [--max-block-header-size NATURAL]
-                                                                                [--key-reg-deposit-amt NATURAL]
-                                                                                [--pool-reg-deposit NATURAL]
-                                                                                [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
-                                                                                [--number-of-pools NATURAL]
-                                                                                [--pool-influence RATIONAL]
-                                                                                [--treasury-expansion RATIONAL]
-                                                                                [--monetary-expansion RATIONAL]
-                                                                                [--protocol-major-version NATURAL
-                                                                                  --protocol-minor-version NATURAL]
-                                                                                [--min-pool-cost NATURAL]
-                                                                                [ --extra-entropy HEX
-                                                                                | --reset-extra-entropy
-                                                                                ]
-                                                                                [--decentralization-parameter RATIONAL]
-                                                                                [--price-execution-steps RATIONAL
-                                                                                  --price-execution-memory RATIONAL]
-                                                                                [--max-tx-execution-units (INT, INT)]
-                                                                                [--max-block-execution-units (INT, INT)]
-                                                                                [--max-value-size INT]
-                                                                                [--collateral-percent INT]
-                                                                                [--max-collateral-inputs INT]
-                                                                                [--utxo-cost-per-word LOVELACE]
-                                                                                --out-file FILE
-
-  Create a protocol parameters update.
 
 Usage: cardano-cli alonzo node 
                                  ( key-gen
@@ -4979,7 +4852,6 @@ Usage: cardano-cli babbage genesis hash --genesis FILE
 
 Usage: cardano-cli babbage governance 
                                         ( create-mir-certificate
-                                        | action
                                         | create-poll
                                         | answer-poll
                                         | verify-poll
@@ -5022,39 +4894,6 @@ Usage: cardano-cli babbage governance create-mir-certificate transfer-to-rewards
 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
-
-Usage: cardano-cli babbage governance action create-protocol-parameters-update
-
-  Governance action commands.
-
-Usage: cardano-cli babbage governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                 [--genesis-verification-key-file FILE]
-                                                                                 [--min-fee-constant LOVELACE]
-                                                                                 [--min-fee-linear LOVELACE]
-                                                                                 [--max-block-body-size NATURAL]
-                                                                                 [--max-tx-size NATURAL]
-                                                                                 [--max-block-header-size NATURAL]
-                                                                                 [--key-reg-deposit-amt NATURAL]
-                                                                                 [--pool-reg-deposit NATURAL]
-                                                                                 [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
-                                                                                 [--number-of-pools NATURAL]
-                                                                                 [--pool-influence RATIONAL]
-                                                                                 [--treasury-expansion RATIONAL]
-                                                                                 [--monetary-expansion RATIONAL]
-                                                                                 [--protocol-major-version NATURAL
-                                                                                   --protocol-minor-version NATURAL]
-                                                                                 [--min-pool-cost NATURAL]
-                                                                                 [--price-execution-steps RATIONAL
-                                                                                   --price-execution-memory RATIONAL]
-                                                                                 [--max-tx-execution-units (INT, INT)]
-                                                                                 [--max-block-execution-units (INT, INT)]
-                                                                                 [--max-value-size INT]
-                                                                                 [--collateral-percent INT]
-                                                                                 [--max-collateral-inputs INT]
-                                                                                 [--utxo-cost-per-byte LOVELACE]
-                                                                                 --out-file FILE
-
-  Create a protocol parameters update.
 
 Usage: cardano-cli babbage governance create-poll --question STRING
                                                     (--answer STRING)
@@ -7745,7 +7584,6 @@ Usage: cardano-cli latest genesis hash --genesis FILE
 
 Usage: cardano-cli latest governance 
                                        ( create-mir-certificate
-                                       | action
                                        | create-poll
                                        | answer-poll
                                        | verify-poll
@@ -7788,39 +7626,6 @@ Usage: cardano-cli latest governance create-mir-certificate transfer-to-rewards 
 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
-
-Usage: cardano-cli latest governance action create-protocol-parameters-update
-
-  Governance action commands.
-
-Usage: cardano-cli latest governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                [--genesis-verification-key-file FILE]
-                                                                                [--min-fee-constant LOVELACE]
-                                                                                [--min-fee-linear LOVELACE]
-                                                                                [--max-block-body-size NATURAL]
-                                                                                [--max-tx-size NATURAL]
-                                                                                [--max-block-header-size NATURAL]
-                                                                                [--key-reg-deposit-amt NATURAL]
-                                                                                [--pool-reg-deposit NATURAL]
-                                                                                [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
-                                                                                [--number-of-pools NATURAL]
-                                                                                [--pool-influence RATIONAL]
-                                                                                [--treasury-expansion RATIONAL]
-                                                                                [--monetary-expansion RATIONAL]
-                                                                                [--protocol-major-version NATURAL
-                                                                                  --protocol-minor-version NATURAL]
-                                                                                [--min-pool-cost NATURAL]
-                                                                                [--price-execution-steps RATIONAL
-                                                                                  --price-execution-memory RATIONAL]
-                                                                                [--max-tx-execution-units (INT, INT)]
-                                                                                [--max-block-execution-units (INT, INT)]
-                                                                                [--max-value-size INT]
-                                                                                [--collateral-percent INT]
-                                                                                [--max-collateral-inputs INT]
-                                                                                [--utxo-cost-per-byte LOVELACE]
-                                                                                --out-file FILE
-
-  Create a protocol parameters update.
 
 Usage: cardano-cli latest governance create-poll --question STRING
                                                    (--answer STRING)

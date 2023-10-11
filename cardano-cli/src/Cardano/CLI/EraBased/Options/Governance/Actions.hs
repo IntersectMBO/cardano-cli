@@ -145,14 +145,15 @@ pGovernanceActionProtocolParametersUpdateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionProtocolParametersUpdateCmd era = do
-  w <- forEraMaybeEon era
+  eon <- forEraMaybeEon era
+  let sbe = conwayEraOnwardsToShelleyBasedEra eon
   pure
     $ subParser "create-protocol-parameters-update"
     $ Opt.info
-        ( GovernanceActionProtocolParametersUpdateCmd w
+        ( GovernanceActionProtocolParametersUpdateCmd eon
             <$> pEpochNoUpdateProp
-            <*> pProtocolParametersUpdateGenesisKeys w
-            <*> dpGovActionProtocolParametersUpdate w
+            <*> pProtocolParametersUpdateGenesisKeys sbe
+            <*> dpGovActionProtocolParametersUpdate sbe
             <*> pOutputFile
         )
     $ Opt.progDesc "Create a protocol parameters update."
