@@ -22,8 +22,8 @@ import           Data.Text (Text)
 data GovernanceCommitteeCmds era
   = GovernanceCommitteeKeyGenColdCmd                            (GovernanceCommitteeKeyGenColdCmdArgs                           era)
   | GovernanceCommitteeKeyGenHotCmd                             (GovernanceCommitteeKeyGenHotCmdArgs                            era)
-  | GovernanceCommitteeKeyHashCmd                               (GovernanceCommitteeKeyHashCmdArgs                              era) -- TODO to be moved under the top-level command group "key"
-  | GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd  (GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era) -- TODO to be moved under the top-level command group "key"
+  | GovernanceCommitteeKeyHashCmd                               (GovernanceCommitteeKeyHashCmdArgs                              era)
+  | GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd  (GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era)
   | GovernanceCommitteeCreateColdKeyResignationCertificateCmd   (GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs  era)
   deriving Show
 
@@ -41,14 +41,12 @@ data GovernanceCommitteeKeyGenHotCmdArgs era =
     , skeyOutFile :: !(File (SigningKey ()) Out)
     } deriving Show
 
- -- TODO to be moved under the top-level command group "key"
 data GovernanceCommitteeKeyHashCmdArgs era =
   GovernanceCommitteeKeyHashCmdArgs
     { eon         :: !(ConwayEraOnwards era)
     , vkeySource  :: !AnyVerificationKeySource
     } deriving Show
 
--- TODO to be moved under the top-level command group "key"
 data GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era =
   GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
     { eon               :: !(ConwayEraOnwards era)
