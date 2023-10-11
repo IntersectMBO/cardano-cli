@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -46,52 +47,52 @@ data GovernanceActionCmds era
 
 data GoveranceActionUpdateCommitteeCmdArgs era
   = GoveranceActionUpdateCommitteeCmdArgs
-    { ucNetwork :: Ledger.Network
-    , ucDeposit :: Lovelace
-    , ucReturnAddress :: AnyStakeIdentifier
-    , ucProposalUrl :: ProposalUrl
-    , ucProposalHashSource :: ProposalHashSource
-    , ucOldCommittee :: [VerificationKeyOrHashOrFile CommitteeColdKey]
-    , ucNewCommittee :: [(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
-    , ucRequiredQuorum :: Rational
-    , ucPreviousGovActionId :: Maybe (TxId, Word32)
-    , ucFilePath :: File () Out
-    } deriving Show
+      { networkId               :: !Ledger.Network
+      , deposit                 :: !Lovelace
+      , returnAddress           :: !AnyStakeIdentifier
+      , proposalUrl             :: !ProposalUrl
+      , proposalHashSource      :: !ProposalHashSource
+      , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
+      , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
+      , requiredQuorum          :: !Rational
+      , previousGovActionId     :: !(Maybe (TxId, Word32))
+      , filePath                :: !(File () Out)
+      } deriving Show
 
 data GovernanceActionCreateConstitutionCmdArgs era
   = GovernanceActionCreateConstitutionCmdArgs
-      { encNetwork :: Ledger.Network
-      , encDeposit :: Lovelace
-      , encStakeCredential :: AnyStakeIdentifier
-      , encPrevGovActId :: Maybe (TxId, Word32)
-      , encProposalUrl :: ProposalUrl
-      , encProposalHashSource :: ProposalHashSource
-      , encConstitutionUrl :: ConstitutionUrl
-      , encConstitutionHashSource :: ConstitutionHashSource
-      , encFilePath :: File () Out
+      { networkId               :: !Ledger.Network
+      , deposit                 :: !Lovelace
+      , stakeCredential         :: !AnyStakeIdentifier
+      , prevGovActId            :: !(Maybe (TxId, Word32))
+      , proposalUrl             :: !ProposalUrl
+      , proposalHashSource      :: !ProposalHashSource
+      , constitutionUrl         :: !ConstitutionUrl
+      , constitutionHashSource  :: !ConstitutionHashSource
+      , outFile                 :: !(File () Out)
       } deriving Show
 
 -- | Datatype to carry data for the create-info governance action
 data GovernanceActionInfoCmdArgs era
    = GovernanceActionInfoCmdArgs
-      { niNetwork :: Ledger.Network
-      , niDeposit :: Lovelace
-      , niStakeCredential :: AnyStakeIdentifier
-      , niProposalUrl :: ProposalUrl
-      , niProposalHashSource :: ProposalHashSource
-      , niOutputFilePath :: File () Out
+      { networkId           :: !Ledger.Network
+      , deposit             :: !Lovelace
+      , stakeCredential     :: !AnyStakeIdentifier
+      , proposalUrl         :: !ProposalUrl
+      , proposalHashSource  :: !ProposalHashSource
+      , outFile             :: !(File () Out)
       } deriving Show
 
 data GovernanceActionCreateNoConfidenceCmdArgs era
   = GovernanceActionCreateNoConfidenceCmdArgs
-      { ncNetwork :: Ledger.Network
-      , ncDeposit :: Lovelace
-      , ncStakeCredential :: AnyStakeIdentifier
-      , ncProposalUrl :: ProposalUrl
-      , ncProposalHashSource :: ProposalHashSource
-      , ncGovAct :: TxId
-      , ncGovActIndex :: Word32
-      , ncFilePath :: File () Out
+      { networkId           :: !Ledger.Network
+      , deposit             :: !Lovelace
+      , stakeCredential     :: !AnyStakeIdentifier
+      , proposalUrl         :: !ProposalUrl
+      , proposalHashSource  :: !ProposalHashSource
+      , govAct              :: !TxId
+      , govActIndex         :: !Word32
+      , outFile             :: !(File () Out)
       } deriving Show
 
 data GovernanceActionProtocolParametersUpdateCmdArgs era
@@ -105,14 +106,14 @@ data GovernanceActionProtocolParametersUpdateCmdArgs era
 
 data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
-    { twNetwork :: Ledger.Network
-    , twDeposit :: Lovelace -- ^ Deposit
-    , twReturnAddr :: AnyStakeIdentifier -- ^ Return address
-    , twProposalUrl :: ProposalUrl
-    , twProposalHashSource :: ProposalHashSource
-    , twTreasuryWithdrawal :: [(AnyStakeIdentifier, Lovelace)]
-    , twFilePath :: File () Out
-    } deriving Show
+      { networkId           :: !Ledger.Network
+      , deposit             :: !Lovelace -- ^ Deposit
+      , returnAddr          :: !AnyStakeIdentifier -- ^ Return address
+      , proposalUrl         :: !ProposalUrl
+      , proposalHashSource  :: !ProposalHashSource
+      , treasuryWithdrawal  :: ![(AnyStakeIdentifier, Lovelace)]
+      , filePath            :: !(File () Out)
+      } deriving Show
 
 renderGovernanceActionCmds :: GovernanceActionCmds era -> Text
 renderGovernanceActionCmds = ("governance action " <>) . \case
