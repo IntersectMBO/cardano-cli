@@ -945,6 +945,7 @@ Usage: cardano-cli shelley transaction build-raw
                                                    ]
                                                    [--protocol-params-file FILE]
                                                    [--update-proposal-file FILE]
+                                                   [--proposal-file FILE]
                                                    --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -2129,6 +2130,7 @@ Usage: cardano-cli allegra transaction build-raw
                                                    ]
                                                    [--protocol-params-file FILE]
                                                    [--update-proposal-file FILE]
+                                                   [--proposal-file FILE]
                                                    --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -3300,6 +3302,7 @@ Usage: cardano-cli mary transaction build-raw
                                                 ]
                                                 [--protocol-params-file FILE]
                                                 [--update-proposal-file FILE]
+                                                [--proposal-file FILE]
                                                 --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -4476,6 +4479,7 @@ Usage: cardano-cli alonzo transaction build-raw
                                                   ]
                                                   [--protocol-params-file FILE]
                                                   [--update-proposal-file FILE]
+                                                  [--proposal-file FILE]
                                                   --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -5688,6 +5692,7 @@ Usage: cardano-cli babbage transaction build-raw
                                                    ]
                                                    [--protocol-params-file FILE]
                                                    [--update-proposal-file FILE]
+                                                   [--proposal-file FILE]
                                                    --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -7244,6 +7249,7 @@ Usage: cardano-cli conway transaction build-raw
                                                   ]
                                                   [--protocol-params-file FILE]
                                                   [--update-proposal-file FILE]
+                                                  [--proposal-file FILE]
                                                   --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -8453,6 +8459,7 @@ Usage: cardano-cli latest transaction build-raw
                                                   ]
                                                   [--protocol-params-file FILE]
                                                   [--update-proposal-file FILE]
+                                                  [--proposal-file FILE]
                                                   --out-file FILE
 
   Build a transaction (low-level, inconvenient)

@@ -114,7 +114,13 @@ runLegacyTxBuildRawCmd :: ()
   -> Maybe UpdateProposalFile
   -> TxBodyFile Out
   -> ExceptT TxCmdError IO ()
-runLegacyTxBuildRawCmd (AnyCardanoEra era) = runTxBuildRawCmd era
+runLegacyTxBuildRawCmd
+    (AnyCardanoEra era) mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+    mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
+    metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp =
+  runTxBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+    mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
+    metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp []
 
 runLegacyTxSignCmd :: InputTxBodyOrTxFile
           -> [WitnessSigningData]

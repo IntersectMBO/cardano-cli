@@ -79,20 +79,22 @@ runTransactionCmds cmd =
     TxBuild
         era mNodeSocketPath consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-        mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
-        mNewConstitution outputOptions ->
+        mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp votingProcedureFiles
+        proposalFiles outputOptions ->
       runTxBuildCmd
         era mNodeSocketPath consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-        mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
-        mNewConstitution outputOptions
+        mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp votingProcedureFiles
+        proposalFiles outputOptions
     TxBuildRaw
         era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
         mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
-        metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out ->
+        metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp proposalFiles
+        out ->
       runTxBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
         mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
-        metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out
+        metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp proposalFiles
+        out
     TxSign txinfile skfiles network txoutfile ->
       runTxSignCmd txinfile skfiles network txoutfile
     TxSubmit mNodeSocketPath anyConsensusModeParams network txFp ->
@@ -150,7 +152,7 @@ runTxBuildCmd
     era socketPath consensusModeParams@(AnyConsensusModeParams cModeParams) nid
     mScriptValidity mOverrideWits txins readOnlyRefIns reqSigners txinsc mReturnColl mTotCollateral txouts
     changeAddr mValue mLowBound mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp
-    conwayVotes newProposals outputOptions = do
+    votingProcedureFiles proposalFiles outputOptions = do
 
   -- The user can specify an era prior to the era that the node is currently in.
   -- We cannot use the user specified era to construct a query against a node because it may differ
@@ -192,14 +194,14 @@ runTxBuildCmd
   txOuts <- mapM (toTxOutInAnyEra era) txouts
 
   -- Conway related
-  votes <-
+  votingProcedures <-
     inEonForEra
       (pure emptyVotingProcedures)
-      (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w conwayVotes))
+      (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w votingProcedureFiles))
       era
 
   proposals <- newExceptT $ first TxCmdConstitutionError
-                  <$> readTxGovernanceActions era newProposals
+                  <$> readTxGovernanceActions era proposalFiles
 
   -- the same collateral input can be used for several plutus scripts
   let filteredTxinsc = Set.toList $ Set.fromList txinsc
@@ -210,7 +212,7 @@ runTxBuildCmd
       era socketPath consensusModeParams nid mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
       mReturnCollateral mTotCollateral txOuts changeAddr valuesWithScriptWits mLowBound
       mUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
-      requiredSigners txAuxScripts txMetadata mProp mOverrideWits votes proposals outputOptions
+      requiredSigners txAuxScripts txMetadata mProp mOverrideWits votingProcedures proposals outputOptions
 
   let mScriptWits =
         forEraInEon era [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
@@ -305,12 +307,14 @@ runTxBuildRawCmd
   -> [MetadataFile]
   -> Maybe ProtocolParamsFile
   -> Maybe UpdateProposalFile
+  -> [ProposalFile In]
   -> TxBodyFile Out
   -> ExceptT TxCmdError IO ()
 runTxBuildRawCmd
   era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
   mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
-  metadataSchema scriptFiles metadataFiles mpParamsFile mUpProp out = do
+  metadataSchema scriptFiles metadataFiles mpParamsFile mUpProp
+  proposalFiles out = do
   inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
                                 $ readScriptWitnessFiles era txins
   certFilesAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
@@ -357,10 +361,14 @@ runTxBuildRawCmd
     -- the same collateral input can be used for several plutus scripts
   let filteredTxinsc = Set.toList $ Set.fromList txinsc
 
+  proposals <-
+    lift (readTxGovernanceActions era proposalFiles)
+      & onLeft (left . TxCmdConstitutionError)
+
   txBody <- hoistEither $ runTxBuildRaw era mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
                           mReturnCollateral mTotColl txOuts mLowBound mUpperBound fee valuesWithScriptWits
                           certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits requiredSigners txAuxScripts
-                          txMetadata mLedgerPParams mProp
+                          txMetadata mLedgerPParams mProp proposals
 
   let noWitTx = makeSignedTransaction [] txBody
   lift (cardanoEraConstraints era $ writeTxFileTextEnvelopeCddl out noWitTx)
@@ -399,6 +407,7 @@ runTxBuildRaw :: ()
   -> TxMetadataInEra era
   -> Maybe (LedgerProtocolParameters era)
   -> Maybe UpdateProposal
+  -> [Proposal era]
   -> Either TxCmdError (TxBody era)
 runTxBuildRaw era
               mScriptValidity inputsAndMaybeScriptWits
@@ -407,7 +416,7 @@ runTxBuildRaw era
               mLowerBound mUpperBound
               mFee valuesWithScriptWits
               certsAndMaybeSriptWits withdrawals reqSigners
-              txAuxScripts txMetadata mpparams mUpdateProp = do
+              txAuxScripts txMetadata mpparams mUpdateProp proposals = do
 
     let allReferenceInputs = getAllReferenceInputs
                                inputsAndMaybeScriptWits
@@ -440,7 +449,7 @@ runTxBuildRaw era
       <- createTxMintValue era valuesWithScriptWits
     validatedTxScriptValidity
       <- first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
-    let validatedTxProposalProcedures = Nothing -- TODO: Conwary era
+    let validatedTxProposal = proposals
         validatedTxVotes = Nothing -- TODO: Conwary era
     let txBodyContent =
           TxBodyContent
@@ -461,7 +470,7 @@ runTxBuildRaw era
             , txUpdateProposal = validatedTxUpProp
             , txMintValue = validatedMintValue
             , txScriptValidity = validatedTxScriptValidity
-            , txProposalProcedures = validatedTxProposalProcedures
+            , txProposalProcedures = forEraInEonMaybe era (`Featured` validatedTxProposal)
             , txVotingProcedures = validatedTxVotes
             }
 
@@ -513,7 +522,7 @@ runTxBuild
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
-    mUpdatePropF mOverrideWits votes proposals outputOptions = do
+    mUpdatePropF mOverrideWits votingProcedures proposals outputOptions = do
 
   let consensusMode = consensusModeOnly cModeParams
       dummyFee = Just $ Lovelace 0
@@ -575,7 +584,7 @@ runTxBuild
                                       $ validateProtocolParameters era (Just pparams)
 
       let validatedTxProposalProcedures = proposals
-          validatedTxVotes = votes
+          validatedTxVotes = votingProcedures
           txBodyContent =
             TxBodyContent
               { txIns = validateTxIns inputsAndMaybeScriptWits

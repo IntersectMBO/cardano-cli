@@ -113,6 +113,7 @@ Usage: cardano-cli mary transaction build-raw
                                                 ]
                                                 [--protocol-params-file FILE]
                                                 [--update-proposal-file FILE]
+                                                [--proposal-file FILE]
                                                 --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -381,5 +382,6 @@ Available options:
                            Filepath of the JSON-encoded protocol parameters file
   --update-proposal-file FILE
                            Filepath of the update proposal.
+  --proposal-file FILE     Filepath of the proposal.
   --out-file FILE          Output filepath of the JSON TxBody.
   -h,--help                Show this help text

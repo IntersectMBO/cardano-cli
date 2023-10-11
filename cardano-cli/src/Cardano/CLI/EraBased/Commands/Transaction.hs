@@ -48,6 +48,7 @@ data TransactionCmds era
       [MetadataFile]
       (Maybe ProtocolParamsFile)
       (Maybe UpdateProposalFile)
+      [ProposalFile 'In]
       (TxBodyFile Out)
 
     -- | Like 'TxBuildRaw' but without the fee, and with a change output.
