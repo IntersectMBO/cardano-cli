@@ -34,29 +34,28 @@ runGovernanceActionCmds :: ()
   => GovernanceActionCmds era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCmds = \case
-  GovernanceActionCreateConstitutionCmd eon newConstitution ->
-    runGovernanceActionCreateConstitutionCmd eon newConstitution
+  GovernanceActionCreateConstitutionCmd args ->
+    runGovernanceActionCreateConstitutionCmd args
 
   GovernanceActionProtocolParametersUpdateCmd args ->
     runGovernanceActionCreateProtocolParametersUpdateCmd args
 
-  GovernanceActionTreasuryWithdrawalCmd eon treasuryWithdrawal ->
-    runGovernanceActionTreasuryWithdrawalCmd eon treasuryWithdrawal
+  GovernanceActionTreasuryWithdrawalCmd args ->
+    runGovernanceActionTreasuryWithdrawalCmd args
 
-  GoveranceActionUpdateCommitteeCmd eon newCommittee ->
-    runGovernanceActionCreateNewCommitteeCmd eon newCommittee
+  GoveranceActionUpdateCommitteeCmd args ->
+    runGovernanceActionCreateNewCommitteeCmd args
 
-  GovernanceActionCreateNoConfidenceCmd eon noConfidence ->
-    runGovernanceActionCreateNoConfidenceCmd eon noConfidence
+  GovernanceActionCreateNoConfidenceCmd args ->
+    runGovernanceActionCreateNoConfidenceCmd args
 
-  GovernanceActionInfoCmd eon newInfo ->
-    runGovernanceActionInfoCmd eon newInfo
+  GovernanceActionInfoCmd args ->
+    runGovernanceActionInfoCmd args
 
 runGovernanceActionInfoCmd
-  :: ConwayEraOnwards era
-  -> GovernanceActionInfoCmdArgs era
+  :: GovernanceActionInfoCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionInfoCmd cOn (GovernanceActionInfoCmdArgs network deposit returnAddr proposalUrl proposalHashSource  outFp) = do
+runGovernanceActionInfoCmd (GovernanceActionInfoCmdArgs eon network deposit returnAddr proposalUrl proposalHashSource  outFp) = do
   returnKeyHash <- readStakeKeyHash returnAddr
 
   proposalHash <-
@@ -68,20 +67,19 @@ runGovernanceActionInfoCmd cOn (GovernanceActionInfoCmdArgs network deposit retu
         , Ledger.anchorDataHash = proposalHash
         }
 
-  let sbe = conwayEraOnwardsToShelleyBasedEra cOn
+  let sbe = conwayEraOnwardsToShelleyBasedEra eon
       govAction = InfoAct
       proposalProcedure = createProposalProcedure sbe network deposit returnKeyHash govAction proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-    $ conwayEraOnwardsConstraints cOn
+    $ conwayEraOnwardsConstraints eon
     $ writeFileTextEnvelope outFp Nothing proposalProcedure
 
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd
-  :: ConwayEraOnwards era
-  -> GovernanceActionCreateNoConfidenceCmdArgs era
+  :: GovernanceActionCreateNoConfidenceCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateNoConfidenceCmd cOn (GovernanceActionCreateNoConfidenceCmdArgs network deposit returnAddr proposalUrl proposalHashSource txid ind outFp) = do
+runGovernanceActionCreateNoConfidenceCmd (GovernanceActionCreateNoConfidenceCmdArgs eon network deposit returnAddr proposalUrl proposalHashSource txid ind outFp) = do
   returnKeyHash <- readStakeKeyHash returnAddr
 
   proposalHash <-
@@ -93,19 +91,18 @@ runGovernanceActionCreateNoConfidenceCmd cOn (GovernanceActionCreateNoConfidence
         , Ledger.anchorDataHash = proposalHash
         }
 
-  let sbe = conwayEraOnwardsToShelleyBasedEra cOn
+  let sbe = conwayEraOnwardsToShelleyBasedEra eon
       previousGovernanceAction = MotionOfNoConfidence . Ledger.SJust $ createPreviousGovernanceActionId txid ind
       proposalProcedure = createProposalProcedure sbe network deposit returnKeyHash previousGovernanceAction proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-    $ conwayEraOnwardsConstraints cOn
+    $ conwayEraOnwardsConstraints eon
     $ writeFileTextEnvelope outFp Nothing proposalProcedure
 
 runGovernanceActionCreateConstitutionCmd :: ()
-  => ConwayEraOnwards era
-  -> GovernanceActionCreateConstitutionCmdArgs era
+  => GovernanceActionCreateConstitutionCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateConstitutionCmd cOn (GovernanceActionCreateConstitutionCmdArgs network deposit anyStake mPrevGovActId proposalUrl proposalHashSource constitutionUrl constitutionHashSource outFp) = do
+runGovernanceActionCreateConstitutionCmd (GovernanceActionCreateConstitutionCmdArgs eon network deposit anyStake mPrevGovActId proposalUrl proposalHashSource constitutionUrl constitutionHashSource outFp) = do
 
   stakeKeyHash <- readStakeKeyHash anyStake
 
@@ -128,21 +125,20 @@ runGovernanceActionCreateConstitutionCmd cOn (GovernanceActionCreateConstitution
         , Ledger.anchorDataHash = constitutionHash
         }
       govAct = ProposeNewConstitution prevGovActId constitutionAnchor
-      sbe = conwayEraOnwardsToShelleyBasedEra cOn
+      sbe = conwayEraOnwardsToShelleyBasedEra eon
       proposalProcedure = createProposalProcedure sbe network deposit stakeKeyHash govAct proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-    $ conwayEraOnwardsConstraints cOn
+    $ conwayEraOnwardsConstraints eon
     $ writeFileTextEnvelope outFp Nothing proposalProcedure
 
 -- TODO: Conway era - After ledger bump update this function
 -- with the new ledger types
 runGovernanceActionCreateNewCommitteeCmd
-  :: ConwayEraOnwards era
-  -> GoveranceActionUpdateCommitteeCmdArgs era
+  :: GoveranceActionUpdateCommitteeCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateNewCommitteeCmd cOn (GoveranceActionUpdateCommitteeCmdArgs network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp) = do
-  let sbe = conwayEraOnwardsToShelleyBasedEra cOn -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
+runGovernanceActionCreateNewCommitteeCmd (GoveranceActionUpdateCommitteeCmdArgs eon network deposit retAddr proposalUrl proposalHashSource old new q prevActId oFp) = do
+  let sbe = conwayEraOnwardsToShelleyBasedEra eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
       govActIdentifier = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> prevActId
       quorumRational = toRational q
 
@@ -174,7 +170,7 @@ runGovernanceActionCreateNewCommitteeCmd cOn (GoveranceActionUpdateCommitteeCmdA
       proposal = createProposalProcedure sbe network deposit returnKeyHash proposeNewCommittee proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-    $ conwayEraOnwardsConstraints cOn
+    $ conwayEraOnwardsConstraints eon
     $ writeFileTextEnvelope oFp Nothing proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd :: ()
@@ -219,10 +215,9 @@ readStakeKeyHash anyStake =
       return $ StakeKeyHash $ coerceKeyRole t
 
 runGovernanceActionTreasuryWithdrawalCmd
-  :: ConwayEraOnwards era
-  -> GovernanceActionTreasuryWithdrawalCmdArgs era
+  :: GovernanceActionTreasuryWithdrawalCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionTreasuryWithdrawalCmd cOn (GovernanceActionTreasuryWithdrawalCmdArgs network deposit returnAddr proposalUrl proposalHashSource treasuryWithdrawal outFp) = do
+runGovernanceActionTreasuryWithdrawalCmd (GovernanceActionTreasuryWithdrawalCmdArgs eon network deposit returnAddr proposalUrl proposalHashSource treasuryWithdrawal outFp) = do
 
   proposalHash <-
     proposalHashSourceToHash proposalHashSource
@@ -240,12 +235,12 @@ runGovernanceActionTreasuryWithdrawalCmd cOn (GovernanceActionTreasuryWithdrawal
     | (stakeIdentifier,ll) <- treasuryWithdrawal
     ]
 
-  let sbe = conwayEraOnwardsToShelleyBasedEra cOn
+  let sbe = conwayEraOnwardsToShelleyBasedEra eon
       treasuryWithdrawals = TreasuryWithdrawal withdrawals
       proposal = createProposalProcedure sbe network deposit returnKeyHash treasuryWithdrawals proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-    $ conwayEraOnwardsConstraints cOn
+    $ conwayEraOnwardsConstraints eon
     $ writeFileTextEnvelope outFp Nothing proposal
 
 stakeIdentifiertoCredential :: AnyStakeIdentifier -> ExceptT GovernanceActionsError IO StakeCredential

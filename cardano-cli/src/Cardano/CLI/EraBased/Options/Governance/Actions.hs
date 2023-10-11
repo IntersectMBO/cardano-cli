@@ -43,12 +43,12 @@ pGovernanceActionNewInfoCmd
   :: CardanoEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionNewInfoCmd era = do
-  cOn <- forEraMaybeEon era
+  eon <- forEraMaybeEon era
   pure
     $ subParser "create-info"
     $ Opt.info
-        ( fmap (Cmd.GovernanceActionInfoCmd cOn) $
-            Cmd.GovernanceActionInfoCmdArgs
+        ( fmap Cmd.GovernanceActionInfoCmd $
+            Cmd.GovernanceActionInfoCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing
@@ -63,12 +63,12 @@ pGovernanceActionNewConstitutionCmd
   :: CardanoEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionNewConstitutionCmd era = do
-  cOn <- forEraMaybeEon era
+  eon <- forEraMaybeEon era
   pure
     $ subParser "create-constitution"
     $ Opt.info
-        ( fmap (Cmd.GovernanceActionCreateConstitutionCmd cOn) $
-            Cmd.GovernanceActionCreateConstitutionCmdArgs
+        ( fmap Cmd.GovernanceActionCreateConstitutionCmd $
+            Cmd.GovernanceActionCreateConstitutionCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing
@@ -85,18 +85,20 @@ pGovernanceActionUpdateCommitteeCmd
   :: CardanoEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionUpdateCommitteeCmd era = do
-  cOn <- forEraMaybeEon era
+  eon <- forEraMaybeEon era
   pure
     $ subParser "update-committee"
     $ Opt.info
-      ( Cmd.GoveranceActionUpdateCommitteeCmd cOn
-          <$> pUpdateCommitteeCmd
-      )
+        ( Cmd.GoveranceActionUpdateCommitteeCmd
+            <$> pUpdateCommitteeCmd eon
+        )
     $ Opt.progDesc "Create or update a new committee proposal."
 
-pUpdateCommitteeCmd :: Parser (Cmd.GoveranceActionUpdateCommitteeCmdArgs era)
-pUpdateCommitteeCmd =
-  Cmd.GoveranceActionUpdateCommitteeCmdArgs
+pUpdateCommitteeCmd :: ()
+  => ConwayEraOnwards era
+  -> Parser (Cmd.GoveranceActionUpdateCommitteeCmdArgs era)
+pUpdateCommitteeCmd eon =
+  Cmd.GoveranceActionUpdateCommitteeCmdArgs eon
     <$> pNetwork
     <*> pGovActionDeposit
     <*> pAnyStakeIdentifier Nothing
@@ -116,12 +118,12 @@ pGovernanceActionNoConfidenceCmd
   :: CardanoEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionNoConfidenceCmd era = do
-  cOn <- forEraMaybeEon era
+  eon <- forEraMaybeEon era
   pure
     $ subParser "create-no-confidence"
     $ Opt.info
-        ( fmap (Cmd.GovernanceActionCreateNoConfidenceCmd cOn) $
-            Cmd.GovernanceActionCreateNoConfidenceCmdArgs
+        ( fmap Cmd.GovernanceActionCreateNoConfidenceCmd $
+            Cmd.GovernanceActionCreateNoConfidenceCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing
@@ -287,12 +289,12 @@ dpGovActionProtocolParametersUpdate = \case
 
 pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionTreasuryWithdrawalCmd era = do
-  cOn <- forEraMaybeEon era
+  eon <- forEraMaybeEon era
   pure
     $ subParser "create-treasury-withdrawal"
     $ Opt.info
-        ( fmap (Cmd.GovernanceActionTreasuryWithdrawalCmd cOn) $
-            Cmd.GovernanceActionTreasuryWithdrawalCmdArgs
+        ( fmap Cmd.GovernanceActionTreasuryWithdrawalCmd $
+            Cmd.GovernanceActionTreasuryWithdrawalCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pAnyStakeIdentifier Nothing

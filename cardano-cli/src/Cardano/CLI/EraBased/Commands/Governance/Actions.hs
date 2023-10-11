@@ -27,27 +27,18 @@ import           Data.Text (Text)
 import           Data.Word
 
 data GovernanceActionCmds era
-  = GovernanceActionCreateConstitutionCmd
-      (ConwayEraOnwards era)
-      (GovernanceActionCreateConstitutionCmdArgs era)
-  | GoveranceActionUpdateCommitteeCmd
-      (ConwayEraOnwards era)
-      (GoveranceActionUpdateCommitteeCmdArgs era)
-  | GovernanceActionCreateNoConfidenceCmd
-      (ConwayEraOnwards era)
-      (GovernanceActionCreateNoConfidenceCmdArgs era)
+  = GovernanceActionCreateConstitutionCmd         !(GovernanceActionCreateConstitutionCmdArgs era)
+  | GoveranceActionUpdateCommitteeCmd             !(GoveranceActionUpdateCommitteeCmdArgs era)
+  | GovernanceActionCreateNoConfidenceCmd         !(GovernanceActionCreateNoConfidenceCmdArgs era)
   | GovernanceActionProtocolParametersUpdateCmd   !(GovernanceActionProtocolParametersUpdateCmdArgs era)
-  | GovernanceActionTreasuryWithdrawalCmd
-      (ConwayEraOnwards era)
-      (GovernanceActionTreasuryWithdrawalCmdArgs era)
-  | GovernanceActionInfoCmd
-      (ConwayEraOnwards era)
-      (GovernanceActionInfoCmdArgs era)
+  | GovernanceActionTreasuryWithdrawalCmd         !(GovernanceActionTreasuryWithdrawalCmdArgs era)
+  | GovernanceActionInfoCmd                       !(GovernanceActionInfoCmdArgs era)
   deriving Show
 
 data GoveranceActionUpdateCommitteeCmdArgs era
   = GoveranceActionUpdateCommitteeCmdArgs
-      { networkId               :: !Ledger.Network
+      { eon                     :: !(ConwayEraOnwards era)
+      , networkId               :: !Ledger.Network
       , deposit                 :: !Lovelace
       , returnAddress           :: !AnyStakeIdentifier
       , proposalUrl             :: !ProposalUrl
@@ -61,7 +52,8 @@ data GoveranceActionUpdateCommitteeCmdArgs era
 
 data GovernanceActionCreateConstitutionCmdArgs era
   = GovernanceActionCreateConstitutionCmdArgs
-      { networkId               :: !Ledger.Network
+      { eon                     :: !(ConwayEraOnwards era)
+      , networkId               :: !Ledger.Network
       , deposit                 :: !Lovelace
       , stakeCredential         :: !AnyStakeIdentifier
       , prevGovActId            :: !(Maybe (TxId, Word32))
@@ -75,7 +67,8 @@ data GovernanceActionCreateConstitutionCmdArgs era
 -- | Datatype to carry data for the create-info governance action
 data GovernanceActionInfoCmdArgs era
    = GovernanceActionInfoCmdArgs
-      { networkId           :: !Ledger.Network
+      { eon                 :: !(ConwayEraOnwards era)
+      , networkId           :: !Ledger.Network
       , deposit             :: !Lovelace
       , stakeCredential     :: !AnyStakeIdentifier
       , proposalUrl         :: !ProposalUrl
@@ -85,7 +78,8 @@ data GovernanceActionInfoCmdArgs era
 
 data GovernanceActionCreateNoConfidenceCmdArgs era
   = GovernanceActionCreateNoConfidenceCmdArgs
-      { networkId           :: !Ledger.Network
+      { eon                 :: !(ConwayEraOnwards era)
+      , networkId           :: !Ledger.Network
       , deposit             :: !Lovelace
       , stakeCredential     :: !AnyStakeIdentifier
       , proposalUrl         :: !ProposalUrl
@@ -106,7 +100,8 @@ data GovernanceActionProtocolParametersUpdateCmdArgs era
 
 data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
-      { networkId           :: !Ledger.Network
+      { eon                 :: !(ConwayEraOnwards era)
+      , networkId           :: !Ledger.Network
       , deposit             :: !Lovelace -- ^ Deposit
       , returnAddr          :: !AnyStakeIdentifier -- ^ Return address
       , proposalUrl         :: !ProposalUrl
