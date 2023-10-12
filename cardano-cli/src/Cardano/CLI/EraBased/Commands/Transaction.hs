@@ -3,6 +3,19 @@
 
 module Cardano.CLI.EraBased.Commands.Transaction
   ( TransactionCmds (..)
+  , TransactionBuildRawCmdArgs(..)
+  , TransactionBuildCmdArgs(..)
+  , TransactionSignCmdArgs(..)
+  , TransactionWitnessCmdArgs(..)
+  , TransactionSignWitnessCmdArgs(..)
+  , TransactionSubmitCmdArgs(..)
+  , TransactionPolicyIdCmdArgs(..)
+  , TransactionCalculateMinFeeCmdArgs(..)
+  , TransactionCalculateMinValueCmdArgs(..)
+  , TransactionHashScriptDataCmdArgs(..)
+  , TransactionTxIdCmdArgs(..)
+  , TransactionViewCmdArgs(..)
+
   , renderTransactionCmds
   ) where
 
@@ -136,6 +149,139 @@ data TransactionCmds era
       TxViewOutputFormat
       (Maybe (File () Out))
       InputTxBodyOrTxFile
+
+data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
+  (CardanoEra era)
+  (Maybe ScriptValidity)
+  -- ^ Mark script as expected to pass or fail validation
+  [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+  -- ^ Transaction inputs with optional spending scripts
+  [TxIn]
+  -- ^ Read only reference inputs
+  [TxIn]
+  -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
+  (Maybe TxOutAnyEra)
+  -- ^ Return collateral
+  (Maybe Lovelace)
+  -- ^ Total collateral
+  [RequiredSigner]
+  -- ^ Required signers
+  [TxOutAnyEra]
+  (Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
+  -- ^ Multi-Asset value with script witness
+  (Maybe SlotNo)
+  -- ^ Transaction lower bound
+  (Maybe SlotNo)
+  -- ^ Transaction upper bound
+  (Maybe Lovelace)
+  -- ^ Transaction feeCmd
+  [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -- ^ Certificates with potential script witness
+  [(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
+  TxMetadataJsonSchema
+  [ScriptFile]
+  -- ^ Auxiliary scripts
+  [MetadataFile]
+  (Maybe ProtocolParamsFile)
+  (Maybe UpdateProposalFile)
+  [VoteFile In]
+  [ProposalFile In]
+  (TxBodyFile Out)
+
+-- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
+data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
+  (CardanoEra era)
+  SocketPath
+  AnyConsensusModeParams
+  NetworkId
+  (Maybe ScriptValidity) -- ^ Mark script as expected to pass or fail validation
+  (Maybe Word)
+  -- ^ Override the required number of tx witnesses
+  [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+  -- ^ Transaction inputs with optional spending scripts
+  [TxIn]
+  -- ^ Read only reference inputs
+  [RequiredSigner]
+  -- ^ Required signers
+  [TxIn]
+  -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
+  (Maybe TxOutAnyEra)
+  -- ^ Return collateral
+  (Maybe Lovelace)
+  -- ^ Total collateral
+  [TxOutAnyEra]
+  -- ^ Normal outputs
+  TxOutChangeAddress
+  -- ^ A change output
+  (Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
+  -- ^ Multi-Asset value with script witness
+  (Maybe SlotNo)
+  -- ^ Transaction lower bound
+  (Maybe SlotNo)
+  -- ^ Transaction upper bound
+  [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -- ^ Certificates with potential script witness
+  [(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -- ^ Withdrawals with potential script witness
+  TxMetadataJsonSchema
+  [ScriptFile]
+  -- ^ Auxiliary scripts
+  [MetadataFile]
+  (Maybe UpdateProposalFile)
+  [VoteFile In]
+  [ProposalFile In]
+  TxBuildOutputOptions
+
+data TransactionSignCmdArgs = TransactionSignCmdArgs
+  InputTxBodyOrTxFile
+  [WitnessSigningData]
+  (Maybe NetworkId)
+  (TxFile Out)
+
+data TransactionWitnessCmdArgs = TransactionWitnessCmdArgs
+  (TxBodyFile In)
+  WitnessSigningData
+  (Maybe NetworkId)
+  (File () Out)
+
+data TransactionSignWitnessCmdArgs = TransactionSignWitnessCmdArgs
+  (TxBodyFile In)
+  [WitnessFile]
+  (File () Out)
+
+data TransactionSubmitCmdArgs = TransactionSubmitCmdArgs
+  SocketPath
+  AnyConsensusModeParams
+  NetworkId
+  FilePath
+
+newtype TransactionPolicyIdCmdArgs = TransactionPolicyIdCmdArgs
+  ScriptFile
+
+data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
+  (TxBodyFile In)
+  NetworkId
+  ProtocolParamsFile
+  TxInCount
+  TxOutCount
+  TxShelleyWitnessCount
+  TxByronWitnessCount
+
+data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdArgs
+  (CardanoEra era)
+  ProtocolParamsFile
+  TxOutAnyEra
+
+newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
+  ScriptDataOrFile
+
+newtype TransactionTxIdCmdArgs = TransactionTxIdCmdArgs
+  InputTxBodyOrTxFile
+
+data TransactionViewCmdArgs = TransactionViewCmdArgs
+  TxViewOutputFormat
+  (Maybe (File () Out))
+  InputTxBodyOrTxFile
 
 renderTransactionCmds :: TransactionCmds era -> Text
 renderTransactionCmds = \case
