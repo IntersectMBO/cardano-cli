@@ -3035,7 +3035,7 @@ pAlwaysAbstain =
 
 pVoteAnchor :: Parser (VoteUrl, VoteHashSource)
 pVoteAnchor = (,)
-  <$> (VoteUrl <$> pUrl "vote-url" "Vote anchor URL")
+  <$> (VoteUrl <$> pUrl "vote-anchor-url" "Vote anchor URL")
   <*> pVoteHashSource
 
 pVoteHashSource :: Parser VoteHashSource
@@ -3044,13 +3044,13 @@ pVoteHashSource =
     [ VoteHashSourceText
         <$> Opt.strOption
             ( mconcat
-                [ Opt.long "vote-text"
+                [ Opt.long "vote-anchor-metadata"
                 , Opt.metavar "TEXT"
-                , Opt.help "Input vote as UTF-8 encoded text."
+                , Opt.help "Vote anchor contents as UTF-8 encoded text."
                 ]
             )
     , VoteHashSourceFile
-        <$> pFileInDirection "vote-file" "Input vote as a text file."
+        <$> pFileInDirection "vote-anchor-metadata-file" "Vote anchor contents as a text file."
     , VoteHashSourceHash
         <$> pVoteHash
     ]
@@ -3058,9 +3058,9 @@ pVoteHashSource =
 pVoteHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pVoteHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "vote-hash"
+    [ Opt.long "vote-anchor-metadata-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Vote anchor data hash."
+    , Opt.help "Hash of the vote anchor contents."
     ]
 
 pAlwaysNoConfidence :: Parser ()

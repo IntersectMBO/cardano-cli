@@ -6351,10 +6351,10 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    | --cc-hot-key-hash STRING
                                                    )
                                                    --out-file FILE
-                                                   [--vote-url TEXT
-                                                     ( --vote-text TEXT
-                                                     | --vote-file FILE
-                                                     | --vote-hash HASH
+                                                   [--vote-anchor-url TEXT
+                                                     ( --vote-anchor-metadata TEXT
+                                                     | --vote-anchor-metadata-file FILE
+                                                     | --vote-anchor-metadata-hash HASH
                                                      )]
 
   Vote creation.
