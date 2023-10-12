@@ -364,7 +364,6 @@ Usage: cardano-cli shelley node issue-op-cert
 
 Usage: cardano-cli shelley query 
                                    ( protocol-parameters
-                                   | constitution-hash
                                    | tip
                                    | stake-pools
                                    | stake-distribution
@@ -396,20 +395,6 @@ Usage: cardano-cli shelley query protocol-parameters --socket-path SOCKET_PATH
                                                        [--out-file FILE]
 
   Get the node's current protocol parameters
-
-Usage: cardano-cli shelley query constitution-hash --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
-                                                     ( --mainnet
-                                                     | --testnet-magic NATURAL
-                                                     )
-                                                     [--out-file FILE]
-
-  Get the constitution hash
 
 Usage: cardano-cli shelley query tip --socket-path SOCKET_PATH
                                        [ --shelley-mode
@@ -1520,7 +1505,6 @@ Usage: cardano-cli allegra node issue-op-cert
 
 Usage: cardano-cli allegra query 
                                    ( protocol-parameters
-                                   | constitution-hash
                                    | tip
                                    | stake-pools
                                    | stake-distribution
@@ -1552,20 +1536,6 @@ Usage: cardano-cli allegra query protocol-parameters --socket-path SOCKET_PATH
                                                        [--out-file FILE]
 
   Get the node's current protocol parameters
-
-Usage: cardano-cli allegra query constitution-hash --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
-                                                     ( --mainnet
-                                                     | --testnet-magic NATURAL
-                                                     )
-                                                     [--out-file FILE]
-
-  Get the constitution hash
 
 Usage: cardano-cli allegra query tip --socket-path SOCKET_PATH
                                        [ --shelley-mode
@@ -2674,7 +2644,6 @@ Usage: cardano-cli mary node issue-op-cert
 
 Usage: cardano-cli mary query 
                                 ( protocol-parameters
-                                | constitution-hash
                                 | tip
                                 | stake-pools
                                 | stake-distribution
@@ -2706,20 +2675,6 @@ Usage: cardano-cli mary query protocol-parameters --socket-path SOCKET_PATH
                                                     [--out-file FILE]
 
   Get the node's current protocol parameters
-
-Usage: cardano-cli mary query constitution-hash --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
-                                                  ( --mainnet
-                                                  | --testnet-magic NATURAL
-                                                  )
-                                                  [--out-file FILE]
-
-  Get the constitution hash
 
 Usage: cardano-cli mary query tip --socket-path SOCKET_PATH
                                     [ --shelley-mode
@@ -3805,7 +3760,6 @@ Usage: cardano-cli alonzo node issue-op-cert
 
 Usage: cardano-cli alonzo query 
                                   ( protocol-parameters
-                                  | constitution-hash
                                   | tip
                                   | stake-pools
                                   | stake-distribution
@@ -3837,20 +3791,6 @@ Usage: cardano-cli alonzo query protocol-parameters --socket-path SOCKET_PATH
                                                       [--out-file FILE]
 
   Get the node's current protocol parameters
-
-Usage: cardano-cli alonzo query constitution-hash --socket-path SOCKET_PATH
-                                                    [ --shelley-mode
-                                                    | --byron-mode
-                                                      [--epoch-slots SLOTS]
-                                                    | --cardano-mode
-                                                      [--epoch-slots SLOTS]
-                                                    ]
-                                                    ( --mainnet
-                                                    | --testnet-magic NATURAL
-                                                    )
-                                                    [--out-file FILE]
-
-  Get the constitution hash
 
 Usage: cardano-cli alonzo query tip --socket-path SOCKET_PATH
                                       [ --shelley-mode
@@ -4984,7 +4924,6 @@ Usage: cardano-cli babbage node issue-op-cert
 
 Usage: cardano-cli babbage query 
                                    ( protocol-parameters
-                                   | constitution-hash
                                    | tip
                                    | stake-pools
                                    | stake-distribution
@@ -5016,20 +4955,6 @@ Usage: cardano-cli babbage query protocol-parameters --socket-path SOCKET_PATH
                                                        [--out-file FILE]
 
   Get the node's current protocol parameters
-
-Usage: cardano-cli babbage query constitution-hash --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
-                                                     ( --mainnet
-                                                     | --testnet-magic NATURAL
-                                                     )
-                                                     [--out-file FILE]
-
-  Get the constitution hash
 
 Usage: cardano-cli babbage query tip --socket-path SOCKET_PATH
                                        [ --shelley-mode
@@ -6427,7 +6352,6 @@ Usage: cardano-cli conway node issue-op-cert
 
 Usage: cardano-cli conway query 
                                   ( protocol-parameters
-                                  | constitution-hash
                                   | tip
                                   | stake-pools
                                   | stake-distribution
@@ -6464,20 +6388,6 @@ Usage: cardano-cli conway query protocol-parameters --socket-path SOCKET_PATH
                                                       [--out-file FILE]
 
   Get the node's current protocol parameters
-
-Usage: cardano-cli conway query constitution-hash --socket-path SOCKET_PATH
-                                                    [ --shelley-mode
-                                                    | --byron-mode
-                                                      [--epoch-slots SLOTS]
-                                                    | --cardano-mode
-                                                      [--epoch-slots SLOTS]
-                                                    ]
-                                                    ( --mainnet
-                                                    | --testnet-magic NATURAL
-                                                    )
-                                                    [--out-file FILE]
-
-  Get the constitution hash
 
 Usage: cardano-cli conway query tip --socket-path SOCKET_PATH
                                       [ --shelley-mode
@@ -7731,7 +7641,6 @@ Usage: cardano-cli latest node issue-op-cert
 
 Usage: cardano-cli latest query 
                                   ( protocol-parameters
-                                  | constitution-hash
                                   | tip
                                   | stake-pools
                                   | stake-distribution
@@ -7763,20 +7672,6 @@ Usage: cardano-cli latest query protocol-parameters --socket-path SOCKET_PATH
                                                       [--out-file FILE]
 
   Get the node's current protocol parameters
-
-Usage: cardano-cli latest query constitution-hash --socket-path SOCKET_PATH
-                                                    [ --shelley-mode
-                                                    | --byron-mode
-                                                      [--epoch-slots SLOTS]
-                                                    | --cardano-mode
-                                                      [--epoch-slots SLOTS]
-                                                    ]
-                                                    ( --mainnet
-                                                    | --testnet-magic NATURAL
-                                                    )
-                                                    [--out-file FILE]
-
-  Get the constitution hash
 
 Usage: cardano-cli latest query tip --socket-path SOCKET_PATH
                                       [ --shelley-mode

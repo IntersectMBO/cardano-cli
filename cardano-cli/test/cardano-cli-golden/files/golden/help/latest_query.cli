@@ -1,6 +1,5 @@
 Usage: cardano-cli latest query 
                                   ( protocol-parameters
-                                  | constitution-hash
                                   | tip
                                   | stake-pools
                                   | stake-distribution
@@ -24,7 +23,6 @@ Available options:
 
 Available commands:
   protocol-parameters      Get the node's current protocol parameters
-  constitution-hash        Get the constitution hash
   tip                      Get the node's current tip (slot no, hash, block no)
   stake-pools              Get the node's current set of stake pool ids
   stake-distribution       Get the node's current aggregated stake distribution
