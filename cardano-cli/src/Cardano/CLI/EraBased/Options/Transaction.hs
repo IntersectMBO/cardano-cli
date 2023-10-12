@@ -151,35 +151,36 @@ pScriptValidity = asum
 
 pTransactionBuild :: CardanoEra era -> EnvCli -> Parser (TransactionCmds era)
 pTransactionBuild era envCli =
-  TxBuild era
-    <$> pSocketPath envCli
-    <*> pConsensusModeParams
-    <*> pNetworkId envCli
-    <*> optional pScriptValidity
-    <*> optional pWitnessOverride
-    <*> some (pTxIn AutoBalance)
-    <*> many pReadOnlyReferenceTxIn
-    <*> many pRequiredSigner
-    <*> many pTxInCollateral
-    <*> optional pReturnCollateral
-    <*> optional pTotalCollateral
-    <*> many pTxOut
-    <*> pChangeAddress
-    <*> optional (pMintMultiAsset AutoBalance)
-    <*> optional pInvalidBefore
-    <*> optional pInvalidHereafter
-    <*> many (pCertificateFile AutoBalance)
-    <*> many (pWithdrawal AutoBalance)
-    <*> pTxMetadataJsonSchema
-    <*> many (pScriptFor
-                "auxiliary-script-file"
-                Nothing
-                "Filepath of auxiliary script(s)")
-    <*> many pMetadataFile
-    <*> optional pUpdateProposalFile
-    <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
-    <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
-    <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
+  fmap TransactionBuildCmd $
+    TransactionBuildCmdArgs era
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> optional pScriptValidity
+      <*> optional pWitnessOverride
+      <*> some (pTxIn AutoBalance)
+      <*> many pReadOnlyReferenceTxIn
+      <*> many pRequiredSigner
+      <*> many pTxInCollateral
+      <*> optional pReturnCollateral
+      <*> optional pTotalCollateral
+      <*> many pTxOut
+      <*> pChangeAddress
+      <*> optional (pMintMultiAsset AutoBalance)
+      <*> optional pInvalidBefore
+      <*> optional pInvalidHereafter
+      <*> many (pCertificateFile AutoBalance)
+      <*> many (pWithdrawal AutoBalance)
+      <*> pTxMetadataJsonSchema
+      <*> many (pScriptFor
+                  "auxiliary-script-file"
+                  Nothing
+                  "Filepath of auxiliary script(s)")
+      <*> many pMetadataFile
+      <*> optional pUpdateProposalFile
+      <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
+      <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
+      <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
 pChangeAddress :: Parser TxOutChangeAddress
 pChangeAddress =
@@ -191,95 +192,110 @@ pChangeAddress =
 
 pTransactionBuildRaw :: CardanoEra era -> Parser (TransactionCmds era)
 pTransactionBuildRaw era =
-  TxBuildRaw era
-    <$> optional pScriptValidity
-    <*> some (pTxIn ManualBalance)
-    <*> many pReadOnlyReferenceTxIn
-    <*> many pTxInCollateral
-    <*> optional pReturnCollateral
-    <*> optional pTotalCollateral
-    <*> many pRequiredSigner
-    <*> many pTxOut
-    <*> optional (pMintMultiAsset ManualBalance)
-    <*> optional pInvalidBefore
-    <*> optional pInvalidHereafter
-    <*> optional pTxFee
-    <*> many (pCertificateFile ManualBalance )
-    <*> many (pWithdrawal ManualBalance)
-    <*> pTxMetadataJsonSchema
-    <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
-    <*> many pMetadataFile
-    <*> optional pProtocolParamsFile
-    <*> optional pUpdateProposalFile
-    <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
-    <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
-    <*> pTxBodyFileOut
+  fmap TransactionBuildRawCmd $
+    TransactionBuildRawCmdArgs era
+      <$> optional pScriptValidity
+      <*> some (pTxIn ManualBalance)
+      <*> many pReadOnlyReferenceTxIn
+      <*> many pTxInCollateral
+      <*> optional pReturnCollateral
+      <*> optional pTotalCollateral
+      <*> many pRequiredSigner
+      <*> many pTxOut
+      <*> optional (pMintMultiAsset ManualBalance)
+      <*> optional pInvalidBefore
+      <*> optional pInvalidHereafter
+      <*> optional pTxFee
+      <*> many (pCertificateFile ManualBalance )
+      <*> many (pWithdrawal ManualBalance)
+      <*> pTxMetadataJsonSchema
+      <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
+      <*> many pMetadataFile
+      <*> optional pProtocolParamsFile
+      <*> optional pUpdateProposalFile
+      <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
+      <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
+      <*> pTxBodyFileOut
 
 pTransactionSign  :: EnvCli -> Parser (TransactionCmds era)
 pTransactionSign envCli =
-  TxSign
-    <$> pInputTxOrTxBodyFile
-    <*> many pWitnessSigningData
-    <*> optional (pNetworkId envCli)
-    <*> pTxFileOut
+  fmap TransactionSignCmd $
+    TransactionSignCmdArgs
+      <$> pInputTxOrTxBodyFile
+      <*> many pWitnessSigningData
+      <*> optional (pNetworkId envCli)
+      <*> pTxFileOut
 
 pTransactionCreateWitness :: EnvCli -> Parser (TransactionCmds era)
 pTransactionCreateWitness envCli =
-  TxCreateWitness
-    <$> pTxBodyFileIn
-    <*> pWitnessSigningData
-    <*> optional (pNetworkId envCli)
-    <*> pOutputFile
+  fmap TransactionWitnessCmd $
+    TransactionWitnessCmdArgs
+      <$> pTxBodyFileIn
+      <*> pWitnessSigningData
+      <*> optional (pNetworkId envCli)
+      <*> pOutputFile
 
 pTransactionAssembleTxBodyWit :: Parser (TransactionCmds era)
 pTransactionAssembleTxBodyWit =
-  TxAssembleTxBodyWitness
-    <$> pTxBodyFileIn
-    <*> many pWitnessFile
-    <*> pOutputFile
+  fmap TransactionSignWitnessCmd $
+    TransactionSignWitnessCmdArgs
+      <$> pTxBodyFileIn
+      <*> many pWitnessFile
+      <*> pOutputFile
 
 pTransactionSubmit :: EnvCli -> Parser (TransactionCmds era)
 pTransactionSubmit envCli =
-  TxSubmit
-    <$> pSocketPath envCli
-    <*> pConsensusModeParams
-    <*> pNetworkId envCli
-    <*> pTxSubmitFile
+  fmap TransactionSubmitCmd $
+    TransactionSubmitCmdArgs
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> pTxSubmitFile
 
 pTransactionPolicyId :: Parser (TransactionCmds era)
-pTransactionPolicyId = TxMintedPolicyId <$> pScript
+pTransactionPolicyId =
+  fmap TransactionPolicyIdCmd $
+    TransactionPolicyIdCmdArgs
+      <$> pScript
 
 pTransactionCalculateMinFee :: EnvCli -> Parser (TransactionCmds era)
 pTransactionCalculateMinFee envCli  =
-  TxCalculateMinFee
-    <$> pTxBodyFileIn
-    <*> pNetworkId envCli
-    <*> pProtocolParamsFile
-    <*> pTxInCount
-    <*> pTxOutCount
-    <*> pTxShelleyWitnessCount
-    <*> pTxByronWitnessCount
+  fmap TransactionCalculateMinFeeCmd $
+    TransactionCalculateMinFeeCmdArgs
+      <$> pTxBodyFileIn
+      <*> pNetworkId envCli
+      <*> pProtocolParamsFile
+      <*> pTxInCount
+      <*> pTxOutCount
+      <*> pTxShelleyWitnessCount
+      <*> pTxByronWitnessCount
 
 pTransactionCalculateMinReqUTxO :: CardanoEra era -> Parser (TransactionCmds era)
 pTransactionCalculateMinReqUTxO era =
-  TxCalculateMinRequiredUTxO era
-    <$> pProtocolParamsFile
-    <*> pTxOut
+  fmap TransactionCalculateMinValueCmd $
+    TransactionCalculateMinValueCmdArgs era
+      <$> pProtocolParamsFile
+      <*> pTxOut
 
 pTxHashScriptData :: Parser (TransactionCmds era)
 pTxHashScriptData =
-  fmap TxHashScriptData
-    $ pScriptDataOrFile
-        "script-data"
-        "The script data, in JSON syntax."
-        "The script data, in the given JSON file."
+  fmap TransactionHashScriptDataCmd $
+    TransactionHashScriptDataCmdArgs
+      <$> pScriptDataOrFile
+            "script-data"
+            "The script data, in JSON syntax."
+            "The script data, in the given JSON file."
 
 pTransactionId  :: Parser (TransactionCmds era)
-pTransactionId = TxGetTxId <$> pInputTxOrTxBodyFile
+pTransactionId =
+  fmap TransactionTxIdCmd $
+    TransactionTxIdCmdArgs
+      <$> pInputTxOrTxBodyFile
 
 pTransactionView :: Parser (TransactionCmds era)
 pTransactionView =
-  TxView
-    <$> pTxViewOutputFormat
-    <*> pMaybeOutputFile
-    <*> pInputTxOrTxBodyFile
+  fmap TransactionViewCmd $
+    TransactionViewCmdArgs
+      <$> pTxViewOutputFormat
+      <*> pMaybeOutputFile
+      <*> pInputTxOrTxBodyFile
