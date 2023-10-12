@@ -1,6 +1,5 @@
 Usage: cardano-cli latest governance 
                                        ( create-mir-certificate
-                                       | action
                                        | create-poll
                                        | answer-poll
                                        | verify-poll
@@ -14,7 +13,6 @@ Available options:
 Available commands:
   create-mir-certificate   Create an MIR (Move Instantaneous Rewards)
                            certificate
-  action                   Governance action commands.
   create-poll              Create an SPO poll
   answer-poll              Answer an SPO poll
   verify-poll              Verify an answer to a given SPO poll

@@ -1,16 +1,19 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.Actions
-  ( AnyStakeIdentifier(..)
-  , GovernanceActionCmds(..)
-  , UpdateCommitteeCmd(..)
-  , NewConstitutionCmd(..)
-  , NewInfoCmd(..)
-  , NoConfidenceCmd(..)
-  , TreasuryWithdrawalCmd(..)
+  ( GovernanceActionCmds(..)
+  , GoveranceActionUpdateCommitteeCmdArgs(..)
+  , GovernanceActionCreateConstitutionCmdArgs(..)
+  , GovernanceActionCreateNoConfidenceCmdArgs(..)
+  , GovernanceActionInfoCmdArgs(..)
+  , GovernanceActionProtocolParametersUpdateCmdArgs(..)
+  , GovernanceActionTreasuryWithdrawalCmdArgs(..)
   , renderGovernanceActionCmds
+
+  , AnyStakeIdentifier(..)
   ) where
 
 import           Cardano.Api
@@ -24,89 +27,88 @@ import           Data.Text (Text)
 import           Data.Word
 
 data GovernanceActionCmds era
-  = GovernanceActionCreateConstitutionCmd
-      (ConwayEraOnwards era)
-      NewConstitutionCmd
-  | GoveranceActionUpdateCommitteeCmd
-      (ConwayEraOnwards era)
-      UpdateCommitteeCmd
-  | GovernanceActionCreateNoConfidenceCmd
-      (ConwayEraOnwards era)
-      NoConfidenceCmd
-  | GovernanceActionProtocolParametersUpdateCmd
-      (ShelleyBasedEra era)
-      EpochNo
-      [VerificationKeyFile In]
-      (EraBasedProtocolParametersUpdate era)
-      (File () Out)
-  | GovernanceActionTreasuryWithdrawalCmd
-      (ConwayEraOnwards era)
-      TreasuryWithdrawalCmd
-  | GovernanceActionInfoCmd
-      (ConwayEraOnwards era)
-      NewInfoCmd
+  = GovernanceActionCreateConstitutionCmd         !(GovernanceActionCreateConstitutionCmdArgs era)
+  | GoveranceActionUpdateCommitteeCmd             !(GoveranceActionUpdateCommitteeCmdArgs era)
+  | GovernanceActionCreateNoConfidenceCmd         !(GovernanceActionCreateNoConfidenceCmdArgs era)
+  | GovernanceActionProtocolParametersUpdateCmd   !(GovernanceActionProtocolParametersUpdateCmdArgs era)
+  | GovernanceActionTreasuryWithdrawalCmd         !(GovernanceActionTreasuryWithdrawalCmdArgs era)
+  | GovernanceActionInfoCmd                       !(GovernanceActionInfoCmdArgs era)
   deriving Show
 
-data UpdateCommitteeCmd
-  = UpdateCommitteeCmd
-    { ucNetwork :: Ledger.Network
-    , ucDeposit :: Lovelace
-    , ucReturnAddress :: AnyStakeIdentifier
-    , ucProposalUrl :: ProposalUrl
-    , ucProposalHashSource :: ProposalHashSource
-    , ucOldCommittee :: [VerificationKeyOrHashOrFile CommitteeColdKey]
-    , ucNewCommittee :: [(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
-    , ucRequiredQuorum :: Rational
-    , ucPreviousGovActionId :: Maybe (TxId, Word32)
-    , ucFilePath :: File () Out
-    } deriving Show
+data GoveranceActionUpdateCommitteeCmdArgs era
+  = GoveranceActionUpdateCommitteeCmdArgs
+      { eon                     :: !(ConwayEraOnwards era)
+      , networkId               :: !Ledger.Network
+      , deposit                 :: !Lovelace
+      , returnAddress           :: !AnyStakeIdentifier
+      , proposalUrl             :: !ProposalUrl
+      , proposalHashSource      :: !ProposalHashSource
+      , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
+      , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
+      , requiredQuorum          :: !Rational
+      , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
+      , outFile                 :: !(File () Out)
+      } deriving Show
 
-data NewConstitutionCmd
-  = NewConstitutionCmd
-      { encNetwork :: Ledger.Network
-      , encDeposit :: Lovelace
-      , encStakeCredential :: AnyStakeIdentifier
-      , encPrevGovActId :: Maybe (TxId, Word32)
-      , encProposalUrl :: ProposalUrl
-      , encProposalHashSource :: ProposalHashSource
-      , encConstitutionUrl :: ConstitutionUrl
-      , encConstitutionHashSource :: ConstitutionHashSource
-      , encFilePath :: File () Out
+data GovernanceActionCreateConstitutionCmdArgs era
+  = GovernanceActionCreateConstitutionCmdArgs
+      { eon                     :: !(ConwayEraOnwards era)
+      , networkId               :: !Ledger.Network
+      , deposit                 :: !Lovelace
+      , stakeCredential         :: !AnyStakeIdentifier
+      , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
+      , proposalUrl             :: !ProposalUrl
+      , proposalHashSource      :: !ProposalHashSource
+      , constitutionUrl         :: !ConstitutionUrl
+      , constitutionHashSource  :: !ConstitutionHashSource
+      , outFile                 :: !(File () Out)
       } deriving Show
 
 -- | Datatype to carry data for the create-info governance action
-data NewInfoCmd
-   = NewInfoCmd
-      { niNetwork :: Ledger.Network
-      , niDeposit :: Lovelace
-      , niStakeCredential :: AnyStakeIdentifier
-      , niProposalUrl :: ProposalUrl
-      , niProposalHashSource :: ProposalHashSource
-      , niOutputFilePath :: File () Out
+data GovernanceActionInfoCmdArgs era
+   = GovernanceActionInfoCmdArgs
+      { eon                 :: !(ConwayEraOnwards era)
+      , networkId           :: !Ledger.Network
+      , deposit             :: !Lovelace
+      , returnStakeAddress  :: !AnyStakeIdentifier
+      , proposalUrl         :: !ProposalUrl
+      , proposalHashSource  :: !ProposalHashSource
+      , outFile             :: !(File () Out)
       } deriving Show
 
-data NoConfidenceCmd
-  = NoConfidenceCmd
-      { ncNetwork :: Ledger.Network
-      , ncDeposit :: Lovelace
-      , ncStakeCredential :: AnyStakeIdentifier
-      , ncProposalUrl :: ProposalUrl
-      , ncProposalHashSource :: ProposalHashSource
-      , ncGovAct :: TxId
-      , ncGovActIndex :: Word32
-      , ncFilePath :: File () Out
+data GovernanceActionCreateNoConfidenceCmdArgs era
+  = GovernanceActionCreateNoConfidenceCmdArgs
+      { eon                   :: !(ConwayEraOnwards era)
+      , networkId             :: !Ledger.Network
+      , deposit               :: !Lovelace
+      , returnStakeAddress    :: !AnyStakeIdentifier
+      , proposalUrl           :: !ProposalUrl
+      , proposalHashSource    :: !ProposalHashSource
+      , governanceActionId    :: !TxId
+      , governanceActionIndex :: !Word32
+      , outFile               :: !(File () Out)
       } deriving Show
 
-data TreasuryWithdrawalCmd
-  = TreasuryWithdrawalCmd
-    { twNetwork :: Ledger.Network
-    , twDeposit :: Lovelace -- ^ Deposit
-    , twReturnAddr :: AnyStakeIdentifier -- ^ Return address
-    , twProposalUrl :: ProposalUrl
-    , twProposalHashSource :: ProposalHashSource
-    , twTreasuryWithdrawal :: [(AnyStakeIdentifier, Lovelace)]
-    , twFilePath :: File () Out
-    } deriving Show
+data GovernanceActionProtocolParametersUpdateCmdArgs era
+  = GovernanceActionProtocolParametersUpdateCmdArgs
+      { eon               :: !(ConwayEraOnwards era)
+      , epochNo           :: !EpochNo
+      , genesisVkeyFiles  :: ![VerificationKeyFile In]
+      , pparamsUpdate     :: !(EraBasedProtocolParametersUpdate era)
+      , outFile           :: !(File () Out)
+      } deriving Show
+
+data GovernanceActionTreasuryWithdrawalCmdArgs era
+  = GovernanceActionTreasuryWithdrawalCmdArgs
+      { eon                 :: !(ConwayEraOnwards era)
+      , networkId           :: !Ledger.Network
+      , deposit             :: !Lovelace
+      , returnAddr          :: !AnyStakeIdentifier
+      , proposalUrl         :: !ProposalUrl
+      , proposalHashSource  :: !ProposalHashSource
+      , treasuryWithdrawal  :: ![(AnyStakeIdentifier, Lovelace)]
+      , outFile             :: !(File () Out)
+      } deriving Show
 
 renderGovernanceActionCmds :: GovernanceActionCmds era -> Text
 renderGovernanceActionCmds = ("governance action " <>) . \case
