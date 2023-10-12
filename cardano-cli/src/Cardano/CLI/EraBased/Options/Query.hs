@@ -39,10 +39,6 @@ pQueryCmds era envCli =
         $ Opt.info (pQueryProtocolParametersCmd envCli)
         $ Opt.progDesc "Get the node's current protocol parameters"
     , Just
-        $ subParser "constitution-hash"
-        $ Opt.info (pQueryConstitutionHashCmd envCli)
-        $ Opt.progDesc "Get the constitution hash"
-    , Just
         $ subParser "tip"
         $ Opt.info (pQueryTipCmd envCli)
         $ Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
@@ -122,15 +118,6 @@ pQueryProtocolParametersCmd :: EnvCli -> Parser (QueryCmds era)
 pQueryProtocolParametersCmd envCli =
   fmap QueryProtocolParametersCmd $
     QueryProtocolParametersCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
-      <*> pMaybeOutputFile
-
-pQueryConstitutionHashCmd :: EnvCli -> Parser (QueryCmds era)
-pQueryConstitutionHashCmd envCli =
-  fmap QueryConstitutionHashCmd $
-    QueryConstitutionHashCmdArgs
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
