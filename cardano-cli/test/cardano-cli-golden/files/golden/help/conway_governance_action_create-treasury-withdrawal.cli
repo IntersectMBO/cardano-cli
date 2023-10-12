@@ -53,7 +53,7 @@ Available options:
   --proposal-anchor-metadata-file FILE
                            Proposal anchor contents as a text file.
   --proposal-anchor-metadata-hash HASH
-                           Hash of the proposal anchor contents.
+                           Proposal anchor data hash.
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
   --cold-verification-key-file FILE

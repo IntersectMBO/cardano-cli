@@ -897,7 +897,7 @@ catCommands = \case
 pConstitutionUrl :: Parser ConstitutionUrl
 pConstitutionUrl =
   ConstitutionUrl
-    <$> pUrl "constitution-url" "Constitution URL."
+    <$> pUrl "constitution-anchor-url" "Constitution anchor URL."
 
 pConstitutionHashSource :: Parser ConstitutionHashSource
 pConstitutionHashSource =
@@ -905,13 +905,13 @@ pConstitutionHashSource =
     [ ConstitutionHashSourceText
         <$> Opt.strOption
             ( mconcat
-                [ Opt.long "constitution-text"
+                [ Opt.long "constitution-anchor-metadata"
                 , Opt.metavar "TEXT"
-                , Opt.help "Input constitution as UTF-8 encoded text."
+                , Opt.help "Constitution anchor contents as UTF-8 encoded text."
                 ]
             )
     , ConstitutionHashSourceFile
-        <$> pFileInDirection "constitution-file" "Input constitution as a text file."
+        <$> pFileInDirection "constitution-anchor-metadata-file" "Constitution anchor contents as a text file."
     , ConstitutionHashSourceHash
         <$> pConstitutionHash
     ]
@@ -919,9 +919,9 @@ pConstitutionHashSource =
 pConstitutionHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pConstitutionHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "constitution-hash"
+    [ Opt.long "constitution-anchor-metadata-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Constitution anchor data hash."
+    , Opt.help "Hash of the constitution anchor contents."
     ]
 
 pUrl :: String -> String -> Parser Ledger.Url
@@ -3200,7 +3200,7 @@ pProposalHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "proposal-anchor-metadata-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Hash of the proposal anchor contents."
+    , Opt.help "Proposal anchor data hash."
     ]
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))

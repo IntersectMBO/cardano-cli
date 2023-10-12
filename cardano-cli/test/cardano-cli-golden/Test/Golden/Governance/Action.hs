@@ -35,8 +35,8 @@ hprop_golden_governanceActionCreateConstitution =
       , "--governance-action-deposit", "10"
       , "--stake-verification-key-file", stakeAddressVKeyFile
       , "--out-file", actionFile
-      , "--constitution-url", "constitution-dummy-url"
-      , "--constitution-text", "This is a test constitution."
+      , "--constitution-anchor-url", "constitution-dummy-url"
+      , "--constitution-anchor-metadata", "This is a test constitution."
       ]
 
     goldenActionFile <-  H.note "test/cardano-cli-golden/files/golden/governance/action/create-constitution-for-stake-address.action.golden"

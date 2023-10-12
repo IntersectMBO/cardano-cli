@@ -57,7 +57,7 @@ Available options:
   --proposal-anchor-metadata-file FILE
                            Proposal anchor contents as a text file.
   --proposal-anchor-metadata-hash HASH
-                           Hash of the proposal anchor contents.
+                           Proposal anchor data hash.
   --remove-cc-cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
   --remove-cc-cold-verification-key-file FILE

@@ -6070,10 +6070,10 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   | --proposal-anchor-metadata-file FILE
                                                                   | --proposal-anchor-metadata-hash HASH
                                                                   )
-                                                                  --constitution-url TEXT
-                                                                  ( --constitution-text TEXT
-                                                                  | --constitution-file FILE
-                                                                  | --constitution-hash HASH
+                                                                  --constitution-anchor-url TEXT
+                                                                  ( --constitution-anchor-metadata TEXT
+                                                                  | --constitution-anchor-metadata-file FILE
+                                                                  | --constitution-anchor-metadata-hash HASH
                                                                   )
                                                                   --out-file FILE
 

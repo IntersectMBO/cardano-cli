@@ -17,10 +17,10 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   | --proposal-anchor-metadata-file FILE
                                                                   | --proposal-anchor-metadata-hash HASH
                                                                   )
-                                                                  --constitution-url TEXT
-                                                                  ( --constitution-text TEXT
-                                                                  | --constitution-file FILE
-                                                                  | --constitution-hash HASH
+                                                                  --constitution-anchor-url TEXT
+                                                                  ( --constitution-anchor-metadata TEXT
+                                                                  | --constitution-anchor-metadata-file FILE
+                                                                  | --constitution-anchor-metadata-hash HASH
                                                                   )
                                                                   --out-file FILE
 
@@ -55,10 +55,14 @@ Available options:
   --proposal-anchor-metadata-file FILE
                            Proposal anchor contents as a text file.
   --proposal-anchor-metadata-hash HASH
-                           Hash of the proposal anchor contents.
-  --constitution-url TEXT  Constitution URL.
-  --constitution-text TEXT Input constitution as UTF-8 encoded text.
-  --constitution-file FILE Input constitution as a text file.
-  --constitution-hash HASH Constitution anchor data hash.
+                           Proposal anchor data hash.
+  --constitution-anchor-url TEXT
+                           Constitution anchor URL.
+  --constitution-anchor-metadata TEXT
+                           Constitution anchor contents as UTF-8 encoded text.
+  --constitution-anchor-metadata-file FILE
+                           Constitution anchor contents as a text file.
+  --constitution-anchor-metadata-hash HASH
+                           Hash of the constitution anchor contents.
   --out-file FILE          Output filepath of the constitution.
   -h,--help                Show this help text

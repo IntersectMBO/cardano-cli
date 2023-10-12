@@ -46,7 +46,7 @@ Available options:
   --proposal-anchor-metadata-file FILE
                            Proposal anchor contents as a text file.
   --proposal-anchor-metadata-hash HASH
-                           Hash of the proposal anchor contents.
+                           Proposal anchor data hash.
   --governance-action-tx-id TXID
                            Previous txid of `NoConfidence` or `NewCommittee`
                            governance action.

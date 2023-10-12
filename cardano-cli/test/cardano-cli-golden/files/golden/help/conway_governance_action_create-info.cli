@@ -41,7 +41,7 @@ Available options:
   --proposal-anchor-metadata-file FILE
                            Proposal anchor contents as a text file.
   --proposal-anchor-metadata-hash HASH
-                           Hash of the proposal anchor contents.
+                           Proposal anchor data hash.
   --out-file FILE          Path to action file to be used later on with build or
                            build-raw
   -h,--help                Show this help text
