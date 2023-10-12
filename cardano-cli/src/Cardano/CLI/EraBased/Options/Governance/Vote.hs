@@ -11,6 +11,7 @@ import           Cardano.CLI.EraBased.Commands.Governance.Vote
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Governance
 
+import           Control.Applicative (optional)
 import           Data.Foldable
 import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
@@ -45,6 +46,7 @@ pAnyVote cOnwards =
       <*> pGovernanceActionId
       <*> pAnyVotingStakeVerificationKeyOrHashOrFile
       <*> pFileOutDirection "out-file" "Output filepath of the vote."
+      <*> optional pVoteAnchor
 
 pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile
 pAnyVotingStakeVerificationKeyOrHashOrFile =

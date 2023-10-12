@@ -13,7 +13,8 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Vote
-import           Cardano.CLI.Read (readVotingProceduresFile)
+import           Cardano.CLI.Read (readVotingProceduresFile, readVoteHashSource)
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Governance
@@ -41,8 +42,16 @@ runGovernanceVoteCmds = \case
 runGovernanceVoteCreateCmd
   :: AnyVote
   -> ExceptT GovernanceVoteCmdError IO ()
-runGovernanceVoteCreateCmd (ConwayOnwardsVote cOnwards voteChoice (govActionTxId, govActionIndex) voteStakeCred oFp) = do
+runGovernanceVoteCreateCmd (ConwayOnwardsVote cOnwards voteChoice (govActionTxId, govActionIndex) voteStakeCred oFp mAnchor)  = do
   let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
+  voteProcedure <- case mAnchor of
+     Nothing -> pure $ createVotingProcedure cOnwards voteChoice Nothing
+     Just (VoteUrl url, voteHashSource) -> shelleyBasedEraConstraints sbe $ do
+       voteHash <- firstExceptT GovernanceVoteCmdReadVoteTextError $ readVoteHashSource voteHashSource
+       let voteAnchor = Ledger.Anchor { Ledger.anchorUrl = url, Ledger.anchorDataHash = voteHash }
+           VotingProcedure votingProcedureWithoutAnchor = createVotingProcedure cOnwards voteChoice Nothing
+           votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor { Ledger.vProcAnchor = Ledger.SJust voteAnchor }
+       return votingProcedureWithAnchor
 
   shelleyBasedEraConstraints sbe $ do
     case voteStakeCred of
@@ -54,7 +63,6 @@ runGovernanceVoteCreateCmd (ConwayOnwardsVote cOnwards voteChoice (govActionTxId
         votingCred <- hoistEither $ first GovernanceVoteCmdCredentialDecodeError $ toVotingCredential cOnwards vStakeCred
         let voter = Ledger.DRepVoter (unVotingCredential votingCred)
             govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
-            voteProcedure = createVotingProcedure cOnwards voteChoice Nothing
             votingProcedures = singletonVotingProcedures cOnwards voter govActIdentifier (unVotingProcedure voteProcedure)
         firstExceptT GovernanceVoteCmdWriteError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
 
@@ -64,7 +72,6 @@ runGovernanceVoteCreateCmd (ConwayOnwardsVote cOnwards voteChoice (govActionTxId
 
         let voter = Ledger.StakePoolVoter (unStakePoolKeyHash h)
             govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
-            voteProcedure = createVotingProcedure cOnwards voteChoice Nothing
             votingProcedures = singletonVotingProcedures cOnwards voter govActIdentifier (unVotingProcedure voteProcedure)
         firstExceptT GovernanceVoteCmdWriteError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
 
@@ -75,7 +82,6 @@ runGovernanceVoteCreateCmd (ConwayOnwardsVote cOnwards voteChoice (govActionTxId
         votingCred <- hoistEither $ first GovernanceVoteCmdCredentialDecodeError $ toVotingCredential cOnwards vStakeCred
         let voter = Ledger.CommitteeVoter (Ledger.coerceKeyRole (unVotingCredential votingCred)) -- TODO Conway - remove coerceKeyRole
             govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
-            voteProcedure = createVotingProcedure cOnwards voteChoice Nothing
             votingProcedures = singletonVotingProcedures cOnwards voter govActIdentifier (unVotingProcedure voteProcedure)
         firstExceptT GovernanceVoteCmdWriteError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
 

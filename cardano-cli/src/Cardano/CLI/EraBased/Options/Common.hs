@@ -3033,6 +3033,36 @@ pAlwaysAbstain =
     , Opt.help "Abstain from voting on all proposals."
     ]
 
+pVoteAnchor :: Parser (VoteUrl, VoteHashSource)
+pVoteAnchor = (,)
+  <$> (VoteUrl <$> pUrl "vote-url" "Vote anchor URL")
+  <*> pVoteHashSource
+
+pVoteHashSource :: Parser VoteHashSource
+pVoteHashSource =
+  asum
+    [ VoteHashSourceText
+        <$> Opt.strOption
+            ( mconcat
+                [ Opt.long "vote-text"
+                , Opt.metavar "TEXT"
+                , Opt.help "Input vote as UTF-8 encoded text."
+                ]
+            )
+    , VoteHashSourceFile
+        <$> pFileInDirection "vote-file" "Input vote as a text file."
+    , VoteHashSourceHash
+        <$> pVoteHash
+    ]
+
+pVoteHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pVoteHash =
+  Opt.option readSafeHash $ mconcat
+    [ Opt.long "vote-hash"
+    , Opt.metavar "HASH"
+    , Opt.help "Vote anchor data hash."
+    ]
+
 pAlwaysNoConfidence :: Parser ()
 pAlwaysNoConfidence =
   Opt.flag' () $ mconcat
