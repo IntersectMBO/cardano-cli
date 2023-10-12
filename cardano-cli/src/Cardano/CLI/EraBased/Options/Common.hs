@@ -3176,7 +3176,7 @@ pDRepVerificationKeyFile =
 pProposalUrl :: Parser ProposalUrl
 pProposalUrl =
   ProposalUrl
-    <$> pUrl "proposal-url" "Proposal anchor URL"
+    <$> pUrl "proposal-anchor-url" "Proposal anchor URL"
 
 pProposalHashSource :: Parser ProposalHashSource
 pProposalHashSource =
@@ -3184,13 +3184,13 @@ pProposalHashSource =
     [ ProposalHashSourceText
         <$> Opt.strOption
             ( mconcat
-                [ Opt.long "proposal-text"
+                [ Opt.long "proposal-anchor-metadata"
                 , Opt.metavar "TEXT"
-                , Opt.help "Input proposal as UTF-8 encoded text."
+                , Opt.help "Proposal anchor contents as UTF-8 encoded text."
                 ]
             )
     , ProposalHashSourceFile
-        <$> pFileInDirection "proposal-file" "Input proposal as a text file."
+        <$> pFileInDirection "proposal-anchor-metadata-file" "Proposal anchor contents as a text file."
     , ProposalHashSourceHash
         <$> pProposalHash
     ]
@@ -3198,9 +3198,9 @@ pProposalHashSource =
 pProposalHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pProposalHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "proposal-hash"
+    [ Opt.long "proposal-anchor-metadata-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Proposal anchor data hash."
+    , Opt.help "Hash of the proposal anchor contents."
     ]
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))

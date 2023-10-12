@@ -7,10 +7,10 @@ Usage: cardano-cli conway governance action create-info (--mainnet | --testnet)
                                                           | --stake-verification-key-file FILE
                                                           | --stake-key-hash HASH
                                                           )
-                                                          --proposal-url TEXT
-                                                          ( --proposal-text TEXT
-                                                          | --proposal-file FILE
-                                                          | --proposal-hash HASH
+                                                          --proposal-anchor-url TEXT
+                                                          ( --proposal-anchor-metadata TEXT
+                                                          | --proposal-anchor-metadata-file FILE
+                                                          | --proposal-anchor-metadata-hash HASH
                                                           )
                                                           --out-file FILE
 
@@ -34,10 +34,14 @@ Available options:
   --stake-verification-key-file FILE
                            Filepath of the staking verification key.
   --stake-key-hash HASH    Stake verification key hash (hex-encoded).
-  --proposal-url TEXT      Proposal anchor URL
-  --proposal-text TEXT     Input proposal as UTF-8 encoded text.
-  --proposal-file FILE     Input proposal as a text file.
-  --proposal-hash HASH     Proposal anchor data hash.
+  --proposal-anchor-url TEXT
+                           Proposal anchor URL
+  --proposal-anchor-metadata TEXT
+                           Proposal anchor contents as UTF-8 encoded text.
+  --proposal-anchor-metadata-file FILE
+                           Proposal anchor contents as a text file.
+  --proposal-anchor-metadata-hash HASH
+                           Hash of the proposal anchor contents.
   --out-file FILE          Path to action file to be used later on with build or
                            build-raw
   -h,--help                Show this help text
