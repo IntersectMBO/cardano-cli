@@ -211,6 +211,7 @@ pTransactionBuildRaw era =
     <*> many pMetadataFile
     <*> optional pProtocolParamsFile
     <*> optional pUpdateProposalFile
+    <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
     <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
     <*> pTxBodyFileOut
 
