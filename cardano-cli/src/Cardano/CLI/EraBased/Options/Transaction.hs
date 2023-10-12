@@ -151,7 +151,7 @@ pScriptValidity = asum
 
 pTransactionBuild :: CardanoEra era -> EnvCli -> Parser (TransactionCmds era)
 pTransactionBuild era envCli =
-  TxBuild era
+  TransactionBuildCmd era
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
@@ -191,7 +191,7 @@ pChangeAddress =
 
 pTransactionBuildRaw :: CardanoEra era -> Parser (TransactionCmds era)
 pTransactionBuildRaw era =
-  TxBuildRaw era
+  TransactionBuildRawCmd era
     <$> optional pScriptValidity
     <*> some (pTxIn ManualBalance)
     <*> many pReadOnlyReferenceTxIn
@@ -217,7 +217,7 @@ pTransactionBuildRaw era =
 
 pTransactionSign  :: EnvCli -> Parser (TransactionCmds era)
 pTransactionSign envCli =
-  TxSign
+  TransactionSignCmd
     <$> pInputTxOrTxBodyFile
     <*> many pWitnessSigningData
     <*> optional (pNetworkId envCli)
@@ -225,7 +225,7 @@ pTransactionSign envCli =
 
 pTransactionCreateWitness :: EnvCli -> Parser (TransactionCmds era)
 pTransactionCreateWitness envCli =
-  TxCreateWitness
+  TransactionWitnessCmd
     <$> pTxBodyFileIn
     <*> pWitnessSigningData
     <*> optional (pNetworkId envCli)
@@ -233,25 +233,27 @@ pTransactionCreateWitness envCli =
 
 pTransactionAssembleTxBodyWit :: Parser (TransactionCmds era)
 pTransactionAssembleTxBodyWit =
-  TxAssembleTxBodyWitness
+  TransactionSignWitnessCmd
     <$> pTxBodyFileIn
     <*> many pWitnessFile
     <*> pOutputFile
 
 pTransactionSubmit :: EnvCli -> Parser (TransactionCmds era)
 pTransactionSubmit envCli =
-  TxSubmit
+  TransactionSubmitCmd
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
     <*> pTxSubmitFile
 
 pTransactionPolicyId :: Parser (TransactionCmds era)
-pTransactionPolicyId = TxMintedPolicyId <$> pScript
+pTransactionPolicyId =
+  TransactionPolicyIdCmd
+    <$> pScript
 
 pTransactionCalculateMinFee :: EnvCli -> Parser (TransactionCmds era)
 pTransactionCalculateMinFee envCli  =
-  TxCalculateMinFee
+  TransactionCalculateMinFeeCmd
     <$> pTxBodyFileIn
     <*> pNetworkId envCli
     <*> pProtocolParamsFile
@@ -262,24 +264,26 @@ pTransactionCalculateMinFee envCli  =
 
 pTransactionCalculateMinReqUTxO :: CardanoEra era -> Parser (TransactionCmds era)
 pTransactionCalculateMinReqUTxO era =
-  TxCalculateMinRequiredUTxO era
+  TransactionCalculateMinValueCmd era
     <$> pProtocolParamsFile
     <*> pTxOut
 
 pTxHashScriptData :: Parser (TransactionCmds era)
 pTxHashScriptData =
-  fmap TxHashScriptData
+  fmap TransactionHashScriptDataCmd
     $ pScriptDataOrFile
         "script-data"
         "The script data, in JSON syntax."
         "The script data, in the given JSON file."
 
 pTransactionId  :: Parser (TransactionCmds era)
-pTransactionId = TxGetTxId <$> pInputTxOrTxBodyFile
+pTransactionId =
+  TransactionTxIdCmd
+    <$> pInputTxOrTxBodyFile
 
 pTransactionView :: Parser (TransactionCmds era)
 pTransactionView =
-  TxView
+  TransactionViewCmd
     <$> pTxViewOutputFormat
     <*> pMaybeOutputFile
     <*> pInputTxOrTxBodyFile

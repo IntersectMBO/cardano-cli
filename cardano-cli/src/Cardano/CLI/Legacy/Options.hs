@@ -306,7 +306,7 @@ pTransaction envCli =
 
   pTransactionBuild :: Parser LegacyTransactionCmds
   pTransactionBuild =
-    TxBuild
+    TransactionBuildCmd
       <$> pSocketPath envCli
       <*> pLegacyCardanoEra envCli
       <*> pConsensusModeParams
@@ -347,7 +347,7 @@ pTransaction envCli =
 
   pTransactionBuildRaw :: Parser LegacyTransactionCmds
   pTransactionBuildRaw =
-    TxBuildRaw
+    TransactionBuildRawCmd
       <$> pLegacyCardanoEra envCli
       <*> optional pScriptValidity
       <*> some (pTxIn ManualBalance)
@@ -372,7 +372,7 @@ pTransaction envCli =
 
   pTransactionSign  :: Parser LegacyTransactionCmds
   pTransactionSign =
-    TxSign
+    TransactionSignCmd
       <$> pInputTxOrTxBodyFile
       <*> many pWitnessSigningData
       <*> optional (pNetworkId envCli)
@@ -380,7 +380,7 @@ pTransaction envCli =
 
   pTransactionCreateWitness :: Parser LegacyTransactionCmds
   pTransactionCreateWitness =
-    TxCreateWitness
+    TransactionWitnessCmd
       <$> pTxBodyFileIn
       <*> pWitnessSigningData
       <*> optional (pNetworkId envCli)
@@ -388,25 +388,27 @@ pTransaction envCli =
 
   pTransactionAssembleTxBodyWit :: Parser LegacyTransactionCmds
   pTransactionAssembleTxBodyWit =
-    TxAssembleTxBodyWitness
+    TransactionSignWitnessCmd
       <$> pTxBodyFileIn
       <*> many pWitnessFile
       <*> pOutputFile
 
   pTransactionSubmit :: Parser LegacyTransactionCmds
   pTransactionSubmit =
-    TxSubmit
+    TransactionSubmitCmd
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
       <*> pTxSubmitFile
 
   pTransactionPolicyId :: Parser LegacyTransactionCmds
-  pTransactionPolicyId = TxMintedPolicyId <$> pScript
+  pTransactionPolicyId =
+    TransactionPolicyIdCmd
+      <$> pScript
 
   pTransactionCalculateMinFee :: Parser LegacyTransactionCmds
   pTransactionCalculateMinFee =
-    TxCalculateMinFee
+    TransactionCalculateMinFeeCmd
       <$> pTxBodyFileIn
       <*> pNetworkId envCli
       <*> pProtocolParamsFile
@@ -416,25 +418,28 @@ pTransaction envCli =
       <*> pTxByronWitnessCount
 
   pTransactionCalculateMinReqUTxO :: Parser LegacyTransactionCmds
-  pTransactionCalculateMinReqUTxO = TxCalculateMinRequiredUTxO
-    <$> pLegacyCardanoEra envCli
-    <*> pProtocolParamsFile
-    <*> pTxOut
+  pTransactionCalculateMinReqUTxO =
+    TransactionCalculateMinValueCmd
+      <$> pLegacyCardanoEra envCli
+      <*> pProtocolParamsFile
+      <*> pTxOut
 
   pTxHashScriptData :: Parser LegacyTransactionCmds
   pTxHashScriptData =
-    fmap TxHashScriptData
+    fmap TransactionHashScriptDataCmd
       $ pScriptDataOrFile
           "script-data"
           "The script data, in JSON syntax."
           "The script data, in the given JSON file."
 
   pTransactionId  :: Parser LegacyTransactionCmds
-  pTransactionId = TxGetTxId <$> pInputTxOrTxBodyFile
+  pTransactionId =
+    TransactionTxIdCmd
+      <$> pInputTxOrTxBodyFile
 
   pTransactionView :: Parser LegacyTransactionCmds
   pTransactionView =
-    TxView
+    TransactionViewCmd
       <$> pTxViewOutputFormat
       <*> pMaybeOutputFile
       <*> pInputTxOrTxBodyFile

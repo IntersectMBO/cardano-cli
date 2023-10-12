@@ -14,7 +14,7 @@ import           Cardano.CLI.Types.Governance
 import           Data.Text (Text)
 
 data TransactionCmds era
-  = TxBuildRaw
+  = TransactionBuildRawCmd
       (CardanoEra era)
       (Maybe ScriptValidity)
       -- ^ Mark script as expected to pass or fail validation
@@ -38,7 +38,7 @@ data TransactionCmds era
       (Maybe SlotNo)
       -- ^ Transaction upper bound
       (Maybe Lovelace)
-      -- ^ Tx fee
+      -- ^ Transaction feeCmd
       [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
       -- ^ Certificates with potential script witness
       [(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
@@ -52,8 +52,8 @@ data TransactionCmds era
       [ProposalFile In]
       (TxBodyFile Out)
 
-    -- | Like 'TxBuildRaw' but without the fee, and with a change output.
-  | TxBuild
+    -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
+  | TransactionBuildCmd
       (CardanoEra era)
       SocketPath
       AnyConsensusModeParams
@@ -95,28 +95,28 @@ data TransactionCmds era
       [VoteFile In]
       [ProposalFile In]
       TxBuildOutputOptions
-  | TxSign
+  | TransactionSignCmd
       InputTxBodyOrTxFile
       [WitnessSigningData]
       (Maybe NetworkId)
       (TxFile Out)
-  | TxCreateWitness
+  | TransactionWitnessCmd
       (TxBodyFile In)
       WitnessSigningData
       (Maybe NetworkId)
       (File () Out)
-  | TxAssembleTxBodyWitness
+  | TransactionSignWitnessCmd
       (TxBodyFile In)
       [WitnessFile]
       (File () Out)
-  | TxSubmit
+  | TransactionSubmitCmd
       SocketPath
       AnyConsensusModeParams
       NetworkId
       FilePath
-  | TxMintedPolicyId
+  | TransactionPolicyIdCmd
       ScriptFile
-  | TxCalculateMinFee
+  | TransactionCalculateMinFeeCmd
       (TxBodyFile In)
       NetworkId
       ProtocolParamsFile
@@ -124,30 +124,30 @@ data TransactionCmds era
       TxOutCount
       TxShelleyWitnessCount
       TxByronWitnessCount
-  | TxCalculateMinRequiredUTxO
+  | TransactionCalculateMinValueCmd
       (CardanoEra era)
       ProtocolParamsFile
       TxOutAnyEra
-  | TxHashScriptData
+  | TransactionHashScriptDataCmd
       ScriptDataOrFile
-  | TxGetTxId
+  | TransactionTxIdCmd
       InputTxBodyOrTxFile
-  | TxView
+  | TransactionViewCmd
       TxViewOutputFormat
       (Maybe (File () Out))
       InputTxBodyOrTxFile
 
 renderTransactionCmds :: TransactionCmds era -> Text
 renderTransactionCmds = \case
-  TxBuild {} -> "transaction build"
-  TxBuildRaw {} -> "transaction build-raw"
-  TxSign {} -> "transaction sign"
-  TxCreateWitness {} -> "transaction witness"
-  TxAssembleTxBodyWitness {} -> "transaction sign-witness"
-  TxSubmit {} -> "transaction submit"
-  TxMintedPolicyId {} -> "transaction policyid"
-  TxCalculateMinFee {} -> "transaction calculate-min-fee"
-  TxCalculateMinRequiredUTxO {} -> "transaction calculate-min-value"
-  TxHashScriptData {} -> "transaction hash-script-data"
-  TxGetTxId {} -> "transaction txid"
-  TxView {} -> "transaction view"
+  TransactionBuildCmd                     {} -> "transaction build"
+  TransactionBuildRawCmd                  {} -> "transaction build-raw"
+  TransactionSignCmd                      {} -> "transaction sign"
+  TransactionWitnessCmd                   {} -> "transaction witness"
+  TransactionSignWitnessCmd               {} -> "transaction sign-witness"
+  TransactionSubmitCmd                    {} -> "transaction submit"
+  TransactionPolicyIdCmd                  {} -> "transaction policyid"
+  TransactionCalculateMinFeeCmd           {} -> "transaction calculate-min-fee"
+  TransactionCalculateMinValueCmd         {} -> "transaction calculate-min-value"
+  TransactionHashScriptDataCmd            {} -> "transaction hash-script-data"
+  TransactionTxIdCmd                      {} -> "transaction txid"
+  TransactionViewCmd                      {} -> "transaction view"

@@ -75,9 +75,8 @@ import qualified System.IO as IO
 
 
 runTransactionCmds :: TransactionCmds era -> ExceptT TxCmdError IO ()
-runTransactionCmds cmd =
-  case cmd of
-    TxBuild
+runTransactionCmds = \case
+  TransactionBuildCmd
         era mNodeSocketPath consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
         mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp voteFiles
@@ -87,7 +86,7 @@ runTransactionCmds cmd =
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
         mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp voteFiles
         proposalFiles outputOptions
-    TxBuildRaw
+  TransactionBuildRawCmd
         era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
         mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
         metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp
@@ -98,25 +97,25 @@ runTransactionCmds cmd =
         metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp
         voteFiles proposalFiles
         out
-    TxSign txinfile skfiles network txoutfile ->
+  TransactionSignCmd txinfile skfiles network txoutfile ->
       runTxSignCmd txinfile skfiles network txoutfile
-    TxSubmit mNodeSocketPath anyConsensusModeParams network txFp ->
+  TransactionSubmitCmd mNodeSocketPath anyConsensusModeParams network txFp ->
       runTxSubmitCmd mNodeSocketPath anyConsensusModeParams network txFp
-    TxCalculateMinFee txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
+  TransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
       runTxCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
-    TxCalculateMinRequiredUTxO era pParamsFile txOuts ->
+  TransactionCalculateMinValueCmd era pParamsFile txOuts ->
       runTxCalculateMinRequiredUTxOCmd era pParamsFile txOuts
-    TxHashScriptData scriptDataOrFile ->
+  TransactionHashScriptDataCmd scriptDataOrFile ->
       runTxHashScriptDataCmd scriptDataOrFile
-    TxGetTxId txinfile ->
+  TransactionTxIdCmd txinfile ->
       runTxGetTxIdCmd txinfile
-    TxView outFormat mOutFile txinfile ->
+  TransactionViewCmd outFormat mOutFile txinfile ->
       runTxViewCmd outFormat mOutFile txinfile
-    TxMintedPolicyId sFile ->
+  TransactionPolicyIdCmd sFile ->
       runTxCreatePolicyIdCmd sFile
-    TxCreateWitness txBodyfile witSignData mbNw outFile ->
+  TransactionWitnessCmd txBodyfile witSignData mbNw outFile ->
       runTxCreateWitnessCmd txBodyfile witSignData mbNw outFile
-    TxAssembleTxBodyWitness txBodyFile witnessFile outFile ->
+  TransactionSignWitnessCmd txBodyFile witnessFile outFile ->
       runTxSignWitnessCmd txBodyFile witnessFile outFile
 
 -- ----------------------------------------------------------------------------
