@@ -51,6 +51,7 @@ data GovernanceCmdError
   | GovernanceCmdDecoderError !DecoderError
   | GovernanceCmdVerifyPollError !GovernancePollError
   | GovernanceCmdWriteFileError !(FileError ())
+  | GovernanceCmdDRepMetadataValidationError !DRepMetadataValidationError
   -- Legacy - remove me after cardano-cli transitions to new era based structure
   | GovernanceCmdMIRCertNotSupportedInConway
   | GovernanceCmdGenesisDelegationNotSupportedInConway
@@ -104,6 +105,8 @@ instance Error GovernanceCmdError where
       Text.unpack (renderGovernancePollError pollError)
     GovernanceCmdWriteFileError fileError ->
       "Cannot write file: " <> displayError fileError
+    GovernanceCmdDRepMetadataValidationError e ->
+      "DRep metadata validation error: " <> displayError e
     GovernanceCmdMIRCertNotSupportedInConway ->
       "MIR certificates are not supported in Conway era onwards."
     GovernanceCmdGenesisDelegationNotSupportedInConway ->

@@ -4,9 +4,10 @@ module Test.Golden.Governance.DRep where
 
 import           Control.Monad (void)
 
-import           Test.Cardano.CLI.Util (execCardanoCLI, noteInputFile, propertyOnce)
+import           Test.Cardano.CLI.Util (execCardanoCLI, noteInputFile, propertyOnce, noteTempFile)
 
 import           Hedgehog
+import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Golden as H
@@ -76,3 +77,20 @@ hprop_golden_governance_drep_retirement_certificate =
 
     H.assertFileOccurences 1 "CertificateShelley" certFile
     H.assertFileOccurences 1 "DRep Retirement Certificate" certFile
+
+hprop_golden_governance_drep_metadata_hash :: Property
+hprop_golden_governance_drep_metadata_hash = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  goldenDRepMetadataHash <- noteInputFile "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash"
+
+  drepMetadataFile <- noteTempFile tempDir "drep-metadata.json"
+  H.evalIO $ writeFile drepMetadataFile "{ \"Lorem\": \"ipsum\", \"dolor\": \"sit\", \"amet\": \"consectetur\" }"
+
+  outputDRepMetadataHash <- H.noteTempFile tempDir "drep-metadata-hash.txt"
+
+  void $ execCardanoCLI
+    [ "conway", "governance", "drep","metadata-hash"
+    , "--drep-metadata-file", drepMetadataFile
+    , "--out-file", outputDRepMetadataHash
+    ]
+
+  H.diffFileVsGoldenFile goldenDRepMetadataHash outputDRepMetadataHash

@@ -79,6 +79,7 @@ module Cardano.CLI.Types.Common
   , VoteHashSource(..)
   , WitnessFile(..)
   , WitnessSigningData(..)
+  , DRepMetadataFile
   ) where
 
 import           Cardano.Api
@@ -502,6 +503,8 @@ data MetadataFile = MetadataFileJSON (File () In)
   deriving Show
 
 type StakePoolMetadataFile = File StakePoolMetadata
+
+type DRepMetadataFile = File DRepMetadata
 
 newtype GenesisDir
   = GenesisDir FilePath

@@ -41,6 +41,7 @@ pGovernanceDRepCmds era =
     , pGovernanceDRepKeyIdCmd era
     , pRegistrationCertificateCmd era
     , pRetirementCertificateCmd era
+    , pGovernanceDrepMetadataHashCmd era
     ]
 
 pGovernanceDRepKeyGenCmd :: ()
@@ -122,7 +123,6 @@ pDrepMetadataHash =
     , Opt.help "DRep anchor data hash."
     ]
 
-
 pRetirementCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
@@ -137,6 +137,20 @@ pRetirementCertificateCmd era = do
           <*> pOutputFile
       )
     $ Opt.progDesc "Create a DRep retirement certificate."
+
+pGovernanceDrepMetadataHashCmd :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceDRepCmds era))
+pGovernanceDrepMetadataHashCmd era = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "metadata-hash"
+    $ Opt.info
+        ( GovernanceDRepMetadataHashCmd w
+            <$> pFileInDirection "drep-metadata-file" "JSON Metadata file to hash."
+            <*> pMaybeOutputFile
+            )
+    $ Opt.progDesc "Calculate the hash of a metadata file."
 
 --------------------------------------------------------------------------------
 
