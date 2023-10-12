@@ -46,8 +46,8 @@ data GoveranceActionUpdateCommitteeCmdArgs era
       , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
       , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
       , requiredQuorum          :: !Rational
-      , previousGovActionId     :: !(Maybe (TxId, Word32))
-      , filePath                :: !(File () Out)
+      , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
+      , outFile                 :: !(File () Out)
       } deriving Show
 
 data GovernanceActionCreateConstitutionCmdArgs era
@@ -56,7 +56,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
       , networkId               :: !Ledger.Network
       , deposit                 :: !Lovelace
       , stakeCredential         :: !AnyStakeIdentifier
-      , prevGovActId            :: !(Maybe (TxId, Word32))
+      , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
       , proposalUrl             :: !ProposalUrl
       , proposalHashSource      :: !ProposalHashSource
       , constitutionUrl         :: !ConstitutionUrl
@@ -70,7 +70,7 @@ data GovernanceActionInfoCmdArgs era
       { eon                 :: !(ConwayEraOnwards era)
       , networkId           :: !Ledger.Network
       , deposit             :: !Lovelace
-      , stakeCredential     :: !AnyStakeIdentifier
+      , returnStakeAddress  :: !AnyStakeIdentifier
       , proposalUrl         :: !ProposalUrl
       , proposalHashSource  :: !ProposalHashSource
       , outFile             :: !(File () Out)
@@ -78,15 +78,15 @@ data GovernanceActionInfoCmdArgs era
 
 data GovernanceActionCreateNoConfidenceCmdArgs era
   = GovernanceActionCreateNoConfidenceCmdArgs
-      { eon                 :: !(ConwayEraOnwards era)
-      , networkId           :: !Ledger.Network
-      , deposit             :: !Lovelace
-      , stakeCredential     :: !AnyStakeIdentifier
-      , proposalUrl         :: !ProposalUrl
-      , proposalHashSource  :: !ProposalHashSource
-      , govAct              :: !TxId
-      , govActIndex         :: !Word32
-      , outFile             :: !(File () Out)
+      { eon                   :: !(ConwayEraOnwards era)
+      , networkId             :: !Ledger.Network
+      , deposit               :: !Lovelace
+      , returnStakeAddress    :: !AnyStakeIdentifier
+      , proposalUrl           :: !ProposalUrl
+      , proposalHashSource    :: !ProposalHashSource
+      , governanceActionId    :: !TxId
+      , governanceActionIndex :: !Word32
+      , outFile               :: !(File () Out)
       } deriving Show
 
 data GovernanceActionProtocolParametersUpdateCmdArgs era
@@ -102,12 +102,12 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
       { eon                 :: !(ConwayEraOnwards era)
       , networkId           :: !Ledger.Network
-      , deposit             :: !Lovelace -- ^ Deposit
-      , returnAddr          :: !AnyStakeIdentifier -- ^ Return address
+      , deposit             :: !Lovelace
+      , returnAddr          :: !AnyStakeIdentifier
       , proposalUrl         :: !ProposalUrl
       , proposalHashSource  :: !ProposalHashSource
       , treasuryWithdrawal  :: ![(AnyStakeIdentifier, Lovelace)]
-      , filePath            :: !(File () Out)
+      , outFile             :: !(File () Out)
       } deriving Show
 
 renderGovernanceActionCmds :: GovernanceActionCmds era -> Text
