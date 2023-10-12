@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Transaction
@@ -41,137 +42,150 @@ data TransactionCmds era
   | TransactionViewCmd                !TransactionViewCmdArgs
 
 data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
-  (CardanoEra era)
-  (Maybe ScriptValidity)
-  -- ^ Mark script as expected to pass or fail validation
-  [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
-  -- ^ Transaction inputs with optional spending scripts
-  [TxIn]
-  -- ^ Read only reference inputs
-  [TxIn]
-  -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
-  (Maybe TxOutAnyEra)
-  -- ^ Return collateral
-  (Maybe Lovelace)
-  -- ^ Total collateral
-  [RequiredSigner]
-  -- ^ Required signers
-  [TxOutAnyEra]
-  (Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
-  -- ^ Multi-Asset value with script witness
-  (Maybe SlotNo)
-  -- ^ Transaction validity lower bound
-  (Maybe SlotNo)
-  -- ^ Transaction validity upper bound
-  (Maybe Lovelace)
-  -- ^ Transaction fee
-  [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
-  -- ^ Certificates with potential script witness
-  [(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
-  TxMetadataJsonSchema
-  [ScriptFile]
-  -- ^ Auxiliary scripts
-  [MetadataFile]
-  (Maybe ProtocolParamsFile)
-  (Maybe UpdateProposalFile)
-  [VoteFile In]
-  [ProposalFile In]
-  (TxBodyFile Out)
+  { eon                   :: !(CardanoEra era)
+  , mScriptValidity       :: !(Maybe ScriptValidity)
+    -- ^ Mark script as expected to pass or fail validation
+  , txIns                 :: ![(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+    -- ^ Transaction inputs with optional spending scripts
+  , readOnlyRefIns        :: ![TxIn]
+    -- ^ Read only reference inputs
+  , txInsCollateral       :: ![TxIn]
+    -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
+  , mReturnCollateral     :: !(Maybe TxOutAnyEra)
+    -- ^ Return collateral
+  , mTotalCollateral      :: !(Maybe Lovelace)
+    -- ^ Total collateral
+  , requiredSigners       :: ![RequiredSigner]
+    -- ^ Required signers
+  , txouts                :: ![TxOutAnyEra]
+  , mValue                :: !(Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
+    -- ^ Multi-Asset value with script witness
+  , mValidityLowerBound   :: !(Maybe SlotNo)
+    -- ^ Transaction validity lower bound
+  , mValidityUpperBound   :: !(Maybe SlotNo)
+    -- ^ Transaction validity upper bound
+  , fee                   :: !(Maybe Lovelace)
+    -- ^ Transaction fee
+  , certificates          :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+    -- ^ Certificates with potential script witness
+  , withdrawals           :: ![(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , metadataSchema        :: !TxMetadataJsonSchema
+  , scriptFiles           :: ![ScriptFile]
+    -- ^ Auxiliary scripts
+  , metadataFiles         :: ![MetadataFile]
+  , mProtocolParamsFile   :: !(Maybe ProtocolParamsFile)
+  , mUpdateProprosalFile  :: !(Maybe UpdateProposalFile)
+  , voteFiles             :: ![VoteFile In]
+  , proposalFiles         :: ![ProposalFile In]
+  , out                   :: !(TxBodyFile Out)
+  } deriving Show
 
 -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
 data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
-  (CardanoEra era)
-  SocketPath
-  AnyConsensusModeParams
-  NetworkId
-  (Maybe ScriptValidity) -- ^ Mark script as expected to pass or fail validation
-  (Maybe Word)
-  -- ^ Override the required number of tx witnesses
-  [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
-  -- ^ Transaction inputs with optional spending scripts
-  [TxIn]
-  -- ^ Read only reference inputs
-  [RequiredSigner]
-  -- ^ Required signers
-  [TxIn]
-  -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
-  (Maybe TxOutAnyEra)
-  -- ^ Return collateral
-  (Maybe Lovelace)
-  -- ^ Total collateral
-  [TxOutAnyEra]
-  -- ^ Normal outputs
-  TxOutChangeAddress
-  -- ^ A change output
-  (Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
-  -- ^ Multi-Asset value with script witness
-  (Maybe SlotNo)
-  -- ^ Transaction validity lower bound
-  (Maybe SlotNo)
-  -- ^ Transaction validity upper bound
-  [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
-  -- ^ Certificates with potential script witness
-  [(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
-  -- ^ Withdrawals with potential script witness
-  TxMetadataJsonSchema
-  [ScriptFile]
-  -- ^ Auxiliary scripts
-  [MetadataFile]
-  (Maybe UpdateProposalFile)
-  [VoteFile In]
-  [ProposalFile In]
-  TxBuildOutputOptions
+  { eon                     :: !(CardanoEra era)
+  , nodeSocketPath          :: !SocketPath
+  , consensusModeParams     :: !AnyConsensusModeParams
+  , networkId               :: !NetworkId
+  , mScriptValidity         :: !(Maybe ScriptValidity)
+    -- ^ Mark script as expected to pass or fail validation
+  , mOverrideWitnesses      :: !(Maybe Word)
+    -- ^ Override the required number of tx witnesses
+  , txins                   :: ![(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+    -- ^ Transaction inputs with optional spending scripts
+  , readOnlyReferenceInputs :: ![TxIn]
+    -- ^ Read only reference inputs
+  , requiredSigners         :: ![RequiredSigner]
+    -- ^ Required signers
+  , txinsc                  :: ![TxIn]
+    -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
+  , mReturnCollateral       :: !(Maybe TxOutAnyEra)
+    -- ^ Return collateral
+  , mTotalCollateral        :: !(Maybe Lovelace)
+    -- ^ Total collateral
+  , txouts                  :: ![TxOutAnyEra]
+    -- ^ Normal outputs
+  , changeAddresses         :: !TxOutChangeAddress
+    -- ^ A change output
+  , mValue                  :: !(Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
+    -- ^ Multi-Asset value with script witness
+  , mValidityLowerBound     :: !(Maybe SlotNo)
+    -- ^ Transaction validity lower bound
+  , mValidityUpperBound     :: !(Maybe SlotNo)
+    -- ^ Transaction validity upper bound
+  , certificates            :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+    -- ^ Certificates with potential script witness
+  , withdrawals             :: ![(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
+    -- ^ Withdrawals with potential script witness
+  , metadataSchema          :: !TxMetadataJsonSchema
+  , scriptFiles             :: ![ScriptFile]
+    -- ^ Auxiliary scripts
+  , metadataFiles           :: ![MetadataFile]
+  , mUpdateProposalFile     :: !(Maybe UpdateProposalFile)
+  , voteFiles               :: ![VoteFile In]
+  , proposalFiles           :: ![ProposalFile In]
+  , buildOutputOptions      :: !TxBuildOutputOptions
+  } deriving Show
 
 data TransactionSignCmdArgs = TransactionSignCmdArgs
-  InputTxBodyOrTxFile
-  [WitnessSigningData]
-  (Maybe NetworkId)
-  (TxFile Out)
+  { txOrTxBodyFile      :: !InputTxBodyOrTxFile
+  , witnessSigningData  :: ![WitnessSigningData]
+  , mNetworkId          :: !(Maybe NetworkId)
+  , outTxFile           :: !(TxFile Out)
+  } deriving Show
 
 data TransactionWitnessCmdArgs = TransactionWitnessCmdArgs
-  (TxBodyFile In)
-  WitnessSigningData
-  (Maybe NetworkId)
-  (File () Out)
+  { txBodyFile          :: !(TxBodyFile In)
+  , witnessSigningData  :: !WitnessSigningData
+  , mNetworkId          :: !(Maybe NetworkId)
+  , outFile             :: !(File () Out)
+  } deriving Show
 
 data TransactionSignWitnessCmdArgs = TransactionSignWitnessCmdArgs
-  (TxBodyFile In)
-  [WitnessFile]
-  (File () Out)
+  { txBodyFile    :: !(TxBodyFile In)
+  , witnessFiles  :: ![WitnessFile]
+  , outFile       :: !(File () Out)
+  } deriving Show
 
 data TransactionSubmitCmdArgs = TransactionSubmitCmdArgs
-  SocketPath
-  AnyConsensusModeParams
-  NetworkId
-  FilePath
+  { nodeSocketPath          :: !SocketPath
+  , anyConsensusModeParams  :: !AnyConsensusModeParams
+  , networkId               :: !NetworkId
+  , txFile                  :: !FilePath
+  } deriving Show
 
 newtype TransactionPolicyIdCmdArgs = TransactionPolicyIdCmdArgs
-  ScriptFile
+  { scriptFile  :: ScriptFile
+  } deriving Show
 
 data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
-  (TxBodyFile In)
-  NetworkId
-  ProtocolParamsFile
-  TxInCount
-  TxOutCount
-  TxShelleyWitnessCount
-  TxByronWitnessCount
+  { txBodyFile            :: !(TxBodyFile In)
+  , networkId             :: !NetworkId
+  , protocolParamsFile    :: !ProtocolParamsFile
+  , txInCount             :: !TxInCount
+  , txOutCount            :: !TxOutCount
+  , txShelleyWitnessCount :: !TxShelleyWitnessCount
+  , txByronWitnessCount   :: !TxByronWitnessCount
+  } deriving Show
 
 data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdArgs
-  (CardanoEra era)
-  ProtocolParamsFile
-  TxOutAnyEra
+  { eon                 :: !(CardanoEra era)
+  , protocolParamsFile  :: !ProtocolParamsFile
+  , txOut               :: !TxOutAnyEra
+  } deriving Show
 
 newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
-  ScriptDataOrFile
+  { scriptDataOrFile  :: ScriptDataOrFile
+  } deriving Show
 
 newtype TransactionTxIdCmdArgs = TransactionTxIdCmdArgs
-  InputTxBodyOrTxFile
+  { inputTxBodyOrTxFile :: InputTxBodyOrTxFile
+  } deriving Show
 
 data TransactionViewCmdArgs = TransactionViewCmdArgs
-  TxViewOutputFormat
-  (Maybe (File () Out))
-  InputTxBodyOrTxFile
+  { outputFormat        :: !TxViewOutputFormat
+  , mOutFile            :: !(Maybe (File () Out))
+  , inputTxBodyOrTxFile :: !InputTxBodyOrTxFile
+  } deriving Show
 
 renderTransactionCmds :: TransactionCmds era -> Text
 renderTransactionCmds = \case
