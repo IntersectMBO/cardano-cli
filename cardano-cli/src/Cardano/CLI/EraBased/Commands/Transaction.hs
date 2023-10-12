@@ -77,7 +77,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , mUpdateProprosalFile  :: !(Maybe UpdateProposalFile)
   , voteFiles             :: ![VoteFile In]
   , proposalFiles         :: ![ProposalFile In]
-  , out                   :: !(TxBodyFile Out)
+  , txBodyOutFile         :: !(TxBodyFile Out)
   } deriving Show
 
 -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
