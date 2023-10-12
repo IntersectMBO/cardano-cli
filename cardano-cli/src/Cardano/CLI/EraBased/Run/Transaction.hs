@@ -12,18 +12,18 @@
 
 module Cardano.CLI.EraBased.Run.Transaction
   ( runTransactionCmds
-  , runTxBuildCmd
-  , runTxBuildRawCmd
-  , runTxSignCmd
-  , runTxSubmitCmd
-  , runTxCalculateMinFeeCmd
-  , runTxCalculateMinRequiredUTxOCmd
-  , runTxCreatePolicyIdCmd
-  , runTxHashScriptDataCmd
-  , runTxGetTxIdCmd
-  , runTxViewCmd
-  , runTxCreateWitnessCmd
-  , runTxSignWitnessCmd
+  , runTransactionBuildCmd
+  , runTransactionBuildRawCmd
+  , runTransactionSignCmd
+  , runTransactionSubmitCmd
+  , runTransactionCalculateMinFeeCmd
+  , runTransactionCalculateMinValueCmd
+  , runTransactionPolicyIdCmd
+  , runTransactionHashScriptDataCmd
+  , runTransactionTxIdCmd
+  , runTransactionViewCmd
+  , runTransactionWitnessCmd
+  , runTransactionSignWitnessCmd
   ) where
 
 import           Cardano.Api
@@ -81,7 +81,7 @@ runTransactionCmds = \case
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
         mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp voteFiles
         proposalFiles outputOptions ->
-      runTxBuildCmd
+      runTransactionBuildCmd
         era mNodeSocketPath consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
         mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp voteFiles
@@ -92,37 +92,37 @@ runTransactionCmds = \case
         metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp
         voteFiles proposalFiles
         out ->
-      runTxBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+      runTransactionBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
         mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
         metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp
         voteFiles proposalFiles
         out
   TransactionSignCmd txinfile skfiles network txoutfile ->
-      runTxSignCmd txinfile skfiles network txoutfile
+      runTransactionSignCmd txinfile skfiles network txoutfile
   TransactionSubmitCmd mNodeSocketPath anyConsensusModeParams network txFp ->
-      runTxSubmitCmd mNodeSocketPath anyConsensusModeParams network txFp
+      runTransactionSubmitCmd mNodeSocketPath anyConsensusModeParams network txFp
   TransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
-      runTxCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
+      runTransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
   TransactionCalculateMinValueCmd era pParamsFile txOuts ->
-      runTxCalculateMinRequiredUTxOCmd era pParamsFile txOuts
+      runTransactionCalculateMinValueCmd era pParamsFile txOuts
   TransactionHashScriptDataCmd scriptDataOrFile ->
-      runTxHashScriptDataCmd scriptDataOrFile
+      runTransactionHashScriptDataCmd scriptDataOrFile
   TransactionTxIdCmd txinfile ->
-      runTxGetTxIdCmd txinfile
+      runTransactionTxIdCmd txinfile
   TransactionViewCmd outFormat mOutFile txinfile ->
-      runTxViewCmd outFormat mOutFile txinfile
+      runTransactionViewCmd outFormat mOutFile txinfile
   TransactionPolicyIdCmd sFile ->
-      runTxCreatePolicyIdCmd sFile
+      runTransactionPolicyIdCmd sFile
   TransactionWitnessCmd txBodyfile witSignData mbNw outFile ->
-      runTxCreateWitnessCmd txBodyfile witSignData mbNw outFile
+      runTransactionWitnessCmd txBodyfile witSignData mbNw outFile
   TransactionSignWitnessCmd txBodyFile witnessFile outFile ->
-      runTxSignWitnessCmd txBodyFile witnessFile outFile
+      runTransactionSignWitnessCmd txBodyFile witnessFile outFile
 
 -- ----------------------------------------------------------------------------
 -- Building transactions
 --
 
-runTxBuildCmd :: ()
+runTransactionBuildCmd :: ()
   => CardanoEra era
   -> SocketPath
   -> AnyConsensusModeParams
@@ -150,7 +150,7 @@ runTxBuildCmd :: ()
   -> [ProposalFile In]
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO ()
-runTxBuildCmd
+runTransactionBuildCmd
     era socketPath consensusModeParams@(AnyConsensusModeParams cModeParams) nid
     mScriptValidity mOverrideWits txins readOnlyRefIns reqSigners txinsc mReturnColl mTotCollateral txouts
     changeAddr mValue mLowBound mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp
@@ -286,7 +286,7 @@ getExecutionUnitPrices cEra (LedgerProtocolParameters pp) = do
     ShelleyBasedEraBabbage -> Just $ pp ^. Ledger.ppPricesL
     ShelleyBasedEraConway -> Just $ pp ^. Ledger.ppPricesL
 
-runTxBuildRawCmd
+runTransactionBuildRawCmd
   :: CardanoEra era
   -> Maybe ScriptValidity
   -> [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
@@ -311,7 +311,7 @@ runTxBuildRawCmd
   -> [ProposalFile In]
   -> TxBodyFile Out
   -> ExceptT TxCmdError IO ()
-runTxBuildRawCmd
+runTransactionBuildRawCmd
   era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
   mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
   metadataSchema scriptFiles metadataFiles mpParamsFile mUpProp
@@ -905,13 +905,13 @@ readValueScriptWitnesses era (v, sWitFiles) = do
 -- Transaction signing
 --
 
-runTxSignCmd :: ()
+runTransactionSignCmd :: ()
   => InputTxBodyOrTxFile
   -> [WitnessSigningData]
   -> Maybe NetworkId
   -> TxFile Out
   -> ExceptT TxCmdError IO ()
-runTxSignCmd txOrTxBody witSigningData mnw outTxFile = do
+runTransactionSignCmd txOrTxBody witSigningData mnw outTxFile = do
   sks <-  mapM (firstExceptT TxCmdReadWitnessSigningDataError . newExceptT . readWitnessSigningData) witSigningData
 
   let (sksByron, sksShelley) = partitionSomeWitnesses $ map categoriseSomeSigningWitness sks
@@ -981,13 +981,13 @@ runTxSignCmd txOrTxBody witSigningData mnw outTxFile = do
 -- Transaction submission
 --
 
-runTxSubmitCmd :: ()
+runTransactionSubmitCmd :: ()
   => SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
   -> FilePath
   -> ExceptT TxCmdError IO ()
-runTxSubmitCmd socketPath (AnyConsensusModeParams cModeParams) network txFilePath = do
+runTransactionSubmitCmd socketPath (AnyConsensusModeParams cModeParams) network txFilePath = do
     txFile <- liftIO $ fileOrPipe txFilePath
     InAnyCardanoEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdCddlError)
     let cMode = AnyConsensusMode $ consensusModeOnly cModeParams
@@ -1013,7 +1013,7 @@ runTxSubmitCmd socketPath (AnyConsensusModeParams cModeParams) network txFilePat
 -- Transaction fee calculation
 --
 
-runTxCalculateMinFeeCmd :: ()
+runTransactionCalculateMinFeeCmd :: ()
   => TxBodyFile In
   -> NetworkId
   -> ProtocolParamsFile
@@ -1022,7 +1022,7 @@ runTxCalculateMinFeeCmd :: ()
   -> TxShelleyWitnessCount
   -> TxByronWitnessCount
   -> ExceptT TxCmdError IO ()
-runTxCalculateMinFeeCmd (File txbodyFilePath) nw pParamsFile
+runTransactionCalculateMinFeeCmd (File txbodyFilePath) nw pParamsFile
                      (TxInCount nInputs) (TxOutCount nOutputs)
                      (TxShelleyWitnessCount nShelleyKeyWitnesses)
                      (TxByronWitnessCount nByronKeyWitnesses) = do
@@ -1067,16 +1067,16 @@ runTxCalculateMinFeeCmd (File txbodyFilePath) nw pParamsFile
 -- Transaction fee calculation
 --
 
-runTxCalculateMinRequiredUTxOCmd :: ()
+runTransactionCalculateMinValueCmd :: ()
   => CardanoEra era
   -> ProtocolParamsFile
   -> TxOutAnyEra
   -> ExceptT TxCmdError IO ()
-runTxCalculateMinRequiredUTxOCmd era pParamsFile txOut = do
+runTransactionCalculateMinValueCmd era pParamsFile txOut = do
   pp <- firstExceptT TxCmdProtocolParamsError (readProtocolParameters pParamsFile)
   out <- toTxOutInAnyEra era txOut
   case cardanoEraStyle era of
-    LegacyByronEra -> error "runTxCalculateMinRequiredUTxOCmd: Byron era not implemented yet"
+    LegacyByronEra -> error "runTransactionCalculateMinValueCmd: Byron era not implemented yet"
     ShelleyBasedEra sbe -> do
       firstExceptT TxCmdPParamsErr . hoistEither
         $ checkProtocolParameters sbe pp
@@ -1084,8 +1084,8 @@ runTxCalculateMinRequiredUTxOCmd era pParamsFile txOut = do
       let minValue = calculateMinimumUTxO sbe out pp'
       liftIO . IO.print $ minValue
 
-runTxCreatePolicyIdCmd :: ScriptFile -> ExceptT TxCmdError IO ()
-runTxCreatePolicyIdCmd (ScriptFile sFile) = do
+runTransactionPolicyIdCmd :: ScriptFile -> ExceptT TxCmdError IO ()
+runTransactionPolicyIdCmd (ScriptFile sFile) = do
   ScriptInAnyLang _ script <- firstExceptT TxCmdScriptFileError $
                                 readFileScriptInAnyLang sFile
   liftIO . Text.putStrLn . serialiseToRawBytesHexText $ hashScript script
@@ -1142,17 +1142,17 @@ mkShelleyBootstrapWitnesses mnw txBody =
 -- Other misc small commands
 --
 
-runTxHashScriptDataCmd :: ()
+runTransactionHashScriptDataCmd :: ()
   => ScriptDataOrFile
   -> ExceptT TxCmdError IO ()
-runTxHashScriptDataCmd scriptDataOrFile = do
+runTransactionHashScriptDataCmd scriptDataOrFile = do
     d <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile scriptDataOrFile
     liftIO $ BS.putStrLn $ serialiseToRawBytesHex (hashScriptDataBytes d)
 
-runTxGetTxIdCmd :: ()
+runTransactionTxIdCmd :: ()
   => InputTxBodyOrTxFile
   -> ExceptT TxCmdError IO ()
-runTxGetTxIdCmd txfile = do
+runTransactionTxIdCmd txfile = do
     InAnyCardanoEra _era txbody <-
       case txfile of
         InputTxBodyFile (File txbodyFilePath) -> do
@@ -1171,12 +1171,12 @@ runTxGetTxIdCmd txfile = do
 
     liftIO $ BS.putStrLn $ serialiseToRawBytesHex (getTxId txbody)
 
-runTxViewCmd :: ()
+runTransactionViewCmd :: ()
   => TxViewOutputFormat
   -> Maybe (File () Out)
   -> InputTxBodyOrTxFile
   -> ExceptT TxCmdError IO ()
-runTxViewCmd yamlOrJson mOutFile = \case
+runTransactionViewCmd yamlOrJson mOutFile = \case
   InputTxBodyFile (File txbodyFilePath) -> do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     unwitnessed <- firstExceptT TxCmdCddlError . newExceptT
@@ -1208,13 +1208,13 @@ runTxViewCmd yamlOrJson mOutFile = \case
 -- Witness commands
 --
 
-runTxCreateWitnessCmd :: ()
+runTransactionWitnessCmd :: ()
   => TxBodyFile In
   -> WitnessSigningData
   -> Maybe NetworkId
   -> File () Out
   -> ExceptT TxCmdError IO ()
-runTxCreateWitnessCmd (File txbodyFilePath) witSignData mbNw oFile = do
+runTransactionWitnessCmd (File txbodyFilePath) witSignData mbNw oFile = do
   txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
   unwitnessed <- firstExceptT TxCmdCddlError . newExceptT
                    $ readFileTxBody txbodyFile
@@ -1262,12 +1262,12 @@ runTxCreateWitnessCmd (File txbodyFilePath) witSignData mbNw oFile = do
         $ writeLazyByteStringFile oFile
         $ textEnvelopeToJSON Nothing witness
 
-runTxSignWitnessCmd :: ()
+runTransactionSignWitnessCmd :: ()
   => TxBodyFile In
   -> [WitnessFile]
   -> File () Out
   -> ExceptT TxCmdError IO ()
-runTxSignWitnessCmd (File txbodyFilePath) witnessFiles oFp = do
+runTransactionSignWitnessCmd (File txbodyFilePath) witnessFiles oFp = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     unwitnessed <- firstExceptT TxCmdCddlError . newExceptT
                      $ readFileTxBody txbodyFile

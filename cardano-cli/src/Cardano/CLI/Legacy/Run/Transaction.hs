@@ -89,7 +89,7 @@ runLegacyTransactionBuildCmd :: ()
   -> [ProposalFile In]
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO ()
-runLegacyTransactionBuildCmd socketPath (AnyCardanoEra era) = runTxBuildCmd era socketPath
+runLegacyTransactionBuildCmd socketPath (AnyCardanoEra era) = runTransactionBuildCmd era socketPath
 
 runLegacyTransactionBuildRawCmd :: ()
   => AnyCardanoEra
@@ -118,7 +118,7 @@ runLegacyTransactionBuildRawCmd
     (AnyCardanoEra era) mScriptValidity txins readOnlyRefIns txinsc mReturnColl
     mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
     metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp =
-  runTxBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+  runTransactionBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
     mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
     metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp [] []
 
@@ -127,7 +127,7 @@ runLegacyTransactionSignCmd :: InputTxBodyOrTxFile
           -> Maybe NetworkId
           -> TxFile Out
           -> ExceptT TxCmdError IO ()
-runLegacyTransactionSignCmd = runTxSignCmd
+runLegacyTransactionSignCmd = runTransactionSignCmd
 
 runLegacyTransactionSubmitCmd :: ()
   => SocketPath
@@ -135,7 +135,7 @@ runLegacyTransactionSubmitCmd :: ()
   -> NetworkId
   -> FilePath
   -> ExceptT TxCmdError IO ()
-runLegacyTransactionSubmitCmd = runTxSubmitCmd
+runLegacyTransactionSubmitCmd = runTransactionSubmitCmd
 
 runLegacyTransactionCalculateMinFeeCmd :: ()
   => TxBodyFile In
@@ -146,26 +146,26 @@ runLegacyTransactionCalculateMinFeeCmd :: ()
   -> TxShelleyWitnessCount
   -> TxByronWitnessCount
   -> ExceptT TxCmdError IO ()
-runLegacyTransactionCalculateMinFeeCmd = runTxCalculateMinFeeCmd
+runLegacyTransactionCalculateMinFeeCmd = runTransactionCalculateMinFeeCmd
 
 runLegacyTransactionCalculateMinValueCmd :: ()
   => AnyCardanoEra
   -> ProtocolParamsFile
   -> TxOutAnyEra
   -> ExceptT TxCmdError IO ()
-runLegacyTransactionCalculateMinValueCmd (AnyCardanoEra era) = runTxCalculateMinRequiredUTxOCmd era
+runLegacyTransactionCalculateMinValueCmd (AnyCardanoEra era) = runTransactionCalculateMinValueCmd era
 
 runLegacyTransactionPolicyIdCmd :: ScriptFile -> ExceptT TxCmdError IO ()
-runLegacyTransactionPolicyIdCmd = runTxCreatePolicyIdCmd
+runLegacyTransactionPolicyIdCmd = runTransactionPolicyIdCmd
 
 runLegacyTransactionHashScriptDataCmd :: ScriptDataOrFile -> ExceptT TxCmdError IO ()
-runLegacyTransactionHashScriptDataCmd = runTxHashScriptDataCmd
+runLegacyTransactionHashScriptDataCmd = runTransactionHashScriptDataCmd
 
 runLegacyTransactionTxIdCmd :: InputTxBodyOrTxFile -> ExceptT TxCmdError IO ()
-runLegacyTransactionTxIdCmd = runTxGetTxIdCmd
+runLegacyTransactionTxIdCmd = runTransactionTxIdCmd
 
 runLegacyTransactionViewCmd :: TxViewOutputFormat -> Maybe (File () Out) -> InputTxBodyOrTxFile -> ExceptT TxCmdError IO ()
-runLegacyTransactionViewCmd = runTxViewCmd
+runLegacyTransactionViewCmd = runTransactionViewCmd
 
 runLegacyTransactionWitnessCmd :: ()
   => TxBodyFile In
@@ -173,11 +173,11 @@ runLegacyTransactionWitnessCmd :: ()
   -> Maybe NetworkId
   -> File () Out
   -> ExceptT TxCmdError IO ()
-runLegacyTransactionWitnessCmd = runTxCreateWitnessCmd
+runLegacyTransactionWitnessCmd = runTransactionWitnessCmd
 
 runLegacyTransactionSignWitnessCmd :: ()
   => TxBodyFile In
   -> [WitnessFile]
   -> File () Out
   -> ExceptT TxCmdError IO ()
-runLegacyTransactionSignWitnessCmd = runTxSignWitnessCmd
+runLegacyTransactionSignWitnessCmd = runTransactionSignWitnessCmd
