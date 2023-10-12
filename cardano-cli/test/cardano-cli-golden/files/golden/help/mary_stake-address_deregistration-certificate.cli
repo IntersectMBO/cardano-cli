@@ -4,7 +4,6 @@ Usage: cardano-cli mary stake-address deregistration-certificate
                                                                    | --stake-script-file FILE
                                                                    | --stake-address ADDRESS
                                                                    )
-                                                                   [--key-reg-deposit-amt NATURAL]
                                                                    --out-file FILE
 
   Create a stake address deregistration certificate
@@ -16,7 +15,5 @@ Available options:
                            Filepath of the staking verification key.
   --stake-script-file FILE Filepath of the staking script.
   --stake-address ADDRESS  Target stake address (bech32 format).
-  --key-reg-deposit-amt NATURAL
-                           Key registration deposit amount.
   --out-file FILE          The output file.
   -h,--help                Show this help text

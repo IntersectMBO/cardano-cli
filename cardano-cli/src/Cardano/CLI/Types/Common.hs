@@ -85,7 +85,6 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Chain.Slotting as Byron
-import           Cardano.Ledger.BaseTypes (AnchorData (AnchorData))
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Crypto as Crypto
 import qualified Cardano.Ledger.SafeHash as L
