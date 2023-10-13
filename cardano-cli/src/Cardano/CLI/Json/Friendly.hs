@@ -101,7 +101,7 @@ friendlyProposal format mOutFile era =
   conwayEraOnwardsConstraints era $
     friendly format mOutFile . object . friendlyProposalImpl era
 
-friendlyProposalImpl :: IsCardanoEra era => ConwayEraOnwards era -> Proposal era -> [Aeson.Pair]
+friendlyProposalImpl :: ConwayEraOnwards era -> Proposal era -> [Aeson.Pair]
 friendlyProposalImpl
   era
   (Proposal
