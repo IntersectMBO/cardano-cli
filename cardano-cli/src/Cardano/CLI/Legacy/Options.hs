@@ -854,7 +854,7 @@ pGovernanceCmds envCli =
     pGovernanceGenesisKeyDelegationCertificate :: Parser LegacyGovernanceCmds
     pGovernanceGenesisKeyDelegationCertificate =
       GovernanceGenesisKeyDelegationCertificate
-        <$> pAnyShelleyBasedEra envCli
+        <$> pAnyShelleyToBabbageEra envCli
         <*> pGenesisVerificationKeyOrHashOrFile
         <*> pGenesisDelegateVerificationKeyOrHashOrFile
         <*> pVrfVerificationKeyOrHashOrFile

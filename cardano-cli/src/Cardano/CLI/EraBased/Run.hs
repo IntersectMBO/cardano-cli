@@ -74,6 +74,15 @@ runCmds = \case
     runTransactionCmds cmd
       & firstExceptT CmdTransactionError
 
+-- TODO smelc Move me to cardano-api. Or is there another way? I'd be surprised
+-- this is the first time we need this.
+shelleyToAlonzoEraToShelleyToBabbageEra :: ShelleyToAlonzoEra era -> ShelleyToBabbageEra era
+shelleyToAlonzoEraToShelleyToBabbageEra = \case
+  ShelleyToAlonzoEraShelley -> ShelleyToBabbageEraShelley
+  ShelleyToAlonzoEraAllegra -> ShelleyToBabbageEraAllegra
+  ShelleyToAlonzoEraMary -> ShelleyToBabbageEraMary
+  ShelleyToAlonzoEraAlonzo -> ShelleyToBabbageEraAlonzo
+
 runGovernanceCmds :: ()
   => GovernanceCmds era
   -> ExceptT CmdError IO ()
@@ -87,8 +96,8 @@ runGovernanceCmds = \case
       & firstExceptT CmdGovernanceCmdError
 
   GovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
-    let sbe = shelleyToAlonzoEraToShelleyBasedEra sta in
-    runGovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out
+    let stb = shelleyToAlonzoEraToShelleyToBabbageEra sta in
+    runGovernanceGenesisKeyDelegationCertificate stb genVk genDelegVk vrfVk out
       & firstExceptT CmdGovernanceCmdError
 
   GovernanceCommitteeCmds cmds ->

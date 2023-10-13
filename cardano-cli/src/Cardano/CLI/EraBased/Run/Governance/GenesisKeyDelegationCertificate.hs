@@ -16,13 +16,13 @@ import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 
 runGovernanceGenesisKeyDelegationCertificate
-  :: ShelleyBasedEra era
+  :: ShelleyToBabbageEra era
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceGenesisKeyDelegationCertificate sbe
+runGovernanceGenesisKeyDelegationCertificate stb
                                              genVkOrHashOrFp
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
@@ -37,26 +37,14 @@ runGovernanceGenesisKeyDelegationCertificate sbe
     . newExceptT
     $ readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
 
-  req <- hoistEither $ createGenesisDelegationRequirements sbe genesisVkHash genesisDelVkHash vrfVkHash
-  let genKeyDelegCert = makeGenesisKeyDelegationCertificate req
+  let req = GenesisKeyDelegationRequirements stb genesisVkHash genesisDelVkHash vrfVkHash
+      genKeyDelegCert = makeGenesisKeyDelegationCertificate req
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
     $ writeLazyByteStringFile oFp
-    $ shelleyBasedEraConstraints sbe
+    $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra stb)
     $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Genesis Key Delegation Certificate"
-
-createGenesisDelegationRequirements
-  :: ShelleyBasedEra era
-  -> Hash GenesisKey
-  -> Hash GenesisDelegateKey
-  -> Hash VrfKey
-  -> Either GovernanceCmdError (GenesisKeyDelegationRequirements era)
-createGenesisDelegationRequirements sbe hGen hGenDeleg hVrf =
-  caseShelleyToBabbageOrConwayEraOnwards
-      (\eon -> return $ GenesisKeyDelegationRequirements eon hGen hGenDeleg hVrf)
-      (const $ Left GovernanceCmdGenesisDelegationNotSupportedInConway)
-      sbe
