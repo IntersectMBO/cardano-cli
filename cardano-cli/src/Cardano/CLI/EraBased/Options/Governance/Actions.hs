@@ -37,7 +37,24 @@ pGovernanceActionCmds era =
     , pGovernanceActionNoConfidenceCmd era
     , pGovernanceActionProtocolParametersUpdateCmd era
     , pGovernanceActionTreasuryWithdrawalCmd era
+    , pGovernanceActionViewCmd era
     ]
+
+pGovernanceActionViewCmd
+  :: CardanoEra era
+  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionViewCmd era = do
+  eon <- forEraMaybeEon era
+  return
+    $ subParser "view"
+    $ Opt.info
+        ( fmap Cmd.GovernanceActionViewCmd
+            $ Cmd.GovernanceActionViewCmdArgs eon
+                <$> pFileInDirection "action-file" "Path to action file."
+                <*> pGovernanceActionViewOutputFormat
+                <*> pMaybeOutputFile
+        )
+    $ Opt.progDesc "View a governance action."
 
 pGovernanceActionNewInfoCmd
   :: CardanoEra era

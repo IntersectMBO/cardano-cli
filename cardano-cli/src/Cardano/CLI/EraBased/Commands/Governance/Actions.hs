@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   , GovernanceActionCreateConstitutionCmdArgs(..)
   , GovernanceActionCreateNoConfidenceCmdArgs(..)
   , GovernanceActionInfoCmdArgs(..)
+  , GovernanceActionViewCmdArgs(..)
   , GovernanceActionProtocolParametersUpdateCmdArgs(..)
   , GovernanceActionTreasuryWithdrawalCmdArgs(..)
   , renderGovernanceActionCmds
@@ -33,6 +34,7 @@ data GovernanceActionCmds era
   | GovernanceActionProtocolParametersUpdateCmd   !(GovernanceActionProtocolParametersUpdateCmdArgs era)
   | GovernanceActionTreasuryWithdrawalCmd         !(GovernanceActionTreasuryWithdrawalCmdArgs era)
   | GovernanceActionInfoCmd                       !(GovernanceActionInfoCmdArgs era)
+  | GovernanceActionViewCmd                       !(GovernanceActionViewCmdArgs era)
   deriving Show
 
 data GoveranceActionUpdateCommitteeCmdArgs era
@@ -110,6 +112,14 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
       , outFile             :: !(File () Out)
       } deriving Show
 
+data GovernanceActionViewCmdArgs era
+  = GovernanceActionViewCmdArgs
+      { eon        :: !(ConwayEraOnwards era)
+      , actionFile :: !(ProposalFile In)
+      , outFormat  :: !GovernanceActionViewOutputFormat
+      , mOutFile   :: !(Maybe (File () Out))
+      } deriving Show
+
 renderGovernanceActionCmds :: GovernanceActionCmds era -> Text
 renderGovernanceActionCmds = ("governance action " <>) . \case
   GovernanceActionCreateConstitutionCmd {} ->
@@ -129,6 +139,9 @@ renderGovernanceActionCmds = ("governance action " <>) . \case
 
   GovernanceActionInfoCmd {} ->
     "create-info"
+
+  GovernanceActionViewCmd {} ->
+    "view"
 
 data AnyStakeIdentifier
   = AnyStakeKey (VerificationKeyOrHashOrFile StakeKey)

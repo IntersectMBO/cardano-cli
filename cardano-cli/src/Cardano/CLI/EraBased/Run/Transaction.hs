@@ -34,7 +34,7 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis
-import           Cardano.CLI.Json.Friendly (friendlyTxBody, friendlyTx, FriendlyFormat (..))
+import           Cardano.CLI.Json.Friendly (FriendlyFormat (..), friendlyTx, friendlyTxBody)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
