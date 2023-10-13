@@ -12,6 +12,11 @@
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Json.Friendly (friendlyTxYaml, friendlyTxBodyYaml, friendlyTxJson, friendlyTxBodyJson) where
+module Cardano.CLI.Json.Friendly
+  ( friendlyTx
+  , friendlyTxBody
+  , FriendlyFormat(..)
+  ) where
 
 import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
@@ -45,67 +50,48 @@ import           GHC.Unicode (isAlphaNum)
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import Control.Monad.Trans (MonadIO)
 
+data FriendlyFormat = FriendlyJson | FriendlyYaml
+
+friendly ::
+  (MonadIO m, Aeson.ToJSON a)
+  => FriendlyFormat
+  -> Maybe (File () Out)
+  -> a
+  -> m (Either (FileError e) ())
+friendly FriendlyJson mOutFile = writeLazyByteStringOutput mOutFile . Aeson.encodePretty' jsonConfig
+friendly FriendlyYaml mOutFile = writeByteStringOutput mOutFile . Yaml.encodePretty yamlConfig
+
 jsonConfig :: Aeson.Config
 jsonConfig = Aeson.defConfig {Aeson.confCompare = compare}
-
-friendlyTxJson ::
-  (MonadIO m)
-  => Maybe (File () Out)
-  -> CardanoEra era
-  -> Tx era
-  -> m (Either (FileError e) ())
-friendlyTxJson mOutFile era =
-  cardanoEraConstraints era $
-    writeLazyByteStringOutput mOutFile .
-    Aeson.encodePretty' jsonConfig .
-    object .
-    friendlyTx era
-
-friendlyTxBodyJson ::
-  (MonadIO m)
-  => Maybe (File () Out)
-  -> CardanoEra era
-  -> TxBody era
-  -> m (Either (FileError e) ())
-friendlyTxBodyJson mOutFile era =
-  cardanoEraConstraints era $
-    writeLazyByteStringOutput mOutFile .
-    Aeson.encodePretty' jsonConfig .
-    object .
-    friendlyTxBody era
 
 yamlConfig :: Yaml.Config
 yamlConfig = Yaml.defConfig & setConfCompare compare
 
-friendlyTxYaml ::
+friendlyTx ::
   (MonadIO m)
-  => Maybe (File () Out)
+  => FriendlyFormat
+  -> Maybe (File () Out)
   -> CardanoEra era
   -> Tx era
   -> m (Either (FileError e) ())
-friendlyTxYaml mOutFile era =
+friendlyTx format mOutFile era =
   cardanoEraConstraints era $
-    writeByteStringOutput mOutFile .
-    Yaml.encodePretty yamlConfig .
-    object .
-    friendlyTx era
+    friendly format mOutFile . object . friendlyTxImpl era
 
-friendlyTxBodyYaml ::
+friendlyTxBody ::
   (MonadIO m)
-  => Maybe (File () Out)
+  => FriendlyFormat
+  -> Maybe (File () Out)
   -> CardanoEra era
   -> TxBody era
   -> m (Either (FileError e) ())
-friendlyTxBodyYaml mOutFile era =
+friendlyTxBody format mOutFile era =
   cardanoEraConstraints era $
-    writeByteStringOutput mOutFile .
-    Yaml.encodePretty yamlConfig .
-    object .
-    friendlyTxBody era
+    friendly format mOutFile . object . friendlyTxBodyImpl era
 
-friendlyTx :: IsCardanoEra era => CardanoEra era -> Tx era -> [Aeson.Pair]
-friendlyTx era (Tx body witnesses) =
-  ("witnesses" .= map friendlyKeyWitness witnesses) : friendlyTxBody era body
+friendlyTxImpl :: IsCardanoEra era => CardanoEra era -> Tx era -> [Aeson.Pair]
+friendlyTxImpl era (Tx body witnesses) =
+  ("witnesses" .= map friendlyKeyWitness witnesses) : friendlyTxBodyImpl era body
 
 friendlyKeyWitness :: KeyWitness era -> Aeson.Value
 friendlyKeyWitness =
@@ -117,8 +103,8 @@ friendlyKeyWitness =
       ShelleyKeyWitness _era (Shelley.WitVKey key signature) ->
         ["key" .= textShow key, "signature" .= textShow signature]
 
-friendlyTxBody :: IsCardanoEra era => CardanoEra era -> TxBody era -> [Aeson.Pair]
-friendlyTxBody
+friendlyTxBodyImpl :: IsCardanoEra era => CardanoEra era -> TxBody era -> [Aeson.Pair]
+friendlyTxBodyImpl
   era
   (TxBody
     TxBodyContent
