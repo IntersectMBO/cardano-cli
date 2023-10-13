@@ -63,6 +63,6 @@ Available options:
   --constitution-anchor-metadata-file FILE
                            Constitution anchor contents as a text file.
   --constitution-anchor-metadata-hash HASH
-                           Hash of the constitution anchor contents.
+                           Hash of the constitution anchor data.
   --out-file FILE          Output filepath of the constitution.
   -h,--help                Show this help text

@@ -921,7 +921,7 @@ pConstitutionHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "constitution-anchor-metadata-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Hash of the constitution anchor contents."
+    , Opt.help "Hash of the constitution anchor data."
     ]
 
 pUrl :: String -> String -> Parser Ledger.Url
@@ -3060,7 +3060,7 @@ pVoteHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "vote-anchor-metadata-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Hash of the vote anchor contents."
+    , Opt.help "Hash of the vote anchor data."
     ]
 
 pAlwaysNoConfidence :: Parser ()

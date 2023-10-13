@@ -52,5 +52,5 @@ Available options:
   --vote-anchor-metadata-file FILE
                            Vote anchor contents as a text file.
   --vote-anchor-metadata-hash HASH
-                           Hash of the vote anchor contents.
+                           Hash of the vote anchor data.
   -h,--help                Show this help text
