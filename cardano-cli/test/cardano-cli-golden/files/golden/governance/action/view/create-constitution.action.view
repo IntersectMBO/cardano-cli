@@ -1,0 +1,25 @@
+{
+    "anchor": {
+        "dataHash": "04c36ab926c8d0e6b37d03c781bdf0214b67f65af6eb1241459d17209a0bf784",
+        "url": "proposal-dummy-url"
+    },
+    "deposit": 10,
+    "governance action": {
+        "contents": [
+            null,
+            {
+                "anchor": {
+                    "dataHash": "42cb2e410023679943d26c23ce2b5046eb7dfc5883c69fb91cc8a3c9c9a99a99",
+                    "url": "constitution-dummy-url"
+                }
+            }
+        ],
+        "tag": "NewConstitution"
+    },
+    "return address": {
+        "credential": {
+            "keyHash": "8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605"
+        },
+        "network": "Mainnet"
+    }
+}
