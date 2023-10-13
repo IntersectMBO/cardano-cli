@@ -5972,6 +5972,7 @@ Usage: cardano-cli conway governance action
                                               | create-no-confidence
                                               | create-protocol-parameters-update
                                               | create-treasury-withdrawal
+                                              | view
                                               )
 
   Governance action commands.
@@ -6156,6 +6157,12 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          --out-file FILE
 
   Create a treasury withdrawal.
+
+Usage: cardano-cli conway governance action view --action-file FILE
+                                                   [--output-format STRING]
+                                                   [--out-file FILE]
+
+  View a governance action.
 
 Usage: cardano-cli conway governance committee 
                                                  ( key-gen-cold
