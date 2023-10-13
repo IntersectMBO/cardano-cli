@@ -12,15 +12,15 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   )
                                                                   [--governance-action-tx-id TXID
                                                                     --governance-action-index WORD32]
-                                                                  --proposal-url TEXT
-                                                                  ( --proposal-text TEXT
-                                                                  | --proposal-file FILE
-                                                                  | --proposal-hash HASH
+                                                                  --proposal-anchor-url TEXT
+                                                                  ( --proposal-anchor-metadata TEXT
+                                                                  | --proposal-anchor-metadata-file FILE
+                                                                  | --proposal-anchor-metadata-hash HASH
                                                                   )
-                                                                  --constitution-url TEXT
-                                                                  ( --constitution-text TEXT
-                                                                  | --constitution-file FILE
-                                                                  | --constitution-hash HASH
+                                                                  --constitution-anchor-url TEXT
+                                                                  ( --constitution-anchor-metadata TEXT
+                                                                  | --constitution-anchor-metadata-file FILE
+                                                                  | --constitution-anchor-metadata-hash HASH
                                                                   )
                                                                   --out-file FILE
 
@@ -48,13 +48,21 @@ Available options:
                            Previous txid of the governance action.
   --governance-action-index WORD32
                            Previous tx's governance action index.
-  --proposal-url TEXT      Proposal anchor URL
-  --proposal-text TEXT     Input proposal as UTF-8 encoded text.
-  --proposal-file FILE     Input proposal as a text file.
-  --proposal-hash HASH     Proposal anchor data hash.
-  --constitution-url TEXT  Constitution URL.
-  --constitution-text TEXT Input constitution as UTF-8 encoded text.
-  --constitution-file FILE Input constitution as a text file.
-  --constitution-hash HASH Constitution anchor data hash.
+  --proposal-anchor-url TEXT
+                           Proposal anchor URL
+  --proposal-anchor-metadata TEXT
+                           Proposal anchor contents as UTF-8 encoded text.
+  --proposal-anchor-metadata-file FILE
+                           Proposal anchor contents as a text file.
+  --proposal-anchor-metadata-hash HASH
+                           Proposal anchor data hash.
+  --constitution-anchor-url TEXT
+                           Constitution anchor URL.
+  --constitution-anchor-metadata TEXT
+                           Constitution anchor contents as UTF-8 encoded text.
+  --constitution-anchor-metadata-file FILE
+                           Constitution anchor contents as a text file.
+  --constitution-anchor-metadata-hash HASH
+                           Hash of the constitution anchor data.
   --out-file FILE          Output filepath of the constitution.
   -h,--help                Show this help text

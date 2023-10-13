@@ -897,7 +897,7 @@ catCommands = \case
 pConstitutionUrl :: Parser ConstitutionUrl
 pConstitutionUrl =
   ConstitutionUrl
-    <$> pUrl "constitution-url" "Constitution URL."
+    <$> pUrl "constitution-anchor-url" "Constitution anchor URL."
 
 pConstitutionHashSource :: Parser ConstitutionHashSource
 pConstitutionHashSource =
@@ -905,13 +905,13 @@ pConstitutionHashSource =
     [ ConstitutionHashSourceText
         <$> Opt.strOption
             ( mconcat
-                [ Opt.long "constitution-text"
+                [ Opt.long "constitution-anchor-metadata"
                 , Opt.metavar "TEXT"
-                , Opt.help "Input constitution as UTF-8 encoded text."
+                , Opt.help "Constitution anchor contents as UTF-8 encoded text."
                 ]
             )
     , ConstitutionHashSourceFile
-        <$> pFileInDirection "constitution-file" "Input constitution as a text file."
+        <$> pFileInDirection "constitution-anchor-metadata-file" "Constitution anchor contents as a text file."
     , ConstitutionHashSourceHash
         <$> pConstitutionHash
     ]
@@ -919,9 +919,9 @@ pConstitutionHashSource =
 pConstitutionHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pConstitutionHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "constitution-hash"
+    [ Opt.long "constitution-anchor-metadata-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Constitution anchor data hash."
+    , Opt.help "Hash of the constitution anchor data."
     ]
 
 pUrl :: String -> String -> Parser Ledger.Url
@@ -3035,7 +3035,7 @@ pAlwaysAbstain =
 
 pVoteAnchor :: Parser (VoteUrl, VoteHashSource)
 pVoteAnchor = (,)
-  <$> (VoteUrl <$> pUrl "vote-url" "Vote anchor URL")
+  <$> (VoteUrl <$> pUrl "vote-anchor-url" "Vote anchor URL")
   <*> pVoteHashSource
 
 pVoteHashSource :: Parser VoteHashSource
@@ -3044,13 +3044,13 @@ pVoteHashSource =
     [ VoteHashSourceText
         <$> Opt.strOption
             ( mconcat
-                [ Opt.long "vote-text"
+                [ Opt.long "vote-anchor-metadata"
                 , Opt.metavar "TEXT"
-                , Opt.help "Input vote as UTF-8 encoded text."
+                , Opt.help "Vote anchor contents as UTF-8 encoded text."
                 ]
             )
     , VoteHashSourceFile
-        <$> pFileInDirection "vote-file" "Input vote as a text file."
+        <$> pFileInDirection "vote-anchor-metadata-file" "Vote anchor contents as a text file."
     , VoteHashSourceHash
         <$> pVoteHash
     ]
@@ -3058,9 +3058,9 @@ pVoteHashSource =
 pVoteHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pVoteHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "vote-hash"
+    [ Opt.long "vote-anchor-metadata-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Vote anchor data hash."
+    , Opt.help "Hash of the vote anchor data."
     ]
 
 pAlwaysNoConfidence :: Parser ()
@@ -3176,7 +3176,7 @@ pDRepVerificationKeyFile =
 pProposalUrl :: Parser ProposalUrl
 pProposalUrl =
   ProposalUrl
-    <$> pUrl "proposal-url" "Proposal anchor URL"
+    <$> pUrl "proposal-anchor-url" "Proposal anchor URL"
 
 pProposalHashSource :: Parser ProposalHashSource
 pProposalHashSource =
@@ -3184,13 +3184,13 @@ pProposalHashSource =
     [ ProposalHashSourceText
         <$> Opt.strOption
             ( mconcat
-                [ Opt.long "proposal-text"
+                [ Opt.long "proposal-anchor-metadata"
                 , Opt.metavar "TEXT"
-                , Opt.help "Input proposal as UTF-8 encoded text."
+                , Opt.help "Proposal anchor contents as UTF-8 encoded text."
                 ]
             )
     , ProposalHashSourceFile
-        <$> pFileInDirection "proposal-file" "Input proposal as a text file."
+        <$> pFileInDirection "proposal-anchor-metadata-file" "Proposal anchor contents as a text file."
     , ProposalHashSourceHash
         <$> pProposalHash
     ]
@@ -3198,7 +3198,7 @@ pProposalHashSource =
 pProposalHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pProposalHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "proposal-hash"
+    [ Opt.long "proposal-anchor-metadata-hash"
     , Opt.metavar "HASH"
     , Opt.help "Proposal anchor data hash."
     ]
