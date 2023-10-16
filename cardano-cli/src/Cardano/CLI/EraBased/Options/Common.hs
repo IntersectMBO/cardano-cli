@@ -1606,6 +1606,18 @@ pTxViewOutputFormat =
     , Opt.value TxViewOutputFormatJson
     ]
 
+pGovernanceActionViewOutputFormat :: Parser GovernanceActionViewOutputFormat
+pGovernanceActionViewOutputFormat =
+  Opt.option readGovernanceActionViewOutputFormat $ mconcat
+    [ Opt.long "output-format"
+    , Opt.metavar "STRING"
+    , Opt.help $ mconcat
+      [ "Optional governance action view output format. Accepted output formats are \"json\" "
+      , "and \"yaml\" (default is \"json\")."
+      ]
+    , Opt.value GovernanceActionViewOutputFormatJson
+    ]
+
 pMaybeOutputFile :: Parser (Maybe (File content Out))
 pMaybeOutputFile =
   optional $ fmap File $ Opt.strOption $ mconcat

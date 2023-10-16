@@ -11,22 +11,30 @@
 {-# LANGUAGE TypeOperators #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
-module Cardano.CLI.Json.Friendly (friendlyTxYaml, friendlyTxBodyYaml, friendlyTxJson, friendlyTxBodyJson) where
+module Cardano.CLI.Json.Friendly
+  ( friendlyTx
+  , friendlyTxBody
+  , friendlyProposal
+  , FriendlyFormat(..)
+  ) where
 
 import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
-                   KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), ShelleyLedgerEra,
-                   StakeAddress (..), fromShelleyPaymentCredential, fromShelleyStakeReference,
-                   toShelleyLovelace, toShelleyStakeCredential)
+                   KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (Proposal),
+                   ShelleyLedgerEra, StakeAddress (..), fromShelleyPaymentCredential,
+                   fromShelleyStakeReference, toShelleyLovelace, toShelleyStakeCredential)
 
+import qualified Cardano.Ledger.Conway.Governance as Gov
 import qualified Cardano.Ledger.Conway.TxCert as ConwayLedger
 import qualified Cardano.Ledger.Credential as Shelley
 import qualified Cardano.Ledger.Shelley.API as Shelley
 
+import           Control.Monad.Trans (MonadIO)
 import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.ByteString.Char8 as BSC
@@ -42,70 +50,78 @@ import           Data.Yaml.Pretty (setConfCompare)
 import qualified Data.Yaml.Pretty as Yaml
 import           GHC.Real (denominator)
 import           GHC.Unicode (isAlphaNum)
-import qualified Data.Aeson.Encode.Pretty as Aeson
-import Control.Monad.Trans (MonadIO)
+
+data FriendlyFormat = FriendlyJson | FriendlyYaml
+
+friendly ::
+  (MonadIO m, Aeson.ToJSON a)
+  => FriendlyFormat
+  -> Maybe (File () Out)
+  -> a
+  -> m (Either (FileError e) ())
+friendly FriendlyJson mOutFile = writeLazyByteStringOutput mOutFile . Aeson.encodePretty' jsonConfig
+friendly FriendlyYaml mOutFile = writeByteStringOutput mOutFile . Yaml.encodePretty yamlConfig
 
 jsonConfig :: Aeson.Config
 jsonConfig = Aeson.defConfig {Aeson.confCompare = compare}
 
-friendlyTxJson ::
-  (MonadIO m)
-  => Maybe (File () Out)
-  -> CardanoEra era
-  -> Tx era
-  -> m (Either (FileError e) ())
-friendlyTxJson mOutFile era =
-  cardanoEraConstraints era $
-    writeLazyByteStringOutput mOutFile .
-    Aeson.encodePretty' jsonConfig .
-    object .
-    friendlyTx era
-
-friendlyTxBodyJson ::
-  (MonadIO m)
-  => Maybe (File () Out)
-  -> CardanoEra era
-  -> TxBody era
-  -> m (Either (FileError e) ())
-friendlyTxBodyJson mOutFile era =
-  cardanoEraConstraints era $
-    writeLazyByteStringOutput mOutFile .
-    Aeson.encodePretty' jsonConfig .
-    object .
-    friendlyTxBody era
-
 yamlConfig :: Yaml.Config
 yamlConfig = Yaml.defConfig & setConfCompare compare
 
-friendlyTxYaml ::
+friendlyTx ::
   (MonadIO m)
-  => Maybe (File () Out)
+  => FriendlyFormat
+  -> Maybe (File () Out)
   -> CardanoEra era
   -> Tx era
   -> m (Either (FileError e) ())
-friendlyTxYaml mOutFile era =
+friendlyTx format mOutFile era =
   cardanoEraConstraints era $
-    writeByteStringOutput mOutFile .
-    Yaml.encodePretty yamlConfig .
-    object .
-    friendlyTx era
+    friendly format mOutFile . object . friendlyTxImpl era
 
-friendlyTxBodyYaml ::
+friendlyTxBody ::
   (MonadIO m)
-  => Maybe (File () Out)
+  => FriendlyFormat
+  -> Maybe (File () Out)
   -> CardanoEra era
   -> TxBody era
   -> m (Either (FileError e) ())
-friendlyTxBodyYaml mOutFile era =
+friendlyTxBody format mOutFile era =
   cardanoEraConstraints era $
-    writeByteStringOutput mOutFile .
-    Yaml.encodePretty yamlConfig .
-    object .
-    friendlyTxBody era
+    friendly format mOutFile . object . friendlyTxBodyImpl era
 
-friendlyTx :: IsCardanoEra era => CardanoEra era -> Tx era -> [Aeson.Pair]
-friendlyTx era (Tx body witnesses) =
-  ("witnesses" .= map friendlyKeyWitness witnesses) : friendlyTxBody era body
+friendlyProposal ::
+  (MonadIO m)
+  => FriendlyFormat
+  -> Maybe (File () Out)
+  -> ConwayEraOnwards era
+  -> Proposal era
+  -> m (Either (FileError e) ())
+friendlyProposal format mOutFile era =
+  conwayEraOnwardsConstraints era $
+    friendly format mOutFile . object . friendlyProposalImpl era
+
+friendlyProposalImpl :: ConwayEraOnwards era -> Proposal era -> [Aeson.Pair]
+friendlyProposalImpl
+  era
+  (Proposal
+    (Gov.ProposalProcedure
+      { Gov.pProcDeposit
+      , Gov.pProcReturnAddr
+      , Gov.pProcGovAction
+      , Gov.pProcAnchor
+      }
+    )
+  ) = conwayEraOnwardsConstraints era
+    [ "deposit" .= pProcDeposit
+    , "return address" .= pProcReturnAddr
+    , "governance action" .= pProcGovAction
+    , "anchor" .= pProcAnchor
+    ]
+
+friendlyTxImpl :: IsCardanoEra era => CardanoEra era -> Tx era -> [Aeson.Pair]
+friendlyTxImpl era (Tx body witnesses) =
+  ("witnesses" .= map friendlyKeyWitness witnesses) : friendlyTxBodyImpl era body
 
 friendlyKeyWitness :: KeyWitness era -> Aeson.Value
 friendlyKeyWitness =
@@ -117,8 +133,8 @@ friendlyKeyWitness =
       ShelleyKeyWitness _era (Shelley.WitVKey key signature) ->
         ["key" .= textShow key, "signature" .= textShow signature]
 
-friendlyTxBody :: IsCardanoEra era => CardanoEra era -> TxBody era -> [Aeson.Pair]
-friendlyTxBody
+friendlyTxBodyImpl :: IsCardanoEra era => CardanoEra era -> TxBody era -> [Aeson.Pair]
+friendlyTxBodyImpl
   era
   (TxBody
     TxBodyContent

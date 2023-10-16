@@ -34,8 +34,7 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis
-import           Cardano.CLI.Json.Friendly (friendlyTxBodyJson, friendlyTxBodyYaml, friendlyTxJson,
-                   friendlyTxYaml)
+import           Cardano.CLI.Json.Friendly (FriendlyFormat (..), friendlyTx, friendlyTxBody)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -1185,16 +1184,15 @@ runTransactionViewCmd
       -- is arguably not part of the transaction body.
       firstExceptT TxCmdWriteFileError . newExceptT $
         case outputFormat of
-          TxViewOutputFormatYaml -> friendlyTxBodyYaml mOutFile era txbody
-          TxViewOutputFormatJson -> friendlyTxBodyJson mOutFile era txbody
+          TxViewOutputFormatYaml -> friendlyTxBody FriendlyYaml mOutFile era txbody
+          TxViewOutputFormatJson -> friendlyTxBody FriendlyJson mOutFile era txbody
     InputTxFile (File txFilePath) -> do
       txFile <- liftIO $ fileOrPipe txFilePath
       InAnyCardanoEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdCddlError)
       firstExceptT TxCmdWriteFileError . newExceptT $
         case outputFormat of
-          TxViewOutputFormatYaml -> friendlyTxYaml mOutFile era tx
-          TxViewOutputFormatJson -> friendlyTxJson mOutFile era tx
-
+          TxViewOutputFormatYaml -> friendlyTx FriendlyYaml mOutFile era tx
+          TxViewOutputFormatJson -> friendlyTx FriendlyJson mOutFile era tx
 
 -- ----------------------------------------------------------------------------
 -- Witness commands

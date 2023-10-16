@@ -18,6 +18,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
+import           Cardano.CLI.Json.Friendly
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
@@ -51,6 +52,29 @@ runGovernanceActionCmds = \case
 
   GovernanceActionInfoCmd args ->
     runGovernanceActionInfoCmd args
+
+  GovernanceActionViewCmd args ->
+    runGovernanceActionViewCmd args
+
+runGovernanceActionViewCmd :: ()
+  => GovernanceActionViewCmdArgs era
+  -> ExceptT GovernanceActionsError IO ()
+runGovernanceActionViewCmd
+  Cmd.GovernanceActionViewCmdArgs
+    { Cmd.outFormat
+    , Cmd.actionFile
+    , Cmd.mOutFile
+    , Cmd.eon
+    } = do
+  proposal <- firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT $ readProposal eon actionFile
+  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
+    friendlyProposal
+      (case outFormat of
+        GovernanceActionViewOutputFormatJson -> FriendlyJson
+        GovernanceActionViewOutputFormatYaml -> FriendlyYaml)
+      mOutFile
+      eon
+      proposal
 
 runGovernanceActionInfoCmd :: ()
   => GovernanceActionInfoCmdArgs era

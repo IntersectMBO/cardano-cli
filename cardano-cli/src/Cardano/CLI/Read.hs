@@ -59,6 +59,7 @@ module Cardano.CLI.Read
   , readTxGovernanceActions
   , constitutionHashSourceToHash
   , proposalHashSourceToHash
+  , readProposal
 
   -- * FileOrPipe
   , FileOrPipe
@@ -826,15 +827,14 @@ readTxGovernanceActions _ [] = return $ Right []
 readTxGovernanceActions era files = runExceptT $ do
   w <- forEraMaybeEon era
     & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
-  newExceptT $ sequence <$> mapM (readProposal w) files
+  newExceptT $ sequence <$> mapM (fmap (first ConstitutionErrorFile) . readProposal w) files
 
 readProposal
   :: ConwayEraOnwards era
   -> ProposalFile In
-  -> IO (Either ConstitutionError (Proposal era))
+  -> IO (Either (FileError TextEnvelopeError) (Proposal era))
 readProposal w fp =
-  first ConstitutionErrorFile
-    <$> conwayEraOnwardsConstraints w (readFileTextEnvelope AsProposal fp)
+    conwayEraOnwardsConstraints w (readFileTextEnvelope AsProposal fp)
 
 constitutionHashSourceToHash :: ()
   => ConstitutionHashSource

@@ -27,6 +27,7 @@ module Cardano.CLI.Types.Common
   , GenesisDir(..)
   , GenesisFile (..)
   , GenesisKeyFile(..)
+  , GovernanceActionViewOutputFormat(..)
   , InputTxBodyOrTxFile (..)
   , KeyOutputFormat(..)
   , MetadataFile(..)
@@ -465,6 +466,10 @@ data TxViewOutputFormat
   | TxViewOutputFormatYaml
   deriving Show
 
+data GovernanceActionViewOutputFormat
+  = GovernanceActionViewOutputFormatJson
+  | GovernanceActionViewOutputFormatYaml
+  deriving Show
 --
 -- Shelley CLI flag/option data types
 --
