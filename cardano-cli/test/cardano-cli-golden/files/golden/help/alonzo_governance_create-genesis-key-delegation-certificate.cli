@@ -1,10 +1,4 @@
-Usage: cardano-cli legacy governance create-genesis-key-delegation-certificate 
-                                                                                 [ --shelley-era
-                                                                                 | --allegra-era
-                                                                                 | --mary-era
-                                                                                 | --alonzo-era
-                                                                                 | --babbage-era
-                                                                                 ]
+Usage: cardano-cli alonzo governance create-genesis-key-delegation-certificate 
                                                                                  ( --genesis-verification-key STRING
                                                                                  | --genesis-verification-key-file FILE
                                                                                  | --genesis-verification-key-hash STRING
@@ -22,11 +16,6 @@ Usage: cardano-cli legacy governance create-genesis-key-delegation-certificate
   Create a genesis key delegation certificate
 
 Available options:
-  --shelley-era            Specify the Shelley era
-  --allegra-era            Specify the Allegra era
-  --mary-era               Specify the Mary era
-  --alonzo-era             Specify the Alonzo era
-  --babbage-era            Specify the Babbage era (default)
   --genesis-verification-key STRING
                            Genesis verification key (hex-encoded).
   --genesis-verification-key-file FILE

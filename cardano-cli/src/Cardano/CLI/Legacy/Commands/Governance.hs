@@ -25,7 +25,7 @@ data LegacyGovernanceCmds
       (File () Out)
       TransferDirection
   | GovernanceGenesisKeyDelegationCertificate
-      (EraInEon ShelleyBasedEra)
+      (EraInEon ShelleyToBabbageEra)
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)

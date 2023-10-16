@@ -4,7 +4,6 @@ Usage: cardano-cli governance create-genesis-key-delegation-certificate
                                                                           | --mary-era
                                                                           | --alonzo-era
                                                                           | --babbage-era
-                                                                          | --conway-era
                                                                           ]
                                                                           ( --genesis-verification-key STRING
                                                                           | --genesis-verification-key-file FILE
@@ -28,7 +27,6 @@ Available options:
   --mary-era               Specify the Mary era
   --alonzo-era             Specify the Alonzo era
   --babbage-era            Specify the Babbage era (default)
-  --conway-era             Specify the Conway era
   --genesis-verification-key STRING
                            Genesis verification key (hex-encoded).
   --genesis-verification-key-file FILE

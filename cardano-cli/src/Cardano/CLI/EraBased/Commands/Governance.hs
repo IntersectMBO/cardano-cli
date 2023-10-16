@@ -8,6 +8,7 @@ module Cardano.CLI.EraBased.Commands.Governance
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Shelley (VrfKey)
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
@@ -15,6 +16,7 @@ import           Cardano.CLI.EraBased.Commands.Governance.DRep
 import           Cardano.CLI.EraBased.Commands.Governance.Poll
 import           Cardano.CLI.EraBased.Commands.Governance.Vote
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile)
 
 import           Data.Text (Text)
 
@@ -30,6 +32,12 @@ data GovernanceCmds era
       Lovelace
       (File () Out)
       TransferDirection
+  | GovernanceGenesisKeyDelegationCertificate
+      (ShelleyToAlonzoEra era)
+      (VerificationKeyOrHashOrFile GenesisKey)
+      (VerificationKeyOrHashOrFile GenesisDelegateKey)
+      (VerificationKeyOrHashOrFile VrfKey)
+      (File () Out)
   | GovernanceActionCmds
       (GovernanceActionCmds era)
   | GovernanceCommitteeCmds
@@ -49,6 +57,8 @@ renderGovernanceCmds = \case
     "governance create-mir-certificate transfer-to-treasury"
   GovernanceMIRTransfer _ _ _ TransferToReserves ->
     "governance create-mir-certificate transfer-to-reserves"
+  GovernanceGenesisKeyDelegationCertificate {} ->
+    "governance create-genesis-key-delegation-certificate"
   GovernanceActionCmds cmds ->
     renderGovernanceActionCmds cmds
   GovernanceCommitteeCmds cmds ->

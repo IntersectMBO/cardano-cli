@@ -1,0 +1,15 @@
+Usage: cardano-cli alonzo governance 
+                                       ( create-mir-certificate
+                                       | create-genesis-key-delegation-certificate
+                                       )
+
+  Governance commands.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  create-mir-certificate   Create an MIR (Move Instantaneous Rewards)
+                           certificate
+  create-genesis-key-delegation-certificate
+                           Create a genesis key delegation certificate

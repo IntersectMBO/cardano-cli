@@ -17,6 +17,8 @@ import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Run.Governance.DRep
+import           Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
+                   (runGovernanceGenesisKeyDelegationCertificate)
 import           Cardano.CLI.EraBased.Run.Governance.Poll (runGovernancePollCmds)
 import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.EraBased.Run.Key
@@ -72,6 +74,15 @@ runCmds = \case
     runTransactionCmds cmd
       & firstExceptT CmdTransactionError
 
+-- TODO smelc Move me to cardano-api. Or is there another way? I'd be surprised
+-- this is the first time we need this.
+shelleyToAlonzoEraToShelleyToBabbageEra :: ShelleyToAlonzoEra era -> ShelleyToBabbageEra era
+shelleyToAlonzoEraToShelleyToBabbageEra = \case
+  ShelleyToAlonzoEraShelley -> ShelleyToBabbageEraShelley
+  ShelleyToAlonzoEraAllegra -> ShelleyToBabbageEraAllegra
+  ShelleyToAlonzoEraMary -> ShelleyToBabbageEraMary
+  ShelleyToAlonzoEraAlonzo -> ShelleyToBabbageEraAlonzo
+
 runGovernanceCmds :: ()
   => GovernanceCmds era
   -> ExceptT CmdError IO ()
@@ -82,6 +93,11 @@ runGovernanceCmds = \case
 
   GovernanceMIRTransfer w ll oFp direction ->
     runGovernanceMIRCertificateTransfer w ll oFp direction
+      & firstExceptT CmdGovernanceCmdError
+
+  GovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
+    let stb = shelleyToAlonzoEraToShelleyToBabbageEra sta in
+    runGovernanceGenesisKeyDelegationCertificate stb genVk genDelegVk vrfVk out
       & firstExceptT CmdGovernanceCmdError
 
   GovernanceCommitteeCmds cmds ->
