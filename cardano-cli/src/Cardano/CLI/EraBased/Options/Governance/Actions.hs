@@ -314,10 +314,10 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
             Cmd.GovernanceActionTreasuryWithdrawalCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier Nothing
+              <*> pAnyStakeIdentifier (Just "deposit-return")
               <*> pProposalUrl
               <*> pProposalHashSource
-              <*> many ((,) <$> pAnyStakeIdentifier Nothing <*> pTransferAmt) -- TODO we should likely pass a prefix here, becaus pAnyStakeIdentiefier is used twice
+              <*> many ((,) <$> pAnyStakeIdentifier (Just "funds-receiving") <*> pTransferAmt)
               <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
         )
     $ Opt.progDesc "Create a treasury withdrawal."
