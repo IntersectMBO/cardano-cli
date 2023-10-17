@@ -129,7 +129,8 @@ runGovernanceAnswerPoll _ pollFile maybeChoice mOutFile = do
   validateChoice :: GovernancePoll -> Word -> ExceptT GovernanceCmdError IO ()
   validateChoice GovernancePoll{govPollAnswers} ix = do
     let maxAnswerIndex = length govPollAnswers - 1
-    when (fromIntegral ix > maxAnswerIndex) $ left $
+        ixInt = fromIntegral ix
+    when (ixInt < 0 || ixInt > maxAnswerIndex) $ left $
       GovernanceCmdPollOutOfBoundAnswer maxAnswerIndex
 
   askInteractively :: GovernancePoll -> ExceptT GovernanceCmdError IO Word
