@@ -60,3 +60,25 @@ hprop_golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley =
     H.assertFilesExist [outFp]
 
     H.diffFileVsGoldenFile outFp nonExtendedFp
+
+-- | Test that converting a drep extended verification key yields the
+-- expected result.
+hprop_golden_KeyNonExtendedKey_DRepExtendedVerificationKey :: Property
+hprop_golden_KeyNonExtendedKey_DRepExtendedVerificationKey =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    extendedKeyFile <- H.noteInputFile "test/cardano-cli-golden/files/input/key/non-extended-keys/extended-drep.vkey"
+    goldenFile <-  H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-drep.vkey"
+    outFp <- H.note $ tempDir </> "non-extended-drep.vkey"
+
+    H.assertFilesExist [extendedKeyFile]
+
+    void $ execCardanoCLI
+      [ "conway", "key", "non-extended-key"
+      , "--extended-verification-key-file", extendedKeyFile
+      , "--verification-key-file", outFp
+      ]
+
+    -- Check for existence of the converted signing key file
+    H.assertFilesExist [outFp]
+
+    H.diffFileVsGoldenFile outFp goldenFile
