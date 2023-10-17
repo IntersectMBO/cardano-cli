@@ -4,7 +4,7 @@ module Test.Golden.Governance.DRep where
 
 import           Control.Monad (void)
 
-import           Test.Cardano.CLI.Util (execCardanoCLI, noteInputFile, propertyOnce, noteTempFile)
+import           Test.Cardano.CLI.Util (execCardanoCLI, noteInputFile, noteTempFile, propertyOnce)
 
 import           Hedgehog
 import qualified Hedgehog as H
@@ -94,3 +94,21 @@ hprop_golden_governance_drep_metadata_hash = propertyOnce . H.moduleWorkspace "t
     ]
 
   H.diffFileVsGoldenFile goldenDRepMetadataHash outputDRepMetadataHash
+
+hprop_golden_governance_drep_registration_certificate :: Property
+hprop_golden_governance_drep_registration_certificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  drepKeyFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/drep/drep.vkey"
+  goldenFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate.json"
+
+  outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
+
+  void $ execCardanoCLI
+    [ "conway", "governance", "drep", "registration-certificate"
+    , "--drep-verification-key-file", drepKeyFile
+    , "--key-reg-deposit-amt", "0"
+    , "--drep-metadata-url", "dummy-url"
+    , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+    , "--out-file", outFile
+    ]
+
+  H.diffFileVsGoldenFile goldenFile outFile
