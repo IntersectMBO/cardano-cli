@@ -111,6 +111,8 @@ runNonExtendedKeyCmd
     case ssk of
       APaymentExtendedVerificationKey vk ->
         writeToDisk vkf (castVerificationKey vk :: VerificationKey PaymentKey)
+      ADRepExtendedVerificationKey vk ->
+        writeToDisk vkf (castVerificationKey vk :: VerificationKey DRepKey)
       AStakeExtendedVerificationKey vk ->
         writeToDisk vkf (castVerificationKey vk :: VerificationKey StakeKey)
       AGenesisExtendedVerificationKey vk ->
@@ -139,6 +141,7 @@ readExtendedVerificationKeyFile evkfile = do
                          $ VktofVerificationKeyFile evkfile
   case vKey of
       k@APaymentExtendedVerificationKey{} -> return k
+      k@ADRepExtendedVerificationKey{} -> return k
       k@AStakeExtendedVerificationKey{} -> return k
       k@AGenesisExtendedVerificationKey{} -> return k
       k@AGenesisDelegateExtendedVerificationKey{} -> return k
