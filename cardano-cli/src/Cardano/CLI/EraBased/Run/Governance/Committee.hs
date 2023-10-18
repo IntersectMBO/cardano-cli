@@ -172,6 +172,7 @@ runGovernanceCommitteeColdKeyResignationCertificate
     Cmd.GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
       { Cmd.eon               = w
       , Cmd.vkeyColdKeySource = coldVkOrHashOrFp
+      , Cmd.anchor            = anchor
       , Cmd.outFile           = oFp
       } =
   conwayEraOnwardsConstraints w $ do
@@ -179,7 +180,7 @@ runGovernanceCommitteeColdKeyResignationCertificate
       lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey coldVkOrHashOrFp)
         & onLeft (left . GovernanceCommitteeCmdKeyReadError)
 
-    makeCommitteeColdkeyResignationCertificate (CommitteeColdkeyResignationRequirements w coldVKHash)
+    makeCommitteeColdkeyResignationCertificate (CommitteeColdkeyResignationRequirements w coldVKHash anchor)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)
       & writeLazyByteStringFile oFp
       & firstExceptT GovernanceCommitteeCmdTextEnvWriteError . newExceptT
