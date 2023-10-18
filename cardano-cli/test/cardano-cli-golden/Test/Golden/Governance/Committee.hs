@@ -13,6 +13,7 @@ import           Hedgehog (Property)
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
+import qualified Hedgehog.Extras.Test.Golden as H
 
 hprop_golden_governanceCommitteeKeyGenCold :: Property
 hprop_golden_governanceCommitteeKeyGenCold =
@@ -145,3 +146,38 @@ hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate =
 
     H.assertFileOccurences 1 "CertificateShelley" certFile
     H.assertFileOccurences 1 "Constitutional Committee Cold Key Resignation Certificate" certFile
+
+hprop_golden_governanceUpdateCommittee :: Property
+hprop_golden_governanceUpdateCommittee =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    stakeVkey <- noteInputFile "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
+    ccProposal <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-proposal.txt"
+    coldCCVkey1 <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-cold1.vkey"
+    coldCCVkey2 <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-cold2.vkey"
+
+    outFile <- H.noteTempFile tempDir "answer-file.json"
+
+    proposalHash <- execCardanoCLI
+      [ "conway", "governance", "hash"
+      , "--file", ccProposal ]
+
+    H.note_ proposalHash
+    H.note_ $ show $ length proposalHash
+
+    goldenAnswerFile <- H.note "test/cardano-cli-golden/files/golden/governance/committee/update-committee-answer.json"
+
+    void $ execCardanoCLI
+      [ "conway", "governance", "action", "update-committee"
+      , "--testnet", "--governance-action-deposit", "0"
+      , "--stake-verification-key-file", stakeVkey
+      , "--proposal-anchor-url", "http://dummy"
+      , "--proposal-anchor-hash", proposalHash
+      , "--add-cc-cold-verification-key-file", coldCCVkey1
+      , "--epoch", "202"
+      , "--add-cc-cold-verification-key-file", coldCCVkey2
+      , "--epoch", "252"
+      , "--quorum", "51/100"
+      , "--out-file", outFile
+      ]
+
+    H.diffFileVsGoldenFile outFile goldenAnswerFile
