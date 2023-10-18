@@ -276,7 +276,7 @@ validateTxCertificates era certsAndScriptWitnesses = cardanoEraConstraints era $
           L.DelegTxCert sCred _             -> Just sCred
           L.RegDepositDelegTxCert sCred _ _ -> Just sCred
           L.AuthCommitteeHotKeyTxCert{}     -> Nothing
-          L.ResignCommitteeColdTxCert _     -> Nothing
+          L.ResignCommitteeColdTxCert _ _     -> Nothing
           L.RegDRepTxCert{}                 -> Nothing
           L.UnRegDRepTxCert{}               -> Nothing
           L.UpdateDRepTxCert{}              -> Nothing

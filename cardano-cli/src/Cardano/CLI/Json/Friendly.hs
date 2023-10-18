@@ -426,10 +426,12 @@ renderCertificate sbe = \case
                 [ "cold key hash" .= ck
                 , "hot key hash" .= hk
                 ]
-        Ledger.ResignCommitteeColdTxCert cred -> case cred of
+        Ledger.ResignCommitteeColdTxCert cred anchor -> case cred of
           Shelley.ScriptHashObj sh ->
             "Cold committee resignation" .= object
-              [ "script hash" .=  sh ]
+              [ "script hash" .=  sh
+              , "anchor" .= anchor
+              ]
           Shelley.KeyHashObj ck@Shelley.KeyHash{} ->
             "Constitutional committee cold key resignation" .= object
               [ "cold key hash" .= ck
