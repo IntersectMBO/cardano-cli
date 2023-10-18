@@ -1,0 +1,5 @@
+{
+    "type": "CertificateShelley",
+    "description": "DRep Key Registration Certificate",
+    "cborHex": "84108200581ce68f9ee70599cb93d9f60678f9c6463c01938c27d9820c7bf93887a500826964756d6d792d75726c582052e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+}
