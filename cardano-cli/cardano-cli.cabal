@@ -208,14 +208,14 @@ library
                       , cardano-crypto
                       , cardano-crypto-class ^>= 2.1.2
                       , cardano-crypto-wrapper ^>= 1.5.1
-                      , cardano-data >= 1.0
+                      , cardano-data >= 1.1
                       , cardano-git-rev
-                      , cardano-ledger-alonzo >= 1.3.1.1
-                      , cardano-ledger-binary >= 1.0
+                      , cardano-ledger-alonzo >= 1.5.0.0
+                      , cardano-ledger-binary >= 1.2
                       , cardano-ledger-byron >= 1.0.0.2
-                      , cardano-ledger-conway >= 1.5
-                      , cardano-ledger-core >= 1.2
-                      , cardano-ledger-shelley >=1.4.1.0
+                      , cardano-ledger-conway >= 1.10
+                      , cardano-ledger-core >= 1.8
+                      , cardano-ledger-shelley >=1.7.0.0
                       , cardano-ping ^>= 0.2.0.5
                       , cardano-prelude
                       , cardano-slotting ^>= 0.1

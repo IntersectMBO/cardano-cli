@@ -43,3 +43,57 @@ write-ghc-environment-files: always
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/cardano-api
+  tag: 8ce658121a500be6d6a8e2cf28965a202cc72bc6
+  --sha256: 1896j5hmw61cfn4s9r9hvs265s64d8g1yq72ay71546mbxy3k8ib
+  subdir:
+    cardano-api
+    cardano-api-gen
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/ouroboros-consensus
+  tag: be6ad7c911ebfa2359c0a913a314a30e2b71a313
+  --sha256: 1jydz8dnn0fxnnp4m6brhvxnz1ad61a8gw6009gvzd2yf3azgprz
+  subdir:
+    ouroboros-consensus
+    ouroboros-consensus-cardano
+    ouroboros-consensus-diffusion
+    ouroboros-consensus-protocol
+    strict-sop-core
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/cardano-ledger
+  tag: 25bc2c50b50486e5159bb506920ab76b6c852bbf
+  --sha256: 0ncbj45i0kw36yh85qaxpksrwywl6qjfjs8x11fj1im8hygsrija
+  subdir:
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/alonzo/test-suite
+    eras/babbage/impl
+    eras/babbage/test-suite
+    eras/byron/chain/executable-spec
+    eras/byron/crypto
+    eras/byron/crypto/test
+    eras/byron/ledger/executable-spec
+    eras/byron/ledger/impl
+    eras/byron/ledger/impl/test
+    eras/conway/impl
+    eras/conway/test-suite
+    eras/mary/impl
+    eras/shelley/impl
+    eras/shelley/test-suite
+    eras/shelley-ma/test-suite
+    libs/cardano-data
+    libs/cardano-ledger-api
+    libs/cardano-ledger-binary
+    libs/cardano-ledger-core
+    libs/cardano-ledger-pretty
+    libs/cardano-protocol-tpraos
+    libs/small-steps
+    libs/small-steps-test
+    libs/vector-map
