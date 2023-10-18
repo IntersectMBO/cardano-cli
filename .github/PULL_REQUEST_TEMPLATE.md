@@ -19,27 +19,16 @@
 
 # Context
 
-Additional context for the PR goes here.
+Additional context for the PR goes here. If the PR fixes a particular issue please provide a [link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword=) to the issue.
 
-If the PR fixes a particular issue please provide a
-[link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword=)
-to the issue.
+# How to trust this PR
+
+Highlight important bits of the PR that will make the review faster. If there are commands the reviewer can run to observe the new behavior, describe them.
 
 # Checklist
 
 - [ ] Commit sequence broadly makes sense and commits have useful messages
-- [ ] The change log section in the PR description has been filled in
-- [ ] New tests are added if needed and existing tests are updated.  These may include:
-  - golden tests
-  - property tests
-  - round trip tests
-  - integration tests
-  See [Running tests](https://github.com/input-output-hk/cardano-node-wiki/wiki/Running-tests) for more details
-- [ ] The version bounds in `.cabal` files are updated
-- [ ] CI passes. See note on CI.  The following CI checks are required:
-  - [ ] Code is linted with `hlint`.  See `.github/workflows/check-hlint.yml` to get the `hlint` version
-  - [ ] Code is formatted with `stylish-haskell`.  See `.github/workflows/stylish-haskell.yml` to get the `stylish-haskell` version
-  - [ ] Code builds on Linux, MacOS and Windows for `ghc-8.10.7` and `ghc-9.2.7`
+- [ ] New tests are added if needed and existing tests are updated. See [Running tests](https://github.com/input-output-hk/cardano-node-wiki/wiki/Running-tests) for more details
 - [ ] Self-reviewed the diff
 
 <!-- 
