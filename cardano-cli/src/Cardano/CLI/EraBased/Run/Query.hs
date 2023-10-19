@@ -902,12 +902,19 @@ runQueryStakeAddressInfoCmd
 
         requireNotByronEraInByronMode eraInMode
 
-        result <- lift (queryStakeAddresses eInMode sbe stakeAddr networkId)
+        (stakeRewardAccountBalances, stakePools) <- lift (queryStakeAddresses eInMode sbe stakeAddr networkId)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-        pure $ do
-          writeStakeAddressInfo mOutFile $ DelegationsAndRewards result
+        stakeDelegDeposits <- lift (queryStakeDelegDeposits eInMode sbe stakeAddr)
+          & onLeft (left . QueryCmdUnsupportedNtcVersion)
+          & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+
+        return $ do
+          writeStakeAddressInfo
+            mOutFile
+            (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
+            (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
     )
     & onLeft (left . QueryCmdAcquireFailure)
     & onLeft left
@@ -917,13 +924,39 @@ runQueryStakeAddressInfoCmd
 writeStakeAddressInfo
   :: Maybe (File () Out)
   -> DelegationsAndRewards
+  -> Map StakeAddress Lovelace -- ^ deposits
   -> ExceptT QueryCmdError IO ()
-writeStakeAddressInfo mOutFile delegsAndRewards =
-  case mOutFile of
-    Nothing -> liftIO $ LBS.putStrLn (encodePretty delegsAndRewards)
-    Just (File fpath) ->
-      handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath)
-        $ LBS.writeFile fpath (encodePretty delegsAndRewards)
+writeStakeAddressInfo
+  mOutFile
+  (DelegationsAndRewards (stakeAccountBalances, stakePools))
+  stakeDelegDeposits =
+    firstExceptT QueryCmdWriteFileError . newExceptT
+      $ writeLazyByteStringOutput mOutFile (encodePretty jsonInfo)
+ where
+  jsonInfo :: [Aeson.Value]
+  jsonInfo =
+    map
+      (\(addr, mBalance, mPoolId, mDeposit) ->
+        Aeson.object
+        [ "address" .= addr
+        , "delegation" .= mPoolId
+        , "rewardAccountBalance" .= mBalance
+        , "delegationDeposit" .= mDeposit
+        ]
+      )
+      merged
+
+  merged :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe Lovelace)]
+  merged =
+    [ (addr, mBalance, mPoolId, mDeposit)
+    | addr <- Set.toList (Set.unions [ Map.keysSet stakeAccountBalances
+                                     , Map.keysSet stakePools
+                                     , Map.keysSet stakeDelegDeposits
+                                     ])
+    , let mBalance = Map.lookup addr stakeAccountBalances
+          mPoolId  = Map.lookup addr stakePools
+          mDeposit = Map.lookup addr stakeDelegDeposits
+    ]
 
 writeLedgerState :: forall era ledgerera.
                     ShelleyLedgerEra era ~ ledgerera
