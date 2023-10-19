@@ -6,9 +6,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.Types.Common
-  ( AnchorDataHash(..)
-  , AnchorUrl(..)
-  , AllOrOnly(..)
+  ( AllOrOnly(..)
   , AddressKeyType(..)
   , BalanceTxExecUnits (..)
   , BlockId(..)
