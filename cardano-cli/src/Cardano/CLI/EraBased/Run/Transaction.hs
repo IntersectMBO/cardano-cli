@@ -9,7 +9,9 @@
 {-# LANGUAGE TupleSections #-}
 
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Unused LANGUAGE pragma" #-}
+
+{- HLINT ignore "Unused LANGUAGE pragma" -}
+{- HLINT ignore "Avoid lambda using `infix`" -}
 
 module Cardano.CLI.EraBased.Run.Transaction
   ( runTransactionCmds
@@ -728,57 +730,27 @@ toTxOutInAnyEra :: CardanoEra era
 toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
   addr <- hoistEither $ toAddressInAnyEra era addr'
   val <- hoistEither $ toTxOutValueInAnyEra era val'
-  (datum, refScript)
-    <- caseByronToMaryOrAlonzoEraOnwards
-         (const $ pure (TxOutDatumNone, ReferenceScriptNone))
-         (\w ->
-            caseAlonzoOnlyOrBabbageEraOnwards
-              (\wa ->
-                (,)
-                  <$> toTxAlonzoDatum (alonzoEraOnlyToAlonzoEraOnwards wa) mDatumHash
-                  <*> pure ReferenceScriptNone
-              )
-              (\wbo -> toTxDatumReferenceScriptBabbage w wbo mDatumHash refScriptFp)
-              w
-         )
-         era
+
+  datum <- caseByronToMaryOrAlonzoEraOnwards
+    (const (pure TxOutDatumNone))
+    (\wa -> toTxAlonzoDatum wa mDatumHash)
+    era
+
+  refScript <- caseByronToAlonzoOrBabbageEraOnwards
+    (const (pure ReferenceScriptNone))
+    (\wb -> getReferenceScript wb refScriptFp)
+    era
 
   pure $ TxOut addr val datum refScript
+
   where
     getReferenceScript :: ()
-      => ReferenceScriptAnyEra
-      -> BabbageEraOnwards era
-      -> ExceptT TxCmdError IO (ReferenceScript era)
-    getReferenceScript ReferenceScriptAnyEraNone _ = return ReferenceScriptNone
-    getReferenceScript (ReferenceScriptAnyEra fp) supp = do
-      ReferenceScript supp
-        <$> firstExceptT TxCmdScriptFileError (readFileScriptInAnyLang fp)
-
-    toTxDatumReferenceScriptBabbage :: ()
-      => AlonzoEraOnwards era
-      -> BabbageEraOnwards era
-      -> TxOutDatumAnyEra
+      => BabbageEraOnwards era
       -> ReferenceScriptAnyEra
-      -> ExceptT TxCmdError IO (TxOutDatum CtxTx era, ReferenceScript era)
-    toTxDatumReferenceScriptBabbage sDataSupp inlineRefSupp cliDatum refScriptFp' = do
-      refScript <- getReferenceScript refScriptFp' inlineRefSupp
-      case cliDatum of
-        TxOutDatumByNone -> do
-          pure (TxOutDatumNone, refScript)
-        TxOutDatumByHashOnly dh -> do
-          pure (TxOutDatumHash sDataSupp dh, refScript)
-        TxOutDatumByHashOf fileOrSdata -> do
-          sData <- firstExceptT TxCmdScriptDataError
-                      $ readScriptDataOrFile fileOrSdata
-          pure (TxOutDatumHash sDataSupp $ hashScriptDataBytes sData, refScript)
-        TxOutDatumByValue fileOrSdata -> do
-          sData <- firstExceptT TxCmdScriptDataError
-                      $ readScriptDataOrFile fileOrSdata
-          pure (TxOutDatumInTx sDataSupp sData, refScript)
-        TxOutInlineDatumByValue fileOrSdata -> do
-          sData <- firstExceptT TxCmdScriptDataError
-                      $ readScriptDataOrFile fileOrSdata
-          pure (TxOutDatumInline inlineRefSupp sData, refScript)
+      -> ExceptT TxCmdError IO (ReferenceScript era)
+    getReferenceScript w = \case
+      ReferenceScriptAnyEraNone -> return ReferenceScriptNone
+      ReferenceScriptAnyEra fp -> ReferenceScript w <$> firstExceptT TxCmdScriptFileError (readFileScriptInAnyLang fp)
 
     toTxAlonzoDatum :: ()
       => AlonzoEraOnwards era
@@ -786,18 +758,16 @@ toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
       -> ExceptT TxCmdError IO (TxOutDatum CtxTx era)
     toTxAlonzoDatum supp cliDatum =
       case cliDatum of
+        TxOutDatumByNone -> pure TxOutDatumNone
         TxOutDatumByHashOnly h -> pure (TxOutDatumHash supp h)
         TxOutDatumByHashOf sDataOrFile -> do
-          sData <- firstExceptT TxCmdScriptDataError
-                    $ readScriptDataOrFile sDataOrFile
+          sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
           pure (TxOutDatumHash supp $ hashScriptDataBytes sData)
         TxOutDatumByValue sDataOrFile -> do
-          sData <- firstExceptT TxCmdScriptDataError
-                    $ readScriptDataOrFile sDataOrFile
+          sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
           pure (TxOutDatumInTx supp sData)
         TxOutInlineDatumByValue _ ->
           txFeatureMismatch era TxFeatureInlineDatums
-        TxOutDatumByNone -> pure TxOutDatumNone
 
 
 -- TODO: Currently we specify the policyId with the '--mint' option on the cli

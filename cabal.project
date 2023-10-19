@@ -43,3 +43,9 @@ write-ghc-environment-files: always
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+source-repository-package
+    type: git
+    location: https://github.com/input-output-hk/cardano-api
+    tag: 9281f5ed808ca4841373da8adf55250072a8614c
+    subdir: cardano-api
