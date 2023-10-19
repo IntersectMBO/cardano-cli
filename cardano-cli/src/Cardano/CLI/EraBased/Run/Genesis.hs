@@ -761,7 +761,7 @@ runGenesisCreateStakedCmd
 
     genStuffedAddress :: IO (AddressInEra ShelleyEra)
     genStuffedAddress =
-      shelleyAddressInEra <$>
+      shelleyAddressInEra ShelleyBasedEraShelley <$>
       (ShelleyAddress
        <$> pure Ledger.Testnet
        <*> (Ledger.KeyHashObj . mkKeyHash . read64BitInt
@@ -946,7 +946,7 @@ computeInsecureDelegation g0 nw pool = do
     let initialUtxoAddr = makeShelleyAddress nw (PaymentCredentialByKey (verificationKeyHash paymentVK)) stakeAddressReference
 
     delegation <- pure $ force Delegation
-      { dInitialUtxoAddr = shelleyAddressInEra initialUtxoAddr
+      { dInitialUtxoAddr = shelleyAddressInEra ShelleyBasedEraShelley initialUtxoAddr
       , dDelegStaking = Ledger.hashKey (unStakeVerificationKey stakeVK)
       , dPoolParams = pool
       }
@@ -1290,7 +1290,7 @@ readInitialFundAddresses utxodir nw = do
                  , takeExtension file == ".vkey" ]
     return [ addr | vkey <- vkeys
            , let vkh  = verificationKeyHash (castVerificationKey vkey)
-                 addr = makeShelleyAddressInEra nw (PaymentCredentialByKey vkh)
+                 addr = makeShelleyAddressInEra ShelleyBasedEraShelley nw (PaymentCredentialByKey vkh)
                                                 NoStakeAddress
            ]
 

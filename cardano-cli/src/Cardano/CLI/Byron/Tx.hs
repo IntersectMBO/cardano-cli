@@ -160,7 +160,7 @@ txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs = do
             , txFee = TxFeeImplicit ByronEraOnlyByron
             , txValidityRange =
                 ( TxValidityNoLowerBound
-                , defaultTxValidityUpperBound
+                , defaultTxValidityUpperBound ByronEra
                 )
             , txMetadata = TxMetadataNone
             , txAuxScripts = TxAuxScriptsNone
@@ -175,7 +175,7 @@ txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs = do
             , txVotingProcedures = Nothing
             }
 
-    case createAndValidateTransactionBody txBodyCont of
+    case createAndValidateTransactionBody ByronEra txBodyCont of
       Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
       Right txBody -> let bWit = fromByronWitness sk nId txBody
                       in makeSignedTransaction [bWit] txBody
@@ -209,7 +209,7 @@ txSpendUTxOByronPBFT nId sk txIns outs = do
           , txFee = TxFeeImplicit ByronEraOnlyByron
           , txValidityRange =
               ( TxValidityNoLowerBound
-              , defaultTxValidityUpperBound
+              , defaultTxValidityUpperBound ByronEra
               )
           , txMetadata = TxMetadataNone
           , txAuxScripts = TxAuxScriptsNone
@@ -224,7 +224,7 @@ txSpendUTxOByronPBFT nId sk txIns outs = do
           , txVotingProcedures = Nothing
           }
 
-  case createAndValidateTransactionBody txBodyCont of
+  case createAndValidateTransactionBody ByronEra txBodyCont of
     Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
     Right txBody -> let bWit = fromByronWitness sk nId txBody
                     in makeSignedTransaction [bWit] txBody
