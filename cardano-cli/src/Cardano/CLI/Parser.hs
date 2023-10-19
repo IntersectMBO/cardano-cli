@@ -5,6 +5,7 @@ module Cardano.CLI.Parser
   , readFractionAsRational
   , readKeyOutputFormat
   , readIdOutputFormat
+  , readProposalFileFormat
   , readTxViewOutputFormat
   , readRational
   , readRationalUnitInterval
@@ -37,6 +38,18 @@ readIdOutputFormat = do
       fail $ mconcat
         [ "Invalid output format: " <> show s
         , ". Accepted output formats are \"hex\" and \"bech32\"."
+        ]
+
+readProposalFileFormat :: Opt.ReadM ProposalFileFormat
+readProposalFileFormat = do
+  s <- Opt.str @String
+  case s of
+    "text" -> pure ProposalFileFormatText
+    "binary" -> pure ProposalFileFormatBinary
+    _ ->
+      fail $ mconcat
+        [ "Invalid proposal file format: " <> show s
+        , ". Accepted output formats are \"text\" and \"binary\"."
         ]
 
 readKeyOutputFormat :: Opt.ReadM KeyOutputFormat

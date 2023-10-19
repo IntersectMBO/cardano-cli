@@ -13,6 +13,7 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          --proposal-anchor-url TEXT
                                                                          ( --proposal-anchor-metadata TEXT
                                                                          | --proposal-anchor-metadata-file FILE
+                                                                           [--proposal-anchor-metadata-file-format STRING]
                                                                          | --proposal-anchor-metadata-hash HASH
                                                                          )
                                                                          [
@@ -52,6 +53,10 @@ Available options:
                            Proposal anchor contents as UTF-8 encoded text.
   --proposal-anchor-metadata-file FILE
                            Proposal anchor contents as a text file.
+  --proposal-anchor-metadata-file-format STRING
+                           Optional proposal file format. Accepted output
+                           formats are "text" and "binary" (default is
+                           "binary").
   --proposal-anchor-metadata-hash HASH
                            Proposal anchor data hash.
   --stake-pool-verification-key STRING

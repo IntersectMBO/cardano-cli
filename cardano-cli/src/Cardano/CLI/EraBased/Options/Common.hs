@@ -3203,8 +3203,21 @@ pProposalHashSource =
             )
     , ProposalHashSourceFile
         <$> pFileInDirection "proposal-anchor-metadata-file" "Proposal anchor contents as a text file."
+        <*> pProposalFileFormat
     , ProposalHashSourceHash
         <$> pProposalHash
+    ]
+
+pProposalFileFormat :: Parser ProposalFileFormat
+pProposalFileFormat =
+  Opt.option readProposalFileFormat $ mconcat
+    [ Opt.long "proposal-anchor-metadata-file-format"
+    , Opt.metavar "STRING"
+    , Opt.help $ mconcat
+      [ "Optional proposal file format. Accepted output formats are \"text\" "
+      , "and \"binary\" (default is \"binary\")."
+      ]
+    , Opt.value ProposalFileFormatBinary
     ]
 
 pProposalHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)

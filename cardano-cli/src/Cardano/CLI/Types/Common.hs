@@ -44,6 +44,7 @@ module Cardano.CLI.Types.Common
   , IdOutputFormat (..)
   , PrivKeyFile(..)
   , ProposalFile
+  , ProposalFileFormat(..)
   , ProposalHashSource(..)
   , ProposalText(..)
   , ProposalUrl(..)
@@ -129,8 +130,13 @@ newtype ProposalText = ProposalText
   { unProposalText :: Text
   } deriving (Eq, Show)
 
+data ProposalFileFormat
+  = ProposalFileFormatText
+  | ProposalFileFormatBinary
+  deriving Show
+
 data ProposalHashSource
-  = ProposalHashSourceFile (File ProposalText In)
+  = ProposalHashSourceFile (File ProposalText In) ProposalFileFormat
   | ProposalHashSourceText Text
   | ProposalHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
   deriving Show

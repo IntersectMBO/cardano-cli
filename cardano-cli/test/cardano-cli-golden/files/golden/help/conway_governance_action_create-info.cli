@@ -10,6 +10,7 @@ Usage: cardano-cli conway governance action create-info (--mainnet | --testnet)
                                                           --proposal-anchor-url TEXT
                                                           ( --proposal-anchor-metadata TEXT
                                                           | --proposal-anchor-metadata-file FILE
+                                                            [--proposal-anchor-metadata-file-format STRING]
                                                           | --proposal-anchor-metadata-hash HASH
                                                           )
                                                           --out-file FILE
@@ -40,6 +41,10 @@ Available options:
                            Proposal anchor contents as UTF-8 encoded text.
   --proposal-anchor-metadata-file FILE
                            Proposal anchor contents as a text file.
+  --proposal-anchor-metadata-file-format STRING
+                           Optional proposal file format. Accepted output
+                           formats are "text" and "binary" (default is
+                           "binary").
   --proposal-anchor-metadata-hash HASH
                            Proposal anchor data hash.
   --out-file FILE          Path to action file to be used later on with build or

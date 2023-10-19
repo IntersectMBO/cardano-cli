@@ -6074,6 +6074,7 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   --proposal-anchor-url TEXT
                                                                   ( --proposal-anchor-metadata TEXT
                                                                   | --proposal-anchor-metadata-file FILE
+                                                                    [--proposal-anchor-metadata-file-format STRING]
                                                                   | --proposal-anchor-metadata-hash HASH
                                                                   )
                                                                   --constitution-anchor-url TEXT
@@ -6100,6 +6101,7 @@ Usage: cardano-cli conway governance action update-committee
                                                                --proposal-anchor-url TEXT
                                                                ( --proposal-anchor-metadata TEXT
                                                                | --proposal-anchor-metadata-file FILE
+                                                                 [--proposal-anchor-metadata-file-format STRING]
                                                                | --proposal-anchor-metadata-hash HASH
                                                                )
                                                                [ --remove-cc-cold-verification-key STRING
@@ -6131,6 +6133,7 @@ Usage: cardano-cli conway governance action create-info (--mainnet | --testnet)
                                                           --proposal-anchor-url TEXT
                                                           ( --proposal-anchor-metadata TEXT
                                                           | --proposal-anchor-metadata-file FILE
+                                                            [--proposal-anchor-metadata-file-format STRING]
                                                           | --proposal-anchor-metadata-hash HASH
                                                           )
                                                           --out-file FILE
@@ -6152,6 +6155,7 @@ Usage: cardano-cli conway governance action create-no-confidence
                                                                    --proposal-anchor-url TEXT
                                                                    ( --proposal-anchor-metadata TEXT
                                                                    | --proposal-anchor-metadata-file FILE
+                                                                     [--proposal-anchor-metadata-file-format STRING]
                                                                    | --proposal-anchor-metadata-hash HASH
                                                                    )
                                                                    --governance-action-tx-id TXID
@@ -6223,6 +6227,7 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          --proposal-anchor-url TEXT
                                                                          ( --proposal-anchor-metadata TEXT
                                                                          | --proposal-anchor-metadata-file FILE
+                                                                           [--proposal-anchor-metadata-file-format STRING]
                                                                          | --proposal-anchor-metadata-hash HASH
                                                                          )
                                                                          [

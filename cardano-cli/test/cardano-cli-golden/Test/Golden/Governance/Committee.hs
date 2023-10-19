@@ -147,8 +147,8 @@ hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate =
     H.assertFileOccurences 1 "CertificateShelley" certFile
     H.assertFileOccurences 1 "Constitutional Committee Cold Key Resignation Certificate" certFile
 
-hprop_golden_governanceUpdateCommittee :: Property
-hprop_golden_governanceUpdateCommittee =
+hprop_golden_governanceUpdateCommitteeText :: Property
+hprop_golden_governanceUpdateCommitteeText =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     stakeVkey <- noteInputFile "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
     ccProposal <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-proposal.txt"
@@ -165,6 +165,36 @@ hprop_golden_governanceUpdateCommittee =
       , "--stake-verification-key-file", stakeVkey
       , "--proposal-anchor-url", "http://dummy"
       , "--proposal-anchor-metadata-file", ccProposal
+      , "--proposal-anchor-metadata-file-format", "text"
+      , "--add-cc-cold-verification-key-file", coldCCVkey1
+      , "--epoch", "202"
+      , "--add-cc-cold-verification-key-file", coldCCVkey2
+      , "--epoch", "252"
+      , "--quorum", "51/100"
+      , "--out-file", outFile
+      ]
+
+    H.diffFileVsGoldenFile outFile goldenAnswerFile
+
+hprop_golden_governanceUpdateCommittee :: Property
+hprop_golden_governanceUpdateCommittee =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    stakeVkey <- noteInputFile "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
+    ccProposal <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-proposal.txt.gz"
+    coldCCVkey1 <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-cold1.vkey"
+    coldCCVkey2 <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-cold2.vkey"
+
+    outFile <- H.noteTempFile tempDir "answer-file.json"
+
+    goldenAnswerFile <- H.note "test/cardano-cli-golden/files/golden/governance/committee/update-committee-answer-binary.json"
+
+    void $ execCardanoCLI
+      [ "conway", "governance", "action", "update-committee"
+      , "--testnet", "--governance-action-deposit", "0"
+      , "--stake-verification-key-file", stakeVkey
+      , "--proposal-anchor-url", "http://dummy"
+      , "--proposal-anchor-metadata-file", ccProposal
+      , "--proposal-anchor-metadata-file-format", "binary"
       , "--add-cc-cold-verification-key-file", coldCCVkey1
       , "--epoch", "202"
       , "--add-cc-cold-verification-key-file", coldCCVkey2
