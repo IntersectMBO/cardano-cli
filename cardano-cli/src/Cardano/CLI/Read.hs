@@ -137,8 +137,9 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.Encoding.Error as Text
+import qualified Data.Text.IO as Text
 import           Data.Word
-import           GHC.IO.Handle (hClose, hIsSeekable,)
+import           GHC.IO.Handle (hClose, hIsSeekable)
 import           GHC.IO.Handle.FD (openFileBlocking)
 import qualified Options.Applicative as Opt
 import           System.IO (IOMode (ReadMode))
@@ -803,7 +804,7 @@ readVoteHashSource = \case
     VoteHashSourceHash h -> return h
     VoteHashSourceText c -> return $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
     VoteHashSourceFile fp -> do
-      cBs <- firstExceptT VoteErrorFile . newExceptT $ readByteStringFile fp 
+      cBs <- firstExceptT VoteErrorFile . newExceptT $ readByteStringFile fp
       _utf8EncodedText <- firstExceptT VoteErrorTextNotUnicode . hoistEither $ Text.decodeUtf8' cBs
       return $ Ledger.hashAnchorData $ Ledger.AnchorData cBs
 
@@ -858,9 +859,8 @@ proposalHashSourceToHash :: ()
 proposalHashSourceToHash proposalHashSource = do
   case proposalHashSource of
     ProposalHashSourceFile fp  -> do
-      cBs <- liftIO $ BS.readFile $ unFile fp
-      _utf8EncodedText <- firstExceptT ProposalNotUnicodeError . hoistEither $ Text.decodeUtf8' cBs
-      pure $ Ledger.hashAnchorData $ Ledger.AnchorData cBs
+      text <- liftIO $ Text.readFile $ unFile fp
+      pure $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 text
 
     ProposalHashSourceText c -> do
       pure $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
