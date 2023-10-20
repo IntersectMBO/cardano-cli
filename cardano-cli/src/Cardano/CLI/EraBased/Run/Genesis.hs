@@ -1,4 +1,5 @@
 {-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
@@ -158,8 +159,8 @@ runGenesisCmds = \case
     runGenesisAddrCmd vk nw mOutFile
   GenesisCreate args ->
     runGenesisCreateCmd args
-  GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
-    runGenesisCreateCardanoCmd gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
+  GenesisCreateCardano args ->
+    runGenesisCreateCardanoCmd args
   GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
     runGenesisCreateStakedCmd fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
   GenesisHashFile gf ->
@@ -472,31 +473,32 @@ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys = do
 -- Create Genesis Cardano command implementation
 --
 
-runGenesisCreateCardanoCmd :: GenesisDir
-                 -> Word  -- ^ num genesis & delegate keys to make
-                 -> Word  -- ^ num utxo keys to make
-                 -> Maybe SystemStart
-                 -> Maybe Lovelace
-                 -> BlockCount
-                 -> Word     -- ^ slot length in ms
-                 -> Rational
-                 -> NetworkId
-                 -> FilePath -- ^ Byron Genesis
-                 -> FilePath -- ^ Shelley Genesis
-                 -> FilePath -- ^ Alonzo Genesis
-                 -> FilePath -- ^ Conway Genesis
-                 -> Maybe FilePath
-                 -> ExceptT GenesisCmdError IO ()
-runGenesisCreateCardanoCmd (GenesisDir rootdir)
-                 genNumGenesisKeys genNumUTxOKeys
-                 mStart mAmount mSecurity slotLength mSlotCoeff
-                 network byronGenesisT shelleyGenesisT alonzoGenesisT conwayGenesisT mNodeCfg = do
-  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mStart
+runGenesisCreateCardanoCmd
+  :: GenesisCreateCardanoCmdArgs
+  -> ExceptT GenesisCmdError IO ()
+runGenesisCreateCardanoCmd
+    Cmd.GenesisCreateCardanoCmdArgs
+    { Cmd.genesisDir
+    , Cmd.numGenesisKeys
+    , Cmd.numUTxOKeys
+    , Cmd.mSystemStart
+    , Cmd.mSupply
+    , Cmd.security
+    , Cmd.slotLength
+    , Cmd.slotCoeff
+    , Cmd.network
+    , Cmd.byronGenesisTemplate
+    , Cmd.shelleyGenesisTemplate
+    , Cmd.alonzoGenesisTemplate
+    , Cmd.conwayGenesisTemplate
+    , Cmd.mNodeConfigTemplate
+    } = do
+  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
   (byronGenesis', byronSecrets) <- convertToShelleyError $ Byron.mkGenesis $ byronParams start
   let
     byronGenesis = byronGenesis'
       { gdProtocolParameters = (gdProtocolParameters byronGenesis') {
-          ppSlotDuration = floor ( toRational slotLength * recip mSlotCoeff )
+          ppSlotDuration = floor ( toRational slotLength * recip slotCoeff )
         }
       }
 
@@ -522,21 +524,26 @@ runGenesisCreateCardanoCmd (GenesisDir rootdir)
     overrideShelleyGenesis t = t
       { sgNetworkMagic = unNetworkMagic (toNetworkMagic network)
       , sgNetworkId = toShelleyNetwork network
-      , sgActiveSlotsCoeff = fromMaybe (error $ "Could not convert from Rational: " ++ show mSlotCoeff) $ Ledger.boundRational mSlotCoeff
-      , sgSecurityParam = unBlockCount mSecurity
-      , sgUpdateQuorum = fromIntegral $ ((genNumGenesisKeys `div` 3) * 2) + 1
-      , sgEpochLength = EpochSize $ floor $ (fromIntegral (unBlockCount mSecurity) * 10) / mSlotCoeff
+      , sgActiveSlotsCoeff = fromMaybe (error $ "Could not convert from Rational: " ++ show slotCoeff) $ Ledger.boundRational slotCoeff
+      , sgSecurityParam = unBlockCount security
+      , sgUpdateQuorum = fromIntegral $ ((numGenesisKeys `div` 3) * 2) + 1
+      , sgEpochLength = EpochSize $ floor $ (fromIntegral (unBlockCount security) * 10) / slotCoeff
       , sgMaxLovelaceSupply = 45000000000000000
       , sgSystemStart = getSystemStart start
       , sgSlotLength = secondsToNominalDiffTimeMicro $ MkFixed (fromIntegral slotLength) * 1000
       }
-  shelleyGenesisTemplate <- liftIO $ overrideShelleyGenesis . fromRight (error "shelley genesis template not found") <$> readAndDecodeShelleyGenesis shelleyGenesisT
-  alonzoGenesis <- readAlonzoGenesis alonzoGenesisT
-  conwayGenesis <- readConwayGenesis conwayGenesisT
+  shelleyGenesisTemplate' <- liftIO $ overrideShelleyGenesis . fromRight (error "shelley genesis template not found") <$> readAndDecodeShelleyGenesis shelleyGenesisTemplate
+  alonzoGenesis <- readAlonzoGenesis alonzoGenesisTemplate
+  conwayGenesis <- readConwayGenesis conwayGenesisTemplate
   (delegateMap, vrfKeys, kesKeys, opCerts) <- liftIO $ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys
   let
     shelleyGenesis :: ShelleyGenesis StandardCrypto
-    shelleyGenesis = updateTemplate start delegateMap Nothing [] mempty 0 [] [] shelleyGenesisTemplate
+    shelleyGenesis = updateTemplate start delegateMap Nothing [] mempty 0 [] [] shelleyGenesisTemplate'
+
+  let GenesisDir rootdir = genesisDir
+      gendir  = rootdir </> "genesis-keys"
+      deldir  = rootdir </> "delegate-keys"
+      utxodir = rootdir </> "utxo-keys"
 
   liftIO $ do
     createDirectoryIfMissing False rootdir
@@ -571,7 +578,7 @@ runGenesisCreateCardanoCmd (GenesisDir rootdir)
   conwayGenesisHash <- writeFileGenesis (rootdir </> "conway-genesis.json") $ WritePretty conwayGenesis
 
   liftIO $ do
-    case mNodeCfg of
+    case mNodeConfigTemplate of
       Nothing -> pure ()
       Just nodeCfg -> do
         nodeConfig <- Yaml.decodeFileThrow nodeCfg
@@ -600,17 +607,14 @@ runGenesisCreateCardanoCmd (GenesisDir rootdir)
     convertPoor :: Byron.SigningKey -> SigningKey ByronKey
     convertPoor = ByronSigningKey
 
-    byronParams start = Byron.GenesisParameters (getSystemStart start) byronGenesisT mSecurity byronNetwork byronBalance byronFakeAvvm byronAvvmFactor Nothing
-    gendir  = rootdir </> "genesis-keys"
-    deldir  = rootdir </> "delegate-keys"
-    utxodir = rootdir </> "utxo-keys"
+    byronParams start = Byron.GenesisParameters (getSystemStart start) byronGenesisTemplate security byronNetwork byronBalance byronFakeAvvm byronAvvmFactor Nothing
     byronNetwork = CC.AProtocolMagic
                       (Annotated (toByronProtocolMagicId network) ())
                       (toByronRequiresNetworkMagic network)
     byronBalance = TestnetBalanceOptions
-        { tboRichmen = genNumGenesisKeys
-        , tboPoors = genNumUTxOKeys
-        , tboTotalBalance = fromMaybe zeroLovelace $ toByronLovelace (fromMaybe 0 mAmount)
+        { tboRichmen = numGenesisKeys
+        , tboPoors = numUTxOKeys
+        , tboTotalBalance = fromMaybe zeroLovelace $ toByronLovelace (fromMaybe 0 mSupply)
         , tboRichmenShare = 0
         }
     byronFakeAvvm = FakeAvvmOptions

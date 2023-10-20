@@ -1,9 +1,11 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Genesis
   ( GenesisCmds (..)
   , GenesisCreateCmdArgs (..)
+  , GenesisCreateCardanoCmdArgs (..)
   , renderGenesisCmds
   ) where
 
@@ -16,21 +18,7 @@ import           Data.Text (Text)
 
 data GenesisCmds era
   = GenesisCreate !GenesisCreateCmdArgs
-  | GenesisCreateCardano
-      GenesisDir
-      Word
-      Word
-      (Maybe SystemStart)
-      (Maybe Lovelace)
-      BlockCount
-      Word
-      Rational
-      NetworkId
-      FilePath
-      FilePath
-      FilePath
-      FilePath
-      (Maybe FilePath)
+  | GenesisCreateCardano !GenesisCreateCardanoCmdArgs
   | GenesisCreateStaked
       KeyOutputFormat
       GenesisDir
@@ -81,6 +69,23 @@ data GenesisCreateCmdArgs = GenesisCreateCmdArgs
   , mSystemStart :: !(Maybe SystemStart)
   , mSupply :: !(Maybe Lovelace)
   , network :: !NetworkId
+  } deriving Show
+
+data GenesisCreateCardanoCmdArgs = GenesisCreateCardanoCmdArgs
+  { genesisDir :: !GenesisDir
+  , numGenesisKeys :: !Word
+  , numUTxOKeys :: !Word
+  , mSystemStart :: !(Maybe SystemStart)
+  , mSupply :: !(Maybe Lovelace)
+  , security :: !BlockCount
+  , slotLength :: !Word
+  , slotCoeff :: !Rational
+  , network :: !NetworkId
+  , byronGenesisTemplate :: !FilePath
+  , shelleyGenesisTemplate :: !FilePath
+  , alonzoGenesisTemplate :: !FilePath
+  , conwayGenesisTemplate :: !FilePath
+  , mNodeConfigTemplate :: !(Maybe FilePath)
   } deriving Show
 
 renderGenesisCmds :: GenesisCmds era -> Text

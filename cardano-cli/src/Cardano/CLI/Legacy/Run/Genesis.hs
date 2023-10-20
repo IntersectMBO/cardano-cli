@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -123,7 +124,26 @@ runLegacyGenesisCreateCardanoCmd :: ()
   -> FilePath -- ^ Conway Genesis
   -> Maybe FilePath
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisCreateCardanoCmd = runGenesisCreateCardanoCmd
+runLegacyGenesisCreateCardanoCmd
+    genDir nGenKeys nUTxOKeys mStart mSupply security slotLength slotCoeff
+    network byronGenesis shelleyGenesis alonzoGenesis conwayGenesis mNodeCfg
+    = runGenesisCreateCardanoCmd
+    Cmd.GenesisCreateCardanoCmdArgs
+    { Cmd.genesisDir = genDir
+    , Cmd.numGenesisKeys = nGenKeys
+    , Cmd.numUTxOKeys = nUTxOKeys
+    , Cmd.mSystemStart = mStart
+    , Cmd.mSupply = mSupply
+    , Cmd.security = security
+    , Cmd.slotLength = slotLength
+    , Cmd.slotCoeff = slotCoeff
+    , Cmd.network = network
+    , Cmd.byronGenesisTemplate = byronGenesis
+    , Cmd.shelleyGenesisTemplate = shelleyGenesis
+    , Cmd.alonzoGenesisTemplate = alonzoGenesis
+    , Cmd.conwayGenesisTemplate = conwayGenesis
+    , Cmd.mNodeConfigTemplate = mNodeCfg
+    }
 
 runLegacyGenesisCreateStakedCmd :: ()
   => KeyOutputFormat    -- ^ key output format
