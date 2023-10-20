@@ -3,6 +3,7 @@
 
 module Cardano.CLI.EraBased.Commands.Genesis
   ( GenesisCmds (..)
+  , GenesisCreateCmdArgs (..)
   , renderGenesisCmds
   ) where
 
@@ -14,14 +15,7 @@ import           Cardano.CLI.Types.Common
 import           Data.Text (Text)
 
 data GenesisCmds era
-  = GenesisCreate
-      KeyOutputFormat
-      GenesisDir
-      Word
-      Word
-      (Maybe SystemStart)
-      (Maybe Lovelace)
-      NetworkId
+  = GenesisCreate !GenesisCreateCmdArgs
   | GenesisCreateCardano
       GenesisDir
       Word
@@ -78,6 +72,16 @@ data GenesisCmds era
   | GenesisHashFile
       GenesisFile
   deriving Show
+
+data GenesisCreateCmdArgs = GenesisCreateCmdArgs
+  { keyOutputFormat :: !KeyOutputFormat
+  , genesisDir :: !GenesisDir
+  , numGenesisKeys :: !Word
+  , numUTxOKeys :: !Word
+  , mSystemStart :: !(Maybe SystemStart)
+  , mSupply :: !(Maybe Lovelace)
+  , network :: !NetworkId
+  } deriving Show
 
 renderGenesisCmds :: GenesisCmds era -> Text
 renderGenesisCmds = \case

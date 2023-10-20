@@ -17,6 +17,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GenesisCmdError
 
 import           Control.Monad.Trans.Except (ExceptT)
+import qualified Cardano.CLI.EraBased.Commands.Genesis as Cmd
 
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCmds = \case
@@ -94,7 +95,17 @@ runLegacyGenesisCreateCmd :: ()
   -> Maybe Lovelace
   -> NetworkId
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisCreateCmd = runGenesisCreateCmd
+runLegacyGenesisCreateCmd fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
+  runGenesisCreateCmd
+    Cmd.GenesisCreateCmdArgs
+    { Cmd.keyOutputFormat = fmt
+    , Cmd.genesisDir = genDir
+    , Cmd.numGenesisKeys = nGenKeys
+    , Cmd.numUTxOKeys = nUTxOKeys
+    , Cmd.mSystemStart = mStart
+    , Cmd.mSupply = mSupply
+    , Cmd.network = network
+    }
 
 runLegacyGenesisCreateCardanoCmd :: ()
   => GenesisDir

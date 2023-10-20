@@ -164,7 +164,7 @@ pGenesisCreateCardano envCli =
 
 pGenesisCreate :: EnvCli -> Parser (GenesisCmds era)
 pGenesisCreate envCli =
-  GenesisCreate
+  fmap GenesisCreate $ GenesisCreateCmdArgs
     <$> pKeyOutputFormat
     <*> pGenesisDir
     <*> pGenesisNumGenesisKeys

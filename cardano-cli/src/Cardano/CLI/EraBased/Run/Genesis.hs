@@ -12,6 +12,7 @@
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 {- HLINT ignore "Reduce duplication" -}
 {- HLINT ignore "Redundant <$>" -}
@@ -54,7 +55,7 @@ import           Cardano.Chain.Update hiding (ProtocolParameters)
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
-import           Cardano.CLI.EraBased.Commands.Genesis
+import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
@@ -155,8 +156,8 @@ runGenesisCmds = \case
     runGenesisTxInCmd vk nw mOutFile
   GenesisAddr vk nw mOutFile ->
     runGenesisAddrCmd vk nw mOutFile
-  GenesisCreate fmt gd gn un ms am nw ->
-    runGenesisCreateCmd fmt gd gn un ms am nw
+  GenesisCreate args ->
+    runGenesisCreateCmd args
   GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
     runGenesisCreateCardanoCmd gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
   GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
@@ -354,19 +355,22 @@ writeOutput Nothing                   = Text.putStrLn
 --
 
 runGenesisCreateCmd
-  :: KeyOutputFormat
-  -> GenesisDir
-  -> Word  -- ^ num genesis & delegate keys to make
-  -> Word  -- ^ num utxo keys to make
-  -> Maybe SystemStart
-  -> Maybe Lovelace
-  -> NetworkId
+  :: GenesisCreateCmdArgs
   -> ExceptT GenesisCmdError IO ()
 runGenesisCreateCmd
-    fmt (GenesisDir rootdir)
-    genNumGenesisKeys genNumUTxOKeys
-    mStart mAmount network = do
-
+    Cmd.GenesisCreateCmdArgs
+    { Cmd.keyOutputFormat
+    , Cmd.genesisDir
+    , Cmd.numGenesisKeys
+    , Cmd.numUTxOKeys
+    , Cmd.mSystemStart
+    , Cmd.mSupply
+    , Cmd.network
+    } = do
+  let GenesisDir rootdir = genesisDir
+      gendir  = rootdir </> "genesis-keys"
+      deldir  = rootdir </> "delegate-keys"
+      utxodir = rootdir </> "utxo-keys"
   liftIO $ do
     createDirectoryIfMissing False rootdir
     createDirectoryIfMissing False gendir
@@ -377,21 +381,21 @@ runGenesisCreateCmd
   alonzoGenesis <- readAlonzoGenesis (rootdir </> "genesis.alonzo.spec.json")
   conwayGenesis <- readConwayGenesis (rootdir </> "genesis.conway.spec.json")
 
-  forM_ [ 1 .. genNumGenesisKeys ] $ \index -> do
+  forM_ [ 1 .. numGenesisKeys ] $ \index -> do
     createGenesisKeys  gendir  index
-    createDelegateKeys fmt deldir index
+    createDelegateKeys keyOutputFormat deldir index
 
-  forM_ [ 1 .. genNumUTxOKeys ] $ \index ->
+  forM_ [ 1 .. numUTxOKeys ] $ \index ->
     createUtxoKeys utxodir index
 
   genDlgs <- readGenDelegsMap gendir deldir
   utxoAddrs <- readInitialFundAddresses utxodir network
-  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mStart
+  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
 
   let shelleyGenesis =
         updateTemplate
           -- Shelley genesis parameters
-          start genDlgs mAmount utxoAddrs mempty (Lovelace 0) [] [] template
+          start genDlgs mSupply utxoAddrs mempty (Lovelace 0) [] [] template
 
   void $ writeFileGenesis (rootdir </> "genesis.json")        $ WritePretty shelleyGenesis
   void $ writeFileGenesis (rootdir </> "genesis.alonzo.json") $ WritePretty alonzoGenesis
@@ -399,9 +403,6 @@ runGenesisCreateCmd
   --TODO: rationalise the naming convention on these genesis json files.
   where
     adjustTemplate t = t { sgNetworkMagic = unNetworkMagic (toNetworkMagic network) }
-    gendir  = rootdir </> "genesis-keys"
-    deldir  = rootdir </> "delegate-keys"
-    utxodir = rootdir </> "utxo-keys"
 
 toSKeyJSON :: Key a => SigningKey a -> ByteString
 toSKeyJSON = LBS.toStrict . textEnvelopeToJSON Nothing
