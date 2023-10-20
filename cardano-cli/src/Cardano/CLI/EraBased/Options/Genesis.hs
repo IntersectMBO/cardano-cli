@@ -175,7 +175,7 @@ pGenesisCreate envCli =
 
 pGenesisCreateStaked :: EnvCli -> Parser (GenesisCmds era)
 pGenesisCreateStaked envCli =
-  GenesisCreateStaked
+  fmap GenesisCreateStaked $ GenesisCreateStakedCmdArgs
     <$> pKeyOutputFormat
     <*> pGenesisDir
     <*> pGenesisNumGenesisKeys

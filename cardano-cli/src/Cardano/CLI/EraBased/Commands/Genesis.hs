@@ -6,6 +6,7 @@ module Cardano.CLI.EraBased.Commands.Genesis
   ( GenesisCmds (..)
   , GenesisCreateCmdArgs (..)
   , GenesisCreateCardanoCmdArgs (..)
+  , GenesisCreateStakedCmdArgs (..)
   , renderGenesisCmds
   ) where
 
@@ -19,21 +20,7 @@ import           Data.Text (Text)
 data GenesisCmds era
   = GenesisCreate !GenesisCreateCmdArgs
   | GenesisCreateCardano !GenesisCreateCardanoCmdArgs
-  | GenesisCreateStaked
-      KeyOutputFormat
-      GenesisDir
-      Word
-      Word
-      Word
-      Word
-      (Maybe SystemStart)
-      (Maybe Lovelace)
-      Lovelace
-      NetworkId
-      Word
-      Word
-      Word
-      (Maybe FilePath) -- ^ Relay specification filepath
+  | GenesisCreateStaked !GenesisCreateStakedCmdArgs
   | GenesisKeyGenGenesis
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
@@ -86,6 +73,23 @@ data GenesisCreateCardanoCmdArgs = GenesisCreateCardanoCmdArgs
   , alonzoGenesisTemplate :: !FilePath
   , conwayGenesisTemplate :: !FilePath
   , mNodeConfigTemplate :: !(Maybe FilePath)
+  } deriving Show
+
+data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
+  { keyOutputFormat :: !KeyOutputFormat
+  , genesisDir :: !GenesisDir
+  , numGenesisKeys :: !Word
+  , numUTxOKeys :: !Word
+  , numPools :: !Word
+  , numStakeDelegators :: !Word
+  , mSystemStart :: !(Maybe SystemStart)
+  , mNonDelegatedSupply :: !(Maybe Lovelace)
+  , delegatedSupply :: !Lovelace
+  , network :: !NetworkId
+  , numBulkPoolCredFiles :: !Word
+  , numBulkPoolsPerFile :: !Word
+  , numStuffedUtxo :: !Word
+  , mStakePoolRelaySpecFile :: !(Maybe FilePath) -- ^ Relay specification filepath
   } deriving Show
 
 renderGenesisCmds :: GenesisCmds era -> Text

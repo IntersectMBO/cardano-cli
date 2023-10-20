@@ -161,8 +161,8 @@ runGenesisCmds = \case
     runGenesisCreateCmd args
   GenesisCreateCardano args ->
     runGenesisCreateCardanoCmd args
-  GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
-    runGenesisCreateStakedCmd fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
+  GenesisCreateStaked args ->
+    runGenesisCreateStakedCmd args
   GenesisHashFile gf ->
     runGenesisHashFileCmd gf
 
@@ -639,27 +639,32 @@ runGenesisCreateCardanoCmd
     dlgCertMap byronGenesis = Genesis.unGenesisDelegation $ Genesis.gdHeavyDelegation byronGenesis
 
 runGenesisCreateStakedCmd
-  :: KeyOutputFormat    -- ^ key output format
-  -> GenesisDir
-  -> Word               -- ^ num genesis & delegate keys to make
-  -> Word               -- ^ num utxo keys to make
-  -> Word               -- ^ num pools to make
-  -> Word               -- ^ num delegators to make
-  -> Maybe SystemStart
-  -> Maybe Lovelace     -- ^ supply going to non-delegators
-  -> Lovelace           -- ^ supply going to delegators
-  -> NetworkId
-  -> Word               -- ^ bulk credential files to write
-  -> Word               -- ^ pool credentials per bulk file
-  -> Word               -- ^ num stuffed UTxO entries
-  -> Maybe FilePath     -- ^ Specified stake pool relays
+  :: GenesisCreateStakedCmdArgs
   -> ExceptT GenesisCmdError IO ()
 runGenesisCreateStakedCmd
-    fmt (GenesisDir rootdir)
-    genNumGenesisKeys genNumUTxOKeys genNumPools genNumStDelegs
-    mStart mNonDlgAmount stDlgAmount network
-    numBulkPoolCredFiles bulkPoolsPerFile numStuffedUtxo
-    sPoolRelayFp = do
+    Cmd.GenesisCreateStakedCmdArgs
+    { Cmd.keyOutputFormat
+    , Cmd.genesisDir
+    , Cmd.numGenesisKeys
+    , Cmd.numUTxOKeys
+    , Cmd.numPools
+    , Cmd.numStakeDelegators
+    , Cmd.mSystemStart
+    , Cmd.mNonDelegatedSupply
+    , Cmd.delegatedSupply
+    , Cmd.network
+    , Cmd.numBulkPoolCredFiles
+    , Cmd.numBulkPoolsPerFile
+    , Cmd.numStuffedUtxo
+    , Cmd.mStakePoolRelaySpecFile
+    } = do
+  let GenesisDir rootdir = genesisDir
+      gendir   = rootdir </> "genesis-keys"
+      deldir   = rootdir </> "delegate-keys"
+      pooldir  = rootdir </> "pools"
+      stdeldir = rootdir </> "stake-delegator-keys"
+      utxodir  = rootdir </> "utxo-keys"
+
   liftIO $ do
     createDirectoryIfMissing False rootdir
     createDirectoryIfMissing False gendir
@@ -672,37 +677,37 @@ runGenesisCreateStakedCmd
   alonzoGenesis <- readAlonzoGenesis (rootdir </> "genesis.alonzo.spec.json")
   conwayGenesis <- readConwayGenesis (rootdir </> "genesis.conway.spec.json")
 
-  forM_ [ 1 .. genNumGenesisKeys ] $ \index -> do
+  forM_ [ 1 .. numGenesisKeys ] $ \index -> do
     createGenesisKeys gendir index
-    createDelegateKeys fmt deldir index
+    createDelegateKeys keyOutputFormat deldir index
 
-  forM_ [ 1 .. genNumUTxOKeys ] $ \index ->
+  forM_ [ 1 .. numUTxOKeys ] $ \index ->
     createUtxoKeys utxodir index
 
   mayStakePoolRelays
-    <- forM sPoolRelayFp $
+    <- forM mStakePoolRelaySpecFile $
        \fp -> do
          relaySpecJsonBs <-
            handleIOExceptT (GenesisCmdStakePoolRelayFileError fp) (LBS.readFile fp)
          firstExceptT (GenesisCmdStakePoolRelayJsonDecodeError fp)
            . hoistEither $ Aeson.eitherDecode relaySpecJsonBs
 
-  poolParams <- forM [ 1 .. genNumPools ] $ \index -> do
-    createPoolCredentials fmt pooldir index
+  poolParams <- forM [ 1 .. numPools ] $ \index -> do
+    createPoolCredentials keyOutputFormat pooldir index
     buildPoolParams network pooldir index (fromMaybe mempty mayStakePoolRelays)
 
-  when (numBulkPoolCredFiles * bulkPoolsPerFile > genNumPools) $
-    left $ GenesisCmdTooFewPoolsForBulkCreds  genNumPools numBulkPoolCredFiles bulkPoolsPerFile
+  when (numBulkPoolCredFiles * numBulkPoolsPerFile > numPools) $
+    left $ GenesisCmdTooFewPoolsForBulkCreds numPools numBulkPoolCredFiles numBulkPoolsPerFile
   -- We generate the bulk files for the last pool indices,
   -- so that all the non-bulk pools have stable indices at beginning:
-  let bulkOffset  = fromIntegral $ genNumPools - numBulkPoolCredFiles * bulkPoolsPerFile
-      bulkIndices :: [Word]   = [ 1 + bulkOffset .. genNumPools ]
-      bulkSlices  :: [[Word]] = List.chunksOf (fromIntegral bulkPoolsPerFile) bulkIndices
+  let bulkOffset  = fromIntegral $ numPools - numBulkPoolCredFiles * numBulkPoolsPerFile
+      bulkIndices :: [Word]   = [ 1 + bulkOffset .. numPools ]
+      bulkSlices  :: [[Word]] = List.chunksOf (fromIntegral numBulkPoolsPerFile) bulkIndices
   forM_ (zip [ 1 .. numBulkPoolCredFiles ] bulkSlices) $
     uncurry (writeBulkPoolCredentials pooldir)
 
-  let (delegsPerPool, delegsRemaining) = divMod genNumStDelegs genNumPools
-      delegsForPool poolIx = if delegsRemaining /= 0 && poolIx == genNumPools
+  let (delegsPerPool, delegsRemaining) = divMod numStakeDelegators numPools
+      delegsForPool poolIx = if delegsRemaining /= 0 && poolIx == numPools
         then delegsPerPool
         else delegsPerPool + delegsRemaining
       distribution = [pool | (pool, poolIx) <- zip poolParams [1 ..], _ <- [1 .. delegsForPool poolIx]]
@@ -716,7 +721,7 @@ runGenesisCreateStakedCmd
 
   genDlgs <- readGenDelegsMap gendir deldir
   nonDelegAddrs <- readInitialFundAddresses utxodir network
-  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mStart
+  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
 
   stuffedUtxoAddrs <- liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) genStuffedAddress
 
@@ -726,8 +731,8 @@ runGenesisCreateStakedCmd
       !shelleyGenesis =
         updateCreateStakedOutputTemplate
           -- Shelley genesis parameters
-          start genDlgs mNonDlgAmount (length nonDelegAddrs) nonDelegAddrs stakePools stake
-          stDlgAmount numDelegations delegAddrs stuffedUtxoAddrs template
+          start genDlgs mNonDelegatedSupply (length nonDelegAddrs) nonDelegAddrs stakePools stake
+          delegatedSupply numDelegations delegAddrs stuffedUtxoAddrs template
 
   liftIO $ LBS.writeFile (rootdir </> "genesis.json") $ Aeson.encode shelleyGenesis
 
@@ -737,32 +742,26 @@ runGenesisCreateStakedCmd
 
   liftIO $ Text.hPutStrLn IO.stderr $ mconcat $
     [ "generated genesis with: "
-    , textShow genNumGenesisKeys, " genesis keys, "
-    , textShow genNumUTxOKeys, " non-delegating UTxO keys, "
-    , textShow genNumPools, " stake pools, "
-    , textShow genNumStDelegs, " delegating UTxO keys, "
+    , textShow numGenesisKeys, " genesis keys, "
+    , textShow numUTxOKeys, " non-delegating UTxO keys, "
+    , textShow numPools, " stake pools, "
+    , textShow numStakeDelegators, " delegating UTxO keys, "
     , textShow numDelegations, " delegation map entries, "
     ] ++
     [ mconcat
       [ ", "
       , textShow numBulkPoolCredFiles, " bulk pool credential files, "
-      , textShow bulkPoolsPerFile, " pools per bulk credential file, indices starting from "
+      , textShow numBulkPoolsPerFile, " pools per bulk credential file, indices starting from "
       , textShow bulkOffset, ", "
       , textShow $ length bulkIndices, " total pools in bulk nodes, each bulk node having this many entries: "
       , textShow $ length <$> bulkSlices
       ]
-    | numBulkPoolCredFiles * bulkPoolsPerFile > 0 ]
+    | numBulkPoolCredFiles * numBulkPoolsPerFile > 0 ]
 
   where
     adjustTemplate t = t { sgNetworkMagic = unNetworkMagic (toNetworkMagic network) }
     mkDelegationMapEntry :: Delegation -> (Ledger.KeyHash Ledger.Staking StandardCrypto, Ledger.PoolParams StandardCrypto)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
-
-    gendir   = rootdir </> "genesis-keys"
-    deldir   = rootdir </> "delegate-keys"
-    pooldir  = rootdir </> "pools"
-    stdeldir = rootdir </> "stake-delegator-keys"
-    utxodir  = rootdir </> "utxo-keys"
 
     genStuffedAddress :: IO (AddressInEra ShelleyEra)
     genStuffedAddress =

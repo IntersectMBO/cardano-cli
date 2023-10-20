@@ -161,7 +161,28 @@ runLegacyGenesisCreateStakedCmd :: ()
   -> Word               -- ^ num stuffed UTxO entries
   -> Maybe FilePath     -- ^ Specified stake pool relays
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisCreateStakedCmd = runGenesisCreateStakedCmd
+runLegacyGenesisCreateStakedCmd
+    keyOutputFormat genesisDir numGenesisKeys numUTxOKeys numPools
+    numStakeDelegators mSystemStart mNonDelegatedSupply delegatedSupply
+    network numBulkPoolCredFiles numBulkPoolsPerFile numStuffedUtxo
+    mStakePoolRelaySpecFile
+    = runGenesisCreateStakedCmd
+    Cmd.GenesisCreateStakedCmdArgs
+    { Cmd.keyOutputFormat = keyOutputFormat
+    , Cmd.genesisDir = genesisDir
+    , Cmd.numGenesisKeys = numGenesisKeys
+    , Cmd.numUTxOKeys = numUTxOKeys
+    , Cmd.numPools = numPools
+    , Cmd.numStakeDelegators = numStakeDelegators
+    , Cmd.mSystemStart = mSystemStart
+    , Cmd.mNonDelegatedSupply = mNonDelegatedSupply
+    , Cmd.delegatedSupply = delegatedSupply
+    , Cmd.network = network
+    , Cmd.numBulkPoolCredFiles = numBulkPoolCredFiles
+    , Cmd.numBulkPoolsPerFile = numBulkPoolsPerFile
+    , Cmd.numStuffedUtxo = numStuffedUtxo
+    , Cmd.mStakePoolRelaySpecFile = mStakePoolRelaySpecFile
+    }
 
 -- | Hash a genesis file
 runLegacyGenesisHashFileCmd :: ()
