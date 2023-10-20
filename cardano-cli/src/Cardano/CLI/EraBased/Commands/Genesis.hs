@@ -7,6 +7,7 @@ module Cardano.CLI.EraBased.Commands.Genesis
   , GenesisCreateCmdArgs (..)
   , GenesisCreateCardanoCmdArgs (..)
   , GenesisCreateStakedCmdArgs (..)
+  , GenesisKeyGenGenesisCmdArgs (..)
   , renderGenesisCmds
   ) where
 
@@ -21,9 +22,7 @@ data GenesisCmds era
   = GenesisCreate !GenesisCreateCmdArgs
   | GenesisCreateCardano !GenesisCreateCardanoCmdArgs
   | GenesisCreateStaked !GenesisCreateStakedCmdArgs
-  | GenesisKeyGenGenesis
-      (VerificationKeyFile Out)
-      (SigningKeyFile Out)
+  | GenesisKeyGenGenesis !GenesisKeyGenGenesisCmdArgs
   | GenesisKeyGenDelegate
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
@@ -90,6 +89,11 @@ data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
   , numBulkPoolsPerFile :: !Word
   , numStuffedUtxo :: !Word
   , mStakePoolRelaySpecFile :: !(Maybe FilePath) -- ^ Relay specification filepath
+  } deriving Show
+
+data GenesisKeyGenGenesisCmdArgs = GenesisKeyGenGenesisCmdArgs
+  { verificationKeyPath :: !(VerificationKeyFile Out)
+  , signingKeyPath :: !(SigningKeyFile Out)
   } deriving Show
 
 renderGenesisCmds :: GenesisCmds era -> Text

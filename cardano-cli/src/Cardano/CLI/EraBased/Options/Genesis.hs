@@ -94,7 +94,7 @@ pGenesisCmds envCli =
 
 pGenesisKeyGen :: Parser (GenesisCmds era)
 pGenesisKeyGen =
-  GenesisKeyGenGenesis
+  fmap GenesisKeyGenGenesis $ GenesisKeyGenGenesisCmdArgs
     <$> pVerificationKeyFileOut
     <*> pSigningKeyFileOut
 

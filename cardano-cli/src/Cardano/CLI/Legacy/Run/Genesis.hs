@@ -19,6 +19,7 @@ import           Cardano.CLI.Types.Errors.GenesisCmdError
 
 import           Control.Monad.Trans.Except (ExceptT)
 import qualified Cardano.CLI.EraBased.Commands.Genesis as Cmd
+import Cardano.CLI.EraBased.Commands.Genesis (GenesisKeyGenGenesisCmdArgs(GenesisKeyGenGenesisCmdArgs))
 
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCmds = \case
@@ -49,7 +50,7 @@ runLegacyGenesisKeyGenGenesisCmd :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisKeyGenGenesisCmd = runGenesisKeyGenGenesisCmd
+runLegacyGenesisKeyGenGenesisCmd vk sk = runGenesisKeyGenGenesisCmd $ GenesisKeyGenGenesisCmdArgs vk sk
 
 runLegacyGenesisKeyGenDelegateCmd :: ()
   => VerificationKeyFile Out

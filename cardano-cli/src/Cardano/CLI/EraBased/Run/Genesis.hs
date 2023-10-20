@@ -143,8 +143,8 @@ import           Crypto.Random as Crypto
 
 runGenesisCmds :: GenesisCmds era -> ExceptT GenesisCmdError IO ()
 runGenesisCmds = \case
-  GenesisKeyGenGenesis vk sk ->
-    runGenesisKeyGenGenesisCmd vk sk
+  GenesisKeyGenGenesis args ->
+    runGenesisKeyGenGenesisCmd args
   GenesisKeyGenDelegate vk sk ctr ->
     runGenesisKeyGenDelegateCmd vk sk ctr
   GenesisKeyGenUTxO vk sk ->
@@ -166,20 +166,23 @@ runGenesisCmds = \case
   GenesisHashFile gf ->
     runGenesisHashFileCmd gf
 
-runGenesisKeyGenGenesisCmd ::
-     VerificationKeyFile Out
-  -> SigningKeyFile Out
+runGenesisKeyGenGenesisCmd
+  :: GenesisKeyGenGenesisCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenGenesisCmd vkeyPath skeyPath = do
+runGenesisKeyGenGenesisCmd
+    Cmd.GenesisKeyGenGenesisCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.signingKeyPath
+    } = do
     skey <- liftIO $ generateSigningKey AsGenesisKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile skeyPath
+      $ writeLazyByteStringFile signingKeyPath
       $ textEnvelopeToJSON (Just skeyDesc) skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile vkeyPath
+      $ writeLazyByteStringFile verificationKeyPath
       $ textEnvelopeToJSON (Just vkeyDesc) vkey
   where
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
@@ -816,9 +819,10 @@ createGenesisKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
   runGenesisKeyGenGenesisCmd
-        (File @(VerificationKey ()) $ dir </> "genesis" ++ strIndex ++ ".vkey")
-        (File @(SigningKey ()) $ dir </> "genesis" ++ strIndex ++ ".skey")
-
+    GenesisKeyGenGenesisCmdArgs
+    { verificationKeyPath = File @(VerificationKey ()) $ dir </> "genesis" ++ strIndex ++ ".vkey"
+    , signingKeyPath = File @(SigningKey ()) $ dir </> "genesis" ++ strIndex ++ ".skey"
+    }
 
 createUtxoKeys :: FilePath -> Word -> ExceptT GenesisCmdError IO ()
 createUtxoKeys dir index = do
