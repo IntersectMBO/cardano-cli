@@ -112,7 +112,6 @@ Usage: cardano-cli conway transaction build-raw
                                                   | --metadata-cbor-file FILE
                                                   ]
                                                   [--protocol-params-file FILE]
-                                                  [--update-proposal-file FILE]
                                                   [--vote-file FILE]
                                                   [--proposal-file FILE]
                                                   --out-file FILE
@@ -381,8 +380,6 @@ Available options:
                            Filepath of the metadata, in raw CBOR format.
   --protocol-params-file FILE
                            Filepath of the JSON-encoded protocol parameters file
-  --update-proposal-file FILE
-                           Filepath of the update proposal.
   --vote-file FILE         Filepath of the vote.
   --proposal-file FILE     Filepath of the proposal.
   --out-file FILE          Output filepath of the JSON TxBody.

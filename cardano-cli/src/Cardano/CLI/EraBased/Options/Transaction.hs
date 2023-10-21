@@ -182,7 +182,7 @@ pTransactionBuildCmd era envCli = do
                       Nothing
                       "Filepath of auxiliary script(s)")
           <*> many pMetadataFile
-          <*> optional pUpdateProposalFile
+          <*> pFeatured (shelleyBasedToCardanoEra w) (optional pUpdateProposalFile)
           <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
           <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
           <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
@@ -217,7 +217,7 @@ pTransactionBuildRaw era =
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
-      <*> optional pUpdateProposalFile
+      <*> pFeatured era (optional pUpdateProposalFile)
       <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
       <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
       <*> pTxBodyFileOut

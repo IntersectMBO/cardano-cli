@@ -7278,7 +7278,6 @@ Usage: cardano-cli conway transaction build-raw
                                                   | --metadata-cbor-file FILE
                                                   ]
                                                   [--protocol-params-file FILE]
-                                                  [--update-proposal-file FILE]
                                                   [--vote-file FILE]
                                                   [--proposal-file FILE]
                                                   --out-file FILE
@@ -7399,7 +7398,6 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                               [ --metadata-json-file FILE
                                               | --metadata-cbor-file FILE
                                               ]
-                                              [--update-proposal-file FILE]
                                               [--vote-file FILE]
                                               [--proposal-file FILE]
                                               ( --out-file FILE

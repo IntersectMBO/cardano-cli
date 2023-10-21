@@ -85,6 +85,8 @@ module Cardano.CLI.Read
 
   , scriptHashReader
 
+  -- * Update proposals
+  , readTxUpdateProposal
 
   -- * Vote related
   , readVoteDelegationTarget
@@ -787,6 +789,13 @@ readVotingProceduresFiles w = \case
     vpss <- forM files (ExceptT . readVotingProceduresFile w)
 
     pure $ foldl unsafeMergeVotingProcedures emptyVotingProcedures vpss
+
+readTxUpdateProposal :: ()
+  => ShelleyToBabbageEra era
+  -> UpdateProposalFile
+  -> ExceptT (FileError TextEnvelopeError) IO (TxUpdateProposal era)
+readTxUpdateProposal w (UpdateProposalFile upFp) = do
+  TxUpdateProposal w <$> newExceptT (readFileTextEnvelope AsUpdateProposal (File upFp))
 
 readVotingProceduresFile :: ()
   => ConwayEraOnwards era

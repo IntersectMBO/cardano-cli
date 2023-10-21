@@ -121,7 +121,7 @@ runTransactionBuildCmd
       , metadataSchema
       , scriptFiles
       , metadataFiles
-      , mUpdateProposalFile
+      , mfUpdateProposalFile
       , voteFiles
       , proposalFiles
       , buildOutputOptions
@@ -157,8 +157,11 @@ runTransactionBuildCmd
     mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
   txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts era scripts
 
-  mProp <- forM mUpdateProposalFile $ \(UpdateProposalFile upFp) ->
-    firstExceptT TxCmdReadTextViewFileError (newExceptT $ readFileTextEnvelope AsUpdateProposal (File upFp))
+  mProp <- case mfUpdateProposalFile of
+    Just (Featured w (Just updateProposalFile)) ->
+      readTxUpdateProposal w updateProposalFile & firstExceptT TxCmdReadTextViewFileError
+    _ -> pure TxUpdateProposalNone
+
   requiredSigners  <- mapM (firstExceptT TxCmdRequiredSignerError .  newExceptT . readRequiredSigner) reqSigners
   mReturnCollateral <- forM mReturnColl $ toTxOutInAnyEra era
 
@@ -321,8 +324,10 @@ runTransactionBuildRawCmd
         firstExceptT TxCmdProtocolParamsConverstionError
          . hoistEither $ convertToLedgerProtocolParameters sbe pp
 
-  mProp <- forM mUpdateProprosalFile $ \(UpdateProposalFile upFp) ->
-    firstExceptT TxCmdReadTextViewFileError (newExceptT $ readFileTextEnvelope AsUpdateProposal (File upFp))
+  txUpdateProposal <- case mUpdateProprosalFile of
+    Just (Featured w (Just updateProposalFile)) ->
+      readTxUpdateProposal w updateProposalFile & firstExceptT TxCmdReadTextViewFileError
+    _ -> pure TxUpdateProposalNone
 
   requiredSigners  <- mapM (firstExceptT TxCmdRequiredSignerError .  newExceptT . readRequiredSigner) reqSigners
   mReturnCollateral <- forM mReturnColl $ toTxOutInAnyEra eon
@@ -347,7 +352,7 @@ runTransactionBuildRawCmd
       eon mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
       mReturnCollateral mTotalCollateral txOuts mValidityLowerBound mValidityUpperBound fee valuesWithScriptWits
       certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits requiredSigners txAuxScripts
-      txMetadata mLedgerPParams mProp votingProcedures proposals
+      txMetadata mLedgerPParams txUpdateProposal votingProcedures proposals
 
   let noWitTx = makeSignedTransaction [] txBody
   lift (cardanoEraConstraints eon $ writeTxFileTextEnvelopeCddl eon txBodyOutFile noWitTx)
@@ -385,7 +390,7 @@ runTxBuildRaw :: ()
   -> TxAuxScripts era
   -> TxMetadataInEra era
   -> Maybe (LedgerProtocolParameters era)
-  -> Maybe UpdateProposal
+  -> TxUpdateProposal era
   -> VotingProcedures era
   -> [Proposal era]
   -> Either TxCmdError (TxBody era)
@@ -396,7 +401,7 @@ runTxBuildRaw era
               mLowerBound mUpperBound
               mFee valuesWithScriptWits
               certsAndMaybeSriptWits withdrawals reqSigners
-              txAuxScripts txMetadata mpparams mUpdateProp votingProcedures proposals = do
+              txAuxScripts txMetadata mpparams txUpdateProposal votingProcedures proposals = do
 
     let allReferenceInputs = getAllReferenceInputs
                                inputsAndMaybeScriptWits
@@ -423,8 +428,6 @@ runTxBuildRaw era
       <- first TxCmdTxWithdrawalsValidationError $ validateTxWithdrawals era withdrawals
     validatedTxCerts
       <- first TxCmdTxCertificatesValidationError $ validateTxCertificates era certsAndMaybeSriptWits
-    validatedTxUpProp
-      <- first TxCmdTxUpdateProposalValidationError $ validateTxUpdateProposal era mUpdateProp
     validatedMintValue
       <- createTxMintValue era valuesWithScriptWits
     validatedTxScriptValidity
@@ -447,7 +450,7 @@ runTxBuildRaw era
             , txProtocolParams = validatedPParams
             , txWithdrawals = validatedTxWtdrwls
             , txCertificates = validatedTxCerts
-            , txUpdateProposal = validatedTxUpProp
+            , txUpdateProposal = txUpdateProposal
             , txMintValue = validatedMintValue
             , txScriptValidity = validatedTxScriptValidity
             , txProposalProcedures = forEraInEonMaybe era (`Featured` validatedTxProposal)
@@ -491,7 +494,7 @@ runTxBuild :: ()
   -- ^ Required signers
   -> TxAuxScripts era
   -> TxMetadataInEra era
-  -> Maybe UpdateProposal
+  -> TxUpdateProposal era
   -> Maybe Word
   -> VotingProcedures era
   -> [Proposal era]
@@ -502,9 +505,10 @@ runTxBuild
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
-    mUpdatePropF mOverrideWits votingProcedures proposals outputOptions = shelleyBasedEraConstraints sbe $ do
+    txUpdateProposal mOverrideWits votingProcedures proposals outputOptions = shelleyBasedEraConstraints sbe $ do
 
   let era = shelleyBasedToCardanoEra sbe
+    -- txUpdateProposal mOverrideWits votingProcedures proposals outputOptions = cardanoEraConstraints era $ do
 
   let consensusMode = consensusModeOnly cModeParams
       dummyFee = Just $ Lovelace 0
@@ -529,7 +533,6 @@ runTxBuild
   validatedReqSigners <- hoistEither (first TxCmdRequiredSignersValidationError $ validateRequiredSigners era reqSigners)
   validatedTxWtdrwls <- hoistEither (first TxCmdTxWithdrawalsValidationError $ validateTxWithdrawals era withdrawals)
   validatedTxCerts <- hoistEither (first TxCmdTxCertificatesValidationError $ validateTxCertificates era certsAndMaybeScriptWits)
-  validatedTxUpProp <- hoistEither (first TxCmdTxUpdateProposalValidationError $ validateTxUpdateProposal era mUpdatePropF)
   validatedMintValue <- hoistEither $ createTxMintValue era valuesWithScriptWits
   validatedTxScriptValidity <- hoistEither (first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity)
 
@@ -583,7 +586,7 @@ runTxBuild
               , txProtocolParams = validatedPParams
               , txWithdrawals = validatedTxWtdrwls
               , txCertificates = validatedTxCerts
-              , txUpdateProposal = validatedTxUpProp
+              , txUpdateProposal = txUpdateProposal
               , txMintValue = validatedMintValue
               , txScriptValidity = validatedTxScriptValidity
               , txProposalProcedures = forEraInEonMaybe era (`Featured` validatedTxProposalProcedures)
