@@ -12,7 +12,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Commands.Governance.Vote
+import qualified Cardano.CLI.EraBased.Commands.Governance.Vote as Cmd
 import           Cardano.CLI.Read (readVoteHashSource, readVotingProceduresFile)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
@@ -29,20 +29,20 @@ import           Data.Function
 import qualified Data.Yaml.Pretty as Yaml
 
 runGovernanceVoteCmds :: ()
-  => GovernanceVoteCmds era
+  => Cmd.GovernanceVoteCmds era
   -> ExceptT CmdError IO ()
 runGovernanceVoteCmds = \case
-  GovernanceVoteCreateCmd anyVote ->
+  Cmd.GovernanceVoteCreateCmd anyVote ->
     runGovernanceVoteCreateCmd anyVote
       & firstExceptT CmdGovernanceVoteError
-  GovernanceVoteViewCmd (GovernanceVoteViewCmdArgs w printYaml voteFile mOutFile) ->
+  Cmd.GovernanceVoteViewCmd (Cmd.GovernanceVoteViewCmdArgs w printYaml voteFile mOutFile) ->
     runGovernanceVoteViewCmd w printYaml voteFile mOutFile
       & firstExceptT CmdGovernanceVoteError
 
 runGovernanceVoteCreateCmd :: ()
-  => GovernanceVoteCreateCmdArgs era
+  => Cmd.GovernanceVoteCreateCmdArgs era
   -> ExceptT GovernanceVoteCmdError IO ()
-runGovernanceVoteCreateCmd (GovernanceVoteCreateCmdArgs cOnwards voteChoice (govActionTxId, govActionIndex) voteStakeCred oFp mAnchor)  = do
+runGovernanceVoteCreateCmd (Cmd.GovernanceVoteCreateCmdArgs cOnwards voteChoice (govActionTxId, govActionIndex) voteStakeCred oFp mAnchor)  = do
   let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
   voteProcedure <- case mAnchor of
      Nothing -> pure $ createVotingProcedure cOnwards voteChoice Nothing

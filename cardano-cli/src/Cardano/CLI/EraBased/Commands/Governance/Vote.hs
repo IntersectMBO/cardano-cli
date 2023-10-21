@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -23,23 +24,23 @@ data GovernanceVoteCmds era
   | GovernanceVoteViewCmd
       (GovernanceVoteViewCmdArgs era)
 
-data GovernanceVoteCreateCmdArgs era where
-  GovernanceVoteCreateCmdArgs
-    :: ConwayEraOnwards era
-    -> Vote
-    -> (TxId, Word32)
-    -> AnyVotingStakeVerificationKeyOrHashOrFile
-    -> VoteFile Out
-    -> Maybe (VoteUrl, VoteHashSource)
-    -> GovernanceVoteCreateCmdArgs era
+data GovernanceVoteCreateCmdArgs era
+  = GovernanceVoteCreateCmdArgs
+      { eon                         :: ConwayEraOnwards era
+      , voteChoice                  :: Vote
+      , governanceAction            :: (TxId, Word32)
+      , votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
+      , outFile                     :: VoteFile Out
+      , mAnchor                     :: Maybe (VoteUrl, VoteHashSource)
+      }
 
 data GovernanceVoteViewCmdArgs era
   = GovernanceVoteViewCmdArgs
-    { governanceVoteViewCmdEra :: ConwayEraOnwards era
-    , governanceVoteViewCmdYamlOutput :: Bool
-    , governanceVoteViewCmdVoteFile :: VoteFile In
-    , governanceVoteViewCmdOutputFile :: Maybe (File () Out)
-    }
+      { eon         :: ConwayEraOnwards era
+      , yamlOutput  :: Bool
+      , voteFile    :: VoteFile In
+      , mOutFile    :: Maybe (File () Out)
+      }
 
 renderGovernanceVoteCmds :: ()
   => GovernanceVoteCmds era
