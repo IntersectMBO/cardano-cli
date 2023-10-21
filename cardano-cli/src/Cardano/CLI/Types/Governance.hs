@@ -10,7 +10,6 @@ import           Cardano.CLI.Types.Key (DRepHashSource, VerificationKeyOrFile,
                    VerificationKeyOrHashOrFile)
 
 import           Data.Word
-import Cardano.CLI.Types.Common
 
 type VoteFile = File ConwayVote
 
@@ -29,16 +28,6 @@ data VType = VCC -- committee
            | VDR -- drep
            | VSP -- spo
            deriving Show
-
-data AnyVote where
-  ConwayOnwardsVote
-    :: ConwayEraOnwards era
-    -> Vote
-    -> (TxId, Word32)
-    -> AnyVotingStakeVerificationKeyOrHashOrFile
-    -> VoteFile Out
-    -> Maybe (VoteUrl, VoteHashSource)
-    -> AnyVote
 
 data AnyVotingStakeVerificationKeyOrHashOrFile where
   AnyDRepVerificationKeyOrHashOrFile

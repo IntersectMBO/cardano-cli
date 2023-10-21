@@ -1,24 +1,37 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.Vote
   ( GovernanceVoteCmds(..)
   , GovernanceVoteViewCmdArgs(..)
+  , AnyVote(..)
   , renderGovernanceVoteCmds
   ) where
 
-
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 
 import           Data.Text (Text)
+import           Data.Word
 
 data GovernanceVoteCmds era
   = GovernanceVoteCreateCmd
       AnyVote
   | GovernanceVoteViewCmd
       (GovernanceVoteViewCmdArgs era)
+
+data AnyVote where
+  ConwayOnwardsVote
+    :: ConwayEraOnwards era
+    -> Vote
+    -> (TxId, Word32)
+    -> AnyVotingStakeVerificationKeyOrHashOrFile
+    -> VoteFile Out
+    -> Maybe (VoteUrl, VoteHashSource)
+    -> AnyVote
 
 data GovernanceVoteViewCmdArgs era
   = GovernanceVoteViewCmdArgs
@@ -27,7 +40,6 @@ data GovernanceVoteViewCmdArgs era
     , governanceVoteViewCmdVoteFile :: VoteFile In
     , governanceVoteViewCmdOutputFile :: Maybe (File () Out)
     }
-
 
 renderGovernanceVoteCmds :: ()
   => GovernanceVoteCmds era
