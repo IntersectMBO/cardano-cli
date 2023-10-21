@@ -42,7 +42,7 @@ runGovernanceVoteCmds = \case
 runGovernanceVoteCreateCmd :: ()
   => Cmd.GovernanceVoteCreateCmdArgs era
   -> ExceptT GovernanceVoteCmdError IO ()
-runGovernanceVoteCreateCmd (Cmd.GovernanceVoteCreateCmdArgs cOnwards voteChoice (govActionTxId, govActionIndex) voteStakeCred oFp mAnchor)  = do
+runGovernanceVoteCreateCmd (Cmd.GovernanceVoteCreateCmdArgs cOnwards voteChoice (govActionTxId, govActionIndex) voteStakeCred mAnchor oFp)  = do
   let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
   voteProcedure <- case mAnchor of
      Nothing -> pure $ createVotingProcedure cOnwards voteChoice Nothing

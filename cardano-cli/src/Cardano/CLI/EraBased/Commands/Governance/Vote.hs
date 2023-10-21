@@ -30,8 +30,8 @@ data GovernanceVoteCreateCmdArgs era
       , voteChoice                  :: Vote
       , governanceAction            :: (TxId, Word32)
       , votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
-      , outFile                     :: VoteFile Out
       , mAnchor                     :: Maybe (VoteUrl, VoteHashSource)
+      , outFile                     :: VoteFile Out
       }
 
 data GovernanceVoteViewCmdArgs era
