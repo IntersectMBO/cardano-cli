@@ -5,7 +5,7 @@
 module Cardano.CLI.EraBased.Commands.Governance.Vote
   ( GovernanceVoteCmds(..)
   , GovernanceVoteViewCmdArgs(..)
-  , AnyVote(..)
+  , GovernanceVoteCreateCmdArgs(..)
   , renderGovernanceVoteCmds
   ) where
 
@@ -19,19 +19,19 @@ import           Data.Word
 
 data GovernanceVoteCmds era
   = GovernanceVoteCreateCmd
-      AnyVote
+      (GovernanceVoteCreateCmdArgs era)
   | GovernanceVoteViewCmd
       (GovernanceVoteViewCmdArgs era)
 
-data AnyVote where
-  ConwayOnwardsVote
+data GovernanceVoteCreateCmdArgs era where
+  GovernanceVoteCreateCmdArgs
     :: ConwayEraOnwards era
     -> Vote
     -> (TxId, Word32)
     -> AnyVotingStakeVerificationKeyOrHashOrFile
     -> VoteFile Out
     -> Maybe (VoteUrl, VoteHashSource)
-    -> AnyVote
+    -> GovernanceVoteCreateCmdArgs era
 
 data GovernanceVoteViewCmdArgs era
   = GovernanceVoteViewCmdArgs

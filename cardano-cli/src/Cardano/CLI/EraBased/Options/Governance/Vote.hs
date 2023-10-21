@@ -35,13 +35,14 @@ pGovernanceVoteCreateCmd era = do
     $ subParser "create"
     $ Opt.info
         ( GovernanceVoteCreateCmd
-            <$> pAnyVote w
+            <$> pGovernanceVoteCreateCmdArgs w
         )
     $ Opt.progDesc "Vote creation."
 
-pAnyVote :: ConwayEraOnwards era -> Parser AnyVote
-pAnyVote cOnwards =
-  ConwayOnwardsVote cOnwards
+pGovernanceVoteCreateCmdArgs :: ()
+  => ConwayEraOnwards era -> Parser (GovernanceVoteCreateCmdArgs era)
+pGovernanceVoteCreateCmdArgs cOnwards =
+  GovernanceVoteCreateCmdArgs cOnwards
       <$> pVoteChoice
       <*> pGovernanceActionId
       <*> pAnyVotingStakeVerificationKeyOrHashOrFile

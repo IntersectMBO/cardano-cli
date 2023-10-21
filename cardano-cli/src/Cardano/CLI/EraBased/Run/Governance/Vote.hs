@@ -39,10 +39,10 @@ runGovernanceVoteCmds = \case
     runGovernanceVoteViewCmd w printYaml voteFile mOutFile
       & firstExceptT CmdGovernanceVoteError
 
-runGovernanceVoteCreateCmd
-  :: AnyVote
+runGovernanceVoteCreateCmd :: ()
+  => GovernanceVoteCreateCmdArgs era
   -> ExceptT GovernanceVoteCmdError IO ()
-runGovernanceVoteCreateCmd (ConwayOnwardsVote cOnwards voteChoice (govActionTxId, govActionIndex) voteStakeCred oFp mAnchor)  = do
+runGovernanceVoteCreateCmd (GovernanceVoteCreateCmdArgs cOnwards voteChoice (govActionTxId, govActionIndex) voteStakeCred oFp mAnchor)  = do
   let sbe = conwayEraOnwardsToShelleyBasedEra cOnwards -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
   voteProcedure <- case mAnchor of
      Nothing -> pure $ createVotingProcedure cOnwards voteChoice Nothing
