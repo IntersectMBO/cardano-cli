@@ -68,9 +68,8 @@ pGovernanceVoteViewCmd era = do
 
 pGovernanceVoteViewCmdArgs :: ConwayEraOnwards era -> Parser (GovernanceVoteViewCmdArgs era)
 pGovernanceVoteViewCmdArgs cOnwards =
-  GovernanceVoteViewCmdArgs
+  GovernanceVoteViewCmdArgs cOnwards
     <$> pYamlOutput
-    <*> pure cOnwards
     <*> pFileInDirection "vote-file" "Input filepath of the vote."
     <*> pMaybeOutputFile
   where

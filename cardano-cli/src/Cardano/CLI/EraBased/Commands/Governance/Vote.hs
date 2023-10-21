@@ -22,8 +22,8 @@ data GovernanceVoteCmds era
 
 data GovernanceVoteViewCmdArgs era
   = GovernanceVoteViewCmdArgs
-    { governanceVoteViewCmdYamlOutput :: Bool
-    , governanceVoteViewCmdEra :: ConwayEraOnwards era
+    { governanceVoteViewCmdEra :: ConwayEraOnwards era
+    , governanceVoteViewCmdYamlOutput :: Bool
     , governanceVoteViewCmdVoteFile :: VoteFile In
     , governanceVoteViewCmdOutputFile :: Maybe (File () Out)
     }

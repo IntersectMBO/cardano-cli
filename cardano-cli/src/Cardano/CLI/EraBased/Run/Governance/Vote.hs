@@ -35,8 +35,8 @@ runGovernanceVoteCmds = \case
   GovernanceVoteCreateCmd anyVote ->
     runGovernanceVoteCreateCmd anyVote
       & firstExceptT CmdGovernanceVoteError
-  GovernanceVoteViewCmd (GovernanceVoteViewCmdArgs printYaml w voteFile mOutFile) ->
-    runGovernanceVoteViewCmd printYaml w voteFile mOutFile
+  GovernanceVoteViewCmd (GovernanceVoteViewCmdArgs w printYaml voteFile mOutFile) ->
+    runGovernanceVoteViewCmd w printYaml voteFile mOutFile
       & firstExceptT CmdGovernanceVoteError
 
 runGovernanceVoteCreateCmd
@@ -85,13 +85,13 @@ runGovernanceVoteCreateCmd (ConwayOnwardsVote cOnwards voteChoice (govActionTxId
             votingProcedures = singletonVotingProcedures cOnwards voter govActIdentifier (unVotingProcedure voteProcedure)
         firstExceptT GovernanceVoteCmdWriteError . newExceptT $ writeFileTextEnvelope oFp Nothing votingProcedures
 
-runGovernanceVoteViewCmd
-  :: Bool
-  -> ConwayEraOnwards era
+runGovernanceVoteViewCmd :: ()
+  => ConwayEraOnwards era
+  -> Bool
   -> VoteFile In
   -> Maybe (File () Out)
   -> ExceptT GovernanceVoteCmdError IO ()
-runGovernanceVoteViewCmd outputYaml w fp mOutFile = do
+runGovernanceVoteViewCmd w outputYaml fp mOutFile = do
   let sbe = conwayEraOnwardsToShelleyBasedEra w
 
   shelleyBasedEraConstraints sbe $ do
