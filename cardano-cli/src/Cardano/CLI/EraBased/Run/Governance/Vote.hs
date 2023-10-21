@@ -13,7 +13,7 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Vote
-import           Cardano.CLI.Read (readVotingProceduresFile, readVoteHashSource)
+import           Cardano.CLI.Read (readVoteHashSource, readVotingProceduresFile)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
@@ -35,7 +35,7 @@ runGovernanceVoteCmds = \case
   GovernanceVoteCreateCmd anyVote ->
     runGovernanceVoteCreateCmd anyVote
       & firstExceptT CmdGovernanceVoteError
-  GovernanceVoteViewCmd (AnyVoteViewCmd printYaml w voteFile mOutFile) ->
+  GovernanceVoteViewCmd (GovernanceVoteViewCmdArgs printYaml w voteFile mOutFile) ->
     runGovernanceVoteViewCmd printYaml w voteFile mOutFile
       & firstExceptT CmdGovernanceVoteError
 

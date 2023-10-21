@@ -3,7 +3,7 @@
 
 module Cardano.CLI.EraBased.Commands.Governance.Vote
   ( GovernanceVoteCmds(..)
-  , AnyVoteViewCmd(..)
+  , GovernanceVoteViewCmdArgs(..)
   , renderGovernanceVoteCmds
   ) where
 
@@ -18,10 +18,10 @@ data GovernanceVoteCmds era
   = GovernanceVoteCreateCmd
       AnyVote
   | GovernanceVoteViewCmd
-      (AnyVoteViewCmd era)
+      (GovernanceVoteViewCmdArgs era)
 
-data AnyVoteViewCmd era
-  = AnyVoteViewCmd
+data GovernanceVoteViewCmdArgs era
+  = GovernanceVoteViewCmdArgs
     { governanceVoteViewCmdYamlOutput :: Bool
     , governanceVoteViewCmdEra :: ConwayEraOnwards era
     , governanceVoteViewCmdVoteFile :: VoteFile In

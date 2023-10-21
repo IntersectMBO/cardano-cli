@@ -63,12 +63,12 @@ pGovernanceVoteViewCmd era = do
   pure
     $ subParser "view"
     $ Opt.info
-        (GovernanceVoteViewCmd <$> pAnyVoteViewCmd w)
+        (GovernanceVoteViewCmd <$> pGovernanceVoteViewCmdArgs w)
     $ Opt.progDesc "Vote viewing."
 
-pAnyVoteViewCmd :: ConwayEraOnwards era -> Parser (AnyVoteViewCmd era)
-pAnyVoteViewCmd cOnwards =
-  AnyVoteViewCmd
+pGovernanceVoteViewCmdArgs :: ConwayEraOnwards era -> Parser (GovernanceVoteViewCmdArgs era)
+pGovernanceVoteViewCmdArgs cOnwards =
+  GovernanceVoteViewCmdArgs
     <$> pYamlOutput
     <*> pure cOnwards
     <*> pFileInDirection "vote-file" "Input filepath of the vote."
