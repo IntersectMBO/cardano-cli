@@ -48,21 +48,7 @@ pTransactionCmds era envCli =
                 , "undesired tx body. See nested [] notation above for details."
                 ]
             ]
-    , Just
-        $ subParser "build"
-        $ Opt.info (pTransactionBuild era envCli)
-        $ Opt.progDescDoc
-        $ Just $ mconcat
-            [ pretty @String "Build a balanced transaction (automatically calculates fees)"
-            , line
-            , line
-            , H.yellow $ mconcat
-                [ "Please note "
-                , H.underline "the order"
-                , " of some cmd options is crucial. If used incorrectly may produce "
-                , "undesired tx body. See nested [] notation above for details."
-                ]
-            ]
+    , pTransactionBuildCmd era envCli
     , Just
         $ subParser "sign"
         $ Opt.info (pTransactionSign envCli)
@@ -149,38 +135,57 @@ pScriptValidity = asum
     ]
   ]
 
-pTransactionBuild :: CardanoEra era -> EnvCli -> Parser (TransactionCmds era)
-pTransactionBuild era envCli =
-  fmap TransactionBuildCmd $
-    TransactionBuildCmdArgs era
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
-      <*> optional pScriptValidity
-      <*> optional pWitnessOverride
-      <*> some (pTxIn AutoBalance)
-      <*> many pReadOnlyReferenceTxIn
-      <*> many pRequiredSigner
-      <*> many pTxInCollateral
-      <*> optional pReturnCollateral
-      <*> optional pTotalCollateral
-      <*> many pTxOut
-      <*> pChangeAddress
-      <*> optional (pMintMultiAsset AutoBalance)
-      <*> optional pInvalidBefore
-      <*> optional pInvalidHereafter
-      <*> many (pCertificateFile AutoBalance)
-      <*> many (pWithdrawal AutoBalance)
-      <*> pTxMetadataJsonSchema
-      <*> many (pScriptFor
-                  "auxiliary-script-file"
-                  Nothing
-                  "Filepath of auxiliary script(s)")
-      <*> many pMetadataFile
-      <*> optional pUpdateProposalFile
-      <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
-      <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
-      <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
+pTransactionBuildCmd :: CardanoEra era -> EnvCli -> Maybe (Parser (TransactionCmds era))
+pTransactionBuildCmd era envCli = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "build"
+    $ Opt.info (pCmd w)
+    $ Opt.progDescDoc
+    $ Just $ mconcat
+        [ pretty @String "Build a balanced transaction (automatically calculates fees)"
+        , line
+        , line
+        , H.yellow $ mconcat
+            [ "Please note "
+            , H.underline "the order"
+            , " of some cmd options is crucial. If used incorrectly may produce "
+            , "undesired tx body. See nested [] notation above for details."
+            ]
+        ]
+  where
+    pCmd :: CardanoEra era ->  Parser (TransactionCmds era)
+    pCmd w =
+      fmap TransactionBuildCmd $
+        TransactionBuildCmdArgs w
+          <$> pSocketPath envCli
+          <*> pConsensusModeParams
+          <*> pNetworkId envCli
+          <*> optional pScriptValidity
+          <*> optional pWitnessOverride
+          <*> some (pTxIn AutoBalance)
+          <*> many pReadOnlyReferenceTxIn
+          <*> many pRequiredSigner
+          <*> many pTxInCollateral
+          <*> optional pReturnCollateral
+          <*> optional pTotalCollateral
+          <*> many pTxOut
+          <*> pChangeAddress
+          <*> optional (pMintMultiAsset AutoBalance)
+          <*> optional pInvalidBefore
+          <*> optional pInvalidHereafter
+          <*> many (pCertificateFile AutoBalance)
+          <*> many (pWithdrawal AutoBalance)
+          <*> pTxMetadataJsonSchema
+          <*> many (pScriptFor
+                      "auxiliary-script-file"
+                      Nothing
+                      "Filepath of auxiliary script(s)")
+          <*> many pMetadataFile
+          <*> optional pUpdateProposalFile
+          <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
+          <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
+          <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
 pChangeAddress :: Parser TxOutChangeAddress
 pChangeAddress =
