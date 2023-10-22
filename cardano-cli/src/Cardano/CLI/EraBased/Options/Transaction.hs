@@ -154,7 +154,7 @@ pTransactionBuildCmd era envCli = do
             ]
         ]
   where
-    pCmd :: CardanoEra era ->  Parser (TransactionCmds era)
+    pCmd :: ShelleyBasedEra era ->  Parser (TransactionCmds era)
     pCmd w =
       fmap TransactionBuildCmd $
         TransactionBuildCmdArgs w

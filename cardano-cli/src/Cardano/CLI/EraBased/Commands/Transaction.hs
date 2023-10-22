@@ -82,7 +82,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
 
 -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
 data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
-  { eon                     :: !(CardanoEra era)
+  { eon                     :: !(ShelleyBasedEra era)
   , nodeSocketPath          :: !SocketPath
   , consensusModeParams     :: !AnyConsensusModeParams
   , networkId               :: !NetworkId

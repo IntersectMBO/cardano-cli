@@ -19,7 +19,7 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Governance
 
 import           Control.Monad.Trans.Except
-
+import           Control.Monad.Trans.Except.Extra
 
 runLegacyTransactionCmds :: LegacyTransactionCmds -> ExceptT TxCmdError IO ()
 runLegacyTransactionCmds = \case
@@ -95,9 +95,12 @@ runLegacyTransactionBuildCmd
     consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
     reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
     mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp voteFiles
-    proposalFiles outputOptions =
+    proposalFiles outputOptions = do
+
+  AnyShelleyBasedEra sbe <- forEraInEon era (left TxCmdByronEra) (pure . AnyShelleyBasedEra)
+
   runTransactionBuildCmd
-    ( Cmd.TransactionBuildCmdArgs era socketPath
+    ( Cmd.TransactionBuildCmdArgs sbe socketPath
         consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
         mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp voteFiles
