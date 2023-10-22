@@ -309,7 +309,7 @@ pTransaction envCli =
   pTransactionBuild =
     TransactionBuildCmd
       <$> pSocketPath envCli
-      <*> pLegacyCardanoEra envCli
+      <*> pLegacyShelleyBasedEra envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
       <*> optional pScriptValidity
