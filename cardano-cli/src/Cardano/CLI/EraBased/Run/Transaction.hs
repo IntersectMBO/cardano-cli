@@ -180,7 +180,7 @@ runTransactionBuildCmd
   -- We need to construct the txBodycontent outside of runTxBuild
   BalancedTxBody txBodyContent balancedTxBody _ _ <-
     runTxBuild
-      era nodeSocketPath consensusModeParams networkId mScriptValidity inputsAndMaybeScriptWits readOnlyReferenceInputs
+      eon nodeSocketPath consensusModeParams networkId mScriptValidity inputsAndMaybeScriptWits readOnlyReferenceInputs
       filteredTxinsc mReturnCollateral mTotalCollateral txOuts changeAddresses valuesWithScriptWits
       mValidityLowerBound mValidityUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
       requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProcedures proposals buildOutputOptions
@@ -458,7 +458,7 @@ runTxBuildRaw era
       cardanoEraConstraints era $ createAndValidateTransactionBody era txBodyContent
 
 runTxBuild :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> SocketPath
   -> AnyConsensusModeParams
   -> NetworkId
@@ -498,11 +498,13 @@ runTxBuild :: ()
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
-    era socketPath (AnyConsensusModeParams cModeParams) networkId mScriptValidity
+    sbe socketPath (AnyConsensusModeParams cModeParams) networkId mScriptValidity
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
-    mUpdatePropF mOverrideWits votingProcedures proposals outputOptions = cardanoEraConstraints era $ do
+    mUpdatePropF mOverrideWits votingProcedures proposals outputOptions = shelleyBasedEraConstraints sbe $ do
+
+  let era = shelleyBasedToCardanoEra sbe
 
   let consensusMode = consensusModeOnly cModeParams
       dummyFee = Just $ Lovelace 0
@@ -531,8 +533,8 @@ runTxBuild
   validatedMintValue <- hoistEither $ createTxMintValue era valuesWithScriptWits
   validatedTxScriptValidity <- hoistEither (first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity)
 
-  case (consensusMode, cardanoEraStyle era) of
-    (CardanoMode, ShelleyBasedEra sbe) -> do
+  case consensusMode of
+    CardanoMode -> do
       _ <- toEraInMode era CardanoMode
             & hoistMaybe (TxCmdEraConsensusModeMismatchTxBalance outputOptions (AnyConsensusMode CardanoMode) (AnyCardanoEra era))
 
@@ -607,9 +609,7 @@ runTxBuild
 
       return balancedTxBody
 
-    (CardanoMode, LegacyByronEra) -> left TxCmdByronEra
-
-    (wrongMode, _) -> left (TxCmdUnsupportedMode (AnyConsensusMode wrongMode))
+    wrongMode -> left (TxCmdUnsupportedMode (AnyConsensusMode wrongMode))
 
 -- ----------------------------------------------------------------------------
 -- Transaction body validation and conversion
