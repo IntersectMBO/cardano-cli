@@ -15,6 +15,7 @@ module Cardano.CLI.Legacy.Options
   , parseTxIn
 
   , pLegacyCardanoEra
+  , pLegacyShelleyBasedEra
   , pKeyRegistDeposit
   , pStakePoolRegistrationParserRequirements
   , pStakePoolVerificationKeyOrHashOrFile
@@ -24,7 +25,7 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
-import           Cardano.CLI.Environment (EnvCli (..))
+import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Commands.Address
@@ -1240,3 +1241,31 @@ pLegacyCardanoEra envCli =
       defaultCardanoEra = defaultShelleyBasedEra & \(EraInEon era) ->
         let cera = toCardanoEra era
          in cardanoEraConstraints cera (AnyCardanoEra cera)
+
+pLegacyShelleyBasedEra :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
+pLegacyShelleyBasedEra envCli =
+  asum $ mconcat
+    [ [ Opt.flag' (EraInEon ShelleyBasedEraShelley) $ mconcat
+        [ Opt.long "shelley-era"
+        , Opt.help "Specify the Shelley era"
+        ]
+      , Opt.flag' (EraInEon ShelleyBasedEraAllegra) $ mconcat
+        [ Opt.long "allegra-era"
+        , Opt.help "Specify the Allegra era"
+        ]
+      , Opt.flag' (EraInEon ShelleyBasedEraMary) $ mconcat
+        [ Opt.long "mary-era"
+        , Opt.help "Specify the Mary era"
+        ]
+      , Opt.flag' (EraInEon ShelleyBasedEraAlonzo) $ mconcat
+        [ Opt.long "alonzo-era"
+        , Opt.help "Specify the Alonzo era"
+        ]
+      , Opt.flag' (EraInEon ShelleyBasedEraBabbage) $ mconcat
+        [ Opt.long "babbage-era"
+        , Opt.help "Specify the Babbage era (default)"
+        ]
+      ]
+    , maybeToList $ pure <$> envCliAnyShelleyBasedEra envCli
+    , pure $ pure defaultShelleyBasedEra
+  ]
