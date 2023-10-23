@@ -1,9 +1,9 @@
 {-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -143,28 +143,17 @@ import           Crypto.Random as Crypto
 
 runGenesisCmds :: GenesisCmds era -> ExceptT GenesisCmdError IO ()
 runGenesisCmds = \case
-  GenesisKeyGenGenesis args ->
-    runGenesisKeyGenGenesisCmd args
-  GenesisKeyGenDelegate args ->
-    runGenesisKeyGenDelegateCmd args
-  GenesisKeyGenUTxO args ->
-    runGenesisKeyGenUTxOCmd args
-  GenesisCmdKeyHash vk ->
-    runGenesisKeyHashCmd vk
-  GenesisVerKey vk sk ->
-    runGenesisVerKeyCmd vk sk
-  GenesisTxIn vk nw mOutFile ->
-    runGenesisTxInCmd vk nw mOutFile
-  GenesisAddr vk nw mOutFile ->
-    runGenesisAddrCmd vk nw mOutFile
-  GenesisCreate args ->
-    runGenesisCreateCmd args
-  GenesisCreateCardano args ->
-    runGenesisCreateCardanoCmd args
-  GenesisCreateStaked args ->
-    runGenesisCreateStakedCmd args
-  GenesisHashFile gf ->
-    runGenesisHashFileCmd gf
+  GenesisKeyGenGenesis args -> runGenesisKeyGenGenesisCmd args
+  GenesisKeyGenDelegate args -> runGenesisKeyGenDelegateCmd args
+  GenesisKeyGenUTxO args -> runGenesisKeyGenUTxOCmd args
+  GenesisCmdKeyHash vk -> runGenesisKeyHashCmd vk
+  GenesisVerKey args -> runGenesisVerKeyCmd args
+  GenesisTxIn args -> runGenesisTxInCmd args
+  GenesisAddr args -> runGenesisAddrCmd args
+  GenesisCreate args -> runGenesisCreateCmd args
+  GenesisCreateCardano args -> runGenesisCreateCardanoCmd args
+  GenesisCreateStaked args -> runGenesisCreateStakedCmd args
+  GenesisHashFile gf -> runGenesisHashFileCmd gf
 
 runGenesisKeyGenGenesisCmd
   :: GenesisKeyGenGenesisCmdArgs
@@ -296,11 +285,14 @@ runGenesisKeyHashCmd vkeyPath = do
                               . verificationKeyHash
 
 
-runGenesisVerKeyCmd ::
-     VerificationKeyFile Out
-  -> SigningKeyFile In
+runGenesisVerKeyCmd
+  :: GenesisVerKeyCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisVerKeyCmd vkeyPath skeyPath = do
+runGenesisVerKeyCmd
+    Cmd.GenesisVerKeyCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.signingKeyPath
+    } = do
     skey <- firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
             readFileTextEnvelopeAnyOf
               [ FromSomeType (AsSigningKey AsGenesisKey)
@@ -310,7 +302,7 @@ runGenesisVerKeyCmd vkeyPath skeyPath = do
               , FromSomeType (AsSigningKey AsGenesisUTxOKey)
                              AGenesisUTxOKey
               ]
-              skeyPath
+              signingKeyPath
 
     let vkey :: SomeGenesisKey VerificationKey
         vkey = case skey of
@@ -320,9 +312,9 @@ runGenesisVerKeyCmd vkeyPath skeyPath = do
 
     firstExceptT GenesisCmdGenesisFileError . newExceptT . liftIO $
       case vkey of
-        AGenesisKey         vk -> writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON Nothing vk
-        AGenesisDelegateKey vk -> writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON Nothing vk
-        AGenesisUTxOKey     vk -> writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON Nothing vk
+        AGenesisKey         vk -> writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON Nothing vk
+        AGenesisDelegateKey vk -> writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON Nothing vk
+        AGenesisUTxOKey     vk -> writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON Nothing vk
 
 data SomeGenesisKey f
      = AGenesisKey         (f GenesisKey)
@@ -330,26 +322,32 @@ data SomeGenesisKey f
      | AGenesisUTxOKey     (f GenesisUTxOKey)
 
 
-runGenesisTxInCmd ::
-     VerificationKeyFile In
-  -> NetworkId
-  -> Maybe (File () Out)
+runGenesisTxInCmd
+  :: GenesisTxInCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisTxInCmd vkeyPath network mOutFile = do
+runGenesisTxInCmd
+    Cmd.GenesisTxInCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.network
+    , Cmd.mOutFile
+    } = do
     vkey <- firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
-            readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) vkeyPath
+            readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) verificationKeyPath
     let txin = genesisUTxOPseudoTxIn network (verificationKeyHash vkey)
     liftIO $ writeOutput mOutFile (renderTxIn txin)
 
 
-runGenesisAddrCmd ::
-     VerificationKeyFile In
-  -> NetworkId
-  -> Maybe (File () Out)
+runGenesisAddrCmd
+  :: GenesisAddrCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisAddrCmd vkeyPath network mOutFile = do
+runGenesisAddrCmd
+    Cmd.GenesisAddrCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.network
+    , Cmd.mOutFile
+    } = do
     vkey <- firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
-            readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) vkeyPath
+            readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) verificationKeyPath
     let vkh  = verificationKeyHash (castVerificationKey vkey)
         addr = makeShelleyAddress network (PaymentCredentialByKey vkh)
                                   NoStakeAddress

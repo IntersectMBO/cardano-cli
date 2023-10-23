@@ -118,20 +118,20 @@ pGenesisKeyHash =
 
 pGenesisVerKey :: Parser (GenesisCmds era)
 pGenesisVerKey =
-  GenesisVerKey
+  fmap GenesisVerKey $ GenesisVerKeyCmdArgs
     <$> pVerificationKeyFileOut
     <*> pSigningKeyFileIn
 
 pGenesisAddr :: EnvCli -> Parser (GenesisCmds era)
 pGenesisAddr envCli =
-  GenesisAddr
+  fmap GenesisAddr $ GenesisAddrCmdArgs
     <$> pVerificationKeyFileIn
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
 pGenesisTxIn :: EnvCli -> Parser (GenesisCmds era)
 pGenesisTxIn envCli =
-  GenesisTxIn
+  fmap GenesisTxIn $ GenesisTxInCmdArgs
     <$> pVerificationKeyFileIn
     <*> pNetworkId envCli
     <*> pMaybeOutputFile

@@ -10,6 +10,9 @@ module Cardano.CLI.EraBased.Commands.Genesis
   , GenesisKeyGenGenesisCmdArgs (..)
   , GenesisKeyGenDelegateCmdArgs (..)
   , GenesisKeyGenUTxOCmdArgs (..)
+  , GenesisVerKeyCmdArgs (..)
+  , GenesisTxInCmdArgs (..)
+  , GenesisAddrCmdArgs (..)
   , renderGenesisCmds
   ) where
 
@@ -27,21 +30,11 @@ data GenesisCmds era
   | GenesisKeyGenGenesis !GenesisKeyGenGenesisCmdArgs
   | GenesisKeyGenDelegate !GenesisKeyGenDelegateCmdArgs
   | GenesisKeyGenUTxO !GenesisKeyGenUTxOCmdArgs
-  | GenesisCmdKeyHash
-      (VerificationKeyFile In)
-  | GenesisVerKey
-      (VerificationKeyFile Out)
-      (SigningKeyFile In)
-  | GenesisTxIn
-      (VerificationKeyFile In)
-      NetworkId
-      (Maybe (File () Out))
-  | GenesisAddr
-      (VerificationKeyFile In)
-      NetworkId
-      (Maybe (File () Out))
-  | GenesisHashFile
-      GenesisFile
+  | GenesisCmdKeyHash !(VerificationKeyFile In)
+  | GenesisVerKey !GenesisVerKeyCmdArgs
+  | GenesisTxIn !GenesisTxInCmdArgs
+  | GenesisAddr !GenesisAddrCmdArgs
+  | GenesisHashFile !GenesisFile
   deriving Show
 
 data GenesisCreateCmdArgs = GenesisCreateCmdArgs
@@ -104,6 +97,22 @@ data GenesisKeyGenUTxOCmdArgs = GenesisKeyGenUTxOCmdArgs
   , signingKeyPath :: !(SigningKeyFile Out)
   } deriving Show
 
+data GenesisVerKeyCmdArgs = GenesisVerKeyCmdArgs
+  { verificationKeyPath :: !(VerificationKeyFile Out)
+  , signingKeyPath :: !(SigningKeyFile In)
+  } deriving Show
+
+data GenesisTxInCmdArgs = GenesisTxInCmdArgs
+  { verificationKeyPath :: !(VerificationKeyFile In)
+  , network :: !NetworkId
+  , mOutFile :: !(Maybe (File () Out))
+  } deriving Show
+
+data GenesisAddrCmdArgs = GenesisAddrCmdArgs
+  { verificationKeyPath :: !(VerificationKeyFile In)
+  , network :: !NetworkId
+  , mOutFile :: !(Maybe (File () Out))
+  } deriving Show
 
 renderGenesisCmds :: GenesisCmds era -> Text
 renderGenesisCmds = \case

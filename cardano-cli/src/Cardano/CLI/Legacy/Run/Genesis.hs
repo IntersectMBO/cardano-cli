@@ -12,14 +12,15 @@ module Cardano.CLI.Legacy.Run.Genesis
 import           Cardano.Api
 
 import           Cardano.Chain.Common (BlockCount)
+import           Cardano.CLI.EraBased.Commands.Genesis
+                   (GenesisKeyGenGenesisCmdArgs (GenesisKeyGenGenesisCmdArgs))
+import qualified Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis
 import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GenesisCmdError
 
 import           Control.Monad.Trans.Except (ExceptT)
-import qualified Cardano.CLI.EraBased.Commands.Genesis as Cmd
-import Cardano.CLI.EraBased.Commands.Genesis (GenesisKeyGenGenesisCmdArgs(GenesisKeyGenGenesisCmdArgs))
 
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCmds = \case
@@ -83,21 +84,38 @@ runLegacyGenesisVerKeyCmd ::
      VerificationKeyFile Out
   -> SigningKeyFile In
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisVerKeyCmd = runGenesisVerKeyCmd
+runLegacyGenesisVerKeyCmd vk sk =
+  runGenesisVerKeyCmd
+    Cmd.GenesisVerKeyCmdArgs
+      { Cmd.verificationKeyPath = vk
+      , Cmd.signingKeyPath = sk
+      }
 
 runLegacyGenesisTxInCmd :: ()
   => VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisTxInCmd = runGenesisTxInCmd
+runLegacyGenesisTxInCmd vkt nid mOf =
+  runGenesisTxInCmd
+    Cmd.GenesisTxInCmdArgs
+      { Cmd.verificationKeyPath = vkt
+      , Cmd.network = nid
+      , Cmd.mOutFile = mOf
+      }
 
 runLegacyGenesisAddrCmd :: ()
   => VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisAddrCmd = runGenesisAddrCmd
+runLegacyGenesisAddrCmd vkf nid mOf =
+  runGenesisAddrCmd
+    Cmd.GenesisAddrCmdArgs
+      { Cmd.verificationKeyPath = vkf
+      , Cmd.network = nid
+      , Cmd.mOutFile = mOf
+      }
 
 runLegacyGenesisCreateCmd :: ()
   => KeyOutputFormat
