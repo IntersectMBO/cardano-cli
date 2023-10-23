@@ -9,6 +9,8 @@ module Cardano.CLI.Run
   , runClientCommand
   ) where
 
+import           Cardano.Api
+
 import           Cardano.CLI.Byron.Commands (ByronCommand)
 import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCmdError,
                    runByronClientCommand)
@@ -45,6 +47,7 @@ data ClientCommand =
 
     -- | Byron Related Commands
   | ByronCommand ByronCommand
+  | PreMainnetCommand PreMainnetCommand
 
     -- | Legacy shelley-based Commands
   | LegacyCmds LegacyCmds
@@ -53,6 +56,19 @@ data ClientCommand =
 
   | forall a. Help ParserPrefs (ParserInfo a)
   | DisplayVersion
+
+
+data PreMainnetCommand
+ = PreMainnetTxBuild PreMainnetTransactionBuildCmdArgs
+
+
+-- E.g something like this that offers the minimum required functionality.
+-- We also need key generation commands to work to run SPOs etc
+data PreMainnetTransactionBuildCmdArgs = TransactionBuildCmdArgs
+  { nodeSocketPath          :: !SocketPath
+  , networkId               :: !NetworkId
+  , txins                    :: ![TxIn]
+  }
 
 data ClientCommandErrors
   = ByronClientError ByronClientCmdError

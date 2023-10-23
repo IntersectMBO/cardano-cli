@@ -68,6 +68,17 @@ parseByron mNetworkId =
     , command' "byron" "Byron specific commands" $ parseByronCommands mNetworkId
     ]
 
+{-
+We don't care about the era here because this is simply a backwards compatible
+command that is expected to work over all eras.
+
+We need to be able to parse: Inputs, outputs, update proposals, stake registration, stake delegation and
+pool registration is all that we need in previous eras.
+-}
+parseShelleyToBeforeMainnet :: EnvCli -> Parser ClientCommand
+parseShelleyToBeforeMainnet _ = PreMainnetCommand <$> error "TODO"
+
+
 parsePing :: Parser ClientCommand
 parsePing = CliPingCommand <$> parsePingCmd
 
