@@ -147,8 +147,8 @@ runGenesisCmds = \case
     runGenesisKeyGenGenesisCmd args
   GenesisKeyGenDelegate args ->
     runGenesisKeyGenDelegateCmd args
-  GenesisKeyGenUTxO vk sk ->
-    runGenesisKeyGenUTxOCmd vk sk
+  GenesisKeyGenUTxO args ->
+    runGenesisKeyGenUTxOCmd args
   GenesisCmdKeyHash vk ->
     runGenesisKeyHashCmd vk
   GenesisVerKey vk sk ->
@@ -248,20 +248,23 @@ runGenesisKeyGenDelegateVRF vkeyPath skeyPath = do
     vkeyDesc = "VRF Verification Key"
 
 
-runGenesisKeyGenUTxOCmd ::
-     VerificationKeyFile Out
-  -> SigningKeyFile Out
+runGenesisKeyGenUTxOCmd
+  :: GenesisKeyGenUTxOCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenUTxOCmd vkeyPath skeyPath = do
+runGenesisKeyGenUTxOCmd
+    Cmd.GenesisKeyGenUTxOCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.signingKeyPath
+    } = do
     skey <- liftIO $ generateSigningKey AsGenesisUTxOKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile skeyPath
+      $ writeLazyByteStringFile signingKeyPath
       $ textEnvelopeToJSON (Just skeyDesc) skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile vkeyPath
+      $ writeLazyByteStringFile verificationKeyPath
       $ textEnvelopeToJSON (Just vkeyDesc) vkey
   where
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
@@ -834,8 +837,10 @@ createUtxoKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
   runGenesisKeyGenUTxOCmd
-        (File @(VerificationKey ()) $ dir </> "utxo" ++ strIndex ++ ".vkey")
-        (File @(SigningKey ()) $ dir </> "utxo" ++ strIndex ++ ".skey")
+    Cmd.GenesisKeyGenUTxOCmdArgs
+    { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "utxo" ++ strIndex ++ ".vkey"
+    , Cmd.signingKeyPath = File @(SigningKey ()) $ dir </> "utxo" ++ strIndex ++ ".skey"
+    }
 
 createPoolCredentials :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdError IO ()
 createPoolCredentials fmt dir index = do

@@ -69,7 +69,12 @@ runLegacyGenesisKeyGenUTxOCmd :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisKeyGenUTxOCmd = runGenesisKeyGenUTxOCmd
+runLegacyGenesisKeyGenUTxOCmd vk sk =
+  runGenesisKeyGenUTxOCmd
+    Cmd.GenesisKeyGenUTxOCmdArgs
+      { Cmd.verificationKeyPath = vk
+      , Cmd.signingKeyPath = sk
+      }
 
 runLegacyGenesisKeyHashCmd :: VerificationKeyFile In -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisKeyHashCmd = runGenesisKeyHashCmd

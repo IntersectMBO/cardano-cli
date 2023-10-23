@@ -107,7 +107,7 @@ pGenesisDelegateKeyGen =
 
 pGenesisUTxOKeyGen :: Parser (GenesisCmds era)
 pGenesisUTxOKeyGen =
-  GenesisKeyGenUTxO
+  fmap GenesisKeyGenUTxO $ GenesisKeyGenUTxOCmdArgs
     <$> pVerificationKeyFileOut
     <*> pSigningKeyFileOut
 

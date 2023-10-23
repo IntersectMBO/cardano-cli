@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Commands.Genesis
   , GenesisCreateStakedCmdArgs (..)
   , GenesisKeyGenGenesisCmdArgs (..)
   , GenesisKeyGenDelegateCmdArgs (..)
+  , GenesisKeyGenUTxOCmdArgs (..)
   , renderGenesisCmds
   ) where
 
@@ -25,9 +26,7 @@ data GenesisCmds era
   | GenesisCreateStaked !GenesisCreateStakedCmdArgs
   | GenesisKeyGenGenesis !GenesisKeyGenGenesisCmdArgs
   | GenesisKeyGenDelegate !GenesisKeyGenDelegateCmdArgs
-  | GenesisKeyGenUTxO
-      (VerificationKeyFile Out)
-      (SigningKeyFile Out)
+  | GenesisKeyGenUTxO !GenesisKeyGenUTxOCmdArgs
   | GenesisCmdKeyHash
       (VerificationKeyFile In)
   | GenesisVerKey
@@ -99,6 +98,12 @@ data GenesisKeyGenDelegateCmdArgs = GenesisKeyGenDelegateCmdArgs
   , signingKeyPath :: !(SigningKeyFile Out)
   , opCertCounterPath :: !(OpCertCounterFile Out)
   } deriving Show
+
+data GenesisKeyGenUTxOCmdArgs = GenesisKeyGenUTxOCmdArgs
+  { verificationKeyPath :: !(VerificationKeyFile Out)
+  , signingKeyPath :: !(SigningKeyFile Out)
+  } deriving Show
+
 
 renderGenesisCmds :: GenesisCmds era -> Text
 renderGenesisCmds = \case
