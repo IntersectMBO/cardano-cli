@@ -145,8 +145,8 @@ runGenesisCmds :: GenesisCmds era -> ExceptT GenesisCmdError IO ()
 runGenesisCmds = \case
   GenesisKeyGenGenesis args ->
     runGenesisKeyGenGenesisCmd args
-  GenesisKeyGenDelegate vk sk ctr ->
-    runGenesisKeyGenDelegateCmd vk sk ctr
+  GenesisKeyGenDelegate args ->
+    runGenesisKeyGenDelegateCmd args
   GenesisKeyGenUTxO vk sk ->
     runGenesisKeyGenUTxOCmd vk sk
   GenesisCmdKeyHash vk ->
@@ -190,25 +190,28 @@ runGenesisKeyGenGenesisCmd
     vkeyDesc = "Genesis Verification Key"
 
 
-runGenesisKeyGenDelegateCmd ::
-     VerificationKeyFile Out
-  -> SigningKeyFile Out
-  -> OpCertCounterFile Out
+runGenesisKeyGenDelegateCmd
+  :: GenesisKeyGenDelegateCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenDelegateCmd vkeyPath skeyPath ocertCtrPath = do
+runGenesisKeyGenDelegateCmd
+    Cmd.GenesisKeyGenDelegateCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.signingKeyPath
+    , Cmd.opCertCounterPath
+    } = do
     skey <- liftIO $ generateSigningKey AsGenesisDelegateKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile skeyPath
+      $ writeLazyByteStringFile signingKeyPath
       $ textEnvelopeToJSON (Just skeyDesc) skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile vkeyPath
+      $ writeLazyByteStringFile verificationKeyPath
       $ textEnvelopeToJSON (Just vkeyDesc) vkey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile ocertCtrPath
+      $ writeLazyByteStringFile opCertCounterPath
       $ textEnvelopeToJSON (Just certCtrDesc)
       $ OperationalCertificateIssueCounter
           initialCounter
@@ -791,9 +794,11 @@ createDelegateKeys :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdE
 createDelegateKeys fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   runGenesisKeyGenDelegateCmd
-        (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vkey")
-        (onlyOut coldSK)
-        (onlyOut opCertCtr)
+    Cmd.GenesisKeyGenDelegateCmdArgs
+    { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vkey"
+    , Cmd.signingKeyPath = onlyOut coldSK
+    , Cmd.opCertCounterPath = onlyOut opCertCtr
+    }
   runGenesisKeyGenDelegateVRF
         (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.vkey")
         (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.skey")

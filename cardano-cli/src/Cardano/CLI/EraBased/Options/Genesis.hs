@@ -100,7 +100,7 @@ pGenesisKeyGen =
 
 pGenesisDelegateKeyGen :: Parser (GenesisCmds era)
 pGenesisDelegateKeyGen =
-  GenesisKeyGenDelegate
+  fmap GenesisKeyGenDelegate $ GenesisKeyGenDelegateCmdArgs
     <$> pVerificationKeyFileOut
     <*> pSigningKeyFileOut
     <*> pOperatorCertIssueCounterFile

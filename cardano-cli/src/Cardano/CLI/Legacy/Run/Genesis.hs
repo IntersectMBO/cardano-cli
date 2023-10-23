@@ -57,7 +57,13 @@ runLegacyGenesisKeyGenDelegateCmd :: ()
   -> SigningKeyFile Out
   -> OpCertCounterFile Out
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisKeyGenDelegateCmd = runGenesisKeyGenDelegateCmd
+runLegacyGenesisKeyGenDelegateCmd vkf skf okf =
+  runGenesisKeyGenDelegateCmd
+    Cmd.GenesisKeyGenDelegateCmdArgs
+      { Cmd.verificationKeyPath = vkf
+      , Cmd.signingKeyPath = skf
+      , Cmd.opCertCounterPath = okf
+      }
 
 runLegacyGenesisKeyGenUTxOCmd :: ()
   => VerificationKeyFile Out
