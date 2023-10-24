@@ -191,7 +191,7 @@ runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrF
     firstExceptT StakeAddressCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile outFp
-      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Address Delegation Certificate") certificate
+      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Delegation Certificate") certificate
 
 runStakeAddressStakeAndVoteDelegationCertificateCmd :: ()
   => ConwayEraOnwards era
@@ -226,7 +226,7 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHa
     firstExceptT StakeAddressCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile outFp
-      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Address Delegation Certificate") certificate
+      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake and Vote Delegation Certificate") certificate
 
 runStakeAddressVoteDelegationCertificateCmd :: ()
   => ConwayEraOnwards era
@@ -255,7 +255,7 @@ runStakeAddressVoteDelegationCertificateCmd w stakeVerifier voteDelegationTarget
     firstExceptT StakeAddressCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile outFp
-      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Address Delegation Certificate") certificate
+      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Vote Delegation Certificate") certificate
 
 createStakeDelegationCertificate :: forall era. ()
   => StakeCredential

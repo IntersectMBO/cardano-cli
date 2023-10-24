@@ -3035,7 +3035,7 @@ pVoteDelegationTarget =
   asum
     [ VoteDelegationTargetOfDRep <$> pDRepHashSource
     , VoteDelegationTargetOfAbstain <$ pAlwaysAbstain
-    , VoteDelegationTargetOfAbstain <$ pAlwaysNoConfidence
+    , VoteDelegationTargetOfNoConfidence <$ pAlwaysNoConfidence
     ]
 
 pAlwaysAbstain :: Parser ()
