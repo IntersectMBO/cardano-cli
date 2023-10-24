@@ -14,6 +14,7 @@ data GovernanceActionsError
   | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
   | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdWriteFileError (FileError ())
+  | GovernanceActionsValueUpdateProtocolParametersNotFound AnyShelleyBasedEra
   deriving Show
 
 instance Error GovernanceActionsError where
@@ -28,3 +29,8 @@ instance Error GovernanceActionsError where
       "Cannot read text envelope file: " <> displayError e
     GovernanceActionsCmdWriteFileError e ->
       "Cannot write file: " <> displayError e
+    GovernanceActionsValueUpdateProtocolParametersNotFound (AnyShelleyBasedEra expectedShelleyEra) ->
+      mconcat
+        [ "Protocol parameters update value for " <> show (toCardanoEra expectedShelleyEra)
+        , " was not found."
+        ]

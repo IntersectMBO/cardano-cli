@@ -160,23 +160,59 @@ pAnyStakeIdentifier prefix =
     , Cmd.AnyStakeKey <$> pStakeVerificationKeyOrHashOrFile prefix
     ]
 
+pUpdateProtocolParametersPreConway :: ShelleyToBabbageEra era -> Parser (Cmd.UpdateProtocolParametersPreConway era)
+pUpdateProtocolParametersPreConway shelleyToBab =
+  Cmd.UpdateProtocolParametersPreConway shelleyToBab
+    <$> pEpochNoUpdateProp
+    <*> pProtocolParametersUpdateGenesisKeys
+
+pUpdateProtocolParametersPostConway :: ConwayEraOnwards era -> Parser (Cmd.UpdateProtocolParametersConwayOnwards era)
+pUpdateProtocolParametersPostConway conwayOnwards =
+  Cmd.UpdateProtocolParametersConwayOnwards conwayOnwards
+    <$> pNetwork
+    <*> pGovActionDeposit
+    <*> pAnyStakeIdentifier Nothing
+    <*> pProposalUrl
+    <*> pProposalHashSource
+    <*> pPreviousGovernanceAction
+
+
+pUpdateProtocolParametersCmd :: ShelleyBasedEra era -> Parser (Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era)
+pUpdateProtocolParametersCmd =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (\shelleyToBab ->
+        let sbe = shelleyToBabbageEraToShelleyBasedEra shelleyToBab
+        in subParser "create-protocol-parameters-update"
+                         $ Opt.info
+                             ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs (shelleyToBabbageEraToShelleyBasedEra shelleyToBab)
+                                 <$> fmap Just (pUpdateProtocolParametersPreConway shelleyToBab)
+                                 <*> pure Nothing
+                                 <*> dpGovActionProtocolParametersUpdate sbe
+                                 <*> pOutputFile
+                             )
+                         $ Opt.progDesc "Create a protocol parameters update.")
+    (\conwayOnwards ->
+        let sbe = conwayEraOnwardsToShelleyBasedEra conwayOnwards
+        in subParser "create-protocol-parameters-update"
+                        $ Opt.info
+                            ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
+                                (conwayEraOnwardsToShelleyBasedEra conwayOnwards) Nothing
+                                <$> fmap Just (pUpdateProtocolParametersPostConway conwayOnwards)
+                                <*> dpGovActionProtocolParametersUpdate sbe
+                                <*> pOutputFile
+                            )
+                        $ Opt.progDesc "Create a protocol parameters update."
+
+    )
+
 pGovernanceActionProtocolParametersUpdateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionProtocolParametersUpdateCmd era = do
-  eon <- forEraMaybeEon era
-  let sbe = conwayEraOnwardsToShelleyBasedEra eon
-  pure
-    $ subParser "create-protocol-parameters-update"
-    $ Opt.info
-        ( fmap Cmd.GovernanceActionProtocolParametersUpdateCmd $
-            Cmd.GovernanceActionProtocolParametersUpdateCmdArgs eon
-              <$> pEpochNoUpdateProp
-              <*> pProtocolParametersUpdateGenesisKeys sbe
-              <*> dpGovActionProtocolParametersUpdate sbe
-              <*> pOutputFile
-        )
-    $ Opt.progDesc "Create a protocol parameters update."
+  w <- forEraMaybeEon era
+  pure $ Cmd.GovernanceActionProtocolParametersUpdateCmd
+    <$> pUpdateProtocolParametersCmd w
+
 
 convertToLedger :: (a -> b) -> Parser (Maybe a) -> Parser (StrictMaybe b)
 convertToLedger conv = fmap (maybeToStrictMaybe . fmap conv)
@@ -262,11 +298,8 @@ pIntroducedInConwayPParams =
     <*> convertToLedger id (optional pDRepActivity)
 
 -- Not necessary in Conway era onwards
-pProtocolParametersUpdateGenesisKeys :: ShelleyBasedEra era -> Parser [VerificationKeyFile In]
-pProtocolParametersUpdateGenesisKeys =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (const (many pGenesisVerificationKeyFile))
-    (const empty)
+pProtocolParametersUpdateGenesisKeys :: Parser [VerificationKeyFile In]
+pProtocolParametersUpdateGenesisKeys = some pGenesisVerificationKeyFile
 
 dpGovActionProtocolParametersUpdate
   :: ShelleyBasedEra era -> Parser (EraBasedProtocolParametersUpdate era)

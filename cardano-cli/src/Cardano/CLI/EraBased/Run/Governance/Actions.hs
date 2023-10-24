@@ -246,31 +246,62 @@ runGovernanceActionCreateNewCommitteeCmd
 runGovernanceActionCreateProtocolParametersUpdateCmd :: ()
   => Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateProtocolParametersUpdateCmd
-    Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
-      { Cmd.eon
-      , Cmd.epochNo
-      , Cmd.genesisVkeyFiles
-      , Cmd.pparamsUpdate
-      , Cmd.outFile
-      } = do
-  let sbe = conwayEraOnwardsToShelleyBasedEra eon
+runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
+  let sbe = uppShelleyBasedEra eraBasedPParams'
+  caseShelleyToBabbageOrConwayEraOnwards
+    (\sToB -> do
+         let oFp = uppFilePath eraBasedPParams'
+             anyEra = AnyShelleyBasedEra $ shelleyToBabbageEraToShelleyBasedEra sToB
+         UpdateProtocolParametersPreConway _cOn expEpoch genesisVerKeys
+           <- hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
+                $ uppPreConway eraBasedPParams'
+         let eraBasedPParams = uppNewPParams eraBasedPParams'
+             updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
+             apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
+         genVKeys <- sequence
+           [ firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT
+               $ readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
+           | vkeyFile <- genesisVerKeys
+           ]
+         let genKeyHashes = fmap verificationKeyHash genVKeys
+             upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
+         firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+           $ writeLazyByteStringFile oFp $ textEnvelopeToJSON Nothing upProp
+    )
+    (\conwayOnwards -> do
+        let oFp = uppFilePath eraBasedPParams'
+            anyEra = AnyShelleyBasedEra $ conwayEraOnwardsToShelleyBasedEra conwayOnwards
 
-  genVKeys <- sequence
-    [ firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT
-        $ readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
-    | vkeyFile <- genesisVkeyFiles
-    ]
+        UpdateProtocolParametersConwayOnwards _cOnwards network deposit returnAddr proposalUrl
+                                              proposalHashSource mPrevGovActId
+          <- hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
+              $ uppConwayOnwards eraBasedPParams'
 
-  let updateProtocolParams = createEraBasedProtocolParamUpdate sbe pparamsUpdate
-      apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
-      genKeyHashes = fmap verificationKeyHash genVKeys
-      -- TODO: Update EraBasedProtocolParametersUpdate to require genesis delegate keys
-      -- depending on the era
-      upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes epochNo
+        returnKeyHash <- readStakeKeyHash returnAddr
 
-  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
-    $ writeLazyByteStringFile outFile $ textEnvelopeToJSON Nothing upProp
+        proposalHash <-
+           proposalHashSourceToHash proposalHashSource
+             & firstExceptT GovernanceActionsCmdProposalError
+
+        let eraBasedPParams = uppNewPParams eraBasedPParams'
+            updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
+
+            prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
+            proposalAnchor = Ledger.Anchor
+              { Ledger.anchorUrl = unProposalUrl proposalUrl
+              , Ledger.anchorDataHash = proposalHash
+              }
+            govAct = UpdatePParams prevGovActId updateProtocolParams
+
+
+        let proposalProcedure = createProposalProcedure sbe network deposit returnKeyHash govAct proposalAnchor
+
+        firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+          $ conwayEraOnwardsConstraints conwayOnwards
+          $ writeFileTextEnvelope oFp Nothing proposalProcedure
+    )
+    sbe
+
 
 readStakeKeyHash :: AnyStakeIdentifier -> ExceptT GovernanceActionsError IO (Hash StakeKey)
 readStakeKeyHash anyStake =

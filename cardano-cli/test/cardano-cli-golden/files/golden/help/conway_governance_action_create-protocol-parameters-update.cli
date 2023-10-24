@@ -1,4 +1,22 @@
-Usage: cardano-cli conway governance action create-protocol-parameters-update --epoch NATURAL
+Usage: cardano-cli conway governance action create-protocol-parameters-update 
+                                                                                ( --mainnet
+                                                                                | --testnet
+                                                                                )
+                                                                                --governance-action-deposit NATURAL
+                                                                                ( --stake-pool-verification-key STRING
+                                                                                | --cold-verification-key-file FILE
+                                                                                | --stake-pool-id STAKE_POOL_ID
+                                                                                | --stake-verification-key STRING
+                                                                                | --stake-verification-key-file FILE
+                                                                                | --stake-key-hash HASH
+                                                                                )
+                                                                                --proposal-anchor-url TEXT
+                                                                                ( --proposal-anchor-metadata TEXT
+                                                                                | --proposal-anchor-metadata-file FILE
+                                                                                | --proposal-anchor-metadata-hash HASH
+                                                                                )
+                                                                                [--governance-action-tx-id TXID
+                                                                                  --governance-action-index WORD32]
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--max-block-body-size NATURAL]
@@ -47,8 +65,35 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update --
   Create a protocol parameters update.
 
 Available options:
-  --epoch NATURAL          The epoch number in which the update proposal is
-                           valid.
+  --mainnet                Use the mainnet magic id.
+  --testnet                Use the testnet magic id.
+  --governance-action-deposit NATURAL
+                           Deposit required to submit a governance action.
+  --stake-pool-verification-key STRING
+                           Stake pool verification key (Bech32 or hex-encoded).
+  --cold-verification-key-file FILE
+                           Filepath of the stake pool verification key.
+  --stake-pool-id STAKE_POOL_ID
+                           Stake pool ID/verification key hash (either
+                           Bech32-encoded or hex-encoded). Zero or more
+                           occurences of this option is allowed.
+  --stake-verification-key STRING
+                           Stake verification key (Bech32 or hex-encoded).
+  --stake-verification-key-file FILE
+                           Filepath of the staking verification key.
+  --stake-key-hash HASH    Stake verification key hash (hex-encoded).
+  --proposal-anchor-url TEXT
+                           Proposal anchor URL
+  --proposal-anchor-metadata TEXT
+                           Proposal anchor contents as UTF-8 encoded text.
+  --proposal-anchor-metadata-file FILE
+                           Proposal anchor contents as a text file.
+  --proposal-anchor-metadata-hash HASH
+                           Proposal anchor data hash.
+  --governance-action-tx-id TXID
+                           Previous txid of the governance action.
+  --governance-action-index WORD32
+                           Previous tx's governance action index.
   --min-fee-constant LOVELACE
                            The constant factor for the minimum fee calculation.
   --min-fee-linear LOVELACE
