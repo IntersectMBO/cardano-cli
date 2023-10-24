@@ -35,18 +35,19 @@ pGovernanceVoteCreateCmd era = do
     $ subParser "create"
     $ Opt.info
         ( GovernanceVoteCreateCmd
-            <$> pAnyVote w
+            <$> pGovernanceVoteCreateCmdArgs w
         )
     $ Opt.progDesc "Vote creation."
 
-pAnyVote :: ConwayEraOnwards era -> Parser AnyVote
-pAnyVote cOnwards =
-  ConwayOnwardsVote cOnwards
+pGovernanceVoteCreateCmdArgs :: ()
+  => ConwayEraOnwards era -> Parser (GovernanceVoteCreateCmdArgs era)
+pGovernanceVoteCreateCmdArgs cOnwards =
+  GovernanceVoteCreateCmdArgs cOnwards
       <$> pVoteChoice
       <*> pGovernanceActionId
       <*> pAnyVotingStakeVerificationKeyOrHashOrFile
-      <*> pFileOutDirection "out-file" "Output filepath of the vote."
       <*> optional pVoteAnchor
+      <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
 pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile
 pAnyVotingStakeVerificationKeyOrHashOrFile =
@@ -63,14 +64,13 @@ pGovernanceVoteViewCmd era = do
   pure
     $ subParser "view"
     $ Opt.info
-        (GovernanceVoteViewCmd <$> pAnyVoteViewCmd w)
+        (GovernanceVoteViewCmd <$> pGovernanceVoteViewCmdArgs w)
     $ Opt.progDesc "Vote viewing."
 
-pAnyVoteViewCmd :: ConwayEraOnwards era -> Parser (AnyVoteViewCmd era)
-pAnyVoteViewCmd cOnwards =
-  AnyVoteViewCmd
+pGovernanceVoteViewCmdArgs :: ConwayEraOnwards era -> Parser (GovernanceVoteViewCmdArgs era)
+pGovernanceVoteViewCmdArgs cOnwards =
+  GovernanceVoteViewCmdArgs cOnwards
     <$> pYamlOutput
-    <*> pure cOnwards
     <*> pFileInDirection "vote-file" "Input filepath of the vote."
     <*> pMaybeOutputFile
   where
