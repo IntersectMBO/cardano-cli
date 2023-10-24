@@ -94,20 +94,20 @@ pGenesisCmds envCli =
 
 pGenesisKeyGen :: Parser (GenesisCmds era)
 pGenesisKeyGen =
-  GenesisKeyGenGenesis
+  fmap GenesisKeyGenGenesis $ GenesisKeyGenGenesisCmdArgs
     <$> pVerificationKeyFileOut
     <*> pSigningKeyFileOut
 
 pGenesisDelegateKeyGen :: Parser (GenesisCmds era)
 pGenesisDelegateKeyGen =
-  GenesisKeyGenDelegate
+  fmap GenesisKeyGenDelegate $ GenesisKeyGenDelegateCmdArgs
     <$> pVerificationKeyFileOut
     <*> pSigningKeyFileOut
     <*> pOperatorCertIssueCounterFile
 
 pGenesisUTxOKeyGen :: Parser (GenesisCmds era)
 pGenesisUTxOKeyGen =
-  GenesisKeyGenUTxO
+  fmap GenesisKeyGenUTxO $ GenesisKeyGenUTxOCmdArgs
     <$> pVerificationKeyFileOut
     <*> pSigningKeyFileOut
 
@@ -118,27 +118,27 @@ pGenesisKeyHash =
 
 pGenesisVerKey :: Parser (GenesisCmds era)
 pGenesisVerKey =
-  GenesisVerKey
+  fmap GenesisVerKey $ GenesisVerKeyCmdArgs
     <$> pVerificationKeyFileOut
     <*> pSigningKeyFileIn
 
 pGenesisAddr :: EnvCli -> Parser (GenesisCmds era)
 pGenesisAddr envCli =
-  GenesisAddr
+  fmap GenesisAddr $ GenesisAddrCmdArgs
     <$> pVerificationKeyFileIn
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
 pGenesisTxIn :: EnvCli -> Parser (GenesisCmds era)
 pGenesisTxIn envCli =
-  GenesisTxIn
+  fmap GenesisTxIn $ GenesisTxInCmdArgs
     <$> pVerificationKeyFileIn
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
 pGenesisCreateCardano :: EnvCli -> Parser (GenesisCmds era)
 pGenesisCreateCardano envCli =
-  GenesisCreateCardano
+  fmap GenesisCreateCardano $ GenesisCreateCardanoCmdArgs
     <$> pGenesisDir
     <*> pGenesisNumGenesisKeys
     <*> pGenesisNumUTxOKeys
@@ -164,7 +164,7 @@ pGenesisCreateCardano envCli =
 
 pGenesisCreate :: EnvCli -> Parser (GenesisCmds era)
 pGenesisCreate envCli =
-  GenesisCreate
+  fmap GenesisCreate $ GenesisCreateCmdArgs
     <$> pKeyOutputFormat
     <*> pGenesisDir
     <*> pGenesisNumGenesisKeys
@@ -175,7 +175,7 @@ pGenesisCreate envCli =
 
 pGenesisCreateStaked :: EnvCli -> Parser (GenesisCmds era)
 pGenesisCreateStaked envCli =
-  GenesisCreateStaked
+  fmap GenesisCreateStaked $ GenesisCreateStakedCmdArgs
     <$> pKeyOutputFormat
     <*> pGenesisDir
     <*> pGenesisNumGenesisKeys

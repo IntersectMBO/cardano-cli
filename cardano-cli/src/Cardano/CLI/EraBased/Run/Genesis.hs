@@ -3,6 +3,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -12,6 +13,7 @@
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 {- HLINT ignore "Reduce duplication" -}
 {- HLINT ignore "Redundant <$>" -}
@@ -54,7 +56,7 @@ import           Cardano.Chain.Update hiding (ProtocolParameters)
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
-import           Cardano.CLI.EraBased.Commands.Genesis
+import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
@@ -141,43 +143,35 @@ import           Crypto.Random as Crypto
 
 runGenesisCmds :: GenesisCmds era -> ExceptT GenesisCmdError IO ()
 runGenesisCmds = \case
-  GenesisKeyGenGenesis vk sk ->
-    runGenesisKeyGenGenesisCmd vk sk
-  GenesisKeyGenDelegate vk sk ctr ->
-    runGenesisKeyGenDelegateCmd vk sk ctr
-  GenesisKeyGenUTxO vk sk ->
-    runGenesisKeyGenUTxOCmd vk sk
-  GenesisCmdKeyHash vk ->
-    runGenesisKeyHashCmd vk
-  GenesisVerKey vk sk ->
-    runGenesisVerKeyCmd vk sk
-  GenesisTxIn vk nw mOutFile ->
-    runGenesisTxInCmd vk nw mOutFile
-  GenesisAddr vk nw mOutFile ->
-    runGenesisAddrCmd vk nw mOutFile
-  GenesisCreate fmt gd gn un ms am nw ->
-    runGenesisCreateCmd fmt gd gn un ms am nw
-  GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
-    runGenesisCreateCardanoCmd gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
-  GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
-    runGenesisCreateStakedCmd fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
-  GenesisHashFile gf ->
-    runGenesisHashFileCmd gf
+  GenesisKeyGenGenesis args -> runGenesisKeyGenGenesisCmd args
+  GenesisKeyGenDelegate args -> runGenesisKeyGenDelegateCmd args
+  GenesisKeyGenUTxO args -> runGenesisKeyGenUTxOCmd args
+  GenesisCmdKeyHash vk -> runGenesisKeyHashCmd vk
+  GenesisVerKey args -> runGenesisVerKeyCmd args
+  GenesisTxIn args -> runGenesisTxInCmd args
+  GenesisAddr args -> runGenesisAddrCmd args
+  GenesisCreate args -> runGenesisCreateCmd args
+  GenesisCreateCardano args -> runGenesisCreateCardanoCmd args
+  GenesisCreateStaked args -> runGenesisCreateStakedCmd args
+  GenesisHashFile gf -> runGenesisHashFileCmd gf
 
-runGenesisKeyGenGenesisCmd ::
-     VerificationKeyFile Out
-  -> SigningKeyFile Out
+runGenesisKeyGenGenesisCmd
+  :: GenesisKeyGenGenesisCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenGenesisCmd vkeyPath skeyPath = do
+runGenesisKeyGenGenesisCmd
+    Cmd.GenesisKeyGenGenesisCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.signingKeyPath
+    } = do
     skey <- liftIO $ generateSigningKey AsGenesisKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile skeyPath
+      $ writeLazyByteStringFile signingKeyPath
       $ textEnvelopeToJSON (Just skeyDesc) skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile vkeyPath
+      $ writeLazyByteStringFile verificationKeyPath
       $ textEnvelopeToJSON (Just vkeyDesc) vkey
   where
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
@@ -185,25 +179,28 @@ runGenesisKeyGenGenesisCmd vkeyPath skeyPath = do
     vkeyDesc = "Genesis Verification Key"
 
 
-runGenesisKeyGenDelegateCmd ::
-     VerificationKeyFile Out
-  -> SigningKeyFile Out
-  -> OpCertCounterFile Out
+runGenesisKeyGenDelegateCmd
+  :: GenesisKeyGenDelegateCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenDelegateCmd vkeyPath skeyPath ocertCtrPath = do
+runGenesisKeyGenDelegateCmd
+    Cmd.GenesisKeyGenDelegateCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.signingKeyPath
+    , Cmd.opCertCounterPath
+    } = do
     skey <- liftIO $ generateSigningKey AsGenesisDelegateKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile skeyPath
+      $ writeLazyByteStringFile signingKeyPath
       $ textEnvelopeToJSON (Just skeyDesc) skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile vkeyPath
+      $ writeLazyByteStringFile verificationKeyPath
       $ textEnvelopeToJSON (Just vkeyDesc) vkey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile ocertCtrPath
+      $ writeLazyByteStringFile opCertCounterPath
       $ textEnvelopeToJSON (Just certCtrDesc)
       $ OperationalCertificateIssueCounter
           initialCounter
@@ -240,20 +237,23 @@ runGenesisKeyGenDelegateVRF vkeyPath skeyPath = do
     vkeyDesc = "VRF Verification Key"
 
 
-runGenesisKeyGenUTxOCmd ::
-     VerificationKeyFile Out
-  -> SigningKeyFile Out
+runGenesisKeyGenUTxOCmd
+  :: GenesisKeyGenUTxOCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenUTxOCmd vkeyPath skeyPath = do
+runGenesisKeyGenUTxOCmd
+    Cmd.GenesisKeyGenUTxOCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.signingKeyPath
+    } = do
     skey <- liftIO $ generateSigningKey AsGenesisUTxOKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile skeyPath
+      $ writeLazyByteStringFile signingKeyPath
       $ textEnvelopeToJSON (Just skeyDesc) skey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
-      $ writeLazyByteStringFile vkeyPath
+      $ writeLazyByteStringFile verificationKeyPath
       $ textEnvelopeToJSON (Just vkeyDesc) vkey
   where
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
@@ -285,11 +285,14 @@ runGenesisKeyHashCmd vkeyPath = do
                               . verificationKeyHash
 
 
-runGenesisVerKeyCmd ::
-     VerificationKeyFile Out
-  -> SigningKeyFile In
+runGenesisVerKeyCmd
+  :: GenesisVerKeyCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisVerKeyCmd vkeyPath skeyPath = do
+runGenesisVerKeyCmd
+    Cmd.GenesisVerKeyCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.signingKeyPath
+    } = do
     skey <- firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
             readFileTextEnvelopeAnyOf
               [ FromSomeType (AsSigningKey AsGenesisKey)
@@ -299,7 +302,7 @@ runGenesisVerKeyCmd vkeyPath skeyPath = do
               , FromSomeType (AsSigningKey AsGenesisUTxOKey)
                              AGenesisUTxOKey
               ]
-              skeyPath
+              signingKeyPath
 
     let vkey :: SomeGenesisKey VerificationKey
         vkey = case skey of
@@ -309,9 +312,9 @@ runGenesisVerKeyCmd vkeyPath skeyPath = do
 
     firstExceptT GenesisCmdGenesisFileError . newExceptT . liftIO $
       case vkey of
-        AGenesisKey         vk -> writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON Nothing vk
-        AGenesisDelegateKey vk -> writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON Nothing vk
-        AGenesisUTxOKey     vk -> writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON Nothing vk
+        AGenesisKey         vk -> writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON Nothing vk
+        AGenesisDelegateKey vk -> writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON Nothing vk
+        AGenesisUTxOKey     vk -> writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON Nothing vk
 
 data SomeGenesisKey f
      = AGenesisKey         (f GenesisKey)
@@ -319,26 +322,32 @@ data SomeGenesisKey f
      | AGenesisUTxOKey     (f GenesisUTxOKey)
 
 
-runGenesisTxInCmd ::
-     VerificationKeyFile In
-  -> NetworkId
-  -> Maybe (File () Out)
+runGenesisTxInCmd
+  :: GenesisTxInCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisTxInCmd vkeyPath network mOutFile = do
+runGenesisTxInCmd
+    Cmd.GenesisTxInCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.network
+    , Cmd.mOutFile
+    } = do
     vkey <- firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
-            readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) vkeyPath
+            readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) verificationKeyPath
     let txin = genesisUTxOPseudoTxIn network (verificationKeyHash vkey)
     liftIO $ writeOutput mOutFile (renderTxIn txin)
 
 
-runGenesisAddrCmd ::
-     VerificationKeyFile In
-  -> NetworkId
-  -> Maybe (File () Out)
+runGenesisAddrCmd
+  :: GenesisAddrCmdArgs
   -> ExceptT GenesisCmdError IO ()
-runGenesisAddrCmd vkeyPath network mOutFile = do
+runGenesisAddrCmd
+    Cmd.GenesisAddrCmdArgs
+    { Cmd.verificationKeyPath
+    , Cmd.network
+    , Cmd.mOutFile
+    } = do
     vkey <- firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
-            readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) vkeyPath
+            readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) verificationKeyPath
     let vkh  = verificationKeyHash (castVerificationKey vkey)
         addr = makeShelleyAddress network (PaymentCredentialByKey vkh)
                                   NoStakeAddress
@@ -354,19 +363,22 @@ writeOutput Nothing                   = Text.putStrLn
 --
 
 runGenesisCreateCmd
-  :: KeyOutputFormat
-  -> GenesisDir
-  -> Word  -- ^ num genesis & delegate keys to make
-  -> Word  -- ^ num utxo keys to make
-  -> Maybe SystemStart
-  -> Maybe Lovelace
-  -> NetworkId
+  :: GenesisCreateCmdArgs
   -> ExceptT GenesisCmdError IO ()
 runGenesisCreateCmd
-    fmt (GenesisDir rootdir)
-    genNumGenesisKeys genNumUTxOKeys
-    mStart mAmount network = do
-
+    Cmd.GenesisCreateCmdArgs
+    { Cmd.keyOutputFormat
+    , Cmd.genesisDir
+    , Cmd.numGenesisKeys
+    , Cmd.numUTxOKeys
+    , Cmd.mSystemStart
+    , Cmd.mSupply
+    , Cmd.network
+    } = do
+  let GenesisDir rootdir = genesisDir
+      gendir  = rootdir </> "genesis-keys"
+      deldir  = rootdir </> "delegate-keys"
+      utxodir = rootdir </> "utxo-keys"
   liftIO $ do
     createDirectoryIfMissing False rootdir
     createDirectoryIfMissing False gendir
@@ -377,21 +389,21 @@ runGenesisCreateCmd
   alonzoGenesis <- readAlonzoGenesis (rootdir </> "genesis.alonzo.spec.json")
   conwayGenesis <- readConwayGenesis (rootdir </> "genesis.conway.spec.json")
 
-  forM_ [ 1 .. genNumGenesisKeys ] $ \index -> do
+  forM_ [ 1 .. numGenesisKeys ] $ \index -> do
     createGenesisKeys  gendir  index
-    createDelegateKeys fmt deldir index
+    createDelegateKeys keyOutputFormat deldir index
 
-  forM_ [ 1 .. genNumUTxOKeys ] $ \index ->
+  forM_ [ 1 .. numUTxOKeys ] $ \index ->
     createUtxoKeys utxodir index
 
   genDlgs <- readGenDelegsMap gendir deldir
   utxoAddrs <- readInitialFundAddresses utxodir network
-  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mStart
+  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
 
   let shelleyGenesis =
         updateTemplate
           -- Shelley genesis parameters
-          start genDlgs mAmount utxoAddrs mempty (Lovelace 0) [] [] template
+          start genDlgs mSupply utxoAddrs mempty (Lovelace 0) [] [] template
 
   void $ writeFileGenesis (rootdir </> "genesis.json")        $ WritePretty shelleyGenesis
   void $ writeFileGenesis (rootdir </> "genesis.alonzo.json") $ WritePretty alonzoGenesis
@@ -399,9 +411,6 @@ runGenesisCreateCmd
   --TODO: rationalise the naming convention on these genesis json files.
   where
     adjustTemplate t = t { sgNetworkMagic = unNetworkMagic (toNetworkMagic network) }
-    gendir  = rootdir </> "genesis-keys"
-    deldir  = rootdir </> "delegate-keys"
-    utxodir = rootdir </> "utxo-keys"
 
 toSKeyJSON :: Key a => SigningKey a -> ByteString
 toSKeyJSON = LBS.toStrict . textEnvelopeToJSON Nothing
@@ -471,31 +480,32 @@ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys = do
 -- Create Genesis Cardano command implementation
 --
 
-runGenesisCreateCardanoCmd :: GenesisDir
-                 -> Word  -- ^ num genesis & delegate keys to make
-                 -> Word  -- ^ num utxo keys to make
-                 -> Maybe SystemStart
-                 -> Maybe Lovelace
-                 -> BlockCount
-                 -> Word     -- ^ slot length in ms
-                 -> Rational
-                 -> NetworkId
-                 -> FilePath -- ^ Byron Genesis
-                 -> FilePath -- ^ Shelley Genesis
-                 -> FilePath -- ^ Alonzo Genesis
-                 -> FilePath -- ^ Conway Genesis
-                 -> Maybe FilePath
-                 -> ExceptT GenesisCmdError IO ()
-runGenesisCreateCardanoCmd (GenesisDir rootdir)
-                 genNumGenesisKeys genNumUTxOKeys
-                 mStart mAmount mSecurity slotLength mSlotCoeff
-                 network byronGenesisT shelleyGenesisT alonzoGenesisT conwayGenesisT mNodeCfg = do
-  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mStart
+runGenesisCreateCardanoCmd
+  :: GenesisCreateCardanoCmdArgs
+  -> ExceptT GenesisCmdError IO ()
+runGenesisCreateCardanoCmd
+    Cmd.GenesisCreateCardanoCmdArgs
+    { Cmd.genesisDir
+    , Cmd.numGenesisKeys
+    , Cmd.numUTxOKeys
+    , Cmd.mSystemStart
+    , Cmd.mSupply
+    , Cmd.security
+    , Cmd.slotLength
+    , Cmd.slotCoeff
+    , Cmd.network
+    , Cmd.byronGenesisTemplate
+    , Cmd.shelleyGenesisTemplate
+    , Cmd.alonzoGenesisTemplate
+    , Cmd.conwayGenesisTemplate
+    , Cmd.mNodeConfigTemplate
+    } = do
+  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
   (byronGenesis', byronSecrets) <- convertToShelleyError $ Byron.mkGenesis $ byronParams start
   let
     byronGenesis = byronGenesis'
       { gdProtocolParameters = (gdProtocolParameters byronGenesis') {
-          ppSlotDuration = floor ( toRational slotLength * recip mSlotCoeff )
+          ppSlotDuration = floor ( toRational slotLength * recip slotCoeff )
         }
       }
 
@@ -521,21 +531,26 @@ runGenesisCreateCardanoCmd (GenesisDir rootdir)
     overrideShelleyGenesis t = t
       { sgNetworkMagic = unNetworkMagic (toNetworkMagic network)
       , sgNetworkId = toShelleyNetwork network
-      , sgActiveSlotsCoeff = fromMaybe (error $ "Could not convert from Rational: " ++ show mSlotCoeff) $ Ledger.boundRational mSlotCoeff
-      , sgSecurityParam = unBlockCount mSecurity
-      , sgUpdateQuorum = fromIntegral $ ((genNumGenesisKeys `div` 3) * 2) + 1
-      , sgEpochLength = EpochSize $ floor $ (fromIntegral (unBlockCount mSecurity) * 10) / mSlotCoeff
+      , sgActiveSlotsCoeff = fromMaybe (error $ "Could not convert from Rational: " ++ show slotCoeff) $ Ledger.boundRational slotCoeff
+      , sgSecurityParam = unBlockCount security
+      , sgUpdateQuorum = fromIntegral $ ((numGenesisKeys `div` 3) * 2) + 1
+      , sgEpochLength = EpochSize $ floor $ (fromIntegral (unBlockCount security) * 10) / slotCoeff
       , sgMaxLovelaceSupply = 45000000000000000
       , sgSystemStart = getSystemStart start
       , sgSlotLength = secondsToNominalDiffTimeMicro $ MkFixed (fromIntegral slotLength) * 1000
       }
-  shelleyGenesisTemplate <- liftIO $ overrideShelleyGenesis . fromRight (error "shelley genesis template not found") <$> readAndDecodeShelleyGenesis shelleyGenesisT
-  alonzoGenesis <- readAlonzoGenesis alonzoGenesisT
-  conwayGenesis <- readConwayGenesis conwayGenesisT
+  shelleyGenesisTemplate' <- liftIO $ overrideShelleyGenesis . fromRight (error "shelley genesis template not found") <$> readAndDecodeShelleyGenesis shelleyGenesisTemplate
+  alonzoGenesis <- readAlonzoGenesis alonzoGenesisTemplate
+  conwayGenesis <- readConwayGenesis conwayGenesisTemplate
   (delegateMap, vrfKeys, kesKeys, opCerts) <- liftIO $ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys
   let
     shelleyGenesis :: ShelleyGenesis StandardCrypto
-    shelleyGenesis = updateTemplate start delegateMap Nothing [] mempty 0 [] [] shelleyGenesisTemplate
+    shelleyGenesis = updateTemplate start delegateMap Nothing [] mempty 0 [] [] shelleyGenesisTemplate'
+
+  let GenesisDir rootdir = genesisDir
+      gendir  = rootdir </> "genesis-keys"
+      deldir  = rootdir </> "delegate-keys"
+      utxodir = rootdir </> "utxo-keys"
 
   liftIO $ do
     createDirectoryIfMissing False rootdir
@@ -570,7 +585,7 @@ runGenesisCreateCardanoCmd (GenesisDir rootdir)
   conwayGenesisHash <- writeFileGenesis (rootdir </> "conway-genesis.json") $ WritePretty conwayGenesis
 
   liftIO $ do
-    case mNodeCfg of
+    case mNodeConfigTemplate of
       Nothing -> pure ()
       Just nodeCfg -> do
         nodeConfig <- Yaml.decodeFileThrow nodeCfg
@@ -599,17 +614,14 @@ runGenesisCreateCardanoCmd (GenesisDir rootdir)
     convertPoor :: Byron.SigningKey -> SigningKey ByronKey
     convertPoor = ByronSigningKey
 
-    byronParams start = Byron.GenesisParameters (getSystemStart start) byronGenesisT mSecurity byronNetwork byronBalance byronFakeAvvm byronAvvmFactor Nothing
-    gendir  = rootdir </> "genesis-keys"
-    deldir  = rootdir </> "delegate-keys"
-    utxodir = rootdir </> "utxo-keys"
+    byronParams start = Byron.GenesisParameters (getSystemStart start) byronGenesisTemplate security byronNetwork byronBalance byronFakeAvvm byronAvvmFactor Nothing
     byronNetwork = CC.AProtocolMagic
                       (Annotated (toByronProtocolMagicId network) ())
                       (toByronRequiresNetworkMagic network)
     byronBalance = TestnetBalanceOptions
-        { tboRichmen = genNumGenesisKeys
-        , tboPoors = genNumUTxOKeys
-        , tboTotalBalance = fromMaybe zeroLovelace $ toByronLovelace (fromMaybe 0 mAmount)
+        { tboRichmen = numGenesisKeys
+        , tboPoors = numUTxOKeys
+        , tboTotalBalance = fromMaybe zeroLovelace $ toByronLovelace (fromMaybe 0 mSupply)
         , tboRichmenShare = 0
         }
     byronFakeAvvm = FakeAvvmOptions
@@ -634,27 +646,32 @@ runGenesisCreateCardanoCmd (GenesisDir rootdir)
     dlgCertMap byronGenesis = Genesis.unGenesisDelegation $ Genesis.gdHeavyDelegation byronGenesis
 
 runGenesisCreateStakedCmd
-  :: KeyOutputFormat    -- ^ key output format
-  -> GenesisDir
-  -> Word               -- ^ num genesis & delegate keys to make
-  -> Word               -- ^ num utxo keys to make
-  -> Word               -- ^ num pools to make
-  -> Word               -- ^ num delegators to make
-  -> Maybe SystemStart
-  -> Maybe Lovelace     -- ^ supply going to non-delegators
-  -> Lovelace           -- ^ supply going to delegators
-  -> NetworkId
-  -> Word               -- ^ bulk credential files to write
-  -> Word               -- ^ pool credentials per bulk file
-  -> Word               -- ^ num stuffed UTxO entries
-  -> Maybe FilePath     -- ^ Specified stake pool relays
+  :: GenesisCreateStakedCmdArgs
   -> ExceptT GenesisCmdError IO ()
 runGenesisCreateStakedCmd
-    fmt (GenesisDir rootdir)
-    genNumGenesisKeys genNumUTxOKeys genNumPools genNumStDelegs
-    mStart mNonDlgAmount stDlgAmount network
-    numBulkPoolCredFiles bulkPoolsPerFile numStuffedUtxo
-    sPoolRelayFp = do
+    Cmd.GenesisCreateStakedCmdArgs
+    { Cmd.keyOutputFormat
+    , Cmd.genesisDir
+    , Cmd.numGenesisKeys
+    , Cmd.numUTxOKeys
+    , Cmd.numPools
+    , Cmd.numStakeDelegators
+    , Cmd.mSystemStart
+    , Cmd.mNonDelegatedSupply
+    , Cmd.delegatedSupply
+    , Cmd.network
+    , Cmd.numBulkPoolCredFiles
+    , Cmd.numBulkPoolsPerFile
+    , Cmd.numStuffedUtxo
+    , Cmd.mStakePoolRelaySpecFile
+    } = do
+  let GenesisDir rootdir = genesisDir
+      gendir   = rootdir </> "genesis-keys"
+      deldir   = rootdir </> "delegate-keys"
+      pooldir  = rootdir </> "pools"
+      stdeldir = rootdir </> "stake-delegator-keys"
+      utxodir  = rootdir </> "utxo-keys"
+
   liftIO $ do
     createDirectoryIfMissing False rootdir
     createDirectoryIfMissing False gendir
@@ -667,37 +684,37 @@ runGenesisCreateStakedCmd
   alonzoGenesis <- readAlonzoGenesis (rootdir </> "genesis.alonzo.spec.json")
   conwayGenesis <- readConwayGenesis (rootdir </> "genesis.conway.spec.json")
 
-  forM_ [ 1 .. genNumGenesisKeys ] $ \index -> do
+  forM_ [ 1 .. numGenesisKeys ] $ \index -> do
     createGenesisKeys gendir index
-    createDelegateKeys fmt deldir index
+    createDelegateKeys keyOutputFormat deldir index
 
-  forM_ [ 1 .. genNumUTxOKeys ] $ \index ->
+  forM_ [ 1 .. numUTxOKeys ] $ \index ->
     createUtxoKeys utxodir index
 
   mayStakePoolRelays
-    <- forM sPoolRelayFp $
+    <- forM mStakePoolRelaySpecFile $
        \fp -> do
          relaySpecJsonBs <-
            handleIOExceptT (GenesisCmdStakePoolRelayFileError fp) (LBS.readFile fp)
          firstExceptT (GenesisCmdStakePoolRelayJsonDecodeError fp)
            . hoistEither $ Aeson.eitherDecode relaySpecJsonBs
 
-  poolParams <- forM [ 1 .. genNumPools ] $ \index -> do
-    createPoolCredentials fmt pooldir index
+  poolParams <- forM [ 1 .. numPools ] $ \index -> do
+    createPoolCredentials keyOutputFormat pooldir index
     buildPoolParams network pooldir index (fromMaybe mempty mayStakePoolRelays)
 
-  when (numBulkPoolCredFiles * bulkPoolsPerFile > genNumPools) $
-    left $ GenesisCmdTooFewPoolsForBulkCreds  genNumPools numBulkPoolCredFiles bulkPoolsPerFile
+  when (numBulkPoolCredFiles * numBulkPoolsPerFile > numPools) $
+    left $ GenesisCmdTooFewPoolsForBulkCreds numPools numBulkPoolCredFiles numBulkPoolsPerFile
   -- We generate the bulk files for the last pool indices,
   -- so that all the non-bulk pools have stable indices at beginning:
-  let bulkOffset  = fromIntegral $ genNumPools - numBulkPoolCredFiles * bulkPoolsPerFile
-      bulkIndices :: [Word]   = [ 1 + bulkOffset .. genNumPools ]
-      bulkSlices  :: [[Word]] = List.chunksOf (fromIntegral bulkPoolsPerFile) bulkIndices
+  let bulkOffset  = fromIntegral $ numPools - numBulkPoolCredFiles * numBulkPoolsPerFile
+      bulkIndices :: [Word]   = [ 1 + bulkOffset .. numPools ]
+      bulkSlices  :: [[Word]] = List.chunksOf (fromIntegral numBulkPoolsPerFile) bulkIndices
   forM_ (zip [ 1 .. numBulkPoolCredFiles ] bulkSlices) $
     uncurry (writeBulkPoolCredentials pooldir)
 
-  let (delegsPerPool, delegsRemaining) = divMod genNumStDelegs genNumPools
-      delegsForPool poolIx = if delegsRemaining /= 0 && poolIx == genNumPools
+  let (delegsPerPool, delegsRemaining) = divMod numStakeDelegators numPools
+      delegsForPool poolIx = if delegsRemaining /= 0 && poolIx == numPools
         then delegsPerPool
         else delegsPerPool + delegsRemaining
       distribution = [pool | (pool, poolIx) <- zip poolParams [1 ..], _ <- [1 .. delegsForPool poolIx]]
@@ -711,7 +728,7 @@ runGenesisCreateStakedCmd
 
   genDlgs <- readGenDelegsMap gendir deldir
   nonDelegAddrs <- readInitialFundAddresses utxodir network
-  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mStart
+  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
 
   stuffedUtxoAddrs <- liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) genStuffedAddress
 
@@ -721,8 +738,8 @@ runGenesisCreateStakedCmd
       !shelleyGenesis =
         updateCreateStakedOutputTemplate
           -- Shelley genesis parameters
-          start genDlgs mNonDlgAmount (length nonDelegAddrs) nonDelegAddrs stakePools stake
-          stDlgAmount numDelegations delegAddrs stuffedUtxoAddrs template
+          start genDlgs mNonDelegatedSupply (length nonDelegAddrs) nonDelegAddrs stakePools stake
+          delegatedSupply numDelegations delegAddrs stuffedUtxoAddrs template
 
   liftIO $ LBS.writeFile (rootdir </> "genesis.json") $ Aeson.encode shelleyGenesis
 
@@ -732,32 +749,26 @@ runGenesisCreateStakedCmd
 
   liftIO $ Text.hPutStrLn IO.stderr $ mconcat $
     [ "generated genesis with: "
-    , textShow genNumGenesisKeys, " genesis keys, "
-    , textShow genNumUTxOKeys, " non-delegating UTxO keys, "
-    , textShow genNumPools, " stake pools, "
-    , textShow genNumStDelegs, " delegating UTxO keys, "
+    , textShow numGenesisKeys, " genesis keys, "
+    , textShow numUTxOKeys, " non-delegating UTxO keys, "
+    , textShow numPools, " stake pools, "
+    , textShow numStakeDelegators, " delegating UTxO keys, "
     , textShow numDelegations, " delegation map entries, "
     ] ++
     [ mconcat
       [ ", "
       , textShow numBulkPoolCredFiles, " bulk pool credential files, "
-      , textShow bulkPoolsPerFile, " pools per bulk credential file, indices starting from "
+      , textShow numBulkPoolsPerFile, " pools per bulk credential file, indices starting from "
       , textShow bulkOffset, ", "
       , textShow $ length bulkIndices, " total pools in bulk nodes, each bulk node having this many entries: "
       , textShow $ length <$> bulkSlices
       ]
-    | numBulkPoolCredFiles * bulkPoolsPerFile > 0 ]
+    | numBulkPoolCredFiles * numBulkPoolsPerFile > 0 ]
 
   where
     adjustTemplate t = t { sgNetworkMagic = unNetworkMagic (toNetworkMagic network) }
     mkDelegationMapEntry :: Delegation -> (Ledger.KeyHash Ledger.Staking StandardCrypto, Ledger.PoolParams StandardCrypto)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
-
-    gendir   = rootdir </> "genesis-keys"
-    deldir   = rootdir </> "delegate-keys"
-    pooldir  = rootdir </> "pools"
-    stdeldir = rootdir </> "stake-delegator-keys"
-    utxodir  = rootdir </> "utxo-keys"
 
     genStuffedAddress :: IO (AddressInEra ShelleyEra)
     genStuffedAddress =
@@ -784,9 +795,11 @@ createDelegateKeys :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdE
 createDelegateKeys fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   runGenesisKeyGenDelegateCmd
-        (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vkey")
-        (onlyOut coldSK)
-        (onlyOut opCertCtr)
+    Cmd.GenesisKeyGenDelegateCmdArgs
+    { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vkey"
+    , Cmd.signingKeyPath = onlyOut coldSK
+    , Cmd.opCertCounterPath = onlyOut opCertCtr
+    }
   runGenesisKeyGenDelegateVRF
         (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.vkey")
         (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.skey")
@@ -812,17 +825,20 @@ createGenesisKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
   runGenesisKeyGenGenesisCmd
-        (File @(VerificationKey ()) $ dir </> "genesis" ++ strIndex ++ ".vkey")
-        (File @(SigningKey ()) $ dir </> "genesis" ++ strIndex ++ ".skey")
-
+    GenesisKeyGenGenesisCmdArgs
+    { verificationKeyPath = File @(VerificationKey ()) $ dir </> "genesis" ++ strIndex ++ ".vkey"
+    , signingKeyPath = File @(SigningKey ()) $ dir </> "genesis" ++ strIndex ++ ".skey"
+    }
 
 createUtxoKeys :: FilePath -> Word -> ExceptT GenesisCmdError IO ()
 createUtxoKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
   runGenesisKeyGenUTxOCmd
-        (File @(VerificationKey ()) $ dir </> "utxo" ++ strIndex ++ ".vkey")
-        (File @(SigningKey ()) $ dir </> "utxo" ++ strIndex ++ ".skey")
+    Cmd.GenesisKeyGenUTxOCmdArgs
+    { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "utxo" ++ strIndex ++ ".vkey"
+    , Cmd.signingKeyPath = File @(SigningKey ()) $ dir </> "utxo" ++ strIndex ++ ".skey"
+    }
 
 createPoolCredentials :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdError IO ()
 createPoolCredentials fmt dir index = do
