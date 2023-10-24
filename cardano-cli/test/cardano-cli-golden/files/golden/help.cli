@@ -328,7 +328,7 @@ Usage: cardano-cli shelley governance action create-protocol-parameters-update
   Governance action commands.
 
 Usage: cardano-cli shelley governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                 [--genesis-verification-key-file FILE]
+                                                                                 (--genesis-verification-key-file FILE)
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
                                                                                  [--max-block-body-size NATURAL]
@@ -1519,7 +1519,7 @@ Usage: cardano-cli allegra governance action create-protocol-parameters-update
   Governance action commands.
 
 Usage: cardano-cli allegra governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                 [--genesis-verification-key-file FILE]
+                                                                                 (--genesis-verification-key-file FILE)
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
                                                                                  [--max-block-body-size NATURAL]
@@ -2708,7 +2708,7 @@ Usage: cardano-cli mary governance action create-protocol-parameters-update
   Governance action commands.
 
 Usage: cardano-cli mary governance action create-protocol-parameters-update --epoch NATURAL
-                                                                              [--genesis-verification-key-file FILE]
+                                                                              (--genesis-verification-key-file FILE)
                                                                               [--min-fee-constant LOVELACE]
                                                                               [--min-fee-linear LOVELACE]
                                                                               [--max-block-body-size NATURAL]
@@ -3874,7 +3874,7 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update
   Governance action commands.
 
 Usage: cardano-cli alonzo governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                [--genesis-verification-key-file FILE]
+                                                                                (--genesis-verification-key-file FILE)
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--max-block-body-size NATURAL]
@@ -5056,7 +5056,7 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update
   Governance action commands.
 
 Usage: cardano-cli babbage governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                 [--genesis-verification-key-file FILE]
+                                                                                 (--genesis-verification-key-file FILE)
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
                                                                                  [--max-block-body-size NATURAL]
@@ -7831,7 +7831,7 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update
   Governance action commands.
 
 Usage: cardano-cli latest governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                [--genesis-verification-key-file FILE]
+                                                                                (--genesis-verification-key-file FILE)
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--max-block-body-size NATURAL]

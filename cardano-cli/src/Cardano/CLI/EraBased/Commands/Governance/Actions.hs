@@ -36,9 +36,7 @@ data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd         !(GovernanceActionCreateConstitutionCmdArgs era)
   | GoveranceActionUpdateCommitteeCmd             !(GoveranceActionUpdateCommitteeCmdArgs era)
   | GovernanceActionCreateNoConfidenceCmd         !(GovernanceActionCreateNoConfidenceCmdArgs era)
-  | GovernanceActionProtocolParametersUpdateCmd
-     (ShelleyBasedEra era)
-     !(GovernanceActionProtocolParametersUpdateCmdArgs era)
+  | GovernanceActionProtocolParametersUpdateCmd   !(GovernanceActionProtocolParametersUpdateCmdArgs era)
   | GovernanceActionTreasuryWithdrawalCmd         !(GovernanceActionTreasuryWithdrawalCmdArgs era)
   | GovernanceActionInfoCmd                       !(GovernanceActionInfoCmdArgs era)
   | GovernanceActionViewCmd                       !(GovernanceActionViewCmdArgs era)
@@ -100,10 +98,11 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
 
 data GovernanceActionProtocolParametersUpdateCmdArgs era
   = GovernanceActionProtocolParametersUpdateCmdArgs
-      { uppPreConway :: Maybe (UpdateProtocolParametersPreConway era)
-      , uppConwayOnwards :: Maybe (UpdateProtocolParametersConwayOnwards era)
-      , uppNewPParams :: EraBasedProtocolParametersUpdate era
-      , uppFilePath :: File () Out
+      { uppShelleyBasedEra :: !(ShelleyBasedEra era)
+      , uppPreConway       :: !(Maybe (UpdateProtocolParametersPreConway era))
+      , uppConwayOnwards   :: !(Maybe (UpdateProtocolParametersConwayOnwards era))
+      , uppNewPParams      :: !(EraBasedProtocolParametersUpdate era)
+      , uppFilePath        :: !(File () Out)
       } deriving Show
 
 data GovernanceActionTreasuryWithdrawalCmdArgs era
@@ -141,9 +140,9 @@ deriving instance Show (UpdateProtocolParametersConwayOnwards era)
 
 data UpdateProtocolParametersPreConway era
   = UpdateProtocolParametersPreConway
-      { eon                     :: ShelleyToBabbageEra era
-      , expiryEpoch             :: EpochNo
-      , genesisVerificationKeys :: [VerificationKeyFile In]
+      { eon                     :: !(ShelleyToBabbageEra era)
+      , expiryEpoch             :: !EpochNo
+      , genesisVerificationKeys :: ![VerificationKeyFile In]
       }
 
 

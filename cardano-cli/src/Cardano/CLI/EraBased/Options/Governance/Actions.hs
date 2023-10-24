@@ -184,7 +184,7 @@ pUpdateProtocolParametersCmd =
         let sbe = shelleyToBabbageEraToShelleyBasedEra shelleyToBab
         in subParser "create-protocol-parameters-update"
                          $ Opt.info
-                             ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
+                             ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs (shelleyToBabbageEraToShelleyBasedEra shelleyToBab)
                                  <$> fmap Just (pUpdateProtocolParametersPreConway shelleyToBab)
                                  <*> pure Nothing
                                  <*> dpGovActionProtocolParametersUpdate sbe
@@ -195,7 +195,8 @@ pUpdateProtocolParametersCmd =
         let sbe = conwayEraOnwardsToShelleyBasedEra conwayOnwards
         in subParser "create-protocol-parameters-update"
                         $ Opt.info
-                            ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs Nothing
+                            ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
+                                (conwayEraOnwardsToShelleyBasedEra conwayOnwards) Nothing
                                 <$> fmap Just (pUpdateProtocolParametersPostConway conwayOnwards)
                                 <*> dpGovActionProtocolParametersUpdate sbe
                                 <*> pOutputFile
@@ -209,7 +210,7 @@ pGovernanceActionProtocolParametersUpdateCmd :: ()
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionProtocolParametersUpdateCmd era = do
   w <- forEraMaybeEon era
-  pure $ Cmd.GovernanceActionProtocolParametersUpdateCmd w
+  pure $ Cmd.GovernanceActionProtocolParametersUpdateCmd
     <$> pUpdateProtocolParametersCmd w
 
 
@@ -298,7 +299,7 @@ pIntroducedInConwayPParams =
 
 -- Not necessary in Conway era onwards
 pProtocolParametersUpdateGenesisKeys :: Parser [VerificationKeyFile In]
-pProtocolParametersUpdateGenesisKeys = many pGenesisVerificationKeyFile
+pProtocolParametersUpdateGenesisKeys = some pGenesisVerificationKeyFile
 
 dpGovActionProtocolParametersUpdate
   :: ShelleyBasedEra era -> Parser (EraBasedProtocolParametersUpdate era)

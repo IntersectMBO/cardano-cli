@@ -1,5 +1,5 @@
 Usage: cardano-cli latest governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                [--genesis-verification-key-file FILE]
+                                                                                (--genesis-verification-key-file FILE)
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--max-block-body-size NATURAL]

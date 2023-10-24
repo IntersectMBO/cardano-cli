@@ -38,8 +38,8 @@ runGovernanceActionCmds = \case
   GovernanceActionCreateConstitutionCmd args ->
     runGovernanceActionCreateConstitutionCmd args
 
-  GovernanceActionProtocolParametersUpdateCmd sbe args ->
-    runGovernanceActionCreateProtocolParametersUpdateCmd sbe args
+  GovernanceActionProtocolParametersUpdateCmd args ->
+    runGovernanceActionCreateProtocolParametersUpdateCmd args
 
   GovernanceActionTreasuryWithdrawalCmd args ->
     runGovernanceActionTreasuryWithdrawalCmd args
@@ -244,10 +244,10 @@ runGovernanceActionCreateNewCommitteeCmd
     $ writeFileTextEnvelope outFile Nothing proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd :: ()
-  => ShelleyBasedEra era
-  -> Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era
+  => Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateProtocolParametersUpdateCmd sbe eraBasedPParams' = do
+runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
+  let sbe = uppShelleyBasedEra eraBasedPParams'
   caseShelleyToBabbageOrConwayEraOnwards
     (\sToB -> do
          let oFp = uppFilePath eraBasedPParams'
@@ -285,14 +285,13 @@ runGovernanceActionCreateProtocolParametersUpdateCmd sbe eraBasedPParams' = do
 
         let eraBasedPParams = uppNewPParams eraBasedPParams'
             updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
-            apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
 
             prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
             proposalAnchor = Ledger.Anchor
               { Ledger.anchorUrl = unProposalUrl proposalUrl
               , Ledger.anchorDataHash = proposalHash
               }
-            govAct = UpdatePParams prevGovActId apiUpdateProtocolParamsType
+            govAct = UpdatePParams prevGovActId updateProtocolParams
 
 
         let proposalProcedure = createProposalProcedure sbe network deposit returnKeyHash govAct proposalAnchor
