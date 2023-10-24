@@ -15,6 +15,7 @@ import           Cardano.CLI.EraBased.Commands.Query
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 
+import qualified Data.Text as Text (toLower, unpack)
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
@@ -351,8 +352,33 @@ pQueryGetCommitteeStateCmd era envCli = do
   w <- forEraMaybeEon era
   pure
     $ subParser "committee-state"
-    $ Opt.info (QueryCommitteeStateCmd <$> pQueryNoArgCmdArgs w envCli)
+    $ Opt.info (QueryCommitteeMembersStateCmd <$> pQueryCommitteeMembersStateArgs w)
     $ Opt.progDesc "Get the committee state"
+  where
+    pQueryCommitteeMembersStateArgs :: ConwayEraOnwards era -> Parser (QueryCommitteeMembersStateCmdArgs era)
+    pQueryCommitteeMembersStateArgs w = QueryCommitteeMembersStateCmdArgs w
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> many pCommitteeColdVerificationKeyOrHashOrFile
+      <*> many pCommitteeHotKeyOrHashOrFile
+      <*> many pMemberStatus
+      <*> optional pOutputFile
+    pMemberStatus :: Parser MemberStatus
+    pMemberStatus =
+        Opt.option readerMemberStatus $ mconcat
+          [ Opt.long "memberstatus"
+          , Opt.metavar "MEMBER_STATUS"
+          , Opt.help "Member status filter: active/expired/unrecognized"
+          ]
+    readerMemberStatus :: ReadM MemberStatus
+    readerMemberStatus = do
+      v <- Opt.str
+      case Text.toLower v of
+        "active" -> pure Active
+        "expired" -> pure Expired
+        "unrecognized" -> pure Unrecognized
+        _ -> fail ("Unrecognized status: " <> Text.unpack v)
 
 pQueryNoArgCmdArgs :: ()
   => ConwayEraOnwards era
