@@ -129,7 +129,7 @@ runQueryCmds = \case
   Cmd.QueryGovStateCmd              args -> runQueryGovState args
   Cmd.QueryDRepStateCmd             args -> runQueryDRepState args
   Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
-  Cmd.QueryCommitteeStateCmd        args -> runQueryCommitteeState args
+  Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
 
 runQueryConstitutionHashCmd :: ()
   => Cmd.QueryConstitutionHashCmdArgs
@@ -1540,29 +1540,39 @@ runQueryDRepStakeDistribution
   writeOutput mOutFile $
     Map.assocs drepStakeDistribution
 
-runQueryCommitteeState
-  :: Cmd.QueryNoArgCmdArgs era
+runQueryCommitteeMembersState
+  :: Cmd.QueryCommitteeMembersStateCmdArgs era
   -> ExceptT QueryCmdError IO ()
-runQueryCommitteeState
-    Cmd.QueryNoArgCmdArgs
+runQueryCommitteeMembersState
+    Cmd.QueryCommitteeMembersStateCmdArgs
       { Cmd.eon
       , Cmd.nodeSocketPath
       , Cmd.consensusModeParams = AnyConsensusModeParams cModeParams
       , Cmd.networkId
       , Cmd.mOutFile
-      }
-    = conwayEraOnwardsConstraints eon $ do
+      , Cmd.committeeColdKeys  = coldCredKeys
+      , Cmd.committeeHotKeys = hotCredKeys
+      , Cmd.memberStatuses = memberStatuses
+      } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo cModeParams networkId nodeSocketPath
       sbe = conwayEraOnwardsToShelleyBasedEra eon
       cEra = conwayEraOnwardsToCardanoEra eon
       cMode = consensusModeOnly cModeParams
 
+  let coldKeysFromVerKeyHashOrFile =
+        firstExceptT QueryCmdColdKeyError . getCommitteeColdCredentialFromVerKeyHashOrFile
+  coldKeys <- Set.fromList <$> mapM coldKeysFromVerKeyHashOrFile coldCredKeys
+
+  let hotKeysFromVerKeyHashOrFile =
+        firstExceptT QueryCmdHotKeyError . getCommitteeHotCredentialFromVerKeyHashOrFile
+  hotKeys <- Set.fromList <$> mapM hotKeysFromVerKeyHashOrFile hotCredKeys
+
   eraInMode <- toEraInMode cEra cMode
     & hoistMaybe (QueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra cEra))
 
-  committeeState <- runQuery localNodeConnInfo $ queryCommitteeState eraInMode sbe
-  writeOutput mOutFile $
-    Map.assocs $ committeeState ^. Ledger.csCommitteeCredsL
+  committeeState <- runQuery localNodeConnInfo $
+    queryCommitteeMembersState eraInMode sbe coldKeys hotKeys (Set.fromList memberStatuses)
+  writeOutput mOutFile committeeState
 
 runQuery :: LocalNodeConnectInfo mode
          -> LocalStateQueryExpr

@@ -5,6 +5,7 @@
 
 module Cardano.CLI.EraBased.Commands.Query
   ( QueryCmds (..)
+  , QueryCommitteeMembersStateCmdArgs(..)
   , QueryLeadershipScheduleCmdArgs(..)
   , QueryProtocolParametersCmdArgs(..)
   , QueryConstitutionHashCmdArgs(..)
@@ -55,7 +56,7 @@ data QueryCmds era
   | QueryGovStateCmd                !(QueryNoArgCmdArgs era)
   | QueryDRepStateCmd               !(QueryDRepStateCmdArgs era)
   | QueryDRepStakeDistributionCmd   !(QueryDRepStakeDistributionCmdArgs era)
-  | QueryCommitteeStateCmd          !(QueryNoArgCmdArgs era)
+  | QueryCommitteeMembersStateCmd   !(QueryCommitteeMembersStateCmdArgs era)
   deriving (Generic, Show)
 
 data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
@@ -199,6 +200,17 @@ data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
 
+data QueryCommitteeMembersStateCmdArgs era = QueryCommitteeMembersStateCmdArgs
+  { eon                     :: !(ConwayEraOnwards era)
+  , nodeSocketPath          :: !SocketPath
+  , consensusModeParams     :: !AnyConsensusModeParams
+  , networkId               :: !NetworkId
+  , committeeColdKeys       :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
+  , committeeHotKeys        :: ![VerificationKeyOrHashOrFile CommitteeHotKey]
+  , memberStatuses          :: ![MemberStatus]
+  , mOutFile                :: !(Maybe (File () Out))
+  } deriving Show
+
 renderQueryCmds :: QueryCmds era -> Text
 renderQueryCmds = \case
   QueryLeadershipScheduleCmd {} ->
@@ -239,7 +251,7 @@ renderQueryCmds = \case
     "drep-state"
   QueryDRepStakeDistributionCmd {} ->
     "drep-stake-distribution"
-  QueryCommitteeStateCmd {} ->
+  QueryCommitteeMembersStateCmd {} ->
     "committee-state"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
