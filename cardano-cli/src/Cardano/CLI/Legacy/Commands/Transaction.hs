@@ -53,7 +53,7 @@ data LegacyTransactionCmds
     -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
   | TransactionBuildCmd
       SocketPath
-      AnyCardanoEra
+      (EraInEon ShelleyBasedEra)
       AnyConsensusModeParams
       NetworkId
       (Maybe ScriptValidity) -- ^ Mark script as expected to pass or fail validation

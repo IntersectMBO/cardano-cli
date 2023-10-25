@@ -20,7 +20,6 @@ import           Cardano.CLI.Types.Governance
 
 import           Control.Monad.Trans.Except
 
-
 runLegacyTransactionCmds :: LegacyTransactionCmds -> ExceptT TxCmdError IO ()
 runLegacyTransactionCmds = \case
   TransactionBuildCmd mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
@@ -64,7 +63,7 @@ runLegacyTransactionCmds = \case
 
 runLegacyTransactionBuildCmd :: ()
   => SocketPath
-  -> AnyCardanoEra
+  -> EraInEon ShelleyBasedEra
   -> AnyConsensusModeParams
   -> NetworkId
   -> Maybe ScriptValidity
@@ -91,13 +90,13 @@ runLegacyTransactionBuildCmd :: ()
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO ()
 runLegacyTransactionBuildCmd
-    socketPath (AnyCardanoEra era)
+    socketPath (EraInEon sbe)
     consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
     reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
     mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp voteFiles
     proposalFiles outputOptions =
   runTransactionBuildCmd
-    ( Cmd.TransactionBuildCmdArgs era socketPath
+    ( Cmd.TransactionBuildCmdArgs sbe socketPath
         consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
         mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp voteFiles
