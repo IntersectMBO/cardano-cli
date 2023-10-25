@@ -10,6 +10,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
+{-# OPTIONS_GHC -Wno-unused-imports #-}
+{-# OPTIONS_GHC -Wno-unused-matches #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+{-# OPTIONS_GHC -Wno-unused-local-binds #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Json.Friendly
   ( friendlyTx
@@ -151,7 +157,8 @@ friendlyTxBodyImpl
       , txReturnCollateral
       , txInsReference
       , txUpdateProposal
-      , txValidityRange
+      , txValidityLowerBound
+       ,txValidityUpperBound
       , txWithdrawals
       }) =
     [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
@@ -169,7 +176,8 @@ friendlyTxBodyImpl
     , "required signers (payment key hashes needed for scripts)" .=
         friendlyExtraKeyWits txExtraKeyWits
     , "update proposal" .= friendlyUpdateProposal txUpdateProposal
-    , "validity range" .= friendlyValidityRange era txValidityRange
+    , "validity lower bound" .= friendlyValidityLowerBound era txValidityLowerBound
+    , "validity upper bound" .= friendlyValidityUpperBound era txValidityUpperBound
     , "withdrawals" .= friendlyWithdrawals txWithdrawals
     ]
 
@@ -187,37 +195,67 @@ friendlyExtraKeyWits = \case
   TxExtraKeyWitnessesNone -> Null
   TxExtraKeyWitnesses _supported paymentKeyHashes -> toJSON paymentKeyHashes
 
--- | Special case of validity range:
--- in Shelley, upper bound is TTL, and no lower bound
-pattern ShelleyTtl
-  :: SlotNo -> (TxValidityLowerBound era, TxValidityUpperBound era)
-pattern ShelleyTtl ttl <-
-  ( TxValidityNoLowerBound
-  , TxValidityUpperBound _ ttl
-  )
+-- -- | Special case of validity range:
+-- -- in Shelley, upper bound is TTL, and no lower bound
+-- pattern ShelleyTtl
+--   :: Maybe SlotNo -> (TxValidityLowerBound era, TxValidityUpperBound era)
+-- pattern ShelleyTtl ttl <-
+--   ( TxValidityNoLowerBound
+--   , TxValidityUpperBound _ ttl
+--   )
 
-friendlyValidityRange
+friendlyValidityLowerBound
   :: CardanoEra era
-  -> (TxValidityLowerBound era, TxValidityUpperBound era)
+  -> TxValidityLowerBound era
   -> Aeson.Value
-friendlyValidityRange era = \case
-  ShelleyTtl ttl -> object ["time to live" .= ttl]
-  (lowerBound, upperBound)
-    | isLowerBoundSupported || isUpperBoundSupported ->
-        object
-          [ "lower bound" .=
-                case lowerBound of
-                  TxValidityNoLowerBound -> Null
-                  TxValidityLowerBound _ s -> toJSON s
-          , "upper bound" .=
-              case upperBound of
-                TxValidityNoUpperBound _ -> Null
-                TxValidityUpperBound _ s -> toJSON s
-          ]
-    | otherwise -> Null
- where
-  isLowerBoundSupported = isJust $ inEonForEraMaybe TxValidityLowerBound era
-  isUpperBoundSupported = isJust $ inEonForEraMaybe TxValidityUpperBound era
+friendlyValidityLowerBound era =  \case 
+  TxValidityNoLowerBound ->  Null
+  TxValidityLowerBound _ s -> if isLowerBoundSupported then toJSON s else Null
+    where isLowerBoundSupported = isJust $ inEonForEraMaybe TxValidityLowerBound era
+-- friendlyValidityLowerBound era = \case
+--   ShelleyTtl ttl -> object ["time to live" .= ttl]
+--   (TxValidityNoLowerBound, TxValidityUpperBound _ ttl) -> object ["time to live" .= ttl]
+--   (lowerBound, upperBound)
+--     | isLowerBoundSupported || isUpperBoundSupported ->
+--         object
+--           [ "lower bound" .=
+--                 case lowerBound of
+--                   TxValidityNoLowerBound -> Null
+--                   TxValidityLowerBound _ s -> toJSON s
+--           , "upper bound" .=
+--               case upperBound of
+--                 TxValidityNoUpperBound _ -> Null
+--                 TxValidityUpperBound _ s -> toJSON s
+--           ]
+--     | otherwise -> Null
+--  where
+--   isLowerBoundSupported = isJust $ inEonForEraMaybe TxValidityLowerBound era
+--   isUpperBoundSupported = isJust $ inEonForEraMaybe TxValidityUpperBound era
+
+friendlyValidityUpperBound
+  :: CardanoEra era
+  -> TxValidityUpperBound era
+  -> Aeson.Value
+friendlyValidityUpperBound era = undefined 
+  -- where isLowerBoundSupported = isJust $ inEonForEraMaybe TxValidityLowerBound era
+-- friendlyValidityUpperBound era = \case
+--   ShelleyTtl ttl -> object ["time to live" .= ttl]
+--   (lowerBound, upperBound)
+--     | isLowerBoundSupported || isUpperBoundSupported ->
+--         object
+--           [ "lower bound" .=
+--                 case lowerBound of
+--                   TxValidityNoLowerBound -> Null
+--                   TxValidityLowerBound _ s -> toJSON s
+--           , "upper bound" .=
+--               case upperBound of
+--                 TxValidityNoUpperBound _ -> Null
+--                 TxValidityUpperBound _ s -> toJSON s
+--           ]
+--     | otherwise -> Null
+--  where
+--   isLowerBoundSupported = isJust $ inEonForEraMaybe TxValidityLowerBound era
+--   isUpperBoundSupported = isJust $ inEonForEraMaybe TxValidityUpperBound era
 
 friendlyWithdrawals :: TxWithdrawals ViewTx era -> Aeson.Value
 friendlyWithdrawals TxWithdrawalsNone = Null
