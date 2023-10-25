@@ -47,8 +47,8 @@ write-ghc-environment-files: always
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-api
-  tag: 8ce658121a500be6d6a8e2cf28965a202cc72bc6
-  --sha256: 1896j5hmw61cfn4s9r9hvs265s64d8g1yq72ay71546mbxy3k8ib
+  tag: 6ecc47bebc450abcfb1eae4086525e683b6625e4
+  --sha256: 0373v9wpkhf1kqgbd61sys4zwyvalyfavymawf8mzr1j15whjrjf
   subdir:
     cardano-api
     cardano-api-gen
@@ -56,8 +56,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/ouroboros-consensus
-  tag: be6ad7c911ebfa2359c0a913a314a30e2b71a313
-  --sha256: 1jydz8dnn0fxnnp4m6brhvxnz1ad61a8gw6009gvzd2yf3azgprz
+  tag: b64205974af8b9a05ce208242ceccaecd620850e
+  --sha256: 08aaqbyjh24hplrxai8yzcxfmjdagymf0nqczq3ay49vamyylzbd
   subdir:
     ouroboros-consensus
     ouroboros-consensus-cardano
@@ -68,8 +68,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-ledger
-  tag: 25bc2c50b50486e5159bb506920ab76b6c852bbf
-  --sha256: 0ncbj45i0kw36yh85qaxpksrwywl6qjfjs8x11fj1im8hygsrija
+  tag: 5bce2e3ed01a628af6f402b96e2d7a4404e4425a
+  --sha256: 02vxb4ff433jqv9ykdryqv3ng9g58ys9mxhwayaylrjsx4grv46b
   subdir:
     eras/allegra/impl
     eras/alonzo/impl
