@@ -1,8 +1,20 @@
+{-# LANGUAGE CPP #-}
 {- HLINT ignore "Use camelCase" -}
 
 module Test.Golden.Governance.DRep where
 
-import           Control.Monad (void)
+#if !defined(mingw32_HOST_OS)
+#define UNIX
+#endif
+
+import           Control.Monad
+
+#ifdef UNIX
+import           Data.Bits ((.&.))
+import           GHC.Stack (withFrozenCallStack)
+import           Numeric (showOct)
+import           System.Posix.Files (fileMode, getFileStatus)
+#endif
 
 import           Test.Cardano.CLI.Util (execCardanoCLI, noteInputFile, noteTempFile, propertyOnce)
 
@@ -29,6 +41,18 @@ hprop_golden_governanceDRepKeyGen =
 
     H.assertFileOccurences 1 "Delegate Representative Verification Key" verificationKeyFile
     H.assertFileOccurences 1 "Delegate Representative Signing Key" signingKeyFile
+
+#ifdef UNIX
+    vrfMode <- retrievePermissions verificationKeyFile
+    sgnMode <- retrievePermissions signingKeyFile
+
+    vrfMode === "600"
+    sgnMode === "600"
+    where
+      retrievePermissions path = withFrozenCallStack $ do
+        mode <- H.evalIO $ fileMode <$> getFileStatus path
+        pure $ showOct (mode .&. 0o777) "" -- we only need the 3 lowest octets here
+#endif
 
 hprop_golden_governance_drep_id_bech32 :: Property
 hprop_golden_governance_drep_id_bech32 =
