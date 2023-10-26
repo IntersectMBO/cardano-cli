@@ -6,13 +6,9 @@ import           Cardano.Api.Shelley
 
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch)
 
-import qualified Data.Text as T
-
-
 data GovernanceQueryError
   = GovernanceQueryWriteFileError !(FileError ())
   | GovernanceQueryAcqireFailureError !AcquiringFailure
-  | GovernanceQueryEraConsensusModeMismatch !AnyConsensusMode !AnyCardanoEra
   | GovernanceQueryUnsupportedNtcVersion !UnsupportedNtcVersionError
   | GovernanceQueryEraMismatch !EraMismatch
   | GovernanceQueryDRepKeyError !(FileError InputDecodeError)
@@ -24,8 +20,6 @@ instance Error GovernanceQueryError where
       displayError err
     GovernanceQueryAcqireFailureError err ->
       show err
-    GovernanceQueryEraConsensusModeMismatch mode era ->
-      "Era " <> T.unpack (renderEra era) <> " does not support consensus mode " <> T.unpack (renderMode mode) <> "."
     GovernanceQueryUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) -> unlines
       [ "Unsupported feature for the node-to-client protocol version."
       , "This query requires at least " <> show minNtcVersion <> " but the node negotiated " <> show ntcVersion <> "."

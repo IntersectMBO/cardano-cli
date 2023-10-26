@@ -38,11 +38,6 @@ data TxCmdError
   | TxCmdReadTextViewFileError !(FileError TextEnvelopeError)
   | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
   | TxCmdWriteFileError !(FileError ())
-  | TxCmdEraConsensusModeMismatch
-      !(Maybe FilePath)
-      !AnyConsensusMode
-      !AnyCardanoEra
-      -- ^ Era
   | TxCmdBootstrapWitnessError !BootstrapWitnessError
   | TxCmdTxSubmitError !Text
   | TxCmdTxSubmitErrorEraMismatch !EraMismatch
@@ -52,12 +47,7 @@ data TxCmdError
   | TxCmdWitnessEraMismatch !AnyCardanoEra !AnyCardanoEra !WitnessFile
   | TxCmdPolicyIdsMissing ![PolicyId]
   | TxCmdPolicyIdsExcess  ![PolicyId]
-  | TxCmdUnsupportedMode !AnyConsensusMode
   | TxCmdByronEra
-  | TxCmdEraConsensusModeMismatchTxBalance
-      !TxBuildOutputOptions
-      !AnyConsensusMode
-      !AnyCardanoEra
   | TxCmdBalanceTxBody !TxBodyErrorAutoBalance
   | TxCmdTxInsDoNotExist !TxInsExistError
   | TxCmdPParamsErr !ProtocolParametersError
@@ -133,9 +123,6 @@ renderTxCmdError err =
       "The transaction is for the " <> renderEra era <> " era, but the " <>
       "witness in " <> textShow file <> " is for the " <> renderEra era' <> " era."
 
-    TxCmdEraConsensusModeMismatch fp mode era ->
-       "Submitting " <> renderEra era <> " era transaction (" <> textShow fp <>
-       ") is not supported in the " <> renderMode mode <> " consensus mode."
     TxCmdPolicyIdsMissing policyids -> mconcat
       [ "The \"--mint\" flag specifies an asset with a policy Id, but no "
       , "corresponding monetary policy script has been provided as a witness "
@@ -148,11 +135,7 @@ renderTxCmdError err =
       , "id of any asset specified in the \"--mint\" field. The script hash is: "
       , Text.intercalate ", " (map serialiseToRawBytesHexText policyids)
       ]
-    TxCmdUnsupportedMode mode -> "Unsupported mode: " <> renderMode mode
     TxCmdByronEra -> "This query cannot be used for the Byron era"
-    TxCmdEraConsensusModeMismatchTxBalance fp mode era ->
-       "Cannot balance " <> renderEra era <> " era transaction body (" <> textShow fp <>
-       ") because is not supported in the " <> renderMode mode <> " consensus mode."
     TxCmdBalanceTxBody err' -> Text.pack $ displayError err'
     TxCmdTxInsDoNotExist e ->
       renderTxInsExistError e

@@ -109,7 +109,7 @@ toUnitIntervalOrErr r = case Ledger.boundRational r of
                                            ]
                          Just n -> n
 
-pConsensusModeParams :: Parser AnyConsensusModeParams
+pConsensusModeParams :: Parser (ConsensusModeParams CardanoMode)
 pConsensusModeParams = asum
   [ pCardanoMode *> pCardanoConsensusMode
   , pDefaultConsensusMode
@@ -122,12 +122,12 @@ pConsensusModeParams = asum
         , Opt.help "For talking to a node running in full Cardano mode (default)."
         ]
 
-    pCardanoConsensusMode :: Parser AnyConsensusModeParams
-    pCardanoConsensusMode = AnyConsensusModeParams . CardanoModeParams <$> pEpochSlots
+    pCardanoConsensusMode :: Parser (ConsensusModeParams CardanoMode)
+    pCardanoConsensusMode = CardanoModeParams <$> pEpochSlots
 
-    pDefaultConsensusMode :: Parser AnyConsensusModeParams
+    pDefaultConsensusMode :: Parser (ConsensusModeParams CardanoMode)
     pDefaultConsensusMode =
-      pure . AnyConsensusModeParams . CardanoModeParams $ EpochSlots defaultByronEpochSlots
+      pure . CardanoModeParams $ EpochSlots defaultByronEpochSlots
 
 defaultByronEpochSlots :: Word64
 defaultByronEpochSlots = 21600

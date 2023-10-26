@@ -36,6 +36,7 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis
+import           Cardano.CLI.Helpers
 import           Cardano.CLI.Json.Friendly (FriendlyFormat (..), friendlyTx, friendlyTxBody)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -101,7 +102,7 @@ runTransactionBuildCmd
     Cmd.TransactionBuildCmdArgs
       { eon
       , nodeSocketPath
-      , consensusModeParams = consensusModeParams@(AnyConsensusModeParams cModeParams)
+      , consensusModeParams
       , networkId = networkId
       , mScriptValidity = mScriptValidity
       , mOverrideWitnesses = mOverrideWitnesses
@@ -133,7 +134,7 @@ runTransactionBuildCmd
   -- from the node's era and this will result in the 'QueryEraMismatch' failure.
 
   let localNodeConnInfo = LocalNodeConnectInfo
-                            { localConsensusModeParams = cModeParams
+                            { localConsensusModeParams = consensusModeParams
                             , localNodeNetworkId = networkId
                             , localNodeSocketPath = nodeSocketPath
                             }
@@ -210,11 +211,11 @@ runTransactionBuildCmd
 
       pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
       executionUnitPrices <- pure (getExecutionUnitPrices era pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
-      let consensusMode = consensusModeOnly cModeParams
+      let consensusMode = consensusModeOnly consensusModeParams
 
       case consensusMode of
         CardanoMode -> do
-          AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+          AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr consensusModeParams))
             & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
             & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
@@ -240,7 +241,6 @@ runTransactionBuildCmd
                   mScriptWits
                   scriptExecUnitsMap
           liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
-        _ -> left TxCmdPlutusScriptsRequireCardanoMode
 
     OutputTxBodyOnly fpath ->
       let noWitTx = makeSignedTransaction [] balancedTxBody
@@ -464,7 +464,7 @@ runTxBuildRaw era
 runTxBuild :: ()
   => ShelleyBasedEra era
   -> SocketPath
-  -> AnyConsensusModeParams
+  -> ConsensusModeParams CardanoMode
   -> NetworkId
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
@@ -502,14 +502,13 @@ runTxBuild :: ()
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
-    sbe socketPath (AnyConsensusModeParams cModeParams) networkId mScriptValidity
+    sbe socketPath cModeParams networkId mScriptValidity
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
-    txUpdateProposal mOverrideWits votingProcedures proposals outputOptions = shelleyBasedEraConstraints sbe $ do
+    txUpdateProposal mOverrideWits votingProcedures proposals _outputOptions = shelleyBasedEraConstraints sbe $ do
 
   let era = shelleyBasedToCardanoEra sbe
-    -- txUpdateProposal mOverrideWits votingProcedures proposals outputOptions = cardanoEraConstraints era $ do
 
   let consensusMode = consensusModeOnly cModeParams
       dummyFee = Just $ Lovelace 0
@@ -538,9 +537,6 @@ runTxBuild
 
   case consensusMode of
     CardanoMode -> do
-      _ <- toEraInMode era CardanoMode
-            & hoistMaybe (TxCmdEraConsensusModeMismatchTxBalance outputOptions (AnyConsensusMode CardanoMode) (AnyCardanoEra era))
-
       let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
           localNodeConnInfo = LocalNodeConnectInfo
                                      { localConsensusModeParams = CardanoModeParams $ EpochSlots 21600
@@ -612,8 +608,6 @@ runTxBuild
       liftIO $ putStrLn $ "Estimated transaction fee: " <> (show fee :: String)
 
       return balancedTxBody
-
-    wrongMode -> left (TxCmdUnsupportedMode (AnyConsensusMode wrongMode))
 
 -- ----------------------------------------------------------------------------
 -- Transaction body validation and conversion
@@ -937,16 +931,13 @@ runTransactionSubmitCmd :: ()
 runTransactionSubmitCmd
     Cmd.TransactionSubmitCmdArgs
       { nodeSocketPath
-      , anyConsensusModeParams = AnyConsensusModeParams cModeParams
+      , anyConsensusModeParams = cModeParams
       , networkId
       , txFile
       } = do
   txFileOrPipe <- liftIO $ fileOrPipe txFile
   InAnyCardanoEra era tx <- lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdCddlError)
-  let cMode = AnyConsensusMode $ consensusModeOnly cModeParams
-  eraInMode <- hoistMaybe
-                  (TxCmdEraConsensusModeMismatch (Just txFile) cMode (AnyCardanoEra era))
-                  (toEraInMode era $ consensusModeOnly cModeParams)
+  let eraInMode = toEraInCardanoMode era
   let txInMode = TxInMode tx eraInMode
       localNodeConnInfo = LocalNodeConnectInfo
                             { localConsensusModeParams = cModeParams
