@@ -28,15 +28,17 @@ module Cardano.CLI.Types.Errors.TxValidationError
   , validateTxReturnCollateral
   , validateTxScriptValidity
   , validateTxTotalCollateral
-  , validateTxUpdateProposal
   , validateTxValidityUpperBound
   , validateTxValidityLowerBound
   , validateTxWithdrawals
+  , validateUpdateProposalFile
   ) where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
+
+import           Cardano.CLI.Types.Common
 
 import           Prelude
 
@@ -316,15 +318,6 @@ instance Error TxUpdateProposalValidationError where
   displayError (TxUpdateProposalNotSupported e) =
     "Transaction update proposal is not supported in " <> Text.unpack (renderEra e)
 
-validateTxUpdateProposal
-  :: CardanoEra era
-  -> Maybe UpdateProposal
-  -> Either TxUpdateProposalValidationError (TxUpdateProposal era)
-validateTxUpdateProposal _ Nothing = return TxUpdateProposalNone
-validateTxUpdateProposal era (Just prop) = do
-  supported <- conjureWitness era TxUpdateProposalNotSupported
-  pure $ TxUpdateProposal supported prop
-
 newtype TxScriptValidityValidationError
   = ScriptValidityNotSupported AnyCardanoEra
   deriving Show
@@ -342,6 +335,16 @@ validateTxScriptValidity era (Just scriptValidity) = do
   supported <- conjureWitness era ScriptValidityNotSupported
   pure $ TxScriptValidity supported scriptValidity
 
+-- TODO legacy. This can be deleted when legacy commands are removed.
+validateUpdateProposalFile
+  :: CardanoEra era
+  -> Maybe UpdateProposalFile
+  -> Either TxUpdateProposalValidationError (Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+validateUpdateProposalFile era = \case
+  Nothing -> pure Nothing
+  Just updateProposal -> do
+    supported <- conjureWitness era TxUpdateProposalNotSupported
+    pure $ Just $ Featured supported $ Just updateProposal
 
 conjureWitness :: Eon eon
                => CardanoEra era -- ^ era to try to conjure eon from

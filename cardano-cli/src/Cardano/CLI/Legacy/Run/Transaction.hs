@@ -16,9 +16,12 @@ import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.Legacy.Commands.Transaction
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.TxCmdError
+import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Governance
 
 import           Control.Monad.Trans.Except
+import           Control.Monad.Trans.Except.Extra
+import           Data.Function
 
 runLegacyTransactionCmds :: LegacyTransactionCmds -> ExceptT TxCmdError IO ()
 runLegacyTransactionCmds = \case
@@ -93,13 +96,19 @@ runLegacyTransactionBuildCmd
     socketPath (EraInEon sbe)
     consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
     reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-    mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp voteFiles
-    proposalFiles outputOptions =
+    mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpdateProposal voteFiles
+    proposalFiles outputOptions = do
+
+  mfUpdateProposalFile <-
+    validateUpdateProposalFile (shelleyBasedToCardanoEra sbe) mUpdateProposal
+      & hoistEither
+      & firstExceptT TxCmdTxUpdateProposalValidationError
+
   runTransactionBuildCmd
     ( Cmd.TransactionBuildCmdArgs sbe socketPath
         consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-        mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp voteFiles
+        mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mfUpdateProposalFile voteFiles
         proposalFiles outputOptions
     )
 
@@ -129,12 +138,19 @@ runLegacyTransactionBuildRawCmd :: ()
 runLegacyTransactionBuildRawCmd
     (AnyCardanoEra era) mScriptValidity txins readOnlyRefIns txinsc mReturnColl
     mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
-    metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp outFile =
+    metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpdateProposal
+    outFile = do
+
+  mfUpdateProposalFile <-
+    validateUpdateProposalFile era mUpdateProposal
+      & hoistEither
+      & firstExceptT TxCmdTxUpdateProposalValidationError
+
   runTransactionBuildRawCmd
     ( Cmd.TransactionBuildRawCmdArgs
         era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
         mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
-        metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp [] []
+        metadataSchema scriptFiles metadataFiles mProtocolParamsFile mfUpdateProposalFile [] []
         outFile
     )
 

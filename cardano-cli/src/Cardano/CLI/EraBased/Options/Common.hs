@@ -3238,6 +3238,18 @@ pTxId l h =
 -- Helpers
 --------------------------------------------------------------------------------
 
+pFeatured :: ()
+  => Eon eon
+  => ToCardanoEra peon
+  => peon era
+  -> Parser a
+  -> Parser (Maybe (Featured eon era a))
+pFeatured peon p = do
+  let mw = forEraMaybeEon (toCardanoEra peon)
+  case mw of
+    Nothing -> pure Nothing
+    Just eon' -> Just . Featured eon' <$> p
+
 hiddenSubParser :: String -> ParserInfo a -> Parser a
 hiddenSubParser availableCommand pInfo =
   Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand <> Opt.hidden
