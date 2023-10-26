@@ -288,7 +288,6 @@ hprop_golden_view_alonzo_yaml =
           , "--epoch", "190"
           , "--genesis-verification-key-file"
           ,   "test/cardano-cli-golden/files/input/shelley/keys/genesis_keys/verification_key"
-          , "--utxo-cost-per-word", "194"
           , "--price-execution-steps", "195/196"
           , "--price-execution-memory", "196/197"
           , "--max-tx-execution-units", "(197, 198)"
