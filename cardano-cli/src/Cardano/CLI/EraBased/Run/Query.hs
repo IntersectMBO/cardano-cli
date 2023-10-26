@@ -150,9 +150,9 @@ runQueryConstitutionHashCmd
     sbe <- requireShelleyBasedEra era
       & onNothing (left QueryCmdByronEra)
 
-    let eInMode = toEraInCardanoMode era
+    let eraInMode = toEraInCardanoMode era
 
-    lift (shelleyBasedEraConstraints sbe (queryConstitutionHash eInMode sbe))
+    lift (shelleyBasedEraConstraints sbe (queryConstitutionHash eraInMode sbe))
       & onLeft (left . QueryCmdUnsupportedNtcVersion)
       & onLeft (left . QueryCmdEraMismatch)
 
@@ -184,9 +184,9 @@ runQueryProtocolParametersCmd
   sbe <- case cardanoEraStyle era of
             LegacyByronEra -> left QueryCmdByronEra
             ShelleyBasedEra sbe -> return sbe
-  let eInMode = toEraInCardanoMode era
+  let eraInMode = toEraInCardanoMode era
 
-  let qInMode = QueryInEra eInMode $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+  let qInMode = QueryInEra eraInMode $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
   pp <- firstExceptT QueryCmdConvenienceError
           . newExceptT $ executeQueryAnyMode era localNodeConnInfo qInMode
   writeProtocolParameters sbe mOutFile pp
@@ -345,11 +345,9 @@ runQueryUTxOCmd
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eInMode = toEraInCardanoMode era
+        let eraInMode = toEraInCardanoMode era
 
-        requireNotByronEraInByronMode eInMode
-
-        utxo <- lift (queryUtxo eInMode sbe queryFilter)
+        utxo <- lift (queryUtxo eraInMode sbe queryFilter)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -387,15 +385,11 @@ runQueryKesPeriodInfoCmd
             sbe <- requireShelleyBasedEra era
               & onNothing (left QueryCmdByronEra)
 
-            let eInMode = toEraInCardanoMode era
+            let eraInMode = toEraInCardanoMode era
 
             -- We check that the KES period specified in the operational certificate is correct
             -- based on the KES period defined in the genesis parameters and the current slot number
-            let eraInMode = toEraInCardanoMode era
-
-            requireNotByronEraInByronMode eraInMode
-
-            gParams <- lift (queryGenesisParameters eInMode sbe)
+            gParams <- lift (queryGenesisParameters eraInMode sbe)
               & onLeft (left . QueryCmdUnsupportedNtcVersion)
               & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -406,7 +400,7 @@ runQueryKesPeriodInfoCmd
 
             -- We get the operational certificate counter from the protocol state and check that
             -- it is equivalent to what we have on disk.
-            ptclState <- lift (queryProtocolState eInMode sbe)
+            ptclState <- lift (queryProtocolState eraInMode sbe)
               & onLeft (left . QueryCmdUnsupportedNtcVersion)
               & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -660,13 +654,9 @@ runQueryPoolStateCmd
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eInMode = toEraInCardanoMode era
-
         let eraInMode = toEraInCardanoMode era
 
-        requireNotByronEraInByronMode eraInMode
-
-        result <- lift (queryPoolState eInMode sbe $ Just $ Set.fromList poolIds)
+        result <- lift (queryPoolState eraInMode sbe $ Just $ Set.fromList poolIds)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -695,8 +685,8 @@ runQueryTxMempoolCmd
         AnyCardanoEra era <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
           & onLeft (left . QueryCmdAcquireFailure)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
-        let eInMode = toEraInCardanoMode era
-        pure $ LocalTxMonitoringQueryTx $ TxIdInMode tx eInMode
+        let eraInMode = toEraInCardanoMode era
+        pure $ LocalTxMonitoringQueryTx $ TxIdInMode tx eraInMode
       TxMempoolQueryNextTx -> pure LocalTxMonitoringSendNextTx
       TxMempoolQueryInfo -> pure LocalTxMonitoringMempoolInformation
 
@@ -744,15 +734,13 @@ runQueryStakeSnapshotCmd
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eInMode = toEraInCardanoMode era
+        let eraInMode = toEraInCardanoMode era
 
         let poolFilter = case allOrOnlyPoolIds of
               All -> Nothing
               Only poolIds -> Just $ Set.fromList poolIds
 
-        requireNotByronEraInByronMode eInMode
-
-        result <- lift (queryStakeSnapshot eInMode sbe poolFilter)
+        result <- lift (queryStakeSnapshot eraInMode sbe poolFilter)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -782,13 +770,9 @@ runQueryLedgerStateCmd
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eInMode = toEraInCardanoMode era
-
         let eraInMode = toEraInCardanoMode era
 
-        requireNotByronEraInByronMode eraInMode
-
-        result <- lift (queryDebugLedgerState eInMode sbe)
+        result <- lift (queryDebugLedgerState eraInMode sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -820,13 +804,9 @@ runQueryProtocolStateCmd
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eInMode = toEraInCardanoMode era
-
         let eraInMode = toEraInCardanoMode era
 
-        requireNotByronEraInByronMode eraInMode
-
-        result <- lift (queryProtocolState eInMode sbe)
+        result <- lift (queryProtocolState eraInMode sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -861,19 +841,15 @@ runQueryStakeAddressInfoCmd
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eInMode = toEraInCardanoMode era
+        let eraInMode = toEraInCardanoMode era
 
         let stakeAddr = Set.singleton $ fromShelleyStakeCredential addr
 
-        let eraInMode = toEraInCardanoMode era
-
-        requireNotByronEraInByronMode eraInMode
-
-        (stakeRewardAccountBalances, stakePools) <- lift (queryStakeAddresses eInMode sbe stakeAddr networkId)
+        (stakeRewardAccountBalances, stakePools) <- lift (queryStakeAddresses eraInMode sbe stakeAddr networkId)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-        stakeDelegDeposits <- lift (queryStakeDelegDeposits eInMode sbe stakeAddr)
+        stakeDelegDeposits <- lift (queryStakeDelegDeposits eraInMode sbe stakeAddr)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1126,12 +1102,12 @@ runQueryStakePoolsCmd
         AnyCardanoEra era <- case consensusModeOnly cModeParams of
           CardanoMode -> lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
-        let eInMode = toEraInCardanoMode era
+        let eraInMode = toEraInCardanoMode era
 
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        poolIds <- lift (queryStakePools eInMode sbe)
+        poolIds <- lift (queryStakePools eraInMode sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdEraMismatch)
 
@@ -1172,13 +1148,9 @@ runQueryStakeDistributionCmd
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eInMode = toEraInCardanoMode era
-
         let eraInMode = toEraInCardanoMode era
 
-        requireNotByronEraInByronMode eraInMode
-
-        result <- lift (queryStakeDistribution eInMode sbe)
+        result <- lift (queryStakeDistribution eraInMode sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1260,17 +1232,13 @@ runQueryLeadershipScheduleCmd
 
         case cMode of
           CardanoMode -> do
-            let eInMode = toEraInCardanoMode era
-
             let eraInMode = toEraInCardanoMode era
 
-            requireNotByronEraInByronMode eraInMode
-
-            pparams <- lift (queryProtocolParameters eInMode sbe)
+            pparams <- lift (queryProtocolParameters eraInMode sbe)
               & onLeft (left . QueryCmdUnsupportedNtcVersion)
               & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-            ptclState <- lift (queryProtocolState eInMode sbe)
+            ptclState <- lift (queryProtocolState eraInMode sbe)
               & onLeft (left . QueryCmdUnsupportedNtcVersion)
               & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1279,13 +1247,13 @@ runQueryLeadershipScheduleCmd
 
             let eInfo = toEpochInfo eraHistory
 
-            curentEpoch <- lift (queryEpoch eInMode sbe)
+            curentEpoch <- lift (queryEpoch eraInMode sbe)
               & onLeft (left . QueryCmdUnsupportedNtcVersion)
               & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
             case whichSchedule of
               CurrentEpoch -> do
-                serCurrentEpochState <- lift (queryPoolDistribution eInMode sbe (Just (Set.singleton poolid)))
+                serCurrentEpochState <- lift (queryPoolDistribution eraInMode sbe (Just (Set.singleton poolid)))
                   & onLeft (left . QueryCmdUnsupportedNtcVersion)
                   & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1306,7 +1274,7 @@ runQueryLeadershipScheduleCmd
                   writeSchedule mOutFile eInfo shelleyGenesis schedule
 
               NextEpoch -> do
-                serCurrentEpochState <- lift (queryCurrentEpochState eInMode sbe)
+                serCurrentEpochState <- lift (queryCurrentEpochState eraInMode sbe)
                   & onLeft (left . QueryCmdUnsupportedNtcVersion)
                   & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1548,14 +1516,6 @@ writeOutput mOutFile content = case mOutFile of
 
 
 -- Helpers
-
-requireNotByronEraInByronMode :: ()
-  => Monad m
-  => EraInMode era mode
-  -> ExceptT QueryCmdError m ()
-requireNotByronEraInByronMode = \case
-  ByronEraInByronMode -> left QueryCmdByronEra
-  _ -> pure ()
 
 toEpochInfo :: EraHistory CardanoMode -> EpochInfo (Either Text)
 toEpochInfo (EraHistory _ interpreter) =
