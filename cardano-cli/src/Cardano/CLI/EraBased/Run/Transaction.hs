@@ -502,7 +502,7 @@ runTxBuild :: ()
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
-    sbe socketPath cModeParams networkId mScriptValidity
+    sbe socketPath consensusModeParams networkId mScriptValidity
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
@@ -510,7 +510,7 @@ runTxBuild
 
   let era = shelleyBasedToCardanoEra sbe
 
-  let consensusMode = consensusModeOnly cModeParams
+  let consensusMode = consensusModeOnly consensusModeParams
       dummyFee = Just $ Lovelace 0
       inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
 
@@ -544,7 +544,7 @@ runTxBuild
                                      , localNodeSocketPath = socketPath
                                      }
 
-      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr cModeParams))
+      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr consensusModeParams))
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
