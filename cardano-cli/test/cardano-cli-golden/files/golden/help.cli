@@ -434,12 +434,8 @@ Usage: cardano-cli shelley query
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli shelley query protocol-parameters --socket-path SOCKET_PATH
-                                                       [ --shelley-mode
-                                                       | --byron-mode
-                                                         [--epoch-slots SLOTS]
-                                                       | --cardano-mode
-                                                         [--epoch-slots SLOTS]
-                                                       ]
+                                                       [--cardano-mode
+                                                         [--epoch-slots SLOTS]]
                                                        ( --mainnet
                                                        | --testnet-magic NATURAL
                                                        )
@@ -448,22 +444,15 @@ Usage: cardano-cli shelley query protocol-parameters --socket-path SOCKET_PATH
   Get the node's current protocol parameters
 
 Usage: cardano-cli shelley query tip --socket-path SOCKET_PATH
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        [--out-file FILE]
 
   Get the node's current tip (slot no, hash, block no)
 
 Usage: cardano-cli shelley query stake-pools --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -472,12 +461,8 @@ Usage: cardano-cli shelley query stake-pools --socket-path SOCKET_PATH
   Get the node's current set of stake pool ids
 
 Usage: cardano-cli shelley query stake-distribution --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -486,12 +471,8 @@ Usage: cardano-cli shelley query stake-distribution --socket-path SOCKET_PATH
   Get the node's current aggregated stake distribution
 
 Usage: cardano-cli shelley query stake-address-info --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       --address ADDRESS
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
@@ -501,10 +482,7 @@ Usage: cardano-cli shelley query stake-address-info --socket-path SOCKET_PATH
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli shelley query utxo --socket-path SOCKET_PATH
-                                        [ --shelley-mode
-                                        | --byron-mode [--epoch-slots SLOTS]
-                                        | --cardano-mode [--epoch-slots SLOTS]
-                                        ]
+                                        [--cardano-mode [--epoch-slots SLOTS]]
                                         ( --whole-utxo
                                         | (--address ADDRESS)
                                         | (--tx-in TX-IN)
@@ -515,12 +493,8 @@ Usage: cardano-cli shelley query utxo --socket-path SOCKET_PATH
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
 Usage: cardano-cli shelley query ledger-state --socket-path SOCKET_PATH
-                                                [ --shelley-mode
-                                                | --byron-mode
-                                                  [--epoch-slots SLOTS]
-                                                | --cardano-mode
-                                                  [--epoch-slots SLOTS]
-                                                ]
+                                                [--cardano-mode
+                                                  [--epoch-slots SLOTS]]
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )
@@ -530,12 +504,8 @@ Usage: cardano-cli shelley query ledger-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli shelley query protocol-state --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -545,12 +515,8 @@ Usage: cardano-cli shelley query protocol-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli shelley query stake-snapshot --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -564,12 +530,8 @@ Usage: cardano-cli shelley query stake-snapshot --socket-path SOCKET_PATH
   (advanced command)
 
 Usage: cardano-cli shelley query pool-params --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -580,12 +542,8 @@ Usage: cardano-cli shelley query pool-params --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli shelley query leadership-schedule --socket-path SOCKET_PATH
-                                                       [ --shelley-mode
-                                                       | --byron-mode
-                                                         [--epoch-slots SLOTS]
-                                                       | --cardano-mode
-                                                         [--epoch-slots SLOTS]
-                                                       ]
+                                                       [--cardano-mode
+                                                         [--epoch-slots SLOTS]]
                                                        ( --mainnet
                                                        | --testnet-magic NATURAL
                                                        )
@@ -601,12 +559,8 @@ Usage: cardano-cli shelley query leadership-schedule --socket-path SOCKET_PATH
   Get the slots the node is expected to mint a block in (advanced command)
 
 Usage: cardano-cli shelley query kes-period-info --socket-path SOCKET_PATH
-                                                   [ --shelley-mode
-                                                   | --byron-mode
-                                                     [--epoch-slots SLOTS]
-                                                   | --cardano-mode
-                                                     [--epoch-slots SLOTS]
-                                                   ]
+                                                   [--cardano-mode
+                                                     [--epoch-slots SLOTS]]
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
@@ -617,12 +571,8 @@ Usage: cardano-cli shelley query kes-period-info --socket-path SOCKET_PATH
   certificate.
 
 Usage: cardano-cli shelley query pool-state --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -631,12 +581,8 @@ Usage: cardano-cli shelley query pool-state --socket-path SOCKET_PATH
   Dump the pool state
 
 Usage: cardano-cli shelley query tx-mempool --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -658,12 +604,8 @@ Usage: cardano-cli shelley query tx-mempool tx-exists TX_ID
   Query if a particular transaction exists in the mempool
 
 Usage: cardano-cli shelley query slot-number --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -959,12 +901,8 @@ Usage: cardano-cli shelley transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -1117,12 +1055,8 @@ Usage: cardano-cli shelley transaction sign-witness --tx-body-file FILE
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli shelley transaction submit --socket-path SOCKET_PATH
-                                                [ --shelley-mode
-                                                | --byron-mode
-                                                  [--epoch-slots SLOTS]
-                                                | --cardano-mode
-                                                  [--epoch-slots SLOTS]
-                                                ]
+                                                [--cardano-mode
+                                                  [--epoch-slots SLOTS]]
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )
@@ -1625,12 +1559,8 @@ Usage: cardano-cli allegra query
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli allegra query protocol-parameters --socket-path SOCKET_PATH
-                                                       [ --shelley-mode
-                                                       | --byron-mode
-                                                         [--epoch-slots SLOTS]
-                                                       | --cardano-mode
-                                                         [--epoch-slots SLOTS]
-                                                       ]
+                                                       [--cardano-mode
+                                                         [--epoch-slots SLOTS]]
                                                        ( --mainnet
                                                        | --testnet-magic NATURAL
                                                        )
@@ -1639,22 +1569,15 @@ Usage: cardano-cli allegra query protocol-parameters --socket-path SOCKET_PATH
   Get the node's current protocol parameters
 
 Usage: cardano-cli allegra query tip --socket-path SOCKET_PATH
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        [--out-file FILE]
 
   Get the node's current tip (slot no, hash, block no)
 
 Usage: cardano-cli allegra query stake-pools --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -1663,12 +1586,8 @@ Usage: cardano-cli allegra query stake-pools --socket-path SOCKET_PATH
   Get the node's current set of stake pool ids
 
 Usage: cardano-cli allegra query stake-distribution --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -1677,12 +1596,8 @@ Usage: cardano-cli allegra query stake-distribution --socket-path SOCKET_PATH
   Get the node's current aggregated stake distribution
 
 Usage: cardano-cli allegra query stake-address-info --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       --address ADDRESS
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
@@ -1692,10 +1607,7 @@ Usage: cardano-cli allegra query stake-address-info --socket-path SOCKET_PATH
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli allegra query utxo --socket-path SOCKET_PATH
-                                        [ --shelley-mode
-                                        | --byron-mode [--epoch-slots SLOTS]
-                                        | --cardano-mode [--epoch-slots SLOTS]
-                                        ]
+                                        [--cardano-mode [--epoch-slots SLOTS]]
                                         ( --whole-utxo
                                         | (--address ADDRESS)
                                         | (--tx-in TX-IN)
@@ -1706,12 +1618,8 @@ Usage: cardano-cli allegra query utxo --socket-path SOCKET_PATH
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
 Usage: cardano-cli allegra query ledger-state --socket-path SOCKET_PATH
-                                                [ --shelley-mode
-                                                | --byron-mode
-                                                  [--epoch-slots SLOTS]
-                                                | --cardano-mode
-                                                  [--epoch-slots SLOTS]
-                                                ]
+                                                [--cardano-mode
+                                                  [--epoch-slots SLOTS]]
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )
@@ -1721,12 +1629,8 @@ Usage: cardano-cli allegra query ledger-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli allegra query protocol-state --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -1736,12 +1640,8 @@ Usage: cardano-cli allegra query protocol-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli allegra query stake-snapshot --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -1755,12 +1655,8 @@ Usage: cardano-cli allegra query stake-snapshot --socket-path SOCKET_PATH
   (advanced command)
 
 Usage: cardano-cli allegra query pool-params --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -1771,12 +1667,8 @@ Usage: cardano-cli allegra query pool-params --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli allegra query leadership-schedule --socket-path SOCKET_PATH
-                                                       [ --shelley-mode
-                                                       | --byron-mode
-                                                         [--epoch-slots SLOTS]
-                                                       | --cardano-mode
-                                                         [--epoch-slots SLOTS]
-                                                       ]
+                                                       [--cardano-mode
+                                                         [--epoch-slots SLOTS]]
                                                        ( --mainnet
                                                        | --testnet-magic NATURAL
                                                        )
@@ -1792,12 +1684,8 @@ Usage: cardano-cli allegra query leadership-schedule --socket-path SOCKET_PATH
   Get the slots the node is expected to mint a block in (advanced command)
 
 Usage: cardano-cli allegra query kes-period-info --socket-path SOCKET_PATH
-                                                   [ --shelley-mode
-                                                   | --byron-mode
-                                                     [--epoch-slots SLOTS]
-                                                   | --cardano-mode
-                                                     [--epoch-slots SLOTS]
-                                                   ]
+                                                   [--cardano-mode
+                                                     [--epoch-slots SLOTS]]
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
@@ -1808,12 +1696,8 @@ Usage: cardano-cli allegra query kes-period-info --socket-path SOCKET_PATH
   certificate.
 
 Usage: cardano-cli allegra query pool-state --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -1822,12 +1706,8 @@ Usage: cardano-cli allegra query pool-state --socket-path SOCKET_PATH
   Dump the pool state
 
 Usage: cardano-cli allegra query tx-mempool --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -1849,12 +1729,8 @@ Usage: cardano-cli allegra query tx-mempool tx-exists TX_ID
   Query if a particular transaction exists in the mempool
 
 Usage: cardano-cli allegra query slot-number --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -2150,12 +2026,8 @@ Usage: cardano-cli allegra transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli allegra transaction build --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -2308,12 +2180,8 @@ Usage: cardano-cli allegra transaction sign-witness --tx-body-file FILE
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli allegra transaction submit --socket-path SOCKET_PATH
-                                                [ --shelley-mode
-                                                | --byron-mode
-                                                  [--epoch-slots SLOTS]
-                                                | --cardano-mode
-                                                  [--epoch-slots SLOTS]
-                                                ]
+                                                [--cardano-mode
+                                                  [--epoch-slots SLOTS]]
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )
@@ -2814,12 +2682,8 @@ Usage: cardano-cli mary query
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli mary query protocol-parameters --socket-path SOCKET_PATH
-                                                    [ --shelley-mode
-                                                    | --byron-mode
-                                                      [--epoch-slots SLOTS]
-                                                    | --cardano-mode
-                                                      [--epoch-slots SLOTS]
-                                                    ]
+                                                    [--cardano-mode
+                                                      [--epoch-slots SLOTS]]
                                                     ( --mainnet
                                                     | --testnet-magic NATURAL
                                                     )
@@ -2828,21 +2692,15 @@ Usage: cardano-cli mary query protocol-parameters --socket-path SOCKET_PATH
   Get the node's current protocol parameters
 
 Usage: cardano-cli mary query tip --socket-path SOCKET_PATH
-                                    [ --shelley-mode
-                                    | --byron-mode [--epoch-slots SLOTS]
-                                    | --cardano-mode [--epoch-slots SLOTS]
-                                    ]
+                                    [--cardano-mode [--epoch-slots SLOTS]]
                                     (--mainnet | --testnet-magic NATURAL)
                                     [--out-file FILE]
 
   Get the node's current tip (slot no, hash, block no)
 
 Usage: cardano-cli mary query stake-pools --socket-path SOCKET_PATH
-                                            [ --shelley-mode
-                                            | --byron-mode [--epoch-slots SLOTS]
-                                            | --cardano-mode
-                                              [--epoch-slots SLOTS]
-                                            ]
+                                            [--cardano-mode
+                                              [--epoch-slots SLOTS]]
                                             ( --mainnet
                                             | --testnet-magic NATURAL
                                             )
@@ -2851,12 +2709,8 @@ Usage: cardano-cli mary query stake-pools --socket-path SOCKET_PATH
   Get the node's current set of stake pool ids
 
 Usage: cardano-cli mary query stake-distribution --socket-path SOCKET_PATH
-                                                   [ --shelley-mode
-                                                   | --byron-mode
-                                                     [--epoch-slots SLOTS]
-                                                   | --cardano-mode
-                                                     [--epoch-slots SLOTS]
-                                                   ]
+                                                   [--cardano-mode
+                                                     [--epoch-slots SLOTS]]
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
@@ -2865,12 +2719,8 @@ Usage: cardano-cli mary query stake-distribution --socket-path SOCKET_PATH
   Get the node's current aggregated stake distribution
 
 Usage: cardano-cli mary query stake-address-info --socket-path SOCKET_PATH
-                                                   [ --shelley-mode
-                                                   | --byron-mode
-                                                     [--epoch-slots SLOTS]
-                                                   | --cardano-mode
-                                                     [--epoch-slots SLOTS]
-                                                   ]
+                                                   [--cardano-mode
+                                                     [--epoch-slots SLOTS]]
                                                    --address ADDRESS
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
@@ -2880,10 +2730,7 @@ Usage: cardano-cli mary query stake-address-info --socket-path SOCKET_PATH
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli mary query utxo --socket-path SOCKET_PATH
-                                     [ --shelley-mode
-                                     | --byron-mode [--epoch-slots SLOTS]
-                                     | --cardano-mode [--epoch-slots SLOTS]
-                                     ]
+                                     [--cardano-mode [--epoch-slots SLOTS]]
                                      ( --whole-utxo
                                      | (--address ADDRESS)
                                      | (--tx-in TX-IN)
@@ -2894,12 +2741,8 @@ Usage: cardano-cli mary query utxo --socket-path SOCKET_PATH
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
 Usage: cardano-cli mary query ledger-state --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -2909,12 +2752,8 @@ Usage: cardano-cli mary query ledger-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli mary query protocol-state --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -2924,12 +2763,8 @@ Usage: cardano-cli mary query protocol-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli mary query stake-snapshot --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -2942,11 +2777,8 @@ Usage: cardano-cli mary query stake-snapshot --socket-path SOCKET_PATH
   (advanced command)
 
 Usage: cardano-cli mary query pool-params --socket-path SOCKET_PATH
-                                            [ --shelley-mode
-                                            | --byron-mode [--epoch-slots SLOTS]
-                                            | --cardano-mode
-                                              [--epoch-slots SLOTS]
-                                            ]
+                                            [--cardano-mode
+                                              [--epoch-slots SLOTS]]
                                             ( --mainnet
                                             | --testnet-magic NATURAL
                                             )
@@ -2957,12 +2789,8 @@ Usage: cardano-cli mary query pool-params --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli mary query leadership-schedule --socket-path SOCKET_PATH
-                                                    [ --shelley-mode
-                                                    | --byron-mode
-                                                      [--epoch-slots SLOTS]
-                                                    | --cardano-mode
-                                                      [--epoch-slots SLOTS]
-                                                    ]
+                                                    [--cardano-mode
+                                                      [--epoch-slots SLOTS]]
                                                     ( --mainnet
                                                     | --testnet-magic NATURAL
                                                     )
@@ -2978,12 +2806,8 @@ Usage: cardano-cli mary query leadership-schedule --socket-path SOCKET_PATH
   Get the slots the node is expected to mint a block in (advanced command)
 
 Usage: cardano-cli mary query kes-period-info --socket-path SOCKET_PATH
-                                                [ --shelley-mode
-                                                | --byron-mode
-                                                  [--epoch-slots SLOTS]
-                                                | --cardano-mode
-                                                  [--epoch-slots SLOTS]
-                                                ]
+                                                [--cardano-mode
+                                                  [--epoch-slots SLOTS]]
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )
@@ -2994,22 +2818,16 @@ Usage: cardano-cli mary query kes-period-info --socket-path SOCKET_PATH
   certificate.
 
 Usage: cardano-cli mary query pool-state --socket-path SOCKET_PATH
-                                           [ --shelley-mode
-                                           | --byron-mode [--epoch-slots SLOTS]
-                                           | --cardano-mode
-                                             [--epoch-slots SLOTS]
-                                           ]
+                                           [--cardano-mode
+                                             [--epoch-slots SLOTS]]
                                            (--mainnet | --testnet-magic NATURAL)
                                            [--stake-pool-id STAKE_POOL_ID]
 
   Dump the pool state
 
 Usage: cardano-cli mary query tx-mempool --socket-path SOCKET_PATH
-                                           [ --shelley-mode
-                                           | --byron-mode [--epoch-slots SLOTS]
-                                           | --cardano-mode
-                                             [--epoch-slots SLOTS]
-                                           ]
+                                           [--cardano-mode
+                                             [--epoch-slots SLOTS]]
                                            (--mainnet | --testnet-magic NATURAL)
                                            (info | next-tx | tx-exists)
                                            [--out-file FILE]
@@ -3029,11 +2847,8 @@ Usage: cardano-cli mary query tx-mempool tx-exists TX_ID
   Query if a particular transaction exists in the mempool
 
 Usage: cardano-cli mary query slot-number --socket-path SOCKET_PATH
-                                            [ --shelley-mode
-                                            | --byron-mode [--epoch-slots SLOTS]
-                                            | --cardano-mode
-                                              [--epoch-slots SLOTS]
-                                            ]
+                                            [--cardano-mode
+                                              [--epoch-slots SLOTS]]
                                             ( --mainnet
                                             | --testnet-magic NATURAL
                                             )
@@ -3328,11 +3143,8 @@ Usage: cardano-cli mary transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli mary transaction build --socket-path SOCKET_PATH
-                                            [ --shelley-mode
-                                            | --byron-mode [--epoch-slots SLOTS]
-                                            | --cardano-mode
-                                              [--epoch-slots SLOTS]
-                                            ]
+                                            [--cardano-mode
+                                              [--epoch-slots SLOTS]]
                                             ( --mainnet
                                             | --testnet-magic NATURAL
                                             )
@@ -3477,12 +3289,8 @@ Usage: cardano-cli mary transaction sign-witness --tx-body-file FILE
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli mary transaction submit --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -3986,12 +3794,8 @@ Usage: cardano-cli alonzo query
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli alonzo query protocol-parameters --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -4000,22 +3804,15 @@ Usage: cardano-cli alonzo query protocol-parameters --socket-path SOCKET_PATH
   Get the node's current protocol parameters
 
 Usage: cardano-cli alonzo query tip --socket-path SOCKET_PATH
-                                      [ --shelley-mode
-                                      | --byron-mode [--epoch-slots SLOTS]
-                                      | --cardano-mode [--epoch-slots SLOTS]
-                                      ]
+                                      [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       [--out-file FILE]
 
   Get the node's current tip (slot no, hash, block no)
 
 Usage: cardano-cli alonzo query stake-pools --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -4024,12 +3821,8 @@ Usage: cardano-cli alonzo query stake-pools --socket-path SOCKET_PATH
   Get the node's current set of stake pool ids
 
 Usage: cardano-cli alonzo query stake-distribution --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
+                                                     [--cardano-mode
+                                                       [--epoch-slots SLOTS]]
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
@@ -4038,12 +3831,8 @@ Usage: cardano-cli alonzo query stake-distribution --socket-path SOCKET_PATH
   Get the node's current aggregated stake distribution
 
 Usage: cardano-cli alonzo query stake-address-info --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
+                                                     [--cardano-mode
+                                                       [--epoch-slots SLOTS]]
                                                      --address ADDRESS
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
@@ -4053,10 +3842,7 @@ Usage: cardano-cli alonzo query stake-address-info --socket-path SOCKET_PATH
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli alonzo query utxo --socket-path SOCKET_PATH
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        ( --whole-utxo
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
@@ -4067,12 +3853,8 @@ Usage: cardano-cli alonzo query utxo --socket-path SOCKET_PATH
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
 Usage: cardano-cli alonzo query ledger-state --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -4082,12 +3864,8 @@ Usage: cardano-cli alonzo query ledger-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli alonzo query protocol-state --socket-path SOCKET_PATH
-                                                 [ --shelley-mode
-                                                 | --byron-mode
-                                                   [--epoch-slots SLOTS]
-                                                 | --cardano-mode
-                                                   [--epoch-slots SLOTS]
-                                                 ]
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
@@ -4097,12 +3875,8 @@ Usage: cardano-cli alonzo query protocol-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli alonzo query stake-snapshot --socket-path SOCKET_PATH
-                                                 [ --shelley-mode
-                                                 | --byron-mode
-                                                   [--epoch-slots SLOTS]
-                                                 | --cardano-mode
-                                                   [--epoch-slots SLOTS]
-                                                 ]
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
@@ -4116,12 +3890,8 @@ Usage: cardano-cli alonzo query stake-snapshot --socket-path SOCKET_PATH
   (advanced command)
 
 Usage: cardano-cli alonzo query pool-params --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -4132,12 +3902,8 @@ Usage: cardano-cli alonzo query pool-params --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli alonzo query leadership-schedule --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -4153,12 +3919,8 @@ Usage: cardano-cli alonzo query leadership-schedule --socket-path SOCKET_PATH
   Get the slots the node is expected to mint a block in (advanced command)
 
 Usage: cardano-cli alonzo query kes-period-info --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -4169,12 +3931,8 @@ Usage: cardano-cli alonzo query kes-period-info --socket-path SOCKET_PATH
   certificate.
 
 Usage: cardano-cli alonzo query pool-state --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -4183,12 +3941,8 @@ Usage: cardano-cli alonzo query pool-state --socket-path SOCKET_PATH
   Dump the pool state
 
 Usage: cardano-cli alonzo query tx-mempool --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -4210,12 +3964,8 @@ Usage: cardano-cli alonzo query tx-mempool tx-exists TX_ID
   Query if a particular transaction exists in the mempool
 
 Usage: cardano-cli alonzo query slot-number --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -4510,12 +4260,8 @@ Usage: cardano-cli alonzo transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -4668,12 +4414,8 @@ Usage: cardano-cli alonzo transaction sign-witness --tx-body-file FILE
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli alonzo transaction submit --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -5183,12 +4925,8 @@ Usage: cardano-cli babbage query
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli babbage query protocol-parameters --socket-path SOCKET_PATH
-                                                       [ --shelley-mode
-                                                       | --byron-mode
-                                                         [--epoch-slots SLOTS]
-                                                       | --cardano-mode
-                                                         [--epoch-slots SLOTS]
-                                                       ]
+                                                       [--cardano-mode
+                                                         [--epoch-slots SLOTS]]
                                                        ( --mainnet
                                                        | --testnet-magic NATURAL
                                                        )
@@ -5197,22 +4935,15 @@ Usage: cardano-cli babbage query protocol-parameters --socket-path SOCKET_PATH
   Get the node's current protocol parameters
 
 Usage: cardano-cli babbage query tip --socket-path SOCKET_PATH
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        [--out-file FILE]
 
   Get the node's current tip (slot no, hash, block no)
 
 Usage: cardano-cli babbage query stake-pools --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -5221,12 +4952,8 @@ Usage: cardano-cli babbage query stake-pools --socket-path SOCKET_PATH
   Get the node's current set of stake pool ids
 
 Usage: cardano-cli babbage query stake-distribution --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -5235,12 +4962,8 @@ Usage: cardano-cli babbage query stake-distribution --socket-path SOCKET_PATH
   Get the node's current aggregated stake distribution
 
 Usage: cardano-cli babbage query stake-address-info --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       --address ADDRESS
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
@@ -5250,10 +4973,7 @@ Usage: cardano-cli babbage query stake-address-info --socket-path SOCKET_PATH
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli babbage query utxo --socket-path SOCKET_PATH
-                                        [ --shelley-mode
-                                        | --byron-mode [--epoch-slots SLOTS]
-                                        | --cardano-mode [--epoch-slots SLOTS]
-                                        ]
+                                        [--cardano-mode [--epoch-slots SLOTS]]
                                         ( --whole-utxo
                                         | (--address ADDRESS)
                                         | (--tx-in TX-IN)
@@ -5264,12 +4984,8 @@ Usage: cardano-cli babbage query utxo --socket-path SOCKET_PATH
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
 Usage: cardano-cli babbage query ledger-state --socket-path SOCKET_PATH
-                                                [ --shelley-mode
-                                                | --byron-mode
-                                                  [--epoch-slots SLOTS]
-                                                | --cardano-mode
-                                                  [--epoch-slots SLOTS]
-                                                ]
+                                                [--cardano-mode
+                                                  [--epoch-slots SLOTS]]
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )
@@ -5279,12 +4995,8 @@ Usage: cardano-cli babbage query ledger-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli babbage query protocol-state --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -5294,12 +5006,8 @@ Usage: cardano-cli babbage query protocol-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli babbage query stake-snapshot --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -5313,12 +5021,8 @@ Usage: cardano-cli babbage query stake-snapshot --socket-path SOCKET_PATH
   (advanced command)
 
 Usage: cardano-cli babbage query pool-params --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -5329,12 +5033,8 @@ Usage: cardano-cli babbage query pool-params --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli babbage query leadership-schedule --socket-path SOCKET_PATH
-                                                       [ --shelley-mode
-                                                       | --byron-mode
-                                                         [--epoch-slots SLOTS]
-                                                       | --cardano-mode
-                                                         [--epoch-slots SLOTS]
-                                                       ]
+                                                       [--cardano-mode
+                                                         [--epoch-slots SLOTS]]
                                                        ( --mainnet
                                                        | --testnet-magic NATURAL
                                                        )
@@ -5350,12 +5050,8 @@ Usage: cardano-cli babbage query leadership-schedule --socket-path SOCKET_PATH
   Get the slots the node is expected to mint a block in (advanced command)
 
 Usage: cardano-cli babbage query kes-period-info --socket-path SOCKET_PATH
-                                                   [ --shelley-mode
-                                                   | --byron-mode
-                                                     [--epoch-slots SLOTS]
-                                                   | --cardano-mode
-                                                     [--epoch-slots SLOTS]
-                                                   ]
+                                                   [--cardano-mode
+                                                     [--epoch-slots SLOTS]]
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
@@ -5366,12 +5062,8 @@ Usage: cardano-cli babbage query kes-period-info --socket-path SOCKET_PATH
   certificate.
 
 Usage: cardano-cli babbage query pool-state --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -5380,12 +5072,8 @@ Usage: cardano-cli babbage query pool-state --socket-path SOCKET_PATH
   Dump the pool state
 
 Usage: cardano-cli babbage query tx-mempool --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -5407,12 +5095,8 @@ Usage: cardano-cli babbage query tx-mempool tx-exists TX_ID
   Query if a particular transaction exists in the mempool
 
 Usage: cardano-cli babbage query slot-number --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -5708,12 +5392,8 @@ Usage: cardano-cli babbage transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -5866,12 +5546,8 @@ Usage: cardano-cli babbage transaction sign-witness --tx-body-file FILE
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli babbage transaction submit --socket-path SOCKET_PATH
-                                                [ --shelley-mode
-                                                | --byron-mode
-                                                  [--epoch-slots SLOTS]
-                                                | --cardano-mode
-                                                  [--epoch-slots SLOTS]
-                                                ]
+                                                [--cardano-mode
+                                                  [--epoch-slots SLOTS]]
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )
@@ -6642,12 +6318,8 @@ Usage: cardano-cli conway query
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli conway query protocol-parameters --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -6656,22 +6328,15 @@ Usage: cardano-cli conway query protocol-parameters --socket-path SOCKET_PATH
   Get the node's current protocol parameters
 
 Usage: cardano-cli conway query tip --socket-path SOCKET_PATH
-                                      [ --shelley-mode
-                                      | --byron-mode [--epoch-slots SLOTS]
-                                      | --cardano-mode [--epoch-slots SLOTS]
-                                      ]
+                                      [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       [--out-file FILE]
 
   Get the node's current tip (slot no, hash, block no)
 
 Usage: cardano-cli conway query stake-pools --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -6680,12 +6345,8 @@ Usage: cardano-cli conway query stake-pools --socket-path SOCKET_PATH
   Get the node's current set of stake pool ids
 
 Usage: cardano-cli conway query stake-distribution --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
+                                                     [--cardano-mode
+                                                       [--epoch-slots SLOTS]]
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
@@ -6694,12 +6355,8 @@ Usage: cardano-cli conway query stake-distribution --socket-path SOCKET_PATH
   Get the node's current aggregated stake distribution
 
 Usage: cardano-cli conway query stake-address-info --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
+                                                     [--cardano-mode
+                                                       [--epoch-slots SLOTS]]
                                                      --address ADDRESS
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
@@ -6709,10 +6366,7 @@ Usage: cardano-cli conway query stake-address-info --socket-path SOCKET_PATH
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli conway query utxo --socket-path SOCKET_PATH
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        ( --whole-utxo
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
@@ -6723,12 +6377,8 @@ Usage: cardano-cli conway query utxo --socket-path SOCKET_PATH
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
 Usage: cardano-cli conway query ledger-state --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -6738,12 +6388,8 @@ Usage: cardano-cli conway query ledger-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli conway query protocol-state --socket-path SOCKET_PATH
-                                                 [ --shelley-mode
-                                                 | --byron-mode
-                                                   [--epoch-slots SLOTS]
-                                                 | --cardano-mode
-                                                   [--epoch-slots SLOTS]
-                                                 ]
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
@@ -6753,12 +6399,8 @@ Usage: cardano-cli conway query protocol-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli conway query stake-snapshot --socket-path SOCKET_PATH
-                                                 [ --shelley-mode
-                                                 | --byron-mode
-                                                   [--epoch-slots SLOTS]
-                                                 | --cardano-mode
-                                                   [--epoch-slots SLOTS]
-                                                 ]
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
@@ -6772,12 +6414,8 @@ Usage: cardano-cli conway query stake-snapshot --socket-path SOCKET_PATH
   (advanced command)
 
 Usage: cardano-cli conway query pool-params --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -6788,12 +6426,8 @@ Usage: cardano-cli conway query pool-params --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli conway query leadership-schedule --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -6809,12 +6443,8 @@ Usage: cardano-cli conway query leadership-schedule --socket-path SOCKET_PATH
   Get the slots the node is expected to mint a block in (advanced command)
 
 Usage: cardano-cli conway query kes-period-info --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -6825,12 +6455,8 @@ Usage: cardano-cli conway query kes-period-info --socket-path SOCKET_PATH
   certificate.
 
 Usage: cardano-cli conway query pool-state --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -6839,12 +6465,8 @@ Usage: cardano-cli conway query pool-state --socket-path SOCKET_PATH
   Dump the pool state
 
 Usage: cardano-cli conway query tx-mempool --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -6866,12 +6488,8 @@ Usage: cardano-cli conway query tx-mempool tx-exists TX_ID
   Query if a particular transaction exists in the mempool
 
 Usage: cardano-cli conway query slot-number --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -6880,12 +6498,8 @@ Usage: cardano-cli conway query slot-number --socket-path SOCKET_PATH
   Query slot number for UTC timestamp
 
 Usage: cardano-cli conway query constitution --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -6894,11 +6508,8 @@ Usage: cardano-cli conway query constitution --socket-path SOCKET_PATH
   Get the constitution
 
 Usage: cardano-cli conway query gov-state --socket-path SOCKET_PATH
-                                            [ --shelley-mode
-                                            | --byron-mode [--epoch-slots SLOTS]
-                                            | --cardano-mode
-                                              [--epoch-slots SLOTS]
-                                            ]
+                                            [--cardano-mode
+                                              [--epoch-slots SLOTS]]
                                             ( --mainnet
                                             | --testnet-magic NATURAL
                                             )
@@ -6907,12 +6518,8 @@ Usage: cardano-cli conway query gov-state --socket-path SOCKET_PATH
   Get the governance state
 
 Usage: cardano-cli conway query drep-state --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -6927,12 +6534,8 @@ Usage: cardano-cli conway query drep-state --socket-path SOCKET_PATH
 
 Usage: cardano-cli conway query drep-stake-distribution 
                                                           --socket-path SOCKET_PATH
-                                                          [ --shelley-mode
-                                                          | --byron-mode
-                                                            [--epoch-slots SLOTS]
-                                                          | --cardano-mode
-                                                            [--epoch-slots SLOTS]
-                                                          ]
+                                                          [--cardano-mode
+                                                            [--epoch-slots SLOTS]]
                                                           ( --mainnet
                                                           | --testnet-magic NATURAL
                                                           )
@@ -6946,12 +6549,8 @@ Usage: cardano-cli conway query drep-stake-distribution
   stake distributions for all of them.
 
 Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -7300,12 +6899,8 @@ Usage: cardano-cli conway transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -7457,12 +7052,8 @@ Usage: cardano-cli conway transaction sign-witness --tx-body-file FILE
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli conway transaction submit --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -7970,12 +7561,8 @@ Usage: cardano-cli latest query
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli latest query protocol-parameters --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -7984,22 +7571,15 @@ Usage: cardano-cli latest query protocol-parameters --socket-path SOCKET_PATH
   Get the node's current protocol parameters
 
 Usage: cardano-cli latest query tip --socket-path SOCKET_PATH
-                                      [ --shelley-mode
-                                      | --byron-mode [--epoch-slots SLOTS]
-                                      | --cardano-mode [--epoch-slots SLOTS]
-                                      ]
+                                      [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       [--out-file FILE]
 
   Get the node's current tip (slot no, hash, block no)
 
 Usage: cardano-cli latest query stake-pools --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -8008,12 +7588,8 @@ Usage: cardano-cli latest query stake-pools --socket-path SOCKET_PATH
   Get the node's current set of stake pool ids
 
 Usage: cardano-cli latest query stake-distribution --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
+                                                     [--cardano-mode
+                                                       [--epoch-slots SLOTS]]
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
@@ -8022,12 +7598,8 @@ Usage: cardano-cli latest query stake-distribution --socket-path SOCKET_PATH
   Get the node's current aggregated stake distribution
 
 Usage: cardano-cli latest query stake-address-info --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
+                                                     [--cardano-mode
+                                                       [--epoch-slots SLOTS]]
                                                      --address ADDRESS
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
@@ -8037,10 +7609,7 @@ Usage: cardano-cli latest query stake-address-info --socket-path SOCKET_PATH
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli latest query utxo --socket-path SOCKET_PATH
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        ( --whole-utxo
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
@@ -8051,12 +7620,8 @@ Usage: cardano-cli latest query utxo --socket-path SOCKET_PATH
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
 Usage: cardano-cli latest query ledger-state --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -8066,12 +7631,8 @@ Usage: cardano-cli latest query ledger-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli latest query protocol-state --socket-path SOCKET_PATH
-                                                 [ --shelley-mode
-                                                 | --byron-mode
-                                                   [--epoch-slots SLOTS]
-                                                 | --cardano-mode
-                                                   [--epoch-slots SLOTS]
-                                                 ]
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
@@ -8081,12 +7642,8 @@ Usage: cardano-cli latest query protocol-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli latest query stake-snapshot --socket-path SOCKET_PATH
-                                                 [ --shelley-mode
-                                                 | --byron-mode
-                                                   [--epoch-slots SLOTS]
-                                                 | --cardano-mode
-                                                   [--epoch-slots SLOTS]
-                                                 ]
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
@@ -8100,12 +7657,8 @@ Usage: cardano-cli latest query stake-snapshot --socket-path SOCKET_PATH
   (advanced command)
 
 Usage: cardano-cli latest query pool-params --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -8116,12 +7669,8 @@ Usage: cardano-cli latest query pool-params --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli latest query leadership-schedule --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -8137,12 +7686,8 @@ Usage: cardano-cli latest query leadership-schedule --socket-path SOCKET_PATH
   Get the slots the node is expected to mint a block in (advanced command)
 
 Usage: cardano-cli latest query kes-period-info --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -8153,12 +7698,8 @@ Usage: cardano-cli latest query kes-period-info --socket-path SOCKET_PATH
   certificate.
 
 Usage: cardano-cli latest query pool-state --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -8167,12 +7708,8 @@ Usage: cardano-cli latest query pool-state --socket-path SOCKET_PATH
   Dump the pool state
 
 Usage: cardano-cli latest query tx-mempool --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -8194,12 +7731,8 @@ Usage: cardano-cli latest query tx-mempool tx-exists TX_ID
   Query if a particular transaction exists in the mempool
 
 Usage: cardano-cli latest query slot-number --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -8494,12 +8027,8 @@ Usage: cardano-cli latest transaction build-raw
   Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -8652,12 +8181,8 @@ Usage: cardano-cli latest transaction sign-witness --tx-body-file FILE
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli latest transaction submit --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -9036,12 +8561,8 @@ Usage: cardano-cli legacy query
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli legacy query protocol-parameters --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -9050,12 +8571,8 @@ Usage: cardano-cli legacy query protocol-parameters --socket-path SOCKET_PATH
   Get the node's current protocol parameters
 
 Usage: cardano-cli legacy query constitution-hash --socket-path SOCKET_PATH
-                                                    [ --shelley-mode
-                                                    | --byron-mode
-                                                      [--epoch-slots SLOTS]
-                                                    | --cardano-mode
-                                                      [--epoch-slots SLOTS]
-                                                    ]
+                                                    [--cardano-mode
+                                                      [--epoch-slots SLOTS]]
                                                     ( --mainnet
                                                     | --testnet-magic NATURAL
                                                     )
@@ -9064,22 +8581,15 @@ Usage: cardano-cli legacy query constitution-hash --socket-path SOCKET_PATH
   Get the constitution hash
 
 Usage: cardano-cli legacy query tip --socket-path SOCKET_PATH
-                                      [ --shelley-mode
-                                      | --byron-mode [--epoch-slots SLOTS]
-                                      | --cardano-mode [--epoch-slots SLOTS]
-                                      ]
+                                      [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       [--out-file FILE]
 
   Get the node's current tip (slot no, hash, block no)
 
 Usage: cardano-cli legacy query stake-pools --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -9088,12 +8598,8 @@ Usage: cardano-cli legacy query stake-pools --socket-path SOCKET_PATH
   Get the node's current set of stake pool ids
 
 Usage: cardano-cli legacy query stake-distribution --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
+                                                     [--cardano-mode
+                                                       [--epoch-slots SLOTS]]
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
@@ -9102,12 +8608,8 @@ Usage: cardano-cli legacy query stake-distribution --socket-path SOCKET_PATH
   Get the node's current aggregated stake distribution
 
 Usage: cardano-cli legacy query stake-address-info --socket-path SOCKET_PATH
-                                                     [ --shelley-mode
-                                                     | --byron-mode
-                                                       [--epoch-slots SLOTS]
-                                                     | --cardano-mode
-                                                       [--epoch-slots SLOTS]
-                                                     ]
+                                                     [--cardano-mode
+                                                       [--epoch-slots SLOTS]]
                                                      --address ADDRESS
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
@@ -9117,10 +8619,7 @@ Usage: cardano-cli legacy query stake-address-info --socket-path SOCKET_PATH
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli legacy query utxo --socket-path SOCKET_PATH
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        ( --whole-utxo
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
@@ -9131,12 +8630,8 @@ Usage: cardano-cli legacy query utxo --socket-path SOCKET_PATH
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
 Usage: cardano-cli legacy query ledger-state --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -9146,12 +8641,8 @@ Usage: cardano-cli legacy query ledger-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli legacy query protocol-state --socket-path SOCKET_PATH
-                                                 [ --shelley-mode
-                                                 | --byron-mode
-                                                   [--epoch-slots SLOTS]
-                                                 | --cardano-mode
-                                                   [--epoch-slots SLOTS]
-                                                 ]
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
@@ -9161,12 +8652,8 @@ Usage: cardano-cli legacy query protocol-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli legacy query stake-snapshot --socket-path SOCKET_PATH
-                                                 [ --shelley-mode
-                                                 | --byron-mode
-                                                   [--epoch-slots SLOTS]
-                                                 | --cardano-mode
-                                                   [--epoch-slots SLOTS]
-                                                 ]
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
@@ -9180,12 +8667,8 @@ Usage: cardano-cli legacy query stake-snapshot --socket-path SOCKET_PATH
   (advanced command)
 
 Usage: cardano-cli legacy query pool-params --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -9196,12 +8679,8 @@ Usage: cardano-cli legacy query pool-params --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli legacy query leadership-schedule --socket-path SOCKET_PATH
-                                                      [ --shelley-mode
-                                                      | --byron-mode
-                                                        [--epoch-slots SLOTS]
-                                                      | --cardano-mode
-                                                        [--epoch-slots SLOTS]
-                                                      ]
+                                                      [--cardano-mode
+                                                        [--epoch-slots SLOTS]]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -9217,12 +8696,8 @@ Usage: cardano-cli legacy query leadership-schedule --socket-path SOCKET_PATH
   Get the slots the node is expected to mint a block in (advanced command)
 
 Usage: cardano-cli legacy query kes-period-info --socket-path SOCKET_PATH
-                                                  [ --shelley-mode
-                                                  | --byron-mode
-                                                    [--epoch-slots SLOTS]
-                                                  | --cardano-mode
-                                                    [--epoch-slots SLOTS]
-                                                  ]
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -9233,12 +8708,8 @@ Usage: cardano-cli legacy query kes-period-info --socket-path SOCKET_PATH
   certificate.
 
 Usage: cardano-cli legacy query pool-state --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -9247,12 +8718,8 @@ Usage: cardano-cli legacy query pool-state --socket-path SOCKET_PATH
   Dump the pool state
 
 Usage: cardano-cli legacy query tx-mempool --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -9274,12 +8741,8 @@ Usage: cardano-cli legacy query tx-mempool tx-exists TX_ID
   Query if a particular transaction exists in the mempool
 
 Usage: cardano-cli legacy query slot-number --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -9577,12 +9040,8 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                               | --alonzo-era
                                               | --babbage-era
                                               ]
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -9735,12 +9194,8 @@ Usage: cardano-cli legacy transaction sign-witness --tx-body-file FILE
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli legacy transaction submit --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -10339,12 +9794,8 @@ Usage: cardano-cli query
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Usage: cardano-cli query protocol-parameters --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -10353,12 +9804,8 @@ Usage: cardano-cli query protocol-parameters --socket-path SOCKET_PATH
   Get the node's current protocol parameters
 
 Usage: cardano-cli query constitution-hash --socket-path SOCKET_PATH
-                                             [ --shelley-mode
-                                             | --byron-mode
-                                               [--epoch-slots SLOTS]
-                                             | --cardano-mode
-                                               [--epoch-slots SLOTS]
-                                             ]
+                                             [--cardano-mode
+                                               [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
@@ -10367,32 +9814,22 @@ Usage: cardano-cli query constitution-hash --socket-path SOCKET_PATH
   Get the constitution hash
 
 Usage: cardano-cli query tip --socket-path SOCKET_PATH
-                               [ --shelley-mode
-                               | --byron-mode [--epoch-slots SLOTS]
-                               | --cardano-mode [--epoch-slots SLOTS]
-                               ]
+                               [--cardano-mode [--epoch-slots SLOTS]]
                                (--mainnet | --testnet-magic NATURAL)
                                [--out-file FILE]
 
   Get the node's current tip (slot no, hash, block no)
 
 Usage: cardano-cli query stake-pools --socket-path SOCKET_PATH
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        [--out-file FILE]
 
   Get the node's current set of stake pool ids
 
 Usage: cardano-cli query stake-distribution --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
@@ -10401,12 +9838,8 @@ Usage: cardano-cli query stake-distribution --socket-path SOCKET_PATH
   Get the node's current aggregated stake distribution
 
 Usage: cardano-cli query stake-address-info --socket-path SOCKET_PATH
-                                              [ --shelley-mode
-                                              | --byron-mode
-                                                [--epoch-slots SLOTS]
-                                              | --cardano-mode
-                                                [--epoch-slots SLOTS]
-                                              ]
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
                                               --address ADDRESS
                                               ( --mainnet
                                               | --testnet-magic NATURAL
@@ -10416,10 +9849,7 @@ Usage: cardano-cli query stake-address-info --socket-path SOCKET_PATH
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli query utxo --socket-path SOCKET_PATH
-                                [ --shelley-mode
-                                | --byron-mode [--epoch-slots SLOTS]
-                                | --cardano-mode [--epoch-slots SLOTS]
-                                ]
+                                [--cardano-mode [--epoch-slots SLOTS]]
                                 ( --whole-utxo
                                 | (--address ADDRESS)
                                 | (--tx-in TX-IN)
@@ -10430,10 +9860,7 @@ Usage: cardano-cli query utxo --socket-path SOCKET_PATH
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
 Usage: cardano-cli query ledger-state --socket-path SOCKET_PATH
-                                        [ --shelley-mode
-                                        | --byron-mode [--epoch-slots SLOTS]
-                                        | --cardano-mode [--epoch-slots SLOTS]
-                                        ]
+                                        [--cardano-mode [--epoch-slots SLOTS]]
                                         (--mainnet | --testnet-magic NATURAL)
                                         [--out-file FILE]
 
@@ -10441,10 +9868,7 @@ Usage: cardano-cli query ledger-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli query protocol-state --socket-path SOCKET_PATH
-                                          [ --shelley-mode
-                                          | --byron-mode [--epoch-slots SLOTS]
-                                          | --cardano-mode [--epoch-slots SLOTS]
-                                          ]
+                                          [--cardano-mode [--epoch-slots SLOTS]]
                                           (--mainnet | --testnet-magic NATURAL)
                                           [--out-file FILE]
 
@@ -10452,10 +9876,7 @@ Usage: cardano-cli query protocol-state --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli query stake-snapshot --socket-path SOCKET_PATH
-                                          [ --shelley-mode
-                                          | --byron-mode [--epoch-slots SLOTS]
-                                          | --cardano-mode [--epoch-slots SLOTS]
-                                          ]
+                                          [--cardano-mode [--epoch-slots SLOTS]]
                                           (--mainnet | --testnet-magic NATURAL)
                                           [ --all-stake-pools
                                           | [--stake-pool-id STAKE_POOL_ID]
@@ -10466,10 +9887,7 @@ Usage: cardano-cli query stake-snapshot --socket-path SOCKET_PATH
   (advanced command)
 
 Usage: cardano-cli query pool-params --socket-path SOCKET_PATH
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        [--stake-pool-id STAKE_POOL_ID]
 
@@ -10478,12 +9896,8 @@ Usage: cardano-cli query pool-params --socket-path SOCKET_PATH
   command)
 
 Usage: cardano-cli query leadership-schedule --socket-path SOCKET_PATH
-                                               [ --shelley-mode
-                                               | --byron-mode
-                                                 [--epoch-slots SLOTS]
-                                               | --cardano-mode
-                                                 [--epoch-slots SLOTS]
-                                               ]
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
@@ -10499,11 +9913,8 @@ Usage: cardano-cli query leadership-schedule --socket-path SOCKET_PATH
   Get the slots the node is expected to mint a block in (advanced command)
 
 Usage: cardano-cli query kes-period-info --socket-path SOCKET_PATH
-                                           [ --shelley-mode
-                                           | --byron-mode [--epoch-slots SLOTS]
-                                           | --cardano-mode
-                                             [--epoch-slots SLOTS]
-                                           ]
+                                           [--cardano-mode
+                                             [--epoch-slots SLOTS]]
                                            (--mainnet | --testnet-magic NATURAL)
                                            --op-cert-file FILE
                                            [--out-file FILE]
@@ -10512,20 +9923,14 @@ Usage: cardano-cli query kes-period-info --socket-path SOCKET_PATH
   certificate.
 
 Usage: cardano-cli query pool-state --socket-path SOCKET_PATH
-                                      [ --shelley-mode
-                                      | --byron-mode [--epoch-slots SLOTS]
-                                      | --cardano-mode [--epoch-slots SLOTS]
-                                      ]
+                                      [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       [--stake-pool-id STAKE_POOL_ID]
 
   Dump the pool state
 
 Usage: cardano-cli query tx-mempool --socket-path SOCKET_PATH
-                                      [ --shelley-mode
-                                      | --byron-mode [--epoch-slots SLOTS]
-                                      | --cardano-mode [--epoch-slots SLOTS]
-                                      ]
+                                      [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       (info | next-tx | tx-exists)
                                       [--out-file FILE]
@@ -10545,10 +9950,7 @@ Usage: cardano-cli query tx-mempool tx-exists TX_ID
   Query if a particular transaction exists in the mempool
 
 Usage: cardano-cli query slot-number --socket-path SOCKET_PATH
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        TIMESTAMP
 
@@ -10841,10 +10243,7 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                        | --alonzo-era
                                        | --babbage-era
                                        ]
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        [--script-valid | --script-invalid]
                                        [--witness-override WORD]
@@ -10985,10 +10384,7 @@ Usage: cardano-cli transaction sign-witness --tx-body-file FILE
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli transaction submit --socket-path SOCKET_PATH
-                                        [ --shelley-mode
-                                        | --byron-mode [--epoch-slots SLOTS]
-                                        | --cardano-mode [--epoch-slots SLOTS]
-                                        ]
+                                        [--cardano-mode [--epoch-slots SLOTS]]
                                         (--mainnet | --testnet-magic NATURAL)
                                         --tx-file FILE
 

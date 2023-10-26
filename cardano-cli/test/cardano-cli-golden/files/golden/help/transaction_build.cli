@@ -5,10 +5,7 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                        | --alonzo-era
                                        | --babbage-era
                                        ]
-                                       [ --shelley-mode
-                                       | --byron-mode [--epoch-slots SLOTS]
-                                       | --cardano-mode [--epoch-slots SLOTS]
-                                       ]
+                                       [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        [--script-valid | --script-invalid]
                                        [--witness-override WORD]
@@ -131,10 +128,6 @@ Available options:
   --mary-era               Specify the Mary era
   --alonzo-era             Specify the Alonzo era
   --babbage-era            Specify the Babbage era (default)
-  --shelley-mode           For talking to a node running in Shelley-only mode.
-  --byron-mode             For talking to a node running in Byron-only mode.
-  --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
-                           (default: 21600)
   --cardano-mode           For talking to a node running in full Cardano mode
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
