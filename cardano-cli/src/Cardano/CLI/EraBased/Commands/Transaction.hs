@@ -147,10 +147,10 @@ data TransactionSignWitnessCmdArgs = TransactionSignWitnessCmdArgs
   } deriving Show
 
 data TransactionSubmitCmdArgs = TransactionSubmitCmdArgs
-  { nodeSocketPath          :: !SocketPath
-  , anyConsensusModeParams  :: !(ConsensusModeParams CardanoMode)
-  , networkId               :: !NetworkId
-  , txFile                  :: !FilePath
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , networkId           :: !NetworkId
+  , txFile              :: !FilePath
   } deriving Show
 
 newtype TransactionPolicyIdCmdArgs = TransactionPolicyIdCmdArgs

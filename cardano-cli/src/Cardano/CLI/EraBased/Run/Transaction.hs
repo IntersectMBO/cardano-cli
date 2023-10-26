@@ -931,7 +931,7 @@ runTransactionSubmitCmd :: ()
 runTransactionSubmitCmd
     Cmd.TransactionSubmitCmdArgs
       { nodeSocketPath
-      , anyConsensusModeParams = cModeParams
+      , consensusModeParams
       , networkId
       , txFile
       } = do
@@ -940,7 +940,7 @@ runTransactionSubmitCmd
   let eraInMode = toEraInCardanoMode era
   let txInMode = TxInMode tx eraInMode
       localNodeConnInfo = LocalNodeConnectInfo
-                            { localConsensusModeParams = cModeParams
+                            { localConsensusModeParams = consensusModeParams
                             , localNodeNetworkId = networkId
                             , localNodeSocketPath = nodeSocketPath
                             }
