@@ -21,7 +21,6 @@ Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
                                                               [--pool-influence RATIONAL]
                                                               [--monetary-expansion RATIONAL]
                                                               [--treasury-expansion RATIONAL]
-                                                              [--utxo-cost-per-word LOVELACE]
                                                               [--price-execution-steps RATIONAL
                                                                 --price-execution-memory RATIONAL]
                                                               [--max-tx-execution-units (INT, INT)]
@@ -78,9 +77,6 @@ Available options:
                            Monetary expansion.
   --treasury-expansion RATIONAL
                            Treasury expansion.
-  --utxo-cost-per-word LOVELACE
-                           Cost in lovelace per unit of UTxO storage (from
-                           Alonzo era).
   --price-execution-steps RATIONAL
                            Step price of execution units for script languages
                            that use them (from Alonzo era). (Examples: '1.1',

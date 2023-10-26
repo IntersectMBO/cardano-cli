@@ -3901,7 +3901,6 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update --
                                                                                 [--max-value-size INT]
                                                                                 [--collateral-percent INT]
                                                                                 [--max-collateral-inputs INT]
-                                                                                [--utxo-cost-per-word LOVELACE]
                                                                                 --out-file FILE
 
   Create a protocol parameters update.
@@ -8860,7 +8859,6 @@ Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
                                                               [--pool-influence RATIONAL]
                                                               [--monetary-expansion RATIONAL]
                                                               [--treasury-expansion RATIONAL]
-                                                              [--utxo-cost-per-word LOVELACE]
                                                               [--price-execution-steps RATIONAL
                                                                 --price-execution-memory RATIONAL]
                                                               [--max-tx-execution-units (INT, INT)]
@@ -10170,7 +10168,6 @@ Usage: cardano-cli governance create-update-proposal --out-file FILE
                                                        [--pool-influence RATIONAL]
                                                        [--monetary-expansion RATIONAL]
                                                        [--treasury-expansion RATIONAL]
-                                                       [--utxo-cost-per-word LOVELACE]
                                                        [--price-execution-steps RATIONAL
                                                          --price-execution-memory RATIONAL]
                                                        [--max-tx-execution-units (INT, INT)]

@@ -2560,7 +2560,7 @@ pProtocolParametersUpdate =
     <*> optional pPoolInfluence
     <*> optional pMonetaryExpansion
     <*> optional pTreasuryExpansion
-    <*> optional pUTxOCostPerWord
+    <*> pure Nothing
     <*> pure mempty
     <*> optional pExecutionUnitPrices
     <*> optional pMaxTxExecutionUnits
@@ -2728,14 +2728,6 @@ pExtraEntropy =
     parseEntropyBytes = either fail return
                       . B16.decode . BSC.pack
                     =<< some Parsec.hexDigit
-
-pUTxOCostPerWord :: Parser Lovelace
-pUTxOCostPerWord =
-  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
-    [ Opt.long "utxo-cost-per-word"
-    , Opt.metavar "LOVELACE"
-    , Opt.help "Cost in lovelace per unit of UTxO storage (from Alonzo era)."
-    ]
 
 pUTxOCostPerByte :: Parser Lovelace
 pUTxOCostPerByte =
