@@ -211,36 +211,33 @@ runTransactionBuildCmd
 
       pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
       executionUnitPrices <- pure (getExecutionUnitPrices era pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
-      let consensusMode = consensusModeOnly consensusModeParams
 
-      case consensusMode of
-        CardanoMode -> do
-          AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr consensusModeParams))
-            & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-            & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr consensusModeParams))
+        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
-          (txEraUtxo, _, eraHistory, systemStart, _, _, _) <-
-            lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (queryStateForBalancedTx nodeEra allTxInputs []))
-              & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-              & onLeft (left . TxCmdQueryConvenienceError)
+      (txEraUtxo, _, eraHistory, systemStart, _, _, _) <-
+        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (queryStateForBalancedTx nodeEra allTxInputs []))
+          & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+          & onLeft (left . TxCmdQueryConvenienceError)
 
-          Refl <- testEquality era nodeEra
-            & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
+      Refl <- testEquality era nodeEra
+        & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
-          scriptExecUnitsMap <-
-            firstExceptT TxCmdTxExecUnitsErr $ hoistEither
-              $ evaluateTransactionExecutionUnits
-                  systemStart (toLedgerEpochInfo eraHistory)
-                  pparams txEraUtxo balancedTxBody
+      scriptExecUnitsMap <-
+        firstExceptT TxCmdTxExecUnitsErr $ hoistEither
+          $ evaluateTransactionExecutionUnits
+              systemStart (toLedgerEpochInfo eraHistory)
+              pparams txEraUtxo balancedTxBody
 
-          scriptCostOutput <-
-            firstExceptT TxCmdPlutusScriptCostErr $ hoistEither
-              $ renderScriptCosts
-                  txEraUtxo
-                  executionUnitPrices
-                  mScriptWits
-                  scriptExecUnitsMap
-          liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
+      scriptCostOutput <-
+        firstExceptT TxCmdPlutusScriptCostErr $ hoistEither
+          $ renderScriptCosts
+              txEraUtxo
+              executionUnitPrices
+              mScriptWits
+              scriptExecUnitsMap
+      liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
 
     OutputTxBodyOnly fpath ->
       let noWitTx = makeSignedTransaction [] balancedTxBody
@@ -509,8 +506,6 @@ runTxBuild
     txUpdateProposal mOverrideWits votingProcedures proposals _outputOptions = shelleyBasedEraConstraints sbe $ do
 
   let era = shelleyBasedToCardanoEra sbe
-
-  let consensusMode = consensusModeOnly consensusModeParams
       dummyFee = Just $ Lovelace 0
       inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
 
@@ -535,79 +530,77 @@ runTxBuild
   validatedMintValue <- hoistEither $ createTxMintValue era valuesWithScriptWits
   validatedTxScriptValidity <- hoistEither (first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity)
 
-  case consensusMode of
-    CardanoMode -> do
-      let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
-          localNodeConnInfo = LocalNodeConnectInfo
-                                     { localConsensusModeParams = CardanoModeParams $ EpochSlots 21600
-                                     , localNodeNetworkId = networkId
-                                     , localNodeSocketPath = socketPath
-                                     }
+  let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
+      localNodeConnInfo = LocalNodeConnectInfo
+                                  { localConsensusModeParams = CardanoModeParams $ EpochSlots 21600
+                                  , localNodeNetworkId = networkId
+                                  , localNodeSocketPath = socketPath
+                                  }
 
-      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr consensusModeParams))
-        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr consensusModeParams))
+    & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+    & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
-      Refl <- testEquality era nodeEra
-        & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
+  Refl <- testEquality era nodeEra
+    & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
-      let certs =
-            case validatedTxCerts of
-              TxCertificates _ cs _ -> cs
-              _ -> []
+  let certs =
+        case validatedTxCerts of
+          TxCertificates _ cs _ -> cs
+          _ -> []
 
-      (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits) <-
-        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs certs)
-          & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-          & onLeft (left . TxCmdQueryConvenienceError)
+  (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits) <-
+    lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs certs)
+      & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+      & onLeft (left . TxCmdQueryConvenienceError)
 
-      validatedPParams <- hoistEither $ first TxCmdProtocolParametersValidationError
-                                      $ validateProtocolParameters era (Just pparams)
+  validatedPParams <- hoistEither $ first TxCmdProtocolParametersValidationError
+                                  $ validateProtocolParameters era (Just pparams)
 
-      let validatedTxProposalProcedures = proposals
-          validatedTxVotes = votingProcedures
-          txBodyContent =
-            TxBodyContent
-              { txIns = validateTxIns inputsAndMaybeScriptWits
-              , txInsCollateral = validatedCollateralTxIns
-              , txInsReference = validatedRefInputs
-              , txOuts = txouts
-              , txTotalCollateral = validatedTotCollateral
-              , txReturnCollateral = validatedRetCol
-              , txFee = dFee
-              , txValidityLowerBound = validatedLowerBound
-              , txValidityUpperBound = mUpperBound
-              , txMetadata = txMetadata
-              , txAuxScripts = txAuxScripts
-              , txExtraKeyWits = validatedReqSigners
-              , txProtocolParams = validatedPParams
-              , txWithdrawals = validatedTxWtdrwls
-              , txCertificates = validatedTxCerts
-              , txUpdateProposal = txUpdateProposal
-              , txMintValue = validatedMintValue
-              , txScriptValidity = validatedTxScriptValidity
-              , txProposalProcedures = forEraInEonMaybe era (`Featured` validatedTxProposalProcedures)
-              , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedTxVotes)
-              }
+  let validatedTxProposalProcedures = proposals
+      validatedTxVotes = votingProcedures
+      txBodyContent =
+        TxBodyContent
+          { txIns = validateTxIns inputsAndMaybeScriptWits
+          , txInsCollateral = validatedCollateralTxIns
+          , txInsReference = validatedRefInputs
+          , txOuts = txouts
+          , txTotalCollateral = validatedTotCollateral
+          , txReturnCollateral = validatedRetCol
+          , txFee = dFee
+          , txValidityLowerBound = validatedLowerBound
+          , txValidityUpperBound = mUpperBound
+          , txMetadata = txMetadata
+          , txAuxScripts = txAuxScripts
+          , txExtraKeyWits = validatedReqSigners
+          , txProtocolParams = validatedPParams
+          , txWithdrawals = validatedTxWtdrwls
+          , txCertificates = validatedTxCerts
+          , txUpdateProposal = txUpdateProposal
+          , txMintValue = validatedMintValue
+          , txScriptValidity = validatedTxScriptValidity
+          , txProposalProcedures = forEraInEonMaybe era (`Featured` validatedTxProposalProcedures)
+          , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedTxVotes)
+          }
 
-      firstExceptT TxCmdTxInsDoNotExist
-        . hoistEither $ txInsExistInUTxO allTxInputs txEraUtxo
-      firstExceptT TxCmdQueryNotScriptLocked
-        . hoistEither $ notScriptLockedTxIns txinsc txEraUtxo
+  firstExceptT TxCmdTxInsDoNotExist
+    . hoistEither $ txInsExistInUTxO allTxInputs txEraUtxo
+  firstExceptT TxCmdQueryNotScriptLocked
+    . hoistEither $ notScriptLockedTxIns txinsc txEraUtxo
 
-      cAddr <- pure (anyAddressInEra era changeAddr)
-        & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
+  cAddr <- pure (anyAddressInEra era changeAddr)
+    & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
 
-      balancedTxBody@(BalancedTxBody _ _ _ fee) <-
-        firstExceptT TxCmdBalanceTxBody
-          . hoistEither
-          $ makeTransactionBodyAutoBalance sbe systemStart (toLedgerEpochInfo eraHistory)
-                                           pparams stakePools stakeDelegDeposits drepDelegDeposits
-                                           txEraUtxo txBodyContent cAddr mOverrideWits
+  balancedTxBody@(BalancedTxBody _ _ _ fee) <-
+    firstExceptT TxCmdBalanceTxBody
+      . hoistEither
+      $ makeTransactionBodyAutoBalance sbe systemStart (toLedgerEpochInfo eraHistory)
+                                        pparams stakePools stakeDelegDeposits drepDelegDeposits
+                                        txEraUtxo txBodyContent cAddr mOverrideWits
 
-      liftIO $ putStrLn $ "Estimated transaction fee: " <> (show fee :: String)
+  liftIO $ putStrLn $ "Estimated transaction fee: " <> (show fee :: String)
 
-      return balancedTxBody
+  return balancedTxBody
 
 -- ----------------------------------------------------------------------------
 -- Transaction body validation and conversion
