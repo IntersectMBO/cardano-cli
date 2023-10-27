@@ -151,7 +151,8 @@ friendlyTxBodyImpl
       , txReturnCollateral
       , txInsReference
       , txUpdateProposal
-      , txValidityRange
+      , txValidityLowerBound
+       ,txValidityUpperBound
       , txWithdrawals
       }) =
     [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
@@ -169,7 +170,7 @@ friendlyTxBodyImpl
     , "required signers (payment key hashes needed for scripts)" .=
         friendlyExtraKeyWits txExtraKeyWits
     , "update proposal" .= friendlyUpdateProposal txUpdateProposal
-    , "validity range" .= friendlyValidityRange era txValidityRange
+    , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
     , "withdrawals" .= friendlyWithdrawals txWithdrawals
     ]
 
@@ -187,21 +188,11 @@ friendlyExtraKeyWits = \case
   TxExtraKeyWitnessesNone -> Null
   TxExtraKeyWitnesses _supported paymentKeyHashes -> toJSON paymentKeyHashes
 
--- | Special case of validity range:
--- in Shelley, upper bound is TTL, and no lower bound
-pattern ShelleyTtl
-  :: SlotNo -> (TxValidityLowerBound era, TxValidityUpperBound era)
-pattern ShelleyTtl ttl <-
-  ( TxValidityNoLowerBound
-  , TxValidityUpperBound _ ttl
-  )
-
 friendlyValidityRange
   :: CardanoEra era
   -> (TxValidityLowerBound era, TxValidityUpperBound era)
   -> Aeson.Value
 friendlyValidityRange era = \case
-  ShelleyTtl ttl -> object ["time to live" .= ttl]
   (lowerBound, upperBound)
     | isLowerBoundSupported || isUpperBoundSupported ->
         object
@@ -426,10 +417,12 @@ renderCertificate sbe = \case
                 [ "cold key hash" .= ck
                 , "hot key hash" .= hk
                 ]
-        Ledger.ResignCommitteeColdTxCert cred -> case cred of
+        Ledger.ResignCommitteeColdTxCert cred anchor -> case cred of
           Shelley.ScriptHashObj sh ->
             "Cold committee resignation" .= object
-              [ "script hash" .=  sh ]
+              [ "script hash" .=  sh
+              , "anchor" .= anchor
+              ]
           Shelley.KeyHashObj ck@Shelley.KeyHash{} ->
             "Constitutional committee cold key resignation" .= object
               [ "cold key hash" .= ck

@@ -56,6 +56,8 @@ data QueryCmdError
   | QueryCmdUnsupportedNtcVersion !UnsupportedNtcVersionError
   | QueryCmdProtocolParameterConversionError !ProtocolParametersConversionError
   | QueryCmdDRepKeyError !(FileError InputDecodeError)
+  | QueryCmdCommitteeColdKeyError !(FileError InputDecodeError)
+  | QueryCmdCommitteeHotKeyError !(FileError InputDecodeError)
   deriving Show
 
 renderQueryCmdError :: QueryCmdError -> Text
@@ -94,3 +96,7 @@ renderQueryCmdError = \case
   QueryCmdConvenienceError qce -> renderQueryConvenienceError qce
   QueryCmdDRepKeyError e ->
     "Error reading delegation representative key: " <> Text.pack (displayError e)
+  QueryCmdCommitteeColdKeyError e ->
+    "Error reading committee cold key: " <> Text.pack (displayError e)
+  QueryCmdCommitteeHotKeyError e ->
+    "Error reading committee hot key: " <> Text.pack (displayError e)

@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Cardano.CLI.EraBased.Options.Governance.Committee
   ( pGovernanceCommitteeCmds
@@ -8,6 +9,10 @@ import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Read
+import qualified Cardano.Ledger.BaseTypes as L
+import qualified Cardano.Ledger.Crypto as Crypto
+import qualified Cardano.Ledger.SafeHash as L
 
 import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
@@ -116,13 +121,36 @@ pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
   w <- forEraMaybeEon era
   pure
     $ subParser "create-cold-key-resignation-certificate"
-    $ Opt.info
-        ( fmap GovernanceCommitteeCreateColdKeyResignationCertificateCmd $
-            GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs w
-              <$> pCommitteeColdVerificationKeyOrHashOrFile
-              <*> pOutputFile
-        )
+    $ Opt.info (conwayEraOnwardsConstraints w $ mkParser w)
     $ Opt.progDesc
     $ mconcat
         [ "Create cold key resignation certificate for a Constitutional Committee Member"
         ]
+ where
+  mkParser w = GovernanceCommitteeCreateColdKeyResignationCertificateCmd <$>
+    (
+      GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs w <$>
+        pCommitteeColdVerificationKeyOrHashOrFile <*>
+        pAnchor <*>
+        pOutputFile
+    )
+
+pAnchor :: Parser (Maybe (L.Anchor Crypto.StandardCrypto))
+pAnchor =
+  Opt.optional $
+    L.Anchor
+      <$> fmap unAnchorUrl pAnchorUrl
+      <*> pSafeHash
+
+pAnchorUrl :: Parser AnchorUrl
+pAnchorUrl =
+  AnchorUrl
+    <$> pUrl "resignation-metadata-url" "Constitutional Committee cold key resignation certificate URL"
+
+pSafeHash ::  Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pSafeHash =
+  Opt.option readSafeHash $ mconcat
+    [ Opt.long "resignation-metadata-hash"
+    , Opt.metavar "HASH"
+    , Opt.help "Constitutional Committee cold key resignation certificate metadata hash"
+    ]

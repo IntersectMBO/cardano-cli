@@ -72,7 +72,8 @@ update proposal:
       transaction fee linear per byte: 76
       treasury expansion: 87/88
 validity range:
-  time to live: 33
+  lower bound: null
+  upper bound: 33
 withdrawals:
 - address: stake_test1up00fz9lyqs5sjks82k22eqz7a9srym9vysjgp3h2ua2v2cm522kg
   amount: 42 Lovelace

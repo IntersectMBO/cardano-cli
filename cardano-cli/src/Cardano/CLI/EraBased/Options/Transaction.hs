@@ -155,9 +155,9 @@ pTransactionBuildCmd era envCli = do
         ]
   where
     pCmd :: ShelleyBasedEra era ->  Parser (TransactionCmds era)
-    pCmd w =
+    pCmd sbe =
       fmap TransactionBuildCmd $
-        TransactionBuildCmdArgs w
+        TransactionBuildCmdArgs sbe
           <$> pSocketPath envCli
           <*> pConsensusModeParams
           <*> pNetworkId envCli
@@ -173,7 +173,7 @@ pTransactionBuildCmd era envCli = do
           <*> pChangeAddress
           <*> optional (pMintMultiAsset AutoBalance)
           <*> optional pInvalidBefore
-          <*> optional pInvalidHereafter
+          <*> pInvalidHereafter (shelleyBasedToCardanoEra sbe)
           <*> many (pCertificateFile AutoBalance)
           <*> many (pWithdrawal AutoBalance)
           <*> pTxMetadataJsonSchema
@@ -182,7 +182,7 @@ pTransactionBuildCmd era envCli = do
                       Nothing
                       "Filepath of auxiliary script(s)")
           <*> many pMetadataFile
-          <*> pFeatured (shelleyBasedToCardanoEra w) (optional pUpdateProposalFile)
+          <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
           <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
           <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
           <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
@@ -209,7 +209,7 @@ pTransactionBuildRaw era =
       <*> many pTxOut
       <*> optional (pMintMultiAsset ManualBalance)
       <*> optional pInvalidBefore
-      <*> optional pInvalidHereafter
+      <*> pInvalidHereafter era
       <*> optional pTxFee
       <*> many (pCertificateFile ManualBalance )
       <*> many (pWithdrawal ManualBalance)

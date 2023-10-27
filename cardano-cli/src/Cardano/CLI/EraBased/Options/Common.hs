@@ -2077,30 +2077,62 @@ pInvalidBefore = fmap SlotNo $ asum
     ]
   ]
 
-pInvalidHereafter :: Parser SlotNo
-pInvalidHereafter =
+pLegacyInvalidHereafter :: Parser SlotNo
+pLegacyInvalidHereafter =
   fmap SlotNo $ asum
-  [ Opt.option (bounded "SLOT") $ mconcat
-    [ Opt.long "invalid-hereafter"
-    , Opt.metavar "SLOT"
-    , Opt.help "Time that transaction is valid until (in slots)."
-    ]
-  , Opt.option (bounded "SLOT") $ mconcat
-    [ Opt.long "upper-bound"
-    , Opt.metavar "SLOT"
-    , Opt.help $ mconcat
-      [ "Time that transaction is valid until (in slots) "
-      , "(deprecated; use --invalid-hereafter instead)."
+    [ Opt.option (bounded "SLOT") $ mconcat
+      [ Opt.long "invalid-hereafter"
+      , Opt.metavar "SLOT"
+      , Opt.help "Time that transaction is valid until (in slots)."
       ]
-    , Opt.internal
+    , Opt.option (bounded "SLOT") $ mconcat
+      [ Opt.long "upper-bound"
+      , Opt.metavar "SLOT"
+      , Opt.help $ mconcat
+        [ "Time that transaction is valid until (in slots) "
+        , "(deprecated; use --invalid-hereafter instead)."
+        ]
+      , Opt.internal
+      ]
+    , Opt.option (bounded "SLOT") $ mconcat
+      [ Opt.long "ttl"
+      , Opt.metavar "SLOT"
+      , Opt.help "Time to live (in slots) (deprecated; use --invalid-hereafter instead)."
+      , Opt.internal
+      ]
     ]
-  , Opt.option (bounded "SLOT") $ mconcat
-    [ Opt.long "ttl"
-    , Opt.metavar "SLOT"
-    , Opt.help "Time to live (in slots) (deprecated; use --invalid-hereafter instead)."
-    , Opt.internal
-    ]
-  ]
+
+pInvalidHereafter :: ()
+  => CardanoEra era
+  -> Parser (TxValidityUpperBound era)
+pInvalidHereafter =
+  caseByronOrShelleyBasedEra
+    (pure . TxValidityNoUpperBound)
+    (\eon ->
+      fmap (TxValidityUpperBound eon) $ asum
+        [ fmap (Just . SlotNo) $ Opt.option (bounded "SLOT") $ mconcat
+          [ Opt.long "invalid-hereafter"
+          , Opt.metavar "SLOT"
+          , Opt.help "Time that transaction is valid until (in slots)."
+          ]
+        , fmap (Just . SlotNo) $ Opt.option (bounded "SLOT") $ mconcat
+          [ Opt.long "upper-bound"
+          , Opt.metavar "SLOT"
+          , Opt.help $ mconcat
+            [ "Time that transaction is valid until (in slots) "
+            , "(deprecated; use --invalid-hereafter instead)."
+            ]
+          , Opt.internal
+          ]
+        , fmap (Just . SlotNo) $ Opt.option (bounded "SLOT") $ mconcat
+          [ Opt.long "ttl"
+          , Opt.metavar "SLOT"
+          , Opt.help "Time to live (in slots) (deprecated; use --invalid-hereafter instead)."
+          , Opt.internal
+          ]
+        , pure Nothing
+        ]
+    )
 
 pTxFee :: Parser Lovelace
 pTxFee =
@@ -2560,7 +2592,6 @@ pProtocolParametersUpdate =
     <*> optional pPoolInfluence
     <*> optional pMonetaryExpansion
     <*> optional pTreasuryExpansion
-    <*> pure Nothing
     <*> pure mempty
     <*> optional pExecutionUnitPrices
     <*> optional pMaxTxExecutionUnits

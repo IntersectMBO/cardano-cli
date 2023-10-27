@@ -22,5 +22,6 @@ return collateral: null
 total collateral: null
 update proposal: null
 validity range:
-  time to live: 101
+  lower bound: null
+  upper bound: 101
 withdrawals: null

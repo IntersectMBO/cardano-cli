@@ -158,10 +158,8 @@ txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs = do
             , txTotalCollateral = TxTotalCollateralNone
             , txReturnCollateral = TxReturnCollateralNone
             , txFee = TxFeeImplicit ByronEraOnlyByron
-            , txValidityRange =
-                ( TxValidityNoLowerBound
-                , defaultTxValidityUpperBound ByronEra
-                )
+            , txValidityLowerBound = TxValidityNoLowerBound
+            , txValidityUpperBound = defaultTxValidityUpperBound ByronEra
             , txMetadata = TxMetadataNone
             , txAuxScripts = TxAuxScriptsNone
             , txExtraKeyWits = TxExtraKeyWitnessesNone
@@ -207,10 +205,8 @@ txSpendUTxOByronPBFT nId sk txIns outs = do
           , txTotalCollateral = TxTotalCollateralNone
           , txReturnCollateral = TxReturnCollateralNone
           , txFee = TxFeeImplicit ByronEraOnlyByron
-          , txValidityRange =
-              ( TxValidityNoLowerBound
-              , defaultTxValidityUpperBound ByronEra
-              )
+          , txValidityLowerBound = TxValidityNoLowerBound
+          , txValidityUpperBound = defaultTxValidityUpperBound ByronEra
           , txMetadata = TxMetadataNone
           , txAuxScripts = TxAuxScriptsNone
           , txExtraKeyWits = TxExtraKeyWitnessesNone

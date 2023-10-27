@@ -79,6 +79,10 @@ module Cardano.CLI.Read
   -- * DRep credentials
   , getDRepCredentialFromVerKeyHashOrFile
 
+  -- * Committee credentials
+  , getCommitteeColdCredentialFromVerKeyHashOrFile
+  , getCommitteeHotCredentialFromVerKeyHashOrFile
+
   , ReadSafeHashError(..)
   , readHexAsSafeHash
   , readSafeHash
@@ -812,7 +816,7 @@ readVoteHashSource = \case
     VoteHashSourceHash h -> return h
     VoteHashSourceText c -> return $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
     VoteHashSourceFile fp -> do
-      cBs <- firstExceptT VoteErrorFile . newExceptT $ readByteStringFile fp 
+      cBs <- firstExceptT VoteErrorFile . newExceptT $ readByteStringFile fp
       _utf8EncodedText <- firstExceptT VoteErrorTextNotUnicode . hoistEither $ Text.decodeUtf8' cBs
       return $ Ledger.hashAnchorData $ Ledger.AnchorData cBs
 
@@ -1028,6 +1032,28 @@ getDRepCredentialFromVerKeyHashOrFile = \case
       ExceptT (readVerificationKeyOrFile AsDRepKey verKeyOrFile)
     pure . Ledger.KeyHashObj . unDRepKeyHash $ verificationKeyHash drepVerKey
   VerificationKeyHash kh -> pure . Ledger.KeyHashObj $ unDRepKeyHash kh
+
+getCommitteeColdCredentialFromVerKeyHashOrFile :: ()
+  => VerificationKeyOrHashOrFile CommitteeColdKey
+  -> ExceptT (FileError InputDecodeError) IO (Ledger.Credential Ledger.ColdCommitteeRole Ledger.StandardCrypto)
+getCommitteeColdCredentialFromVerKeyHashOrFile = \case
+  VerificationKeyOrFile verKeyOrFile -> do
+    commmitteeColdVerKey <-
+      ExceptT (readVerificationKeyOrFile AsCommitteeColdKey verKeyOrFile)
+    let CommitteeColdKeyHash kh = verificationKeyHash commmitteeColdVerKey
+    pure $ Ledger.KeyHashObj kh
+  VerificationKeyHash (CommitteeColdKeyHash kh) -> pure $ Ledger.KeyHashObj kh
+
+getCommitteeHotCredentialFromVerKeyHashOrFile :: ()
+  => VerificationKeyOrHashOrFile CommitteeHotKey
+  -> ExceptT (FileError InputDecodeError) IO (Ledger.Credential Ledger.HotCommitteeRole Ledger.StandardCrypto)
+getCommitteeHotCredentialFromVerKeyHashOrFile = \case
+  VerificationKeyOrFile verKeyOrFile -> do
+    commmitteeHotVerKey <-
+      ExceptT (readVerificationKeyOrFile AsCommitteeHotKey verKeyOrFile)
+    let CommitteeHotKeyHash kh = verificationKeyHash commmitteeHotVerKey
+    pure $ Ledger.KeyHashObj kh
+  VerificationKeyHash (CommitteeHotKeyHash kh) -> pure $ Ledger.KeyHashObj kh
 
 data ReadSafeHashError
   = ReadSafeHashErrorNotHex ByteString String

@@ -157,7 +157,7 @@ validateTxValidityUpperBound
 validateTxValidityUpperBound era = \case
   Just slot -> do
     supported <- conjureWitness era TxValidityUpperBoundNotSupported
-    pure $ TxValidityUpperBound supported slot
+    pure $ TxValidityUpperBound supported (Just slot)
   Nothing -> do
     supported <- conjureWitness era TxValidityUpperBoundNotSupported
     pure $ TxValidityNoUpperBound supported
@@ -276,7 +276,7 @@ validateTxCertificates era certsAndScriptWitnesses = cardanoEraConstraints era $
           L.DelegTxCert sCred _             -> Just sCred
           L.RegDepositDelegTxCert sCred _ _ -> Just sCred
           L.AuthCommitteeHotKeyTxCert{}     -> Nothing
-          L.ResignCommitteeColdTxCert _     -> Nothing
+          L.ResignCommitteeColdTxCert _ _     -> Nothing
           L.RegDRepTxCert{}                 -> Nothing
           L.UnRegDRepTxCert{}               -> Nothing
           L.UpdateDRepTxCert{}              -> Nothing

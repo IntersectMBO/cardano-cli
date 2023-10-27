@@ -8,6 +8,7 @@ module Cardano.CLI.EraBased.Options.Query
   ) where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import qualified Cardano.Api as MemberStatus (MemberStatus (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Environment (EnvCli (..))
@@ -351,8 +352,35 @@ pQueryGetCommitteeStateCmd era envCli = do
   w <- forEraMaybeEon era
   pure
     $ subParser "committee-state"
-    $ Opt.info (QueryCommitteeStateCmd <$> pQueryNoArgCmdArgs w envCli)
+    $ Opt.info (QueryCommitteeMembersStateCmd <$> pQueryCommitteeMembersStateArgs w)
     $ Opt.progDesc "Get the committee state"
+  where
+    pQueryCommitteeMembersStateArgs :: ConwayEraOnwards era -> Parser (QueryCommitteeMembersStateCmdArgs era)
+    pQueryCommitteeMembersStateArgs w = QueryCommitteeMembersStateCmdArgs w
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> many pCommitteeColdVerificationKeyOrHashOrFile
+      <*> many pCommitteeHotKeyOrHashOrFile
+      <*> many pMemberStatus
+      <*> optional pOutputFile
+
+    pMemberStatus :: Parser MemberStatus
+    pMemberStatus =
+      asum
+        [ Opt.flag' MemberStatus.Active $ mconcat
+            [ Opt.long "active"
+            , Opt.help "Active committee members (members whose vote will count during ratification)"
+            ]
+        , Opt.flag' MemberStatus.Expired $ mconcat
+            [ Opt.long "expired"
+            , Opt.help "Expired committee members"
+            ]
+        , Opt.flag' MemberStatus.Unrecognized $ mconcat
+            [ Opt.long "unrecognized"
+            , Opt.help "Unrecognized committe members: a hot credential for an unknown cold credential"
+            ]
+        ]
 
 pQueryNoArgCmdArgs :: ()
   => ConwayEraOnwards era

@@ -104,11 +104,13 @@ runLegacyTransactionBuildCmd
       & hoistEither
       & firstExceptT TxCmdTxUpdateProposalValidationError
 
+  let upperBound = TxValidityUpperBound sbe mUpperBound
+
   runTransactionBuildCmd
     ( Cmd.TransactionBuildCmdArgs sbe socketPath
         consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-        mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mfUpdateProposalFile voteFiles
+        upperBound certs wdrls metadataSchema scriptFiles metadataFiles mfUpdateProposalFile voteFiles
         proposalFiles outputOptions
     )
 
@@ -136,7 +138,7 @@ runLegacyTransactionBuildRawCmd :: ()
   -> TxBodyFile Out
   -> ExceptT TxCmdError IO ()
 runLegacyTransactionBuildRawCmd
-    (AnyCardanoEra era) mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+    anyEra@(AnyCardanoEra era) mScriptValidity txins readOnlyRefIns txinsc mReturnColl
     mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
     metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpdateProposal
     outFile = do
@@ -146,10 +148,19 @@ runLegacyTransactionBuildRawCmd
       & hoistEither
       & firstExceptT TxCmdTxUpdateProposalValidationError
 
+  upperBound <-
+    caseByronOrShelleyBasedEra
+      (\w -> case mUpperBound of
+        Nothing -> pure $ TxValidityNoUpperBound w
+        Just _ -> left $ TxCmdTxValidityUpperBoundValidationError $ TxValidityUpperBoundNotSupported anyEra
+      )
+      (\w -> pure $ TxValidityUpperBound w mUpperBound)
+      era
+
   runTransactionBuildRawCmd
     ( Cmd.TransactionBuildRawCmdArgs
         era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
-        mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
+        mTotColl reqSigners txouts mValue mLowBound upperBound fee certs wdrls
         metadataSchema scriptFiles metadataFiles mProtocolParamsFile mfUpdateProposalFile [] []
         outFile
     )

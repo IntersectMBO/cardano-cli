@@ -256,9 +256,9 @@ pDeprecatedAfterMaryPParams =
   DeprecatedAfterMaryPParams
     <$> convertToLedger toShelleyLovelace (optional pMinUTxOValue)
 
-pShelleyToAlonzoPParams :: Parser (ShelleyToAlonzoPParams' ledgerera)
+pShelleyToAlonzoPParams :: Parser (ShelleyToAlonzoPParams ledgerera)
 pShelleyToAlonzoPParams =
-  ShelleyToAlonzoPParams'
+  ShelleyToAlonzoPParams
     <$> convertToLedger id (optional $ toLedgerNonce <$> pExtraEntropy)
     <*> convertToLedger toUnitIntervalOrErr (optional pDecentralParam)
 
@@ -318,7 +318,6 @@ dpGovActionProtocolParametersUpdate = \case
       <$> pCommonProtocolParameters
       <*> pShelleyToAlonzoPParams
       <*> pAlonzoOnwardsPParams
-      <*> pure (ShelleyToAlonzoPParams SNothing)
   ShelleyBasedEraBabbage ->
     BabbageEraBasedProtocolParametersUpdate
       <$> pCommonProtocolParameters
