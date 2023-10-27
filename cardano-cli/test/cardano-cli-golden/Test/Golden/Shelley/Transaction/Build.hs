@@ -132,3 +132,23 @@ hprop_golden_shelleyTransactionBuild_TxInScriptWitnessed =
     H.assertFileOccurences 1 "Tx MaryEra" txBodyOutFile
 
     H.assertEndsWithSingleNewline txBodyOutFile
+
+hprop_golden_shelleyTransactionBuild_TxOutInlineDatum :: Property
+hprop_golden_shelleyTransactionBuild_TxOutInlineDatum =
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    let datum = "test/cardano-cli-golden/files/input/babbage/42.datum"
+
+    txBodyOutFile <- noteTempFile tempDir "tx-body-out"
+
+    void $ execCardanoCLI
+      [ "babbage", "transaction", "build-raw"
+      , "--tx-in", txIn
+      , "--tx-out", txOut
+      , "--tx-out-inline-datum-file", datum
+      , "--fee", "12"
+      , "--tx-body-file", txBodyOutFile
+      ]
+
+    H.assertFileOccurences 1 "Tx BabbageEra" txBodyOutFile
+
+    H.assertEndsWithSingleNewline txBodyOutFile
