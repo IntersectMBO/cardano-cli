@@ -2560,7 +2560,6 @@ pProtocolParametersUpdate =
     <*> optional pPoolInfluence
     <*> optional pMonetaryExpansion
     <*> optional pTreasuryExpansion
-    <*> pure Nothing
     <*> pure mempty
     <*> optional pExecutionUnitPrices
     <*> optional pMaxTxExecutionUnits
