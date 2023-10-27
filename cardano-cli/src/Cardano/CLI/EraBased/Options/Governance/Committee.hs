@@ -145,12 +145,12 @@ pAnchor =
 pAnchorUrl :: Parser AnchorUrl
 pAnchorUrl =
   AnchorUrl
-    <$> pUrl "committee-cold-key-resignation-certificate-metadata-url" "Committee cold key resignation certificate URL"
+    <$> pUrl "resignation-metadata-url" "Constitutional Committee cold key resignation certificate URL"
 
 pSafeHash ::  Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pSafeHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "committee-cold-key-resignation-certificate-metadata-hash"
+    [ Opt.long "resignation-metadata-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Committee cold key resignation certificate metadata hash."
+    , Opt.help "Constitutional Committee cold key resignation certificate metadata hash"
     ]
