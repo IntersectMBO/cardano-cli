@@ -151,7 +151,8 @@ friendlyTxBodyImpl
       , txReturnCollateral
       , txInsReference
       , txUpdateProposal
-      , txValidityRange
+      , txValidityLowerBound
+       ,txValidityUpperBound
       , txWithdrawals
       }) =
     [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
@@ -169,7 +170,7 @@ friendlyTxBodyImpl
     , "required signers (payment key hashes needed for scripts)" .=
         friendlyExtraKeyWits txExtraKeyWits
     , "update proposal" .= friendlyUpdateProposal txUpdateProposal
-    , "validity range" .= friendlyValidityRange era txValidityRange
+    , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
     , "withdrawals" .= friendlyWithdrawals txWithdrawals
     ]
 
@@ -190,7 +191,7 @@ friendlyExtraKeyWits = \case
 -- | Special case of validity range:
 -- in Shelley, upper bound is TTL, and no lower bound
 pattern ShelleyTtl
-  :: SlotNo -> (TxValidityLowerBound era, TxValidityUpperBound era)
+  :: Maybe SlotNo -> (TxValidityLowerBound era, TxValidityUpperBound era)
 pattern ShelleyTtl ttl <-
   ( TxValidityNoLowerBound
   , TxValidityUpperBound _ ttl
