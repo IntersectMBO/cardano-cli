@@ -62,7 +62,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
     -- ^ Multi-Asset value with script witness
   , mValidityLowerBound   :: !(Maybe SlotNo)
     -- ^ Transaction validity lower bound
-  , mValidityUpperBound   :: !(Maybe SlotNo)
+  , mValidityUpperBound   :: !(TxValidityUpperBound era)
     -- ^ Transaction validity upper bound
   , fee                   :: !(Maybe Lovelace)
     -- ^ Transaction fee
@@ -110,7 +110,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
     -- ^ Multi-Asset value with script witness
   , mValidityLowerBound     :: !(Maybe SlotNo)
     -- ^ Transaction validity lower bound
-  , mValidityUpperBound     :: !(Maybe SlotNo)
+  , mValidityUpperBound     :: !(TxValidityUpperBound era)
     -- ^ Transaction validity upper bound
   , certificates            :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
     -- ^ Certificates with potential script witness

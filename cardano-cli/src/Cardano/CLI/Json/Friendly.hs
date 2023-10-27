@@ -188,21 +188,11 @@ friendlyExtraKeyWits = \case
   TxExtraKeyWitnessesNone -> Null
   TxExtraKeyWitnesses _supported paymentKeyHashes -> toJSON paymentKeyHashes
 
--- | Special case of validity range:
--- in Shelley, upper bound is TTL, and no lower bound
-pattern ShelleyTtl
-  :: Maybe SlotNo -> (TxValidityLowerBound era, TxValidityUpperBound era)
-pattern ShelleyTtl ttl <-
-  ( TxValidityNoLowerBound
-  , TxValidityUpperBound _ ttl
-  )
-
 friendlyValidityRange
   :: CardanoEra era
   -> (TxValidityLowerBound era, TxValidityUpperBound era)
   -> Aeson.Value
 friendlyValidityRange era = \case
-  ShelleyTtl ttl -> object ["time to live" .= ttl]
   (lowerBound, upperBound)
     | isLowerBoundSupported || isUpperBoundSupported ->
         object

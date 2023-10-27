@@ -376,7 +376,7 @@ runTxBuildRaw :: ()
   -> [TxOut CtxTx era]
   -> Maybe SlotNo
   -- ^ Tx lower bound
-  -> Maybe SlotNo
+  -> TxValidityUpperBound era
   -- ^ Tx upper bound
   -> Maybe Lovelace
   -- ^ Tx fee
@@ -420,8 +420,6 @@ runTxBuildRaw era
       <- first TxCmdTxFeeValidationError $ validateTxFee era mFee
     validatedLowerBound
       <- first TxCmdTxValidityLowerBoundValidationError (validateTxValidityLowerBound era mLowerBound)
-    validatedUpperBound
-      <- first TxCmdTxValidityUpperBoundValidationError (validateTxValidityUpperBound era mUpperBound)
     validatedReqSigners
       <- first TxCmdRequiredSignersValidationError $ validateRequiredSigners era reqSigners
     validatedPParams
@@ -446,7 +444,7 @@ runTxBuildRaw era
             , txReturnCollateral = validatedRetCol
             , txFee = validatedFee
             , txValidityLowerBound = validatedLowerBound
-            , txValidityUpperBound = validatedUpperBound
+            , txValidityUpperBound = mUpperBound
             , txMetadata = txMetadata
             , txAuxScripts = txAuxScripts
             , txExtraKeyWits = validatedReqSigners
@@ -488,7 +486,7 @@ runTxBuild :: ()
   -- ^ Multi-Asset value(s)
   -> Maybe SlotNo
   -- ^ Tx lower bound
-  -> Maybe SlotNo
+  -> TxValidityUpperBound era
   -- ^ Tx upper bound
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -532,7 +530,6 @@ runTxBuild
     <- hoistEither $ first TxCmdReturnCollateralValidationError $ validateTxReturnCollateral era mReturnCollateral
   dFee <- hoistEither $ first TxCmdTxFeeValidationError $ validateTxFee era dummyFee
   validatedLowerBound <- hoistEither (first TxCmdTxValidityLowerBoundValidationError (validateTxValidityLowerBound era mLowerBound))
-  validatedUpperBound <- hoistEither (first TxCmdTxValidityUpperBoundValidationError (validateTxValidityUpperBound era mUpperBound))
   validatedReqSigners <- hoistEither (first TxCmdRequiredSignersValidationError $ validateRequiredSigners era reqSigners)
   validatedTxWtdrwls <- hoistEither (first TxCmdTxWithdrawalsValidationError $ validateTxWithdrawals era withdrawals)
   validatedTxCerts <- hoistEither (first TxCmdTxCertificatesValidationError $ validateTxCertificates era certsAndMaybeScriptWits)
@@ -583,7 +580,7 @@ runTxBuild
               , txReturnCollateral = validatedRetCol
               , txFee = dFee
               , txValidityLowerBound = validatedLowerBound
-              , txValidityUpperBound = validatedUpperBound
+              , txValidityUpperBound = mUpperBound
               , txMetadata = txMetadata
               , txAuxScripts = txAuxScripts
               , txExtraKeyWits = validatedReqSigners

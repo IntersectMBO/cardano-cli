@@ -324,7 +324,7 @@ pTransaction envCli =
       <*> pChangeAddress
       <*> optional (pMintMultiAsset AutoBalance)
       <*> optional pInvalidBefore
-      <*> optional pInvalidHereafter
+      <*> optional pLegacyInvalidHereafter
       <*> many (pCertificateFile AutoBalance)
       <*> many (pWithdrawal AutoBalance)
       <*> pTxMetadataJsonSchema
@@ -360,7 +360,7 @@ pTransaction envCli =
       <*> many pTxOut
       <*> optional (pMintMultiAsset ManualBalance)
       <*> optional pInvalidBefore
-      <*> optional pInvalidHereafter
+      <*> optional pLegacyInvalidHereafter
       <*> optional pTxFee
       <*> many (pCertificateFile ManualBalance )
       <*> many (pWithdrawal ManualBalance)
