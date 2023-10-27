@@ -1572,7 +1572,7 @@ runQueryCommitteeMembersState
 
   committeeState <- runQuery localNodeConnInfo $
     queryCommitteeMembersState eraInMode sbe coldKeys hotKeys (Set.fromList memberStatuses)
-  writeOutput mOutFile committeeState
+  writeOutput mOutFile $ A.toJSON committeeState
 
 runQuery :: LocalNodeConnectInfo mode
          -> LocalStateQueryExpr
