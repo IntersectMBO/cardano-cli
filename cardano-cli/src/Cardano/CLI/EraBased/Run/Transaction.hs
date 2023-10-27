@@ -766,9 +766,11 @@ toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
         TxOutDatumByValue sDataOrFile -> do
           sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
           pure (TxOutDatumInTx supp sData)
-        TxOutInlineDatumByValue _ ->
-          txFeatureMismatch era TxFeatureInlineDatums
-
+        TxOutInlineDatumByValue sDataOrFile -> do
+          let cEra = alonzoEraOnwardsToCardanoEra supp
+          forEraInEon cEra (txFeatureMismatch cEra TxFeatureInlineDatums) $ \babbageOnwards -> do
+            sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
+            pure $ TxOutDatumInline babbageOnwards sData
 
 -- TODO: Currently we specify the policyId with the '--mint' option on the cli
 -- and we added a separate '--policy-id' parser that parses the policy id for the
