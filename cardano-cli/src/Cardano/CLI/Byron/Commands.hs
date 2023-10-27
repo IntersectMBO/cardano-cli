@@ -60,10 +60,6 @@ data ByronCommand =
         NetworkId
         (SigningKeyFile In)
 
-  | GetLocalNodeTip
-        SocketPath
-        NetworkId
-
     -----------------------------------
 
   | SubmitTx

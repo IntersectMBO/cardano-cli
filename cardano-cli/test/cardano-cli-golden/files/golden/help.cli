@@ -10690,7 +10690,6 @@ Usage: cardano-cli address info --address ADDRESS [--out-file FILE]
 Usage: cardano-cli byron 
                            ( key
                            | transaction
-                           | query
                            | genesis
                            | governance
                            | miscellaneous
@@ -10791,15 +10790,6 @@ Usage: cardano-cli byron transaction issue-utxo-expenditure
 Usage: cardano-cli byron transaction txid --tx FILEPATH
 
   Print the txid of a raw, signed transaction.
-
-Usage: cardano-cli byron query get-tip
-
-  Byron node query commands.
-
-Usage: cardano-cli byron query get-tip --socket-path SOCKET_PATH
-                                         (--mainnet | --testnet-magic NATURAL)
-
-  Get the tip of your local node's blockchain
 
 Usage: cardano-cli byron genesis (genesis | print-genesis-hash)
 
@@ -11064,11 +11054,6 @@ Usage: cardano-cli issue-utxo-expenditure (--mainnet | --testnet-magic NATURAL)
 Usage: cardano-cli txid --tx FILEPATH
 
   Print the txid of a raw, signed transaction.
-
-Usage: cardano-cli get-tip --socket-path SOCKET_PATH
-                             (--mainnet | --testnet-magic NATURAL)
-
-  Get the tip of your local node's blockchain
 
 Usage: cardano-cli validate-cbor 
                                    [ --byron-block INT

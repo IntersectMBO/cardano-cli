@@ -1,7 +1,6 @@
 Usage: cardano-cli byron 
                            ( key
                            | transaction
-                           | query
                            | genesis
                            | governance
                            | miscellaneous
@@ -15,7 +14,6 @@ Available options:
 Available commands:
   key                      Byron key utility commands
   transaction              Byron transaction commands
-  query                    Byron node query commands.
   genesis                  Byron genesis block commands
   governance               Byron governance commands
   miscellaneous            Byron miscellaneous commands

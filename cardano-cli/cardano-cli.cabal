@@ -62,7 +62,6 @@ library
                         Cardano.CLI.Byron.Key
                         Cardano.CLI.Byron.Legacy
                         Cardano.CLI.Byron.Parsers
-                        Cardano.CLI.Byron.Query
                         Cardano.CLI.Byron.Run
                         Cardano.CLI.Byron.Tx
                         Cardano.CLI.Byron.UpdateProposal
