@@ -1,5 +1,160 @@
 # Changelog for cardano-cli
 
+## 8.13.0.0
+
+- Updated cardano-ledger, ouroboros-consensus and cardano-api packages
+  Replaced  queryCommitteState with new queryCommitteeMembersState
+  Added anchor to committee cold key resignation certificate command
+  (breaking, maintenance)
+  [PR 385](https://github.com/input-output-hk/cardano-cli/pull/385)
+
+- Enable use of inline datums in Babbage era transactions
+  (compatible, bugfix)
+  [PR 407](https://github.com/input-output-hk/cardano-cli/pull/407)
+
+- Remove `--update-proposal-file` from Conway onwards
+  (compatible, improvement)
+  [PR 396](https://github.com/input-output-hk/cardano-cli/pull/396)
+
+- Delete `--utxo-cost-per-word`.  No longer supporting this flag in any era going forward
+  This include deleting the CLI option from both legacy and era-base commands
+  (breaking)
+  [PR 400](https://github.com/input-output-hk/cardano-cli/pull/400)
+
+- Fix delegating to always no confidence default DRep
+  Add golden tests for stake address vote delegation certificates
+  (bugfix, test)
+  [PR 403](https://github.com/input-output-hk/cardano-cli/pull/403)
+
+- Remove `--byron-era` from legacy `transaction build` command.
+  (breaking)
+  [PR 397](https://github.com/input-output-hk/cardano-cli/pull/397)
+
+- `cardano-cli conway governance action create-protocol-parameters-update` was writing the update directly to disk instead of putting it in a `Proposal`
+  (feature, compatible)
+  [PR 369](https://github.com/input-output-hk/cardano-cli/pull/369)
+
+- Record types for vote commands
+  (improvement)
+  [PR 395](https://github.com/input-output-hk/cardano-cli/pull/395)
+
+- Refactor command argument types for the `genesis` commands.
+  (improvement)
+  [PR 398](https://github.com/input-output-hk/cardano-cli/pull/398)
+
+- Simplify `toTxOutInAnyEra`
+  (improvement)
+  [PR 394](https://github.com/input-output-hk/cardano-cli/pull/394)
+
+- `cardano-cli query stake-address-info` now returns the deposit for the currently delegated staking credential (in addition to what it returned before).
+  (feature, compatible)
+  [PR 375](https://github.com/input-output-hk/cardano-cli/pull/375)
+
+- Upgrade to `cardano-api-8.27.0.0`
+  (improvement)
+  [PR 390](https://github.com/input-output-hk/cardano-cli/pull/390)
+
+- Anchors: use cardano-api types, remove cardano-cli's ones
+  (improvement)
+  [PR 345](https://github.com/input-output-hk/cardano-cli/pull/345)
+
+- Upgrade to `cardano-api-8.26.0.0`
+  Support for DRep verification key and DRep extended keys
+  (feature, improvement)
+  [PR 389](https://github.com/input-output-hk/cardano-cli/pull/389)
+
+- Make the stake identifier flags of treasury withdrawals less ambiguous: is it for returning deposits or for receiving funds?
+  (breaking, bugfix)
+  [PR 378](https://github.com/input-output-hk/cardano-cli/pull/378)
+
+- Check that poll answer index is not negative. This replaces a Prelude.!! error by a regular `GovernanceCmdError` error
+  (compatible, bugfix)
+  [PR 380](https://github.com/input-output-hk/cardano-cli/pull/380)
+
+- Shelley to Alonzo: add create-genesis-key-delegation-certificate to governance
+  (compatible)
+  [PR 368](https://github.com/input-output-hk/cardano-cli/pull/368)
+
+- Add a command to view governance action files
+  (feature, compatible, improvement, test)
+  [PR 374](https://github.com/input-output-hk/cardano-cli/pull/374)
+
+- Remove the `constitution-hash` command from eras. Users can use the `constitution` query instead.
+  (breaking)
+  [PR 370](https://github.com/input-output-hk/cardano-cli/pull/370)
+
+- Clearer command line flags for vote, proposal, and constitution anchors
+  (breaking, bugfix)
+  [PR 372](https://github.com/input-output-hk/cardano-cli/pull/372)
+
+- Command argument types for `transaction` commands
+  (compatible, improvement)
+  [PR 371](https://github.com/input-output-hk/cardano-cli/pull/371)
+
+- Do not allow submitting transactions older than current node era
+  (breaking)
+  [PR 350](https://github.com/input-output-hk/cardano-cli/pull/350)
+
+- Add a command to calculate DRep metadata hashes
+  (feature, compatible)
+  [PR 308](https://github.com/input-output-hk/cardano-cli/pull/308)
+
+- Make it possible to add an anchor to votes
+  (bugfix)
+  [PR 362](https://github.com/input-output-hk/cardano-cli/pull/362)
+
+- Enable reading of Conway era TxWitnesses from text envelope
+  (bugfix)
+  [PR 367](https://github.com/input-output-hk/cardano-cli/pull/367)
+
+- transaction build-raw support for --vote-file and --proposal-file
+  (feature, compatible)
+  [PR 365](https://github.com/input-output-hk/cardano-cli/pull/365)
+
+- Make `governance action create-protocol-parameters-update` Conway onwards only
+  (breaking)
+  [PR 366](https://github.com/input-output-hk/cardano-cli/pull/366)
+
+- Command argument types for `governance key` commands
+  (compatible, improvement)
+  [PR 364](https://github.com/input-output-hk/cardano-cli/pull/364)
+
+- Command argument types for `key` commands
+  (improvement)
+  [PR 360](https://github.com/input-output-hk/cardano-cli/pull/360)
+
+- Bring back legacy *-poll commands
+  (compatible)
+  [PR 349](https://github.com/input-output-hk/cardano-cli/pull/349)
+
+- The `cardano-cli conway governance query drep-state` and `... drep-stake-distribution` now accept zero or more DRep verification keys, making the help messages correct.
+  (bugfix)
+  [PR 348](https://github.com/input-output-hk/cardano-cli/pull/348)
+
+- Remove doublon in PR template
+  (improvement, maintenance)
+  [PR 343](https://github.com/input-output-hk/cardano-cli/pull/343)
+
+- Rename create-new-committee into update-committee
+  (breaking, improvement)
+  [PR 344](https://github.com/input-output-hk/cardano-cli/pull/344)
+
+- Move `governance query` commands to `query` command group
+  (breaking, improvement)
+  [PR 347](https://github.com/input-output-hk/cardano-cli/pull/347)
+
+- Added a command to create DRep retirement certificates
+  (feature, compatible)
+  [PR 316](https://github.com/input-output-hk/cardano-cli/pull/316)
+
+- Added a command to inspect a vote file: `cardano-cli conway governance vote view`
+  (feature, compatible, test)
+  [PR 303](https://github.com/input-output-hk/cardano-cli/pull/303)
+
+- Make `cardano-cli * transaction view` output JSON by default.
+  (breaking, compatible, bugfix)
+  [PR 319](https://github.com/input-output-hk/cardano-cli/pull/319)
+
 ## 8.12.0.0
 
 - Add support for committee hot key witnesses
@@ -44,10 +199,10 @@
   (compatible, improvement)
   [PR 318](https://github.com/input-output-hk/cardano-cli/pull/318)
 
-- - Remove SPO registration bits from drep registration-certificate command
-  - Remove drep command from eras before Conway
-  - Remove `AnyRegistrationTarget`
-  - Remove `RegistrationTarget`
+- Remove SPO registration bits from drep registration-certificate command
+  Remove drep command from eras before Conway
+  Remove `AnyRegistrationTarget`
+  Remove `RegistrationTarget`
   (breaking, improvement)
   [PR 309](https://github.com/input-output-hk/cardano-cli/pull/309)
 
