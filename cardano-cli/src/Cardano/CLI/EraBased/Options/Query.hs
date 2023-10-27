@@ -8,6 +8,7 @@ module Cardano.CLI.EraBased.Options.Query
   ) where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import qualified Cardano.Api as MemberStatus (MemberStatus (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Environment (EnvCli (..))
@@ -15,7 +16,6 @@ import           Cardano.CLI.EraBased.Commands.Query
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 
-import qualified Data.Text as Text (toLower, unpack)
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
@@ -364,21 +364,23 @@ pQueryGetCommitteeStateCmd era envCli = do
       <*> many pCommitteeHotKeyOrHashOrFile
       <*> many pMemberStatus
       <*> optional pOutputFile
+
     pMemberStatus :: Parser MemberStatus
     pMemberStatus =
-        Opt.option readerMemberStatus $ mconcat
-          [ Opt.long "memberstatus"
-          , Opt.metavar "MEMBER_STATUS"
-          , Opt.help "Member status filter: active/expired/unrecognized"
-          ]
-    readerMemberStatus :: ReadM MemberStatus
-    readerMemberStatus = do
-      v <- Opt.str
-      case Text.toLower v of
-        "active" -> pure Active
-        "expired" -> pure Expired
-        "unrecognized" -> pure Unrecognized
-        _ -> fail ("Unrecognized status: " <> Text.unpack v)
+      asum
+        [ Opt.flag' MemberStatus.Active $ mconcat
+            [ Opt.long "active"
+            , Opt.help "Active committee members (members whose vote will count during ratification)"
+            ]
+        , Opt.flag' MemberStatus.Expired $ mconcat
+            [ Opt.long "expired"
+            , Opt.help "Expired committee members"
+            ]
+        , Opt.flag' MemberStatus.Unrecognized $ mconcat
+            [ Opt.long "unrecognized"
+            , Opt.help "Unrecognized committe members: a hot credential for an unknown cold credential"
+            ]
+        ]
 
 pQueryNoArgCmdArgs :: ()
   => ConwayEraOnwards era
