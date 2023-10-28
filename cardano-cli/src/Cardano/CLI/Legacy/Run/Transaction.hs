@@ -41,8 +41,8 @@ runLegacyTransactionCmds = \case
                metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out
   TransactionSignCmd txinfile skfiles network txoutfile ->
       runLegacyTransactionSignCmd txinfile skfiles network txoutfile
-  TransactionSubmitCmd mNodeSocketPath anyConsensusModeParams network txFp ->
-      runLegacyTransactionSubmitCmd mNodeSocketPath anyConsensusModeParams network txFp
+  TransactionSubmitCmd mNodeSocketPath consensusModeParams network txFp ->
+      runLegacyTransactionSubmitCmd mNodeSocketPath consensusModeParams network txFp
   TransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
       runLegacyTransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
   TransactionCalculateMinValueCmd era pParamsFile txOuts' ->
@@ -67,7 +67,7 @@ runLegacyTransactionCmds = \case
 runLegacyTransactionBuildCmd :: ()
   => SocketPath
   -> EraInEon ShelleyBasedEra
-  -> AnyConsensusModeParams
+  -> ConsensusModeParams CardanoMode
   -> NetworkId
   -> Maybe ScriptValidity
   -> Maybe Word -- ^ Override the required number of tx witnesses
@@ -185,19 +185,19 @@ runLegacyTransactionSignCmd
 
 runLegacyTransactionSubmitCmd :: ()
   => SocketPath
-  -> AnyConsensusModeParams
+  -> ConsensusModeParams CardanoMode
   -> NetworkId
   -> FilePath
   -> ExceptT TxCmdError IO ()
 runLegacyTransactionSubmitCmd
     socketPath
-    anyConsensusModeParams
+    consensusModeParams
     network
     txFilePath =
   runTransactionSubmitCmd
     ( Cmd.TransactionSubmitCmdArgs
         socketPath
-        anyConsensusModeParams
+        consensusModeParams
         network
         txFilePath
      )

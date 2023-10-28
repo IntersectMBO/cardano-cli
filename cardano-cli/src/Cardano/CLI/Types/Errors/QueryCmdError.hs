@@ -39,10 +39,8 @@ data QueryCmdError
   | QueryCmdWriteFileError !(FileError ())
   | QueryCmdHelpersError !HelpersError
   | QueryCmdAcquireFailure !AcquiringFailure
-  | QueryCmdEraConsensusModeMismatch !AnyConsensusMode !AnyCardanoEra
   | QueryCmdByronEra
   | QueryCmdEraMismatch !EraMismatch
-  | QueryCmdUnsupportedMode !AnyConsensusMode
   | QueryCmdPastHorizon !Qry.PastHorizonException
   | QueryCmdSystemStartUnavailable
   | QueryCmdGenesisReadError !GenesisCmdError
@@ -67,13 +65,9 @@ renderQueryCmdError = \case
   QueryCmdHelpersError helpersErr -> renderHelpersError helpersErr
   QueryCmdAcquireFailure acquireFail -> Text.pack $ show acquireFail
   QueryCmdByronEra -> "This query cannot be used for the Byron era"
-  QueryCmdEraConsensusModeMismatch (AnyConsensusMode cMode) (AnyCardanoEra era) ->
-    "Consensus mode and era mismatch. Consensus mode: " <> textShow cMode <>
-    " Era: " <> textShow era
   QueryCmdEraMismatch (EraMismatch ledgerEra queryEra) ->
     "\nAn error mismatch occurred." <> "\nSpecified query era: " <> queryEra <>
     "\nCurrent ledger era: " <> ledgerEra
-  QueryCmdUnsupportedMode mode -> "Unsupported mode: " <> renderMode mode
   QueryCmdPastHorizon e -> "Past horizon: " <> textShow e
   QueryCmdSystemStartUnavailable -> "System start unavailable"
   QueryCmdGenesisReadError err' -> Text.pack $ displayError err'

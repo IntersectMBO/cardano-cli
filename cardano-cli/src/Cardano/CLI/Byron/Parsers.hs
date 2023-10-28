@@ -83,7 +83,6 @@ backwardsCompatibilityCommands envCli =
           [ parseGenesisRelatedValues
           , parseKeyRelatedValues envCli
           , parseTxRelatedValues envCli
-          , return (parseLocalNodeQueryValues envCli)
           , parseMiscellaneous
           ]
 
@@ -95,8 +94,6 @@ parseByronCommands envCli = asum
       $ Opt.progDesc "Byron key utility commands")
   , subParser' "transaction" (Opt.info (asum $ map Opt.subparser (parseTxRelatedValues envCli))
       $ Opt.progDesc "Byron transaction commands")
-  , subParser' "query" (Opt.info (Opt.subparser (parseLocalNodeQueryValues envCli))
-      $ Opt.progDesc "Byron node query commands.")
   , subParser' "genesis" (Opt.info (asum $ map Opt.subparser parseGenesisRelatedValues)
       $ Opt.progDesc "Byron genesis block commands")
   , subParser' "governance" (Opt.info (NodeCmds <$> Opt.subparser (pNodeCmds envCli))
@@ -218,14 +215,6 @@ parseKeyRelatedValues envCli =
             <*> parseNewSigningKeyFile "to"
     ]
 
-parseLocalNodeQueryValues :: EnvCli -> Mod CommandFields ByronCommand
-parseLocalNodeQueryValues envCli =
-  command' "get-tip" "Get the tip of your local node's blockchain"
-    $ GetLocalNodeTip
-        <$> pSocketPath envCli
-        <*> pNetworkId envCli
-
-
 parseMiscellaneous :: [Mod CommandFields ByronCommand]
 parseMiscellaneous =
   [ command'
@@ -240,8 +229,6 @@ parseMiscellaneous =
       $ PrettyPrintCBOR
           <$> parseFilePath "filepath" "Filepath of CBOR file."
   ]
-
-
 
 parseTestnetBalanceOptions :: Parser TestnetBalanceOptions
 parseTestnetBalanceOptions =

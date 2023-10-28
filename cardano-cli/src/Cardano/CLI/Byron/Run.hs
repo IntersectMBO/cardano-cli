@@ -15,7 +15,6 @@ import           Cardano.CLI.Byron.Commands
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis
 import           Cardano.CLI.Byron.Key
-import           Cardano.CLI.Byron.Query
 import           Cardano.CLI.Byron.Tx
 import           Cardano.CLI.Byron.UpdateProposal
 import           Cardano.CLI.Byron.Vote
@@ -63,7 +62,6 @@ runByronClientCommand c =
   case c of
     NodeCmds bc -> runNodeCmds bc
     Genesis outDir params -> runGenesisCommand outDir params
-    GetLocalNodeTip mNodeSocketPath network -> liftIO $ runGetLocalNodeTip mNodeSocketPath network
     ValidateCBOR cborObject fp -> runValidateCBOR cborObject fp
     PrettyPrintCBOR fp -> runPrettyPrintCBOR fp
     PrettySigningKeyPublic bKeyFormat skF -> runPrettySigningKeyPublic bKeyFormat skF
