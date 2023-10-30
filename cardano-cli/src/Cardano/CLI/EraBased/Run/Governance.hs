@@ -16,6 +16,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
+import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
@@ -90,10 +91,8 @@ runGovernanceDRepKeyGen _w vkeyPath skeyPath = firstExceptT GovernanceCmdWriteFi
   skey <- liftIO $ generateSigningKey AsDRepKey
   let vkey = getVerificationKey skey
   newExceptT $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just skeyDesc) skey)
-  newExceptT $ writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just vkeyDesc) vkey)
+  newExceptT $ writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.drepKeyEnvelopeDescr) vkey)
   where
     skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Delegate Representative Signing Key"
-    vkeyDesc :: TextEnvelopeDescr
-    vkeyDesc = "Delegate Representative Verification Key"
 
