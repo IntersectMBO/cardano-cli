@@ -18,8 +18,6 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   , UpdateProtocolParametersConwayOnwards(..)
   , UpdateProtocolParametersPreConway(..)
   , renderGovernanceActionCmds
-
-  , AnyStakeIdentifier(..)
   ) where
 
 import           Cardano.Api
@@ -47,7 +45,7 @@ data GoveranceActionUpdateCommitteeCmdArgs era
       { eon                     :: !(ConwayEraOnwards era)
       , networkId               :: !Ledger.Network
       , deposit                 :: !Lovelace
-      , returnAddress           :: !AnyStakeIdentifier
+      , returnAddress           :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl             :: !ProposalUrl
       , proposalHashSource      :: !ProposalHashSource
       , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
@@ -62,7 +60,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
       { eon                     :: !(ConwayEraOnwards era)
       , networkId               :: !Ledger.Network
       , deposit                 :: !Lovelace
-      , stakeCredential         :: !AnyStakeIdentifier
+      , stakeCredential         :: !(VerificationKeyOrHashOrFile StakeKey)
       , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
       , proposalUrl             :: !ProposalUrl
       , proposalHashSource      :: !ProposalHashSource
@@ -77,7 +75,7 @@ data GovernanceActionInfoCmdArgs era
       { eon                 :: !(ConwayEraOnwards era)
       , networkId           :: !Ledger.Network
       , deposit             :: !Lovelace
-      , returnStakeAddress  :: !AnyStakeIdentifier
+      , returnStakeAddress  :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
       , proposalHashSource  :: !ProposalHashSource
       , outFile             :: !(File () Out)
@@ -88,7 +86,7 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
       { eon                   :: !(ConwayEraOnwards era)
       , networkId             :: !Ledger.Network
       , deposit               :: !Lovelace
-      , returnStakeAddress    :: !AnyStakeIdentifier
+      , returnStakeAddress    :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl           :: !ProposalUrl
       , proposalHashSource    :: !ProposalHashSource
       , governanceActionId    :: !TxId
@@ -110,10 +108,10 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
       { eon                 :: !(ConwayEraOnwards era)
       , networkId           :: !Ledger.Network
       , deposit             :: !Lovelace
-      , returnAddr          :: !AnyStakeIdentifier
+      , returnAddr          :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
       , proposalHashSource  :: !ProposalHashSource
-      , treasuryWithdrawal  :: ![(AnyStakeIdentifier, Lovelace)]
+      , treasuryWithdrawal  :: ![(VerificationKeyOrHashOrFile StakeKey, Lovelace)]
       , outFile             :: !(File () Out)
       } deriving Show
 
@@ -130,7 +128,7 @@ data UpdateProtocolParametersConwayOnwards era
       { eon                 :: !(ConwayEraOnwards era)
       , networkId           :: !Ledger.Network
       , deposit             :: !Lovelace
-      , returnAddr          :: !AnyStakeIdentifier
+      , returnAddr          :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
       , proposalHashSource  :: !ProposalHashSource
       , governanceActionId  :: !(Maybe (TxId, Word32))
@@ -170,8 +168,3 @@ renderGovernanceActionCmds = ("governance action " <>) . \case
 
   GovernanceActionViewCmd {} ->
     "view"
-
-data AnyStakeIdentifier
-  = AnyStakeKey (VerificationKeyOrHashOrFile StakeKey)
-  | AnyStakePoolKey (VerificationKeyOrHashOrFile StakePoolKey)
-  deriving Show

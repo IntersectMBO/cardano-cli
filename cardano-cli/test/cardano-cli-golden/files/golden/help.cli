@@ -5915,10 +5915,7 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   | --testnet
                                                                   )
                                                                   --governance-action-deposit NATURAL
-                                                                  ( --stake-pool-verification-key STRING
-                                                                  | --cold-verification-key-file FILE
-                                                                  | --stake-pool-id STAKE_POOL_ID
-                                                                  | --stake-verification-key STRING
+                                                                  ( --stake-verification-key STRING
                                                                   | --stake-verification-key-file FILE
                                                                   | --stake-key-hash HASH
                                                                   )
@@ -5943,10 +5940,7 @@ Usage: cardano-cli conway governance action update-committee
                                                                | --testnet
                                                                )
                                                                --governance-action-deposit NATURAL
-                                                               ( --stake-pool-verification-key STRING
-                                                               | --cold-verification-key-file FILE
-                                                               | --stake-pool-id STAKE_POOL_ID
-                                                               | --stake-verification-key STRING
+                                                               ( --stake-verification-key STRING
                                                                | --stake-verification-key-file FILE
                                                                | --stake-key-hash HASH
                                                                )
@@ -5974,10 +5968,7 @@ Usage: cardano-cli conway governance action update-committee
 
 Usage: cardano-cli conway governance action create-info (--mainnet | --testnet)
                                                           --governance-action-deposit NATURAL
-                                                          ( --stake-pool-verification-key STRING
-                                                          | --cold-verification-key-file FILE
-                                                          | --stake-pool-id STAKE_POOL_ID
-                                                          | --stake-verification-key STRING
+                                                          ( --stake-verification-key STRING
                                                           | --stake-verification-key-file FILE
                                                           | --stake-key-hash HASH
                                                           )
@@ -5995,10 +5986,7 @@ Usage: cardano-cli conway governance action create-no-confidence
                                                                    | --testnet
                                                                    )
                                                                    --governance-action-deposit NATURAL
-                                                                   ( --stake-pool-verification-key STRING
-                                                                   | --cold-verification-key-file FILE
-                                                                   | --stake-pool-id STAKE_POOL_ID
-                                                                   | --stake-verification-key STRING
+                                                                   ( --stake-verification-key STRING
                                                                    | --stake-verification-key-file FILE
                                                                    | --stake-key-hash HASH
                                                                    )
@@ -6018,10 +6006,7 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 | --testnet
                                                                                 )
                                                                                 --governance-action-deposit NATURAL
-                                                                                ( --stake-pool-verification-key STRING
-                                                                                | --cold-verification-key-file FILE
-                                                                                | --stake-pool-id STAKE_POOL_ID
-                                                                                | --stake-verification-key STRING
+                                                                                ( --stake-verification-key STRING
                                                                                 | --stake-verification-key-file FILE
                                                                                 | --stake-key-hash HASH
                                                                                 )
@@ -6084,10 +6069,7 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          | --testnet
                                                                          )
                                                                          --governance-action-deposit NATURAL
-                                                                         ( --deposit-return-stake-pool-verification-key STRING
-                                                                         | --deposit-return-cold-verification-key-file FILE
-                                                                         | --deposit-return-stake-pool-id STAKE_POOL_ID
-                                                                         | --deposit-return-stake-verification-key STRING
+                                                                         ( --deposit-return-stake-verification-key STRING
                                                                          | --deposit-return-stake-verification-key-file FILE
                                                                          | --deposit-return-stake-key-hash HASH
                                                                          )
@@ -6097,10 +6079,7 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          | --proposal-anchor-metadata-hash HASH
                                                                          )
                                                                          [
-                                                                           ( --funds-receiving-stake-pool-verification-key STRING
-                                                                           | --funds-receiving-cold-verification-key-file FILE
-                                                                           | --funds-receiving-stake-pool-id STAKE_POOL_ID
-                                                                           | --funds-receiving-stake-verification-key STRING
+                                                                           ( --funds-receiving-stake-verification-key STRING
                                                                            | --funds-receiving-stake-verification-key-file FILE
                                                                            | --funds-receiving-stake-key-hash HASH
                                                                            )

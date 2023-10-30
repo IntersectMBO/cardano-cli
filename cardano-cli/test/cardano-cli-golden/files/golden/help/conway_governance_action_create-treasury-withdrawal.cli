@@ -3,10 +3,7 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          | --testnet
                                                                          )
                                                                          --governance-action-deposit NATURAL
-                                                                         ( --deposit-return-stake-pool-verification-key STRING
-                                                                         | --deposit-return-cold-verification-key-file FILE
-                                                                         | --deposit-return-stake-pool-id STAKE_POOL_ID
-                                                                         | --deposit-return-stake-verification-key STRING
+                                                                         ( --deposit-return-stake-verification-key STRING
                                                                          | --deposit-return-stake-verification-key-file FILE
                                                                          | --deposit-return-stake-key-hash HASH
                                                                          )
@@ -16,10 +13,7 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          | --proposal-anchor-metadata-hash HASH
                                                                          )
                                                                          [
-                                                                           ( --funds-receiving-stake-pool-verification-key STRING
-                                                                           | --funds-receiving-cold-verification-key-file FILE
-                                                                           | --funds-receiving-stake-pool-id STAKE_POOL_ID
-                                                                           | --funds-receiving-stake-verification-key STRING
+                                                                           ( --funds-receiving-stake-verification-key STRING
                                                                            | --funds-receiving-stake-verification-key-file FILE
                                                                            | --funds-receiving-stake-key-hash HASH
                                                                            )
@@ -33,14 +27,6 @@ Available options:
   --testnet                Use the testnet magic id.
   --governance-action-deposit NATURAL
                            Deposit required to submit a governance action.
-  --deposit-return-stake-pool-verification-key STRING
-                           Stake pool verification key (Bech32 or hex-encoded).
-  --deposit-return-cold-verification-key-file FILE
-                           Filepath of the stake pool verification key.
-  --deposit-return-stake-pool-id STAKE_POOL_ID
-                           Stake pool ID/verification key hash (either
-                           Bech32-encoded or hex-encoded). Zero or more
-                           occurences of this option is allowed.
   --deposit-return-stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
   --deposit-return-stake-verification-key-file FILE
@@ -55,14 +41,6 @@ Available options:
                            Proposal anchor contents as a text file.
   --proposal-anchor-metadata-hash HASH
                            Proposal anchor data hash.
-  --funds-receiving-stake-pool-verification-key STRING
-                           Stake pool verification key (Bech32 or hex-encoded).
-  --funds-receiving-cold-verification-key-file FILE
-                           Filepath of the stake pool verification key.
-  --funds-receiving-stake-pool-id STAKE_POOL_ID
-                           Stake pool ID/verification key hash (either
-                           Bech32-encoded or hex-encoded). Zero or more
-                           occurences of this option is allowed.
   --funds-receiving-stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
   --funds-receiving-stake-verification-key-file FILE
