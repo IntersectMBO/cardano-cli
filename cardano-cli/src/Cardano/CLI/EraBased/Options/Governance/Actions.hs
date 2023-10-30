@@ -68,7 +68,7 @@ pGovernanceActionNewInfoCmd era = do
             Cmd.GovernanceActionInfoCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier Nothing
+              <*> pStakeVerificationKeyOrHashOrFile Nothing
               <*> pProposalUrl
               <*> pProposalHashSource
               <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
@@ -88,7 +88,7 @@ pGovernanceActionNewConstitutionCmd era = do
             Cmd.GovernanceActionCreateConstitutionCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier Nothing
+              <*> pStakeVerificationKeyOrHashOrFile Nothing
               <*> pPreviousGovernanceAction
               <*> pProposalUrl
               <*> pProposalHashSource
@@ -118,7 +118,7 @@ pUpdateCommitteeCmd eon =
   Cmd.GoveranceActionUpdateCommitteeCmdArgs eon
     <$> pNetwork
     <*> pGovActionDeposit
-    <*> pAnyStakeIdentifier Nothing
+    <*> pStakeVerificationKeyOrHashOrFile Nothing
     <*> pProposalUrl
     <*> pProposalHashSource
     <*> many pRemoveCommitteeColdVerificationKeyOrHashOrFile
@@ -143,7 +143,7 @@ pGovernanceActionNoConfidenceCmd era = do
             Cmd.GovernanceActionCreateNoConfidenceCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier Nothing
+              <*> pStakeVerificationKeyOrHashOrFile Nothing
               <*> pProposalUrl
               <*> pProposalHashSource
               <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
@@ -151,14 +151,6 @@ pGovernanceActionNoConfidenceCmd era = do
               <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
         )
     $ Opt.progDesc "Create a no confidence proposal."
-
--- | The first argument is the optional prefix.
-pAnyStakeIdentifier :: Maybe String -> Parser Cmd.AnyStakeIdentifier
-pAnyStakeIdentifier prefix =
-  asum
-    [ Cmd.AnyStakePoolKey <$> pStakePoolVerificationKeyOrHashOrFile prefix
-    , Cmd.AnyStakeKey <$> pStakeVerificationKeyOrHashOrFile prefix
-    ]
 
 pUpdateProtocolParametersPreConway :: ShelleyToBabbageEra era -> Parser (Cmd.UpdateProtocolParametersPreConway era)
 pUpdateProtocolParametersPreConway shelleyToBab =
@@ -171,7 +163,7 @@ pUpdateProtocolParametersPostConway conwayOnwards =
   Cmd.UpdateProtocolParametersConwayOnwards conwayOnwards
     <$> pNetwork
     <*> pGovActionDeposit
-    <*> pAnyStakeIdentifier Nothing
+    <*> pStakeVerificationKeyOrHashOrFile Nothing
     <*> pProposalUrl
     <*> pProposalHashSource
     <*> pPreviousGovernanceAction
@@ -340,10 +332,10 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
             Cmd.GovernanceActionTreasuryWithdrawalCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pAnyStakeIdentifier (Just "deposit-return")
+              <*> pStakeVerificationKeyOrHashOrFile (Just "deposit-return")
               <*> pProposalUrl
               <*> pProposalHashSource
-              <*> many ((,) <$> pAnyStakeIdentifier (Just "funds-receiving") <*> pTransferAmt)
+              <*> many ((,) <$> pStakeVerificationKeyOrHashOrFile (Just "funds-receiving") <*> pTransferAmt)
               <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
         )
     $ Opt.progDesc "Create a treasury withdrawal."
