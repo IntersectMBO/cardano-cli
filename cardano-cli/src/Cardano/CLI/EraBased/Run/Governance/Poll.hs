@@ -1,20 +1,20 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Governance.Poll
   ( runGovernancePollCmds,
-    runGovernanceCreatePoll,
-    runGovernanceAnswerPoll,
-    runGovernanceVerifyPoll
+    runGovernanceCreatePollCmd,
+    runGovernanceAnswerPollCmd,
+    runGovernanceVerifyPollCmd
   ) where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
-import qualified Cardano.Api.Shelley as Api
 
-import           Cardano.CLI.EraBased.Commands.Governance.Poll
+import qualified Cardano.CLI.EraBased.Commands.Governance.Poll as Cmd
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 
@@ -26,7 +26,6 @@ import           Control.Monad.Trans.Except.Extra
 import qualified Data.ByteString.Char8 as BSC
 import           Data.Function ((&))
 import           Data.String (fromString)
-import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
@@ -35,23 +34,25 @@ import qualified System.IO as IO
 import           System.IO (stderr, stdin, stdout)
 
 
-runGovernancePollCmds :: GovernancePollCmds era -> ExceptT GovernanceCmdError IO ()
-runGovernancePollCmds = \case
-  GovernanceCreatePoll w prompt choices nonce out ->
-    runGovernanceCreatePoll w prompt choices nonce out
-  GovernanceAnswerPoll w poll ix mOutFile ->
-    runGovernanceAnswerPoll w poll ix mOutFile
-  GovernanceVerifyPoll w poll metadata mOutFile ->
-    runGovernanceVerifyPoll w poll metadata mOutFile
-
-runGovernanceCreatePoll
-  :: BabbageEraOnwards era
-  -> Text
-  -> [Text]
-  -> Maybe Word
-  -> File GovernancePoll Out
+runGovernancePollCmds :: ()
+  => Cmd.GovernancePollCmds era
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceCreatePoll _w govPollQuestion govPollAnswers govPollNonce out = do
+runGovernancePollCmds = \case
+  Cmd.GovernanceCreatePoll args -> runGovernanceCreatePollCmd args
+  Cmd.GovernanceAnswerPoll args -> runGovernanceAnswerPollCmd args
+  Cmd.GovernanceVerifyPoll args -> runGovernanceVerifyPollCmd args
+
+runGovernanceCreatePollCmd :: ()
+  => Cmd.GovernanceCreatePollCmdArgs era
+  -> ExceptT GovernanceCmdError IO ()
+runGovernanceCreatePollCmd
+    Cmd.GovernanceCreatePollCmdArgs
+      { eon     = _eon
+      , prompt  = govPollQuestion
+      , choices = govPollAnswers
+      , nonce   = govPollNonce
+      , outFile = out
+      } = do
   let poll = GovernancePoll{ govPollQuestion, govPollAnswers, govPollNonce }
 
   let description = fromString $ "An on-chain poll for SPOs: " <> Text.unpack govPollQuestion
@@ -79,13 +80,16 @@ runGovernanceCreatePoll _w govPollQuestion govPollAnswers govPollNonce out = do
       , "participants has been generated at '" <> outPath <> "'."
       ]
 
-runGovernanceAnswerPoll
-  :: BabbageEraOnwards era
-  -> File GovernancePoll In
-  -> Maybe Word -- ^ Answer index
-  -> Maybe (File () Out) -- ^ Output file
+runGovernanceAnswerPollCmd :: ()
+  => Cmd.GovernanceAnswerPollCmdArgs era
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceAnswerPoll _ pollFile maybeChoice mOutFile = do
+runGovernanceAnswerPollCmd
+    Cmd.GovernanceAnswerPollCmdArgs
+      { eon         = _eon
+      , pollFile    = pollFile
+      , answerIndex = maybeChoice
+      , mOutFile    = mOutFile
+       } = do
   poll <- firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
     readFileTextEnvelope AsGovernancePoll pollFile
 
@@ -151,13 +155,16 @@ runGovernanceAnswerPoll _ pollFile maybeChoice mOutFile = do
       _ ->
         left GovernanceCmdPollInvalidChoice
 
-runGovernanceVerifyPoll
-  :: BabbageEraOnwards era
-  -> File GovernancePoll In
-  -> File (Api.Tx ()) In
-  -> Maybe (File () Out) -- ^ Output file
+runGovernanceVerifyPollCmd :: ()
+  => Cmd.GovernanceVerifyPollCmdArgs era
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceVerifyPoll _ pollFile txFile mOutFile = do
+runGovernanceVerifyPollCmd
+    Cmd.GovernanceVerifyPollCmdArgs
+      { eon       = _eon
+      , pollFile  = pollFile
+      , txFile    = txFile
+      , mOutFile  = mOutFile
+      } = do
   poll <- firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
     readFileTextEnvelope AsGovernancePoll pollFile
 

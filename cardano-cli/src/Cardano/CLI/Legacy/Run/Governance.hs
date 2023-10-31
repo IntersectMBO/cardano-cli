@@ -1,6 +1,8 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Legacy.Run.Governance
@@ -11,6 +13,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
+import qualified Cardano.CLI.EraBased.Commands.Governance.Poll as Cmd
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
                    (runGovernanceGenesisKeyDelegationCertificate)
@@ -25,6 +28,7 @@ import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson (eitherDecode)
 import qualified Data.ByteString.Lazy as LB
 import           Data.Function ((&))
+import           Data.Text (Text)
 import qualified Data.Text as Text
 
 runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
@@ -38,12 +42,55 @@ runLegacyGovernanceCmds = \case
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
     runLegacyGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
   GovernanceCreatePoll prompt choices nonce out ->
-    runGovernanceCreatePoll BabbageEraOnwardsBabbage  prompt choices nonce out
+    runLegacyGovernanceCreatePoll prompt choices nonce out
   GovernanceAnswerPoll poll ix mOutFile ->
-    runGovernanceAnswerPoll BabbageEraOnwardsBabbage poll ix mOutFile
+    runLegacyGovernanceAnswerPoll poll ix mOutFile
   GovernanceVerifyPoll poll metadata mOutFile ->
-    runGovernanceVerifyPoll BabbageEraOnwardsBabbage poll metadata mOutFile
+    runLegacyGovernanceVerifyPoll poll metadata mOutFile
 
+runLegacyGovernanceCreatePoll :: ()
+  => Text
+  -> [Text]
+  -> Maybe Word
+  -> File GovernancePoll Out
+  -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceCreatePoll prompt choices nonce outFile =
+  runGovernanceCreatePollCmd
+    Cmd.GovernanceCreatePollCmdArgs
+      { eon     = BabbageEraOnwardsBabbage
+      , prompt
+      , choices
+      , nonce
+      , outFile
+      }
+
+runLegacyGovernanceAnswerPoll :: ()
+  => File GovernancePoll In
+  -> Maybe Word
+  -> Maybe (File () Out)
+  -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceAnswerPoll pollFile answerIndex mOutFile =
+  runGovernanceAnswerPollCmd
+    Cmd.GovernanceAnswerPollCmdArgs
+      { eon         = BabbageEraOnwardsBabbage
+      , pollFile
+      , answerIndex
+      , mOutFile
+      }
+
+runLegacyGovernanceVerifyPoll :: ()
+  => File GovernancePoll In
+  -> File (Tx ()) In
+  -> Maybe (File () Out)
+  -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceVerifyPoll pollFile txFile mOutFile =
+  runGovernanceVerifyPollCmd
+    Cmd.GovernanceVerifyPollCmdArgs
+      { eon       = BabbageEraOnwardsBabbage
+      , pollFile
+      , txFile
+      , mOutFile
+      }
 
 runLegacyGovernanceMIRCertificatePayStakeAddrs
   :: EraInEon ShelleyToBabbageEra

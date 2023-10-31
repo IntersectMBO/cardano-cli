@@ -1,8 +1,15 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.Poll
-  ( GovernancePollCmds(..) , renderGovernancePollCmds) where
+  ( GovernancePollCmds(..)
+  , renderGovernancePollCmds
+
+  , GovernanceCreatePollCmdArgs(..)
+  , GovernanceAnswerPollCmdArgs(..)
+  , GovernanceVerifyPollCmdArgs(..)
+  ) where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
@@ -10,23 +17,37 @@ import           Cardano.Api.Shelley
 import           Data.Text (Text)
 
 data GovernancePollCmds era
-  = GovernanceCreatePoll -- ^ Create a SPO poll
-      (BabbageEraOnwards era) {- TODO smelc, use BabbageEraOnly here instead -}
-      Text -- ^ Prompt
-      [Text] -- ^ Choices
-      (Maybe Word) -- ^ Nonce
-      (File GovernancePoll Out)
-  | GovernanceAnswerPoll  -- ^ Answer a SPO poll
-      (BabbageEraOnwards era) {- TODO smelc, use BabbageEraOnly here instead -}
-      (File GovernancePoll In) -- ^ Poll file
-      (Maybe Word) -- ^ Answer index
-      (Maybe (File () Out)) -- ^ Tx file
-  | GovernanceVerifyPoll  -- ^ Verify answer to a given SPO poll
-      (BabbageEraOnwards era) {- TODO smelc, use BabbageEraOnly here instead -}
-      (File GovernancePoll In) -- Poll file
-      (File (Tx ()) In) -- Tx file
-      (Maybe (File () Out)) -- Tx file
+  = GovernanceCreatePoll !(GovernanceCreatePollCmdArgs era)
+  | GovernanceAnswerPoll !(GovernanceAnswerPollCmdArgs era)
+  | GovernanceVerifyPoll !(GovernanceVerifyPollCmdArgs era)
 
+-- | Create a SPO poll
+data GovernanceCreatePollCmdArgs era =
+  GovernanceCreatePollCmdArgs
+    { eon     :: !(BabbageEraOnwards era)
+    , prompt  :: !Text
+    , choices :: ![Text]
+    , nonce   :: !(Maybe Word)
+    , outFile :: !(File GovernancePoll Out)
+    } deriving (Eq, Show)
+
+-- | Answer a SPO poll
+data GovernanceAnswerPollCmdArgs era =
+  GovernanceAnswerPollCmdArgs
+    { eon         :: !(BabbageEraOnwards era)
+    , pollFile    :: !(File GovernancePoll In)
+    , answerIndex :: !(Maybe Word)
+    , mOutFile    :: !(Maybe (File () Out))
+    } deriving (Eq, Show)
+
+-- | Verify answer to a given SPO poll
+data GovernanceVerifyPollCmdArgs era =
+  GovernanceVerifyPollCmdArgs
+    { eon       :: !(BabbageEraOnwards era)
+    , pollFile  :: !(File GovernancePoll In)
+    , txFile    :: !(File (Tx ()) In)
+    , mOutFile  :: !(Maybe (File () Out))
+    } deriving (Eq, Show)
 
 renderGovernancePollCmds :: ()
   => GovernancePollCmds era
