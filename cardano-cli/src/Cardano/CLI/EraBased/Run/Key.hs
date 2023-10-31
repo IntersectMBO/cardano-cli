@@ -18,6 +18,8 @@ module Cardano.CLI.EraBased.Run.Key
   , runNonExtendedKeyCmd
   , runVerificationKeyCmd
 
+  , drepKeyEnvelopeDescr
+
     -- * Exports for testing
   , decodeBech32
   ) where
@@ -53,6 +55,9 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import           System.Exit (exitFailure)
+
+drepKeyEnvelopeDescr :: TextEnvelopeDescr
+drepKeyEnvelopeDescr = "Delegate Representative Verification Key"
 
 runKeyCmds :: ()
   => Cmd.KeyCmds era
@@ -110,24 +115,27 @@ runNonExtendedKeyCmd
   writeVerificationKey ssk =
     case ssk of
       APaymentExtendedVerificationKey vk ->
-        writeToDisk vkf (castVerificationKey vk :: VerificationKey PaymentKey)
+        writeToDisk vkf Nothing (castVerificationKey vk :: VerificationKey PaymentKey)
+      ADRepExtendedVerificationKey vk ->
+        writeToDisk vkf (Just drepKeyEnvelopeDescr) (castVerificationKey vk :: VerificationKey DRepKey)
       AStakeExtendedVerificationKey vk ->
-        writeToDisk vkf (castVerificationKey vk :: VerificationKey StakeKey)
+        writeToDisk vkf Nothing (castVerificationKey vk :: VerificationKey StakeKey)
       AGenesisExtendedVerificationKey vk ->
-        writeToDisk vkf (castVerificationKey vk :: VerificationKey GenesisKey)
+        writeToDisk vkf Nothing (castVerificationKey vk :: VerificationKey GenesisKey)
       AGenesisDelegateExtendedVerificationKey vk ->
-        writeToDisk vkf (castVerificationKey vk :: VerificationKey GenesisDelegateKey)
+        writeToDisk vkf Nothing (castVerificationKey vk :: VerificationKey GenesisDelegateKey)
       nonExtendedKey -> left $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
 
 
   writeToDisk
    :: Key keyrole
    => File content Out
+   -> Maybe TextEnvelopeDescr
    -> VerificationKey keyrole
    -> ExceptT KeyCmdError IO ()
-  writeToDisk vkf' vk =
+  writeToDisk vkf' descr vk =
     firstExceptT KeyCmdWriteFileError . newExceptT
-      $ writeLazyByteStringFile vkf' $ textEnvelopeToJSON Nothing vk
+      $ writeLazyByteStringFile vkf' $ textEnvelopeToJSON descr vk
 
 
 readExtendedVerificationKeyFile
@@ -139,6 +147,7 @@ readExtendedVerificationKeyFile evkfile = do
                          $ VktofVerificationKeyFile evkfile
   case vKey of
       k@APaymentExtendedVerificationKey{} -> return k
+      k@ADRepExtendedVerificationKey{} -> return k
       k@AStakeExtendedVerificationKey{} -> return k
       k@AGenesisExtendedVerificationKey{} -> return k
       k@AGenesisDelegateExtendedVerificationKey{} -> return k
