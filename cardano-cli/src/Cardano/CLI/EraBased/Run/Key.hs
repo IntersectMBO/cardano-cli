@@ -18,7 +18,11 @@ module Cardano.CLI.EraBased.Run.Key
   , runNonExtendedKeyCmd
   , runVerificationKeyCmd
 
-  , drepKeyEnvelopeDescr
+  , drepVkeyDesc
+  , genesisVkeyDesc
+  , genesisVkeyDelegateDesc
+  , stakeVkeyDesc
+  , paymentVkeyDesc
 
     -- * Exports for testing
   , decodeBech32
@@ -56,8 +60,23 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import           System.Exit (exitFailure)
 
-drepKeyEnvelopeDescr :: TextEnvelopeDescr
-drepKeyEnvelopeDescr = "Delegate Representative Verification Key"
+-- Note on these constants:
+-- https://github.com/input-output-hk/cardano-cli/pull/416#discussion_r1378789737
+
+drepVkeyDesc :: TextEnvelopeDescr
+drepVkeyDesc = "Delegate Representative Verification Key"
+
+genesisVkeyDesc :: TextEnvelopeDescr
+genesisVkeyDesc = "Genesis Verification Key"
+
+genesisVkeyDelegateDesc :: TextEnvelopeDescr
+genesisVkeyDelegateDesc = "Genesis delegate operator key"
+
+paymentVkeyDesc :: TextEnvelopeDescr
+paymentVkeyDesc = "Payment Verification Key"
+
+stakeVkeyDesc :: TextEnvelopeDescr
+stakeVkeyDesc = "Stake Verification Key"
 
 runKeyCmds :: ()
   => Cmd.KeyCmds era
@@ -115,15 +134,15 @@ runNonExtendedKeyCmd
   writeVerificationKey ssk =
     case ssk of
       APaymentExtendedVerificationKey vk ->
-        writeToDisk vkf Nothing (castVerificationKey vk :: VerificationKey PaymentKey)
+        writeToDisk vkf (Just paymentVkeyDesc) (castVerificationKey vk :: VerificationKey PaymentKey)
       ADRepExtendedVerificationKey vk ->
-        writeToDisk vkf (Just drepKeyEnvelopeDescr) (castVerificationKey vk :: VerificationKey DRepKey)
+        writeToDisk vkf (Just drepVkeyDesc) (castVerificationKey vk :: VerificationKey DRepKey)
       AStakeExtendedVerificationKey vk ->
-        writeToDisk vkf Nothing (castVerificationKey vk :: VerificationKey StakeKey)
+        writeToDisk vkf (Just stakeVkeyDesc) (castVerificationKey vk :: VerificationKey StakeKey)
       AGenesisExtendedVerificationKey vk ->
-        writeToDisk vkf Nothing (castVerificationKey vk :: VerificationKey GenesisKey)
+        writeToDisk vkf (Just genesisVkeyDesc) (castVerificationKey vk :: VerificationKey GenesisKey)
       AGenesisDelegateExtendedVerificationKey vk ->
-        writeToDisk vkf Nothing (castVerificationKey vk :: VerificationKey GenesisDelegateKey)
+        writeToDisk vkf (Just genesisVkeyDelegateDesc) (castVerificationKey vk :: VerificationKey GenesisDelegateKey)
       nonExtendedKey -> left $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
 
 

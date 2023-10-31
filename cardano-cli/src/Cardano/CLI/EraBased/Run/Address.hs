@@ -18,6 +18,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Address
 import           Cardano.CLI.EraBased.Run.Address.Info
+import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.AddressCmdError
@@ -105,16 +106,15 @@ writePaymentKeyFiles fmt vkeyPath skeyPath vkey skey = do
       KeyOutputFormatTextEnvelope ->
         newExceptT
           $ writeLazyByteStringFile vkeyPath
-          $ textEnvelopeToJSON (Just vkeyDesc) vkey
+          $ textEnvelopeToJSON (Just Key.paymentVkeyDesc) vkey
       KeyOutputFormatBech32 ->
         newExceptT
           $ writeTextFile vkeyPath
           $ serialiseToBech32 vkey
 
   where
-    skeyDesc, vkeyDesc :: TextEnvelopeDescr
+    skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Payment Signing Key"
-    vkeyDesc = "Payment Verification Key"
 
 writeByronPaymentKeyFiles
    :: Key keyrole
@@ -127,11 +127,10 @@ writeByronPaymentKeyFiles vkeyPath skeyPath vkey skey = do
   firstExceptT AddressCmdWriteFileError $ do
     -- No bech32 encoding for Byron keys
     newExceptT $ writeLazyByteStringFile skeyPath $ textEnvelopeToJSON (Just skeyDesc) skey
-    newExceptT $ writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON (Just vkeyDesc) vkey
+    newExceptT $ writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON (Just Key.paymentVkeyDesc) vkey
   where
-    skeyDesc, vkeyDesc :: TextEnvelopeDescr
+    skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Payment Signing Key"
-    vkeyDesc = "Payment Verification Key"
 
 runAddressKeyHashCmd :: VerificationKeyTextOrFile
                   -> Maybe (File () Out)
