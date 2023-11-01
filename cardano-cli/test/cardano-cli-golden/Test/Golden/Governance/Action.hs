@@ -126,3 +126,31 @@ hprop_golden_conway_governance_action_view_create_info_json_outfile =
       , "--out-file", actionViewFile
       ]
     H.diffFileVsGoldenFile actionViewFile goldenActionViewFile
+
+hprop_golden_governanceActionCreateNoConfidence :: Property
+hprop_golden_governanceActionCreateNoConfidence =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    stakeAddressVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
+
+    actionFile <- noteTempFile tempDir "action"
+
+    void $ execCardanoCLI
+      [ "conway", "governance", "action", "create-no-confidence"
+      , "--mainnet"
+      , "--governance-action-deposit", "10"
+      , "--stake-verification-key-file", stakeAddressVKeyFile
+      , "--proposal-anchor-url", "proposal-dummy-url"
+      , "--proposal-anchor-metadata", "eda258650888d4a7f8ac1127cfa136962f527f341c99db49929c79ae"
+      , "--governance-action-index", "5"
+      , "--governance-action-tx-id", "b1015258a99351c143a7a40b7b58f033ace10e3cc09c67780ed5b2b0992aa60a"
+      , "--out-file", actionFile
+      ]
+
+    actionViewFile <- noteTempFile tempDir "action-view"
+    goldenActionViewFile <- H.note "test/cardano-cli-golden/files/golden/governance/action/view/create-no-confidence.action.view"
+    void $ execCardanoCLI
+      [ "conway", "governance", "action", "view"
+      , "--action-file", actionFile
+      , "--out-file", actionViewFile
+      ]
+    H.diffFileVsGoldenFile actionViewFile goldenActionViewFile

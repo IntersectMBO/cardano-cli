@@ -1,0 +1,20 @@
+{
+    "anchor": {
+        "dataHash": "04c36ab926c8d0e6b37d03c781bdf0214b67f65af6eb1241459d17209a0bf784",
+        "url": "proposal-dummy-url"
+    },
+    "deposit": 10,
+    "governance action": {
+        "contents": {
+            "govActionIx": 5,
+            "txId": "b1015258a99351c143a7a40b7b58f033ace10e3cc09c67780ed5b2b0992aa60a"
+        },
+        "tag": "NoConfidence"
+    },
+    "return address": {
+        "credential": {
+            "keyHash": "8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605"
+        },
+        "network": "Mainnet"
+    }
+}
