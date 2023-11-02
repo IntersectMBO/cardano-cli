@@ -10,17 +10,9 @@ module Cardano.CLI.EraBased.Run
 import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Commands
-import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.EraBased.Run.Address
 import           Cardano.CLI.EraBased.Run.Genesis
 import           Cardano.CLI.EraBased.Run.Governance
-import           Cardano.CLI.EraBased.Run.Governance.Actions
-import           Cardano.CLI.EraBased.Run.Governance.Committee
-import           Cardano.CLI.EraBased.Run.Governance.DRep
-import           Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
-                   (runGovernanceGenesisKeyDelegationCertificate)
-import           Cardano.CLI.EraBased.Run.Governance.Poll (runGovernancePollCmds)
-import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.EraBased.Run.Key
 import           Cardano.CLI.EraBased.Run.Node
 import           Cardano.CLI.EraBased.Run.Query
@@ -73,38 +65,3 @@ runCmds = \case
   TransactionCmds cmd ->
     runTransactionCmds cmd
       & firstExceptT CmdTransactionError
-
-runGovernanceCmds :: ()
-  => GovernanceCmds era
-  -> ExceptT CmdError IO ()
-runGovernanceCmds = \case
-  GovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
-    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
-      & firstExceptT CmdGovernanceCmdError
-
-  GovernanceMIRTransfer w ll oFp direction ->
-    runGovernanceMIRCertificateTransfer w ll oFp direction
-      & firstExceptT CmdGovernanceCmdError
-
-  GovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
-    let stb = shelleyToAlonzoEraToShelleyToBabbageEra sta in
-    runGovernanceGenesisKeyDelegationCertificate stb genVk genDelegVk vrfVk out
-      & firstExceptT CmdGovernanceCmdError
-
-  GovernanceCommitteeCmds cmds ->
-    runGovernanceCommitteeCmds cmds
-      & firstExceptT CmdGovernanceCommitteeError
-
-  GovernanceActionCmds cmds ->
-    runGovernanceActionCmds cmds
-      & firstExceptT CmdGovernanceActionError
-
-  GovernanceDRepCmds cmds ->
-    runGovernanceDRepCmds cmds
-
-  GovernancePollCmds cmds ->
-    runGovernancePollCmds cmds
-      & firstExceptT CmdGovernanceCmdError
-
-  GovernanceVoteCmds cmds ->
-    runGovernanceVoteCmds cmds
