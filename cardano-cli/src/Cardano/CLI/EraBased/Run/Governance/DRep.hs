@@ -45,7 +45,7 @@ runGovernanceDRepCmds = \case
 
   GovernanceDRepRegistrationCertificateCmd w vkey lovelace anchor outFp ->
     conwayEraOnwardsConstraints w $ do
-      runGovernanceRegistrationCertificateCmd w vkey lovelace anchor outFp
+      runGovernanceDRepRegistrationCertificateCmd w vkey lovelace anchor outFp
         & firstExceptT CmdRegistrationError
 
   GovernanceDRepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp ->
@@ -93,14 +93,14 @@ runGovernanceDRepIdCmd _ vkOrFp idOutputFormat mOutFile = do
 
 -- Registration Certificate related
 
-runGovernanceRegistrationCertificateCmd :: ()
+runGovernanceDRepRegistrationCertificateCmd :: ()
   => ConwayEraOnwards era
   -> VerificationKeyOrHashOrFile DRepKey
   -> Lovelace
   -> Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era)))
   -> File () Out
   -> ExceptT RegistrationError IO ()
-runGovernanceRegistrationCertificateCmd cOnwards drepKOrHOrF deposit anchor outfp = do
+runGovernanceDRepRegistrationCertificateCmd cOnwards drepKOrHOrF deposit anchor outfp = do
     DRepKeyHash drepKeyHash <- firstExceptT RegistrationReadError
       . newExceptT
       $ readVerificationKeyOrHashOrFile AsDRepKey drepKOrHOrF
