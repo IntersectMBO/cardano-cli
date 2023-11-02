@@ -49,8 +49,7 @@ runGovernanceCmds = \case
       & firstExceptT CmdGovernanceCmdError
 
   Cmd.GovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
-    let stb = shelleyToAlonzoEraToShelleyToBabbageEra sta in
-    runGovernanceGenesisKeyDelegationCertificate stb genVk genDelegVk vrfVk out
+    runGovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out
       & firstExceptT CmdGovernanceCmdError
 
   Cmd.GovernanceCommitteeCmds cmds ->

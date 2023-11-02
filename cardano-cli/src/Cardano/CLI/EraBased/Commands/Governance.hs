@@ -33,7 +33,7 @@ data GovernanceCmds era
       (File () Out)
       TransferDirection
   | GovernanceGenesisKeyDelegationCertificate
-      (ShelleyToAlonzoEra era)
+      (ShelleyToBabbageEra era)
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)

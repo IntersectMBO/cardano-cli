@@ -4748,6 +4748,7 @@ Usage: cardano-cli babbage genesis hash --genesis FILE
 
 Usage: cardano-cli babbage governance 
                                         ( create-mir-certificate
+                                        | create-genesis-key-delegation-certificate
                                         | action
                                         | create-poll
                                         | answer-poll
@@ -4791,6 +4792,23 @@ Usage: cardano-cli babbage governance create-mir-certificate transfer-to-rewards
 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
+
+Usage: cardano-cli babbage governance create-genesis-key-delegation-certificate 
+                                                                                  ( --genesis-verification-key STRING
+                                                                                  | --genesis-verification-key-file FILE
+                                                                                  | --genesis-verification-key-hash STRING
+                                                                                  )
+                                                                                  ( --genesis-delegate-verification-key STRING
+                                                                                  | --genesis-delegate-verification-key-file FILE
+                                                                                  | --genesis-delegate-verification-key-hash STRING
+                                                                                  )
+                                                                                  ( --vrf-verification-key STRING
+                                                                                  | --vrf-verification-key-file FILE
+                                                                                  | --vrf-verification-key-hash STRING
+                                                                                  )
+                                                                                  --out-file FILE
+
+  Create a genesis key delegation certificate
 
 Usage: cardano-cli babbage governance action create-protocol-parameters-update
 
@@ -7384,6 +7402,7 @@ Usage: cardano-cli latest genesis hash --genesis FILE
 
 Usage: cardano-cli latest governance 
                                        ( create-mir-certificate
+                                       | create-genesis-key-delegation-certificate
                                        | action
                                        | create-poll
                                        | answer-poll
@@ -7427,6 +7446,23 @@ Usage: cardano-cli latest governance create-mir-certificate transfer-to-rewards 
 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
+
+Usage: cardano-cli latest governance create-genesis-key-delegation-certificate 
+                                                                                 ( --genesis-verification-key STRING
+                                                                                 | --genesis-verification-key-file FILE
+                                                                                 | --genesis-verification-key-hash STRING
+                                                                                 )
+                                                                                 ( --genesis-delegate-verification-key STRING
+                                                                                 | --genesis-delegate-verification-key-file FILE
+                                                                                 | --genesis-delegate-verification-key-hash STRING
+                                                                                 )
+                                                                                 ( --vrf-verification-key STRING
+                                                                                 | --vrf-verification-key-file FILE
+                                                                                 | --vrf-verification-key-hash STRING
+                                                                                 )
+                                                                                 --out-file FILE
+
+  Create a genesis key delegation certificate
 
 Usage: cardano-cli latest governance action create-protocol-parameters-update
 
