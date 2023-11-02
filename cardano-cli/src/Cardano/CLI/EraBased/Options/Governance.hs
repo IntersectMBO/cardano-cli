@@ -16,7 +16,6 @@ import           Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Governance.DRep
 import           Cardano.CLI.EraBased.Options.Governance.Poll
 import           Cardano.CLI.EraBased.Options.Governance.Vote
-import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
 import           Options.Applicative
@@ -58,10 +57,10 @@ mirCertParsers w =
       $ Opt.info (pMIRPayStakeAddresses w)
       $ Opt.progDesc "Create an MIR certificate to pay stake addresses"
     , subParser "transfer-to-treasury"
-      $ Opt.info (pMIRTransferToTreasury w)
+      $ Opt.info (pGovernanceCreateMirCertificateTransferToTreasuryCmd w)
       $ Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
     , subParser "transfer-to-rewards"
-      $ Opt.info (pMIRTransferToReserves w)
+      $ Opt.info (pGovernanceCreateMirCertificateTransferToReservesCmd w)
       $ Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
     ]
 
@@ -69,29 +68,27 @@ pMIRPayStakeAddresses :: ()
   => ShelleyToBabbageEra era
   -> Parser (GovernanceCmds era)
 pMIRPayStakeAddresses w =
-  GovernanceMIRPayStakeAddressesCertificate w
+  GovernanceCreateMirCertificateStakeAddressesCmd w
     <$> pMIRPot
     <*> some pStakeAddress
     <*> some pRewardAmt
     <*> pOutputFile
 
-pMIRTransferToTreasury :: ()
+pGovernanceCreateMirCertificateTransferToTreasuryCmd :: ()
   => ShelleyToBabbageEra era
   -> Parser (GovernanceCmds era)
-pMIRTransferToTreasury w =
-  GovernanceMIRTransfer w
+pGovernanceCreateMirCertificateTransferToTreasuryCmd w =
+  GovernanceCreateMirCertificateTransferToTreasuryCmd w
     <$> pTransferAmt
     <*> pOutputFile
-    <*> pure TransferToTreasury
 
-pMIRTransferToReserves :: ()
+pGovernanceCreateMirCertificateTransferToReservesCmd :: ()
   => ShelleyToBabbageEra era
   -> Parser (GovernanceCmds era)
-pMIRTransferToReserves w =
-  GovernanceMIRTransfer w
+pGovernanceCreateMirCertificateTransferToReservesCmd w =
+  GovernanceCreateMirCertificateTransferToReservesCmd w
     <$> pTransferAmt
     <*> pOutputFile
-    <*> pure TransferToReserves
 
 pGovernanceGenesisKeyDelegationCertificate :: ()
   => CardanoEra era

@@ -15,25 +15,27 @@ import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
 import           Cardano.CLI.EraBased.Commands.Governance.Poll
 import           Cardano.CLI.EraBased.Commands.Governance.Vote
-import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile)
 
 import           Data.Text (Text)
 
 data GovernanceCmds era
-  = GovernanceMIRPayStakeAddressesCertificate
+  = GovernanceCreateMirCertificateStakeAddressesCmd
       (ShelleyToBabbageEra era)
       MIRPot
       [StakeAddress]
       [Lovelace]
       (File () Out)
-  | GovernanceMIRTransfer
+  | GovernanceCreateMirCertificateTransferToTreasuryCmd
       (ShelleyToBabbageEra era)
       Lovelace
       (File () Out)
-      TransferDirection
+  | GovernanceCreateMirCertificateTransferToReservesCmd
+      (ShelleyToBabbageEra era)
+      Lovelace
+      (File () Out)
   | GovernanceGenesisKeyDelegationCertificate
-      (ShelleyToAlonzoEra era)
+      (ShelleyToBabbageEra era)
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)
@@ -51,11 +53,11 @@ data GovernanceCmds era
 
 renderGovernanceCmds :: GovernanceCmds era -> Text
 renderGovernanceCmds = \case
-  GovernanceMIRPayStakeAddressesCertificate {} ->
+  GovernanceCreateMirCertificateStakeAddressesCmd {} ->
     "governance create-mir-certificate stake-addresses"
-  GovernanceMIRTransfer _ _ _ TransferToTreasury ->
+  GovernanceCreateMirCertificateTransferToTreasuryCmd {} ->
     "governance create-mir-certificate transfer-to-treasury"
-  GovernanceMIRTransfer _ _ _ TransferToReserves ->
+  GovernanceCreateMirCertificateTransferToReservesCmd {} ->
     "governance create-mir-certificate transfer-to-reserves"
   GovernanceGenesisKeyDelegationCertificate {} ->
     "governance create-genesis-key-delegation-certificate"
