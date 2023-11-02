@@ -9,6 +9,7 @@ module Cardano.CLI.Legacy.Run.StakePool
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
+import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
 import           Cardano.CLI.EraBased.Run.StakePool
 import           Cardano.CLI.Legacy.Commands.StakePool
 import           Cardano.CLI.Types.Common
@@ -22,14 +23,14 @@ runLegacyStakePoolCmds :: ()
   => LegacyStakePoolCmds
   -> ExceptT StakePoolCmdError IO ()
 runLegacyStakePoolCmds = \case
-  StakePoolDeregistrationCertificateCmd anyEra sPvkeyFp retireEpoch outfp ->
-    runLegacyStakePoolDeregistrationCertificateCmd anyEra sPvkeyFp retireEpoch outfp
-  StakePoolIdCmd sPvkey outputFormat mOutFile ->
-    runLegacyStakePoolIdCmd sPvkey outputFormat mOutFile
+  StakePoolDeregistrationCertificateCmd anyEra sPvkeyFp retireEpoch outFile ->
+    runLegacyStakePoolDeregistrationCertificateCmd anyEra sPvkeyFp retireEpoch outFile
+  StakePoolIdCmd poolVerificationKeyOrFile outputFormat mOutFile ->
+    runLegacyStakePoolIdCmd poolVerificationKeyOrFile outputFormat mOutFile
   StakePoolMetadataHashCmd poolMdFile mOutFile ->
     runLegacyStakePoolMetadataHashCmd poolMdFile mOutFile
-  StakePoolRegistrationCertificateCmd anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp ->
-    runLegacyStakePoolRegistrationCertificateCmd anyEra sPvkey vrfVkey pldg pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outfp
+  StakePoolRegistrationCertificateCmd anyEra poolVerificationKeyOrFile vrfVkey poolPledge pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outFile ->
+    runLegacyStakePoolRegistrationCertificateCmd anyEra poolVerificationKeyOrFile vrfVkey poolPledge pCost pMrgn rwdVerFp ownerVerFps relays mbMetadata network outFile
 
 -- | Create a stake pool registration cert.
 -- TODO: Metadata and more stake pool relay support to be
@@ -57,9 +58,35 @@ runLegacyStakePoolRegistrationCertificateCmd :: ()
   -> NetworkId
   -> File () Out
   -> ExceptT StakePoolCmdError IO ()
-runLegacyStakePoolRegistrationCertificateCmd = \case
-  EraInEon sbe ->
-    runStakePoolRegistrationCertificateCmd sbe
+runLegacyStakePoolRegistrationCertificateCmd
+    inSbe
+    poolVerificationKeyOrFile
+    vrfVerificationKeyOrFile
+    poolPledge
+    poolCost
+    poolMargin
+    rewardStakeVerificationKeyOrFile
+    ownerStakeVerificationKeyOrFiles
+    relays
+    mbMetadata
+    network
+    outFile =
+  case inSbe of
+    EraInEon sbe ->
+      runStakePoolRegistrationCertificateCmd $
+        Cmd.StakePoolRegistrationCertificateCmdArgs
+          sbe
+          poolVerificationKeyOrFile
+          vrfVerificationKeyOrFile
+          poolPledge
+          poolCost
+          poolMargin
+          rewardStakeVerificationKeyOrFile
+          ownerStakeVerificationKeyOrFiles
+          relays
+          mbMetadata
+          network
+          outFile
 
 runLegacyStakePoolDeregistrationCertificateCmd :: ()
   => EraInEon ShelleyBasedEra
@@ -67,21 +94,34 @@ runLegacyStakePoolDeregistrationCertificateCmd :: ()
   -> Shelley.EpochNo
   -> File () Out
   -> ExceptT StakePoolCmdError IO ()
-runLegacyStakePoolDeregistrationCertificateCmd = \case
-  EraInEon sbe ->
-    runStakePoolRetirementCertificateCmd sbe
+runLegacyStakePoolDeregistrationCertificateCmd inSbe poolVerificationKeyOrFile retireEpoch outFile =
+  case inSbe of
+    EraInEon sbe ->
+      runStakePoolDeregistrationCertificateCmd $
+        Cmd.StakePoolDeregistrationCertificateCmdArgs
+          sbe
+          poolVerificationKeyOrFile
+          retireEpoch
+          outFile
 
 runLegacyStakePoolIdCmd :: ()
   => VerificationKeyOrFile StakePoolKey
   -> IdOutputFormat
   -> Maybe (File () Out)
   -> ExceptT StakePoolCmdError IO ()
-runLegacyStakePoolIdCmd =
-  runStakePoolIdCmd
+runLegacyStakePoolIdCmd poolVerificationKeyOrFile outputFormat mOutFile =
+  runStakePoolIdCmd $
+    Cmd.StakePoolIdCmdArgs
+      poolVerificationKeyOrFile
+      outputFormat
+      mOutFile
 
 runLegacyStakePoolMetadataHashCmd :: ()
   => StakePoolMetadataFile In
   -> Maybe (File () Out)
   -> ExceptT StakePoolCmdError IO ()
-runLegacyStakePoolMetadataHashCmd =
-  runStakePoolMetadataHashCmd
+runLegacyStakePoolMetadataHashCmd poolMetadataFile mOutFile =
+  runStakePoolMetadataHashCmd $
+    Cmd.StakePoolMetadataHashCmdArgs
+      poolMetadataFile
+      mOutFile

@@ -1,9 +1,15 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.StakePool
   ( StakePoolCmds (..)
   , renderStakePoolCmds
+
+  , StakePoolDeregistrationCertificateCmdArgs(..)
+  , StakePoolIdCmdArgs(..)
+  , StakePoolMetadataHashCmdArgs(..)
+  , StakePoolRegistrationCertificateCmdArgs(..)
   ) where
 
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
@@ -16,44 +22,51 @@ import           Prelude
 import           Data.Text (Text)
 
 data StakePoolCmds era
-  = StakePoolDeregistrationCertificateCmd
-      (ShelleyBasedEra era)
-      -- ^ Era in which to retire the stake pool.
-      (VerificationKeyOrFile StakePoolKey)
-      -- ^ Stake pool verification key.
-      EpochNo
-      -- ^ Epoch in which to retire the stake pool.
-      (File () Out)
-  | StakePoolIdCmd
-      (VerificationKeyOrFile StakePoolKey)
-      IdOutputFormat
-      (Maybe (File () Out))
-  | StakePoolMetadataHashCmd
-      (StakePoolMetadataFile In)
-      (Maybe (File () Out))
-  | StakePoolRegistrationCertificateCmd
-      (ShelleyBasedEra era)
-      -- ^ Era in which to register the stake pool.
-      (VerificationKeyOrFile StakePoolKey)
-      -- ^ Stake pool verification key.
-      (VerificationKeyOrFile VrfKey)
-      -- ^ VRF Verification key.
-      Lovelace
-      -- ^ Pool pledge.
-      Lovelace
-      -- ^ Pool cost.
-      Rational
-      -- ^ Pool margin.
-      (VerificationKeyOrFile StakeKey)
-      -- ^ Reward account verification staking key.
-      [VerificationKeyOrFile StakeKey]
-      -- ^ Pool owner verification staking key(s).
-      [StakePoolRelay]
-      -- ^ Stake pool relays.
-      (Maybe StakePoolMetadataReference)
-      -- ^ Stake pool metadata.
-      NetworkId
-      (File () Out)
+  = StakePoolDeregistrationCertificateCmd !(StakePoolDeregistrationCertificateCmdArgs era)
+  | StakePoolIdCmd                        !(StakePoolIdCmdArgs era)
+  | StakePoolMetadataHashCmd              !(StakePoolMetadataHashCmdArgs era)
+  | StakePoolRegistrationCertificateCmd   !(StakePoolRegistrationCertificateCmdArgs era)
+  deriving Show
+
+data StakePoolDeregistrationCertificateCmdArgs era =
+  StakePoolDeregistrationCertificateCmdArgs
+    { sbe                       :: !(ShelleyBasedEra era)
+    , poolVerificationKeyOrFile :: !(VerificationKeyOrFile StakePoolKey)
+    , retireEpoch               :: !EpochNo
+    , outFile                   :: !(File () Out)
+    }
+  deriving Show
+
+data StakePoolIdCmdArgs era =
+  StakePoolIdCmdArgs
+    { poolVerificationKeyOrFile :: !(VerificationKeyOrFile StakePoolKey)
+    , outputFormat              :: !IdOutputFormat
+    , mOutFile                  :: !(Maybe (File () Out))
+    }
+  deriving Show
+
+data StakePoolMetadataHashCmdArgs era =
+  StakePoolMetadataHashCmdArgs
+    { poolMetadataFile  :: !(StakePoolMetadataFile In)
+    , mOutFile          :: !(Maybe (File () Out))
+    }
+  deriving Show
+
+data StakePoolRegistrationCertificateCmdArgs era =
+  StakePoolRegistrationCertificateCmdArgs
+    { sbe                               :: !(ShelleyBasedEra era) -- ^ Era in which to register the stake pool.
+    , poolVerificationKeyOrFile         :: !(VerificationKeyOrFile StakePoolKey) -- ^ Stake pool verification key.
+    , vrfVerificationKeyOrFile          :: !(VerificationKeyOrFile VrfKey) -- ^ VRF Verification key.
+    , poolPledge                        :: !Lovelace -- ^ Pool pledge.
+    , poolCost                          :: !Lovelace -- ^ Pool cost.
+    , poolMargin                        :: !Rational -- ^ Pool margin.
+    , rewardStakeVerificationKeyOrFile  :: !(VerificationKeyOrFile StakeKey) -- ^ Reward account verification staking key.
+    , ownerStakeVerificationKeyOrFiles  :: ![VerificationKeyOrFile StakeKey] -- ^ Pool owner verification staking key(s).
+    , relays                            :: ![StakePoolRelay] -- ^ Stake pool relays.
+    , mMetadata                         :: !(Maybe StakePoolMetadataReference) -- ^ Stake pool metadata.
+    , network                           :: !NetworkId
+    , outFile                           :: !(File () Out)
+    }
   deriving Show
 
 renderStakePoolCmds :: StakePoolCmds era -> Text
