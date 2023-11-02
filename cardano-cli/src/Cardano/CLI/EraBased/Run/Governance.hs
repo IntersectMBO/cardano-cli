@@ -11,7 +11,8 @@ module Cardano.CLI.EraBased.Run.Governance
   ( runGovernanceCmds
 
   , runGovernanceMIRCertificatePayStakeAddrs
-  , runGovernanceMIRCertificateTransfer
+  , runGovernanceCreateMirCertificateTransferToTreasuryCmd
+  , runGovernanceCreateMirCertificateTransferToReservesCmd
   ) where
 
 import           Cardano.Api
@@ -25,7 +26,6 @@ import           Cardano.CLI.EraBased.Run.Governance.DRep
 import           Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
 import           Cardano.CLI.EraBased.Run.Governance.Poll
 import           Cardano.CLI.EraBased.Run.Governance.Vote
-import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
@@ -40,12 +40,16 @@ runGovernanceCmds :: ()
   => Cmd.GovernanceCmds era
   -> ExceptT CmdError IO ()
 runGovernanceCmds = \case
-  Cmd.GovernanceMIRPayStakeAddressesCertificate w mirpot vKeys rewards out ->
+  Cmd.GovernanceCreateMirCertificateStakeAddressesCmd w mirpot vKeys rewards out ->
     runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
       & firstExceptT CmdGovernanceCmdError
 
-  Cmd.GovernanceMIRTransfer w ll oFp direction ->
-    runGovernanceMIRCertificateTransfer w ll oFp direction
+  Cmd.GovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp ->
+    runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp
+      & firstExceptT CmdGovernanceCmdError
+
+  Cmd.GovernanceCreateMirCertificateTransferToReservesCmd w ll oFp ->
+    runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp
       & firstExceptT CmdGovernanceCmdError
 
   Cmd.GovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
@@ -100,27 +104,40 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
     mirCertDesc :: TextEnvelopeDescr
     mirCertDesc = "Move Instantaneous Rewards Certificate"
 
-runGovernanceMIRCertificateTransfer
-  :: ShelleyToBabbageEra era
+runGovernanceCreateMirCertificateTransferToTreasuryCmd :: ()
+  => ShelleyToBabbageEra era
   -> Lovelace
   -> File () Out
-  -> TransferDirection
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceMIRCertificateTransfer w ll oFp direction = do
+runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
   let mirTarget = Ledger.SendToOppositePotMIR (toShelleyLovelace ll)
 
-  let mirCert =
-        makeMIRCertificate $
-          case direction of
-            TransferToReserves -> MirCertificateRequirements w Ledger.TreasuryMIR mirTarget
-            TransferToTreasury -> MirCertificateRequirements w Ledger.ReservesMIR mirTarget
+  let mirCert = makeMIRCertificate $ MirCertificateRequirements w Ledger.ReservesMIR mirTarget
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
     $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
     $ writeLazyByteStringFile oFp
-    $ textEnvelopeToJSON (Just $ mirCertDesc direction) mirCert
+    $ textEnvelopeToJSON (Just mirCertDesc) mirCert
   where
-    mirCertDesc :: TransferDirection -> TextEnvelopeDescr
-    mirCertDesc TransferToTreasury = "MIR Certificate Send To Treasury"
-    mirCertDesc TransferToReserves = "MIR Certificate Send To Reserves"
+    mirCertDesc :: TextEnvelopeDescr
+    mirCertDesc = "MIR Certificate Send To Treasury"
+
+runGovernanceCreateMirCertificateTransferToReservesCmd :: ()
+  => ShelleyToBabbageEra era
+  -> Lovelace
+  -> File () Out
+  -> ExceptT GovernanceCmdError IO ()
+runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
+  let mirTarget = Ledger.SendToOppositePotMIR (toShelleyLovelace ll)
+
+  let mirCert = makeMIRCertificate $ MirCertificateRequirements w Ledger.TreasuryMIR mirTarget
+
+  firstExceptT GovernanceCmdTextEnvWriteError
+    . newExceptT
+    $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
+    $ writeLazyByteStringFile oFp
+    $ textEnvelopeToJSON (Just mirCertDesc) mirCert
+  where
+    mirCertDesc :: TextEnvelopeDescr
+    mirCertDesc = "MIR Certificate Send To Reserves"

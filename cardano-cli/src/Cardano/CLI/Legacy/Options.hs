@@ -829,7 +829,7 @@ pGovernanceCmds envCli =
 
     pLegacyMIRPayStakeAddresses :: Parser LegacyGovernanceCmds
     pLegacyMIRPayStakeAddresses =
-      GovernanceMIRPayStakeAddressesCertificate
+      GovernanceCreateMirCertificateStakeAddressesCmd
         <$> pAnyShelleyToBabbageEra envCli
         <*> pMIRPot
         <*> some pStakeAddress
@@ -838,19 +838,17 @@ pGovernanceCmds envCli =
 
     pLegacyMIRTransferToTreasury :: Parser LegacyGovernanceCmds
     pLegacyMIRTransferToTreasury =
-      GovernanceMIRTransfer
+      GovernanceCreateMirCertificateTransferToTreasuryCmd
         <$> pAnyShelleyToBabbageEra envCli
         <*> pTransferAmt
         <*> pOutputFile
-        <*> pure TransferToTreasury
 
     pLegacyMIRTransferToReserves :: Parser LegacyGovernanceCmds
     pLegacyMIRTransferToReserves =
-      GovernanceMIRTransfer
+      GovernanceCreateMirCertificateTransferToReservesCmd
         <$> pAnyShelleyToBabbageEra envCli
         <*> pTransferAmt
         <*> pOutputFile
-        <*> pure TransferToReserves
 
     pGovernanceGenesisKeyDelegationCertificate :: Parser LegacyGovernanceCmds
     pGovernanceGenesisKeyDelegationCertificate =

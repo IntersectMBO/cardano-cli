@@ -33,10 +33,12 @@ import qualified Data.Text as Text
 
 runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceCmds = \case
-  GovernanceMIRPayStakeAddressesCertificate anyEra mirpot vKeys rewards out ->
+  GovernanceCreateMirCertificateStakeAddressesCmd anyEra mirpot vKeys rewards out ->
     runLegacyGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
-  GovernanceMIRTransfer anyEra amt out direction -> do
-    runLegacyGovernanceMIRCertificateTransfer anyEra amt out direction
+  GovernanceCreateMirCertificateTransferToTreasuryCmd anyEra amt out -> do
+    runLegacyGovernanceCreateMirCertificateTransferToTreasuryCmd anyEra amt out
+  GovernanceCreateMirCertificateTransferToReservesCmd anyEra amt out -> do
+    runLegacyGovernanceCreateMirCertificateTransferToReservesCmd anyEra amt out
   GovernanceGenesisKeyDelegationCertificate (EraInEon sbe) genVk genDelegVk vrfVk out ->
     runGovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
@@ -102,14 +104,21 @@ runLegacyGovernanceMIRCertificatePayStakeAddrs
 runLegacyGovernanceMIRCertificatePayStakeAddrs (EraInEon w) =
   runGovernanceMIRCertificatePayStakeAddrs w
 
-runLegacyGovernanceMIRCertificateTransfer
+runLegacyGovernanceCreateMirCertificateTransferToTreasuryCmd
   :: EraInEon ShelleyToBabbageEra
   -> Lovelace
   -> File () Out
-  -> TransferDirection
   -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceMIRCertificateTransfer (EraInEon w) =
-  runGovernanceMIRCertificateTransfer w
+runLegacyGovernanceCreateMirCertificateTransferToTreasuryCmd (EraInEon w) =
+  runGovernanceCreateMirCertificateTransferToTreasuryCmd w
+
+runLegacyGovernanceCreateMirCertificateTransferToReservesCmd
+  :: EraInEon ShelleyToBabbageEra
+  -> Lovelace
+  -> File () Out
+  -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceCreateMirCertificateTransferToReservesCmd (EraInEon w) =
+  runGovernanceCreateMirCertificateTransferToReservesCmd w
 
 runLegacyGovernanceUpdateProposal
   :: File () Out
