@@ -9,20 +9,17 @@
 module Cardano.CLI.EraBased.Run.Governance
   ( runGovernanceMIRCertificatePayStakeAddrs
   , runGovernanceMIRCertificateTransfer
-  , runGovernanceDRepKeyGen
   ) where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import qualified Cardano.Ledger.Shelley.TxBody as Shelley
 
 import           Control.Monad
-import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra
 import qualified Data.Map.Strict as Map
@@ -81,18 +78,3 @@ runGovernanceMIRCertificateTransfer w ll oFp direction = do
     mirCertDesc :: TransferDirection -> TextEnvelopeDescr
     mirCertDesc TransferToTreasury = "MIR Certificate Send To Treasury"
     mirCertDesc TransferToReserves = "MIR Certificate Send To Reserves"
-
-runGovernanceDRepKeyGen
-  :: ConwayEraOnwards era
-  -> VerificationKeyFile Out
-  -> SigningKeyFile Out
-  -> ExceptT GovernanceCmdError IO ()
-runGovernanceDRepKeyGen _w vkeyPath skeyPath = firstExceptT GovernanceCmdWriteFileError $ do
-  skey <- liftIO $ generateSigningKey AsDRepKey
-  let vkey = getVerificationKey skey
-  newExceptT $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just skeyDesc) skey)
-  newExceptT $ writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.drepKeyEnvelopeDescr) vkey)
-  where
-    skeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Delegate Representative Signing Key"
-

@@ -17,13 +17,14 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
-import           Cardano.CLI.EraBased.Run.Governance
+import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.RegistrationError
 import           Cardano.CLI.Types.Key
 
+import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
@@ -54,6 +55,20 @@ runGovernanceDRepCmds = \case
   GovernanceDRepMetadataHashCmd _ inFp mOutFp ->
     runGovernanceDRepMetadataHashCmd inFp mOutFp
       & firstExceptT CmdGovernanceCmdError
+
+runGovernanceDRepKeyGen
+  :: ConwayEraOnwards era
+  -> VerificationKeyFile Out
+  -> SigningKeyFile Out
+  -> ExceptT GovernanceCmdError IO ()
+runGovernanceDRepKeyGen _w vkeyPath skeyPath = firstExceptT GovernanceCmdWriteFileError $ do
+  skey <- liftIO $ generateSigningKey AsDRepKey
+  let vkey = getVerificationKey skey
+  newExceptT $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just skeyDesc) skey)
+  newExceptT $ writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.drepKeyEnvelopeDescr) vkey)
+  where
+    skeyDesc :: TextEnvelopeDescr
+    skeyDesc = "Delegate Representative Signing Key"
 
 runGovernanceDRepIdCmd :: ()
   => ConwayEraOnwards era
