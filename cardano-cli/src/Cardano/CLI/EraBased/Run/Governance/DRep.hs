@@ -49,7 +49,7 @@ runGovernanceDRepCmds = \case
         & firstExceptT CmdRegistrationError
 
   GovernanceDRepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp ->
-    runGovernanceDrepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp
+    runGovernanceDRepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp
       & firstExceptT CmdGovernanceCmdError
 
   GovernanceDRepMetadataHashCmd _ inFp mOutFp ->
@@ -116,13 +116,13 @@ runGovernanceDRepRegistrationCertificateCmd cOnwards drepKOrHOrF deposit anchor 
       $ conwayEraOnwardsConstraints cOnwards
       $ textEnvelopeToJSON description registrationCert
 
-runGovernanceDrepRetirementCertificateCmd :: ()
+runGovernanceDRepRetirementCertificateCmd :: ()
   => ConwayEraOnwards era
   -> VerificationKeyOrHashOrFile DRepKey
   -> Lovelace
   -> File () 'Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceDrepRetirementCertificateCmd w vKeyOrHashOrFile deposit outFile =
+runGovernanceDRepRetirementCertificateCmd w vKeyOrHashOrFile deposit outFile =
    conwayEraOnwardsConstraints w $ do
      DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
        . newExceptT
