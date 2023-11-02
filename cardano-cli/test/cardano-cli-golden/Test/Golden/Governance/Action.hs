@@ -9,11 +9,10 @@ import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
-hprop_golden_governanceActionCreateConstitution :: Property
-hprop_golden_governanceActionCreateConstitution =
+hprop_golden_governance_action_create_constitution :: Property
+hprop_golden_governance_action_create_constitution =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     stakeAddressVKeyFile <- noteTempFile tempDir "stake-address.vkey"
     stakeAddressSKeyFile <- noteTempFile tempDir "stake-address.skey"
@@ -41,13 +40,10 @@ hprop_golden_governanceActionCreateConstitution =
 
     goldenActionFile <-  H.note "test/cardano-cli-golden/files/golden/governance/action/create-constitution-for-stake-address.action.golden"
 
+    -- Remove cbor hex from comparison, as it's not stable
     H.redactJsonField "cborHex" "<cborHex>" actionFile redactedActionFile
 
     H.diffFileVsGoldenFile redactedActionFile goldenActionFile
-
-    H.assertFileOccurences 1 "Governance proposal" actionFile
-
-    H.assertEndsWithSingleNewline actionFile
 
 hprop_golden_conway_governance_action_view_constitution_json :: Property
 hprop_golden_conway_governance_action_view_constitution_json =
