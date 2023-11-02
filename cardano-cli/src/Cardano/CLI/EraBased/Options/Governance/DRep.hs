@@ -52,9 +52,10 @@ pGovernanceDRepKeyGenCmd era = do
   pure
     $ subParser "key-gen"
     $ Opt.info
-        ( GovernanceDRepKeyGenCmd w
-            <$> pVerificationKeyFileOut
-            <*> pSigningKeyFileOut
+        ( fmap GovernanceDRepKeyGenCmd $
+            GovernanceDRepKeyGenCmdArgs w
+              <$> pVerificationKeyFileOut
+              <*> pSigningKeyFileOut
         )
     $ Opt.progDesc "Generate Delegate Representative verification and signing keys."
 
@@ -66,10 +67,11 @@ pGovernanceDRepKeyIdCmd era = do
   pure
     $ subParser "id"
     $ Opt.info
-        ( GovernanceDRepIdCmd w
-            <$> pDRepVerificationKeyOrFile
-            <*> pDRepIdOutputFormat
-            <*> optional pOutputFile
+        ( fmap GovernanceDRepIdCmd $
+            GovernanceDRepIdCmdArgs w
+              <$> pDRepVerificationKeyOrFile
+              <*> pDRepIdOutputFormat
+              <*> optional pOutputFile
         )
     $ Opt.progDesc "Generate a drep id."
 
@@ -97,7 +99,9 @@ pRegistrationCertificateCmd era = do
     $ Opt.info (conwayEraOnwardsConstraints w $ mkParser w)
     $ Opt.progDesc "Create a registration certificate."
  where
-  mkParser w = GovernanceDRepRegistrationCertificateCmd w
+  mkParser w =
+    fmap GovernanceDRepRegistrationCertificateCmd $
+      GovernanceDRepRegistrationCertificateCmdArgs w
         <$> pDRepVerificationKeyOrHashOrFile
         <*> pKeyRegistDeposit
         <*> pDRepMetadata
@@ -131,10 +135,11 @@ pRetirementCertificateCmd era = do
   pure
     $ subParser "retirement-certificate"
     $ Opt.info
-      ( GovernanceDRepRetirementCertificateCmd w
-          <$> pDRepVerificationKeyOrHashOrFile
-          <*> pDrepDeposit
-          <*> pOutputFile
+      ( fmap GovernanceDRepRetirementCertificateCmd $
+          GovernanceDRepRetirementCertificateCmdArgs w
+            <$> pDRepVerificationKeyOrHashOrFile
+            <*> pDrepDeposit
+            <*> pOutputFile
       )
     $ Opt.progDesc "Create a DRep retirement certificate."
 
@@ -146,10 +151,11 @@ pGovernanceDrepMetadataHashCmd era = do
   pure
     $ subParser "metadata-hash"
     $ Opt.info
-        ( GovernanceDRepMetadataHashCmd w
-            <$> pFileInDirection "drep-metadata-file" "JSON Metadata file to hash."
-            <*> pMaybeOutputFile
-            )
+        ( fmap GovernanceDRepMetadataHashCmd $
+            GovernanceDRepMetadataHashCmdArgs w
+              <$> pFileInDirection "drep-metadata-file" "JSON Metadata file to hash."
+              <*> pMaybeOutputFile
+        )
     $ Opt.progDesc "Calculate the hash of a metadata file."
 
 --------------------------------------------------------------------------------

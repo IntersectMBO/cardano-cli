@@ -45,8 +45,7 @@ runGovernanceCommitteeKeyGenCold :: ()
   -> ExceptT GovernanceCommitteeError IO ()
 runGovernanceCommitteeKeyGenCold
     Cmd.GovernanceCommitteeKeyGenColdCmdArgs
-      { Cmd.eon = _eon
-      , Cmd.vkeyOutFile = vkeyPath
+      { Cmd.vkeyOutFile = vkeyPath
       , Cmd.skeyOutFile = skeyPath
       } = do
   skey <- liftIO $ generateSigningKey AsCommitteeColdKey
@@ -105,8 +104,7 @@ runGovernanceCommitteeKeyHash :: ()
   -> ExceptT GovernanceCommitteeError IO ()
 runGovernanceCommitteeKeyHash
     Cmd.GovernanceCommitteeKeyHashCmdArgs
-      { Cmd.eon = _w
-      , Cmd.vkeySource
+      { Cmd.vkeySource
       } = do
   vkey <-
     case vkeySource of

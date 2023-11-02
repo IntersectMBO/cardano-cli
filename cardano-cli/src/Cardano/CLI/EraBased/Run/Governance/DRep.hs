@@ -1,6 +1,8 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -16,7 +18,7 @@ import           Cardano.Api.Ledger (Credential (KeyHashObj))
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Commands.Governance.DRep
+import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
 import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
@@ -32,53 +34,56 @@ import           Data.Function
 import qualified Data.Text.Encoding as Text
 
 runGovernanceDRepCmds :: ()
-  => GovernanceDRepCmds era
+  => Cmd.GovernanceDRepCmds era
   -> ExceptT CmdError IO ()
 runGovernanceDRepCmds = \case
-  GovernanceDRepKeyGenCmd w vrf sgn ->
-    runGovernanceDRepKeyGenCmd w vrf sgn
+  Cmd.GovernanceDRepKeyGenCmd args ->
+    runGovernanceDRepKeyGenCmd args
       & firstExceptT CmdGovernanceCmdError
 
-  GovernanceDRepIdCmd w vkey idOutputFormat mOutFp ->
-    runGovernanceDRepIdCmd w vkey idOutputFormat mOutFp
+  Cmd.GovernanceDRepIdCmd args ->
+    runGovernanceDRepIdCmd args
       & firstExceptT CmdGovernanceCmdError
 
-  GovernanceDRepRegistrationCertificateCmd w vkey lovelace anchor outFp ->
-    conwayEraOnwardsConstraints w $ do
-      runGovernanceDRepRegistrationCertificateCmd w vkey lovelace anchor outFp
-        & firstExceptT CmdRegistrationError
+  Cmd.GovernanceDRepRegistrationCertificateCmd args ->
+    runGovernanceDRepRegistrationCertificateCmd args
+      & firstExceptT CmdRegistrationError
 
-  GovernanceDRepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp ->
-    runGovernanceDRepRetirementCertificateCmd w vkeyOrHashOrFile deposit outFp
+  Cmd.GovernanceDRepRetirementCertificateCmd args ->
+    runGovernanceDRepRetirementCertificateCmd args
       & firstExceptT CmdGovernanceCmdError
 
-  GovernanceDRepMetadataHashCmd _ inFp mOutFp ->
-    runGovernanceDRepMetadataHashCmd inFp mOutFp
+  Cmd.GovernanceDRepMetadataHashCmd args ->
+    runGovernanceDRepMetadataHashCmd args
       & firstExceptT CmdGovernanceCmdError
 
 runGovernanceDRepKeyGenCmd :: ()
-  => ConwayEraOnwards era
-  -> VerificationKeyFile Out
-  -> SigningKeyFile Out
+  => Cmd.GovernanceDRepKeyGenCmdArgs era
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceDRepKeyGenCmd _w vkeyPath skeyPath = firstExceptT GovernanceCmdWriteFileError $ do
+runGovernanceDRepKeyGenCmd
+    Cmd.GovernanceDRepKeyGenCmdArgs
+      { vkeyFile
+      , skeyFile
+     } = firstExceptT GovernanceCmdWriteFileError $ do
   skey <- liftIO $ generateSigningKey AsDRepKey
   let vkey = getVerificationKey skey
-  newExceptT $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just skeyDesc) skey)
-  newExceptT $ writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.drepKeyEnvelopeDescr) vkey)
+  newExceptT $ writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just skeyDesc) skey)
+  newExceptT $ writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepKeyEnvelopeDescr) vkey)
   where
     skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Delegate Representative Signing Key"
 
 runGovernanceDRepIdCmd :: ()
-  => ConwayEraOnwards era
-  -> VerificationKeyOrFile DRepKey
-  -> IdOutputFormat
-  -> Maybe (File () Out)
+  => Cmd.GovernanceDRepIdCmdArgs era
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceDRepIdCmd _ vkOrFp idOutputFormat mOutFile = do
+runGovernanceDRepIdCmd
+    Cmd.GovernanceDRepIdCmdArgs
+      { vkeySource
+      , idOutputFormat
+      , mOutFile
+      } = do
   drepVerKey <-
-    lift (readVerificationKeyOrTextEnvFile AsDRepKey vkOrFp)
+    lift (readVerificationKeyOrTextEnvFile AsDRepKey vkeySource)
       & onLeft (left . ReadFileError)
 
   content <-
@@ -94,40 +99,46 @@ runGovernanceDRepIdCmd _ vkOrFp idOutputFormat mOutFile = do
 -- Registration Certificate related
 
 runGovernanceDRepRegistrationCertificateCmd :: ()
-  => ConwayEraOnwards era
-  -> VerificationKeyOrHashOrFile DRepKey
-  -> Lovelace
-  -> Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era)))
-  -> File () Out
+  => Cmd.GovernanceDRepRegistrationCertificateCmdArgs era
   -> ExceptT RegistrationError IO ()
-runGovernanceDRepRegistrationCertificateCmd cOnwards drepKOrHOrF deposit anchor outfp = do
-    DRepKeyHash drepKeyHash <- firstExceptT RegistrationReadError
-      . newExceptT
-      $ readVerificationKeyOrHashOrFile AsDRepKey drepKOrHOrF
-    let drepCred = Ledger.KeyHashObj $ conwayEraOnwardsConstraints cOnwards drepKeyHash
-        votingCredential = VotingCredential drepCred
-        req = DRepRegistrationRequirements cOnwards votingCredential deposit
-        registrationCert = makeDrepRegistrationCertificate req anchor
-        description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
+runGovernanceDRepRegistrationCertificateCmd
+    Cmd.GovernanceDRepRegistrationCertificateCmdArgs
+      { eon = w
+      , drepVkeyHashSource
+      , deposit
+      , mAnchor
+      , outFile
+      } = do
+  DRepKeyHash drepKeyHash <- firstExceptT RegistrationReadError
+    . newExceptT
+    $ readVerificationKeyOrHashOrFile AsDRepKey drepVkeyHashSource
+  let drepCred = Ledger.KeyHashObj $ conwayEraOnwardsConstraints w drepKeyHash
+      votingCredential = VotingCredential drepCred
+      req = DRepRegistrationRequirements w votingCredential deposit
+      registrationCert = makeDrepRegistrationCertificate req mAnchor
+      description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
 
-    firstExceptT RegistrationWriteFileError
-      . newExceptT
-      . writeLazyByteStringFile outfp
-      $ conwayEraOnwardsConstraints cOnwards
-      $ textEnvelopeToJSON description registrationCert
+  firstExceptT RegistrationWriteFileError
+    . newExceptT
+    . writeLazyByteStringFile outFile
+    $ conwayEraOnwardsConstraints w
+    $ textEnvelopeToJSON description registrationCert
 
 runGovernanceDRepRetirementCertificateCmd :: ()
-  => ConwayEraOnwards era
-  -> VerificationKeyOrHashOrFile DRepKey
-  -> Lovelace
-  -> File () 'Out
+  => Cmd.GovernanceDRepRetirementCertificateCmdArgs era
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceDRepRetirementCertificateCmd w vKeyOrHashOrFile deposit outFile =
-   conwayEraOnwardsConstraints w $ do
-     DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
-       . newExceptT
-       $ readVerificationKeyOrHashOrFile AsDRepKey vKeyOrHashOrFile
-     makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w (VotingCredential $ KeyHashObj drepKeyHash) deposit)
+runGovernanceDRepRetirementCertificateCmd
+    Cmd.GovernanceDRepRetirementCertificateCmdArgs
+      { eon = w
+      , vkeyHashSource
+      , deposit
+      , outFile
+      } =
+  conwayEraOnwardsConstraints w $ do
+    DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
+      . newExceptT
+      $ readVerificationKeyOrHashOrFile AsDRepKey vkeyHashSource
+    makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w (VotingCredential $ KeyHashObj drepKeyHash) deposit)
       & writeFileTextEnvelope outFile (Just genKeyDelegCertDesc)
       & firstExceptT GovernanceCmdTextEnvWriteError . newExceptT
 
@@ -136,11 +147,14 @@ runGovernanceDRepRetirementCertificateCmd w vKeyOrHashOrFile deposit outFile =
     genKeyDelegCertDesc = "DRep Retirement Certificate"
 
 runGovernanceDRepMetadataHashCmd :: ()
-  => DRepMetadataFile In
-  -> Maybe (File () Out)
+  => Cmd.GovernanceDRepMetadataHashCmdArgs era
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceDRepMetadataHashCmd drepMDPath mOutFile = do
-  metadataBytes <- firstExceptT ReadFileError $ newExceptT (readByteStringFile drepMDPath)
+runGovernanceDRepMetadataHashCmd
+    Cmd.GovernanceDRepMetadataHashCmdArgs
+      { metadataFile
+      , mOutFile
+      } = do
+  metadataBytes <- firstExceptT ReadFileError $ newExceptT (readByteStringFile metadataFile)
   (_metadata, metadataHash) <-
     firstExceptT GovernanceCmdDRepMetadataValidationError
      . hoistEither
