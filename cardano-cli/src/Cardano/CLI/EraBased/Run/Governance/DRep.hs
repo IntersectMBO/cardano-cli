@@ -36,7 +36,7 @@ runGovernanceDRepCmds :: ()
   -> ExceptT CmdError IO ()
 runGovernanceDRepCmds = \case
   GovernanceDRepKeyGenCmd w vrf sgn ->
-    runGovernanceDRepKeyGen w vrf sgn
+    runGovernanceDRepKeyGenCmd w vrf sgn
       & firstExceptT CmdGovernanceCmdError
 
   GovernanceDRepIdCmd w vkey idOutputFormat mOutFp ->
@@ -56,12 +56,12 @@ runGovernanceDRepCmds = \case
     runGovernanceDRepMetadataHashCmd inFp mOutFp
       & firstExceptT CmdGovernanceCmdError
 
-runGovernanceDRepKeyGen
-  :: ConwayEraOnwards era
+runGovernanceDRepKeyGenCmd :: ()
+  => ConwayEraOnwards era
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT GovernanceCmdError IO ()
-runGovernanceDRepKeyGen _w vkeyPath skeyPath = firstExceptT GovernanceCmdWriteFileError $ do
+runGovernanceDRepKeyGenCmd _w vkeyPath skeyPath = firstExceptT GovernanceCmdWriteFileError $ do
   skey <- liftIO $ generateSigningKey AsDRepKey
   let vkey = getVerificationKey skey
   newExceptT $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just skeyDesc) skey)
@@ -93,8 +93,8 @@ runGovernanceDRepIdCmd _ vkOrFp idOutputFormat mOutFile = do
 
 -- Registration Certificate related
 
-runGovernanceRegistrationCertificateCmd
-  :: ConwayEraOnwards era
+runGovernanceRegistrationCertificateCmd :: ()
+  => ConwayEraOnwards era
   -> VerificationKeyOrHashOrFile DRepKey
   -> Lovelace
   -> Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era)))
@@ -116,8 +116,8 @@ runGovernanceRegistrationCertificateCmd cOnwards drepKOrHOrF deposit anchor outf
       $ conwayEraOnwardsConstraints cOnwards
       $ textEnvelopeToJSON description registrationCert
 
-runGovernanceDrepRetirementCertificateCmd
-  :: ConwayEraOnwards era
+runGovernanceDrepRetirementCertificateCmd :: ()
+  => ConwayEraOnwards era
   -> VerificationKeyOrHashOrFile DRepKey
   -> Lovelace
   -> File () 'Out
@@ -135,8 +135,8 @@ runGovernanceDrepRetirementCertificateCmd w vKeyOrHashOrFile deposit outFile =
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "DRep Retirement Certificate"
 
-runGovernanceDRepMetadataHashCmd
-  :: DRepMetadataFile In
+runGovernanceDRepMetadataHashCmd :: ()
+  => DRepMetadataFile In
   -> Maybe (File () Out)
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceDRepMetadataHashCmd drepMDPath mOutFile = do
