@@ -184,7 +184,7 @@ runTransactionBuildCmd
   -- We need to construct the txBodycontent outside of runTxBuild
   BalancedTxBody txBodyContent balancedTxBody _ _ <-
     runTxBuild
-      eon nodeSocketPath consensusModeParams networkId mScriptValidity inputsAndMaybeScriptWits readOnlyReferenceInputs
+      (error "WhichEra era") nodeSocketPath consensusModeParams networkId mScriptValidity inputsAndMaybeScriptWits readOnlyReferenceInputs
       filteredTxinsc mReturnCollateral mTotalCollateral txOuts changeAddresses valuesWithScriptWits
       mValidityLowerBound mValidityUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
       requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProcedures proposals buildOutputOptions
@@ -407,7 +407,7 @@ runTxBuildRaw era
                                withdrawals
                                readOnlyRefIns
 
-    validatedCollateralTxIns <- validateTxInsCollateral era txinsc
+    validatedCollateralTxIns <- validateTxInsCollateral (error "PlaceHolder") txinsc
     validatedRefInputs <- validateTxInsReference era allReferenceInputs
     validatedTotCollateral
       <- first TxCmdTotalCollateralValidationError $ validateTxTotalCollateral era mTotCollateral
@@ -456,10 +456,10 @@ runTxBuildRaw era
             }
 
     first TxCmdTxBodyError $
-      cardanoEraConstraints era $ createAndValidateTransactionBody era txBodyContent
+      cardanoEraConstraints era $ createAndValidateTransactionBody (error "WhichEra") txBodyContent
 
 runTxBuild :: ()
-  => ShelleyBasedEra era
+  => WhichEra era
   -> SocketPath
   -> ConsensusModeParams CardanoMode
   -> NetworkId
@@ -499,13 +499,13 @@ runTxBuild :: ()
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
-    sbe socketPath consensusModeParams networkId mScriptValidity
+    whichEra socketPath consensusModeParams networkId mScriptValidity
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
-    txUpdateProposal mOverrideWits votingProcedures proposals _outputOptions = shelleyBasedEraConstraints sbe $ do
+    txUpdateProposal mOverrideWits votingProcedures proposals _outputOptions = shelleyBasedEraConstraints (error "PlaceHolder") $ do
 
-  let era = shelleyBasedToCardanoEra sbe
+  let era = whichEraToCardanoEra whichEra
       dummyFee = Just $ Lovelace 0
       inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
 
@@ -516,7 +516,7 @@ runTxBuild
                              withdrawals
                              readOnlyRefIns
 
-  validatedCollateralTxIns <- hoistEither $ validateTxInsCollateral era txinsc
+  validatedCollateralTxIns <- hoistEither $ validateTxInsCollateral whichEra txinsc
   validatedRefInputs <- hoistEither $ validateTxInsReference era allReferenceInputs
   validatedTotCollateral
     <- hoistEither $ first TxCmdTotalCollateralValidationError $ validateTxTotalCollateral era mTotCollateral
@@ -589,16 +589,16 @@ runTxBuild
     . hoistEither $ notScriptLockedTxIns txinsc txEraUtxo
 
   cAddr <- pure (anyAddressInEra era changeAddr)
-    & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
+    & onLeft (error $ "runTxBuild: Byron address used: ")-- <> "") -- show changeAddr) -- should this throw instead?
 
-  balancedTxBody@(BalancedTxBody _ _ _ fee) <-
+  balancedTxBody@(BalancedTxBody _ _ _ _fee) <-
     firstExceptT TxCmdBalanceTxBody
       . hoistEither
-      $ makeTransactionBodyAutoBalance sbe systemStart (toLedgerEpochInfo eraHistory)
+      $ makeTransactionBodyAutoBalance whichEra systemStart (toLedgerEpochInfo eraHistory)
                                         pparams stakePools stakeDelegDeposits drepDelegDeposits
                                         txEraUtxo txBodyContent cAddr mOverrideWits
 
-  liftIO $ putStrLn $ "Estimated transaction fee: " <> (show fee :: String)
+  liftIO $ putStrLn $ "Estimated transaction fee: " -- (show fee :: String)
 
   return balancedTxBody
 
@@ -637,14 +637,17 @@ validateTxIns = map convert
          (txin, BuildTxWith $ KeyWitness KeyWitnessForSpending)
 
 
-validateTxInsCollateral :: CardanoEra era
+validateTxInsCollateral :: WhichEra era
                         -> [TxIn]
                         -> Either TxCmdError (TxInsCollateral era)
 validateTxInsCollateral _   []    = return TxInsCollateralNone
-validateTxInsCollateral era txins = do
-  supported <- forEraMaybeEon era
-    & maybe (txFeatureMismatchPure era TxFeatureCollateral) Right
-  pure $ TxInsCollateral supported txins
+validateTxInsCollateral whichEra txins =
+  case whichEra of
+    MainnetEra -> pure $ TxInsCollateral whichEra txins
+    ExperimentalEra -> error "TODO" -- txFeatureMismatchPure era TxFeatureCollateral
+  --supported <- forEraMaybeEon era
+  --  & maybe (txFeatureMismatchPure era TxFeatureCollateral) Right
+  --pure $ TxInsCollateral supported txins
 
 validateTxInsReference
   :: CardanoEra era
