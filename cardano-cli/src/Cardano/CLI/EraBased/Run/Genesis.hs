@@ -57,6 +57,7 @@ import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
+import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
 import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
@@ -803,11 +804,11 @@ createDelegateKeys fmt dir index = do
         (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.vkey")
         (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.skey")
   firstExceptT GenesisCmdNodeCmdError $ do
-    runNodeKeyGenKesCmd
+    runNodeKeyGenKesCmd $ Cmd.NodeKeyGenKESCmdArgs
         fmt
         (onlyOut kesVK)
         (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".kes.skey")
-    runNodeIssueOpCertCmd
+    runNodeIssueOpCertCmd $ Cmd.NodeIssueOpCertCmdArgs
         (VerificationKeyFilePath (onlyIn kesVK))
         (onlyIn coldSK)
         opCertCtr
@@ -843,20 +844,20 @@ createPoolCredentials :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisC
 createPoolCredentials fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   firstExceptT GenesisCmdNodeCmdError $ do
-    runNodeKeyGenKesCmd
+    runNodeKeyGenKesCmd $ Cmd.NodeKeyGenKESCmdArgs
         fmt
         (onlyOut kesVK)
         (File @(SigningKey ()) $ dir </> "kes" ++ strIndex ++ ".skey")
-    runNodeKeyGenVrfCmd
+    runNodeKeyGenVrfCmd $ Cmd.NodeKeyGenVRFCmdArgs
         fmt
         (File @(VerificationKey ()) $ dir </> "vrf" ++ strIndex ++ ".vkey")
         (File @(SigningKey ()) $ dir </> "vrf" ++ strIndex ++ ".skey")
-    runNodeKeyGenColdCmd
+    runNodeKeyGenColdCmd $ Cmd.NodeKeyGenColdCmdArgs
         fmt
         (File @(VerificationKey ()) $ dir </> "cold" ++ strIndex ++ ".vkey")
         (onlyOut coldSK)
         (onlyOut opCertCtr)
-    runNodeIssueOpCertCmd
+    runNodeIssueOpCertCmd $ Cmd.NodeIssueOpCertCmdArgs
         (VerificationKeyFilePath (onlyIn kesVK))
         (onlyIn coldSK)
         opCertCtr

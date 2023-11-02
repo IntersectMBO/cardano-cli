@@ -6,46 +6,24 @@ module Cardano.CLI.Legacy.Commands.Node
   , renderLegacyNodeCmds
   ) where
 
-import           Cardano.Api.Shelley
-
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
 
 import           Data.Text (Text)
 
 data LegacyNodeCmds
-  = NodeKeyGenCold
-      KeyOutputFormat
-      (VerificationKeyFile Out)
-      (SigningKeyFile Out)
-      (OpCertCounterFile Out)
-  | NodeKeyGenKES
-      KeyOutputFormat
-      (VerificationKeyFile Out)
-      (SigningKeyFile Out)
-  | NodeKeyGenVRF
-      KeyOutputFormat
-      (VerificationKeyFile Out)
-      (SigningKeyFile Out)
-  | NodeKeyHashVRF
-      (VerificationKeyOrFile VrfKey)
-      (Maybe (File () Out))
-  | NodeNewCounter
-      ColdVerificationKeyOrFile
-      Word
-      (OpCertCounterFile InOut)
-  | NodeIssueOpCert
-      (VerificationKeyOrFile KesKey)
-      (SigningKeyFile In)
-      (OpCertCounterFile InOut)
-      KESPeriod (File () Out)
+  = LegacyNodeKeyGenColdCmd   !Cmd.NodeKeyGenColdCmdArgs
+  | LegacyNodeKeyGenKESCmd    !Cmd.NodeKeyGenKESCmdArgs
+  | LegacyNodeKeyGenVRFCmd    !Cmd.NodeKeyGenVRFCmdArgs
+  | LegacyNodeKeyHashVRFCmd   !Cmd.NodeKeyHashVRFCmdArgs
+  | LegacyNodeNewCounterCmd   !Cmd.NodeNewCounterCmdArgs
+  | LegacyNodeIssueOpCertCmd  !Cmd.NodeIssueOpCertCmdArgs
   deriving Show
 
 renderLegacyNodeCmds :: LegacyNodeCmds -> Text
 renderLegacyNodeCmds = \case
-  NodeKeyGenCold {} -> "node key-gen"
-  NodeKeyGenKES {} -> "node key-gen-KES"
-  NodeKeyGenVRF {} -> "node key-gen-VRF"
-  NodeKeyHashVRF {} -> "node key-hash-VRF"
-  NodeNewCounter {} -> "node new-counter"
-  NodeIssueOpCert{} -> "node issue-op-cert"
+  LegacyNodeKeyGenColdCmd   {} -> "node key-gen"
+  LegacyNodeKeyGenKESCmd    {} -> "node key-gen-KES"
+  LegacyNodeKeyGenVRFCmd    {} -> "node key-gen-VRF"
+  LegacyNodeKeyHashVRFCmd   {} -> "node key-hash-VRF"
+  LegacyNodeNewCounterCmd   {} -> "node new-counter"
+  LegacyNodeIssueOpCertCmd  {} -> "node issue-op-cert"
