@@ -7,6 +7,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
@@ -36,7 +37,6 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis
-import           Cardano.CLI.Helpers
 import           Cardano.CLI.Json.Friendly (FriendlyFormat (..), friendlyTx, friendlyTxBody)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -184,7 +184,7 @@ runTransactionBuildCmd
   -- We need to construct the txBodycontent outside of runTxBuild
   BalancedTxBody txBodyContent balancedTxBody _ _ <-
     runTxBuild
-      eon nodeSocketPath consensusModeParams networkId mScriptValidity inputsAndMaybeScriptWits readOnlyReferenceInputs
+      eon nodeSocketPath networkId mScriptValidity inputsAndMaybeScriptWits readOnlyReferenceInputs
       filteredTxinsc mReturnCollateral mTotalCollateral txOuts changeAddresses valuesWithScriptWits
       mValidityLowerBound mValidityUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
       requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProcedures proposals buildOutputOptions
@@ -212,7 +212,7 @@ runTransactionBuildCmd
       pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
       executionUnitPrices <- pure (getExecutionUnitPrices era pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
 
-      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr consensusModeParams))
+      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryCurrentEra)
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
@@ -226,7 +226,7 @@ runTransactionBuildCmd
 
       scriptExecUnitsMap <-
         firstExceptT TxCmdTxExecUnitsErr $ hoistEither
-          $ evaluateTransactionExecutionUnits
+          $ evaluateTransactionExecutionUnits era
               systemStart (toLedgerEpochInfo eraHistory)
               pparams txEraUtxo balancedTxBody
 
@@ -245,15 +245,10 @@ runTransactionBuildCmd
             & onLeft (left . TxCmdWriteFileError)
 
 getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe Ledger.Prices
-getExecutionUnitPrices cEra (LedgerProtocolParameters pp) = do
-  ShelleyBasedEra sbe <- pure $ cardanoEraStyle cEra
-  case sbe of
-    ShelleyBasedEraShelley -> Nothing
-    ShelleyBasedEraAllegra -> Nothing
-    ShelleyBasedEraMary -> Nothing
-    ShelleyBasedEraAlonzo -> Just $ pp ^. Ledger.ppPricesL
-    ShelleyBasedEraBabbage -> Just $ pp ^. Ledger.ppPricesL
-    ShelleyBasedEraConway -> Just $ pp ^. Ledger.ppPricesL
+getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
+  forEraInEonMaybe cEra $ \aeo ->
+    alonzoEraOnwardsConstraints aeo $
+      pp ^. Ledger.ppPricesL
 
 runTransactionBuildRawCmd :: ()
   => Cmd.TransactionBuildRawCmdArgs era
@@ -291,15 +286,13 @@ runTransactionBuildRawCmd
 
   -- TODO: Conway era - How can we make this more composable?
   certsAndMaybeScriptWits <-
-      case cardanoEraStyle eon of
-        LegacyByronEra -> return []
-        ShelleyBasedEra sbe ->
-          shelleyBasedEraConstraints sbe $
-            sequence
-              [ fmap (,mSwit) (firstExceptT TxCmdReadTextViewFileError . newExceptT $
-                  readFileTextEnvelope AsCertificate (File certFile))
-              | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
-              ]
+    forEraInEon eon  (pure mempty) $ \sbe ->
+      shelleyBasedEraConstraints sbe $
+        sequence
+          [ fmap (,mSwit) (firstExceptT TxCmdReadTextViewFileError . newExceptT $
+              readFileTextEnvelope AsCertificate (File certFile))
+          | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
+          ]
 
   withdrawalsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
                                      $ readScriptWitnessFilesThruple eon withdrawals
@@ -314,9 +307,8 @@ runTransactionBuildRawCmd
   pparams <- forM mProtocolParamsFile $ \ppf ->
     firstExceptT TxCmdProtocolParamsError (readProtocolParameters ppf)
 
-  mLedgerPParams <- case cardanoEraStyle eon of
-    LegacyByronEra -> return Nothing
-    ShelleyBasedEra sbe ->
+  mLedgerPParams <-
+    forEraInEon eon (pure Nothing) $ \sbe ->
       forM pparams $ \pp ->
         firstExceptT TxCmdProtocolParamsConverstionError
          . hoistEither $ convertToLedgerProtocolParameters sbe pp
@@ -461,7 +453,6 @@ runTxBuildRaw era
 runTxBuild :: ()
   => ShelleyBasedEra era
   -> SocketPath
-  -> ConsensusModeParams CardanoMode
   -> NetworkId
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
@@ -499,7 +490,7 @@ runTxBuild :: ()
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
-    sbe socketPath consensusModeParams networkId mScriptValidity
+    sbe socketPath networkId mScriptValidity
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
@@ -537,7 +528,7 @@ runTxBuild
                                   , localNodeSocketPath = socketPath
                                   }
 
-  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr consensusModeParams))
+  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryCurrentEra)
     & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
     & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
@@ -930,8 +921,7 @@ runTransactionSubmitCmd
       } = do
   txFileOrPipe <- liftIO $ fileOrPipe txFile
   InAnyCardanoEra era tx <- lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdCddlError)
-  let eraInMode = toEraInCardanoMode era
-  let txInMode = TxInMode tx eraInMode
+  let txInMode = TxInMode era tx
       localNodeConnInfo = LocalNodeConnectInfo
                             { localConsensusModeParams = consensusModeParams
                             , localNodeNetworkId = networkId
@@ -943,7 +933,7 @@ runTransactionSubmitCmd
     Net.Tx.SubmitSuccess -> liftIO $ Text.putStrLn "Transaction successfully submitted."
     Net.Tx.SubmitFail reason ->
       case reason of
-        TxValidationErrorInMode err _eraInMode -> left . TxCmdTxSubmitError . Text.pack $ show err
+        TxValidationErrorInCardanoMode err -> left . TxCmdTxSubmitError . Text.pack $ show err
         TxValidationEraMismatch mismatchErr -> left $ TxCmdTxSubmitErrorEraMismatch mismatchErr
 
 -- ----------------------------------------------------------------------------
@@ -1014,14 +1004,13 @@ runTransactionCalculateMinValueCmd
       } = do
   pp <- firstExceptT TxCmdProtocolParamsError (readProtocolParameters protocolParamsFile)
   out <- toTxOutInAnyEra eon txOut
-  case cardanoEraStyle eon of
-    LegacyByronEra -> error "runTransactionCalculateMinValueCmd: Byron era not implemented yet"
-    ShelleyBasedEra sbe -> do
-      firstExceptT TxCmdPParamsErr . hoistEither
-        $ checkProtocolParameters sbe pp
-      pp' <- hoistEither . first TxCmdProtocolParamsConverstionError $ toLedgerPParams sbe pp
-      let minValue = calculateMinimumUTxO sbe out pp'
-      liftIO . IO.print $ minValue
+  -- TODO: shouldn't we just require shelley based era here instead of error-ing for byron?
+  forEraInEon eon (error "runTransactionCalculateMinValueCmd: Byron era not implemented yet") $ \sbe -> do
+    firstExceptT TxCmdPParamsErr . hoistEither
+      $ checkProtocolParameters sbe pp
+    pp' <- hoistEither . first TxCmdProtocolParamsConverstionError $ toLedgerPParams sbe pp
+    let minValue = calculateMinimumUTxO sbe out pp'
+    liftIO . IO.print $ minValue
 
 runTransactionPolicyIdCmd :: ()
   => Cmd.TransactionPolicyIdCmdArgs
@@ -1268,6 +1257,5 @@ onlyInShelleyBasedEras :: ()
   -> InAnyCardanoEra a
   -> ExceptT TxCmdError IO (InAnyShelleyBasedEra a)
 onlyInShelleyBasedEras notImplMsg (InAnyCardanoEra era x) =
-  case cardanoEraStyle era of
-    LegacyByronEra      -> left (TxCmdNotImplemented notImplMsg)
-    ShelleyBasedEra sbe -> shelleyBasedEraConstraints sbe $ return (InAnyShelleyBasedEra sbe x)
+  forEraInEon era (left $ TxCmdNotImplemented notImplMsg) $ \sbe ->
+    shelleyBasedEraConstraints sbe $ return (InAnyShelleyBasedEra sbe x)

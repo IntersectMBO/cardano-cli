@@ -142,7 +142,7 @@ createOpCertIntervalInfo c@(CurrentKesPeriod cKesPeriod)
 
 data QueryTipLocalState mode = QueryTipLocalState
   { era :: AnyCardanoEra
-  , eraHistory :: EraHistory CardanoMode
+  , eraHistory :: EraHistory
   , mSystemStart :: Maybe SystemStart
   , mChainTip :: Maybe ChainTip
   }

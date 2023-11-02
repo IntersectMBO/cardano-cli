@@ -1,5 +1,4 @@
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -14,10 +13,7 @@ module Cardano.CLI.Helpers
   , readCBOR
   , renderHelpersError
   , validateCBOR
-  , toEraInCardanoMode
   ) where
-
-import           Cardano.Api (CardanoEra (..), CardanoMode, EraInMode (..))
 
 import           Cardano.Chain.Block (decCBORABlockOrBoundary)
 import qualified Cardano.Chain.Delegation as Delegation
@@ -133,13 +129,3 @@ validateCBOR cborObject bs =
     CBORVoteByron -> do
       void $ decodeCBOR bs (fromCBOR :: Decoder s Update.Vote)
       Right "Valid Byron vote."
-
-toEraInCardanoMode :: CardanoEra era -> EraInMode era CardanoMode
-toEraInCardanoMode = \case
-  ByronEra   -> ByronEraInCardanoMode
-  ShelleyEra -> ShelleyEraInCardanoMode
-  AllegraEra -> AllegraEraInCardanoMode
-  MaryEra    -> MaryEraInCardanoMode
-  AlonzoEra  -> AlonzoEraInCardanoMode
-  BabbageEra -> BabbageEraInCardanoMode
-  ConwayEra  -> ConwayEraInCardanoMode

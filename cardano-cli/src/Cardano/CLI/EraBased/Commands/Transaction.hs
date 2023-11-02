@@ -84,7 +84,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
 data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   { eon                     :: !(ShelleyBasedEra era)
   , nodeSocketPath          :: !SocketPath
-  , consensusModeParams     :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams     :: !ConsensusModeParams
   , networkId               :: !NetworkId
   , mScriptValidity         :: !(Maybe ScriptValidity)
     -- ^ Mark script as expected to pass or fail validation
@@ -148,7 +148,7 @@ data TransactionSignWitnessCmdArgs = TransactionSignWitnessCmdArgs
 
 data TransactionSubmitCmdArgs = TransactionSubmitCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , txFile              :: !FilePath
   } deriving Show

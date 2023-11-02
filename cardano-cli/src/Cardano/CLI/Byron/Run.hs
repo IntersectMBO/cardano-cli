@@ -177,7 +177,7 @@ runSubmitTx nodeSocketPath network fp = do
 runGetTxId :: TxFile In -> ExceptT ByronClientCmdError IO ()
 runGetTxId fp = firstExceptT ByronCmdTxError $ do
     tx <- readByronTx fp
-    let txbody = getTxBody (ByronTx tx)
+    let txbody = getTxBody (ByronTx ByronEraOnlyByron tx)
         txid   = getTxId txbody
     liftIO $ BS.putStrLn $ serialiseToRawBytesHex txid
 

@@ -61,7 +61,7 @@ data QueryCmds era
 
 data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , genesisFp           :: !GenesisFile
   , poolColdVerKeyFile  :: !(VerificationKeyOrHashOrFile StakePoolKey)
@@ -72,42 +72,42 @@ data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
 
 data QueryProtocolParametersCmdArgs = QueryProtocolParametersCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data QueryConstitutionHashCmdArgs = QueryConstitutionHashCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data QueryTipCmdArgs = QueryTipCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data QueryStakePoolsCmdArgs = QueryStakePoolsCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data QueryStakeDistributionCmdArgs = QueryStakeDistributionCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , addr                :: !StakeAddress
   , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
@@ -115,7 +115,7 @@ data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
 
 data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , queryFilter         :: !QueryUTxOFilter
   , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
@@ -123,21 +123,21 @@ data QueryUTxOCmdArgs = QueryUTxOCmdArgs
 
 data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data QueryProtocolStateCmdArgs = QueryProtocolStateCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data QueryStakeSnapshotCmdArgs = QueryStakeSnapshotCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , allOrOnlyPoolIds    :: !(AllOrOnly [Hash StakePoolKey])
   , mOutFile            :: !(Maybe (File () Out))
@@ -145,7 +145,7 @@ data QueryStakeSnapshotCmdArgs = QueryStakeSnapshotCmdArgs
 
 data QueryKesPeriodInfoCmdArgs = QueryKesPeriodInfoCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , nodeOpCertFp        :: !(File () In) -- ^ Node operational certificate
   , mOutFile            :: !(Maybe (File () Out))
@@ -153,14 +153,14 @@ data QueryKesPeriodInfoCmdArgs = QueryKesPeriodInfoCmdArgs
 
 data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , poolIds             :: ![Hash StakePoolKey]
   } deriving (Generic, Show)
 
 data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , query               :: !TxMempoolQuery
   , mOutFile            :: !(Maybe (File () Out))
@@ -169,7 +169,7 @@ data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs
 
 data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
   { nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , utcTime             :: !UTCTime
   } deriving (Generic, Show)
@@ -177,7 +177,7 @@ data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
 data QueryNoArgCmdArgs era = QueryNoArgCmdArgs
   { eon                 :: !(ConwayEraOnwards era)
   , nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
@@ -185,7 +185,7 @@ data QueryNoArgCmdArgs era = QueryNoArgCmdArgs
 data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
   { eon                 :: !(ConwayEraOnwards era)
   , nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
   , mOutFile            :: !(Maybe (File () Out))
@@ -194,7 +194,7 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
 data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   { eon                 :: !(ConwayEraOnwards era)
   , nodeSocketPath      :: !SocketPath
-  , consensusModeParams :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
   , mOutFile            :: !(Maybe (File () Out))
@@ -203,7 +203,7 @@ data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
 data QueryCommitteeMembersStateCmdArgs era = QueryCommitteeMembersStateCmdArgs
   { eon                     :: !(ConwayEraOnwards era)
   , nodeSocketPath          :: !SocketPath
-  , consensusModeParams     :: !(ConsensusModeParams CardanoMode)
+  , consensusModeParams     :: !ConsensusModeParams
   , networkId               :: !NetworkId
   , committeeColdKeys       :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
   , committeeHotKeys        :: ![VerificationKeyOrHashOrFile CommitteeHotKey]

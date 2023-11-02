@@ -54,7 +54,7 @@ data LegacyTransactionCmds
   | TransactionBuildCmd
       SocketPath
       (EraInEon ShelleyBasedEra)
-      (ConsensusModeParams CardanoMode)
+      ConsensusModeParams
       NetworkId
       (Maybe ScriptValidity) -- ^ Mark script as expected to pass or fail validation
       (Maybe Word)
@@ -109,7 +109,7 @@ data LegacyTransactionCmds
       (File () Out)
   | TransactionSubmitCmd
       SocketPath
-      (ConsensusModeParams CardanoMode)
+      ConsensusModeParams
       NetworkId
       FilePath
   | TransactionPolicyIdCmd
