@@ -35,7 +35,7 @@ runGovernanceDRepCmds :: ()
   => GovernanceDRepCmds era
   -> ExceptT CmdError IO ()
 runGovernanceDRepCmds = \case
-  GovernanceDRepGenerateKeyCmd w vrf sgn ->
+  GovernanceDRepKeyGenCmd w vrf sgn ->
     runGovernanceDRepKeyGen w vrf sgn
       & firstExceptT CmdGovernanceCmdError
 

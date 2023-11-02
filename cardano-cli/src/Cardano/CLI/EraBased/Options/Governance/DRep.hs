@@ -52,7 +52,7 @@ pGovernanceDRepKeyGenCmd era = do
   pure
     $ subParser "key-gen"
     $ Opt.info
-        ( GovernanceDRepGenerateKeyCmd w
+        ( GovernanceDRepKeyGenCmd w
             <$> pVerificationKeyFileOut
             <*> pSigningKeyFileOut
         )
