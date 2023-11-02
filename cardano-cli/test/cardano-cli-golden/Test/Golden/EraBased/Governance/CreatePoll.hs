@@ -10,6 +10,7 @@ import           Hedgehog (Property)
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
+import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -30,8 +31,10 @@ hprop_golden_governanceCreatePoll =
     noteInputFile "test/cardano-cli-golden/files/input/governance/create/basic.json"
       >>= H.readFile
       >>= (H.===) stdout
-    H.assertFileOccurences 1 "GovernancePoll" pollFile
-    H.assertEndsWithSingleNewline pollFile
+
+    goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/polls/create-poll-out.json"
+
+    H.diffFileVsGoldenFile pollFile goldenFile
 
 hprop_golden_governanceCreateLongPoll :: Property
 hprop_golden_governanceCreateLongPoll =
@@ -50,5 +53,7 @@ hprop_golden_governanceCreateLongPoll =
     noteInputFile "test/cardano-cli-golden/files/input/governance/create/long-text.json"
       >>= H.readFile
       >>= (H.===) stdout
-    H.assertFileOccurences 1 "GovernancePoll" pollFile
-    H.assertEndsWithSingleNewline pollFile
+
+    goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/polls/create-poll-long-text-out.json"
+
+    H.diffFileVsGoldenFile pollFile goldenFile
