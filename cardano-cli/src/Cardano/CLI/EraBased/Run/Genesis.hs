@@ -57,6 +57,7 @@ import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
+import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
@@ -172,11 +173,10 @@ runGenesisKeyGenGenesisCmd
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
       $ writeLazyByteStringFile verificationKeyPath
-      $ textEnvelopeToJSON (Just vkeyDesc) vkey
+      $ textEnvelopeToJSON (Just Key.genesisVkeyDesc) vkey
   where
-    skeyDesc, vkeyDesc :: TextEnvelopeDescr
+    skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis Signing Key"
-    vkeyDesc = "Genesis Verification Key"
 
 
 runGenesisKeyGenDelegateCmd
@@ -197,7 +197,7 @@ runGenesisKeyGenDelegateCmd
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
       $ writeLazyByteStringFile verificationKeyPath
-      $ textEnvelopeToJSON (Just vkeyDesc) vkey
+      $ textEnvelopeToJSON (Just Key.genesisVkeyDelegateDesc) vkey
     firstExceptT GenesisCmdGenesisFileError
       . newExceptT
       $ writeLazyByteStringFile opCertCounterPath
@@ -206,9 +206,8 @@ runGenesisKeyGenDelegateCmd
           initialCounter
           (castVerificationKey vkey)  -- Cast to a 'StakePoolKey'
   where
-    skeyDesc, vkeyDesc, certCtrDesc :: TextEnvelopeDescr
+    skeyDesc, certCtrDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis delegate operator key"
-    vkeyDesc = "Genesis delegate operator key"
     certCtrDesc = "Next certificate issue number: "
                <> fromString (show initialCounter)
 

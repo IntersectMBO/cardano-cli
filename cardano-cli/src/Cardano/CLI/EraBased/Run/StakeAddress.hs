@@ -23,6 +23,7 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.StakeAddress
+import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.StakeAddressCmdError
@@ -67,7 +68,6 @@ runStakeAddressKeyGenCmd :: ()
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressKeyGenCmd fmt vkFp skFp = do
   let skeyDesc = "Stake Signing Key"
-  let vkeyDesc = "Stake Verification Key"
 
   skey <- liftIO $ generateSigningKey AsStakeKey
 
@@ -82,7 +82,7 @@ runStakeAddressKeyGenCmd fmt vkFp skFp = do
 
     case fmt of
       KeyOutputFormatTextEnvelope ->
-        newExceptT $ writeLazyByteStringFile vkFp $ textEnvelopeToJSON (Just vkeyDesc) vkey
+        newExceptT $ writeLazyByteStringFile vkFp $ textEnvelopeToJSON (Just Key.stakeVkeyDesc) vkey
       KeyOutputFormatBech32 ->
         newExceptT $ writeTextFile vkFp $ serialiseToBech32 vkey
 
