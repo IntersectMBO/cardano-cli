@@ -8,7 +8,7 @@ import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -27,4 +27,6 @@ hprop_golden_conwayTransactionAssembleWitness_SigningKey = propertyOnce $ H.modu
     , "--out-file", witnessTx
     ]
 
-  H.assertFileOccurences 1 "Witnessed Tx ConwayEra" witnessTx
+  goldenFile <- H.note "test/cardano-cli-golden/files/golden/conway/transaction/assemble_out"
+
+  H.diffFileVsGoldenFile witnessTx goldenFile
