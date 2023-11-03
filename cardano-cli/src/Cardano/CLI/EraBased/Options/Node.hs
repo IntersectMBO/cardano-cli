@@ -10,6 +10,7 @@ module Cardano.CLI.EraBased.Options.Node
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.EraBased.Commands.Node
+import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Options.Common
 
 import           Options.Applicative hiding (help, str)
@@ -71,38 +72,43 @@ pNodeCmds =
 
 pKeyGenOperator :: Parser (NodeCmds era)
 pKeyGenOperator =
-  NodeKeyGenCold
-    <$> pKeyOutputFormat
-    <*> pColdVerificationKeyFile
-    <*> pColdSigningKeyFile
-    <*> pOperatorCertIssueCounterFile
+  fmap Cmd.NodeKeyGenColdCmd $
+    Cmd.NodeKeyGenColdCmdArgs
+      <$> pKeyOutputFormat
+      <*> pColdVerificationKeyFile
+      <*> pColdSigningKeyFile
+      <*> pOperatorCertIssueCounterFile
 
 pKeyGenKES :: Parser (NodeCmds era)
 pKeyGenKES =
-  NodeKeyGenKES
-    <$> pKeyOutputFormat
-    <*> pVerificationKeyFileOut
-    <*> pSigningKeyFileOut
+  fmap Cmd.NodeKeyGenKESCmd $
+    Cmd.NodeKeyGenKESCmdArgs
+      <$> pKeyOutputFormat
+      <*> pVerificationKeyFileOut
+      <*> pSigningKeyFileOut
 
 pKeyGenVRF :: Parser (NodeCmds era)
 pKeyGenVRF =
-  NodeKeyGenVRF
-    <$> pKeyOutputFormat
-    <*> pVerificationKeyFileOut
-    <*> pSigningKeyFileOut
+  fmap Cmd.NodeKeyGenVRFCmd $
+    Cmd.NodeKeyGenVRFCmdArgs
+      <$> pKeyOutputFormat
+      <*> pVerificationKeyFileOut
+      <*> pSigningKeyFileOut
 
 pKeyHashVRF :: Parser (NodeCmds era)
 pKeyHashVRF =
-  NodeKeyHashVRF
-    <$> pVerificationKeyOrFileIn AsVrfKey
-    <*> pMaybeOutputFile
+  fmap Cmd.NodeKeyHashVRFCmd $
+      Cmd.NodeKeyHashVRFCmdArgs
+      <$> pVerificationKeyOrFileIn AsVrfKey
+      <*> pMaybeOutputFile
 
 pNewCounter :: Parser (NodeCmds era)
 pNewCounter =
-  NodeNewCounter
-    <$> pColdVerificationKeyOrFile Nothing
-    <*> pCounterValue
-    <*> pOperatorCertIssueCounterFile
+  fmap Cmd.NodeNewCounterCmd $
+    Cmd.NodeNewCounterCmdArgs
+      <$> pColdVerificationKeyOrFile Nothing
+      <*> pCounterValue
+      <*> pOperatorCertIssueCounterFile
 
 pCounterValue :: Parser Word
 pCounterValue =
@@ -114,9 +120,10 @@ pCounterValue =
 
 pIssueOpCert :: Parser (NodeCmds era)
 pIssueOpCert =
-  NodeIssueOpCert
-    <$> pKesVerificationKeyOrFile
-    <*> pColdSigningKeyFile
-    <*> pOperatorCertIssueCounterFile
-    <*> pKesPeriod
-    <*> pOutputFile
+  fmap Cmd.NodeIssueOpCertCmd $
+    Cmd.NodeIssueOpCertCmdArgs
+      <$> pKesVerificationKeyOrFile
+      <*> pColdSigningKeyFile
+      <*> pOperatorCertIssueCounterFile
+      <*> pKesPeriod
+      <*> pOutputFile

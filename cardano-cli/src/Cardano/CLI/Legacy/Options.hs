@@ -26,12 +26,14 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Environment
+import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Commands.Address
 import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Legacy.Commands.Governance
 import           Cardano.CLI.Legacy.Commands.Node
+import qualified Cardano.CLI.Legacy.Commands.Node as Cmd
 import           Cardano.CLI.Legacy.Commands.Query
 import           Cardano.CLI.Legacy.Commands.StakeAddress
 import           Cardano.CLI.Legacy.Commands.StakePool
@@ -471,38 +473,43 @@ pNodeCmds =
   where
     pKeyGenOperator :: Parser LegacyNodeCmds
     pKeyGenOperator =
-      NodeKeyGenCold
-        <$> pKeyOutputFormat
-        <*> pColdVerificationKeyFile
-        <*> pColdSigningKeyFile
-        <*> pOperatorCertIssueCounterFile
+      fmap Cmd.LegacyNodeKeyGenColdCmd $
+        Cmd.NodeKeyGenColdCmdArgs
+          <$> pKeyOutputFormat
+          <*> pColdVerificationKeyFile
+          <*> pColdSigningKeyFile
+          <*> pOperatorCertIssueCounterFile
 
     pKeyGenKES :: Parser LegacyNodeCmds
     pKeyGenKES =
-      NodeKeyGenKES
-        <$> pKeyOutputFormat
-        <*> pVerificationKeyFileOut
-        <*> pSigningKeyFileOut
+      fmap Cmd.LegacyNodeKeyGenKESCmd $
+        Cmd.NodeKeyGenKESCmdArgs
+          <$> pKeyOutputFormat
+          <*> pVerificationKeyFileOut
+          <*> pSigningKeyFileOut
 
     pKeyGenVRF :: Parser LegacyNodeCmds
     pKeyGenVRF =
-      NodeKeyGenVRF
-        <$> pKeyOutputFormat
-        <*> pVerificationKeyFileOut
-        <*> pSigningKeyFileOut
+      fmap Cmd.LegacyNodeKeyGenVRFCmd $
+        Cmd.NodeKeyGenVRFCmdArgs
+          <$> pKeyOutputFormat
+          <*> pVerificationKeyFileOut
+          <*> pSigningKeyFileOut
 
     pKeyHashVRF :: Parser LegacyNodeCmds
     pKeyHashVRF =
-      NodeKeyHashVRF
-        <$> pVerificationKeyOrFileIn AsVrfKey
-        <*> pMaybeOutputFile
+      fmap Cmd.LegacyNodeKeyHashVRFCmd $
+        Cmd.NodeKeyHashVRFCmdArgs
+          <$> pVerificationKeyOrFileIn AsVrfKey
+          <*> pMaybeOutputFile
 
     pNewCounter :: Parser LegacyNodeCmds
     pNewCounter =
-      NodeNewCounter
-        <$> pColdVerificationKeyOrFile Nothing
-        <*> pCounterValue
-        <*> pOperatorCertIssueCounterFile
+      fmap Cmd.LegacyNodeNewCounterCmd $
+        Cmd.NodeNewCounterCmdArgs
+          <$> pColdVerificationKeyOrFile Nothing
+          <*> pCounterValue
+          <*> pOperatorCertIssueCounterFile
 
     pCounterValue :: Parser Word
     pCounterValue =
@@ -514,12 +521,13 @@ pNodeCmds =
 
     pIssueOpCert :: Parser LegacyNodeCmds
     pIssueOpCert =
-      NodeIssueOpCert
-        <$> pKesVerificationKeyOrFile
-        <*> pColdSigningKeyFile
-        <*> pOperatorCertIssueCounterFile
-        <*> pKesPeriod
-        <*> pOutputFile
+      fmap Cmd.LegacyNodeIssueOpCertCmd $
+        Cmd.NodeIssueOpCertCmdArgs
+          <$> pKesVerificationKeyOrFile
+          <*> pColdSigningKeyFile
+          <*> pOperatorCertIssueCounterFile
+          <*> pKesPeriod
+          <*> pOutputFile
 
 pStakePoolCmds :: EnvCli -> Parser LegacyStakePoolCmds
 pStakePoolCmds  envCli =
