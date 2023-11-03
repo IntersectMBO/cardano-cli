@@ -851,7 +851,7 @@ writeStakeAddressInfo
         [ "address" .= addr
         , "delegation" .= mPoolId
         , "rewardAccountBalance" .= mBalance
-        , "delegationDeposit" .= mDeposit
+        , "deposit" .= mDeposit
         ]
       )
       merged
