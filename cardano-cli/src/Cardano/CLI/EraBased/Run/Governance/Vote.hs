@@ -21,12 +21,10 @@ import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
-import           Cardano.Ledger.Keys (coerceKeyRole)
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson.Encode.Pretty
-import           Data.Bifunctor
 import           Data.Function
 import qualified Data.Yaml.Pretty as Yaml
 
@@ -62,39 +60,25 @@ runGovernanceVoteCreateCmd
        let voteAnchor = Ledger.Anchor { Ledger.anchorUrl = url, Ledger.anchorDataHash = voteHash }
            VotingProcedure votingProcedureWithoutAnchor = createVotingProcedure eon voteChoice Nothing
            votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor { Ledger.vProcAnchor = Ledger.SJust voteAnchor }
-       return votingProcedureWithAnchor
+       pure votingProcedureWithAnchor
 
   shelleyBasedEraConstraints sbe $ do
-    case votingStakeCredentialSource of
+    voter <- firstExceptT  GovernanceVoteCmdReadVerificationKeyError $ case votingStakeCredentialSource of
       AnyDRepVerificationKeyOrHashOrFile stake -> do
-        DRepKeyHash h <- firstExceptT  GovernanceVoteCmdReadVerificationKeyError
-                                . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey stake
-        let vStakeCred = StakeCredentialByKey . StakeKeyHash $ coerceKeyRole h
-
-        votingCred <- hoistEither $ first GovernanceVoteCmdCredentialDecodeError $ toVotingCredential eon vStakeCred
-        let voter = Ledger.DRepVoter (unVotingCredential votingCred)
-            govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
-            votingProcedures = singletonVotingProcedures eon voter govActIdentifier (unVotingProcedure voteProcedure)
-        firstExceptT GovernanceVoteCmdWriteError . newExceptT $ writeFileTextEnvelope outFile Nothing votingProcedures
+        DRepKeyHash h <- newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey stake
+        pure $ Ledger.DRepVoter $ Ledger.KeyHashObj h
 
       AnyStakePoolVerificationKeyOrHashOrFile stake -> do
-        h <- firstExceptT GovernanceVoteCmdReadVerificationKeyError
-              . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
-
-        let voter = Ledger.StakePoolVoter (unStakePoolKeyHash h)
-            govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
-            votingProcedures = singletonVotingProcedures eon voter govActIdentifier (unVotingProcedure voteProcedure)
-        firstExceptT GovernanceVoteCmdWriteError . newExceptT $ writeFileTextEnvelope outFile Nothing votingProcedures
+        StakePoolKeyHash h <- newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
+        pure $ Ledger.StakePoolVoter h
 
       AnyCommitteeHotVerificationKeyOrHashOrFile stake -> do
-        CommitteeHotKeyHash h <- firstExceptT GovernanceVoteCmdReadVerificationKeyError
-                                  . newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey stake
-        let vStakeCred = StakeCredentialByKey . StakeKeyHash $ coerceKeyRole h
-        votingCred <- hoistEither $ first GovernanceVoteCmdCredentialDecodeError $ toVotingCredential eon vStakeCred
-        let voter = Ledger.CommitteeVoter (Ledger.coerceKeyRole (unVotingCredential votingCred)) -- TODO Conway - remove coerceKeyRole
-            govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
-            votingProcedures = singletonVotingProcedures eon voter govActIdentifier (unVotingProcedure voteProcedure)
-        firstExceptT GovernanceVoteCmdWriteError . newExceptT $ writeFileTextEnvelope outFile Nothing votingProcedures
+        CommitteeHotKeyHash h <-  newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey stake
+        pure $ Ledger.CommitteeVoter $ Ledger.KeyHashObj h
+
+    let govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
+        votingProcedures = singletonVotingProcedures eon voter govActIdentifier (unVotingProcedure voteProcedure)
+    firstExceptT GovernanceVoteCmdWriteError . newExceptT $ writeFileTextEnvelope outFile Nothing votingProcedures
 
 runGovernanceVoteViewCmd :: ()
   => Cmd.GovernanceVoteViewCmdArgs era

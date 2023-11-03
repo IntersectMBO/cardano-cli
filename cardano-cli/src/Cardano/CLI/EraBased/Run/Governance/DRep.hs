@@ -113,8 +113,7 @@ runGovernanceDRepRegistrationCertificateCmd
     . newExceptT
     $ readVerificationKeyOrHashOrFile AsDRepKey drepVkeyHashSource
   let drepCred = Ledger.KeyHashObj $ conwayEraOnwardsConstraints w drepKeyHash
-      votingCredential = VotingCredential drepCred
-      req = DRepRegistrationRequirements w votingCredential deposit
+      req = DRepRegistrationRequirements w drepCred deposit
       registrationCert = makeDrepRegistrationCertificate req mAnchor
       description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
 
@@ -138,7 +137,7 @@ runGovernanceDRepRetirementCertificateCmd
     DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
       . newExceptT
       $ readVerificationKeyOrHashOrFile AsDRepKey vkeyHashSource
-    makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w (VotingCredential $ KeyHashObj drepKeyHash) deposit)
+    makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w (KeyHashObj drepKeyHash) deposit)
       & writeFileTextEnvelope outFile (Just genKeyDelegCertDesc)
       & firstExceptT GovernanceCmdTextEnvWriteError . newExceptT
 

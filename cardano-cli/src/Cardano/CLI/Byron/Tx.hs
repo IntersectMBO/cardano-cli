@@ -244,12 +244,12 @@ nodeSubmitTx nodeSocketPath network gentx = do
             localNodeNetworkId = network,
             localConsensusModeParams = CardanoModeParams (EpochSlots 21600)
           }
-    res <- liftIO $ submitTxToNodeLocal connctInfo (TxInByronSpecial gentx ByronEraInCardanoMode)
+    res <- liftIO $ submitTxToNodeLocal connctInfo (TxInByronSpecial ByronEraOnlyByron gentx)
     case res of
       Net.Tx.SubmitSuccess -> liftIO $ Text.putStrLn "Transaction successfully submitted."
       Net.Tx.SubmitFail reason ->
         case reason of
-          TxValidationErrorInMode err _eraInMode -> left . ByronTxSubmitError . Text.pack $ show err
+          TxValidationErrorInCardanoMode err -> left . ByronTxSubmitError . Text.pack $ show err
           TxValidationEraMismatch mismatchErr -> left $ ByronTxSubmitErrorEraMismatch mismatchErr
 
     return ()

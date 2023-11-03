@@ -144,15 +144,12 @@ runQueryConstitutionHashCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   result <- liftIO $ executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-    AnyCardanoEra era <- lift (determineEraExpr consensusModeParams)
-      & onLeft (left . QueryCmdUnsupportedNtcVersion)
+    AnyCardanoEra era <- lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
     sbe <- requireShelleyBasedEra era
       & onNothing (left QueryCmdByronEra)
 
-    let eraInMode = toEraInCardanoMode era
-
-    lift (shelleyBasedEraConstraints sbe (queryConstitutionHash eraInMode sbe))
+    lift (shelleyBasedEraConstraints sbe (queryConstitutionHash sbe))
       & onLeft (left . QueryCmdUnsupportedNtcVersion)
       & onLeft (left . QueryCmdEraMismatch)
 
@@ -180,15 +177,11 @@ runQueryProtocolParametersCmd
     , Cmd.mOutFile
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
-  AnyCardanoEra era <- firstExceptT QueryCmdAcquireFailure $ newExceptT $ determineEra consensusModeParams localNodeConnInfo
-  sbe <- case cardanoEraStyle era of
-            LegacyByronEra -> left QueryCmdByronEra
-            ShelleyBasedEra sbe -> return sbe
-  let eraInMode = toEraInCardanoMode era
-
-  let qInMode = QueryInEra eraInMode $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+  AnyCardanoEra era <- firstExceptT QueryCmdAcquireFailure $ newExceptT $ determineEra localNodeConnInfo
+  sbe <- forEraInEon @ShelleyBasedEra era (left QueryCmdByronEra) pure
+  let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
   pp <- firstExceptT QueryCmdConvenienceError
-          . newExceptT $ executeQueryAnyMode era localNodeConnInfo qInMode
+          . newExceptT $ executeQueryAnyMode localNodeConnInfo qInMode
   writeProtocolParameters sbe mOutFile pp
   where
     -- TODO: Conway era - use ledger PParams JSON
@@ -233,7 +226,7 @@ relativeTimeSeconds (RelativeTime dt) = floor (nominalDiffTimeToSeconds dt)
 -- | Query the chain tip via the chain sync protocol.
 --
 -- This is a fallback query to support older versions of node to client protocol.
-queryChainTipViaChainSync :: MonadIO m => LocalNodeConnectInfo mode -> m ChainTip
+queryChainTipViaChainSync :: MonadIO m => LocalNodeConnectInfo -> m ChainTip
 queryChainTipViaChainSync localNodeConnInfo = do
   liftIO . T.hPutStrLn IO.stderr $
     "Warning: Local header state query unavailable. Falling back to chain sync query"
@@ -337,15 +330,13 @@ runQueryUTxOCmd
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-        AnyCardanoEra era <- lift (determineEraExpr consensusModeParams)
+        AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eraInMode = toEraInCardanoMode era
-
-        utxo <- lift (queryUtxo eraInMode sbe queryFilter)
+        utxo <- lift (queryUtxo sbe queryFilter)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -373,17 +364,15 @@ runQueryKesPeriodInfoCmd
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-        AnyCardanoEra era <- lift (determineEraExpr consensusModeParams)
+        AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eraInMode = toEraInCardanoMode era
-
         -- We check that the KES period specified in the operational certificate is correct
         -- based on the KES period defined in the genesis parameters and the current slot number
-        gParams <- lift (queryGenesisParameters eraInMode sbe)
+        gParams <- lift (queryGenesisParameters sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -394,7 +383,7 @@ runQueryKesPeriodInfoCmd
 
         -- We get the operational certificate counter from the protocol state and check that
         -- it is equivalent to what we have on disk.
-        ptclState <- lift (queryProtocolState eraInMode sbe)
+        ptclState <- lift (queryProtocolState sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -642,15 +631,13 @@ runQueryPoolStateCmd
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-        AnyCardanoEra era <- lift (determineEraExpr consensusModeParams)
+        AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eraInMode = toEraInCardanoMode era
-
-        result <- lift (queryPoolState eraInMode sbe $ Just $ Set.fromList poolIds)
+        result <- lift (queryPoolState sbe $ Just $ Set.fromList poolIds)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -676,11 +663,9 @@ runQueryTxMempoolCmd
 
   localQuery <- case query of
       TxMempoolQueryTxExists tx -> do
-        AnyCardanoEra era <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (determineEraExpr consensusModeParams))
+        AnyCardanoEra era <- lift (determineEra localNodeConnInfo)
           & onLeft (left . QueryCmdAcquireFailure)
-          & onLeft (left . QueryCmdUnsupportedNtcVersion)
-        let eraInMode = toEraInCardanoMode era
-        pure $ LocalTxMonitoringQueryTx $ TxIdInMode tx eraInMode
+        pure $ LocalTxMonitoringQueryTx $ TxIdInMode era tx
       TxMempoolQueryNextTx -> pure LocalTxMonitoringSendNextTx
       TxMempoolQueryInfo -> pure LocalTxMonitoringMempoolInformation
 
@@ -722,19 +707,17 @@ runQueryStakeSnapshotCmd
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-        AnyCardanoEra era <- lift (determineEraExpr consensusModeParams)
+        AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eraInMode = toEraInCardanoMode era
-
         let poolFilter = case allOrOnlyPoolIds of
               All -> Nothing
               Only poolIds -> Just $ Set.fromList poolIds
 
-        result <- lift (queryStakeSnapshot eraInMode sbe poolFilter)
+        result <- lift (queryStakeSnapshot sbe poolFilter)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -758,15 +741,13 @@ runQueryLedgerStateCmd
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-        AnyCardanoEra era <- lift (determineEraExpr consensusModeParams)
+        AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eraInMode = toEraInCardanoMode era
-
-        result <- lift (queryDebugLedgerState eraInMode sbe)
+        result <- lift (queryDebugLedgerState sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -790,15 +771,13 @@ runQueryProtocolStateCmd
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-        AnyCardanoEra era <- lift (determineEraExpr consensusModeParams)
+        AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eraInMode = toEraInCardanoMode era
-
-        result <- lift (queryProtocolState eraInMode sbe)
+        result <- lift (queryProtocolState sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -825,21 +804,19 @@ runQueryStakeAddressInfoCmd
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-        AnyCardanoEra era <- lift (determineEraExpr consensusModeParams)
+        AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eraInMode = toEraInCardanoMode era
-
         let stakeAddr = Set.singleton $ fromShelleyStakeCredential addr
 
-        (stakeRewardAccountBalances, stakePools) <- lift (queryStakeAddresses eraInMode sbe stakeAddr networkId)
+        (stakeRewardAccountBalances, stakePools) <- lift (queryStakeAddresses sbe stakeAddr networkId)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-        stakeDelegDeposits <- lift (queryStakeDelegDeposits eraInMode sbe stakeAddr)
+        stakeDelegDeposits <- lift (queryStakeDelegDeposits sbe stakeAddr)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1091,12 +1068,10 @@ runQueryStakePoolsCmd
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT @QueryCmdError $ do
         AnyCardanoEra era <- lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
-        let eraInMode = toEraInCardanoMode era
-
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        poolIds <- lift (queryStakePools eraInMode sbe)
+        poolIds <- lift (queryStakePools sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdEraMismatch)
 
@@ -1131,15 +1106,13 @@ runQueryStakeDistributionCmd
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-        AnyCardanoEra era <- lift (determineEraExpr consensusModeParams)
+        AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eraInMode = toEraInCardanoMode era
-
-        result <- lift (queryStakeDistribution eraInMode sbe)
+        result <- lift (queryStakeDistribution sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1211,19 +1184,17 @@ runQueryLeadershipScheduleCmd
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
-        AnyCardanoEra era <- lift (determineEraExpr consensusModeParams)
+        AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        let eraInMode = toEraInCardanoMode era
-
-        pparams <- lift (queryProtocolParameters eraInMode sbe)
+        pparams <- lift (queryProtocolParameters sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-        ptclState <- lift (queryProtocolState eraInMode sbe)
+        ptclState <- lift (queryProtocolState sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1232,13 +1203,13 @@ runQueryLeadershipScheduleCmd
 
         let eInfo = toEpochInfo eraHistory
 
-        curentEpoch <- lift (queryEpoch eraInMode sbe)
+        curentEpoch <- lift (queryEpoch sbe)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
         case whichSchedule of
           CurrentEpoch -> do
-            serCurrentEpochState <- lift (queryPoolDistribution eraInMode sbe (Just (Set.singleton poolid)))
+            serCurrentEpochState <- lift (queryPoolDistribution sbe (Just (Set.singleton poolid)))
               & onLeft (left . QueryCmdUnsupportedNtcVersion)
               & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1259,7 +1230,7 @@ runQueryLeadershipScheduleCmd
               writeSchedule mOutFile eInfo shelleyGenesis schedule
 
           NextEpoch -> do
-            serCurrentEpochState <- lift (queryCurrentEpochState eraInMode sbe)
+            serCurrentEpochState <- lift (queryCurrentEpochState sbe)
               & onLeft (left . QueryCmdUnsupportedNtcVersion)
               & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1356,11 +1327,8 @@ runQueryConstitution
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
       sbe = conwayEraOnwardsToShelleyBasedEra eon
-      cEra = conwayEraOnwardsToCardanoEra eon
 
-  let eraInMode = toEraInCardanoMode cEra
-
-  constitution <- runQuery localNodeConnInfo $ queryConstitution eraInMode sbe
+  constitution <- runQuery localNodeConnInfo $ queryConstitution sbe
   writeOutput mOutFile constitution
 
 runQueryGovState
@@ -1376,11 +1344,8 @@ runQueryGovState
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
       sbe = conwayEraOnwardsToShelleyBasedEra eon
-      cEra = conwayEraOnwardsToCardanoEra eon
 
-  let eraInMode = toEraInCardanoMode cEra
-
-  govState <- runQuery localNodeConnInfo $ queryGovState eraInMode sbe
+  govState <- runQuery localNodeConnInfo $ queryGovState sbe
   writeOutput mOutFile govState
 
 runQueryDRepState
@@ -1397,13 +1362,10 @@ runQueryDRepState
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
       sbe = conwayEraOnwardsToShelleyBasedEra eon
-      cEra = conwayEraOnwardsToCardanoEra eon
-
-  let eraInMode = toEraInCardanoMode cEra
 
   drepCreds <- Set.fromList <$> mapM (firstExceptT QueryCmdDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
 
-  drepState <- runQuery localNodeConnInfo $ queryDRepState eraInMode sbe drepCreds
+  drepState <- runQuery localNodeConnInfo $ queryDRepState sbe drepCreds
   writeOutput mOutFile $
     second drepStateToJson <$> Map.assocs drepState
   where
@@ -1427,16 +1389,13 @@ runQueryDRepStakeDistribution
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
       sbe = conwayEraOnwardsToShelleyBasedEra eon
-      cEra = conwayEraOnwardsToCardanoEra eon
 
   let drepFromVrfKey = fmap Ledger.DRepCredential
                      . firstExceptT QueryCmdDRepKeyError
                      . getDRepCredentialFromVerKeyHashOrFile
   dreps <- Set.fromList <$> mapM drepFromVrfKey drepKeys
 
-  let eraInMode = toEraInCardanoMode cEra
-
-  drepStakeDistribution <- runQuery localNodeConnInfo $ queryDRepStakeDistribution eraInMode sbe dreps
+  drepStakeDistribution <- runQuery localNodeConnInfo $ queryDRepStakeDistribution sbe dreps
   writeOutput mOutFile $
     Map.assocs drepStakeDistribution
 
@@ -1456,7 +1415,6 @@ runQueryCommitteeMembersState
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
       sbe = conwayEraOnwardsToShelleyBasedEra eon
-      cEra = conwayEraOnwardsToCardanoEra eon
 
   let coldKeysFromVerKeyHashOrFile =
         firstExceptT QueryCmdCommitteeColdKeyError . getCommitteeColdCredentialFromVerKeyHashOrFile
@@ -1466,17 +1424,15 @@ runQueryCommitteeMembersState
         firstExceptT QueryCmdCommitteeHotKeyError . getCommitteeHotCredentialFromVerKeyHashOrFile
   hotKeys <- Set.fromList <$> mapM hotKeysFromVerKeyHashOrFile hotCredKeys
 
-  let eraInMode = toEraInCardanoMode cEra
-
   committeeState <- runQuery localNodeConnInfo $
-    queryCommitteeMembersState eraInMode sbe coldKeys hotKeys (Set.fromList memberStatuses)
+    queryCommitteeMembersState sbe coldKeys hotKeys (Set.fromList memberStatuses)
   writeOutput mOutFile $ A.toJSON committeeState
 
-runQuery :: LocalNodeConnectInfo mode
+runQuery :: LocalNodeConnectInfo
          -> LocalStateQueryExpr
-             (BlockInMode mode)
+             BlockInMode
              ChainPoint
-             (QueryInMode mode)
+             QueryInMode
              ()
              IO
              (Either
@@ -1502,8 +1458,8 @@ writeOutput mOutFile content = case mOutFile of
 
 -- Helpers
 
-toEpochInfo :: EraHistory CardanoMode -> EpochInfo (Either Text)
-toEpochInfo (EraHistory _ interpreter) =
+toEpochInfo :: EraHistory -> EpochInfo (Either Text)
+toEpochInfo (EraHistory interpreter) =
   hoistEpochInfo (first (Text.pack . show) . runExcept)
     $ Consensus.interpreterToEpochInfo interpreter
 
@@ -1517,8 +1473,8 @@ newtype Tentative a = Tentative { tentative :: a } deriving (Eq, Show)
 -- This interpreter will compute accurate values into the future as long as a
 -- a hard fork does not happen in the intervening time.  Those values are thus
 -- "tentative" because they can change in the event of a hard fork.
-toTentativeEpochInfo :: EraHistory CardanoMode -> Tentative (EpochInfo (Either Text))
-toTentativeEpochInfo (EraHistory _ interpreter) =
+toTentativeEpochInfo :: EraHistory -> Tentative (EpochInfo (Either Text))
+toTentativeEpochInfo (EraHistory interpreter) =
   Tentative
     $ hoistEpochInfo (first (Text.pack . show) . runExcept)
     $ Consensus.interpreterToEpochInfo (Consensus.unsafeExtendSafeZone interpreter)
@@ -1527,7 +1483,7 @@ toTentativeEpochInfo (EraHistory _ interpreter) =
 -- | Get slot number for timestamp, or an error if the UTC timestamp is before 'SystemStart' or after N+1 era
 utcTimeToSlotNo
   :: SocketPath
-  -> ConsensusModeParams CardanoMode
+  -> ConsensusModeParams
   -> NetworkId
   -> UTCTime
   -> ExceptT QueryCmdError IO SlotNo

@@ -67,7 +67,7 @@ runLegacyTransactionCmds = \case
 runLegacyTransactionBuildCmd :: ()
   => SocketPath
   -> EraInEon ShelleyBasedEra
-  -> ConsensusModeParams CardanoMode
+  -> ConsensusModeParams
   -> NetworkId
   -> Maybe ScriptValidity
   -> Maybe Word -- ^ Override the required number of tx witnesses
@@ -185,7 +185,7 @@ runLegacyTransactionSignCmd
 
 runLegacyTransactionSubmitCmd :: ()
   => SocketPath
-  -> ConsensusModeParams CardanoMode
+  -> ConsensusModeParams
   -> NetworkId
   -> FilePath
   -> ExceptT TxCmdError IO ()

@@ -3,7 +3,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Cardano.CLI.EraBased.Run.Governance.Actions
@@ -12,7 +11,6 @@ module Cardano.CLI.EraBased.Run.Governance.Actions
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Ledger (coerceKeyRole)
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
@@ -302,18 +300,10 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
     )
     sbe
 
-
-readStakeKeyHash :: AnyStakeIdentifier -> ExceptT GovernanceActionsError IO (Hash StakeKey)
-readStakeKeyHash anyStake =
-  case anyStake of
-    AnyStakeKey stake ->
-      firstExceptT GovernanceActionsCmdReadFileError
-        . newExceptT $ readVerificationKeyOrHashOrFile AsStakeKey stake
-
-    AnyStakePoolKey stake -> do
-      StakePoolKeyHash t <- firstExceptT GovernanceActionsCmdReadFileError
-                              . newExceptT $ readVerificationKeyOrHashOrFile AsStakePoolKey stake
-      return $ StakeKeyHash $ coerceKeyRole t
+readStakeKeyHash :: VerificationKeyOrHashOrFile StakeKey -> ExceptT GovernanceActionsError IO (Hash StakeKey)
+readStakeKeyHash stake =
+  firstExceptT GovernanceActionsCmdReadFileError
+    . newExceptT $ readVerificationKeyOrHashOrFile AsStakeKey stake
 
 runGovernanceActionTreasuryWithdrawalCmd :: ()
   => GovernanceActionTreasuryWithdrawalCmdArgs era
@@ -341,10 +331,9 @@ runGovernanceActionTreasuryWithdrawalCmd
 
   returnKeyHash <- readStakeKeyHash returnAddr
 
-  withdrawals <- sequence
-    [ (networkId, , ll) <$> stakeIdentifiertoCredential stakeIdentifier
-    | (stakeIdentifier,ll) <- treasuryWithdrawal
-    ]
+  withdrawals <- forM treasuryWithdrawal $ \(verificationKeyOrHashOrFile, lovelace) -> do
+    stakeKeyHash <- readStakeKeyHash verificationKeyOrHashOrFile
+    pure (networkId, StakeCredentialByKey stakeKeyHash, lovelace)
 
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
       treasuryWithdrawals = TreasuryWithdrawal withdrawals
@@ -353,16 +342,3 @@ runGovernanceActionTreasuryWithdrawalCmd
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
     $ writeFileTextEnvelope outFile Nothing proposal
-
-stakeIdentifiertoCredential :: AnyStakeIdentifier -> ExceptT GovernanceActionsError IO StakeCredential
-stakeIdentifiertoCredential anyStake =
-  case anyStake of
-    AnyStakeKey stake -> do
-      hash <- firstExceptT GovernanceActionsCmdReadFileError
-                . newExceptT $ readVerificationKeyOrHashOrFile AsStakeKey stake
-      return $ StakeCredentialByKey hash
-    AnyStakePoolKey stake -> do
-      StakePoolKeyHash t <- firstExceptT GovernanceActionsCmdReadFileError
-                              . newExceptT $ readVerificationKeyOrHashOrFile AsStakePoolKey stake
-      -- TODO: Conway era - don't use coerceKeyRole
-      return . StakeCredentialByKey $ StakeKeyHash $ coerceKeyRole t
