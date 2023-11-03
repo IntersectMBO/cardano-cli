@@ -1,5 +1,51 @@
 # Changelog for cardano-cli
 
+## 8.14.0.0
+
+- Command types for `node` commands
+  (improvement)
+  [PR 428](https://github.com/input-output-hk/cardano-cli/pull/428)
+
+- Upgrade cardano-api to 8.30 
+  https://github.com/input-output-hk/cardano-api/blob/main/cardano-api/CHANGELOG.md#83000
+  (breaking, improvement)
+  [PR 430](https://github.com/input-output-hk/cardano-cli/pull/430)
+
+- Extended to non-extended key: write description field in all cases
+  (improvement)
+  [PR 416](https://github.com/input-output-hk/cardano-cli/pull/416)
+
+- Split governance `MIRTransferConstructor`
+  Add `babbage governance create-genesis-key-delegation-certificate`
+  (feature, improvement)
+  [PR 427](https://github.com/input-output-hk/cardano-cli/pull/427)
+
+- Command argument types for `drep` commands
+  (improvement)
+  [PR 425](https://github.com/input-output-hk/cardano-cli/pull/425)
+
+- Command arguments types for stake-pool commands
+  (improvement)
+  [PR 419](https://github.com/input-output-hk/cardano-cli/pull/419)
+
+- Command argument types for poll commands
+  (compatible, improvement)
+  [PR 414](https://github.com/input-output-hk/cardano-cli/pull/414)
+
+- Support converting a drep extended key to its non-extended version
+  (feature, compatible)
+  [PR 377](https://github.com/input-output-hk/cardano-cli/pull/377)
+
+- Update cardano-ping to 0.2.0.7, so that `-j` is honored more often in ping command:
+  the output of the info `network_rtt`, `handshake_rtt`, `negotiated_version`, and `queried_versions`
+  is now written in JSON when `-j` is passed.
+  (compatible)
+  [PR 411](https://github.com/input-output-hk/cardano-cli/pull/411)
+
+- Remove `ShelleyMode` and `ByronMode`
+  (breaking)
+  [PR 404](https://github.com/input-output-hk/cardano-cli/pull/404)
+
 ## 8.13.0.0
 
 - Updated cardano-ledger, ouroboros-consensus and cardano-api packages
