@@ -119,7 +119,10 @@ friendlyProposalImpl
     , "anchor" .= pProcAnchor
     ]
 
-friendlyTxImpl :: IsCardanoEra era => CardanoEra era -> Tx era -> [Aeson.Pair]
+friendlyTxImpl :: ()
+  => CardanoEra era
+  -> Tx era
+  -> [Aeson.Pair]
 friendlyTxImpl era (Tx body witnesses) =
   ("witnesses" .= map friendlyKeyWitness witnesses) : friendlyTxBodyImpl era body
 
@@ -133,7 +136,10 @@ friendlyKeyWitness =
       ShelleyKeyWitness _era (Shelley.WitVKey key signature) ->
         ["key" .= textShow key, "signature" .= textShow signature]
 
-friendlyTxBodyImpl :: IsCardanoEra era => CardanoEra era -> TxBody era -> [Aeson.Pair]
+friendlyTxBodyImpl :: ()
+  => CardanoEra era
+  -> TxBody era
+  -> [Aeson.Pair]
 friendlyTxBodyImpl
   era
   (TxBody
@@ -155,6 +161,7 @@ friendlyTxBodyImpl
        ,txValidityUpperBound
       , txWithdrawals
       }) =
+  cardanoEraConstraints era
     [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
     , "certificates" .= forEraInEon era Null (`friendlyCertificates` txCertificates)
     , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
@@ -163,10 +170,10 @@ friendlyTxBodyImpl
     , "inputs" .= friendlyInputs txIns
     , "metadata" .= friendlyMetadata txMetadata
     , "mint" .= friendlyMintValue txMintValue
-    , "outputs" .= map friendlyTxOut txOuts
+    , "outputs" .= map (friendlyTxOut era) txOuts
     , "reference inputs" .= friendlyReferenceInputs txInsReference
     , "total collateral" .= friendlyTotalCollateral txTotalCollateral
-    , "return collateral" .= friendlyReturnCollateral txReturnCollateral
+    , "return collateral" .= friendlyReturnCollateral era txReturnCollateral
     , "required signers (payment key hashes needed for scripts)" .=
         friendlyExtraKeyWits txExtraKeyWits
     , "update proposal" .= friendlyUpdateProposal txUpdateProposal
@@ -178,10 +185,13 @@ friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
 friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null
 friendlyTotalCollateral (TxTotalCollateral _ coll) = toJSON coll
 
-friendlyReturnCollateral
-  :: IsCardanoEra era => TxReturnCollateral CtxTx era -> Aeson.Value
-friendlyReturnCollateral TxReturnCollateralNone = Aeson.Null
-friendlyReturnCollateral (TxReturnCollateral _ collOut) = friendlyTxOut collOut
+friendlyReturnCollateral :: ()
+  => CardanoEra era
+  -> TxReturnCollateral CtxTx era
+  -> Aeson.Value
+friendlyReturnCollateral era = \case
+  TxReturnCollateralNone -> Aeson.Null
+  TxReturnCollateral _ collOut -> friendlyTxOut era collOut
 
 friendlyExtraKeyWits :: TxExtraKeyWitnesses era -> Aeson.Value
 friendlyExtraKeyWits = \case
@@ -227,9 +237,9 @@ friendlyStakeAddress (StakeAddress net cred) =
   , friendlyStakeCredential cred
   ]
 
-friendlyTxOut :: IsCardanoEra era => TxOut CtxTx era -> Aeson.Value
-friendlyTxOut (TxOut addr amount mdatum script) =
-  object $
+friendlyTxOut :: CardanoEra era -> TxOut CtxTx era -> Aeson.Value
+friendlyTxOut era (TxOut addr amount mdatum script) =
+  cardanoEraConstraints era $ object $
     case addr of
       AddressInEra ByronAddressInAnyEra byronAdr ->
         [ "address era" .= String "Byron"
