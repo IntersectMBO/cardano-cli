@@ -12,6 +12,7 @@ import           Test.Cardano.CLI.Util
 import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
+import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -21,8 +22,8 @@ txOut = "addr1q94cxl99qvtwunsqqv6g9mgj3zrawtpt4edsgwxkjtwpy5dsezcht90tmwfur7t5hc
 txIn :: String
 txIn = "2392d2b1200b5139fe555c81261697b29a8ccf561c5c783d46e78a479d977053#0"
 
-hprop_golden_shelleyTransactionBuild :: Property
-hprop_golden_shelleyTransactionBuild =
+hprop_golden_shelley_transaction_build :: Property
+hprop_golden_shelley_transaction_build =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
@@ -34,13 +35,12 @@ hprop_golden_shelleyTransactionBuild =
       , "--tx-body-file", txBodyOutFile
       ]
 
-    H.assertFileOccurences 1 "Tx MaryEra" txBodyOutFile
+    goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/build-raw-tx-body-out-1.json"
+    H.diffFileVsGoldenFile txBodyOutFile goldenFile
 
-    H.assertEndsWithSingleNewline txBodyOutFile
 
-
-hprop_golden_shelleyTransactionBuild_CertificateScriptWitnessed :: Property
-hprop_golden_shelleyTransactionBuild_CertificateScriptWitnessed =
+hprop_golden_shelley_transaction_build_certificate_script_witnessed :: Property
+hprop_golden_shelley_transaction_build_certificate_script_witnessed =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     let deregcert = "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_deregistration_certificate"
         scriptWit = "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
@@ -56,12 +56,11 @@ hprop_golden_shelleyTransactionBuild_CertificateScriptWitnessed =
       , "--tx-body-file", txBodyOutFile
       ]
 
-    H.assertFileOccurences 1 "Tx MaryEra" txBodyOutFile
+    goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/build-raw-tx-body-out-2.json"
+    H.diffFileVsGoldenFile txBodyOutFile goldenFile
 
-    H.assertEndsWithSingleNewline txBodyOutFile
-
-hprop_golden_shelleyTransactionBuild_Minting :: Property
-hprop_golden_shelleyTransactionBuild_Minting =
+hprop_golden_shelley_transaction_build_minting :: Property
+hprop_golden_shelley_transaction_build_minting =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     let scriptWit = "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
 
@@ -87,12 +86,11 @@ hprop_golden_shelleyTransactionBuild_Minting =
       , "--tx-body-file", txBodyOutFile
       ]
 
-    H.assertFileOccurences 1 "Tx MaryEra" txBodyOutFile
+    goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/build-raw-tx-body-out-3.json"
+    H.diffFileVsGoldenFile txBodyOutFile goldenFile
 
-    H.assertEndsWithSingleNewline txBodyOutFile
-
-hprop_golden_shelleyTransactionBuild_WithdrawalScriptWitnessed :: Property
-hprop_golden_shelleyTransactionBuild_WithdrawalScriptWitnessed =
+hprop_golden_shelley_transaction_build_withdrawal_script_witnessed :: Property
+hprop_golden_shelley_transaction_build_withdrawal_script_witnessed =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
@@ -110,12 +108,11 @@ hprop_golden_shelleyTransactionBuild_WithdrawalScriptWitnessed =
       , "--tx-body-file", txBodyOutFile
       ]
 
-    H.assertFileOccurences 1 "Tx MaryEra" txBodyOutFile
+    goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/build-raw-tx-body-out-4.json"
+    H.diffFileVsGoldenFile txBodyOutFile goldenFile
 
-    H.assertEndsWithSingleNewline txBodyOutFile
-
-hprop_golden_shelleyTransactionBuild_TxInScriptWitnessed :: Property
-hprop_golden_shelleyTransactionBuild_TxInScriptWitnessed =
+hprop_golden_shelley_transaction_build_txin_script_witnessed :: Property
+hprop_golden_shelley_transaction_build_txin_script_witnessed =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     let scriptWit = "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
 
@@ -129,12 +126,11 @@ hprop_golden_shelleyTransactionBuild_TxInScriptWitnessed =
       , "--tx-body-file", txBodyOutFile
       ]
 
-    H.assertFileOccurences 1 "Tx MaryEra" txBodyOutFile
+    goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/build-raw-tx-body-out-5.json"
+    H.diffFileVsGoldenFile txBodyOutFile goldenFile
 
-    H.assertEndsWithSingleNewline txBodyOutFile
-
-hprop_golden_shelleyTransactionBuild_TxOutInlineDatum :: Property
-hprop_golden_shelleyTransactionBuild_TxOutInlineDatum =
+hprop_golden_shelley_transaction_build_txout_inline_datum :: Property
+hprop_golden_shelley_transaction_build_txout_inline_datum =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     let datum = "test/cardano-cli-golden/files/input/babbage/42.datum"
 
@@ -149,6 +145,5 @@ hprop_golden_shelleyTransactionBuild_TxOutInlineDatum =
       , "--tx-body-file", txBodyOutFile
       ]
 
-    H.assertFileOccurences 1 "Tx BabbageEra" txBodyOutFile
-
-    H.assertEndsWithSingleNewline txBodyOutFile
+    goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/build-raw-tx-body-out-6.json"
+    H.diffFileVsGoldenFile txBodyOutFile goldenFile
