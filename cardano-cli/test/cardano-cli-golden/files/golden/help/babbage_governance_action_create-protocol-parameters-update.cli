@@ -12,8 +12,6 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update -
                                                                                  [--pool-influence RATIONAL]
                                                                                  [--treasury-expansion RATIONAL]
                                                                                  [--monetary-expansion RATIONAL]
-                                                                                 [--protocol-major-version NATURAL
-                                                                                   --protocol-minor-version NATURAL]
                                                                                  [--min-pool-cost NATURAL]
                                                                                  [--price-execution-steps RATIONAL
                                                                                    --price-execution-memory RATIONAL]
@@ -22,6 +20,8 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update -
                                                                                  [--max-value-size INT]
                                                                                  [--collateral-percent INT]
                                                                                  [--max-collateral-inputs INT]
+                                                                                 [--protocol-major-version NATURAL
+                                                                                   --protocol-minor-version NATURAL]
                                                                                  [--utxo-cost-per-byte LOVELACE]
                                                                                  --out-file FILE
 
@@ -56,13 +56,6 @@ Available options:
                            Treasury expansion.
   --monetary-expansion RATIONAL
                            Monetary expansion.
-  --protocol-major-version NATURAL
-                           Major protocol version. An increase indicates a hard
-                           fork.
-  --protocol-minor-version NATURAL
-                           Minor protocol version. An increase indicates a soft
-                           fork (old software canvalidate but not produce new
-                           blocks).
   --min-pool-cost NATURAL  The minimum allowed cost parameter for stake pools.
   --price-execution-steps RATIONAL
                            Step price of execution units for script languages
@@ -88,6 +81,13 @@ Available options:
   --max-collateral-inputs INT
                            The maximum number of collateral inputs allowed in a
                            transaction (from Alonzo era).
+  --protocol-major-version NATURAL
+                           Major protocol version. An increase indicates a hard
+                           fork.
+  --protocol-minor-version NATURAL
+                           Minor protocol version. An increase indicates a soft
+                           fork (old software canvalidate but not produce new
+                           blocks).
   --utxo-cost-per-byte LOVELACE
                            Cost in lovelace per unit of UTxO storage (from
                            Babbage era).
