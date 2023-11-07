@@ -70,7 +70,7 @@ pGovernanceActionNewInfoCmd era = do
               <*> pGovActionDeposit
               <*> pStakeVerificationKeyOrHashOrFile Nothing
               <*> pProposalUrl
-              <*> pProposalHashSource
+              <*> pProposalHash
               <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
         )
     $ Opt.progDesc "Create an info action."

@@ -3213,7 +3213,7 @@ pProposalHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Proposal anchor data hash."
+    , Opt.help "Proposal anchor data hash (obtain it with \"cardano-cli conway governance hash ...\")"
     ]
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))

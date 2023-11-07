@@ -84,14 +84,10 @@ runGovernanceActionInfoCmd
       , Cmd.deposit
       , Cmd.returnStakeAddress
       , Cmd.proposalUrl
-      , Cmd.proposalHashSource
+      , Cmd.proposalHash
       , Cmd.outFile
       } = do
   returnKeyHash <- readStakeKeyHash returnStakeAddress
-
-  proposalHash <-
-    proposalHashSourceToHash proposalHashSource
-      & firstExceptT GovernanceActionsCmdProposalError
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl

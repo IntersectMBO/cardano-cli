@@ -26,6 +26,9 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.BaseTypes as Ledger
+import qualified Cardano.Ledger.Crypto as Crypto
+import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Data.Text (Text)
 import           Data.Word
@@ -77,7 +80,7 @@ data GovernanceActionInfoCmdArgs era
       , deposit             :: !Lovelace
       , returnStakeAddress  :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
-      , proposalHashSource  :: !ProposalHashSource
+      , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , outFile             :: !(File () Out)
       } deriving Show
 
