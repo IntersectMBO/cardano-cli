@@ -2980,9 +2980,9 @@ pMinCommitteeSize =
     , Opt.help "TODO"
     ]
 
-pCommitteeTermLength :: Parser Natural
+pCommitteeTermLength :: Parser EpochNo
 pCommitteeTermLength =
-  Opt.option Opt.auto $ mconcat
+  fmap EpochNo $ Opt.option Opt.auto $ mconcat
     [ Opt.long "committee-term-length"
     , Opt.metavar "INT"
     , Opt.help "TODO"

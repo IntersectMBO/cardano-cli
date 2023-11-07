@@ -158,11 +158,11 @@ data QueryTipLocalStateOutput = QueryTipLocalStateOutput
   } deriving Show
 
 -- | A key-value pair difference list for encoding a JSON object.
-(..=) :: (KeyValue kv, ToJSON v) => Aeson.Key -> v -> [kv] -> [kv]
+(..=) :: (KeyValue e kv, ToJSON v) => Aeson.Key -> v -> [kv] -> [kv]
 (..=) n v = (n .= v:)
 
 -- | A key-value pair difference list for encoding a JSON object where Nothing encodes absence of the key-value pair.
-(..=?) :: (KeyValue kv, ToJSON v) => Aeson.Key -> Maybe v -> [kv] -> [kv]
+(..=?) :: (KeyValue e kv, ToJSON v) => Aeson.Key -> Maybe v -> [kv] -> [kv]
 (..=?) n mv = case mv of
   Just v -> (n .= v:)
   Nothing -> id
