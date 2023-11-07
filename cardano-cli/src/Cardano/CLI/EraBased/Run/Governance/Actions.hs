@@ -194,7 +194,7 @@ runGovernanceActionCreateNewCommitteeCmd
       , Cmd.deposit
       , Cmd.returnAddress
       , Cmd.proposalUrl
-      , Cmd.proposalHashSource
+      , Cmd.proposalHash
       , Cmd.oldCommitteeVkeySource
       , Cmd.newCommitteeVkeySource
       , Cmd.requiredQuorum
@@ -205,10 +205,6 @@ runGovernanceActionCreateNewCommitteeCmd
       govActIdentifier = Ledger.maybeToStrictMaybe $
         uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
       quorumRational = toRational requiredQuorum
-
-  proposalHash <-
-    proposalHashSourceToHash proposalHashSource
-      & firstExceptT GovernanceActionsCmdProposalError
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl

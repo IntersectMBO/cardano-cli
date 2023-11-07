@@ -120,7 +120,7 @@ pUpdateCommitteeCmd eon =
     <*> pGovActionDeposit
     <*> pStakeVerificationKeyOrHashOrFile Nothing
     <*> pProposalUrl
-    <*> pProposalHashSource
+    <*> pProposalHash
     <*> many pRemoveCommitteeColdVerificationKeyOrHashOrFile
     <*> many
           ( (,)

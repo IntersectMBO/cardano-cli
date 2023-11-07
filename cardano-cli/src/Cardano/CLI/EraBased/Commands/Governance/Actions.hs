@@ -50,7 +50,7 @@ data GoveranceActionUpdateCommitteeCmdArgs era
       , deposit                 :: !Lovelace
       , returnAddress           :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl             :: !ProposalUrl
-      , proposalHashSource      :: !ProposalHashSource
+      , proposalHash            :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
       , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
       , requiredQuorum          :: !Rational
