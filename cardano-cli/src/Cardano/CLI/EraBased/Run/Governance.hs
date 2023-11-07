@@ -24,6 +24,7 @@ import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
 import           Cardano.CLI.EraBased.Run.Governance.DRep
 import           Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
+import           Cardano.CLI.EraBased.Run.Governance.Hash
 import           Cardano.CLI.EraBased.Run.Governance.Poll
 import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.Types.Errors.CmdError
@@ -66,6 +67,9 @@ runGovernanceCmds = \case
 
   Cmd.GovernanceDRepCmds cmds ->
     runGovernanceDRepCmds cmds
+
+  Cmd.GovernanceHashCmds cmds ->
+    runGovernanceHashCmds cmds
 
   Cmd.GovernancePollCmds cmds ->
     runGovernancePollCmds cmds

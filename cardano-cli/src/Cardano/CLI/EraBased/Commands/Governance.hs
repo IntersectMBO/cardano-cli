@@ -13,6 +13,7 @@ import           Cardano.Api.Shelley (VrfKey)
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
+import           Cardano.CLI.EraBased.Commands.Governance.Hash
 import           Cardano.CLI.EraBased.Commands.Governance.Poll
 import           Cardano.CLI.EraBased.Commands.Governance.Vote
 import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile)
@@ -46,6 +47,8 @@ data GovernanceCmds era
       (GovernanceCommitteeCmds era)
   | GovernanceDRepCmds
       (GovernanceDRepCmds era)
+  | GovernanceHashCmds
+      (GovernanceHashCmds era)
   | GovernancePollCmds
       (GovernancePollCmds era)
   | GovernanceVoteCmds
@@ -67,6 +70,8 @@ renderGovernanceCmds = \case
     renderGovernanceCommitteeCmds cmds
   GovernanceDRepCmds cmds ->
     renderGovernanceDRepCmds cmds
+  GovernanceHashCmds cmds ->
+    renderGovernanceHashCmds cmds
   GovernancePollCmds cmds ->
     renderGovernancePollCmds cmds
   GovernanceVoteCmds cmds ->
