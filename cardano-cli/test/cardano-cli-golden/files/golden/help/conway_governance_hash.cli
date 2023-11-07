@@ -1,10 +1,14 @@
-Usage: cardano-cli conway governance hash (--file FILE | --text TEXT)
+Usage: cardano-cli conway governance hash 
+                                            ( --text TEXT
+                                            | --file-binary FILE
+                                            | --file-text FILE
+                                            )
 
   Compute the hash to pass to the various --*-hash arguments of governance
   commands.
 
 Available options:
-  --file FILE              File to hash (treated as binary: text-encoding
-                           agnostic)
   --text TEXT              Text to hash as UTF-8
+  --file-binary FILE       Binary file to hash
+  --file-text FILE         Text file to hash
   -h,--help                Show this help text

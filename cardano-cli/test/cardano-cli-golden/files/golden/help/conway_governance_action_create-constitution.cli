@@ -9,11 +9,8 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   )
                                                                   [--governance-action-tx-id TXID
                                                                     --governance-action-index WORD32]
-                                                                  --proposal-anchor-url TEXT
-                                                                  ( --proposal-anchor-metadata TEXT
-                                                                  | --proposal-anchor-metadata-file FILE
-                                                                  | --proposal-anchor-metadata-hash HASH
-                                                                  )
+                                                                  --anchor-url TEXT
+                                                                  --anchor-data-hash HASH
                                                                   --constitution-anchor-url TEXT
                                                                   ( --constitution-anchor-metadata TEXT
                                                                   | --constitution-anchor-metadata-file FILE
@@ -37,14 +34,9 @@ Available options:
                            Previous txid of the governance action.
   --governance-action-index WORD32
                            Previous tx's governance action index.
-  --proposal-anchor-url TEXT
-                           Proposal anchor URL
-  --proposal-anchor-metadata TEXT
-                           Proposal anchor contents as UTF-8 encoded text.
-  --proposal-anchor-metadata-file FILE
-                           Proposal anchor contents as a text file.
-  --proposal-anchor-metadata-hash HASH
-                           Proposal anchor data hash.
+  --anchor-url TEXT        Anchor URL
+  --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
+                           "cardano-cli conway governance hash ...")
   --constitution-anchor-url TEXT
                            Constitution anchor URL.
   --constitution-anchor-metadata TEXT
