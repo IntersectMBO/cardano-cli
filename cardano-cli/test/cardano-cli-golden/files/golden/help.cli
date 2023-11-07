@@ -5894,7 +5894,7 @@ Usage: cardano-cli conway genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli conway governance (action | committee | drep | vote)
+Usage: cardano-cli conway governance (action | committee | drep | hash | vote)
 
   Governance commands.
 
@@ -6194,6 +6194,15 @@ Usage: cardano-cli conway governance drep metadata-hash --drep-metadata-file FIL
                                                           [--out-file FILE]
 
   Calculate the hash of a metadata file.
+
+Usage: cardano-cli conway governance hash 
+                                            ( --text TEXT
+                                            | --file-binary FILE
+                                            | --file-text FILE
+                                            )
+
+  Compute the hash to pass to the various --*-hash arguments of governance
+  commands.
 
 Usage: cardano-cli conway governance vote (create | view)
 

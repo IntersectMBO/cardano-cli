@@ -1,4 +1,4 @@
-Usage: cardano-cli conway governance (action | committee | drep | vote)
+Usage: cardano-cli conway governance (action | committee | drep | hash | vote)
 
   Governance commands.
 
@@ -9,4 +9,6 @@ Available commands:
   action                   Governance action commands.
   committee                Committee member commands.
   drep                     DRep member commands.
+  hash                     Compute the hash to pass to the various --*-hash
+                           arguments of governance commands.
   vote                     Vote commands.
