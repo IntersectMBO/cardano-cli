@@ -8,12 +8,12 @@ import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyStakePoolRegistrationCertificate :: Property
-hprop_golden_shelleyStakePoolRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelley_stake_pool_registration_certificate :: Property
+hprop_golden_shelley_stake_pool_registration_certificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   operatorVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/operator.vkey"
   vrfVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/vrf.vkey"
   ownerVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/owner.vkey"
@@ -32,6 +32,6 @@ hprop_golden_shelleyStakePoolRegistrationCertificate = propertyOnce . H.moduleWo
     , "--out-file", registrationCertFile
     ]
 
-  H.assertFileOccurences 1 "Stake Pool Registration Certificate" registrationCertFile
+  goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/reg-certificate.json"
 
-  H.assertEndsWithSingleNewline registrationCertFile
+  H.diffFileVsGoldenFile registrationCertFile goldenFile
