@@ -9,13 +9,13 @@ import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Process as H
+import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyStakeAddressDeregistrationCertificate :: Property
-hprop_golden_shelleyStakeAddressDeregistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelley_stake_address_deregistration_certificate :: Property
+hprop_golden_shelley_stake_address_deregistration_certificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   base <- H.getProjectBase
 
   verificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
@@ -29,7 +29,8 @@ hprop_golden_shelleyStakeAddressDeregistrationCertificate = propertyOnce . H.mod
     , "--out-file", deregistrationCertFile
     ]
 
-  H.assertFileOccurences 1 "Stake Address Deregistration Certificate" deregistrationCertFile
+  goldenFile1 <- H.note "test/cardano-cli-golden/files/golden/shelley/dereg-cert-1.json"
+  H.diffFileVsGoldenFile deregistrationCertFile goldenFile1
 
   void $ execCardanoCLI
     [ "babbage", "stake-address","deregistration-certificate"
@@ -37,6 +38,5 @@ hprop_golden_shelleyStakeAddressDeregistrationCertificate = propertyOnce . H.mod
     , "--out-file", scriptDeregistrationCertFile
     ]
 
-  H.assertFileOccurences 1 "Stake Address Deregistration Certificate" scriptDeregistrationCertFile
-
-  H.assertEndsWithSingleNewline deregistrationCertFile
+  goldenFile2 <- H.note "test/cardano-cli-golden/files/golden/shelley/dereg-cert-2.json"
+  H.diffFileVsGoldenFile scriptDeregistrationCertFile goldenFile2
