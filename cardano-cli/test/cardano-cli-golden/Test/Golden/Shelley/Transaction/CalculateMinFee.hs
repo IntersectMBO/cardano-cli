@@ -6,16 +6,14 @@ module Test.Golden.Shelley.Transaction.CalculateMinFee
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import qualified Hedgehog as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyTransactionCalculateMinFee :: Property
-hprop_golden_shelleyTransactionCalculateMinFee = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelley_transaction_calculate_min_fee :: Property
+hprop_golden_shelley_transaction_calculate_min_fee = propertyOnce $ do
   protocolParamsJsonFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-calculate-min-fee/protocol-params.json"
   txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
-  minFeeTxtFile <- noteTempFile tempDir "min-fee.txt"
 
   minFeeTxt <- execCardanoCLI
     [ "transaction","calculate-min-fee"
@@ -28,8 +26,4 @@ hprop_golden_shelleyTransactionCalculateMinFee = propertyOnce $ H.moduleWorkspac
     , "--tx-body-file", txBodyFile
     ]
 
-  H.writeFile minFeeTxtFile minFeeTxt
-
-  H.assertFileOccurences 1 "5083100" minFeeTxtFile
-  H.assertFileLines (== 1) minFeeTxtFile
-  H.assertEndsWithSingleNewline minFeeTxtFile
+  H.diff minFeeTxt (==) "5083100 Lovelace\n"

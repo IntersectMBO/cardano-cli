@@ -14,11 +14,12 @@ import qualified Hedgehog.Extras.Test.Golden as H
 
 -- Check that we can assemble a txbody and a tx witness to form a transaction
 
-hprop_golden_conwayTransactionAssembleWitness_SigningKey :: Property
-hprop_golden_conwayTransactionAssembleWitness_SigningKey = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_conway_transaction_assemble_witness_signing_key :: Property
+hprop_golden_conway_transaction_assemble_witness_signing_key = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   witnessTx <- noteTempFile tempDir "single-signing-key-witness-tx"
   txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/txbody"
   signingKeyWitnessFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/singleSigningKeyWitness"
+
   void $ execCardanoCLI
     [ "conway", "transaction", "assemble"
     , "--tx-body-file", txBodyFile
@@ -28,5 +29,4 @@ hprop_golden_conwayTransactionAssembleWitness_SigningKey = propertyOnce $ H.modu
     ]
 
   goldenFile <- H.note "test/cardano-cli-golden/files/golden/conway/transaction/assemble_out"
-
   H.diffFileVsGoldenFile witnessTx goldenFile
