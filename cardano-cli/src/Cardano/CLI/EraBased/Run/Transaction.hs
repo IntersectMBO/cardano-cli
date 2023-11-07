@@ -969,7 +969,7 @@ runTransactionCalculateMinFeeCmd
                             (protocolParamTxFeePerByte pparams)
                             tx
                             nInputs nOutputs
-                            nByronKeyWitnesses nShelleyKeyWitnesses
+                            nShelleyKeyWitnesses nByronKeyWitnesses
 
       liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
 
