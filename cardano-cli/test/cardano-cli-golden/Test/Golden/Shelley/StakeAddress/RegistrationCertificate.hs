@@ -9,13 +9,13 @@ import           Test.Cardano.CLI.Util
 
 import           Hedgehog
 import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Process as H
+import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyStakeAddressRegistrationCertificate :: Property
-hprop_golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelley_stake_address_registration_certificate :: Property
+hprop_golden_shelley_stake_address_registration_certificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   base <- H.getProjectBase
 
   keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
@@ -29,7 +29,8 @@ hprop_golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.modul
     , "--out-file", registrationCertFile
     ]
 
-  H.assertFileOccurences 1 "Stake Address Registration Certificate" registrationCertFile
+  goldenFile1 <- H.note "test/cardano-cli-golden/files/golden/shelley/stake-address/reg-certificate-1.json"
+  H.diffFileVsGoldenFile registrationCertFile goldenFile1
 
   void $ execCardanoCLI
     [ "babbage", "stake-address", "registration-certificate"
@@ -37,12 +38,11 @@ hprop_golden_shelleyStakeAddressRegistrationCertificate = propertyOnce . H.modul
     , "--out-file", scriptRegistrationCertFile
     ]
 
-  H.assertFileOccurences 1 "Stake Address Registration Certificate" scriptRegistrationCertFile
+  goldenFile2 <- H.note "test/cardano-cli-golden/files/golden/shelley/stake-address/script-reg-certificate.json"
+  H.diffFileVsGoldenFile scriptRegistrationCertFile goldenFile2
 
-  H.assertEndsWithSingleNewline registrationCertFile
-
-hprop_golden_shelleyStakeAddressRegistrationCertificateWithBuildRaw :: Property
-hprop_golden_shelleyStakeAddressRegistrationCertificateWithBuildRaw = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelley_stake_address_registration_certificate_with_build_raw :: Property
+hprop_golden_shelley_stake_address_registration_certificate_with_build_raw = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
   registrationCertFile <- noteTempFile tempDir "registration.cert"
   txRawFile <- noteTempFile tempDir "tx.raw"
@@ -54,7 +54,8 @@ hprop_golden_shelleyStakeAddressRegistrationCertificateWithBuildRaw = propertyOn
     , "--out-file", registrationCertFile
     ]
 
-  H.assertFileOccurences 1 "Stake Address Registration Certificate" registrationCertFile
+  goldenFile1 <- H.note "test/cardano-cli-golden/files/golden/shelley/stake-address/reg-certificate-2.json"
+  H.diffFileVsGoldenFile registrationCertFile goldenFile1
 
   void $ execCardanoCLI
     [ "conway", "transaction", "build-raw"
@@ -63,3 +64,6 @@ hprop_golden_shelleyStakeAddressRegistrationCertificateWithBuildRaw = propertyOn
     , "--certificate-file", registrationCertFile
     , "--out-file", txRawFile
     ]
+
+  goldenFile2 <- H.note "test/cardano-cli-golden/files/golden/shelley/stake-address/build-raw-out.json"
+  H.diffFileVsGoldenFile txRawFile goldenFile2
