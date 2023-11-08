@@ -3046,34 +3046,17 @@ pAlwaysAbstain =
     , Opt.help "Abstain from voting on all proposals."
     ]
 
-pVoteAnchor :: Parser (VoteUrl, VoteHashSource)
+pVoteAnchor :: Parser (VoteUrl, L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pVoteAnchor = (,)
   <$> (VoteUrl <$> pUrl "vote-anchor-url" "Vote anchor URL")
-  <*> pVoteHashSource
-
-pVoteHashSource :: Parser VoteHashSource
-pVoteHashSource =
-  asum
-    [ VoteHashSourceText
-        <$> Opt.strOption
-            ( mconcat
-                [ Opt.long "vote-anchor-metadata"
-                , Opt.metavar "TEXT"
-                , Opt.help "Vote anchor contents as UTF-8 encoded text."
-                ]
-            )
-    , VoteHashSourceFile
-        <$> pFileInDirection "vote-anchor-metadata-file" "Vote anchor contents as a text file."
-    , VoteHashSourceHash
-        <$> pVoteHash
-    ]
+  <*> pVoteHash
 
 pVoteHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pVoteHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "vote-anchor-metadata-hash"
+    [ Opt.long "vote-anchor-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Hash of the vote anchor data."
+    , Opt.help "Hash of the vote anchor data (obtain it with \"cardano-cli conway governance hash ...\")."
     ]
 
 pAlwaysNoConfidence :: Parser ()

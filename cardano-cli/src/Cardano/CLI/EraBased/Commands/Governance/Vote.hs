@@ -9,11 +9,13 @@ module Cardano.CLI.EraBased.Commands.Governance.Vote
   , GovernanceVoteCreateCmdArgs(..)
   , renderGovernanceVoteCmds
   ) where
-
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
+import qualified Cardano.Ledger.BaseTypes as Ledger
+import qualified Cardano.Ledger.Crypto as Crypto
+import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Data.Text (Text)
 import           Data.Word
@@ -30,7 +32,7 @@ data GovernanceVoteCreateCmdArgs era
       , voteChoice                  :: Vote
       , governanceAction            :: (TxId, Word32)
       , votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
-      , mAnchor                     :: Maybe (VoteUrl, VoteHashSource)
+      , mAnchor                     :: Maybe (VoteUrl, Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , outFile                     :: VoteFile Out
       }
 

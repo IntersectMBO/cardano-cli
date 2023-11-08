@@ -94,7 +94,6 @@ module Cardano.CLI.Read
 
   -- * Vote related
   , readVoteDelegationTarget
-  , readVoteHashSource
   ) where
 
 import           Cardano.Api as Api
@@ -144,7 +143,7 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.Encoding.Error as Text
 import           Data.Word
-import           GHC.IO.Handle (hClose, hIsSeekable,)
+import           GHC.IO.Handle (hClose, hIsSeekable)
 import           GHC.IO.Handle.FD (openFileBlocking)
 import qualified Options.Applicative as Opt
 import           System.IO (IOMode (ReadMode))
@@ -808,17 +807,6 @@ readVotingProceduresFile :: ()
 readVotingProceduresFile w fp =
   conwayEraOnwardsConstraints w
     $ first VoteErrorFile <$> readFileTextEnvelope AsVotingProcedures fp
-
-readVoteHashSource :: ()
-  => VoteHashSource
-  -> ExceptT VoteError IO (Ledger.SafeHash Ledger.StandardCrypto Ledger.AnchorData)
-readVoteHashSource = \case
-    VoteHashSourceHash h -> return h
-    VoteHashSourceText c -> return $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
-    VoteHashSourceFile fp -> do
-      cBs <- firstExceptT VoteErrorFile . newExceptT $ readByteStringFile fp
-      _utf8EncodedText <- firstExceptT VoteErrorTextNotUnicode . hoistEither $ Text.decodeUtf8' cBs
-      return $ Ledger.hashAnchorData $ Ledger.AnchorData cBs
 
 data ConstitutionError
   = ConstitutionErrorFile (FileError TextEnvelopeError)

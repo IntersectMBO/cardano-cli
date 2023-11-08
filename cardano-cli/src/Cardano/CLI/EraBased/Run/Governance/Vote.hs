@@ -15,7 +15,7 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Vote as Cmd
-import           Cardano.CLI.Read (readVoteHashSource, readVotingProceduresFile)
+import           Cardano.CLI.Read (readVotingProceduresFile)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
@@ -55,8 +55,7 @@ runGovernanceVoteCreateCmd
   let sbe = conwayEraOnwardsToShelleyBasedEra eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
   voteProcedure <- case mAnchor of
      Nothing -> pure $ createVotingProcedure eon voteChoice Nothing
-     Just (VoteUrl url, voteHashSource) -> shelleyBasedEraConstraints sbe $ do
-       voteHash <- firstExceptT GovernanceVoteCmdReadVoteTextError $ readVoteHashSource voteHashSource
+     Just (VoteUrl url, voteHash) -> shelleyBasedEraConstraints sbe $ do
        let voteAnchor = Ledger.Anchor { Ledger.anchorUrl = url, Ledger.anchorDataHash = voteHash }
            VotingProcedure votingProcedureWithoutAnchor = createVotingProcedure eon voteChoice Nothing
            votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor { Ledger.vProcAnchor = Ledger.SJust voteAnchor }
