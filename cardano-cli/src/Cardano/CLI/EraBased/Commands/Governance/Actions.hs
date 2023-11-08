@@ -133,7 +133,7 @@ data UpdateProtocolParametersConwayOnwards era
       , deposit             :: !Lovelace
       , returnAddr          :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
-      , proposalHashSource  :: !ProposalHashSource
+      , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , governanceActionId  :: !(Maybe (TxId, Word32))
       }
 

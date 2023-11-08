@@ -165,7 +165,7 @@ pUpdateProtocolParametersPostConway conwayOnwards =
     <*> pGovActionDeposit
     <*> pStakeVerificationKeyOrHashOrFile Nothing
     <*> pProposalUrl
-    <*> pProposalHashSource
+    <*> pProposalHash
     <*> pPreviousGovernanceAction
 
 

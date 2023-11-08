@@ -255,15 +255,11 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
             anyEra = AnyShelleyBasedEra $ conwayEraOnwardsToShelleyBasedEra conwayOnwards
 
         UpdateProtocolParametersConwayOnwards _cOnwards network deposit returnAddr proposalUrl
-                                              proposalHashSource mPrevGovActId
+                                              proposalHash mPrevGovActId
           <- hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
               $ uppConwayOnwards eraBasedPParams'
 
         returnKeyHash <- readStakeKeyHash returnAddr
-
-        proposalHash <-
-           proposalHashSourceToHash proposalHashSource
-             & firstExceptT GovernanceActionsCmdProposalError
 
         let eraBasedPParams = uppNewPParams eraBasedPParams'
             updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
