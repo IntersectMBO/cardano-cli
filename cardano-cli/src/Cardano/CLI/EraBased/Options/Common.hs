@@ -3189,7 +3189,7 @@ pDRepVerificationKeyFile =
 pProposalUrl :: Parser ProposalUrl
 pProposalUrl =
   ProposalUrl
-    <$> pUrl "proposal-anchor-url" "Proposal anchor URL"
+    <$> pUrl "anchor-url" "Anchor URL"
 
 pProposalHashSource :: Parser ProposalHashSource
 pProposalHashSource =
@@ -3211,7 +3211,7 @@ pProposalHashSource =
 pProposalHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pProposalHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "proposal-anchor-metadata-hash"
+    [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
     , Opt.help "Proposal anchor data hash."
     ]
