@@ -295,14 +295,10 @@ runGovernanceActionTreasuryWithdrawalCmd
       , Cmd.deposit
       , Cmd.returnAddr
       , Cmd.proposalUrl
-      , Cmd.proposalHashSource
+      , Cmd.proposalHash
       , Cmd.treasuryWithdrawal
       , Cmd.outFile
       } = do
-
-  proposalHash <-
-    proposalHashSourceToHash proposalHashSource
-      & firstExceptT GovernanceActionsCmdProposalError
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl

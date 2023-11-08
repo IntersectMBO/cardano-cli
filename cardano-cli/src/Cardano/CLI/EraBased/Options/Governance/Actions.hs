@@ -343,7 +343,7 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
               <*> pGovActionDeposit
               <*> pStakeVerificationKeyOrHashOrFile (Just "deposit-return")
               <*> pProposalUrl
-              <*> pProposalHashSource
+              <*> pProposalHash
               <*> many ((,) <$> pStakeVerificationKeyOrHashOrFile (Just "funds-receiving") <*> pTransferAmt)
               <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
         )

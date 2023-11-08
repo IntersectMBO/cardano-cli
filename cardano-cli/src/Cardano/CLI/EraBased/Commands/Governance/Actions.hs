@@ -113,7 +113,7 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
       , deposit             :: !Lovelace
       , returnAddr          :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
-      , proposalHashSource  :: !ProposalHashSource
+      , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , treasuryWithdrawal  :: ![(VerificationKeyOrHashOrFile StakeKey, Lovelace)]
       , outFile             :: !(File () Out)
       } deriving Show
