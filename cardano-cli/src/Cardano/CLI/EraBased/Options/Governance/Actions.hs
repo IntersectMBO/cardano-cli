@@ -91,7 +91,7 @@ pGovernanceActionNewConstitutionCmd era = do
               <*> pStakeVerificationKeyOrHashOrFile Nothing
               <*> pPreviousGovernanceAction
               <*> pProposalUrl
-              <*> pProposalHashSource
+              <*> pProposalHash
               <*> pConstitutionUrl
               <*> pConstitutionHashSource
               <*> pFileOutDirection "out-file" "Output filepath of the constitution."

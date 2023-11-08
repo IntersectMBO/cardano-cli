@@ -148,17 +148,13 @@ runGovernanceActionCreateConstitutionCmd
       , Cmd.stakeCredential
       , Cmd.mPrevGovernanceActionId
       , Cmd.proposalUrl
-      , Cmd.proposalHashSource
+      , Cmd.proposalHash
       , Cmd.constitutionUrl
       , Cmd.constitutionHashSource
       , Cmd.outFile
       } = do
 
   stakeKeyHash <- readStakeKeyHash stakeCredential
-
-  proposalHash <-
-    proposalHashSourceToHash proposalHashSource
-      & firstExceptT GovernanceActionsCmdProposalError
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl

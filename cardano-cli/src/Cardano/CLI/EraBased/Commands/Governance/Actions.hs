@@ -66,7 +66,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
       , stakeCredential         :: !(VerificationKeyOrHashOrFile StakeKey)
       , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
       , proposalUrl             :: !ProposalUrl
-      , proposalHashSource      :: !ProposalHashSource
+      , proposalHash            :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , constitutionUrl         :: !ConstitutionUrl
       , constitutionHashSource  :: !ConstitutionHashSource
       , outFile                 :: !(File () Out)
