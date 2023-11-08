@@ -91,7 +91,7 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
       , deposit               :: !Lovelace
       , returnStakeAddress    :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl           :: !ProposalUrl
-      , proposalHashSource    :: !ProposalHashSource
+      , proposalHash          :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , governanceActionId    :: !TxId
       , governanceActionIndex :: !Word32
       , outFile               :: !(File () Out)

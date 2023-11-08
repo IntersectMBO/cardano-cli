@@ -145,7 +145,7 @@ pGovernanceActionNoConfidenceCmd era = do
               <*> pGovActionDeposit
               <*> pStakeVerificationKeyOrHashOrFile Nothing
               <*> pProposalUrl
-              <*> pProposalHashSource
+              <*> pProposalHash
               <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
               <*> pWord32 "governance-action-index" "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
               <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
