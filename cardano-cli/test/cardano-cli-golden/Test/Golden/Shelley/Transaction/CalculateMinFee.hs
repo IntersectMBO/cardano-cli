@@ -19,8 +19,8 @@ hprop_golden_shelley_transaction_calculate_min_fee = propertyOnce $ do
     [ "transaction","calculate-min-fee"
     , "--tx-in-count", "32"
     , "--tx-out-count", "27"
-    , "--byron-witness-count", "5"
-    , "--witness-count", "10"
+    , "--byron-witness-count", "10"
+    , "--witness-count", "5"
     , "--testnet-magic", "4036000900"
     , "--protocol-params-file", protocolParamsJsonFile
     , "--tx-body-file", txBodyFile
