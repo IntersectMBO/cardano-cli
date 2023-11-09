@@ -3048,13 +3048,13 @@ pAlwaysAbstain =
 
 pVoteAnchor :: Parser (VoteUrl, L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pVoteAnchor = (,)
-  <$> (VoteUrl <$> pUrl "vote-anchor-url" "Vote anchor URL")
+  <$> (VoteUrl <$> pUrl "anchor-url" "Vote anchor URL")
   <*> pVoteHash
 
 pVoteHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pVoteHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "vote-anchor-hash"
+    [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
     , Opt.help "Hash of the vote anchor data (obtain it with \"cardano-cli conway governance hash ...\")."
     ]
