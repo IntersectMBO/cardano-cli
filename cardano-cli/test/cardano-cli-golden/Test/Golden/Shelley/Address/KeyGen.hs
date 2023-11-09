@@ -4,6 +4,7 @@ module Test.Golden.Shelley.Address.KeyGen where
 
 import           Control.Monad (void)
 
+import           Test.Cardano.CLI.Aeson
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
@@ -12,8 +13,8 @@ import qualified Hedgehog.Extras.Test.File as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyAddressKeyGen :: Property
-hprop_golden_shelleyAddressKeyGen = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelley_address_key_gen :: Property
+hprop_golden_shelley_address_key_gen = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   addressVKeyFile <- noteTempFile tempDir "address.vkey"
   addressSKeyFile <- noteTempFile tempDir "address.skey"
 
@@ -23,14 +24,20 @@ hprop_golden_shelleyAddressKeyGen = propertyOnce . H.moduleWorkspace "tmp" $ \te
     , "--signing-key-file", addressSKeyFile
     ]
 
-  void $ H.readFile addressVKeyFile
-  void $ H.readFile addressSKeyFile
+  assertHasMappings [("type", "PaymentVerificationKeyShelley_ed25519"),
+                     ("description", "Payment Verification Key")]
+                                addressVKeyFile
+  assertHasKeys ["cborHex"]     addressVKeyFile
+  H.assertEndsWithSingleNewline addressVKeyFile
 
-  H.assertFileOccurences 1 "PaymentVerificationKeyShelley_ed25519" addressVKeyFile
-  H.assertFileOccurences 1 "PaymentSigningKeyShelley_ed25519" addressSKeyFile
+  assertHasMappings [("type", "PaymentSigningKeyShelley_ed25519"),
+                     ("description", "Payment Signing Key")]
+                                addressSKeyFile
+  assertHasKeys ["cborHex"]     addressSKeyFile
+  H.assertEndsWithSingleNewline addressSKeyFile
 
-hprop_golden_shelleyAddressExtendedKeyGen :: Property
-hprop_golden_shelleyAddressExtendedKeyGen = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_shelley_address_extended_key_gen :: Property
+hprop_golden_shelley_address_extended_key_gen = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   addressVKeyFile <- noteTempFile tempDir "address.vkey"
   addressSKeyFile <- noteTempFile tempDir "address.skey"
 
@@ -41,8 +48,14 @@ hprop_golden_shelleyAddressExtendedKeyGen = propertyOnce . H.moduleWorkspace "tm
     , "--signing-key-file", addressSKeyFile
     ]
 
-  void $ H.readFile addressVKeyFile
-  void $ H.readFile addressSKeyFile
+  assertHasMappings [("type", "PaymentExtendedVerificationKeyShelley_ed25519_bip32"),
+                     ("description", "Payment Verification Key")]
+                                addressVKeyFile
+  assertHasKeys ["cborHex"]     addressVKeyFile
+  H.assertEndsWithSingleNewline addressVKeyFile
 
-  H.assertFileOccurences 1 "PaymentExtendedVerificationKeyShelley_ed25519_bip32" addressVKeyFile
-  H.assertFileOccurences 1 "PaymentExtendedSigningKeyShelley_ed25519_bip32" addressSKeyFile
+  assertHasMappings [("type", "PaymentExtendedSigningKeyShelley_ed25519_bip32"),
+                     ("description", "Payment Signing Key")]
+                                addressSKeyFile
+  assertHasKeys ["cborHex"]     addressSKeyFile
+  H.assertEndsWithSingleNewline addressSKeyFile
