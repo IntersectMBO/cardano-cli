@@ -3,7 +3,7 @@ name: "Haddock documentation"
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -22,13 +22,7 @@ jobs:
 
     env:
       # Modify this value to "invalidate" the cabal cache.
-      CABAL_CACHE_VERSION: "2023-07-28"
-
-      # Modify this value to "invalidate" the secp cache.
-      SECP_CACHE_VERSION: "2022-12-30"
-
-      # current ref from: 27.02.2022
-      SECP256K1_REF: ac83be33d0956faf6b7f61a60ab524ef7d6a473a
+      CABAL_CACHE_VERSION: "2023-11-09"
 
     concurrency:
       group: >
@@ -52,24 +46,24 @@ jobs:
         e+${{ matrix.cabal }}
         f+${{ matrix.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
-  
-        - name: Install Haskell
-        uses: input-output-hk/actions/haskell@latest
-        id: setup-haskell
-        with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
-    
+
+    - name: Install Haskell
+      uses: input-output-hk/actions/haskell@latest
+      id: setup-haskell
+      with:
+        ghc-version: ${{ matrix.ghc }}
+        cabal-version: ${{ matrix.cabal }}
+
     - name: Install system dependencies
       uses: input-output-hk/actions/base@latest
       with:
         use-sodium-vrf: true # default is true
 
     - uses: actions/checkout@v3
-  
+
     - name: Cabal update
       run: cabal update
-  
+
     - name: Disable all tests
       run: |
         cat > cabal.project.local <<EOF
@@ -83,7 +77,7 @@ jobs:
       run: |
         cabal build all --dry-run
         mkdir ./haddocks
-        DRY_RUN=1 ./scripts/haddocs.sh ./haddocks true
+        DRY_RUN=1 ./.github/bin/haddocks.sh ./haddocks true
 
     # For users who fork cardano-cli and want to define a writable cache, then can set up their own
     # S3 bucket then define in their forked repository settings the following secrets:
@@ -128,7 +122,7 @@ jobs:
       run: cabal build all
 
     - name: Build Haddock documentation 🔧
-      run: ./scripts/haddocs.sh ./haddocks true
+      run: ./.github/bin/haddocks.sh ./haddocks true
 
     - name: View HTML files
       run: |
@@ -143,7 +137,7 @@ jobs:
         path: ./haddocks
 
     - name: Deploy documentation to gh-pages 🚀
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN || github.token }}
