@@ -159,7 +159,7 @@ hprop_golden_governanceUpdateCommittee =
 
     proposalHash <- execCardanoCLI
       [ "conway", "governance", "hash"
-      , "--file", ccProposal ]
+      , "--file-text", ccProposal ]
 
     H.note_ proposalHash
     H.note_ $ show $ length proposalHash
@@ -170,8 +170,8 @@ hprop_golden_governanceUpdateCommittee =
       [ "conway", "governance", "action", "update-committee"
       , "--testnet", "--governance-action-deposit", "0"
       , "--stake-verification-key-file", stakeVkey
-      , "--proposal-anchor-url", "http://dummy"
-      , "--proposal-anchor-hash", proposalHash
+      , "--anchor-url", "http://dummy"
+      , "--anchor-data-hash", proposalHash
       , "--add-cc-cold-verification-key-file", coldCCVkey1
       , "--epoch", "202"
       , "--add-cc-cold-verification-key-file", coldCCVkey2

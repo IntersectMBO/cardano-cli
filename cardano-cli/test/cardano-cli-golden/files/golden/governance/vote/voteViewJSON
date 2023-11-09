@@ -2,7 +2,7 @@
     "drep-keyHash-eb09d5556a8bce421074e394d02c79ced96741657b4cf7ca8995294d": {
         "b1015258a99351c143a7a40b7b58f033ace10e3cc09c67780ed5b2b0992aa60a#5": {
             "anchor": {
-                "dataHash": "6c4aa4dc17fc4d173f1c9a23c266acba6f942e7ae9f06103ea0ed1333b8d68de",
+                "dataHash": "6163683a90d8cb460a38cdcf0d7bab286f0f004ec6e761dc670c2ca4d3709a17",
                 "url": "https://example.com/vote"
             },
             "decision": "VoteYes"

@@ -26,11 +26,15 @@ hprop_golden_governance_action_create_constitution =
     actionFile <- noteTempFile tempDir "create-constitution.action"
     redactedActionFile <- noteTempFile tempDir "create-constitution.action.redacted"
 
+    proposalHash <- execCardanoCLI
+      [ "conway", "governance", "hash"
+      , "--text", "whatever "]
+
     void $ execCardanoCLI
       [ "conway", "governance", "action", "create-constitution"
       , "--mainnet"
-      , "--proposal-anchor-metadata", "eda258650888d4a7f8ac1127cfa136962f527f341c99db49929c79ae"
-      , "--proposal-anchor-url", "proposal-dummy-url"
+      , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
+      , "--anchor-url", proposalHash
       , "--governance-action-deposit", "10"
       , "--stake-verification-key-file", stakeAddressVKeyFile
       , "--out-file", actionFile
@@ -52,11 +56,15 @@ hprop_golden_conway_governance_action_view_constitution_json =
 
     actionFile <- noteTempFile tempDir "action"
 
+    proposalHash <- execCardanoCLI
+      [ "conway", "governance", "hash"
+      , "--text", "whatever "]
+
     void $ execCardanoCLI
       [ "conway", "governance", "action", "create-constitution"
       , "--mainnet"
-      , "--proposal-anchor-metadata", "eda258650888d4a7f8ac1127cfa136962f527f341c99db49929c79ae"
-      , "--proposal-anchor-url", "proposal-dummy-url"
+      , "--anchor-data-hash", proposalHash
+      , "--anchor-url", "proposal-dummy-url"
       , "--governance-action-deposit", "10"
       , "--stake-verification-key-file", stakeAddressVKeyFile
       , "--out-file", actionFile
@@ -83,8 +91,8 @@ hprop_golden_conway_governance_action_view_update_committee_yaml =
       , "--mainnet"
       , "--governance-action-deposit", "10"
       , "--stake-verification-key-file", stakeAddressVKeyFile
-      , "--proposal-anchor-url", "proposal-dummy-url"
-      , "--proposal-anchor-metadata", "eda258650888d4a7f8ac1127cfa136962f527f341c99db49929c79ae"
+      , "--anchor-url", "proposal-dummy-url"
+      , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
       , "--quorum", "0.61"
       , "--out-file", actionFile
       ]
@@ -109,8 +117,8 @@ hprop_golden_conway_governance_action_view_create_info_json_outfile =
       , "--testnet"
       , "--governance-action-deposit", "10"
       , "--stake-verification-key-file", stakeAddressVKeyFile
-      , "--proposal-anchor-url", "proposal-dummy-url"
-      , "--proposal-anchor-metadata", "eda258650888d4a7f8ac1127cfa136962f527f341c99db49929c79ae"
+      , "--anchor-url", "proposal-dummy-url"
+      , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
       , "--out-file", actionFile
       ]
 
@@ -135,8 +143,8 @@ hprop_golden_governanceActionCreateNoConfidence =
       , "--mainnet"
       , "--governance-action-deposit", "10"
       , "--stake-verification-key-file", stakeAddressVKeyFile
-      , "--proposal-anchor-url", "proposal-dummy-url"
-      , "--proposal-anchor-metadata", "eda258650888d4a7f8ac1127cfa136962f527f341c99db49929c79ae"
+      , "--anchor-url", "proposal-dummy-url"
+      , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
       , "--governance-action-index", "5"
       , "--governance-action-tx-id", "b1015258a99351c143a7a40b7b58f033ace10e3cc09c67780ed5b2b0992aa60a"
       , "--out-file", actionFile
