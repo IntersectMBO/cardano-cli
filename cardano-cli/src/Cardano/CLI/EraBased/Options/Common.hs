@@ -3049,10 +3049,10 @@ pAlwaysAbstain =
 pVoteAnchor :: Parser (VoteUrl, L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pVoteAnchor = (,)
   <$> (VoteUrl <$> pUrl "anchor-url" "Vote anchor URL")
-  <*> pVoteHash
+  <*> pVoteAnchorDataHash
 
-pVoteHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
-pVoteHash =
+pVoteAnchorDataHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pVoteAnchorDataHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
@@ -3169,8 +3169,8 @@ pDRepVerificationKeyFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pProposalUrl :: Parser ProposalUrl
-pProposalUrl =
+pAnchorUrl :: Parser ProposalUrl
+pAnchorUrl =
   ProposalUrl
     <$> pUrl "anchor-url" "Anchor URL"
 
@@ -3188,11 +3188,11 @@ pProposalHashSource =
     , ProposalHashSourceFile
         <$> pFileInDirection "proposal-anchor-metadata-file" "Proposal anchor contents as a text file."
     , ProposalHashSourceHash
-        <$> pProposalHash
+        <$> pAnchorDataHash
     ]
 
-pProposalHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
-pProposalHash =
+pAnchorDataHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pAnchorDataHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
