@@ -294,7 +294,7 @@ parseTxOut =
   pLovelaceTxOut l =
     if l > (maxBound :: Word64)
       then error $ show l <> " lovelace exceeds the Word64 upper bound"
-      else TxOutValueByron ByronEraOnlyByron . Lovelace $ toInteger l
+      else TxOutValueByron . Lovelace $ toInteger l
 
 readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
 readerFromAttoParser p =

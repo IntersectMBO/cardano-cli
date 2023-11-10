@@ -1041,7 +1041,7 @@ printUtxo sbe txInOutTuple =
 
   printableValue :: TxOutValue era -> Text
   printableValue = \case
-    TxOutValueByron _ (Lovelace i) -> Text.pack $ show i
+    TxOutValueByron (Lovelace i) -> Text.pack $ show i
     TxOutValueShelleyBased sbe2 val -> renderValue $ Api.fromLedgerValue sbe2 val
 
 runQueryStakePoolsCmd :: ()
