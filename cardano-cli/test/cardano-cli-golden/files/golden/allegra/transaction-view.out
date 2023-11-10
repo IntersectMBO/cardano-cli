@@ -10,7 +10,8 @@ mint: null
 outputs:
 - address: addr_test1qrefnr4k09pvge6dq83v6s67ruter8sftmky8qrmkqqsxy7q5psgn8tgqmupq4r79jmxlyk4eqt6z6hj5g8jd8393msqaw47f4
   address era: Shelley
-  amount: 99 Lovelace
+  amount:
+    lovelace: 99
   network: Testnet
   payment credential key hash: f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
   reference script: null
