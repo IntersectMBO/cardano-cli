@@ -4,6 +4,7 @@ module Test.Golden.Shelley.Genesis.KeyGenGenesis where
 
 import           Control.Monad (void)
 
+import           Test.Cardano.CLI.Aeson
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
@@ -23,8 +24,8 @@ hprop_golden_shelleyGenesisKeyGenGenesis = propertyOnce . H.moduleWorkspace "tmp
     , "--signing-key-file", signingKeyFile
     ]
 
-  H.assertFileOccurences 1 "GenesisVerificationKey_ed25519" verificationKeyFile
-  H.assertFileOccurences 1 "GenesisSigningKey_ed25519" signingKeyFile
+  assertHasMappings [("type", "GenesisVerificationKey_ed25519")] verificationKeyFile
+  assertHasMappings [("type", "GenesisSigningKey_ed25519")] signingKeyFile
 
   H.assertEndsWithSingleNewline verificationKeyFile
   H.assertEndsWithSingleNewline signingKeyFile
