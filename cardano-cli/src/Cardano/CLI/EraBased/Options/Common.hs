@@ -3174,23 +3174,6 @@ pAnchorUrl =
   ProposalUrl
     <$> pUrl "anchor-url" "Anchor URL"
 
-pProposalHashSource :: Parser ProposalHashSource
-pProposalHashSource =
-  asum
-    [ ProposalHashSourceText
-        <$> Opt.strOption
-            ( mconcat
-                [ Opt.long "proposal-anchor-metadata"
-                , Opt.metavar "TEXT"
-                , Opt.help "Proposal anchor contents as UTF-8 encoded text."
-                ]
-            )
-    , ProposalHashSourceFile
-        <$> pFileInDirection "proposal-anchor-metadata-file" "Proposal anchor contents as a text file."
-    , ProposalHashSourceHash
-        <$> pAnchorDataHash
-    ]
-
 pAnchorDataHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pAnchorDataHash =
   Opt.option readSafeHash $ mconcat

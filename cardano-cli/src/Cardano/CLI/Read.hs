@@ -58,7 +58,6 @@ module Cardano.CLI.Read
   , VoteError (..)
   , readTxGovernanceActions
   , constitutionHashSourceToHash
-  , proposalHashSourceToHash
   , readProposal
 
   -- * FileOrPipe
@@ -851,22 +850,6 @@ constitutionHashSourceToHash constitutionHashSource = do
       pure $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
 
     ConstitutionHashSourceHash h ->
-      pure h
-
-proposalHashSourceToHash :: ()
-  => ProposalHashSource
-  -> ExceptT ProposalError IO (Ledger.SafeHash Ledger.StandardCrypto Ledger.AnchorData)
-proposalHashSourceToHash proposalHashSource = do
-  case proposalHashSource of
-    ProposalHashSourceFile fp  -> do
-      cBs <- liftIO $ BS.readFile $ unFile fp
-      _utf8EncodedText <- firstExceptT ProposalNotUnicodeError . hoistEither $ Text.decodeUtf8' cBs
-      pure $ Ledger.hashAnchorData $ Ledger.AnchorData cBs
-
-    ProposalHashSourceText c -> do
-      pure $ Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 c
-
-    ProposalHashSourceHash h ->
       pure h
 
 -- Misc
