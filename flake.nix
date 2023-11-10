@@ -22,6 +22,34 @@
       # "aarch64-linux"
       "aarch64-darwin"
     ];
+
+    # see flake `variants` below for alternative compilers
+    defaultCompiler = "ghc965";
+    haddockShellCompiler = defaultCompiler;
+
+    cabalHeadOverlay = final: prev: {
+      cabal-head =
+        (final.haskell-nix.cabalProject {
+          # cabal master commit containing https://github.com/haskell/cabal/pull/8726
+          # this fixes haddocks generation
+          src = final.fetchFromGitHub {
+            owner = "haskell";
+            repo = "cabal";
+            rev = "6eaba73ac95c62f8dc576e227b5f9c346910303c";
+            hash = "sha256-Uu/w6AK61F7XPxtKe+NinuOR4tLbaT6rwxVrQghDQjo=";
+          };
+          index-state = "2024-07-03T00:00:00Z";
+          compiler-nix-name = haddockShellCompiler;
+          cabalProject = ''
+            packages: Cabal-syntax Cabal cabal-install-solver cabal-install
+          '';
+          configureArgs = "--disable-benchmarks --disable-tests";
+        })
+        .cabal-install
+        .components
+        .exes
+        .cabal;
+    };
   in
     {inherit (inputs) incl;}
     // inputs.flake-utils.lib.eachSystem supportedSystems (
@@ -36,18 +64,18 @@
             inputs.haskellNix.overlay
             # configure haskell.nix to use iohk-nix crypto librairies.
             inputs.iohkNix.overlays.haskell-nix-crypto
+            cabalHeadOverlay
           ];
           inherit system;
           inherit (inputs.haskellNix) config;
         };
         inherit (nixpkgs) lib;
 
-        gitRevFlag = if inputs.self ? rev
-                     then [ ("--ghc-option=-D__GIT_REV__=\\\"" + inputs.self.rev + "\\\"") ]
-                     else [];
+        gitRevFlag =
+          if inputs.self ? rev
+          then [("--ghc-option=-D__GIT_REV__=\\\"" + inputs.self.rev + "\\\"")]
+          else [];
 
-        # see flake `variants` below for alternative compilers
-        defaultCompiler = "ghc964";
         # We use cabalProject' to ensure we don't build the plan for
         # all systems.
         cabalProject = nixpkgs.haskell-nix.cabalProject' ({config, ...}: {
@@ -71,7 +99,8 @@
           # tools we want in our shell, from hackage
           shell.tools =
             {
-              cabal = "3.10.3.0";
+              # for now we're using latest cabal for `cabal haddock-project` fixes
+              # cabal = "3.10.3.0";
               ghcid = "0.8.8";
             }
             // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
@@ -81,7 +110,7 @@
               stylish-haskell = "0.14.5.0";
             };
           # and from nixpkgs or other inputs
-          shell.nativeBuildInputs = with nixpkgs; [ gh jq yq-go actionlint shellcheck ];
+          shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck cabal-head];
           # disable Hoogle until someone request it
           shell.withHoogle = false;
           # Skip cross compilers for the shell
@@ -91,7 +120,7 @@
           # specific enough, or doesn't allow setting these.
           modules = [
             ({pkgs, ...}: {
-              packages.cardano-cli.configureFlags = [ "--ghc-option=-Werror" ] ++ gitRevFlag;
+              packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"] ++ gitRevFlag;
             })
             ({
               pkgs,
@@ -128,9 +157,9 @@
               '';
             })
             {
-               packages.crypton-x509-system.postPatch = ''
-                  substituteInPlace crypton-x509-system.cabal --replace 'Crypt32' 'crypt32'
-               '';
+              packages.crypton-x509-system.postPatch = ''
+                substituteInPlace crypton-x509-system.cabal --replace 'Crypt32' 'crypt32'
+              '';
             }
           ];
         });
@@ -156,7 +185,8 @@
                   # This ensure hydra send a status for the required job (even if no change other than commit hash)
                   revision = nixpkgs.writeText "revision" (inputs.self.rev or "dirty");
                 };
-            };
+            }
+            // {haddockShell = devShells.haddockShell;};
           legacyPackages = rec {
             inherit cabalProject nixpkgs;
             # also provide hydraJobs through legacyPackages to allow building without system prefix:
@@ -165,12 +195,20 @@
             cardano-cli = cabalProject.hsPkgs.cardano-cli.components.exes.cardano-cli;
           };
           devShells = let
-            profillingShell = p: {
+            profilingShell = p: {
               # `nix develop .#profiling` (or `.#ghc927.profiling): a shell with profiling enabled
               profiling = (p.appendModule {modules = [{enableLibraryProfiling = true;}];}).shell;
             };
           in
-            profillingShell cabalProject;
+            profilingShell cabalProject
+            # Add GHC 9.6 shell for haddocks
+            // {
+              haddockShell = let
+                p = cabalProject.appendModule {compiler-nix-name = haddockShellCompiler;};
+              in
+                p.shell // (profilingShell p);
+            };
+
           # formatter used by nix fmt
           formatter = nixpkgs.alejandra;
         }
