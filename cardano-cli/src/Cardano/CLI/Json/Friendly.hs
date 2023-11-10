@@ -566,7 +566,7 @@ friendlyMintValue = \case
 
 friendlyTxOutValue :: TxOutValue era -> Aeson.Value
 friendlyTxOutValue = \case
-  TxOutValueByron _ lovelace -> friendlyLovelace $ toShelleyLovelace lovelace
+  TxOutValueByron lovelace -> friendlyLovelace $ toShelleyLovelace lovelace
   TxOutValueShelleyBased sbe v -> friendlyLedgerValue sbe v
 
 friendlyLedgerValue :: ()
