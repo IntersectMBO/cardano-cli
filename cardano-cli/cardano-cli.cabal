@@ -303,7 +303,6 @@ test-suite cardano-cli-test
                       , filepath
                       , hedgehog
                       , hedgehog-extras ^>= 0.4.7.0
-                      , parsec
                       , tasty
                       , tasty-hedgehog
                       , text
@@ -316,7 +315,6 @@ test-suite cardano-cli-test
                         Test.Cli.FilePermissions
                         Test.Cli.ITN
                         Test.Cli.JSON
-                        Test.Cli.MultiAssetParsing
                         Test.Cli.Pioneers.Exercise1
                         Test.Cli.Pioneers.Exercise2
                         Test.Cli.Pioneers.Exercise3
