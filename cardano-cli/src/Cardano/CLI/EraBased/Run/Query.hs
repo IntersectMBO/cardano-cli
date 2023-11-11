@@ -1049,8 +1049,9 @@ printUtxo sbe txInOutTuple =
     in Text.pack $ replicate (max 1 (len - slen)) ' ' ++ str
 
   printableValue :: TxOutValue era -> Text
-  printableValue (TxOutValue _ val) = renderValue val
-  printableValue (TxOutAdaOnly _ (Lovelace i)) = Text.pack $ show i
+  printableValue = \case
+    TxOutValueByron _ (Lovelace i) -> Text.pack $ show i
+    TxOutValueShelleyBased sbe2 val -> renderValue $ Api.fromLedgerValue sbe2 val
 
 runQueryStakePoolsCmd :: ()
   => Cmd.QueryStakePoolsCmdArgs

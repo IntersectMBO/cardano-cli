@@ -12,8 +12,6 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update --
                                                                                 [--pool-influence RATIONAL]
                                                                                 [--treasury-expansion RATIONAL]
                                                                                 [--monetary-expansion RATIONAL]
-                                                                                [--protocol-major-version NATURAL
-                                                                                  --protocol-minor-version NATURAL]
                                                                                 [--min-pool-cost NATURAL]
                                                                                 [ --extra-entropy HEX
                                                                                 | --reset-extra-entropy
@@ -26,6 +24,8 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update --
                                                                                 [--max-value-size INT]
                                                                                 [--collateral-percent INT]
                                                                                 [--max-collateral-inputs INT]
+                                                                                [--protocol-major-version NATURAL
+                                                                                  --protocol-minor-version NATURAL]
                                                                                 --out-file FILE
 
   Create a protocol parameters update.
@@ -59,13 +59,6 @@ Available options:
                            Treasury expansion.
   --monetary-expansion RATIONAL
                            Monetary expansion.
-  --protocol-major-version NATURAL
-                           Major protocol version. An increase indicates a hard
-                           fork.
-  --protocol-minor-version NATURAL
-                           Minor protocol version. An increase indicates a soft
-                           fork (old software canvalidate but not produce new
-                           blocks).
   --min-pool-cost NATURAL  The minimum allowed cost parameter for stake pools.
   --extra-entropy HEX      Praos extra entropy seed, as a hex byte string.
   --reset-extra-entropy    Reset the Praos extra entropy to none.
@@ -95,5 +88,12 @@ Available options:
   --max-collateral-inputs INT
                            The maximum number of collateral inputs allowed in a
                            transaction (from Alonzo era).
+  --protocol-major-version NATURAL
+                           Major protocol version. An increase indicates a hard
+                           fork.
+  --protocol-minor-version NATURAL
+                           Minor protocol version. An increase indicates a soft
+                           fork (old software canvalidate but not produce new
+                           blocks).
   --out-file FILE          The output file.
   -h,--help                Show this help text

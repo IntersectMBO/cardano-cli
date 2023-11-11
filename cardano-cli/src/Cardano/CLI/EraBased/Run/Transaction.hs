@@ -689,18 +689,31 @@ toAddressInAnyEra era addrAny = runExcept $ do
 
       pure (AddressInEra (ShelleyAddressInEra sbe) sAddr)
 
+
+lovelaceToCoin :: Lovelace -> Ledger.Coin
+lovelaceToCoin (Lovelace ll) = Ledger.Coin ll
+
 toTxOutValueInAnyEra
   :: CardanoEra era
   -> Value
   -> Either TxCmdError (TxOutValue era)
 toTxOutValueInAnyEra era val =
-  caseByronToAllegraOrMaryEraOnwards
+  caseByronOrShelleyBasedEra
     (\w ->
       case valueToLovelace val of
-        Just l  -> return (TxOutAdaOnly w l)
+        Just l  -> return (TxOutValueByron w l)
         Nothing -> txFeatureMismatchPure era TxFeatureMultiAssetOutputs
     )
-    (\w -> return (TxOutValue w val))
+    (\sbe ->
+      caseShelleyToAllegraOrMaryEraOnwards
+        (\_ -> case valueToLovelace val of
+          Just l  -> return (TxOutValueShelleyBased sbe $ lovelaceToCoin l)
+          Nothing -> txFeatureMismatchPure era TxFeatureMultiAssetOutputs
+        )
+        (\w -> return (TxOutValueShelleyBased sbe (toLedgerValue w val))
+        )
+        sbe
+    )
     era
 
 toTxOutInAnyEra :: CardanoEra era
@@ -710,9 +723,12 @@ toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
   addr <- hoistEither $ toAddressInAnyEra era addr'
   val <- hoistEither $ toTxOutValueInAnyEra era val'
 
-  datum <- caseByronToMaryOrAlonzoEraOnwards
+  datum <- caseByronOrShelleyBasedEra
     (const (pure TxOutDatumNone))
-    (\wa -> toTxAlonzoDatum wa mDatumHash)
+    (caseShelleyToMaryOrAlonzoEraOnwards
+      (const (pure TxOutDatumNone))
+      (\wa -> toTxAlonzoDatum wa mDatumHash)
+    )
     era
 
   refScript <- caseByronToAlonzoOrBabbageEraOnwards
@@ -763,24 +779,27 @@ createTxMintValue era (val, scriptWitnesses) =
   if List.null (valueToList val) && List.null scriptWitnesses
   then return TxMintNone
   else do
-    caseByronToAllegraOrMaryEraOnwards
+    caseByronOrShelleyBasedEra
       (const (txFeatureMismatchPure era TxFeatureMintValue))
-      (\w -> do
-        -- The set of policy ids for which we need witnesses:
-        let witnessesNeededSet :: Set PolicyId
-            witnessesNeededSet =
-              Set.fromList [ pid | (AssetId pid _, _) <- valueToList val ]
+      (caseShelleyToAllegraOrMaryEraOnwards
+        (const (txFeatureMismatchPure era TxFeatureMintValue))
+        (\w -> do
+          -- The set of policy ids for which we need witnesses:
+          let witnessesNeededSet :: Set PolicyId
+              witnessesNeededSet =
+                Set.fromList [ pid | (AssetId pid _, _) <- valueToList val ]
 
-        let witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
-            witnessesProvidedMap = Map.fromList $ gatherMintingWitnesses scriptWitnesses
+          let witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
+              witnessesProvidedMap = Map.fromList $ gatherMintingWitnesses scriptWitnesses
 
-            witnessesProvidedSet = Map.keysSet witnessesProvidedMap
+              witnessesProvidedSet = Map.keysSet witnessesProvidedMap
 
-        -- Check not too many, nor too few:
-        validateAllWitnessesProvided   witnessesNeededSet witnessesProvidedSet
-        validateNoUnnecessaryWitnesses witnessesNeededSet witnessesProvidedSet
+          -- Check not too many, nor too few:
+          validateAllWitnessesProvided   witnessesNeededSet witnessesProvidedSet
+          validateNoUnnecessaryWitnesses witnessesNeededSet witnessesProvidedSet
 
-        return (TxMintValue w val (BuildTxWith witnessesProvidedMap))
+          return (TxMintValue w val (BuildTxWith witnessesProvidedMap))
+        )
       )
       era
  where
@@ -903,6 +922,7 @@ runTransactionSignCmd
 
           firstExceptT TxCmdWriteFileError . newExceptT
             $ writeLazyByteStringFile outTxFile
+            $ shelleyBasedEraConstraints sbe
             $ textEnvelopeToJSON Nothing tx
 
 -- ----------------------------------------------------------------------------
@@ -1201,6 +1221,7 @@ runTransactionWitnessCmd
 
       firstExceptT TxCmdWriteFileError . newExceptT
         $ writeLazyByteStringFile outFile
+        $ shelleyBasedEraConstraints sbe
         $ textEnvelopeToJSON Nothing witness
 
 runTransactionSignWitnessCmd :: ()

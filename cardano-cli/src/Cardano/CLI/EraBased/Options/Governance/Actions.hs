@@ -239,7 +239,6 @@ pCommonProtocolParameters =
     <*> convertToLedger toNonNegativeIntervalOrErr (optional pPoolInfluence)
     <*> convertToLedger toUnitIntervalOrErr (optional pTreasuryExpansion)
     <*> convertToLedger toUnitIntervalOrErr (optional pMonetaryExpansion)
-    <*> convertToLedger mkProtocolVersionOrErr (optional pProtocolVersion)
     <*> convertToLedger toShelleyLovelace (optional pMinPoolCost)
 
 
@@ -247,6 +246,11 @@ pDeprecatedAfterMaryPParams :: Parser (DeprecatedAfterMaryPParams ledgerera)
 pDeprecatedAfterMaryPParams =
   DeprecatedAfterMaryPParams
     <$> convertToLedger toShelleyLovelace (optional pMinUTxOValue)
+
+pDeprecatedAfterBabbagePParams :: Parser (DeprecatedAfterBabbagePParams ledgerera)
+pDeprecatedAfterBabbagePParams =
+  DeprecatedAfterBabbagePParams
+    <$> convertToLedger mkProtocolVersionOrErr (optional pProtocolVersion)
 
 pShelleyToAlonzoPParams :: Parser (ShelleyToAlonzoPParams ledgerera)
 pShelleyToAlonzoPParams =
@@ -294,26 +298,31 @@ dpGovActionProtocolParametersUpdate = \case
     ShelleyEraBasedProtocolParametersUpdate
       <$> pCommonProtocolParameters
       <*> pDeprecatedAfterMaryPParams
+      <*> pDeprecatedAfterBabbagePParams
       <*> pShelleyToAlonzoPParams
   ShelleyBasedEraAllegra ->
     AllegraEraBasedProtocolParametersUpdate
       <$> pCommonProtocolParameters
       <*> pDeprecatedAfterMaryPParams
       <*> pShelleyToAlonzoPParams
+      <*> pDeprecatedAfterBabbagePParams
   ShelleyBasedEraMary ->
     MaryEraBasedProtocolParametersUpdate
       <$> pCommonProtocolParameters
       <*> pDeprecatedAfterMaryPParams
       <*> pShelleyToAlonzoPParams
+      <*> pDeprecatedAfterBabbagePParams
   ShelleyBasedEraAlonzo ->
     AlonzoEraBasedProtocolParametersUpdate
       <$> pCommonProtocolParameters
       <*> pShelleyToAlonzoPParams
       <*> pAlonzoOnwardsPParams
+      <*> pDeprecatedAfterBabbagePParams
   ShelleyBasedEraBabbage ->
     BabbageEraBasedProtocolParametersUpdate
       <$> pCommonProtocolParameters
       <*> pAlonzoOnwardsPParams
+      <*> pDeprecatedAfterBabbagePParams
       <*> pIntroducedInBabbagePParams
   ShelleyBasedEraConway ->
     ConwayEraBasedProtocolParametersUpdate

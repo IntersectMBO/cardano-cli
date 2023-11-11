@@ -562,15 +562,24 @@ friendlyLovelace (Shelley.Coin value) = String $ textShow value <> " Lovelace"
 friendlyMintValue :: TxMintValue ViewTx era -> Aeson.Value
 friendlyMintValue = \case
   TxMintNone -> Null
-  TxMintValue _ v _ -> friendlyValue v
+  TxMintValue sbe v _ -> friendlyValue (maryEraOnwardsToShelleyBasedEra sbe) v
 
 friendlyTxOutValue :: TxOutValue era -> Aeson.Value
 friendlyTxOutValue = \case
-  TxOutAdaOnly _ lovelace -> friendlyLovelace $ toShelleyLovelace lovelace
-  TxOutValue _ v -> friendlyValue v
+  TxOutValueByron _ lovelace -> friendlyLovelace $ toShelleyLovelace lovelace
+  TxOutValueShelleyBased sbe v -> friendlyLedgerValue sbe v
 
-friendlyValue :: Api.Value -> Aeson.Value
-friendlyValue v =
+friendlyLedgerValue :: ()
+  => ShelleyBasedEra era
+  -> Ledger.Value (ShelleyLedgerEra era)
+  -> Aeson.Value
+friendlyLedgerValue sbe v = friendlyValue sbe $ Api.fromLedgerValue sbe v
+
+friendlyValue :: ()
+  => ShelleyBasedEra era
+  -> Api.Value
+  -> Aeson.Value
+friendlyValue _ v =
   object
     [ case bundle of
         ValueNestedBundleAda q -> "lovelace" .= q
