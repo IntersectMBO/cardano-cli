@@ -4,6 +4,7 @@ module Test.Golden.Shelley.Node.KeyGenKes where
 
 import           Control.Monad (void)
 
+import           Test.Cardano.CLI.Aeson
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
@@ -23,8 +24,8 @@ hprop_golden_shelleyNodeKeyGenKes = propertyOnce . H.moduleWorkspace "tmp" $ \te
     , "--signing-key-file", signingKey
     ]
 
-  H.assertFileOccurences 1 "KesVerificationKey_ed25519_kes_2^6" verificationKey
-  H.assertFileOccurences 1 "KesSigningKey_ed25519_kes_2^6" signingKey
+  assertHasMappings [("type", "KesVerificationKey_ed25519_kes_2^6"), ("description", "KES Verification Key")] verificationKey
+  assertHasMappings [("type", "KesSigningKey_ed25519_kes_2^6"), ("description", "KES Signing Key")] signingKey
 
   H.assertEndsWithSingleNewline verificationKey
   H.assertEndsWithSingleNewline signingKey
@@ -41,8 +42,8 @@ hprop_golden_shelleyNodeKeyGenKes_te = propertyOnce . H.moduleWorkspace "tmp" $ 
     , "--signing-key-file", signingKey
     ]
 
-  H.assertFileOccurences 1 "KesVerificationKey_ed25519_kes_2^6" verificationKey
-  H.assertFileOccurences 1 "KesSigningKey_ed25519_kes_2^6" signingKey
+  assertHasMappings [("type", "KesVerificationKey_ed25519_kes_2^6"), ("description", "KES Verification Key")] verificationKey
+  assertHasMappings [("type", "KesSigningKey_ed25519_kes_2^6"), ("description", "KES Signing Key")] signingKey
 
   H.assertEndsWithSingleNewline verificationKey
   H.assertEndsWithSingleNewline signingKey
