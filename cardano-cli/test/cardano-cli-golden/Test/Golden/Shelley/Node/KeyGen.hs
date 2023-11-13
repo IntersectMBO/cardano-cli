@@ -5,6 +5,7 @@ module Test.Golden.Shelley.Node.KeyGen
 
 import           Control.Monad (void)
 
+import           Test.Cardano.CLI.Aeson
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
@@ -26,9 +27,9 @@ hprop_golden_shelleyNodeKeyGen = propertyOnce . H.moduleWorkspace "tmp" $ \tempD
     , "--operational-certificate-issue-counter", opCertCounterFile
     ]
 
-  H.assertFileOccurences 1 "StakePoolVerificationKey_ed25519" verificationKeyFile
-  H.assertFileOccurences 1 "StakePoolSigningKey_ed25519" signingKeyFile
-  H.assertFileOccurences 1 "NodeOperationalCertificateIssueCounter" opCertCounterFile
+  assertHasMappings [("type", "StakePoolVerificationKey_ed25519"), ("description", "Stake Pool Operator Verification Key")] verificationKeyFile
+  assertHasMappings [("type", "StakePoolSigningKey_ed25519"), ("description", "Stake Pool Operator Signing Key")] signingKeyFile
+  assertHasMappings [("type", "NodeOperationalCertificateIssueCounter"), ("description", "Next certificate issue number: 0")] opCertCounterFile
 
   H.assertEndsWithSingleNewline verificationKeyFile
   H.assertEndsWithSingleNewline signingKeyFile
@@ -47,9 +48,9 @@ hprop_golden_shelleyNodeKeyGen_te = propertyOnce . H.moduleWorkspace "tmp" $ \te
     , "--operational-certificate-issue-counter", opCertCounterFile
     ]
 
-  H.assertFileOccurences 1 "StakePoolVerificationKey_ed25519" verificationKeyFile
-  H.assertFileOccurences 1 "StakePoolSigningKey_ed25519" signingKeyFile
-  H.assertFileOccurences 1 "NodeOperationalCertificateIssueCounter" opCertCounterFile
+  assertHasMappings [("type", "StakePoolVerificationKey_ed25519"), ("description", "Stake Pool Operator Verification Key")] verificationKeyFile
+  assertHasMappings [("type", "StakePoolSigningKey_ed25519"), ("description", "Stake Pool Operator Signing Key")] signingKeyFile
+  assertHasMappings [("type", "NodeOperationalCertificateIssueCounter"), ("description", "Next certificate issue number: 0")] opCertCounterFile
 
   H.assertEndsWithSingleNewline verificationKeyFile
   H.assertEndsWithSingleNewline signingKeyFile
@@ -71,6 +72,6 @@ hprop_golden_shelleyNodeKeyGen_bech32 = propertyOnce . H.moduleWorkspace "tmp" $
 
   H.assertFileOccurences 1 "pool_vk" verificationKeyFile
   H.assertFileOccurences 1 "pool_sk" signingKeyFile
-  H.assertFileOccurences 1 "NodeOperationalCertificateIssueCounter" opCertCounterFile
+  assertHasMappings [("type", "NodeOperationalCertificateIssueCounter"), ("description", "Next certificate issue number: 0")] opCertCounterFile
 
   H.assertEndsWithSingleNewline opCertCounterFile
