@@ -4,6 +4,7 @@ module Test.Golden.Shelley.Node.IssueOpCert where
 
 import           Control.Monad (void)
 
+import           Test.Cardano.CLI.Aeson (assertHasMappings)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
@@ -37,8 +38,8 @@ hprop_golden_shelleyNodeIssueOpCert = propertyOnce . H.moduleWorkspace "tmp" $ \
     , "--out-file", operationalCertFile
     ]
 
-  H.assertFileOccurences 1 "NodeOperationalCertificate" operationalCertFile
-  H.assertFileOccurences 1 "Next certificate issue number: 1" operationalCertificateIssueCounterFile
+  assertHasMappings [("type", "NodeOperationalCertificate")] operationalCertFile
+  assertHasMappings [("type", "NodeOperationalCertificateIssueCounter"), ("description", "Next certificate issue number: 1")] operationalCertificateIssueCounterFile
 
   H.assertEndsWithSingleNewline operationalCertFile
   H.assertEndsWithSingleNewline operationalCertificateIssueCounterFile

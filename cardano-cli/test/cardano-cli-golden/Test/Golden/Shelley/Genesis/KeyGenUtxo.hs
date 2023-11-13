@@ -4,6 +4,7 @@ module Test.Golden.Shelley.Genesis.KeyGenUtxo where
 
 import           Control.Monad (void)
 
+import           Test.Cardano.CLI.Aeson
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
@@ -23,8 +24,8 @@ hprop_golden_shelleyGenesisKeyGenUtxo = propertyOnce . H.moduleWorkspace "tmp" $
     , "--signing-key-file", utxoSigningKeyFile
     ]
 
-  H.assertFileOccurences 1 "GenesisUTxOVerificationKey_ed25519" utxoVerificationKeyFile
-  H.assertFileOccurences 1 "GenesisUTxOSigningKey_ed25519" utxoSigningKeyFile
+  assertHasMappings [("type", "GenesisUTxOVerificationKey_ed25519")] utxoVerificationKeyFile
+  assertHasMappings [("type", "GenesisUTxOSigningKey_ed25519")] utxoSigningKeyFile
 
   H.assertEndsWithSingleNewline utxoVerificationKeyFile
   H.assertEndsWithSingleNewline utxoSigningKeyFile

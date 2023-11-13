@@ -17,6 +17,7 @@ import qualified Data.HashMap.Lazy as HM
 import qualified Data.Set as S
 import qualified Data.Time.Clock as DT
 
+import           Test.Cardano.CLI.Aeson (assertHasMappings)
 import           Test.Cardano.CLI.Util as OP
 
 import           Hedgehog (Property, forAll, (===))
@@ -129,24 +130,24 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
 
     for_ [1 .. delegateCount] $ \i -> do
       -- Check Genesis keys
-      H.assertFileOccurences 1 "GenesisSigningKey_ed25519" $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
-      H.assertFileOccurences 1 "GenesisVerificationKey_ed25519" $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
+      assertHasMappings [("type", "GenesisVerificationKey_ed25519")] $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
+      assertHasMappings [("type", "GenesisSigningKey_ed25519")] $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
 
       H.assertEndsWithSingleNewline $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
       H.assertEndsWithSingleNewline $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
 
       -- Check delegate keys
-      H.assertFileOccurences 1 "GenesisDelegateSigningKey_ed25519" $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
-      H.assertFileOccurences 1 "GenesisDelegateVerificationKey_ed25519" $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
-      H.assertFileOccurences 1 "NodeOperationalCertificateIssueCounter" $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
+      assertHasMappings [("type", "GenesisDelegateSigningKey_ed25519")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
+      assertHasMappings [("type", "GenesisDelegateVerificationKey_ed25519")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
+      assertHasMappings [("type", "NodeOperationalCertificateIssueCounter")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
 
       H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
       H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
       H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
 
       -- Check utxo keys
-      H.assertFileOccurences 1 "GenesisUTxOSigningKey_ed25519" $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
-      H.assertFileOccurences 1 "GenesisUTxOVerificationKey_ed25519"  $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
+      assertHasMappings [("type", "GenesisUTxOSigningKey_ed25519")] $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
+      assertHasMappings [("type", "GenesisUTxOVerificationKey_ed25519")]  $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
 
       H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
       H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
@@ -208,24 +209,24 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
 
     for_ [1 .. delegateCount] $ \i -> do
       -- Check Genesis keys
-      H.assertFileOccurences 1 "GenesisSigningKey_ed25519" $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
-      H.assertFileOccurences 1 "GenesisVerificationKey_ed25519" $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
+      assertHasMappings [("type", "GenesisSigningKey_ed25519")] $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
+      assertHasMappings [("type", "GenesisVerificationKey_ed25519")] $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
 
       H.assertEndsWithSingleNewline $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
       H.assertEndsWithSingleNewline $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
 
       -- Check delegate keys
-      H.assertFileOccurences 1 "GenesisDelegateSigningKey_ed25519" $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
-      H.assertFileOccurences 1 "GenesisDelegateVerificationKey_ed25519" $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
-      H.assertFileOccurences 1 "NodeOperationalCertificateIssueCounter" $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
+      assertHasMappings [("type", "GenesisDelegateSigningKey_ed25519")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
+      assertHasMappings [("type", "GenesisDelegateVerificationKey_ed25519")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
+      assertHasMappings [("type", "NodeOperationalCertificateIssueCounter")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
 
       H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
       H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
       H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
 
       -- Check utxo keys
-      H.assertFileOccurences 1 "GenesisUTxOSigningKey_ed25519" $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
-      H.assertFileOccurences 1 "GenesisUTxOVerificationKey_ed25519"  $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
+      assertHasMappings [("type", "GenesisUTxOSigningKey_ed25519")] $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
+      assertHasMappings [("type", "GenesisUTxOVerificationKey_ed25519")]  $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
 
       H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
       H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
