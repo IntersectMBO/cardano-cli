@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
@@ -164,7 +165,7 @@ runTransactionBuildCmd
     _ -> pure TxUpdateProposalNone
 
   requiredSigners  <- mapM (firstExceptT TxCmdRequiredSignerError .  newExceptT . readRequiredSigner) reqSigners
-  mReturnCollateral <- forM mReturnColl $ toTxOutInAnyEra era
+  mReturnCollateral <- forM mReturnColl $ toTxOutInShelleyBasedEra eon
 
   txOuts <- mapM (toTxOutInAnyEra era) txouts
 
@@ -319,7 +320,11 @@ runTransactionBuildRawCmd
     _ -> pure TxUpdateProposalNone
 
   requiredSigners  <- mapM (firstExceptT TxCmdRequiredSignerError .  newExceptT . readRequiredSigner) reqSigners
-  mReturnCollateral <- forM mReturnColl $ toTxOutInAnyEra eon
+
+  mReturnCollateral <- forEraInEon eon (pure Nothing) $ \sbe ->
+                        forM mReturnColl $ toTxOutInShelleyBasedEra sbe
+
+  -- NB: We need to be able to construct txs in Byron to other Byron addresses
   txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
     -- the same collateral input can be used for several plutus scripts
@@ -690,6 +695,14 @@ toAddressInAnyEra era addrAny = runExcept $ do
       pure (AddressInEra (ShelleyAddressInEra sbe) sAddr)
 
 
+toAddressInShelleyBasedEra
+  :: ShelleyBasedEra era
+  -> Address ShelleyAddr
+  -> Either TxCmdError (AddressInEra era)
+toAddressInShelleyBasedEra sbe sAddr = runExcept $
+      pure (AddressInEra (ShelleyAddressInEra sbe) sAddr)
+
+
 lovelaceToCoin :: Lovelace -> Ledger.Coin
 lovelaceToCoin (Lovelace ll) = Ledger.Coin ll
 
@@ -698,10 +711,10 @@ toTxOutValueInAnyEra
   -> Value
   -> Either TxCmdError (TxOutValue era)
 toTxOutValueInAnyEra era val =
-  caseByronOrShelleyBasedEra
-    (\w ->
+ caseByronOrShelleyBasedEra
+    (const $
       case valueToLovelace val of
-        Just l  -> return (TxOutValueByron w l)
+        Just l  -> return (TxOutValueByron l)
         Nothing -> txFeatureMismatchPure era TxFeatureMultiAssetOutputs
     )
     (\sbe ->
@@ -715,7 +728,46 @@ toTxOutValueInAnyEra era val =
         sbe
     )
     era
+toTxOutValueInShelleyBasedEra
+  :: ShelleyBasedEra era
+  -> Value
+  -> Either TxCmdError (TxOutValue era)
+toTxOutValueInShelleyBasedEra sbe val =
+  caseShelleyToAllegraOrMaryEraOnwards
+    (\_ -> case valueToLovelace val of
+      Just l  -> return (TxOutValueShelleyBased sbe $ lovelaceToCoin l)
+      Nothing -> txFeatureMismatchPure (toCardanoEra sbe) TxFeatureMultiAssetOutputs
+    )
+    (\w -> return (TxOutValueShelleyBased sbe (toLedgerValue w val))
+    )
+    sbe
 
+
+toTxOutInShelleyBasedEra
+  :: ShelleyBasedEra era
+  -> TxOutShelleyBasedEra
+  -> ExceptT TxCmdError IO (TxOut CtxTx era)
+toTxOutInShelleyBasedEra era (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp) = do
+  addr <- hoistEither $ toAddressInShelleyBasedEra era addr'
+  val <- hoistEither $ toTxOutValueInShelleyBasedEra era val'
+
+  datum <-
+    caseShelleyToMaryOrAlonzoEraOnwards
+      (const (pure TxOutDatumNone))
+      (\wa -> toTxAlonzoDatum wa mDatumHash)
+      era
+
+  refScript <- inEonForEra
+                 (pure ReferenceScriptNone)
+                 (\wb -> getReferenceScript wb refScriptFp)
+                 (toCardanoEra era)
+
+  pure $ TxOut addr val datum refScript
+
+
+-- TODO: toTxOutInAnyEra eventually will not be needed because
+-- byron related functionality will be treated
+-- separately
 toTxOutInAnyEra :: CardanoEra era
                 -> TxOutAnyEra
                 -> ExceptT TxCmdError IO (TxOut CtxTx era)
@@ -735,37 +787,35 @@ toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
     (const (pure ReferenceScriptNone))
     (\wb -> getReferenceScript wb refScriptFp)
     era
-
   pure $ TxOut addr val datum refScript
 
-  where
-    getReferenceScript :: ()
-      => BabbageEraOnwards era
-      -> ReferenceScriptAnyEra
-      -> ExceptT TxCmdError IO (ReferenceScript era)
-    getReferenceScript w = \case
-      ReferenceScriptAnyEraNone -> return ReferenceScriptNone
-      ReferenceScriptAnyEra fp -> ReferenceScript w <$> firstExceptT TxCmdScriptFileError (readFileScriptInAnyLang fp)
+getReferenceScript :: ()
+  => BabbageEraOnwards era
+  -> ReferenceScriptAnyEra
+  -> ExceptT TxCmdError IO (ReferenceScript era)
+getReferenceScript w = \case
+  ReferenceScriptAnyEraNone -> return ReferenceScriptNone
+  ReferenceScriptAnyEra fp -> ReferenceScript w <$> firstExceptT TxCmdScriptFileError (readFileScriptInAnyLang fp)
 
-    toTxAlonzoDatum :: ()
-      => AlonzoEraOnwards era
-      -> TxOutDatumAnyEra
-      -> ExceptT TxCmdError IO (TxOutDatum CtxTx era)
-    toTxAlonzoDatum supp cliDatum =
-      case cliDatum of
-        TxOutDatumByNone -> pure TxOutDatumNone
-        TxOutDatumByHashOnly h -> pure (TxOutDatumHash supp h)
-        TxOutDatumByHashOf sDataOrFile -> do
-          sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
-          pure (TxOutDatumHash supp $ hashScriptDataBytes sData)
-        TxOutDatumByValue sDataOrFile -> do
-          sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
-          pure (TxOutDatumInTx supp sData)
-        TxOutInlineDatumByValue sDataOrFile -> do
-          let cEra = alonzoEraOnwardsToCardanoEra supp
-          forEraInEon cEra (txFeatureMismatch cEra TxFeatureInlineDatums) $ \babbageOnwards -> do
-            sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
-            pure $ TxOutDatumInline babbageOnwards sData
+toTxAlonzoDatum :: ()
+  => AlonzoEraOnwards era
+  -> TxOutDatumAnyEra
+  -> ExceptT TxCmdError IO (TxOutDatum CtxTx era)
+toTxAlonzoDatum supp cliDatum =
+  case cliDatum of
+    TxOutDatumByNone -> pure TxOutDatumNone
+    TxOutDatumByHashOnly h -> pure (TxOutDatumHash supp h)
+    TxOutDatumByHashOf sDataOrFile -> do
+      sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
+      pure (TxOutDatumHash supp $ hashScriptDataBytes sData)
+    TxOutDatumByValue sDataOrFile -> do
+      sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
+      pure (TxOutDatumInTx supp sData)
+    TxOutInlineDatumByValue sDataOrFile -> do
+      let cEra = alonzoEraOnwardsToCardanoEra supp
+      forEraInEon cEra (txFeatureMismatch cEra TxFeatureInlineDatums) $ \babbageOnwards -> do
+        sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
+        pure $ TxOutDatumInline babbageOnwards sData
 
 -- TODO: Currently we specify the policyId with the '--mint' option on the cli
 -- and we added a separate '--policy-id' parser that parses the policy id for the
