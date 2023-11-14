@@ -1848,9 +1848,9 @@ pTxInCollateral =
       <> Opt.help "TxId#TxIx"
       )
 
-pReturnCollateral :: Parser TxOutAnyEra
+pReturnCollateral :: Parser TxOutShelleyBasedEra
 pReturnCollateral =
-  Opt.option (readerFromParsecParser parseTxOutAnyEra)
+  Opt.option (readerFromParsecParser parseTxOutShelleyBasedEra)
           ( mconcat
             [ Opt.long "tx-out-return-collateral"
             , Opt.metavar "ADDRESS VALUE"
@@ -1895,6 +1895,19 @@ pTxOut =
           <> Opt.help "The transaction output as ADDRESS VALUE where ADDRESS is \
                       \the Bech32-encoded address followed by the value in \
                       \the multi-asset syntax (including simply Lovelace)."
+          )
+    <*> pTxOutDatum
+    <*> pRefScriptFp
+
+pTxOutShelleyBased :: Parser TxOutShelleyBasedEra
+pTxOutShelleyBased =
+  Opt.option (readerFromParsecParser parseTxOutShelleyBasedEra)
+          (  Opt.long "tx-out"
+          <> Opt.metavar "ADDRESS VALUE"
+          -- TODO alonzo: Update the help text to describe the new syntax as well.
+          <> Opt.help "The transaction output as ADDRESS VALUE where ADDRESS is \
+                      \the Bech32-encoded address followed by the value in \
+                      \Lovelace."
           )
     <*> pTxOutDatum
     <*> pRefScriptFp
@@ -2997,6 +3010,25 @@ pDRepActivity =
     , Opt.metavar "NATURAL"
     , Opt.help "TODO"
     ]
+
+parseTxOutShelleyBasedEra
+  :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutShelleyBasedEra)
+parseTxOutShelleyBasedEra = do
+    addr <- parseShelleyAddress
+    Parsec.spaces
+    -- Accept the old style of separating the address and value in a
+    -- transaction output:
+    Parsec.option () (Parsec.char '+' >> Parsec.spaces)
+    val <- parseValue
+    return (TxOutShelleyBasedEra addr val)
+
+parseShelleyAddress :: Parsec.Parser (Address ShelleyAddr)
+parseShelleyAddress = do
+    str <- lexPlausibleAddressString
+    case deserialiseAddress AsShelleyAddress str of
+      Nothing   -> fail $ "invalid address: " <> Text.unpack str
+      Just addr -> pure addr
+
 
 parseTxOutAnyEra
   :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)
