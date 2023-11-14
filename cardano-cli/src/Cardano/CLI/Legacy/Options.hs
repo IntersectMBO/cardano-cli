@@ -425,7 +425,7 @@ pTransaction envCli =
     TransactionCalculateMinValueCmd
       <$> pLegacyCardanoEra envCli
       <*> pProtocolParamsFile
-      <*> pTxOut
+      <*> pTxOutShelleyBased
 
   pTxHashScriptData :: Parser LegacyTransactionCmds
   pTxHashScriptData =
