@@ -1023,14 +1023,14 @@ runTransactionCalculateMinValueCmd
       , txOut
       } = do
   pp <- firstExceptT TxCmdProtocolParamsError (readProtocolParameters protocolParamsFile)
-  out <- toTxOutInAnyEra eon txOut
+  out <- toTxOutInShelleyBasedEra eon txOut
   -- TODO: shouldn't we just require shelley based era here instead of error-ing for byron?
-  forEraInEon eon (error "runTransactionCalculateMinValueCmd: Byron era not implemented yet") $ \sbe -> do
-    firstExceptT TxCmdPParamsErr . hoistEither
-      $ checkProtocolParameters sbe pp
-    pp' <- hoistEither . first TxCmdProtocolParamsConverstionError $ toLedgerPParams sbe pp
-    let minValue = calculateMinimumUTxO sbe out pp'
-    liftIO . IO.print $ minValue
+
+  firstExceptT TxCmdPParamsErr . hoistEither
+    $ checkProtocolParameters eon pp
+  pp' <- hoistEither . first TxCmdProtocolParamsConverstionError $ toLedgerPParams eon pp
+  let minValue = calculateMinimumUTxO eon out pp'
+  liftIO . IO.print $ minValue
 
 runTransactionPolicyIdCmd :: ()
   => Cmd.TransactionPolicyIdCmdArgs

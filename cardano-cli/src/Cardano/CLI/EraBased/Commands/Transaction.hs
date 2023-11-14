@@ -168,9 +168,9 @@ data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
   } deriving Show
 
 data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdArgs
-  { eon                 :: !(CardanoEra era)
+  { eon                 :: !(ShelleyBasedEra era)
   , protocolParamsFile  :: !ProtocolParamsFile
-  , txOut               :: !TxOutAnyEra
+  , txOut               :: !TxOutShelleyBasedEra
   } deriving Show
 
 newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
