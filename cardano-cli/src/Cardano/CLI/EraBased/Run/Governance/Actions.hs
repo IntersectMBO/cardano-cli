@@ -8,9 +8,11 @@
 module Cardano.CLI.EraBased.Run.Governance.Actions
   ( runGovernanceActionCmds
   , GovernanceActionsError(..)
+  , addCostModelsToEraBasedProtocolParametersUpdate
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Ledger (StrictMaybe (..))
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
@@ -21,6 +23,7 @@ import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
 
 import           Control.Monad
 import           Control.Monad.Except (ExceptT)
@@ -230,11 +233,20 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
     (\sToB -> do
          let oFp = uppFilePath eraBasedPParams'
              anyEra = AnyShelleyBasedEra $ shelleyToBabbageEraToShelleyBasedEra sToB
-         UpdateProtocolParametersPreConway _cOn expEpoch genesisVerKeys
+         UpdateProtocolParametersPreConway _stB expEpoch genesisVerKeys
            <- hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
                 $ uppPreConway eraBasedPParams'
-         let eraBasedPParams = uppNewPParams eraBasedPParams'
-             updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
+
+         eraBasedPParams
+           <- case uppCostModelsFile eraBasedPParams' of
+                Nothing -> pure $ uppNewPParams eraBasedPParams'
+                Just (Cmd.CostModelsFile alonzoOnwards costModelsFile) -> do
+                  costModels <- firstExceptT GovernanceActionsCmdCostModelsError
+                    $ readCostModels costModelsFile
+                  pure . addCostModelsToEraBasedProtocolParametersUpdate alonzoOnwards costModels
+                    $ uppNewPParams eraBasedPParams'
+
+         let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
              apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
          genVKeys <- sequence
            [ firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT
@@ -255,10 +267,18 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
           <- hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
               $ uppConwayOnwards eraBasedPParams'
 
+        eraBasedPParams
+          <- case uppCostModelsFile eraBasedPParams' of
+               Nothing -> pure $ uppNewPParams eraBasedPParams'
+               Just (Cmd.CostModelsFile alonzoOnwards costModelsFile) -> do
+                 costModels <- firstExceptT GovernanceActionsCmdCostModelsError
+                   $ readCostModels costModelsFile
+                 pure . addCostModelsToEraBasedProtocolParametersUpdate alonzoOnwards costModels
+                   $ uppNewPParams eraBasedPParams'
+
         returnKeyHash <- readStakeKeyHash returnAddr
 
-        let eraBasedPParams = uppNewPParams eraBasedPParams'
-            updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
+        let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
 
             prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
             proposalAnchor = Ledger.Anchor
@@ -280,6 +300,27 @@ readStakeKeyHash :: VerificationKeyOrHashOrFile StakeKey -> ExceptT GovernanceAc
 readStakeKeyHash stake =
   firstExceptT GovernanceActionsCmdReadFileError
     . newExceptT $ readVerificationKeyOrHashOrFile AsStakeKey stake
+
+addCostModelsToEraBasedProtocolParametersUpdate
+  :: AlonzoEraOnwards era
+  -> Alonzo.CostModels
+  -> EraBasedProtocolParametersUpdate era
+  -> EraBasedProtocolParametersUpdate era
+addCostModelsToEraBasedProtocolParametersUpdate
+    AlonzoEraOnwardsAlonzo
+    cmdls
+    (AlonzoEraBasedProtocolParametersUpdate common sTa aOn depAfterB) =
+  AlonzoEraBasedProtocolParametersUpdate common sTa (aOn { alCostModels = SJust cmdls }) depAfterB
+addCostModelsToEraBasedProtocolParametersUpdate
+    AlonzoEraOnwardsBabbage
+    cmdls
+    (BabbageEraBasedProtocolParametersUpdate common aOn depAfterB inB) =
+  BabbageEraBasedProtocolParametersUpdate common (aOn { alCostModels = SJust cmdls }) depAfterB inB
+addCostModelsToEraBasedProtocolParametersUpdate
+    AlonzoEraOnwardsConway
+    cmdls
+    (ConwayEraBasedProtocolParametersUpdate common aOn inB inC) =
+  ConwayEraBasedProtocolParametersUpdate common (aOn { alCostModels = SJust cmdls }) inB inC
 
 runGovernanceActionTreasuryWithdrawalCmd :: ()
   => GovernanceActionTreasuryWithdrawalCmdArgs era

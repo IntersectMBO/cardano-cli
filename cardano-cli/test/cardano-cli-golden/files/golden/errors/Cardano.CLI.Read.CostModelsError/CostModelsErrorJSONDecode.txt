@@ -1,0 +1,1 @@
+Error decoding JSON cost model at "some/file.txt": "some error"

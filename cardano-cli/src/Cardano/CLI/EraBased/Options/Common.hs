@@ -903,6 +903,13 @@ pGovActionDeposit =
     , Opt.help "Deposit required to submit a governance action."
     ]
 
+pNewGovActionDeposit :: Parser Lovelace
+pNewGovActionDeposit =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "new-governance-action-deposit"
+    , Opt.metavar "NATURAL"
+    , Opt.help "Proposed new value of the deposit required to submit a governance action."
+    ]
 
 -- | First argument is the optional prefix
 pStakeVerificationKeyOrHashOrFile :: Maybe String -> Parser (VerificationKeyOrHashOrFile StakeKey)
@@ -3197,8 +3204,8 @@ pAnchorDataHash =
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))
 pPreviousGovernanceAction = optional $
-  (,) <$> pTxId "governance-action-tx-id" "Previous txid of the governance action."
-      <*> pWord32 "governance-action-index" "Previous tx's governance action index."
+  (,) <$> pTxId "prev-governance-action-tx-id" "Txid of the previous governance action."
+      <*> pWord32 "prev-governance-action-index" "Action index of the previous governance action."
 
 pGovernanceActionId :: Parser (TxId, Word32)
 pGovernanceActionId =

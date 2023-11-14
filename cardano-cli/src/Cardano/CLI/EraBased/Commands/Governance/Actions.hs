@@ -17,6 +17,7 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   , GovernanceActionTreasuryWithdrawalCmdArgs(..)
   , UpdateProtocolParametersConwayOnwards(..)
   , UpdateProtocolParametersPreConway(..)
+  , CostModelsFile(..)
   , renderGovernanceActionCmds
   ) where
 
@@ -32,6 +33,7 @@ import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Data.Text (Text)
 import           Data.Word
+import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
 
 data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd         !(GovernanceActionCreateConstitutionCmdArgs era)
@@ -102,7 +104,15 @@ data GovernanceActionProtocolParametersUpdateCmdArgs era
       { uppShelleyBasedEra :: !(ShelleyBasedEra era)
       , uppPreConway       :: !(Maybe (UpdateProtocolParametersPreConway era))
       , uppConwayOnwards   :: !(Maybe (UpdateProtocolParametersConwayOnwards era))
-      , uppNewPParams      :: !(EraBasedProtocolParametersUpdate era)
+      -- | New parameters to be proposed. From Alonzo onwards, the type
+      -- 'EraBasedProtocolParametersUpdate' also contains cost models. Since all
+      -- other protocol parameters are read from command line arguments, whereas
+      -- the cost models are read from a file, we separate the cost models from
+      -- the rest of the protocol parameters to ease parsing.
+      , uppNewPParams :: !(EraBasedProtocolParametersUpdate era)
+      -- | The new cost models proposed. See the comment at 'uppNewPParams' for
+      -- why this is a separate field.
+      , uppCostModelsFile :: !(Maybe (CostModelsFile era))
       , uppFilePath        :: !(File () Out)
       } deriving Show
 
@@ -136,6 +146,12 @@ data UpdateProtocolParametersConwayOnwards era
       , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , governanceActionId  :: !(Maybe (TxId, Word32))
       }
+
+data CostModelsFile era
+  = CostModelsFile
+      { eon :: !(AlonzoEraOnwards era)
+      , costModelsFile :: !(File Alonzo.CostModels In)
+      } deriving Show
 
 deriving instance Show (UpdateProtocolParametersConwayOnwards era)
 

@@ -20,8 +20,8 @@ Usage: cardano-cli conway governance action update-committee
                                                                  )
                                                                  --epoch NATURAL]
                                                                --quorum RATIONAL
-                                                               [--governance-action-tx-id TXID
-                                                                 --governance-action-index WORD32]
+                                                               [--prev-governance-action-tx-id TXID
+                                                                 --prev-governance-action-index WORD32]
                                                                --out-file FILE
 
   Create or update a new committee proposal.
@@ -55,9 +55,9 @@ Available options:
   --epoch NATURAL          Committee member expiry epoch
   --quorum RATIONAL        Quorum of the committee that is necessary for a
                            successful vote.
-  --governance-action-tx-id TXID
-                           Previous txid of the governance action.
-  --governance-action-index WORD32
-                           Previous tx's governance action index.
+  --prev-governance-action-tx-id TXID
+                           Txid of the previous governance action.
+  --prev-governance-action-index WORD32
+                           Action index of the previous governance action.
   --out-file FILE          The output file.
   -h,--help                Show this help text

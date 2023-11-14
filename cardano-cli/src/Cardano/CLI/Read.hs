@@ -59,6 +59,8 @@ module Cardano.CLI.Read
   , readTxGovernanceActions
   , constitutionHashSourceToHash
   , readProposal
+  , CostModelsError (..)
+  , readCostModels
 
   -- * FileOrPipe
   , FileOrPipe
@@ -108,6 +110,7 @@ import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto.Hash.Class as Crypto
+import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.BaseTypes as Ledger
 import qualified Cardano.Ledger.Conway.Governance as Ledger
@@ -121,7 +124,7 @@ import qualified Cardano.Ledger.SafeHash as Ledger
 import           Prelude
 
 import           Control.Exception (bracket, displayException)
-import           Control.Monad (forM, unless)
+import           Control.Monad (forM, unless, when)
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans (MonadTrans (..))
 import           Control.Monad.Trans.Except
@@ -857,6 +860,30 @@ constitutionHashSourceToHash constitutionHashSource = do
 
     ConstitutionHashSourceHash h ->
       pure h
+
+data CostModelsError
+  = CostModelsErrorReadFile (FileError ())
+  | CostModelsErrorJSONDecode FilePath String
+  | CostModelsErrorEmpty FilePath
+  deriving Show
+
+instance Error CostModelsError where
+  prettyError = \case
+    CostModelsErrorReadFile e ->
+      "Cannot read cost model: " <> prettyError e
+    CostModelsErrorJSONDecode fp err ->
+      "Error decoding JSON cost model at " <> pshow fp <> ": " <> pshow err
+    CostModelsErrorEmpty fp ->
+      "The decoded cost model was empty at: " <> pshow fp
+
+readCostModels
+  :: File Alonzo.CostModels In
+  -> ExceptT CostModelsError IO Alonzo.CostModels
+readCostModels (File fp) = do
+  bytes <- handleIOExceptT (CostModelsErrorReadFile . FileIOError fp) $ LBS.readFile fp
+  costModels <- firstExceptT (CostModelsErrorJSONDecode fp) . except $ Aeson.eitherDecode bytes
+  when (null $ fromAlonzoCostModels costModels) $ throwE $ CostModelsErrorEmpty fp
+  return costModels
 
 -- Misc
 
