@@ -80,7 +80,7 @@ runLegacyTransactionBuildCmd :: ()
   -> [TxIn] -- ^ Read only reference inputs
   -> [RequiredSigner] -- ^ Required signers
   -> [TxIn] -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
-  -> Maybe TxOutAnyEra -- ^ Return collateral
+  -> Maybe TxOutShelleyBasedEra -- ^ Return collateral
   -> Maybe Lovelace -- ^ Total collateral
   -> [TxOutAnyEra]
   -> TxOutChangeAddress
@@ -125,7 +125,7 @@ runLegacyTransactionBuildRawCmd :: ()
   -> [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
   -> [TxIn] -- ^ Read only reference inputs
   -> [TxIn] -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
-  -> Maybe TxOutAnyEra
+  -> Maybe TxOutShelleyBasedEra -- ^ Return collateral
   -> Maybe Lovelace -- ^ Total collateral
   -> [RequiredSigner]
   -> [TxOutAnyEra]

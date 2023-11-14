@@ -64,6 +64,7 @@ module Cardano.CLI.Types.Common
   , TxInCount(..)
   , TxMempoolQuery (..)
   , TxOutAnyEra (..)
+  , TxOutShelleyBasedEra (..)
   , TxOutChangeAddress (..)
   , TxOutCount(..)
   , TxOutDatumAnyEra (..)
@@ -382,6 +383,14 @@ instance ToJSON SlotsTillKesKeyExpiry where
 instance FromJSON SlotsTillKesKeyExpiry where
   parseJSON v = SlotsTillKesKeyExpiry <$> parseJSON v
 
+
+data TxOutShelleyBasedEra
+  = TxOutShelleyBasedEra
+      !(Address ShelleyAddr)
+      Value
+      TxOutDatumAnyEra
+      ReferenceScriptAnyEra
+  deriving Show
 -- | A TxOut value that is the superset of possibilities for any era: any
 -- address type and allowing multi-asset values. This is used as the type for
 -- values passed on the command line. It can be converted into the
