@@ -298,10 +298,10 @@ test-suite cardano-cli-test
                       , base16-bytestring
                       , bech32 >= 1.1.0
                       , bytestring
-                      , cardano-api:{cardano-api, internal}
-                      , cardano-api-gen ^>= 8.2.0.0
+                      , cardano-api:{cardano-api, gen, internal}
                       , cardano-cli
                       , cardano-cli:cardano-cli-test-lib
+                      , cardano-ledger-alonzo
                       , cardano-slotting
                       , containers
                       , filepath
@@ -315,7 +315,8 @@ test-suite cardano-cli-test
 
   build-tool-depends:   tasty-discover:tasty-discover
 
-  other-modules:        Test.Cli.CliIntermediateFormat
+  other-modules:        Test.Cli.AddCostModels
+                        Test.Cli.CliIntermediateFormat
                         Test.Cli.FilePermissions
                         Test.Cli.Governance.Hash
                         Test.Cli.ITN
