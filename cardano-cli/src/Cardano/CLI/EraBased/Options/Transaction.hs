@@ -78,12 +78,17 @@ pTransactionCmds era envCli =
         $ subParser "calculate-min-fee"
         $ Opt.info (pTransactionCalculateMinFee envCli)
         $ Opt.progDesc "Calculate the minimum fee for a transaction."
-    , Just
-        $ subParser "calculate-min-required-utxo"
-        $ Opt.info (pTransactionCalculateMinReqUTxO era)
-        $ Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
-    , Just
-        $ pCalculateMinRequiredUtxoBackwardCompatible era
+    , caseByronOrShelleyBasedEra
+        (const Nothing)
+        (\sbe -> Just $ subParser "calculate-min-required-utxo"
+                      $ Opt.info (pTransactionCalculateMinReqUTxO sbe)
+                      $ Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
+        )
+        era
+    , caseByronOrShelleyBasedEra
+        (const Nothing)
+        (Just . pCalculateMinRequiredUtxoBackwardCompatible)
+        era
     , Just
         $ subParser "hash-script-data"
         $ Opt.info pTxHashScriptData
@@ -99,12 +104,12 @@ pTransactionCmds era envCli =
     ]
 
 -- Backwards compatible parsers
-calcMinValueInfo :: CardanoEra era -> ParserInfo (TransactionCmds era)
+calcMinValueInfo :: ShelleyBasedEra era -> ParserInfo (TransactionCmds era)
 calcMinValueInfo era =
   Opt.info (pTransactionCalculateMinReqUTxO era)
     $ Opt.progDesc "DEPRECATED: Use 'calculate-min-required-utxo' instead."
 
-pCalculateMinRequiredUtxoBackwardCompatible :: CardanoEra era -> Parser (TransactionCmds era)
+pCalculateMinRequiredUtxoBackwardCompatible :: ShelleyBasedEra era -> Parser (TransactionCmds era)
 pCalculateMinRequiredUtxoBackwardCompatible era =
   Opt.subparser
     $ Opt.command "calculate-min-value" (calcMinValueInfo era) <> Opt.internal
@@ -275,12 +280,12 @@ pTransactionCalculateMinFee envCli  =
       <*> pTxShelleyWitnessCount
       <*> pTxByronWitnessCount
 
-pTransactionCalculateMinReqUTxO :: CardanoEra era -> Parser (TransactionCmds era)
+pTransactionCalculateMinReqUTxO :: ShelleyBasedEra era -> Parser (TransactionCmds era)
 pTransactionCalculateMinReqUTxO era =
   fmap TransactionCalculateMinValueCmd $
     TransactionCalculateMinValueCmdArgs era
       <$> pProtocolParamsFile
-      <*> pTxOut
+      <*> pTxOutShelleyBased
 
 pTxHashScriptData :: Parser (TransactionCmds era)
 pTxHashScriptData =
