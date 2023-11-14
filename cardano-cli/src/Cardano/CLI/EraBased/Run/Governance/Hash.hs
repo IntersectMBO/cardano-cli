@@ -48,16 +48,18 @@ runGovernanceHashCmd Cmd.GovernanceHashCmdArgs { toHash } =
   -- This can be done in a separate PR
   case toHash of
     Cmd.GovernanceHashSourceBinaryFile fp -> do
-      bytes <- liftIO $ BS.readFile $ unFile fp
+      let path = unFile fp
+      bytes <- handleIOExceptT (GovernanceHashReadFileError path) $ BS.readFile path
       let hash = Ledger.hashAnchorData $ Ledger.AnchorData bytes
       printHash hash
     Cmd.GovernanceHashSourceTextFile fp -> do
-      text <- liftIO $ Text.readFile $ unFile fp
+      let path = unFile fp
+      text <- handleIOExceptT (GovernanceHashReadFileError path) $ Text.readFile path
       let hash = Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 text
       printHash hash
     Cmd.GovernanceHashSourceText text -> do
       let hash = Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 text
       printHash hash
   where
-    printHash :: Ledger.SafeHash StandardCrypto i -> ExceptT GovernanceHashError IO ()
+    printHash :: Ledger.SafeHash StandardCrypto i -> ExceptT a IO ()
     printHash = liftIO . putStr . Text.unpack . hashToTextAsHex . extractHash
