@@ -51,7 +51,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
     -- ^ Read only reference inputs
   , txInsCollateral       :: ![TxIn]
     -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
-  , mReturnCollateral     :: !(Maybe TxOutAnyEra)
+  , mReturnCollateral     :: !(Maybe TxOutShelleyBasedEra)
     -- ^ Return collateral
   , mTotalCollateral      :: !(Maybe Lovelace)
     -- ^ Total collateral
@@ -98,7 +98,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
     -- ^ Required signers
   , txinsc                  :: ![TxIn]
     -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
-  , mReturnCollateral       :: !(Maybe TxOutAnyEra)
+  , mReturnCollateral       :: !(Maybe TxOutShelleyBasedEra)
     -- ^ Return collateral
   , mTotalCollateral        :: !(Maybe Lovelace)
     -- ^ Total collateral
