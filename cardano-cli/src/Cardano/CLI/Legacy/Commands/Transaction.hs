@@ -125,7 +125,7 @@ data LegacyTransactionCmds
   | TransactionCalculateMinValueCmd
       AnyCardanoEra
       ProtocolParamsFile
-      TxOutAnyEra
+      TxOutShelleyBasedEra
   | TransactionHashScriptDataCmd
       ScriptDataOrFile
   | TransactionTxIdCmd

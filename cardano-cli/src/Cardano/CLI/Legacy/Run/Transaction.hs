@@ -45,8 +45,13 @@ runLegacyTransactionCmds = \case
       runLegacyTransactionSubmitCmd mNodeSocketPath consensusModeParams network txFp
   TransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
       runLegacyTransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
-  TransactionCalculateMinValueCmd era pParamsFile txOuts' ->
-      runLegacyTransactionCalculateMinValueCmd era pParamsFile txOuts'
+  TransactionCalculateMinValueCmd (AnyCardanoEra era) pParamsFile txOuts' ->
+      -- We choose to not modify TransactionCalculateMinValueCmd to avoid breaking the cli
+      -- Although in this case specifying Byron would have resulted in a call to error.
+      caseByronOrShelleyBasedEra
+        (const $ pure ())
+        (\sbe -> runLegacyTransactionCalculateMinValueCmd (AnyShelleyBasedEra sbe) pParamsFile txOuts')
+        era
   TransactionHashScriptDataCmd scriptDataOrFile ->
       runLegacyTransactionHashScriptDataCmd scriptDataOrFile
   TransactionTxIdCmd txinfile ->
@@ -231,12 +236,12 @@ runLegacyTransactionCalculateMinFeeCmd
     )
 
 runLegacyTransactionCalculateMinValueCmd :: ()
-  => AnyCardanoEra
+  => AnyShelleyBasedEra
   -> ProtocolParamsFile
-  -> TxOutAnyEra
+  -> TxOutShelleyBasedEra
   -> ExceptT TxCmdError IO ()
 runLegacyTransactionCalculateMinValueCmd
-    (AnyCardanoEra era)
+    (AnyShelleyBasedEra era)
     pParamsFile
     txOut =
   runTransactionCalculateMinValueCmd
