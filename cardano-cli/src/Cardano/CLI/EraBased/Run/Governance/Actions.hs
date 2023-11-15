@@ -84,14 +84,10 @@ runGovernanceActionInfoCmd
       , Cmd.deposit
       , Cmd.returnStakeAddress
       , Cmd.proposalUrl
-      , Cmd.proposalHashSource
+      , Cmd.proposalHash
       , Cmd.outFile
       } = do
   returnKeyHash <- readStakeKeyHash returnStakeAddress
-
-  proposalHash <-
-    proposalHashSourceToHash proposalHashSource
-      & firstExceptT GovernanceActionsCmdProposalError
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl
@@ -117,16 +113,12 @@ runGovernanceActionCreateNoConfidenceCmd
       , Cmd.deposit
       , Cmd.returnStakeAddress
       , Cmd.proposalUrl
-      , Cmd.proposalHashSource
+      , Cmd.proposalHash
       , Cmd.governanceActionId
       , Cmd.governanceActionIndex
       , Cmd.outFile
       } = do
   returnKeyHash <- readStakeKeyHash returnStakeAddress
-
-  proposalHash <-
-    proposalHashSourceToHash proposalHashSource
-      & firstExceptT GovernanceActionsCmdProposalError
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl
@@ -152,17 +144,13 @@ runGovernanceActionCreateConstitutionCmd
       , Cmd.stakeCredential
       , Cmd.mPrevGovernanceActionId
       , Cmd.proposalUrl
-      , Cmd.proposalHashSource
+      , Cmd.proposalHash
       , Cmd.constitutionUrl
       , Cmd.constitutionHashSource
       , Cmd.outFile
       } = do
 
   stakeKeyHash <- readStakeKeyHash stakeCredential
-
-  proposalHash <-
-    proposalHashSourceToHash proposalHashSource
-      & firstExceptT GovernanceActionsCmdProposalError
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl
@@ -198,7 +186,7 @@ runGovernanceActionCreateNewCommitteeCmd
       , Cmd.deposit
       , Cmd.returnAddress
       , Cmd.proposalUrl
-      , Cmd.proposalHashSource
+      , Cmd.proposalHash
       , Cmd.oldCommitteeVkeySource
       , Cmd.newCommitteeVkeySource
       , Cmd.requiredQuorum
@@ -209,10 +197,6 @@ runGovernanceActionCreateNewCommitteeCmd
       govActIdentifier = Ledger.maybeToStrictMaybe $
         uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
       quorumRational = toRational requiredQuorum
-
-  proposalHash <-
-    proposalHashSourceToHash proposalHashSource
-      & firstExceptT GovernanceActionsCmdProposalError
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl
@@ -271,15 +255,11 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
             anyEra = AnyShelleyBasedEra $ conwayEraOnwardsToShelleyBasedEra conwayOnwards
 
         UpdateProtocolParametersConwayOnwards _cOnwards network deposit returnAddr proposalUrl
-                                              proposalHashSource mPrevGovActId
+                                              proposalHash mPrevGovActId
           <- hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
               $ uppConwayOnwards eraBasedPParams'
 
         returnKeyHash <- readStakeKeyHash returnAddr
-
-        proposalHash <-
-           proposalHashSourceToHash proposalHashSource
-             & firstExceptT GovernanceActionsCmdProposalError
 
         let eraBasedPParams = uppNewPParams eraBasedPParams'
             updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
@@ -315,14 +295,10 @@ runGovernanceActionTreasuryWithdrawalCmd
       , Cmd.deposit
       , Cmd.returnAddr
       , Cmd.proposalUrl
-      , Cmd.proposalHashSource
+      , Cmd.proposalHash
       , Cmd.treasuryWithdrawal
       , Cmd.outFile
       } = do
-
-  proposalHash <-
-    proposalHashSourceToHash proposalHashSource
-      & firstExceptT GovernanceActionsCmdProposalError
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl

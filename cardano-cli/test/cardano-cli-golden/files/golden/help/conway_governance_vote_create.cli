@@ -11,11 +11,8 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    | --cc-hot-verification-key-file FILE
                                                    | --cc-hot-key-hash STRING
                                                    )
-                                                   [--vote-anchor-url TEXT
-                                                     ( --vote-anchor-metadata TEXT
-                                                     | --vote-anchor-metadata-file FILE
-                                                     | --vote-anchor-metadata-hash HASH
-                                                     )]
+                                                   [--anchor-url TEXT
+                                                     --anchor-data-hash HASH]
                                                    --out-file FILE
 
   Vote creation.
@@ -45,12 +42,8 @@ Available options:
   --cc-hot-verification-key-file FILE
                            Filepath of the Consitutional Committee hot key.
   --cc-hot-key-hash STRING Constitutional Committee key hash (hex-encoded).
-  --vote-anchor-url TEXT   Vote anchor URL
-  --vote-anchor-metadata TEXT
-                           Vote anchor contents as UTF-8 encoded text.
-  --vote-anchor-metadata-file FILE
-                           Vote anchor contents as a text file.
-  --vote-anchor-metadata-hash HASH
-                           Hash of the vote anchor data.
+  --anchor-url TEXT        Vote anchor URL
+  --anchor-data-hash HASH  Hash of the vote anchor data (obtain it with
+                           "cardano-cli conway governance hash ...").
   --out-file FILE          Output filepath of the vote.
   -h,--help                Show this help text

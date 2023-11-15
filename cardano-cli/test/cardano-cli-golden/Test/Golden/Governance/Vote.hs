@@ -24,8 +24,8 @@ hprop_golden_governance_governance_vote_create =
       , "--governance-action-index", "5"
       , "--drep-verification-key-file", vkeyFile
       , "--out-file", voteFile
-      , "--vote-anchor-url", "https://example.com/vote"
-      , "--vote-anchor-metadata", "I don't like this proposal, because it's bad. I'm not going to tell you why I voted yes nonetheless."
+      , "--anchor-url", "https://example.com/vote"
+      , "--anchor-data-hash", "6163683a90d8cb460a38cdcf0d7bab286f0f004ec6e761dc670c2ca4d3709a17"
       ]
 
     H.diffFileVsGoldenFile voteFile voteGold

@@ -42,7 +42,6 @@ module Cardano.CLI.Types.Common
   , IdOutputFormat (..)
   , PrivKeyFile(..)
   , ProposalFile
-  , ProposalHashSource(..)
   , ProposalText(..)
   , ProposalUrl(..)
   , ProtocolParamsFile(..)
@@ -126,12 +125,6 @@ newtype ProposalUrl = ProposalUrl
 newtype ProposalText = ProposalText
   { unProposalText :: Text
   } deriving (Eq, Show)
-
-data ProposalHashSource
-  = ProposalHashSourceFile (File ProposalText In)
-  | ProposalHashSourceText Text
-  | ProposalHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
-  deriving Show
 
 newtype VoteUrl = VoteUrl
   { unVoteUrl :: L.Url

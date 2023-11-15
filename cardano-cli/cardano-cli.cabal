@@ -74,6 +74,7 @@ library
                         Cardano.CLI.EraBased.Commands.Governance.Actions
                         Cardano.CLI.EraBased.Commands.Governance.Committee
                         Cardano.CLI.EraBased.Commands.Governance.DRep
+                        Cardano.CLI.EraBased.Commands.Governance.Hash
                         Cardano.CLI.EraBased.Commands.Governance.Poll
                         Cardano.CLI.EraBased.Commands.Governance.Vote
                         Cardano.CLI.EraBased.Commands.Key
@@ -90,6 +91,7 @@ library
                         Cardano.CLI.EraBased.Options.Governance.Actions
                         Cardano.CLI.EraBased.Options.Governance.Committee
                         Cardano.CLI.EraBased.Options.Governance.DRep
+                        Cardano.CLI.EraBased.Options.Governance.Hash
                         Cardano.CLI.EraBased.Options.Governance.Poll
                         Cardano.CLI.EraBased.Options.Governance.Vote
                         Cardano.CLI.EraBased.Options.Key
@@ -107,6 +109,7 @@ library
                         Cardano.CLI.EraBased.Run.Governance.Actions
                         Cardano.CLI.EraBased.Run.Governance.Committee
                         Cardano.CLI.EraBased.Run.Governance.DRep
+                        Cardano.CLI.EraBased.Run.Governance.Hash
                         Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
                         Cardano.CLI.EraBased.Run.Governance.Poll
                         Cardano.CLI.EraBased.Run.Governance.Vote
@@ -165,6 +168,7 @@ library
                         Cardano.CLI.Types.Errors.GovernanceActionsError
                         Cardano.CLI.Types.Errors.GovernanceCmdError
                         Cardano.CLI.Types.Errors.GovernanceCommitteeError
+                        Cardano.CLI.Types.Errors.GovernanceHashError
                         Cardano.CLI.Types.Errors.GovernanceQueryError
                         Cardano.CLI.Types.Errors.GovernanceVoteCmdError
                         Cardano.CLI.Types.Errors.ItnKeyConversionError

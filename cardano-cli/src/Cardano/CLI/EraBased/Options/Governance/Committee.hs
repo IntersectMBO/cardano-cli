@@ -8,7 +8,7 @@ module Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.Api
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
-import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.EraBased.Options.Common hiding (pAnchorUrl)
 import           Cardano.CLI.Read
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Crypto as Crypto

@@ -26,6 +26,9 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.BaseTypes as Ledger
+import qualified Cardano.Ledger.Crypto as Crypto
+import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Data.Text (Text)
 import           Data.Word
@@ -47,7 +50,7 @@ data GoveranceActionUpdateCommitteeCmdArgs era
       , deposit                 :: !Lovelace
       , returnAddress           :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl             :: !ProposalUrl
-      , proposalHashSource      :: !ProposalHashSource
+      , proposalHash            :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
       , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
       , requiredQuorum          :: !Rational
@@ -63,7 +66,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
       , stakeCredential         :: !(VerificationKeyOrHashOrFile StakeKey)
       , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
       , proposalUrl             :: !ProposalUrl
-      , proposalHashSource      :: !ProposalHashSource
+      , proposalHash            :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , constitutionUrl         :: !ConstitutionUrl
       , constitutionHashSource  :: !ConstitutionHashSource
       , outFile                 :: !(File () Out)
@@ -77,7 +80,7 @@ data GovernanceActionInfoCmdArgs era
       , deposit             :: !Lovelace
       , returnStakeAddress  :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
-      , proposalHashSource  :: !ProposalHashSource
+      , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , outFile             :: !(File () Out)
       } deriving Show
 
@@ -88,7 +91,7 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
       , deposit               :: !Lovelace
       , returnStakeAddress    :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl           :: !ProposalUrl
-      , proposalHashSource    :: !ProposalHashSource
+      , proposalHash          :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , governanceActionId    :: !TxId
       , governanceActionIndex :: !Word32
       , outFile               :: !(File () Out)
@@ -110,7 +113,7 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
       , deposit             :: !Lovelace
       , returnAddr          :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
-      , proposalHashSource  :: !ProposalHashSource
+      , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , treasuryWithdrawal  :: ![(VerificationKeyOrHashOrFile StakeKey, Lovelace)]
       , outFile             :: !(File () Out)
       } deriving Show
@@ -130,7 +133,7 @@ data UpdateProtocolParametersConwayOnwards era
       , deposit             :: !Lovelace
       , returnAddr          :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
-      , proposalHashSource  :: !ProposalHashSource
+      , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , governanceActionId  :: !(Maybe (TxId, Word32))
       }
 

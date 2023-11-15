@@ -3046,34 +3046,17 @@ pAlwaysAbstain =
     , Opt.help "Abstain from voting on all proposals."
     ]
 
-pVoteAnchor :: Parser (VoteUrl, VoteHashSource)
+pVoteAnchor :: Parser (VoteUrl, L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pVoteAnchor = (,)
-  <$> (VoteUrl <$> pUrl "vote-anchor-url" "Vote anchor URL")
-  <*> pVoteHashSource
+  <$> (VoteUrl <$> pUrl "anchor-url" "Vote anchor URL")
+  <*> pVoteAnchorDataHash
 
-pVoteHashSource :: Parser VoteHashSource
-pVoteHashSource =
-  asum
-    [ VoteHashSourceText
-        <$> Opt.strOption
-            ( mconcat
-                [ Opt.long "vote-anchor-metadata"
-                , Opt.metavar "TEXT"
-                , Opt.help "Vote anchor contents as UTF-8 encoded text."
-                ]
-            )
-    , VoteHashSourceFile
-        <$> pFileInDirection "vote-anchor-metadata-file" "Vote anchor contents as a text file."
-    , VoteHashSourceHash
-        <$> pVoteHash
-    ]
-
-pVoteHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
-pVoteHash =
+pVoteAnchorDataHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pVoteAnchorDataHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "vote-anchor-metadata-hash"
+    [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Hash of the vote anchor data."
+    , Opt.help "Hash of the vote anchor data (obtain it with \"cardano-cli conway governance hash ...\")."
     ]
 
 pAlwaysNoConfidence :: Parser ()
@@ -3186,34 +3169,17 @@ pDRepVerificationKeyFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pProposalUrl :: Parser ProposalUrl
-pProposalUrl =
+pAnchorUrl :: Parser ProposalUrl
+pAnchorUrl =
   ProposalUrl
-    <$> pUrl "proposal-anchor-url" "Proposal anchor URL"
+    <$> pUrl "anchor-url" "Anchor URL"
 
-pProposalHashSource :: Parser ProposalHashSource
-pProposalHashSource =
-  asum
-    [ ProposalHashSourceText
-        <$> Opt.strOption
-            ( mconcat
-                [ Opt.long "proposal-anchor-metadata"
-                , Opt.metavar "TEXT"
-                , Opt.help "Proposal anchor contents as UTF-8 encoded text."
-                ]
-            )
-    , ProposalHashSourceFile
-        <$> pFileInDirection "proposal-anchor-metadata-file" "Proposal anchor contents as a text file."
-    , ProposalHashSourceHash
-        <$> pProposalHash
-    ]
-
-pProposalHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
-pProposalHash =
+pAnchorDataHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pAnchorDataHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "proposal-anchor-metadata-hash"
+    [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Proposal anchor data hash."
+    , Opt.help "Proposal anchor data hash (obtain it with \"cardano-cli conway governance hash ...\")"
     ]
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))

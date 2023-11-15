@@ -4,11 +4,8 @@ Usage: cardano-cli conway governance action create-info (--mainnet | --testnet)
                                                           | --stake-verification-key-file FILE
                                                           | --stake-key-hash HASH
                                                           )
-                                                          --proposal-anchor-url TEXT
-                                                          ( --proposal-anchor-metadata TEXT
-                                                          | --proposal-anchor-metadata-file FILE
-                                                          | --proposal-anchor-metadata-hash HASH
-                                                          )
+                                                          --anchor-url TEXT
+                                                          --anchor-data-hash HASH
                                                           --out-file FILE
 
   Create an info action.
@@ -23,14 +20,9 @@ Available options:
   --stake-verification-key-file FILE
                            Filepath of the staking verification key.
   --stake-key-hash HASH    Stake verification key hash (hex-encoded).
-  --proposal-anchor-url TEXT
-                           Proposal anchor URL
-  --proposal-anchor-metadata TEXT
-                           Proposal anchor contents as UTF-8 encoded text.
-  --proposal-anchor-metadata-file FILE
-                           Proposal anchor contents as a text file.
-  --proposal-anchor-metadata-hash HASH
-                           Proposal anchor data hash.
+  --anchor-url TEXT        Anchor URL
+  --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
+                           "cardano-cli conway governance hash ...")
   --out-file FILE          Path to action file to be used later on with build or
                            build-raw
   -h,--help                Show this help text

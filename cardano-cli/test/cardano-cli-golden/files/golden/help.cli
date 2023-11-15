@@ -5894,7 +5894,7 @@ Usage: cardano-cli conway genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli conway governance (action | committee | drep | vote)
+Usage: cardano-cli conway governance (action | committee | drep | hash | vote)
 
   Governance commands.
 
@@ -5921,11 +5921,8 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   )
                                                                   [--governance-action-tx-id TXID
                                                                     --governance-action-index WORD32]
-                                                                  --proposal-anchor-url TEXT
-                                                                  ( --proposal-anchor-metadata TEXT
-                                                                  | --proposal-anchor-metadata-file FILE
-                                                                  | --proposal-anchor-metadata-hash HASH
-                                                                  )
+                                                                  --anchor-url TEXT
+                                                                  --anchor-data-hash HASH
                                                                   --constitution-anchor-url TEXT
                                                                   ( --constitution-anchor-metadata TEXT
                                                                   | --constitution-anchor-metadata-file FILE
@@ -5944,11 +5941,8 @@ Usage: cardano-cli conway governance action update-committee
                                                                | --stake-verification-key-file FILE
                                                                | --stake-key-hash HASH
                                                                )
-                                                               --proposal-anchor-url TEXT
-                                                               ( --proposal-anchor-metadata TEXT
-                                                               | --proposal-anchor-metadata-file FILE
-                                                               | --proposal-anchor-metadata-hash HASH
-                                                               )
+                                                               --anchor-url TEXT
+                                                               --anchor-data-hash HASH
                                                                [ --remove-cc-cold-verification-key STRING
                                                                | --remove-cc-cold-verification-key-file FILE
                                                                | --remove-cc-cold-verification-key-hash STRING
@@ -5972,11 +5966,8 @@ Usage: cardano-cli conway governance action create-info (--mainnet | --testnet)
                                                           | --stake-verification-key-file FILE
                                                           | --stake-key-hash HASH
                                                           )
-                                                          --proposal-anchor-url TEXT
-                                                          ( --proposal-anchor-metadata TEXT
-                                                          | --proposal-anchor-metadata-file FILE
-                                                          | --proposal-anchor-metadata-hash HASH
-                                                          )
+                                                          --anchor-url TEXT
+                                                          --anchor-data-hash HASH
                                                           --out-file FILE
 
   Create an info action.
@@ -5990,11 +5981,8 @@ Usage: cardano-cli conway governance action create-no-confidence
                                                                    | --stake-verification-key-file FILE
                                                                    | --stake-key-hash HASH
                                                                    )
-                                                                   --proposal-anchor-url TEXT
-                                                                   ( --proposal-anchor-metadata TEXT
-                                                                   | --proposal-anchor-metadata-file FILE
-                                                                   | --proposal-anchor-metadata-hash HASH
-                                                                   )
+                                                                   --anchor-url TEXT
+                                                                   --anchor-data-hash HASH
                                                                    --governance-action-tx-id TXID
                                                                    --governance-action-index WORD32
                                                                    --out-file FILE
@@ -6010,11 +5998,8 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 | --stake-verification-key-file FILE
                                                                                 | --stake-key-hash HASH
                                                                                 )
-                                                                                --proposal-anchor-url TEXT
-                                                                                ( --proposal-anchor-metadata TEXT
-                                                                                | --proposal-anchor-metadata-file FILE
-                                                                                | --proposal-anchor-metadata-hash HASH
-                                                                                )
+                                                                                --anchor-url TEXT
+                                                                                --anchor-data-hash HASH
                                                                                 [--governance-action-tx-id TXID
                                                                                   --governance-action-index WORD32]
                                                                                 [--min-fee-constant LOVELACE]
@@ -6071,11 +6056,8 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          | --deposit-return-stake-verification-key-file FILE
                                                                          | --deposit-return-stake-key-hash HASH
                                                                          )
-                                                                         --proposal-anchor-url TEXT
-                                                                         ( --proposal-anchor-metadata TEXT
-                                                                         | --proposal-anchor-metadata-file FILE
-                                                                         | --proposal-anchor-metadata-hash HASH
-                                                                         )
+                                                                         --anchor-url TEXT
+                                                                         --anchor-data-hash HASH
                                                                          [
                                                                            ( --funds-receiving-stake-verification-key STRING
                                                                            | --funds-receiving-stake-verification-key-file FILE
@@ -6195,6 +6177,15 @@ Usage: cardano-cli conway governance drep metadata-hash --drep-metadata-file FIL
 
   Calculate the hash of a metadata file.
 
+Usage: cardano-cli conway governance hash 
+                                            ( --text TEXT
+                                            | --file-binary FILE
+                                            | --file-text FILE
+                                            )
+
+  Compute the hash to pass to the various --*-hash arguments of governance
+  commands.
+
 Usage: cardano-cli conway governance vote (create | view)
 
   Vote commands.
@@ -6212,11 +6203,8 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    | --cc-hot-verification-key-file FILE
                                                    | --cc-hot-key-hash STRING
                                                    )
-                                                   [--vote-anchor-url TEXT
-                                                     ( --vote-anchor-metadata TEXT
-                                                     | --vote-anchor-metadata-file FILE
-                                                     | --vote-anchor-metadata-hash HASH
-                                                     )]
+                                                   [--anchor-url TEXT
+                                                     --anchor-data-hash HASH]
                                                    --out-file FILE
 
   Vote creation.

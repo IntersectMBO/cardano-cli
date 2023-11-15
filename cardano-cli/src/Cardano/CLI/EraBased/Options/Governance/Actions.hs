@@ -69,8 +69,8 @@ pGovernanceActionNewInfoCmd era = do
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pStakeVerificationKeyOrHashOrFile Nothing
-              <*> pProposalUrl
-              <*> pProposalHashSource
+              <*> pAnchorUrl
+              <*> pAnchorDataHash
               <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
         )
     $ Opt.progDesc "Create an info action."
@@ -90,8 +90,8 @@ pGovernanceActionNewConstitutionCmd era = do
               <*> pGovActionDeposit
               <*> pStakeVerificationKeyOrHashOrFile Nothing
               <*> pPreviousGovernanceAction
-              <*> pProposalUrl
-              <*> pProposalHashSource
+              <*> pAnchorUrl
+              <*> pAnchorDataHash
               <*> pConstitutionUrl
               <*> pConstitutionHashSource
               <*> pFileOutDirection "out-file" "Output filepath of the constitution."
@@ -119,8 +119,8 @@ pUpdateCommitteeCmd eon =
     <$> pNetwork
     <*> pGovActionDeposit
     <*> pStakeVerificationKeyOrHashOrFile Nothing
-    <*> pProposalUrl
-    <*> pProposalHashSource
+    <*> pAnchorUrl
+    <*> pAnchorDataHash
     <*> many pRemoveCommitteeColdVerificationKeyOrHashOrFile
     <*> many
           ( (,)
@@ -144,8 +144,8 @@ pGovernanceActionNoConfidenceCmd era = do
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pStakeVerificationKeyOrHashOrFile Nothing
-              <*> pProposalUrl
-              <*> pProposalHashSource
+              <*> pAnchorUrl
+              <*> pAnchorDataHash
               <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
               <*> pWord32 "governance-action-index" "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
               <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
@@ -164,8 +164,8 @@ pUpdateProtocolParametersPostConway conwayOnwards =
     <$> pNetwork
     <*> pGovActionDeposit
     <*> pStakeVerificationKeyOrHashOrFile Nothing
-    <*> pProposalUrl
-    <*> pProposalHashSource
+    <*> pAnchorUrl
+    <*> pAnchorDataHash
     <*> pPreviousGovernanceAction
 
 
@@ -342,8 +342,8 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
               <$> pNetwork
               <*> pGovActionDeposit
               <*> pStakeVerificationKeyOrHashOrFile (Just "deposit-return")
-              <*> pProposalUrl
-              <*> pProposalHashSource
+              <*> pAnchorUrl
+              <*> pAnchorDataHash
               <*> many ((,) <$> pStakeVerificationKeyOrHashOrFile (Just "funds-receiving") <*> pTransferAmt)
               <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
         )
