@@ -8,7 +8,7 @@ module Cardano.CLI.Options
   , pref
   ) where
 
-import           Cardano.Api (CardanoEra (..), ShelleyBasedEra (..))
+import           Cardano.Api (ShelleyBasedEra (..))
 
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
 import           Cardano.CLI.Environment (EnvCli)
@@ -82,7 +82,7 @@ parseLegacy envCli =
 
 _parseTopLevelLatest :: EnvCli -> Parser ClientCommand
 _parseTopLevelLatest envCli =
-  AnyEraCommand . AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds BabbageEra envCli
+  AnyEraCommand . AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli
 
 -- | Parse Legacy commands at the top level of the CLI.
 parseTopLevelLegacy :: EnvCli -> Parser ClientCommand
