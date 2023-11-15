@@ -73,7 +73,7 @@ hprop_golden_shelley_stake_address_registration_certificate_missing_reg_deposit 
   keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
   registrationCertFile <- noteTempFile tempDir "registration.cert"
 
-  void $ execDetailCardanoCli
+  void $ execDetailCardanoCLI
     [ "conway", "stake-address", "registration-certificate"
     , "--staking-verification-key-file", keyGenStakingVerificationKeyFile
     -- , "--key-reg-deposit-amt", "2000000" This argument being mandatory in conway, the call should fail
