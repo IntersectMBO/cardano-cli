@@ -33,9 +33,6 @@ hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey =
       , "--verification-key-file", outFp
       ]
 
-    -- Check for existence of the converted signing key file
-    H.assertFilesExist [outFp]
-
     H.diffFileVsGoldenFile outFp nonExtendedFp
 
 -- | Test that converting a @cardano-address@ Byron signing key yields the
@@ -56,9 +53,6 @@ hprop_golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley =
       , "--verification-key-file", outFp
       ]
 
-    -- Check for existence of the converted signing key file
-    H.assertFilesExist [outFp]
-
     H.diffFileVsGoldenFile outFp nonExtendedFp
 
 -- | Test that converting a drep extended verification key yields the
@@ -77,8 +71,5 @@ hprop_golden_KeyNonExtendedKey_DRepExtendedVerificationKey =
       , "--extended-verification-key-file", extendedKeyFile
       , "--verification-key-file", outFp
       ]
-
-    -- Check for existence of the converted signing key file
-    H.assertFilesExist [outFp]
 
     H.diffFileVsGoldenFile outFp goldenFile
