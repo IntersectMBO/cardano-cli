@@ -1907,7 +1907,7 @@ pTxOutShelleyBased =
           -- TODO alonzo: Update the help text to describe the new syntax as well.
           <> Opt.help "The transaction output as ADDRESS VALUE where ADDRESS is \
                       \the Bech32-encoded address followed by the value in \
-                      \Lovelace."
+                      \the multi-asset syntax (including simply Lovelace)."
           )
     <*> pTxOutDatum
     <*> pRefScriptFp
