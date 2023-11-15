@@ -9,8 +9,8 @@ import           Test.Cardano.CLI.Util
 
 import           Hedgehog
 import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.Process as H
 import qualified Hedgehog.Extras.Test.Golden as H
+import qualified Hedgehog.Extras.Test.Process as H
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -67,3 +67,15 @@ hprop_golden_shelley_stake_address_registration_certificate_with_build_raw = pro
 
   goldenFile2 <- H.note "test/cardano-cli-golden/files/golden/shelley/stake-address/build-raw-out.json"
   H.diffFileVsGoldenFile txRawFile goldenFile2
+
+hprop_golden_shelley_stake_address_registration_certificate_missing_reg_deposit :: Property
+hprop_golden_shelley_stake_address_registration_certificate_missing_reg_deposit = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
+  registrationCertFile <- noteTempFile tempDir "registration.cert"
+
+  void $ execDetailCardanoCli
+    [ "conway", "stake-address", "registration-certificate"
+    , "--staking-verification-key-file", keyGenStakingVerificationKeyFile
+    -- , "--key-reg-deposit-amt", "2000000" This argument being mandatory in conway, the call should fail
+    , "--out-file", registrationCertFile
+    ]
