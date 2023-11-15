@@ -73,3 +73,22 @@ hprop_golden_KeyNonExtendedKey_DRepExtendedVerificationKey =
       ]
 
     H.diffFileVsGoldenFile outFp goldenFile
+
+-- | Test that converting a payment extended verification key yields the
+-- expected result.
+hprop_golden_extended_payment_vkey_to_non_extended_vkey :: Property
+hprop_golden_extended_payment_vkey_to_non_extended_vkey =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    extendedKeyFile <- H.noteInputFile "test/cardano-cli-golden/files/input/key/non-extended-keys/extended-payment.vkey"
+    goldenFile <-  H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-payment.vkey"
+    outFp <- H.note $ tempDir </> "non-extended-payment.vkey"
+
+    H.assertFilesExist [extendedKeyFile]
+
+    void $ execCardanoCLI
+      [ "conway", "key", "non-extended-key"
+      , "--extended-verification-key-file", extendedKeyFile
+      , "--verification-key-file", outFp
+      ]
+
+    H.diffFileVsGoldenFile outFp goldenFile
