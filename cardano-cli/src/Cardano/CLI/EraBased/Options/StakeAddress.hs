@@ -85,16 +85,29 @@ pStakeAddressRegistrationCertificateCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (StakeAddressCmds era))
 pStakeAddressRegistrationCertificateCmd era = do
-  w <- forEraMaybeEon era
-  pure
-    $ subParser "registration-certificate"
-    $ Opt.info
-        ( StakeAddressRegistrationCertificateCmd w
-            <$> pStakeIdentifier
-            <*> optional pKeyRegistDeposit
-            <*> pOutputFile
-        )
-    $ Opt.progDesc "Create a stake address registration certificate"
+  forEraInEonMaybe era $ \sbe ->
+    caseShelleyToBabbageOrConwayEraOnwards
+      (\shelleyToBabbage -> subParser "registration-certificate"
+            $ Opt.info
+                ( StakeAddressRegistrationCertificateCmd (shelleyToBabbageEraToShelleyBasedEra shelleyToBabbage)
+                    <$> pStakeIdentifier
+                    <*> optional pKeyRegistDeposit
+                    <*> pOutputFile
+                )
+            desc
+      )
+      (\conwayOnwards -> subParser "registration-certificate"
+            $ Opt.info
+                ( StakeAddressRegistrationCertificateCmd (conwayEraOnwardsToShelleyBasedEra conwayOnwards)
+                    <$> pStakeIdentifier
+                    <*> fmap Just pKeyRegistDeposit
+                    <*> pOutputFile
+                )
+            desc
+      )
+      sbe
+   where
+     desc = Opt.progDesc "Create a stake address registration certificate"
 
 pStakeAddressDeregistrationCertificateCmd :: ()
   => CardanoEra era
