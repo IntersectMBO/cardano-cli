@@ -10,7 +10,7 @@ module Cardano.CLI.EraBased.Commands
   , pCmds
   ) where
 
-import           Cardano.Api (CardanoEra (..), ShelleyBasedEra (..))
+import           Cardano.Api (ShelleyBasedEra (..), toCardanoEra)
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Address
@@ -88,40 +88,40 @@ pAnyEraCommand envCli =
     [ -- Note, byron is ommitted because there is already a legacy command group for it.
 
       subParser "shelley"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds ShelleyEra envCli)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds ShelleyBasedEraShelley envCli)
         $ Opt.progDesc "Shelley era commands"
     , subParser "allegra"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds AllegraEra envCli)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds ShelleyBasedEraAllegra envCli)
         $ Opt.progDesc "Allegra era commands"
     , subParser "mary"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds MaryEra envCli)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds ShelleyBasedEraMary envCli)
         $ Opt.progDesc "Mary era commands"
     , subParser "alonzo"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds AlonzoEra envCli)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds ShelleyBasedEraAlonzo envCli)
         $ Opt.progDesc "Alonzo era commands"
     , subParser "babbage"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds BabbageEra envCli)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli)
         $ Opt.progDesc "Babbage era commands"
     , subParser "conway"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ConwayEra envCli)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ShelleyBasedEraConway envCli)
         $ Opt.progDesc "Conway era commands"
 
     , subParser "latest"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds BabbageEra envCli)
+        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli)
         $ Opt.progDesc "Latest era commands (Babbage)"
     ]
 
-pCmds :: CardanoEra era -> EnvCli -> Parser (Cmds era)
+pCmds :: ShelleyBasedEra era -> EnvCli -> Parser (Cmds era)
 pCmds era envCli =
   asum $ catMaybes
-    [ fmap AddressCmds      <$> pAddressCmds era envCli
+    [ fmap AddressCmds      <$> pAddressCmds (toCardanoEra era) envCli
     , fmap KeyCmds          <$> pKeyCmds
     , fmap GenesisCmds      <$> pGenesisCmds envCli
-    , fmap GovernanceCmds   <$> pGovernanceCmds era
+    , fmap GovernanceCmds   <$> pGovernanceCmds (toCardanoEra era)
     , fmap NodeCmds         <$> pNodeCmds
-    , fmap QueryCmds        <$> pQueryCmds era envCli
-    , fmap StakeAddressCmds <$> pStakeAddressCmds era envCli
-    , fmap StakePoolCmds    <$> pStakePoolCmds era envCli
+    , fmap QueryCmds        <$> pQueryCmds (toCardanoEra era) envCli
+    , fmap StakeAddressCmds <$> pStakeAddressCmds (toCardanoEra era) envCli
+    , fmap StakePoolCmds    <$> pStakePoolCmds (toCardanoEra era) envCli
     , fmap TextViewCmds     <$> pTextViewCmds
-    , fmap TransactionCmds  <$> pTransactionCmds era envCli
+    , fmap TransactionCmds  <$> pTransactionCmds (toCardanoEra era) envCli
     ]
