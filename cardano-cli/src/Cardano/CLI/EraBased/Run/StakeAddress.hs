@@ -146,7 +146,7 @@ runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
 createRegistrationCertRequirements :: ()
   => ShelleyBasedEra era
   -> StakeCredential
-  -> Maybe Lovelace
+  -> Maybe Lovelace -- ^ Deposit required in conway era
   -> Either StakeAddressRegistrationError (StakeAddressRequirements era)
 createRegistrationCertRequirements sbe stakeCred mdeposit =
   case sbe of
@@ -162,8 +162,10 @@ createRegistrationCertRequirements sbe stakeCred mdeposit =
       return $ StakeAddrRegistrationPreConway ShelleyToBabbageEraBabbage stakeCred
     ShelleyBasedEraConway ->
       case mdeposit of
-        -- TODO: This error constructor will never be called
-        Nothing -> Left StakeAddressRegistrationDepositRequired
+        Nothing ->
+          -- This case is made impossible by the parser, that distinguishes between Conway
+          -- and pre-Conway.
+          Left StakeAddressRegistrationDepositRequired
         Just dep ->
           return $ StakeAddrRegistrationConway ConwayEraOnwardsConway dep stakeCred
 
