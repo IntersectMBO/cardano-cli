@@ -184,14 +184,13 @@ runQueryProtocolParametersCmd
           . newExceptT $ executeQueryAnyMode localNodeConnInfo qInMode
   writeProtocolParameters sbe mOutFile pp
   where
-    -- TODO: Conway era - use ledger PParams JSON
     writeProtocolParameters
       :: ShelleyBasedEra era
       -> Maybe (File () Out)
       -> Ledger.PParams (ShelleyLedgerEra era)
       -> ExceptT QueryCmdError IO ()
     writeProtocolParameters sbe mOutFile' pparams =
-      let apiPParamsJSON = (encodePretty $ fromLedgerPParams sbe pparams)
+      let apiPParamsJSON = shelleyBasedEraConstraints sbe $ encodePretty pparams
       in case mOutFile' of
         Nothing -> liftIO $ LBS.putStrLn apiPParamsJSON
         Just (File fpath) ->
