@@ -6598,7 +6598,7 @@ Usage: cardano-cli conway stake-address registration-certificate
                                                                    | --stake-script-file FILE
                                                                    | --stake-address ADDRESS
                                                                    )
-                                                                   [--key-reg-deposit-amt NATURAL]
+                                                                   --key-reg-deposit-amt NATURAL
                                                                    --out-file FILE
 
   Create a stake address registration certificate
