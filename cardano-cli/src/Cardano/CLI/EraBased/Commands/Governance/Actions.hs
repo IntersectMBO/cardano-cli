@@ -68,7 +68,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
       , proposalUrl             :: !ProposalUrl
       , proposalHash            :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , constitutionUrl         :: !ConstitutionUrl
-      , constitutionHashSource  :: !ConstitutionHashSource
+      , constitutionHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , outFile                 :: !(File () Out)
       } deriving Show
 
