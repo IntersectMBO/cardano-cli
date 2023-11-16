@@ -25,7 +25,7 @@ import           Prettyprinter (line, pretty)
 {- HLINT ignore "Move brackets to avoid $" -}
 
 pTransactionCmds :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (TransactionCmds era))
 pTransactionCmds era envCli =
@@ -78,17 +78,10 @@ pTransactionCmds era envCli =
         $ subParser "calculate-min-fee"
         $ Opt.info (pTransactionCalculateMinFee envCli)
         $ Opt.progDesc "Calculate the minimum fee for a transaction."
-    , caseByronOrShelleyBasedEra
-        (const Nothing)
-        (\sbe -> Just $ subParser "calculate-min-required-utxo"
-                      $ Opt.info (pTransactionCalculateMinReqUTxO sbe)
-                      $ Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
-        )
-        era
-    , caseByronOrShelleyBasedEra
-        (const Nothing)
-        (Just . pCalculateMinRequiredUtxoBackwardCompatible)
-        era
+    , Just $ subParser "calculate-min-required-utxo"
+           $ Opt.info (pTransactionCalculateMinReqUTxO era)
+           $ Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
+    , Just $ pCalculateMinRequiredUtxoBackwardCompatible era
     , Just
         $ subParser "hash-script-data"
         $ Opt.info pTxHashScriptData
@@ -140,12 +133,11 @@ pScriptValidity = asum
     ]
   ]
 
-pTransactionBuildCmd :: CardanoEra era -> EnvCli -> Maybe (Parser (TransactionCmds era))
+pTransactionBuildCmd :: ShelleyBasedEra era -> EnvCli -> Maybe (Parser (TransactionCmds era))
 pTransactionBuildCmd era envCli = do
-  w <- forEraMaybeEon era
   pure
     $ subParser "build"
-    $ Opt.info (pCmd w)
+    $ Opt.info (pCmd era)
     $ Opt.progDescDoc
     $ Just $ mconcat
         [ pretty @String "Build a balanced transaction (automatically calculates fees)"
@@ -178,7 +170,7 @@ pTransactionBuildCmd era envCli = do
           <*> pChangeAddress
           <*> optional (pMintMultiAsset AutoBalance)
           <*> optional pInvalidBefore
-          <*> pInvalidHereafter (shelleyBasedToCardanoEra sbe)
+          <*> pInvalidHereafter sbe
           <*> many (pCertificateFile AutoBalance)
           <*> many (pWithdrawal AutoBalance)
           <*> pTxMetadataJsonSchema
@@ -200,7 +192,7 @@ pChangeAddress =
     , Opt.help "Address where ADA in excess of the tx fee will go to."
     ]
 
-pTransactionBuildRaw :: CardanoEra era -> Parser (TransactionCmds era)
+pTransactionBuildRaw :: ShelleyBasedEra era -> Parser (TransactionCmds era)
 pTransactionBuildRaw era =
   fmap TransactionBuildRawCmd $
     TransactionBuildRawCmdArgs era

@@ -123,5 +123,5 @@ pCmds era envCli =
     , fmap StakeAddressCmds <$> pStakeAddressCmds (toCardanoEra era) envCli
     , fmap StakePoolCmds    <$> pStakePoolCmds (toCardanoEra era) envCli
     , fmap TextViewCmds     <$> pTextViewCmds
-    , fmap TransactionCmds  <$> pTransactionCmds (toCardanoEra era) envCli
+    , fmap TransactionCmds  <$> pTransactionCmds era envCli
     ]
