@@ -20,8 +20,9 @@ newtype GovernanceHashCmds era = GovernanceHashCmd (GovernanceHashCmdArgs era)
 
 data GovernanceHashCmdArgs era
   = GovernanceHashCmdArgs {
-      eon    :: !(ConwayEraOnwards era),
-      toHash :: !GovernanceHashSource
+      eon     :: !(ConwayEraOnwards era)
+    , toHash  :: !GovernanceHashSource
+    , moutFile :: !(Maybe (File () Out)) -- ^ The output file to which the hash is written
   } deriving Show
 
 data GovernanceHashSource
