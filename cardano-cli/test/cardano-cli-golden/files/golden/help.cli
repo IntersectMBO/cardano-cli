@@ -6182,6 +6182,7 @@ Usage: cardano-cli conway governance hash
                                             | --file-binary FILE
                                             | --file-text FILE
                                             )
+                                            [--out-file FILE]
 
   Compute the hash to pass to the various --*-hash arguments of governance
   commands.
