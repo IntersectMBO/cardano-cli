@@ -100,6 +100,6 @@ hprop_golden_HelpCmds =
         H.noteShow_ usage
         let expectedCmdHelpFp = "test/cardano-cli-golden/files/golden/help" </> Text.unpack (Text.intercalate "_" usage) <> ".cli"
 
-        cmdHelp <- filterAnsi . third <$> H.execDetailCardanoCli (fmap Text.unpack usage)
+        cmdHelp <- filterAnsi . third <$> H.execDetailCardanoCLI (fmap Text.unpack usage)
 
         H.diffVsGoldenFile cmdHelp expectedCmdHelpFp

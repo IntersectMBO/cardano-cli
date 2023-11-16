@@ -3,7 +3,7 @@ module Test.Cardano.CLI.Util
   , checkTextEnvelopeFormat
   , equivalence
   , execCardanoCLI
-  , execDetailCardanoCli
+  , execDetailCardanoCLI
   , tryExecCardanoCLI
   , propertyOnce
   , withSnd
@@ -64,13 +64,13 @@ execCardanoCLI = GHC.withFrozenCallStack $ H.execFlex "cardano-cli" "CARDANO_CLI
 -- | Execute cardano-cli via the command line, expecting it to fail.
 --
 -- Waits for the process to finish and returns the exit code, stdout and stderr.
-execDetailCardanoCli
+execDetailCardanoCLI
   :: (MonadTest m, MonadCatch m, MonadIO m, HasCallStack)
   => [String]
   -- ^ Arguments to the CLI command
   -> m (IO.ExitCode, String, String)
   -- ^ Captured stdout
-execDetailCardanoCli = GHC.withFrozenCallStack $ execDetailFlex H.defaultExecConfig "cardano-cli" "CARDANO_CLI"
+execDetailCardanoCLI = GHC.withFrozenCallStack $ execDetailFlex H.defaultExecConfig "cardano-cli" "CARDANO_CLI"
 
 procFlex'
   :: (MonadTest m, MonadCatch m, MonadIO m, HasCallStack)
