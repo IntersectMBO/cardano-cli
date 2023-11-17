@@ -5923,11 +5923,8 @@ Usage: cardano-cli conway governance action create-constitution
                                                                     --governance-action-index WORD32]
                                                                   --anchor-url TEXT
                                                                   --anchor-data-hash HASH
-                                                                  --constitution-anchor-url TEXT
-                                                                  ( --constitution-anchor-metadata TEXT
-                                                                  | --constitution-anchor-metadata-file FILE
-                                                                  | --constitution-anchor-metadata-hash HASH
-                                                                  )
+                                                                  --constitution-url TEXT
+                                                                  --constitution-hash HASH
                                                                   --out-file FILE
 
   Create a constitution.

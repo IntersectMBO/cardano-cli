@@ -146,7 +146,7 @@ runGovernanceActionCreateConstitutionCmd
       , Cmd.proposalUrl
       , Cmd.proposalHash
       , Cmd.constitutionUrl
-      , Cmd.constitutionHashSource
+      , Cmd.constitutionHash
       , Cmd.outFile
       } = do
 
@@ -156,10 +156,6 @@ runGovernanceActionCreateConstitutionCmd
         { Ledger.anchorUrl = unProposalUrl proposalUrl
         , Ledger.anchorDataHash = proposalHash
         }
-
-  constitutionHash <-
-    constitutionHashSourceToHash constitutionHashSource
-      & firstExceptT GovernanceActionsCmdConstitutionError
 
   let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
       constitutionAnchor = Ledger.Anchor

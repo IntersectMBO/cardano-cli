@@ -875,31 +875,14 @@ catCommands = \case
 pConstitutionUrl :: Parser ConstitutionUrl
 pConstitutionUrl =
   ConstitutionUrl
-    <$> pUrl "constitution-anchor-url" "Constitution anchor URL."
-
-pConstitutionHashSource :: Parser ConstitutionHashSource
-pConstitutionHashSource =
-  asum
-    [ ConstitutionHashSourceText
-        <$> Opt.strOption
-            ( mconcat
-                [ Opt.long "constitution-anchor-metadata"
-                , Opt.metavar "TEXT"
-                , Opt.help "Constitution anchor contents as UTF-8 encoded text."
-                ]
-            )
-    , ConstitutionHashSourceFile
-        <$> pFileInDirection "constitution-anchor-metadata-file" "Constitution anchor contents as a text file."
-    , ConstitutionHashSourceHash
-        <$> pConstitutionHash
-    ]
+    <$> pUrl "constitution-url" "Constitution URL."
 
 pConstitutionHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
 pConstitutionHash =
   Opt.option readSafeHash $ mconcat
-    [ Opt.long "constitution-anchor-metadata-hash"
+    [ Opt.long "constitution-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Hash of the constitution anchor data."
+    , Opt.help "Hash of the constitution data (obtain it with \"cardano-cli conway governance hash ...\")."
     ]
 
 pUrl :: String -> String -> Parser Ledger.Url

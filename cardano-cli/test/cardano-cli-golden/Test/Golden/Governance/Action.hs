@@ -29,7 +29,11 @@ hprop_golden_governance_action_create_constitution =
 
     proposalHash <- execCardanoCLI
       [ "conway", "governance", "hash"
-      , "--text", "whatever "]
+      , "--text", "whatever"]
+
+    constitutionHash <- execCardanoCLI
+      [ "conway", "governance", "hash"
+      , "--text", "something else"]
 
     void $ execCardanoCLI
       [ "conway", "governance", "action", "create-constitution"
@@ -39,8 +43,8 @@ hprop_golden_governance_action_create_constitution =
       , "--governance-action-deposit", "10"
       , "--stake-verification-key-file", stakeAddressVKeyFile
       , "--out-file", actionFile
-      , "--constitution-anchor-url", "constitution-dummy-url"
-      , "--constitution-anchor-metadata", "This is a test constitution."
+      , "--constitution-url", "constitution-dummy-url"
+      , "--constitution-hash", constitutionHash
       ]
 
     goldenActionFile <-  H.note "test/cardano-cli-golden/files/golden/governance/action/create-constitution-for-stake-address.action.golden"
@@ -67,6 +71,11 @@ hprop_golden_conway_governance_action_view_constitution_json =
 
     proposalHash <- H.readFile hashFile
 
+    constitutionHash <- execCardanoCLI
+      [ "conway", "governance", "hash"
+      , "--text", "nonAsciiInput: 你好 and some more: こんにちは"
+      ]
+
     void $ execCardanoCLI
       [ "conway", "governance", "action", "create-constitution"
       , "--mainnet"
@@ -75,8 +84,8 @@ hprop_golden_conway_governance_action_view_constitution_json =
       , "--governance-action-deposit", "10"
       , "--stake-verification-key-file", stakeAddressVKeyFile
       , "--out-file", actionFile
-      , "--constitution-anchor-url", "constitution-dummy-url"
-      , "--constitution-anchor-metadata", "This is a test constitution."
+      , "--constitution-url", "http://my-great-constitution.rocks"
+      , "--constitution-hash", constitutionHash
       ]
 
     goldenActionViewFile <- H.note "test/cardano-cli-golden/files/golden/governance/action/view/create-constitution.action.view"
