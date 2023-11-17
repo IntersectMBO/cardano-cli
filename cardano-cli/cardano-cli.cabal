@@ -317,6 +317,7 @@ test-suite cardano-cli-test
 
   other-modules:        Test.Cli.CliIntermediateFormat
                         Test.Cli.FilePermissions
+                        Test.Cli.Governance.Hash
                         Test.Cli.ITN
                         Test.Cli.JSON
                         Test.Cli.Pioneers.Exercise1

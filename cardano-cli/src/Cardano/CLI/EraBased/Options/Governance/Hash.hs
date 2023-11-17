@@ -25,9 +25,10 @@ pGovernanceHashCmds era = do
   return
     $ subParser "hash"
     $ Opt.info
-        ( Cmd.GovernanceHashCmd . GovernanceHashCmdArgs eon
-            <$> pGovernanceHashSource
-        )
+        ( fmap Cmd.GovernanceHashCmd
+            (GovernanceHashCmdArgs eon
+               <$> pGovernanceHashSource
+               <*> optional pOutputFile))
     $ Opt.progDesc "Compute the hash to pass to the various --*-hash arguments of governance commands."
 
 pGovernanceHashSource :: Parser Cmd.GovernanceHashSource

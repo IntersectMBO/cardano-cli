@@ -10,6 +10,7 @@ import           Test.Cardano.CLI.Util
 import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.Golden as H
+import qualified Hedgehog.Extras as H
 
 hprop_golden_governance_action_create_constitution :: Property
 hprop_golden_governance_action_create_constitution =
@@ -53,12 +54,18 @@ hprop_golden_conway_governance_action_view_constitution_json :: Property
 hprop_golden_conway_governance_action_view_constitution_json =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
+    hashFile <- noteTempFile tempDir "hash.txt"
 
     actionFile <- noteTempFile tempDir "action"
 
-    proposalHash <- execCardanoCLI
+    -- We go through a file for the hash, to test --out-file
+    void $ execCardanoCLI
       [ "conway", "governance", "hash"
-      , "--text", "whatever "]
+      , "--text", "whatever "
+      , "--out-file", hashFile
+      ]
+
+    proposalHash <- H.readFile hashFile
 
     void $ execCardanoCLI
       [ "conway", "governance", "action", "create-constitution"

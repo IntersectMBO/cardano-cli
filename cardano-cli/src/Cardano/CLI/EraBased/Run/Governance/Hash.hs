@@ -24,12 +24,10 @@ import           Cardano.Ledger.Crypto
 import           Cardano.Ledger.SafeHash (extractHash)
 import qualified Cardano.Ledger.SafeHash as Ledger
 
-import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import qualified Data.ByteString as BS
 import           Data.Function
-import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
 
@@ -43,7 +41,7 @@ runGovernanceHashCmds (Cmd.GovernanceHashCmd args)=
 runGovernanceHashCmd :: ()
   => Cmd.GovernanceHashCmdArgs era
   -> ExceptT GovernanceHashError IO ()
-runGovernanceHashCmd Cmd.GovernanceHashCmdArgs { toHash } =
+runGovernanceHashCmd Cmd.GovernanceHashCmdArgs { toHash, moutFile } =
   -- TODO @smelc we probably want an option to write the computed hash to a file
   -- This can be done in a separate PR
   case toHash of
@@ -61,5 +59,9 @@ runGovernanceHashCmd Cmd.GovernanceHashCmdArgs { toHash } =
       let hash = Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 text
       printHash hash
   where
-    printHash :: Ledger.SafeHash StandardCrypto i -> ExceptT a IO ()
-    printHash = liftIO . putStr . Text.unpack . hashToTextAsHex . extractHash
+    printHash :: Ledger.SafeHash StandardCrypto i -> ExceptT GovernanceHashError IO ()
+    printHash hash = do
+      firstExceptT GovernanceHashWriteFileError $
+        newExceptT $ writeTextOutput moutFile text
+      where
+        text = hashToTextAsHex . extractHash $ hash
