@@ -41,12 +41,12 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
 import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api.Ledger as Ledger
+import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Helpers
-import           Cardano.CLI.Pretty
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.QueryCmdError
@@ -98,10 +98,12 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as T
 import qualified Data.Text.IO as Text
+import qualified Data.Text.Lazy.IO as LT
 import           Data.Time.Clock
 import           Lens.Micro ((^.))
 import           Numeric (showEFloat)
 import           Prettyprinter
+import           Prettyprinter.Render.Terminal (AnsiStyle)
 import qualified System.IO as IO
 import           Text.Printf (printf)
 
@@ -259,7 +261,7 @@ runQueryTipCmd
         }
 
   mLocalState <- hushM (first QueryCmdAcquireFailure eLocalState) $ \e ->
-    liftIO . T.hPutStrLn IO.stderr $ "Warning: Local state unavailable: " <> renderQueryCmdError e
+    liftIO . LT.hPutStrLn IO.stderr $ prettyToLazyText $ "Warning: Local state unavailable: " <> renderQueryCmdError e
 
   chainTip <- pure (mLocalState >>= O.mChainTip)
     -- The chain tip is unavailable via local state query because we are connecting with an older
@@ -275,7 +277,7 @@ runQueryTipCmd
   localStateOutput <- forM mLocalState $ \localState -> do
     case slotToEpoch tipSlotNo (O.eraHistory localState) of
       Left e -> do
-        liftIO . T.hPutStrLn IO.stderr $
+        liftIO . LT.hPutStrLn IO.stderr $ prettyToLazyText $
           "Warning: Epoch unavailable: " <> renderQueryCmdError (QueryCmdPastHorizon e)
         return $ O.QueryTipLocalStateOutput
           { O.localStateChainTip = chainTip
@@ -297,7 +299,7 @@ runQueryTipCmd
           return $ flip (percentage tolerance) nowSeconds tipTimeResult
 
         mSyncProgress <- hushM syncProgressResult $ \e -> do
-          liftIO . T.hPutStrLn IO.stderr $ "Warning: Sync progress unavailable: " <> renderQueryCmdError e
+          liftIO . LT.hPutStrLn IO.stderr $ prettyToLazyText $ "Warning: Sync progress unavailable: " <> renderQueryCmdError e
 
         return $ O.QueryTipLocalStateOutput
           { O.localStateChainTip = chainTip
@@ -399,8 +401,8 @@ runQueryKesPeriodInfoCmd
           let counterInformation = opCertNodeAndOnDiskCounters onDiskC stateC
 
           -- Always render diagnostic information
-          liftIO . putStrLn $ renderOpCertIntervalInformation (unFile nodeOpCertFp) opCertIntervalInformation
-          liftIO . putStrLn $ renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
+          liftIO . putStrLn $ prettyToString $ renderOpCertIntervalInformation (unFile nodeOpCertFp) opCertIntervalInformation
+          liftIO . putStrLn $ prettyToString $ renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
 
           let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
               kesPeriodInfoJSON = encodePretty qKesInfoOutput
@@ -413,205 +415,195 @@ runQueryKesPeriodInfoCmd
     & onLeft (left . QueryCmdAcquireFailure)
     & onLeft left
 
- where
-   currentKesPeriod :: ChainTip -> GenesisParameters era -> CurrentKesPeriod
-   currentKesPeriod ChainTipAtGenesis _ = CurrentKesPeriod 0
-   currentKesPeriod (ChainTip currSlot _ _) gParams =
-     let slotsPerKesPeriod = fromIntegral $ protocolParamSlotsPerKESPeriod gParams
-     in CurrentKesPeriod $ unSlotNo currSlot `div` slotsPerKesPeriod
+  where
+    currentKesPeriod :: ChainTip -> GenesisParameters era -> CurrentKesPeriod
+    currentKesPeriod ChainTipAtGenesis _ = CurrentKesPeriod 0
+    currentKesPeriod (ChainTip currSlot _ _) gParams =
+      let slotsPerKesPeriod = fromIntegral $ protocolParamSlotsPerKESPeriod gParams
+      in CurrentKesPeriod $ unSlotNo currSlot `div` slotsPerKesPeriod
 
-   opCertStartingKesPeriod :: OperationalCertificate -> OpCertStartingKesPeriod
-   opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . getKesPeriod
+    opCertStartingKesPeriod :: OperationalCertificate -> OpCertStartingKesPeriod
+    opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . getKesPeriod
 
-   opCertEndKesPeriod :: GenesisParameters era -> OperationalCertificate -> OpCertEndingKesPeriod
-   opCertEndKesPeriod gParams oCert =
-     let OpCertStartingKesPeriod start = opCertStartingKesPeriod oCert
-         maxKesEvo = fromIntegral $ protocolParamMaxKESEvolutions gParams
-     in OpCertEndingKesPeriod $ start + maxKesEvo
+    opCertEndKesPeriod :: GenesisParameters era -> OperationalCertificate -> OpCertEndingKesPeriod
+    opCertEndKesPeriod gParams oCert =
+      let OpCertStartingKesPeriod start = opCertStartingKesPeriod oCert
+          maxKesEvo = fromIntegral $ protocolParamMaxKESEvolutions gParams
+      in OpCertEndingKesPeriod $ start + maxKesEvo
 
-   -- See OCERT rule in Shelley Spec: https://hydra.iohk.io/job/Cardano/cardano-ledger-specs/shelleyLedgerSpec/latest/download-by-type/doc-pdf/ledger-spec
-   opCertIntervalInfo
-     :: GenesisParameters era
-     -> ChainTip
-     -> CurrentKesPeriod
-     -> OpCertStartingKesPeriod
-     -> OpCertEndingKesPeriod
-     -> OpCertIntervalInformation
-   opCertIntervalInfo gParams currSlot' c s e@(OpCertEndingKesPeriod oCertEnd) =
-       let cSlot = case currSlot' of
-                       (ChainTip cSlotN _ _) -> unSlotNo cSlotN
-                       ChainTipAtGenesis -> 0
-           slotsTillExp = SlotsTillKesKeyExpiry . SlotNo $ (oCertEnd * fromIntegral (protocolParamSlotsPerKESPeriod gParams)) - cSlot
-       in O.createOpCertIntervalInfo c s e (Just slotsTillExp)
+    -- See OCERT rule in Shelley Spec: https://hydra.iohk.io/job/Cardano/cardano-ledger-specs/shelleyLedgerSpec/latest/download-by-type/doc-pdf/ledger-spec
+    opCertIntervalInfo
+      :: GenesisParameters era
+      -> ChainTip
+      -> CurrentKesPeriod
+      -> OpCertStartingKesPeriod
+      -> OpCertEndingKesPeriod
+      -> OpCertIntervalInformation
+    opCertIntervalInfo gParams currSlot' c s e@(OpCertEndingKesPeriod oCertEnd) =
+        let cSlot = case currSlot' of
+                        (ChainTip cSlotN _ _) -> unSlotNo cSlotN
+                        ChainTipAtGenesis -> 0
+            slotsTillExp = SlotsTillKesKeyExpiry . SlotNo $ (oCertEnd * fromIntegral (protocolParamSlotsPerKESPeriod gParams)) - cSlot
+        in O.createOpCertIntervalInfo c s e (Just slotsTillExp)
 
-   opCertNodeAndOnDiskCounters
-     :: OpCertOnDiskCounter
-     -> Maybe OpCertNodeStateCounter
-     -> OpCertNodeAndOnDiskCounterInformation
-   opCertNodeAndOnDiskCounters o@(OpCertOnDiskCounter odc) (Just n@(OpCertNodeStateCounter nsc))
-     | odc < nsc = OpCertOnDiskCounterBehindNodeState o n
-     | odc > nsc + 1 = OpCertOnDiskCounterTooFarAheadOfNodeState o n
-     | odc == nsc + 1 = OpCertOnDiskCounterAheadOfNodeState o n
-     | otherwise = OpCertOnDiskCounterEqualToNodeState o n
-   opCertNodeAndOnDiskCounters o Nothing = OpCertNoBlocksMintedYet o
+    opCertNodeAndOnDiskCounters
+      :: OpCertOnDiskCounter
+      -> Maybe OpCertNodeStateCounter
+      -> OpCertNodeAndOnDiskCounterInformation
+    opCertNodeAndOnDiskCounters o@(OpCertOnDiskCounter odc) (Just n@(OpCertNodeStateCounter nsc))
+      | odc < nsc = OpCertOnDiskCounterBehindNodeState o n
+      | odc > nsc + 1 = OpCertOnDiskCounterTooFarAheadOfNodeState o n
+      | odc == nsc + 1 = OpCertOnDiskCounterAheadOfNodeState o n
+      | otherwise = OpCertOnDiskCounterEqualToNodeState o n
+    opCertNodeAndOnDiskCounters o Nothing = OpCertNoBlocksMintedYet o
 
-   opCertExpiryUtcTime
-     :: Tentative (EpochInfo (Either Text))
-     -> GenesisParameters era
-     -> OpCertEndingKesPeriod
-     -> Maybe UTCTime
-   opCertExpiryUtcTime eInfo gParams (OpCertEndingKesPeriod oCertExpiryKesPeriod) =
-     let time = epochInfoSlotToUTCTime
-                  (tentative eInfo)
-                  (SystemStart $ protocolParamSystemStart gParams)
-                  (fromIntegral $ oCertExpiryKesPeriod * fromIntegral (protocolParamSlotsPerKESPeriod gParams))
-     in case time of
-          Left _ -> Nothing
-          Right t -> Just t
+    opCertExpiryUtcTime
+      :: Tentative (EpochInfo (Either Text))
+      -> GenesisParameters era
+      -> OpCertEndingKesPeriod
+      -> Maybe UTCTime
+    opCertExpiryUtcTime eInfo gParams (OpCertEndingKesPeriod oCertExpiryKesPeriod) =
+      let time = epochInfoSlotToUTCTime
+                   (tentative eInfo)
+                   (SystemStart $ protocolParamSystemStart gParams)
+                   (fromIntegral $ oCertExpiryKesPeriod * fromIntegral (protocolParamSlotsPerKESPeriod gParams))
+      in case time of
+           Left _ -> Nothing
+           Right t -> Just t
 
-   renderOpCertNodeAndOnDiskCounterInformation :: FilePath -> OpCertNodeAndOnDiskCounterInformation -> String
-   renderOpCertNodeAndOnDiskCounterInformation opCertFile opCertCounterInfo =
-     case opCertCounterInfo of
+    renderOpCertNodeAndOnDiskCounterInformation :: FilePath -> OpCertNodeAndOnDiskCounterInformation -> Doc AnsiStyle
+    renderOpCertNodeAndOnDiskCounterInformation opCertFile = \case
       OpCertOnDiskCounterEqualToNodeState _ _ ->
-        renderStringDefault $
-          green "✓" <+> hang 0
-              ( vsep
-                [ "The operational certificate counter agrees with the node protocol state counter"
-                ]
-              )
+        green "✓" <+> hang 0
+            ( vsep
+              [ "The operational certificate counter agrees with the node protocol state counter"
+              ]
+            )
       OpCertOnDiskCounterAheadOfNodeState _ _ ->
-        renderStringDefault $
-          green "✓" <+> hang 0
-              ( vsep
-                [ "The operational certificate counter ahead of the node protocol state counter by 1"
-                ]
-              )
+        green "✓" <+> hang 0
+            ( vsep
+              [ "The operational certificate counter ahead of the node protocol state counter by 1"
+              ]
+            )
       OpCertOnDiskCounterTooFarAheadOfNodeState onDiskC nodeStateC ->
-        renderStringDefault $
-          red "✗" <+> hang 0
-            ( vsep
-              [ "The operational certificate counter too far ahead of the node protocol state counter in the operational certificate at: " <> pretty opCertFile
-              , "On disk operational certificate counter: " <> pretty (unOpCertOnDiskCounter onDiskC)
-              , "Protocol state counter: " <> pretty (unOpCertNodeStateCounter nodeStateC)
-              ]
-            )
+        red "✗" <+> hang 0
+          ( vsep
+            [ "The operational certificate counter too far ahead of the node protocol state counter in the operational certificate at: " <> pretty opCertFile
+            , "On disk operational certificate counter: " <> pretty (unOpCertOnDiskCounter onDiskC)
+            , "Protocol state counter: " <> pretty (unOpCertNodeStateCounter nodeStateC)
+            ]
+          )
       OpCertOnDiskCounterBehindNodeState onDiskC nodeStateC ->
-        renderStringDefault $
-          red "✗" <+> hang 0
-            ( vsep
-              [ "The protocol state counter is greater than the counter in the operational certificate at: " <> pretty opCertFile
-              , "On disk operational certificate counter: " <> pretty (unOpCertOnDiskCounter onDiskC)
-              , "Protocol state counter: " <> pretty (unOpCertNodeStateCounter nodeStateC)
-              ]
-            )
+        red "✗" <+> hang 0
+          ( vsep
+            [ "The protocol state counter is greater than the counter in the operational certificate at: " <> pretty opCertFile
+            , "On disk operational certificate counter: " <> pretty (unOpCertOnDiskCounter onDiskC)
+            , "Protocol state counter: " <> pretty (unOpCertNodeStateCounter nodeStateC)
+            ]
+          )
       OpCertNoBlocksMintedYet (OpCertOnDiskCounter onDiskC) ->
-        renderStringDefault $
-          red "✗" <+> hang 0
-            ( vsep
-              [ "No blocks minted so far with the operational certificate at: " <> pretty opCertFile
-              , "On disk operational certificate counter: " <> pretty onDiskC
-              ]
-            )
+        red "✗" <+> hang 0
+          ( vsep
+            [ "No blocks minted so far with the operational certificate at: " <> pretty opCertFile
+            , "On disk operational certificate counter: " <> pretty onDiskC
+            ]
+          )
 
 
-   createQueryKesPeriodInfoOutput
-     :: OpCertIntervalInformation
-     -> OpCertNodeAndOnDiskCounterInformation
-     -> Tentative (EpochInfo (Either Text))
-     -> GenesisParameters era
-     -> O.QueryKesPeriodInfoOutput
-   createQueryKesPeriodInfoOutput oCertIntervalInfo oCertCounterInfo eInfo gParams  =
-     let (e, mStillExp) = case oCertIntervalInfo of
-                            OpCertWithinInterval _ end _ sTillExp -> (end, Just sTillExp)
-                            OpCertStartingKesPeriodIsInTheFuture _ end _ -> (end, Nothing)
-                            OpCertExpired _ end _ -> (end, Nothing)
-                            OpCertSomeOtherError _ end _ -> (end, Nothing)
-         (onDiskCounter, mNodeCounter) = case oCertCounterInfo of
-                                           OpCertOnDiskCounterEqualToNodeState d n -> (d, Just n)
-                                           OpCertOnDiskCounterAheadOfNodeState d n -> (d, Just n)
-                                           OpCertOnDiskCounterTooFarAheadOfNodeState d n -> (d, Just n)
-                                           OpCertOnDiskCounterBehindNodeState d n -> (d, Just n)
-                                           OpCertNoBlocksMintedYet d -> (d, Nothing)
+    createQueryKesPeriodInfoOutput
+      :: OpCertIntervalInformation
+      -> OpCertNodeAndOnDiskCounterInformation
+      -> Tentative (EpochInfo (Either Text))
+      -> GenesisParameters era
+      -> O.QueryKesPeriodInfoOutput
+    createQueryKesPeriodInfoOutput oCertIntervalInfo oCertCounterInfo eInfo gParams  =
+      let (e, mStillExp) = case oCertIntervalInfo of
+                             OpCertWithinInterval _ end _ sTillExp -> (end, Just sTillExp)
+                             OpCertStartingKesPeriodIsInTheFuture _ end _ -> (end, Nothing)
+                             OpCertExpired _ end _ -> (end, Nothing)
+                             OpCertSomeOtherError _ end _ -> (end, Nothing)
+          (onDiskCounter, mNodeCounter) = case oCertCounterInfo of
+                                            OpCertOnDiskCounterEqualToNodeState d n -> (d, Just n)
+                                            OpCertOnDiskCounterAheadOfNodeState d n -> (d, Just n)
+                                            OpCertOnDiskCounterTooFarAheadOfNodeState d n -> (d, Just n)
+                                            OpCertOnDiskCounterBehindNodeState d n -> (d, Just n)
+                                            OpCertNoBlocksMintedYet d -> (d, Nothing)
 
-     in O.QueryKesPeriodInfoOutput
-        { O.qKesOpCertIntervalInformation = oCertIntervalInfo
-        , O.qKesInfoNodeStateOperationalCertNo = mNodeCounter
-        , O.qKesInfoOnDiskOperationalCertNo = onDiskCounter
-        , O.qKesInfoMaxKesKeyEvolutions = fromIntegral $ protocolParamMaxKESEvolutions gParams
-        , O.qKesInfoSlotsPerKesPeriod = fromIntegral $ protocolParamSlotsPerKESPeriod gParams
-        , O.qKesInfoKesKeyExpiry =
-            case mStillExp of
-              Just _ -> opCertExpiryUtcTime eInfo gParams e
-              Nothing -> Nothing
-        }
+      in O.QueryKesPeriodInfoOutput
+         { O.qKesOpCertIntervalInformation = oCertIntervalInfo
+         , O.qKesInfoNodeStateOperationalCertNo = mNodeCounter
+         , O.qKesInfoOnDiskOperationalCertNo = onDiskCounter
+         , O.qKesInfoMaxKesKeyEvolutions = fromIntegral $ protocolParamMaxKESEvolutions gParams
+         , O.qKesInfoSlotsPerKesPeriod = fromIntegral $ protocolParamSlotsPerKESPeriod gParams
+         , O.qKesInfoKesKeyExpiry =
+             case mStillExp of
+               Just _ -> opCertExpiryUtcTime eInfo gParams e
+               Nothing -> Nothing
+         }
 
-   -- We get the operational certificate counter from the protocol state and check that
-   -- it is equivalent to what we have on disk.
-   opCertOnDiskAndStateCounters :: forall era . ()
-      => Consensus.PraosProtocolSupportsNode (ConsensusProtocol era)
-      => FromCBOR (Consensus.ChainDepState (ConsensusProtocol era))
-      => Crypto.ADDRHASH (Consensus.PraosProtocolSupportsNodeCrypto (ConsensusProtocol era)) ~ Blake2b.Blake2b_224
-      => ProtocolState era
-      -> OperationalCertificate
-      -> ExceptT QueryCmdError IO (OpCertOnDiskCounter, Maybe OpCertNodeStateCounter)
-   opCertOnDiskAndStateCounters ptclState opCert@(OperationalCertificate _ stakePoolVKey) = do
-    let onDiskOpCertCount = fromIntegral $ getOpCertCount opCert
+    -- We get the operational certificate counter from the protocol state and check that
+    -- it is equivalent to what we have on disk.
+    opCertOnDiskAndStateCounters :: forall era . ()
+       => Consensus.PraosProtocolSupportsNode (ConsensusProtocol era)
+       => FromCBOR (Consensus.ChainDepState (ConsensusProtocol era))
+       => Crypto.ADDRHASH (Consensus.PraosProtocolSupportsNodeCrypto (ConsensusProtocol era)) ~ Blake2b.Blake2b_224
+       => ProtocolState era
+       -> OperationalCertificate
+       -> ExceptT QueryCmdError IO (OpCertOnDiskCounter, Maybe OpCertNodeStateCounter)
+    opCertOnDiskAndStateCounters ptclState opCert@(OperationalCertificate _ stakePoolVKey) = do
+      let onDiskOpCertCount = fromIntegral $ getOpCertCount opCert
 
-    chainDepState <- pure (decodeProtocolState ptclState)
-      & onLeft (left . QueryCmdProtocolStateDecodeFailure)
+      chainDepState <- pure (decodeProtocolState ptclState)
+        & onLeft (left . QueryCmdProtocolStateDecodeFailure)
 
-    -- We need the stake pool id to determine what the counter of our SPO
-    -- should be.
-    let opCertCounterMap = Consensus.getOpCertCounters (Proxy @(ConsensusProtocol era)) chainDepState
-        StakePoolKeyHash blockIssuerHash = verificationKeyHash stakePoolVKey
+      -- We need the stake pool id to determine what the counter of our SPO
+      -- should be.
+      let opCertCounterMap = Consensus.getOpCertCounters (Proxy @(ConsensusProtocol era)) chainDepState
+          StakePoolKeyHash blockIssuerHash = verificationKeyHash stakePoolVKey
 
-    case Map.lookup (coerce blockIssuerHash) opCertCounterMap of
-      -- Operational certificate exists in the protocol state
-      -- so our ondisk op cert counter must be greater than or
-      -- equal to what is in the node state
-      Just ptclStateCounter -> return (OpCertOnDiskCounter onDiskOpCertCount, Just $ OpCertNodeStateCounter ptclStateCounter)
-      Nothing -> return (OpCertOnDiskCounter onDiskOpCertCount, Nothing)
+      case Map.lookup (coerce blockIssuerHash) opCertCounterMap of
+        -- Operational certificate exists in the protocol state
+        -- so our ondisk op cert counter must be greater than or
+        -- equal to what is in the node state
+        Just ptclStateCounter -> return (OpCertOnDiskCounter onDiskOpCertCount, Just $ OpCertNodeStateCounter ptclStateCounter)
+        Nothing -> return (OpCertOnDiskCounter onDiskOpCertCount, Nothing)
 
 
-renderOpCertIntervalInformation :: FilePath -> OpCertIntervalInformation -> String
+renderOpCertIntervalInformation :: FilePath -> OpCertIntervalInformation -> Doc AnsiStyle
 renderOpCertIntervalInformation opCertFile opCertInfo = case opCertInfo of
   OpCertWithinInterval _start _end _current _stillExp ->
-    renderStringDefault $
-      green "✓" <+> hang 0
-        ( vsep
-          [ "Operational certificate's KES period is within the correct KES period interval"
-          ]
-        )
+    green "✓" <+> hang 0
+      ( vsep
+        [ "Operational certificate's KES period is within the correct KES period interval"
+        ]
+      )
   OpCertStartingKesPeriodIsInTheFuture (OpCertStartingKesPeriod start) (OpCertEndingKesPeriod end) (CurrentKesPeriod current) ->
-    renderStringDefault $
-      red "✗" <+> hang 0
-        ( vsep
-          [ "Node operational certificate at: " <> pretty opCertFile <> " has an incorrectly specified starting KES period. "
-          , "Current KES period: " <> pretty current
-          , "Operational certificate's starting KES period: " <> pretty start
-          , "Operational certificate's expiry KES period: " <> pretty end
-          ]
-        )
+    red "✗" <+> hang 0
+      ( vsep
+        [ "Node operational certificate at: " <> pretty opCertFile <> " has an incorrectly specified starting KES period. "
+        , "Current KES period: " <> pretty current
+        , "Operational certificate's starting KES period: " <> pretty start
+        , "Operational certificate's expiry KES period: " <> pretty end
+        ]
+      )
   OpCertExpired _ (OpCertEndingKesPeriod end) (CurrentKesPeriod current) ->
-    renderStringDefault $
-      red "✗" <+> hang 0
-        ( vsep
-          [ "Node operational certificate at: " <> pretty opCertFile <> " has expired. "
-          , "Current KES period: " <> pretty current
-          , "Operational certificate's expiry KES period: " <> pretty end
-          ]
-        )
+    red "✗" <+> hang 0
+      ( vsep
+        [ "Node operational certificate at: " <> pretty opCertFile <> " has expired. "
+        , "Current KES period: " <> pretty current
+        , "Operational certificate's expiry KES period: " <> pretty end
+        ]
+      )
 
   OpCertSomeOtherError (OpCertStartingKesPeriod start) (OpCertEndingKesPeriod end) (CurrentKesPeriod current) ->
-    renderStringDefault $
-      red "✗" <+> hang 0
-        ( vsep
-          [ "An unknown error occurred with operational certificate at: " <> pretty opCertFile
-          , "Current KES period: " <> pretty current
-          , "Operational certificate's starting KES period: " <> pretty start
-          , "Operational certificate's expiry KES period: " <> pretty end
-          ]
-        )
+    red "✗" <+> hang 0
+      ( vsep
+        [ "An unknown error occurred with operational certificate at: " <> pretty opCertFile
+        , "Current KES period: " <> pretty current
+        , "Operational certificate's starting KES period: " <> pretty start
+        , "Operational certificate's expiry KES period: " <> pretty end
+        ]
+      )
 
 -- | Query the current and future parameters for a stake pool, including the retirement date.
 -- Any of these may be empty (in which case a null will be displayed).
@@ -1049,7 +1041,7 @@ printUtxo sbe txInOutTuple =
 
   printableValue :: TxOutValue era -> Text
   printableValue = \case
-    TxOutValueByron _ (Lovelace i) -> Text.pack $ show i
+    TxOutValueByron (Lovelace i) -> Text.pack $ show i
     TxOutValueShelleyBased sbe2 val -> renderValue $ Api.fromLedgerValue sbe2 val
 
 runQueryStakePoolsCmd :: ()

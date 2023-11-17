@@ -27,6 +27,7 @@ module Cardano.CLI.Byron.Parsers
 import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
 import           Cardano.Api.Byron (Address (..), ByronProtocolParametersUpdate (..),
                    toByronLovelace)
+import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley (ReferenceScript (ReferenceScriptNone))
 
 import           Cardano.Chain.Common (BlockCount (..), TxFeePolicy (..), TxSizeLinear (..),
@@ -265,7 +266,7 @@ parseTxIdAtto = (<?> "Transaction ID (hexadecimal)") $ do
   bstr <- Atto.takeWhile1 Char.isHexDigit
   case deserialiseFromRawBytesHex AsTxId bstr of
     Right addr -> return addr
-    Left e -> fail $ "Incorrect transaction id format: " ++ displayError e
+    Left e -> fail $ prettyToString $ "Incorrect transaction id format: " <> prettyError e
 
 parseTxIxAtto :: Atto.Parser TxIx
 parseTxIxAtto = toEnum <$> Atto.decimal
@@ -293,7 +294,7 @@ parseTxOut =
   pLovelaceTxOut l =
     if l > (maxBound :: Word64)
       then error $ show l <> " lovelace exceeds the Word64 upper bound"
-      else TxOutValueByron ByronEraOnlyByron . Lovelace $ toInteger l
+      else TxOutValueByron . Lovelace $ toInteger l
 
 readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
 readerFromAttoParser p =

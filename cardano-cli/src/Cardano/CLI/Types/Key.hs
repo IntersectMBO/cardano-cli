@@ -48,6 +48,7 @@ module Cardano.CLI.Types.Key
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
+import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
@@ -61,9 +62,7 @@ import qualified Data.ByteString as BS
 import           Data.Function
 import qualified Data.List.NonEmpty as NE
 import           Data.Text (Text)
-import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-
 
 ------------------------------------------------------------------------------
 -- Verification key deserialisation
@@ -228,11 +227,11 @@ data VerificationKeyTextOrFileError
   deriving Show
 
 -- | Render an error message for a 'VerificationKeyTextOrFileError'.
-renderVerificationKeyTextOrFileError :: VerificationKeyTextOrFileError -> Text
+renderVerificationKeyTextOrFileError :: VerificationKeyTextOrFileError -> Doc ann
 renderVerificationKeyTextOrFileError vkTextOrFileErr =
   case vkTextOrFileErr of
     VerificationKeyTextError err -> renderInputDecodeError err
-    VerificationKeyFileError err -> Text.pack (displayError err)
+    VerificationKeyFileError err -> prettyError err
 
 -- | Deserialise a verification key from text or a verification key file.
 -- If a filepath is provided, the file can either be formatted as Bech32, hex,

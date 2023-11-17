@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Byron.Key
   ( -- * Keys
@@ -16,6 +17,7 @@ module Cardano.CLI.Byron.Key
 where
 
 import           Cardano.Api.Byron
+import           Cardano.Api.Pretty
 
 import qualified Cardano.Chain.Common as Common
 import           Cardano.CLI.Types.Common
@@ -32,7 +34,6 @@ import           Data.Text (Text)
 import qualified Data.Text as T
 import           Formatting (build, sformat, (%))
 
-
 data ByronKeyFailure
   = ReadSigningKeyFailure !FilePath !Text
   | ReadVerificationKeyFailure !FilePath !Text
@@ -42,21 +43,20 @@ data ByronKeyFailure
   | CannotMigrateFromNonLegacySigningKey !FilePath
   deriving Show
 
-renderByronKeyFailure :: ByronKeyFailure -> Text
-renderByronKeyFailure err =
-  case err of
-    CannotMigrateFromNonLegacySigningKey fp ->
-      "Migrate from non-legacy Byron key unnecessary: " <> textShow fp
-    ReadSigningKeyFailure sKeyFp readErr ->
-      "Error reading signing key at: " <> textShow sKeyFp <> " Error: " <> textShow readErr
-    ReadVerificationKeyFailure vKeyFp readErr ->
-      "Error reading verification key at: " <> textShow vKeyFp <> " Error: " <> textShow readErr
-    LegacySigningKeyDeserialisationFailed fp ->
-      "Error attempting to deserialise a legacy signing key at: " <> textShow fp
-    SigningKeyDeserialisationFailed sKeyFp  ->
-      "Error deserialising signing key at: " <> textShow sKeyFp
-    VerificationKeyDeserialisationFailed vKeyFp deSerError ->
-      "Error deserialising verification key at: " <> textShow vKeyFp <> " Error: " <> textShow deSerError
+renderByronKeyFailure :: ByronKeyFailure -> Doc ann
+renderByronKeyFailure  = \case
+  CannotMigrateFromNonLegacySigningKey fp ->
+    "Migrate from non-legacy Byron key unnecessary: " <> pshow fp
+  ReadSigningKeyFailure sKeyFp readErr ->
+    "Error reading signing key at: " <> pshow sKeyFp <> " Error: " <> pshow readErr
+  ReadVerificationKeyFailure vKeyFp readErr ->
+    "Error reading verification key at: " <> pshow vKeyFp <> " Error: " <> pshow readErr
+  LegacySigningKeyDeserialisationFailed fp ->
+    "Error attempting to deserialise a legacy signing key at: " <> pshow fp
+  SigningKeyDeserialisationFailed sKeyFp  ->
+    "Error deserialising signing key at: " <> pshow sKeyFp
+  VerificationKeyDeserialisationFailed vKeyFp deSerError ->
+    "Error deserialising verification key at: " <> pshow vKeyFp <> " Error: " <> pshow deSerError
 
 newtype NewSigningKeyFile =
   NewSigningKeyFile FilePath

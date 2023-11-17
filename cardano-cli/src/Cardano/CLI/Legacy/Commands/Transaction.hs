@@ -24,7 +24,7 @@ data LegacyTransactionCmds
       -- ^ Read only reference inputs
       [TxIn]
       -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
-      (Maybe TxOutAnyEra)
+      (Maybe TxOutShelleyBasedEra)
       -- ^ Return collateral
       (Maybe Lovelace)
       -- ^ Total collateral
@@ -67,7 +67,7 @@ data LegacyTransactionCmds
       -- ^ Required signers
       [TxIn]
       -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
-      (Maybe TxOutAnyEra)
+      (Maybe TxOutShelleyBasedEra)
       -- ^ Return collateral
       (Maybe Lovelace)
       -- ^ Total collateral
@@ -125,7 +125,7 @@ data LegacyTransactionCmds
   | TransactionCalculateMinValueCmd
       AnyCardanoEra
       ProtocolParamsFile
-      TxOutAnyEra
+      TxOutShelleyBasedEra
   | TransactionHashScriptDataCmd
       ScriptDataOrFile
   | TransactionTxIdCmd

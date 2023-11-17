@@ -16,8 +16,8 @@ data ScriptDecodeError =
   deriving Show
 
 instance Error ScriptDecodeError where
-  displayError = \case
+  prettyError = \case
     ScriptDecodeTextEnvelopeError err ->
-      "Error decoding script: " ++ displayError err
+      "Error decoding script: " <> prettyError err
     ScriptDecodeSimpleScriptError err ->
-      "Syntax error in script: " ++ displayError err
+      "Syntax error in script: " <> prettyError err

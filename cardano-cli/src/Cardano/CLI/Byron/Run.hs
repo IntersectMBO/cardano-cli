@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Byron.Run
   ( ByronClientCmdError
@@ -33,6 +34,7 @@ import qualified Data.Text.IO as Text
 import qualified Data.Text.Lazy.Builder as Builder
 import qualified Data.Text.Lazy.IO as TL
 import qualified Formatting as F
+import           Prettyprinter
 
 -- | Data type that encompasses all the possible errors of the
 -- Byron client.
@@ -46,16 +48,15 @@ data ByronClientCmdError
   | ByronCmdVoteError !ByronVoteError
   deriving Show
 
-renderByronClientCmdError :: ByronClientCmdError -> Text
-renderByronClientCmdError err =
-  case err of
-    ByronCmdDelegationError e -> renderByronDelegationError e
-    ByronCmdGenesisError e -> renderByronGenesisError e
-    ByronCmdHelpersError e -> renderHelpersError e
-    ByronCmdKeyFailure e -> renderByronKeyFailure e
-    ByronCmdTxError e -> renderByronTxError e
-    ByronCmdUpdateProposalError e -> renderByronUpdateProposalError e
-    ByronCmdVoteError e -> renderByronVoteError e
+renderByronClientCmdError :: ByronClientCmdError -> Doc ann
+renderByronClientCmdError = \case
+  ByronCmdDelegationError e -> renderByronDelegationError e
+  ByronCmdGenesisError e -> renderByronGenesisError e
+  ByronCmdHelpersError e -> renderHelpersError e
+  ByronCmdKeyFailure e -> renderByronKeyFailure e
+  ByronCmdTxError e -> renderByronTxError e
+  ByronCmdUpdateProposalError e -> renderByronUpdateProposalError e
+  ByronCmdVoteError e -> renderByronVoteError e
 
 runByronClientCommand :: ByronCommand -> ExceptT ByronClientCmdError IO ()
 runByronClientCommand c =

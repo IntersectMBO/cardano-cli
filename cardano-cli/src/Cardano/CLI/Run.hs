@@ -34,6 +34,7 @@ import           Data.Version (showVersion)
 import           Options.Applicative.Help.Core
 import           Options.Applicative.Types (OptReader (..), Option (..), Parser (..),
                    ParserInfo (..), ParserPrefs (..))
+import           Prettyprinter
 import           System.Info (arch, compilerName, compilerVersion, os)
 import qualified System.IO as IO
 
@@ -74,7 +75,7 @@ runClientCommand = \case
   DisplayVersion ->
     runDisplayVersion
 
-renderClientCommandError :: ClientCommandErrors -> Text
+renderClientCommandError :: ClientCommandErrors -> Doc ann
 renderClientCommandError = \case
   CmdError cmdText err ->
     renderCmdError cmdText err

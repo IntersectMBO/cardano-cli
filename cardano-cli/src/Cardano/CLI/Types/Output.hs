@@ -1,5 +1,6 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Output
   ( PlutusScriptCostError
@@ -13,6 +14,7 @@ module Cardano.CLI.Types.Output
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
+import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
@@ -26,7 +28,6 @@ import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Text (Text)
-import qualified Data.Text as Text
 import           Data.Time.Clock (UTCTime)
 import           Data.Word
 
@@ -157,11 +158,11 @@ data QueryTipLocalStateOutput = QueryTipLocalStateOutput
   } deriving Show
 
 -- | A key-value pair difference list for encoding a JSON object.
-(..=) :: (KeyValue kv, ToJSON v) => Aeson.Key -> v -> [kv] -> [kv]
+(..=) :: (KeyValue e kv, ToJSON v) => Aeson.Key -> v -> [kv] -> [kv]
 (..=) n v = (n .= v:)
 
 -- | A key-value pair difference list for encoding a JSON object where Nothing encodes absence of the key-value pair.
-(..=?) :: (KeyValue kv, ToJSON v) => Aeson.Key -> Maybe v -> [kv] -> [kv]
+(..=?) :: (KeyValue e kv, ToJSON v) => Aeson.Key -> Maybe v -> [kv] -> [kv]
 (..=?) n mv = case mv of
   Just v -> (n .= v:)
   Nothing -> id
@@ -267,18 +268,19 @@ data PlutusScriptCostError
 
 
 instance Error PlutusScriptCostError where
-  displayError (PlutusScriptCostErrPlutusScriptNotFound sWitIndex) =
-    "No Plutus script was found at: " <> show sWitIndex
-  displayError (PlutusScriptCostErrExecError sWitIndex sHash sExecErro) =
-    "Plutus script at: " <> show sWitIndex <> " with hash: " <> show sHash <>
-    " errored with: " <> displayError sExecErro
-  displayError (PlutusScriptCostErrRationalExceedsBound eUnitPrices eUnits) =
-    "Either the execution unit prices: " <> show eUnitPrices <> " or the execution units: " <>
-    show eUnits <> " or both are either too precise or not within bounds"
-  displayError (PlutusScriptCostErrRefInputNoScript txin) =
-    "No reference script found at input: " <> Text.unpack (renderTxIn txin)
-  displayError (PlutusScriptCostErrRefInputNotInUTxO txin) =
-    "Reference input was not found in utxo: " <> Text.unpack (renderTxIn txin)
+  prettyError = \case
+    PlutusScriptCostErrPlutusScriptNotFound sWitIndex ->
+      "No Plutus script was found at: " <> pshow sWitIndex
+    PlutusScriptCostErrExecError sWitIndex sHash sExecErro ->
+      "Plutus script at: " <> pshow sWitIndex <> " with hash: " <> pshow sHash <>
+      " errored with: " <> prettyError sExecErro
+    PlutusScriptCostErrRationalExceedsBound eUnitPrices eUnits ->
+      "Either the execution unit prices: " <> pshow eUnitPrices <> " or the execution units: " <>
+      pshow eUnits <> " or both are either too precise or not within bounds"
+    PlutusScriptCostErrRefInputNoScript txin ->
+      "No reference script found at input: " <> pretty (renderTxIn txin)
+    PlutusScriptCostErrRefInputNotInUTxO txin ->
+      "Reference input was not found in utxo: " <> pretty (renderTxIn txin)
 
 renderScriptCosts
   :: UTxO era

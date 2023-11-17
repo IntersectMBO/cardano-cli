@@ -5,6 +5,7 @@ module Cardano.CLI.Types.Errors.GovernanceActionsError
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Pretty
 
 import           Cardano.CLI.Read
 
@@ -18,19 +19,19 @@ data GovernanceActionsError
   deriving Show
 
 instance Error GovernanceActionsError where
-  displayError = \case
+  prettyError = \case
     GovernanceActionsCmdProposalError e ->
-      "Cannot read proposal: " <> show e -- TODO Conway render this properly
+      "Cannot read proposal: " <> pshow e -- TODO Conway render this properly
     GovernanceActionsCmdConstitutionError e ->
-      "Cannot read constitution: " <> show e -- TODO Conway render this properly
+      "Cannot read constitution: " <> pshow e -- TODO Conway render this properly
     GovernanceActionsCmdReadFileError e ->
-      "Cannot read file: " <> displayError e
+      "Cannot read file: " <> prettyError e
     GovernanceActionsCmdReadTextEnvelopeFileError e ->
-      "Cannot read text envelope file: " <> displayError e
+      "Cannot read text envelope file: " <> prettyError e
     GovernanceActionsCmdWriteFileError e ->
-      "Cannot write file: " <> displayError e
+      "Cannot write file: " <> prettyError e
     GovernanceActionsValueUpdateProtocolParametersNotFound (AnyShelleyBasedEra expectedShelleyEra) ->
       mconcat
-        [ "Protocol parameters update value for " <> show (toCardanoEra expectedShelleyEra)
+        [ "Protocol parameters update value for " <> pshow (toCardanoEra expectedShelleyEra)
         , " was not found."
         ]
