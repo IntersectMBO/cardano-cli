@@ -13,6 +13,7 @@ module Cardano.CLI.EraBased.Options.Common where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
+import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyShelleyBasedEra,
@@ -177,7 +178,7 @@ parseTxId = do
   str' <- some Parsec.hexDigit <?> "transaction id (hexadecimal)"
   case deserialiseFromRawBytesHex AsTxId (BSC.pack str') of
     Right addr -> return addr
-    Left e -> fail $ "Incorrect transaction id format: " ++ displayError e
+    Left e -> fail $ prettyToString $ "Incorrect transaction id format: " <> prettyError e
 
 parseTxIx :: Parsec.Parser TxIx
 parseTxIx = TxIx . fromIntegral <$> decimal
@@ -259,7 +260,7 @@ readVerificationKey asType =
       :: String
       -> Either String (VerificationKey keyrole)
     deserialiseFromBech32OrHex str' =
-      first (Text.unpack . renderInputDecodeError) $
+      first (prettyToString . renderInputDecodeError) $
         deserialiseInput (AsVerificationKey asType) keyFormats (BSC.pack str')
 
 -- | The first argument is the optional prefix.
@@ -497,14 +498,14 @@ pHexHash
   :: SerialiseAsRawBytes (Hash a) => AsType a -> ReadM (Hash a)
 pHexHash a =
   Opt.eitherReader $
-    first displayError
+    first (prettyToString . prettyError)
       . deserialiseFromRawBytesHex (AsHash a)
       . BSC.pack
 
 pBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
 pBech32KeyHash a =
   Opt.eitherReader $
-    first displayError
+    first (prettyToString . prettyError)
     . deserialiseFromBech32 (AsHash a)
     . Text.pack
 
@@ -521,7 +522,7 @@ pGenesisDelegateVerificationKey =
       -> Either String (VerificationKey GenesisDelegateKey)
     deserialiseFromHex =
       first
-        (\e -> "Invalid genesis delegate verification key: " ++ displayError e)
+        (\e -> prettyToString $ "Invalid genesis delegate verification key: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsVerificationKey AsGenesisDelegateKey)
         . BSC.pack
 
@@ -618,7 +619,7 @@ pAddCommitteeColdVerificationKeyHash =
   where
     deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
     deserialiseFromHex =
-      first (\e -> "Invalid Consitutional Committee cold key hash: " ++ displayError e)
+      first (\e -> prettyToString $ "Invalid Consitutional Committee cold key hash: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
         . BSC.pack
 
@@ -639,7 +640,7 @@ pAddCommitteeColdVerificationKey =
   where
     deserialiseFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
     deserialiseFromHex =
-      first (\e -> "Invalid Constitutional Committee cold key: " ++ displayError e)
+      first (\e -> prettyToString $ "Invalid Constitutional Committee cold key: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
         . BSC.pack
 
@@ -670,7 +671,7 @@ pRemoveCommitteeColdVerificationKeyHash =
   where
     deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
     deserialiseFromHex =
-      first (\e -> "Invalid Consitutional Committee cold key hash: " ++ displayError e)
+      first (\e -> prettyToString $ "Invalid Consitutional Committee cold key hash: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
         . BSC.pack
 
@@ -691,7 +692,7 @@ pRemoveCommitteeColdVerificationKey =
   where
     deserialiseFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
     deserialiseFromHex =
-      first (\e -> "Invalid Constitutional Committee cold key: " ++ displayError e)
+      first (\e -> prettyToString $ "Invalid Constitutional Committee cold key: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
         . BSC.pack
 
@@ -730,7 +731,7 @@ pCommitteeColdVerificationKey =
   where
     deserialiseFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
     deserialiseFromHex =
-      first (\e -> "Invalid Constitutional Committee cold key: " ++ displayError e)
+      first (\e -> prettyToString $ "Invalid Constitutional Committee cold key: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
         . BSC.pack
 
@@ -744,7 +745,7 @@ pCommitteeColdVerificationKeyHash =
   where
     deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
     deserialiseFromHex =
-      first (\e -> "Invalid Consitutional Committee cold key hash: " ++ displayError e)
+      first (\e -> prettyToString $ "Invalid Consitutional Committee cold key hash: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
         . BSC.pack
 
@@ -808,7 +809,7 @@ pCommitteeHotVerificationKey =
 
 deserialiseHotCCKeyFromHex :: String -> Either String (VerificationKey CommitteeHotKey)
 deserialiseHotCCKeyFromHex =
-  first (\e -> "Invalid Constitutional Committee hot key: " ++ displayError e)
+  first (\e -> prettyToString $ "Invalid Constitutional Committee hot key: " <> prettyError e)
     . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey)
     . BSC.pack
 
@@ -841,7 +842,7 @@ pCommitteeHotKeyHash prefix =
   where
     deserialiseFromHex :: String -> Either String (Hash CommitteeHotKey)
     deserialiseFromHex =
-      first (\e -> "Invalid Consitutional Committee hot key hash: " ++ displayError e)
+      first (\e -> prettyToString $ "Invalid Consitutional Committee hot key hash: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
         . BSC.pack
 
@@ -1171,7 +1172,7 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
         Left e -> fail $ "readerScriptData: " <> e
         Right sDataValue ->
           case scriptDataJsonToHashable ScriptDataJsonNoSchema sDataValue of
-            Left err -> fail (displayError err)
+            Left err -> fail $ prettyToString $ prettyError err
             Right sd -> return sd
 
 --------------------------------------------------------------------------------
@@ -1654,7 +1655,7 @@ pGenesisVerificationKeyHash =
   where
     deserialiseFromHex :: String -> Either String (Hash GenesisKey)
     deserialiseFromHex =
-      first (\e -> "Invalid genesis verification key hash: " ++ displayError e)
+      first (\e -> prettyToString $ "Invalid genesis verification key hash: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsHash AsGenesisKey)
         . BSC.pack
 
@@ -1668,7 +1669,7 @@ pGenesisVerificationKey =
   where
     deserialiseFromHex :: String -> Either String (VerificationKey GenesisKey)
     deserialiseFromHex =
-      first (\e -> "Invalid genesis verification key: " ++ displayError e)
+      first (\e -> prettyToString $ "Invalid genesis verification key: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsVerificationKey AsGenesisKey)
         . BSC.pack
 
@@ -1707,7 +1708,7 @@ pGenesisDelegateVerificationKeyHash =
     deserialiseFromHex =
       first
         (\e ->
-          "Invalid genesis delegate verification key hash: " ++ displayError e)
+          prettyToString $ "Invalid genesis delegate verification key hash: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsHash AsGenesisDelegateKey)
         . BSC.pack
 
@@ -1751,15 +1752,15 @@ pKesVerificationKey =
         Right res -> Right res
 
         -- The input was valid Bech32, but some other error occurred.
-        Left err@(Bech32UnexpectedPrefix _ _) -> Left (displayError err)
-        Left err@(Bech32DataPartToBytesError _) -> Left (displayError err)
-        Left err@(Bech32DeserialiseFromBytesError _) -> Left (displayError err)
-        Left err@(Bech32WrongPrefix _ _) -> Left (displayError err)
+        Left err@(Bech32UnexpectedPrefix _ _) -> Left (prettyToString $ prettyError err)
+        Left err@(Bech32DataPartToBytesError _) -> Left (prettyToString $ prettyError err)
+        Left err@(Bech32DeserialiseFromBytesError _) -> Left (prettyToString $ prettyError err)
+        Left err@(Bech32WrongPrefix _ _) -> Left (prettyToString $ prettyError err)
 
         -- The input was not valid Bech32. Attempt to deserialise it as hex.
         Left (Bech32DecodingError _) ->
           first
-            (\e -> "Invalid stake pool verification key: " ++ displayError e) $
+            (\e -> prettyToString $ "Invalid stake pool verification key: " <> prettyError e) $
           deserialiseFromRawBytesHex asType (BSC.pack str)
 
 pKesVerificationKeyFile :: Parser (VerificationKeyFile In)
@@ -2314,7 +2315,7 @@ pVrfVerificationKeyHash =
   where
     deserialiseFromHex :: String -> Either String (Hash VrfKey)
     deserialiseFromHex =
-      first (\e -> "Invalid VRF verification key hash: " ++ displayError e)
+      first (\e -> prettyToString $ "Invalid VRF verification key hash: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsHash AsVrfKey)
         . BSC.pack
 
@@ -2531,7 +2532,7 @@ pStakePoolMetadataHash =
   where
     metadataHash :: String -> Either String (Hash StakePoolMetadata)
     metadataHash =
-      first displayError
+      first (prettyToString . prettyError)
         . deserialiseFromRawBytesHex (AsHash AsStakePoolMetadata)
         . BSC.pack
 

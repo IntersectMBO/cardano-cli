@@ -6,10 +6,10 @@ module Cardano.CLI.Types.Errors.StakeAddressCmdError
 
 import           Cardano.Api
 
+import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.ScriptDecodeError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
-import Cardano.CLI.Types.Errors.DelegationError
 
 data StakeAddressCmdError
   = StakeAddressCmdReadKeyFileError !(FileError InputDecodeError)
@@ -21,10 +21,10 @@ data StakeAddressCmdError
   deriving Show
 
 instance Error StakeAddressCmdError where
-  displayError = \case
-    StakeAddressCmdReadKeyFileError e       -> displayError e
-    StakeAddressCmdReadScriptFileError e    -> displayError e
-    StakeAddressCmdStakeCredentialError e   -> displayError e
-    StakeAddressCmdWriteFileError e         -> displayError e
-    StakeAddressCmdDelegationError e        -> displayError e
-    StakeAddressCmdRegistrationError e      -> displayError e
+  prettyError = \case
+    StakeAddressCmdReadKeyFileError e       -> prettyError e
+    StakeAddressCmdReadScriptFileError e    -> prettyError e
+    StakeAddressCmdStakeCredentialError e   -> prettyError e
+    StakeAddressCmdWriteFileError e         -> prettyError e
+    StakeAddressCmdDelegationError e        -> prettyError e
+    StakeAddressCmdRegistrationError e      -> prettyError e

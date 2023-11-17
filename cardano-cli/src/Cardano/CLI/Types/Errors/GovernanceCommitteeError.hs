@@ -15,14 +15,14 @@ data GovernanceCommitteeError
   deriving Show
 
 instance Error GovernanceCommitteeError where
-  displayError = \case
+  prettyError = \case
     GovernanceCommitteeCmdKeyDecodeError e ->
-      "Cannot decode key: " <> displayError e
+      "Cannot decode key: " <> prettyError e
     GovernanceCommitteeCmdKeyReadError e ->
-      "Cannot read key: " <> displayError e
+      "Cannot read key: " <> prettyError e
     GovernanceCommitteeCmdWriteFileError e ->
-      "Cannot write file: " <> displayError e
+      "Cannot write file: " <> prettyError e
     GovernanceCommitteeCmdTextEnvReadFileError e ->
-      "Cannot read text envelope file: " <> displayError e
+      "Cannot read text envelope file: " <> prettyError e
     GovernanceCommitteeCmdTextEnvWriteError e ->
-      "Cannot write text envelope file: " <> displayError e
+      "Cannot write text envelope file: " <> prettyError e

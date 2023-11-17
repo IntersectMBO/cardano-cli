@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -16,8 +17,7 @@ import           Cardano.CLI.Types.Errors.AddressInfoError
 import           Cardano.CLI.Types.Key (VerificationKeyTextOrFileError (..),
                    renderVerificationKeyTextOrFileError)
 
-import           Data.Text (Text)
-import qualified Data.Text as Text
+import           Prettyprinter
 
 data AddressCmdError
   = AddressCmdAddressInfoError !AddressInfoError
@@ -28,17 +28,17 @@ data AddressCmdError
   | AddressCmdExpectedPaymentVerificationKey SomeAddressVerificationKey
   deriving Show
 
-renderAddressCmdError :: AddressCmdError -> Text
-renderAddressCmdError err =
-  case err of
-    AddressCmdAddressInfoError addrInfoErr ->
-      Text.pack (displayError addrInfoErr)
-    AddressCmdReadKeyFileError fileErr ->
-      Text.pack (displayError fileErr)
-    AddressCmdVerificationKeyTextOrFileError vkTextOrFileErr ->
-      renderVerificationKeyTextOrFileError vkTextOrFileErr
-    AddressCmdReadScriptFileError fileErr ->
-      Text.pack (displayError fileErr)
-    AddressCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    AddressCmdExpectedPaymentVerificationKey someAddress ->
-      "Expected payment verification key but got: " <> renderSomeAddressVerificationKey someAddress
+renderAddressCmdError :: AddressCmdError -> Doc ann
+renderAddressCmdError = \case
+  AddressCmdAddressInfoError addrInfoErr ->
+    prettyError addrInfoErr
+  AddressCmdReadKeyFileError fileErr ->
+    prettyError fileErr
+  AddressCmdVerificationKeyTextOrFileError vkTextOrFileErr ->
+    renderVerificationKeyTextOrFileError vkTextOrFileErr
+  AddressCmdReadScriptFileError fileErr ->
+    prettyError fileErr
+  AddressCmdWriteFileError fileErr ->
+    prettyError fileErr
+  AddressCmdExpectedPaymentVerificationKey someAddress ->
+    "Expected payment verification key but got: " <> pretty (renderSomeAddressVerificationKey someAddress)

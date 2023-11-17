@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 module Test.Cardano.CLI.Util
   ( checkTxCddlFormat
   , checkTextEnvelopeFormat
@@ -14,6 +15,7 @@ module Test.Cardano.CLI.Util
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Pretty
 
 import           Cardano.CLI.Read
 
@@ -133,18 +135,21 @@ checkTextEnvelopeFormat tve reference created = GHC.withFrozenCallStack $ do
   createdTextEnvelope <- handleTextEnvelope eCreatedTextEnvelope
 
   typeTitleEquivalence refTextEnvelope createdTextEnvelope
- where
-   handleTextEnvelope :: MonadTest m
-                      => Either (FileError TextEnvelopeError) TextEnvelope
-                      -> m TextEnvelope
-   handleTextEnvelope (Right refTextEnvelope) = return refTextEnvelope
-   handleTextEnvelope (Left fileErr) = failWithCustom GHC.callStack Nothing . displayError $ fileErr
+  where
+    handleTextEnvelope :: MonadTest m
+                        => Either (FileError TextEnvelopeError) TextEnvelope
+                        -> m TextEnvelope
+    handleTextEnvelope = \case
+      Right refTextEnvelope ->
+        return refTextEnvelope
+      Left fileErr ->
+        failWithCustom GHC.callStack Nothing . (prettyToString . prettyError) $ fileErr
 
-   typeTitleEquivalence :: (MonadTest m, HasCallStack) => TextEnvelope -> TextEnvelope -> m ()
-   typeTitleEquivalence (TextEnvelope refType refTitle _)
-                        (TextEnvelope createdType createdTitle _) = GHC.withFrozenCallStack $ do
-     equivalence refType createdType
-     equivalence refTitle createdTitle
+    typeTitleEquivalence :: (MonadTest m, HasCallStack) => TextEnvelope -> TextEnvelope -> m ()
+    typeTitleEquivalence (TextEnvelope refType refTitle _)
+                          (TextEnvelope createdType createdTitle _) = GHC.withFrozenCallStack $ do
+      equivalence refType createdType
+      equivalence refTitle createdTitle
 
 checkTxCddlFormat
   :: (MonadTest m, MonadIO m, HasCallStack)

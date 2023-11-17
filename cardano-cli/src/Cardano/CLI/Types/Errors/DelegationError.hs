@@ -20,12 +20,12 @@ data DelegationError
   deriving (Show, Generic)
 
 instance Error DelegationError where
-  displayError = \case
+  prettyError = \case
     DelegationReadError e ->
-      "Cannot read delegation target: " <> displayError e
+      "Cannot read delegation target: " <> prettyError e
     DelegationStakeCredentialError e ->
-      "Cannot get stake credential: " <> displayError e
+      "Cannot get stake credential: " <> prettyError e
     DelegationCertificateWriteFileError e ->
-      "Cannot write certificate: " <> displayError e
+      "Cannot write certificate: " <> prettyError e
     DelegationDRepReadError e ->
-      "Cannot read DRep key: " <> displayError e
+      "Cannot read DRep key: " <> prettyError e

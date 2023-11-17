@@ -14,6 +14,8 @@ data StakeCredentialError
   deriving Show
 
 instance Error StakeCredentialError where
-  displayError = \case
-    StakeCredentialScriptDecodeError e -> displayError e
-    StakeCredentialInputDecodeError e -> displayError e
+  prettyError = \case
+    StakeCredentialScriptDecodeError e ->
+      prettyError e
+    StakeCredentialInputDecodeError e ->
+      prettyError e
