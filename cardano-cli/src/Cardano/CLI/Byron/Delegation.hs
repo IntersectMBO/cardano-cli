@@ -36,7 +36,6 @@ import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy as LB
 import           Data.Text (Text)
 import           Formatting (Format, sformat)
-import           Prettyprinter
 
 data ByronDelegationError
   = CertificateValidationErrors !FilePath ![Text]

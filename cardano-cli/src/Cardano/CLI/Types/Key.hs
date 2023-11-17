@@ -63,8 +63,6 @@ import           Data.Function
 import qualified Data.List.NonEmpty as NE
 import           Data.Text (Text)
 import qualified Data.Text.Encoding as Text
-import           Prettyprinter
-
 
 ------------------------------------------------------------------------------
 -- Verification key deserialisation
@@ -233,7 +231,7 @@ renderVerificationKeyTextOrFileError :: VerificationKeyTextOrFileError -> Doc an
 renderVerificationKeyTextOrFileError vkTextOrFileErr =
   case vkTextOrFileErr of
     VerificationKeyTextError err -> renderInputDecodeError err
-    VerificationKeyFileError err -> pretty err
+    VerificationKeyFileError err -> prettyError err
 
 -- | Deserialise a verification key from text or a verification key file.
 -- If a filepath is provided, the file can either be formatted as Bech32, hex,

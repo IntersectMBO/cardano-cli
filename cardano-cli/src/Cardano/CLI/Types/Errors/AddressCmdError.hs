@@ -33,12 +33,12 @@ renderAddressCmdError = \case
   AddressCmdAddressInfoError addrInfoErr ->
     prettyError addrInfoErr
   AddressCmdReadKeyFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr
   AddressCmdVerificationKeyTextOrFileError vkTextOrFileErr ->
     renderVerificationKeyTextOrFileError vkTextOrFileErr
   AddressCmdReadScriptFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr
   AddressCmdWriteFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr
   AddressCmdExpectedPaymentVerificationKey someAddress ->
     "Expected payment verification key but got: " <> pretty (renderSomeAddressVerificationKey someAddress)

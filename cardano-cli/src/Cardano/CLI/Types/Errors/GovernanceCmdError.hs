@@ -65,9 +65,9 @@ instance Error GovernanceCmdError where
     VotingCredentialDecodeGovCmdEror decoderError ->
       "Could not decode voting credential: " <> renderDecoderError decoderError
     WriteFileError fileError ->
-      pretty fileError
+      prettyError fileError
     ReadFileError fileError ->
-      pretty fileError
+      prettyError fileError
     GovernanceCmdConstitutionError e ->
       "Constitution error " <> pshow e -- TODO Conway render this properly
     GovernanceCmdHashError e ->
@@ -75,15 +75,15 @@ instance Error GovernanceCmdError where
     GovernanceCmdProposalError e ->
       "Proposal error " <> pshow e -- TODO Conway render this properly
     GovernanceCmdTextEnvReadError fileError ->
-      "Cannot read text envelope: " <> pretty fileError
+      "Cannot read text envelope: " <> prettyError fileError
     GovernanceCmdCddlError cddlError ->
       "Reading transaction CDDL file error: " <> prettyError cddlError
     GovernanceCmdKeyReadError fileError ->
-      "Cannot read key: " <> pretty fileError
+      "Cannot read key: " <> prettyError fileError
     GovernanceCmdCostModelReadError fileError ->
-      "Cannot read cost model: " <> pretty fileError
+      "Cannot read cost model: " <> prettyError fileError
     GovernanceCmdTextEnvWriteError fileError ->
-      pretty fileError
+      prettyError fileError
     GovernanceCmdEmptyUpdateProposalError ->
       "Empty update proposals are not allowed."
     GovernanceCmdMIRCertificateKeyRewardMistmach fp nStakeVerKeys nRewards ->
@@ -109,7 +109,7 @@ instance Error GovernanceCmdError where
     GovernanceCmdVerifyPollError pollError ->
       pretty $ renderGovernancePollError pollError
     GovernanceCmdWriteFileError fileError ->
-      "Cannot write file: " <> pretty fileError
+      "Cannot write file: " <> prettyError fileError
     GovernanceCmdDRepMetadataValidationError e ->
       "DRep metadata validation error: " <> prettyError e
     GovernanceCmdMIRCertNotSupportedInConway ->

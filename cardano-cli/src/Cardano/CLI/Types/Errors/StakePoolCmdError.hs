@@ -9,7 +9,6 @@ module Cardano.CLI.Types.Errors.StakePoolCmdError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import           Prettyprinter
 
@@ -25,8 +24,8 @@ renderStakePoolCmdError = \case
   StakePoolCmdMetadataValidationError validationErr ->
     "Error validating stake pool metadata: " <> prettyError validationErr
   StakePoolCmdReadFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr
   StakePoolCmdReadKeyFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr
   StakePoolCmdWriteFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr

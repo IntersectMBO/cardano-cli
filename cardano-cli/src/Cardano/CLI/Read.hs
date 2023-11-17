@@ -146,9 +146,7 @@ import           Data.Word
 import           GHC.IO.Handle (hClose, hIsSeekable)
 import           GHC.IO.Handle.FD (openFileBlocking)
 import qualified Options.Applicative as Opt
-import           Prettyprinter
 import           System.IO (IOMode (ReadMode))
-
 
 -- Metadata
 
@@ -164,7 +162,7 @@ data MetadataError
 renderMetadataError :: MetadataError -> Doc ann
 renderMetadataError = \case
   MetadataErrorFile fileErr ->
-    pretty fileErr
+    prettyError fileErr
   MetadataErrorJsonParseError fp jsonErr ->
     "Invalid JSON format in file: " <> pshow fp <>
               "\nJSON parse error: " <> pretty jsonErr
@@ -234,7 +232,7 @@ data ScriptWitnessError
 renderScriptWitnessError :: ScriptWitnessError -> Doc ann
 renderScriptWitnessError = \case
   ScriptWitnessErrorFile err ->
-    pretty err
+    prettyError err
   ScriptWitnessErrorScriptLanguageNotSupportedInEra (AnyScriptLanguage lang) anyEra ->
     "The script language " <> pshow lang <> " is not supported in the " <>
     pretty (renderEra anyEra) <> " era."
@@ -392,7 +390,7 @@ data ScriptDataError =
 renderScriptDataError :: ScriptDataError -> Doc ann
 renderScriptDataError = \case
   ScriptDataErrorFile err ->
-    pretty err
+    prettyError err
   ScriptDataErrorJsonParse fp jsonErr->
     "Invalid JSON format in file: " <> pshow fp <> "\nJSON parse error: " <> pretty jsonErr
   ScriptDataErrorConversion fp sDataJsonErr->
@@ -520,10 +518,10 @@ instance Error CddlError where
   prettyError = \case
     CddlErrorTextEnv textEnvErr cddlErr ->
       "Failed to decode neither the cli's serialisation format nor the ledger's " <>
-      "CDDL serialisation format. TextEnvelope error: " <> pretty textEnvErr <> "\n" <>
-      "TextEnvelopeCddl error: " <> pretty cddlErr
+      "CDDL serialisation format. TextEnvelope error: " <> prettyError textEnvErr <> "\n" <>
+      "TextEnvelopeCddl error: " <> prettyError cddlErr
     CddlIOError e ->
-      pretty e
+      prettyError e
 
 acceptTxCDDLSerialisation
   :: FileOrPipe
@@ -581,11 +579,13 @@ data CddlWitnessError
   deriving Show
 
 instance Error CddlWitnessError where
-  prettyError (CddlWitnessErrorTextEnv teErr cddlErr) =
-    "Failed to decode neither the cli's serialisation format nor the ledger's \
-    \CDDL serialisation format. TextEnvelope error: " <> pretty teErr <> "\n" <>
-    "TextEnvelopeCddl error: " <> pretty cddlErr
-  prettyError (CddlWitnessIOError fileE) = pretty fileE
+  prettyError = \case
+    CddlWitnessErrorTextEnv teErr cddlErr ->
+      "Failed to decode neither the cli's serialisation format nor the ledger's \
+      \CDDL serialisation format. TextEnvelope error: " <> prettyError teErr <> "\n" <>
+      "TextEnvelopeCddl error: " <> prettyError cddlErr
+    CddlWitnessIOError fileE ->
+      prettyError fileE
 
 
 -- TODO: This is a stop gap to avoid modifying the TextEnvelope
@@ -689,9 +689,9 @@ data ReadWitnessSigningDataError
 renderReadWitnessSigningDataError :: ReadWitnessSigningDataError -> Doc ann
 renderReadWitnessSigningDataError = \case
   ReadWitnessSigningDataSigningKeyDecodeError fileErr ->
-    "Error reading signing key: " <> pretty fileErr
+    "Error reading signing key: " <> prettyError fileErr
   ReadWitnessSigningDataScriptError fileErr ->
-    "Error reading script: " <> pretty fileErr
+    "Error reading script: " <> prettyError fileErr
   ReadWitnessSigningDataSigningKeyAndAddressMismatch ->
     "Only a Byron signing key may be accompanied by a Byron address."
 
@@ -746,7 +746,7 @@ data RequiredSignerError
 instance Error RequiredSignerError where
   prettyError = \case
     RequiredSignerErrorFile e ->
-      pretty e
+      prettyError e
     RequiredSignerErrorByronKey (File byronSkeyfile) ->
       "Byron witnesses cannot be used for required signers: " <> pretty byronSkeyfile
 
@@ -786,7 +786,7 @@ data VoteError
 instance Error VoteError where
   prettyError = \case
     VoteErrorFile e ->
-      pretty e
+      prettyError e
     VoteErrorTextNotUnicode e ->
       "Vote text file not UTF8-encoded: " <> pretty (displayException e)
 

@@ -25,11 +25,11 @@ instance Error GovernanceActionsError where
     GovernanceActionsCmdConstitutionError e ->
       "Cannot read constitution: " <> pshow e -- TODO Conway render this properly
     GovernanceActionsCmdReadFileError e ->
-      "Cannot read file: " <> pretty e
+      "Cannot read file: " <> prettyError e
     GovernanceActionsCmdReadTextEnvelopeFileError e ->
-      "Cannot read text envelope file: " <> pretty e
+      "Cannot read text envelope file: " <> prettyError e
     GovernanceActionsCmdWriteFileError e ->
-      "Cannot write file: " <> pretty e
+      "Cannot write file: " <> prettyError e
     GovernanceActionsValueUpdateProtocolParametersNotFound (AnyShelleyBasedEra expectedShelleyEra) ->
       mconcat
         [ "Protocol parameters update value for " <> pshow (toCardanoEra expectedShelleyEra)

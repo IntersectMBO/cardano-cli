@@ -33,8 +33,6 @@ import           Data.String (IsString, fromString)
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Formatting (build, sformat, (%))
-import           Prettyprinter
-
 
 data ByronKeyFailure
   = ReadSigningKeyFailure !FilePath !Text

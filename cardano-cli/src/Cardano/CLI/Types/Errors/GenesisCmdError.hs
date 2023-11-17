@@ -46,9 +46,9 @@ instance Error GenesisCmdError where
     GenesisCmdAesonDecodeError fp decErr ->
       "Error while decoding Shelley genesis at: " <> pretty fp <> " Error: " <> pretty decErr
     GenesisCmdGenesisFileError fe ->
-      pretty fe
+      prettyError fe
     GenesisCmdFileError fe ->
-      pretty fe
+      prettyError fe
     GenesisCmdMismatchedGenesisKeyFiles gfiles dfiles vfiles ->
       "Mismatch between the files found:\n"
         <> "Genesis key file indexes:      " <> pshow gfiles <> "\n"
@@ -61,7 +61,7 @@ instance Error GenesisCmdError where
       "The genesis keys files are expected to have a unique numeric index but these do not:\n"
         <> vsep (fmap pretty files)
     GenesisCmdTextEnvReadFileError fileErr ->
-      pretty fileErr
+      prettyError fileErr
     GenesisCmdUnexpectedAddressVerificationKey (File file) expect got ->
       mconcat
         [ "Unexpected address verification key type in file ", pretty file
@@ -87,7 +87,7 @@ instance Error GenesisCmdError where
       "Error while decoding Shelley genesis at: " <> pretty fp <>
       " Error: " <>  pretty e
     GenesisCmdGenesisFileReadError e ->
-      pretty e
+      prettyError e
     GenesisCmdByronError e -> pshow e
     GenesisCmdStakePoolRelayFileError fp e ->
       "Error occurred while reading the stake pool relay specification file: " <> pretty fp <>

@@ -27,7 +27,6 @@ import qualified Cardano.Prelude as List
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 
 import           Data.Text (Text)
-import           Prettyprinter
 
 {- HLINT ignore "Use let" -}
 
@@ -93,13 +92,13 @@ renderTxCmdError = \case
   TxCmdConstitutionError constErr ->
     pshow constErr
   TxCmdReadTextViewFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr
   TxCmdScriptFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr
   TxCmdReadWitnessSigningDataError witSignDataErr ->
     renderReadWitnessSigningDataError witSignDataErr
   TxCmdWriteFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr
   TxCmdTxSubmitError res ->
     "Error while submitting tx: " <> pretty res
   TxCmdTxSubmitErrorEraMismatch EraMismatch{ledgerEraName, otherEraName} ->
@@ -155,8 +154,8 @@ renderTxCmdError = \case
   TxCmdTextEnvCddlError textEnvErr cddlErr ->
     mconcat
     [ "Failed to decode neither the cli's serialisation format nor the ledger's "
-    , "CDDL serialisation format. TextEnvelope error: " <> pretty textEnvErr <> "\n"
-    , "TextEnvelopeCddl error: " <> pretty cddlErr
+    , "CDDL serialisation format. TextEnvelope error: " <> prettyError textEnvErr <> "\n"
+    , "TextEnvelopeCddl error: " <> prettyError cddlErr
     ]
   TxCmdTxExecUnitsErr err' ->
     prettyError err'

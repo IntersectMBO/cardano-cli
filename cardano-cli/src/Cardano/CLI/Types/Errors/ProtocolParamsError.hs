@@ -13,7 +13,6 @@ import           Cardano.Api
 import           Cardano.Api.Pretty
 
 import           Data.Text (Text)
-import           Prettyprinter
 
 data ProtocolParamsError
   = ProtocolParamsErrorFile (FileError ())
@@ -22,6 +21,6 @@ data ProtocolParamsError
 renderProtocolParamsError :: ProtocolParamsError -> Doc ann
 renderProtocolParamsError = \case
   ProtocolParamsErrorFile fileErr ->
-    pretty fileErr
+    prettyError fileErr
   ProtocolParamsErrorJSON fp jsonErr ->
     "Error while decoding the protocol parameters at: " <> pshow fp <> " Error: " <> pshow jsonErr

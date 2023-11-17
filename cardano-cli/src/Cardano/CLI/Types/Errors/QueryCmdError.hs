@@ -27,7 +27,6 @@ import qualified Ouroboros.Consensus.HardFork.History.Qry as Qry
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Text.Lazy.Builder (toLazyText)
 import           Formatting.Buildable (build)
-import           Prettyprinter
 
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Redundant flip" -}
@@ -62,7 +61,7 @@ renderQueryCmdError = \case
   QueryCmdLocalStateQueryError lsqErr ->
     renderLocalStateQueryError lsqErr
   QueryCmdWriteFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr
   QueryCmdHelpersError helpersErr ->
     renderHelpersError helpersErr
   QueryCmdAcquireFailure acquireFail ->
@@ -81,11 +80,11 @@ renderQueryCmdError = \case
   QueryCmdLeaderShipError e ->
     prettyError e
   QueryCmdTextEnvelopeReadError e ->
-    pretty e
+    prettyError e
   QueryCmdTextReadError e ->
-    pretty e
+    prettyError e
   QueryCmdOpCertCounterReadError e ->
-    pretty e
+    prettyError e
   QueryCmdProtocolStateDecodeFailure (_, decErr) ->
     "Failed to decode the protocol state: " <> pretty (toLazyText $ build decErr)
   QueryCmdPoolStateDecodeError decoderError ->
@@ -101,8 +100,8 @@ renderQueryCmdError = \case
   QueryCmdConvenienceError qce ->
     pretty $ renderQueryConvenienceError qce
   QueryCmdDRepKeyError e ->
-    "Error reading delegation representative key: " <> pretty e
+    "Error reading delegation representative key: " <> prettyError e
   QueryCmdCommitteeColdKeyError e ->
-    "Error reading committee cold key: " <> pretty e
+    "Error reading committee cold key: " <> prettyError e
   QueryCmdCommitteeHotKeyError e ->
-    "Error reading committee hot key: " <> pretty e
+    "Error reading committee hot key: " <> prettyError e

@@ -11,7 +11,6 @@ import           Cardano.Api
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 
 import           GHC.Generics (Generic)
-import           Prettyprinter
 
 data DelegationError
   = DelegationReadError !(FileError InputDecodeError)
@@ -23,10 +22,10 @@ data DelegationError
 instance Error DelegationError where
   prettyError = \case
     DelegationReadError e ->
-      "Cannot read delegation target: " <> pretty e
+      "Cannot read delegation target: " <> prettyError e
     DelegationStakeCredentialError e ->
       "Cannot get stake credential: " <> prettyError e
     DelegationCertificateWriteFileError e ->
-      "Cannot write certificate: " <> pretty e
+      "Cannot write certificate: " <> prettyError e
     DelegationDRepReadError e ->
-      "Cannot read DRep key: " <> pretty e
+      "Cannot read DRep key: " <> prettyError e

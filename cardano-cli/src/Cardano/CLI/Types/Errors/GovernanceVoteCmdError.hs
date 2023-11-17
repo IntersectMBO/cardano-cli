@@ -24,13 +24,13 @@ data GovernanceVoteCmdError
 instance Error GovernanceVoteCmdError where
   prettyError = \case
     GovernanceVoteCmdReadVerificationKeyError e ->
-      "Cannot read verification key: " <> pretty e
+      "Cannot read verification key: " <> prettyError e
     GovernanceVoteCmdReadVoteFileError e ->
       "Cannot read vote file: " <> prettyError e
     GovernanceVoteCmdCredentialDecodeError e ->
       "Cannot decode voting credential: " <> renderDecoderError e
     GovernanceVoteCmdWriteError e ->
-      "Cannot write vote: " <> pretty e
+      "Cannot write vote: " <> prettyError e
     GovernanceVoteCmdReadVoteTextError e ->
       "Cannot read vote text: " <> prettyError e
     where

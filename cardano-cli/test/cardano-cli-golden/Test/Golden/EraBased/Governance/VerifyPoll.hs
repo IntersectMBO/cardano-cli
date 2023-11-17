@@ -36,7 +36,7 @@ hprop_golden_governanceVerifyPoll = propertyOnce $ do
 
   liftIO (readVerificationKeyOrTextEnvFile AsStakePoolKey goldenVkFile) >>= \case
     Left e ->
-      H.failWith Nothing $ prettyToString $ pretty e
+      H.failWith Nothing $ prettyToString $ prettyError e
     Right vk -> do
       let expected = prettyPrintJSON $ serialiseToRawBytesHexText <$> [verificationKeyHash vk]
       H.assert $ expected `BSC.isInfixOf` stdout

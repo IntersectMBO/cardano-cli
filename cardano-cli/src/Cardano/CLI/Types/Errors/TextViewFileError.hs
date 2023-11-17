@@ -20,6 +20,6 @@ data TextViewFileError
 renderTextViewFileError :: TextViewFileError -> Doc ann
 renderTextViewFileError = \case
   TextViewReadFileError fileErr ->
-    pretty fileErr
+    prettyError fileErr
   TextViewCBORPrettyPrintError hlprsErr ->
     "Error pretty printing CBOR: " <> renderHelpersError hlprsErr

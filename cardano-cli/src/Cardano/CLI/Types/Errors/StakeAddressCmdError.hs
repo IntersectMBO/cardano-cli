@@ -11,8 +11,6 @@ import           Cardano.CLI.Types.Errors.ScriptDecodeError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 
-import           Prettyprinter
-
 data StakeAddressCmdError
   = StakeAddressCmdReadKeyFileError !(FileError InputDecodeError)
   | StakeAddressCmdReadScriptFileError !(FileError ScriptDecodeError)
@@ -24,9 +22,9 @@ data StakeAddressCmdError
 
 instance Error StakeAddressCmdError where
   prettyError = \case
-    StakeAddressCmdReadKeyFileError e       -> pretty e
-    StakeAddressCmdReadScriptFileError e    -> pretty e
+    StakeAddressCmdReadKeyFileError e       -> prettyError e
+    StakeAddressCmdReadScriptFileError e    -> prettyError e
     StakeAddressCmdStakeCredentialError e   -> prettyError e
-    StakeAddressCmdWriteFileError e         -> pretty e
+    StakeAddressCmdWriteFileError e         -> prettyError e
     StakeAddressCmdDelegationError e        -> prettyError e
     StakeAddressCmdRegistrationError e      -> prettyError e

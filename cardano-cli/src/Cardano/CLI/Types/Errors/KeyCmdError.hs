@@ -17,7 +17,6 @@ import           Cardano.CLI.Types.Errors.ItnKeyConversionError
 import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
-import           Prettyprinter
 
 data KeyCmdError
   = KeyCmdReadFileError !(FileError TextEnvelopeError)
@@ -41,11 +40,11 @@ renderKeyCmdError :: KeyCmdError -> Doc ann
 renderKeyCmdError err =
   case err of
     KeyCmdReadFileError fileErr ->
-      pretty fileErr
+      prettyError fileErr
     KeyCmdReadKeyFileError fileErr ->
-      pretty fileErr
+      prettyError fileErr
     KeyCmdWriteFileError fileErr ->
-      pretty fileErr
+      prettyError fileErr
     KeyCmdByronKeyFailure e ->
       Byron.renderByronKeyFailure e
     KeyCmdByronKeyParseError errTxt ->
@@ -55,7 +54,7 @@ renderKeyCmdError err =
     KeyCmdWrongKeyTypeError ->
       "Please use a signing key file when converting ITN BIP32 or Extended keys"
     KeyCmdCardanoAddressSigningKeyFileError fileErr ->
-      pretty fileErr
+      prettyError fileErr
     KeyCmdNonLegacyKey fp ->
       "Signing key at: " <> pretty fp <> " is not a legacy Byron signing key and should not need to be converted."
     KeyCmdVerificationKeyReadError e ->

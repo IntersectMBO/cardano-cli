@@ -58,7 +58,6 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Formatting (sformat, (%))
-import           Prettyprinter
 
 data ByronTxError
   = TxDeserialisationFailed !FilePath !Binary.DecoderError

@@ -42,7 +42,6 @@ import           Data.Functor (void)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
-import           Prettyprinter
 import qualified System.Console.ANSI as ANSI
 import           System.Console.ANSI
 import qualified System.Directory as IO

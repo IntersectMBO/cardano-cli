@@ -9,8 +9,6 @@ module Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.Api
 import           Cardano.Api.Pretty
 
-import           Prettyprinter
-
 {- HLINT ignore "Reduce duplication" -}
 
 data NodeCmdError
@@ -31,10 +29,10 @@ renderNodeCmdError = \case
       "Error creating VRF signing key file. Target path: " <> pshow targetPath
       <> " Temporary path: " <> pshow tempPath
     NodeCmdReadFileError fileErr ->
-      pretty fileErr
+      prettyError fileErr
     NodeCmdReadKeyFileError fileErr ->
-      pretty fileErr
+      prettyError fileErr
     NodeCmdWriteFileError fileErr ->
-      pretty fileErr
+      prettyError fileErr
     NodeCmdOperationalCertificateIssueError issueErr ->
       prettyError issueErr

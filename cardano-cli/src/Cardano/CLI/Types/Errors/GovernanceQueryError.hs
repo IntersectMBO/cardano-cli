@@ -20,7 +20,7 @@ data GovernanceQueryError
 instance Error GovernanceQueryError where
   prettyError = \case
     GovernanceQueryWriteFileError err ->
-      pretty err
+      prettyError err
     GovernanceQueryAcqireFailureError err ->
       pshow err
     GovernanceQueryUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
@@ -32,4 +32,4 @@ instance Error GovernanceQueryError where
     GovernanceQueryEraMismatch err ->
       "A query from a certain era was applied to a ledger from a different era: " <> pshow err
     GovernanceQueryDRepKeyError err ->
-      "Error reading delegation representative key: " <> pretty err
+      "Error reading delegation representative key: " <> prettyError err

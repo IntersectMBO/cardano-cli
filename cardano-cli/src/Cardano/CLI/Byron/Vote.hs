@@ -31,8 +31,6 @@ import           Control.Tracer (stdoutTracer, traceWith)
 import           Data.Bifunctor (first)
 import qualified Data.ByteString as BS
 import           Data.Text (Text)
-import           Prettyprinter
-
 
 data ByronVoteError
   = ByronVoteDecodingError !FilePath

@@ -261,7 +261,7 @@ runQueryTipCmd
         }
 
   mLocalState <- hushM (first QueryCmdAcquireFailure eLocalState) $ \e ->
-    liftIO . LT.hPutStrLn IO.stderr $ prettyToText $ "Warning: Local state unavailable: " <> renderQueryCmdError e
+    liftIO . LT.hPutStrLn IO.stderr $ prettyToLazyText $ "Warning: Local state unavailable: " <> renderQueryCmdError e
 
   chainTip <- pure (mLocalState >>= O.mChainTip)
     -- The chain tip is unavailable via local state query because we are connecting with an older
@@ -277,7 +277,7 @@ runQueryTipCmd
   localStateOutput <- forM mLocalState $ \localState -> do
     case slotToEpoch tipSlotNo (O.eraHistory localState) of
       Left e -> do
-        liftIO . LT.hPutStrLn IO.stderr $ prettyToText $
+        liftIO . LT.hPutStrLn IO.stderr $ prettyToLazyText $
           "Warning: Epoch unavailable: " <> renderQueryCmdError (QueryCmdPastHorizon e)
         return $ O.QueryTipLocalStateOutput
           { O.localStateChainTip = chainTip
@@ -299,7 +299,7 @@ runQueryTipCmd
           return $ flip (percentage tolerance) nowSeconds tipTimeResult
 
         mSyncProgress <- hushM syncProgressResult $ \e -> do
-          liftIO . LT.hPutStrLn IO.stderr $ prettyToText $ "Warning: Sync progress unavailable: " <> renderQueryCmdError e
+          liftIO . LT.hPutStrLn IO.stderr $ prettyToLazyText $ "Warning: Sync progress unavailable: " <> renderQueryCmdError e
 
         return $ O.QueryTipLocalStateOutput
           { O.localStateChainTip = chainTip

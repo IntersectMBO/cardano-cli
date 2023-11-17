@@ -5,7 +5,6 @@ module Cardano.CLI.Types.Errors.GovernanceCommitteeError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 data GovernanceCommitteeError
   = GovernanceCommitteeCmdKeyDecodeError InputDecodeError
@@ -20,10 +19,10 @@ instance Error GovernanceCommitteeError where
     GovernanceCommitteeCmdKeyDecodeError e ->
       "Cannot decode key: " <> prettyError e
     GovernanceCommitteeCmdKeyReadError e ->
-      "Cannot read key: " <> pretty e
+      "Cannot read key: " <> prettyError e
     GovernanceCommitteeCmdWriteFileError e ->
-      "Cannot write file: " <> pretty e
+      "Cannot write file: " <> prettyError e
     GovernanceCommitteeCmdTextEnvReadFileError e ->
-      "Cannot read text envelope file: " <> pretty e
+      "Cannot read text envelope file: " <> prettyError e
     GovernanceCommitteeCmdTextEnvWriteError e ->
-      "Cannot write text envelope file: " <> pretty e
+      "Cannot write text envelope file: " <> prettyError e

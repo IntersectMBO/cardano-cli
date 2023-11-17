@@ -15,7 +15,6 @@ import           Cardano.Api.Pretty
 import           Control.Exception (Exception (..), IOException)
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BSC
-import           Prettyprinter
 
 -- | An error that can occur while converting an Incentivized Testnet (ITN)
 -- key.

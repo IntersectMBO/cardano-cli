@@ -33,4 +33,4 @@ main = toplevelExceptionHandler $ do
 #endif
   co <- Opt.customExecParser pref (opts envCli)
 
-  orDie (prettyToStrictText . renderClientCommandError) $ runClientCommand co
+  orDie (prettyToText . renderClientCommandError) $ runClientCommand co

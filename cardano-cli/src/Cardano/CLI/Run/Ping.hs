@@ -32,7 +32,6 @@ import           Data.Word (Word32)
 import           Network.Socket (AddrInfo)
 import qualified Network.Socket as Socket
 import qualified Options.Applicative as Opt
-import           Prettyprinter
 import qualified Prettyprinter as PP
 import qualified System.Exit as IO
 import qualified System.IO as IO

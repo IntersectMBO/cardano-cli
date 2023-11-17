@@ -44,7 +44,6 @@ import           Data.Text.Lazy (toStrict)
 import           Data.Text.Lazy.Builder (toLazyText)
 import           Data.Time (UTCTime)
 import           Formatting.Buildable
-import           Prettyprinter
 import           System.Directory (createDirectory, doesPathExist)
 
 data ByronGenesisError
