@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.TextViewFileError
   ( TextViewFileError(..)
@@ -9,17 +10,16 @@ import           Cardano.Api
 
 import           Cardano.CLI.Helpers (HelpersError, renderHelpersError)
 
-import           Data.Text (Text)
-import qualified Data.Text as Text
+import           Prettyprinter
 
 data TextViewFileError
   = TextViewReadFileError (FileError TextEnvelopeError)
   | TextViewCBORPrettyPrintError !HelpersError
   deriving Show
 
-renderTextViewFileError :: TextViewFileError -> Text
-renderTextViewFileError err =
-  case err of
-    TextViewReadFileError fileErr -> Text.pack (displayError fileErr)
-    TextViewCBORPrettyPrintError hlprsErr ->
-      "Error pretty printing CBOR: " <> renderHelpersError hlprsErr
+renderTextViewFileError :: TextViewFileError -> Doc ann
+renderTextViewFileError = \case
+  TextViewReadFileError fileErr ->
+    prettyError fileErr
+  TextViewCBORPrettyPrintError hlprsErr ->
+    "Error pretty printing CBOR: " <> renderHelpersError hlprsErr

@@ -5,6 +5,8 @@
 #define UNIX
 #endif
 
+import           Cardano.CLI.Pretty
+
 import           Cardano.CLI.Environment (getEnvCli)
 import           Cardano.CLI.Options (opts, pref)
 import           Cardano.CLI.Run (renderClientCommandError, runClientCommand)
@@ -31,4 +33,4 @@ main = toplevelExceptionHandler $ do
 #endif
   co <- Opt.customExecParser pref (opts envCli)
 
-  orDie renderClientCommandError $ runClientCommand co
+  orDie (prettyToText . renderClientCommandError) $ runClientCommand co

@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -13,6 +14,7 @@ module Cardano.CLI.Byron.Delegation
 where
 
 import           Cardano.Api.Byron
+import           Cardano.Api.Pretty
 
 import qualified Cardano.Chain.Delegation as Dlg
 import           Cardano.Chain.Slotting (EpochNumber)
@@ -41,14 +43,14 @@ data ByronDelegationError
   | ByronDelegationKeyError !ByronKeyFailure
   deriving Show
 
-renderByronDelegationError :: ByronDelegationError -> Text
-renderByronDelegationError err =
-  case err of
-    CertificateValidationErrors certFp errs ->
-      "Certificate validation error(s) at: " <> textShow certFp <> " Errors: " <> textShow errs
-    DlgCertificateDeserialisationFailed certFp deSererr ->
-      "Certificate deserialisation error at: " <> textShow certFp <> " Error: " <> textShow deSererr
-    ByronDelegationKeyError kerr -> renderByronKeyFailure kerr
+renderByronDelegationError :: ByronDelegationError -> Doc ann
+renderByronDelegationError = \case
+  CertificateValidationErrors certFp errs ->
+    "Certificate validation error(s) at: " <> pshow certFp <> " Errors: " <> pshow errs
+  DlgCertificateDeserialisationFailed certFp deSererr ->
+    "Certificate deserialisation error at: " <> pshow certFp <> " Error: " <> pshow deSererr
+  ByronDelegationKeyError kerr ->
+    renderByronKeyFailure kerr
 
 -- TODO:  we need to support password-protected secrets.
 -- | Issue a certificate for genesis delegation to a delegate key, signed by the

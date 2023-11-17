@@ -10,5 +10,5 @@ data StakeAddressRegistrationError = StakeAddressRegistrationDepositRequired
   deriving Show
 
 instance Error StakeAddressRegistrationError where
-  displayError = \case
+  prettyError = \case
     StakeAddressRegistrationDepositRequired -> "Stake address deposit required."

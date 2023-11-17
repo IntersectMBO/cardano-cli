@@ -10,8 +10,7 @@ module Cardano.CLI.Types.Errors.StakePoolCmdError
 
 import           Cardano.Api
 
-import           Data.Text (Text)
-import qualified Data.Text as Text
+import           Prettyprinter
 
 data StakePoolCmdError
   = StakePoolCmdReadFileError !(FileError TextEnvelopeError)
@@ -20,13 +19,13 @@ data StakePoolCmdError
   | StakePoolCmdMetadataValidationError !StakePoolMetadataValidationError
   deriving Show
 
-renderStakePoolCmdError :: StakePoolCmdError -> Text
+renderStakePoolCmdError :: StakePoolCmdError -> Doc ann
 renderStakePoolCmdError = \case
   StakePoolCmdMetadataValidationError validationErr ->
-    "Error validating stake pool metadata: " <> Text.pack (displayError validationErr)
+    "Error validating stake pool metadata: " <> prettyError validationErr
   StakePoolCmdReadFileError fileErr ->
-    Text.pack (displayError fileErr)
+    prettyError fileErr
   StakePoolCmdReadKeyFileError fileErr ->
-    Text.pack (displayError fileErr)
+    prettyError fileErr
   StakePoolCmdWriteFileError fileErr ->
-    Text.pack (displayError fileErr)
+    prettyError fileErr

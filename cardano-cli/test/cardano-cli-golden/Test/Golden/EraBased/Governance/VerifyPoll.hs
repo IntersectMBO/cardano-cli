@@ -4,6 +4,7 @@
 module Test.Golden.EraBased.Governance.VerifyPoll where
 
 import           Cardano.Api
+import           Cardano.Api.Pretty
 
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile (..),
                    readVerificationKeyOrTextEnvFile)
@@ -15,8 +16,8 @@ import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
 import qualified Hedgehog as H
-import qualified Hedgehog.Internal.Property as H
 import qualified Hedgehog.Extras as H
+import qualified Hedgehog.Internal.Property as H
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -35,7 +36,7 @@ hprop_golden_governanceVerifyPoll = propertyOnce $ do
 
   liftIO (readVerificationKeyOrTextEnvFile AsStakePoolKey goldenVkFile) >>= \case
     Left e ->
-      H.failWith Nothing (displayError e)
+      H.failWith Nothing $ prettyToString $ prettyError e
     Right vk -> do
       let expected = prettyPrintJSON $ serialiseToRawBytesHexText <$> [verificationKeyHash vk]
       H.assert $ expected `BSC.isInfixOf` stdout
