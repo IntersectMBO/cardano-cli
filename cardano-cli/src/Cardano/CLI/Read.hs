@@ -156,43 +156,34 @@ data MetadataError
   | MetadataErrorConversionError !FilePath !TxMetadataJsonError
   | MetadataErrorValidationError !FilePath ![(Word64, TxMetadataRangeError)]
   | MetadataErrorDecodeError !FilePath !CBOR.DecoderError
-  | MetadataErrorNotAvailableInEra AnyCardanoEra
   deriving Show
 
-renderMetadataError :: MetadataError -> Doc ann
-renderMetadataError = \case
-  MetadataErrorFile fileErr ->
-    prettyError fileErr
-  MetadataErrorJsonParseError fp jsonErr ->
-    "Invalid JSON format in file: " <> pshow fp <>
-              "\nJSON parse error: " <> pretty jsonErr
-  MetadataErrorConversionError fp metadataErr ->
-    "Error reading metadata at: " <> pshow fp <>
-              "\n" <> prettyError metadataErr
-  MetadataErrorValidationError fp errs ->
-    mconcat
-      [ "Error validating transaction metadata at: " <> pretty fp <> "\n"
-      , mconcat $ List.intersperse "\n"
-          [ "key " <> pshow k <> ":" <> prettyError valErr
-          | (k, valErr) <- errs
-          ]
-      ]
-  MetadataErrorDecodeError fp metadataErr ->
-    "Error decoding CBOR metadata at: " <> pshow fp <>
-              " Error: " <> pshow metadataErr
-  MetadataErrorNotAvailableInEra e ->
-    "Transaction metadata not supported in " <> pretty (renderEra e)
+renderMetadataError :: MetadataError -> Text
+renderMetadataError (MetadataErrorFile fileErr) =
+  Text.pack $ displayError fileErr
+renderMetadataError (MetadataErrorJsonParseError fp jsonErr) =
+  Text.pack $ "Invalid JSON format in file: " <> show fp <>
+              "\nJSON parse error: " <> jsonErr
+renderMetadataError (MetadataErrorConversionError fp metadataErr) =
+  Text.pack $ "Error reading metadata at: " <> show fp <>
+              "\n" <> displayError metadataErr
+renderMetadataError (MetadataErrorValidationError fp errs) =
+  Text.pack $ "Error validating transaction metadata at: " <> fp <> "\n" <>
+      List.intercalate "\n"
+        [ "key " <> show k <> ":" <> displayError valErr
+        | (k, valErr) <- errs ]
+renderMetadataError (MetadataErrorDecodeError fp metadataErr) =
+  Text.pack $ "Error decoding CBOR metadata at: " <> show fp <>
+              " Error: " <> show metadataErr
 
-readTxMetadata :: CardanoEra era
+readTxMetadata :: ShelleyBasedEra era
                -> TxMetadataJsonSchema
                -> [MetadataFile]
                -> IO (Either MetadataError (TxMetadataInEra era))
 readTxMetadata _ _ [] = return $ Right TxMetadataNone
-readTxMetadata era schema files = cardanoEraConstraints era $ runExceptT $ do
-  supported <- forEraMaybeEon era
-    & hoistMaybe (MetadataErrorNotAvailableInEra $ AnyCardanoEra era)
+readTxMetadata era schema files = runExceptT $ do
   metadata  <- mapM (readFileTxMetadata schema) files
-  pure $ TxMetadataInEra supported $ mconcat metadata
+  pure $ TxMetadataInEra era $ mconcat metadata
 
 readFileTxMetadata
   :: TxMetadataJsonSchema
@@ -250,7 +241,7 @@ renderScriptWitnessError = \case
     renderScriptDataError sDataError
 
 readScriptWitnessFiles
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> [(a, Maybe (ScriptWitnessFiles ctx))]
   -> ExceptT ScriptWitnessError IO [(a, Maybe (ScriptWitness ctx era))]
 readScriptWitnessFiles era = mapM readSwitFile
@@ -261,7 +252,7 @@ readScriptWitnessFiles era = mapM readSwitFile
   readSwitFile (tIn, Nothing) = return (tIn, Nothing)
 
 readScriptWitnessFilesThruple
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> [(a, b, Maybe (ScriptWitnessFiles ctx))]
   -> ExceptT ScriptWitnessError IO [(a, b, Maybe (ScriptWitness ctx era))]
 readScriptWitnessFilesThruple era = mapM readSwitFile
@@ -272,7 +263,7 @@ readScriptWitnessFilesThruple era = mapM readSwitFile
   readSwitFile (tIn, b, Nothing) = return (tIn, b, Nothing)
 
 readScriptWitness
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> ScriptWitnessFiles witctx
   -> ExceptT ScriptWitnessError IO (ScriptWitness witctx era)
 readScriptWitness era (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
@@ -322,10 +313,11 @@ readScriptWitness era (PlutusScriptWitnessFiles
 readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
                           anyScrLang@(AnyScriptLanguage anyScriptLanguage)
                           datumOrFile redeemerOrFile execUnits mPid) = do
-  caseByronToAlonzoOrBabbageEraOnwards
+  caseShelleyToAlonzoOrBabbageEraOnwards
     ( const $ left
         $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-        $ cardanoEraConstraints era (AnyCardanoEra era)
+          -- TODO: Update error to use AnyShelleyBasedEra
+        $ cardanoEraConstraints (toCardanoEra era) (AnyCardanoEra $ toCardanoEra era)
     )
     ( const $
         case scriptLanguageSupportedInEra era anyScriptLanguage of
@@ -346,15 +338,15 @@ readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
                           (PReferenceScript refTxIn (unPolicyId <$> mPid))
                           datum redeemer execUnits
           Nothing ->
-            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra $ toCardanoEra era)
     )
     era
 readScriptWitness era (SimpleReferenceScriptWitnessFiles refTxIn
                          anyScrLang@(AnyScriptLanguage anyScriptLanguage) mPid) = do
-  caseByronToAlonzoOrBabbageEraOnwards
+  caseShelleyToAlonzoOrBabbageEraOnwards
     ( const $ left
         $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-        $ cardanoEraConstraints era (AnyCardanoEra era)
+        $ cardanoEraConstraints (toCardanoEra era) (AnyCardanoEra $ toCardanoEra era)
     )
     ( const $
         case scriptLanguageSupportedInEra era anyScriptLanguage of
@@ -366,17 +358,19 @@ readScriptWitness era (SimpleReferenceScriptWitnessFiles refTxIn
               PlutusScriptLanguage{} ->
                 error "readScriptWitness: Should not be possible to specify a plutus script"
           Nothing ->
-            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra
+                     anyScrLang
+                     (anyCardanoEra $ toCardanoEra era)
     )
     era
 
-validateScriptSupportedInEra :: CardanoEra era
+validateScriptSupportedInEra :: ShelleyBasedEra era
                              -> ScriptInAnyLang
                              -> ExceptT ScriptWitnessError IO (ScriptInEra era)
 validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
     case toScriptInEra era script of
       Nothing -> left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra
-                          (AnyScriptLanguage lang) (anyCardanoEra era)
+                          (AnyScriptLanguage lang) (anyCardanoEra $ toCardanoEra era)
       Just script' -> pure script'
 
 data ScriptDataError =
@@ -829,13 +823,13 @@ data ProposalError
   deriving Show
 
 readTxGovernanceActions
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> [ProposalFile In]
   -> IO (Either ConstitutionError [Proposal era])
 readTxGovernanceActions _ [] = return $ Right []
 readTxGovernanceActions era files = runExceptT $ do
-  w <- forEraMaybeEon era
-    & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
+  w <- forShelleyBasedEraMaybeEon era
+    & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints (toCardanoEra era) $ AnyCardanoEra (toCardanoEra era))
   newExceptT $ sequence <$> mapM (fmap (first ConstitutionErrorFile) . readProposal w) files
 
 readProposal
