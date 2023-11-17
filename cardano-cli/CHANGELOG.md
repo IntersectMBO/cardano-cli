@@ -1,5 +1,70 @@
 # Changelog for cardano-cli
 
+## 8.15.0.0
+
+- Collateral inputs and the minimum value calculation are not available in the Byron era. Update the code to reflect this.
+  Upgrade to `cardano-api-8.33.0.0`
+  (breaking, compatible, improvement)
+  [PR 463](https://github.com/input-output-hk/cardano-cli/pull/463)
+
+- Deleted `--constitution-anchor-metadata`
+  Delete `--constitution-anchor-metadata-file`
+  
+  To workaround those deletions, call `cardano-cli conway governance hash ...` and pass the data/file you were previously passing
+  to `--constitution-anchor-metadata`/`--constitution-anchor-metadata-file`, then read the result, and feed it
+  to the call `cardano-cli conway governance action create-constitution`.
+  
+  Renamed `--constitution-anchor-url` to `--constitution-url`
+  Renamed `--constitution-anchor-metadata-hash` to `--constitution-hash`
+  (breaking)
+  [PR 460](https://github.com/input-output-hk/cardano-cli/pull/460)
+
+- Add `--out-file` flag to `conway governance hash` command, so that it can write its result to a file (instead of only to stdout)
+  (feature)
+  [PR 459](https://github.com/input-output-hk/cardano-cli/pull/459)
+
+- Make --key-reg-deposit-amt mandatory in the parser of conway stake-address registration-certificate, because it is actually mandatory.
+  (compatible, improvement, bugfix)
+  [PR 456](https://github.com/input-output-hk/cardano-cli/pull/456)
+
+- Update pCmds to take ShelleyBasedEra era instead of Cardano era
+  (improvement)
+  [PR 458](https://github.com/input-output-hk/cardano-cli/pull/458)
+
+- Add command `governance hash (--file-binary|--file-text|--text)`.
+  
+  Remove flags: `--proposal-anchor-metadata-file`, `--proposal-anchor-metadata`,
+  `--vote-anchor-metadata`, and `--vote-anchor-metadata-file`.
+  
+  To handle the removing of flags, call `cardano-cli conway governance hash` and pass the file or text to hash,
+  and then pass the result of this command to the governance action you used to call directly
+  (`create-constitution`, `update-committee`, `create-info`, `create-no-confidence`, `create-protocol-parameters-update`, `create-treasury-widthdrawal`, `vote create`).
+  
+  Rename `--proposal-anchor-url` to `--anchor-url`
+  Rename `--proposal-anchor-metadata-hash` to `--anchor-data-hash`
+  Rename `--vote-anchor-metadata-hash` to `--anchor-data-hash`
+  (breaking)
+  [PR 442](https://github.com/input-output-hk/cardano-cli/pull/442)
+
+- Change output of `conway query protocol-parameters` so that it's consistent with the ledger's JSON output
+  
+  The output of `conway query protocol-parameters` becomes similar to the one of `cardano-cli conway query gov-state | jq .enactState.curPParams`
+  (breaking)
+  [PR 455](https://github.com/input-output-hk/cardano-cli/pull/455)
+
+- Update to `cardano-8.31.0.0`
+  (compatible)
+  [PR 435](https://github.com/input-output-hk/cardano-cli/pull/435)
+
+- Remove remaining uses of `IsCardanoEra`
+  (improvement)
+  [PR 434](https://github.com/input-output-hk/cardano-cli/pull/434)
+
+- Puts the `nShelleyKeyWitnesses`, `nByronKeyWitnesses` arguments to `runCalculateMinFeeCmd` in the correct order.
+  (bugfix)
+  [PR 443](https://github.com/input-output-hk/cardano-cli/pull/443)
+
+
 ## 8.14.0.0
 
 - Command types for `node` commands
