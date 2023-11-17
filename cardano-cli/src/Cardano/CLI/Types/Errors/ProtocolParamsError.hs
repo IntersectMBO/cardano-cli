@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -9,16 +10,18 @@ module Cardano.CLI.Types.Errors.ProtocolParamsError
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Pretty
 
 import           Data.Text (Text)
-import qualified Data.Text as Text
+import           Prettyprinter
 
 data ProtocolParamsError
   = ProtocolParamsErrorFile (FileError ())
   | ProtocolParamsErrorJSON !FilePath !Text
 
-renderProtocolParamsError :: ProtocolParamsError -> Text
-renderProtocolParamsError (ProtocolParamsErrorFile fileErr) =
-  Text.pack $ displayError fileErr
-renderProtocolParamsError (ProtocolParamsErrorJSON fp jsonErr) =
-  "Error while decoding the protocol parameters at: " <> Text.pack fp <> " Error: " <> jsonErr
+renderProtocolParamsError :: ProtocolParamsError -> Doc ann
+renderProtocolParamsError = \case
+  ProtocolParamsErrorFile fileErr ->
+    pretty fileErr
+  ProtocolParamsErrorJSON fp jsonErr ->
+    "Error while decoding the protocol parameters at: " <> pshow fp <> " Error: " <> pshow jsonErr

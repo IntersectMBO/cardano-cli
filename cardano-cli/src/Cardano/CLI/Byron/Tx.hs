@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Cardano.CLI.Byron.Tx
@@ -26,6 +27,7 @@ where
 
 import           Cardano.Api
 import           Cardano.Api.Byron
+import           Cardano.Api.Pretty
 
 import qualified Cardano.Binary as Binary
 import qualified Cardano.Chain.Common as Common
@@ -56,6 +58,7 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Formatting (sformat, (%))
+import           Prettyprinter
 
 data ByronTxError
   = TxDeserialisationFailed !FilePath !Binary.DecoderError
@@ -63,16 +66,15 @@ data ByronTxError
   | ByronTxSubmitErrorEraMismatch !EraMismatch
   deriving Show
 
-renderByronTxError :: ByronTxError -> Text
-renderByronTxError err =
-  case err of
-    ByronTxSubmitError res -> "Error while submitting tx: " <> res
-    ByronTxSubmitErrorEraMismatch EraMismatch{ledgerEraName, otherEraName} ->
-      "The era of the node and the tx do not match. " <>
-      "The node is running in the " <> ledgerEraName <>
-      " era, but the transaction is for the " <> otherEraName <> " era."
-    TxDeserialisationFailed txFp decErr ->
-      "Transaction deserialisation failed at " <> textShow txFp <> " Error: " <> textShow decErr
+renderByronTxError :: ByronTxError -> Doc ann
+renderByronTxError = \case
+  ByronTxSubmitError res -> "Error while submitting tx: " <> pretty res
+  ByronTxSubmitErrorEraMismatch EraMismatch{ledgerEraName, otherEraName} ->
+    "The era of the node and the tx do not match. " <>
+    "The node is running in the " <> pretty ledgerEraName <>
+    " era, but the transaction is for the " <> pretty otherEraName <> " era."
+  TxDeserialisationFailed txFp decErr ->
+    "Transaction deserialisation failed at " <> pshow txFp <> " Error: " <> pshow decErr
 
 newtype NewTxFile =
   NewTxFile FilePath

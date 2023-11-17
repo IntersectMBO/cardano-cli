@@ -5,6 +5,7 @@ module Cardano.CLI.Types.Errors.StakeCredentialError
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Pretty
 
 import           Cardano.CLI.Types.Errors.ScriptDecodeError
 
@@ -14,6 +15,6 @@ data StakeCredentialError
   deriving Show
 
 instance Error StakeCredentialError where
-  displayError = \case
-    StakeCredentialScriptDecodeError e -> displayError e
-    StakeCredentialInputDecodeError e -> displayError e
+  prettyError = \case
+    StakeCredentialScriptDecodeError e -> pretty e
+    StakeCredentialInputDecodeError e -> pretty e

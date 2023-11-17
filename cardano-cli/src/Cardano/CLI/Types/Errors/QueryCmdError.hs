@@ -14,6 +14,7 @@ module Cardano.CLI.Types.Errors.QueryCmdError
   ) where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Binary (DecoderError)
@@ -24,11 +25,9 @@ import           Ouroboros.Consensus.Cardano.Block as Consensus (EraMismatch (..
 import qualified Ouroboros.Consensus.HardFork.History.Qry as Qry
 
 import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import           Data.Text.Lazy (toStrict)
 import           Data.Text.Lazy.Builder (toLazyText)
 import           Formatting.Buildable (build)
+import           Prettyprinter
 
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Redundant flip" -}
@@ -58,39 +57,52 @@ data QueryCmdError
   | QueryCmdCommitteeHotKeyError !(FileError InputDecodeError)
   deriving Show
 
-renderQueryCmdError :: QueryCmdError -> Text
+renderQueryCmdError :: QueryCmdError -> Doc ann
 renderQueryCmdError = \case
-  QueryCmdLocalStateQueryError lsqErr -> renderLocalStateQueryError lsqErr
-  QueryCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-  QueryCmdHelpersError helpersErr -> renderHelpersError helpersErr
-  QueryCmdAcquireFailure acquireFail -> Text.pack $ show acquireFail
-  QueryCmdByronEra -> "This query cannot be used for the Byron era"
+  QueryCmdLocalStateQueryError lsqErr ->
+    renderLocalStateQueryError lsqErr
+  QueryCmdWriteFileError fileErr ->
+    pretty fileErr
+  QueryCmdHelpersError helpersErr ->
+    renderHelpersError helpersErr
+  QueryCmdAcquireFailure acquireFail ->
+    pshow acquireFail
+  QueryCmdByronEra ->
+    "This query cannot be used for the Byron era"
   QueryCmdEraMismatch (EraMismatch ledgerEra queryEra) ->
-    "\nAn error mismatch occurred." <> "\nSpecified query era: " <> queryEra <>
-    "\nCurrent ledger era: " <> ledgerEra
-  QueryCmdPastHorizon e -> "Past horizon: " <> textShow e
-  QueryCmdSystemStartUnavailable -> "System start unavailable"
-  QueryCmdGenesisReadError err' -> Text.pack $ displayError err'
-  QueryCmdLeaderShipError e -> Text.pack $ displayError e
-  QueryCmdTextEnvelopeReadError e -> Text.pack $ displayError e
-  QueryCmdTextReadError e -> Text.pack $ displayError e
-  QueryCmdOpCertCounterReadError e -> Text.pack $ displayError e
+    "\nAn error mismatch occurred." <> "\nSpecified query era: " <> pretty queryEra <>
+    "\nCurrent ledger era: " <> pretty ledgerEra
+  QueryCmdPastHorizon e ->
+    "Past horizon: " <> pshow e
+  QueryCmdSystemStartUnavailable ->
+    "System start unavailable"
+  QueryCmdGenesisReadError err' ->
+    prettyError err'
+  QueryCmdLeaderShipError e ->
+    prettyError e
+  QueryCmdTextEnvelopeReadError e ->
+    pretty e
+  QueryCmdTextReadError e ->
+    pretty e
+  QueryCmdOpCertCounterReadError e ->
+    pretty e
   QueryCmdProtocolStateDecodeFailure (_, decErr) ->
-    "Failed to decode the protocol state: " <> toStrict (toLazyText $ build decErr)
+    "Failed to decode the protocol state: " <> pretty (toLazyText $ build decErr)
   QueryCmdPoolStateDecodeError decoderError ->
-    "Failed to decode PoolState.  Error: " <> Text.pack (show decoderError)
+    "Failed to decode PoolState.  Error: " <> pshow decoderError
   QueryCmdStakeSnapshotDecodeError decoderError ->
-    "Failed to decode StakeSnapshot.  Error: " <> Text.pack (show decoderError)
+    "Failed to decode StakeSnapshot.  Error: " <> pshow decoderError
   QueryCmdUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
     "Unsupported feature for the node-to-client protocol version.\n" <>
-    "This query requires at least " <> textShow minNtcVersion <> " but the node negotiated " <> textShow ntcVersion <> ".\n" <>
+    "This query requires at least " <> pshow minNtcVersion <> " but the node negotiated " <> pshow ntcVersion <> ".\n" <>
     "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
   QueryCmdProtocolParameterConversionError ppce ->
-    Text.pack $ "Failed to convert protocol parameter: " <> displayError ppce
-  QueryCmdConvenienceError qce -> renderQueryConvenienceError qce
+    "Failed to convert protocol parameter: " <> prettyError ppce
+  QueryCmdConvenienceError qce ->
+    pretty $ renderQueryConvenienceError qce
   QueryCmdDRepKeyError e ->
-    "Error reading delegation representative key: " <> Text.pack (displayError e)
+    "Error reading delegation representative key: " <> pretty e
   QueryCmdCommitteeColdKeyError e ->
-    "Error reading committee cold key: " <> Text.pack (displayError e)
+    "Error reading committee cold key: " <> pretty e
   QueryCmdCommitteeHotKeyError e ->
-    "Error reading committee hot key: " <> Text.pack (displayError e)
+    "Error reading committee hot key: " <> pretty e

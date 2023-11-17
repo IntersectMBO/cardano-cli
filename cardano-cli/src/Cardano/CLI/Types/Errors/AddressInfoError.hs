@@ -1,8 +1,11 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Cardano.CLI.Types.Errors.AddressInfoError
   ( AddressInfoError(..)
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Pretty
 
 import           Data.Text (Text)
 
@@ -10,5 +13,6 @@ newtype AddressInfoError = ShelleyAddressInvalid Text
   deriving Show
 
 instance Error AddressInfoError where
-  displayError (ShelleyAddressInvalid addrTxt) =
-    "Invalid address: " <> show addrTxt
+  prettyError = \case
+    ShelleyAddressInvalid addrTxt ->
+      "Invalid address: " <> pshow addrTxt

@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.NodeCmdError
   ( NodeCmdError(..)
@@ -6,9 +7,9 @@ module Cardano.CLI.Types.Errors.NodeCmdError
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Pretty
 
-import           Data.Text (Text)
-import qualified Data.Text as Text
+import           Prettyprinter
 
 {- HLINT ignore "Reduce duplication" -}
 
@@ -24,18 +25,16 @@ data NodeCmdError
       -- ^ Temp path
   deriving Show
 
-renderNodeCmdError :: NodeCmdError -> Text
-renderNodeCmdError err =
-  case err of
+renderNodeCmdError :: NodeCmdError -> Doc ann
+renderNodeCmdError = \case
     NodeCmdVrfSigningKeyCreationError targetPath tempPath ->
-      Text.pack $ "Error creating VRF signing key file. Target path: " <> targetPath
-      <> " Temporary path: " <> tempPath
-
-    NodeCmdReadFileError fileErr -> Text.pack (displayError fileErr)
-
-    NodeCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
-
-    NodeCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-
+      "Error creating VRF signing key file. Target path: " <> pshow targetPath
+      <> " Temporary path: " <> pshow tempPath
+    NodeCmdReadFileError fileErr ->
+      pretty fileErr
+    NodeCmdReadKeyFileError fileErr ->
+      pretty fileErr
+    NodeCmdWriteFileError fileErr ->
+      pretty fileErr
     NodeCmdOperationalCertificateIssueError issueErr ->
-      Text.pack (displayError issueErr)
+      prettyError issueErr

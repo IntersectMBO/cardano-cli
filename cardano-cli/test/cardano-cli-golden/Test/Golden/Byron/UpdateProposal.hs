@@ -2,12 +2,13 @@
 
 module Test.Golden.Byron.UpdateProposal where
 
+import           Cardano.Api.Pretty
+
 import           Cardano.CLI.Byron.UpdateProposal
 
 import           Control.Monad (void)
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (runExceptT)
-import qualified Data.Text as Text
 
 import           Test.Cardano.CLI.Util
 
@@ -38,12 +39,12 @@ hprop_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir 
 
   eExpected <- liftIO . runExceptT $ readByronUpdateProposal expectedUpdateProposal
   expected <- case eExpected of
-              Left err -> failWith Nothing . Text.unpack $ renderByronUpdateProposalError err
+              Left err -> failWith Nothing . prettyToString $ renderByronUpdateProposalError err
               Right prop -> return prop
 
   eCreated <- liftIO . runExceptT $ readByronUpdateProposal createdUpdateProposal
   created <- case eCreated of
-               Left err -> failWith Nothing . Text.unpack $ renderByronUpdateProposalError err
+               Left err -> failWith Nothing . prettyToString $ renderByronUpdateProposalError err
                Right prop -> return prop
 
   expected === created

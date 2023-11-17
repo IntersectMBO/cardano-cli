@@ -1,5 +1,5 @@
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
-
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Byron.Genesis
   ( ByronGenesisError(..)
@@ -12,9 +12,10 @@ module Cardano.CLI.Byron.Genesis
   )
 where
 
-import           Cardano.Api (Key (..), NetworkId, textShow, writeSecrets)
+import           Cardano.Api (Key (..), NetworkId, writeSecrets)
 import           Cardano.Api.Byron (ByronKey, SerialiseAsRawBytes (..), SigningKey (..),
                    toByronRequiresNetworkMagic)
+import           Cardano.Api.Pretty
 
 import qualified Cardano.Chain.Common as Common
 import           Cardano.Chain.Delegation hiding (Map, epoch)
@@ -43,6 +44,7 @@ import           Data.Text.Lazy (toStrict)
 import           Data.Text.Lazy.Builder (toLazyText)
 import           Data.Time (UTCTime)
 import           Formatting.Buildable
+import           Prettyprinter
 import           System.Directory (createDirectory, doesPathExist)
 
 data ByronGenesisError
@@ -59,29 +61,28 @@ data ByronGenesisError
 
   deriving Show
 
-renderByronGenesisError :: ByronGenesisError -> Text
-renderByronGenesisError err =
-  case err of
-    ProtocolParametersParseFailed pParamFp parseError ->
-      "Protocol parameters parse failed at: " <> textShow pParamFp <> " Error: " <> parseError
-    ByronDelegationCertSerializationError bDelegSerErr ->
-      "Error while serializing the delegation certificate: " <> textShow bDelegSerErr
-    ByronDelegationKeySerializationError bKeySerErr ->
-      "Error while serializing the delegation key: " <> textShow bKeySerErr
-    PoorKeyFailure bKeyFailure ->
-      "Error creating poor keys: " <> textShow bKeyFailure
-    MakeGenesisDelegationError genDelegError ->
-      "Error creating genesis delegation: " <> textShow genDelegError
-    GenesisGenerationError genDataGenError ->
-      "Error generating genesis: " <> textShow genDataGenError
-    GenesisOutputDirAlreadyExists genOutDir ->
-      "Genesis output directory already exists: " <> textShow genOutDir
-    GenesisReadError genFp genDataError ->
-      "Error while reading genesis file at: " <> textShow genFp <> " Error: " <> textShow genDataError
-    GenesisSpecError genSpecError ->
-      "Error while creating genesis spec" <> textShow genSpecError
-    NoGenesisDelegationForKey verKey ->
-      "Error while creating genesis, no delegation certificate for this verification key:" <> textShow verKey
+renderByronGenesisError :: ByronGenesisError -> Doc ann
+renderByronGenesisError = \case
+  ProtocolParametersParseFailed pParamFp parseError ->
+    "Protocol parameters parse failed at: " <> pshow pParamFp <> " Error: " <> pretty parseError
+  ByronDelegationCertSerializationError bDelegSerErr ->
+    "Error while serializing the delegation certificate: " <> pshow bDelegSerErr
+  ByronDelegationKeySerializationError bKeySerErr ->
+    "Error while serializing the delegation key: " <> pshow bKeySerErr
+  PoorKeyFailure bKeyFailure ->
+    "Error creating poor keys: " <> pshow bKeyFailure
+  MakeGenesisDelegationError genDelegError ->
+    "Error creating genesis delegation: " <> pshow genDelegError
+  GenesisGenerationError genDataGenError ->
+    "Error generating genesis: " <> pshow genDataGenError
+  GenesisOutputDirAlreadyExists genOutDir ->
+    "Genesis output directory already exists: " <> pshow genOutDir
+  GenesisReadError genFp genDataError ->
+    "Error while reading genesis file at: " <> pshow genFp <> " Error: " <> pshow genDataError
+  GenesisSpecError genSpecError ->
+    "Error while creating genesis spec" <> pshow genSpecError
+  NoGenesisDelegationForKey verKey ->
+    "Error while creating genesis, no delegation certificate for this verification key:" <> pshow verKey
 
 newtype NewDirectory =
   NewDirectory FilePath

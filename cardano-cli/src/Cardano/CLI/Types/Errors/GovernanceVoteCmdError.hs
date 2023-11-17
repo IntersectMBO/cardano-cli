@@ -9,9 +9,9 @@ import           Cardano.Api.Shelley
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Read (VoteError)
 
-import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TL
 import qualified Formatting.Buildable as B
+import           Prettyprinter
 
 data GovernanceVoteCmdError
   = GovernanceVoteCmdReadVerificationKeyError !(FileError InputDecodeError)
@@ -22,16 +22,16 @@ data GovernanceVoteCmdError
   deriving Show
 
 instance Error GovernanceVoteCmdError where
-  displayError = \case
+  prettyError = \case
     GovernanceVoteCmdReadVerificationKeyError e ->
-      "Cannot read verification key: " <> displayError e
+      "Cannot read verification key: " <> pretty e
     GovernanceVoteCmdReadVoteFileError e ->
-      "Cannot read vote file: " <> displayError e
+      "Cannot read vote file: " <> prettyError e
     GovernanceVoteCmdCredentialDecodeError e ->
       "Cannot decode voting credential: " <> renderDecoderError e
     GovernanceVoteCmdWriteError e ->
-      "Cannot write vote: " <> displayError e
+      "Cannot write vote: " <> pretty e
     GovernanceVoteCmdReadVoteTextError e ->
-      "Cannot read vote text: " <> displayError e
+      "Cannot read vote text: " <> prettyError e
     where
-      renderDecoderError = TL.unpack . TL.toLazyText . B.build
+      renderDecoderError = pretty . TL.toLazyText . B.build

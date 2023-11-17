@@ -4,6 +4,7 @@ module Cardano.CLI.Types.Errors.GovernanceHashError
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Pretty
 
 import           Cardano.Prelude (Exception (displayException), IOException)
 
@@ -12,6 +13,6 @@ data GovernanceHashError
   deriving Show
 
 instance Error GovernanceHashError where
-  displayError = \case
+  prettyError = \case
     GovernanceHashReadFileError filepath exc ->
-      "Cannot read " <> filepath <> ": " <> displayException exc
+      "Cannot read " <> pretty filepath <> ": " <> pretty (displayException exc)

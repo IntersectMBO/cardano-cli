@@ -9,6 +9,7 @@ module Cardano.CLI.Types.Errors.KeyCmdError
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Pretty
 
 import qualified Cardano.CLI.Byron.Key as Byron
 import           Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
@@ -16,7 +17,7 @@ import           Cardano.CLI.Types.Errors.ItnKeyConversionError
 import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
-import qualified Data.Text as Text
+import           Prettyprinter
 
 data KeyCmdError
   = KeyCmdReadFileError !(FileError TextEnvelopeError)
@@ -36,21 +37,28 @@ data KeyCmdError
   | KeyCmdVerificationKeyReadError VerificationKeyTextOrFileError
   deriving Show
 
-renderKeyCmdError :: KeyCmdError -> Text
+renderKeyCmdError :: KeyCmdError -> Doc ann
 renderKeyCmdError err =
   case err of
-    KeyCmdReadFileError fileErr -> Text.pack (displayError fileErr)
-    KeyCmdReadKeyFileError fileErr -> Text.pack (displayError fileErr)
-    KeyCmdWriteFileError fileErr -> Text.pack (displayError fileErr)
-    KeyCmdByronKeyFailure e -> Byron.renderByronKeyFailure e
-    KeyCmdByronKeyParseError errTxt -> errTxt
-    KeyCmdItnKeyConvError convErr -> renderConversionError convErr
+    KeyCmdReadFileError fileErr ->
+      pretty fileErr
+    KeyCmdReadKeyFileError fileErr ->
+      pretty fileErr
+    KeyCmdWriteFileError fileErr ->
+      pretty fileErr
+    KeyCmdByronKeyFailure e ->
+      Byron.renderByronKeyFailure e
+    KeyCmdByronKeyParseError errTxt ->
+      pretty errTxt
+    KeyCmdItnKeyConvError convErr ->
+      renderConversionError convErr
     KeyCmdWrongKeyTypeError ->
-      Text.pack "Please use a signing key file when converting ITN BIP32 or Extended keys"
+      "Please use a signing key file when converting ITN BIP32 or Extended keys"
     KeyCmdCardanoAddressSigningKeyFileError fileErr ->
-      Text.pack (displayError fileErr)
+      pretty fileErr
     KeyCmdNonLegacyKey fp ->
-      "Signing key at: " <> Text.pack fp <> " is not a legacy Byron signing key and should not need to be converted."
-    KeyCmdVerificationKeyReadError e -> renderVerificationKeyTextOrFileError e
+      "Signing key at: " <> pretty fp <> " is not a legacy Byron signing key and should not need to be converted."
+    KeyCmdVerificationKeyReadError e ->
+      renderVerificationKeyTextOrFileError e
     KeyCmdExpectedExtendedVerificationKey someVerKey ->
-      "Expected an extended verification key but got: " <> renderSomeAddressVerificationKey someVerKey
+      "Expected an extended verification key but got: " <> pretty (renderSomeAddressVerificationKey someVerKey)

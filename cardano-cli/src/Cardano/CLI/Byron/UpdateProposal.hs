@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Byron.UpdateProposal
   ( ByronUpdateProposalError(..)
@@ -9,9 +10,10 @@ module Cardano.CLI.Byron.UpdateProposal
   , submitByronUpdateProposal
   ) where
 
-import           Cardano.Api (NetworkId, SerialiseAsRawBytes (..), SocketPath, textShow)
+import           Cardano.Api (NetworkId, SerialiseAsRawBytes (..), SocketPath)
 import           Cardano.Api.Byron (AsType (AsByronUpdateProposal), ByronProtocolParametersUpdate,
                    ByronUpdateProposal, makeByronUpdateProposal, toByronLedgerUpdateProposal)
+import           Cardano.Api.Pretty
 
 import           Cardano.Chain.Update (InstallerHash (..), ProtocolVersion (..),
                    SoftwareVersion (..), SystemTag (..))
@@ -31,6 +33,7 @@ import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as BS
 import           Data.Text (Text)
 import qualified Data.Text as Text
+import           Prettyprinter
 
 data ByronUpdateProposalError
   = ByronReadUpdateProposalFileFailure !FilePath !Text
@@ -41,21 +44,20 @@ data ByronUpdateProposalError
   | UpdateProposalDecodingError !FilePath
   deriving Show
 
-renderByronUpdateProposalError :: ByronUpdateProposalError -> Text
-renderByronUpdateProposalError err =
-  case err of
-    ByronReadUpdateProposalFileFailure fp rErr ->
-      "Error reading update proposal at " <> textShow fp <> " Error: " <> textShow rErr
-    ByronUpdateProposalWriteError hErr ->
-      "Error writing update proposal: " <> renderHelpersError hErr
-    ByronUpdateProposalGenesisReadError fp rErr ->
-      "Error reading update proposal at: " <> textShow fp <> " Error: " <> textShow rErr
-    ByronUpdateProposalTxError txErr ->
-      "Error submitting update proposal: " <> textShow txErr
-    ReadSigningKeyFailure fp rErr ->
-      "Error reading signing key at: " <> textShow fp <> " Error: " <> textShow rErr
-    UpdateProposalDecodingError fp ->
-      "Error decoding update proposal at: " <> textShow fp
+renderByronUpdateProposalError :: ByronUpdateProposalError -> Doc ann
+renderByronUpdateProposalError = \case
+  ByronReadUpdateProposalFileFailure fp rErr ->
+    "Error reading update proposal at " <> pshow fp <> " Error: " <> pshow rErr
+  ByronUpdateProposalWriteError hErr ->
+    "Error writing update proposal: " <> renderHelpersError hErr
+  ByronUpdateProposalGenesisReadError fp rErr ->
+    "Error reading update proposal at: " <> pshow fp <> " Error: " <> pshow rErr
+  ByronUpdateProposalTxError txErr ->
+    "Error submitting update proposal: " <> pshow txErr
+  ReadSigningKeyFailure fp rErr ->
+    "Error reading signing key at: " <> pshow fp <> " Error: " <> pshow rErr
+  UpdateProposalDecodingError fp ->
+    "Error decoding update proposal at: " <> pshow fp
 
 runProposalCreation
   :: NetworkId

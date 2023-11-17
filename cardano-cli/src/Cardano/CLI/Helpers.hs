@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -14,6 +15,8 @@ module Cardano.CLI.Helpers
   , renderHelpersError
   , validateCBOR
   ) where
+
+import           Cardano.Api.Pretty
 
 import           Cardano.Chain.Block (decCBORABlockOrBoundary)
 import qualified Cardano.Chain.Delegation as Delegation
@@ -39,6 +42,7 @@ import           Data.Functor (void)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
+import           Prettyprinter
 import qualified System.Console.ANSI as ANSI
 import           System.Console.ANSI
 import qualified System.Directory as IO
@@ -52,14 +56,18 @@ data HelpersError
   | ReadCBORFileFailure !FilePath !Text
   deriving Show
 
-renderHelpersError :: HelpersError -> Text
-renderHelpersError err =
-  case err of
-    OutputMustNotAlreadyExist fp -> "Output file/directory must not already exist: " <> Text.pack fp
-    ReadCBORFileFailure fp err' -> "CBOR read failure at: " <> Text.pack fp <> Text.pack (show err')
-    CBORPrettyPrintError err' -> "Error with CBOR decoding: " <> Text.pack (show err')
-    CBORDecodingError err' -> "Error with CBOR decoding: " <> Text.pack (show err')
-    IOError' fp ioE -> "Error at: " <> Text.pack fp <> " Error: " <> Text.pack (show ioE)
+renderHelpersError :: HelpersError -> Doc ann
+renderHelpersError = \case
+  OutputMustNotAlreadyExist fp ->
+    "Output file/directory must not already exist: " <> pretty fp
+  ReadCBORFileFailure fp err' ->
+    "CBOR read failure at: " <> pretty fp <> pshow err'
+  CBORPrettyPrintError err' ->
+    "Error with CBOR decoding: " <> pshow err'
+  CBORDecodingError err' ->
+    "Error with CBOR decoding: " <> pshow err'
+  IOError' fp ioE ->
+    "Error at: " <> pretty fp <> " Error: " <> pshow ioE
 
 decodeCBOR
   :: LB.ByteString

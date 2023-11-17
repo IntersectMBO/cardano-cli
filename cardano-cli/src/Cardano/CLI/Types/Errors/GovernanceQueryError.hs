@@ -2,9 +2,12 @@
 module Cardano.CLI.Types.Errors.GovernanceQueryError where
 
 import           Cardano.Api
+import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch)
+
+import           Prettyprinter
 
 data GovernanceQueryError
   = GovernanceQueryWriteFileError !(FileError ())
@@ -15,17 +18,18 @@ data GovernanceQueryError
   deriving Show
 
 instance Error GovernanceQueryError where
-  displayError = \case
+  prettyError = \case
     GovernanceQueryWriteFileError err ->
-      displayError err
+      pretty err
     GovernanceQueryAcqireFailureError err ->
-      show err
-    GovernanceQueryUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) -> unlines
-      [ "Unsupported feature for the node-to-client protocol version."
-      , "This query requires at least " <> show minNtcVersion <> " but the node negotiated " <> show ntcVersion <> "."
-      , "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
-      ]
+      pshow err
+    GovernanceQueryUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
+      vsep
+        [ "Unsupported feature for the node-to-client protocol version."
+        , "This query requires at least " <> pshow minNtcVersion <> " but the node negotiated " <> pshow ntcVersion <> "."
+        , "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
+        ]
     GovernanceQueryEraMismatch err ->
-      "A query from a certain era was applied to a ledger from a different era: " <> show err
+      "A query from a certain era was applied to a ledger from a different era: " <> pshow err
     GovernanceQueryDRepKeyError err ->
-      "Error reading delegation representative key: " <> displayError err
+      "Error reading delegation representative key: " <> pretty err

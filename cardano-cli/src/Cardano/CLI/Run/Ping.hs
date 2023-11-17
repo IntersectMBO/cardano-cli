@@ -11,6 +11,8 @@ module Cardano.CLI.Run.Ping
   , parsePingCmd
   ) where
 
+import           Cardano.Api.Pretty
+
 import qualified Cardano.Network.Ping as CNP
 
 import           Control.Applicative ((<|>))
@@ -25,12 +27,12 @@ import           Control.Monad.Trans.Except.Extra (left)
 import           Control.Tracer (Tracer (..))
 import           Data.List (foldl')
 import qualified Data.List as L
-import           Data.Text (Text)
-import qualified Data.Text as T
+import qualified Data.List as List
 import           Data.Word (Word32)
 import           Network.Socket (AddrInfo)
 import qualified Network.Socket as Socket
 import qualified Options.Applicative as Opt
+import           Prettyprinter
 import qualified Prettyprinter as PP
 import qualified System.Exit as IO
 import qualified System.IO as IO
@@ -122,9 +124,9 @@ runPingCmd options = do
     doErrLog :: String -> IO ()
     doErrLog = IO.hPutStrLn IO.stderr
 
-renderPingClientCmdError :: PingClientCmdError -> Text
+renderPingClientCmdError :: PingClientCmdError -> Doc ann
 renderPingClientCmdError = \case
-  PingClientCmdError es -> T.intercalate "\n" $ T.pack . show <$> es
+  PingClientCmdError es -> mconcat $ List.intersperse "\n" $ pshow <$> es
 
 parsePingCmd :: Opt.Parser PingCmd
 parsePingCmd = Opt.hsubparser $ mconcat
