@@ -70,7 +70,6 @@ import qualified Data.Map.Strict as Map
 import           Data.Maybe (catMaybes, fromMaybe)
 import           Data.Set (Set)
 import qualified Data.Set as Set
-import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Data.Type.Equality (TestEquality (..))
@@ -998,8 +997,8 @@ runTransactionSubmitCmd
       , txFile
       } = do
   txFileOrPipe <- liftIO $ fileOrPipe txFile
-  InAnyCardanoEra era tx <- lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdCddlError)
-  let txInMode = TxInMode era tx
+  InAnyShelleyBasedEra era tx <- lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdCddlError)
+  let txInMode = TxInMode (toCardanoEra era) tx
       localNodeConnInfo = LocalNodeConnectInfo
                             { localConsensusModeParams = consensusModeParams
                             , localNodeNetworkId = networkId
@@ -1163,7 +1162,7 @@ runTransactionTxIdCmd
     Cmd.TransactionTxIdCmdArgs
       { inputTxBodyOrTxFile
       } = do
-  InAnyCardanoEra _era txbody <-
+  InAnyShelleyBasedEra _era txbody <-
     case inputTxBodyOrTxFile of
       InputTxBodyFile (File txbodyFilePath) -> do
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
@@ -1171,13 +1170,13 @@ runTransactionTxIdCmd
                           $ readFileTxBody txbodyFile
         case unwitnessed of
           UnwitnessedCliFormattedTxBody anyTxBody -> return anyTxBody
-          IncompleteCddlFormattedTx (InAnyCardanoEra era tx) ->
-            return (InAnyCardanoEra era (getTxBody tx))
+          IncompleteCddlFormattedTx (InAnyShelleyBasedEra era tx) ->
+            return (InAnyShelleyBasedEra era (getTxBody tx))
 
       InputTxFile (File txFilePath) -> do
         txFile <- liftIO $ fileOrPipe txFilePath
-        InAnyCardanoEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdCddlError)
-        return . InAnyCardanoEra era $ getTxBody tx
+        InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdCddlError)
+        return . InAnyShelleyBasedEra era $ getTxBody tx
 
   liftIO $ BS.putStrLn $ serialiseToRawBytesHex (getTxId txbody)
 
@@ -1195,11 +1194,11 @@ runTransactionViewCmd
       txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
       unwitnessed <- firstExceptT TxCmdCddlError . newExceptT
                       $ readFileTxBody txbodyFile
-      InAnyCardanoEra era txbody <-
+      InAnyShelleyBasedEra era txbody <-
         case unwitnessed of
           UnwitnessedCliFormattedTxBody anyTxBody -> pure anyTxBody
-          IncompleteCddlFormattedTx (InAnyCardanoEra era tx) ->
-            pure $ InAnyCardanoEra era (getTxBody tx)
+          IncompleteCddlFormattedTx (InAnyShelleyBasedEra era tx) ->
+            pure $ InAnyShelleyBasedEra era (getTxBody tx)
       -- Why are we differentiating between a transaction body and a transaction?
       -- In the case of a transaction body, we /could/ simply call @makeSignedTransaction []@
       -- to get a transaction which would allow us to reuse friendlyTxBS. However,
@@ -1207,15 +1206,15 @@ runTransactionViewCmd
       -- is arguably not part of the transaction body.
       firstExceptT TxCmdWriteFileError . newExceptT $
         case outputFormat of
-          TxViewOutputFormatYaml -> friendlyTxBody FriendlyYaml mOutFile era txbody
-          TxViewOutputFormatJson -> friendlyTxBody FriendlyJson mOutFile era txbody
+          TxViewOutputFormatYaml -> friendlyTxBody FriendlyYaml mOutFile (toCardanoEra era) txbody
+          TxViewOutputFormatJson -> friendlyTxBody FriendlyJson mOutFile (toCardanoEra era) txbody
     InputTxFile (File txFilePath) -> do
       txFile <- liftIO $ fileOrPipe txFilePath
-      InAnyCardanoEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdCddlError)
+      InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdCddlError)
       firstExceptT TxCmdWriteFileError . newExceptT $
         case outputFormat of
-          TxViewOutputFormatYaml -> friendlyTx FriendlyYaml mOutFile era tx
-          TxViewOutputFormatJson -> friendlyTx FriendlyJson mOutFile era tx
+          TxViewOutputFormatYaml -> friendlyTx FriendlyYaml mOutFile (toCardanoEra era) tx
+          TxViewOutputFormatJson -> friendlyTx FriendlyJson mOutFile (toCardanoEra era) tx
 
 -- ----------------------------------------------------------------------------
 -- Witness commands
