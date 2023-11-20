@@ -32,4 +32,4 @@ Available commands:
   vote-delegation-certificate
                            Create a stake address vote delegation certificate,
                            which when submitted in a transaction delegates stake
-                           to a stake pool and a DRep.
+                           to a DRep.

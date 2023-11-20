@@ -6665,7 +6665,7 @@ Usage: cardano-cli conway stake-address vote-delegation-certificate
                                                                       --out-file FILE
 
   Create a stake address vote delegation certificate, which when submitted in a
-  transaction delegates stake to a stake pool and a DRep.
+  transaction delegates stake to a DRep.
 
 Usage: cardano-cli conway stake-pool 
                                        ( registration-certificate
