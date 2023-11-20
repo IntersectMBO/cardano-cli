@@ -158,23 +158,27 @@ data MetadataError
   | MetadataErrorDecodeError !FilePath !CBOR.DecoderError
   deriving Show
 
-renderMetadataError :: MetadataError -> Text
-renderMetadataError (MetadataErrorFile fileErr) =
-  Text.pack $ displayError fileErr
-renderMetadataError (MetadataErrorJsonParseError fp jsonErr) =
-  Text.pack $ "Invalid JSON format in file: " <> show fp <>
-              "\nJSON parse error: " <> jsonErr
-renderMetadataError (MetadataErrorConversionError fp metadataErr) =
-  Text.pack $ "Error reading metadata at: " <> show fp <>
-              "\n" <> displayError metadataErr
-renderMetadataError (MetadataErrorValidationError fp errs) =
-  Text.pack $ "Error validating transaction metadata at: " <> fp <> "\n" <>
-      List.intercalate "\n"
-        [ "key " <> show k <> ":" <> displayError valErr
-        | (k, valErr) <- errs ]
-renderMetadataError (MetadataErrorDecodeError fp metadataErr) =
-  Text.pack $ "Error decoding CBOR metadata at: " <> show fp <>
-              " Error: " <> show metadataErr
+renderMetadataError :: MetadataError -> Doc ann
+renderMetadataError = \case
+  MetadataErrorFile fileErr ->
+    prettyError fileErr
+  MetadataErrorJsonParseError fp jsonErr ->
+    "Invalid JSON format in file: " <> pshow fp <>
+              "\nJSON parse error: " <> pretty jsonErr
+  MetadataErrorConversionError fp metadataErr ->
+    "Error reading metadata at: " <> pshow fp <>
+              "\n" <> prettyError metadataErr
+  MetadataErrorValidationError fp errs ->
+    mconcat
+      [ "Error validating transaction metadata at: " <> pretty fp <> "\n"
+      , mconcat $ List.intersperse "\n"
+          [ "key " <> pshow k <> ":" <> prettyError valErr
+          | (k, valErr) <- errs
+          ]
+      ]
+  MetadataErrorDecodeError fp metadataErr ->
+    "Error decoding CBOR metadata at: " <> pshow fp <>
+              " Error: " <> pshow metadataErr
 
 readTxMetadata :: ShelleyBasedEra era
                -> TxMetadataJsonSchema
@@ -477,11 +481,11 @@ deserialiseScriptInAnyLang bs =
 
 -- Tx & TxBody
 
-newtype CddlTx = CddlTx {unCddlTx :: InAnyCardanoEra Tx} deriving (Show, Eq)
+newtype CddlTx = CddlTx {unCddlTx :: InAnyShelleyBasedEra Tx} deriving (Show, Eq)
 
-readFileTx :: FileOrPipe -> IO (Either CddlError (InAnyCardanoEra Tx))
+readFileTx :: FileOrPipe -> IO (Either CddlError (InAnyShelleyBasedEra Tx))
 readFileTx file = do
-  eAnyTx <- readFileInAnyCardanoEra AsTx file
+  eAnyTx <- readFileInAnyShelleyBasedEra AsTx file
   case eAnyTx of
     Left e -> fmap unCddlTx <$> acceptTxCDDLSerialisation file e
     Right tx -> return $ Right tx
@@ -492,12 +496,12 @@ readFileTx file = do
 -- needs to be key witnessed.
 
 data IncompleteTx
-  = UnwitnessedCliFormattedTxBody (InAnyCardanoEra TxBody)
-  | IncompleteCddlFormattedTx (InAnyCardanoEra Tx)
+  = UnwitnessedCliFormattedTxBody (InAnyShelleyBasedEra TxBody)
+  | IncompleteCddlFormattedTx (InAnyShelleyBasedEra Tx)
 
 readFileTxBody :: FileOrPipe -> IO (Either CddlError IncompleteTx)
 readFileTxBody file = do
-  eTxBody <- readFileInAnyCardanoEra AsTxBody file
+  eTxBody <- readFileInAnyShelleyBasedEra AsTxBody file
   case eTxBody of
     Left e -> fmap (IncompleteCddlFormattedTx . unCddlTx) <$> acceptTxCDDLSerialisation file e
     Right txBody -> return $ Right $ UnwitnessedCliFormattedTxBody txBody
@@ -536,8 +540,7 @@ acceptTxCDDLSerialisation file err =
 readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
 readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
  where
-    teTypes = [ FromCDDLTx "Witnessed Tx ByronEra" CddlTx
-              , FromCDDLTx "Witnessed Tx ShelleyEra" CddlTx
+    teTypes = [ FromCDDLTx "Witnessed Tx ShelleyEra" CddlTx
               , FromCDDLTx "Witnessed Tx AllegraEra" CddlTx
               , FromCDDLTx "Witnessed Tx MaryEra" CddlTx
               , FromCDDLTx "Witnessed Tx AlonzoEra" CddlTx
@@ -554,13 +557,13 @@ readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
 
 -- Tx witnesses
 
-newtype CddlWitness = CddlWitness { unCddlWitness :: InAnyCardanoEra KeyWitness}
+newtype CddlWitness = CddlWitness { unCddlWitness :: InAnyShelleyBasedEra KeyWitness}
 
 readFileTxKeyWitness :: FilePath
-                -> IO (Either CddlWitnessError (InAnyCardanoEra KeyWitness))
+                     -> IO (Either CddlWitnessError (InAnyShelleyBasedEra KeyWitness))
 readFileTxKeyWitness fp = do
   file <- fileOrPipe fp
-  eWitness <- readFileInAnyCardanoEra AsKeyWitness file
+  eWitness <- readFileInAnyShelleyBasedEra AsKeyWitness file
   case eWitness of
     Left e -> fmap unCddlWitness <$> acceptKeyWitnessCDDLSerialisation e
     Right keyWit -> return $ Right keyWit
@@ -857,9 +860,10 @@ constitutionHashSourceToHash constitutionHashSource = do
 
 -- Misc
 
-readFileInAnyCardanoEra
-  :: ( HasTextEnvelope (thing ByronEra)
-     , HasTextEnvelope (thing ShelleyEra)
+-- readFileInByronEra = undefined
+
+readFileInAnyShelleyBasedEra
+  :: ( HasTextEnvelope (thing ShelleyEra)
      , HasTextEnvelope (thing AllegraEra)
      , HasTextEnvelope (thing MaryEra)
      , HasTextEnvelope (thing AlonzoEra)
@@ -868,16 +872,15 @@ readFileInAnyCardanoEra
      )
   => (forall era. AsType era -> AsType (thing era))
   -> FileOrPipe
-  -> IO (Either (FileError TextEnvelopeError) (InAnyCardanoEra thing))
-readFileInAnyCardanoEra asThing =
+  -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra thing))
+readFileInAnyShelleyBasedEra asThing =
  readFileOrPipeTextEnvelopeAnyOf
-   [ FromSomeType (asThing AsByronEra)   (InAnyCardanoEra ByronEra)
-   , FromSomeType (asThing AsShelleyEra) (InAnyCardanoEra ShelleyEra)
-   , FromSomeType (asThing AsAllegraEra) (InAnyCardanoEra AllegraEra)
-   , FromSomeType (asThing AsMaryEra)    (InAnyCardanoEra MaryEra)
-   , FromSomeType (asThing AsAlonzoEra)  (InAnyCardanoEra AlonzoEra)
-   , FromSomeType (asThing AsBabbageEra) (InAnyCardanoEra BabbageEra)
-   , FromSomeType (asThing AsConwayEra)  (InAnyCardanoEra ConwayEra)
+   [ FromSomeType (asThing AsShelleyEra) (InAnyShelleyBasedEra ShelleyBasedEraShelley)
+   , FromSomeType (asThing AsAllegraEra) (InAnyShelleyBasedEra ShelleyBasedEraAllegra)
+   , FromSomeType (asThing AsMaryEra)    (InAnyShelleyBasedEra ShelleyBasedEraMary)
+   , FromSomeType (asThing AsAlonzoEra)  (InAnyShelleyBasedEra ShelleyBasedEraAlonzo)
+   , FromSomeType (asThing AsBabbageEra) (InAnyShelleyBasedEra ShelleyBasedEraBabbage)
+   , FromSomeType (asThing AsConwayEra)  (InAnyShelleyBasedEra ShelleyBasedEraConway)
    ]
 
 -- | We need a type for handling files that may be actually be things like

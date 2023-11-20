@@ -29,6 +29,7 @@ import           Cardano.Api
 import           Cardano.Api.Byron
 import qualified Cardano.Api.Byron as Api
 import qualified Cardano.Api.Ledger as L
+import           Cardano.Api.Pretty
 
 import qualified Cardano.Binary as Binary
 import qualified Cardano.Chain.Common as Common
@@ -88,6 +89,7 @@ prettyAddress (ByronAddress addr) = sformat
   (Common.addressF % "\n" % Common.addressDetailedF)
   addr addr
 
+-- TODO: Move to cardano-api
 readByronTx :: TxFile In -> ExceptT ByronTxError IO (UTxO.ATxAux ByteString)
 readByronTx (File fp) = do
   txBS <- liftIO $ LB.readFile fp
