@@ -19,6 +19,7 @@ import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
+import qualified Cardano.CLI.Types.Errors.NodeEraMismatchError as NEM
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output
@@ -166,7 +167,7 @@ renderTxCmdError = \case
     [ "Execution units not available in the protocol parameters. This is "
     , "likely due to not being in the Alonzo era"
     ]
-  TxCmdTxNodeEraMismatchError (NodeEraMismatchError nodeEra valueEra) ->
+  TxCmdTxNodeEraMismatchError (NodeEraMismatchError { NEM.era = valueEra, nodeEra = nodeEra }) ->
     cardanoEraConstraints nodeEra $ cardanoEraConstraints valueEra $ mconcat
       [ "Transactions can only be produced in the same era as the node. Requested era: "
       , pretty (renderEra (AnyCardanoEra valueEra)) <> ", node era: "
