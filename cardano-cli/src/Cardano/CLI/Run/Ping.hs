@@ -185,12 +185,14 @@ pPing = PingCmd
   <*> ( Opt.switch $ mconcat
         [ Opt.long "quiet"
         , Opt.short 'q'
-        , Opt.help "Quiet flag, CSV/JSON only output"
+        , Opt.help "Quiet flag: don't print network statistics."
         ]
       )
+  -- TODO remove this option at some point (TODO introduced in 8.15)
   <*> ( Opt.switch $ mconcat
         [ Opt.long "query-versions"
+        , Opt.hidden
         , Opt.short 'Q'
-        , Opt.help "Query the supported protocol versions using the handshake protocol and terminate the connection."
+        , Opt.help "Query the supported protocol versions using the handshake protocol and terminate the connection (deprecated, use the \"cardano-cli handshake\" command instead)."
         ]
       )
