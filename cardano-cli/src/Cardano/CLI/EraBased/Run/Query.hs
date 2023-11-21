@@ -58,6 +58,7 @@ import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Core as Core
+import qualified Cardano.Ledger.Credential as L
 import qualified Cardano.Ledger.Crypto as Crypto
 import           Cardano.Ledger.Keys (KeyHash (..), KeyRole (..))
 import           Cardano.Ledger.SafeHash (SafeHash)
@@ -849,13 +850,19 @@ writeStakeAddressInfo
       (\(addr, mBalance, mPoolId, mDRep, mDeposit) ->
         Aeson.object
         [ "address" .= addr
-        , "delegation" .= mPoolId
-        , "voteDelegation" .= mDRep
+        , "stakeDelegation" .= mPoolId
+        , "voteDelegation" .= fmap friendlyDRep mDRep
         , "rewardAccountBalance" .= mBalance
         , "delegationDeposit" .= mDeposit
         ]
       )
       merged
+
+  friendlyDRep :: L.DRep L.StandardCrypto -> Text
+  friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
+  friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
+  friendlyDRep (L.DRepCredential cred) =
+    L.credToText cred -- this will pring "keyHash-..." or "scriptHash-...", depending on the type of credential
 
   merged :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe (L.DRep L.StandardCrypto), Maybe Lovelace)]
   merged =
