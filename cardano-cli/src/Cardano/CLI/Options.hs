@@ -23,6 +23,7 @@ import           Data.Foldable
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 import qualified Prettyprinter as PP
+import Cardano.CLI.Run.HandShake (parseHandShakeCmd)
 
 opts :: EnvCli -> ParserInfo ClientCommand
 opts envCli =
@@ -54,6 +55,7 @@ parseClientCommand envCli =
     -- , parseTopLevelLatest envCli -- TODO restore this when the governance command group is fully operational
     , parseTopLevelLegacy envCli
     , parseByron envCli
+    , parseHandShake
     , parsePing
     , backwardsCompatibilityCommands envCli
     , parseDisplayVersion (opts envCli)
@@ -67,6 +69,9 @@ parseByron mNetworkId =
     , metavar "Byron specific commands"
     , command' "byron" "Byron specific commands" $ parseByronCommands mNetworkId
     ]
+
+parseHandShake :: Parser ClientCommand
+parseHandShake = CliHandShakeCommand <$> parseHandShakeCmd
 
 parsePing :: Parser ClientCommand
 parsePing = CliPingCommand <$> parsePingCmd

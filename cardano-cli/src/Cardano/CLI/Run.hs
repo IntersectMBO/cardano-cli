@@ -18,6 +18,8 @@ import           Cardano.CLI.IO.GitRev (gitRev)
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Run (runLegacyCmds)
 import           Cardano.CLI.Render (customRenderHelp)
+import           Cardano.CLI.Run.HandShake (HandShakeCmd (..))
+import qualified Cardano.CLI.Run.HandShake as HandShake
 import           Cardano.CLI.Run.Ping (PingClientCmdError (..), PingCmd (..),
                    renderPingClientCmdError, runPingCmd)
 import           Cardano.CLI.Types.Errors.CmdError
@@ -50,6 +52,8 @@ data ClientCommand =
     -- | Legacy shelley-based Commands
   | LegacyCmds LegacyCmds
 
+  | CliHandShakeCommand HandShakeCmd
+
   | CliPingCommand PingCmd
 
   | forall a. Help ParserPrefs (ParserInfo a)
@@ -68,6 +72,8 @@ runClientCommand = \case
     firstExceptT ByronClientError $ runByronClientCommand cmds
   LegacyCmds cmds ->
     firstExceptT (CmdError (renderLegacyCommand cmds)) $ runLegacyCmds cmds
+  CliHandShakeCommand cmds ->
+    firstExceptT PingClientError $ runPingCmd $ HandShake.toPingCmd cmds
   CliPingCommand cmds ->
     firstExceptT PingClientError $ runPingCmd cmds
   Help pprefs allParserInfo ->

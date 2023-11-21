@@ -155,6 +155,7 @@ library
                         Cardano.CLI.Read
                         Cardano.CLI.Render
                         Cardano.CLI.Run
+                        Cardano.CLI.Run.HandShake
                         Cardano.CLI.Run.Ping
                         Cardano.CLI.TopHandler
                         Cardano.CLI.Types.Common
