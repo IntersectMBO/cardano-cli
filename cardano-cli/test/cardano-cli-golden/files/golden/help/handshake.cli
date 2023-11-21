@@ -1,0 +1,20 @@
+Usage: cardano-cli handshake ((-h|--host HOST) | (-u|--unixsock SOCKET))
+                               [-p|--port PORT]
+                               [-m|--magic MAGIC]
+                               [-j|--json]
+                               [-q|--quiet]
+                               [-Q|--query-versions]
+
+  Negotiates a handshake and prints the negotiated version
+
+Available options:
+  -h,--host HOST           Hostname/IP, e.g. relay.iohk.example.
+  -u,--unixsock SOCKET     Unix socket, e.g. file.socket.
+  -p,--port PORT           Port number, e.g. 1234.
+  -m,--magic MAGIC         Network magic.
+  -j,--json                JSON output flag.
+  -q,--quiet               Don't print network statistics, only print negotiated
+                           version (default) or supported versions (-Q).
+  -Q,--query-versions      Instead of printing the negotiated version, print all
+                           queried versions.
+  -h,--help                Show this help text

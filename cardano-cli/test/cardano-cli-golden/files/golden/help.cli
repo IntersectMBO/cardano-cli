@@ -9,6 +9,7 @@ Usage: cardano-cli
                      | legacy
                      | Legacy commands
                      | byron
+                     | handshake
                      | ping
                      | version
                      )
@@ -10961,15 +10962,23 @@ Usage: cardano-cli byron create-update-proposal
 
   Create an update proposal.
 
+Usage: cardano-cli handshake ((-h|--host HOST) | (-u|--unixsock SOCKET))
+                               [-p|--port PORT]
+                               [-m|--magic MAGIC]
+                               [-j|--json]
+                               [-q|--quiet]
+                               [-Q|--query-versions]
+
+  Negotiates a handshake and prints the negotiated version
+
 Usage: cardano-cli ping [-c|--count COUNT]
-                          ((-h|--host HOST) | (-u|--unixsock SOCKET))
+                          (-h|--host HOST)
                           [-p|--port PORT]
                           [-m|--magic MAGIC]
                           [-j|--json]
                           [-q|--quiet]
-                          [-Q|--query-versions]
 
-  Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
+  Ping a cardano node. It negotiates a handshake and keeps sending keep alive messages.
 
 Usage: cardano-cli genesis --genesis-output-dir FILEPATH
                              --start-time POSIXSECONDS
