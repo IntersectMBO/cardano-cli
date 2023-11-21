@@ -16,7 +16,6 @@ import           Cardano.Api.Pretty
 
 import qualified Cardano.Network.Ping as CNP
 
-import           Control.Applicative ((<|>))
 import           Control.Concurrent.Class.MonadSTM.Strict (StrictTMVar)
 import qualified Control.Concurrent.Class.MonadSTM.Strict as STM
 import           Control.Exception (SomeException)
@@ -39,6 +38,8 @@ import qualified System.IO as IO
 
 newtype PingClientCmdError = PingClientCmdError [(AddrInfo, SomeException)]
 
+-- | Note that the @ping@ command only supports @HostEndPoint@. It's 'HandShake'
+-- that support both @HostEndPoint@ and @UnixSockEndPoint@
 data EndPoint = HostEndPoint String | UnixSockEndPoint String deriving (Eq, Show)
 
 maybeHostEndPoint :: EndPoint -> Maybe String
@@ -131,10 +132,9 @@ renderPingClientCmdError = \case
 parsePingCmd :: Opt.Parser PingCmd
 parsePingCmd = Opt.hsubparser $ mconcat
   [ Opt.metavar "ping"
-  , Opt.command "ping" $ Opt.info pPing $ Opt.progDescDoc $ Just $ mconcat
-    [ PP.pretty @String "Ping a cardano node either using node-to-node or node-to-client protocol. "
-    , PP.pretty @String "It negotiates a handshake and keeps sending keep alive messages."
-    ]
+  , Opt.command "ping" $ Opt.info pPing $ Opt.progDescDoc $ Just $
+    PP.pretty @String "Ping a cardano node. It negotiates a handshake and keeps sending keep alive messages."
+
   ]
 
 pHost :: Opt.Parser String
@@ -145,18 +145,6 @@ pHost =
     , Opt.metavar "HOST"
     , Opt.help "Hostname/IP, e.g. relay.iohk.example."
     ]
-
-pUnixSocket :: Opt.Parser String
-pUnixSocket =
-  Opt.strOption $ mconcat
-    [ Opt.long "unixsock"
-    , Opt.short 'u'
-    , Opt.metavar "SOCKET"
-    , Opt.help "Unix socket, e.g. file.socket."
-    ]
-
-pEndPoint :: Opt.Parser EndPoint
-pEndPoint = fmap HostEndPoint pHost <|> fmap UnixSockEndPoint pUnixSocket
 
 pPing :: Opt.Parser PingCmd
 pPing = PingCmd
@@ -171,7 +159,7 @@ pPing = PingCmd
         , Opt.value maxBound
         ]
       )
-  <*> pEndPoint
+  <*> fmap HostEndPoint pHost
   <*> ( Opt.strOption $ mconcat
         [ Opt.long "port"
         , Opt.short 'p'
