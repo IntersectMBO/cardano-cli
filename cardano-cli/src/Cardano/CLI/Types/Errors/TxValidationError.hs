@@ -35,7 +35,6 @@ module Cardano.CLI.Types.Errors.TxValidationError
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
@@ -225,9 +224,8 @@ validateTxWithdrawals era withdrawals = do
     -> (StakeAddress, Lovelace, BuildTxWith BuildTx (Witness WitCtxStake era))
   convert (sAddr, ll, mScriptWitnessFiles) =
     case mScriptWitnessFiles of
-      Just sWit -> do
-        (sAddr, ll, BuildTxWith $ ScriptWitness ScriptWitnessForStakeAddr sWit)
-      Nothing -> (sAddr,ll, BuildTxWith $ KeyWitness KeyWitnessForStakeAddr)
+      Just sWit -> (sAddr, ll, BuildTxWith $ ScriptWitness ScriptWitnessForStakeAddr sWit)
+      Nothing   -> (sAddr, ll, BuildTxWith $ KeyWitness KeyWitnessForStakeAddr)
 
 newtype TxCertificatesValidationError
   = TxCertificatesValidationNotSupported AnyCardanoEra
@@ -249,50 +247,14 @@ validateTxCertificates era certsAndScriptWitnesses = cardanoEraConstraints era $
       reqWits = Map.fromList $ mapMaybe convert certsAndScriptWitnesses
   pure $ TxCertificates supported certs $ BuildTxWith reqWits
   where
-    -- We get the stake credential witness for a certificate that requires it.
-    -- NB: Only stake address deregistration and delegation requires
-    -- witnessing (witness can be script or key)
-    deriveStakeCredentialWitness
-      :: Certificate era
-      -> Maybe StakeCredential
-    deriveStakeCredentialWitness = fmap fromShelleyStakeCredential . \case
-      ShelleyRelatedCertificate stbEra shelleyCert -> shelleyToBabbageEraConstraints stbEra $
-        case shelleyCert of
-          L.RegTxCert _sCred         -> Nothing -- not required
-          L.UnRegTxCert sCred        -> Just sCred
-          L.DelegStakeTxCert sCred _ -> Just sCred
-          L.RegPoolTxCert _          -> Nothing
-          L.RetirePoolTxCert _ _     -> Nothing
-          L.MirTxCert _              -> Nothing
-          L.GenesisDelegTxCert{}     -> Nothing
-
-      ConwayCertificate cEra conwayCert -> conwayEraOnwardsConstraints cEra $
-        case conwayCert of
-          L.RegPoolTxCert _                 -> Nothing
-          L.RetirePoolTxCert _ _            -> Nothing
-          L.RegTxCert _                     -> Nothing
-          L.UnRegTxCert sCred               -> Just sCred
-          L.RegDepositTxCert _ _            -> Nothing
-          L.UnRegDepositTxCert sCred _      -> Just sCred
-          L.DelegTxCert sCred _             -> Just sCred
-          L.RegDepositDelegTxCert sCred _ _ -> Just sCred
-          L.AuthCommitteeHotKeyTxCert{}     -> Nothing
-          L.ResignCommitteeColdTxCert _ _     -> Nothing
-          L.RegDRepTxCert{}                 -> Nothing
-          L.UnRegDRepTxCert{}               -> Nothing
-          L.UpdateDRepTxCert{}              -> Nothing
-
     convert
       :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
       -> Maybe (StakeCredential, Witness WitCtxStake era)
     convert (cert, mScriptWitnessFiles) = do
-      sCred <- deriveStakeCredentialWitness cert
-      case mScriptWitnessFiles of
-        Just sWit -> do
-          Just ( sCred
-               , ScriptWitness ScriptWitnessForStakeAddr sWit
-               )
-        Nothing -> Just (sCred, KeyWitness KeyWitnessForStakeAddr)
+      sCred <- selectStakeCredentialWitness cert
+      Just $ case mScriptWitnessFiles of
+        Just sWit -> (sCred, ScriptWitness ScriptWitnessForStakeAddr sWit)
+        Nothing   -> (sCred, KeyWitness KeyWitnessForStakeAddr)
 
 newtype TxProtocolParametersValidationError
   = ProtocolParametersNotSupported AnyCardanoEra
