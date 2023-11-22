@@ -3,9 +3,9 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   | --testnet
                                                                   )
                                                                   --governance-action-deposit NATURAL
-                                                                  ( --stake-verification-key STRING
-                                                                  | --stake-verification-key-file FILE
-                                                                  | --stake-key-hash HASH
+                                                                  ( --deposit-return-stake-verification-key STRING
+                                                                  | --deposit-return-stake-verification-key-file FILE
+                                                                  | --deposit-return-stake-key-hash HASH
                                                                   )
                                                                   [--governance-action-tx-id TXID
                                                                     --governance-action-index WORD32]
@@ -22,11 +22,12 @@ Available options:
   --testnet                Use the testnet magic id.
   --governance-action-deposit NATURAL
                            Deposit required to submit a governance action.
-  --stake-verification-key STRING
+  --deposit-return-stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
-  --stake-verification-key-file FILE
+  --deposit-return-stake-verification-key-file FILE
                            Filepath of the staking verification key.
-  --stake-key-hash HASH    Stake verification key hash (hex-encoded).
+  --deposit-return-stake-key-hash HASH
+                           Stake verification key hash (hex-encoded).
   --governance-action-tx-id TXID
                            Previous txid of the governance action.
   --governance-action-index WORD32

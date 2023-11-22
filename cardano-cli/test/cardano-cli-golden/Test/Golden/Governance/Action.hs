@@ -8,9 +8,8 @@ import qualified Test.Cardano.CLI.Util as H
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.Golden as H
 import qualified Hedgehog.Extras as H
+import qualified Hedgehog.Extras.Test.Golden as H
 
 hprop_golden_governance_action_create_constitution :: Property
 hprop_golden_governance_action_create_constitution =
@@ -41,7 +40,7 @@ hprop_golden_governance_action_create_constitution =
       , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
       , "--anchor-url", proposalHash
       , "--governance-action-deposit", "10"
-      , "--stake-verification-key-file", stakeAddressVKeyFile
+      , "--deposit-return-stake-verification-key-file", stakeAddressVKeyFile
       , "--out-file", actionFile
       , "--constitution-url", "constitution-dummy-url"
       , "--constitution-hash", constitutionHash
@@ -82,7 +81,7 @@ hprop_golden_conway_governance_action_view_constitution_json =
       , "--anchor-data-hash", proposalHash
       , "--anchor-url", "proposal-dummy-url"
       , "--governance-action-deposit", "10"
-      , "--stake-verification-key-file", stakeAddressVKeyFile
+      , "--deposit-return-stake-verification-key-file", stakeAddressVKeyFile
       , "--out-file", actionFile
       , "--constitution-url", "http://my-great-constitution.rocks"
       , "--constitution-hash", constitutionHash
@@ -106,7 +105,7 @@ hprop_golden_conway_governance_action_view_update_committee_yaml =
       [ "conway", "governance", "action", "update-committee"
       , "--mainnet"
       , "--governance-action-deposit", "10"
-      , "--stake-verification-key-file", stakeAddressVKeyFile
+      , "--deposit-return-stake-verification-key-file", stakeAddressVKeyFile
       , "--anchor-url", "proposal-dummy-url"
       , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
       , "--quorum", "0.61"
@@ -132,7 +131,7 @@ hprop_golden_conway_governance_action_view_create_info_json_outfile =
       [ "conway", "governance", "action", "create-info"
       , "--testnet"
       , "--governance-action-deposit", "10"
-      , "--stake-verification-key-file", stakeAddressVKeyFile
+      , "--deposit-return-stake-verification-key-file", stakeAddressVKeyFile
       , "--anchor-url", "proposal-dummy-url"
       , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
       , "--out-file", actionFile
@@ -158,7 +157,7 @@ hprop_golden_governanceActionCreateNoConfidence =
       [ "conway", "governance", "action", "create-no-confidence"
       , "--mainnet"
       , "--governance-action-deposit", "10"
-      , "--stake-verification-key-file", stakeAddressVKeyFile
+      , "--deposit-return-stake-verification-key-file", stakeAddressVKeyFile
       , "--anchor-url", "proposal-dummy-url"
       , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
       , "--governance-action-index", "5"

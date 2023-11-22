@@ -5915,9 +5915,9 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   | --testnet
                                                                   )
                                                                   --governance-action-deposit NATURAL
-                                                                  ( --stake-verification-key STRING
-                                                                  | --stake-verification-key-file FILE
-                                                                  | --stake-key-hash HASH
+                                                                  ( --deposit-return-stake-verification-key STRING
+                                                                  | --deposit-return-stake-verification-key-file FILE
+                                                                  | --deposit-return-stake-key-hash HASH
                                                                   )
                                                                   [--governance-action-tx-id TXID
                                                                     --governance-action-index WORD32]
@@ -5934,9 +5934,9 @@ Usage: cardano-cli conway governance action update-committee
                                                                | --testnet
                                                                )
                                                                --governance-action-deposit NATURAL
-                                                               ( --stake-verification-key STRING
-                                                               | --stake-verification-key-file FILE
-                                                               | --stake-key-hash HASH
+                                                               ( --deposit-return-stake-verification-key STRING
+                                                               | --deposit-return-stake-verification-key-file FILE
+                                                               | --deposit-return-stake-key-hash HASH
                                                                )
                                                                --anchor-url TEXT
                                                                --anchor-data-hash HASH
@@ -5959,9 +5959,9 @@ Usage: cardano-cli conway governance action update-committee
 
 Usage: cardano-cli conway governance action create-info (--mainnet | --testnet)
                                                           --governance-action-deposit NATURAL
-                                                          ( --stake-verification-key STRING
-                                                          | --stake-verification-key-file FILE
-                                                          | --stake-key-hash HASH
+                                                          ( --deposit-return-stake-verification-key STRING
+                                                          | --deposit-return-stake-verification-key-file FILE
+                                                          | --deposit-return-stake-key-hash HASH
                                                           )
                                                           --anchor-url TEXT
                                                           --anchor-data-hash HASH
@@ -5974,9 +5974,9 @@ Usage: cardano-cli conway governance action create-no-confidence
                                                                    | --testnet
                                                                    )
                                                                    --governance-action-deposit NATURAL
-                                                                   ( --stake-verification-key STRING
-                                                                   | --stake-verification-key-file FILE
-                                                                   | --stake-key-hash HASH
+                                                                   ( --deposit-return-stake-verification-key STRING
+                                                                   | --deposit-return-stake-verification-key-file FILE
+                                                                   | --deposit-return-stake-key-hash HASH
                                                                    )
                                                                    --anchor-url TEXT
                                                                    --anchor-data-hash HASH
@@ -5991,9 +5991,9 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 | --testnet
                                                                                 )
                                                                                 --governance-action-deposit NATURAL
-                                                                                ( --stake-verification-key STRING
-                                                                                | --stake-verification-key-file FILE
-                                                                                | --stake-key-hash HASH
+                                                                                ( --deposit-return-stake-verification-key STRING
+                                                                                | --deposit-return-stake-verification-key-file FILE
+                                                                                | --deposit-return-stake-key-hash HASH
                                                                                 )
                                                                                 --anchor-url TEXT
                                                                                 --anchor-data-hash HASH

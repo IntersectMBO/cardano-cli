@@ -169,7 +169,7 @@ hprop_golden_governanceUpdateCommittee =
     void $ execCardanoCLI
       [ "conway", "governance", "action", "update-committee"
       , "--testnet", "--governance-action-deposit", "0"
-      , "--stake-verification-key-file", stakeVkey
+      , "--deposit-return-stake-verification-key-file", stakeVkey
       , "--anchor-url", "http://dummy"
       , "--anchor-data-hash", proposalHash
       , "--add-cc-cold-verification-key-file", coldCCVkey1
