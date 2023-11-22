@@ -10,6 +10,7 @@ module Cardano.CLI.Legacy.Run.Transaction
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Byron as Api
 
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Transaction
@@ -19,6 +20,7 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Governance
 
+import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
 import           Data.Function
@@ -119,6 +121,13 @@ runLegacyTransactionBuildCmd
         proposalFiles outputOptions
     )
 
+-- TODO: Neither QA nor Sam is using `cardano-cli byron transaction build-raw`
+-- for Byron era transactions. So we can parameterize this function on ShelleyBasedEra.
+-- They are using `issue-utxo-expenditure`.
+-- TODO: As a follow up we need to expose a simple tx building command that only
+-- uses inputs, outputs and update proposals. NB: Update proposals are a separate
+-- thing in the Byron era so we need to figure out how we are handling that at the
+-- cli command level.
 runLegacyTransactionBuildRawCmd :: ()
   => AnyCardanoEra
   -> Maybe ScriptValidity
@@ -142,33 +151,44 @@ runLegacyTransactionBuildRawCmd :: ()
   -> Maybe UpdateProposalFile
   -> TxBodyFile Out
   -> ExceptT TxCmdError IO ()
+runLegacyTransactionBuildRawCmd (AnyCardanoEra ByronEra) _ txins _ _ _
+    _ _ txouts _ _ _ _ _ _
+    _ _ _ _ _
+    outFile = do
+      let apiTxIns = [ ( txIn, BuildTxWith (KeyWitness KeyWitnessForSpending)) | (txIn, _) <- txins]
+      byronOuts <- mapM toTxOutByronEra txouts
+      case makeByronTransactionBody apiTxIns byronOuts of
+        Left err -> error $ "Error occurred while creating a Byron based UTxO transaction: " <> show err
+        Right txBody -> do
+          let noWitTx = Api.ByronTx ByronEraOnlyByron $ makeSignedByronTransaction [] txBody
+          lift (cardanoEraConstraints ByronEra $ writeTxFileTextEnvelopeCddl ByronEra outFile noWitTx)
+            & onLeft (left . TxCmdWriteFileError)
+
 runLegacyTransactionBuildRawCmd
-    anyEra@(AnyCardanoEra era) mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+    (AnyCardanoEra era) mScriptValidity txins readOnlyRefIns txinsc mReturnColl
     mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
     metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpdateProposal
     outFile = do
 
-  mfUpdateProposalFile <-
-    validateUpdateProposalFile era mUpdateProposal
-      & hoistEither
-      & firstExceptT TxCmdTxUpdateProposalValidationError
+  caseByronOrShelleyBasedEra
+    (const $ error "runLegacyTransactionBuildRawCmd: This should be impossible")
+    (\sbe -> do
+       mfUpdateProposalFile <- validateUpdateProposalFile era mUpdateProposal
+                                 & hoistEither
+                                 & firstExceptT TxCmdTxUpdateProposalValidationError
 
-  upperBound <-
-    caseByronOrShelleyBasedEra
-      (\w -> case mUpperBound of
-        Nothing -> pure $ TxValidityNoUpperBound w
-        Just _ -> left $ TxCmdTxValidityUpperBoundValidationError $ TxValidityUpperBoundNotSupported anyEra
-      )
-      (\w -> pure $ TxValidityUpperBound w mUpperBound)
-      era
+       let upperBound = TxValidityUpperBound sbe mUpperBound
 
-  runTransactionBuildRawCmd
-    ( Cmd.TransactionBuildRawCmdArgs
-        era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
-        mTotColl reqSigners txouts mValue mLowBound upperBound fee certs wdrls
-        metadataSchema scriptFiles metadataFiles mProtocolParamsFile mfUpdateProposalFile [] []
-        outFile
-    )
+       runTransactionBuildRawCmd
+         ( Cmd.TransactionBuildRawCmdArgs
+             sbe mScriptValidity txins readOnlyRefIns txinsc mReturnColl
+             mTotColl reqSigners txouts mValue mLowBound upperBound fee certs wdrls
+             metadataSchema scriptFiles metadataFiles mProtocolParamsFile mfUpdateProposalFile [] []
+             outFile
+         )
+         )
+    era
+
 
 runLegacyTransactionSignCmd :: InputTxBodyOrTxFile
           -> [WitnessSigningData]

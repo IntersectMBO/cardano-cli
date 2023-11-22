@@ -58,13 +58,13 @@ instance Error ScriptLanguageValidationError where
       pretty (renderEra era) <> " era."
 
 validateScriptSupportedInEra
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> ScriptInAnyLang
   -> Either ScriptLanguageValidationError (ScriptInEra era)
 validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
   case toScriptInEra era script of
     Nothing -> Left $ ScriptLanguageValidationError
-                        (AnyScriptLanguage lang) (anyCardanoEra era)
+                        (AnyScriptLanguage lang) (anyCardanoEra $ toCardanoEra era)
     Just script' -> pure script'
 
 
@@ -175,12 +175,12 @@ instance Error TxAuxScriptsValidationError where
     "Transaction auxiliary scripts error: " <> prettyError e
 
 validateTxAuxScripts
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> [ScriptInAnyLang]
   -> Either TxAuxScriptsValidationError (TxAuxScripts era)
 validateTxAuxScripts _ [] = return TxAuxScriptsNone
 validateTxAuxScripts era scripts = do
-  supported <- conjureWitness era TxAuxScriptsNotSupportedInEra
+  supported <- conjureWitness (toCardanoEra era) TxAuxScriptsNotSupportedInEra
   scriptsInEra <- mapM (first TxAuxScriptsLanguageError . validateScriptSupportedInEra era) scripts
   pure $ TxAuxScripts supported scriptsInEra
 

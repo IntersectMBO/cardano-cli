@@ -9,7 +9,7 @@ module Cardano.CLI.Byron.Run
   ) where
 
 import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
-import           Cardano.Api.Byron (SomeByronSigningKey (..), Tx (..))
+import           Cardano.Api.Byron (SomeByronSigningKey (..))
 
 import qualified Cardano.Chain.Genesis as Genesis
 import           Cardano.CLI.Byron.Commands
@@ -178,9 +178,8 @@ runSubmitTx nodeSocketPath network fp = do
 runGetTxId :: TxFile In -> ExceptT ByronClientCmdError IO ()
 runGetTxId fp = firstExceptT ByronCmdTxError $ do
     tx <- readByronTx fp
-    let txbody = getTxBody (ByronTx ByronEraOnlyByron tx)
-        txid   = getTxId txbody
-    liftIO $ BS.putStrLn $ serialiseToRawBytesHex txid
+    let txId = getTxIdByron tx
+    liftIO . BS.putStrLn $ serialiseToRawBytesHex txId
 
 runSpendGenesisUTxO
   :: GenesisFile

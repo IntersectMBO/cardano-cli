@@ -27,6 +27,8 @@ where
 
 import           Cardano.Api
 import           Cardano.Api.Byron
+import qualified Cardano.Api.Byron as Api
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Pretty
 
 import qualified Cardano.Binary as Binary
@@ -87,6 +89,7 @@ prettyAddress (ByronAddress addr) = sformat
   (Common.addressF % "\n" % Common.addressDetailedF)
   addr addr
 
+-- TODO: Move to cardano-api
 readByronTx :: TxFile In -> ExceptT ByronTxError IO (UTxO.ATxAux ByteString)
 readByronTx (File fp) = do
   txBS <- liftIO $ LB.readFile fp
@@ -147,37 +150,12 @@ txSpendGenesisUTxOByronPBFT
   -> Address ByronAddr
   -> [TxOut CtxTx ByronEra]
   -> Tx ByronEra
-txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs = do
-    let txBodyCont =
-          TxBodyContent
-            { txIns =
-                [ (fromByronTxIn txIn, BuildTxWith (KeyWitness KeyWitnessForSpending))
-                ]
-            , txInsCollateral = TxInsCollateralNone
-            , txInsReference = TxInsReferenceNone
-            , txOuts = outs
-            , txTotalCollateral = TxTotalCollateralNone
-            , txReturnCollateral = TxReturnCollateralNone
-            , txFee = TxFeeImplicit ByronEraOnlyByron
-            , txValidityLowerBound = TxValidityNoLowerBound
-            , txValidityUpperBound = defaultTxValidityUpperBound ByronEra
-            , txMetadata = TxMetadataNone
-            , txAuxScripts = TxAuxScriptsNone
-            , txExtraKeyWits = TxExtraKeyWitnessesNone
-            , txProtocolParams = BuildTxWith Nothing
-            , txWithdrawals = TxWithdrawalsNone
-            , txCertificates = TxCertificatesNone
-            , txUpdateProposal = TxUpdateProposalNone
-            , txMintValue = TxMintNone
-            , txScriptValidity = TxScriptValidityNone
-            , txProposalProcedures = Nothing
-            , txVotingProcedures = Nothing
-            }
-
-    case createAndValidateTransactionBody ByronEra txBodyCont of
+txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs =
+    let txins = [(fromByronTxIn txIn, BuildTxWith (KeyWitness KeyWitnessForSpending))]
+    in case makeByronTransactionBody txins outs of
       Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
       Right txBody -> let bWit = fromByronWitness sk nId txBody
-                      in makeSignedTransaction [bWit] txBody
+                      in Api.ByronTx ByronEraOnlyByron $ makeSignedByronTransaction [bWit] txBody
   where
     ByronVerificationKey vKey = byronWitnessToVerKey sk
 
@@ -193,40 +171,15 @@ txSpendUTxOByronPBFT
   -> [TxOut CtxTx ByronEra]
   -> Tx ByronEra
 txSpendUTxOByronPBFT nId sk txIns outs = do
-  let txBodyCont =
-        TxBodyContent
-          { txIns =
-              [ ( txIn
-                , BuildTxWith (KeyWitness KeyWitnessForSpending)
-                ) | txIn <- txIns
-              ]
-          , txInsCollateral = TxInsCollateralNone
-          , txInsReference = TxInsReferenceNone
-          , txOuts = outs
-          , txTotalCollateral = TxTotalCollateralNone
-          , txReturnCollateral = TxReturnCollateralNone
-          , txFee = TxFeeImplicit ByronEraOnlyByron
-          , txValidityLowerBound = TxValidityNoLowerBound
-          , txValidityUpperBound = defaultTxValidityUpperBound ByronEra
-          , txMetadata = TxMetadataNone
-          , txAuxScripts = TxAuxScriptsNone
-          , txExtraKeyWits = TxExtraKeyWitnessesNone
-          , txProtocolParams = BuildTxWith Nothing
-          , txWithdrawals = TxWithdrawalsNone
-          , txCertificates = TxCertificatesNone
-          , txUpdateProposal = TxUpdateProposalNone
-          , txMintValue = TxMintNone
-          , txScriptValidity = TxScriptValidityNone
-          , txProposalProcedures = Nothing
-          , txVotingProcedures = Nothing
-          }
+  let apiTxIns = [ ( txIn, BuildTxWith (KeyWitness KeyWitnessForSpending)) | txIn <- txIns]
 
-  case createAndValidateTransactionBody ByronEra txBodyCont of
+  case makeByronTransactionBody apiTxIns outs of
     Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
     Right txBody -> let bWit = fromByronWitness sk nId txBody
-                    in makeSignedTransaction [bWit] txBody
+                    in Api.ByronTx ByronEraOnlyByron $ makeSignedByronTransaction [bWit] txBody
 
-fromByronWitness :: SomeByronSigningKey -> NetworkId -> TxBody ByronEra -> KeyWitness ByronEra
+fromByronWitness
+  :: SomeByronSigningKey -> NetworkId -> L.Annotated L.Tx ByteString -> KeyWitness ByronEra
 fromByronWitness bw nId txBody =
   case bw of
     AByronSigningKeyLegacy sk -> makeByronKeyWitness nId txBody sk

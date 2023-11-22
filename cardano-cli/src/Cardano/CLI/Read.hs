@@ -156,7 +156,6 @@ data MetadataError
   | MetadataErrorConversionError !FilePath !TxMetadataJsonError
   | MetadataErrorValidationError !FilePath ![(Word64, TxMetadataRangeError)]
   | MetadataErrorDecodeError !FilePath !CBOR.DecoderError
-  | MetadataErrorNotAvailableInEra AnyCardanoEra
   deriving Show
 
 renderMetadataError :: MetadataError -> Doc ann
@@ -180,19 +179,15 @@ renderMetadataError = \case
   MetadataErrorDecodeError fp metadataErr ->
     "Error decoding CBOR metadata at: " <> pshow fp <>
               " Error: " <> pshow metadataErr
-  MetadataErrorNotAvailableInEra e ->
-    "Transaction metadata not supported in " <> pretty (renderEra e)
 
-readTxMetadata :: CardanoEra era
+readTxMetadata :: ShelleyBasedEra era
                -> TxMetadataJsonSchema
                -> [MetadataFile]
                -> IO (Either MetadataError (TxMetadataInEra era))
 readTxMetadata _ _ [] = return $ Right TxMetadataNone
-readTxMetadata era schema files = cardanoEraConstraints era $ runExceptT $ do
-  supported <- forEraMaybeEon era
-    & hoistMaybe (MetadataErrorNotAvailableInEra $ AnyCardanoEra era)
+readTxMetadata era schema files = runExceptT $ do
   metadata  <- mapM (readFileTxMetadata schema) files
-  pure $ TxMetadataInEra supported $ mconcat metadata
+  pure $ TxMetadataInEra era $ mconcat metadata
 
 readFileTxMetadata
   :: TxMetadataJsonSchema
@@ -250,7 +245,7 @@ renderScriptWitnessError = \case
     renderScriptDataError sDataError
 
 readScriptWitnessFiles
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> [(a, Maybe (ScriptWitnessFiles ctx))]
   -> ExceptT ScriptWitnessError IO [(a, Maybe (ScriptWitness ctx era))]
 readScriptWitnessFiles era = mapM readSwitFile
@@ -261,7 +256,7 @@ readScriptWitnessFiles era = mapM readSwitFile
   readSwitFile (tIn, Nothing) = return (tIn, Nothing)
 
 readScriptWitnessFilesThruple
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> [(a, b, Maybe (ScriptWitnessFiles ctx))]
   -> ExceptT ScriptWitnessError IO [(a, b, Maybe (ScriptWitness ctx era))]
 readScriptWitnessFilesThruple era = mapM readSwitFile
@@ -272,7 +267,7 @@ readScriptWitnessFilesThruple era = mapM readSwitFile
   readSwitFile (tIn, b, Nothing) = return (tIn, b, Nothing)
 
 readScriptWitness
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> ScriptWitnessFiles witctx
   -> ExceptT ScriptWitnessError IO (ScriptWitness witctx era)
 readScriptWitness era (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
@@ -322,10 +317,11 @@ readScriptWitness era (PlutusScriptWitnessFiles
 readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
                           anyScrLang@(AnyScriptLanguage anyScriptLanguage)
                           datumOrFile redeemerOrFile execUnits mPid) = do
-  caseByronToAlonzoOrBabbageEraOnwards
+  caseShelleyToAlonzoOrBabbageEraOnwards
     ( const $ left
         $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-        $ cardanoEraConstraints era (AnyCardanoEra era)
+          -- TODO: Update error to use AnyShelleyBasedEra
+        $ cardanoEraConstraints (toCardanoEra era) (AnyCardanoEra $ toCardanoEra era)
     )
     ( const $
         case scriptLanguageSupportedInEra era anyScriptLanguage of
@@ -346,15 +342,15 @@ readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
                           (PReferenceScript refTxIn (unPolicyId <$> mPid))
                           datum redeemer execUnits
           Nothing ->
-            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra $ toCardanoEra era)
     )
     era
 readScriptWitness era (SimpleReferenceScriptWitnessFiles refTxIn
                          anyScrLang@(AnyScriptLanguage anyScriptLanguage) mPid) = do
-  caseByronToAlonzoOrBabbageEraOnwards
+  caseShelleyToAlonzoOrBabbageEraOnwards
     ( const $ left
         $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-        $ cardanoEraConstraints era (AnyCardanoEra era)
+        $ cardanoEraConstraints (toCardanoEra era) (AnyCardanoEra $ toCardanoEra era)
     )
     ( const $
         case scriptLanguageSupportedInEra era anyScriptLanguage of
@@ -366,17 +362,19 @@ readScriptWitness era (SimpleReferenceScriptWitnessFiles refTxIn
               PlutusScriptLanguage{} ->
                 error "readScriptWitness: Should not be possible to specify a plutus script"
           Nothing ->
-            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra era)
+            left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra
+                     anyScrLang
+                     (anyCardanoEra $ toCardanoEra era)
     )
     era
 
-validateScriptSupportedInEra :: CardanoEra era
+validateScriptSupportedInEra :: ShelleyBasedEra era
                              -> ScriptInAnyLang
                              -> ExceptT ScriptWitnessError IO (ScriptInEra era)
 validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
     case toScriptInEra era script of
       Nothing -> left $ ScriptWitnessErrorScriptLanguageNotSupportedInEra
-                          (AnyScriptLanguage lang) (anyCardanoEra era)
+                          (AnyScriptLanguage lang) (anyCardanoEra $ toCardanoEra era)
       Just script' -> pure script'
 
 data ScriptDataError =
@@ -483,11 +481,11 @@ deserialiseScriptInAnyLang bs =
 
 -- Tx & TxBody
 
-newtype CddlTx = CddlTx {unCddlTx :: InAnyCardanoEra Tx} deriving (Show, Eq)
+newtype CddlTx = CddlTx {unCddlTx :: InAnyShelleyBasedEra Tx} deriving (Show, Eq)
 
-readFileTx :: FileOrPipe -> IO (Either CddlError (InAnyCardanoEra Tx))
+readFileTx :: FileOrPipe -> IO (Either CddlError (InAnyShelleyBasedEra Tx))
 readFileTx file = do
-  eAnyTx <- readFileInAnyCardanoEra AsTx file
+  eAnyTx <- readFileInAnyShelleyBasedEra AsTx file
   case eAnyTx of
     Left e -> fmap unCddlTx <$> acceptTxCDDLSerialisation file e
     Right tx -> return $ Right tx
@@ -498,12 +496,12 @@ readFileTx file = do
 -- needs to be key witnessed.
 
 data IncompleteTx
-  = UnwitnessedCliFormattedTxBody (InAnyCardanoEra TxBody)
-  | IncompleteCddlFormattedTx (InAnyCardanoEra Tx)
+  = UnwitnessedCliFormattedTxBody (InAnyShelleyBasedEra TxBody)
+  | IncompleteCddlFormattedTx (InAnyShelleyBasedEra Tx)
 
 readFileTxBody :: FileOrPipe -> IO (Either CddlError IncompleteTx)
 readFileTxBody file = do
-  eTxBody <- readFileInAnyCardanoEra AsTxBody file
+  eTxBody <- readFileInAnyShelleyBasedEra AsTxBody file
   case eTxBody of
     Left e -> fmap (IncompleteCddlFormattedTx . unCddlTx) <$> acceptTxCDDLSerialisation file e
     Right txBody -> return $ Right $ UnwitnessedCliFormattedTxBody txBody
@@ -542,8 +540,7 @@ acceptTxCDDLSerialisation file err =
 readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
 readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
  where
-    teTypes = [ FromCDDLTx "Witnessed Tx ByronEra" CddlTx
-              , FromCDDLTx "Witnessed Tx ShelleyEra" CddlTx
+    teTypes = [ FromCDDLTx "Witnessed Tx ShelleyEra" CddlTx
               , FromCDDLTx "Witnessed Tx AllegraEra" CddlTx
               , FromCDDLTx "Witnessed Tx MaryEra" CddlTx
               , FromCDDLTx "Witnessed Tx AlonzoEra" CddlTx
@@ -560,13 +557,13 @@ readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
 
 -- Tx witnesses
 
-newtype CddlWitness = CddlWitness { unCddlWitness :: InAnyCardanoEra KeyWitness}
+newtype CddlWitness = CddlWitness { unCddlWitness :: InAnyShelleyBasedEra KeyWitness}
 
 readFileTxKeyWitness :: FilePath
-                -> IO (Either CddlWitnessError (InAnyCardanoEra KeyWitness))
+                     -> IO (Either CddlWitnessError (InAnyShelleyBasedEra KeyWitness))
 readFileTxKeyWitness fp = do
   file <- fileOrPipe fp
-  eWitness <- readFileInAnyCardanoEra AsKeyWitness file
+  eWitness <- readFileInAnyShelleyBasedEra AsKeyWitness file
   case eWitness of
     Left e -> fmap unCddlWitness <$> acceptKeyWitnessCDDLSerialisation e
     Right keyWit -> return $ Right keyWit
@@ -829,13 +826,13 @@ data ProposalError
   deriving Show
 
 readTxGovernanceActions
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> [ProposalFile In]
   -> IO (Either ConstitutionError [Proposal era])
 readTxGovernanceActions _ [] = return $ Right []
 readTxGovernanceActions era files = runExceptT $ do
-  w <- forEraMaybeEon era
-    & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints era $ AnyCardanoEra era)
+  w <- forShelleyBasedEraMaybeEon era
+    & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints (toCardanoEra era) $ AnyCardanoEra (toCardanoEra era))
   newExceptT $ sequence <$> mapM (fmap (first ConstitutionErrorFile) . readProposal w) files
 
 readProposal
@@ -863,9 +860,10 @@ constitutionHashSourceToHash constitutionHashSource = do
 
 -- Misc
 
-readFileInAnyCardanoEra
-  :: ( HasTextEnvelope (thing ByronEra)
-     , HasTextEnvelope (thing ShelleyEra)
+-- readFileInByronEra = undefined
+
+readFileInAnyShelleyBasedEra
+  :: ( HasTextEnvelope (thing ShelleyEra)
      , HasTextEnvelope (thing AllegraEra)
      , HasTextEnvelope (thing MaryEra)
      , HasTextEnvelope (thing AlonzoEra)
@@ -874,16 +872,15 @@ readFileInAnyCardanoEra
      )
   => (forall era. AsType era -> AsType (thing era))
   -> FileOrPipe
-  -> IO (Either (FileError TextEnvelopeError) (InAnyCardanoEra thing))
-readFileInAnyCardanoEra asThing =
+  -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra thing))
+readFileInAnyShelleyBasedEra asThing =
  readFileOrPipeTextEnvelopeAnyOf
-   [ FromSomeType (asThing AsByronEra)   (InAnyCardanoEra ByronEra)
-   , FromSomeType (asThing AsShelleyEra) (InAnyCardanoEra ShelleyEra)
-   , FromSomeType (asThing AsAllegraEra) (InAnyCardanoEra AllegraEra)
-   , FromSomeType (asThing AsMaryEra)    (InAnyCardanoEra MaryEra)
-   , FromSomeType (asThing AsAlonzoEra)  (InAnyCardanoEra AlonzoEra)
-   , FromSomeType (asThing AsBabbageEra) (InAnyCardanoEra BabbageEra)
-   , FromSomeType (asThing AsConwayEra)  (InAnyCardanoEra ConwayEra)
+   [ FromSomeType (asThing AsShelleyEra) (InAnyShelleyBasedEra ShelleyBasedEraShelley)
+   , FromSomeType (asThing AsAllegraEra) (InAnyShelleyBasedEra ShelleyBasedEraAllegra)
+   , FromSomeType (asThing AsMaryEra)    (InAnyShelleyBasedEra ShelleyBasedEraMary)
+   , FromSomeType (asThing AsAlonzoEra)  (InAnyShelleyBasedEra ShelleyBasedEraAlonzo)
+   , FromSomeType (asThing AsBabbageEra) (InAnyShelleyBasedEra ShelleyBasedEraBabbage)
+   , FromSomeType (asThing AsConwayEra)  (InAnyShelleyBasedEra ShelleyBasedEraConway)
    ]
 
 -- | We need a type for handling files that may be actually be things like

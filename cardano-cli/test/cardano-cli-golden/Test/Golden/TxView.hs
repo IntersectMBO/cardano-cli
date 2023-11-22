@@ -1,9 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Test.Golden.TxView
-  ( hprop_golden_view_byron_yaml
-  , hprop_golden_view_byron_json_default
-  , hprop_golden_view_shelley_yaml
+  ( hprop_golden_view_shelley_yaml
   , hprop_golden_view_allegra_yaml
   , hprop_golden_view_mary_yaml
   , hprop_golden_view_alonzo_yaml
@@ -20,9 +18,9 @@ import           Hedgehog.Extras (Integration, moduleWorkspace, note_, propertyO
 import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
-
-hprop_golden_view_byron_yaml :: Property
-hprop_golden_view_byron_yaml =
+-- TODO: Expose command to view byron tx files
+_hprop_golden_view_byron_yaml :: Property
+_hprop_golden_view_byron_yaml =
   propertyOnce $
   moduleWorkspace "tmp" $ \tempDir -> do
     transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
@@ -45,8 +43,9 @@ hprop_golden_view_byron_yaml =
         ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-format", "yaml"]
     H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/byron/transaction-view.out"
 
-hprop_golden_view_byron_json_default :: Property
-hprop_golden_view_byron_json_default =
+-- TODO: Expose command to view byron tx files
+_hprop_golden_view_byron_json_default :: Property
+_hprop_golden_view_byron_json_default =
   propertyOnce $
   moduleWorkspace "tmp" $ \tempDir -> do
     transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
