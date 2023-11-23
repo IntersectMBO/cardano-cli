@@ -26,6 +26,7 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update --
                                                                                 [--max-collateral-inputs INT]
                                                                                 [--protocol-major-version NATURAL
                                                                                   --protocol-minor-version NATURAL]
+                                                                                [--cost-model-file FILE]
                                                                                 --out-file FILE
 
   Create a protocol parameters update.
@@ -95,5 +96,6 @@ Available options:
                            Minor protocol version. An increase indicates a soft
                            fork (old software canvalidate but not produce new
                            blocks).
+  --cost-model-file FILE   Filepath of the JSON formatted cost model
   --out-file FILE          The output file.
   -h,--help                Show this help text

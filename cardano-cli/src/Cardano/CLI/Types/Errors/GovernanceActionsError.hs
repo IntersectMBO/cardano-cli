@@ -12,6 +12,7 @@ import           Cardano.CLI.Read
 data GovernanceActionsError
   = GovernanceActionsCmdConstitutionError ConstitutionError
   | GovernanceActionsCmdProposalError ProposalError
+  | GovernanceActionsCmdCostModelsError CostModelsError
   | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
   | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdWriteFileError (FileError ())
@@ -20,6 +21,8 @@ data GovernanceActionsError
 
 instance Error GovernanceActionsError where
   prettyError = \case
+    GovernanceActionsCmdCostModelsError e ->
+      prettyError e
     GovernanceActionsCmdProposalError e ->
       "Cannot read proposal: " <> pshow e -- TODO Conway render this properly
     GovernanceActionsCmdConstitutionError e ->

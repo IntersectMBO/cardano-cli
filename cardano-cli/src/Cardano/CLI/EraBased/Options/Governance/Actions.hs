@@ -180,6 +180,7 @@ pUpdateProtocolParametersCmd =
                                  <$> fmap Just (pUpdateProtocolParametersPreConway shelleyToBab)
                                  <*> pure Nothing
                                  <*> dpGovActionProtocolParametersUpdate sbe
+                                 <*> pCostModelsFile sbe
                                  <*> pOutputFile
                              )
                          $ Opt.progDesc "Create a protocol parameters update.")
@@ -191,10 +192,22 @@ pUpdateProtocolParametersCmd =
                                 (conwayEraOnwardsToShelleyBasedEra conwayOnwards) Nothing
                                 <$> fmap Just (pUpdateProtocolParametersPostConway conwayOnwards)
                                 <*> dpGovActionProtocolParametersUpdate sbe
+                                <*> pCostModelsFile sbe
                                 <*> pOutputFile
                             )
                         $ Opt.progDesc "Create a protocol parameters update."
 
+    )
+
+-- | Cost models only makes sense in eras from Alonzo onwards. For earlier
+-- eras, this parser doesn't show up in the command line and returns 'Nothing'.
+pCostModelsFile :: ShelleyBasedEra era -> Parser (Maybe (Cmd.CostModelsFile era))
+pCostModelsFile =
+  caseShelleyToMaryOrAlonzoEraOnwards
+    (const $ pure Nothing)
+    ( \alonzoOnwards ->
+         fmap (Cmd.CostModelsFile alonzoOnwards . File)
+           <$> optional pCostModels
     )
 
 pGovernanceActionProtocolParametersUpdateCmd :: ()
@@ -260,7 +273,7 @@ pShelleyToAlonzoPParams =
 
 pAlonzoOnwardsPParams :: Parser (AlonzoOnwardsPParams ledgerera)
 pAlonzoOnwardsPParams =
-  AlonzoOnwardsPParams SNothing -- TODO: Conway era cost model
+  AlonzoOnwardsPParams SNothing -- The cost models are read separately from a file, so we use 'SNothing' as the place holder here
     <$> convertToLedger (either (\e -> error $ "pAlonzoOnwardsPParams: " <> show e) id . toAlonzoPrices)
                         (optional pExecutionUnitPrices)
     <*> convertToLedger toAlonzoExUnits (optional pMaxTxExecutionUnits)
@@ -283,7 +296,7 @@ pIntroducedInConwayPParams =
     <*> convertToLedger id (optional pMinCommitteeSize)
     <*> convertToLedger id (optional (fromIntegral . unEpochNo <$> pCommitteeTermLength))
     <*> convertToLedger id (optional pGovActionLifetime)
-    <*> convertToLedger toShelleyLovelace (optional pGovActionDeposit)
+    <*> convertToLedger toShelleyLovelace (optional pNewGovActionDeposit)
     <*> convertToLedger toShelleyLovelace (optional pDRepDeposit)
     <*> convertToLedger id (optional pDRepActivity)
 

@@ -7,6 +7,7 @@ module Test.Golden.ErrorsSpec
   , test_GovernanceComitteeError
   , test_RegistrationError
   , test_VoteReadError
+  , test_CostModelsError
   ) where
 
 import           Cardano.Api
@@ -176,8 +177,22 @@ test_GovernanceActionsError =
       , GovernanceActionsCmdConstitutionError
           $ ConstitutionNotUnicodeError
           $ DecodeError "seq" Nothing)
+    , ("GovernanceActionsCmdCostModelsError"
+      , GovernanceActionsCmdCostModelsError
+          $ CostModelsErrorReadFile
+          $ FileError "some/file.txt" ())
     ]
 
+test_CostModelsError :: TestTree
+test_CostModelsError =
+  testErrorMessagesRendering "Cardano.CLI.Read" "CostModelsError"
+    [ ("CostModelsErrorReadFile"
+      , CostModelsErrorReadFile $ FileError "some/file.txt" ())
+    , ("CostModelsErrorJSONDecode"
+      , CostModelsErrorJSONDecode "some/file.txt" "some error")
+    , ("CostModelsErrorEmpty"
+      , CostModelsErrorEmpty "some/file.txt")
+    ]
 
 goldenFilesPath :: FilePath
 goldenFilesPath = "test/cardano-cli-golden/files/golden/errors"

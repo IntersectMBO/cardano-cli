@@ -7,8 +7,8 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   | --deposit-return-stake-verification-key-file FILE
                                                                   | --deposit-return-stake-key-hash HASH
                                                                   )
-                                                                  [--governance-action-tx-id TXID
-                                                                    --governance-action-index WORD32]
+                                                                  [--prev-governance-action-tx-id TXID
+                                                                    --prev-governance-action-index WORD32]
                                                                   --anchor-url TEXT
                                                                   --anchor-data-hash HASH
                                                                   --constitution-url TEXT
@@ -28,10 +28,10 @@ Available options:
                            Filepath of the staking verification key.
   --deposit-return-stake-key-hash HASH
                            Stake verification key hash (hex-encoded).
-  --governance-action-tx-id TXID
-                           Previous txid of the governance action.
-  --governance-action-index WORD32
-                           Previous tx's governance action index.
+  --prev-governance-action-tx-id TXID
+                           Txid of the previous governance action.
+  --prev-governance-action-index WORD32
+                           Action index of the previous governance action.
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
                            "cardano-cli conway governance hash ...")

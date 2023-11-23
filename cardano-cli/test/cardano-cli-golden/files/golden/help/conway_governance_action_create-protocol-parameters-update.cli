@@ -9,8 +9,8 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 )
                                                                                 --anchor-url TEXT
                                                                                 --anchor-data-hash HASH
-                                                                                [--governance-action-tx-id TXID
-                                                                                  --governance-action-index WORD32]
+                                                                                [--prev-governance-action-tx-id TXID
+                                                                                  --prev-governance-action-index WORD32]
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--max-block-body-size NATURAL]
@@ -49,9 +49,10 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 [--min-committee-size INT]
                                                                                 [--committee-term-length INT]
                                                                                 [--governance-action-lifetime NATURAL]
-                                                                                [--governance-action-deposit NATURAL]
+                                                                                [--new-governance-action-deposit NATURAL]
                                                                                 [--drep-deposit LOVELACE]
                                                                                 [--drep-activity NATURAL]
+                                                                                [--cost-model-file FILE]
                                                                                 --out-file FILE
 
   Create a protocol parameters update.
@@ -70,10 +71,10 @@ Available options:
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
                            "cardano-cli conway governance hash ...")
-  --governance-action-tx-id TXID
-                           Previous txid of the governance action.
-  --governance-action-index WORD32
-                           Previous tx's governance action index.
+  --prev-governance-action-tx-id TXID
+                           Txid of the previous governance action.
+  --prev-governance-action-index WORD32
+                           Action index of the previous governance action.
   --min-fee-constant LOVELACE
                            The constant factor for the minimum fee calculation.
   --min-fee-linear LOVELACE
@@ -159,9 +160,11 @@ Available options:
                            TODO
   --governance-action-lifetime NATURAL
                            TODO
-  --governance-action-deposit NATURAL
-                           Deposit required to submit a governance action.
+  --new-governance-action-deposit NATURAL
+                           Proposed new value of the deposit required to submit
+                           a governance action.
   --drep-deposit LOVELACE  TODO
   --drep-activity NATURAL  TODO
+  --cost-model-file FILE   Filepath of the JSON formatted cost model
   --out-file FILE          The output file.
   -h,--help                Show this help text
