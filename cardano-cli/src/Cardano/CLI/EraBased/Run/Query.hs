@@ -40,6 +40,7 @@ module Cardano.CLI.EraBased.Run.Query
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
 import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
+import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
@@ -57,6 +58,7 @@ import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Core as Core
+import qualified Cardano.Ledger.Credential as L
 import qualified Cardano.Ledger.Crypto as Crypto
 import           Cardano.Ledger.Keys (KeyHash (..), KeyRole (..))
 import           Cardano.Ledger.SafeHash (SafeHash)
@@ -812,11 +814,16 @@ runQueryStakeAddressInfoCmd
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
+        stakeVoteDelegatees <- lift (queryStakeVoteDelegatees sbe stakeAddr)
+          & onLeft (left . QueryCmdUnsupportedNtcVersion)
+          & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+
         return $ do
           writeStakeAddressInfo
             mOutFile
             (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
             (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
+            (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
     )
     & onLeft (left . QueryCmdAcquireFailure)
     & onLeft left
@@ -827,37 +834,48 @@ writeStakeAddressInfo
   :: Maybe (File () Out)
   -> DelegationsAndRewards
   -> Map StakeAddress Lovelace -- ^ deposits
+  -> Map StakeAddress (L.DRep L.StandardCrypto) -- ^ vote delegatees
   -> ExceptT QueryCmdError IO ()
 writeStakeAddressInfo
   mOutFile
   (DelegationsAndRewards (stakeAccountBalances, stakePools))
-  stakeDelegDeposits =
+  stakeDelegDeposits
+  voteDelegatees =
     firstExceptT QueryCmdWriteFileError . newExceptT
       $ writeLazyByteStringOutput mOutFile (encodePretty jsonInfo)
  where
   jsonInfo :: [Aeson.Value]
   jsonInfo =
     map
-      (\(addr, mBalance, mPoolId, mDeposit) ->
+      (\(addr, mBalance, mPoolId, mDRep, mDeposit) ->
         Aeson.object
         [ "address" .= addr
-        , "delegation" .= mPoolId
+        , "stakeDelegation" .= mPoolId
+        , "voteDelegation" .= fmap friendlyDRep mDRep
         , "rewardAccountBalance" .= mBalance
         , "delegationDeposit" .= mDeposit
         ]
       )
       merged
 
-  merged :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe Lovelace)]
+  friendlyDRep :: L.DRep L.StandardCrypto -> Text
+  friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
+  friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
+  friendlyDRep (L.DRepCredential cred) =
+    L.credToText cred -- this will pring "keyHash-..." or "scriptHash-...", depending on the type of credential
+
+  merged :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe (L.DRep L.StandardCrypto), Maybe Lovelace)]
   merged =
-    [ (addr, mBalance, mPoolId, mDeposit)
+    [ (addr, mBalance, mPoolId, mDRep, mDeposit)
     | addr <- Set.toList (Set.unions [ Map.keysSet stakeAccountBalances
                                      , Map.keysSet stakePools
                                      , Map.keysSet stakeDelegDeposits
+                                     , Map.keysSet voteDelegatees
                                      ])
     , let mBalance = Map.lookup addr stakeAccountBalances
           mPoolId  = Map.lookup addr stakePools
           mDeposit = Map.lookup addr stakeDelegDeposits
+          mDRep = Map.lookup addr voteDelegatees
     ]
 
 writeLedgerState :: forall era ledgerera.
