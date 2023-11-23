@@ -273,7 +273,7 @@ pShelleyToAlonzoPParams =
 
 pAlonzoOnwardsPParams :: Parser (AlonzoOnwardsPParams ledgerera)
 pAlonzoOnwardsPParams =
-  AlonzoOnwardsPParams SNothing
+  AlonzoOnwardsPParams SNothing -- The cost models are read separately from a file, so we use 'SNothing' as the place holder here
     <$> convertToLedger (either (\e -> error $ "pAlonzoOnwardsPParams: " <> show e) id . toAlonzoPrices)
                         (optional pExecutionUnitPrices)
     <*> convertToLedger toAlonzoExUnits (optional pMaxTxExecutionUnits)

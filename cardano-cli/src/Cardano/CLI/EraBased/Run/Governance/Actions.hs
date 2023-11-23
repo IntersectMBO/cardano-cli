@@ -237,24 +237,20 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
            <- hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
                 $ uppPreConway eraBasedPParams'
 
-         eraBasedPParams
-           <- case uppCostModelsFile eraBasedPParams' of
-                Nothing -> pure $ uppNewPParams eraBasedPParams'
-                Just (Cmd.CostModelsFile alonzoOnwards costModelsFile) -> do
-                  costModels <- firstExceptT GovernanceActionsCmdCostModelsError
-                    $ readCostModels costModelsFile
-                  pure . addCostModelsToEraBasedProtocolParametersUpdate alonzoOnwards costModels
-                    $ uppNewPParams eraBasedPParams'
+         eraBasedPParams <- theUpdate
 
          let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
              apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
+
          genVKeys <- sequence
            [ firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT
                $ readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
            | vkeyFile <- genesisVerKeys
            ]
+
          let genKeyHashes = fmap verificationKeyHash genVKeys
              upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
+
          firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
            $ writeLazyByteStringFile oFp $ textEnvelopeToJSON Nothing upProp
     )
@@ -267,14 +263,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
           <- hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
               $ uppConwayOnwards eraBasedPParams'
 
-        eraBasedPParams
-          <- case uppCostModelsFile eraBasedPParams' of
-               Nothing -> pure $ uppNewPParams eraBasedPParams'
-               Just (Cmd.CostModelsFile alonzoOnwards costModelsFile) -> do
-                 costModels <- firstExceptT GovernanceActionsCmdCostModelsError
-                   $ readCostModels costModelsFile
-                 pure . addCostModelsToEraBasedProtocolParametersUpdate alonzoOnwards costModels
-                   $ uppNewPParams eraBasedPParams'
+        eraBasedPParams <- theUpdate
 
         returnKeyHash <- readStakeKeyHash returnAddr
 
@@ -295,6 +284,15 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
           $ writeFileTextEnvelope oFp Nothing proposalProcedure
     )
     sbe
+  where
+    theUpdate =
+      case uppCostModelsFile eraBasedPParams' of
+        Nothing -> pure $ uppNewPParams eraBasedPParams'
+        Just (Cmd.CostModelsFile alonzoOnwards costModelsFile) -> do
+          costModels <- firstExceptT GovernanceActionsCmdCostModelsError
+            $ readCostModels costModelsFile
+          pure . addCostModelsToEraBasedProtocolParametersUpdate alonzoOnwards costModels
+            $ uppNewPParams eraBasedPParams'
 
 readStakeKeyHash :: VerificationKeyOrHashOrFile StakeKey -> ExceptT GovernanceActionsError IO (Hash StakeKey)
 readStakeKeyHash stake =
