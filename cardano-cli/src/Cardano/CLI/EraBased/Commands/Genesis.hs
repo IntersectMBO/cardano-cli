@@ -7,6 +7,7 @@ module Cardano.CLI.EraBased.Commands.Genesis
   , GenesisCreateCmdArgs (..)
   , GenesisCreateCardanoCmdArgs (..)
   , GenesisCreateStakedCmdArgs (..)
+  , GenesisCreateTestNetDataCmdArgs (..)
   , GenesisKeyGenGenesisCmdArgs (..)
   , GenesisKeyGenDelegateCmdArgs (..)
   , GenesisKeyGenUTxOCmdArgs (..)
@@ -27,6 +28,7 @@ data GenesisCmds era
   = GenesisCreate !GenesisCreateCmdArgs
   | GenesisCreateCardano !GenesisCreateCardanoCmdArgs
   | GenesisCreateStaked !GenesisCreateStakedCmdArgs
+  | GenesisCreateTestNetData !GenesisCreateTestNetDataCmdArgs
   | GenesisKeyGenGenesis !GenesisKeyGenGenesisCmdArgs
   | GenesisKeyGenDelegate !GenesisKeyGenDelegateCmdArgs
   | GenesisKeyGenUTxO !GenesisKeyGenUTxOCmdArgs
@@ -81,6 +83,20 @@ data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
   , mStakePoolRelaySpecFile :: !(Maybe FilePath) -- ^ Relay specification filepath
   } deriving Show
 
+data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
+  { specShelley :: !(Maybe FilePath)
+  , numGenesisKeys :: !Word
+  , numPools :: !Word
+  , numStakeDelegators :: !Word
+  , numStuffedUtxo :: !Word
+  , numUtxoKeys :: !Word
+  , supply :: !(Maybe Lovelace)
+  , supplyDelegated :: !(Maybe Lovelace)
+  , networkId :: !NetworkId
+  , systemStart :: !(Maybe SystemStart)
+  , outputDir :: !FilePath
+  } deriving Show
+
 data GenesisKeyGenGenesisCmdArgs = GenesisKeyGenGenesisCmdArgs
   { verificationKeyPath :: !(VerificationKeyFile Out)
   , signingKeyPath :: !(SigningKeyFile Out)
@@ -122,6 +138,8 @@ renderGenesisCmds = \case
     "genesis create-cardano"
   GenesisCreateStaked {} ->
     "genesis create-staked"
+  GenesisCreateTestNetData {} ->
+    "genesis create-testnet-data"
   GenesisKeyGenGenesis {} ->
     "genesis key-gen-genesis"
   GenesisKeyGenDelegate {} ->
