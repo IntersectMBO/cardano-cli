@@ -26,7 +26,7 @@ hprop_golden_governanceVerifyPoll = propertyOnce $ do
   pollFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/polls/basic.json"
   txFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/verify/valid"
   goldenVkFile <- VerificationKeyFilePath . File <$>
-    H.note "test/cardano-cli-golden/files/golden/governance/cold.vk"
+    H.note "test/cardano-cli-golden/files/input/governance/cold.vk"
 
   stdout <- BSC.pack <$> execCardanoCLI
     [ "babbage", "governance", "verify-poll"

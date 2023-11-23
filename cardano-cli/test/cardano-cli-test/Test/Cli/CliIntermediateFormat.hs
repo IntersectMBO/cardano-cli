@@ -17,9 +17,9 @@ import qualified Hedgehog.Extras.Test.File as H
 -- | We test to make sure that we can deserialize a tx body in the intermediate format
 hprop_backwardsCompatibleCliFormat :: Property
 hprop_backwardsCompatibleCliFormat = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  txBodyFile <- noteInputFile "test/cardano-cli-test/files/golden/babbage/deprecated-cli-format.body"
-  witness <- noteInputFile "test/cardano-cli-test/files/golden/babbage/tx-key-witness"
-  initialUtxo1SigningKeyFile <- noteInputFile "test/cardano-cli-test/files/golden/shelley/keys/payment_keys/signing_key"
+  txBodyFile <- noteInputFile "test/cardano-cli-test/files/input/babbage/deprecated-cli-format.body"
+  witness <- noteInputFile "test/cardano-cli-test/files/input/babbage/tx-key-witness"
+  initialUtxo1SigningKeyFile <- noteInputFile "test/cardano-cli-test/files/input/shelley/keys/payment_keys/signing_key"
   signedTransactionFile <- noteTempFile tempDir "signed.tx"
 
 

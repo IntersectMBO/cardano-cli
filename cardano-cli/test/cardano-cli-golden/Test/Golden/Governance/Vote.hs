@@ -33,7 +33,7 @@ hprop_golden_governance_governance_vote_create =
 hprop_golden_governance_governance_vote_view_json_stdout :: Property
 hprop_golden_governance_governance_vote_view_json_stdout =
   propertyOnce $ do
-    voteFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/vote/vote"
+    voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
     voteViewGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/voteViewJSON"
     voteView <- execCardanoCLI
       [ "conway", "governance", "vote", "view"
@@ -45,7 +45,7 @@ hprop_golden_governance_governance_vote_view_json_stdout =
 hprop_golden_governance_governance_vote_view_json_outfile :: Property
 hprop_golden_governance_governance_vote_view_json_outfile =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    voteFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/vote/vote"
+    voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
     voteViewFile <- H.noteTempFile tempDir "voteView"
     voteViewGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/voteViewJSON"
     void $ execCardanoCLI
@@ -59,7 +59,7 @@ hprop_golden_governance_governance_vote_view_json_outfile =
 hprop_golden_governance_governance_vote_view_yaml :: Property
 hprop_golden_governance_governance_vote_view_yaml =
   propertyOnce $ do
-    voteFile <- noteInputFile "test/cardano-cli-golden/files/golden/governance/vote/vote"
+    voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
     voteViewGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/voteViewYAML"
     voteView <- execCardanoCLI
       [ "conway", "governance", "vote", "view"
