@@ -149,6 +149,7 @@ import           Data.Word
 import           GHC.IO.Handle (hClose, hIsSeekable)
 import           GHC.IO.Handle.FD (openFileBlocking)
 import qualified Options.Applicative as Opt
+import           Prettyprinter (vsep)
 import           System.IO (IOMode (ReadMode))
 
 -- Metadata
@@ -872,9 +873,26 @@ instance Error CostModelsError where
     CostModelsErrorReadFile e ->
       "Cannot read cost model: " <> prettyError e
     CostModelsErrorJSONDecode fp err ->
-      "Error decoding JSON cost model at " <> pshow fp <> ": " <> pshow err
+      "Error decoding JSON cost model at " <> pshow fp <> ": " <> pshow err <> formatExplanation
     CostModelsErrorEmpty fp ->
-      "The decoded cost model was empty at: " <> pshow fp
+      "The decoded cost model was empty at: " <> pshow fp <> formatExplanation
+    where
+      formatExplanation =
+        vsep [ ""
+             , "The expected format of the cost models file is "
+             , "{"
+             , "  \"PlutusV1\" : <costModel>,"
+             , "  \"PlutusV2\" : <costModel>,"
+             , "  \"PlutusV3\" : <costModel>,"
+             , "}"
+             , "where each of the three entries may be ommited, and a <cost model> is either an ordered list of parameter values like"
+             , "[205665, 812, 1, ...]"
+             , "or a map like"
+             , "{ \"addInteger-cpu-arguments-intercept\": 205665, \"addInteger-cpu-arguments-slope\": 812, \"addInteger-memory-arguments-intercept\": 1, ... }"
+             , "In both cases, the cost model must be complete, i.e. it must specify all parameters that are needed for the specific Plutus version."
+             , "It's not specified what will happen if you provide more parameters than necessary."
+             ]
+
 
 readCostModels
   :: File Alonzo.CostModels In
