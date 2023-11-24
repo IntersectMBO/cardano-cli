@@ -234,7 +234,7 @@ renderScriptWitnessError = \case
     prettyError err
   ScriptWitnessErrorScriptLanguageNotSupportedInEra (AnyScriptLanguage lang) anyEra ->
     "The script language " <> pshow lang <> " is not supported in the " <>
-    pretty (renderEra anyEra) <> " era."
+    pretty anyEra <> " era."
   ScriptWitnessErrorExpectedSimple file (AnyScriptLanguage lang) ->
     pretty file <> ": expected a script in the simple script language, " <>
     "but it is actually using " <> pshow lang <> ". Alternatively, to use " <>
@@ -244,7 +244,7 @@ renderScriptWitnessError = \case
     pretty file <> ": expected a script in the Plutus script language, " <>
     "but it is actually using " <> pshow lang <> "."
   ScriptWitnessErrorReferenceScriptsNotSupportedInEra anyEra ->
-    "Reference scripts not supported in era: " <> pretty (renderEra anyEra)
+    "Reference scripts not supported in era: " <> pretty anyEra
   ScriptWitnessErrorScriptData sDataError ->
     renderScriptDataError sDataError
 

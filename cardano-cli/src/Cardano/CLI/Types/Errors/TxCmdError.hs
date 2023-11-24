@@ -110,13 +110,13 @@ renderTxCmdError = \case
     renderBootstrapWitnessError sbwErr
   TxCmdTxFeatureMismatch era TxFeatureImplicitFees ->
     "An explicit transaction fee must be specified for " <>
-    pretty (renderEra era) <> " era transactions."
+    pretty era <> " era transactions."
 
   TxCmdTxFeatureMismatch (AnyCardanoEra ShelleyEra) TxFeatureValidityNoUpperBound ->
     "A TTL must be specified for Shelley era transactions."
 
   TxCmdTxFeatureMismatch era feature ->
-    pretty (renderFeature feature) <> " cannot be used for " <> pretty (renderEra era) <>
+    pretty (renderFeature feature) <> " cannot be used for " <> pretty era <>
     " era transactions."
 
   TxCmdTxBodyError err' ->
@@ -127,8 +127,8 @@ renderTxCmdError = \case
 
   TxCmdWitnessEraMismatch era era' (WitnessFile file) ->
     "The era of a witness does not match the era of the transaction. " <>
-    "The transaction is for the " <> pretty (renderEra era) <> " era, but the " <>
-    "witness in " <> pshow file <> " is for the " <> pretty (renderEra era') <> " era."
+    "The transaction is for the " <> pretty era <> " era, but the " <>
+    "witness in " <> pshow file <> " is for the " <> pretty era' <> " era."
 
   TxCmdPolicyIdsMissing policyids ->
     mconcat
@@ -170,8 +170,8 @@ renderTxCmdError = \case
   TxCmdTxNodeEraMismatchError (NodeEraMismatchError { NEM.era = valueEra, nodeEra = nodeEra }) ->
     cardanoEraConstraints nodeEra $ cardanoEraConstraints valueEra $ mconcat
       [ "Transactions can only be produced in the same era as the node. Requested era: "
-      , pretty (renderEra (AnyCardanoEra valueEra)) <> ", node era: "
-      , pretty (renderEra (AnyCardanoEra nodeEra)) <> "."
+      , pretty valueEra <> ", node era: "
+      , pretty nodeEra <> "."
       ]
   TxCmdQueryConvenienceError e ->
     pretty $ renderQueryConvenienceError e

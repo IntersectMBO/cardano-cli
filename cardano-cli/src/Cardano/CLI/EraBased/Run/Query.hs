@@ -50,6 +50,7 @@ import           Cardano.CLI.EraBased.Run.Genesis (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Helpers
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.QueryCmdError
 import           Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
 import           Cardano.CLI.Types.Key
@@ -264,7 +265,7 @@ runQueryTipCmd
         }
 
   mLocalState <- hushM (first QueryCmdAcquireFailure eLocalState) $ \e ->
-    liftIO . LT.hPutStrLn IO.stderr $ prettyToLazyText $ "Warning: Local state unavailable: " <> renderQueryCmdError e
+    liftIO . LT.hPutStrLn IO.stderr $ docToLazyText $ "Warning: Local state unavailable: " <> renderQueryCmdError e
 
   chainTip <- pure (mLocalState >>= O.mChainTip)
     -- The chain tip is unavailable via local state query because we are connecting with an older
@@ -280,7 +281,7 @@ runQueryTipCmd
   localStateOutput <- forM mLocalState $ \localState -> do
     case slotToEpoch tipSlotNo (O.eraHistory localState) of
       Left e -> do
-        liftIO . LT.hPutStrLn IO.stderr $ prettyToLazyText $
+        liftIO . LT.hPutStrLn IO.stderr $ docToLazyText $
           "Warning: Epoch unavailable: " <> renderQueryCmdError (QueryCmdPastHorizon e)
         return $ O.QueryTipLocalStateOutput
           { O.localStateChainTip = chainTip
@@ -302,7 +303,7 @@ runQueryTipCmd
           return $ flip (percentage tolerance) nowSeconds tipTimeResult
 
         mSyncProgress <- hushM syncProgressResult $ \e -> do
-          liftIO . LT.hPutStrLn IO.stderr $ prettyToLazyText $ "Warning: Sync progress unavailable: " <> renderQueryCmdError e
+          liftIO . LT.hPutStrLn IO.stderr $ docToLazyText $ "Warning: Sync progress unavailable: " <> renderQueryCmdError e
 
         return $ O.QueryTipLocalStateOutput
           { O.localStateChainTip = chainTip
@@ -404,8 +405,8 @@ runQueryKesPeriodInfoCmd
           let counterInformation = opCertNodeAndOnDiskCounters onDiskC stateC
 
           -- Always render diagnostic information
-          liftIO . putStrLn $ prettyToString $ renderOpCertIntervalInformation (unFile nodeOpCertFp) opCertIntervalInformation
-          liftIO . putStrLn $ prettyToString $ renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
+          liftIO . putStrLn $ docToString $ renderOpCertIntervalInformation (unFile nodeOpCertFp) opCertIntervalInformation
+          liftIO . putStrLn $ docToString $ renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
 
           let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
               kesPeriodInfoJSON = encodePretty qKesInfoOutput
@@ -631,7 +632,9 @@ runQueryPoolStateCmd
         sbe <- requireShelleyBasedEra era
           & onNothing (left QueryCmdByronEra)
 
-        result <- lift (queryPoolState sbe $ Just $ Set.fromList poolIds)
+        beo <- requireEon BabbageEra era
+
+        result <- lift (queryPoolState beo $ Just $ Set.fromList poolIds)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -711,7 +714,9 @@ runQueryStakeSnapshotCmd
               All -> Nothing
               Only poolIds -> Just $ Set.fromList poolIds
 
-        result <- lift (queryStakeSnapshot sbe poolFilter)
+        beo <- requireEon BabbageEra era
+
+        result <- lift (queryStakeSnapshot beo poolFilter)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -810,14 +815,17 @@ runQueryStakeAddressInfoCmd
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-        stakeDelegDeposits <- lift (queryStakeDelegDeposits sbe stakeAddr)
+        beo <- requireEon BabbageEra era
+
+        stakeDelegDeposits <- lift (queryStakeDelegDeposits beo stakeAddr)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-        stakeVoteDelegatees <- monoidForEraInEonA era $ \(_ :: ConwayEraOnwards era) ->
-          lift (queryStakeVoteDelegatees sbe stakeAddr)
-            & onLeft (left . QueryCmdUnsupportedNtcVersion)
-            & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+        ceo <- requireEon ConwayEra era
+
+        stakeVoteDelegatees <- lift (queryStakeVoteDelegatees ceo stakeAddr)
+          & onLeft (left . QueryCmdUnsupportedNtcVersion)
+          & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
         return $ do
           writeStakeAddressInfo
@@ -1224,7 +1232,9 @@ runQueryLeadershipScheduleCmd
 
         case whichSchedule of
           CurrentEpoch -> do
-            serCurrentEpochState <- lift (queryPoolDistribution sbe (Just (Set.singleton poolid)))
+            beo <- requireEon BabbageEra era
+
+            serCurrentEpochState <- lift (queryPoolDistribution beo (Just (Set.singleton poolid)))
               & onLeft (left . QueryCmdUnsupportedNtcVersion)
               & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
@@ -1341,9 +1351,7 @@ runQueryConstitution
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
-      sbe = conwayEraOnwardsToShelleyBasedEra eon
-
-  constitution <- runQuery localNodeConnInfo $ queryConstitution sbe
+  constitution <- runQuery localNodeConnInfo $ queryConstitution eon
   writeOutput mOutFile constitution
 
 runQueryGovState
@@ -1358,9 +1366,7 @@ runQueryGovState
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
-      sbe = conwayEraOnwardsToShelleyBasedEra eon
-
-  govState <- runQuery localNodeConnInfo $ queryGovState sbe
+  govState <- runQuery localNodeConnInfo $ queryGovState eon
   writeOutput mOutFile govState
 
 runQueryDRepState
@@ -1376,11 +1382,10 @@ runQueryDRepState
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
-      sbe = conwayEraOnwardsToShelleyBasedEra eon
 
   drepCreds <- Set.fromList <$> mapM (firstExceptT QueryCmdDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
 
-  drepState <- runQuery localNodeConnInfo $ queryDRepState sbe drepCreds
+  drepState <- runQuery localNodeConnInfo $ queryDRepState eon drepCreds
   writeOutput mOutFile $
     second drepStateToJson <$> Map.assocs drepState
   where
@@ -1403,14 +1408,13 @@ runQueryDRepStakeDistribution
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
-      sbe = conwayEraOnwardsToShelleyBasedEra eon
 
   let drepFromVrfKey = fmap Ledger.DRepCredential
                      . firstExceptT QueryCmdDRepKeyError
                      . getDRepCredentialFromVerKeyHashOrFile
   dreps <- Set.fromList <$> mapM drepFromVrfKey drepKeys
 
-  drepStakeDistribution <- runQuery localNodeConnInfo $ queryDRepStakeDistribution sbe dreps
+  drepStakeDistribution <- runQuery localNodeConnInfo $ queryDRepStakeDistribution eon dreps
   writeOutput mOutFile $
     Map.assocs drepStakeDistribution
 
@@ -1429,7 +1433,6 @@ runQueryCommitteeMembersState
       , Cmd.memberStatuses = memberStatuses
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
-      sbe = conwayEraOnwardsToShelleyBasedEra eon
 
   let coldKeysFromVerKeyHashOrFile =
         firstExceptT QueryCmdCommitteeColdKeyError . getCommitteeColdCredentialFromVerKeyHashOrFile
@@ -1440,7 +1443,7 @@ runQueryCommitteeMembersState
   hotKeys <- Set.fromList <$> mapM hotKeysFromVerKeyHashOrFile hotCredKeys
 
   committeeState <- runQuery localNodeConnInfo $
-    queryCommitteeMembersState sbe coldKeys hotKeys (Set.fromList memberStatuses)
+    queryCommitteeMembersState eon coldKeys hotKeys (Set.fromList memberStatuses)
   writeOutput mOutFile $ A.toJSON committeeState
 
 runQuery :: LocalNodeConnectInfo
@@ -1520,3 +1523,14 @@ utcTimeToSlotNo nodeSocketPath consensusModeParams networkId utcTime = do
     )
     & onLeft (left . QueryCmdAcquireFailure)
     & onLeft left
+
+
+requireEon :: forall eon era minEra m. (Eon eon, Monad m)
+           => CardanoEra minEra -- ^ minimal required era i.e. for 'ConwayEraOnwards' eon it's 'Conway'
+           -> CardanoEra era -- ^ node era
+           -> ExceptT QueryCmdError m (eon era)
+-- TODO: implement 'Bounded' for `Some eon` and remove 'minEra'
+requireEon minEra era =
+  hoistMaybe
+    (QueryCmdLocalStateQueryError $ mkEraMismatchError NodeEraMismatchError { nodeEra = era, era = minEra })
+    (forEraMaybeEon era)

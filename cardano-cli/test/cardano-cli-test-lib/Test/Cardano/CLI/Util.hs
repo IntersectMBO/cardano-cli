@@ -143,7 +143,7 @@ checkTextEnvelopeFormat tve reference created = GHC.withFrozenCallStack $ do
       Right refTextEnvelope ->
         return refTextEnvelope
       Left fileErr ->
-        failWithCustom GHC.callStack Nothing . (prettyToString . prettyError) $ fileErr
+        failWithCustom GHC.callStack Nothing . (docToString . prettyError) $ fileErr
 
     typeTitleEquivalence :: (MonadTest m, HasCallStack) => TextEnvelope -> TextEnvelope -> m ()
     typeTitleEquivalence (TextEnvelope refType refTitle _)
