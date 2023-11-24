@@ -39,12 +39,12 @@ hprop_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir 
 
   eExpected <- liftIO . runExceptT $ readByronUpdateProposal expectedUpdateProposal
   expected <- case eExpected of
-              Left err -> failWith Nothing . prettyToString $ renderByronUpdateProposalError err
+              Left err -> failWith Nothing . docToString $ renderByronUpdateProposalError err
               Right prop -> return prop
 
   eCreated <- liftIO . runExceptT $ readByronUpdateProposal createdUpdateProposal
   created <- case eCreated of
-               Left err -> failWith Nothing . prettyToString $ renderByronUpdateProposalError err
+               Left err -> failWith Nothing . docToString $ renderByronUpdateProposalError err
                Right prop -> return prop
 
   expected === created

@@ -60,7 +60,7 @@ getTxByteString :: FilePath -> H.PropertyT IO (ATxAux ByteString)
 getTxByteString txFp = do
   eATxAuxBS <- liftIO . runExceptT $ readByronTx $ File txFp
   case eATxAuxBS of
-    Left err -> failWith Nothing . prettyToString $ renderByronTxError err
+    Left err -> failWith Nothing . docToString $ renderByronTxError err
     Right aTxAuxBS -> return aTxAuxBS
 
 compareByronTxs :: FilePath -> FilePath -> H.PropertyT IO ()

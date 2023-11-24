@@ -23,7 +23,7 @@ consoleBracket :: IO a -> IO a
 consoleBracket = bracket_ (IO.waitQSem sem) (IO.signalQSem sem)
 
 putLn :: MonadIO m => Doc AnsiStyle -> m ()
-putLn = liftIO . consoleBracket . TextLazy.putStrLn . prettyToLazyText
+putLn = liftIO . consoleBracket . TextLazy.putStrLn . docToLazyText
 
 hPutLn :: MonadIO m => IO.Handle -> Doc AnsiStyle -> m ()
-hPutLn h = liftIO . consoleBracket . TextLazy.hPutStr h . prettyToLazyText
+hPutLn h = liftIO . consoleBracket . TextLazy.hPutStr h . docToLazyText

@@ -266,7 +266,7 @@ parseTxIdAtto = (<?> "Transaction ID (hexadecimal)") $ do
   bstr <- Atto.takeWhile1 Char.isHexDigit
   case deserialiseFromRawBytesHex AsTxId bstr of
     Right addr -> return addr
-    Left e -> fail $ prettyToString $ "Incorrect transaction id format: " <> prettyError e
+    Left e -> fail $ docToString $ "Incorrect transaction id format: " <> prettyError e
 
 parseTxIxAtto :: Atto.Parser TxIx
 parseTxIxAtto = toEnum <$> Atto.decimal
