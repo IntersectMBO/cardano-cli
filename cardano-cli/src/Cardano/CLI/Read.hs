@@ -337,9 +337,9 @@ readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
                 error "readScriptWitness: Should not be possible to specify a simple script"
               PlutusScriptLanguage version -> do
                 datum <- firstExceptT ScriptWitnessErrorScriptData
-                          $ readScriptDatumOrFile    datumOrFile
+                          $ readScriptDatumOrFile datumOrFile
                 redeemer <- firstExceptT ScriptWitnessErrorScriptData
-                              $ readScriptRedeemerOrFile redeemerOrFile
+                          $ readScriptRedeemerOrFile redeemerOrFile
                 return $ PlutusScriptWitness
                           sLangInEra
                           version
