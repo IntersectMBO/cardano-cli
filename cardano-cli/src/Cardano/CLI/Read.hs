@@ -481,6 +481,9 @@ deserialiseScriptInAnyLang bs =
 
       , FromSomeType (AsScript AsPlutusScriptV2)
                      (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV2))
+
+      , FromSomeType (AsScript AsPlutusScriptV3)
+                     (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV3))
       ]
 
 -- Tx & TxBody
