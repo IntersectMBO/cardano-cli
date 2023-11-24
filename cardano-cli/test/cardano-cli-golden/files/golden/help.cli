@@ -783,7 +783,9 @@ Usage: cardano-cli shelley transaction build-raw
                                                    ]
                                                    (--tx-in TX-IN
                                                      [ --spending-tx-in-reference TX-IN
-                                                       --spending-plutus-script-v2
+                                                       ( --spending-plutus-script-v2
+                                                       | --spending-plutus-script-v3
+                                                       )
                                                        ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                        | --spending-reference-tx-in-datum-file JSON FILE
                                                        | --spending-reference-tx-in-datum-value JSON VALUE
@@ -839,7 +841,9 @@ Usage: cardano-cli shelley transaction build-raw
                                                      | --simple-minting-script-tx-in-reference TX-IN
                                                        --policy-id HASH
                                                      | --mint-tx-in-reference TX-IN
-                                                       --mint-plutus-script-v2
+                                                       ( --mint-plutus-script-v2
+                                                       | --mint-plutus-script-v3
+                                                       )
                                                        ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                        | --mint-reference-tx-in-redeemer-file JSON FILE
                                                        | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -860,7 +864,9 @@ Usage: cardano-cli shelley transaction build-raw
                                                          )
                                                          --certificate-execution-units (INT, INT)]
                                                      | --certificate-tx-in-reference TX-IN
-                                                       --certificate-plutus-script-v2
+                                                       ( --certificate-plutus-script-v2
+                                                       | --certificate-plutus-script-v3
+                                                       )
                                                        ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                        | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                        | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -876,7 +882,9 @@ Usage: cardano-cli shelley transaction build-raw
                                                          )
                                                          --withdrawal-execution-units (INT, INT)]
                                                      | --withdrawal-tx-in-reference TX-IN
-                                                       --withdrawal-plutus-script-v2
+                                                       ( --withdrawal-plutus-script-v2
+                                                       | --withdrawal-plutus-script-v3
+                                                       )
                                                        ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                        | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                        | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -912,7 +920,9 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                [--witness-override WORD]
                                                (--tx-in TX-IN
                                                  [ --spending-tx-in-reference TX-IN
-                                                   --spending-plutus-script-v2
+                                                   ( --spending-plutus-script-v2
+                                                   | --spending-plutus-script-v3
+                                                   )
                                                    ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                    | --spending-reference-tx-in-datum-file JSON FILE
                                                    | --spending-reference-tx-in-datum-value JSON VALUE
@@ -965,7 +975,9 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                  | --simple-minting-script-tx-in-reference TX-IN
                                                    --policy-id HASH
                                                  | --mint-tx-in-reference TX-IN
-                                                   --mint-plutus-script-v2
+                                                   ( --mint-plutus-script-v2
+                                                   | --mint-plutus-script-v3
+                                                   )
                                                    ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                    | --mint-reference-tx-in-redeemer-file JSON FILE
                                                    | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -982,7 +994,9 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                    | --certificate-redeemer-value JSON VALUE
                                                    ]
                                                  | --certificate-tx-in-reference TX-IN
-                                                   --certificate-plutus-script-v2
+                                                   ( --certificate-plutus-script-v2
+                                                   | --certificate-plutus-script-v3
+                                                   )
                                                    ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                    | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                    | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -995,7 +1009,9 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                    | --withdrawal-redeemer-value JSON VALUE
                                                    ]
                                                  | --withdrawal-tx-in-reference TX-IN
-                                                   --withdrawal-plutus-script-v2
+                                                   ( --withdrawal-plutus-script-v2
+                                                   | --withdrawal-plutus-script-v3
+                                                   )
                                                    ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                    | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                    | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -1908,7 +1924,9 @@ Usage: cardano-cli allegra transaction build-raw
                                                    ]
                                                    (--tx-in TX-IN
                                                      [ --spending-tx-in-reference TX-IN
-                                                       --spending-plutus-script-v2
+                                                       ( --spending-plutus-script-v2
+                                                       | --spending-plutus-script-v3
+                                                       )
                                                        ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                        | --spending-reference-tx-in-datum-file JSON FILE
                                                        | --spending-reference-tx-in-datum-value JSON VALUE
@@ -1964,7 +1982,9 @@ Usage: cardano-cli allegra transaction build-raw
                                                      | --simple-minting-script-tx-in-reference TX-IN
                                                        --policy-id HASH
                                                      | --mint-tx-in-reference TX-IN
-                                                       --mint-plutus-script-v2
+                                                       ( --mint-plutus-script-v2
+                                                       | --mint-plutus-script-v3
+                                                       )
                                                        ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                        | --mint-reference-tx-in-redeemer-file JSON FILE
                                                        | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -1985,7 +2005,9 @@ Usage: cardano-cli allegra transaction build-raw
                                                          )
                                                          --certificate-execution-units (INT, INT)]
                                                      | --certificate-tx-in-reference TX-IN
-                                                       --certificate-plutus-script-v2
+                                                       ( --certificate-plutus-script-v2
+                                                       | --certificate-plutus-script-v3
+                                                       )
                                                        ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                        | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                        | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -2001,7 +2023,9 @@ Usage: cardano-cli allegra transaction build-raw
                                                          )
                                                          --withdrawal-execution-units (INT, INT)]
                                                      | --withdrawal-tx-in-reference TX-IN
-                                                       --withdrawal-plutus-script-v2
+                                                       ( --withdrawal-plutus-script-v2
+                                                       | --withdrawal-plutus-script-v3
+                                                       )
                                                        ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                        | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                        | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -2037,7 +2061,9 @@ Usage: cardano-cli allegra transaction build --socket-path SOCKET_PATH
                                                [--witness-override WORD]
                                                (--tx-in TX-IN
                                                  [ --spending-tx-in-reference TX-IN
-                                                   --spending-plutus-script-v2
+                                                   ( --spending-plutus-script-v2
+                                                   | --spending-plutus-script-v3
+                                                   )
                                                    ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                    | --spending-reference-tx-in-datum-file JSON FILE
                                                    | --spending-reference-tx-in-datum-value JSON VALUE
@@ -2090,7 +2116,9 @@ Usage: cardano-cli allegra transaction build --socket-path SOCKET_PATH
                                                  | --simple-minting-script-tx-in-reference TX-IN
                                                    --policy-id HASH
                                                  | --mint-tx-in-reference TX-IN
-                                                   --mint-plutus-script-v2
+                                                   ( --mint-plutus-script-v2
+                                                   | --mint-plutus-script-v3
+                                                   )
                                                    ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                    | --mint-reference-tx-in-redeemer-file JSON FILE
                                                    | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -2107,7 +2135,9 @@ Usage: cardano-cli allegra transaction build --socket-path SOCKET_PATH
                                                    | --certificate-redeemer-value JSON VALUE
                                                    ]
                                                  | --certificate-tx-in-reference TX-IN
-                                                   --certificate-plutus-script-v2
+                                                   ( --certificate-plutus-script-v2
+                                                   | --certificate-plutus-script-v3
+                                                   )
                                                    ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                    | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                    | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -2120,7 +2150,9 @@ Usage: cardano-cli allegra transaction build --socket-path SOCKET_PATH
                                                    | --withdrawal-redeemer-value JSON VALUE
                                                    ]
                                                  | --withdrawal-tx-in-reference TX-IN
-                                                   --withdrawal-plutus-script-v2
+                                                   ( --withdrawal-plutus-script-v2
+                                                   | --withdrawal-plutus-script-v3
+                                                   )
                                                    ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                    | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                    | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -3025,7 +3057,9 @@ Usage: cardano-cli mary transaction build-raw
                                                 ]
                                                 (--tx-in TX-IN
                                                   [ --spending-tx-in-reference TX-IN
-                                                    --spending-plutus-script-v2
+                                                    ( --spending-plutus-script-v2
+                                                    | --spending-plutus-script-v3
+                                                    )
                                                     ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                     | --spending-reference-tx-in-datum-file JSON FILE
                                                     | --spending-reference-tx-in-datum-value JSON VALUE
@@ -3081,7 +3115,9 @@ Usage: cardano-cli mary transaction build-raw
                                                   | --simple-minting-script-tx-in-reference TX-IN
                                                     --policy-id HASH
                                                   | --mint-tx-in-reference TX-IN
-                                                    --mint-plutus-script-v2
+                                                    ( --mint-plutus-script-v2
+                                                    | --mint-plutus-script-v3
+                                                    )
                                                     ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                     | --mint-reference-tx-in-redeemer-file JSON FILE
                                                     | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -3102,7 +3138,9 @@ Usage: cardano-cli mary transaction build-raw
                                                       )
                                                       --certificate-execution-units (INT, INT)]
                                                   | --certificate-tx-in-reference TX-IN
-                                                    --certificate-plutus-script-v2
+                                                    ( --certificate-plutus-script-v2
+                                                    | --certificate-plutus-script-v3
+                                                    )
                                                     ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                     | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                     | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -3118,7 +3156,9 @@ Usage: cardano-cli mary transaction build-raw
                                                       )
                                                       --withdrawal-execution-units (INT, INT)]
                                                   | --withdrawal-tx-in-reference TX-IN
-                                                    --withdrawal-plutus-script-v2
+                                                    ( --withdrawal-plutus-script-v2
+                                                    | --withdrawal-plutus-script-v3
+                                                    )
                                                     ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                     | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                     | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -3152,7 +3192,9 @@ Usage: cardano-cli mary transaction build --socket-path SOCKET_PATH
                                             [--witness-override WORD]
                                             (--tx-in TX-IN
                                               [ --spending-tx-in-reference TX-IN
-                                                --spending-plutus-script-v2
+                                                ( --spending-plutus-script-v2
+                                                | --spending-plutus-script-v3
+                                                )
                                                 ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                 | --spending-reference-tx-in-datum-file JSON FILE
                                                 | --spending-reference-tx-in-datum-value JSON VALUE
@@ -3205,7 +3247,9 @@ Usage: cardano-cli mary transaction build --socket-path SOCKET_PATH
                                               | --simple-minting-script-tx-in-reference TX-IN
                                                 --policy-id HASH
                                               | --mint-tx-in-reference TX-IN
-                                                --mint-plutus-script-v2
+                                                ( --mint-plutus-script-v2
+                                                | --mint-plutus-script-v3
+                                                )
                                                 ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                 | --mint-reference-tx-in-redeemer-file JSON FILE
                                                 | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -3221,7 +3265,9 @@ Usage: cardano-cli mary transaction build --socket-path SOCKET_PATH
                                                 | --certificate-redeemer-value JSON VALUE
                                                 ]
                                               | --certificate-tx-in-reference TX-IN
-                                                --certificate-plutus-script-v2
+                                                ( --certificate-plutus-script-v2
+                                                | --certificate-plutus-script-v3
+                                                )
                                                 ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                 | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                 | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -3234,7 +3280,9 @@ Usage: cardano-cli mary transaction build --socket-path SOCKET_PATH
                                                 | --withdrawal-redeemer-value JSON VALUE
                                                 ]
                                               | --withdrawal-tx-in-reference TX-IN
-                                                --withdrawal-plutus-script-v2
+                                                ( --withdrawal-plutus-script-v2
+                                                | --withdrawal-plutus-script-v3
+                                                )
                                                 ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                 | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                 | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -4143,7 +4191,9 @@ Usage: cardano-cli alonzo transaction build-raw
                                                   ]
                                                   (--tx-in TX-IN
                                                     [ --spending-tx-in-reference TX-IN
-                                                      --spending-plutus-script-v2
+                                                      ( --spending-plutus-script-v2
+                                                      | --spending-plutus-script-v3
+                                                      )
                                                       ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                       | --spending-reference-tx-in-datum-file JSON FILE
                                                       | --spending-reference-tx-in-datum-value JSON VALUE
@@ -4199,7 +4249,9 @@ Usage: cardano-cli alonzo transaction build-raw
                                                     | --simple-minting-script-tx-in-reference TX-IN
                                                       --policy-id HASH
                                                     | --mint-tx-in-reference TX-IN
-                                                      --mint-plutus-script-v2
+                                                      ( --mint-plutus-script-v2
+                                                      | --mint-plutus-script-v3
+                                                      )
                                                       ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --mint-reference-tx-in-redeemer-file JSON FILE
                                                       | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -4220,7 +4272,9 @@ Usage: cardano-cli alonzo transaction build-raw
                                                         )
                                                         --certificate-execution-units (INT, INT)]
                                                     | --certificate-tx-in-reference TX-IN
-                                                      --certificate-plutus-script-v2
+                                                      ( --certificate-plutus-script-v2
+                                                      | --certificate-plutus-script-v3
+                                                      )
                                                       ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                       | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -4236,7 +4290,9 @@ Usage: cardano-cli alonzo transaction build-raw
                                                         )
                                                         --withdrawal-execution-units (INT, INT)]
                                                     | --withdrawal-tx-in-reference TX-IN
-                                                      --withdrawal-plutus-script-v2
+                                                      ( --withdrawal-plutus-script-v2
+                                                      | --withdrawal-plutus-script-v3
+                                                      )
                                                       ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                       | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -4272,7 +4328,9 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                               [--witness-override WORD]
                                               (--tx-in TX-IN
                                                 [ --spending-tx-in-reference TX-IN
-                                                  --spending-plutus-script-v2
+                                                  ( --spending-plutus-script-v2
+                                                  | --spending-plutus-script-v3
+                                                  )
                                                   ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                   | --spending-reference-tx-in-datum-file JSON FILE
                                                   | --spending-reference-tx-in-datum-value JSON VALUE
@@ -4325,7 +4383,9 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                                 | --simple-minting-script-tx-in-reference TX-IN
                                                   --policy-id HASH
                                                 | --mint-tx-in-reference TX-IN
-                                                  --mint-plutus-script-v2
+                                                  ( --mint-plutus-script-v2
+                                                  | --mint-plutus-script-v3
+                                                  )
                                                   ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --mint-reference-tx-in-redeemer-file JSON FILE
                                                   | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -4342,7 +4402,9 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                                   | --certificate-redeemer-value JSON VALUE
                                                   ]
                                                 | --certificate-tx-in-reference TX-IN
-                                                  --certificate-plutus-script-v2
+                                                  ( --certificate-plutus-script-v2
+                                                  | --certificate-plutus-script-v3
+                                                  )
                                                   ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                   | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -4355,7 +4417,9 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                                   | --withdrawal-redeemer-value JSON VALUE
                                                   ]
                                                 | --withdrawal-tx-in-reference TX-IN
-                                                  --withdrawal-plutus-script-v2
+                                                  ( --withdrawal-plutus-script-v2
+                                                  | --withdrawal-plutus-script-v3
+                                                  )
                                                   ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                   | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -5294,7 +5358,9 @@ Usage: cardano-cli babbage transaction build-raw
                                                    ]
                                                    (--tx-in TX-IN
                                                      [ --spending-tx-in-reference TX-IN
-                                                       --spending-plutus-script-v2
+                                                       ( --spending-plutus-script-v2
+                                                       | --spending-plutus-script-v3
+                                                       )
                                                        ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                        | --spending-reference-tx-in-datum-file JSON FILE
                                                        | --spending-reference-tx-in-datum-value JSON VALUE
@@ -5350,7 +5416,9 @@ Usage: cardano-cli babbage transaction build-raw
                                                      | --simple-minting-script-tx-in-reference TX-IN
                                                        --policy-id HASH
                                                      | --mint-tx-in-reference TX-IN
-                                                       --mint-plutus-script-v2
+                                                       ( --mint-plutus-script-v2
+                                                       | --mint-plutus-script-v3
+                                                       )
                                                        ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                        | --mint-reference-tx-in-redeemer-file JSON FILE
                                                        | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -5371,7 +5439,9 @@ Usage: cardano-cli babbage transaction build-raw
                                                          )
                                                          --certificate-execution-units (INT, INT)]
                                                      | --certificate-tx-in-reference TX-IN
-                                                       --certificate-plutus-script-v2
+                                                       ( --certificate-plutus-script-v2
+                                                       | --certificate-plutus-script-v3
+                                                       )
                                                        ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                        | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                        | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -5387,7 +5457,9 @@ Usage: cardano-cli babbage transaction build-raw
                                                          )
                                                          --withdrawal-execution-units (INT, INT)]
                                                      | --withdrawal-tx-in-reference TX-IN
-                                                       --withdrawal-plutus-script-v2
+                                                       ( --withdrawal-plutus-script-v2
+                                                       | --withdrawal-plutus-script-v3
+                                                       )
                                                        ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                        | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                        | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -5423,7 +5495,9 @@ Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
                                                [--witness-override WORD]
                                                (--tx-in TX-IN
                                                  [ --spending-tx-in-reference TX-IN
-                                                   --spending-plutus-script-v2
+                                                   ( --spending-plutus-script-v2
+                                                   | --spending-plutus-script-v3
+                                                   )
                                                    ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                    | --spending-reference-tx-in-datum-file JSON FILE
                                                    | --spending-reference-tx-in-datum-value JSON VALUE
@@ -5476,7 +5550,9 @@ Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
                                                  | --simple-minting-script-tx-in-reference TX-IN
                                                    --policy-id HASH
                                                  | --mint-tx-in-reference TX-IN
-                                                   --mint-plutus-script-v2
+                                                   ( --mint-plutus-script-v2
+                                                   | --mint-plutus-script-v3
+                                                   )
                                                    ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                    | --mint-reference-tx-in-redeemer-file JSON FILE
                                                    | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -5493,7 +5569,9 @@ Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
                                                    | --certificate-redeemer-value JSON VALUE
                                                    ]
                                                  | --certificate-tx-in-reference TX-IN
-                                                   --certificate-plutus-script-v2
+                                                   ( --certificate-plutus-script-v2
+                                                   | --certificate-plutus-script-v3
+                                                   )
                                                    ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                    | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                    | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -5506,7 +5584,9 @@ Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
                                                    | --withdrawal-redeemer-value JSON VALUE
                                                    ]
                                                  | --withdrawal-tx-in-reference TX-IN
-                                                   --withdrawal-plutus-script-v2
+                                                   ( --withdrawal-plutus-script-v2
+                                                   | --withdrawal-plutus-script-v3
+                                                   )
                                                    ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                    | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                    | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -6766,7 +6846,9 @@ Usage: cardano-cli conway transaction build-raw
                                                   ]
                                                   (--tx-in TX-IN
                                                     [ --spending-tx-in-reference TX-IN
-                                                      --spending-plutus-script-v2
+                                                      ( --spending-plutus-script-v2
+                                                      | --spending-plutus-script-v3
+                                                      )
                                                       ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                       | --spending-reference-tx-in-datum-file JSON FILE
                                                       | --spending-reference-tx-in-datum-value JSON VALUE
@@ -6822,7 +6904,9 @@ Usage: cardano-cli conway transaction build-raw
                                                     | --simple-minting-script-tx-in-reference TX-IN
                                                       --policy-id HASH
                                                     | --mint-tx-in-reference TX-IN
-                                                      --mint-plutus-script-v2
+                                                      ( --mint-plutus-script-v2
+                                                      | --mint-plutus-script-v3
+                                                      )
                                                       ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --mint-reference-tx-in-redeemer-file JSON FILE
                                                       | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -6843,7 +6927,9 @@ Usage: cardano-cli conway transaction build-raw
                                                         )
                                                         --certificate-execution-units (INT, INT)]
                                                     | --certificate-tx-in-reference TX-IN
-                                                      --certificate-plutus-script-v2
+                                                      ( --certificate-plutus-script-v2
+                                                      | --certificate-plutus-script-v3
+                                                      )
                                                       ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                       | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -6859,7 +6945,9 @@ Usage: cardano-cli conway transaction build-raw
                                                         )
                                                         --withdrawal-execution-units (INT, INT)]
                                                     | --withdrawal-tx-in-reference TX-IN
-                                                      --withdrawal-plutus-script-v2
+                                                      ( --withdrawal-plutus-script-v2
+                                                      | --withdrawal-plutus-script-v3
+                                                      )
                                                       ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                       | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -6894,7 +6982,9 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                               [--witness-override WORD]
                                               (--tx-in TX-IN
                                                 [ --spending-tx-in-reference TX-IN
-                                                  --spending-plutus-script-v2
+                                                  ( --spending-plutus-script-v2
+                                                  | --spending-plutus-script-v3
+                                                  )
                                                   ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                   | --spending-reference-tx-in-datum-file JSON FILE
                                                   | --spending-reference-tx-in-datum-value JSON VALUE
@@ -6947,7 +7037,9 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                                 | --simple-minting-script-tx-in-reference TX-IN
                                                   --policy-id HASH
                                                 | --mint-tx-in-reference TX-IN
-                                                  --mint-plutus-script-v2
+                                                  ( --mint-plutus-script-v2
+                                                  | --mint-plutus-script-v3
+                                                  )
                                                   ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --mint-reference-tx-in-redeemer-file JSON FILE
                                                   | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -6964,7 +7056,9 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                                   | --certificate-redeemer-value JSON VALUE
                                                   ]
                                                 | --certificate-tx-in-reference TX-IN
-                                                  --certificate-plutus-script-v2
+                                                  ( --certificate-plutus-script-v2
+                                                  | --certificate-plutus-script-v3
+                                                  )
                                                   ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                   | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -6977,7 +7071,9 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                                   | --withdrawal-redeemer-value JSON VALUE
                                                   ]
                                                 | --withdrawal-tx-in-reference TX-IN
-                                                  --withdrawal-plutus-script-v2
+                                                  ( --withdrawal-plutus-script-v2
+                                                  | --withdrawal-plutus-script-v3
+                                                  )
                                                   ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                   | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -7912,7 +8008,9 @@ Usage: cardano-cli latest transaction build-raw
                                                   ]
                                                   (--tx-in TX-IN
                                                     [ --spending-tx-in-reference TX-IN
-                                                      --spending-plutus-script-v2
+                                                      ( --spending-plutus-script-v2
+                                                      | --spending-plutus-script-v3
+                                                      )
                                                       ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                       | --spending-reference-tx-in-datum-file JSON FILE
                                                       | --spending-reference-tx-in-datum-value JSON VALUE
@@ -7968,7 +8066,9 @@ Usage: cardano-cli latest transaction build-raw
                                                     | --simple-minting-script-tx-in-reference TX-IN
                                                       --policy-id HASH
                                                     | --mint-tx-in-reference TX-IN
-                                                      --mint-plutus-script-v2
+                                                      ( --mint-plutus-script-v2
+                                                      | --mint-plutus-script-v3
+                                                      )
                                                       ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --mint-reference-tx-in-redeemer-file JSON FILE
                                                       | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -7989,7 +8089,9 @@ Usage: cardano-cli latest transaction build-raw
                                                         )
                                                         --certificate-execution-units (INT, INT)]
                                                     | --certificate-tx-in-reference TX-IN
-                                                      --certificate-plutus-script-v2
+                                                      ( --certificate-plutus-script-v2
+                                                      | --certificate-plutus-script-v3
+                                                      )
                                                       ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                       | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -8005,7 +8107,9 @@ Usage: cardano-cli latest transaction build-raw
                                                         )
                                                         --withdrawal-execution-units (INT, INT)]
                                                     | --withdrawal-tx-in-reference TX-IN
-                                                      --withdrawal-plutus-script-v2
+                                                      ( --withdrawal-plutus-script-v2
+                                                      | --withdrawal-plutus-script-v3
+                                                      )
                                                       ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                       | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -8041,7 +8145,9 @@ Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
                                               [--witness-override WORD]
                                               (--tx-in TX-IN
                                                 [ --spending-tx-in-reference TX-IN
-                                                  --spending-plutus-script-v2
+                                                  ( --spending-plutus-script-v2
+                                                  | --spending-plutus-script-v3
+                                                  )
                                                   ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                   | --spending-reference-tx-in-datum-file JSON FILE
                                                   | --spending-reference-tx-in-datum-value JSON VALUE
@@ -8094,7 +8200,9 @@ Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
                                                 | --simple-minting-script-tx-in-reference TX-IN
                                                   --policy-id HASH
                                                 | --mint-tx-in-reference TX-IN
-                                                  --mint-plutus-script-v2
+                                                  ( --mint-plutus-script-v2
+                                                  | --mint-plutus-script-v3
+                                                  )
                                                   ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --mint-reference-tx-in-redeemer-file JSON FILE
                                                   | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -8111,7 +8219,9 @@ Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
                                                   | --certificate-redeemer-value JSON VALUE
                                                   ]
                                                 | --certificate-tx-in-reference TX-IN
-                                                  --certificate-plutus-script-v2
+                                                  ( --certificate-plutus-script-v2
+                                                  | --certificate-plutus-script-v3
+                                                  )
                                                   ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                   | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -8124,7 +8234,9 @@ Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
                                                   | --withdrawal-redeemer-value JSON VALUE
                                                   ]
                                                 | --withdrawal-tx-in-reference TX-IN
-                                                  --withdrawal-plutus-script-v2
+                                                  ( --withdrawal-plutus-script-v2
+                                                  | --withdrawal-plutus-script-v3
+                                                  )
                                                   ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                   | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -8921,7 +9033,9 @@ Usage: cardano-cli legacy transaction build-raw
                                                   ]
                                                   (--tx-in TX-IN
                                                     [ --spending-tx-in-reference TX-IN
-                                                      --spending-plutus-script-v2
+                                                      ( --spending-plutus-script-v2
+                                                      | --spending-plutus-script-v3
+                                                      )
                                                       ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                       | --spending-reference-tx-in-datum-file JSON FILE
                                                       | --spending-reference-tx-in-datum-value JSON VALUE
@@ -8977,7 +9091,9 @@ Usage: cardano-cli legacy transaction build-raw
                                                     | --simple-minting-script-tx-in-reference TX-IN
                                                       --policy-id HASH
                                                     | --mint-tx-in-reference TX-IN
-                                                      --mint-plutus-script-v2
+                                                      ( --mint-plutus-script-v2
+                                                      | --mint-plutus-script-v3
+                                                      )
                                                       ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --mint-reference-tx-in-redeemer-file JSON FILE
                                                       | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -8998,7 +9114,9 @@ Usage: cardano-cli legacy transaction build-raw
                                                         )
                                                         --certificate-execution-units (INT, INT)]
                                                     | --certificate-tx-in-reference TX-IN
-                                                      --certificate-plutus-script-v2
+                                                      ( --certificate-plutus-script-v2
+                                                      | --certificate-plutus-script-v3
+                                                      )
                                                       ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                       | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -9014,7 +9132,9 @@ Usage: cardano-cli legacy transaction build-raw
                                                         )
                                                         --withdrawal-execution-units (INT, INT)]
                                                     | --withdrawal-tx-in-reference TX-IN
-                                                      --withdrawal-plutus-script-v2
+                                                      ( --withdrawal-plutus-script-v2
+                                                      | --withdrawal-plutus-script-v3
+                                                      )
                                                       ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                       | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                       | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -9054,7 +9174,9 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                               [--witness-override WORD]
                                               (--tx-in TX-IN
                                                 [ --spending-tx-in-reference TX-IN
-                                                  --spending-plutus-script-v2
+                                                  ( --spending-plutus-script-v2
+                                                  | --spending-plutus-script-v3
+                                                  )
                                                   ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                   | --spending-reference-tx-in-datum-file JSON FILE
                                                   | --spending-reference-tx-in-datum-value JSON VALUE
@@ -9107,7 +9229,9 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                                 | --simple-minting-script-tx-in-reference TX-IN
                                                   --policy-id HASH
                                                 | --mint-tx-in-reference TX-IN
-                                                  --mint-plutus-script-v2
+                                                  ( --mint-plutus-script-v2
+                                                  | --mint-plutus-script-v3
+                                                  )
                                                   ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --mint-reference-tx-in-redeemer-file JSON FILE
                                                   | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -9124,7 +9248,9 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                                   | --certificate-redeemer-value JSON VALUE
                                                   ]
                                                 | --certificate-tx-in-reference TX-IN
-                                                  --certificate-plutus-script-v2
+                                                  ( --certificate-plutus-script-v2
+                                                  | --certificate-plutus-script-v3
+                                                  )
                                                   ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                   | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -9137,7 +9263,9 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                                   | --withdrawal-redeemer-value JSON VALUE
                                                   ]
                                                 | --withdrawal-tx-in-reference TX-IN
-                                                  --withdrawal-plutus-script-v2
+                                                  ( --withdrawal-plutus-script-v2
+                                                  | --withdrawal-plutus-script-v3
+                                                  )
                                                   ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                   | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -10125,7 +10253,9 @@ Usage: cardano-cli transaction build-raw
                                            [--script-valid | --script-invalid]
                                            (--tx-in TX-IN
                                              [ --spending-tx-in-reference TX-IN
-                                               --spending-plutus-script-v2
+                                               ( --spending-plutus-script-v2
+                                               | --spending-plutus-script-v3
+                                               )
                                                ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                | --spending-reference-tx-in-datum-file JSON FILE
                                                | --spending-reference-tx-in-datum-value JSON VALUE
@@ -10181,7 +10311,9 @@ Usage: cardano-cli transaction build-raw
                                              | --simple-minting-script-tx-in-reference TX-IN
                                                --policy-id HASH
                                              | --mint-tx-in-reference TX-IN
-                                               --mint-plutus-script-v2
+                                               ( --mint-plutus-script-v2
+                                               | --mint-plutus-script-v3
+                                               )
                                                ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                | --mint-reference-tx-in-redeemer-file JSON FILE
                                                | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -10201,7 +10333,9 @@ Usage: cardano-cli transaction build-raw
                                                  )
                                                  --certificate-execution-units (INT, INT)]
                                              | --certificate-tx-in-reference TX-IN
-                                               --certificate-plutus-script-v2
+                                               ( --certificate-plutus-script-v2
+                                               | --certificate-plutus-script-v3
+                                               )
                                                ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -10217,7 +10351,9 @@ Usage: cardano-cli transaction build-raw
                                                  )
                                                  --withdrawal-execution-units (INT, INT)]
                                              | --withdrawal-tx-in-reference TX-IN
-                                               --withdrawal-plutus-script-v2
+                                               ( --withdrawal-plutus-script-v2
+                                               | --withdrawal-plutus-script-v3
+                                               )
                                                ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -10252,7 +10388,9 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                        [--witness-override WORD]
                                        (--tx-in TX-IN
                                          [ --spending-tx-in-reference TX-IN
-                                           --spending-plutus-script-v2
+                                           ( --spending-plutus-script-v2
+                                           | --spending-plutus-script-v3
+                                           )
                                            ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                            | --spending-reference-tx-in-datum-file JSON FILE
                                            | --spending-reference-tx-in-datum-value JSON VALUE
@@ -10305,7 +10443,9 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                          | --simple-minting-script-tx-in-reference TX-IN
                                            --policy-id HASH
                                          | --mint-tx-in-reference TX-IN
-                                           --mint-plutus-script-v2
+                                           ( --mint-plutus-script-v2
+                                           | --mint-plutus-script-v3
+                                           )
                                            ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                            | --mint-reference-tx-in-redeemer-file JSON FILE
                                            | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -10321,7 +10461,9 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                            | --certificate-redeemer-value JSON VALUE
                                            ]
                                          | --certificate-tx-in-reference TX-IN
-                                           --certificate-plutus-script-v2
+                                           ( --certificate-plutus-script-v2
+                                           | --certificate-plutus-script-v3
+                                           )
                                            ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                            | --certificate-reference-tx-in-redeemer-file JSON FILE
                                            | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -10334,7 +10476,9 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                            | --withdrawal-redeemer-value JSON VALUE
                                            ]
                                          | --withdrawal-tx-in-reference TX-IN
-                                           --withdrawal-plutus-script-v2
+                                           ( --withdrawal-plutus-script-v2
+                                           | --withdrawal-plutus-script-v3
+                                           )
                                            ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                            | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                            | --withdrawal-reference-tx-in-redeemer-value JSON VALUE

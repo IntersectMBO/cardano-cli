@@ -1406,11 +1406,14 @@ pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
     <*> pure Nothing
 
 pPlutusScriptLanguage :: String -> Parser AnyScriptLanguage
-pPlutusScriptLanguage prefix =
-  Opt.flag' (AnyScriptLanguage $ PlutusScriptLanguage PlutusScriptV2)
-    (  Opt.long (prefix ++ "plutus-script-v2")
-    <> Opt.help "Specify a plutus script v2 reference script."
-    )
+pPlutusScriptLanguage prefix = plutusP PlutusScriptV2 "v2" <|> plutusP PlutusScriptV3 "v3"
+  where
+    plutusP :: PlutusScriptVersion lang -> String -> Parser AnyScriptLanguage
+    plutusP plutusVersion versionString =
+      Opt.flag' (AnyScriptLanguage $ PlutusScriptLanguage plutusVersion)
+      (  Opt.long (prefix <> "plutus-script-" <> versionString)
+      <> Opt.help ("Specify a plutus script " <> versionString <> " reference script.")
+      )
 
 pUpdateProposalFile :: Parser UpdateProposalFile
 pUpdateProposalFile =

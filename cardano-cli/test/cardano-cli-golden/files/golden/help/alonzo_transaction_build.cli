@@ -10,7 +10,9 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                               [--witness-override WORD]
                                               (--tx-in TX-IN
                                                 [ --spending-tx-in-reference TX-IN
-                                                  --spending-plutus-script-v2
+                                                  ( --spending-plutus-script-v2
+                                                  | --spending-plutus-script-v3
+                                                  )
                                                   ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
                                                   | --spending-reference-tx-in-datum-file JSON FILE
                                                   | --spending-reference-tx-in-datum-value JSON VALUE
@@ -63,7 +65,9 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                                 | --simple-minting-script-tx-in-reference TX-IN
                                                   --policy-id HASH
                                                 | --mint-tx-in-reference TX-IN
-                                                  --mint-plutus-script-v2
+                                                  ( --mint-plutus-script-v2
+                                                  | --mint-plutus-script-v3
+                                                  )
                                                   ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --mint-reference-tx-in-redeemer-file JSON FILE
                                                   | --mint-reference-tx-in-redeemer-value JSON VALUE
@@ -80,7 +84,9 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                                   | --certificate-redeemer-value JSON VALUE
                                                   ]
                                                 | --certificate-tx-in-reference TX-IN
-                                                  --certificate-plutus-script-v2
+                                                  ( --certificate-plutus-script-v2
+                                                  | --certificate-plutus-script-v3
+                                                  )
                                                   ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --certificate-reference-tx-in-redeemer-file JSON FILE
                                                   | --certificate-reference-tx-in-redeemer-value JSON VALUE
@@ -93,7 +99,9 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                                   | --withdrawal-redeemer-value JSON VALUE
                                                   ]
                                                 | --withdrawal-tx-in-reference TX-IN
-                                                  --withdrawal-plutus-script-v2
+                                                  ( --withdrawal-plutus-script-v2
+                                                  | --withdrawal-plutus-script-v3
+                                                  )
                                                   ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                                                   | --withdrawal-reference-tx-in-redeemer-file JSON FILE
                                                   | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
@@ -143,6 +151,8 @@ Available options:
                            input must have a plutus reference script attached.
   --spending-plutus-script-v2
                            Specify a plutus script v2 reference script.
+  --spending-plutus-script-v3
+                           Specify a plutus script v3 reference script.
   --spending-reference-tx-in-datum-cbor-file CBOR FILE
                            The script datum, in the given JSON file. The file
                            must follow the special JSON schema for script data.
@@ -284,6 +294,7 @@ Available options:
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --mint-plutus-script-v2  Specify a plutus script v2 reference script.
+  --mint-plutus-script-v3  Specify a plutus script v3 reference script.
   --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
                            The script redeemer, in the given JSON file. The file
                            must follow the special JSON schema for script data.
@@ -320,6 +331,8 @@ Available options:
                            input must have a plutus reference script attached.
   --certificate-plutus-script-v2
                            Specify a plutus script v2 reference script.
+  --certificate-plutus-script-v3
+                           Specify a plutus script v3 reference script.
   --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
                            The script redeemer, in the given JSON file. The file
                            must follow the special JSON schema for script data.
@@ -352,6 +365,8 @@ Available options:
                            input must have a plutus reference script attached.
   --withdrawal-plutus-script-v2
                            Specify a plutus script v2 reference script.
+  --withdrawal-plutus-script-v3
+                           Specify a plutus script v3 reference script.
   --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
                            The script redeemer, in the given JSON file. The file
                            must follow the special JSON schema for script data.
