@@ -2866,25 +2866,25 @@ pPoolVotingThresholds =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "pool-voting-threshold-motion-no-confidence"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for stake pool votes on motions no confidence."
         ]
     pCommitteeNormal =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "pool-voting-threshold-committee-normal"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for stake pool votes on normal committee updates."
         ]
     pCommitteeNoConfidence =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "pool-voting-threshold-committee-no-confidence"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for stake pool votes on committee updates when the committee is in a state of no confidence."
         ]
     pHardForkInitiation =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "pool-voting-threshold-hard-fork-initiation"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for stake pool votes on hard fork initiations."
         ]
 
 pDRepVotingThresholds :: Parser Ledger.DRepVotingThresholds
@@ -2905,61 +2905,61 @@ pDRepVotingThresholds =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "drep-voting-threshold-motion-no-confidence"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for DRep votes on motions of no confidence."
         ]
     pCommitteeNormal =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "drep-voting-threshold-committee-normal"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for DRep votes on normal committee updates."
         ]
     pCommitteeNoConfidence =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "drep-voting-threshold-committee-no-confidence"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for DRep votes on committee updates when the committee is in a state of no confidence."
         ]
     pUpdateToConstitution =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "drep-voting-threshold-update-to-constitution"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for DRep votes on constitution updates."
         ]
     pHardForkInitiation =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "drep-voting-threshold-hard-fork-initiation"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for DRep votes on hard fork initiations."
         ]
     pPPNetworkGroup =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "drep-voting-threshold-pp-network-group"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for DRep votes on protocol parameters for parameters in the 'network' group."
         ]
     pPPEconomicGroup =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "drep-voting-threshold-pp-economic-group"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for DRep votes on protocol parameters for parameters in the 'economic' group."
         ]
     pPPTechnicalGroup =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "drep-voting-threshold-pp-technical-group"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for DRep votes on protocol parameters for parameters in the 'technical' group."
         ]
     pPPGovGroup =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "drep-voting-threshold-pp-governance-group"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for DRep votes on protocol parameters for parameters in the 'governance' group."
         ]
     pTreasuryWithdrawal =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
         [ Opt.long "drep-voting-threshold-treasury-withdrawal"
         , Opt.metavar "RATIONAL"
-        , Opt.help "TODO"
+        , Opt.help "Acceptance threshold for DRep votes on treasury withdrawals."
         ]
 
 pMinCommitteeSize :: Parser Natural
@@ -2967,7 +2967,7 @@ pMinCommitteeSize =
   Opt.option Opt.auto $ mconcat
     [ Opt.long "min-committee-size"
     , Opt.metavar "INT"
-    , Opt.help "TODO"
+    , Opt.help "Minimal size of the constitutional committee."
     ]
 
 pCommitteeTermLength :: Parser EpochNo
@@ -2975,7 +2975,7 @@ pCommitteeTermLength =
   fmap EpochNo $ Opt.option Opt.auto $ mconcat
     [ Opt.long "committee-term-length"
     , Opt.metavar "INT"
-    , Opt.help "TODO"
+    , Opt.help "Maximal term length for members of the constitutional committee, in epochs."
     ]
 
 pGovActionLifetime :: Parser EpochNo
@@ -2983,7 +2983,7 @@ pGovActionLifetime =
   fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
     [ Opt.long "governance-action-lifetime"
     , Opt.metavar "NATURAL"
-    , Opt.help "TODO"
+    , Opt.help "Maximal lifetime of governance actions, in epochs."
     ]
 
 pDRepDeposit :: Parser Lovelace
@@ -2991,7 +2991,7 @@ pDRepDeposit =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "drep-deposit"
     , Opt.metavar "LOVELACE"
-    , Opt.help "TODO"
+    , Opt.help "DRep deposit amount."
     ]
 
 pDRepActivity :: Parser EpochNo
@@ -2999,7 +2999,7 @@ pDRepActivity =
   fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
     [ Opt.long "drep-activity"
     , Opt.metavar "NATURAL"
-    , Opt.help "TODO"
+    , Opt.help "DRep activity period, in epochs."
     ]
 
 parseTxOutShelleyBasedEra
