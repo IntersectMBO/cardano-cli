@@ -128,43 +128,60 @@ Available options:
                            Cost in lovelace per unit of UTxO storage (from
                            Babbage era).
   --pool-voting-threshold-motion-no-confidence RATIONAL
-                           TODO
+                           Acceptance threshold for stake pool votes on motions
+                           no confidence.
   --pool-voting-threshold-committee-normal RATIONAL
-                           TODO
+                           Acceptance threshold for stake pool votes on normal
+                           committee updates.
   --pool-voting-threshold-committee-no-confidence RATIONAL
-                           TODO
+                           Acceptance threshold for stake pool votes on
+                           committee updates when the committee is in a state of
+                           no confidence.
   --pool-voting-threshold-hard-fork-initiation RATIONAL
-                           TODO
+                           Acceptance threshold for stake pool votes on hard
+                           fork initiations.
   --drep-voting-threshold-motion-no-confidence RATIONAL
-                           TODO
+                           Acceptance threshold for DRep votes on motions of no
+                           confidence.
   --drep-voting-threshold-committee-normal RATIONAL
-                           TODO
+                           Acceptance threshold for DRep votes on normal
+                           committee updates.
   --drep-voting-threshold-committee-no-confidence RATIONAL
-                           TODO
+                           Acceptance threshold for DRep votes on committee
+                           updates when the committee is in a state of no
+                           confidence.
   --drep-voting-threshold-update-to-constitution RATIONAL
-                           TODO
+                           Acceptance threshold for DRep votes on constitution
+                           updates.
   --drep-voting-threshold-hard-fork-initiation RATIONAL
-                           TODO
+                           Acceptance threshold for DRep votes on hard fork
+                           initiations.
   --drep-voting-threshold-pp-network-group RATIONAL
-                           TODO
+                           Acceptance threshold for DRep votes on protocol
+                           parameters for parameters in the 'network' group.
   --drep-voting-threshold-pp-economic-group RATIONAL
-                           TODO
+                           Acceptance threshold for DRep votes on protocol
+                           parameters for parameters in the 'economic' group.
   --drep-voting-threshold-pp-technical-group RATIONAL
-                           TODO
+                           Acceptance threshold for DRep votes on protocol
+                           parameters for parameters in the 'technical' group.
   --drep-voting-threshold-pp-governance-group RATIONAL
-                           TODO
+                           Acceptance threshold for DRep votes on protocol
+                           parameters for parameters in the 'governance' group.
   --drep-voting-threshold-treasury-withdrawal RATIONAL
-                           TODO
-  --min-committee-size INT TODO
+                           Acceptance threshold for DRep votes on treasury
+                           withdrawals.
+  --min-committee-size INT Minimal size of the constitutional committee.
   --committee-term-length INT
-                           TODO
+                           Maximal term length for members of the constitutional
+                           committee, in epochs.
   --governance-action-lifetime NATURAL
-                           TODO
+                           Maximal lifetime of governance actions, in epochs.
   --new-governance-action-deposit NATURAL
                            Proposed new value of the deposit required to submit
                            a governance action.
-  --drep-deposit LOVELACE  TODO
-  --drep-activity NATURAL  TODO
+  --drep-deposit LOVELACE  DRep deposit amount.
+  --drep-activity NATURAL  DRep activity period, in epochs.
   --cost-model-file FILE   Filepath of the JSON formatted cost model
   --out-file FILE          The output file.
   -h,--help                Show this help text
