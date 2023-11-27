@@ -814,9 +814,10 @@ runQueryStakeAddressInfoCmd
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-        stakeVoteDelegatees <- lift (queryStakeVoteDelegatees sbe stakeAddr)
-          & onLeft (left . QueryCmdUnsupportedNtcVersion)
-          & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+        stakeVoteDelegatees <- monoidForEraInEonA era $ \(_ :: ConwayEraOnwards era) ->
+          lift (queryStakeVoteDelegatees sbe stakeAddr)
+            & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
         return $ do
           writeStakeAddressInfo
