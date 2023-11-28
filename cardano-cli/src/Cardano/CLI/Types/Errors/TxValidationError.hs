@@ -28,7 +28,6 @@ module Cardano.CLI.Types.Errors.TxValidationError
   , validateTxReturnCollateral
   , validateTxScriptValidity
   , validateTxTotalCollateral
-  , validateTxValidityUpperBound
   , validateTxValidityLowerBound
   , validateTxWithdrawals
   , validateUpdateProposalFile
@@ -78,20 +77,14 @@ instance Error TxFeeValidationError where
   prettyError (TxFeatureExplicitFeesE era) =
     "Explicit transaction fee not supported in " <> pretty era
 
-validateTxFee :: CardanoEra era
-              -> Maybe Lovelace
+validateTxFee :: ShelleyBasedEra era
+              -> Maybe Lovelace -- TODO: Make this mandatory in the cli (Remove Maybe)
               -> Either TxFeeValidationError (TxFee era)
 validateTxFee era = \case
   Nothing ->
-    caseByronOrShelleyBasedEra
-      (pure . TxFeeImplicit)
-      (const $ Left . TxFeatureImplicitFeesE $ cardanoEraConstraints era $ AnyCardanoEra era)
-      era
-  Just fee ->
-    caseByronOrShelleyBasedEra
-      (const $ Left . TxFeatureExplicitFeesE $ cardanoEraConstraints era $ AnyCardanoEra era)
-      (\w -> pure (TxFeeExplicit w fee))
-      era
+    let cEra = toCardanoEra era
+    in Left . TxFeatureImplicitFeesE $ cardanoEraConstraints cEra $ AnyCardanoEra cEra
+  Just fee -> pure (TxFeeExplicit era fee)
 
 newtype TxTotalCollateralValidationError
   = TxTotalCollateralNotSupported AnyCardanoEra
@@ -150,17 +143,6 @@ instance Error TxValidityUpperBoundValidationError where
   prettyError (TxValidityUpperBoundNotSupported era) =
     "Transaction validity upper bound must be specified in " <> pretty era
 
-validateTxValidityUpperBound
-  :: CardanoEra era
-  -> Maybe SlotNo
-  -> Either TxValidityUpperBoundValidationError (TxValidityUpperBound era)
-validateTxValidityUpperBound era = \case
-  Just slot -> do
-    supported <- conjureWitness era TxValidityUpperBoundNotSupported
-    pure $ TxValidityUpperBound supported (Just slot)
-  Nothing -> do
-    supported <- conjureWitness era TxValidityUpperBoundNotSupported
-    pure $ TxValidityNoUpperBound supported
 
 data TxAuxScriptsValidationError
   = TxAuxScriptsNotSupportedInEra AnyCardanoEra
