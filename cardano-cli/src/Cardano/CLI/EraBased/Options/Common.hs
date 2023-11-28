@@ -1549,7 +1549,7 @@ pKeyOutputFormat =
     , Opt.metavar "STRING"
     , Opt.help $ mconcat
       [ "Optional key output format. Accepted output formats are \"text-envelope\" "
-      , "and \"bech32\" (default is \"bech32\")."
+      , "and \"bech32\" (default is \"text-envelope\")."
       ]
     , Opt.value KeyOutputFormatTextEnvelope
     ]
