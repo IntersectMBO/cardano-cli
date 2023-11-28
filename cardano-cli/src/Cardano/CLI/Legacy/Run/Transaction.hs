@@ -47,13 +47,8 @@ runLegacyTransactionCmds = \case
       runLegacyTransactionSubmitCmd mNodeSocketPath consensusModeParams network txFp
   TransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
       runLegacyTransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
-  TransactionCalculateMinValueCmd (AnyCardanoEra era) pParamsFile txOuts' ->
-      -- We choose to not modify TransactionCalculateMinValueCmd to avoid breaking the cli
-      -- Although in this case specifying Byron would have resulted in a call to error.
-      caseByronOrShelleyBasedEra
-        (const $ pure ())
-        (\sbe -> runLegacyTransactionCalculateMinValueCmd (AnyShelleyBasedEra sbe) pParamsFile txOuts')
-        era
+  TransactionCalculateMinValueCmd (EraInEon sbe) pParamsFile txOuts' ->
+      runLegacyTransactionCalculateMinValueCmd (AnyShelleyBasedEra sbe) pParamsFile txOuts'
   TransactionHashScriptDataCmd scriptDataOrFile ->
       runLegacyTransactionHashScriptDataCmd scriptDataOrFile
   TransactionTxIdCmd txinfile ->
@@ -123,7 +118,7 @@ runLegacyTransactionBuildCmd
 
 -- TODO: Neither QA nor Sam is using `cardano-cli byron transaction build-raw`
 -- for Byron era transactions. So we can parameterize this function on ShelleyBasedEra.
--- They are using `issue-utxo-expenditure`.
+-- They are using `issue-utxo-expenditure`. However we will deprecate it in a follow up PR.
 -- TODO: As a follow up we need to expose a simple tx building command that only
 -- uses inputs, outputs and update proposals. NB: Update proposals are a separate
 -- thing in the Byron era so we need to figure out how we are handling that at the
@@ -160,8 +155,8 @@ runLegacyTransactionBuildRawCmd (AnyCardanoEra ByronEra) _ txins _ _ _
       case makeByronTransactionBody apiTxIns byronOuts of
         Left err -> error $ "Error occurred while creating a Byron based UTxO transaction: " <> show err
         Right txBody -> do
-          let noWitTx = Api.ByronTx ByronEraOnlyByron $ makeSignedByronTransaction [] txBody
-          lift (cardanoEraConstraints ByronEra $ writeTxFileTextEnvelopeCddl ByronEra outFile noWitTx)
+          let noWitTx = makeSignedByronTransaction [] txBody
+          lift (Api.writeByronTxFileTextEnvelopeCddl outFile noWitTx)
             & onLeft (left . TxCmdWriteFileError)
 
 runLegacyTransactionBuildRawCmd
@@ -171,7 +166,7 @@ runLegacyTransactionBuildRawCmd
     outFile = do
 
   caseByronOrShelleyBasedEra
-    (const $ error "runLegacyTransactionBuildRawCmd: This should be impossible")
+    (error "runLegacyTransactionBuildRawCmd: This should be impossible")
     (\sbe -> do
        mfUpdateProposalFile <- validateUpdateProposalFile era mUpdateProposal
                                  & hoistEither
