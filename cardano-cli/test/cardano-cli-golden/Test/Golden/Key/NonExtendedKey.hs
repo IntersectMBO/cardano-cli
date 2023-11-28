@@ -33,9 +33,6 @@ hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey =
       , "--verification-key-file", outFp
       ]
 
-    -- Check for existence of the converted signing key file
-    H.assertFilesExist [outFp]
-
     H.diffFileVsGoldenFile outFp nonExtendedFp
 
 -- | Test that converting a @cardano-address@ Byron signing key yields the
@@ -56,9 +53,6 @@ hprop_golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley =
       , "--verification-key-file", outFp
       ]
 
-    -- Check for existence of the converted signing key file
-    H.assertFilesExist [outFp]
-
     H.diffFileVsGoldenFile outFp nonExtendedFp
 
 -- | Test that converting a drep extended verification key yields the
@@ -78,7 +72,23 @@ hprop_golden_KeyNonExtendedKey_DRepExtendedVerificationKey =
       , "--verification-key-file", outFp
       ]
 
-    -- Check for existence of the converted signing key file
-    H.assertFilesExist [outFp]
+    H.diffFileVsGoldenFile outFp goldenFile
+
+-- | Test that converting a payment extended verification key yields the
+-- expected result.
+hprop_golden_extended_payment_vkey_to_non_extended_vkey :: Property
+hprop_golden_extended_payment_vkey_to_non_extended_vkey =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    extendedKeyFile <- H.noteInputFile "test/cardano-cli-golden/files/input/key/non-extended-keys/extended-payment.vkey"
+    goldenFile <-  H.note "test/cardano-cli-golden/files/golden/key/non-extended-keys/non-extended-payment.vkey"
+    outFp <- H.note $ tempDir </> "non-extended-payment.vkey"
+
+    H.assertFilesExist [extendedKeyFile]
+
+    void $ execCardanoCLI
+      [ "conway", "key", "non-extended-key"
+      , "--extended-verification-key-file", extendedKeyFile
+      , "--verification-key-file", outFp
+      ]
 
     H.diffFileVsGoldenFile outFp goldenFile
