@@ -9471,12 +9471,12 @@ Usage: cardano-cli legacy transaction calculate-min-fee --tx-body-file FILE
   Calculate the minimum fee for a transaction.
 
 Usage: cardano-cli legacy transaction calculate-min-required-utxo 
-                                                                    [ --byron-era
-                                                                    | --shelley-era
+                                                                    [ --shelley-era
                                                                     | --allegra-era
                                                                     | --mary-era
                                                                     | --alonzo-era
                                                                     | --babbage-era
+                                                                    | --conway-era
                                                                     ]
                                                                     --protocol-params-file FILE
                                                                     --tx-out ADDRESS VALUE
@@ -9496,12 +9496,12 @@ Usage: cardano-cli legacy transaction calculate-min-required-utxo
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli legacy transaction calculate-min-value 
-                                                            [ --byron-era
-                                                            | --shelley-era
+                                                            [ --shelley-era
                                                             | --allegra-era
                                                             | --mary-era
                                                             | --alonzo-era
                                                             | --babbage-era
+                                                            | --conway-era
                                                             ]
                                                             --protocol-params-file FILE
                                                             --tx-out ADDRESS VALUE
@@ -10674,12 +10674,12 @@ Usage: cardano-cli transaction calculate-min-fee --tx-body-file FILE
   Calculate the minimum fee for a transaction.
 
 Usage: cardano-cli transaction calculate-min-required-utxo 
-                                                             [ --byron-era
-                                                             | --shelley-era
+                                                             [ --shelley-era
                                                              | --allegra-era
                                                              | --mary-era
                                                              | --alonzo-era
                                                              | --babbage-era
+                                                             | --conway-era
                                                              ]
                                                              --protocol-params-file FILE
                                                              --tx-out ADDRESS VALUE
@@ -10699,12 +10699,12 @@ Usage: cardano-cli transaction calculate-min-required-utxo
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli transaction calculate-min-value 
-                                                     [ --byron-era
-                                                     | --shelley-era
+                                                     [ --shelley-era
                                                      | --allegra-era
                                                      | --mary-era
                                                      | --alonzo-era
                                                      | --babbage-era
+                                                     | --conway-era
                                                      ]
                                                      --protocol-params-file FILE
                                                      --tx-out ADDRESS VALUE
