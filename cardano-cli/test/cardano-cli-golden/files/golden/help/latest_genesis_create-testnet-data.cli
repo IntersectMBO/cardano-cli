@@ -1,0 +1,46 @@
+Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILE]
+                                                        [--genesis-keys INT]
+                                                        [--pools INT]
+                                                        [--stake-delegators INT]
+                                                        [--stuffed-utxo INT]
+                                                        [--utxo-keys INT]
+                                                        [--supply LOVELACE]
+                                                        [--supply-delegated LOVELACE]
+                                                        ( --mainnet
+                                                        | --testnet-magic NATURAL
+                                                        )
+                                                        [--start-time UTC-TIME]
+                                                        --out-dir DIR
+
+  Create data to use for starting a testnet.
+
+Available options:
+  --spec-shelley FILE      The shelley specification file to use as input. A
+                           default one is generated if omitted.
+  --genesis-keys INT       The number of genesis keys to make (default is 3).
+  --pools INT              The number of stake pool credential sets to make
+                           (default is 0).
+  --stake-delegators INT   The number of stake delegator credential sets to make
+                           (default is 0).
+  --stuffed-utxo INT       The number of fake UTxO entries to generate (default
+                           is 0).
+  --utxo-keys INT          The number of UTxO keys to make (default is 0).
+  --supply LOVELACE        The initial coin supply in Lovelace which will be
+                           evenly distributed across initial, non-delegating
+                           stake holders. Defaults to 1 million Ada (i.e. 10^12
+                           Lovelace).
+  --supply-delegated LOVELACE
+                           The initial coin supply in Lovelace which will be
+                           evenly distributed across initial, delegating stake
+                           holders. Defaults to 1 million Ada (i.e. 10^12
+                           Lovelace).
+  --mainnet                Use the mainnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --start-time UTC-TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
+                           format. If unspecified, will be the current time +30
+                           seconds.
+  --out-dir DIR            The directory where to generate the data. Created if
+                           not existing.
+  -h,--help                Show this help text
