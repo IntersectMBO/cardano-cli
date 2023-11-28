@@ -821,6 +821,7 @@ runQueryStakeAddressInfoCmd
 
         return $ do
           writeStakeAddressInfo
+            era
             mOutFile
             (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
             (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
@@ -832,12 +833,14 @@ runQueryStakeAddressInfoCmd
 -- -------------------------------------------------------------------------------------------------
 
 writeStakeAddressInfo
-  :: Maybe (File () Out)
+  :: CardanoEra era
+  -> Maybe (File () Out)
   -> DelegationsAndRewards
   -> Map StakeAddress Lovelace -- ^ deposits
   -> Map StakeAddress (L.DRep L.StandardCrypto) -- ^ vote delegatees
   -> ExceptT QueryCmdError IO ()
 writeStakeAddressInfo
+  era
   mOutFile
   (DelegationsAndRewards (stakeAccountBalances, stakePools))
   stakeDelegDeposits
@@ -851,7 +854,7 @@ writeStakeAddressInfo
       (\(addr, mBalance, mPoolId, mDRep, mDeposit) ->
         Aeson.object
         [ "address" .= addr
-        , "stakeDelegation" .= mPoolId
+        , forEraInEon @ConwayEraOnwards era  "delegation" (const "stakeDelegation") .= mPoolId
         , "voteDelegation" .= fmap friendlyDRep mDRep
         , "rewardAccountBalance" .= mBalance
         , "delegationDeposit" .= mDeposit
