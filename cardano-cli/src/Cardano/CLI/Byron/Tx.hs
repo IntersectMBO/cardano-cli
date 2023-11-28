@@ -27,7 +27,6 @@ where
 
 import           Cardano.Api
 import           Cardano.Api.Byron
-import qualified Cardano.Api.Byron as Api
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Pretty
 
@@ -149,13 +148,13 @@ txSpendGenesisUTxOByronPBFT
   -> SomeByronSigningKey
   -> Address ByronAddr
   -> [TxOut CtxTx ByronEra]
-  -> Tx ByronEra
+  -> ATxAux ByteString
 txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs =
     let txins = [(fromByronTxIn txIn, BuildTxWith (KeyWitness KeyWitnessForSpending))]
     in case makeByronTransactionBody txins outs of
       Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
       Right txBody -> let bWit = fromByronWitness sk nId txBody
-                      in Api.ByronTx ByronEraOnlyByron $ makeSignedByronTransaction [bWit] txBody
+                      in makeSignedByronTransaction [bWit] txBody
   where
     ByronVerificationKey vKey = byronWitnessToVerKey sk
 
@@ -169,14 +168,14 @@ txSpendUTxOByronPBFT
   -> SomeByronSigningKey
   -> [TxIn]
   -> [TxOut CtxTx ByronEra]
-  -> Tx ByronEra
+  -> ATxAux ByteString
 txSpendUTxOByronPBFT nId sk txIns outs = do
   let apiTxIns = [ ( txIn, BuildTxWith (KeyWitness KeyWitnessForSpending)) | txIn <- txIns]
 
   case makeByronTransactionBody apiTxIns outs of
     Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
     Right txBody -> let bWit = fromByronWitness sk nId txBody
-                    in Api.ByronTx ByronEraOnlyByron $ makeSignedByronTransaction [bWit] txBody
+                    in makeSignedByronTransaction [bWit] txBody
 
 fromByronWitness
   :: SomeByronSigningKey -> NetworkId -> L.Annotated L.Tx ByteString -> KeyWitness ByronEra
