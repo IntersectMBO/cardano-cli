@@ -59,7 +59,7 @@ data QueryCmdError
 renderQueryCmdError :: QueryCmdError -> Doc ann
 renderQueryCmdError = \case
   QueryCmdLocalStateQueryError lsqErr ->
-    renderLocalStateQueryError lsqErr
+    prettyError lsqErr
   QueryCmdWriteFileError fileErr ->
     prettyError fileErr
   QueryCmdHelpersError helpersErr ->

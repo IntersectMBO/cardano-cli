@@ -32,7 +32,6 @@ module Cardano.CLI.EraBased.Run.Query
 
   , DelegationsAndRewards(..)
   , renderQueryCmdError
-  , renderLocalStateQueryError
   , renderOpCertIntervalInformation
   , percentage
   ) where
@@ -821,11 +820,10 @@ runQueryStakeAddressInfoCmd
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-        ceo <- requireEon ConwayEra era
-
-        stakeVoteDelegatees <- lift (queryStakeVoteDelegatees ceo stakeAddr)
-          & onLeft (left . QueryCmdUnsupportedNtcVersion)
-          & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+        stakeVoteDelegatees <- monoidForEraInEonA era $ \ceo ->
+          lift (queryStakeVoteDelegatees ceo stakeAddr)
+            & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
         return $ do
           writeStakeAddressInfo
