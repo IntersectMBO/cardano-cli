@@ -35,12 +35,12 @@ hprop_byron_yes_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
 
   eExpected <- liftIO . runExceptT $ readByronVote expectedYesVote
   expected <- case eExpected of
-              Left err -> failWith Nothing . prettyToString $ renderByronVoteError err
+              Left err -> failWith Nothing . docToString $ renderByronVoteError err
               Right prop -> return prop
 
   eCreated <- liftIO . runExceptT $ readByronVote createdYesVote
   created <- case eCreated of
-               Left err -> failWith Nothing . prettyToString $ renderByronVoteError err
+               Left err -> failWith Nothing . docToString $ renderByronVoteError err
                Right prop -> return prop
 
   expected === created
@@ -62,12 +62,12 @@ hprop_byron_no_vote = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
 
   eExpected <- liftIO . runExceptT $ readByronVote expectedNoVote
   expected <- case eExpected of
-              Left err -> failWith Nothing . prettyToString $ renderByronVoteError err
+              Left err -> failWith Nothing . docToString $ renderByronVoteError err
               Right prop -> return prop
 
   eCreated <- liftIO . runExceptT $ readByronVote createdNoVote
   created <- case eCreated of
-               Left err -> failWith Nothing . prettyToString $ renderByronVoteError err
+               Left err -> failWith Nothing . docToString $ renderByronVoteError err
                Right prop -> return prop
 
   expected === created

@@ -54,7 +54,7 @@ instance Error ScriptLanguageValidationError where
   prettyError = \case
     ScriptLanguageValidationError lang era ->
       "The script language " <> pshow lang <> " is not supported in the " <>
-      pretty (renderEra era) <> " era."
+      pretty era <> " era."
 
 validateScriptSupportedInEra
   :: ShelleyBasedEra era
@@ -74,9 +74,9 @@ data TxFeeValidationError
 
 instance Error TxFeeValidationError where
   prettyError (TxFeatureImplicitFeesE era) =
-    "Implicit transaction fee not supported in " <> pretty (renderEra era)
+    "Implicit transaction fee not supported in " <> pretty era
   prettyError (TxFeatureExplicitFeesE era) =
-    "Explicit transaction fee not supported in " <> pretty (renderEra era)
+    "Explicit transaction fee not supported in " <> pretty era
 
 validateTxFee :: CardanoEra era
               -> Maybe Lovelace
@@ -99,7 +99,7 @@ newtype TxTotalCollateralValidationError
 
 instance Error TxTotalCollateralValidationError where
   prettyError (TxTotalCollateralNotSupported era) =
-    "Transaction collateral not supported in " <> pretty (renderEra era)
+    "Transaction collateral not supported in " <> pretty era
 
 validateTxTotalCollateral :: CardanoEra era
                           -> Maybe Lovelace
@@ -115,7 +115,7 @@ newtype TxReturnCollateralValidationError
 
 instance Error TxReturnCollateralValidationError where
   prettyError (TxReturnCollateralNotSupported era) =
-    "Transaction return collateral not supported in " <> pretty (renderEra era)
+    "Transaction return collateral not supported in " <> pretty era
 
 validateTxReturnCollateral :: CardanoEra era
                            -> Maybe (TxOut CtxTx era)
@@ -131,7 +131,7 @@ newtype TxValidityLowerBoundValidationError
 
 instance Error TxValidityLowerBoundValidationError where
   prettyError (TxValidityLowerBoundNotSupported era) =
-    "Transaction validity lower bound not supported in " <> pretty (renderEra era)
+    "Transaction validity lower bound not supported in " <> pretty era
 
 
 validateTxValidityLowerBound :: CardanoEra era
@@ -148,7 +148,7 @@ newtype TxValidityUpperBoundValidationError
 
 instance Error TxValidityUpperBoundValidationError where
   prettyError (TxValidityUpperBoundNotSupported era) =
-    "Transaction validity upper bound must be specified in " <> pretty (renderEra era)
+    "Transaction validity upper bound must be specified in " <> pretty era
 
 validateTxValidityUpperBound
   :: CardanoEra era
@@ -169,7 +169,7 @@ data TxAuxScriptsValidationError
 
 instance Error TxAuxScriptsValidationError where
   prettyError (TxAuxScriptsNotSupportedInEra era) =
-    "Transaction auxiliary scripts are not supported in " <> pretty (renderEra era)
+    "Transaction auxiliary scripts are not supported in " <> pretty era
   prettyError (TxAuxScriptsLanguageError e) =
     "Transaction auxiliary scripts error: " <> prettyError e
 
@@ -189,7 +189,7 @@ newtype TxRequiredSignersValidationError
 
 instance Error TxRequiredSignersValidationError where
   prettyError (TxRequiredSignersValidationError e) =
-    "Transaction required signers are not supported in " <> pretty (renderEra e)
+    "Transaction required signers are not supported in " <> pretty e
 
 validateRequiredSigners
   :: CardanoEra era
@@ -206,7 +206,7 @@ newtype TxWithdrawalsValidationError
 
 instance Error TxWithdrawalsValidationError where
   prettyError (TxWithdrawalsNotSupported e) =
-    "Transaction withdrawals are not supported in " <> pretty (renderEra e)
+    "Transaction withdrawals are not supported in " <> pretty e
 
 validateTxWithdrawals
   :: forall era.
@@ -233,7 +233,7 @@ newtype TxCertificatesValidationError
 
 instance Error TxCertificatesValidationError where
   prettyError (TxCertificatesValidationNotSupported e) =
-    "Transaction certificates are not supported in " <> pretty (renderEra e)
+    "Transaction certificates are not supported in " <> pretty e
 
 validateTxCertificates
   :: forall era.
@@ -262,7 +262,7 @@ newtype TxProtocolParametersValidationError
 
 instance Error TxProtocolParametersValidationError where
   prettyError (ProtocolParametersNotSupported e) =
-    "Transaction protocol parameters are not supported in " <> pretty (renderEra e)
+    "Transaction protocol parameters are not supported in " <> pretty e
 
 validateProtocolParameters
   :: CardanoEra era
@@ -279,7 +279,7 @@ newtype TxUpdateProposalValidationError
 
 instance Error TxUpdateProposalValidationError where
   prettyError (TxUpdateProposalNotSupported e) =
-    "Transaction update proposal is not supported in " <> pretty (renderEra e)
+    "Transaction update proposal is not supported in " <> pretty e
 
 newtype TxScriptValidityValidationError
   = ScriptValidityNotSupported AnyCardanoEra
@@ -287,7 +287,7 @@ newtype TxScriptValidityValidationError
 
 instance Error TxScriptValidityValidationError where
   prettyError (ScriptValidityNotSupported e) =
-    "Transaction script validity is not supported in " <> pretty (renderEra e)
+    "Transaction script validity is not supported in " <> pretty e
 
 validateTxScriptValidity
   :: CardanoEra era
