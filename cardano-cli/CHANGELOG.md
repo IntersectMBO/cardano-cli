@@ -1,5 +1,11 @@
 # Changelog for cardano-cli
 
+## 8.16.0.1
+
+- Fix era mismatch error in stake-address-info
+  (compatible, bugfix)
+  [PR 490](https://github.com/input-output-hk/cardano-cli/pull/490)
+
 ## 8.16.0.0
 
 - Use node queries with tighter eons. Simplify prettyprinting.
