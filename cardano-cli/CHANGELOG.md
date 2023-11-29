@@ -1,5 +1,55 @@
 # Changelog for cardano-cli
 
+## 8.16.0.0
+
+- Use node queries with tighter eons. Simplify prettyprinting.
+  (improvement)
+  [PR 481](https://github.com/input-output-hk/cardano-cli/pull/481)
+
+- Rename stake-address-info field: stakeDelegation -> delegation for eras prior to Conway
+  (compatible, bugfix)
+  [PR 487](https://github.com/input-output-hk/cardano-cli/pull/487)
+
+- Add missing help texts for `create-protocol-parameters-update`
+  (bugfix, documentation)
+  [PR 484](https://github.com/input-output-hk/cardano-cli/pull/484)
+
+- Fix using queryStakeVoteDelegatees in eras before conway
+  (compatible, bugfix)
+  [PR 483](https://github.com/input-output-hk/cardano-cli/pull/483)
+
+- Use `selectStakeCredentialWitness` instead of duplicating credential selection
+  (compatible, bugfix)
+  [PR 476](https://github.com/input-output-hk/cardano-cli/pull/476)
+
+- Add support for Plutus V3 in command line interface
+  (feature, compatible)
+  [PR 479](https://github.com/input-output-hk/cardano-cli/pull/479)
+
+- Add cost models file to the protocol parameter update commands
+  (feature, breaking, compatible, test)
+  [PR 405](https://github.com/input-output-hk/cardano-cli/pull/405)
+
+- add the vote delegateee to the output of `stake-address-info`
+  (compatible)
+  [PR 452](https://github.com/input-output-hk/cardano-cli/pull/452)
+
+- Revert #455 - use custom serialization for protocol parameters.
+  (breaking)
+  [PR 475](https://github.com/input-output-hk/cardano-cli/pull/475)
+
+- governance actions: prefix `--stake-verification-key-*` and `--stake-key` arguments so that they are prefixed with `--deposit-return` now.
+  (breaking)
+  [PR 470](https://github.com/input-output-hk/cardano-cli/pull/470)
+
+- Further separation of Byron from the Shelley based eras
+  (breaking, improvement)
+  [PR 467](https://github.com/input-output-hk/cardano-cli/pull/467)
+
+- The era's being rendered in the NodeEraMismatchError error were mismatched
+  (bugfix)
+  [PR 469](https://github.com/input-output-hk/cardano-cli/pull/469)
+
 ## 8.15.0.0
 
 - Collateral inputs and the minimum value calculation are not available in the Byron era. Update the code to reflect this.
