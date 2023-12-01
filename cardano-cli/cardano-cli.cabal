@@ -15,10 +15,6 @@ license-files:          LICENSE
 build-type:             Simple
 extra-source-files:     README.md
 
-Flag unexpected_thunks
-  Description:          Turn on unexpected thunks checks
-  Default:              False
-
 common project-config
   default-language:     Haskell2010
 
@@ -40,16 +36,9 @@ common maybe-unix
   if !os(windows)
      build-depends:     unix
 
-common maybe-bytestring
-  if !os(windows)
-     build-depends:     bytestring
-
 library
   import:               project-config
                       , maybe-unix
-
-  if flag(unexpected_thunks)
-    cpp-options:        -DUNEXPECTED_THUNKS
 
   if impl(ghc < 9.6)
     ghc-options:        -Wno-redundant-constraints
