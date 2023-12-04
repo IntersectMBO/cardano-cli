@@ -84,17 +84,17 @@ data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
   } deriving Show
 
 data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
-  { specShelley :: !(Maybe FilePath)
-  , numGenesisKeys :: !Word
-  , numPools :: !Word
-  , numStakeDelegators :: !Word
-  , numStuffedUtxo :: !Word
-  , numUtxoKeys :: !Word
-  , supply :: !(Maybe Lovelace)
-  , supplyDelegated :: !(Maybe Lovelace)
-  , networkId :: !NetworkId
-  , systemStart :: !(Maybe SystemStart)
-  , outputDir :: !FilePath
+  { specShelley :: !(Maybe FilePath) -- ^ Path to the @genesis-shelley@ file to use. If unspecified, a default one will be used if omitted.
+  , numGenesisKeys :: !Word -- ^ The number of genesis keys credentials to create and write to disk.
+  , numPools :: !Word -- ^ The number of stake pools credentials to create and write to disk.
+  , numStakeDelegators :: !Word -- ^ The number of delegators to pools to create and write to disk.
+  , numStuffedUtxo :: !Word -- ^ The number of UTxO accounts to make. They are "stuffed" because the credentials are not written to disk.
+  , numUtxoKeys :: !Word -- ^ The number of UTxO credentials to create and write to disk.
+  , supply :: !(Maybe Lovelace) -- ^ The number of Lovelace to distribute over initial, non-delegating stake holders.
+  , supplyDelegated :: !(Maybe Lovelace) -- ^ The number of Lovelace to distribute over delegating stake holders.
+  , networkId :: !NetworkId -- ^ The network ID to use.
+  , systemStart :: !(Maybe SystemStart) -- ^ The genesis start time.
+  , outputDir :: !FilePath -- ^ Directory where to write credentials and files.
   } deriving Show
 
 data GenesisKeyGenGenesisCmdArgs = GenesisKeyGenGenesisCmdArgs
