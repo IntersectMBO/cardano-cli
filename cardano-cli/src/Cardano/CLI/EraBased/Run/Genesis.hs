@@ -167,14 +167,9 @@ runGenesisKeyGenGenesisCmd
     } = do
     skey <- liftIO $ generateSigningKey AsGenesisKey
     let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError
-      . newExceptT
-      $ writeLazyByteStringFile signingKeyPath
-      $ textEnvelopeToJSON (Just skeyDesc) skey
-    firstExceptT GenesisCmdGenesisFileError
-      . newExceptT
-      $ writeLazyByteStringFile verificationKeyPath
-      $ textEnvelopeToJSON (Just Key.genesisVkeyDesc) vkey
+    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
+      void $ writeLazyByteStringFile signingKeyPath $ textEnvelopeToJSON (Just skeyDesc) skey
+      writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON (Just Key.genesisVkeyDesc) vkey
   where
     skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis Signing Key"
@@ -191,21 +186,16 @@ runGenesisKeyGenDelegateCmd
     } = do
     skey <- liftIO $ generateSigningKey AsGenesisDelegateKey
     let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError
-      . newExceptT
-      $ writeLazyByteStringFile signingKeyPath
-      $ textEnvelopeToJSON (Just skeyDesc) skey
-    firstExceptT GenesisCmdGenesisFileError
-      . newExceptT
-      $ writeLazyByteStringFile verificationKeyPath
-      $ textEnvelopeToJSON (Just Key.genesisVkeyDelegateDesc) vkey
-    firstExceptT GenesisCmdGenesisFileError
-      . newExceptT
-      $ writeLazyByteStringFile opCertCounterPath
-      $ textEnvelopeToJSON (Just certCtrDesc)
-      $ OperationalCertificateIssueCounter
-          initialCounter
-          (castVerificationKey vkey)  -- Cast to a 'StakePoolKey'
+    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
+      void $ writeLazyByteStringFile signingKeyPath
+        $ textEnvelopeToJSON (Just skeyDesc) skey
+      void $ writeLazyByteStringFile verificationKeyPath
+        $ textEnvelopeToJSON (Just Key.genesisVkeyDelegateDesc) vkey
+      writeLazyByteStringFile opCertCounterPath
+        $ textEnvelopeToJSON (Just certCtrDesc)
+        $ OperationalCertificateIssueCounter
+            initialCounter
+            (castVerificationKey vkey)  -- Cast to a 'StakePoolKey'
   where
     skeyDesc, certCtrDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis delegate operator key"
@@ -223,14 +213,11 @@ runGenesisKeyGenDelegateVRF ::
 runGenesisKeyGenDelegateVRF vkeyPath skeyPath = do
     skey <- liftIO $ generateSigningKey AsVrfKey
     let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError
-      . newExceptT
-      $ writeLazyByteStringFile skeyPath
-      $ textEnvelopeToJSON (Just skeyDesc) skey
-    firstExceptT GenesisCmdGenesisFileError
-      . newExceptT
-      $ writeLazyByteStringFile vkeyPath
-      $ textEnvelopeToJSON (Just vkeyDesc) vkey
+    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
+      void $ writeLazyByteStringFile skeyPath
+        $ textEnvelopeToJSON (Just skeyDesc) skey
+      writeLazyByteStringFile vkeyPath
+        $ textEnvelopeToJSON (Just vkeyDesc) vkey
   where
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
     skeyDesc = "VRF Signing Key"
@@ -247,14 +234,11 @@ runGenesisKeyGenUTxOCmd
     } = do
     skey <- liftIO $ generateSigningKey AsGenesisUTxOKey
     let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError
-      . newExceptT
-      $ writeLazyByteStringFile signingKeyPath
-      $ textEnvelopeToJSON (Just skeyDesc) skey
-    firstExceptT GenesisCmdGenesisFileError
-      . newExceptT
-      $ writeLazyByteStringFile verificationKeyPath
-      $ textEnvelopeToJSON (Just vkeyDesc) vkey
+    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
+      void $ writeLazyByteStringFile signingKeyPath
+        $ textEnvelopeToJSON (Just skeyDesc) skey
+      writeLazyByteStringFile verificationKeyPath
+        $ textEnvelopeToJSON (Just vkeyDesc) vkey
   where
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis Initial UTxO Signing Key"
