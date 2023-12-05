@@ -11,6 +11,7 @@ import           Hedgehog
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.Golden as H
 import qualified Hedgehog.Extras.Test.Process as H
+import           Hedgehog.Gen as Gen
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -79,3 +80,32 @@ hprop_golden_shelley_stake_address_registration_certificate_missing_reg_deposit 
     -- , "--key-reg-deposit-amt", "2000000" This argument being mandatory in conway, the call should fail
     , "--out-file", registrationCertFile
     ]
+
+
+hprop_golden_shelley_stake_address_registration_certificate_every_shelley_to_babbage_era :: Property
+hprop_golden_shelley_stake_address_registration_certificate_every_shelley_to_babbage_era = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  eraName <- forAll $ Gen.element ["shelley", "allegra", "mary", "alonzo", "babbage"]
+  base <- H.getProjectBase
+
+  keyGenStakingVerificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
+  registrationCertFile <- noteTempFile tempDir "registration.cert"
+  scriptRegistrationCertFile <- noteTempFile tempDir "script-registration.cert"
+  exampleScript <- noteInputFile $ base </> "scripts/plutus/scripts/v1/custom-guess-42-datum-42.plutus"
+
+  void $ execCardanoCLI
+    [ eraName, "stake-address", "registration-certificate"
+    , "--staking-verification-key-file", keyGenStakingVerificationKeyFile
+    , "--out-file", registrationCertFile
+    ]
+
+  goldenFile1 <- H.note "test/cardano-cli-golden/files/golden/shelley/stake-address/reg-certificate-1.json"
+  H.diffFileVsGoldenFile registrationCertFile goldenFile1
+
+  void $ execCardanoCLI
+    [ eraName, "stake-address", "registration-certificate"
+    , "--stake-script-file", exampleScript
+    , "--out-file", scriptRegistrationCertFile
+    ]
+
+  goldenFile2 <- H.note "test/cardano-cli-golden/files/golden/shelley/stake-address/script-reg-certificate.json"
+  H.diffFileVsGoldenFile scriptRegistrationCertFile goldenFile2
