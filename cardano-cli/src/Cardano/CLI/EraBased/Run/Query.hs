@@ -45,7 +45,7 @@ import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
-import           Cardano.CLI.EraBased.Run.Genesis (readAndDecodeShelleyGenesis)
+import           Cardano.CLI.EraBased.Run.CreateTestnetData (readAndDecodeShelleyGenesis)
 import           Cardano.CLI.Helpers
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common

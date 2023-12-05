@@ -159,6 +159,7 @@ Usage: cardano-cli shelley genesis
                                      | create-cardano
                                      | create
                                      | create-staked
+                                     | create-testnet-data
                                      | hash
                                      )
 
@@ -257,6 +258,22 @@ Usage: cardano-cli shelley genesis create-staked [--key-output-format STRING]
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
+
+Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILE]
+                                                         [--genesis-keys INT]
+                                                         [--pools INT]
+                                                         [--stake-delegators INT]
+                                                         [--stuffed-utxo INT]
+                                                         [--utxo-keys INT]
+                                                         [--supply LOVELACE]
+                                                         [--supply-delegated LOVELACE]
+                                                         ( --mainnet
+                                                         | --testnet-magic NATURAL
+                                                         )
+                                                         [--start-time UTC-TIME]
+                                                         --out-dir DIR
+
+  Create data to use for starting a testnet.
 
 Usage: cardano-cli shelley genesis hash --genesis FILE
 
@@ -1300,6 +1317,7 @@ Usage: cardano-cli allegra genesis
                                      | create-cardano
                                      | create
                                      | create-staked
+                                     | create-testnet-data
                                      | hash
                                      )
 
@@ -1398,6 +1416,22 @@ Usage: cardano-cli allegra genesis create-staked [--key-output-format STRING]
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
+
+Usage: cardano-cli allegra genesis create-testnet-data [--spec-shelley FILE]
+                                                         [--genesis-keys INT]
+                                                         [--pools INT]
+                                                         [--stake-delegators INT]
+                                                         [--stuffed-utxo INT]
+                                                         [--utxo-keys INT]
+                                                         [--supply LOVELACE]
+                                                         [--supply-delegated LOVELACE]
+                                                         ( --mainnet
+                                                         | --testnet-magic NATURAL
+                                                         )
+                                                         [--start-time UTC-TIME]
+                                                         --out-dir DIR
+
+  Create data to use for starting a testnet.
 
 Usage: cardano-cli allegra genesis hash --genesis FILE
 
@@ -2441,6 +2475,7 @@ Usage: cardano-cli mary genesis
                                   | create-cardano
                                   | create
                                   | create-staked
+                                  | create-testnet-data
                                   | hash
                                   )
 
@@ -2537,6 +2572,22 @@ Usage: cardano-cli mary genesis create-staked [--key-output-format STRING]
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
+
+Usage: cardano-cli mary genesis create-testnet-data [--spec-shelley FILE]
+                                                      [--genesis-keys INT]
+                                                      [--pools INT]
+                                                      [--stake-delegators INT]
+                                                      [--stuffed-utxo INT]
+                                                      [--utxo-keys INT]
+                                                      [--supply LOVELACE]
+                                                      [--supply-delegated LOVELACE]
+                                                      ( --mainnet
+                                                      | --testnet-magic NATURAL
+                                                      )
+                                                      [--start-time UTC-TIME]
+                                                      --out-dir DIR
+
+  Create data to use for starting a testnet.
 
 Usage: cardano-cli mary genesis hash --genesis FILE
 
@@ -3563,6 +3614,7 @@ Usage: cardano-cli alonzo genesis
                                     | create-cardano
                                     | create
                                     | create-staked
+                                    | create-testnet-data
                                     | hash
                                     )
 
@@ -3659,6 +3711,22 @@ Usage: cardano-cli alonzo genesis create-staked [--key-output-format STRING]
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
+
+Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILE]
+                                                        [--genesis-keys INT]
+                                                        [--pools INT]
+                                                        [--stake-delegators INT]
+                                                        [--stuffed-utxo INT]
+                                                        [--utxo-keys INT]
+                                                        [--supply LOVELACE]
+                                                        [--supply-delegated LOVELACE]
+                                                        ( --mainnet
+                                                        | --testnet-magic NATURAL
+                                                        )
+                                                        [--start-time UTC-TIME]
+                                                        --out-dir DIR
+
+  Create data to use for starting a testnet.
 
 Usage: cardano-cli alonzo genesis hash --genesis FILE
 
@@ -4708,6 +4776,7 @@ Usage: cardano-cli babbage genesis
                                      | create-cardano
                                      | create
                                      | create-staked
+                                     | create-testnet-data
                                      | hash
                                      )
 
@@ -4806,6 +4875,22 @@ Usage: cardano-cli babbage genesis create-staked [--key-output-format STRING]
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
+
+Usage: cardano-cli babbage genesis create-testnet-data [--spec-shelley FILE]
+                                                         [--genesis-keys INT]
+                                                         [--pools INT]
+                                                         [--stake-delegators INT]
+                                                         [--stuffed-utxo INT]
+                                                         [--utxo-keys INT]
+                                                         [--supply LOVELACE]
+                                                         [--supply-delegated LOVELACE]
+                                                         ( --mainnet
+                                                         | --testnet-magic NATURAL
+                                                         )
+                                                         [--start-time UTC-TIME]
+                                                         --out-dir DIR
+
+  Create data to use for starting a testnet.
 
 Usage: cardano-cli babbage genesis hash --genesis FILE
 
@@ -5875,6 +5960,7 @@ Usage: cardano-cli conway genesis
                                     | create-cardano
                                     | create
                                     | create-staked
+                                    | create-testnet-data
                                     | hash
                                     )
 
@@ -5971,6 +6057,22 @@ Usage: cardano-cli conway genesis create-staked [--key-output-format STRING]
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
+
+Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILE]
+                                                        [--genesis-keys INT]
+                                                        [--pools INT]
+                                                        [--stake-delegators INT]
+                                                        [--stuffed-utxo INT]
+                                                        [--utxo-keys INT]
+                                                        [--supply LOVELACE]
+                                                        [--supply-delegated LOVELACE]
+                                                        ( --mainnet
+                                                        | --testnet-magic NATURAL
+                                                        )
+                                                        [--start-time UTC-TIME]
+                                                        --out-dir DIR
+
+  Create data to use for starting a testnet.
 
 Usage: cardano-cli conway genesis hash --genesis FILE
 
@@ -7361,6 +7463,7 @@ Usage: cardano-cli latest genesis
                                     | create-cardano
                                     | create
                                     | create-staked
+                                    | create-testnet-data
                                     | hash
                                     )
 
@@ -7457,6 +7560,22 @@ Usage: cardano-cli latest genesis create-staked [--key-output-format STRING]
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
+
+Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILE]
+                                                        [--genesis-keys INT]
+                                                        [--pools INT]
+                                                        [--stake-delegators INT]
+                                                        [--stuffed-utxo INT]
+                                                        [--utxo-keys INT]
+                                                        [--supply LOVELACE]
+                                                        [--supply-delegated LOVELACE]
+                                                        ( --mainnet
+                                                        | --testnet-magic NATURAL
+                                                        )
+                                                        [--start-time UTC-TIME]
+                                                        --out-dir DIR
+
+  Create data to use for starting a testnet.
 
 Usage: cardano-cli latest genesis hash --genesis FILE
 

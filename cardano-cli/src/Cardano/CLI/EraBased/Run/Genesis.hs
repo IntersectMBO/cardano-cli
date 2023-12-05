@@ -15,6 +15,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
+{- HLINT ignore "Replace case with maybe" -}
 {- HLINT ignore "Reduce duplication" -}
 {- HLINT ignore "Redundant <$>" -}
 {- HLINT ignore "Use let" -}
@@ -27,14 +28,9 @@ module Cardano.CLI.EraBased.Run.Genesis
   , runGenesisCreateCmd
   , runGenesisCreateStakedCmd
   , runGenesisHashFileCmd
-  , runGenesisKeyGenDelegateCmd
-  , runGenesisKeyGenGenesisCmd
-  , runGenesisKeyGenUTxOCmd
   , runGenesisKeyHashCmd
   , runGenesisTxInCmd
   , runGenesisVerKeyCmd
-
-  , readAndDecodeShelleyGenesis
 
   -- * Protocol Parameters
   , readProtocolParameters
@@ -58,7 +54,7 @@ import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
-import qualified Cardano.CLI.EraBased.Run.Key as Key
+import qualified Cardano.CLI.EraBased.Run.CreateTestnetData as TN
 import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
@@ -70,18 +66,15 @@ import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto as CC
-import           Cardano.Crypto.Hash (HashAlgorithm)
 import qualified Cardano.Crypto.Hash as Crypto
-import qualified Cardano.Crypto.Hash as Hash
-import qualified Cardano.Crypto.Random as Crypto
 import qualified Cardano.Crypto.Signing as Byron
 import qualified Cardano.Ledger.Alonzo.Genesis as Alonzo
 import qualified Cardano.Ledger.BaseTypes as Ledger
-import           Cardano.Ledger.Binary (Annotated (Annotated), ToCBOR (..))
+import           Cardano.Ledger.Binary (Annotated (Annotated))
 import           Cardano.Ledger.Coin (Coin (..))
 import qualified Cardano.Ledger.Conway.Genesis as Conway
 import           Cardano.Ledger.Core (ppMinUTxOValueL)
-import           Cardano.Ledger.Crypto (ADDRHASH, Crypto, StandardCrypto)
+import           Cardano.Ledger.Crypto (StandardCrypto)
 import           Cardano.Ledger.Era ()
 import qualified Cardano.Ledger.Keys as Ledger
 import qualified Cardano.Ledger.Shelley.API as Ledger
@@ -92,7 +85,7 @@ import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, force)
 import           Control.Monad (forM, forM_, unless, when)
-import           Control.Monad.Except (MonadError (..), runExceptT)
+import           Control.Monad.Except (MonadError (..))
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT, throwE, withExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
@@ -102,31 +95,25 @@ import qualified Data.Aeson as Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.Aeson.KeyMap as Aeson
 import           Data.Bifunctor (Bifunctor (..))
-import qualified Data.Binary.Get as Bin
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Char (isDigit)
-import           Data.Coerce (coerce)
-import           Data.Data (Proxy (..))
 import           Data.Either (fromRight)
 import           Data.Fixed (Fixed (MkFixed))
 import           Data.Function (on)
 import           Data.Functor (void)
-import           Data.Functor.Identity
+import           Data.Functor.Identity (Identity)
 import qualified Data.List as List
 import qualified Data.List.Split as List
-import           Data.ListMap (ListMap (..))
 import qualified Data.ListMap as ListMap
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Maybe (fromMaybe)
 import qualified Data.Sequence.Strict as Seq
-import           Data.String (fromString)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
-import           Data.Time.Clock (NominalDiffTime, UTCTime, addUTCTime, getCurrentTime)
 import           Data.Word (Word64)
 import qualified Data.Yaml as Yaml
 import           GHC.Generics (Generic)
@@ -141,13 +128,12 @@ import qualified Text.JSON.Canonical (ToJSON)
 import           Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
 import           Text.Read (readMaybe)
 
-import           Crypto.Random as Crypto
 
 runGenesisCmds :: GenesisCmds era -> ExceptT GenesisCmdError IO ()
 runGenesisCmds = \case
-  GenesisKeyGenGenesis args -> runGenesisKeyGenGenesisCmd args
-  GenesisKeyGenDelegate args -> runGenesisKeyGenDelegateCmd args
-  GenesisKeyGenUTxO args -> runGenesisKeyGenUTxOCmd args
+  GenesisKeyGenGenesis args -> TN.runGenesisKeyGenGenesisCmd args
+  GenesisKeyGenDelegate args -> TN.runGenesisKeyGenDelegateCmd args
+  GenesisKeyGenUTxO args -> TN.runGenesisKeyGenUTxOCmd args
   GenesisCmdKeyHash vk -> runGenesisKeyHashCmd vk
   GenesisVerKey args -> runGenesisVerKeyCmd args
   GenesisTxIn args -> runGenesisTxInCmd args
@@ -155,95 +141,8 @@ runGenesisCmds = \case
   GenesisCreate args -> runGenesisCreateCmd args
   GenesisCreateCardano args -> runGenesisCreateCardanoCmd args
   GenesisCreateStaked args -> runGenesisCreateStakedCmd args
+  GenesisCreateTestNetData args -> TN.runGenesisCreateTestNetDataCmd args
   GenesisHashFile gf -> runGenesisHashFileCmd gf
-
-runGenesisKeyGenGenesisCmd
-  :: GenesisKeyGenGenesisCmdArgs
-  -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenGenesisCmd
-    Cmd.GenesisKeyGenGenesisCmdArgs
-    { Cmd.verificationKeyPath
-    , Cmd.signingKeyPath
-    } = do
-    skey <- liftIO $ generateSigningKey AsGenesisKey
-    let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
-      void $ writeLazyByteStringFile signingKeyPath $ textEnvelopeToJSON (Just skeyDesc) skey
-      writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON (Just Key.genesisVkeyDesc) vkey
-  where
-    skeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Genesis Signing Key"
-
-
-runGenesisKeyGenDelegateCmd
-  :: GenesisKeyGenDelegateCmdArgs
-  -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenDelegateCmd
-    Cmd.GenesisKeyGenDelegateCmdArgs
-    { Cmd.verificationKeyPath
-    , Cmd.signingKeyPath
-    , Cmd.opCertCounterPath
-    } = do
-    skey <- liftIO $ generateSigningKey AsGenesisDelegateKey
-    let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
-      void $ writeLazyByteStringFile signingKeyPath
-        $ textEnvelopeToJSON (Just skeyDesc) skey
-      void $ writeLazyByteStringFile verificationKeyPath
-        $ textEnvelopeToJSON (Just Key.genesisVkeyDelegateDesc) vkey
-      writeLazyByteStringFile opCertCounterPath
-        $ textEnvelopeToJSON (Just certCtrDesc)
-        $ OperationalCertificateIssueCounter
-            initialCounter
-            (castVerificationKey vkey)  -- Cast to a 'StakePoolKey'
-  where
-    skeyDesc, certCtrDesc :: TextEnvelopeDescr
-    skeyDesc = "Genesis delegate operator key"
-    certCtrDesc = "Next certificate issue number: "
-               <> fromString (show initialCounter)
-
-    initialCounter :: Word64
-    initialCounter = 0
-
-
-runGenesisKeyGenDelegateVRF ::
-     VerificationKeyFile Out
-  -> SigningKeyFile Out
-  -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenDelegateVRF vkeyPath skeyPath = do
-    skey <- liftIO $ generateSigningKey AsVrfKey
-    let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
-      void $ writeLazyByteStringFile skeyPath
-        $ textEnvelopeToJSON (Just skeyDesc) skey
-      writeLazyByteStringFile vkeyPath
-        $ textEnvelopeToJSON (Just vkeyDesc) vkey
-  where
-    skeyDesc, vkeyDesc :: TextEnvelopeDescr
-    skeyDesc = "VRF Signing Key"
-    vkeyDesc = "VRF Verification Key"
-
-
-runGenesisKeyGenUTxOCmd
-  :: GenesisKeyGenUTxOCmdArgs
-  -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenUTxOCmd
-    Cmd.GenesisKeyGenUTxOCmdArgs
-    { Cmd.verificationKeyPath
-    , Cmd.signingKeyPath
-    } = do
-    skey <- liftIO $ generateSigningKey AsGenesisUTxOKey
-    let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
-      void $ writeLazyByteStringFile signingKeyPath
-        $ textEnvelopeToJSON (Just skeyDesc) skey
-      writeLazyByteStringFile verificationKeyPath
-        $ textEnvelopeToJSON (Just vkeyDesc) vkey
-  where
-    skeyDesc, vkeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Genesis Initial UTxO Signing Key"
-    vkeyDesc = "Genesis Initial UTxO Verification Key"
-
 
 runGenesisKeyHashCmd :: VerificationKeyFile In -> ExceptT GenesisCmdError IO ()
 runGenesisKeyHashCmd vkeyPath = do
@@ -382,7 +281,7 @@ runGenesisCreateCmd
 
   genDlgs <- readGenDelegsMap gendir deldir
   utxoAddrs <- readInitialFundAddresses utxodir network
-  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
+  start <- maybe (SystemStart <$> TN.getCurrentTimePlus30) pure mSystemStart
 
   let shelleyGenesis =
         updateTemplate
@@ -484,7 +383,7 @@ runGenesisCreateCardanoCmd
     , Cmd.conwayGenesisTemplate
     , Cmd.mNodeConfigTemplate
     } = do
-  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
+  start <- maybe (SystemStart <$> TN.getCurrentTimePlus30) pure mSystemStart
   (byronGenesis', byronSecrets) <- convertToShelleyError $ Byron.mkGenesis $ byronParams start
   let
     byronGenesis = byronGenesis'
@@ -523,7 +422,7 @@ runGenesisCreateCardanoCmd
       , sgSystemStart = getSystemStart start
       , sgSlotLength = secondsToNominalDiffTimeMicro $ MkFixed (fromIntegral slotLength) * 1000
       }
-  shelleyGenesisTemplate' <- liftIO $ overrideShelleyGenesis . fromRight (error "shelley genesis template not found") <$> readAndDecodeShelleyGenesis shelleyGenesisTemplate
+  shelleyGenesisTemplate' <- liftIO $ overrideShelleyGenesis . fromRight (error "shelley genesis template not found") <$> TN.readAndDecodeShelleyGenesis shelleyGenesisTemplate
   alonzoGenesis <- readAlonzoGenesis alonzoGenesisTemplate
   conwayGenesis <- readConwayGenesis conwayGenesisTemplate
   (delegateMap, vrfKeys, kesKeys, opCerts) <- liftIO $ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys
@@ -643,7 +542,7 @@ runGenesisCreateStakedCmd
     , Cmd.mSystemStart
     , Cmd.mNonDelegatedSupply
     , Cmd.delegatedSupply
-    , Cmd.network
+    , Cmd.network = networkId
     , Cmd.numBulkPoolCredFiles
     , Cmd.numBulkPoolsPerFile
     , Cmd.numStuffedUtxo
@@ -685,7 +584,7 @@ runGenesisCreateStakedCmd
 
   poolParams <- forM [ 1 .. numPools ] $ \index -> do
     createPoolCredentials keyOutputFormat pooldir index
-    buildPoolParams network pooldir index (fromMaybe mempty mayStakePoolRelays)
+    buildPoolParams networkId pooldir (Just index) (fromMaybe mempty mayStakePoolRelays)
 
   when (numBulkPoolCredFiles * numBulkPoolsPerFile > numPools) $
     left $ GenesisCmdTooFewPoolsForBulkCreds numPools numBulkPoolCredFiles numBulkPoolsPerFile
@@ -706,24 +605,25 @@ runGenesisCreateStakedCmd
   g <- Random.getStdGen
 
   -- Distribute M delegates across N pools:
-  delegations <- liftIO $ Lazy.forStateM g distribution $ flip computeInsecureDelegation network
+  delegations <- liftIO $ Lazy.forStateM g distribution $ flip computeInsecureDelegation networkId
 
   let numDelegations = length delegations
 
   genDlgs <- readGenDelegsMap gendir deldir
-  nonDelegAddrs <- readInitialFundAddresses utxodir network
-  start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
+  nonDelegAddrs <- readInitialFundAddresses utxodir networkId
+  start <- maybe (SystemStart <$> TN.getCurrentTimePlus30) pure mSystemStart
 
-  stuffedUtxoAddrs <- liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) genStuffedAddress
+  let network = toShelleyNetwork networkId
+  stuffedUtxoAddrs <- liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) $ TN.genStuffedAddress network
 
   let stake = second Ledger.ppId . mkDelegationMapEntry <$> delegations
       stakePools = [ (Ledger.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations ]
       delegAddrs = dInitialUtxoAddr <$> delegations
       !shelleyGenesis =
-        updateCreateStakedOutputTemplate
+        TN.updateCreateStakedOutputTemplate
           -- Shelley genesis parameters
           start genDlgs mNonDelegatedSupply (length nonDelegAddrs) nonDelegAddrs stakePools stake
-          delegatedSupply numDelegations delegAddrs stuffedUtxoAddrs template
+          (Just delegatedSupply) numDelegations delegAddrs stuffedUtxoAddrs template
 
   liftIO $ LBS.writeFile (rootdir </> "genesis.json") $ Aeson.encode shelleyGenesis
 
@@ -750,41 +650,22 @@ runGenesisCreateStakedCmd
     | numBulkPoolCredFiles * numBulkPoolsPerFile > 0 ]
 
   where
-    adjustTemplate t = t { sgNetworkMagic = unNetworkMagic (toNetworkMagic network) }
+    adjustTemplate t = t { sgNetworkMagic = unNetworkMagic (toNetworkMagic networkId) }
     mkDelegationMapEntry :: Delegation -> (Ledger.KeyHash Ledger.Staking StandardCrypto, Ledger.PoolParams StandardCrypto)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
-
-    genStuffedAddress :: IO (AddressInEra ShelleyEra)
-    genStuffedAddress =
-      shelleyAddressInEra ShelleyBasedEraShelley <$>
-      (ShelleyAddress
-       <$> pure Ledger.Testnet
-       <*> (Ledger.KeyHashObj . mkKeyHash . read64BitInt
-             <$> Crypto.runSecureRandom (getRandomBytes 8))
-       <*> pure Ledger.StakeRefNull)
-
-    read64BitInt :: ByteString -> Int
-    read64BitInt = (fromIntegral :: Word64 -> Int)
-      . Bin.runGet Bin.getWord64le . LBS.fromStrict
-
-    mkDummyHash :: forall h a. HashAlgorithm h => Proxy h -> Int -> Hash.Hash h a
-    mkDummyHash _ = coerce . Ledger.hashWithSerialiser @h toCBOR
-
-    mkKeyHash :: forall c discriminator. Crypto c => Int -> Ledger.KeyHash discriminator c
-    mkKeyHash = Ledger.KeyHash . mkDummyHash (Proxy @(ADDRHASH c))
 
 -- -------------------------------------------------------------------------------------------------
 
 createDelegateKeys :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdError IO ()
 createDelegateKeys fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
-  runGenesisKeyGenDelegateCmd
+  TN.runGenesisKeyGenDelegateCmd
     Cmd.GenesisKeyGenDelegateCmdArgs
     { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vkey"
     , Cmd.signingKeyPath = onlyOut coldSK
     , Cmd.opCertCounterPath = onlyOut opCertCtr
     }
-  runGenesisKeyGenDelegateVRF
+  TN.runGenesisKeyGenDelegateVRF
         (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.vkey")
         (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.skey")
   firstExceptT GenesisCmdNodeCmdError $ do
@@ -808,7 +689,7 @@ createGenesisKeys :: FilePath -> Word -> ExceptT GenesisCmdError IO ()
 createGenesisKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
-  runGenesisKeyGenGenesisCmd
+  TN.runGenesisKeyGenGenesisCmd
     GenesisKeyGenGenesisCmdArgs
     { verificationKeyPath = File @(VerificationKey ()) $ dir </> "genesis" ++ strIndex ++ ".vkey"
     , signingKeyPath = File @(SigningKey ()) $ dir </> "genesis" ++ strIndex ++ ".skey"
@@ -818,7 +699,7 @@ createUtxoKeys :: FilePath -> Word -> ExceptT GenesisCmdError IO ()
 createUtxoKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
-  runGenesisKeyGenUTxOCmd
+  TN.runGenesisKeyGenUTxOCmd
     Cmd.GenesisKeyGenUTxOCmdArgs
     { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "utxo" ++ strIndex ++ ".vkey"
     , Cmd.signingKeyPath = File @(SigningKey ()) $ dir </> "utxo" ++ strIndex ++ ".skey"
@@ -868,7 +749,7 @@ data Delegation = Delegation
 buildPoolParams
   :: NetworkId
   -> FilePath -- ^ File directory where the necessary pool credentials were created
-  -> Word
+  -> Maybe Word
   -> Map Word [Ledger.StakePoolRelay] -- ^ User submitted stake pool relay map
   -> ExceptT GenesisCmdError IO (Ledger.PoolParams StandardCrypto)
 buildPoolParams nw dir index specifiedRelays = do
@@ -898,9 +779,12 @@ buildPoolParams nw dir index specifiedRelays = do
  where
    lookupPoolRelay
      :: Map Word [Ledger.StakePoolRelay] -> Seq.StrictSeq Ledger.StakePoolRelay
-   lookupPoolRelay m = maybe mempty Seq.fromList (Map.lookup index m)
+   lookupPoolRelay m =
+      case index of
+        Nothing -> mempty
+        Just index' -> maybe mempty Seq.fromList (Map.lookup index' m)
 
-   strIndex = show index
+   strIndex = maybe "" show index
    poolColdVKF = File $ dir </> "cold" ++ strIndex ++ ".vkey"
    poolVrfVKF = File $ dir </> "vrf" ++ strIndex ++ ".vkey"
    poolRewardVKF = File $ dir </> "staking-reward" ++ strIndex ++ ".vkey"
@@ -953,14 +837,6 @@ computeInsecureDelegation g0 nw pool = do
 
     pure (g2, delegation)
 
--- | Current UTCTime plus 30 seconds
-getCurrentTimePlus30 :: ExceptT a IO UTCTime
-getCurrentTimePlus30 =
-    plus30sec <$> liftIO getCurrentTime
-  where
-    plus30sec :: UTCTime -> UTCTime
-    plus30sec = addUTCTime (30 :: NominalDiffTime)
-
 -- | Attempts to read Shelley genesis from disk
 -- and if not found creates a default Shelley genesis.
 readShelleyGenesisWithDefault
@@ -968,7 +844,7 @@ readShelleyGenesisWithDefault
   -> (ShelleyGenesis StandardCrypto -> ShelleyGenesis StandardCrypto)
   -> ExceptT GenesisCmdError IO (ShelleyGenesis StandardCrypto)
 readShelleyGenesisWithDefault fpath adjustDefaults = do
-    newExceptT (readAndDecodeShelleyGenesis fpath)
+    newExceptT (TN.readAndDecodeShelleyGenesis fpath)
       `catchError` \err ->
         case err of
           GenesisCmdGenesisFileReadError (FileIOError _ ioe)
@@ -982,14 +858,6 @@ readShelleyGenesisWithDefault fpath adjustDefaults = do
       handleIOExceptT (GenesisCmdGenesisFileError . FileIOError fpath) $
         LBS.writeFile fpath (encode defaults)
       return defaults
-
-readAndDecodeShelleyGenesis
-  :: FilePath
-  -> IO (Either GenesisCmdError (ShelleyGenesis StandardCrypto))
-readAndDecodeShelleyGenesis fpath = runExceptT $ do
-  lbs <- handleIOExceptT (GenesisCmdGenesisFileReadError . FileIOError fpath) $ LBS.readFile fpath
-  firstExceptT (GenesisCmdGenesisFileDecodeError fpath . Text.pack)
-    . hoistEither $ Aeson.eitherDecode' lbs
 
 updateTemplate
     :: SystemStart  -- ^ System start time
@@ -1069,76 +937,6 @@ updateTemplate (SystemStart start)
     unLovelace :: Integral a => Lovelace -> a
     unLovelace (Lovelace coin) = fromIntegral coin
 
-updateCreateStakedOutputTemplate
-    :: SystemStart -- ^ System start time
-    -> Map (Hash GenesisKey) (Hash GenesisDelegateKey, Hash VrfKey) -- ^ Genesis delegation (not stake-based)
-    -> Maybe Lovelace -- ^ Amount of lovelace not delegated
-    -> Int -- ^ Number of UTxO addresses that are delegating
-    -> [AddressInEra ShelleyEra] -- ^ UTxO addresses that are not delegating
-    -> [(Ledger.KeyHash 'Ledger.StakePool StandardCrypto, Ledger.PoolParams StandardCrypto)] -- ^ Pool map
-    -> [(Ledger.KeyHash 'Ledger.Staking StandardCrypto, Ledger.KeyHash 'Ledger.StakePool StandardCrypto)] -- ^ Delegaton map
-    -> Lovelace -- ^ Amount of lovelace to delegate
-    -> Int -- ^ Number of UTxO address for delegationg
-    -> [AddressInEra ShelleyEra] -- ^ UTxO address for delegationg
-    -> [AddressInEra ShelleyEra] -- ^ Stuffed UTxO addresses
-    -> ShelleyGenesis StandardCrypto -- ^ Template from which to build a genesis
-    -> ShelleyGenesis StandardCrypto -- ^ Updated genesis
-updateCreateStakedOutputTemplate
-  (SystemStart start)
-  genDelegMap mAmountNonDeleg nUtxoAddrsNonDeleg utxoAddrsNonDeleg pools stake
-  (Lovelace amountDeleg)
-  nUtxoAddrsDeleg utxoAddrsDeleg stuffedUtxoAddrs
-  template = do
-    let pparamsFromTemplate = sgProtocolParams template
-        shelleyGenesis = template
-          { sgSystemStart = start
-          , sgMaxLovelaceSupply = fromIntegral $ nonDelegCoin + delegCoin
-          , sgGenDelegs = shelleyDelKeys
-          , sgInitialFunds = ListMap.fromList
-                              [ (toShelleyAddr addr, toShelleyLovelace v)
-                              | (addr, v) <-
-                                distribute (nonDelegCoin - subtractForTreasury) nUtxoAddrsNonDeleg  utxoAddrsNonDeleg
-                                ++
-                                distribute (delegCoin - subtractForTreasury)    nUtxoAddrsDeleg     utxoAddrsDeleg
-                                ++
-                                mkStuffedUtxo stuffedUtxoAddrs
-                                ]
-          , sgStaking =
-            ShelleyGenesisStaking
-              { sgsPools = ListMap pools
-              , sgsStake = ListMap stake
-              }
-          , sgProtocolParams = pparamsFromTemplate
-          }
-    shelleyGenesis
-  where
-    maximumLovelaceSupply :: Word64
-    maximumLovelaceSupply = sgMaxLovelaceSupply template
-    -- If the initial funds are equal to the maximum funds, rewards cannot be created.
-    subtractForTreasury :: Integer
-    subtractForTreasury = nonDelegCoin `quot` 10
-    nonDelegCoin, delegCoin :: Integer
-    nonDelegCoin = fromIntegral (maybe maximumLovelaceSupply unLovelace mAmountNonDeleg)
-    delegCoin = fromIntegral amountDeleg
-
-    distribute :: Integer -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
-    distribute funds nAddrs addrs = zip addrs (fmap Lovelace (coinPerAddr + remainder:repeat coinPerAddr))
-      where coinPerAddr, remainder :: Integer
-            (,) coinPerAddr remainder = funds `divMod` fromIntegral nAddrs
-
-    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
-    mkStuffedUtxo xs = (, Lovelace minUtxoVal) <$> xs
-      where Coin minUtxoVal = sgProtocolParams template ^. ppMinUTxOValueL
-
-    shelleyDelKeys = Map.fromList
-      [ (gh, Ledger.GenDelegPair gdh h)
-      | (GenesisKeyHash gh,
-          (GenesisDelegateKeyHash gdh, VrfKeyHash h)) <- Map.toList genDelegMap
-      ]
-
-    unLovelace :: Integral a => Lovelace -> a
-    unLovelace (Lovelace coin) = fromIntegral coin
-
 writeFileGenesis
   :: FilePath
   -> WriteFileGenesis
@@ -1152,7 +950,7 @@ writeFileGenesis fpath genesis = do
        WritePretty a -> LBS.toStrict $ encodePretty a
        WriteCanonical a -> LBS.toStrict
           . renderCanonicalJSON
-          . either (error "error parsing json that was just encoded!?") id
+          . either (error . ("error parsing json that was just encoded!? " ++) . show) id
           . parseCanonicalJSON
           . canonicalEncodePretty $ a
 

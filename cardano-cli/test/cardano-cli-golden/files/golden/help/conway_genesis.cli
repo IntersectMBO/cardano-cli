@@ -9,6 +9,7 @@ Usage: cardano-cli conway genesis
                                     | create-cardano
                                     | create
                                     | create-staked
+                                    | create-testnet-data
                                     | hash
                                     )
 
@@ -34,4 +35,5 @@ Available commands:
                            and genesis/delegation/spending keys.
   create-staked            Create a staked Shelley genesis file from a genesis
                            template and genesis/delegation/spending keys.
+  create-testnet-data      Create data to use for starting a testnet.
   hash                     Compute the hash of a genesis file

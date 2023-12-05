@@ -15,6 +15,7 @@ import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.EraBased.Commands.Genesis
                    (GenesisKeyGenGenesisCmdArgs (GenesisKeyGenGenesisCmdArgs))
 import qualified Cardano.CLI.EraBased.Commands.Genesis as Cmd
+import qualified Cardano.CLI.EraBased.Run.CreateTestnetData as CreateTestnetData
 import           Cardano.CLI.EraBased.Run.Genesis
 import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Types.Common
@@ -51,7 +52,7 @@ runLegacyGenesisKeyGenGenesisCmd :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisKeyGenGenesisCmd vk sk = runGenesisKeyGenGenesisCmd $ GenesisKeyGenGenesisCmdArgs vk sk
+runLegacyGenesisKeyGenGenesisCmd vk sk = CreateTestnetData.runGenesisKeyGenGenesisCmd $ GenesisKeyGenGenesisCmdArgs vk sk
 
 runLegacyGenesisKeyGenDelegateCmd :: ()
   => VerificationKeyFile Out
@@ -59,7 +60,7 @@ runLegacyGenesisKeyGenDelegateCmd :: ()
   -> OpCertCounterFile Out
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisKeyGenDelegateCmd vkf skf okf =
-  runGenesisKeyGenDelegateCmd
+  CreateTestnetData.runGenesisKeyGenDelegateCmd
     Cmd.GenesisKeyGenDelegateCmdArgs
       { Cmd.verificationKeyPath = vkf
       , Cmd.signingKeyPath = skf
@@ -71,7 +72,7 @@ runLegacyGenesisKeyGenUTxOCmd :: ()
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisKeyGenUTxOCmd vk sk =
-  runGenesisKeyGenUTxOCmd
+  CreateTestnetData.runGenesisKeyGenUTxOCmd
     Cmd.GenesisKeyGenUTxOCmdArgs
       { Cmd.verificationKeyPath = vk
       , Cmd.signingKeyPath = sk

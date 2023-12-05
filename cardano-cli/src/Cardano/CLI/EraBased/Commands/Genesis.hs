@@ -7,6 +7,7 @@ module Cardano.CLI.EraBased.Commands.Genesis
   , GenesisCreateCmdArgs (..)
   , GenesisCreateCardanoCmdArgs (..)
   , GenesisCreateStakedCmdArgs (..)
+  , GenesisCreateTestNetDataCmdArgs (..)
   , GenesisKeyGenGenesisCmdArgs (..)
   , GenesisKeyGenDelegateCmdArgs (..)
   , GenesisKeyGenUTxOCmdArgs (..)
@@ -27,6 +28,7 @@ data GenesisCmds era
   = GenesisCreate !GenesisCreateCmdArgs
   | GenesisCreateCardano !GenesisCreateCardanoCmdArgs
   | GenesisCreateStaked !GenesisCreateStakedCmdArgs
+  | GenesisCreateTestNetData !GenesisCreateTestNetDataCmdArgs
   | GenesisKeyGenGenesis !GenesisKeyGenGenesisCmdArgs
   | GenesisKeyGenDelegate !GenesisKeyGenDelegateCmdArgs
   | GenesisKeyGenUTxO !GenesisKeyGenUTxOCmdArgs
@@ -81,6 +83,20 @@ data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
   , mStakePoolRelaySpecFile :: !(Maybe FilePath) -- ^ Relay specification filepath
   } deriving Show
 
+data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
+  { specShelley :: !(Maybe FilePath) -- ^ Path to the @genesis-shelley@ file to use. If unspecified, a default one will be used if omitted.
+  , numGenesisKeys :: !Word -- ^ The number of genesis keys credentials to create and write to disk.
+  , numPools :: !Word -- ^ The number of stake pools credentials to create and write to disk.
+  , numStakeDelegators :: !Word -- ^ The number of delegators to pools to create and write to disk.
+  , numStuffedUtxo :: !Word -- ^ The number of UTxO accounts to make. They are "stuffed" because the credentials are not written to disk.
+  , numUtxoKeys :: !Word -- ^ The number of UTxO credentials to create and write to disk.
+  , supply :: !(Maybe Lovelace) -- ^ The number of Lovelace to distribute over initial, non-delegating stake holders.
+  , supplyDelegated :: !(Maybe Lovelace) -- ^ The number of Lovelace to distribute over delegating stake holders.
+  , networkId :: !NetworkId -- ^ The network ID to use.
+  , systemStart :: !(Maybe SystemStart) -- ^ The genesis start time.
+  , outputDir :: !FilePath -- ^ Directory where to write credentials and files.
+  } deriving Show
+
 data GenesisKeyGenGenesisCmdArgs = GenesisKeyGenGenesisCmdArgs
   { verificationKeyPath :: !(VerificationKeyFile Out)
   , signingKeyPath :: !(SigningKeyFile Out)
@@ -122,6 +138,8 @@ renderGenesisCmds = \case
     "genesis create-cardano"
   GenesisCreateStaked {} ->
     "genesis create-staked"
+  GenesisCreateTestNetData {} ->
+    "genesis create-testnet-data"
   GenesisKeyGenGenesis {} ->
     "genesis key-gen-genesis"
   GenesisKeyGenDelegate {} ->

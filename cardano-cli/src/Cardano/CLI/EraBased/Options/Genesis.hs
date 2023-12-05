@@ -87,6 +87,13 @@ pGenesisCmds envCli =
             , "template and genesis/delegation/spending keys."
             ]
     , Just
+        $ subParser "create-testnet-data"
+        $ Opt.info (pGenesisCreateTestNetData envCli)
+        $ Opt.progDesc
+        $ mconcat
+            [ "Create data to use for starting a testnet."
+            ]
+    , Just
         $ subParser "hash"
         $ Opt.info pGenesisHash
         $ Opt.progDesc "Compute the hash of a genesis file"
@@ -190,6 +197,86 @@ pGenesisCreateStaked envCli =
     <*> pBulkPoolsPerFile
     <*> pStuffedUtxoCount
     <*> Opt.optional pRelayJsonFp
+
+pGenesisCreateTestNetData :: EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateTestNetData envCli =
+  fmap GenesisCreateTestNetData $ GenesisCreateTestNetDataCmdArgs
+    <$> (optional $ pSpecFile "shelley")
+    <*> pNumGenesisKeys
+    <*> pNumPools
+    <*> pNumStakeDelegs
+    <*> pNumStuffedUtxoCount
+    <*> pNumUtxoKeys
+    <*> pSupply
+    <*> pSupplyDelegated
+    <*> pNetworkId envCli
+    <*> pMaybeSystemStart
+    <*> pOutputDir
+  where
+    pSpecFile era = Opt.strOption $ mconcat
+      [ Opt.long $ "spec-" <> era
+      , Opt.metavar "FILE"
+      , Opt.help $ "The " <> era <> " specification file to use as input. A default one is generated if omitted."
+      ]
+    pNumGenesisKeys = Opt.option Opt.auto $ mconcat
+      [ Opt.long "genesis-keys"
+      , Opt.metavar "INT"
+      , Opt.help "The number of genesis keys to make (default is 3)."
+      , Opt.value 3
+      ]
+    pNumPools :: Parser Word
+    pNumPools =
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "pools"
+        , Opt.metavar "INT"
+        , Opt.help "The number of stake pool credential sets to make (default is 0)."
+        , Opt.value 0
+        ]
+    pNumStakeDelegs :: Parser Word
+    pNumStakeDelegs =
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "stake-delegators"
+        , Opt.metavar "INT"
+        , Opt.help "The number of stake delegator credential sets to make (default is 0)."
+        , Opt.value 0
+      ]
+    pNumStuffedUtxoCount :: Parser Word
+    pNumStuffedUtxoCount =
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "stuffed-utxo"
+        , Opt.metavar "INT"
+        , Opt.help "The number of fake UTxO entries to generate (default is 0)."
+        , Opt.value 0
+        ]
+    pNumUtxoKeys :: Parser Word
+    pNumUtxoKeys =
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "utxo-keys"
+        , Opt.metavar "INT"
+        , Opt.help "The number of UTxO keys to make (default is 0)."
+        , Opt.value 0
+        ]
+    pSupply :: Parser (Maybe Lovelace)
+    pSupply =
+      Opt.optional $ fmap Lovelace $ Opt.option Opt.auto $ mconcat
+        [ Opt.long "supply"
+        , Opt.metavar "LOVELACE"
+        , Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, non-delegating stake holders. Defaults to 1 million Ada (i.e. 10^12 Lovelace)."
+        , Opt.value 1000000000000
+        ]
+    pSupplyDelegated :: Parser (Maybe Lovelace)
+    pSupplyDelegated =
+      Opt.optional $ fmap Lovelace $ Opt.option Opt.auto $ mconcat
+        [ Opt.long "supply-delegated"
+        , Opt.metavar "LOVELACE"
+        , Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, delegating stake holders. Defaults to 1 million Ada (i.e. 10^12 Lovelace)."
+        , Opt.value 1000000000000
+        ]
+    pOutputDir = Opt.strOption $ mconcat
+      [ Opt.long "out-dir"
+      , Opt.metavar "DIR"
+      , Opt.help "The directory where to generate the data. Created if not existing."
+      ]
 
 pGenesisHash :: Parser (GenesisCmds era)
 pGenesisHash =
