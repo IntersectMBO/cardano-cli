@@ -211,7 +211,6 @@ friendlyValidityRange era = \case
                   TxValidityLowerBound _ s -> toJSON s
           , "upper bound" .=
               case upperBound of
-                TxValidityNoUpperBound _ -> Null
                 TxValidityUpperBound _ s -> toJSON s
           ]
     | otherwise -> Null
@@ -552,7 +551,6 @@ friendlyRational r =
 
 friendlyFee :: TxFee era -> Aeson.Value
 friendlyFee = \case
-  TxFeeImplicit _ -> "implicit"
   TxFeeExplicit _ fee -> friendlyLovelace $ toShelleyLovelace fee
 
 friendlyLovelace :: Ledger.Coin -> Aeson.Value

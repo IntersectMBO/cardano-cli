@@ -123,7 +123,7 @@ data LegacyTransactionCmds
       TxShelleyWitnessCount
       TxByronWitnessCount
   | TransactionCalculateMinValueCmd
-      AnyCardanoEra
+      (EraInEon ShelleyBasedEra)
       ProtocolParamsFile
       TxOutShelleyBasedEra
   | TransactionHashScriptDataCmd

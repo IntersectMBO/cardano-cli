@@ -423,7 +423,7 @@ pTransaction envCli =
   pTransactionCalculateMinReqUTxO :: Parser LegacyTransactionCmds
   pTransactionCalculateMinReqUTxO =
     TransactionCalculateMinValueCmd
-      <$> pLegacyCardanoEra envCli
+      <$> pAnyShelleyBasedEra envCli
       <*> pProtocolParamsFile
       <*> pTxOutShelleyBased
 

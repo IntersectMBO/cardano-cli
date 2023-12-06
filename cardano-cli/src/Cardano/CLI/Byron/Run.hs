@@ -9,7 +9,7 @@ module Cardano.CLI.Byron.Run
   ) where
 
 import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
-import           Cardano.Api.Byron (SomeByronSigningKey (..))
+import           Cardano.Api.Byron (SomeByronSigningKey (..), serializeByronTx)
 
 import qualified Cardano.Chain.Genesis as Genesis
 import           Cardano.CLI.Byron.Commands
@@ -195,8 +195,10 @@ runSpendGenesisUTxO genesisFile nw bKeyFormat (NewTxFile ctTx) ctKey genRichAddr
     sk <- firstExceptT ByronCmdKeyFailure $ readByronSigningKey bKeyFormat ctKey
 
     let tx = txSpendGenesisUTxOByronPBFT genesis nw sk genRichAddr outs
-    firstExceptT ByronCmdHelpersError . ensureNewFileLBS ctTx $ serialiseToCBOR tx
+    firstExceptT ByronCmdHelpersError . ensureNewFileLBS ctTx
+      $ teCddlRawCBOR $ serializeByronTx tx
 
+-- Construct a Byron era tx
 runSpendUTxO
   :: NetworkId
   -> ByronKeyFormat
@@ -209,4 +211,5 @@ runSpendUTxO nw bKeyFormat (NewTxFile ctTx) ctKey ins outs = do
     sk <- firstExceptT ByronCmdKeyFailure $ readByronSigningKey bKeyFormat ctKey
 
     let gTx = txSpendUTxOByronPBFT nw sk ins outs
-    firstExceptT ByronCmdHelpersError . ensureNewFileLBS ctTx $ serialiseToCBOR gTx
+    firstExceptT ByronCmdHelpersError . ensureNewFileLBS ctTx
+      $ teCddlRawCBOR $ serializeByronTx gTx
