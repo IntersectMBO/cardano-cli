@@ -160,8 +160,8 @@ hprop_golden_governanceActionCreateNoConfidence =
       , "--deposit-return-stake-verification-key-file", stakeAddressVKeyFile
       , "--anchor-url", "proposal-dummy-url"
       , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
-      , "--governance-action-index", "5"
-      , "--governance-action-tx-id", "b1015258a99351c143a7a40b7b58f033ace10e3cc09c67780ed5b2b0992aa60a"
+      , "--prev-governance-action-index", "5"
+      , "--prev-governance-action-tx-id", "b1015258a99351c143a7a40b7b58f033ace10e3cc09c67780ed5b2b0992aa60a"
       , "--out-file", actionFile
       ]
 

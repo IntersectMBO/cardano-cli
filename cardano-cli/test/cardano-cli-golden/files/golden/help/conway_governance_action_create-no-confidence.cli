@@ -9,8 +9,8 @@ Usage: cardano-cli conway governance action create-no-confidence
                                                                    )
                                                                    --anchor-url TEXT
                                                                    --anchor-data-hash HASH
-                                                                   --governance-action-tx-id TXID
-                                                                   --governance-action-index WORD32
+                                                                   --prev-governance-action-tx-id TXID
+                                                                   --prev-governance-action-index WORD32
                                                                    --out-file FILE
 
   Create a no confidence proposal.
@@ -29,11 +29,9 @@ Available options:
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
                            "cardano-cli conway governance hash ...")
-  --governance-action-tx-id TXID
-                           Previous txid of `NoConfidence` or `NewCommittee`
-                           governance action.
-  --governance-action-index WORD32
-                           Previous tx's governance action index of
-                           `NoConfidence` or `NewCommittee` governance action.
+  --prev-governance-action-tx-id TXID
+                           Txid of the previous governance action.
+  --prev-governance-action-index WORD32
+                           Action index of the previous governance action.
   --out-file FILE          Output filepath of the no confidence proposal.
   -h,--help                Show this help text
