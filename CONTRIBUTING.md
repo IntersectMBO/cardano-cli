@@ -41,6 +41,10 @@ provide a [`--sha256` comment in `cabal.project`](https://input-output-hk.github
 For packages that we do not control, we can end up in a situation where we have a fork that looks like it will be long-lived or permanent (e.g. the maintainer is unresponsive, or the change has been merged but not released).
 In that case, release a patched version to the [CHaP repository][CHaP], which allows us to remove the `source-repository-package` stanza.
 
+## Troubleshooting
+
+If pretty much any test (launched with `cabal test`) fails with `<stdout>: commitBuffer: invalid argument (invalid character)` or `withFile: invalid argument (invalid byte sequence)`, make sure to execute `export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive` in your shell (consider doing this automatically when entering the repository, with [direnv](https://direnv.net/)).
+
 ## Releasing a version of the `cardano-cli`
 
 ### to the Cardano Haskell Package repository
