@@ -1,5 +1,28 @@
 # Changelog for cardano-cli
 
+## 8.17.0.0
+
+- Restore the inclusion of datum hashes in Alonzo era tx bodies
+  (bugfix)
+  [PR 507](https://github.com/input-output-hk/cardano-cli/pull/507)
+
+- Remove ByronTx
+  Bump to cardano-api-8.36.0.1
+  (breaking)
+  [PR 478](https://github.com/input-output-hk/cardano-cli/pull/478)
+
+- Add `create-testnet-data` command, that generates files for starting a testnet, with a UI that is more conveninent than `create-staked`
+  (feature, compatible)
+  [PR 488](https://github.com/input-output-hk/cardano-cli/pull/488)
+
+- Join some calls `writeLazyByteStringFile` in do blocks
+  (improvement)
+  [PR 497](https://github.com/input-output-hk/cardano-cli/pull/497)
+
+- Update the help text for `--key-output-format` to say that the default is text-envelope
+  (bugfix, documentation)
+  [PR 486](https://github.com/input-output-hk/cardano-cli/pull/486)
+
 ## 8.16.0.1
 
 - Fix era mismatch error in stake-address-info
@@ -65,11 +88,11 @@
 
 - Deleted `--constitution-anchor-metadata`
   Delete `--constitution-anchor-metadata-file`
-  
+
   To workaround those deletions, call `cardano-cli conway governance hash ...` and pass the data/file you were previously passing
   to `--constitution-anchor-metadata`/`--constitution-anchor-metadata-file`, then read the result, and feed it
   to the call `cardano-cli conway governance action create-constitution`.
-  
+
   Renamed `--constitution-anchor-url` to `--constitution-url`
   Renamed `--constitution-anchor-metadata-hash` to `--constitution-hash`
   (breaking)
@@ -88,14 +111,14 @@
   [PR 458](https://github.com/input-output-hk/cardano-cli/pull/458)
 
 - Add command `governance hash (--file-binary|--file-text|--text)`.
-  
+
   Remove flags: `--proposal-anchor-metadata-file`, `--proposal-anchor-metadata`,
   `--vote-anchor-metadata`, and `--vote-anchor-metadata-file`.
-  
+
   To handle the removing of flags, call `cardano-cli conway governance hash` and pass the file or text to hash,
   and then pass the result of this command to the governance action you used to call directly
   (`create-constitution`, `update-committee`, `create-info`, `create-no-confidence`, `create-protocol-parameters-update`, `create-treasury-widthdrawal`, `vote create`).
-  
+
   Rename `--proposal-anchor-url` to `--anchor-url`
   Rename `--proposal-anchor-metadata-hash` to `--anchor-data-hash`
   Rename `--vote-anchor-metadata-hash` to `--anchor-data-hash`
@@ -103,7 +126,7 @@
   [PR 442](https://github.com/input-output-hk/cardano-cli/pull/442)
 
 - Change output of `conway query protocol-parameters` so that it's consistent with the ledger's JSON output
-  
+
   The output of `conway query protocol-parameters` becomes similar to the one of `cardano-cli conway query gov-state | jq .enactState.curPParams`
   (breaking)
   [PR 455](https://github.com/input-output-hk/cardano-cli/pull/455)
