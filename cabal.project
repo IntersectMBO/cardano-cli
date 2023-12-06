@@ -14,7 +14,7 @@ repository cardano-haskell-packages
 -- you need to run if you change them
 index-state:
   , hackage.haskell.org 2023-11-20T23:52:53Z
-  , cardano-haskell-packages 2023-12-04T19:04:02Z
+  , cardano-haskell-packages 2023-12-06T18:36:58Z
 
 packages:
   cardano-cli
@@ -43,3 +43,4 @@ write-ghc-environment-files: always
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
