@@ -264,7 +264,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
     mkDelegationMapEntry :: Delegation -> (Ledger.KeyHash Ledger.Staking StandardCrypto, Ledger.PoolParams StandardCrypto)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
 
--- @mkPaths numKeys dir segment filename@ returns the paths to the keys to generate.
+-- | @mkPaths numKeys dir segment filename@ returns the paths to the keys to generate.
 -- For example @mkPaths 3 dir prefix fn.ext@ returns
 -- [dir/segment1/fn.ext, dir/segment2/fn.ext, dir/segment3/fn.ext]
 mkPaths :: Word -> String -> String -> String -> Map Int FilePath
