@@ -146,8 +146,8 @@ pGovernanceActionNoConfidenceCmd era = do
               <*> pStakeVerificationKeyOrHashOrFile (Just "deposit-return")
               <*> pAnchorUrl
               <*> pAnchorDataHash
-              <*> pTxId "governance-action-tx-id" "Previous txid of `NoConfidence` or `NewCommittee` governance action."
-              <*> pWord32 "governance-action-index" "Previous tx's governance action index of `NoConfidence` or `NewCommittee` governance action."
+              <*> pTxId "prev-governance-action-tx-id" "Txid of the previous governance action."
+              <*> pWord32 "prev-governance-action-index" "Action index of the previous governance action."
               <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
         )
     $ Opt.progDesc "Create a no confidence proposal."
