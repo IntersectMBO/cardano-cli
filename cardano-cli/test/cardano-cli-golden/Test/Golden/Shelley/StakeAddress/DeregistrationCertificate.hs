@@ -17,6 +17,7 @@ import           Hedgehog.Gen as Gen
 
 hprop_golden_shelley_stake_address_deregistration_certificate_shelley_to_babbage :: Property
 hprop_golden_shelley_stake_address_deregistration_certificate_shelley_to_babbage = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  -- The certificate type will be CertificateShelley for every era from Shelley to Babbage
   eraName <- forAll $ Gen.element ["shelley", "allegra", "mary", "alonzo", "babbage"]
   base <- H.getProjectBase
 
