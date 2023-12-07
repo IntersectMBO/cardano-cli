@@ -7,6 +7,7 @@ module Test.Golden.Governance.Committee where
 import           Control.Monad (void)
 import           Text.Regex.TDFA ((=~))
 
+import           Test.Cardano.CLI.Aeson (assertHasMappings)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
@@ -121,8 +122,9 @@ hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate =
       , "--out-file", certFile
       ]
 
-    H.assertFileOccurences 1 "CertificateConway" certFile
-    H.assertFileOccurences 1 "Constitutional Committee Hot Key Registration Certificate" certFile
+    assertHasMappings [("type", "CertificateConway"),
+                         ("description", "Constitutional Committee Hot Key Registration Certificate")]
+                                certFile
 
 hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate :: Property
 hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate =
@@ -144,8 +146,9 @@ hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate =
       , "--out-file", certFile
       ]
 
-    H.assertFileOccurences 1 "CertificateConway" certFile
-    H.assertFileOccurences 1 "Constitutional Committee Cold Key Resignation Certificate" certFile
+    assertHasMappings [("type", "CertificateConway"),
+                         ("description", "Constitutional Committee Cold Key Resignation Certificate")]
+                                certFile
 
 hprop_golden_governanceUpdateCommittee :: Property
 hprop_golden_governanceUpdateCommittee =
