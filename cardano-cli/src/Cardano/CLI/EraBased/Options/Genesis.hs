@@ -232,14 +232,19 @@ pGenesisCreateTestNetData envCli =
         , Opt.help "The number of stake pool credential sets to make (default is 0)."
         , Opt.value 0
         ]
-    pNumStakeDelegs :: Parser Word
+    pNumStakeDelegs :: Parser StakeDelegators
     pNumStakeDelegs =
-      Opt.option Opt.auto $ mconcat
-        [ Opt.long "stake-delegators"
-        , Opt.metavar "INT"
-        , Opt.help "The number of stake delegator credential sets to make (default is 0)."
-        , Opt.value 0
-      ]
+      pNumOnDiskStakeDelegators <|> pNumTransientStakeDelegs
+      where
+        pNumOnDiskStakeDelegators = fmap OnDisk $ Opt.option Opt.auto $ mconcat $
+          [ Opt.long "stake-delegators"
+          , Opt.help "The number of stake delegator credential sets to make (default is 0). Credentials are written to disk."
+          ] ++ common
+        pNumTransientStakeDelegs = fmap Transient $ Opt.option Opt.auto $ mconcat $
+          [ Opt.long "transient-stake-delegators"
+          , Opt.help "The number of stake delegator credential sets to make (default is 0). The credentials are NOT written to disk."
+          ] ++ common
+        common = [Opt.metavar "INT", Opt.value 0]
     pNumStuffedUtxoCount :: Parser Word
     pNumStuffedUtxoCount =
       Opt.option Opt.auto $ mconcat

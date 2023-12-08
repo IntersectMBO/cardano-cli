@@ -39,6 +39,7 @@ data GenesisCmdError
   | GenesisCmdByronError !ByronGenesisError
   | GenesisCmdStakePoolRelayFileError !FilePath !IOException
   | GenesisCmdStakePoolRelayJsonDecodeError !FilePath !String
+  | GenesisCmdFileInputDecodeError !(FileError InputDecodeError)
   deriving Show
 
 instance Error GenesisCmdError where
@@ -95,3 +96,5 @@ instance Error GenesisCmdError where
     GenesisCmdStakePoolRelayJsonDecodeError fp e ->
       "Error occurred while decoding the stake pool relay specification file: " <> pretty fp <>
       " Error: " <> pretty e
+    GenesisCmdFileInputDecodeError ide ->
+      "Error occured while decoding a file: " <> pshow ide
