@@ -625,7 +625,7 @@ runGenesisCreateStakedCmd
           start genDlgs mNonDelegatedSupply (length nonDelegAddrs) nonDelegAddrs stakePools stake
           (Just delegatedSupply) numDelegations delegAddrs stuffedUtxoAddrs template
 
-  liftIO $ LBS.writeFile (rootdir </> "genesis.json") $ Aeson.encode shelleyGenesis
+  liftIO $ LBS.writeFile (rootdir </> "genesis.json") $ encodePretty shelleyGenesis
 
   void $ writeFileGenesis (rootdir </> "genesis.alonzo.json") $ WritePretty alonzoGenesis
   void $ writeFileGenesis (rootdir </> "genesis.conway.json") $ WritePretty conwayGenesis
