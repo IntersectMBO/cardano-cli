@@ -87,18 +87,18 @@ pStakeAddressRegistrationCertificateCmd :: ()
 pStakeAddressRegistrationCertificateCmd era = do
   forEraInEonMaybe era $ \sbe ->
     caseShelleyToBabbageOrConwayEraOnwards
-      (\shelleyToBabbage -> subParser "registration-certificate"
+      (const $ subParser "registration-certificate"
             $ Opt.info
-                ( StakeAddressRegistrationCertificateCmd (shelleyToBabbageEraToShelleyBasedEra shelleyToBabbage)
+                ( StakeAddressRegistrationCertificateCmd sbe
                     <$> pStakeIdentifier
-                    <*> optional pKeyRegistDeposit
+                    <*> pure Nothing
                     <*> pOutputFile
                 )
             desc
       )
-      (\conwayOnwards -> subParser "registration-certificate"
+      (const $ subParser "registration-certificate"
             $ Opt.info
-                ( StakeAddressRegistrationCertificateCmd (conwayEraOnwardsToShelleyBasedEra conwayOnwards)
+                ( StakeAddressRegistrationCertificateCmd sbe
                     <$> pStakeIdentifier
                     <*> fmap Just pKeyRegistDeposit
                     <*> pOutputFile

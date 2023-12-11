@@ -673,7 +673,6 @@ Usage: cardano-cli shelley stake-address registration-certificate
                                                                     | --stake-script-file FILE
                                                                     | --stake-address ADDRESS
                                                                     )
-                                                                    [--key-reg-deposit-amt NATURAL]
                                                                     --out-file FILE
 
   Create a stake address registration certificate
@@ -1831,7 +1830,6 @@ Usage: cardano-cli allegra stake-address registration-certificate
                                                                     | --stake-script-file FILE
                                                                     | --stake-address ADDRESS
                                                                     )
-                                                                    [--key-reg-deposit-amt NATURAL]
                                                                     --out-file FILE
 
   Create a stake address registration certificate
@@ -2982,7 +2980,6 @@ Usage: cardano-cli mary stake-address registration-certificate
                                                                  | --stake-script-file FILE
                                                                  | --stake-address ADDRESS
                                                                  )
-                                                                 [--key-reg-deposit-amt NATURAL]
                                                                  --out-file FILE
 
   Create a stake address registration certificate
@@ -4133,7 +4130,6 @@ Usage: cardano-cli alonzo stake-address registration-certificate
                                                                    | --stake-script-file FILE
                                                                    | --stake-address ADDRESS
                                                                    )
-                                                                   [--key-reg-deposit-amt NATURAL]
                                                                    --out-file FILE
 
   Create a stake address registration certificate
@@ -5316,7 +5312,6 @@ Usage: cardano-cli babbage stake-address registration-certificate
                                                                     | --stake-script-file FILE
                                                                     | --stake-address ADDRESS
                                                                     )
-                                                                    [--key-reg-deposit-amt NATURAL]
                                                                     --out-file FILE
 
   Create a stake address registration certificate
@@ -8001,7 +7996,6 @@ Usage: cardano-cli latest stake-address registration-certificate
                                                                    | --stake-script-file FILE
                                                                    | --stake-address ADDRESS
                                                                    )
-                                                                   [--key-reg-deposit-amt NATURAL]
                                                                    --out-file FILE
 
   Create a stake address registration certificate
