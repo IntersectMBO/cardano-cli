@@ -4,7 +4,9 @@ Usage: cardano-cli legacy query pool-params --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
-                                              [--stake-pool-id STAKE_POOL_ID]
+                                              [ --all-stake-pools
+                                              | [--stake-pool-id STAKE_POOL_ID]
+                                              ]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -24,6 +26,7 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --all-stake-pools        Query for all stake pools
   --stake-pool-id STAKE_POOL_ID
                            Stake pool ID/verification key hash (either
                            Bech32-encoded or hex-encoded). Zero or more

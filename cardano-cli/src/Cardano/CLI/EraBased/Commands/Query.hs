@@ -155,7 +155,7 @@ data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , poolIds             :: ![Hash StakePoolKey]
+  , allOrOnlyPoolIds    :: !(AllOrOnly [Hash StakePoolKey])
   } deriving (Generic, Show)
 
 data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs
