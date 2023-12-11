@@ -20,7 +20,6 @@ runLegacyQueryCmds :: Cmd.LegacyQueryCmds -> ExceptT QueryCmdError IO ()
 runLegacyQueryCmds = \case
   Cmd.QueryLeadershipScheduleCmd  args -> runLegacyQueryLeadershipScheduleCmd args
   Cmd.QueryProtocolParametersCmd  args -> runLegacyQueryProtocolParametersCmd args
-  Cmd.QueryConstitutionHashCmd    args -> runLegacyQueryConstitutionHashCmd args
   Cmd.QueryTipCmd                 args -> runLegacyQueryTipCmd args
   Cmd.QueryStakePoolsCmd          args -> runLegacyQueryStakePoolsCmd args
   Cmd.QueryStakeDistributionCmd   args -> runLegacyQueryStakeDistributionCmd args
@@ -33,12 +32,6 @@ runLegacyQueryCmds = \case
   Cmd.QueryPoolStateCmd           args -> runLegacyQueryPoolStateCmd args
   Cmd.QueryTxMempoolCmd           args -> runLegacyQueryTxMempoolCmd args
   Cmd.QuerySlotNumberCmd          args -> runLegacyQuerySlotNumberCmd args
-
-runLegacyQueryConstitutionHashCmd :: ()
-  => Cmd.LegacyQueryConstitutionHashCmdArgs
-  -> ExceptT QueryCmdError IO ()
-runLegacyQueryConstitutionHashCmd Cmd.LegacyQueryConstitutionHashCmdArgs {..} =
-  EraBased.runQueryConstitutionHashCmd EraBased.QueryConstitutionHashCmdArgs {..}
 
 runLegacyQueryProtocolParametersCmd :: ()
   => Cmd.LegacyQueryProtocolParametersCmdArgs
