@@ -35,7 +35,6 @@ import           GHC.Generics
 data LegacyQueryCmds
   = QueryLeadershipScheduleCmd  !LegacyQueryLeadershipScheduleCmdArgs
   | QueryProtocolParametersCmd  !LegacyQueryProtocolParametersCmdArgs
-  | QueryConstitutionHashCmd    !LegacyQueryConstitutionHashCmdArgs
   | QueryTipCmd                 !LegacyQueryTipCmdArgs
   | QueryStakePoolsCmd          !LegacyQueryStakePoolsCmdArgs
   | QueryStakeDistributionCmd   !LegacyQueryStakeDistributionCmdArgs
@@ -169,7 +168,6 @@ renderLegacyQueryCmds :: LegacyQueryCmds -> Text
 renderLegacyQueryCmds = \case
   QueryLeadershipScheduleCmd {} -> "query leadership-schedule"
   QueryProtocolParametersCmd {} -> "query protocol-parameters "
-  QueryConstitutionHashCmd {} -> "query constitution-hash "
   QueryTipCmd {} -> "query tip"
   QueryStakePoolsCmd {} -> "query stake-pools"
   QueryStakeDistributionCmd {} -> "query stake-distribution"
