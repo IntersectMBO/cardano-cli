@@ -8775,7 +8775,6 @@ Usage: cardano-cli legacy genesis hash --genesis FILE
 
 Usage: cardano-cli legacy query 
                                   ( protocol-parameters
-                                  | constitution-hash
                                   | tip
                                   | stake-pools
                                   | stake-distribution
@@ -8803,16 +8802,6 @@ Usage: cardano-cli legacy query protocol-parameters --socket-path SOCKET_PATH
                                                       [--out-file FILE]
 
   Get the node's current protocol parameters
-
-Usage: cardano-cli legacy query constitution-hash --socket-path SOCKET_PATH
-                                                    [--cardano-mode
-                                                      [--epoch-slots SLOTS]]
-                                                    ( --mainnet
-                                                    | --testnet-magic NATURAL
-                                                    )
-                                                    [--out-file FILE]
-
-  Get the constitution hash
 
 Usage: cardano-cli legacy query tip --socket-path SOCKET_PATH
                                       [--cardano-mode [--epoch-slots SLOTS]]
@@ -10024,7 +10013,6 @@ Usage: cardano-cli genesis hash --genesis FILE
 
 Usage: cardano-cli query 
                            ( protocol-parameters
-                           | constitution-hash
                            | tip
                            | stake-pools
                            | stake-distribution
@@ -10052,16 +10040,6 @@ Usage: cardano-cli query protocol-parameters --socket-path SOCKET_PATH
                                                [--out-file FILE]
 
   Get the node's current protocol parameters
-
-Usage: cardano-cli query constitution-hash --socket-path SOCKET_PATH
-                                             [--cardano-mode
-                                               [--epoch-slots SLOTS]]
-                                             ( --mainnet
-                                             | --testnet-magic NATURAL
-                                             )
-                                             [--out-file FILE]
-
-  Get the constitution hash
 
 Usage: cardano-cli query tip --socket-path SOCKET_PATH
                                [--cardano-mode [--epoch-slots SLOTS]]
