@@ -552,7 +552,9 @@ Usage: cardano-cli shelley query pool-params --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
-                                               [--stake-pool-id STAKE_POOL_ID]
+                                               [ --all-stake-pools
+                                               | [--stake-pool-id STAKE_POOL_ID]
+                                               ]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -593,7 +595,9 @@ Usage: cardano-cli shelley query pool-state --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
-                                              [--stake-pool-id STAKE_POOL_ID]
+                                              [ --all-stake-pools
+                                              | [--stake-pool-id STAKE_POOL_ID]
+                                              ]
 
   Dump the pool state
 
@@ -1709,7 +1713,9 @@ Usage: cardano-cli allegra query pool-params --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
-                                               [--stake-pool-id STAKE_POOL_ID]
+                                               [ --all-stake-pools
+                                               | [--stake-pool-id STAKE_POOL_ID]
+                                               ]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -1750,7 +1756,9 @@ Usage: cardano-cli allegra query pool-state --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
-                                              [--stake-pool-id STAKE_POOL_ID]
+                                              [ --all-stake-pools
+                                              | [--stake-pool-id STAKE_POOL_ID]
+                                              ]
 
   Dump the pool state
 
@@ -2863,7 +2871,9 @@ Usage: cardano-cli mary query pool-params --socket-path SOCKET_PATH
                                             ( --mainnet
                                             | --testnet-magic NATURAL
                                             )
-                                            [--stake-pool-id STAKE_POOL_ID]
+                                            [ --all-stake-pools
+                                            | [--stake-pool-id STAKE_POOL_ID]
+                                            ]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -2902,7 +2912,9 @@ Usage: cardano-cli mary query pool-state --socket-path SOCKET_PATH
                                            [--cardano-mode
                                              [--epoch-slots SLOTS]]
                                            (--mainnet | --testnet-magic NATURAL)
-                                           [--stake-pool-id STAKE_POOL_ID]
+                                           [ --all-stake-pools
+                                           | [--stake-pool-id STAKE_POOL_ID]
+                                           ]
 
   Dump the pool state
 
@@ -4009,7 +4021,9 @@ Usage: cardano-cli alonzo query pool-params --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
-                                              [--stake-pool-id STAKE_POOL_ID]
+                                              [ --all-stake-pools
+                                              | [--stake-pool-id STAKE_POOL_ID]
+                                              ]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -4050,7 +4064,9 @@ Usage: cardano-cli alonzo query pool-state --socket-path SOCKET_PATH
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
-                                             [--stake-pool-id STAKE_POOL_ID]
+                                             [ --all-stake-pools
+                                             | [--stake-pool-id STAKE_POOL_ID]
+                                             ]
 
   Dump the pool state
 
@@ -5191,7 +5207,9 @@ Usage: cardano-cli babbage query pool-params --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
-                                               [--stake-pool-id STAKE_POOL_ID]
+                                               [ --all-stake-pools
+                                               | [--stake-pool-id STAKE_POOL_ID]
+                                               ]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -5232,7 +5250,9 @@ Usage: cardano-cli babbage query pool-state --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
-                                              [--stake-pool-id STAKE_POOL_ID]
+                                              [ --all-stake-pools
+                                              | [--stake-pool-id STAKE_POOL_ID]
+                                              ]
 
   Dump the pool state
 
@@ -6580,7 +6600,9 @@ Usage: cardano-cli conway query pool-params --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
-                                              [--stake-pool-id STAKE_POOL_ID]
+                                              [ --all-stake-pools
+                                              | [--stake-pool-id STAKE_POOL_ID]
+                                              ]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -6621,7 +6643,9 @@ Usage: cardano-cli conway query pool-state --socket-path SOCKET_PATH
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
-                                             [--stake-pool-id STAKE_POOL_ID]
+                                             [ --all-stake-pools
+                                             | [--stake-pool-id STAKE_POOL_ID]
+                                             ]
 
   Dump the pool state
 
@@ -7875,7 +7899,9 @@ Usage: cardano-cli latest query pool-params --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
-                                              [--stake-pool-id STAKE_POOL_ID]
+                                              [ --all-stake-pools
+                                              | [--stake-pool-id STAKE_POOL_ID]
+                                              ]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -7916,7 +7942,9 @@ Usage: cardano-cli latest query pool-state --socket-path SOCKET_PATH
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
-                                             [--stake-pool-id STAKE_POOL_ID]
+                                             [ --all-stake-pools
+                                             | [--stake-pool-id STAKE_POOL_ID]
+                                             ]
 
   Dump the pool state
 
@@ -8889,7 +8917,9 @@ Usage: cardano-cli legacy query pool-params --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
-                                              [--stake-pool-id STAKE_POOL_ID]
+                                              [ --all-stake-pools
+                                              | [--stake-pool-id STAKE_POOL_ID]
+                                              ]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -8930,7 +8960,9 @@ Usage: cardano-cli legacy query pool-state --socket-path SOCKET_PATH
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
-                                             [--stake-pool-id STAKE_POOL_ID]
+                                             [ --all-stake-pools
+                                             | [--stake-pool-id STAKE_POOL_ID]
+                                             ]
 
   Dump the pool state
 
@@ -10111,7 +10143,9 @@ Usage: cardano-cli query stake-snapshot --socket-path SOCKET_PATH
 Usage: cardano-cli query pool-params --socket-path SOCKET_PATH
                                        [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
-                                       [--stake-pool-id STAKE_POOL_ID]
+                                       [ --all-stake-pools
+                                       | [--stake-pool-id STAKE_POOL_ID]
+                                       ]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -10147,7 +10181,9 @@ Usage: cardano-cli query kes-period-info --socket-path SOCKET_PATH
 Usage: cardano-cli query pool-state --socket-path SOCKET_PATH
                                       [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
-                                      [--stake-pool-id STAKE_POOL_ID]
+                                      [ --all-stake-pools
+                                      | [--stake-pool-id STAKE_POOL_ID]
+                                      ]
 
   Dump the pool state
 

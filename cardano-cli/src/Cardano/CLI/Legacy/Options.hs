@@ -723,7 +723,7 @@ pQueryCmds envCli =
           <$> pSocketPath envCli
           <*> pConsensusModeParams
           <*> pNetworkId envCli
-          <*> many (pStakePoolVerificationKeyHash Nothing)
+          <*> pAllStakePoolsOrOnly
 
     pQueryTxMempool :: Parser LegacyQueryCmds
     pQueryTxMempool =

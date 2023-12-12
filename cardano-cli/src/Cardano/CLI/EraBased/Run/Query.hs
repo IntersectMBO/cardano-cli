@@ -619,7 +619,7 @@ runQueryPoolStateCmd
     { Cmd.nodeSocketPath
     , Cmd.consensusModeParams
     , Cmd.networkId
-    , Cmd.poolIds
+    , Cmd.allOrOnlyPoolIds
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
@@ -633,7 +633,11 @@ runQueryPoolStateCmd
 
         beo <- requireEon BabbageEra era
 
-        result <- lift (queryPoolState beo $ Just $ Set.fromList poolIds)
+        let poolFilter = case allOrOnlyPoolIds of
+              All -> Nothing
+              Only poolIds -> Just $ Set.fromList poolIds
+
+        result <- lift (queryPoolState beo poolFilter)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 

@@ -145,7 +145,7 @@ data LegacyQueryPoolStateCmdArgs = LegacyQueryPoolStateCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , poolIds             :: ![Hash StakePoolKey]
+  , allOrOnlyPoolIds    :: !(AllOrOnly [Hash StakePoolKey])
   } deriving (Generic, Show)
 
 data LegacyQueryTxMempoolCmdArgs = LegacyQueryTxMempoolCmdArgs

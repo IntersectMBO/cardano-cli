@@ -216,7 +216,7 @@ pQueryPoolStateCmd envCli =
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
-      <*> many (pStakePoolVerificationKeyHash Nothing)
+      <*> pAllStakePoolsOrOnly
 
 pQueryTxMempoolCmd :: EnvCli -> Parser (QueryCmds era)
 pQueryTxMempoolCmd envCli =
