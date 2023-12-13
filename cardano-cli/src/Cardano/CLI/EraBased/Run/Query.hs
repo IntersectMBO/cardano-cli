@@ -635,7 +635,7 @@ runQueryPoolStateCmd
 
         let poolFilter = case allOrOnlyPoolIds of
               All -> Nothing
-              Only poolIds -> Just $ Set.fromList poolIds
+              Some poolId poolIds -> Just $ Set.fromList (poolId : poolIds)
 
         result <- lift (queryPoolState beo poolFilter)
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
@@ -715,7 +715,7 @@ runQueryStakeSnapshotCmd
 
         let poolFilter = case allOrOnlyPoolIds of
               All -> Nothing
-              Only poolIds -> Just $ Set.fromList poolIds
+              Some poolId poolIds -> Just $ Set.fromList (poolId : poolIds)
 
         beo <- requireEon BabbageEra era
 

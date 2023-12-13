@@ -129,7 +129,7 @@ data LegacyQueryStakeSnapshotCmdArgs = LegacyQueryStakeSnapshotCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , allOrOnlyPoolIds    :: !(AllOrOnly [Hash StakePoolKey])
+  , allOrOnlyPoolIds    :: !(AllOrOnly (Hash StakePoolKey))
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -145,7 +145,7 @@ data LegacyQueryPoolStateCmdArgs = LegacyQueryPoolStateCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , allOrOnlyPoolIds    :: !(AllOrOnly [Hash StakePoolKey])
+  , allOrOnlyPoolIds    :: !(AllOrOnly (Hash StakePoolKey))
   } deriving (Generic, Show)
 
 data LegacyQueryTxMempoolCmdArgs = LegacyQueryTxMempoolCmdArgs
