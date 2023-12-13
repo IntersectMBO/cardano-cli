@@ -189,15 +189,15 @@ pQueryProtocolStateCmd envCli =
       <*> pNetworkId envCli
       <*> pMaybeOutputFile
 
-pAllStakePoolsOrOnly :: Parser (AllOrOnly [Hash StakePoolKey])
-pAllStakePoolsOrOnly = pAll <|> pOnly
-  where pAll :: Parser (AllOrOnly [Hash StakePoolKey])
+pAllStakePoolsOrSome :: Parser (AllOrOnly (Hash StakePoolKey))
+pAllStakePoolsOrSome = pAll <|> pOnly
+  where pAll :: Parser (AllOrOnly (Hash StakePoolKey))
         pAll = Opt.flag' All $ mconcat
           [ Opt.long "all-stake-pools"
           , Opt.help "Query for all stake pools"
           ]
-        pOnly :: Parser (AllOrOnly [Hash StakePoolKey])
-        pOnly = Only <$> many (pStakePoolVerificationKeyHash Nothing)
+        pOnly :: Parser (AllOrOnly (Hash StakePoolKey))
+        pOnly = Some <$> pStakePoolVerificationKeyHash Nothing <*> many (pStakePoolVerificationKeyHash Nothing)
 
 pQueryStakeSnapshotCmd :: EnvCli -> Parser (QueryCmds era)
 pQueryStakeSnapshotCmd envCli =
@@ -206,7 +206,7 @@ pQueryStakeSnapshotCmd envCli =
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
-      <*> pAllStakePoolsOrOnly
+      <*> pAllStakePoolsOrSome
       <*> pMaybeOutputFile
 
 pQueryPoolStateCmd :: EnvCli -> Parser (QueryCmds era)
@@ -216,7 +216,7 @@ pQueryPoolStateCmd envCli =
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
-      <*> pAllStakePoolsOrOnly
+      <*> pAllStakePoolsOrSome
 
 pQueryTxMempoolCmd :: EnvCli -> Parser (QueryCmds era)
 pQueryTxMempoolCmd envCli =

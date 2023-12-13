@@ -696,15 +696,15 @@ pQueryCmds envCli =
           <*> pNetworkId envCli
           <*> pMaybeOutputFile
 
-    pAllStakePoolsOrOnly :: Parser (AllOrOnly [Hash StakePoolKey])
+    pAllStakePoolsOrOnly :: Parser (AllOrOnly (Hash StakePoolKey))
     pAllStakePoolsOrOnly = pAll <|> pOnly
-      where pAll :: Parser (AllOrOnly [Hash StakePoolKey])
+      where pAll :: Parser (AllOrOnly (Hash StakePoolKey))
             pAll = Opt.flag' All $ mconcat
               [ Opt.long "all-stake-pools"
               , Opt.help "Query for all stake pools"
               ]
-            pOnly :: Parser (AllOrOnly [Hash StakePoolKey])
-            pOnly = Only <$> many (pStakePoolVerificationKeyHash Nothing)
+            pOnly :: Parser (AllOrOnly (Hash StakePoolKey))
+            pOnly = Some <$> pStakePoolVerificationKeyHash Nothing <*> many (pStakePoolVerificationKeyHash Nothing)
 
     pQueryStakeSnapshot :: Parser LegacyQueryCmds
     pQueryStakeSnapshot =

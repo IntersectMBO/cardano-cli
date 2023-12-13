@@ -2294,10 +2294,8 @@ pStakePoolVerificationKeyHash prefix =
     Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-id"
       , Opt.metavar "STAKE_POOL_ID"
-      , Opt.help $ mconcat
-          [ "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded).  "
-          , "Zero or more occurences of this option is allowed."
-          ]
+      , Opt.help
+         "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded)."
       ]
 
 pVrfVerificationKeyFile :: Parser (VerificationKeyFile In)
