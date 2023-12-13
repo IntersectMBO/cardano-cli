@@ -922,8 +922,6 @@ Usage: cardano-cli shelley transaction build-raw
                                                    ]
                                                    [--protocol-params-file FILE]
                                                    [--update-proposal-file FILE]
-                                                   [--vote-file FILE]
-                                                   [--proposal-file FILE]
                                                    --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -1047,8 +1045,6 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                | --metadata-cbor-file FILE
                                                ]
                                                [--update-proposal-file FILE]
-                                               [--vote-file FILE]
-                                               [--proposal-file FILE]
                                                ( --out-file FILE
                                                | --calculate-plutus-script-cost FILE
                                                )
@@ -2085,8 +2081,6 @@ Usage: cardano-cli allegra transaction build-raw
                                                    ]
                                                    [--protocol-params-file FILE]
                                                    [--update-proposal-file FILE]
-                                                   [--vote-file FILE]
-                                                   [--proposal-file FILE]
                                                    --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -2210,8 +2204,6 @@ Usage: cardano-cli allegra transaction build --socket-path SOCKET_PATH
                                                | --metadata-cbor-file FILE
                                                ]
                                                [--update-proposal-file FILE]
-                                               [--vote-file FILE]
-                                               [--proposal-file FILE]
                                                ( --out-file FILE
                                                | --calculate-plutus-script-cost FILE
                                                )
@@ -3240,8 +3232,6 @@ Usage: cardano-cli mary transaction build-raw
                                                 ]
                                                 [--protocol-params-file FILE]
                                                 [--update-proposal-file FILE]
-                                                [--vote-file FILE]
-                                                [--proposal-file FILE]
                                                 --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -3362,8 +3352,6 @@ Usage: cardano-cli mary transaction build --socket-path SOCKET_PATH
                                             | --metadata-cbor-file FILE
                                             ]
                                             [--update-proposal-file FILE]
-                                            [--vote-file FILE]
-                                            [--proposal-file FILE]
                                             ( --out-file FILE
                                             | --calculate-plutus-script-cost FILE
                                             )
@@ -4396,8 +4384,6 @@ Usage: cardano-cli alonzo transaction build-raw
                                                   ]
                                                   [--protocol-params-file FILE]
                                                   [--update-proposal-file FILE]
-                                                  [--vote-file FILE]
-                                                  [--proposal-file FILE]
                                                   --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -4521,8 +4507,6 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                               | --metadata-cbor-file FILE
                                               ]
                                               [--update-proposal-file FILE]
-                                              [--vote-file FILE]
-                                              [--proposal-file FILE]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
                                               )
@@ -5585,8 +5569,6 @@ Usage: cardano-cli babbage transaction build-raw
                                                    ]
                                                    [--protocol-params-file FILE]
                                                    [--update-proposal-file FILE]
-                                                   [--vote-file FILE]
-                                                   [--proposal-file FILE]
                                                    --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -5710,8 +5692,6 @@ Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
                                                | --metadata-cbor-file FILE
                                                ]
                                                [--update-proposal-file FILE]
-                                               [--vote-file FILE]
-                                               [--proposal-file FILE]
                                                ( --out-file FILE
                                                | --calculate-plutus-script-cost FILE
                                                )
@@ -8280,8 +8260,6 @@ Usage: cardano-cli latest transaction build-raw
                                                   ]
                                                   [--protocol-params-file FILE]
                                                   [--update-proposal-file FILE]
-                                                  [--vote-file FILE]
-                                                  [--proposal-file FILE]
                                                   --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -8405,8 +8383,6 @@ Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
                                               | --metadata-cbor-file FILE
                                               ]
                                               [--update-proposal-file FILE]
-                                              [--vote-file FILE]
-                                              [--proposal-file FILE]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
                                               )

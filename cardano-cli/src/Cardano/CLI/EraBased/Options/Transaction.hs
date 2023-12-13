@@ -14,6 +14,7 @@ import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Governance (VoteFile)
 
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)
@@ -151,7 +152,7 @@ pTransactionBuildCmd era envCli = do
             ]
         ]
   where
-    pCmd :: ShelleyBasedEra era ->  Parser (TransactionCmds era)
+    pCmd :: ShelleyBasedEra era -> Parser (TransactionCmds era)
     pCmd sbe =
       fmap TransactionBuildCmd $
         TransactionBuildCmdArgs sbe
@@ -180,8 +181,8 @@ pTransactionBuildCmd era envCli = do
                       "Filepath of auxiliary script(s)")
           <*> many pMetadataFile
           <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
-          <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
-          <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
+          <*> pVoteFiles sbe
+          <*> pProposalFiles sbe
           <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
 pChangeAddress :: Parser TxOutChangeAddress
@@ -215,9 +216,19 @@ pTransactionBuildRaw era =
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
       <*> pFeatured era (optional pUpdateProposalFile)
-      <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
-      <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
+      <*> pVoteFiles era
+      <*> pProposalFiles era
       <*> pTxBodyFileOut
+
+pVoteFiles :: ShelleyBasedEra era -> Parser [VoteFile In]
+pVoteFiles = caseShelleyToBabbageOrConwayEraOnwards 
+        (const $ pure [])
+        (const $ many (pFileInDirection "vote-file" "Filepath of the vote."))
+
+pProposalFiles :: ShelleyBasedEra era -> Parser [ProposalFile In]
+pProposalFiles = caseShelleyToBabbageOrConwayEraOnwards 
+        (const $ pure [])
+        (const $ many (pFileInDirection "proposal-file" "Filepath of the proposal."))
 
 pTransactionSign  :: EnvCli -> Parser (TransactionCmds era)
 pTransactionSign envCli =
