@@ -55,6 +55,7 @@ module Cardano.CLI.Types.Common
   , SigningKeyFile
   , SlotsTillKesKeyExpiry (..)
   , SomeKeyFile(..)
+  , StakeDelegators(..)
   , StakePoolMetadataFile
   , TransferDirection(..)
   , TxBodyFile
@@ -139,6 +140,11 @@ data VoteHashSource
   = VoteHashSourceFile (File VoteText In)
   | VoteHashSourceText Text
   | VoteHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+  deriving Show
+
+data StakeDelegators
+  = OnDisk !Word -- ^ The number of credentials to write to disk
+  | Transient !Word -- ^ The number of credentials, that are not written to disk
   deriving Show
 
 -- | Specify whether to render the script cost as JSON
