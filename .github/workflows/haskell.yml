@@ -117,6 +117,25 @@ jobs:
         KEEP_WORKSPACE: 1
       run: cabal test all
 
+    - # Delete golden files and regenerate them in the next step to ensure
+      # files that tests designate as golden files are actually golden files
+      # and can be generated.
+      name: Delete golden files
+      shell: bash
+      run: |
+        rm -rf cardano-cli/test/cardano-cli-golden/files/golden
+
+    - name: Run tests regenerate golden files
+      env:
+        # these two are msys2 env vars, they have no effect on non-msys2 installs.
+        MSYS2_PATH_TYPE: inherit
+        MSYSTEM: MINGW64
+        TMPDIR: ${{ runner.temp }}
+        TMP: ${{ runner.temp }}
+        KEEP_WORKSPACE: 1
+        CREATE_GOLDEN_FILES: 1
+      run: cabal test all
+
     - name: "Tar artifacts"
       shell: bash
       run: |
