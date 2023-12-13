@@ -40,6 +40,7 @@ hprop_golden_create_testnet_data =
          , "--out-dir", outputDir
          , "--testnet-magic", "42"
          , "--pools", "2"
+         , "--stake-delegators", "4"
         ]
 
     generated <- liftIO $ tree outputDir
@@ -52,3 +53,24 @@ hprop_golden_create_testnet_data =
     void $ H.note generated''
 
     H.diffVsGoldenFile generated'' "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
+
+hprop_golden_create_testnet_data_transient_stake_delegators :: Property
+hprop_golden_create_testnet_data_transient_stake_delegators =
+  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+
+    let outputDir = tempDir </> "out"
+
+    void $
+      execCardanoCLI
+        ["conway",  "genesis", "create-testnet-data"
+         , "--genesis-keys", "2"
+         , "--utxo-keys", "3"
+         , "--out-dir", outputDir
+         , "--testnet-magic", "42"
+         , "--pools", "2"
+         , "--stake-delegators", "4"
+        ]
+
+    -- We just test that the command doesn't crash when we execute a different path.
+    -- For the golden part of this test, we are anyway covered by 'hprop_golden_create_testnet_data'
+    -- that generates strictly more stuff.

@@ -1,7 +1,9 @@
 Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILE]
                                                         [--genesis-keys INT]
                                                         [--pools INT]
-                                                        [--stake-delegators INT]
+                                                        [ --stake-delegators INT
+                                                        | --transient-stake-delegators INT
+                                                        ]
                                                         [--stuffed-utxo INT]
                                                         [--utxo-keys INT]
                                                         [--supply LOVELACE]
@@ -21,7 +23,11 @@ Available options:
   --pools INT              The number of stake pool credential sets to make
                            (default is 0).
   --stake-delegators INT   The number of stake delegator credential sets to make
-                           (default is 0).
+                           (default is 0). Credentials are written to disk.
+  --transient-stake-delegators INT
+                           The number of stake delegator credential sets to make
+                           (default is 0). The credentials are NOT written to
+                           disk.
   --stuffed-utxo INT       The number of fake UTxO entries to generate (default
                            is 0).
   --utxo-keys INT          The number of UTxO keys to make (default is 0).
