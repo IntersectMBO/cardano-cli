@@ -6399,7 +6399,7 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
 
   Vote creation.
 
-Usage: cardano-cli conway governance vote view [--yaml]
+Usage: cardano-cli conway governance vote view [--output-format STRING]
                                                  --vote-file FILE
                                                  [--out-file FILE]
 

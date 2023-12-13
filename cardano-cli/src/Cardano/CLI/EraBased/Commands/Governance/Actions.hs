@@ -132,7 +132,7 @@ data GovernanceActionViewCmdArgs era
   = GovernanceActionViewCmdArgs
       { eon        :: !(ConwayEraOnwards era)
       , actionFile :: !(ProposalFile In)
-      , outFormat  :: !GovernanceActionViewOutputFormat
+      , outFormat  :: !ViewOutputFormat
       , mOutFile   :: !(Maybe (File () Out))
       } deriving Show
 

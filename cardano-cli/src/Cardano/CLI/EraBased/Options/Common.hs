@@ -1566,28 +1566,27 @@ pPoolIdOutputFormat =
     , Opt.value IdOutputFormatBech32
     ]
 
-pTxViewOutputFormat :: Parser TxViewOutputFormat
-pTxViewOutputFormat =
-  Opt.option readTxViewOutputFormat $ mconcat
-    [ Opt.long "output-format"
-    , Opt.metavar "STRING"
-    , Opt.help $ mconcat
-      [ "Optional transaction view output format. Accepted output formats are \"json\" "
-      , "and \"yaml\" (default is \"json\")."
-      ]
-    , Opt.value TxViewOutputFormatJson
-    ]
+pTxViewOutputFormat :: Parser ViewOutputFormat
+pTxViewOutputFormat = pViewOutputFormat "transaction"
 
-pGovernanceActionViewOutputFormat :: Parser GovernanceActionViewOutputFormat
-pGovernanceActionViewOutputFormat =
-  Opt.option readGovernanceActionViewOutputFormat $ mconcat
+pGovernanceActionViewOutputFormat :: Parser ViewOutputFormat
+pGovernanceActionViewOutputFormat = pViewOutputFormat "governance action"
+
+pGovernanceVoteViewOutputFormat :: Parser ViewOutputFormat
+pGovernanceVoteViewOutputFormat = pViewOutputFormat "governance vote"
+
+-- | @pViewOutputFormat kind@ is a parser to specify in which format
+-- to view some data (json or yaml). @what@ is the kind of data considered.
+pViewOutputFormat :: String -> Parser ViewOutputFormat
+pViewOutputFormat kind =
+  Opt.option (readViewOutputFormat kind) $ mconcat
     [ Opt.long "output-format"
     , Opt.metavar "STRING"
     , Opt.help $ mconcat
-      [ "Optional governance action view output format. Accepted output formats are \"json\" "
+      [ "Optional ", kind ," view output format. Accepted output formats are \"json\" "
       , "and \"yaml\" (default is \"json\")."
       ]
-    , Opt.value GovernanceActionViewOutputFormatJson
+    , Opt.value ViewOutputFormatJson
     ]
 
 pMaybeOutputFile :: Parser (Maybe (File content Out))
