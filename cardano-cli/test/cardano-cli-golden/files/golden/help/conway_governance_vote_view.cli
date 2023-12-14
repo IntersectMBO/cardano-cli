@@ -1,11 +1,13 @@
-Usage: cardano-cli conway governance vote view [--yaml]
+Usage: cardano-cli conway governance vote view [--output-format STRING]
                                                  --vote-file FILE
                                                  [--out-file FILE]
 
   Vote viewing.
 
 Available options:
-  --yaml                   Output vote in YAML format (and not JSON).
+  --output-format STRING   Optional governance vote view output format. Accepted
+                           output formats are "json" and "yaml" (default is
+                           "json").
   --vote-file FILE         Input filepath of the vote.
   --out-file FILE          Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

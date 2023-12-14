@@ -3,15 +3,16 @@
 module Cardano.CLI.Parser
   ( readerFromAttoParser
   , readFractionAsRational
+  , readGovernanceActionViewOutputFormat
   , readKeyOutputFormat
   , readIdOutputFormat
   , readTxViewOutputFormat
   , readRational
   , readRationalUnitInterval
   , readStringOfMaxLength
+  , readViewOutputFormat
   , readURIOfMaxLength
   , eDNSName
-  , readGovernanceActionViewOutputFormat
   ) where
 
 import           Cardano.CLI.Types.Common
@@ -51,29 +52,23 @@ readKeyOutputFormat = do
         , ". Accepted output formats are \"text-envelope\" and \"bech32\"."
         ]
 
-readTxViewOutputFormat :: Opt.ReadM TxViewOutputFormat
-readTxViewOutputFormat = do
+readTxViewOutputFormat :: Opt.ReadM ViewOutputFormat
+readTxViewOutputFormat = readViewOutputFormat "transaction"
+
+readViewOutputFormat :: String -> Opt.ReadM ViewOutputFormat
+readViewOutputFormat kind = do
   s <- Opt.str @String
   case s of
-    "json" -> pure TxViewOutputFormatJson
-    "yaml" -> pure TxViewOutputFormatYaml
+    "json" -> pure ViewOutputFormatJson
+    "yaml" -> pure ViewOutputFormatYaml
     _ ->
       fail $ mconcat
-        [ "Invalid transaction view output format: " <> show s
+        [ "Invalid ", kind, " output format: " <> show s
         , ". Accepted output formats are \"json\" and \"yaml\"."
         ]
 
-readGovernanceActionViewOutputFormat :: Opt.ReadM GovernanceActionViewOutputFormat
-readGovernanceActionViewOutputFormat = do
-  s <- Opt.str @String
-  case s of
-    "json" -> pure GovernanceActionViewOutputFormatJson
-    "yaml" -> pure GovernanceActionViewOutputFormatYaml
-    _ ->
-      fail $ mconcat
-        [ "Invalid governance action view output format: " <> show s
-        , ". Accepted output formats are \"json\" and \"yaml\"."
-        ]
+readGovernanceActionViewOutputFormat :: Opt.ReadM ViewOutputFormat
+readGovernanceActionViewOutputFormat = readViewOutputFormat "governance action view"
 
 readURIOfMaxLength :: Int -> Opt.ReadM Text
 readURIOfMaxLength maxLen =

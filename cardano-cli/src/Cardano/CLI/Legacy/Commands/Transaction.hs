@@ -131,7 +131,7 @@ data LegacyTransactionCmds
   | TransactionTxIdCmd
       InputTxBodyOrTxFile
   | TransactionViewCmd
-      TxViewOutputFormat
+      ViewOutputFormat
       (Maybe (File () Out))
       InputTxBodyOrTxFile
 

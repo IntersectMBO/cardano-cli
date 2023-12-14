@@ -287,7 +287,7 @@ runLegacyTransactionTxIdCmd txfile =
         txfile
     )
 
-runLegacyTransactionViewCmd :: TxViewOutputFormat -> Maybe (File () Out) -> InputTxBodyOrTxFile -> ExceptT TxCmdError IO ()
+runLegacyTransactionViewCmd :: ViewOutputFormat -> Maybe (File () Out) -> InputTxBodyOrTxFile -> ExceptT TxCmdError IO ()
 runLegacyTransactionViewCmd
     yamlOrJson
     mOutFile
