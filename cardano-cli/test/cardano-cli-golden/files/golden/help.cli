@@ -1164,7 +1164,7 @@ Usage: cardano-cli shelley transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli shelley transaction view [--output-format STRING]
+Usage: cardano-cli shelley transaction view [--output-json | --output-yaml]
                                               [--out-file FILE]
                                               ( --tx-body-file FILE
                                               | --tx-file FILE
@@ -2323,7 +2323,7 @@ Usage: cardano-cli allegra transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli allegra transaction view [--output-format STRING]
+Usage: cardano-cli allegra transaction view [--output-json | --output-yaml]
                                               [--out-file FILE]
                                               ( --tx-body-file FILE
                                               | --tx-file FILE
@@ -3463,7 +3463,7 @@ Usage: cardano-cli mary transaction txid (--tx-body-file FILE | --tx-file FILE)
 
   Print a transaction identifier.
 
-Usage: cardano-cli mary transaction view [--output-format STRING]
+Usage: cardano-cli mary transaction view [--output-json | --output-yaml]
                                            [--out-file FILE]
                                            ( --tx-body-file FILE
                                            | --tx-file FILE
@@ -4626,7 +4626,7 @@ Usage: cardano-cli alonzo transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli alonzo transaction view [--output-format STRING]
+Usage: cardano-cli alonzo transaction view [--output-json | --output-yaml]
                                              [--out-file FILE]
                                              ( --tx-body-file FILE
                                              | --tx-file FILE
@@ -5811,7 +5811,7 @@ Usage: cardano-cli babbage transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli babbage transaction view [--output-format STRING]
+Usage: cardano-cli babbage transaction view [--output-json | --output-yaml]
                                               [--out-file FILE]
                                               ( --tx-body-file FILE
                                               | --tx-file FILE
@@ -6258,7 +6258,9 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
   Create a treasury withdrawal.
 
 Usage: cardano-cli conway governance action view --action-file FILE
-                                                   [--output-format STRING]
+                                                   [ --output-json
+                                                   | --output-yaml
+                                                   ]
                                                    [--out-file FILE]
 
   View a governance action.
@@ -6399,7 +6401,7 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
 
   Vote creation.
 
-Usage: cardano-cli conway governance vote view [--output-format STRING]
+Usage: cardano-cli conway governance vote view [--output-json | --output-yaml]
                                                  --vote-file FILE
                                                  [--out-file FILE]
 
@@ -7320,7 +7322,7 @@ Usage: cardano-cli conway transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli conway transaction view [--output-format STRING]
+Usage: cardano-cli conway transaction view [--output-json | --output-yaml]
                                              [--out-file FILE]
                                              ( --tx-body-file FILE
                                              | --tx-file FILE
@@ -8502,7 +8504,7 @@ Usage: cardano-cli latest transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli latest transaction view [--output-format STRING]
+Usage: cardano-cli latest transaction view [--output-json | --output-yaml]
                                              [--out-file FILE]
                                              ( --tx-body-file FILE
                                              | --tx-file FILE
@@ -9540,7 +9542,7 @@ Usage: cardano-cli legacy transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli legacy transaction view [--output-format STRING]
+Usage: cardano-cli legacy transaction view [--output-json | --output-yaml]
                                              [--out-file FILE]
                                              ( --tx-body-file FILE
                                              | --tx-file FILE
@@ -10733,7 +10735,7 @@ Usage: cardano-cli transaction txid (--tx-body-file FILE | --tx-file FILE)
 
   Print a transaction identifier.
 
-Usage: cardano-cli transaction view [--output-format STRING]
+Usage: cardano-cli transaction view [--output-json | --output-yaml]
                                       [--out-file FILE]
                                       (--tx-body-file FILE | --tx-file FILE)
 

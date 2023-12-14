@@ -1579,15 +1579,17 @@ pGovernanceVoteViewOutputFormat = pViewOutputFormat "governance vote"
 -- to view some data (json or yaml). @what@ is the kind of data considered.
 pViewOutputFormat :: String -> Parser ViewOutputFormat
 pViewOutputFormat kind =
-  Opt.option (readViewOutputFormat kind) $ mconcat
-    [ Opt.long "output-format"
-    , Opt.metavar "STRING"
-    , Opt.help $ mconcat
-      [ "Optional ", kind ," view output format. Accepted output formats are \"json\" "
-      , "and \"yaml\" (default is \"json\")."
-      ]
-    , Opt.value ViewOutputFormatJson
+  asum
+    [ make ViewOutputFormatJson "JSON" "json" Nothing
+    , make ViewOutputFormatYaml "YAML" "yaml" (Just " Defaults to JSON if unspecified.")
     ]
+  where
+    make format desc flag_ extraHelp =
+      Opt.flag ViewOutputFormatJson format $ mconcat
+      [ Opt.help $
+          "Format " <> kind <> " view output to " <> desc <> "."
+            <> fromMaybe "" extraHelp
+      , Opt.long ("output-" <> flag_)]
 
 pMaybeOutputFile :: Parser (Maybe (File content Out))
 pMaybeOutputFile =

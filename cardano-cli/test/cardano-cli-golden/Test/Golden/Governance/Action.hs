@@ -116,7 +116,7 @@ hprop_golden_conway_governance_action_view_update_committee_yaml =
     actionView <- execCardanoCLI
       [ "conway", "governance", "action", "view"
       , "--action-file", actionFile
-      , "--output-format", "yaml"
+      , "--output-yaml"
       ]
     H.diffVsGoldenFile actionView goldenActionViewFile
 

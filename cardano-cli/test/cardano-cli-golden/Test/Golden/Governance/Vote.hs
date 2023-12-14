@@ -63,7 +63,7 @@ hprop_golden_governance_governance_vote_view_yaml =
     voteViewGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/voteViewYAML"
     voteView <- execCardanoCLI
       [ "conway", "governance", "vote", "view"
-      , "--output-format", "yaml"
+      , "--output-yaml"
       , "--vote-file", voteFile
       ]
 

@@ -40,7 +40,7 @@ _hprop_golden_view_byron_yaml =
     -- View transaction body
     result <-
       execCardanoCLI
-        ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-format", "yaml"]
+        ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
     H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/byron/transaction-view.out"
 
 -- TODO: Expose command to view byron tx files
@@ -147,7 +147,7 @@ hprop_golden_view_shelley_yaml = let
     -- View transaction body
     result <-
       execCardanoCLI
-        ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-format", "yaml"]
+        ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
 
     H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/shelley/transaction-view.out"
 
@@ -178,7 +178,7 @@ hprop_golden_view_allegra_yaml =
     -- View transaction body
     result <-
       execCardanoCLI
-        ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-format", "yaml"]
+        ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
     H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/allegra/transaction-view.out"
 
 hprop_golden_view_mary_yaml :: Property
@@ -245,7 +245,7 @@ hprop_golden_view_mary_yaml =
     -- View transaction body
     result <-
       execCardanoCLI
-        ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-format", "yaml"]
+        ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
     H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/mary/transaction-view.out"
 
 createAlonzoTxBody :: Maybe FilePath -> FilePath -> Integration ()
@@ -302,7 +302,7 @@ hprop_golden_view_alonzo_yaml =
       -- View transaction body
       result <-
         execCardanoCLI
-          ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-format", "yaml"]
+          ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
       H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/alonzo/transaction-view.out"
 
 hprop_golden_view_alonzo_signed_yaml :: Property
@@ -328,6 +328,6 @@ hprop_golden_view_alonzo_signed_yaml =
     -- View transaction body
     result <-
       execCardanoCLI
-        ["transaction", "view", "--tx-file", transactionFile, "--output-format", "yaml"]
+        ["transaction", "view", "--tx-file", transactionFile, "--output-yaml"]
 
     H.diffVsGoldenFile result (golden </> "signed-transaction-view.out")
