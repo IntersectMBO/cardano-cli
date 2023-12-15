@@ -11250,13 +11250,16 @@ Usage: cardano-cli byron create-update-proposal
 
   Create an update proposal.
 
-Usage: cardano-cli ping [-c|--count COUNT]
-                          ((-h|--host HOST) | (-u|--unixsock SOCKET))
-                          [-p|--port PORT]
-                          [-m|--magic MAGIC]
-                          [-j|--json]
-                          [-q|--quiet]
-                          [-Q|--query-versions]
+Usage: cardano-cli ping 
+                          ( [-c|--count COUNT]
+                            (-h|--host HOST)
+                            [-p|--port PORT]
+                            [-m|--magic MAGIC]
+                            [-j|--json]
+                            [-q|--quiet]
+                            [-Q|--query-versions]
+                          | --handshake-only (-u|--unixsock SOCKET)
+                          )
 
   Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
 

@@ -62,12 +62,13 @@ data PingCmd = PingCmd
 
 pingClient :: Tracer IO CNP.LogMsg -> Tracer IO String -> PingCmd -> [CNP.NodeVersion] -> AddrInfo -> IO ()
 pingClient stdout stderr cmd = CNP.pingClient stdout stderr opts
-  where opts = CNP.PingOpts
+  where
+    opts = CNP.PingOpts
           { CNP.pingOptsQuiet          = pingCmdQuiet cmd
           , CNP.pingOptsJson           = pingCmdJson cmd
           , CNP.pingOptsCount          = pingCmdCount cmd
-          , CNP.pingOptsHost           = maybeHostEndPoint (pingCmdEndPoint cmd)
-          , CNP.pingOptsUnixSock       = maybeUnixSockEndPoint (pingCmdEndPoint cmd)
+          , CNP.pingOptsHost           = maybeHostEndPoint $ pingCmdEndPoint cmd
+          , CNP.pingOptsUnixSock       = maybeUnixSockEndPoint $ pingCmdEndPoint cmd
           , CNP.pingOptsPort           = pingCmdPort cmd
           , CNP.pingOptsMagic          = pingCmdMagic cmd
           , CNP.pingOptsHandshakeQuery = pingOptsHandshakeQuery cmd
@@ -136,41 +137,48 @@ parsePingCmd = Opt.hsubparser $ mconcat
     ]
   ]
 
-pHost :: Opt.Parser String
-pHost =
-  Opt.strOption $ mconcat
+pHost :: Bool -> Opt.Parser EndPoint
+pHost internal = fmap HostEndPoint
+  ( Opt.strOption $ mconcat
     [ Opt.long "host"
     , Opt.short 'h'
     , Opt.metavar "HOST"
     , Opt.help "Hostname/IP, e.g. relay.iohk.example."
+    , if internal then Opt.internal else mempty
+    ])
+
+pHandshakeOnly :: Opt.Parser ()
+pHandshakeOnly = Opt.flag' () $ mconcat
+    [ Opt.long "handshake-only"
+    , Opt.help "Perform only the handshake process without sending a ping."
     ]
 
-pUnixSocket :: Opt.Parser String
-pUnixSocket =
-  Opt.strOption $ mconcat
+pUnixSocket :: Opt.Parser EndPoint
+pUnixSocket = fmap UnixSockEndPoint
+  ( Opt.strOption $ mconcat
     [ Opt.long "unixsock"
     , Opt.short 'u'
     , Opt.metavar "SOCKET"
-    , Opt.help "Unix socket, e.g. file.socket."
-    ]
+    , Opt.help $ mconcat
+      [ "Unix socket, e.g. file.socket. "
+      , "Requires the --hanshake-only flag.  "
+      ]
+    ])
 
-pEndPoint :: Opt.Parser EndPoint
-pEndPoint = fmap HostEndPoint pHost <|> fmap UnixSockEndPoint pUnixSocket
-
-pPing :: Opt.Parser PingCmd
-pPing = PingCmd
+pPingNoHandshakeOnly :: Opt.Parser PingCmd
+pPingNoHandshakeOnly = PingCmd 
   <$> ( Opt.option Opt.auto $ mconcat
-        [ Opt.long "count"
-        , Opt.short 'c'
-        , Opt.metavar "COUNT"
-        , Opt.help $ mconcat
-          [ "Stop after sending count requests and receiving count responses.  "
-          , "If this option is not specified, ping will operate until interrupted.  "
-          ]
-        , Opt.value maxBound
+      [ Opt.long "count"
+      , Opt.short 'c'
+      , Opt.metavar "COUNT"
+      , Opt.help $ mconcat
+        [ "Stop after sending count requests and receiving count responses.  "
+        , "If this option is not specified, ping will operate until interrupted.  "
         ]
-      )
-  <*> pEndPoint
+      , Opt.value maxBound
+      ]
+    )
+  <*> pHost False
   <*> ( Opt.strOption $ mconcat
         [ Opt.long "port"
         , Opt.short 'p'
@@ -202,6 +210,56 @@ pPing = PingCmd
   <*> ( Opt.switch $ mconcat
         [ Opt.long "query-versions"
         , Opt.short 'Q'
-        , Opt.help "Query the supported protocol versions using the handshake protocol and terminate the connection."
+        , Opt.help $ mconcat
+          [ "Query the supported protocol versions using the handshake protocol and terminate the connection. "
+          , "(deprecated; use under --handshake-only instead)."
+          ]
         ]
       )
+
+pPingHanshakeOnly :: Opt.Parser PingCmd
+pPingHanshakeOnly = PingCmd 0 
+  <$> (pHandshakeOnly *> (pHost True <|> pUnixSocket))
+  <*> ( Opt.strOption $ mconcat
+        [ Opt.long "port"
+        , Opt.short 'p'
+        , Opt.metavar "PORT"
+        , Opt.help "Port number, e.g. 1234."
+        , Opt.value "3001"
+        , Opt.internal
+        ]
+      )
+  <*> ( Opt.option Opt.auto $ mconcat
+        [ Opt.long "magic"
+        , Opt.short 'm'
+        , Opt.metavar "MAGIC"
+        , Opt.help "Network magic."
+        , Opt.value CNP.mainnetMagic
+        , Opt.internal
+        ]
+      )
+  <*> ( Opt.switch $ mconcat
+        [ Opt.long "json"
+        , Opt.short 'j'
+        , Opt.help "JSON output flag."
+        , Opt.internal
+        ]
+      )
+  <*> ( Opt.switch $ mconcat
+        [ Opt.long "quiet"
+        , Opt.short 'q'
+        , Opt.help "Quiet flag, CSV/JSON only output"
+        , Opt.internal
+        ]
+      )
+  <*> ( Opt.switch $ mconcat
+        [ Opt.long "query-versions"
+        , Opt.short 'Q'
+        , Opt.help "Query the supported protocol versions using the handshake protocol and terminate the connection. "
+        , Opt.internal
+        ]
+      )
+
+
+pPing :: Opt.Parser PingCmd
+pPing = pPingNoHandshakeOnly <|> pPingHanshakeOnly
