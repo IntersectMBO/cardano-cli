@@ -60,7 +60,7 @@
           #  nix flake lock --update-input CHaP
           #
           inputMap = {
-            "https://input-output-hk.github.io/cardano-haskell-packages" = inputs.CHaP;
+            "https://chap.intersectmbo.org/" = inputs.CHaP;
           };
           # tools we want in our shell, from hackage
           shell.tools =

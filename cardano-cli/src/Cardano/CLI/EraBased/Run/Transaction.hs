@@ -1189,15 +1189,15 @@ runTransactionViewCmd
       -- is arguably not part of the transaction body.
       firstExceptT TxCmdWriteFileError . newExceptT $
         case outputFormat of
-          TxViewOutputFormatYaml -> friendlyTxBody FriendlyYaml mOutFile (toCardanoEra era) txbody
-          TxViewOutputFormatJson -> friendlyTxBody FriendlyJson mOutFile (toCardanoEra era) txbody
+          ViewOutputFormatYaml -> friendlyTxBody FriendlyYaml mOutFile (toCardanoEra era) txbody
+          ViewOutputFormatJson -> friendlyTxBody FriendlyJson mOutFile (toCardanoEra era) txbody
     InputTxFile (File txFilePath) -> do
       txFile <- liftIO $ fileOrPipe txFilePath
       InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdCddlError)
       firstExceptT TxCmdWriteFileError . newExceptT $
         case outputFormat of
-          TxViewOutputFormatYaml -> friendlyTx FriendlyYaml mOutFile (toCardanoEra era) tx
-          TxViewOutputFormatJson -> friendlyTx FriendlyJson mOutFile (toCardanoEra era) tx
+          ViewOutputFormatYaml -> friendlyTx FriendlyYaml mOutFile (toCardanoEra era) tx
+          ViewOutputFormatJson -> friendlyTx FriendlyJson mOutFile (toCardanoEra era) tx
 
 -- ----------------------------------------------------------------------------
 -- Witness commands

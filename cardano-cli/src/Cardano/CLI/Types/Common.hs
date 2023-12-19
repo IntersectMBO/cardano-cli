@@ -25,7 +25,6 @@ module Cardano.CLI.Types.Common
   , GenesisDir(..)
   , GenesisFile (..)
   , GenesisKeyFile(..)
-  , GovernanceActionViewOutputFormat(..)
   , InputTxBodyOrTxFile (..)
   , KeyOutputFormat(..)
   , MetadataFile(..)
@@ -70,10 +69,10 @@ module Cardano.CLI.Types.Common
   , TxOutCount(..)
   , TxOutDatumAnyEra (..)
   , TxShelleyWitnessCount(..)
-  , TxViewOutputFormat(..)
   , UpdateProposalFile (..)
   , VerificationKeyBase64(..)
   , VerificationKeyFile
+  , ViewOutputFormat(..)
   , VoteUrl(..)
   , VoteText(..)
   , VoteHashSource(..)
@@ -459,14 +458,9 @@ data TxMempoolQuery =
     | TxMempoolQueryInfo
   deriving Show
 
-data TxViewOutputFormat
-  = TxViewOutputFormatJson
-  | TxViewOutputFormatYaml
-  deriving Show
-
-data GovernanceActionViewOutputFormat
-  = GovernanceActionViewOutputFormatJson
-  | GovernanceActionViewOutputFormatYaml
+data ViewOutputFormat
+  = ViewOutputFormatJson
+  | ViewOutputFormatYaml
   deriving Show
 --
 -- Shelley CLI flag/option data types

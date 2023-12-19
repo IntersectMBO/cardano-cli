@@ -70,13 +70,6 @@ pGovernanceVoteViewCmd era = do
 pGovernanceVoteViewCmdArgs :: ConwayEraOnwards era -> Parser (GovernanceVoteViewCmdArgs era)
 pGovernanceVoteViewCmdArgs cOnwards =
   GovernanceVoteViewCmdArgs cOnwards
-    <$> pYamlOutput
+    <$> pGovernanceVoteViewOutputFormat
     <*> pFileInDirection "vote-file" "Input filepath of the vote."
     <*> pMaybeOutputFile
-  where
-    pYamlOutput :: Parser Bool
-    pYamlOutput =
-      Opt.switch
-        ( Opt.long "yaml"
-            <> Opt.help "Output vote in YAML format (and not JSON)."
-        )

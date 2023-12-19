@@ -85,7 +85,7 @@ runGovernanceVoteViewCmd :: ()
 runGovernanceVoteViewCmd
     Cmd.GovernanceVoteViewCmdArgs
       { eon
-      , yamlOutput
+      , outFormat
       , voteFile
       , mOutFile
       } = do
@@ -96,8 +96,12 @@ runGovernanceVoteViewCmd
      readVotingProceduresFile eon voteFile
     firstExceptT GovernanceVoteCmdWriteError .
       newExceptT .
-      (if yamlOutput
-      then writeByteStringOutput mOutFile . Yaml.encodePretty (Yaml.setConfCompare compare Yaml.defConfig)
-      else writeLazyByteStringOutput mOutFile . encodePretty' (defConfig {confCompare = compare})) .
+      (case outFormat of
+         ViewOutputFormatYaml ->
+           writeByteStringOutput mOutFile . Yaml.encodePretty
+             (Yaml.setConfCompare compare Yaml.defConfig)
+         ViewOutputFormatJson ->
+           writeLazyByteStringOutput mOutFile . encodePretty'
+             (defConfig {confCompare = compare})) .
       unVotingProcedures $
       voteProcedures
