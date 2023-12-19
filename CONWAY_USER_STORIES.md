@@ -1,27 +1,7 @@
-# User Story Inventory
+# CLI Conway user story inventory
 
-## Change Management
-
-Upon agreement on the User Story Inventory, a suitable level of Change Management will be applied, this will enable us to phase-deliver Governance on Cardano and to fulfill the ongoing Ecosystem and Community needs. Additional User Stories will be proposed, reviewed, approved and accepted using
-
-## Source Areas Under Consideration
-
-This section shows the areas or sources thus far
-
-| Source          | Outline Contribution                                                     | State                    | Key Contract         |
-|-----------------|--------------------------------------------------------------------------|--------------------------|----------------------|
-| CIP-1694        | Blockchain level User Stories on voting, delegation, identity, consensus | Initial Capture Complete | Outreach in progress |
-| Voltaire        | Use Cases for Governance, voting, delegation                             | Initial Capture Complete | Outreach in progress |
-| Smart Contracts | Plutus v3 and BLS                                                        | Initial Capture Complete | Outreach in progress |
-| CLI-API         | Interface outline and definition                                         | Initial Capture Complete | Outreach in progress |
-| Side chains      | Interaction with BLS primitives                                          | Outreach in progress     | Outreach in progress |
-| DApps           | To be defined and elaborated                                             | To be defined            | Outreach in progress |
-| Exchanges       | To be defined and elaborated                                             | To be defined            | Outreach in progress |
-| Other           | To be defined and elaborated                                             | To be defined            | Outreach in progress |
-
----
-<br>
-
+Notice:
+This collection of user stories and feature designs provides a snapshot of the current state of Conway era features for the cardano-cli. The included commands are designed to fulfill user stories that cover the necessary features for the Conway era. However, it's essential to note that the design and structure of each command listed herein may be subject to change in future releases. Any modifications made to the current design aim to enhance functionality or address evolving requirements while ensuring that users can still achieve the same intended results. Users are advised to stay updated with official documentation and release notes for any changes and to adapt their implementations accordingly.
 
 # PERSONAS
 |ID|NAME|DESCRIPTION|
@@ -644,6 +624,18 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 | Expand the command query stake-address-info to return the DRep id of the DRep that the stake credential is delegated to and the value of the existing deposits. | The command returns:<br><br>Stake-address<br>Rewards account balance<br>Stake pool it is delegated to (stakeDelegation), null if it isn’t<br>DRep it is delegated to (voteDelegation), null if it isn’t<br>Stake key deposit<br>Cumulative governance action deposits |
 
 ## User Story ID:  CLI.036
+- [ ] Enabler
+### Title: query constitution
+### User Story
+- As any persona I want to query the on-chain constitution so that I can know the url where it is stored and the document hash so that I can verify authenticity. 
+
+### Functional requirements
+|Requirements|Acceptance Criteria|
+|:----|:----|
+| The command is implemented as cardano-cli conway query constitution  | Running `cardano-cli conway query constitution` returns the current constitution URL and hash |
+| Requires specifying the target network | The command requires the user to specify the target network using either `--mainnet` or `--testnet-magic NATURAL`. |
+
+## User Story ID:  CLI.037
 - [ ] Enabler
 ### Title: (WIP) Scripts as DRep (HOLDER)
 ### User Story
