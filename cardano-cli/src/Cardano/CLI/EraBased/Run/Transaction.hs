@@ -226,7 +226,7 @@ runTransactionBuildCmd
         & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
       scriptExecUnitsMap <-
-        firstExceptT TxCmdTxExecUnitsErr $ hoistEither
+        firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $ hoistEither
           $ evaluateTransactionExecutionUnits era
               systemStart (toLedgerEpochInfo eraHistory)
               pparams txEraUtxo balancedTxBody
@@ -588,7 +588,7 @@ runTxBuild
     & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
 
   balancedTxBody@(BalancedTxBody _ _ _ fee) <-
-    firstExceptT TxCmdBalanceTxBody
+    firstExceptT (TxCmdBalanceTxBody . AnyTxBodyErrorAutoBalance)
       . hoistEither
       $ makeTransactionBodyAutoBalance sbe systemStart (toLedgerEpochInfo eraHistory)
                                         pparams stakePools stakeDelegDeposits drepDelegDeposits

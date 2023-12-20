@@ -2622,12 +2622,18 @@ pPoolDeposit =
    , Opt.help "The amount of a pool registration deposit."
    ]
 
-pEpochBoundRetirement :: Parser EpochNo
+pEpochBoundRetirement :: Parser L.EpochInterval
 pEpochBoundRetirement =
-  fmap EpochNo $ Opt.option (bounded "EPOCH_BOUNDARY") $ mconcat
-    [ Opt.long "pool-retirement-epoch-boundary"
-    , Opt.metavar "EPOCH_BOUNDARY"
-    , Opt.help "Epoch bound on pool retirement."
+  fmap L.EpochInterval $ asum
+    [ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
+        [ Opt.long "pool-retirement-epoch-interval"
+        , Opt.metavar "EPOCH_INTERVAL"
+        , Opt.help "Epoch interval of pool retirement."
+        ]
+    , Opt.option (bounded "EPOCH_BOUNDARY")  $ mconcat
+        [ Opt.long "pool-retirement-epoch-boundary"
+        , Opt.internal
+        ]
     ]
 
 pNumberOfPools :: Parser Natural
@@ -2928,9 +2934,9 @@ pCommitteeTermLength =
     , Opt.help "Maximal term length for members of the constitutional committee, in epochs."
     ]
 
-pGovActionLifetime :: Parser EpochNo
+pGovActionLifetime :: Parser L.EpochInterval
 pGovActionLifetime =
-  fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
+  fmap L.EpochInterval $ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
     [ Opt.long "governance-action-lifetime"
     , Opt.metavar "NATURAL"
     , Opt.help "Maximal lifetime of governance actions, in epochs."
@@ -2944,9 +2950,9 @@ pDRepDeposit =
     , Opt.help "DRep deposit amount."
     ]
 
-pDRepActivity :: Parser EpochNo
+pDRepActivity :: Parser L.EpochInterval
 pDRepActivity =
-  fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
+  fmap L.EpochInterval $ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
     [ Opt.long "drep-activity"
     , Opt.metavar "NATURAL"
     , Opt.help "DRep activity period, in epochs."

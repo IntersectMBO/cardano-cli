@@ -906,8 +906,6 @@ readCostModels (File fp) = do
 
 -- Misc
 
--- readFileInByronEra = undefined
-
 readFileInAnyShelleyBasedEra
   :: ( HasTextEnvelope (thing ShelleyEra)
      , HasTextEnvelope (thing AllegraEra)
