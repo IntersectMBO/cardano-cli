@@ -49,6 +49,8 @@ data TxCmdError
   | TxCmdNotImplemented !Text
   | TxCmdWitnessEraMismatch !AnyCardanoEra !AnyCardanoEra !WitnessFile
   | TxCmdPolicyIdsMissing ![PolicyId] ![PolicyId]
+    -- The first list is the missing policy Ids, the second list is the
+    -- policy Ids that were provided in the transaction.
   | TxCmdPolicyIdsExcess  ![PolicyId]
   | TxCmdByronEra
   | TxCmdBalanceTxBody !TxBodyErrorAutoBalance
@@ -136,9 +138,7 @@ renderTxCmdError = \case
     , "corresponding monetary policy script has been provided as a witness "
     , "(via the \"--mint-script-file\" flag). The policy Id in question is: "
     , prettyPolicyIdList missingPolicyIds
-    ] <> if (null knownPolicyIds)
-         then []
-         else [". Known policy Ids are: " <> prettyPolicyIdList knownPolicyIds ]
+    ] <> [". Known policy Ids are: " <> prettyPolicyIdList knownPolicyIds  | not (null knownPolicyIds) ]
 
 
   TxCmdPolicyIdsExcess policyids ->
