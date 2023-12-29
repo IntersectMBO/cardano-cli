@@ -225,7 +225,7 @@ data ScriptWitnessError
   | ScriptWitnessErrorScriptLanguageNotSupportedInEra AnyScriptLanguage AnyCardanoEra
   | ScriptWitnessErrorExpectedSimple !FilePath !AnyScriptLanguage
   | ScriptWitnessErrorExpectedPlutus !FilePath !AnyScriptLanguage
-  | ScriptWitnessErrorReferenceScriptsNotSupportedInEra !AnyCardanoEra
+  | ScriptWitnessErrorReferenceScriptsNotSupportedInEra !AnyShelleyBasedEra
   | ScriptWitnessErrorScriptData ScriptDataError
 
 renderScriptWitnessError :: ScriptWitnessError -> Doc ann
@@ -244,7 +244,7 @@ renderScriptWitnessError = \case
     pretty file <> ": expected a script in the Plutus script language, " <>
     "but it is actually using " <> pshow lang <> "."
   ScriptWitnessErrorReferenceScriptsNotSupportedInEra anyEra ->
-    "Reference scripts not supported in era: " <> pretty anyEra
+    "Reference scripts not supported in era: " <> pshow anyEra
   ScriptWitnessErrorScriptData sDataError ->
     renderScriptDataError sDataError
 
@@ -324,8 +324,7 @@ readScriptWitness era (PlutusReferenceScriptWitnessFiles refTxIn
   caseShelleyToAlonzoOrBabbageEraOnwards
     ( const $ left
         $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-          -- TODO: Update error to use AnyShelleyBasedEra
-        $ cardanoEraConstraints (toCardanoEra era) (AnyCardanoEra $ toCardanoEra era)
+        $ cardanoEraConstraints (toCardanoEra era) (AnyShelleyBasedEra era)
     )
     ( const $
         case scriptLanguageSupportedInEra era anyScriptLanguage of
@@ -354,7 +353,7 @@ readScriptWitness era (SimpleReferenceScriptWitnessFiles refTxIn
   caseShelleyToAlonzoOrBabbageEraOnwards
     ( const $ left
         $ ScriptWitnessErrorReferenceScriptsNotSupportedInEra
-        $ cardanoEraConstraints (toCardanoEra era) (AnyCardanoEra $ toCardanoEra era)
+        $ cardanoEraConstraints (toCardanoEra era) (AnyShelleyBasedEra era)
     )
     ( const $
         case scriptLanguageSupportedInEra era anyScriptLanguage of
