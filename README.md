@@ -14,7 +14,7 @@ The `cardano-cli` tool allows users to perform various operations and actions on
 
 ## Executables
 
-You can download the hydra binaries of ``cardano-node`` and ``cardano-cli`` from the [release notes](https://github.com/input-output-hk/cardano-node/releases)
+You can download the hydra binaries of ``cardano-node`` and ``cardano-cli`` from the [release notes](https://github.com/IntersectMBO/cardano-node/releases)
 
 ## Contributing
 
