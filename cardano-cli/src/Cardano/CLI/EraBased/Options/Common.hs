@@ -1596,7 +1596,10 @@ pMaybeOutputFile =
   optional $ fmap File $ Opt.strOption $ mconcat
     [ Opt.long "out-file"
     , Opt.metavar "FILE"
-    , Opt.help "Optional output file. Default is to write to stdout."
+    , Opt.help "Optional output file. Default is to write to stdout. \
+               \If given, output will be formatted in JSON, otherwise\
+               \it will be formatted as human-readable text. Note that\
+               \using '/dev/stdout' outputs JSON."
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
