@@ -552,7 +552,6 @@ runGenesisCreateStakedCmd
       gendir   = rootdir </> "genesis-keys"
       deldir   = rootdir </> "delegate-keys"
       pooldir  = rootdir </> "pools"
-      stdeldir = rootdir </> "stake-delegator-keys"
       utxodir  = rootdir </> "utxo-keys"
 
   liftIO $ do
@@ -560,7 +559,6 @@ runGenesisCreateStakedCmd
     createDirectoryIfMissing False gendir
     createDirectoryIfMissing False deldir
     createDirectoryIfMissing False pooldir
-    createDirectoryIfMissing False stdeldir
     createDirectoryIfMissing False utxodir
 
   template <- readShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
