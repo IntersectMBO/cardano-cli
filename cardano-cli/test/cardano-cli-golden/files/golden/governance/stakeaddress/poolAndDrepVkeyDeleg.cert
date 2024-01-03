@@ -1,5 +1,5 @@
 {
-    "type": "CertificateShelley",
+    "type": "CertificateConway",
     "description": "Stake and Vote Delegation Certificate",
     "cborHex": "840a8200581cef1785cf18928f8353c90e76b7a8fc60855472d31a0ea1c1c774ab01581cc27cf021914a2b3bcb286d3d741979083422378c577fe757702b69888200581ce68f9ee70599cb93d9f60678f9c6463c01938c27d9820c7bf93887a5"
 }

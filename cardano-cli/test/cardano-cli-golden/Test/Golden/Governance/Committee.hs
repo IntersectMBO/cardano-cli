@@ -121,7 +121,7 @@ hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate =
       , "--out-file", certFile
       ]
 
-    H.assertFileOccurences 1 "CertificateShelley" certFile
+    H.assertFileOccurences 1 "CertificateConway" certFile
     H.assertFileOccurences 1 "Constitutional Committee Hot Key Registration Certificate" certFile
 
 hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate :: Property
@@ -144,7 +144,7 @@ hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate =
       , "--out-file", certFile
       ]
 
-    H.assertFileOccurences 1 "CertificateShelley" certFile
+    H.assertFileOccurences 1 "CertificateConway" certFile
     H.assertFileOccurences 1 "Constitutional Committee Cold Key Resignation Certificate" certFile
 
 hprop_golden_governanceUpdateCommittee :: Property
