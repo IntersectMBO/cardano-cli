@@ -277,7 +277,7 @@ runGenesisCreateCmd
     createDelegateKeys keyOutputFormat deldir index
 
   forM_ [ 1 .. numUTxOKeys ] $ \index ->
-    createUtxoKeys utxodir index
+    createUtxoAndStakeKeys utxodir index
 
   genDlgs <- readGenDelegsMap gendir deldir
   utxoAddrs <- readInitialFundAddresses utxodir network
@@ -568,9 +568,9 @@ runGenesisCreateStakedCmd
   forM_ [ 1 .. numGenesisKeys ] $ \index -> do
     createGenesisKeys gendir index
     createDelegateKeys keyOutputFormat deldir index
-
+  -- Part one: Generate accompanyting stake keys
   forM_ [ 1 .. numUTxOKeys ] $ \index ->
-    createUtxoKeys utxodir index
+    createUtxoAndStakeKeys utxodir index
 
   mayStakePoolRelays
     <- forM mStakePoolRelaySpecFile $
@@ -608,6 +608,7 @@ runGenesisCreateStakedCmd
   let numDelegations = length delegations
 
   genDlgs <- readGenDelegsMap gendir deldir
+
   nonDelegAddrs <- readInitialFundAddresses utxodir networkId
   start <- maybe (SystemStart <$> TN.getCurrentTimePlus30) pure mSystemStart
 
@@ -693,8 +694,8 @@ createGenesisKeys dir index = do
     , signingKeyPath = File @(SigningKey ()) $ dir </> "genesis" ++ strIndex ++ ".skey"
     }
 
-createUtxoKeys :: FilePath -> Word -> ExceptT GenesisCmdError IO ()
-createUtxoKeys dir index = do
+createUtxoAndStakeKeys :: FilePath -> Word -> ExceptT GenesisCmdError IO ()
+createUtxoAndStakeKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
   TN.runGenesisKeyGenUTxOCmd
@@ -702,6 +703,11 @@ createUtxoKeys dir index = do
     { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "utxo" ++ strIndex ++ ".vkey"
     , Cmd.signingKeyPath = File @(SigningKey ()) $ dir </> "utxo" ++ strIndex ++ ".skey"
     }
+  firstExceptT GenesisCmdStakeAddressCmdError $
+    runStakeAddressKeyGenCmd
+        KeyOutputFormatTextEnvelope
+        (File @(VerificationKey ()) $ dir </> "stake" ++ strIndex ++ stakeVKeyFileExtension)
+        (File @(SigningKey ()) $ dir </> "stake" ++ strIndex ++ stakeSKeyFileExtension)
 
 createPoolCredentials :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdError IO ()
 createPoolCredentials fmt dir index = do
@@ -1073,6 +1079,12 @@ extractFileNameIndexes files = do
   where
     filesIxs = [ (file, extractFileNameIndex file) | file <- files ]
 
+stakeVKeyFileExtension :: String
+stakeVKeyFileExtension = ".stakevkey"
+
+stakeSKeyFileExtension :: String
+stakeSKeyFileExtension = ".stakeskey"
+
 readInitialFundAddresses :: FilePath -> NetworkId
                          -> ExceptT GenesisCmdError IO [AddressInEra ShelleyEra]
 readInitialFundAddresses utxodir nw = do
@@ -1084,12 +1096,19 @@ readInitialFundAddresses utxodir nw = do
                                           (File (utxodir </> file))
                  | file <- files
                  , takeExtension file == ".vkey" ]
+    stakekeys <- firstExceptT GenesisCmdTextEnvReadFileError $
+               sequence
+                 [ newExceptT $
+                     readFileTextEnvelope (AsVerificationKey AsStakeKey)
+                                          (File (utxodir </> file))
+                 | file <- files
+                 , takeExtension file == stakeVKeyFileExtension ]
     return [ addr | vkey <- vkeys
+           , stakevkey <- stakekeys
            , let vkh  = verificationKeyHash (castVerificationKey vkey)
                  addr = makeShelleyAddressInEra ShelleyBasedEraShelley nw (PaymentCredentialByKey vkh)
-                                                NoStakeAddress
+                                                (StakeAddressByValue . StakeCredentialByKey $ verificationKeyHash stakevkey)
            ]
-
 
 -- | Hash a genesis file
 runGenesisHashFileCmd :: GenesisFile -> ExceptT GenesisCmdError IO ()
