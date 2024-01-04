@@ -831,7 +831,7 @@ runQueryStakeAddressInfoCmd
 
         return $ do
           writeStakeAddressInfo
-            era
+            sbe
             mOutFile
             (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
             (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
@@ -843,34 +843,47 @@ runQueryStakeAddressInfoCmd
 -- -------------------------------------------------------------------------------------------------
 
 writeStakeAddressInfo
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> Maybe (File () Out)
   -> DelegationsAndRewards
   -> Map StakeAddress Lovelace -- ^ deposits
   -> Map StakeAddress (L.DRep L.StandardCrypto) -- ^ vote delegatees
   -> ExceptT QueryCmdError IO ()
 writeStakeAddressInfo
-  era
+  sbe
   mOutFile
   (DelegationsAndRewards (stakeAccountBalances, stakePools))
   stakeDelegDeposits
   voteDelegatees =
     firstExceptT QueryCmdWriteFileError . newExceptT
-      $ writeLazyByteStringOutput mOutFile (encodePretty jsonInfo)
+      $ writeLazyByteStringOutput mOutFile (encodePretty $ jsonInfo sbe)
  where
-  jsonInfo :: [Aeson.Value]
+  jsonInfo :: ShelleyBasedEra era -> [Aeson.Value]
   jsonInfo =
-    map
-      (\(addr, mBalance, mPoolId, mDRep, mDeposit) ->
-        Aeson.object
-        [ "address" .= addr
-        , forEraInEon @ConwayEraOnwards era  "delegation" (const "stakeDelegation") .= mPoolId
-        , "voteDelegation" .= fmap friendlyDRep mDRep
-        , "rewardAccountBalance" .= mBalance
-        , "delegationDeposit" .= mDeposit
-        ]
+    caseShelleyToBabbageOrConwayEraOnwards
+      ( const $ map
+          (\(addr, mBalance, mPoolId, _mDRep, mDeposit) ->
+            Aeson.object
+            [ "address" .= addr
+            , "delegation" .= mPoolId
+            , "rewardAccountBalance" .= mBalance
+            , "delegationDeposit" .= mDeposit
+            ]
+          )
+          merged
       )
-      merged
+      ( const $ map
+          (\(addr, mBalance, mPoolId, mDRep, mDeposit) ->
+            Aeson.object
+            [ "address" .= addr
+            , "stakeDelegation" .= mPoolId
+            , "voteDelegation" .= fmap friendlyDRep mDRep
+            , "rewardAccountBalance" .= mBalance
+            , "delegationDeposit" .= mDeposit
+            ]
+          )
+          merged
+      )
 
   friendlyDRep :: L.DRep L.StandardCrypto -> Text
   friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
