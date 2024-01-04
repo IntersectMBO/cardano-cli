@@ -1,5 +1,64 @@
 # Changelog for cardano-cli
 
+# 8.18.0.0
+
+- Upgrade hedgehog-extras to 0.5.0.0
+  (compatible)
+  [PR 536](https://github.com/IntersectMBO/cardano-cli/pull/536)
+
+- Make it possible to merge again, by fixing dead links
+  (compatible, improvement)
+  [PR 528](https://github.com/IntersectMBO/cardano-cli/pull/528)
+
+- use AnyShelleyBasedEra
+  (improvement)
+  [PR 535](https://github.com/IntersectMBO/cardano-cli/pull/535)
+
+- In `transaction view` and `governance action view`, replace:
+  
+  `--output-format json` by `--output-json`
+  `--output-format yaml` by `--output-yaml`
+  (breaking)
+  [PR 523](https://github.com/IntersectMBO/cardano-cli/pull/523)
+
+- governance vote view: use `--output-format`, like other commands, instead of `--yaml`
+  (breaking)
+  [PR 521](https://github.com/IntersectMBO/cardano-cli/pull/521)
+
+- split eras in transaction build
+  (bugfix)
+  [PR 520](https://github.com/IntersectMBO/cardano-cli/pull/520)
+
+- create-testnet-data: rename --stake-delegators to --transient-stake-delegators
+  
+  Introduce --stake-delegators, that generates delegators, but write credentials to disk.
+  (feature, breaking)
+  [PR 512](https://github.com/IntersectMBO/cardano-cli/pull/512)
+
+- Make `query pool-state` default to returning information on all pools
+  (bugfix)
+  [PR 514](https://github.com/IntersectMBO/cardano-cli/pull/514)
+
+- `stake-address registration-certificate`: remove flag `--key-reg-deposit-amt` from all eras except conway
+  (breaking)
+  [PR 509](https://github.com/IntersectMBO/cardano-cli/pull/509)
+
+- Remove the `constitution-hash` option from the non-conway versions of `query`
+  (breaking)
+  [PR 515](https://github.com/IntersectMBO/cardano-cli/pull/515)
+
+- replace Aeson encode with encodePretty
+  (improvement)
+  [PR 513](https://github.com/IntersectMBO/cardano-cli/pull/513)
+
+- [create-testnet-data: add succinct documentation in generated directory
+  (breaking)
+  [PR 508](https://github.com/IntersectMBO/cardano-cli/pull/508)
+
+- Use the same parameter names for previous governance action txid and tx index in all governance actions.
+  (breaking, improvement, test)
+  [PR 511](https://github.com/IntersectMBO/cardano-cli/pull/511)
+
 ## 8.17.0.0
 
 - Restore the inclusion of datum hashes in Alonzo era tx bodies
