@@ -3,8 +3,7 @@ Usage: cardano-cli mary query pool-state --socket-path SOCKET_PATH
                                              [--epoch-slots SLOTS]]
                                            (--mainnet | --testnet-magic NATURAL)
                                            ( --all-stake-pools
-                                           | --stake-pool-id STAKE_POOL_ID
-                                             [--stake-pool-id STAKE_POOL_ID]
+                                           | (--stake-pool-id STAKE_POOL_ID)
                                            )
 
   Dump the pool state

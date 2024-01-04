@@ -704,7 +704,7 @@ pQueryCmds envCli =
               , Opt.help "Query for all stake pools"
               ]
             pOnly :: Parser (AllOrOnly (Hash StakePoolKey))
-            pOnly = Some <$> pStakePoolVerificationKeyHash Nothing True <*> many (pStakePoolVerificationKeyHash Nothing False)
+            pOnly = Only <$> some (pStakePoolVerificationKeyHash Nothing)
 
     pQueryStakeSnapshot :: Parser LegacyQueryCmds
     pQueryStakeSnapshot =

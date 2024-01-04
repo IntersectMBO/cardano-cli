@@ -540,8 +540,7 @@ Usage: cardano-cli shelley query stake-snapshot --socket-path SOCKET_PATH
                                                   | --testnet-magic NATURAL
                                                   )
                                                   ( --all-stake-pools
-                                                  | --stake-pool-id STAKE_POOL_ID
-                                                    [--stake-pool-id STAKE_POOL_ID]
+                                                  | (--stake-pool-id STAKE_POOL_ID)
                                                   )
                                                   [--out-file FILE]
 
@@ -555,8 +554,7 @@ Usage: cardano-cli shelley query pool-params --socket-path SOCKET_PATH
                                                | --testnet-magic NATURAL
                                                )
                                                ( --all-stake-pools
-                                               | --stake-pool-id STAKE_POOL_ID
-                                                 [--stake-pool-id STAKE_POOL_ID]
+                                               | (--stake-pool-id STAKE_POOL_ID)
                                                )
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -599,8 +597,7 @@ Usage: cardano-cli shelley query pool-state --socket-path SOCKET_PATH
                                               | --testnet-magic NATURAL
                                               )
                                               ( --all-stake-pools
-                                              | --stake-pool-id STAKE_POOL_ID
-                                                [--stake-pool-id STAKE_POOL_ID]
+                                              | (--stake-pool-id STAKE_POOL_ID)
                                               )
 
   Dump the pool state
@@ -1701,8 +1698,7 @@ Usage: cardano-cli allegra query stake-snapshot --socket-path SOCKET_PATH
                                                   | --testnet-magic NATURAL
                                                   )
                                                   ( --all-stake-pools
-                                                  | --stake-pool-id STAKE_POOL_ID
-                                                    [--stake-pool-id STAKE_POOL_ID]
+                                                  | (--stake-pool-id STAKE_POOL_ID)
                                                   )
                                                   [--out-file FILE]
 
@@ -1716,8 +1712,7 @@ Usage: cardano-cli allegra query pool-params --socket-path SOCKET_PATH
                                                | --testnet-magic NATURAL
                                                )
                                                ( --all-stake-pools
-                                               | --stake-pool-id STAKE_POOL_ID
-                                                 [--stake-pool-id STAKE_POOL_ID]
+                                               | (--stake-pool-id STAKE_POOL_ID)
                                                )
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -1760,8 +1755,7 @@ Usage: cardano-cli allegra query pool-state --socket-path SOCKET_PATH
                                               | --testnet-magic NATURAL
                                               )
                                               ( --all-stake-pools
-                                              | --stake-pool-id STAKE_POOL_ID
-                                                [--stake-pool-id STAKE_POOL_ID]
+                                              | (--stake-pool-id STAKE_POOL_ID)
                                               )
 
   Dump the pool state
@@ -2860,8 +2854,7 @@ Usage: cardano-cli mary query stake-snapshot --socket-path SOCKET_PATH
                                                | --testnet-magic NATURAL
                                                )
                                                ( --all-stake-pools
-                                               | --stake-pool-id STAKE_POOL_ID
-                                                 [--stake-pool-id STAKE_POOL_ID]
+                                               | (--stake-pool-id STAKE_POOL_ID)
                                                )
                                                [--out-file FILE]
 
@@ -2875,8 +2868,7 @@ Usage: cardano-cli mary query pool-params --socket-path SOCKET_PATH
                                             | --testnet-magic NATURAL
                                             )
                                             ( --all-stake-pools
-                                            | --stake-pool-id STAKE_POOL_ID
-                                              [--stake-pool-id STAKE_POOL_ID]
+                                            | (--stake-pool-id STAKE_POOL_ID)
                                             )
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -2917,8 +2909,7 @@ Usage: cardano-cli mary query pool-state --socket-path SOCKET_PATH
                                              [--epoch-slots SLOTS]]
                                            (--mainnet | --testnet-magic NATURAL)
                                            ( --all-stake-pools
-                                           | --stake-pool-id STAKE_POOL_ID
-                                             [--stake-pool-id STAKE_POOL_ID]
+                                           | (--stake-pool-id STAKE_POOL_ID)
                                            )
 
   Dump the pool state
@@ -4010,8 +4001,7 @@ Usage: cardano-cli alonzo query stake-snapshot --socket-path SOCKET_PATH
                                                  | --testnet-magic NATURAL
                                                  )
                                                  ( --all-stake-pools
-                                                 | --stake-pool-id STAKE_POOL_ID
-                                                   [--stake-pool-id STAKE_POOL_ID]
+                                                 | (--stake-pool-id STAKE_POOL_ID)
                                                  )
                                                  [--out-file FILE]
 
@@ -4025,8 +4015,7 @@ Usage: cardano-cli alonzo query pool-params --socket-path SOCKET_PATH
                                               | --testnet-magic NATURAL
                                               )
                                               ( --all-stake-pools
-                                              | --stake-pool-id STAKE_POOL_ID
-                                                [--stake-pool-id STAKE_POOL_ID]
+                                              | (--stake-pool-id STAKE_POOL_ID)
                                               )
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -4069,8 +4058,7 @@ Usage: cardano-cli alonzo query pool-state --socket-path SOCKET_PATH
                                              | --testnet-magic NATURAL
                                              )
                                              ( --all-stake-pools
-                                             | --stake-pool-id STAKE_POOL_ID
-                                               [--stake-pool-id STAKE_POOL_ID]
+                                             | (--stake-pool-id STAKE_POOL_ID)
                                              )
 
   Dump the pool state
@@ -5196,8 +5184,7 @@ Usage: cardano-cli babbage query stake-snapshot --socket-path SOCKET_PATH
                                                   | --testnet-magic NATURAL
                                                   )
                                                   ( --all-stake-pools
-                                                  | --stake-pool-id STAKE_POOL_ID
-                                                    [--stake-pool-id STAKE_POOL_ID]
+                                                  | (--stake-pool-id STAKE_POOL_ID)
                                                   )
                                                   [--out-file FILE]
 
@@ -5211,8 +5198,7 @@ Usage: cardano-cli babbage query pool-params --socket-path SOCKET_PATH
                                                | --testnet-magic NATURAL
                                                )
                                                ( --all-stake-pools
-                                               | --stake-pool-id STAKE_POOL_ID
-                                                 [--stake-pool-id STAKE_POOL_ID]
+                                               | (--stake-pool-id STAKE_POOL_ID)
                                                )
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -5255,8 +5241,7 @@ Usage: cardano-cli babbage query pool-state --socket-path SOCKET_PATH
                                               | --testnet-magic NATURAL
                                               )
                                               ( --all-stake-pools
-                                              | --stake-pool-id STAKE_POOL_ID
-                                                [--stake-pool-id STAKE_POOL_ID]
+                                              | (--stake-pool-id STAKE_POOL_ID)
                                               )
 
   Dump the pool state
@@ -6591,8 +6576,7 @@ Usage: cardano-cli conway query stake-snapshot --socket-path SOCKET_PATH
                                                  | --testnet-magic NATURAL
                                                  )
                                                  ( --all-stake-pools
-                                                 | --stake-pool-id STAKE_POOL_ID
-                                                   [--stake-pool-id STAKE_POOL_ID]
+                                                 | (--stake-pool-id STAKE_POOL_ID)
                                                  )
                                                  [--out-file FILE]
 
@@ -6606,8 +6590,7 @@ Usage: cardano-cli conway query pool-params --socket-path SOCKET_PATH
                                               | --testnet-magic NATURAL
                                               )
                                               ( --all-stake-pools
-                                              | --stake-pool-id STAKE_POOL_ID
-                                                [--stake-pool-id STAKE_POOL_ID]
+                                              | (--stake-pool-id STAKE_POOL_ID)
                                               )
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -6650,8 +6633,7 @@ Usage: cardano-cli conway query pool-state --socket-path SOCKET_PATH
                                              | --testnet-magic NATURAL
                                              )
                                              ( --all-stake-pools
-                                             | --stake-pool-id STAKE_POOL_ID
-                                               [--stake-pool-id STAKE_POOL_ID]
+                                             | (--stake-pool-id STAKE_POOL_ID)
                                              )
 
   Dump the pool state
@@ -7894,8 +7876,7 @@ Usage: cardano-cli latest query stake-snapshot --socket-path SOCKET_PATH
                                                  | --testnet-magic NATURAL
                                                  )
                                                  ( --all-stake-pools
-                                                 | --stake-pool-id STAKE_POOL_ID
-                                                   [--stake-pool-id STAKE_POOL_ID]
+                                                 | (--stake-pool-id STAKE_POOL_ID)
                                                  )
                                                  [--out-file FILE]
 
@@ -7909,8 +7890,7 @@ Usage: cardano-cli latest query pool-params --socket-path SOCKET_PATH
                                               | --testnet-magic NATURAL
                                               )
                                               ( --all-stake-pools
-                                              | --stake-pool-id STAKE_POOL_ID
-                                                [--stake-pool-id STAKE_POOL_ID]
+                                              | (--stake-pool-id STAKE_POOL_ID)
                                               )
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -7953,8 +7933,7 @@ Usage: cardano-cli latest query pool-state --socket-path SOCKET_PATH
                                              | --testnet-magic NATURAL
                                              )
                                              ( --all-stake-pools
-                                             | --stake-pool-id STAKE_POOL_ID
-                                               [--stake-pool-id STAKE_POOL_ID]
+                                             | (--stake-pool-id STAKE_POOL_ID)
                                              )
 
   Dump the pool state
@@ -8910,8 +8889,7 @@ Usage: cardano-cli legacy query stake-snapshot --socket-path SOCKET_PATH
                                                  | --testnet-magic NATURAL
                                                  )
                                                  ( --all-stake-pools
-                                                 | --stake-pool-id STAKE_POOL_ID
-                                                   [--stake-pool-id STAKE_POOL_ID]
+                                                 | (--stake-pool-id STAKE_POOL_ID)
                                                  )
                                                  [--out-file FILE]
 
@@ -8925,8 +8903,7 @@ Usage: cardano-cli legacy query pool-params --socket-path SOCKET_PATH
                                               | --testnet-magic NATURAL
                                               )
                                               ( --all-stake-pools
-                                              | --stake-pool-id STAKE_POOL_ID
-                                                [--stake-pool-id STAKE_POOL_ID]
+                                              | (--stake-pool-id STAKE_POOL_ID)
                                               )
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -8969,8 +8946,7 @@ Usage: cardano-cli legacy query pool-state --socket-path SOCKET_PATH
                                              | --testnet-magic NATURAL
                                              )
                                              ( --all-stake-pools
-                                             | --stake-pool-id STAKE_POOL_ID
-                                               [--stake-pool-id STAKE_POOL_ID]
+                                             | (--stake-pool-id STAKE_POOL_ID)
                                              )
 
   Dump the pool state
@@ -10142,8 +10118,7 @@ Usage: cardano-cli query stake-snapshot --socket-path SOCKET_PATH
                                           [--cardano-mode [--epoch-slots SLOTS]]
                                           (--mainnet | --testnet-magic NATURAL)
                                           ( --all-stake-pools
-                                          | --stake-pool-id STAKE_POOL_ID
-                                            [--stake-pool-id STAKE_POOL_ID]
+                                          | (--stake-pool-id STAKE_POOL_ID)
                                           )
                                           [--out-file FILE]
 
@@ -10154,8 +10129,7 @@ Usage: cardano-cli query pool-params --socket-path SOCKET_PATH
                                        [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        ( --all-stake-pools
-                                       | --stake-pool-id STAKE_POOL_ID
-                                         [--stake-pool-id STAKE_POOL_ID]
+                                       | (--stake-pool-id STAKE_POOL_ID)
                                        )
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -10193,8 +10167,7 @@ Usage: cardano-cli query pool-state --socket-path SOCKET_PATH
                                       [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       ( --all-stake-pools
-                                      | --stake-pool-id STAKE_POOL_ID
-                                        [--stake-pool-id STAKE_POOL_ID]
+                                      | (--stake-pool-id STAKE_POOL_ID)
                                       )
 
   Dump the pool state

@@ -5,8 +5,7 @@ Usage: cardano-cli allegra query pool-state --socket-path SOCKET_PATH
                                               | --testnet-magic NATURAL
                                               )
                                               ( --all-stake-pools
-                                              | --stake-pool-id STAKE_POOL_ID
-                                                [--stake-pool-id STAKE_POOL_ID]
+                                              | (--stake-pool-id STAKE_POOL_ID)
                                               )
 
   Dump the pool state

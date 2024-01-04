@@ -5,8 +5,7 @@ Usage: cardano-cli legacy query pool-params --socket-path SOCKET_PATH
                                               | --testnet-magic NATURAL
                                               )
                                               ( --all-stake-pools
-                                              | --stake-pool-id STAKE_POOL_ID
-                                                [--stake-pool-id STAKE_POOL_ID]
+                                              | (--stake-pool-id STAKE_POOL_ID)
                                               )
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters

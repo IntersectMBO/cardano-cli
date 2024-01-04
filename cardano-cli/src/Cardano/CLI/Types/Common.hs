@@ -291,7 +291,7 @@ data KeyOutputFormat
   | KeyOutputFormatBech32
   deriving (Eq, Show)
 
-data AllOrOnly a = All | Some a [a] deriving (Eq, Show)
+data AllOrOnly a = All | Only [a] deriving (Eq, Show)
 
 -- | This data structure is used to allow nicely formatted output in the query pool-params command.
 -- params are the current pool parameter settings, futureparams are new parameters, retiringEpoch is the
