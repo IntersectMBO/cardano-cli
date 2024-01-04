@@ -1,6 +1,6 @@
 # Changelog for cardano-cli
 
-# 8.18.0.0
+## 8.18.0.0
 
 - Upgrade hedgehog-extras to 0.5.0.0
   (compatible)
