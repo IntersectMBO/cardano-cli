@@ -2291,16 +2291,16 @@ pAddress =
 -- | First argument is the prefix to use, second argument is whether we show the long help text
 pStakePoolVerificationKeyHash :: Maybe String -> Bool -> Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash prefix showHelp =
-    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat $
-      (if showHelp
-       then (Opt.help
-              "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded)."
-            :)
-       else id
-      )
-      [ Opt.long $ prefixFlag prefix "stake-pool-id"
-      , Opt.metavar "STAKE_POOL_ID"
-      ]
+  Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat $
+    [ Opt.long $ prefixFlag prefix "stake-pool-id"
+    , optionalHelp
+    , Opt.metavar "STAKE_POOL_ID"
+    ]
+ where
+  optionalHelp =
+    if showHelp
+    then Opt.help "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded)."
+    else mempty
 
 pVrfVerificationKeyFile :: Parser (VerificationKeyFile In)
 pVrfVerificationKeyFile =
