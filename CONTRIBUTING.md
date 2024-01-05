@@ -22,7 +22,7 @@ This means that cabal will always see Hackage “as if” it was that time, ensu
 But it also means that if you need a package version that was released *after* that time, you need to bump the `index-state` (and to run `cabal update` locally).
 
 Because of how we use Nix to manage our Haskell build, whenever you do this you will also need to pull in the Nix equivalent of the newer `index-state`. 
-You can do this by running `nix flake lock --update-input hackageNix`.
+You can do this by running `nix flake lock --update-input haskellNix/hackage`.
 
 ### from the Cardano package repository
 Many Cardano packages are not on Hackage and are instead in the [Cardano Haskell Package (CHaP) repository][CHaP].
