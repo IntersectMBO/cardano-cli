@@ -20,7 +20,7 @@ jobs:
 
     env:
       # Modify this value to "invalidate" the cabal cache.
-      CABAL_CACHE_VERSION: "2024-01-03"
+      CABAL_CACHE_VERSION: "2024-01-05"
 
     concurrency:
       group: >
