@@ -83,7 +83,7 @@ hprop_golden_conway_stakeaddress_delegate_pool_and_drep =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/stake.vkey"
     vkeyPool <- noteInputFile "test/cardano-cli-golden/files/input/conway/poolCold.vkey"
-    vkeyDrep <- noteInputFile "test/cardano-cli-golden/files/golden/governance/drep/drep.vkey"
+    vkeyDrep <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/drep.vkey"
     delegFile <- H.noteTempFile tempDir "deleg"
     delegGold <- H.note "test/cardano-cli-golden/files/golden/governance/stakeaddress/poolAndDrepVkeyDeleg.cert"
 
