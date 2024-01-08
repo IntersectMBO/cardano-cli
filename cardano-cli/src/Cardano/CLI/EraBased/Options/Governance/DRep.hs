@@ -6,7 +6,7 @@
 
 module Cardano.CLI.EraBased.Options.Governance.DRep
   ( pGovernanceDRepCmds
-  ) where
+  , pUpdateCertificateCmd) where
 
 import           Cardano.Api
 
@@ -41,6 +41,7 @@ pGovernanceDRepCmds era =
     , pGovernanceDRepKeyIdCmd era
     , pRegistrationCertificateCmd era
     , pRetirementCertificateCmd era
+    , pUpdateCertificateCmd era
     , pGovernanceDrepMetadataHashCmd era
     ]
 
@@ -142,6 +143,23 @@ pRetirementCertificateCmd era = do
             <*> pOutputFile
       )
     $ Opt.progDesc "Create a DRep retirement certificate."
+
+pUpdateCertificateCmd :: ()
+  => CardanoEra era
+  -> Maybe (Parser (GovernanceDRepCmds era))
+pUpdateCertificateCmd era = do
+  w <- forEraMaybeEon era
+  pure
+    $ subParser "update-certificate"
+    $ Opt.info
+      ( fmap GovernanceDRepUpdateCertificateCmd $
+          conwayEraOnwardsConstraints w $
+            GovernanceDRepUpdateCertificateCmdArgs w
+              <$> pDRepVerificationKeyOrHashOrFile
+              <*> pDRepMetadata
+              <*> pOutputFile
+      )
+    $ Opt.progDesc "Create a DRep update certificate."
 
 pGovernanceDrepMetadataHashCmd :: ()
   => CardanoEra era

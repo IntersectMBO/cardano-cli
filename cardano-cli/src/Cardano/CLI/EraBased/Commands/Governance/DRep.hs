@@ -10,6 +10,7 @@ module Cardano.CLI.EraBased.Commands.Governance.DRep
   , GovernanceDRepIdCmdArgs(..)
   , GovernanceDRepRegistrationCertificateCmdArgs(..)
   , GovernanceDRepRetirementCertificateCmdArgs(..)
+  , GovernanceDRepUpdateCertificateCmdArgs(..)
   , GovernanceDRepMetadataHashCmdArgs(..)
   )
 where
@@ -28,6 +29,7 @@ data GovernanceDRepCmds era
   | GovernanceDRepIdCmd                       !(GovernanceDRepIdCmdArgs era)
   | GovernanceDRepRegistrationCertificateCmd  !(GovernanceDRepRegistrationCertificateCmdArgs era)
   | GovernanceDRepRetirementCertificateCmd    !(GovernanceDRepRetirementCertificateCmdArgs era)
+  | GovernanceDRepUpdateCertificateCmd        !(GovernanceDRepUpdateCertificateCmdArgs era)
   | GovernanceDRepMetadataHashCmd             !(GovernanceDRepMetadataHashCmdArgs era)
 
 data GovernanceDRepKeyGenCmdArgs era =
@@ -62,6 +64,14 @@ data GovernanceDRepRetirementCertificateCmdArgs era =
     , outFile         :: !(File () Out)
     }
 
+data GovernanceDRepUpdateCertificateCmdArgs era =
+  GovernanceDRepUpdateCertificateCmdArgs
+    { eon                 :: !(ConwayEraOnwards era)
+    , drepVkeyHashSource  :: !(VerificationKeyOrHashOrFile DRepKey)
+    , mAnchor             :: !(Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era))))
+    , outFile             :: !(File () Out)
+    }
+
 data GovernanceDRepMetadataHashCmdArgs era =
   GovernanceDRepMetadataHashCmdArgs
     { eon           :: !(ConwayEraOnwards era)
@@ -81,5 +91,7 @@ renderGovernanceDRepCmds = \case
     "governance drep registration-certificate"
   GovernanceDRepRetirementCertificateCmd {} ->
     "governance drep retirement-certificate"
+  GovernanceDRepUpdateCertificateCmd {} ->
+    "governance drep update-certificate"
   GovernanceDRepMetadataHashCmd {} ->
     "governance drep metadata-hash"

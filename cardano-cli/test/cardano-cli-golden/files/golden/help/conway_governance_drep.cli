@@ -3,6 +3,7 @@ Usage: cardano-cli conway governance drep
                                             | id
                                             | registration-certificate
                                             | retirement-certificate
+                                            | update-certificate
                                             | metadata-hash
                                             )
 
@@ -17,4 +18,5 @@ Available commands:
   id                       Generate a drep id.
   registration-certificate Create a registration certificate.
   retirement-certificate   Create a DRep retirement certificate.
+  update-certificate       Create a DRep update certificate.
   metadata-hash            Calculate the hash of a metadata file.
