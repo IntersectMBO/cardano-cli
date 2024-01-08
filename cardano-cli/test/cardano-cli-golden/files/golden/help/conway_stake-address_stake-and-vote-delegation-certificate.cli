@@ -40,8 +40,7 @@ Available options:
   --drep-verification-key-file FILE
                            Filepath of the DRep verification key.
   --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
-                           hex-encoded). Zero or more occurences of this option
-                           is allowed.
+                           hex-encoded).
   --always-abstain         Abstain from voting on all proposals.
   --always-no-confidence   Always vote no confidence
   --out-file FILE          The output file.

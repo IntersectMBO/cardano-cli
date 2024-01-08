@@ -322,7 +322,7 @@ pQueryDRepStateCmd era envCli = do
         <$> pSocketPath envCli
         <*> pConsensusModeParams
         <*> pNetworkId envCli
-        <*> many pDRepVerificationKeyOrHashOrFile
+        <*> pAllOrOnlyDRepVerificationKeyOrHashOrFile
         <*> optional pOutputFile
 
 pQueryDRepStakeDistributionCmd :: ()
@@ -341,7 +341,7 @@ pQueryDRepStakeDistributionCmd era envCli = do
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
-      <*> many pDRepVerificationKeyOrHashOrFile
+      <*> pAllOrOnlyDRepVerificationKeyOrHashOrFile
       <*> optional pOutputFile
 
 pQueryGetCommitteeStateCmd :: ()

@@ -3064,39 +3064,21 @@ pDRepVerificationKeyOrHashOrFile =
     , VerificationKeyHash <$> pDRepVerificationKeyHash
     ]
 
-pCombinedDRepVerificationKey :: Parser (VerificationKey DRepKey)
-pCombinedDRepVerificationKey =
-  Opt.option (readVerificationKey AsDRepKey) $ mconcat
-    [ Opt.long "combined-drep-verification-key"
-    , Opt.metavar "STRING"
-    , Opt.help "DRep verification key (Bech32 or hex-encoded)."
-    ]
-
-pCombinedDRepVerificationKeyOrFile :: Parser (VerificationKeyOrFile DRepKey)
-pCombinedDRepVerificationKeyOrFile =
-  asum
-    [ VerificationKeyValue <$> pCombinedDRepVerificationKey
-    , VerificationKeyFilePath <$> pCombinedDRepVerificationKeyFile
-    ]
-
-pCombinedDRepVerificationKeyFile :: Parser (VerificationKeyFile In)
-pCombinedDRepVerificationKeyFile =
-  fmap File . Opt.strOption $ mconcat
-    [ Opt.long "combined-drep-verification-key-file"
-    , Opt.metavar "FILE"
-    , Opt.help "Filepath of the DRep verification key."
-    , Opt.completer (Opt.bashCompleter "file")
-    ]
+pAllOrOnlyDRepVerificationKeyOrHashOrFile
+  :: Parser (AllOrOnly (VerificationKeyOrHashOrFile DRepKey))
+pAllOrOnlyDRepVerificationKeyOrHashOrFile = pAll <|> pOnly
+  where pOnly = Only <$> some pDRepVerificationKeyOrHashOrFile
+        pAll = Opt.flag' All $ mconcat
+          [ Opt.long "all-dreps"
+          , Opt.help "Query for all DReps."
+          ]
 
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
 pDRepVerificationKeyHash =
     Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey) $ mconcat
       [ Opt.long "drep-key-hash"
       , Opt.metavar "HASH"
-      , Opt.help $ mconcat
-          [ "DRep verification key hash (either Bech32-encoded or hex-encoded).  "
-          , "Zero or more occurences of this option is allowed."
-          ]
+      , Opt.help "DRep verification key hash (either Bech32-encoded or hex-encoded)."
       ]
 
 pDRepVerificationKey :: Parser (VerificationKey DRepKey)

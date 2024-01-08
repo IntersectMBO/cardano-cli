@@ -187,7 +187,7 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
   , nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
+  , drepKeys            :: !(AllOrOnly (VerificationKeyOrHashOrFile DRepKey))
   , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
 
@@ -196,7 +196,7 @@ data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   , nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , drepKeys            :: ![VerificationKeyOrHashOrFile DRepKey]
+  , drepKeys            :: !(AllOrOnly (VerificationKeyOrHashOrFile DRepKey))
   , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
 
