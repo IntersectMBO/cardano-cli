@@ -937,55 +937,6 @@ pStakePoolVerificationKeyOrHashOrFile prefix =
     , VerificationKeyHash <$> pStakePoolVerificationKeyHash prefix
     ]
 
-pCombinedStakePoolVerificationKeyOrHashOrFile
-  :: Parser (VerificationKeyOrHashOrFile StakePoolKey)
-pCombinedStakePoolVerificationKeyOrHashOrFile =
-  asum
-    [ VerificationKeyOrFile <$> pCombinedStakePoolVerificationKeyOrFile
-    , VerificationKeyHash <$> pCombinedStakePoolVerificationKeyHash
-    ]
-
-pCombinedStakePoolVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakePoolKey)
-pCombinedStakePoolVerificationKeyOrFile =
-  asum
-    [ VerificationKeyValue <$> pCombinedStakePoolVerificationKey
-    , VerificationKeyFilePath <$> pCombinedStakePoolVerificationKeyFile
-    ]
-
-pCombinedStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
-pCombinedStakePoolVerificationKeyHash =
-    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat
-      [ Opt.long "combined-stake-pool-id"
-      , Opt.metavar "STAKE_POOL_ID"
-      , Opt.help $ mconcat
-          [ "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded).  "
-          , "Zero or more occurences of this option is allowed."
-          ]
-      ]
-
-pCombinedStakePoolVerificationKey :: Parser (VerificationKey StakePoolKey)
-pCombinedStakePoolVerificationKey =
-  Opt.option (readVerificationKey AsStakePoolKey) $ mconcat
-    [ Opt.long "combined-stake-pool-verification-key"
-    , Opt.metavar "STRING"
-    , Opt.help "Stake pool verification key (Bech32 or hex-encoded)."
-    ]
-
-pCombinedStakePoolVerificationKeyFile :: Parser (VerificationKeyFile In)
-pCombinedStakePoolVerificationKeyFile =
-  File <$> asum
-    [ Opt.strOption $ mconcat
-      [ Opt.long "combined-cold-verification-key-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath of the stake pool verification key."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
-    , Opt.strOption $ mconcat
-      [ Opt.long "stake-pool-verification-key-file"
-      , Opt.internal
-      ]
-    ]
-
 --------------------------------------------------------------------------------
 
 pCBORInFile :: Parser FilePath
