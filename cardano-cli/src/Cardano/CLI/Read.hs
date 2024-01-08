@@ -638,6 +638,7 @@ data SomeSigningWitness
   | AGenesisDelegateExtendedSigningWitness  (SigningKey GenesisDelegateExtendedKey)
   | AGenesisUTxOSigningWitness              (SigningKey GenesisUTxOKey)
   | ADRepSigningWitness                     (SigningKey DRepKey)
+  | ADRepExtendedSigningWitness             (SigningKey DRepExtendedKey)
   | ACommitteeColdSigningWitness            (SigningKey CommitteeColdKey)
   | ACommitteeHotSigningWitness             (SigningKey CommitteeHotKey)
   deriving Show
@@ -673,13 +674,10 @@ categoriseSomeSigningWitness swsk =
     AGenesisDelegateSigningWitness          sk      -> AShelleyKeyWitness (WitnessGenesisDelegateKey              sk)
     AGenesisDelegateExtendedSigningWitness  sk      -> AShelleyKeyWitness (WitnessGenesisDelegateExtendedKey      sk)
     AGenesisUTxOSigningWitness              sk      -> AShelleyKeyWitness (WitnessGenesisUTxOKey                  sk)
-    ADRepSigningWitness                     sk      -> AShelleyKeyWitness (WitnessPaymentKey $ castDrep           sk)
+    ADRepSigningWitness                     sk      -> AShelleyKeyWitness (WitnessDRepKey                         sk)
+    ADRepExtendedSigningWitness             sk      -> AShelleyKeyWitness (WitnessDRepExtendedKey                 sk)
     ACommitteeColdSigningWitness            sk      -> AShelleyKeyWitness (WitnessCommitteeColdKey                sk)
     ACommitteeHotSigningWitness             sk      -> AShelleyKeyWitness (WitnessCommitteeHotKey                 sk)
-
--- TODO: Conway era - Add constrctor for SigningKey DrepKey to ShelleyWitnessSigningKey
-castDrep :: SigningKey DRepKey -> SigningKey PaymentKey
-castDrep (DRepSigningKey sk) = PaymentSigningKey sk
 
 data ReadWitnessSigningDataError
   = ReadWitnessSigningDataSigningKeyDecodeError !(FileError InputDecodeError)
@@ -727,6 +725,7 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
       , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey ) AGenesisDelegateExtendedSigningWitness
       , FromSomeType (AsSigningKey AsGenesisUTxOKey             ) AGenesisUTxOSigningWitness
       , FromSomeType (AsSigningKey AsDRepKey                    ) ADRepSigningWitness
+      , FromSomeType (AsSigningKey AsDRepExtendedKey            ) ADRepExtendedSigningWitness
       , FromSomeType (AsSigningKey AsCommitteeColdKey           ) ACommitteeColdSigningWitness
       , FromSomeType (AsSigningKey AsCommitteeHotKey            ) ACommitteeHotSigningWitness
       ]
