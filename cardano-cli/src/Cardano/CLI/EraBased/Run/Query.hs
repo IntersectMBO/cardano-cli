@@ -41,7 +41,6 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
 import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api.Ledger as L
-import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
@@ -57,15 +56,6 @@ import           Cardano.CLI.Types.Key
 import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
-import qualified Cardano.Ledger.BaseTypes as L
-import qualified Cardano.Ledger.Core as Core
-import qualified Cardano.Ledger.Credential as L
-import qualified Cardano.Ledger.Crypto as Crypto
-import           Cardano.Ledger.Keys (KeyHash (..), KeyRole (..))
-import           Cardano.Ledger.SafeHash (SafeHash)
-import           Cardano.Ledger.Shelley.LedgerState
-                   (PState (psFutureStakePoolParams, psRetiring, psStakePoolParams))
-import qualified Cardano.Ledger.Shelley.LedgerState as SL
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import           Ouroboros.Consensus.BlockchainTime.WallClock.Types (RelativeTime (..),
                    toRelativeTime)
@@ -165,7 +155,7 @@ runQueryConstitutionHashCmd
   where
     writeConstitutionHash
       :: Maybe (File () Out)
-      -> Maybe (SafeHash StandardCrypto L.AnchorData)
+      -> Maybe (L.SafeHash L.StandardCrypto L.AnchorData)
       -> ExceptT QueryCmdError IO ()
     writeConstitutionHash mOutFile' cHash =
       case mOutFile' of
@@ -196,7 +186,7 @@ runQueryProtocolParametersCmd
     writeProtocolParameters
       :: ShelleyBasedEra era
       -> Maybe (File () Out)
-      -> Ledger.PParams (ShelleyLedgerEra era)
+      -> L.PParams (ShelleyLedgerEra era)
       -> ExceptT QueryCmdError IO ()
     writeProtocolParameters sbe mOutFile' pparams =
       let apiPParamsJSON = (encodePretty $ fromLedgerPParams sbe pparams)
@@ -557,7 +547,7 @@ runQueryKesPeriodInfoCmd
     opCertOnDiskAndStateCounters :: forall era . ()
        => Consensus.PraosProtocolSupportsNode (ConsensusProtocol era)
        => FromCBOR (Consensus.ChainDepState (ConsensusProtocol era))
-       => Crypto.ADDRHASH (Consensus.PraosProtocolSupportsNodeCrypto (ConsensusProtocol era)) ~ Blake2b.Blake2b_224
+       => L.ADDRHASH (Consensus.PraosProtocolSupportsNodeCrypto (ConsensusProtocol era)) ~ Blake2b.Blake2b_224
        => ProtocolState era
        -> OperationalCertificate
        -> ExceptT QueryCmdError IO (OpCertOnDiskCounter, Maybe OpCertNodeStateCounter)
@@ -938,7 +928,7 @@ writeLedgerState mOutFile qState@(SerialisedDebugLedgerState serLedgerState) =
 
 writeStakeSnapshots :: forall era ledgerera. ()
   => ShelleyLedgerEra era ~ ledgerera
-  => Core.EraCrypto ledgerera ~ StandardCrypto
+  => L.EraCrypto ledgerera ~ StandardCrypto
   => Maybe (File () Out)
   -> SerialisedStakeSnapshots era
   -> ExceptT QueryCmdError IO ()
@@ -953,25 +943,25 @@ writeStakeSnapshots mOutFile qState = do
 --   .nesEs.esLState.lsDPState.dpsPState.psStakePoolParams.<pool_id>
 writePoolState :: forall era ledgerera. ()
   => ShelleyLedgerEra era ~ ledgerera
-  => Core.EraCrypto ledgerera ~ StandardCrypto
-  => Core.Era ledgerera
+  => L.EraCrypto ledgerera ~ StandardCrypto
+  => L.Era ledgerera
   => SerialisedPoolState era
   -> ExceptT QueryCmdError IO ()
 writePoolState serialisedCurrentEpochState = do
   PoolState poolState <- pure (decodePoolState serialisedCurrentEpochState)
     & onLeft (left . QueryCmdPoolStateDecodeError)
 
-  let hks = Set.toList $ Set.fromList $ Map.keys (psStakePoolParams poolState)
-            <> Map.keys (psFutureStakePoolParams poolState) <> Map.keys (psRetiring poolState)
+  let hks = Set.toList $ Set.fromList $ Map.keys (L.psStakePoolParams poolState)
+            <> Map.keys (L.psFutureStakePoolParams poolState) <> Map.keys (L.psRetiring poolState)
 
-  let poolStates :: Map (KeyHash 'StakePool StandardCrypto) (Params StandardCrypto)
+  let poolStates :: Map (L.KeyHash 'L.StakePool StandardCrypto) (Params StandardCrypto)
       poolStates = Map.fromList $ hks <&>
         ( \hk ->
           ( hk
           , Params
-            { poolParameters        = Map.lookup hk (SL.psStakePoolParams  poolState)
-            , futurePoolParameters  = Map.lookup hk (SL.psFutureStakePoolParams poolState)
-            , retiringEpoch         = Map.lookup hk (SL.psRetiring poolState)
+            { poolParameters        = Map.lookup hk (L.psStakePoolParams  poolState)
+            , futurePoolParameters  = Map.lookup hk (L.psFutureStakePoolParams poolState)
+            , retiringEpoch         = Map.lookup hk (L.psRetiring poolState)
             }
           )
         )
@@ -1449,7 +1439,7 @@ runQueryDRepState
   drepStakeDistribution <-
     case includeStake of
       Cmd.WithStake -> runQuery localNodeConnInfo target $
-        queryDRepStakeDistribution eon (Set.fromList $ Ledger.DRepCredential <$> drepCreds)
+        queryDRepStakeDistribution eon (Set.fromList $ L.DRepCredential <$> drepCreds)
       Cmd.NoStake -> return mempty
 
   writeOutput mOutFile $
@@ -1458,15 +1448,15 @@ runQueryDRepState
     drepStateToJson stakeDistr (cred, ds) = (cred,) . A.object $
       if Map.null stakeDistr
       then
-        [ "expiry" .= (ds ^. Ledger.drepExpiryL)
-        , "anchor" .= (ds ^. Ledger.drepAnchorL)
-        , "deposit" .= (ds ^. Ledger.drepDepositL)
+        [ "expiry" .= (ds ^. L.drepExpiryL)
+        , "anchor" .= (ds ^. L.drepAnchorL)
+        , "deposit" .= (ds ^. L.drepDepositL)
         ]
       else
-        [ "expiry" .= (ds ^. Ledger.drepExpiryL)
-        , "anchor" .= (ds ^. Ledger.drepAnchorL)
-        , "deposit" .= (ds ^. Ledger.drepDepositL)
-        , "stake" .= Map.lookup (Ledger.DRepCredential cred) stakeDistr
+        [ "expiry" .= (ds ^. L.drepExpiryL)
+        , "anchor" .= (ds ^. L.drepAnchorL)
+        , "deposit" .= (ds ^. L.drepDepositL)
+        , "stake" .= Map.lookup (L.DRepCredential cred) stakeDistr
         ]
 
 runQueryDRepStakeDistribution
@@ -1484,7 +1474,7 @@ runQueryDRepStakeDistribution
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-  let drepFromVrfKey = fmap Ledger.DRepCredential
+  let drepFromVrfKey = fmap L.DRepCredential
                      . firstExceptT QueryCmdDRepKeyError
                      . getDRepCredentialFromVerKeyHashOrFile
       drepKeys = case drepKeys' of

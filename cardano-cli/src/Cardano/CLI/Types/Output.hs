@@ -18,7 +18,6 @@ import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
-import           Cardano.Ledger.Shelley.Scripts ()
 
 import           Prelude
 

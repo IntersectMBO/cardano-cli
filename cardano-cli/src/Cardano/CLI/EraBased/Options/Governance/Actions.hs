@@ -8,13 +8,12 @@ module Cardano.CLI.EraBased.Options.Governance.Actions
 
 import           Cardano.Api
 import           Cardano.Api.Ledger
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
-import           Cardano.Ledger.BaseTypes (NonNegativeInterval)
-import qualified Cardano.Ledger.BaseTypes as Ledger
 
 import           Data.Foldable
 import           GHC.Natural (Natural)

@@ -26,6 +26,7 @@ module Cardano.CLI.EraBased.Run.CreateTestnetData
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
@@ -47,14 +48,6 @@ import qualified Cardano.CLI.Types.Key as Keys
 import           Cardano.Crypto.Hash (HashAlgorithm)
 import qualified Cardano.Crypto.Hash as Hash
 import qualified Cardano.Crypto.Random as Crypto
-import qualified Cardano.Ledger.BaseTypes as Ledger
-import           Cardano.Ledger.Binary (ToCBOR (..))
-import           Cardano.Ledger.Coin (Coin (..))
-import           Cardano.Ledger.Core (ppMinUTxOValueL)
-import           Cardano.Ledger.Crypto (ADDRHASH, Crypto, StandardCrypto)
-import           Cardano.Ledger.Era ()
-import qualified Cardano.Ledger.Keys as Ledger
-import qualified Cardano.Ledger.Shelley.API as Ledger
 import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, force)
@@ -301,8 +294,8 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
   let network = toShelleyNetwork actualNetworkId
   stuffedUtxoAddrs <- liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) $ genStuffedAddress network
 
-  let stake = second Ledger.ppId . mkDelegationMapEntry <$> delegations
-      stakePools = [ (Ledger.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations ]
+  let stake = second L.ppId . mkDelegationMapEntry <$> delegations
+      stakePools = [ (L.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations ]
       delegAddrs = dInitialUtxoAddr <$> delegations
   !shelleyGenesis' <-
     updateOutputTemplate
@@ -319,7 +312,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
     poolsDir = outputDir </> "pools-keys"
     stakeDelegatorsDir = outputDir </> "stake-delegators"
     numStakeDelegators = case stakeDelegators of OnDisk n -> n; Transient n -> n
-    mkDelegationMapEntry :: Delegation -> (Ledger.KeyHash Ledger.Staking StandardCrypto, Ledger.PoolParams StandardCrypto)
+    mkDelegationMapEntry :: Delegation -> (L.KeyHash L.Staking L.StandardCrypto, L.PoolParams L.StandardCrypto)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
 
 -- | The output format used all along this file
@@ -367,24 +360,24 @@ mkPaths numKeys dir segment filename =
   fromList [(fromIntegral idx, dir </> (segment <> show idx) </> filename)
             | idx <- [1 .. numKeys]]
 
-genStuffedAddress :: Ledger.Network -> IO (AddressInEra ShelleyEra)
+genStuffedAddress :: L.Network -> IO (AddressInEra ShelleyEra)
 genStuffedAddress network =
   shelleyAddressInEra ShelleyBasedEraShelley <$>
   (ShelleyAddress
    <$> pure network
-   <*> (Ledger.KeyHashObj . mkKeyHash . read64BitInt
+   <*> (L.KeyHashObj . mkKeyHash . read64BitInt
          <$> Crypto.runSecureRandom (getRandomBytes 8))
-   <*> pure Ledger.StakeRefNull)
+   <*> pure L.StakeRefNull)
    where
     read64BitInt :: ByteString -> Int
     read64BitInt = (fromIntegral :: Word64 -> Int)
       . Bin.runGet Bin.getWord64le . LBS.fromStrict
 
     mkDummyHash :: forall h a. HashAlgorithm h => Proxy h -> Int -> Hash.Hash h a
-    mkDummyHash _ = coerce . Ledger.hashWithSerialiser @h toCBOR
+    mkDummyHash _ = coerce . L.hashWithSerialiser @h L.toCBOR
 
-    mkKeyHash :: forall c discriminator. Crypto c => Int -> Ledger.KeyHash discriminator c
-    mkKeyHash = Ledger.KeyHash . mkDummyHash (Proxy @(ADDRHASH c))
+    mkKeyHash :: forall c discriminator. L.Crypto c => Int -> L.KeyHash discriminator c
+    mkKeyHash = L.KeyHash . mkDummyHash (Proxy @(L.ADDRHASH c))
 
 createDelegateKeys :: KeyOutputFormat -> FilePath -> ExceptT GenesisCmdError IO ()
 createDelegateKeys fmt dir = do
@@ -480,8 +473,8 @@ createPoolCredentials fmt dir = do
 
 data Delegation = Delegation
   { dInitialUtxoAddr  :: !(AddressInEra ShelleyEra)
-  , dDelegStaking     :: !(Ledger.KeyHash Ledger.Staking StandardCrypto)
-  , dPoolParams       :: !(Ledger.PoolParams StandardCrypto)
+  , dDelegStaking     :: !(L.KeyHash L.Staking L.StandardCrypto)
+  , dPoolParams       :: !(L.PoolParams L.StandardCrypto)
   }
   deriving (Generic, NFData)
 
@@ -489,8 +482,8 @@ buildPoolParams
   :: NetworkId
   -> FilePath -- ^ File directory where the necessary pool credentials were created
   -> Maybe Word
-  -> Map Word [Ledger.StakePoolRelay] -- ^ User submitted stake pool relay map
-  -> ExceptT GenesisCmdError IO (Ledger.PoolParams StandardCrypto)
+  -> Map Word [L.StakePoolRelay] -- ^ User submitted stake pool relay map
+  -> ExceptT GenesisCmdError IO (L.PoolParams L.StandardCrypto)
 buildPoolParams nw dir index specifiedRelays = do
     StakePoolVerificationKey poolColdVK
       <- firstExceptT (GenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
@@ -503,21 +496,21 @@ buildPoolParams nw dir index specifiedRelays = do
       <- firstExceptT GenesisCmdTextEnvReadFileError
            . newExceptT $ readFileTextEnvelope (AsVerificationKey AsStakeKey) poolRewardVKF
 
-    pure Ledger.PoolParams
-      { Ledger.ppId          = Ledger.hashKey poolColdVK
-      , Ledger.ppVrf         = Ledger.hashVerKeyVRF poolVrfVK
-      , Ledger.ppPledge      = Ledger.Coin 0
-      , Ledger.ppCost        = Ledger.Coin 0
-      , Ledger.ppMargin      = minBound
-      , Ledger.ppRewardAcnt  =
+    pure L.PoolParams
+      { L.ppId          = L.hashKey poolColdVK
+      , L.ppVrf         = L.hashVerKeyVRF poolVrfVK
+      , L.ppPledge      = L.Coin 0
+      , L.ppCost        = L.Coin 0
+      , L.ppMargin      = minBound
+      , L.ppRewardAcnt  =
           toShelleyStakeAddr $ makeStakeAddress nw $ StakeCredentialByKey (verificationKeyHash rewardsSVK)
-      , Ledger.ppOwners      = mempty
-      , Ledger.ppRelays      = lookupPoolRelay specifiedRelays
-      , Ledger.ppMetadata    = Ledger.SNothing
+      , L.ppOwners      = mempty
+      , L.ppRelays      = lookupPoolRelay specifiedRelays
+      , L.ppMetadata    = L.SNothing
       }
  where
    lookupPoolRelay
-     :: Map Word [Ledger.StakePoolRelay] -> Seq.StrictSeq Ledger.StakePoolRelay
+     :: Map Word [L.StakePoolRelay] -> Seq.StrictSeq L.StakePoolRelay
    lookupPoolRelay m =
       case index of
         Nothing -> mempty
@@ -531,7 +524,7 @@ buildPoolParams nw dir index specifiedRelays = do
 computeDelegation
   :: NetworkId
   -> FilePath
-  -> Ledger.PoolParams StandardCrypto
+  -> L.PoolParams L.StandardCrypto
   -> ExceptT GenesisCmdError IO Delegation
 computeDelegation nw delegDir dPoolParams = do
     payVK   <- readVKeyFromDisk AsPaymentKey payVKF
@@ -539,7 +532,7 @@ computeDelegation nw delegDir dPoolParams = do
     let paymentCredential = PaymentCredentialByKey $ verificationKeyHash payVK
         stakeAddrRef = StakeAddressByValue $ StakeCredentialByKey $ verificationKeyHash stakeVK
         dInitialUtxoAddr = makeShelleyAddressInEra ShelleyBasedEraShelley nw paymentCredential stakeAddrRef
-        dDelegStaking = Ledger.hashKey $ unStakeVerificationKey stakeVK
+        dDelegStaking = L.hashKey $ unStakeVerificationKey stakeVK
 
     pure $ Delegation { dInitialUtxoAddr, dDelegStaking, dPoolParams }
    where
@@ -554,7 +547,7 @@ computeDelegation nw delegDir dPoolParams = do
 computeInsecureDelegation
   :: StdGen
   -> NetworkId
-  -> Ledger.PoolParams StandardCrypto
+  -> L.PoolParams L.StandardCrypto
   -> IO (StdGen, Delegation)
 computeInsecureDelegation g0 nw pool = do
     (paymentVK, g1) <- first getVerificationKey <$> generateInsecureSigningKey g0 AsPaymentKey
@@ -565,7 +558,7 @@ computeInsecureDelegation g0 nw pool = do
 
     delegation <- pure $ force Delegation
       { dInitialUtxoAddr = shelleyAddressInEra ShelleyBasedEraShelley initialUtxoAddr
-      , dDelegStaking = Ledger.hashKey (unStakeVerificationKey stakeVK)
+      , dDelegStaking = L.hashKey (unStakeVerificationKey stakeVK)
       , dPoolParams = pool
       }
 
@@ -578,14 +571,14 @@ updateOutputTemplate
   -> Map (Hash GenesisKey) (Hash GenesisDelegateKey, Hash VrfKey) -- ^ Genesis delegation (not stake-based)
   -> Maybe Lovelace -- ^ Total amount of lovelace
   -> [AddressInEra ShelleyEra] -- ^ UTxO addresses that are not delegating
-  -> [(Ledger.KeyHash 'Ledger.StakePool StandardCrypto, Ledger.PoolParams StandardCrypto)] -- ^ Pool map
-  -> [(Ledger.KeyHash 'Ledger.Staking StandardCrypto, Ledger.KeyHash 'Ledger.StakePool StandardCrypto)] -- ^ Delegaton map
+  -> [(L.KeyHash 'L.StakePool L.StandardCrypto, L.PoolParams L.StandardCrypto)] -- ^ Pool map
+  -> [(L.KeyHash 'L.Staking L.StandardCrypto, L.KeyHash 'L.StakePool L.StandardCrypto)] -- ^ Delegaton map
   -> Maybe Lovelace -- ^ Amount of lovelace to delegate
   -> Int -- ^ Number of UTxO address for delegation
   -> [AddressInEra ShelleyEra] -- ^ UTxO address for delegation
   -> [AddressInEra ShelleyEra] -- ^ Stuffed UTxO addresses
-  -> ShelleyGenesis StandardCrypto -- ^ Template from which to build a genesis
-  -> m (ShelleyGenesis StandardCrypto) -- ^ Updated genesis
+  -> ShelleyGenesis L.StandardCrypto -- ^ Template from which to build a genesis
+  -> m (ShelleyGenesis L.StandardCrypto) -- ^ Updated genesis
 updateOutputTemplate
   (SystemStart sgSystemStart)
   genDelegMap mTotalSupply utxoAddrsNonDeleg pools stake
@@ -643,10 +636,9 @@ updateOutputTemplate
 
     mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     mkStuffedUtxo xs = (, Lovelace minUtxoVal) <$> xs
-      where Coin minUtxoVal = sgProtocolParams ^. ppMinUTxOValueL
-
+      where L.Coin minUtxoVal = sgProtocolParams ^. L.ppMinUTxOValueL
     shelleyDelKeys = Map.fromList
-      [ (gh, Ledger.GenDelegPair gdh h)
+      [ (gh, L.GenDelegPair gdh h)
       | (GenesisKeyHash gh,
           (GenesisDelegateKeyHash gdh, VrfKeyHash h)) <- Map.toList genDelegMap
       ]
@@ -656,7 +648,7 @@ updateOutputTemplate
 
 readAndDecodeShelleyGenesis
   :: FilePath
-  -> IO (Either GenesisCmdError (ShelleyGenesis StandardCrypto))
+  -> IO (Either GenesisCmdError (ShelleyGenesis L.StandardCrypto))
 readAndDecodeShelleyGenesis fpath = runExceptT $ do
   lbs <- handleIOExceptT (GenesisCmdGenesisFileReadError . FileIOError fpath) $ LBS.readFile fpath
   firstExceptT (GenesisCmdGenesisFileDecodeError fpath . Text.pack)

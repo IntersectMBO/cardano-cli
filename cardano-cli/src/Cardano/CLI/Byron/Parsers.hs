@@ -27,6 +27,7 @@ module Cardano.CLI.Byron.Parsers
 import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
 import           Cardano.Api.Byron (Address (..), ByronProtocolParametersUpdate (..),
                    toByronLovelace)
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley (ReferenceScript (ReferenceScriptNone))
 
@@ -50,7 +51,6 @@ import           Cardano.Crypto (RequiresNetworkMagic (..))
 import           Cardano.Crypto.Hashing (hashRaw)
 import           Cardano.Crypto.ProtocolMagic (AProtocolMagic (..), ProtocolMagic,
                    ProtocolMagicId (..))
-import           Cardano.Ledger.Binary (Annotated (..))
 
 import           Control.Monad (when)
 import qualified Data.Attoparsec.ByteString.Char8 as Atto
@@ -654,7 +654,7 @@ parseProtocolMagicId arg =
 
 parseProtocolMagic :: Parser ProtocolMagic
 parseProtocolMagic =
-  flip AProtocolMagic RequiresMagic . flip Annotated ()
+  flip AProtocolMagic RequiresMagic . flip L.Annotated ()
     <$> parseProtocolMagicId "protocol-magic"
 
 parseTxFile :: String -> Parser (TxFile In)

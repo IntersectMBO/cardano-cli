@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Options.Governance.DRep
   , pUpdateCertificateCmd) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
@@ -17,9 +18,6 @@ import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
-import qualified Cardano.Ledger.BaseTypes as L
-import qualified Cardano.Ledger.Crypto as Crypto
-import qualified Cardano.Ledger.SafeHash as L
 
 import           Control.Applicative
 import           Data.Foldable
@@ -108,7 +106,7 @@ pRegistrationCertificateCmd era = do
         <*> pDRepMetadata
         <*> pOutputFile
 
-pDRepMetadata :: Parser (Maybe (L.Anchor Crypto.StandardCrypto))
+pDRepMetadata :: Parser (Maybe (L.Anchor L.StandardCrypto))
 pDRepMetadata =
   optional $
     L.Anchor
@@ -120,7 +118,7 @@ pDrepMetadataUrl =
   AnchorUrl
     <$> pUrl "drep-metadata-url" "DRep anchor URL"
 
-pDrepMetadataHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pDrepMetadataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pDrepMetadataHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "drep-metadata-hash"

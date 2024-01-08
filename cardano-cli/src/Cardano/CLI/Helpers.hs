@@ -16,6 +16,7 @@ module Cardano.CLI.Helpers
   , validateCBOR
   ) where
 
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Pretty
 
 import           Cardano.Chain.Block (decCBORABlockOrBoundary)
@@ -23,8 +24,6 @@ import qualified Cardano.Chain.Delegation as Delegation
 import qualified Cardano.Chain.Update as Update
 import qualified Cardano.Chain.UTxO as UTxO
 import           Cardano.CLI.Types.Common
-import           Cardano.Ledger.Binary (byronProtVer, toPlainDecoder)
-import           Cardano.Ledger.Binary.Plain (Decoder, fromCBOR)
 
 import           Codec.CBOR.Pretty (prettyHexEnc)
 import           Codec.CBOR.Read (DeserialiseFailure, deserialiseFromBytes)
@@ -70,7 +69,7 @@ renderHelpersError = \case
 
 decodeCBOR
   :: LB.ByteString
-  -> (forall s. Decoder s a)
+  -> (forall s. L.Decoder s a)
   -> Either HelpersError (LB.ByteString, a)
 decodeCBOR bs decoder =
   first CBORDecodingError $ deserialiseFromBytes decoder bs
@@ -118,21 +117,21 @@ validateCBOR :: CBORObject -> LB.ByteString -> Either HelpersError Text
 validateCBOR cborObject bs =
   case cborObject of
     CBORBlockByron epochSlots -> do
-      void $ decodeCBOR bs (toPlainDecoder byronProtVer (decCBORABlockOrBoundary epochSlots))
+      void $ decodeCBOR bs (L.toPlainDecoder L.byronProtVer (decCBORABlockOrBoundary epochSlots))
       Right "Valid Byron block."
 
     CBORDelegationCertificateByron -> do
-      void $ decodeCBOR bs (fromCBOR :: Decoder s Delegation.Certificate)
+      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Delegation.Certificate)
       Right "Valid Byron delegation certificate."
 
     CBORTxByron -> do
-      void $ decodeCBOR bs (fromCBOR :: Decoder s UTxO.Tx)
+      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s UTxO.Tx)
       Right "Valid Byron Tx."
 
     CBORUpdateProposalByron -> do
-      void $ decodeCBOR bs (fromCBOR :: Decoder s Update.Proposal)
+      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Update.Proposal)
       Right "Valid Byron update proposal."
 
     CBORVoteByron -> do
-      void $ decodeCBOR bs (fromCBOR :: Decoder s Update.Vote)
+      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Update.Vote)
       Right "Valid Byron vote."

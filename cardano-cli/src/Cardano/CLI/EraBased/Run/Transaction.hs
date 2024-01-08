@@ -48,7 +48,6 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
-import qualified Cardano.Ledger.Alonzo.Core as Ledger
 import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 

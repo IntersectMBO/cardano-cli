@@ -23,7 +23,6 @@ import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
-import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
 
 import           Control.Monad
 import           Control.Monad.Except (ExceptT)
@@ -312,7 +311,7 @@ readStakeKeyHash stake =
 
 addCostModelsToEraBasedProtocolParametersUpdate
   :: AlonzoEraOnwards era
-  -> Alonzo.CostModels
+  -> Ledger.CostModels
   -> EraBasedProtocolParametersUpdate era
   -> EraBasedProtocolParametersUpdate era
 addCostModelsToEraBasedProtocolParametersUpdate

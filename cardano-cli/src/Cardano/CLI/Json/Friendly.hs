@@ -25,11 +25,6 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    ShelleyLedgerEra, StakeAddress (..), fromShelleyPaymentCredential,
                    fromShelleyStakeReference, toShelleyLovelace, toShelleyStakeCredential)
 
-import qualified Cardano.Ledger.Conway.Governance as Gov
-import qualified Cardano.Ledger.Conway.TxCert as ConwayLedger
-import qualified Cardano.Ledger.Credential as Shelley
-import qualified Cardano.Ledger.Shelley.API as Shelley
-
 import           Control.Monad.Trans (MonadIO)
 import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
@@ -104,11 +99,11 @@ friendlyProposalImpl :: ConwayEraOnwards era -> Proposal era -> [Aeson.Pair]
 friendlyProposalImpl
   era
   (Proposal
-    (Gov.ProposalProcedure
-      { Gov.pProcDeposit
-      , Gov.pProcReturnAddr
-      , Gov.pProcGovAction
-      , Gov.pProcAnchor
+    (Ledger.ProposalProcedure
+      { Ledger.pProcDeposit
+      , Ledger.pProcReturnAddr
+      , Ledger.pProcGovAction
+      , Ledger.pProcAnchor
       }
     )
   ) = conwayEraOnwardsConstraints era
@@ -132,7 +127,7 @@ friendlyKeyWitness =
       ByronKeyWitness txInWitness -> ["Byron witness" .= textShow txInWitness]
       ShelleyBootstrapWitness _era bootstrapWitness ->
         ["bootstrap witness" .= textShow bootstrapWitness]
-      ShelleyKeyWitness _era (Shelley.WitVKey key signature) ->
+      ShelleyKeyWitness _era (Ledger.WitVKey key signature) ->
         ["key" .= textShow key, "signature" .= textShow signature]
 
 friendlyTxBodyImpl :: ()
@@ -413,25 +408,25 @@ renderCertificate sbe = \case
             , "certificate" .= conwayToObject w credential
             ]
         Ledger.AuthCommitteeHotKeyTxCert coldCred hotCred
-            | Shelley.ScriptHashObj sh <- coldCred ->
+            | Ledger.ScriptHashObj sh <- coldCred ->
               "Cold committee authorization" .= object
                 [ "script hash" .= sh ]
-            | Shelley.ScriptHashObj sh <- hotCred ->
+            | Ledger.ScriptHashObj sh <- hotCred ->
               "Hot committee authorization" .= object
                 [ "script hash" .= sh]
-            | Shelley.KeyHashObj ck@Shelley.KeyHash{} <- coldCred
-            , Shelley.KeyHashObj hk@Shelley.KeyHash{} <- hotCred ->
+            | Ledger.KeyHashObj ck@Ledger.KeyHash{} <- coldCred
+            , Ledger.KeyHashObj hk@Ledger.KeyHash{} <- hotCred ->
               "Constitutional committee member hot key registration" .= object
                 [ "cold key hash" .= ck
                 , "hot key hash" .= hk
                 ]
         Ledger.ResignCommitteeColdTxCert cred anchor -> case cred of
-          Shelley.ScriptHashObj sh ->
+          Ledger.ScriptHashObj sh ->
             "Cold committee resignation" .= object
               [ "script hash" .=  sh
               , "anchor" .= anchor
               ]
-          Shelley.KeyHashObj ck@Shelley.KeyHash{} ->
+          Ledger.KeyHashObj ck@Ledger.KeyHash{} ->
             "Constitutional committee cold key resignation" .= object
               [ "cold key hash" .= ck
               ]
@@ -468,12 +463,12 @@ renderCertificate sbe = \case
           "Pool registration" .= object
             [ "pool params" .= poolParams
             ]
-        Ledger.RetirePoolTxCert kh@Shelley.KeyHash{} epoch ->
+        Ledger.RetirePoolTxCert kh@Ledger.KeyHash{} epoch ->
           "Pool retirement" .= object
             [ "stake pool key hash" .= kh
             , "epoch" .= epoch
             ]
-        ConwayLedger.UpdateDRepTxCert drepCredential mbAnchor ->
+        Ledger.UpdateDRepTxCert drepCredential mbAnchor ->
           "Drep certificate update" .= object
             [ "Drep credential" .= drepCredential
             , "anchor " .= mbAnchor
@@ -481,7 +476,7 @@ renderCertificate sbe = \case
   where
     conwayToObject :: ()
       => ConwayEraOnwards era
-      -> Shelley.Credential 'Shelley.DRepRole (Ledger.EraCrypto (ShelleyLedgerEra era))
+      -> Ledger.Credential 'Ledger.DRepRole (Ledger.EraCrypto (ShelleyLedgerEra era))
       -> Aeson.Value
     conwayToObject w' =
       conwayEraOnwardsConstraints w' $
@@ -492,7 +487,7 @@ renderCertificate sbe = \case
     delegateeJson :: ( Ledger.EraCrypto (ShelleyLedgerEra era) ~ Ledger.StandardCrypto)
                   => ShelleyBasedEra era -> Ledger.Delegatee (Ledger.EraCrypto (ShelleyLedgerEra era)) -> Aeson.Value
     delegateeJson _ = object . \case
-      Ledger.DelegStake hk@Shelley.KeyHash{} ->
+      Ledger.DelegStake hk@Ledger.KeyHash{} ->
           [ "delegatee type" .= String "stake"
           , "key hash" .= hk
           ]
@@ -519,7 +514,7 @@ friendlyMirTarget sbe = \case
 -- TODO: Conway era. Replace cardano-api's StakeCredential definition with
 -- the ledger's StakeCredential definition.
 friendlyStakeCredential
-  :: Shelley.Credential Shelley.Staking Ledger.StandardCrypto -> Aeson.Pair
+  :: Ledger.Credential Ledger.Staking Ledger.StandardCrypto -> Aeson.Pair
 friendlyStakeCredential = \case
   Ledger.KeyHashObj keyHash ->
     "stake credential key hash" .= keyHash
@@ -533,10 +528,10 @@ friendlyPaymentCredential = \case
   PaymentCredentialByScript scriptHash ->
     "payment credential script hash" .= scriptHash
 
-friendlyMirPot :: Shelley.MIRPot -> Aeson.Value
+friendlyMirPot :: Ledger.MIRPot -> Aeson.Value
 friendlyMirPot = \case
-  Shelley.ReservesMIR -> "reserves"
-  Shelley.TreasuryMIR -> "treasury"
+  Ledger.ReservesMIR -> "reserves"
+  Ledger.TreasuryMIR -> "treasury"
 
 
 friendlyRational :: Rational -> Aeson.Value
@@ -554,7 +549,7 @@ friendlyFee = \case
   TxFeeExplicit _ fee -> friendlyLovelace $ toShelleyLovelace fee
 
 friendlyLovelace :: Ledger.Coin -> Aeson.Value
-friendlyLovelace (Shelley.Coin value) = String $ textShow value <> " Lovelace"
+friendlyLovelace (Ledger.Coin value) = String $ textShow value <> " Lovelace"
 
 friendlyMintValue :: TxMintValue ViewTx era -> Aeson.Value
 friendlyMintValue = \case

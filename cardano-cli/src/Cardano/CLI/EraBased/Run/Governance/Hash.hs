@@ -14,6 +14,7 @@ module Cardano.CLI.EraBased.Run.Governance.Hash
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as Ledger
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Hash as Cmd
 import           Cardano.CLI.Read
@@ -22,10 +23,6 @@ import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceHashError
 import           Cardano.Crypto.Hash (hashToTextAsHex)
-import qualified Cardano.Ledger.BaseTypes as Ledger
-import           Cardano.Ledger.Crypto
-import           Cardano.Ledger.SafeHash (extractHash)
-import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Except.Extra
@@ -66,12 +63,12 @@ runGovernanceHashAnchorDataCmd Cmd.GovernanceHashAnchorDataCmdArgs { toHash, mou
       let hash = Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 text
       printHash hash
   where
-    printHash :: Ledger.SafeHash StandardCrypto i -> ExceptT GovernanceHashError IO ()
+    printHash :: Ledger.SafeHash Ledger.StandardCrypto i -> ExceptT GovernanceHashError IO ()
     printHash hash = do
       firstExceptT GovernanceHashWriteFileError $
         newExceptT $ writeTextOutput moutFile text
       where
-        text = hashToTextAsHex . extractHash $ hash
+        text = hashToTextAsHex . Ledger.extractHash $ hash
 
 runGovernanceHashScriptCmd :: ()
   => Cmd.GovernanceHashScriptCmdArgs era

@@ -37,7 +37,6 @@ import qualified Cardano.Chain.UTxO as UTxO
 import           Cardano.CLI.Byron.Key (byronWitnessToVerKey)
 import           Cardano.CLI.Types.Common (TxFile)
 import qualified Cardano.Crypto.Signing as Crypto
-import qualified Cardano.Ledger.Binary.Decoding as LedgerBinary
 import           Ouroboros.Consensus.Byron.Ledger (ByronBlock, GenTx (..))
 import qualified Ouroboros.Consensus.Byron.Ledger as Byron
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
@@ -215,8 +214,8 @@ fromCborTxAux lbs =
       <$> Binary.decodeFullDecoder "Cardano.Chain.UTxO.TxAux.fromCborTxAux"
                                  Binary.fromCBOR lbs
   where
-    annotationBytes :: Functor f => LB.ByteString -> f LedgerBinary.ByteSpan -> f B.ByteString
-    annotationBytes bytes = fmap (LB.toStrict . LedgerBinary.slice bytes)
+    annotationBytes :: Functor f => LB.ByteString -> f L.ByteSpan -> f B.ByteString
+    annotationBytes bytes = fmap (LB.toStrict . L.slice bytes)
 
 toCborTxAux :: UTxO.ATxAux ByteString -> LB.ByteString
 toCborTxAux = LB.fromStrict . UTxO.aTaAnnotation -- The ByteString anotation is the CBOR encoded version.

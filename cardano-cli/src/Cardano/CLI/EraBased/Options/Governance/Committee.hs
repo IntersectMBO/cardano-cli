@@ -6,13 +6,11 @@ module Cardano.CLI.EraBased.Options.Governance.Committee
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Common hiding (pAnchorUrl)
 import           Cardano.CLI.Read
-import qualified Cardano.Ledger.BaseTypes as L
-import qualified Cardano.Ledger.Crypto as Crypto
-import qualified Cardano.Ledger.SafeHash as L
 
 import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
@@ -135,7 +133,7 @@ pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
         pOutputFile
     )
 
-pAnchor :: Parser (Maybe (L.Anchor Crypto.StandardCrypto))
+pAnchor :: Parser (Maybe (L.Anchor L.StandardCrypto))
 pAnchor =
   Opt.optional $
     L.Anchor
@@ -147,7 +145,7 @@ pAnchorUrl =
   AnchorUrl
     <$> pUrl "resignation-metadata-url" "Constitutional Committee cold key resignation certificate URL"
 
-pSafeHash ::  Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pSafeHash ::  Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pSafeHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "resignation-metadata-hash"

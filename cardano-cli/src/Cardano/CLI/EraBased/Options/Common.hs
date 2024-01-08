@@ -12,6 +12,7 @@
 module Cardano.CLI.EraBased.Options.Common where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
@@ -24,10 +25,6 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
-import qualified Cardano.Ledger.BaseTypes as L
-import qualified Cardano.Ledger.Crypto as Crypto
-import qualified Cardano.Ledger.SafeHash as L
-import qualified Cardano.Ledger.Shelley.API as Shelley
 import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Control.Monad (mfilter)
@@ -489,14 +486,14 @@ pOutputFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pMIRPot :: Parser Shelley.MIRPot
+pMIRPot :: Parser L.MIRPot
 pMIRPot =
   asum
-    [ Opt.flag' Shelley.ReservesMIR $ mconcat
+    [ Opt.flag' L.ReservesMIR $ mconcat
         [ Opt.long "reserves"
         , Opt.help "Use the reserves pot."
         ]
-    , Opt.flag' Shelley.TreasuryMIR $ mconcat
+    , Opt.flag' L.TreasuryMIR $ mconcat
         [ Opt.long "treasury"
         , Opt.help "Use the treasury pot."
         ]
@@ -902,7 +899,7 @@ pConstitutionUrl =
   ConstitutionUrl
     <$> pUrl "constitution-url" "Constitution URL."
 
-pConstitutionHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pConstitutionHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pConstitutionHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "constitution-hash"
@@ -3123,12 +3120,12 @@ pAlwaysAbstain =
     , Opt.help "Abstain from voting on all proposals."
     ]
 
-pVoteAnchor :: Parser (VoteUrl, L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pVoteAnchor :: Parser (VoteUrl, L.SafeHash L.StandardCrypto L.AnchorData)
 pVoteAnchor = (,)
   <$> (VoteUrl <$> pUrl "anchor-url" "Vote anchor URL")
   <*> pVoteAnchorDataHash
 
-pVoteAnchorDataHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pVoteAnchorDataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pVoteAnchorDataHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "anchor-data-hash"
@@ -3220,7 +3217,7 @@ pAnchorUrl =
   ProposalUrl
     <$> pUrl "anchor-url" "Anchor URL"
 
-pAnchorDataHash :: Parser (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+pAnchorDataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pAnchorDataHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "anchor-data-hash"

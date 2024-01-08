@@ -86,10 +86,6 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Chain.Slotting as Byron
-import qualified Cardano.Ledger.BaseTypes as L
-import qualified Cardano.Ledger.Crypto as Crypto
-import           Cardano.Ledger.PoolParams (PoolParams (..))
-import qualified Cardano.Ledger.SafeHash as L
 
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
 import qualified Data.Aeson as Aeson
@@ -117,7 +113,7 @@ newtype ConstitutionText = ConstitutionText
 data ConstitutionHashSource
   = ConstitutionHashSourceFile (File ConstitutionText In)
   | ConstitutionHashSourceText Text
-  | ConstitutionHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+  | ConstitutionHashSourceHash (L.SafeHash L.StandardCrypto L.AnchorData)
   deriving Show
 
 newtype ProposalUrl = ProposalUrl
@@ -139,7 +135,7 @@ newtype VoteText = VoteText
 data VoteHashSource
   = VoteHashSourceFile (File VoteText In)
   | VoteHashSourceText Text
-  | VoteHashSourceHash (L.SafeHash Crypto.StandardCrypto L.AnchorData)
+  | VoteHashSourceHash (L.SafeHash L.StandardCrypto L.AnchorData)
   deriving Show
 
 data StakeDelegators
@@ -298,13 +294,13 @@ data AllOrOnly a = All | Only [a] deriving (Eq, Show)
 -- params are the current pool parameter settings, futureparams are new parameters, retiringEpoch is the
 -- epoch that has been set for pool retirement.  Any of these may be Nothing.
 data Params crypto = Params
-  { poolParameters :: Maybe (PoolParams crypto)
-  , futurePoolParameters :: Maybe (PoolParams crypto)
+  { poolParameters :: Maybe (L.PoolParams crypto)
+  , futurePoolParameters :: Maybe (L.PoolParams crypto)
   , retiringEpoch :: Maybe EpochNo
   } deriving Show
 
 -- | Pretty printing for pool parameters
-instance Crypto.Crypto crypto =>  ToJSON (Params crypto) where
+instance L.Crypto crypto =>  ToJSON (Params crypto) where
   toJSON (Params p fp r) = object
     [ "poolParams" .= p
     , "futurePoolParams" .= fp

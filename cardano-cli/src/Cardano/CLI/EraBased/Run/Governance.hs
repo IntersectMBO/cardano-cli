@@ -29,7 +29,6 @@ import           Cardano.CLI.EraBased.Run.Governance.Poll
 import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import qualified Cardano.Ledger.Shelley.API as Shelley
 
 import           Control.Monad
 import           Control.Monad.Trans.Except (ExceptT)
@@ -80,7 +79,7 @@ runGovernanceCmds = \case
 
 runGovernanceMIRCertificatePayStakeAddrs
   :: ShelleyToBabbageEra era
-  -> Shelley.MIRPot
+  -> Ledger.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out

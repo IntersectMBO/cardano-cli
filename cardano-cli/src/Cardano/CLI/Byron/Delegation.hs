@@ -14,6 +14,7 @@ module Cardano.CLI.Byron.Delegation
 where
 
 import           Cardano.Api.Byron
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Pretty
 
 import qualified Cardano.Chain.Delegation as Dlg
@@ -22,7 +23,6 @@ import           Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
 import           Cardano.CLI.Types.Common (CertificateFile (..))
 import           Cardano.Crypto (ProtocolMagicId)
 import qualified Cardano.Crypto as Crypto
-import           Cardano.Ledger.Binary (Annotated (..), byronProtVer, serialize')
 import           Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 
 import           Prelude hiding ((.))
@@ -103,18 +103,18 @@ checkDlgCert cert magic issuerVK' delegateVK' =
     ]
   ]
   where
-    magic' :: Annotated ProtocolMagicId ByteString
-    magic' = Annotated magic (serialize' byronProtVer magic)
+    magic' :: L.Annotated ProtocolMagicId ByteString
+    magic' = L.Annotated magic (L.serialize' L.byronProtVer magic)
 
     epoch :: EpochNumber
-    epoch = unAnnotated $ Dlg.aEpoch cert
+    epoch = L.unAnnotated $ Dlg.aEpoch cert
 
     cert' :: Dlg.ACertificate ByteString
     cert' =
-      let unannotated = cert { Dlg.aEpoch = Annotated epoch ()
+      let unannotated = cert { Dlg.aEpoch = L.Annotated epoch ()
                              , Dlg.annotation = () }
-      in unannotated { Dlg.annotation = serialize' byronProtVer unannotated
-                     , Dlg.aEpoch = Annotated epoch (serialize' byronProtVer epoch) }
+      in unannotated { Dlg.annotation = L.serialize' L.byronProtVer unannotated
+                     , Dlg.aEpoch = L.Annotated epoch (L.serialize' L.byronProtVer epoch) }
 
     vkF :: forall r. Format r (Crypto.VerificationKey -> r)
     vkF = Crypto.fullVerificationKeyF
