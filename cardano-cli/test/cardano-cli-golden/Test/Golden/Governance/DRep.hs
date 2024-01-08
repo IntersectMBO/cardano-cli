@@ -86,6 +86,24 @@ hprop_golden_governance_drep_id_hex =
 
     H.diffFileVsGoldenFile idFile idGold
 
+hprop_golden_governance_drep_extended_key_signing :: Property
+hprop_golden_governance_drep_extended_key_signing =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    skeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
+    txBody <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/tx.body"
+
+    outGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/extended-key-signing/tx.signed"
+    outFile <- H.noteTempFile tempDir "outFile"
+
+    void $ execCardanoCLI
+      [  "conway", "transaction", "sign"
+      , "--tx-body-file", txBody
+      , "--signing-key-file", skeyFile
+      , "--out-file", outFile
+      ]
+
+    H.diffFileVsGoldenFile outFile outGold
+
 hprop_golden_governance_drep_retirement_certificate_vkey_file :: Property
 hprop_golden_governance_drep_retirement_certificate_vkey_file =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
