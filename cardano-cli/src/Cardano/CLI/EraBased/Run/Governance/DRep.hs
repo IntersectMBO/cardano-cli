@@ -104,24 +104,31 @@ runGovernanceDRepRegistrationCertificateCmd :: ()
 runGovernanceDRepRegistrationCertificateCmd
     Cmd.GovernanceDRepRegistrationCertificateCmdArgs
       { eon = w
-      , drepVkeyHashSource
+      , drepHashSource
       , deposit
       , mAnchor
       , outFile
-      } = do
-  DRepKeyHash drepKeyHash <- firstExceptT RegistrationReadError
-    . newExceptT
-    $ readVerificationKeyOrHashOrFile AsDRepKey drepVkeyHashSource
-  let drepCred = Ledger.KeyHashObj $ conwayEraOnwardsConstraints w drepKeyHash
-      req = DRepRegistrationRequirements w drepCred deposit
-      registrationCert = makeDrepRegistrationCertificate req mAnchor
-      description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
+      } =
+  conwayEraOnwardsConstraints w $ do
+    drepCred <-
+      case drepHashSource of
+        DRepHashSourceScript (ScriptHash scriptHash) ->
+          return $ Ledger.ScriptHashObj scriptHash
+        DRepHashSourceVerificationKey drepVkeyHashSource -> do
+          DRepKeyHash drepKeyHash <-
+            firstExceptT RegistrationReadError
+              . newExceptT
+              $ readVerificationKeyOrHashOrFile AsDRepKey drepVkeyHashSource
+          return $ Ledger.KeyHashObj $ conwayEraOnwardsConstraints w drepKeyHash
+    let req = DRepRegistrationRequirements w drepCred deposit
+        registrationCert = makeDrepRegistrationCertificate req mAnchor
+        description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
 
-  firstExceptT RegistrationWriteFileError
-    . newExceptT
-    . writeLazyByteStringFile outFile
-    $ conwayEraOnwardsConstraints w
-    $ textEnvelopeToJSON description registrationCert
+    firstExceptT RegistrationWriteFileError
+      . newExceptT
+      . writeLazyByteStringFile outFile
+      $ conwayEraOnwardsConstraints w
+      $ textEnvelopeToJSON description registrationCert
 
 runGovernanceDRepRetirementCertificateCmd :: ()
   => Cmd.GovernanceDRepRetirementCertificateCmdArgs era

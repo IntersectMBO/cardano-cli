@@ -48,7 +48,7 @@ data GovernanceDRepIdCmdArgs era =
 data GovernanceDRepRegistrationCertificateCmdArgs era =
   GovernanceDRepRegistrationCertificateCmdArgs
     { eon                 :: !(ConwayEraOnwards era)
-    , drepVkeyHashSource  :: !(VerificationKeyOrHashOrFile DRepKey)
+    , drepHashSource      :: !DRepHashSource
     , deposit             :: !Lovelace
     , mAnchor             :: !(Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era))))
     , outFile             :: !(File () Out)

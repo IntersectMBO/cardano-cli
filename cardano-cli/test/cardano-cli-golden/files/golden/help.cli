@@ -6338,7 +6338,8 @@ Usage: cardano-cli conway governance drep id
   Generate a drep id.
 
 Usage: cardano-cli conway governance drep registration-certificate 
-                                                                     ( --drep-verification-key STRING
+                                                                     ( --drep-script-hash HASH
+                                                                     | --drep-verification-key STRING
                                                                      | --drep-verification-key-file FILE
                                                                      | --drep-key-hash HASH
                                                                      )

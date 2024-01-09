@@ -102,7 +102,7 @@ pRegistrationCertificateCmd era = do
   mkParser w =
     fmap GovernanceDRepRegistrationCertificateCmd $
       GovernanceDRepRegistrationCertificateCmdArgs w
-        <$> pDRepVerificationKeyOrHashOrFile
+        <$> pDRepHashSource
         <*> pKeyRegistDeposit
         <*> pDRepMetadata
         <*> pOutputFile

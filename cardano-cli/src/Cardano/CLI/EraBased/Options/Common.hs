@@ -3051,9 +3051,7 @@ pDRepScriptHash =
   Opt.option scriptHashReader $ mconcat
     [ Opt.long "drep-script-hash"
     , Opt.metavar "HASH"
-    , Opt.help $ mconcat
-        [ "DRep script hash (hex-encoded)."
-        ]
+    , Opt.help "DRep script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash ...\"."
     ]
 
 pDRepVerificationKeyOrHashOrFile
