@@ -6365,15 +6365,24 @@ Usage: cardano-cli conway governance drep metadata-hash --drep-metadata-file FIL
 
   Calculate the hash of a metadata file.
 
-Usage: cardano-cli conway governance hash 
-                                            ( --text TEXT
-                                            | --file-binary FILE
-                                            | --file-text FILE
-                                            )
-                                            [--out-file FILE]
+Usage: cardano-cli conway governance hash (anchor-data | script)
 
   Compute the hash to pass to the various --*-hash arguments of governance
   commands.
+
+Usage: cardano-cli conway governance hash anchor-data 
+                                                        ( --text TEXT
+                                                        | --file-binary FILE
+                                                        | --file-text FILE
+                                                        )
+                                                        [--out-file FILE]
+
+  Compute the hash of some anchor data.
+
+Usage: cardano-cli conway governance hash script --script-file FILE
+                                                   [--out-file FILE]
+
+  Compute the hash of a script.
 
 Usage: cardano-cli conway governance vote (create | view)
 

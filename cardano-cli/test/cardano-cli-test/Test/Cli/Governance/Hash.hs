@@ -27,12 +27,12 @@ governance_hash_trip_fun input =
     hashFile <- noteTempFile tempDir "hash.txt"
 
     hash <- execCardanoCLI
-      [ "conway", "governance", "hash"
+      [ "conway", "governance", "hash", "anchor-data"
         , "--text", input
       ]
 
     void $ execCardanoCLI
-      [ "conway", "governance", "hash"
+      [ "conway", "governance", "hash", "anchor-data"
       , "--text", input
       , "--out-file", hashFile
       ]

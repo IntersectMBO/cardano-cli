@@ -6,11 +6,13 @@ module Cardano.CLI.Types.Errors.GovernanceHashError
 import           Cardano.Api
 import           Cardano.Api.Pretty
 
+import           Cardano.CLI.Read (ScriptDecodeError)
 import           Cardano.Prelude (Exception (displayException), IOException)
 
 data GovernanceHashError
   = GovernanceHashReadFileError !FilePath !IOException
   | GovernanceHashWriteFileError !(FileError ())
+  | GovernanceHashReadScriptError !FilePath !(FileError ScriptDecodeError)
   deriving Show
 
 instance Error GovernanceHashError where
@@ -19,3 +21,5 @@ instance Error GovernanceHashError where
       "Cannot read " <> pretty filepath <> ": " <> pretty (displayException exc)
     GovernanceHashWriteFileError fileErr ->
       prettyError fileErr
+    GovernanceHashReadScriptError filepath err ->
+      "Cannot read script at " <> pretty filepath <> ": " <> prettyError err

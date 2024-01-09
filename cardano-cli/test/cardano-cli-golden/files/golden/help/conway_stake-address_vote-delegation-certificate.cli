@@ -24,7 +24,7 @@ Available options:
   --stake-script-file FILE Filepath of the staking script.
   --stake-address ADDRESS  Target stake address (bech32 format).
   --drep-script-hash HASH  DRep script hash (hex-encoded). Obtain it with
-                           "cardano-cli conway governance hash ...".
+                           "cardano-cli conway governance hash script ...".
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).
   --drep-verification-key-file FILE

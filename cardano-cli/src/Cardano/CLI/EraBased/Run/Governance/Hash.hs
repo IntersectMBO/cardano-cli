@@ -2,6 +2,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -15,6 +16,8 @@ module Cardano.CLI.EraBased.Run.Governance.Hash
 import           Cardano.Api
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Hash as Cmd
+import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceHashError
@@ -34,28 +37,32 @@ import qualified Data.Text.IO as Text
 runGovernanceHashCmds :: ()
   => Cmd.GovernanceHashCmds era
   -> ExceptT CmdError IO ()
-runGovernanceHashCmds (Cmd.GovernanceHashCmd args)=
-    runGovernanceHashCmd args
+runGovernanceHashCmds = \case
+
+  Cmd.GovernanceHashAnchorDataCmd args ->
+    runGovernanceHashAnchorDataCmd args
       & firstExceptT (CmdGovernanceCmdError . GovernanceCmdHashError)
 
-runGovernanceHashCmd :: ()
-  => Cmd.GovernanceHashCmdArgs era
+  Cmd.GovernanceHashScriptCmd args ->
+    runGovernanceHashScriptCmd args
+      & firstExceptT (CmdGovernanceCmdError . GovernanceCmdHashError)
+
+runGovernanceHashAnchorDataCmd :: ()
+  => Cmd.GovernanceHashAnchorDataCmdArgs era
   -> ExceptT GovernanceHashError IO ()
-runGovernanceHashCmd Cmd.GovernanceHashCmdArgs { toHash, moutFile } =
-  -- TODO @smelc we probably want an option to write the computed hash to a file
-  -- This can be done in a separate PR
+runGovernanceHashAnchorDataCmd Cmd.GovernanceHashAnchorDataCmdArgs { toHash, moutFile } =
   case toHash of
-    Cmd.GovernanceHashSourceBinaryFile fp -> do
+    Cmd.GovernanceAnchorDataHashSourceBinaryFile fp -> do
       let path = unFile fp
       bytes <- handleIOExceptT (GovernanceHashReadFileError path) $ BS.readFile path
       let hash = Ledger.hashAnchorData $ Ledger.AnchorData bytes
       printHash hash
-    Cmd.GovernanceHashSourceTextFile fp -> do
+    Cmd.GovernanceAnchorDataHashSourceTextFile fp -> do
       let path = unFile fp
       text <- handleIOExceptT (GovernanceHashReadFileError path) $ Text.readFile path
       let hash = Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 text
       printHash hash
-    Cmd.GovernanceHashSourceText text -> do
+    Cmd.GovernanceAnchorDataHashSourceText text -> do
       let hash = Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 text
       printHash hash
   where
@@ -65,3 +72,16 @@ runGovernanceHashCmd Cmd.GovernanceHashCmdArgs { toHash, moutFile } =
         newExceptT $ writeTextOutput moutFile text
       where
         text = hashToTextAsHex . extractHash $ hash
+
+runGovernanceHashScriptCmd :: ()
+  => Cmd.GovernanceHashScriptCmdArgs era
+  -> ExceptT GovernanceHashError IO ()
+runGovernanceHashScriptCmd Cmd.GovernanceHashScriptCmdArgs { Cmd.toHash = ScriptFile toHash, moutFile } = do
+  ScriptInAnyLang _ script <-
+    readFileScriptInAnyLang toHash
+      & firstExceptT (GovernanceHashReadScriptError toHash)
+  firstExceptT GovernanceHashWriteFileError
+    . newExceptT
+    . writeTextOutput moutFile . serialiseToRawBytesHexText $ hashScript script
+
+

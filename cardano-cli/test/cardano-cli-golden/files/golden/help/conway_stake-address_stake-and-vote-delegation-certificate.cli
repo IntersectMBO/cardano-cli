@@ -35,7 +35,7 @@ Available options:
                            Stake pool ID/verification key hash (either
                            Bech32-encoded or hex-encoded).
   --drep-script-hash HASH  DRep script hash (hex-encoded). Obtain it with
-                           "cardano-cli conway governance hash ...".
+                           "cardano-cli conway governance hash script ...".
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).
   --drep-verification-key-file FILE

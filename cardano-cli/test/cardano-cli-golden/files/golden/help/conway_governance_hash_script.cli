@@ -1,0 +1,9 @@
+Usage: cardano-cli conway governance hash script --script-file FILE
+                                                   [--out-file FILE]
+
+  Compute the hash of a script.
+
+Available options:
+  --script-file FILE       Filepath of the script.
+  --out-file FILE          The output file.
+  -h,--help                Show this help text
