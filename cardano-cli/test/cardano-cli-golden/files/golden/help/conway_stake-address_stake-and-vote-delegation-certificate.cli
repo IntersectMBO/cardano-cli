@@ -33,8 +33,7 @@ Available options:
                            Filepath of the stake pool verification key.
   --stake-pool-id STAKE_POOL_ID
                            Stake pool ID/verification key hash (either
-                           Bech32-encoded or hex-encoded). Zero or more
-                           occurences of this option is allowed.
+                           Bech32-encoded or hex-encoded).
   --drep-script-hash HASH  DRep script hash (hex-encoded).
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).

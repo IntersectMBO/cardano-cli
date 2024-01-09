@@ -139,7 +139,7 @@ data QueryStakeSnapshotCmdArgs = QueryStakeSnapshotCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , allOrOnlyPoolIds    :: !(AllOrOnly [Hash StakePoolKey])
+  , allOrOnlyPoolIds    :: !(AllOrOnly (Hash StakePoolKey))
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -155,7 +155,7 @@ data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , allOrOnlyPoolIds    :: !(AllOrOnly [Hash StakePoolKey])
+  , allOrOnlyPoolIds    :: !(AllOrOnly (Hash StakePoolKey))
   } deriving (Generic, Show)
 
 data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs
