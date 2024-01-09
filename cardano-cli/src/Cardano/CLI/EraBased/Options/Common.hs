@@ -3115,25 +3115,6 @@ pDRepVerificationKeyOrHashOrFile =
     , VerificationKeyHash <$> pDRepVerificationKeyHash
     ]
 
-pCombinedDRepVerificationKeyOrHashOrFile
-  :: Parser (VerificationKeyOrHashOrFile DRepKey)
-pCombinedDRepVerificationKeyOrHashOrFile =
-  asum
-    [ VerificationKeyOrFile <$> pCombinedDRepVerificationKeyOrFile
-    , VerificationKeyHash <$> pCombinedDRepVerificationKeyHash
-    ]
-
-pCombinedDRepVerificationKeyHash :: Parser (Hash DRepKey)
-pCombinedDRepVerificationKeyHash =
-    Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey) $ mconcat
-      [ Opt.long "combined-drep-key-hash"
-      , Opt.metavar "HASH"
-      , Opt.help $ mconcat
-          [ "DRep verification key hash (either Bech32-encoded or hex-encoded).  "
-          , "Zero or more occurences of this option is allowed."
-          ]
-      ]
-
 pCombinedDRepVerificationKey :: Parser (VerificationKey DRepKey)
 pCombinedDRepVerificationKey =
   Opt.option (readVerificationKey AsDRepKey) $ mconcat
