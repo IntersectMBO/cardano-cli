@@ -8,10 +8,13 @@ module Test.Golden.Governance.DRep where
 #endif
 
 import           Control.Monad
+
+#ifdef UNIX
 import           Data.Bits ((.&.))
 import           GHC.Stack (withFrozenCallStack)
 import           Numeric (showOct)
 import           System.Posix.Files (fileMode, getFileStatus)
+#endif
 
 import           Test.Cardano.CLI.Util (execCardanoCLI, noteInputFile, noteTempFile, propertyOnce)
 

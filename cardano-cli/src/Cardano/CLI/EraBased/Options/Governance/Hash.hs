@@ -41,7 +41,7 @@ pGovernanceHashAnchorDataCmd era = do
             (Cmd.GovernanceHashAnchorDataCmdArgs eon
                <$> pGovernanceAnchorDataHashSource
                <*> optional pOutputFile))
-    $ Opt.progDesc "Compute the hash of some anchor data."
+    $ Opt.progDesc "Compute the hash of some anchor data (to then pass it to other governance commands)."
 
 pGovernanceAnchorDataHashSource :: Parser Cmd.GovernanceAnchorDataHashSource
 pGovernanceAnchorDataHashSource =
@@ -73,4 +73,4 @@ pGovernanceHashScriptCmd era = do
             (Cmd.GovernanceHashScriptCmdArgs eon
                <$> pScript
                <*> optional pOutputFile))
-    $ Opt.progDesc "Compute the hash of a script."
+    $ Opt.progDesc "Compute the hash of a script (to then pass it to other governance commands)."

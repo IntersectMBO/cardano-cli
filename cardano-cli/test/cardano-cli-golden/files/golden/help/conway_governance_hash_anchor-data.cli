@@ -5,7 +5,8 @@ Usage: cardano-cli conway governance hash anchor-data
                                                         )
                                                         [--out-file FILE]
 
-  Compute the hash of some anchor data.
+  Compute the hash of some anchor data (to then pass it to other governance
+  commands).
 
 Available options:
   --text TEXT              Text to hash as UTF-8

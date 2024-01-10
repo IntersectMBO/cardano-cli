@@ -6377,12 +6377,13 @@ Usage: cardano-cli conway governance hash anchor-data
                                                         )
                                                         [--out-file FILE]
 
-  Compute the hash of some anchor data.
+  Compute the hash of some anchor data (to then pass it to other governance
+  commands).
 
 Usage: cardano-cli conway governance hash script --script-file FILE
                                                    [--out-file FILE]
 
-  Compute the hash of a script.
+  Compute the hash of a script (to then pass it to other governance commands).
 
 Usage: cardano-cli conway governance vote (create | view)
 

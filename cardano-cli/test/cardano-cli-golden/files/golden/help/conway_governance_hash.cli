@@ -7,5 +7,7 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  anchor-data              Compute the hash of some anchor data.
-  script                   Compute the hash of a script.
+  anchor-data              Compute the hash of some anchor data (to then pass it
+                           to other governance commands).
+  script                   Compute the hash of a script (to then pass it to
+                           other governance commands).
