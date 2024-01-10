@@ -1393,11 +1393,14 @@ runQueryDRepState
       , Cmd.nodeSocketPath
       , Cmd.consensusModeParams
       , Cmd.networkId
-      , Cmd.drepKeys = drepKeys
+      , Cmd.drepKeys = drepKeys'
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
+  let drepKeys = case drepKeys' of
+                   All -> []
+                   Only l -> l
   drepCreds <- Set.fromList <$> mapM (firstExceptT QueryCmdDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
 
   drepState <- runQuery localNodeConnInfo $ queryDRepState eon drepCreds
@@ -1419,7 +1422,7 @@ runQueryDRepStakeDistribution
       , Cmd.nodeSocketPath
       , Cmd.consensusModeParams
       , Cmd.networkId
-      , Cmd.drepKeys = drepKeys
+      , Cmd.drepKeys = drepKeys'
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1427,6 +1430,9 @@ runQueryDRepStakeDistribution
   let drepFromVrfKey = fmap Ledger.DRepCredential
                      . firstExceptT QueryCmdDRepKeyError
                      . getDRepCredentialFromVerKeyHashOrFile
+      drepKeys = case drepKeys' of
+                   All -> []
+                   Only l -> l
   dreps <- Set.fromList <$> mapM drepFromVrfKey drepKeys
 
   drepStakeDistribution <- runQuery localNodeConnInfo $ queryDRepStakeDistribution eon dreps

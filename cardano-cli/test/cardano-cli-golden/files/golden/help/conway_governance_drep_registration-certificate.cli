@@ -16,8 +16,7 @@ Available options:
   --drep-verification-key-file FILE
                            Filepath of the DRep verification key.
   --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
-                           hex-encoded). Zero or more occurences of this option
-                           is allowed.
+                           hex-encoded).
   --key-reg-deposit-amt NATURAL
                            Key registration deposit amount.
   --drep-metadata-url TEXT DRep anchor URL

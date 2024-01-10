@@ -937,55 +937,6 @@ pStakePoolVerificationKeyOrHashOrFile prefix =
     , VerificationKeyHash <$> pStakePoolVerificationKeyHash prefix
     ]
 
-pCombinedStakePoolVerificationKeyOrHashOrFile
-  :: Parser (VerificationKeyOrHashOrFile StakePoolKey)
-pCombinedStakePoolVerificationKeyOrHashOrFile =
-  asum
-    [ VerificationKeyOrFile <$> pCombinedStakePoolVerificationKeyOrFile
-    , VerificationKeyHash <$> pCombinedStakePoolVerificationKeyHash
-    ]
-
-pCombinedStakePoolVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakePoolKey)
-pCombinedStakePoolVerificationKeyOrFile =
-  asum
-    [ VerificationKeyValue <$> pCombinedStakePoolVerificationKey
-    , VerificationKeyFilePath <$> pCombinedStakePoolVerificationKeyFile
-    ]
-
-pCombinedStakePoolVerificationKeyHash :: Parser (Hash StakePoolKey)
-pCombinedStakePoolVerificationKeyHash =
-    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat
-      [ Opt.long "combined-stake-pool-id"
-      , Opt.metavar "STAKE_POOL_ID"
-      , Opt.help $ mconcat
-          [ "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded).  "
-          , "Zero or more occurences of this option is allowed."
-          ]
-      ]
-
-pCombinedStakePoolVerificationKey :: Parser (VerificationKey StakePoolKey)
-pCombinedStakePoolVerificationKey =
-  Opt.option (readVerificationKey AsStakePoolKey) $ mconcat
-    [ Opt.long "combined-stake-pool-verification-key"
-    , Opt.metavar "STRING"
-    , Opt.help "Stake pool verification key (Bech32 or hex-encoded)."
-    ]
-
-pCombinedStakePoolVerificationKeyFile :: Parser (VerificationKeyFile In)
-pCombinedStakePoolVerificationKeyFile =
-  File <$> asum
-    [ Opt.strOption $ mconcat
-      [ Opt.long "combined-cold-verification-key-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath of the stake pool verification key."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
-    , Opt.strOption $ mconcat
-      [ Opt.long "stake-pool-verification-key-file"
-      , Opt.internal
-      ]
-    ]
-
 --------------------------------------------------------------------------------
 
 pCBORInFile :: Parser FilePath
@@ -3113,39 +3064,21 @@ pDRepVerificationKeyOrHashOrFile =
     , VerificationKeyHash <$> pDRepVerificationKeyHash
     ]
 
-pCombinedDRepVerificationKey :: Parser (VerificationKey DRepKey)
-pCombinedDRepVerificationKey =
-  Opt.option (readVerificationKey AsDRepKey) $ mconcat
-    [ Opt.long "combined-drep-verification-key"
-    , Opt.metavar "STRING"
-    , Opt.help "DRep verification key (Bech32 or hex-encoded)."
-    ]
-
-pCombinedDRepVerificationKeyOrFile :: Parser (VerificationKeyOrFile DRepKey)
-pCombinedDRepVerificationKeyOrFile =
-  asum
-    [ VerificationKeyValue <$> pCombinedDRepVerificationKey
-    , VerificationKeyFilePath <$> pCombinedDRepVerificationKeyFile
-    ]
-
-pCombinedDRepVerificationKeyFile :: Parser (VerificationKeyFile In)
-pCombinedDRepVerificationKeyFile =
-  fmap File . Opt.strOption $ mconcat
-    [ Opt.long "combined-drep-verification-key-file"
-    , Opt.metavar "FILE"
-    , Opt.help "Filepath of the DRep verification key."
-    , Opt.completer (Opt.bashCompleter "file")
-    ]
+pAllOrOnlyDRepVerificationKeyOrHashOrFile
+  :: Parser (AllOrOnly (VerificationKeyOrHashOrFile DRepKey))
+pAllOrOnlyDRepVerificationKeyOrHashOrFile = pAll <|> pOnly
+  where pOnly = Only <$> some pDRepVerificationKeyOrHashOrFile
+        pAll = Opt.flag' All $ mconcat
+          [ Opt.long "all-dreps"
+          , Opt.help "Query for all DReps."
+          ]
 
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
 pDRepVerificationKeyHash =
     Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey) $ mconcat
       [ Opt.long "drep-key-hash"
       , Opt.metavar "HASH"
-      , Opt.help $ mconcat
-          [ "DRep verification key hash (either Bech32-encoded or hex-encoded).  "
-          , "Zero or more occurences of this option is allowed."
-          ]
+      , Opt.help "DRep verification key hash (either Bech32-encoded or hex-encoded)."
       ]
 
 pDRepVerificationKey :: Parser (VerificationKey DRepKey)
