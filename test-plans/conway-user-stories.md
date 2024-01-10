@@ -14,41 +14,45 @@ This collection of user stories and feature designs provides a snapshot of the c
 # CARDANO-CLI
 
 ## User Story ID:  CLI.001
-- [ ] Enabler
 ### Title: Obtain constitution hash for verification (HOLDER)
 ### User Story
+
 - As an Ada holder,<br>
 I want to obtain the hash of the off-chain text of a Constitution, <br>
-So that I can compare it against the hash registered on-chain to verify its authenticity.
+So that I can compare it against the hash registered on-chain to verify its authenticity.<br>
 
-### Functional requirements
-| Requirements  | Acceptance Criteria  |
-|:----|:----|
-| When I provide the off-chain text of the Constitution, the cardano-cli calculates and returns the corresponding blake2b-256 hash of the document.| Given that a holder provides the off-chain text of the constitution then cardano-cli returns the corresponding blake2b-256 hash. Provided that it is the same document, the resulting hash match the one registered on-chain.|
+### Acceptance criteria
+
+- [ ] A command is implemented on the cli
+- [ ] The command takes as a text file, binary file or text as input  
+- [ ] Calculates and returns the corresponding blake2b-256 hash of the file 
+- [ ] Supports an option to save the output (the hash) to a file, default is printing to stdout
+- [ ] The file is saved on the path given by the user
+- [ ] The file contains the hash of the document
 
 ## User Story ID:  CLI.002
-- [ ] Enabler
+
 ### Title: Generate hash of the off-chain constitution (HOLDER)
 ### User Story
 - As an Ada holder,<br>
 I want to generate the hash of the off-chain text for a proposed Constitution<br>
 So that the hash can be utilized in a governance action.
 
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | When I provide the off-chain text of the Constitution, the cardano-cli calculates and returns the corresponding blake2b-256 hash of the document.| Given that a holder provides the off-chain text of the constitution then cardano-cli returns the corresponding blake2b-256 hash.|
 
 
 ## User Story ID:  CLI.003
-- [ ] Enabler
+
 ### Title: Generate Committee member cold key pair (CCM)
 ### User Story
 - As a potential Constitutional Committee member,<br>
 I want to generate COLD key pair, <br>
 so that I can be proposed for the Committee in a Governance action
 
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | The feature implementation includes a new command: `cardano-cli conway governance committee key-gen-cold`    | Running `cardano-cli conway governance committee key-gen-cold` with accepted input parameters generates a COLD key pair. If a parameter or the command format is incorrect an error is raised    |
@@ -62,14 +66,14 @@ so that I can be proposed for the Committee in a Governance action
 | Failing to provide a file name for any of `--cold-verification-key-file` `--cold-signing-key-file` returns an appropriate error message.|Given the user has inputted *wrong* `--cold-verification-key-file` OR `--cold-signing-key-file`, then the command fails and returns an error to the users informing them that the supplied files do not match the expected type.|
 
 ## User Story ID:  CLI.004
-- [ ] Enabler
+
 ### Title: Generate committee member hot key pair (CCM)
 ### User Story
 - As Constitutional Committee member,<br>
 I want to generate HOT key pair,<br>
 So that I can authorize the Hot key to sign votes on behalf of the Cold key.
 
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | The feature implementation includes a new command `cardano-cli conway governance committee key-gen-hot`|Running `cardano-cli conway governance committee key-gen-hot` command with all the required and correct parameters then the command is executed successfully and a HOT key pair is generated.  If an argument or the command format is incorrect an error is raised.|
@@ -83,14 +87,14 @@ So that I can authorize the Hot key to sign votes on behalf of the Cold key.
 
 
 ## User Story ID:  CLI.005
-- [ ] Enabler
+
 ### Title: Authorization certificate (CCM)
 ### User Story
 - As a committee member,<br>
 I want to issue an authorization certificate from my cold key to a hot key,<br>
 so that I can sign votes using the hot key and keep the cold key in cold storage.
 
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | The feature implementation should include a new command `cardano-cli conway governance committee create-hot-key-authorization-certificate`| Running `cardano-cli conway governance committee create-hot-key-authorization-certificate` with accepted input parameters generates a hot key authorization certificate. If a parameter or the command format is incorrect an error is raised |
@@ -103,14 +107,14 @@ so that I can sign votes using the hot key and keep the cold key in cold storage
 
 
 ## User Story ID:  CLI.006
-- [ ] Enabler
+
 ### Title: Generate committee member key hash (CCM)
 ### User Story
 - As a potential constitutional committee member,<br>
 I want to generate the key hashes for my cold verification key,<br>
 so that it can be used by third parties to propose me as a new committee member;<br>
 and for identification purposes once Ive been elected as committee member.
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | The implementation includes the new command `cardano-cli conway governance committee key-hash`<br> Generates the blake2b 256 hash of the verification key. | Running `cardano-cli conway governance committee key-hash` with accepted input parameters generates blake2b 256 hash of the verification key. If a parameter or the command format is incorrect an error is raised
@@ -120,14 +124,14 @@ and for identification purposes once Ive been elected as committee member.
 | Documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs. | Running  `cardano-cli conway governance committee key-hash --help` display the command usage page. |
 
 ## User Story ID:  CLI.007
-- [ ] Enabler
+
 ### Title: Committee member resignation certificate (CCM)
 ### User Story
 - As a constitutional committee member,<br>
 I want to be able to generate a resignation certificate,<br>
 so that i can submit it to the chain on a transaction to signal to the ada holders that I’m resigning from my duties.
 
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | The command should be implemented in the cardano-cli as `cardano-cli conway governance committee create-cold-resignation-certificate` | Running `cardano-cli governance committee create-cold-resignation-certificate` with accepted input parameters generates a cold resignation certificate. |
@@ -140,14 +144,14 @@ so that i can submit it to the chain on a transaction to signal to the ada holde
 | Documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs. | Running `cardano-cli conway governance committee create-cold-resignation-certificate --help` displays the command usage page |
 
 ## User Story ID:  CLI.008
-- [ ] Enabler
+
 ### Title: Generate Drep keys (HOLDER)
 ### User Story
 - As an ada holder,<br>
 I want to generate Ed25519 keys,<br>
 so that I can register as a DRep.
 
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance drep key-gen` | Running `cardano-cli conway governance drep key-gen` with accepted input parameters generates an Ed25519 key pair |
@@ -156,7 +160,7 @@ so that I can register as a DRep.
 | The generated key files must adhere to text envelope format used for other artifacts and contains the fields Type, Description and cborHex. | The signing key text envelope contains the correct type, description, and cborHex values.<br> `Type: "DRepVerificationKey_ed25519"` <br> `Description: "Delegate Representative Verification Key"` |
 
 ## User Story ID:  CLI.009
-- [ ] Enabler
+
 ### Title: Generate DRep ID (DRep)
 ### User Story
 - As a DRep,<br>
@@ -164,7 +168,7 @@ I want to generate a DRep Id,<br>
 so that my voting record can be tracked,<br>
 and ada holders can use the DRepId to delegate their votes to me.
 
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance drep id` and generates the blake2b-224 hash digest of the serialized DRep credential (verification key). | Running  `cardano-cli conway governance drep id` with accepted input parameters generates a DRep ID: the blake2b-224 hash digest of the verification key.|
@@ -175,14 +179,14 @@ and ada holders can use the DRepId to delegate their votes to me.
 | Documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs. | Running `cardano-cli conway governance drep id --help` displays the command usage page. |
 
 ## User Story ID:  CLI.010
-- [ ] Enabler
+
 ### Title: DRep Registration Certificate Generation (DRep)
 ### User Story
 As a DRep,<br>
 I want to generate a DRep registration certificate,<br>
 so that I can submit it in a transaction and be eligible for receiving delegation.
 
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance drep registration-certificate`. | Running `cardano-cli conway governance drep registration-certificate` with accepted input parameters generates a DRep registration certificate.|
@@ -196,7 +200,7 @@ so that I can submit it in a transaction and be eligible for receiving delegatio
 | Handles errors gracefully and provide helpful error messages when required options are missing or invalid inputs are provided. |If any required input parameter is missing or incorrect, the command should raise an error indicating the missing or incorrect parameter.|
 
 ## User Story ID:  CLI.011
-- [ ] Enabler
+
 ### Title: DRep Retirement Certificate Generation (DRep)
 ### User Story
 As a DRep,<br>
@@ -204,7 +208,7 @@ I want to generate a DRep retirement (unregistration) certificate,<br>
 so that I can submit it in a transaction stop acting as a governance actor,<br>
 and retrieve my DRep deposit.
 
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance drep retirement-certificate`. | Running `cardano-cli conway governance drep retirement-certificate` with accepted input parameters generates a DRep retirement certificate.|
@@ -217,11 +221,11 @@ and retrieve my DRep deposit.
 | Handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raise an error indicating the missing or incorrect parameter.|
 
 ## User Story ID: CLI.012
-- [ ] Enabler
+
 ### Title: DRep Metadata Hash Generation (DRep)
 ### User Story
  - As a DRep,<br>I want to generate the hash of my DRep metadata,<br>so that I can supply it when registering as a DRep.
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance drep metadata-hash`. | Running `cardano-cli conway governance drep metadata-hash` successfully generates the blake2b 256 hash of the specified DRep metadata file. |
@@ -233,11 +237,11 @@ and retrieve my DRep deposit.
 
 
 ## User Story ID: CLI.013
-- [ ] Enabler
+
 ### Title: Create Update Constitution Governance Action (HOLDER)
 ### User Story
  - As an ADA holder,<br>I want to create a governance action that updates the constitution,<br>so that it can be submitted to the chain and be voted on by the governance bodies.
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance action create-constitution`. | Running `cardano-cli conway governance action create-constitution` successfully creates a governance action for updating the constitution. |
@@ -255,14 +259,14 @@ and retrieve my DRep deposit.
 
 
 ## User Story ID:  CLI.014
-- [ ] Enabler
+
 ### Title: Create Update Constitutional Committee Governance Action (HOLDER)
 ### User Story
 As an ADA holder,<br>
 I want to create a governance action that updates the constitutional committee,<br>
 so that it can be submitted to the chain and be voted on by the governance bodies.
 
-### Functional requirements
+### Acceptance criteria
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance action create-constitutional-committee`. | Running `cardano-cli conway governance action create-constitutional-committee` successfully creates a governance action for updating the constitutional committee.
@@ -279,14 +283,14 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID:  CLI.015
-- [ ] Enabler
+
 ### Title: Create Treasury Withdrawal Governance Action (HOLDER)
 ### User Story
 As an ADA holder,<br>
 I want to create a governance action to withdraw funds from the treasury,<br>
 so that it can be submitted to the chain and be voted on by the governance bodies.
 
-### Functional requirements
+### Acceptance criteria
 
 | Requirements  | Acceptance Criteria  |
 |:----|:----|
@@ -303,11 +307,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.016
-- [ ] Enabler
+
 ### Title: Create info governance action (HOLDER)
 ### User Story
  - As an ada holder<br>I want to create an info governance action<br>So that it can be submitted to the chain and be voted by the governance bodies<br>cardano-cli conway governance action create-info
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance action create-info`. | Running `cardano-cli conway governance action create-info` successfully creates an info governance action for updating the constitution. |
@@ -322,11 +326,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.017
-- [ ] Enabler
+
 ### Title: Create update protocol parameters governance action (HOLDER)
 ### User Story
  - As an ada holder<br>I want to create a governance action to update protocol parameters<br>So that it can be submitted to the chain and be voted by the governance bodies
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance action create-protocol-parameters-update`. | Running `cardano-cli conway governance action create-protocol-parameters-update` successfully creates an info governance action for updating the protocol parameters. |
@@ -343,11 +347,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.018
-- [ ] Enabler
+
 ### Title: Create no-confidence governance action (HOLDER)
 ### User Story
  - As an ada holder<br>I want to create a no-confidence governance action<br>So that it can be submitted to the chain and be voted by the governance bodies
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance action create-no-confidence`. | Running `cardano-cli conway governance action create-no-confidence` successfully creates  no-confidence governance action. |
@@ -363,11 +367,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.019
-- [ ] Enabler
+
 ### Title: Create Hard-fork initiation governance action (HOLDER)
 ### User Story
  - As an ada holder<br>I want to create a governance action to initiate a hardfork<br>So that it can be submitted to the chain and be voted by the governance bodies
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance action create-hf-init`. | Running `cardano-cli conway governance action create-hf-init` successfully creates a hard-fork initiation governance action. |
@@ -384,11 +388,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.020
-- [ ] Enabler
+
 ### Title: View governance action file (HOLDER)
 ### User Story
  - As an ada holder<br>I want to inspect the contents of a governance action file <br>So that I can verify it is correct before submitting it in a transaction
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance action view`. | Running `cardano-cli conway governance action view` successfully shows the content of a governance action file. |
@@ -402,11 +406,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.021
-- [ ] Enabler
+
 ### Title: Create a governance action vote (DRep/SPO/CCM)
 ### User Story
  - As a Drep, SPO or CC member <br>I want to create a vote for a governance action <br>So that I can include it in a transaction and submit it to the chain <br>
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance vote create` | Running `cardano-cli conway governance vote create` creates a vote file for it to be included in a transaction. |
@@ -421,11 +425,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.022
-- [ ] Enabler
+
 ### Title: View vote file (DRep/SPO/CCM)
 ### User Story
  - As a DRep, SPO or CC member <br>I want to inspect the contents of a vote file <br>So that I can verify it is correct before submitting it in a transaction
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as `cardano-cli conway governance vote view` | Running `cardano-cli conway governance vote view` successfully shows the content of a governance action file. |
@@ -438,11 +442,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.023
-- [ ] Enabler
+
 ### Title: Build a transaction with to submit proposal (HOLDER)
 ### User Story
  - As an ada holder <br>I want to build a transaction that includes a proposal (containing a governance action)<br>So that I can later sign and submit to the chain <br><br>`transaction build`
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | Transaction build has a new flag to supply a proposal file as input for the transaction body | An ADA holder can include a proposal in a transaction when by passing the proposal file in the transaction body using the `--proposal-file FILE` flag where FILE is the filepath of the proposal |
@@ -450,11 +454,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.024
-- [ ] Enabler
+
 ### Title: Build transaction for proposal vote (DRep, SPO, CCM)
 ### User Story
  - As a DRep, SPO or CC member<br>I want to build a transaction that includes my vote on a particular governance action<br>So that I can later sign and submit to the chain<br><br>`transaction build`<br>
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | Transaction build has a new flag to supply a vote file as input for the transaction body | A DRep, SPO or CC member can include their vote in a transaction by passing a vote file in the transaction body using the `--vote-file FILE` flag where FILE is the filepath of the vote |
@@ -462,11 +466,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.025
-- [ ] Enabler
+
 ### Title: Build RAW transaction for proposal vote (HOLDER)
 ### User Story
  - As an ada holder <br>I want to build a transaction that includes a proposal (containing a governance action)<br>So that I can later sign and submit to the chain <br>transaction build-raw
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | Transaction build-raw has a new flag to supply a proposal file as input for the transaction body | A ADA Holder can include a proposal in a transaction when by passing the proposal file in the transaction body using the `--proposal-file FILE` flag where FILE is the filepath of the proposal |
@@ -474,11 +478,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.026
-- [ ] Enabler
+
 ### Title: Build RAW transaction for proposal vote (DRep/SPO/CCM)
 ### User Story
  - As a DRep, SPO or CC member<br>I want to build a transaction that includes my vote on a particular governance action<br>So that I can later sign and submit to the chain<br><br>`transaction build-raw`<br>
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | Transaction build-raw has a new flag to supply a vote file as input for the transaction body | A DRep, SPO or CC member can include a proposal in a transaction when by passing the proposal file in the transaction body using the `--proposal-file FILE` flag where FILE is the filepath of the proposal |
@@ -486,11 +490,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.027
-- [ ] Enabler
+
 ### Title: Create stake registration certificate (HOLDER)
 ### User Story
  - As an ada holder<br>I want to create a conway cddl-compliant stake registration certificate <br><br>`stake-address`<br>
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | Allows the user to provide credentials in any of the following forms:<br><br>Stake verification key <br>Stake verification key file <br>Stake address<br>Stake script file | The command accepts the following and executes with the expected outcome:<br><br>`--stake-verification-key`(STRING)<br>`--stake-verification-key-file`(FILE)<br>`--stake-address`(ADDRESS)<br>`--stake-script-file` (FILE)<br><br>Using one of these is mandatory |
@@ -502,11 +506,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.028
-- [ ] Enabler
+
 ### Title: Create stake deregistration certificate (HOLDER)
 ### User Story
  - As an ada holder<br>I want to create a conway cddl-compliant stake deregistration certificate to get my deposit back<br><br>`stake-address`<br>
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | Allows the user to provide credentials in any of the following forms:<br><br>Stake verification key<br>Stake verification key file <br>Stake address<br>Stake script file | The command accepts the following and executes with the expected outcome:<br><br>`--stake-verification-key`(STRING)<br>`--stake-verification-key-file`(FILE)<br>`--stake-address`(ADDRESS)<br>`--stake-script-file` (FILE)<br><br>Using one of these is mandatory |
@@ -518,11 +522,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.029
-- [ ] Enabler
+
 ### Title: Delegate vote to DRep (HOLDER)
 ### User Story
  - As an ada holder<br>I want to delegate my votes to a DRep (registered or default)<br>So that my stake is counted when the DRep vote.  <br><br>`stake-address`<br>
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | Allows the user to provide credentials in any of the following forms:<br><br>Stake verification key<br>Stake verification key file <br>Stake address<br>Stake script file | The command accepts the following and executes with the expected outcome:<br><br>`--stake-verification-key`(STRING)<br>`--stake-verification-key-file`(FILE)<br>`--stake-address`(ADDRESS)<br>`--stake-script-file` (FILE)<br><br>Using one of these is mandatory |
@@ -535,11 +539,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 
 ## User Story ID: CLI.030
-- [ ] Enabler
+
 ### Title: Delegate stake to SPO and votes to DRep with a single certificate (HOLDER)
 ### User Story
  - As an ada holder<br>I want to delegate my stake to a stake pool AND my votes to a DRep (registered or default) with a single certificate.<br><br>`stake-address`<br>
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | Allows the user to provide credentials in any of the following forms:<br><br>Stake verification key<br>Stake verification key file <br>Stake address<br>Stake script file | The command accepts the following and execute with the expected outcome:<br>`--stake-verification-key` (STRING) or <br>`--stake-verification-key-file` (FILE) or<br>`--stake-script-file` (FILE) or<br>` --stake-address` (ADDRESS)<br><br>At least one of them is mandatory |
@@ -552,11 +556,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 | The resulting certificate conforms with the conway cddl | The resulting certificate conforms with the conway cddl, where <br><br>`stake_vote_deleg_cert = (10, stake_credential, pool_keyhash, drep)` |
 
 ## User Story ID:  CLI.031
-- [ ] Enabler
+
 ### Title: Query governance state (ANY)
 ### User Story
 - As any persona<br>I want to query the nodes for the current Governance state<br>so that I can inform my decisions.
-### Functional requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The new command is implemented as `cardano-cli conway query gov-state` | Running `cardano-cli conway query gov-state` dumps the entire governance state. |
@@ -566,11 +570,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 | The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter.<br> The command requires a connection to the node, an exception is raised if there is non. |
 
 ## User Story ID:  CLI.032
-- [ ] Enabler
+
 ### Title: Query committee state (CCM)
 ### User Story
 - As a CC member<br>I want to query the committee state<br>so that I can find my expiration term,<br> and whether my hot key authorization certificate has been recorded on chain correctly.
-### Functional requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as `cardano-cli conway query committee-state` | Running `cardano-cli conway query committee-state` returns the map of committee member key hashes and the current state. |
@@ -583,11 +587,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 | The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
 
 ## User Story ID:  CLI.033
-- [ ] Enabler
+
 ### Title: Query DRep state (HOLDER)
 ### User Story
  - As an ada holder<br>I want to query the DRep state <br>So that I can find detailed information about registered Dreps   <br>
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as cardano-cli conway query drep-state | Running `cardano-cli conway query drep-state` returns the map of drep key hashes and the current state.  |
@@ -599,11 +603,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 | The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter.<br><br>The command requires a connection to the node, an exception is raised if there is non. |
 
 ## User Story ID: CLI.034
-- [ ] Enabler
+
 ### Title: Query DRep stake distribution (HOLDER)
 ### User Story
  - As an ada holder and DRep<br>I want to query the DRep stake distribution<br>So that I can find the weight (of the votes) of each DRep<br>
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as cardano-cli conway query drep-stake-distribution | Running `cardano-cli conway query drep-stake-distribution` returns the map of DRep key hashes and the current voting stake delegated to each, including default DReps. |
@@ -614,33 +618,33 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 | The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter.<br><br>The command requires a connection to the node, an exception is raised if there is non. |
 
 ## User Story ID: CLI.035
-- [ ] Enabler
+
 ### Title: Expand query stake-address-info to show deposits and vote delegation (HOLDER)
 ### User Story
  - As an ada holder,<br>I want to query my stake address information so that I can learn to which pool and DRep Im delegating to and the value in lovelace of my deposits for delegating and for submitting governance actions.
-### Functional Requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | Expand the command query stake-address-info to return the DRep id of the DRep that the stake credential is delegated to and the value of the existing deposits. | The command returns:<br><br>Stake-address<br>Rewards account balance<br>Stake pool it is delegated to (stakeDelegation), null if it isn’t<br>DRep it is delegated to (voteDelegation), null if it isn’t<br>Stake key deposit<br>Cumulative governance action deposits |
 
 ## User Story ID:  CLI.036
-- [ ] Enabler
+
 ### Title: query constitution
 ### User Story
 - As any persona I want to query the on-chain constitution so that I can know the url where it is stored and the document hash so that I can verify authenticity. 
 
-### Functional requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | The command is implemented as cardano-cli conway query constitution  | Running `cardano-cli conway query constitution` returns the current constitution URL and hash |
 | Requires specifying the target network | The command requires the user to specify the target network using either `--mainnet` or `--testnet-magic NATURAL`. |
 
 ## User Story ID:  CLI.037
-- [ ] Enabler
+
 ### Title: (WIP) Scripts as DRep (HOLDER)
 ### User Story
 As an ada holder I want to register a native or a Plutus script as a DRep.
-### Functional requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 |  |  |
@@ -650,10 +654,10 @@ As an ada holder I want to register a native or a Plutus script as a DRep.
 |  |  |
 
 ## User Story ID:  CLI.0
-- [ ] Enabler
+
 ### Title: Template
 ### User Story
-### Functional requirements
+### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
 |  |  |
