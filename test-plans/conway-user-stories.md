@@ -507,6 +507,9 @@ so that it can be submitted to the chain and be voted on by the governance bodie
  So that I can later sign and submit to the chain.
  
 ### Acceptance criteria
+
+-- [ ] A command is implemented on the cli.
+
 |Requirements|Acceptance Criteria|
 |:----|:----|
 | Transaction build has a new flag to supply a proposal file as input for the transaction body | An ADA holder can include a proposal in a transaction when by passing the proposal file in the transaction body using the `--proposal-file FILE` flag where FILE is the filepath of the proposal |
