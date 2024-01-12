@@ -54,6 +54,8 @@ hprop_golden_create_testnet_data =
 
     H.diffVsGoldenFile generated'' "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
 
+-- | This test tests the non-transient case, i.e. it generates strictly
+-- less things to disk than 'hprop_golden_create_testnet_data'
 hprop_golden_create_testnet_data_transient_stake_delegators :: Property
 hprop_golden_create_testnet_data_transient_stake_delegators =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
@@ -68,7 +70,7 @@ hprop_golden_create_testnet_data_transient_stake_delegators =
          , "--out-dir", outputDir
          , "--testnet-magic", "42"
          , "--pools", "2"
-         , "--stake-delegators", "4"
+         , "--transient-stake-delegators", "4"
         ]
 
     -- We just test that the command doesn't crash when we execute a different path.
