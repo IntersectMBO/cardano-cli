@@ -191,7 +191,7 @@ so that I can register as a DRep.
 - Signing key:
     - Type: "DRepSigningKey_ed25519"
     - Description: "Delegate Representative Signing Key"
-- [ ] The command handles potential errors, such as missing or invalid flags or keys, and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
 - [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID:  CLI.009
@@ -254,78 +254,92 @@ so that I can submit it in a transaction stop acting as a governance actor,<br>
 and retrieve my DRep deposit.
 
 ### Acceptance criteria
-| Requirements  | Acceptance Criteria  |
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance drep retirement-certificate`. | Running `cardano-cli conway governance drep retirement-certificate` with accepted input parameters generates a DRep retirement certificate.|
-| Allows supplying the DRep credentials in the following ways:<br> DRep verification key <br> DRep verification key file<br> DRep Id| The command accepts any the flags:<br>`--drep-verification-key STRING`<br>`--drep-verification-key-file FILE`<br>`--drep-id STRING`<br> Supplying the credential is mandatory, so the group of flags is mandatory |
-| Has the mandatory flag to require the user to input the DRep deposited amount that is to be returned. <br> Must match the deposit originally paid when registering as DRep but is only checked when submitting the transaction.| The flag `--deposit-amt` is mandatory and takes the deposit amount in lovelace as an argument.|
-| Supports a mandatory flag to specify the file where the generated DRep retirement certificate will be saved.| The flag `--out-file` is mandatory and takes the file path and name as an argument.|
-| The certificate should be in a text envelope format similar to stake pools deregistration certificates. | Given that the certificate is saved, it should be in a text envelope format consisting of a JSON object with type, description, and CBOR hex fields, where:<br>{<br>"type": "CertificateConway",<br> "description": "DRep Retirement Certificate",<br>"cborHex": ""<br>}<br> |
-| The output certificate complies with the Conway CDDL: `unreg_drep_cert = (17, drep_credential, coin)`.|The cborHex field conforms to the conway cddl: `unreg_drep_cert = (17, drep_credential, coin)`.|
-| The feature implementation should be well-documented, providing clear usage instructions. | Running `cardano-cli conway governance drep retirement-certificate --help` displays the command usage page.|
-| Handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raise an error indicating the missing or incorrect parameter.|
+
+- [ ] A command is implemented on the cli.
+- [ ] Generates a DRep retirement certificate in a text envelope format.
+- [ ] Allows supplying the DRep credentials in the following ways:
+    - DRep verification key
+    - DRep verification key file
+    - DRep Id
+    - Script file
+    - Script hash
+- [ ] Supports a mandatory flag to require the user to input the DRep deposited amount that is to be returned.
+- [ ] Supports a mandatory flag to specify the file where the generated DRep retirement certificate will be saved.
+- [ ] The certificate is compliant with the conway cddl
+    - `unreg_drep_cert = (17, drep_credential, coin)`
+- [ ] The command handles potential errors, such as missing or invalid flags or keys, and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.012
 
 ### Title: DRep Metadata Hash Generation (DRep)
 ### User Story
- - As a DRep,<br>I want to generate the hash of my DRep metadata,<br>so that I can supply it when registering as a DRep.
-### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance drep metadata-hash`. | Running `cardano-cli conway governance drep metadata-hash` successfully generates the blake2b 256 hash of the specified DRep metadata file. |
-| Calculates the blake2b 256 hash of the file supplied by the user.<br> |  The command requires the user to provide the DRep metadata file using the `--drep-metadata-file FILE` option. |
-| Requires the `--drep-metadata-file FILE` option to specify the file containing the DRep metadata. | The command allows users to use the optional `--out-file FILE` option to save the calculated metadata hash to the specified file. If not used, the hash is printed to stdout. |
-| Supports the `--out-file FILE` option (optional) to enable users to save the calculated metadata hash to the specified file. If the flag is not used, the hash is printed to stdout. | Running `cardano-cli conway governance drep metadata-hash --help` displays the command usage page. |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The feature implementation should be well-documented, providing clear usage instructions. | Running `cardano-cli conway governance drep metadata-hash --help` displays the command usage page. |
+ - As a DRep,<br>
+ I want to generate the hash of my DRep metadata,<br>
+ so that I can supply it when registering as a DRep.
 
+### Acceptance criteria
+
+- [ ] A command is implemented on the cli.
+- [ ] Calculates the blake2b 256 hash of the metadata file supplied by the user.
+- [ ] The command allows users to use the optional flag to save the calculated metadata hash to the specified file. If not used, the hash is printed to stdout.
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.013
 
-### Title: Create Update Constitution Governance Action (HOLDER)
+### Title: Create Update Constitution Governance Action 
 ### User Story
- - As an ADA holder,<br>I want to create a governance action that updates the constitution,<br>so that it can be submitted to the chain and be voted on by the governance bodies.
-### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance action create-constitution`. | Running `cardano-cli conway governance action create-constitution` successfully creates a governance action for updating the constitution. |
-| Requires the user to specify the target network for which the governance action is created. | The command requires the user to specify the target network using either `--mainnet` or `--testnet-magic NATURAL`. |
-| Requires the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. | The command prompts the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`.<br>    - The deposit amount must match the original deposit when registering the governance action but is only checked when submitting the transaction. |
-| Requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired. It accepts: | The user provides the deposit return stake credential using one of the following options:<br>    - `--deposit-return-stake-verification-key STRING`<br>    - `--deposit-return-stake-verification-key-file FILE` to specify the file containing the deposit return stake verification key. |
-|  | `--deposit-return-stake-key-hash HASH` to directly specify the deposit return stake key hash as a string. |
-| Allows the user to provide the transaction ID and index of the previously enacted action of this type. These flags are optional, but if one is used, the other one must be used too, to support the very first action of this type on the system that does not require information about previously enacted actions. The flags are:<br>  - `--prev-governance-action-tx-id`<br>  - `--prev-governance-action-index` | The optional flags `--prev-governance-action-tx-id` and `--prev-governance-action-index`are available to support the very first action of this type on the system, which does not require information about previously enacted actions. |
-| Asks the user to provide a mandatory anchor (URL/hash) of the proposal, a document where the proposer exposes the reasoning behind the proposed change. | The user provides an anchor (URL/hash) of the proposal document the following options:<br>    - `--anchor-url`<br>    - `--anchor-data-hash` |
-| Requires the user to provide an anchor of the new constitution |  The user provides an anchor (URL/hash) of the new constitution the following options:<br>    - `--constitution-url`<br>    - `--constitution-hash` |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the generated governance action (proposal) will be saved. |
-| The generated governance action complies with the Conway CDDL, where:<br>    - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor ]<br>    -  new_constitution = (5, gov_action_id / null, constitution)<br>    -  constitution = [ anchor, scripthash / null ] | The generated governance action complies with the Conway CDDL:<br>    - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor ]<br>    - new_constitution = (5, gov_action_id / null, constitution)<br>    - constitution = [ anchor, scripthash / null ] |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The feature implementation should be well-documented, providing clear usage instructions. | Running `cardano-cli conway governance drep metadata-hash --help` displays the command usage page. |
+ - As an ADA holder,<br>
+ I want to create a governance action that updates the constitution,
+ <br>so that it can be submitted to the chain and be voted on by the governance bodies.
 
+### Acceptance criteria
+
+- [ ] A command is implemented on the cli.
+- [ ] Creates a governance action (proposal_procedure) for updating the constitution.
+    - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
+- [ ] The command prompts the user to provide the deposit amount for submitting governance actions
+- [ ] Requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired
+- [ ] Allows the user to provide the transaction ID and index of the previously enacted action of this type. 
+- [ ] Requires the user to provide a mandatory anchor (URL/hash) of the proposal, a document where the proposer exposes the reasoning behind the proposed change.
+- [ ] Requires the user to provide an anchor of the new constitution
+- [ ] The command has a flag to specify the path where the output file will be saved.
+- [ ] The generated governance action complies with the Conway CDDL
+    - new_constitution = (5, gov_action_id / null, constitution)
+    - constitution = [ anchor, scripthash / null ]
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID:  CLI.014
 
 ### Title: Create Update Constitutional Committee Governance Action (HOLDER)
 ### User Story
 As an ADA holder,<br>
-I want to create a governance action that updates the constitutional committee,<br>
+I want to create a governance action that update the constitutional committee quorum, and for adding or removing committee members<br>
 so that it can be submitted to the chain and be voted on by the governance bodies.
 
 ### Acceptance criteria
-| Requirements  | Acceptance Criteria  |
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance action create-constitutional-committee`. | Running `cardano-cli conway governance action create-constitutional-committee` successfully creates a governance action for updating the constitutional committee.
-| Requires the user to specify the target network for which the governance action is created. | The command requires the user to specify the target network using either `--mainnet` or `--testnet-magic NATURAL`.
-| Requires the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. | The command prompts the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`.
-| Requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired. It accepts: | The user provides the deposit return stake credential using one of the following options:<br>  `--deposit-return-stake-verification-key STRING`<br>  `--deposit-return-stake-verification-key-file FILE` to specify the file containing the deposit return stake verification key.<br> `--deposit-return-stake-key-hash HASH` to directly specify the deposit return stake key hash as a string.
-| Allows the user to provide the transaction ID and index of the previously enacted action of this type. These flags are optional, but if one is used, the other one must be used too, to support the very first action of this type on the system that does not require information about previously enacted actions. The flags are:<br> `--prev-governance-action-tx-id`<br>  `--prev-governance-action-index`  |  |
-| Asks the user to provide a mandatory anchor (URL/hash) of the proposal, a document where the proposer exposes the reasoning behind the proposed change.  | The user provides an anchor (URL/hash) of the proposal document using the following flags:<br> `--anchor-url`<br> `--anchor-data-hash`| The command offers the option to remove many constitutional committee members, it accepts:<br>- Cold verification key <- string<br>-   Cold verification key file <- file<br>- Cold verification key hash <- string  | The command offers the option to remove many constitutional committee members, it accepts any of: <br> `--remove-cc-cold-verification-key-hash`<br> `--remove-cc-cold-verification-key`<br> `--remove-cc-cold-verification-key-file`
-| The command offers the option to add many constitutional committee members, it accepts<br>-  Cold verification key <- string<br>-   Cold verification key file <- file<br>- Cold verification key hash <- string<br>- When adding a new member, the command requires the user to also provide a term in epochs for each new member  |  The command offers the option to add many constitutional committee members, it acceptw any of:<br> `--add-cc-cold-verification-key`<br> `--add-cc-cold-verification-key-file`<br> `--add-cc-cold-verification-key-hash`<br>- When adding a new member, the command requires the user to also provide a term for each new member using the flag `--epoch`.
-| The command allows proposing a new quorum threshold:<br>-  When adding members<br>-   When removing members<br>-  As a standalone action (no adds or removals)  | The command allows proposing a new quorum threshold:<br>-  When adding members<br>-  When removing members<br>- As a standalone action (no adds or removals)
-| Flag to specify where the generated governance action (proposal) will be saved.  | The `--out-file` flag is available to specify the file where the generated governance action (proposal) will be saved.
-| The generated governance action complies with the Conway CDDL:<br>  `proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor ]`<br>  `update_committee = (4, gov_action_id / null, set<committee_cold_credential>, { committee_cold_credential => epoch }, unit_interval)` |  The generated governance action complies with the Conway CDDL:<br> ` proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor ]`<br>`update_committee = (4, gov_action_id / null, set<committee_cold_credential>, { committee_cold_credential => epoch }, unit_interval)`
-| Documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.  | Running `cardano-cli conway governance action create-constitutional-committee --help` displays the command usage page.<br>- If any required input parameter is missing or incorrect, the command raise an error indicating the missing or incorrect parameter.
 
+- [ ] A command is implemented on the cli.
+- [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
+    - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
+- [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
+- [ ] Requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired.
+- [ ] Allows the user to provide the transaction ID and index of the previously enacted action of this type. 
+- [ ] Requires the user to provide a mandatory anchor (URL/hash) of the proposal, a document where the proposer exposes the reasoning behind the proposed change.
+- [ ] Requires the user to provide an anchor of the new constitution
+- [ ] The command has a flag to specify the path where the output file will be saved.
+- [ ] Allows options to add new members to the constitutional committee.
+- [ ] Allows options to remove members from the constitutional committee.
+- [ ] The command allows proposing a new quorum threshold:
+    -  When adding members
+    -  When removing members
+    - As a standalone action (no additions or removals)
+- [ ] The generated governance action complies with the Conway CDDL
+    - update_committee = (4, gov_action_id / null, set<committee_cold_credential>, { committee_cold_credential => epoch }, unit_interval)
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID:  CLI.015
 
@@ -337,19 +351,20 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 ### Acceptance criteria
 
-| Requirements  | Acceptance Criteria  |
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance action create-treasury-withdrawal`. | Running `cardano-cli conway governance action create-treasury-withdrawal` successfully creates a governance action for withdrawing funds from the treasury.
-| Requires the user to specify the target network for which the governance action is created using either `--mainnet` or `--testnet-magic NATURAL`. | The command requires the user to specify the target network using either `--mainnet` or `--testnet-magic NATURAL`.
-| Requires the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. | The command prompts the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`.
-| Requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired. | The user provides the deposit return stake credential using one of the following options:<br> `--deposit-return-stake-verification-key STRING`<br> `--deposit-return-stake-verification-key-file FILE`<br> `--deposit-return-stake-key-hash HASH`<br>Using one of these is mandatory
-| Requires the user to provide an anchor (URL/hash) | The user provides an anchor (URL/hash) of the proposal document using the following flags:<br>`--anchor-url`<br> `--anchor-data-hash`
-| Requires the user to provide the stake credential that will receive the funds if the governance action is ratified. | The user provides the stake credential that will receive the funds if the governance action is ratified using one of the following options:<br> `--funds-receiving-stake-verification-key-file FILE`<br>`--funds-receiving-stake-verification-key STRING`<br>`--funds-receiving-stake-key-hash HASH` <br> Using one of these is mandatory
-| Requires the user to provide the amount in lovelace that will be transferred from the treasury to the stake credential if the action is ratified. | The user can use the flag `--transfer`to specify the amount in lovelace that will be transferred from the treasury to the stake credential if the action is ratified.
-| The command has the `--out-file` flag available to specify the file where the generated governance action (proposal) will be saved. | Given that the user specifies a valid flag, path and file name, Then the governance action is saved on that file and location. **The flag is mandatory.**
-| The generated governance action complies with the Conway CDDL | <br>`proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor ]`<br>`treasury_withdrawals_action = (2, { reward_account => coin })`
-| Documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs. | Running `cardano-cli conway governance action create-treasury-withdrawal --help` displays the command usage page.<br>mIf any required input parameter is missing or incorrect, the command raise an error indicating the missing or incorrect parameter.
 
+- [ ] A command is implemented on the cli.
+- [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
+    - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
+- [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
+- [ ] Requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired.
+- [ ] Requires the user to provide the stake credential that will receive the funds from the treasury if the action is ratified.
+- [ ] Requires the user to provide the amount in lovelace that will be transferred from the treasury to the stake credential if the action is ratified.
+- [ ] Requires the user to provide a mandatory anchor (URL/hash) of the proposal, a document where the proposer exposes the reasoning behind the proposed change.
+- [ ] The command has a flag to specify the path where the output file will be saved.
+- [ ] The generated governance action complies with the Conway CDDL
+    - treasury_withdrawals_action = (2, { reward_account => coin })
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.016
 
@@ -357,39 +372,41 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 ### User Story
  - As an ada holder<br>I want to create an info governance action<br>So that it can be submitted to the chain and be voted by the governance bodies<br>cardano-cli conway governance action create-info
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance action create-info`. | Running `cardano-cli conway governance action create-info` successfully creates an info governance action for updating the constitution. |
-| Requires the user to specify the target network for which the governance action is created using either `--mainnet` or `--testnet-magic NATURAL`.	 | The command requires the user to specify the target network using either `--mainnet` or `--testnet-magic NATURAL`. |
-| Requires the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. | The command prompts the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. |
-| The command requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired. <br><br>It must accept a return stake verification key file, a return stake verification key or the return stake key hash | It accepts: <br><br>`--stake-verification-key-file`<br>`--stake-verification-key`<br>`--stake-key-hash`<br><br>Using one of these is mandatory |
-| The command requires the user to provide an anchor (url / hash) of the proposal. A document where the proposer exposes the reasoning behind the proposed change. <br> | The user provides an anchor (URL/hash) of the proposal document using the following flags:<br>`--anchor-url`<br>`--anchor-data-hash` |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the generated governance action (proposal) will be saved. |
-| The generated governance action complies with the conway cddl  | The generated governance action complies with the Conway CDDL where:<br>`proposal_procedure =`<br> `[ deposit : coin`<br> `, reward_account`<br> `, gov_action`<br> `, anchor`<br> `]`<br>`info_action = 6` |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The feature implementation should be well-documented, providing clear usage instructions. | Running `cardano-cli conway governance action create-info --help` displays the command usage page. |
 
+- [ ] A command is implemented on the cli.
+- [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
+    - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
+- [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
+- [ ] Requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired.
+- [ ] Requires the user to provide a mandatory anchor (URL/hash) of the proposal, a document where the proposer exposes the matter of the action. 
+- [ ] The command has a flag to specify the path where the output file will be saved.
+- [ ] The generated governance action complies with the Conway CDDL:
+    - info_action = 6
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.017
 
-### Title: Create update protocol parameters governance action (HOLDER)
+### Title: Create update protocol parameters governance action
 ### User Story
  - As an ada holder<br>I want to create a governance action to update protocol parameters<br>So that it can be submitted to the chain and be voted by the governance bodies
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance action create-protocol-parameters-update`. | Running `cardano-cli conway governance action create-protocol-parameters-update` successfully creates an info governance action for updating the protocol parameters. |
-| Requires the user to specify the target network for which the governance action is created using either `--mainnet` or `--testnet-magic NATURAL`.	 | The command requires the user to specify the target network using either `--mainnet` or `--testnet-magic NATURAL`. |
-| Requires the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. | The command prompts the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. |
-| The command requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired. <br><br>It must accept a return stake verification key file, a return stake verification key or the return stake key hash | It accepts: <br><br>`--stake-verification-key-file`<br>`--stake-verification-key`<br>`--stake-key-hash`<br><br>Using one of these is mandatory |
-| The command allows the user to provide the transaction id and index of the previously enacted action of this type.  | These flags are optional (but if one is used the other one must be used too)  to support the very first action of this type on the system which does not require information about previously enacted actions. <br>`--governance-action-tx-id` <br>`--governance-action-index` |
-| The command includes dedicated flags to reference the protocol parameter that the user is attempting to modify. The parameters that can be included in this type of proposal are:<br><br><br>The network group consists of:<br>- maximum block body size (maxBBSize)<br>- maximum transaction size (maxTxSize)<br>- maximum block header size (maxBHSize)<br>- maximum size of a serialized asset value (maxValSize)<br>- maximum script execution units in a single transaction (maxTxExUnits)<br>- maximum script execution units in a single block (maxBlockExUnits)<br>- maximum number of collateral inputs (maxCollateralInputs)<br><br>The economic group consists of:<br>- minimum fee coefficient (minFeeA)<br>- minimum fee constant (minFeeB)<br>- delegation key Lovelace deposit (keyDeposit)<br>- pool registration Lovelace deposit (poolDeposit)<br>- monetary expansion (rho)<br>- treasury expansion (tau)<br>- minimum fixed rewards cut for pools (minPoolCost)<br>- minimum Lovelace deposit per byte of serialized UTxO (coinsPerUTxOByte)<br>- prices of Plutus execution units (prices)<br><br>The technical group consists of:<br>- pool pledge influence (a0)<br>- pool retirement maximum epoch (eMax)<br>- desired number of pools (nOpt)<br><br>Plutus execution cost models (costModels)<br>- proportion of collateral needed for scripts (collateralPercentage)<br><br>The governance group consists of all the new protocol parameters that are introduced in this CIP:<br>- governance voting thresholds<br>- dRepVotingThresholds<br>- dvtCommitteeNoConfidence<br>- dvtCommitteeNormal<br>- dvtHardForkInitiation<br>- dvtMotionNoConfidence<br>- dvtPPEconomicGroup<br>- dvtPPGovGroup<br>- dvtPPNetworkGroup<br>- dvtPPTechnicalGroup<br>- dvtTreasuryWithdrawal<br>- dvtUpdateToConstitution<br>- poolVotingThresholds<br>- pvtCommitteeNoConfidence<br>- pvtCommitteeNormal<br>- pvtHardForkInitiation<br>- pvtMotionNoConfidence<br>- governance action maximum lifetime in epochs (govActionLifetime)<br>- governance action deposit (govActionDeposit)<br>- DRep deposit amount (drepDeposit)<br>- DRep activity period in epochs (drepActivity)<br>- minimal constitutional committee size (ccMinSize)<br>- maximum term length (in epochs) for the constitutional committee members (ccMaxTermLength) | The command must accept these flags and execute with the required outcome.<br><br>**The network group consists of:** <br>`--max-block-body-size` (NATURAL) <br>`--max-tx-size` (NATURAL) <br>`--max-block-header-size` (NATURAL) <br>`--max-value-size` (INT) <br>`--max-tx-execution-units` (INT, INT) <br>`--max-block-execution-units` (INT, INT) <br>`--max-collateral-inputs` (INT)<br><br>**The economic group consists of:** <br>`--min-fee-constant` (LOVELACE) <br>`--min-fee-linear` (LOVELACE) <br>`--key-reg-deposit-amt` (NATURAL) <br>`--pool-reg-deposit` (NATURAL) <br>`--monetary-expansion` (RATIONAL) <br>`--treasury-expansion` (RATIONAL) <br>`--min-pool-cost` (NATURAL) <br>`--utxo-cost-per-byte` (LOVELACE) <br>`--price-execution-steps` (RATIONAL)<br><br>**The technical group consists of:** <br>`--pool-influence` (RATIONAL) <br>`--pool-retirement-epoch-boundary` (EPOCH_BOUNDARY) <br>`--number-of-pools` (NATURAL)<br><br>**Plutus execution cost models (costModels)** <br>`--collateral-percent` (INT)<br><br>**The governance group:** <br>`--drep-voting-threshold-motion-no-confidence` (RATIONAL) <br>`--drep-voting-threshold-committee-normal` (RATIONAL) <br>`--drep-voting-threshold-committee-no-confidence` (RATIONAL) <br>`--drep-voting-threshold-committee-normal` (RATIONAL) <br>`--drep-voting-threshold-hard-fork-initiation` (RATIONAL) <br>`--drep-voting-threshold-pp-economic-group` (RATIONAL) <br>`--drep-voting-threshold-pp-governance-group` (RATIONAL) <br>`--drep-voting-threshold-pp-network-group` (RATIONAL) <br>`--drep-voting-threshold-pp-technical-group` (RATIONAL) <br>`--drep-voting-threshold-treasury-withdrawal` (RATIONAL) <br>`--drep-voting-threshold-update-to-constitution` (RATIONAL) <br>`--pool-voting-threshold-committee-no-confidence` (RATIONAL) <br>`--pool-voting-threshold-committee-normal` (RATIONAL) <br>`--pool-voting-threshold-hard-fork-initiation` (RATIONAL) <br>`--governance-action-lifetime` (NATURAL) <br>`--governance-action-deposit` (NATURAL) <br>`--drep-deposit` (LOVELACE) <br>`--drep-activity` (NATURAL) <br>`--min-committee-size` (INT) <br>`--committee-term-length` (INT) |
-| The command requires the user to provide an anchor (url / hash) of the proposal. A document where the proposer exposes the reasoning behind the proposed change. <br> | The user provides an anchor (URL/hash) of the proposal document using the following flags:<br>`--anchor-url`<br>`--anchor-data-hash` |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the generated governance action (proposal) will be saved. |
-| The generated governance action complies with the conway cddl  | The generated governance action complies with the Conway CDDL where:<br>`proposal_procedure =`<br> `[ deposit : coin`<br> `, reward_account`<br> `, gov_action`<br> `, anchor`<br> `]`<br>`parameter_change_action = (0, gov_action_id / null, protocol_param_update)` |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The feature implementation should be well-documented, providing clear usage instructions. | Running `cardano-cli conway governance action create-protocol-parameters-update --help` displays the command usage page. |
 
+
+- [ ] A command is implemented on the cli.
+- [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
+    - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
+- [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
+- [ ] Requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired.
+- [ ] Requires the user to provide a mandatory anchor (URL/hash) of the proposal, a document where the proposer exposes the matter of the action. 
+- [ ] The command has a flag to specify the path where the output file will be saved.
+- [ ] The generated governance action complies with the Conway CDDL:
+    - parameter_change_action = (0, gov_action_id / null, protocol_param_update)
+- [ ] The command allows the user to provide the transaction id and index of the previously enacted action of this type. 
+- [ ] The command includes dedicated flags to reference the protocol parameter that the user is attempting to modify
+- [ ] The parameters that can be included in this type of proposal are:<br><br><br>The network group consists of:<br>- maximum block body size (maxBBSize)<br>- maximum transaction size (maxTxSize)<br>- maximum block header size (maxBHSize)<br>- maximum size of a serialized asset value (maxValSize)<br>- maximum script execution units in a single transaction (maxTxExUnits)<br>- maximum script execution units in a single block (maxBlockExUnits)<br>- maximum number of collateral inputs (maxCollateralInputs)<br><br>The economic group consists of:<br>- minimum fee coefficient (minFeeA)<br>- minimum fee constant (minFeeB)<br>- delegation key Lovelace deposit (keyDeposit)<br>- pool registration Lovelace deposit (poolDeposit)<br>- monetary expansion (rho)<br>- treasury expansion (tau)<br>- minimum fixed rewards cut for pools (minPoolCost)<br>- minimum Lovelace deposit per byte of serialized UTxO (coinsPerUTxOByte)<br>- prices of Plutus execution units (prices)<br><br>The technical group consists of:<br>- pool pledge influence (a0)<br>- pool retirement maximum epoch (eMax)<br>- desired number of pools (nOpt)<br><br>Plutus execution cost models (costModels)<br>- proportion of collateral needed for scripts (collateralPercentage)<br><br>The governance group consists of all the new protocol parameters that are introduced in this CIP:<br>- governance voting thresholds<br>- dRepVotingThresholds<br>- dvtCommitteeNoConfidence<br>- dvtCommitteeNormal<br>- dvtHardForkInitiation<br>- dvtMotionNoConfidence<br>- dvtPPEconomicGroup<br>- dvtPPGovGroup<br>- dvtPPNetworkGroup<br>- dvtPPTechnicalGroup<br>- dvtTreasuryWithdrawal<br>- dvtUpdateToConstitution<br>- poolVotingThresholds<br>- pvtCommitteeNoConfidence<br>- pvtCommitteeNormal<br>- pvtHardForkInitiation<br>- pvtMotionNoConfidence<br>- governance action maximum lifetime in epochs (govActionLifetime)<br>- governance action deposit (govActionDeposit)<br>- DRep deposit amount (drepDeposit)<br>- DRep activity period in epochs (drepActivity)<br>- minimal constitutional committee size (ccMinSize)<br>- maximum term length (in epochs) for the constitutional committee members (ccMaxTermLength) 
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.018
 
@@ -397,58 +414,54 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 ### User Story
  - As an ada holder<br>I want to create a no-confidence governance action<br>So that it can be submitted to the chain and be voted by the governance bodies
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance action create-no-confidence`. | Running `cardano-cli conway governance action create-no-confidence` successfully creates  no-confidence governance action. |
-| Requires the user to specify the target network for which the governance action is created using either `--mainnet` or `--testnet-magic NATURAL`.	 | The command requires the user to specify the target network using either `--mainnet` or `--testnet-magic NATURAL`. |
-| Requires the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. | The command prompts the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. |
-| The command requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired. <br><br>It must accept a return stake verification key file, a return stake verification key or the return stake key hash | It accepts: <br><br>`--stake-verification-key-file`<br>`--stake-verification-key`<br>`--stake-key-hash`<br><br>Using one of these is mandatory |
-| The command allows the user to provide the transaction id and index of the previously enacted action of this type.  | These flags are optional (but if one is used the other one must be used too)  to support the very first action of this type on the system which does not require information about previously enacted actions. <br>`--governance-action-tx-id` <br>`--governance-action-index` |
-| The command requires the user to provide an anchor (url / hash) of the proposal. A document where the proposer exposes the reasoning behind the proposed change. <br> | The user provides an anchor (URL/hash) of the proposal document using the following flags:<br>`--anchor-url`<br>`--anchor-data-hash` |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the generated governance action (proposal) will be saved. |
-| The generated governance action complies with the conway cddl  | The generated governance action complies with the Conway CDDL where:<br>`proposal_procedure =`<br> `[ deposit : coin`<br> `, reward_account`<br> `, gov_action`<br> `, anchor`<br> `]`<br>`no_confidence = (3, gov_action_id / null)` |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The feature implementation should be well-documented, providing clear usage instructions. | Running `cardano-cli conway governance action create-no-confidence --help` displays the command usage page. |
 
+- [ ] A command is implemented on the cli.
+- [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
+    - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
+- [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
+- [ ] Requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired.
+- [ ] Requires the user to provide a mandatory anchor (URL/hash) of the proposal, a document where the proposer exposes the matter of the action. 
+- [ ] Allows the user to provide the transaction id and index of the last enacted action updating the committee. 
+- [ ] The command has a flag to specify the path where the output file will be saved.
+- [ ] The generated governance action complies with the Conway CDDL:
+    - no_confidence = (3, gov_action_id / null)` 
+ - [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.019
 
-### Title: Create Hard-fork initiation governance action (HOLDER)
+### Title: Create Hard-fork initiation governance action
 ### User Story
  - As an ada holder<br>I want to create a governance action to initiate a hardfork<br>So that it can be submitted to the chain and be voted by the governance bodies
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance action create-hf-init`. | Running `cardano-cli conway governance action create-hf-init` successfully creates a hard-fork initiation governance action. |
-| Requires the user to specify the target network for which the governance action is created using either `--mainnet` or `--testnet-magic NATURAL`.	 | The command requires the user to specify the target network using either --mainnet or --testnet-magic NATURAL. |
-| Requires the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. | The command prompts the user to provide the deposit amount for submitting governance actions via the flag `--governance-action-deposit`. |
-| The command requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired. <br><br>It must accept a return stake verification key file, a return stake verification key or the return stake key hash | It accepts: <br><br>`--stake-verification-key-file`<br>`--stake-verification-key`<br>`--stake-key-hash`<br><br>Using one of these is mandatory |
-| The command allows the user to provide the transaction id and index of the previously enacted action of this type.  | These flags are optional (but if one is used the other one must be used too)  to support the very first action of this type on the system which does not require information about previously enacted actions. <br>`--governance-action-tx-id` <br>`--governance-action-index` |
-| The command requires the user to provide an anchor (url / hash) of the proposal. A document where the proposer exposes the reasoning behind the proposed change. <br> | The user provides an anchor (URL/hash) of the proposal document using the following flags:<br>`--anchor-url`<br>`--anchor-data-hash` |
-| The command requires the user to input the new protocol version number | The user provides an the protocol version number using the following flags: <br>`–protocol-version`<br>(e.g 10) |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the generated governance action (proposal) will be saved. |
-| The generated governance action complies with the conway cddl  | The generated governance action complies with the Conway CDDL where:<br>`proposal_procedure =`<br> `[ deposit : coin`<br> `, reward_account`<br> `, gov_action`<br> `, anchor`<br> `]`<br>`hard_fork_initiation_action = (1, gov_action_id / null, [protocol_version])` |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The feature implementation should be well-documented, providing clear usage instructions. | Running `cardano-cli conway governance action create-hf --help` displays the command usage page. |
 
+- [ ] A command is implemented on the cli.
+- [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
+    - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
+- [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
+- [ ] Requires the user to provide the stake credential that will receive the deposit return when the action is enacted/expired.
+- [ ] Requires the user to provide a mandatory anchor (URL/hash) of the proposal, a document where the proposer exposes the matter of the action. 
+- [ ] Allows the user to provide the transaction id and index of the last enacted action of this type. 
+- [ ] The command has a flag to specify the path where the output file will be saved.
+- [ ] The generated governance action complies with the conway cddl:
+    - hard_fork_initiation_action = (1, gov_action_id / null, [protocol_version])
+ - [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.020
 
-### Title: View governance action file (HOLDER)
+### Title: View governance action file
 ### User Story
  - As an ada holder<br>I want to inspect the contents of a governance action file <br>So that I can verify it is correct before submitting it in a transaction
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance action view`. | Running `cardano-cli conway governance action view` successfully shows the content of a governance action file. |
-| Requires the user to specify the target network for which the governance action is created using either --mainnet or --testnet-magic NATURAL.	 | The command requires the user to specify the target network using either --mainnet or --testnet-magic NATURAL. |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the generated governance action (proposal) will be saved. |
-| Gives an option to select the output format (json or yaml)  | The `--output json`  and `--output yaml` are available to select the output format. |
-|  | By default if no flag is picked, the JSON format will be applied |
-| The generated governance action complies with the conway cddl  | The generated governance action complies with the Conway CDDL where:<br>`proposal_procedure =`<br> `[ deposit : coin`<br> `, reward_account`<br> `, gov_action`<br> `, anchor`<br> `]` |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The feature implementation should be well-documented, providing clear usage instructions. | Running `cardano-cli conway governance action view --help` displays the command usage page. |
 
+- [ ] A command is implemented on the cli.
+- [ ] Decodes the cbor hex contents of the governance action file and prints it in human readable format. 
+- [ ] The command has a flag to specify the path where the output file will be saved. If not used, the output printed to stdout. 
+- [ ] Gives an option to select the output format (json or yaml).
+- [ ] By default if no flag is picked, the JSON format will be applied
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.021
 
@@ -456,18 +469,20 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 ### User Story
  - As a Drep, SPO or CC member <br>I want to create a vote for a governance action <br>So that I can include it in a transaction and submit it to the chain <br>
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance vote create` | Running `cardano-cli conway governance vote create` creates a vote file for it to be included in a transaction. |
-| The command provides a way to vote <br>yes, <br>no <br>abstain | The command supports the mutually exclusive and mandatory flags `–yes`, ` –no`and ` –abstain` to express the direction of the vote. |
-| Requires to specify the governance action ID and index that the vote is about. <br><br>The cli will not verify on real time the existence of the governance action. It is only at submission time when the node (ledger) validates the existence of the governance action. | The mandatory flag group: <br>`--governance-action-tx-id TXID`<br>`--governance-action-index WORD32`<br>Is used to indicate what governance action the vote corresponds to. <br><br>Failing to provide any of these flags returns an error message. |
-| Requires the user to provide DRep, SPO or CC credentials | Drep can pass credentials using ANY of: <br>`--drep-verification-key`<br>`--drep-verification-key-file `<br>`–drep-key-hash (drep-id)`<br><br>Stake pool operators can pass credentials using ANY of <br>`–stake-pool-verification-key`<br>`–cold-verification-key-file`<br>`–stake-pool-id`<br> <br>Committee members can pass credentials using ANY of: <br>`--cc-hot-verification-key`<br>`--cc-hot-verification-key-file` <br>`--cc-hot-key-hash` |
-| The command requires the user to provide an anchor (url / hash) of the proposal. A document where the proposer exposes the reasoning behind the proposed change. | The user provides an anchor (URL/hash) of the proposal document using the following flags:<br>`--anchor-url`<br>`--anchor-data-hash` |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the vote for a governance action will be saved. |
-| The output shows the information of the proposal based on the voting procedures in a human readable format (english):<br><br><br>`voting_procedures = { + voter => { + gov_action_id => voting_procedure } }`<br>`voting_procedure =`<br> ` [ vote`<br> ` , anchor / null`<br> ` ]`<br>`; no - 0`<br>`; yes - 1`<br>`; abstain - 2`<br>`vote = 0 .. 2` | The output shows the following information in human readable format (english):<br><br><br>credential (voter)<br>governance action ID#IX<br>Anchor if it exists<br>Decision: yes, no or abstain |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The feature implementation should be well-documented, providing clear usage instructions. | Running `cardano-cli conway governance action view --help` displays the command usage page. |
 
+- [ ] A command is implemented on the cli.
+- [ ] - [ ] The command creates a vote file based on voting procedures:
+    - voting_procedures = { + voter => { + gov_action_id => voting_procedure }
+    - voting_procedure =[ vote, anchor / null ]
+    - voter = [ 0, addr_keyhash // 1, scripthash // 2, addr_keyhash // 3, scripthash // 4, addr_keyhash ]
+    - vote = 0 .. 2. // no - 0; yes - 1; abstain - 2 
+- [ ] The command provides a way to vote yes, no and abstain
+- [ ] Requires to specify the governance action ID and index that the vote is about.
+- [ ] Requires the user to provide DRep, SPO or CC credential
+- [ ] The command has option to add an anchor (url / hash), for the voter to express the reasonging or any relevant data backing his vote. 
+- [ ] The command has a flag to specify the path where the output file will be saved.
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.022
 
@@ -475,22 +490,22 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 ### User Story
  - As a DRep, SPO or CC member <br>I want to inspect the contents of a vote file <br>So that I can verify it is correct before submitting it in a transaction
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as `cardano-cli conway governance vote view` | Running `cardano-cli conway governance vote view` successfully shows the content of a governance action file. |
-| The command takes a vote file as an input | The mandatory flag `--vote-file`is used to pass a vote file. |
-| Gives an option to select the output format (json or yaml) | The `--output-format` takes the arguments `yaml` or `json`. If yaml is given the output is in yaml format, if json is given returns a json. Any other argument returns an error. |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the vote for a governance action will be saved. |
-| The output shows the information of the proposal based on the voting procedures in a human readable format (english):<br><br>`voting_procedures = { + voter => { + gov_action_id => voting_procedure } }`<br>`voting_procedure =`<br>` [ vote`<br>` , anchor / null`<br>` ]`<br>`; no - 0`<br>`; yes - 1`<br>`; abstain - 2`<br>`vote = 0 .. 2` | The output shows the following information in human readable format (english): <br><br>credential (voter)<br>governance action ID#IX<br>Anchor if it exists<br>Decision: yes, no or abstain |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The feature implementation should be well-documented, providing clear usage instructions. | Running `cardano-cli conway governance vote view --help` displays the command usage page. |
 
+- [ ] A command is implemented on the cli.
+- [ ] The command takes a vote file as an input and decodes the cbor and shows the information of the vote based on the voting procedures in a human readable format (english).
+- [ ] Gives an option to select the output format (json or yaml).
+- [ ] The command has a flag to specify the path where the output file will be saved. 
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.023
 
-### Title: Build a transaction with to submit proposal (HOLDER)
+### Title: Build a transaction to submit proposal
 ### User Story
- - As an ada holder <br>I want to build a transaction that includes a proposal (containing a governance action)<br>So that I can later sign and submit to the chain <br><br>`transaction build`
+ - As an ada holder <br>
+ I want to build a transaction that includes a proposal (containing a governance action)<br>
+ So that I can later sign and submit to the chain.
+ 
 ### Acceptance criteria
 |Requirements|Acceptance Criteria|
 |:----|:----|
