@@ -88,6 +88,7 @@ data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
   , numGenesisKeys :: !Word -- ^ The number of genesis keys credentials to create and write to disk.
   , numPools :: !Word -- ^ The number of stake pools credentials to create and write to disk.
   , stakeDelegators :: !StakeDelegators -- ^ The number of delegators to pools to create.
+  , numDrepKeys :: !Word -- ^ The number of DRep keys to create. Right now they receive neither delegation nor are registrated. This will come later.
   , numStuffedUtxo :: !Word -- ^ The number of UTxO accounts to make. They are "stuffed" because the credentials are not written to disk.
   , numUtxoKeys :: !Word -- ^ The number of UTxO credentials to create and write to disk.
   , supply :: !(Maybe Lovelace) -- ^ The number of Lovelace to distribute over initial, non-delegating stake holders.

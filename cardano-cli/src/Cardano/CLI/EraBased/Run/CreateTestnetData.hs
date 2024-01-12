@@ -32,6 +32,8 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Run.Address (runAddressKeyGenCmd)
+import qualified Cardano.CLI.EraBased.Run.Governance.DRep as DRep
+import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as DRep
 import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
@@ -187,6 +189,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
    , numGenesisKeys
    , numPools
    , stakeDelegators
+   , numDrepKeys
    , numStuffedUtxo
    , numUtxoKeys
    , supply
@@ -237,6 +240,15 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
     buildPoolParams networkId poolDir Nothing (fromMaybe mempty mayStakePoolRelays)
 
   writeREADME poolsDir poolsREADME
+
+  -- DReps
+  forM_ [ 1 .. numDrepKeys ] $ \index -> do
+    let drepDir = outputDir </> "drep-keys" </> "drep" <> show index
+        vkeyFile = File @(VerificationKey ()) $ drepDir </> "drep.vkey"
+        skeyFile = File @(SigningKey ()) $ drepDir </> "drep.skey"
+        cmd = DRep.GovernanceDRepKeyGenCmdArgs ConwayEraOnwardsConway vkeyFile skeyFile
+    liftIO $ createDirectoryIfMissing True drepDir
+    firstExceptT GenesisCmdFileError $ DRep.runGovernanceDRepKeyGenCmd cmd
 
   -- Stake delegators
   case stakeDelegators of
