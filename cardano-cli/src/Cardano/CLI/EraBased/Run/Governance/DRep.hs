@@ -11,6 +11,7 @@
 
 module Cardano.CLI.EraBased.Run.Governance.DRep
   ( runGovernanceDRepCmds
+  , runGovernanceDRepKeyGenCmd
   ) where
 
 import           Cardano.Api
@@ -39,7 +40,7 @@ runGovernanceDRepCmds :: ()
 runGovernanceDRepCmds = \case
   Cmd.GovernanceDRepKeyGenCmd args ->
     runGovernanceDRepKeyGenCmd args
-      & firstExceptT CmdGovernanceCmdError
+      & firstExceptT (CmdGovernanceCmdError . GovernanceCmdWriteFileError)
 
   Cmd.GovernanceDRepIdCmd args ->
     runGovernanceDRepIdCmd args
@@ -59,12 +60,12 @@ runGovernanceDRepCmds = \case
 
 runGovernanceDRepKeyGenCmd :: ()
   => Cmd.GovernanceDRepKeyGenCmdArgs era
-  -> ExceptT GovernanceCmdError IO ()
+  -> ExceptT (FileError ()) IO ()
 runGovernanceDRepKeyGenCmd
     Cmd.GovernanceDRepKeyGenCmdArgs
       { vkeyFile
       , skeyFile
-     } = firstExceptT GovernanceCmdWriteFileError $ do
+      } = do
   skey <- liftIO $ generateSigningKey AsDRepKey
   let vkey = getVerificationKey skey
   newExceptT $ writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just skeyDesc) skey)

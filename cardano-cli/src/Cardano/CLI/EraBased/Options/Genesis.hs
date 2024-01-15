@@ -205,6 +205,7 @@ pGenesisCreateTestNetData envCli =
     <*> pNumGenesisKeys
     <*> pNumPools
     <*> pNumStakeDelegs
+    <*> pNumDReps
     <*> pNumStuffedUtxoCount
     <*> pNumUtxoKeys
     <*> pSupply
@@ -230,6 +231,14 @@ pGenesisCreateTestNetData envCli =
         [ Opt.long "pools"
         , Opt.metavar "INT"
         , Opt.help "The number of stake pool credential sets to make (default is 0)."
+        , Opt.value 0
+        ]
+    pNumDReps :: Parser Word
+    pNumDReps =
+      Opt.option Opt.auto $ mconcat
+        [ Opt.long "drep-keys"
+        , Opt.metavar "INT"
+        , Opt.help "The number of DRep credentials to make (default is 0)."
         , Opt.value 0
         ]
     pNumStakeDelegs :: Parser StakeDelegators

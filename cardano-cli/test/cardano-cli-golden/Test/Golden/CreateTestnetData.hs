@@ -15,6 +15,19 @@ import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
 
+-- | A function to create the arguments, so that they are shared
+-- between the two tests, except for the possibly transient ones.
+mkArguments :: String -> [String]
+mkArguments outputDir =
+  ["conway",  "genesis", "create-testnet-data"
+   , "--genesis-keys", "2"
+   , "--utxo-keys", "3"
+   , "--out-dir", outputDir
+   , "--testnet-magic", "42"
+   , "--pools", "2"
+   , "--drep-keys", "5"
+  ]
+
 -- | Given a root directory, returns files within this root (recursively)
 tree :: FilePath -> IO [FilePath]
 tree root = do
@@ -26,22 +39,16 @@ tree root = do
   subTrees <- mapM tree subs
   return $ files ++ concat subTrees
 
+-- | This test tests the non-transient case, i.e. it maximizes the files
+-- that can be written to disk. Execute this test with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data/'@
 hprop_golden_create_testnet_data :: Property
 hprop_golden_create_testnet_data =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
 
     let outputDir = tempDir </> "out"
 
-    void $
-      execCardanoCLI
-        ["conway",  "genesis", "create-testnet-data"
-         , "--genesis-keys", "2"
-         , "--utxo-keys", "3"
-         , "--out-dir", outputDir
-         , "--testnet-magic", "42"
-         , "--pools", "2"
-         , "--stake-delegators", "4"
-        ]
+    void $ execCardanoCLI $ mkArguments outputDir <> ["--stake-delegators", "4"]
 
     generated <- liftIO $ tree outputDir
     -- Sort output for stability, and make relative to avoid storing
@@ -54,22 +61,16 @@ hprop_golden_create_testnet_data =
 
     H.diffVsGoldenFile generated'' "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
 
+-- | This test tests the transient case, i.e. it writes strictly
+-- less things to disk than 'hprop_golden_create_testnet_data'. Execute this test with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data transient stake delegators/'@
 hprop_golden_create_testnet_data_transient_stake_delegators :: Property
 hprop_golden_create_testnet_data_transient_stake_delegators =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
 
     let outputDir = tempDir </> "out"
 
-    void $
-      execCardanoCLI
-        ["conway",  "genesis", "create-testnet-data"
-         , "--genesis-keys", "2"
-         , "--utxo-keys", "3"
-         , "--out-dir", outputDir
-         , "--testnet-magic", "42"
-         , "--pools", "2"
-         , "--stake-delegators", "4"
-        ]
+    void $ execCardanoCLI $ mkArguments outputDir <> ["--transient-stake-delegators", "4"]
 
     -- We just test that the command doesn't crash when we execute a different path.
     -- For the golden part of this test, we are anyway covered by 'hprop_golden_create_testnet_data'
