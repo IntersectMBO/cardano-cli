@@ -42,6 +42,7 @@ Available options:
   --cc-hot-key-hash STRING Constitutional Committee key hash (hex-encoded).
   --anchor-url TEXT        Vote anchor URL
   --anchor-data-hash HASH  Hash of the vote anchor data (obtain it with
-                           "cardano-cli conway governance hash ...").
+                           "cardano-cli conway governance hash anchor-data
+                           ...").
   --out-file FILE          Output filepath of the vote.
   -h,--help                Show this help text

@@ -1,12 +1,13 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
-
 
 module Cardano.CLI.EraBased.Commands.Governance.Hash
   (
     GovernanceHashCmds (..),
-    GovernanceHashCmdArgs (..),
-    GovernanceHashSource (..),
+    GovernanceHashAnchorDataCmdArgs (..),
+    GovernanceHashScriptCmdArgs (..),
+    GovernanceAnchorDataHashSource (..),
     renderGovernanceHashCmds
   ) where
 
@@ -16,21 +17,31 @@ import           Cardano.CLI.Types.Common
 
 import           Data.Text (Text)
 
-newtype GovernanceHashCmds era = GovernanceHashCmd (GovernanceHashCmdArgs era)
+data GovernanceHashCmds era
+  = GovernanceHashAnchorDataCmd !(GovernanceHashAnchorDataCmdArgs era)
+  | GovernanceHashScriptCmd !(GovernanceHashScriptCmdArgs era)
 
-data GovernanceHashCmdArgs era
-  = GovernanceHashCmdArgs {
+data GovernanceHashAnchorDataCmdArgs era
+  = GovernanceHashAnchorDataCmdArgs {
       eon     :: !(ConwayEraOnwards era)
-    , toHash  :: !GovernanceHashSource
+    , toHash  :: !GovernanceAnchorDataHashSource
     , moutFile :: !(Maybe (File () Out)) -- ^ The output file to which the hash is written
   } deriving Show
 
-data GovernanceHashSource
-  = GovernanceHashSourceBinaryFile (File ProposalText In)
-  | GovernanceHashSourceTextFile (File ProposalText In)
-  | GovernanceHashSourceText Text
+data GovernanceAnchorDataHashSource
+  = GovernanceAnchorDataHashSourceBinaryFile (File ProposalText In)
+  | GovernanceAnchorDataHashSourceTextFile (File ProposalText In)
+  | GovernanceAnchorDataHashSourceText Text
   deriving Show
 
+data GovernanceHashScriptCmdArgs era
+  = GovernanceHashScriptCmdArgs {
+      eon     :: !(ConwayEraOnwards era)
+    , toHash  ::  !ScriptFile
+    , moutFile :: !(Maybe (File () Out)) -- ^ The output file to which the hash is written
+  } deriving Show
+
 renderGovernanceHashCmds :: GovernanceHashCmds era -> Text
-renderGovernanceHashCmds =
-  \case GovernanceHashCmd {} -> "governance hash"
+renderGovernanceHashCmds = \case
+  GovernanceHashAnchorDataCmd {} -> "governance hash anchor-data"
+  GovernanceHashScriptCmd {} -> "governance hash script"

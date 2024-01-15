@@ -34,9 +34,10 @@ Available options:
                            Action index of the previous governance action.
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
-                           "cardano-cli conway governance hash ...")
+                           "cardano-cli conway governance hash anchor-data ...")
   --constitution-url TEXT  Constitution URL.
   --constitution-hash HASH Hash of the constitution data (obtain it with
-                           "cardano-cli conway governance hash ...").
+                           "cardano-cli conway governance hash anchor-data
+                           ...").
   --out-file FILE          Output filepath of the constitution.
   -h,--help                Show this help text

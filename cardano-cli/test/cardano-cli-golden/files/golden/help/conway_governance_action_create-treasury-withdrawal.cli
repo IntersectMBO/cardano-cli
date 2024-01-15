@@ -32,7 +32,7 @@ Available options:
                            Stake verification key hash (hex-encoded).
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
-                           "cardano-cli conway governance hash ...")
+                           "cardano-cli conway governance hash anchor-data ...")
   --funds-receiving-stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
   --funds-receiving-stake-verification-key-file FILE

@@ -27,11 +27,11 @@ hprop_golden_governance_action_create_constitution =
     redactedActionFile <- noteTempFile tempDir "create-constitution.action.redacted"
 
     proposalHash <- execCardanoCLI
-      [ "conway", "governance", "hash"
+      [ "conway", "governance", "hash", "anchor-data"
       , "--text", "whatever"]
 
     constitutionHash <- execCardanoCLI
-      [ "conway", "governance", "hash"
+      [ "conway", "governance", "hash", "anchor-data"
       , "--text", "something else"]
 
     void $ execCardanoCLI
@@ -63,7 +63,7 @@ hprop_golden_conway_governance_action_view_constitution_json =
 
     -- We go through a file for the hash, to test --out-file
     void $ execCardanoCLI
-      [ "conway", "governance", "hash"
+      [ "conway", "governance", "hash", "anchor-data"
       , "--text", "whatever "
       , "--out-file", hashFile
       ]
@@ -71,7 +71,7 @@ hprop_golden_conway_governance_action_view_constitution_json =
     proposalHash <- H.readFile hashFile
 
     constitutionHash <- execCardanoCLI
-      [ "conway", "governance", "hash"
+      [ "conway", "governance", "hash", "anchor-data"
       , "--text", "nonAsciiInput: 你好 and some more: こんにちは"
       ]
 

@@ -6344,7 +6344,8 @@ Usage: cardano-cli conway governance drep id
   Generate a drep id.
 
 Usage: cardano-cli conway governance drep registration-certificate 
-                                                                     ( --drep-verification-key STRING
+                                                                     ( --drep-script-hash HASH
+                                                                     | --drep-verification-key STRING
                                                                      | --drep-verification-key-file FILE
                                                                      | --drep-key-hash HASH
                                                                      )
@@ -6370,15 +6371,25 @@ Usage: cardano-cli conway governance drep metadata-hash --drep-metadata-file FIL
 
   Calculate the hash of a metadata file.
 
-Usage: cardano-cli conway governance hash 
-                                            ( --text TEXT
-                                            | --file-binary FILE
-                                            | --file-text FILE
-                                            )
-                                            [--out-file FILE]
+Usage: cardano-cli conway governance hash (anchor-data | script)
 
   Compute the hash to pass to the various --*-hash arguments of governance
   commands.
+
+Usage: cardano-cli conway governance hash anchor-data 
+                                                        ( --text TEXT
+                                                        | --file-binary FILE
+                                                        | --file-text FILE
+                                                        )
+                                                        [--out-file FILE]
+
+  Compute the hash of some anchor data (to then pass it to other governance
+  commands).
+
+Usage: cardano-cli conway governance hash script --script-file FILE
+                                                   [--out-file FILE]
+
+  Compute the hash of a script (to then pass it to other governance commands).
 
 Usage: cardano-cli conway governance vote (create | view)
 

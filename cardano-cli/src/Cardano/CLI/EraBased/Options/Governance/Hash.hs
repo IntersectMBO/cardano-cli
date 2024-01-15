@@ -3,13 +3,11 @@
 
 module Cardano.CLI.EraBased.Options.Governance.Hash
   (
-    pGovernanceHashCmds
+    pGovernanceHashCmds,
   ) where
 
 import           Cardano.Api
 
-import           Cardano.CLI.EraBased.Commands.Governance.Hash
-                   (GovernanceHashCmdArgs (GovernanceHashCmdArgs))
 import qualified Cardano.CLI.EraBased.Commands.Governance.Hash as Cmd
 import           Cardano.CLI.EraBased.Options.Common
 
@@ -17,25 +15,39 @@ import           Data.Foldable
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
-pGovernanceHashCmds :: ()
+pGovernanceHashCmds
+  :: CardanoEra era
+  -> Maybe (Parser (Cmd.GovernanceHashCmds era))
+pGovernanceHashCmds era =
+  subInfoParser "hash"
+    ( Opt.progDesc
+        $ mconcat
+          [ "Compute the hash to pass to the various --*-hash arguments of governance commands."
+          ]
+    )
+    [ pGovernanceHashAnchorDataCmd era
+    , pGovernanceHashScriptCmd era
+    ]
+
+pGovernanceHashAnchorDataCmd :: ()
   => CardanoEra era
   -> Maybe (Parser (Cmd.GovernanceHashCmds era))
-pGovernanceHashCmds era = do
+pGovernanceHashAnchorDataCmd era = do
   eon <- forEraMaybeEon era
   return
-    $ subParser "hash"
+    $ subParser "anchor-data"
     $ Opt.info
-        ( fmap Cmd.GovernanceHashCmd
-            (GovernanceHashCmdArgs eon
-               <$> pGovernanceHashSource
+        ( fmap Cmd.GovernanceHashAnchorDataCmd
+            (Cmd.GovernanceHashAnchorDataCmdArgs eon
+               <$> pGovernanceAnchorDataHashSource
                <*> optional pOutputFile))
-    $ Opt.progDesc "Compute the hash to pass to the various --*-hash arguments of governance commands."
+    $ Opt.progDesc "Compute the hash of some anchor data (to then pass it to other governance commands)."
 
-pGovernanceHashSource :: Parser Cmd.GovernanceHashSource
-pGovernanceHashSource =
+pGovernanceAnchorDataHashSource :: Parser Cmd.GovernanceAnchorDataHashSource
+pGovernanceAnchorDataHashSource =
   asum
     [
-      Cmd.GovernanceHashSourceText
+      Cmd.GovernanceAnchorDataHashSourceText
         <$> Opt.strOption
               ( mconcat
                 [ Opt.long "text"
@@ -43,8 +55,22 @@ pGovernanceHashSource =
                 , Opt.help "Text to hash as UTF-8"
                 ]
               )
-    , Cmd.GovernanceHashSourceBinaryFile
+    , Cmd.GovernanceAnchorDataHashSourceBinaryFile
         <$> pFileInDirection "file-binary" "Binary file to hash"
-    , Cmd.GovernanceHashSourceTextFile
+    , Cmd.GovernanceAnchorDataHashSourceTextFile
         <$> pFileInDirection "file-text" "Text file to hash"
     ]
+
+pGovernanceHashScriptCmd :: ()
+  => CardanoEra era
+  -> Maybe (Parser (Cmd.GovernanceHashCmds era))
+pGovernanceHashScriptCmd era = do
+  eon <- forEraMaybeEon era
+  return
+    $ subParser "script"
+    $ Opt.info
+        ( fmap Cmd.GovernanceHashScriptCmd
+            (Cmd.GovernanceHashScriptCmdArgs eon
+               <$> pScript
+               <*> optional pOutputFile))
+    $ Opt.progDesc "Compute the hash of a script (to then pass it to other governance commands)."

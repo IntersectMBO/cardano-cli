@@ -158,7 +158,7 @@ hprop_golden_governanceUpdateCommittee =
     outFile <- H.noteTempFile tempDir "answer-file.json"
 
     proposalHash <- execCardanoCLI
-      [ "conway", "governance", "hash"
+      [ "conway", "governance", "hash", "anchor-data"
       , "--file-text", ccProposal ]
 
     H.note_ proposalHash

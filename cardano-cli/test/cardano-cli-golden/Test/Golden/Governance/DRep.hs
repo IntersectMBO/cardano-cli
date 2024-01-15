@@ -206,3 +206,20 @@ hprop_golden_governance_drep_registration_certificate_id_bech32 = propertyOnce .
     ]
 
   H.diffFileVsGoldenFile outFile goldenFile
+
+hprop_golden_governance_drep_registration_certificate_script_hash :: Property
+hprop_golden_governance_drep_registration_certificate_script_hash = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate_script.json"
+
+  outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
+
+  void $ execCardanoCLI
+    [ "conway", "governance", "drep", "registration-certificate"
+    , "--drep-script-hash", "00000000000000000000000000000000000000000000000000000003"
+    , "--key-reg-deposit-amt", "0"
+    , "--drep-metadata-url", "dummy-url"
+    , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+    , "--out-file", outFile
+    ]
+
+  H.diffFileVsGoldenFile outFile goldenFile

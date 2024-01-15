@@ -883,7 +883,7 @@ pConstitutionHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "constitution-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Hash of the constitution data (obtain it with \"cardano-cli conway governance hash ...\")."
+    , Opt.help "Hash of the constitution data (obtain it with \"cardano-cli conway governance hash anchor-data ...\")."
     ]
 
 pUrl :: String -> String -> Parser Ledger.Url
@@ -3029,7 +3029,7 @@ pVoteAnchorDataHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Hash of the vote anchor data (obtain it with \"cardano-cli conway governance hash ...\")."
+    , Opt.help "Hash of the vote anchor data (obtain it with \"cardano-cli conway governance hash anchor-data ...\")."
     ]
 
 pAlwaysNoConfidence :: Parser ()
@@ -3051,9 +3051,7 @@ pDRepScriptHash =
   Opt.option scriptHashReader $ mconcat
     [ Opt.long "drep-script-hash"
     , Opt.metavar "HASH"
-    , Opt.help $ mconcat
-        [ "DRep script hash (hex-encoded)."
-        ]
+    , Opt.help "DRep script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
     ]
 
 pDRepVerificationKeyOrHashOrFile
@@ -3115,7 +3113,7 @@ pAnchorDataHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Proposal anchor data hash (obtain it with \"cardano-cli conway governance hash ...\")"
+    , Opt.help "Proposal anchor data hash (obtain it with \"cardano-cli conway governance hash anchor-data ...\")"
     ]
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))
