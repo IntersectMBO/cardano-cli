@@ -109,7 +109,7 @@ so that I can sign votes using the hot key and keep the cold key in cold storage
 
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Running the command with accepted input parameters generates a hot key authorization certificate. 
 - [ ] If a parameter or the command format is incorrect an error is raised.
 - [ ] The command allows passing credentials taking as input:
@@ -137,7 +137,7 @@ and for identification purposes once Ive been elected as committee member.
 
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Generates the blake2b 256 hash of the verification key.
 - [ ] Supports passing the Cold verification key and Cold verification key file as inputs
 - [ ] Gives the option to save the key hash to a file, default is printing to stdout
@@ -154,7 +154,7 @@ so that i can submit it to the chain on a transaction to signal to the ada holde
 
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Takes as input any of:
     - Cold verification key 
     - Cold verification key file 
@@ -181,7 +181,7 @@ so that I can register as a DRep.
 
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Supports an option to specify the file where the verification key will be saved.
 - [ ] Supports an option to specify the file where the signing key will be saved.
 - [ ] The generated key files must adhere to text envelope format used for other artifacts and contains the fields Type, Description and cborHex:
@@ -205,7 +205,7 @@ and ada holders can use the DRepId to delegate their votes to me.
 
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Generates the blake2b-224 hash digest of the serialized DRep credential
 - [ ] The command accepts supplying the verification key with either:
     - Drep verification key
@@ -226,7 +226,7 @@ so that I can submit it in a transaction and be eligible for receiving delegatio
 
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Requires the user to provide the DRep key deposit amount.
 - [ ] The command allows the user to provide the DRep credential in the following ways:
     - DRep verification key.
@@ -255,7 +255,7 @@ and retrieve my DRep deposit.
 
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Generates a DRep retirement certificate in a text envelope format.
 - [ ] Allows supplying the DRep credentials in the following ways:
     - DRep verification key
@@ -280,7 +280,7 @@ and retrieve my DRep deposit.
 
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Calculates the blake2b 256 hash of the metadata file supplied by the user.
 - [ ] The command allows users to use the optional flag to save the calculated metadata hash to the specified file. If not used, the hash is printed to stdout.
 - [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
@@ -296,7 +296,7 @@ and retrieve my DRep deposit.
 
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Creates a governance action (proposal_procedure) for updating the constitution.
     - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
 - [ ] The command prompts the user to provide the deposit amount for submitting governance actions
@@ -321,7 +321,7 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
     - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
 - [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
@@ -352,7 +352,7 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 ### Acceptance criteria
 
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
     - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
 - [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
@@ -373,7 +373,7 @@ so that it can be submitted to the chain and be voted on by the governance bodie
  - As an ada holder<br>I want to create an info governance action<br>So that it can be submitted to the chain and be voted by the governance bodies<br>cardano-cli conway governance action create-info
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
     - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
 - [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
@@ -393,7 +393,7 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 ### Acceptance criteria
 
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
     - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
 - [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
@@ -415,7 +415,7 @@ so that it can be submitted to the chain and be voted on by the governance bodie
  - As an ada holder<br>I want to create a no-confidence governance action<br>So that it can be submitted to the chain and be voted by the governance bodies
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
     - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
 - [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
@@ -435,7 +435,7 @@ so that it can be submitted to the chain and be voted on by the governance bodie
  - As an ada holder<br>I want to create a governance action to initiate a hardfork<br>So that it can be submitted to the chain and be voted by the governance bodies
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Creates a governance action (proposal_procedure) for updating the constitutional committee.
     - proposal_procedure = [ deposit : coin, reward_account, gov_action, anchor]
 - [ ] The command prompts the user to provide the deposit amount for submitting governance actions.
@@ -455,7 +455,7 @@ so that it can be submitted to the chain and be voted on by the governance bodie
  - As an ada holder<br>I want to inspect the contents of a governance action file <br>So that I can verify it is correct before submitting it in a transaction
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] Decodes the cbor hex contents of the governance action file and prints it in human readable format. 
 - [ ] The command has a flag to specify the path where the output file will be saved. If not used, the output printed to stdout. 
 - [ ] Gives an option to select the output format (json or yaml).
@@ -470,7 +470,7 @@ so that it can be submitted to the chain and be voted on by the governance bodie
  - As a Drep, SPO or CC member <br>I want to create a vote for a governance action <br>So that I can include it in a transaction and submit it to the chain <br>
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] - [ ] The command creates a vote file based on voting procedures:
     - voting_procedures = { + voter => { + gov_action_id => voting_procedure }
     - voting_procedure =[ vote, anchor / null ]
@@ -491,7 +491,7 @@ so that it can be submitted to the chain and be voted on by the governance bodie
  - As a DRep, SPO or CC member <br>I want to inspect the contents of a vote file <br>So that I can verify it is correct before submitting it in a transaction
 ### Acceptance criteria
 
-- [ ] A command is implemented on the cli.
+
 - [ ] The command takes a vote file as an input and decodes the cbor and shows the information of the vote based on the voting procedures in a human readable format (english).
 - [ ] Gives an option to select the output format (json or yaml).
 - [ ] The command has a flag to specify the path where the output file will be saved. 
@@ -508,37 +508,101 @@ so that it can be submitted to the chain and be voted on by the governance bodie
  
 ### Acceptance criteria
 
--- [ ] A command is implemented on the cli.
-
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| Transaction build has a new flag to supply a proposal file as input for the transaction body | An ADA holder can include a proposal in a transaction when by passing the proposal file in the transaction body using the `--proposal-file FILE` flag where FILE is the filepath of the proposal |
-| When constructing a transaction body that includes a proposal, the resulting tx body conforms to the conway cddl so that proposal procedures are recorded with the key 20 | The generated transaction body complies with the Conway CDDL where:<br><br>transaction_body =<br> { 0 : set<transaction_input> ; inputs<br> , 1 : [* transaction_output]<br> , 2 : coin ; fee<br> , ? 3 : uint ; time to live<br> , ? 4 : certificates<br> , ? 5 : withdrawals<br> , ? 7 : auxiliary_data_hash<br> , ? 8 : uint ; validity interval start<br> , ? 9 : mint<br> , ? 11 : script_data_hash<br> , ? 13 : nonempty_set<transaction_input> ; collateral inputs<br> , ? 14 : required_signers<br> , ? 15 : network_id<br> , ? 16 : transaction_output ; collateral return<br> , ? 17 : coin ; total collateral<br> , ? 18 : nonempty_set<transaction_input> ; reference inputs<br> , ? 19 : voting_procedures ; New; Voting procedures<br> , ? 20 : proposal_procedures ; New; Proposal procedures<br> , ? 21 : coin ; New; current treasury value<br> , ? 22 : positive_coin ; New; donation<br> } |
-
+- [ ] Modify `transaction build` command to allow including a proposal (governance action) in a transaction body
+- [ ] When constructing a transaction body that includes a proposal, the resulting tx body conforms to the conway cddl so that proposal procedures are recorded with the tag 20:
+    - transaction_body =<br>
+{ 0 : set<transaction_input> ; inputs<br>
+, 1 : [* transaction_output]<br>
+, 2 : coin ; fee<br>
+, ? 3 : uint ; time to live<br>
+, ? 4 : certificates<br>
+, ? 5 : withdrawals<br>
+, ? 7 : auxiliary_data_hash<br>
+, ? 8 : uint ; validity interval start<br>
+, ? 9 : mint<br>
+, ? 11 : script_data_hash<br>
+, ? 13 : nonempty_set<transaction_input> ; collateral inputs<br>
+, ? 14 : required_signers<br>
+, ? 15 : network_id<br>
+, ? 16 : transaction_output ; collateral return<br>
+, ? 17 : coin ; total collateral<br>
+, ? 18 : nonempty_set<transaction_input> ; reference inputs<br>
+, ? 19 : voting_procedures ; New; Voting procedures<br>
+, ? 20 : proposal_procedures ; New; Proposal procedures<br>
+, ? 21 : coin ; New; current treasury value<br>
+, ? 22 : positive_coin ; New; donation<br>
+}<br>
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.024
 
 ### Title: Build transaction for proposal vote (DRep, SPO, CCM)
 ### User Story
- - As a DRep, SPO or CC member<br>I want to build a transaction that includes my vote on a particular governance action<br>So that I can later sign and submit to the chain<br><br>`transaction build`<br>
+ - As a DRep, SPO or CC member<br>I want to build a transaction that includes my vote on a particular governance action<br>So that I can later sign and submit to the chain<br>
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| Transaction build has a new flag to supply a vote file as input for the transaction body | A DRep, SPO or CC member can include their vote in a transaction by passing a vote file in the transaction body using the `--vote-file FILE` flag where FILE is the filepath of the vote |
-| When constructing a transaction body that includes a vote, the resulting tx body conforms to the conway cddl so that voting procedures are recorded with the key 19 | When constructing a transaction body that includes a vote, the resulting tx body conforms to the conway cddl where:<br><br>transaction_body =<br> { 0 : set<transaction_input> ; inputs<br> , 1 : [* transaction_output]<br> , 2 : coin ; fee<br> , ? 3 : uint ; time to live<br> , ? 4 : certificates<br> , ? 5 : withdrawals<br> , ? 7 : auxiliary_data_hash<br> , ? 8 : uint ; validity interval start<br> , ? 9 : mint<br> , ? 11 : script_data_hash<br> , ? 13 : nonempty_set<transaction_input> ; collateral inputs<br> , ? 14 : required_signers<br> , ? 15 : network_id<br> , ? 16 : transaction_output ; collateral return<br> , ? 17 : coin ; total collateral<br> , ? 18 : nonempty_set<transaction_input> ; reference inputs<br> , ? 19 : voting_procedures ; New; Voting procedures<br> , ? 20 : proposal_procedures ; New; Proposal procedures<br> , ? 21 : coin ; New; current treasury value<br> , ? 22 : positive_coin ; New; donation<br> } |
 
+- [ ] Modify `transaction build` command to allow including a vote in a transaction body
+- [ ] When constructing a transaction body that includes a vote, the resulting tx body conforms to the conway cddl so that proposal procedures are recorded with the tag 19:
+    - transaction_body =<br>
+{ 0 : set<transaction_input> ; inputs<br>
+, 1 : [* transaction_output]<br>
+, 2 : coin ; fee<br>
+, ? 3 : uint ; time to live<br>
+, ? 4 : certificates<br>
+, ? 5 : withdrawals<br>
+, ? 7 : auxiliary_data_hash<br>
+, ? 8 : uint ; validity interval start<br>
+, ? 9 : mint<br>
+, ? 11 : script_data_hash<br>
+, ? 13 : nonempty_set<transaction_input> ; collateral inputs<br>
+, ? 14 : required_signers<br>
+, ? 15 : network_id<br>
+, ? 16 : transaction_output ; collateral return<br>
+, ? 17 : coin ; total collateral<br>
+, ? 18 : nonempty_set<transaction_input> ; reference inputs<br>
+, ? 19 : voting_procedures ; New; Voting procedures<br>
+, ? 20 : proposal_procedures ; New; Proposal procedures<br>
+, ? 21 : coin ; New; current treasury value<br>
+, ? 22 : positive_coin ; New; donation<br>
+}<br>
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.025
 
 ### Title: Build RAW transaction for proposal vote (HOLDER)
 ### User Story
- - As an ada holder <br>I want to build a transaction that includes a proposal (containing a governance action)<br>So that I can later sign and submit to the chain <br>transaction build-raw
+ - As an ada holder <br>
+ I want to build a transaction that includes a proposal (containing a governance action)<br>So that I can later sign and submit to the chain <br>transaction build-raw
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| Transaction build-raw has a new flag to supply a proposal file as input for the transaction body | A ADA Holder can include a proposal in a transaction when by passing the proposal file in the transaction body using the `--proposal-file FILE` flag where FILE is the filepath of the proposal |
-| When constructing a transaction body that includes a proposal, the resulting tx body conforms to the conway cddl | When constructing a transaction body that includes a proposal, the resulting tx body conforms to the conway cddl where:<br><br>transaction_body =<br> { 0 : set<transaction_input> ; inputs<br> , 1 : [* transaction_output]<br> , 2 : coin ; fee<br> , ? 3 : uint ; time to live<br> , ? 4 : certificates<br> , ? 5 : withdrawals<br> , ? 7 : auxiliary_data_hash<br> , ? 8 : uint ; validity interval start<br> , ? 9 : mint<br> , ? 11 : script_data_hash<br> , ? 13 : nonempty_set<transaction_input> ; collateral inputs<br> , ? 14 : required_signers<br> , ? 15 : network_id<br> , ? 16 : transaction_output ; collateral return<br> , ? 17 : coin ; total collateral<br> , ? 18 : nonempty_set<transaction_input> ; reference inputs<br> , ? 19 : voting_procedures ; New; Voting procedures<br> , ? 20 : proposal_procedures ; New; Proposal procedures<br> , ? 21 : coin ; New; current treasury value<br> , ? 22 : positive_coin ; New; donation<br> } |
 
+- [ ] Modify `transaction build-raw` command to allow including a proposal (governance action) in a transaction body
+- [ ] When constructing a transaction body that includes a proposal, the resulting tx body conforms to the conway cddl so that proposal procedures are recorded with the tag 20:
+    - transaction_body =<br>
+{ 0 : set<transaction_input> ; inputs<br>
+, 1 : [* transaction_output]<br>
+, 2 : coin ; fee<br>
+, ? 3 : uint ; time to live<br>
+, ? 4 : certificates<br>
+, ? 5 : withdrawals<br>
+, ? 7 : auxiliary_data_hash<br>
+, ? 8 : uint ; validity interval start<br>
+, ? 9 : mint<br>
+, ? 11 : script_data_hash<br>
+, ? 13 : nonempty_set<transaction_input> ; collateral inputs<br>
+, ? 14 : required_signers<br>
+, ? 15 : network_id<br>
+, ? 16 : transaction_output ; collateral return<br>
+, ? 17 : coin ; total collateral<br>
+, ? 18 : nonempty_set<transaction_input> ; reference inputs<br>
+, ? 19 : voting_procedures ; New; Voting procedures<br>
+, ? 20 : proposal_procedures ; New; Proposal procedures<br>
+, ? 21 : coin ; New; current treasury value<br>
+, ? 22 : positive_coin ; New; donation<br>
+}<br>
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.026
 
@@ -546,91 +610,167 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 ### User Story
  - As a DRep, SPO or CC member<br>I want to build a transaction that includes my vote on a particular governance action<br>So that I can later sign and submit to the chain<br><br>`transaction build-raw`<br>
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| Transaction build-raw has a new flag to supply a vote file as input for the transaction body | A DRep, SPO or CC member can include a proposal in a transaction when by passing the proposal file in the transaction body using the `--proposal-file FILE` flag where FILE is the filepath of the proposal |
-| When constructing a transaction body that includes a vote, the resulting tx body conforms to the conway cddl so that voting procedures are recorded with the key 19 | When constructing a transaction body that includes a vote, the resulting tx body conforms to the conway cddl where:<br><br>transaction_body =<br> { 0 : set<transaction_input> ; inputs<br> , 1 : [* transaction_output]<br> , 2 : coin ; fee<br> , ? 3 : uint ; time to live<br> , ? 4 : certificates<br> , ? 5 : withdrawals<br> , ? 7 : auxiliary_data_hash<br> , ? 8 : uint ; validity interval start<br> , ? 9 : mint<br> , ? 11 : script_data_hash<br> , ? 13 : nonempty_set<transaction_input> ; collateral inputs<br> , ? 14 : required_signers<br> , ? 15 : network_id<br> , ? 16 : transaction_output ; collateral return<br> , ? 17 : coin ; total collateral<br> , ? 18 : nonempty_set<transaction_input> ; reference inputs<br> , ? 19 : voting_procedures ; New; Voting procedures<br> , ? 20 : proposal_procedures ; New; Proposal procedures<br> , ? 21 : coin ; New; current treasury value<br> , ? 22 : positive_coin ; New; donation<br> } |
 
+- [ ] Modify `transaction build-raw` command to allow including a vote in a transaction body
+- [ ] When constructing a transaction body that includes a vote, the resulting tx body conforms to the conway cddl so that proposal procedures are recorded with the tag 19:
+    - transaction_body =<br>
+{ 0 : set<transaction_input> ; inputs<br>
+, 1 : [* transaction_output]<br>
+, 2 : coin ; fee<br>
+, ? 3 : uint ; time to live<br>
+, ? 4 : certificates<br>
+, ? 5 : withdrawals<br>
+, ? 7 : auxiliary_data_hash<br>
+, ? 8 : uint ; validity interval start<br>
+, ? 9 : mint<br>
+, ? 11 : script_data_hash<br>
+, ? 13 : nonempty_set<transaction_input> ; collateral inputs<br>
+, ? 14 : required_signers<br>
+, ? 15 : network_id<br>
+, ? 16 : transaction_output ; collateral return<br>
+, ? 17 : coin ; total collateral<br>
+, ? 18 : nonempty_set<transaction_input> ; reference inputs<br>
+, ? 19 : voting_procedures ; New; Voting procedures<br>
+, ? 20 : proposal_procedures ; New; Proposal procedures<br>
+, ? 21 : coin ; New; current treasury value<br>
+, ? 22 : positive_coin ; New; donation<br>
+}<br>
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.027
 
-### Title: Create stake registration certificate (HOLDER)
+### Title: Create stake registration certificate 
 ### User Story
- - As an ada holder<br>I want to create a conway cddl-compliant stake registration certificate <br><br>`stake-address`<br>
-### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| Allows the user to provide credentials in any of the following forms:<br><br>Stake verification key <br>Stake verification key file <br>Stake address<br>Stake script file | The command accepts the following and executes with the expected outcome:<br><br>`--stake-verification-key`(STRING)<br>`--stake-verification-key-file`(FILE)<br>`--stake-address`(ADDRESS)<br>`--stake-script-file` (FILE)<br><br>Using one of these is mandatory |
-| Requires the user to provide the required key deposit in lovelace | ADA Holder can pass the key deposit in lovelace using the following flag<br>`--key-reg-deposit-amt` (NATURAL)<br><br> The argument is a decimal, providing any other type of input will result in an exception (no implicit conversion)<br>Not providing the flag and its argument generates an exception. |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the vote for a governance action will be saved. |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The certificate should be saved on a text envelope format | Given that the certificate is saved, then it is in a text envelope format consisting of a json object with type, description and cbor hex fields, where: <br>{<br> "type": "CertificateConway",<br> "description": "Stake Address Registration Certificate",<br> "cborHex": ""<br>} |
-| The resulting certificate conforms with the conway cddl | The resulting certificate conforms with the conway cddl, where <br><br>`reg_cert = (7, stake_credential, coin)` |
+ - As an ada holder<br>
+I want to create a Conway cddl-compliant stake registration certificate <br>
+So that I can take part of the protocol.
 
+### Acceptance criteria
+
+- [ ] Allows the user to provide credentials in any of the following forms:
+    - Stake verification key
+    - Stake verification key file
+    - Stake address
+    - Stake script file
+- [ ] Requires the user to provide the key deposit amount in lovelace
+- [ ] The resulting certificate conforms with the Conway cddl:
+    - reg_cert = (7, stake_credential, coin)
+- [ ] The command has a flag to specify the path where the certificate will be saved.
+- [ ] The certificate is saved on a text envelope format consisting of a json object with type, description and cbor hex fields, where:
+    - "type": "CertificateConway",
+    - "description": "Stake Address Registration Certificate",
+    - "cborHex": ""
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.028
 
 ### Title: Create stake deregistration certificate (HOLDER)
 ### User Story
- - As an ada holder<br>I want to create a conway cddl-compliant stake deregistration certificate to get my deposit back<br><br>`stake-address`<br>
+ - As an ada holder<br>
+ I want to create a Conway cddl-compliant stake deregistration certificate<br> 
+ So that I can get my deposit back and stop taking part on the protocol<br>
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| Allows the user to provide credentials in any of the following forms:<br><br>Stake verification key<br>Stake verification key file <br>Stake address<br>Stake script file | The command accepts the following and executes with the expected outcome:<br><br>`--stake-verification-key`(STRING)<br>`--stake-verification-key-file`(FILE)<br>`--stake-address`(ADDRESS)<br>`--stake-script-file` (FILE)<br><br>Using one of these is mandatory |
-| Requires the user to provide key deposit (in lovelace) that was paid by the target stake credential when it registered | ADA Holder can pass the key deposit in lovelace using the following flag<br>`--key-reg-deposit-amt` (NATURAL)<br><br> The argument is a decimal, providing any other type of input will result in an exception (no implicit conversion)<br>Not providing the flag and its argument generates an exception. |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the vote for a governance action will be saved. |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The certificate should be saved on a text envelope format | Given that the deregistration certificate is saved, then it is in a text envelope format consisting of a json object with type, description and cbor hex fields, where: <br>{<br> "type": "CertificateConway",<br> "description": "Stake Address Deregistration Certificate",<br> "cborHex": ""<br>} |
-| The resulting certificate conforms with the conway cddl | The resulting certificate conforms with the conway cddl, where:<br><br>`unreg_cert = (8, stake_credential, coin)` |
 
+- [ ] Allows the user to provide credentials in any of the following forms:
+    - Stake verification key
+    - Stake verification key file
+    - Stake address
+    - Stake script file
+- [ ] Requires the user to provide the key deposit amount (in lovelace) that was paid on registration.
+- [ ] The resulting certificate conforms with the Conway cddl:
+    - unreg_cert = (8, stake_credential, coin)
+- [ ] The command has a flag to specify the path where the certificate will be saved.
+- [ ] The certificate is saved on a text envelope format consisting of a json object with type, description and cbor hex fields, where:
+    - "type": "CertificateConway",
+    - "description": "Stake Address Deregistration Certificate",
+    - "cborHex": ""
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.029
 
 ### Title: Delegate vote to DRep (HOLDER)
 ### User Story
- - As an ada holder<br>I want to delegate my votes to a DRep (registered or default)<br>So that my stake is counted when the DRep vote.  <br><br>`stake-address`<br>
+ - As an ada holder<br>
+ I want to delegate my votes to a DRep (registered or default)<br>
+ So that my stake is counted according to the rules when governance actions are voted. 
+ 
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| Allows the user to provide credentials in any of the following forms:<br><br>Stake verification key<br>Stake verification key file <br>Stake address<br>Stake script file | The command accepts the following and executes with the expected outcome:<br><br>`--stake-verification-key`(STRING)<br>`--stake-verification-key-file`(FILE)<br>`--stake-address`(ADDRESS)<br>`--stake-script-file` (FILE)<br><br>Using one of these is mandatory |
-| When delegating to a registered DRep, the user can provide the target DRep with: <br><br><br>DRep script hash<br>DRep verification key<br>DRep verification key file <br>DRep key hash (DRep ID) | The command accepts the following and executes with the expected outcome:<br><br>`--drep-script-hash` (HASH) <br>`--drep-verification-key` (STRING) <br>`--drep-verification-key-file` (FILE) <br>`--drep-key-hash` (HASH) <br><br>Using one of these is mandatory |
-| When delegating to a default DRep the user can use a flag to select either always-abstain or always-no-confidence, but not both. | The command accepts the following and executes with the expected outcome:<br>`--always-abstain` XOR `--always-no-confidence`<br><br>Using one of these is mandatory |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the vote for a governance action will be saved. |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The certificate should be saved on a text envelope format | Given that the deregistration certificate is saved, then it is in a text envelope format consisting of a json object with type, description and cbor hex fields, where: <br>{<br> "type": "CertificateConway",<br> "description": "Vote Delegation Certificate",<br> "cborHex": ""<br>} |
-| The resulting certificate conforms with the conway cddl | The resulting certificate conforms with the conway cddl, where <br><br>`vote_deleg_cert = (9, stake_credential, drep)` |
 
+- [ ] Allows the user to provide credentials in any of the following forms:
+    - Stake verification key
+    - Stake verification key file
+    - Stake address
+    - Stake script file
+- [ ] When delegating to a registered DRep, the user can provide the target DRep with
+    - DRep script hash
+    - DRep verification key
+    - DRep verification key file
+    - DRep key hash (DRep ID)
+- [ ] When delegating to a default DRep the user can use a flag to select either always-abstain or always-no-confidence
+- [ ] The certificate should be saved on a text envelope format consisting of a json object with type, description and cbor hex fields, where:
+    - "type": "CertificateConway"
+    - "description": "Vote Delegation Certificate"
+    - "cborHex": ""
+- [ ] The resulting certificate conforms with the conway cddl, where 
+    - vote_deleg_cert = (9, stake_credential, drep)
+- [ ] The command has a flag to specify the path where the output file will be saved.
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.030
 
 ### Title: Delegate stake to SPO and votes to DRep with a single certificate (HOLDER)
 ### User Story
- - As an ada holder<br>I want to delegate my stake to a stake pool AND my votes to a DRep (registered or default) with a single certificate.<br><br>`stake-address`<br>
+ - As an ada holder<br>
+ I want to delegate my stake to a stake pool AND
+ my votes to a DRep (registered or default) with a single certificate.
+
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| Allows the user to provide credentials in any of the following forms:<br><br>Stake verification key<br>Stake verification key file <br>Stake address<br>Stake script file | The command accepts the following and execute with the expected outcome:<br>`--stake-verification-key` (STRING) or <br>`--stake-verification-key-file` (FILE) or<br>`--stake-script-file` (FILE) or<br>` --stake-address` (ADDRESS)<br><br>At least one of them is mandatory |
-| The user can provide the target stake pool with: <br><br><br>Stake pool cold verification key<br>Stake pool cold verification key file <br>Stake pool ID | The command accepts the following and execute with the expected outcome:<br>`--stake-pool-verification-key` (STRING) or<br>`--cold-verification-key-file` (FILE) or<br>`--stake-pool-id` (STAKE_POOL_ID)<br><br>At least one of them is mandatory |
-| Allows the user to provide the target DRep credential with <br><br>DRep script hash<br>DRep verification key<br>DRep verification key file <br>DRep key hash (Drep ID) | The command accepts the following and executes with the expected outcome:<br> `--drep-script-hash` (HASH) or<br>`--drep-verification-key` (STRING) or<br>`--drep-verification-key-file` (FILE) or<br>`--drep-key-hash` (HASH)<br><br>At least one of them is mandatory |
-| When delegating to a default DRep the user can use a flag to select either always-abstain or always-no-confidence, but not both. | The command accepts the following and executes with the expected outcome:<br>`--always-abstain` XOR `--always-no-confidence`<br><br>Using one of these is mandatory |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the vote for a governance action will be saved. |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
-| The certificate should be saved on a text envelope format | The certificate should be saved on a text envelope format: <br>`{`<br> `"type": "CertificateConway",`<br> `"description": "Stake and Vote Delegation Certificate",`<br> `"cborHex": ""`<br>`}` |
-| The resulting certificate conforms with the conway cddl | The resulting certificate conforms with the conway cddl, where <br><br>`stake_vote_deleg_cert = (10, stake_credential, pool_keyhash, drep)` |
+
+- [ ] Allows the user to provide credentials in any of the following forms:
+    - Stake verification key
+    - Stake verification key file
+    - Stake address
+    - Stake script file
+- [ ] When delegating to a registered DRep, the user can provide the target DRep with
+    - DRep script hash
+    - DRep verification key
+    - DRep verification key file
+    - DRep key hash (DRep ID)
+- [ ] When delegating to a default DRep the user can use a flag to select either always-abstain or always-no-confidence
+- [ ] The user can provide the target stake pool with: 
+    - Stake pool cold verification key
+    - Stake pool cold verification key file
+    - Stake pool ID
+- [ ] The certificate should be saved on a text envelope format consisting of a json object with type, description and cbor hex fields, where:
+    - "type": "CertificateConway"
+    - "description": "Stake and Vote Delegation Certificate"
+    - "cborHex": ""
+- [ ] The resulting certificate conforms with the conway cddl, where 
+    - stake_vote_deleg_cert = (10, stake_credential, pool_keyhash, drep)
+- [ ] The command has a flag to specify the path where the output file will be saved.
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID:  CLI.031
 
-### Title: Query governance state (ANY)
+### Title: Query governance state
 ### User Story
-- As any persona<br>I want to query the nodes for the current Governance state<br>so that I can inform my decisions.
+- As any persona<br>
+I want to query the nodes for the current Governance state<br>
+so that I can inform my decisions.
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The new command is implemented as `cardano-cli conway query gov-state` | Running `cardano-cli conway query gov-state` dumps the entire governance state. |
-| The command requires the user to specify the network id (mainnet or testnet magic) | The flags –mainnet –-testnet-magic are used to specify the network id. |
-| The command has the flag –out-file to specify the file where the output  will be saved.  | The optional `--out-file` flag is available to specify the file where the governance state dump will be saved. |
-| The output is a JSON showing, at least,  the following information:<br>Proposals<br>EnactState<br>DrepPulsingState | The output is in a json format so that it can be further processed programmatically. |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter.<br> The command requires a connection to the node, an exception is raised if there is non. |
+
+- [ ] Returns all of the state related to governance (govState)
+- [ ] The output is in a json format so that it can be further processed programmatically.
+- [ ] Has a flag to specify the path where the output file will be saved
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.
+- [ ] Requires a connection to the node, an exception is raised if there is non.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
+
 
 ## User Story ID:  CLI.032
 
@@ -638,57 +778,76 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 ### User Story
 - As a CC member<br>I want to query the committee state<br>so that I can find my expiration term,<br> and whether my hot key authorization certificate has been recorded on chain correctly.
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as `cardano-cli conway query committee-state` | Running `cardano-cli conway query committee-state` returns the map of committee member key hashes and the current state. |
-| Requires the user to provide the network id  | The flags –mainnet –-testnet-magic are used to specify the network id.|
-| Supports a query for an specific CC credential <br> CC cold verification key<br>CC cold verification key file<br>CC cold verification key hash<br>CC hot verification key<br>CC hot verification key file<br>CC hot verification key hash | The command allows querying the committee state with either cold or hot credentials of a target committee member, so that running `cardano-cli conway query committee-state` with any of the flags:<br>`--cold-verification-key STRING`<br>`--cold-verification-key-file FILE`<br>`--cold-verification-key-hash STRING`<br>`--hot-key STRING`<br>`--hot-key-file FILE`<br>`--hot-key-hash STRING`<br>returns the state of the target committee member.<br>The command allows zero to many credentials.|
-| When no CC key is specified, the command outputs information for all committee members | Running `cardano-cli conway query committee-state` without any credential flags returns the state of all committee members |
-| The command allows filtering by active, expired and unrecognized members (registered hot keys to an unknown cc cold key)  | The command supports the flags `--active`, `--expired` and `--unrecognized` to filter committee members by their current status |
-| The output is a JSON showing, the following information:<br>Cold key hash<br> Hot credential status (Authorized/NotAuthorized)<br> When Authorized, shows the hot key hash<br>Status (Active, Expired, Unrecognized)<br>Expiration epoch<br>Current epoch<br>Quorum | The output is in a json format so that it can be further processed programmatically.<br>`{"committee": {"keyHash-": {"expiration":, "hotCredsAuthStatus": {"tag": ""},"nextEpochChange": "","status": ""}}, "epoch":,"quorum": }`
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the committee state dump will be saved. |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter. |
+
+- [ ] Returns the state of the constitutional committee. 
+- [ ] Supports filtering by 
+    - credential
+    - status (active/expired)  
+- [ ] The command has an option to specify a path where the output file will be saved.
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.
+- [ ] Requires a connection to the node, an exception is raised if there is non.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID:  CLI.033
 
 ### Title: Query DRep state (HOLDER)
 ### User Story
- - As an ada holder<br>I want to query the DRep state <br>So that I can find detailed information about registered Dreps   <br>
+ - As an ada holder<br>
+ I want to query the DRep state <br>
+ So that I can find detailed information about registered Dreps<br>
+
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as cardano-cli conway query drep-state | Running `cardano-cli conway query drep-state` returns the map of drep key hashes and the current state.  |
-| Requires the user to provide the network id | The flags –mainnet –-testnet-magic are used to specify the network id. |
-| Supports a query for an specific DRep credential<br><br>DRep verification key<br>DRep verification key file <br>DRep verification key hash (DRep ID) | Running `cardano-cli conway query drep-stake-distribution` <br>With any of the flags: <br><br>--drep-verification-key STRING<br>--drep-verification-key-file FILE<br>--drep-key-hash HASH<br> <br>Returns the stake delegated to that Drep. <br><br><br>The commands allows zero to many credentials |
-| If no Drep credential is specified it returns all DReps | When no drep credential is supplied, the command returns the state of all DReps. |
-| The command has a flag to specify the path where the output file will be saved. | The `--out-file` flag is available to specify the file where the vote for a governance action will be saved. |
-| The output is a JSON showing, the following information:<br><br><br>Drep Key hash<br>Anchor (Drep metadata)<br>Deposit<br>Expiry (from Drep activity) | The output is in a json format so that it can be further processed programmatically.<br><br> {  "keyHash": ""  },<br> {  "anchor": {  "dataHash": "",  "url": ""  },<br> "deposit":,<br> "expiry": <br> } |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter.<br><br>The command requires a connection to the node, an exception is raised if there is non. |
+
+- [ ] Returns the state of the registered Dreps. 
+- [ ] Supports a query for an specific DRep credential. 
+- [ ] If no Drep credential is specified it returns all DReps.
+- [ ] The output is a JSON showing, the following information:
+    - Drep ID
+    - Anchor url/hash, null (Drep metadata)
+    - Deposit
+    - Expiry (from Drep activity)
+- [ ] The output is in a json format so that it can be further processed programmatically
+- [ ] The command has an option to specify a path where the output file will be saved.
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.
+- [ ] Requires a connection to the node, an exception is raised if there is non.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.034
 
 ### Title: Query DRep stake distribution (HOLDER)
 ### User Story
- - As an ada holder and DRep<br>I want to query the DRep stake distribution<br>So that I can find the weight (of the votes) of each DRep<br>
+ - As an ada holder and DRep<br>
+ I want to query the DRep stake distribution<br>
+ So that I can find the weight (of the votes) of each DRep<br>
+
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as cardano-cli conway query drep-stake-distribution | Running `cardano-cli conway query drep-stake-distribution` returns the map of DRep key hashes and the current voting stake delegated to each, including default DReps. |
-| Requires the user to provide the network id | The flags –mainnet –-testnet-magic are used to specify the network id. |
-| Supports a query for an specific DRep credential<br><br>DRep verification key<br>DRep verification key file <br>DRep verification key hash (DRep ID) | Running `cardano-cli conway query drep-stake-distribution` <br>With any of the flags: <br><br>--drep-verification-key STRING<br>--drep-verification-key-file FILE<br>--drep-key-hash HASH<br> <br>Returns the stake delegated to that Drep. <br><br><br>The commands allows zero to many credentials |
-| The command has the flag –out-file to specify the file where the output will be saved. | The `--out-file` flag is available to specify the file where the stake distribution output will be saved. |
-| The output is a JSON showing, the following information:<br><br><br>Drep Key hash<br>Stake delegated to this DRep | The output is in a json format so that it can be further processed programmatically. |
-| The command handles errors gracefully and provides helpful error messages when required options are missing or invalid inputs are provided. | If any required input parameter is missing or incorrect, the command raises an error indicating the missing or incorrect parameter.<br><br>The command requires a connection to the node, an exception is raised if there is non. |
+- [ ] Returns the map of DRep key hashes and the current voting stake delegated to each, including default DReps.
+- [ ] Supports a query for an specific DRep credential:
+    - DRep verification key
+    - DRep verification key file
+    - DRep verification key hash (DRep ID)
+- [ ] The output is in a json format so that it can be further processed programmatically.
+- [ ] The command has an option to specify a path where the output file will be saved.
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.
+- [ ] Requires a connection to the node, an exception is raised if there is non.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID: CLI.035
 
 ### Title: Expand query stake-address-info to show deposits and vote delegation (HOLDER)
 ### User Story
- - As an ada holder,<br>I want to query my stake address information so that I can learn to which pool and DRep Im delegating to and the value in lovelace of my deposits for delegating and for submitting governance actions.
+
+ - As an ada holder,<br>
+ I want to query my stake address information<br> 
+ So that I can learn to which Stake Pool and DRep I'm delegating to and the value in Lovelace of my deposits for registering stake address and for submitting governance actions.
+
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| Expand the command query stake-address-info to return the DRep id of the DRep that the stake credential is delegated to and the value of the existing deposits. | The command returns:<br><br>Stake-address<br>Rewards account balance<br>Stake pool it is delegated to (stakeDelegation), null if it isn’t<br>DRep it is delegated to (voteDelegation), null if it isn’t<br>Stake key deposit<br>Cumulative governance action deposits |
+
+- [ ] Expand the command `query stake-address-info` to return the StakePool and DRep that the stake credential is delegated to and the value of the existing deposits.
+- [ ] The command has an option to specify a path where the output file will be saved.
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.
+- [ ] Requires a connection to the node, an exception is raised if there is non.    
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID:  CLI.036
 
@@ -697,10 +856,11 @@ so that it can be submitted to the chain and be voted on by the governance bodie
 - As any persona I want to query the on-chain constitution so that I can know the url where it is stored and the document hash so that I can verify authenticity. 
 
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-| The command is implemented as cardano-cli conway query constitution  | Running `cardano-cli conway query constitution` returns the current constitution URL and hash |
-| Requires specifying the target network | The command requires the user to specify the target network using either `--mainnet` or `--testnet-magic NATURAL`. |
+
+- [ ] Returns the current constitution URL and hash.
+- [ ] The command has an option to specify a path where the output file will be saved.
+- [ ] The command handles potential errors, such as missing or invalid flags and provide appropriate error messages indicating the missing or required parameters.
+- [ ] End user documentation should be provided, including a corresponding CLI usage, describing the feature, its purpose, and how to use it, along with the expected types of inputs and outputs.
 
 ## User Story ID:  CLI.037
 
