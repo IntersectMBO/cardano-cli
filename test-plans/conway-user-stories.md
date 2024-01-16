@@ -864,27 +864,27 @@ so that I can inform my decisions.
 
 ## User Story ID:  CLI.037
 
-### Title: (WIP) Scripts as DRep (HOLDER)
+### Title: Register scripts as DRep 
 ### User Story
 As an ada holder I want to register a native or a Plutus script as a DRep.
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-|  |  |
-|  |  |
-|  |  |
-|  |  |
-|  |  |
 
-## User Story ID:  CLI.0
+
+## User Story ID:  CLI.038
 
 ### Title: Template
 ### User Story
 ### Acceptance criteria
-|Requirements|Acceptance Criteria|
-|:----|:----|
-|  |  |
-|  |  |
-|  |  |
-|  |  |
-|  |  |
+As an ada holder I want to unregister a native or a Plutus script as a DRep.
+
+## User Story ID:  CLI.039
+
+### Title: Template
+### User Story
+As an script based DRep I want to vote on a governance action
+### Acceptance criteria
+
+
+
+
+
