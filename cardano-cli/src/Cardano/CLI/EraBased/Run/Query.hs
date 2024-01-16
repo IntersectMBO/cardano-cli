@@ -56,6 +56,7 @@ import           Cardano.CLI.Types.Key
 import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
+import           Cardano.Ledger.Alonzo.Core (EraPParams (ppProtocolVersionL))
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Core as Core
 import qualified Cardano.Ledger.Credential as L
@@ -84,6 +85,7 @@ import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson as Aeson
 import qualified Data.Aeson as A
 import           Data.Aeson.Encode.Pretty (encodePretty)
+import qualified Data.Aeson.KeyMap as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Coerce (coerce)
@@ -184,23 +186,39 @@ runQueryProtocolParametersCmd
   AnyCardanoEra era <- firstExceptT QueryCmdAcquireFailure $ newExceptT $ determineEra localNodeConnInfo
   sbe <- forEraInEon @ShelleyBasedEra era (left QueryCmdByronEra) pure
   let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
-  pp <- firstExceptT QueryCmdConvenienceError
-          . newExceptT $ executeQueryAnyMode localNodeConnInfo qInMode
-  writeProtocolParameters sbe mOutFile pp
+  pParams <- firstExceptT QueryCmdConvenienceError
+              . newExceptT $ executeQueryAnyMode localNodeConnInfo qInMode
+  writeProtocolParameters sbe mOutFile pParams
   where
-    -- TODO: Conway era - use ledger PParams JSON
     writeProtocolParameters
       :: ShelleyBasedEra era
       -> Maybe (File () Out)
       -> Ledger.PParams (ShelleyLedgerEra era)
       -> ExceptT QueryCmdError IO ()
     writeProtocolParameters sbe mOutFile' pparams =
-      let apiPParamsJSON = (encodePretty $ fromLedgerPParams sbe pparams)
-      in case mOutFile' of
-        Nothing -> liftIO $ LBS.putStrLn apiPParamsJSON
-        Just (File fpath) ->
-          handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath) $
-            LBS.writeFile fpath apiPParamsJSON
+      firstExceptT QueryCmdWriteFileError . newExceptT $
+        writeLazyByteStringOutput mOutFile' (encodePretty $ toJSONWithPParams sbe pparams)
+      where
+        -- TODO: (written 2024-01-16) Currently, the ToJSON implementation for
+        -- Conway protocol parameters from cardano-ledger misses the
+        -- 'protocolVersion' field. The commit that fixes this is already on
+        -- main, but not part of a released version of cardano-ledger that we
+        -- can depend on. It's this one:
+        --
+        -- https://github.com/IntersectMBO/cardano-ledger/pull/3953/commits/df9ee19944099a75d75019b8b36e99b03db5b558
+        --
+        -- Until we have that in our dependencies, this workaround will ensure
+        -- we're printing the protocol version. It'll also do no harm after
+        -- that point, apart from heating the room a little.
+        toJSONWithPParams :: ShelleyBasedEra era -> Ledger.PParams (ShelleyLedgerEra era) -> Aeson.Value
+        toJSONWithPParams w pps = shelleyBasedEraConstraints w $
+          case toJSON pps of
+            Aeson.Object almostAllPairs ->
+              caseShelleyToBabbageOrConwayEraOnwards
+                (const . Aeson.Object $ almostAllPairs)
+                (const . Aeson.Object . Aeson.insert "protocolVersion" (toJSON $ pps ^. ppProtocolVersionL) $ almostAllPairs)
+                sbe
+            _ -> error "Expected the protocol parameters to be a 'KeyMap'. This is part of a temporary hack. Alert the cardano-cli team of this."
 
 -- | Calculate the percentage sync rendered as text.
 percentage
