@@ -864,7 +864,7 @@ so that I can inform my decisions.
 
 ## User Story ID:  CLI.037
 
-### Title: Register scripts as DRep 
+### Title: Register script based DRep 
 ### User Story
 As an ada holder I want to register a native or a Plutus script as a DRep.
 ### Acceptance criteria
@@ -872,19 +872,24 @@ As an ada holder I want to register a native or a Plutus script as a DRep.
 
 ## User Story ID:  CLI.038
 
-### Title: Template
-### User Story
+### Title: Retire script based DRep
+### User Story 
 ### Acceptance criteria
 As an ada holder I want to unregister a native or a Plutus script as a DRep.
 
 ## User Story ID:  CLI.039
 
-### Title: Template
+### Title: Script based DRep voting
 ### User Story
 As an script based DRep I want to vote on a governance action
 ### Acceptance criteria
 
+## User Story ID:  CLI.040
 
+### Title: Script based CC GA. --add --remove
+### User Story
+As an script based Constitutional Committee Member Candidate I want to be able to be proposed in a Governance action referencing the script file or script hash.
+### Acceptance criteria
 
 
 
