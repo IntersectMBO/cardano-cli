@@ -916,7 +916,7 @@ writeLedgerState mOutFile qState@(SerialisedDebugLedgerState serLedgerState) =
   case mOutFile of
     Nothing ->
       case decodeDebugLedgerState qState of
-        Left bs -> firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
+        Left (bs, _decoderError) -> firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
         Right ledgerState -> liftIO . LBS.putStrLn $ Aeson.encode ledgerState
     Just (File fpath) ->
       handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath)
