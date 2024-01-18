@@ -1,5 +1,54 @@
 # Changelog for cardano-cli
 
+## 8.19.0.0
+
+- Update cardano-api 8.37.1
+  (compatible)
+  [PR 576](https://github.com/IntersectMBO/cardano-cli/pull/576)
+
+- Revert #569, where we tried to adapt the output of the `protocol-parameters` query to show all parameters in Conway, and which broke round-tripping and downstream requirements.
+  (bugfix)
+  [PR 572](https://github.com/IntersectMBO/cardano-cli/pull/572)
+
+- Adapt the output of the `protocol-parameters` query to show all parameters in Conway. Includes a temporary hack around faulty ToJSON instance in `cardano-ledger`.
+  (bugfix)
+  [PR 569](https://github.com/IntersectMBO/cardano-cli/pull/569)
+
+- - add support for registration of script DReps;
+  - rework the `conway governance hash` command: separate sub-commands for anchor data and scripts
+  (breaking, improvement, bugfix)
+  [PR 563](https://github.com/IntersectMBO/cardano-cli/pull/563)
+
+- Add --drep-keys flag to --create-testnet-data
+  (feature, compatible)
+  [PR 565](https://github.com/IntersectMBO/cardano-cli/pull/565)
+
+- Make queries that optionally filter their result by DRep keys more explicit:
+  - `cardano-cli conway query drep-state`
+  - `cardano-cli conway query drep-stake-distribution`
+  (breaking, improvement)
+  [PR 555](https://github.com/IntersectMBO/cardano-cli/pull/555)
+
+- Make queries that optionally filter their result by stake pool keys more explicit:
+  - `cardano-cli * query-stake-snapshot`
+  - `cardano-cli * query pool-params` (which is superseded by the next one, but still present)
+  - `cardano-cli * query pool-state`
+  - `cardano-cli conway query stake-snapshot`
+  (breaking, improvement)
+  [PR 541](https://github.com/IntersectMBO/cardano-cli/pull/541)
+
+- Remove some dead code
+  (compatible, improvement)
+  [PR 560](https://github.com/IntersectMBO/cardano-cli/pull/560)
+
+- Move input files out of `golden` directory
+  (compatible, improvement)
+  [PR 454](https://github.com/IntersectMBO/cardano-cli/pull/454)
+
+- Suppress output of `voteDelegation` before Conway
+  (bugfix)
+  [PR 519](https://github.com/IntersectMBO/cardano-cli/pull/519)
+
 ## 8.18.0.0
 
 - Upgrade hedgehog-extras to 0.5.0.0
@@ -15,7 +64,7 @@
   [PR 535](https://github.com/IntersectMBO/cardano-cli/pull/535)
 
 - In `transaction view` and `governance action view`, replace:
-  
+
   `--output-format json` by `--output-json`
   `--output-format yaml` by `--output-yaml`
   (breaking)
@@ -30,7 +79,7 @@
   [PR 520](https://github.com/IntersectMBO/cardano-cli/pull/520)
 
 - create-testnet-data: rename --stake-delegators to --transient-stake-delegators
-  
+
   Introduce --stake-delegators, that generates delegators, but write credentials to disk.
   (feature, breaking)
   [PR 512](https://github.com/IntersectMBO/cardano-cli/pull/512)
