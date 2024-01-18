@@ -304,6 +304,7 @@ and retrieve my DRep deposit.
 - [ ] Allows the user to provide the transaction ID and index of the previously enacted action of this type. 
 - [ ] Requires the user to provide a mandatory anchor (URL/hash) of the proposal, a document where the proposer exposes the reasoning behind the proposed change.
 - [ ] Requires the user to provide an anchor of the new constitution
+- [ ] Allow the user to supply an optional supplementary script (it's hash) for the constitution. 
 - [ ] The command has a flag to specify the path where the output file will be saved.
 - [ ] The generated governance action complies with the Conway CDDL
     - new_constitution = (5, gov_action_id / null, constitution)
