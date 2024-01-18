@@ -15,6 +15,7 @@ delegate-keys/delegate2/opcert.cert
 delegate-keys/delegate2/opcert.counter
 delegate-keys/delegate2/vrf.skey
 delegate-keys/delegate2/vrf.vkey
+drep-keys/README.md
 drep-keys/drep1/drep.skey
 drep-keys/drep1/drep.vkey
 drep-keys/drep2/drep.skey
