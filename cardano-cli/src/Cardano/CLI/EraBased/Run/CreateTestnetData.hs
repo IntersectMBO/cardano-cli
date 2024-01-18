@@ -573,14 +573,13 @@ updateCreateStakedOutputTemplate
     -> ShelleyGenesis StandardCrypto -- ^ Template from which to build a genesis
     -> ShelleyGenesis StandardCrypto -- ^ Updated genesis
 updateCreateStakedOutputTemplate
-  (SystemStart start)
+  (SystemStart sgSystemStart)
   genDelegMap mAmountNonDeleg nUtxoAddrsNonDeleg utxoAddrsNonDeleg pools stake
   amountDeleg
   nUtxoAddrsDeleg utxoAddrsDeleg stuffedUtxoAddrs
-  template = do
-    let pparamsFromTemplate = sgProtocolParams template
-        shelleyGenesis = template
-          { sgSystemStart = start
+  template@ShelleyGenesis{ sgProtocolParams } =
+    template
+          { sgSystemStart
           , sgMaxLovelaceSupply = fromIntegral $ nonDelegCoin + delegCoin
           , sgGenDelegs = shelleyDelKeys
           , sgInitialFunds = ListMap.fromList
@@ -597,9 +596,8 @@ updateCreateStakedOutputTemplate
               { sgsPools = ListMap pools
               , sgsStake = ListMap stake
               }
-          , sgProtocolParams = pparamsFromTemplate
+          , sgProtocolParams
           }
-    shelleyGenesis
   where
     maximumLovelaceSupply :: Word64
     maximumLovelaceSupply = sgMaxLovelaceSupply template
@@ -607,6 +605,7 @@ updateCreateStakedOutputTemplate
     subtractForTreasury :: Integer
     subtractForTreasury = nonDelegCoin `quot` 10
     nonDelegCoin, delegCoin :: Integer
+    -- if --supply is not specified, non delegated supply comes from the template passed to this function:
     nonDelegCoin = fromIntegral (maybe maximumLovelaceSupply unLovelace mAmountNonDeleg)
     delegCoin = maybe 0 fromIntegral amountDeleg
 
@@ -617,7 +616,7 @@ updateCreateStakedOutputTemplate
 
     mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     mkStuffedUtxo xs = (, Lovelace minUtxoVal) <$> xs
-      where Coin minUtxoVal = sgProtocolParams template ^. ppMinUTxOValueL
+      where Coin minUtxoVal = sgProtocolParams ^. ppMinUTxOValueL
 
     shelleyDelKeys = Map.fromList
       [ (gh, Ledger.GenDelegPair gdh h)
