@@ -1,19 +1,42 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Test.Golden.CreateTestnetData where
+
+import           Cardano.Api.Ledger (StandardCrypto)
+import           Cardano.Api.Shelley (ShelleyGenesis (..))
+
+import           Cardano.Ledger.Shelley.API (ShelleyGenesisStaking (..))
 
 import           Control.Monad (filterM, void)
 import           Control.Monad.IO.Class
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy as LBS
 import           Data.List (intercalate, sort)
+import           Data.Word (Word32)
 import           System.Directory
+import           System.Directory.Extra (listDirectories)
 import           System.FilePath
 
 import           Test.Cardano.CLI.Util (execCardanoCLI)
 
 import           Hedgehog (Property)
+import qualified Hedgehog as H
 import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
 {- HLINT ignore "Use camelCase" -}
+
+networkMagic :: Word32
+networkMagic = 42
+
+numDReps :: Int
+numDReps = 5
+
+numPools :: Int
+numPools = 2
+
+numUtxoKeys :: Int
+numUtxoKeys = 3
 
 -- | A function to create the arguments, so that they are shared
 -- between the two tests, except for the possibly transient ones.
@@ -21,11 +44,11 @@ mkArguments :: String -> [String]
 mkArguments outputDir =
   ["conway",  "genesis", "create-testnet-data"
    , "--genesis-keys", "2"
-   , "--utxo-keys", "3"
+   , "--utxo-keys", show numUtxoKeys
    , "--out-dir", outputDir
-   , "--testnet-magic", "42"
-   , "--pools", "2"
-   , "--drep-keys", "5"
+   , "--testnet-magic", show networkMagic
+   , "--pools", show numPools
+   , "--drep-keys", show numDReps
   ]
 
 -- | Given a root directory, returns files within this root (recursively)
@@ -60,6 +83,18 @@ hprop_golden_create_testnet_data =
     void $ H.note generated''
 
     H.diffVsGoldenFile generated'' "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
+
+    bs <- liftIO $ LBS.readFile $ outputDir </> "genesis.json"
+    genesis :: ShelleyGenesis StandardCrypto <- Aeson.throwDecode bs
+
+    H.assert (sgNetworkMagic genesis == networkMagic)
+    H.assert ((length . sgsPools . sgStaking $ genesis) == numPools)
+
+    actualNumDReps <- liftIO $ listDirectories $ outputDir </> "drep-keys"
+    H.assert $ length actualNumDReps == numDReps
+
+    actualNumUtxoKeys <- liftIO $ listDirectories $ outputDir </> "utxo-keys"
+    H.assert $ length actualNumUtxoKeys == numUtxoKeys
 
 -- | This test tests the transient case, i.e. it writes strictly
 -- less things to disk than 'hprop_golden_create_testnet_data'. Execute this test with:
