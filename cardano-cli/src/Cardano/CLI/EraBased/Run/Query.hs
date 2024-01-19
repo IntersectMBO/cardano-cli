@@ -92,6 +92,7 @@ import           Data.Functor ((<&>))
 import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
+import           Data.Maybe (mapMaybe)
 import           Data.Proxy (Proxy (..))
 import           Data.Set (Set)
 import qualified Data.Set as Set
@@ -1393,16 +1394,20 @@ runQueryDRepState
       , Cmd.nodeSocketPath
       , Cmd.consensusModeParams
       , Cmd.networkId
-      , Cmd.drepKeys = drepKeys'
+      , Cmd.drepSources
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-  let drepKeys = case drepKeys' of
+  let dreps' = case drepSources of
                    All -> []
                    Only l -> l
-  drepCreds <- Set.fromList <$> mapM (firstExceptT QueryCmdDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
+  dreps <- mapM dRepFromSource dreps'
 
+  -- TODO: The queryDRepState expects credentials, but not all DReps are given
+  -- by a credential (namely, not the "always abstain" and "always no
+  -- confidence" one.) So, we filter so that only the credential DReps are left.
+  let drepCreds = Set.fromList $ mapMaybe ( \case Ledger.DRepCredential cred -> Just cred; _ -> Nothing) dreps
   drepState <- runQuery localNodeConnInfo $ queryDRepState eon drepCreds
   writeOutput mOutFile $
     second drepStateToJson <$> Map.assocs drepState
@@ -1422,22 +1427,29 @@ runQueryDRepStakeDistribution
       , Cmd.nodeSocketPath
       , Cmd.consensusModeParams
       , Cmd.networkId
-      , Cmd.drepKeys = drepKeys'
+      , Cmd.drepSources
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-  let drepFromVrfKey = fmap Ledger.DRepCredential
-                     . firstExceptT QueryCmdDRepKeyError
-                     . getDRepCredentialFromVerKeyHashOrFile
-      drepKeys = case drepKeys' of
+  let dreps' = case drepSources of
                    All -> []
                    Only l -> l
-  dreps <- Set.fromList <$> mapM drepFromVrfKey drepKeys
+  dreps <- Set.fromList <$> mapM dRepFromSource dreps'
 
   drepStakeDistribution <- runQuery localNodeConnInfo $ queryDRepStakeDistribution eon dreps
   writeOutput mOutFile $
     Map.assocs drepStakeDistribution
+
+dRepFromSource ::  DRepSource -> ExceptT QueryCmdError IO (Ledger.DRep StandardCrypto)
+dRepFromSource (FromHash (DRepHashSourceVerificationKey vk)) = drepFromVrfKey vk
+  where
+    drepFromVrfKey = fmap Ledger.DRepCredential
+                     . firstExceptT QueryCmdDRepKeyError
+                     . getDRepCredentialFromVerKeyHashOrFile
+dRepFromSource (FromHash (DRepHashSourceScript sh)) = return . Ledger.DRepCredential . Ledger.ScriptHashObj $ sh -- TODO: what's the problem here?
+dRepFromSource AlwaysNoConfidence = return Ledger.DRepAlwaysNoConfidence
+dRepFromSource AlwaysAbstain = return Ledger.DRepAlwaysAbstain
 
 runQueryCommitteeMembersState
   :: Cmd.QueryCommitteeMembersStateCmdArgs era

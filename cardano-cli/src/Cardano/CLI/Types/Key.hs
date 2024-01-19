@@ -41,6 +41,8 @@ module Cardano.CLI.Types.Key
 
   , readDRepCredential
 
+  , DRepSource(..)
+
   , SomeSigningKey(..)
   , withSomeSigningKey
   , readSigningKeyFile
@@ -339,6 +341,7 @@ readDRepCredential = \case
         & onLeft (left . DelegationDRepReadError)
     pure $ L.KeyHashObj drepKeyHash
 
+data DRepSource = FromHash DRepHashSource | AlwaysAbstain | AlwaysNoConfidence deriving (Eq, Show)
 
 data SomeSigningKey
   = AByronSigningKey                    (SigningKey ByronKey)

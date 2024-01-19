@@ -3046,6 +3046,22 @@ pDRepHashSource =
     , DRepHashSourceVerificationKey <$> pDRepVerificationKeyOrHashOrFile
     ]
 
+pDRepSource :: Parser DRepSource
+pDRepSource =
+  asum
+    [ FromHash <$> pDRepHashSource
+    , Opt.flag' AlwaysAbstain $
+        mconcat
+          [ Opt.long "always-abstain"
+          , Opt.help "The trivial DRep that always abstains."
+          ]
+    , Opt.flag' AlwaysNoConfidence $
+        mconcat
+          [ Opt.long "always-no-confidence"
+          , Opt.help "The trivial DRep that always votes no-confidence."
+          ]
+    ]
+
 pDRepScriptHash :: Parser ScriptHash
 pDRepScriptHash =
   Opt.option scriptHashReader $ mconcat
@@ -3062,10 +3078,9 @@ pDRepVerificationKeyOrHashOrFile =
     , VerificationKeyHash <$> pDRepVerificationKeyHash
     ]
 
-pAllOrOnlyDRepVerificationKeyOrHashOrFile
-  :: Parser (AllOrOnly (VerificationKeyOrHashOrFile DRepKey))
-pAllOrOnlyDRepVerificationKeyOrHashOrFile = pAll <|> pOnly
-  where pOnly = Only <$> some pDRepVerificationKeyOrHashOrFile
+pAllOrOnlyDRepSource :: Parser (AllOrOnly DRepSource)
+pAllOrOnlyDRepSource = pAll <|> pOnly
+  where pOnly = Only <$> some pDRepSource
         pAll = Opt.flag' All $ mconcat
           [ Opt.long "all-dreps"
           , Opt.help "Query for all DReps."
