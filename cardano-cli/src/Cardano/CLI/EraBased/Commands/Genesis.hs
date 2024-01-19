@@ -91,8 +91,8 @@ data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
   , numDrepKeys :: !Word -- ^ The number of DRep keys to create. Right now they receive neither delegation nor are registrated. This will come later.
   , numStuffedUtxo :: !Word -- ^ The number of UTxO accounts to make. They are "stuffed" because the credentials are not written to disk.
   , numUtxoKeys :: !Word -- ^ The number of UTxO credentials to create and write to disk.
-  , supply :: !(Maybe Lovelace) -- ^ The number of Lovelace to distribute over initial, non-delegating stake holders.
-  , supplyDelegated :: !(Maybe Lovelace) -- ^ The number of Lovelace to distribute over delegating stake holders.
+  , totalSupply :: !(Maybe Lovelace) -- ^ The total number of Lovelace
+  , delegatedSupply :: !(Maybe Lovelace) -- ^ The number of Lovelace being delegated
   , networkId :: !NetworkId -- ^ The network ID to use.
   , systemStart :: !(Maybe SystemStart) -- ^ The genesis start time.
   , outputDir :: !FilePath -- ^ Directory where to write credentials and files.
