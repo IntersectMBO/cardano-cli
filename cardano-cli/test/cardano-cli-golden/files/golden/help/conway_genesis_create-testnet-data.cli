@@ -7,8 +7,8 @@ Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILE]
                                                         [--drep-keys INT]
                                                         [--stuffed-utxo INT]
                                                         [--utxo-keys INT]
-                                                        [--supply LOVELACE]
-                                                        [--supply-delegated LOVELACE]
+                                                        [--total-supply LOVELACE]
+                                                        [--delegated-supply LOVELACE]
                                                         ( --mainnet
                                                         | --testnet-magic NATURAL
                                                         )
@@ -34,15 +34,16 @@ Available options:
   --stuffed-utxo INT       The number of fake UTxO entries to generate (default
                            is 0).
   --utxo-keys INT          The number of UTxO keys to make (default is 0).
-  --supply LOVELACE        The initial coin supply in Lovelace which will be
-                           evenly distributed across initial, non-delegating
-                           stake holders. Defaults to 1 million Ada (i.e. 10^12
-                           Lovelace).
-  --supply-delegated LOVELACE
-                           The initial coin supply in Lovelace which will be
-                           evenly distributed across initial, delegating stake
-                           holders. Defaults to 1 million Ada (i.e. 10^12
-                           Lovelace).
+  --total-supply LOVELACE  The maximum possible amount of Lovelace, which is
+                           evenly distributed across stake holders. Defaults to
+                           1 million Ada (i.e. 10^12 Lovelace). If
+                           --delegated-supply is specified, a part of this
+                           amount will be delegated.
+  --delegated-supply LOVELACE
+                           The amount of the total supply which is evenly
+                           delegated. Defaults to 500 000 Ada (i.e. (10^12) / 2
+                           Lovelace). Cannot be more than the amount specified
+                           with --total-supply.
   --mainnet                Use the mainnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the

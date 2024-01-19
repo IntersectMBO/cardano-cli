@@ -268,8 +268,8 @@ Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILE]
                                                          [--drep-keys INT]
                                                          [--stuffed-utxo INT]
                                                          [--utxo-keys INT]
-                                                         [--supply LOVELACE]
-                                                         [--supply-delegated LOVELACE]
+                                                         [--total-supply LOVELACE]
+                                                         [--delegated-supply LOVELACE]
                                                          ( --mainnet
                                                          | --testnet-magic NATURAL
                                                          )
@@ -1427,8 +1427,8 @@ Usage: cardano-cli allegra genesis create-testnet-data [--spec-shelley FILE]
                                                          [--drep-keys INT]
                                                          [--stuffed-utxo INT]
                                                          [--utxo-keys INT]
-                                                         [--supply LOVELACE]
-                                                         [--supply-delegated LOVELACE]
+                                                         [--total-supply LOVELACE]
+                                                         [--delegated-supply LOVELACE]
                                                          ( --mainnet
                                                          | --testnet-magic NATURAL
                                                          )
@@ -2584,8 +2584,8 @@ Usage: cardano-cli mary genesis create-testnet-data [--spec-shelley FILE]
                                                       [--drep-keys INT]
                                                       [--stuffed-utxo INT]
                                                       [--utxo-keys INT]
-                                                      [--supply LOVELACE]
-                                                      [--supply-delegated LOVELACE]
+                                                      [--total-supply LOVELACE]
+                                                      [--delegated-supply LOVELACE]
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
@@ -3725,8 +3725,8 @@ Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILE]
                                                         [--drep-keys INT]
                                                         [--stuffed-utxo INT]
                                                         [--utxo-keys INT]
-                                                        [--supply LOVELACE]
-                                                        [--supply-delegated LOVELACE]
+                                                        [--total-supply LOVELACE]
+                                                        [--delegated-supply LOVELACE]
                                                         ( --mainnet
                                                         | --testnet-magic NATURAL
                                                         )
@@ -4890,8 +4890,8 @@ Usage: cardano-cli babbage genesis create-testnet-data [--spec-shelley FILE]
                                                          [--drep-keys INT]
                                                          [--stuffed-utxo INT]
                                                          [--utxo-keys INT]
-                                                         [--supply LOVELACE]
-                                                         [--supply-delegated LOVELACE]
+                                                         [--total-supply LOVELACE]
+                                                         [--delegated-supply LOVELACE]
                                                          ( --mainnet
                                                          | --testnet-magic NATURAL
                                                          )
@@ -6073,8 +6073,8 @@ Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILE]
                                                         [--drep-keys INT]
                                                         [--stuffed-utxo INT]
                                                         [--utxo-keys INT]
-                                                        [--supply LOVELACE]
-                                                        [--supply-delegated LOVELACE]
+                                                        [--total-supply LOVELACE]
+                                                        [--delegated-supply LOVELACE]
                                                         ( --mainnet
                                                         | --testnet-magic NATURAL
                                                         )
@@ -7599,8 +7599,8 @@ Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILE]
                                                         [--drep-keys INT]
                                                         [--stuffed-utxo INT]
                                                         [--utxo-keys INT]
-                                                        [--supply LOVELACE]
-                                                        [--supply-delegated LOVELACE]
+                                                        [--total-supply LOVELACE]
+                                                        [--delegated-supply LOVELACE]
                                                         ( --mainnet
                                                         | --testnet-magic NATURAL
                                                         )
