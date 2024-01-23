@@ -314,7 +314,7 @@ pQueryDRepStateCmd era envCli = do
   pure
     $ subParser "drep-state"
     $ Opt.info (QueryDRepStateCmd <$> pQueryDRepStateCmdArgs w)
-    $ Opt.progDesc "Get the DRep state. If no DRep credentials are provided, return states for all of them."
+    $ Opt.progDesc "Get the DRep state."
   where
     pQueryDRepStateCmdArgs :: ConwayEraOnwards era -> Parser (QueryDRepStateCmdArgs era)
     pQueryDRepStateCmdArgs w =
@@ -334,7 +334,7 @@ pQueryDRepStakeDistributionCmd era envCli = do
   pure
     $ subParser "drep-stake-distribution"
     $ Opt.info (QueryDRepStakeDistributionCmd <$> pQueryDRepStakeDistributionCmdArgs w)
-    $ Opt.progDesc "Get the DRep stake distribution. If no DRep credentials are provided, return stake distributions for all of them."
+    $ Opt.progDesc "Get the DRep stake distribution."
   where
     pQueryDRepStakeDistributionCmdArgs :: ConwayEraOnwards era -> Parser (QueryDRepStakeDistributionCmdArgs era)
     pQueryDRepStakeDistributionCmdArgs w = QueryDRepStakeDistributionCmdArgs w
