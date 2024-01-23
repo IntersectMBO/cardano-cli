@@ -54,9 +54,6 @@ Available commands:
   slot-number              Query slot number for UTC timestamp
   constitution             Get the constitution
   gov-state                Get the governance state
-  drep-state               Get the DRep state. If no DRep credentials are
-                           provided, return states for all of them.
-  drep-stake-distribution  Get the DRep stake distribution. If no DRep
-                           credentials are provided, return stake distributions
-                           for all of them.
+  drep-state               Get the DRep state.
+  drep-stake-distribution  Get the DRep stake distribution.
   committee-state          Get the committee state
