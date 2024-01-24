@@ -596,8 +596,12 @@ runGenesisCreateStakedCmd
   forM_ (zip [ 1 .. numBulkPoolCredFiles ] bulkSlices) $
     uncurry (writeBulkPoolCredentials pooldir)
 
-  let (delegsPerPool, delegsRemaining) = divMod numStakeDelegators numPools
-      delegsForPool poolIx = if delegsRemaining /= 0 && poolIx == numPools
+  let (delegsPerPool, delegsRemaining) =
+        if numPools == 0
+        then (0, 0)
+        else numStakeDelegators `divMod` numPools
+      delegsForPool poolIx =
+        if delegsRemaining /= 0 && poolIx == numPools
         then delegsPerPool
         else delegsPerPool + delegsRemaining
       distribution = [pool | (pool, poolIx) <- zip poolParams [1 ..], _ <- [1 .. delegsForPool poolIx]]
