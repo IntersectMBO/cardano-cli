@@ -271,6 +271,10 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
   -- Distribute M delegates across N pools:
   delegations <-
     case stakeDelegators of
+      OnDisk 0 ->
+        -- Required because the most general case below loops in this case
+        -- (try @zipWith _ (concat $ repeat []) _@ in a REPL)
+        pure []
       OnDisk _ -> do
         let delegates = concat $ repeat stakeDelegatorsDirs
         -- We don't need to be attentive to laziness here, because anyway this
