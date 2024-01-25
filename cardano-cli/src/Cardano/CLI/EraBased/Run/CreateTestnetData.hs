@@ -59,7 +59,7 @@ import qualified Cardano.Ledger.Shelley.API as Ledger
 import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, force)
-import           Control.Monad (forM, forM_, unless, void, zipWithM)
+import           Control.Monad (forM, forM_, unless, void, when, zipWithM)
 import           Control.Monad.Except (MonadError (..), runExceptT)
 import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans.Except (ExceptT)
@@ -219,8 +219,9 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
     createGenesisKeys (genesisDir </> ("genesis" <> show index))
     createDelegateKeys desiredKeyOutputFormat (delegateDir </> ("delegate" <> show index))
 
-  writeREADME genesisDir genesisREADME
-  writeREADME delegateDir delegatesREADME
+  when (0 < numGenesisKeys) $ do
+    writeREADME genesisDir genesisREADME
+    writeREADME delegateDir delegatesREADME
 
   -- UTxO keys
   let utxoKeys = [utxoKeysDir </> ("utxo" <> show index) </> "utxo.vkey"
@@ -228,7 +229,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
   forM_ [ 1 .. numUtxoKeys ] $ \index ->
     createUtxoKeys $ utxoKeysDir </> ("utxo" <> show index)
 
-  writeREADME utxoKeysDir utxoKeysREADME
+  when (0 < numUtxoKeys) $ writeREADME utxoKeysDir utxoKeysREADME
 
   let mayStakePoolRelays = Nothing -- TODO @smelc temporary?
 
@@ -239,7 +240,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
     createPoolCredentials desiredKeyOutputFormat poolDir
     buildPoolParams networkId poolDir Nothing (fromMaybe mempty mayStakePoolRelays)
 
-  writeREADME poolsDir poolsREADME
+  when (0 < numPools) $ writeREADME poolsDir poolsREADME
 
   -- DReps
   forM_ [ 1 .. numDrepKeys ] $ \index -> do
@@ -250,7 +251,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
     liftIO $ createDirectoryIfMissing True drepDir
     firstExceptT GenesisCmdFileError $ DRep.runGovernanceDRepKeyGenCmd cmd
 
-  writeREADME drepsDir drepsREADME
+  when (0 < numDrepKeys) $ writeREADME drepsDir drepsREADME
 
   -- Stake delegators
   case stakeDelegators of
@@ -259,8 +260,12 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
         createStakeDelegatorCredentials (stakeDelegatorsDir </> "delegator" <> show index)
     Transient _ -> pure ()
 
-  let (delegsPerPool, delegsRemaining) = numStakeDelegators `divMod` numPools
-      delegsForPool poolIx = if delegsRemaining /= 0 && poolIx == numPools
+  let (delegsPerPool, delegsRemaining) =
+        if numPools == 0
+        then (0, 0)
+        else numStakeDelegators `divMod` numPools
+      delegsForPool poolIx =
+        if delegsRemaining /= 0 && poolIx == numPools
         then delegsPerPool
         else delegsPerPool + delegsRemaining
       distribution = [pool | (pool, poolIx) <- zip poolParams [1 ..], _ <- [1 .. delegsForPool poolIx]]
@@ -270,6 +275,10 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
   -- Distribute M delegates across N pools:
   delegations <-
     case stakeDelegators of
+      OnDisk 0 ->
+        -- Required because the most general case below loops in this case
+        -- (try @zipWith _ (concat $ repeat []) _@ in a REPL)
+        pure []
       OnDisk _ -> do
         let delegates = concat $ repeat stakeDelegatorsDirs
         -- We don't need to be attentive to laziness here, because anyway this
