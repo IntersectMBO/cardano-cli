@@ -27,13 +27,13 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
 import qualified Cardano.Ledger.BaseTypes as Ledger
 import qualified Cardano.Ledger.Crypto as Crypto
 import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Data.Text (Text)
 import           Data.Word
-import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
 
 data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd         !(GovernanceActionCreateConstitutionCmdArgs era)
@@ -118,14 +118,15 @@ data GovernanceActionProtocolParametersUpdateCmdArgs era
 
 data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
-      { eon                 :: !(ConwayEraOnwards era)
-      , networkId           :: !Ledger.Network
-      , deposit             :: !Lovelace
-      , returnAddr          :: !(VerificationKeyOrHashOrFile StakeKey)
-      , proposalUrl         :: !ProposalUrl
-      , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
-      , treasuryWithdrawal  :: ![(VerificationKeyOrHashOrFile StakeKey, Lovelace)]
-      , outFile             :: !(File () Out)
+      { eon                    :: !(ConwayEraOnwards era)
+      , networkId              :: !Ledger.Network
+      , deposit                :: !Lovelace
+      , returnAddr             :: !(VerificationKeyOrHashOrFile StakeKey)
+      , proposalUrl            :: !ProposalUrl
+      , proposalHash           :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
+      , treasuryWithdrawal     :: ![(VerificationKeyOrHashOrFile StakeKey, Lovelace)]
+      , constitutionScriptHash :: !(Maybe ScriptHash)
+      , outFile                :: !(File () Out)
       } deriving Show
 
 data GovernanceActionViewCmdArgs era
@@ -145,6 +146,7 @@ data UpdateProtocolParametersConwayOnwards era
       , proposalUrl         :: !ProposalUrl
       , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , governanceActionId  :: !(Maybe (TxId, Word32))
+      , constitutionScriptHash :: !(Maybe ScriptHash)
       }
 
 data CostModelsFile era

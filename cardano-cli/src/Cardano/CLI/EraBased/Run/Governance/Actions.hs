@@ -332,6 +332,7 @@ runGovernanceActionTreasuryWithdrawalCmd
       , Cmd.proposalUrl
       , Cmd.proposalHash
       , Cmd.treasuryWithdrawal
+      , Cmd.constitutionScriptHash
       , Cmd.outFile
       } = do
 
@@ -348,6 +349,7 @@ runGovernanceActionTreasuryWithdrawalCmd
 
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
       treasuryWithdrawals = TreasuryWithdrawal withdrawals
+                              (toShelleyScriptHash <$> Ledger.maybeToStrictMaybe constitutionScriptHash)
       proposal = createProposalProcedure sbe networkId deposit returnKeyHash treasuryWithdrawals proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
