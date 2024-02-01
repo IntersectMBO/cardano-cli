@@ -49,6 +49,7 @@ import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
 import qualified Cardano.Ledger.Alonzo.Core as Ledger
+import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 import           Control.Monad (forM)
@@ -215,12 +216,12 @@ runTransactionBuildCmd
       pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
       executionUnitPrices <- pure (getExecutionUnitPrices era pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
 
-      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryCurrentEra)
+      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
       (txEraUtxo, _, eraHistory, systemStart, _, _, _) <-
-        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (queryStateForBalancedTx nodeEra allTxInputs []))
+        lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip (queryStateForBalancedTx nodeEra allTxInputs []))
           & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . TxCmdQueryConvenienceError)
 
@@ -538,7 +539,7 @@ runTxBuild
                                   , localNodeSocketPath = socketPath
                                   }
 
-  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryCurrentEra)
+  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
     & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
     & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
