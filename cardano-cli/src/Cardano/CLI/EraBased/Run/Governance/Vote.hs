@@ -15,7 +15,7 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Vote as Cmd
-import           Cardano.CLI.Read (readVotingProceduresFile)
+import           Cardano.CLI.Read (readSingleVote)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
@@ -92,8 +92,8 @@ runGovernanceVoteViewCmd
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
 
   shelleyBasedEraConstraints sbe $ do
-    voteProcedures <- firstExceptT GovernanceVoteCmdReadVoteFileError . newExceptT $
-     readVotingProceduresFile eon voteFile
+    voteProcedures <- fmap fst . firstExceptT GovernanceVoteCmdReadVoteFileError . newExceptT $
+     readSingleVote eon (voteFile, Nothing)
     firstExceptT GovernanceVoteCmdWriteError .
       newExceptT .
       (case outFormat of

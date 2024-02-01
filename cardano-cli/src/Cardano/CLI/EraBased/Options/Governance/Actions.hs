@@ -295,7 +295,7 @@ pIntroducedInConwayPParams =
     <$> convertToLedger id (optional pPoolVotingThresholds)
     <*> convertToLedger id (optional pDRepVotingThresholds)
     <*> convertToLedger id (optional pMinCommitteeSize)
-    <*> convertToLedger id (optional (fromIntegral . unEpochNo <$> pCommitteeTermLength))
+    <*> convertToLedger id (optional pCommitteeTermLength)
     <*> convertToLedger id (optional pGovActionLifetime)
     <*> convertToLedger toShelleyLovelace (optional pNewGovActionDeposit)
     <*> convertToLedger toShelleyLovelace (optional pDRepDeposit)

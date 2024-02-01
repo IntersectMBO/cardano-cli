@@ -67,7 +67,8 @@ runGovernanceActionViewCmd
     , Cmd.mOutFile
     , Cmd.eon
     } = do
-  proposal <- firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT $ readProposal eon actionFile
+  proposal <- fmap fst . firstExceptT GovernanceActionsCmdProposalError . newExceptT
+                $ readProposal eon (actionFile, Nothing)
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
     friendlyProposal
       (case outFormat of
@@ -129,7 +130,13 @@ runGovernanceActionCreateNoConfidenceCmd
         }
 
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
-      previousGovernanceAction = MotionOfNoConfidence . Ledger.SJust $ createPreviousGovernanceActionId governanceActionId governanceActionIndex
+      previousGovernanceAction = MotionOfNoConfidence
+                                   $ Ledger.SJust
+                                   $ shelleyBasedEraConstraints sbe
+                                   $ createPreviousGovernanceActionId
+                                       governanceActionId
+                                       governanceActionIndex
+
       proposalProcedure = createProposalProcedure sbe networkId deposit returnKeyHash previousGovernanceAction proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
@@ -160,7 +167,9 @@ runGovernanceActionCreateConstitutionCmd
         , Ledger.anchorDataHash = proposalHash
         }
 
-  let prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
+  let prevGovActId = Ledger.maybeToStrictMaybe
+                       $ shelleyBasedEraConstraints sbe
+                       $ uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
       constitutionAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unConstitutionUrl constitutionUrl
         , Ledger.anchorDataHash = constitutionHash
@@ -193,8 +202,9 @@ runGovernanceActionCreateNewCommitteeCmd
       , Cmd.outFile
       } = do
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
-      govActIdentifier = Ledger.maybeToStrictMaybe $
-        uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
+      govActIdentifier = Ledger.maybeToStrictMaybe
+                           $ shelleyBasedEraConstraints sbe
+                           $ uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
       quorumRational = toRational requiredQuorum
 
   let proposalAnchor = Ledger.Anchor
@@ -259,7 +269,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
             anyEra = AnyShelleyBasedEra $ conwayEraOnwardsToShelleyBasedEra conwayOnwards
 
         UpdateProtocolParametersConwayOnwards _cOnwards network deposit returnAddr proposalUrl
-                                              proposalHash mPrevGovActId
+                                              proposalHash mPrevGovActId mConstitutionalScriptHash
           <- hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
               $ uppConwayOnwards eraBasedPParams'
 
@@ -275,6 +285,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
               , Ledger.anchorDataHash = proposalHash
               }
             govAct = UpdatePParams prevGovActId updateProtocolParams
+                      (toShelleyScriptHash <$> Ledger.maybeToStrictMaybe mConstitutionalScriptHash)
 
 
         let proposalProcedure = createProposalProcedure sbe network deposit returnKeyHash govAct proposalAnchor

@@ -887,13 +887,14 @@ pConstitutionHash =
     ]
 
 pUrl :: String -> String -> Parser Ledger.Url
-pUrl l h = fromMaybe (error "Url longer than 64 bytes")
-         . Ledger.textToUrl <$>
-             Opt.strOption (mconcat
-                            [ Opt.long l
-                            , Opt.metavar "TEXT"
-                            , Opt.help h
-                            ])
+pUrl l h =
+  let toUrl urlText = fromMaybe (error "Url longer than 64 bytes")
+                        $ Ledger.textToUrl (Text.length urlText) urlText
+  in fmap toUrl . Opt.strOption
+       $ mconcat [ Opt.long l
+                 , Opt.metavar "TEXT"
+                 , Opt.help h
+                 ]
 
 pGovActionDeposit :: Parser Lovelace
 pGovActionDeposit =
@@ -2621,27 +2622,27 @@ pMinPoolCost =
     , Opt.help "The minimum allowed cost parameter for stake pools."
     ]
 
-pMaxBodySize :: Parser Natural
+pMaxBodySize :: Parser Word32
 pMaxBodySize =
   Opt.option Opt.auto $ mconcat
     [ Opt.long "max-block-body-size"
-    , Opt.metavar "NATURAL"
+    , Opt.metavar "WORD32"
     , Opt.help "Maximal block body size."
     ]
 
-pMaxTransactionSize :: Parser Natural
+pMaxTransactionSize :: Parser Word32
 pMaxTransactionSize =
   Opt.option Opt.auto $ mconcat
     [ Opt.long "max-tx-size"
-    , Opt.metavar "NATURAL"
+    , Opt.metavar "WORD32"
     , Opt.help "Maximum transaction size."
     ]
 
-pMaxBlockHeaderSize :: Parser Natural
+pMaxBlockHeaderSize :: Parser Word16
 pMaxBlockHeaderSize =
   Opt.option Opt.auto $ mconcat
    [ Opt.long "max-block-header-size"
-   , Opt.metavar "NATURAL"
+   , Opt.metavar "WORD16"
    , Opt.help "Maximum block header size."
    ]
 
@@ -2674,7 +2675,7 @@ pEpochBoundRetirement =
   fmap L.EpochInterval $ asum
     [ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
         [ Opt.long "pool-retirement-epoch-interval"
-        , Opt.metavar "EPOCH_INTERVAL"
+        , Opt.metavar "WORD32"
         , Opt.help "Epoch interval of pool retirement."
         ]
     , Opt.option (bounded "EPOCH_BOUNDARY")  $ mconcat
@@ -2864,6 +2865,7 @@ pPoolVotingThresholds =
       <*> pCommitteeNormal
       <*> pCommitteeNoConfidence
       <*> pHardForkInitiation
+      <*> pPPSecurityGroup
   where
     pMotionNoConfidence =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
@@ -2888,6 +2890,12 @@ pPoolVotingThresholds =
         [ Opt.long "pool-voting-threshold-hard-fork-initiation"
         , Opt.metavar "RATIONAL"
         , Opt.help "Acceptance threshold for stake pool votes on hard fork initiations."
+        ]
+    pPPSecurityGroup =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "pool-voting-threshold-pp-security-group"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "Acceptance threshold for stake pool votes on protocol parameters for parameters in the 'security' group."
         ]
 
 pDRepVotingThresholds :: Parser Ledger.DRepVotingThresholds
@@ -2973,11 +2981,11 @@ pMinCommitteeSize =
     , Opt.help "Minimal size of the constitutional committee."
     ]
 
-pCommitteeTermLength :: Parser EpochNo
+pCommitteeTermLength :: Parser L.EpochInterval
 pCommitteeTermLength =
-  fmap EpochNo $ Opt.option Opt.auto $ mconcat
+  fmap L.EpochInterval $ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
     [ Opt.long "committee-term-length"
-    , Opt.metavar "INT"
+    , Opt.metavar "WORD32"
     , Opt.help "Maximal term length for members of the constitutional committee, in epochs."
     ]
 
@@ -2985,7 +2993,7 @@ pGovActionLifetime :: Parser L.EpochInterval
 pGovActionLifetime =
   fmap L.EpochInterval $ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
     [ Opt.long "governance-action-lifetime"
-    , Opt.metavar "NATURAL"
+    , Opt.metavar "WORD32"
     , Opt.help "Maximal lifetime of governance actions, in epochs."
     ]
 
@@ -3001,7 +3009,7 @@ pDRepActivity :: Parser L.EpochInterval
 pDRepActivity =
   fmap L.EpochInterval $ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
     [ Opt.long "drep-activity"
-    , Opt.metavar "NATURAL"
+    , Opt.metavar "WORD32"
     , Opt.help "DRep activity period, in epochs."
     ]
 
@@ -3105,6 +3113,14 @@ pDRepScriptHash =
     [ Opt.long "drep-script-hash"
     , Opt.metavar "HASH"
     , Opt.help "DRep script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+    ]
+
+pConstitutionScriptHash :: Parser ScriptHash
+pConstitutionScriptHash =
+  Opt.option scriptHashReader $ mconcat
+    [ Opt.long "constitution-script-hash"
+    , Opt.metavar "HASH"
+    , Opt.help "Constitution script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
     ]
 
 pDRepVerificationKeyOrHashOrFile

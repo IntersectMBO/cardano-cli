@@ -114,6 +114,7 @@ readerFromAttoParser p =
 eDNSName :: String -> Either String ByteString
 eDNSName str =
   -- We're using 'Shelley.textToDns' to validate the string.
-  case Shelley.textToDns (Text.pack str) of
-    Nothing -> Left $ "DNS name is more than 64 bytes: " <> str
-    Just dnsName -> Right . Text.encodeUtf8 . Shelley.dnsToText $ dnsName
+  let dnsNameText = Text.pack str
+  in case Shelley.textToDns (Text.length dnsNameText) dnsNameText of
+      Nothing -> Left $ "DNS name is more than 64 bytes: " <> str
+      Just dnsName -> Right . Text.encodeUtf8 . Shelley.dnsToText $ dnsName
