@@ -2,12 +2,12 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update -
                                                                                  (--genesis-verification-key-file FILE)
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
-                                                                                 [--max-block-body-size NATURAL]
-                                                                                 [--max-tx-size NATURAL]
-                                                                                 [--max-block-header-size NATURAL]
+                                                                                 [--max-block-body-size WORD32]
+                                                                                 [--max-tx-size WORD32]
+                                                                                 [--max-block-header-size WORD16]
                                                                                  [--key-reg-deposit-amt NATURAL]
                                                                                  [--pool-reg-deposit NATURAL]
-                                                                                 [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                                                 [--pool-retirement-epoch-interval WORD32]
                                                                                  [--number-of-pools NATURAL]
                                                                                  [--pool-influence RATIONAL]
                                                                                  [--treasury-expansion RATIONAL]
@@ -38,17 +38,17 @@ Available options:
   --min-fee-linear LOVELACE
                            The linear factor per byte for the minimum fee
                            calculation.
-  --max-block-body-size NATURAL
+  --max-block-body-size WORD32
                            Maximal block body size.
-  --max-tx-size NATURAL    Maximum transaction size.
-  --max-block-header-size NATURAL
+  --max-tx-size WORD32     Maximum transaction size.
+  --max-block-header-size WORD16
                            Maximum block header size.
   --key-reg-deposit-amt NATURAL
                            Key registration deposit amount.
   --pool-reg-deposit NATURAL
                            The amount of a pool registration deposit.
-  --pool-retirement-epoch-boundary EPOCH_BOUNDARY
-                           Epoch bound on pool retirement.
+  --pool-retirement-epoch-interval WORD32
+                           Epoch interval of pool retirement.
   --number-of-pools NATURAL
                            Desired number of pools.
   --pool-influence RATIONAL

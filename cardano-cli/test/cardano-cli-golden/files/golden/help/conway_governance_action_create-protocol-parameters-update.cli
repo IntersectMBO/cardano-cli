@@ -11,14 +11,15 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 --anchor-data-hash HASH
                                                                                 [--prev-governance-action-tx-id TXID
                                                                                   --prev-governance-action-index WORD32]
+                                                                                [--constitution-script-hash HASH]
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
-                                                                                [--max-block-body-size NATURAL]
-                                                                                [--max-tx-size NATURAL]
-                                                                                [--max-block-header-size NATURAL]
+                                                                                [--max-block-body-size WORD32]
+                                                                                [--max-tx-size WORD32]
+                                                                                [--max-block-header-size WORD16]
                                                                                 [--key-reg-deposit-amt NATURAL]
                                                                                 [--pool-reg-deposit NATURAL]
-                                                                                [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                                                [--pool-retirement-epoch-interval WORD32]
                                                                                 [--number-of-pools NATURAL]
                                                                                 [--pool-influence RATIONAL]
                                                                                 [--treasury-expansion RATIONAL]
@@ -35,7 +36,8 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 [--pool-voting-threshold-motion-no-confidence RATIONAL
                                                                                   --pool-voting-threshold-committee-normal RATIONAL
                                                                                   --pool-voting-threshold-committee-no-confidence RATIONAL
-                                                                                  --pool-voting-threshold-hard-fork-initiation RATIONAL]
+                                                                                  --pool-voting-threshold-hard-fork-initiation RATIONAL
+                                                                                  --pool-voting-threshold-pp-security-group RATIONAL]
                                                                                 [--drep-voting-threshold-motion-no-confidence RATIONAL
                                                                                   --drep-voting-threshold-committee-normal RATIONAL
                                                                                   --drep-voting-threshold-committee-no-confidence RATIONAL
@@ -47,11 +49,11 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                   --drep-voting-threshold-pp-governance-group RATIONAL
                                                                                   --drep-voting-threshold-treasury-withdrawal RATIONAL]
                                                                                 [--min-committee-size INT]
-                                                                                [--committee-term-length INT]
-                                                                                [--governance-action-lifetime NATURAL]
+                                                                                [--committee-term-length WORD32]
+                                                                                [--governance-action-lifetime WORD32]
                                                                                 [--new-governance-action-deposit NATURAL]
                                                                                 [--drep-deposit LOVELACE]
-                                                                                [--drep-activity NATURAL]
+                                                                                [--drep-activity WORD32]
                                                                                 [--cost-model-file FILE]
                                                                                 --out-file FILE
 
@@ -75,22 +77,25 @@ Available options:
                            Txid of the previous governance action.
   --prev-governance-action-index WORD32
                            Action index of the previous governance action.
+  --constitution-script-hash HASH
+                           Constitution script hash (hex-encoded). Obtain it
+                           with "cardano-cli conway governance hash script ...".
   --min-fee-constant LOVELACE
                            The constant factor for the minimum fee calculation.
   --min-fee-linear LOVELACE
                            The linear factor per byte for the minimum fee
                            calculation.
-  --max-block-body-size NATURAL
+  --max-block-body-size WORD32
                            Maximal block body size.
-  --max-tx-size NATURAL    Maximum transaction size.
-  --max-block-header-size NATURAL
+  --max-tx-size WORD32     Maximum transaction size.
+  --max-block-header-size WORD16
                            Maximum block header size.
   --key-reg-deposit-amt NATURAL
                            Key registration deposit amount.
   --pool-reg-deposit NATURAL
                            The amount of a pool registration deposit.
-  --pool-retirement-epoch-boundary EPOCH_BOUNDARY
-                           Epoch bound on pool retirement.
+  --pool-retirement-epoch-interval WORD32
+                           Epoch interval of pool retirement.
   --number-of-pools NATURAL
                            Desired number of pools.
   --pool-influence RATIONAL
@@ -140,6 +145,9 @@ Available options:
   --pool-voting-threshold-hard-fork-initiation RATIONAL
                            Acceptance threshold for stake pool votes on hard
                            fork initiations.
+  --pool-voting-threshold-pp-security-group RATIONAL
+                           Acceptance threshold for stake pool votes on protocol
+                           parameters for parameters in the 'security' group.
   --drep-voting-threshold-motion-no-confidence RATIONAL
                            Acceptance threshold for DRep votes on motions of no
                            confidence.
@@ -172,16 +180,16 @@ Available options:
                            Acceptance threshold for DRep votes on treasury
                            withdrawals.
   --min-committee-size INT Minimal size of the constitutional committee.
-  --committee-term-length INT
+  --committee-term-length WORD32
                            Maximal term length for members of the constitutional
                            committee, in epochs.
-  --governance-action-lifetime NATURAL
+  --governance-action-lifetime WORD32
                            Maximal lifetime of governance actions, in epochs.
   --new-governance-action-deposit NATURAL
                            Proposed new value of the deposit required to submit
                            a governance action.
   --drep-deposit LOVELACE  DRep deposit amount.
-  --drep-activity NATURAL  DRep activity period, in epochs.
+  --drep-activity WORD32   DRep activity period, in epochs.
   --cost-model-file FILE   Filepath of the JSON formatted cost model
   --out-file FILE          The output file.
   -h,--help                Show this help text

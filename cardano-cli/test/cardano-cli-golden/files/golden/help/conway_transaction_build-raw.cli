@@ -120,8 +120,22 @@ Usage: cardano-cli conway transaction build-raw
                                                   | --metadata-cbor-file FILE
                                                   ]
                                                   [--protocol-params-file FILE]
-                                                  [--vote-file FILE]
-                                                  [--proposal-file FILE]
+                                                  [--vote-file FILE
+                                                    [--vote-script-file FILE
+                                                      [
+                                                        ( --vote-redeemer-cbor-file CBOR FILE
+                                                        | --vote-redeemer-file JSON FILE
+                                                        | --vote-redeemer-value JSON VALUE
+                                                        )
+                                                        --vote-execution-units (INT, INT)]]]
+                                                  [--proposal-file FILE
+                                                    [--proposal-script-file FILE
+                                                      [
+                                                        ( --proposal-redeemer-cbor-file CBOR FILE
+                                                        | --proposal-redeemer-file JSON FILE
+                                                        | --proposal-redeemer-value JSON VALUE
+                                                        )
+                                                        --proposal-execution-units (INT, INT)]]]
                                                   --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -396,6 +410,33 @@ Available options:
   --protocol-params-file FILE
                            Filepath of the JSON-encoded protocol parameters file
   --vote-file FILE         Filepath of the vote.
+  --vote-script-file FILE  The file containing the script to witness a vote
+  --vote-redeemer-cbor-file CBOR FILE
+                           The script redeemer, in the given JSON file. The file
+                           must follow the special JSON schema for script data.
+  --vote-redeemer-file JSON FILE
+                           The script redeemer, in the given JSON file. The file
+                           must follow the special JSON schema for script data.
+  --vote-redeemer-value JSON VALUE
+                           The script redeemer, in JSON syntax. There is no
+                           schema: (almost) any JSON value is supported,
+                           including top-level strings and numbers.
+  --vote-execution-units (INT, INT)
+                           The time and space units needed by the script.
   --proposal-file FILE     Filepath of the proposal.
+  --proposal-script-file FILE
+                           The file containing the script to witness a proposal
+  --proposal-redeemer-cbor-file CBOR FILE
+                           The script redeemer, in the given JSON file. The file
+                           must follow the special JSON schema for script data.
+  --proposal-redeemer-file JSON FILE
+                           The script redeemer, in the given JSON file. The file
+                           must follow the special JSON schema for script data.
+  --proposal-redeemer-value JSON VALUE
+                           The script redeemer, in JSON syntax. There is no
+                           schema: (almost) any JSON value is supported,
+                           including top-level strings and numbers.
+  --proposal-execution-units (INT, INT)
+                           The time and space units needed by the script.
   --out-file FILE          Output filepath of the JSON TxBody.
   -h,--help                Show this help text
