@@ -27,7 +27,7 @@ import           Cardano.CLI.Types.Key.VerificationKey
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Crypto as Crypto
 import qualified Cardano.Ledger.SafeHash as L
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
+import qualified Cardano.Ledger.Shelley.API as Shelley
 
 import           Control.Monad (mfilter)
 import qualified Data.Aeson as Aeson
@@ -1115,6 +1115,53 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
           case scriptDataJsonToHashable ScriptDataJsonNoSchema sDataValue of
             Left err -> fail $ docToString $ prettyError err
             Right sd -> return sd
+
+pVoteFiles
+  :: ShelleyBasedEra era
+  -> BalanceTxExecUnits
+  -> Parser [(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+pVoteFiles sbe bExUnits= caseShelleyToBabbageOrConwayEraOnwards
+        (const $ pure [])
+        (const . many $ pVoteFile bExUnits)
+        sbe
+
+pVoteFile :: BalanceTxExecUnits -> Parser (VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+pVoteFile balExUnits =
+  (,) <$> pFileInDirection "vote-file" "Filepath of the vote."
+      <*> optional (pVoteScriptOrReferenceScriptWitness balExUnits)
+
+ where
+   pVoteScriptOrReferenceScriptWitness
+     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
+   pVoteScriptOrReferenceScriptWitness bExUnits =
+     pScriptWitnessFiles
+       WitCtxStake
+       bExUnits
+       "vote"
+       Nothing
+       "a vote"
+
+pProposalFiles :: ShelleyBasedEra era -> BalanceTxExecUnits -> Parser [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+pProposalFiles sbe balExUnits = caseShelleyToBabbageOrConwayEraOnwards
+        (const $ pure [])
+        (const $ many (pProposalFile balExUnits))
+        sbe
+
+pProposalFile :: BalanceTxExecUnits -> Parser (ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+pProposalFile balExUnits =
+ (,) <$> pFileInDirection "proposal-file" "Filepath of the proposal."
+     <*> optional (pProposingScriptOrReferenceScriptWitness balExUnits)
+
+ where
+   pProposingScriptOrReferenceScriptWitness
+     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
+   pProposingScriptOrReferenceScriptWitness bExUnits =
+     pScriptWitnessFiles
+       WitCtxStake
+       bExUnits
+       "proposal"
+       Nothing
+       "a proposal"
 
 --------------------------------------------------------------------------------
 

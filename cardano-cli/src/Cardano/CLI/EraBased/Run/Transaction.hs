@@ -384,8 +384,8 @@ runTxBuildRaw :: ()
   -> TxMetadataInEra era
   -> Maybe (LedgerProtocolParameters era)
   -> TxUpdateProposal era
-  -> VotingProcedures era
-  -> [Proposal era]
+  -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> Either TxCmdError (TxBody era)
 runTxBuildRaw sbe
               mScriptValidity inputsAndMaybeScriptWits
@@ -488,8 +488,8 @@ runTxBuild :: ()
   -> TxMetadataInEra era
   -> TxUpdateProposal era
   -> Maybe Word
-  -> VotingProcedures era
-  -> [Proposal era]
+  -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild

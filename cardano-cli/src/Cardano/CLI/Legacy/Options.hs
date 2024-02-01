@@ -336,8 +336,8 @@ pTransaction envCli =
                   "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
       <*> optional pUpdateProposalFile
-      <*> many (pFileInDirection "vote-file" "Filepath of the vote.")
-      <*> many (pFileInDirection "proposal-file" "Filepath of the proposal.")
+      <*> pVoteFiles ShelleyBasedEraConway AutoBalance
+      <*> pProposalFiles ShelleyBasedEraConway AutoBalance
       <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
   pChangeAddress :: Parser TxOutChangeAddress

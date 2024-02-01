@@ -90,8 +90,8 @@ runLegacyTransactionBuildCmd :: ()
   -> [ScriptFile]
   -> [MetadataFile]
   -> Maybe UpdateProposalFile
-  -> [VoteFile In]
-  -> [ProposalFile In]
+  -> [(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -> [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO ()
 runLegacyTransactionBuildCmd

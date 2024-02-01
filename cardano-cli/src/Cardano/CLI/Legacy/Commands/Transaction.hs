@@ -90,8 +90,8 @@ data LegacyTransactionCmds
       -- ^ Auxiliary scripts
       [MetadataFile]
       (Maybe UpdateProposalFile)
-      [VoteFile In]
-      [ProposalFile In]
+      [(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+      [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
       TxBuildOutputOptions
   | TransactionSignCmd
       InputTxBodyOrTxFile
