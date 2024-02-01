@@ -7,8 +7,6 @@ import           Cardano.Api.Shelley
 
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch)
 
-import           Prettyprinter
-
 data GovernanceQueryError
   = GovernanceQueryWriteFileError !(FileError ())
   | GovernanceQueryAcqireFailureError !AcquiringFailure

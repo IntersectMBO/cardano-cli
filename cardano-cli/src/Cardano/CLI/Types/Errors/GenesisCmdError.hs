@@ -17,7 +17,6 @@ import           Cardano.CLI.Types.Errors.StakePoolCmdError
 
 import           Control.Exception (IOException)
 import           Data.Text (Text)
-import           Prettyprinter
 
 data GenesisCmdError
   = GenesisCmdAesonDecodeError !FilePath !Text

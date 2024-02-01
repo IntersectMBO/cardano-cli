@@ -43,6 +43,7 @@ data TxCmdError
   = TxCmdMetadataError MetadataError
   | TxCmdVoteError VoteError
   | TxCmdConstitutionError ConstitutionError
+  | TxCmdProposalError ProposalError
   | TxCmdScriptWitnessError ScriptWitnessError
   | TxCmdProtocolParamsError ProtocolParamsError
   | TxCmdScriptFileError (FileError ScriptDecodeError)
@@ -99,9 +100,11 @@ renderTxCmdError = \case
   TxCmdProtocolParamsConverstionError err' ->
     "Error while converting protocol parameters: " <> prettyError err'
   TxCmdVoteError voteErr ->
-    pshow voteErr
+    prettyError voteErr
   TxCmdConstitutionError constErr ->
     pshow constErr
+  TxCmdProposalError propErr ->
+    pshow propErr
   TxCmdReadTextViewFileError fileErr ->
     prettyError fileErr
   TxCmdScriptFileError fileErr ->
