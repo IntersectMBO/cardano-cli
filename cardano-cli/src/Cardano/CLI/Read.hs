@@ -4,6 +4,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 
 module Cardano.CLI.Read
   ( -- * Metadata
@@ -75,7 +76,7 @@ module Cardano.CLI.Read
   , getStakeAddressFromVerifier
 
   , readVotingProceduresFiles
-  , readVotingProceduresFile
+  , readSingleVote
 
   -- * DRep credentials
   , getDRepCredentialFromVerKeyHashOrFile
@@ -113,7 +114,6 @@ import qualified Cardano.Crypto.Hash.Class as Crypto
 import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.BaseTypes as Ledger
-import qualified Cardano.Ledger.Conway.Governance as Ledger
 import qualified Cardano.Ledger.Credential as Ledger
 import qualified Cardano.Ledger.Crypto as Crypto
 import qualified Cardano.Ledger.Crypto as Ledger
@@ -139,7 +139,6 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Function ((&))
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
-import qualified Data.Map.Strict as Map
 import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as Text
@@ -149,7 +148,6 @@ import           Data.Word
 import           GHC.IO.Handle (hClose, hIsSeekable)
 import           GHC.IO.Handle.FD (openFileBlocking)
 import qualified Options.Applicative as Opt
-import           Prettyprinter (vsep)
 import           System.IO (IOMode (ReadMode))
 
 -- Metadata
@@ -227,6 +225,7 @@ data ScriptWitnessError
   | ScriptWitnessErrorExpectedPlutus !FilePath !AnyScriptLanguage
   | ScriptWitnessErrorReferenceScriptsNotSupportedInEra !AnyShelleyBasedEra
   | ScriptWitnessErrorScriptData ScriptDataError
+  deriving Show
 
 renderScriptWitnessError :: ScriptWitnessError -> Doc ann
 renderScriptWitnessError = \case
@@ -387,6 +386,7 @@ data ScriptDataError =
   | ScriptDataErrorValidation !FilePath !ScriptDataRangeError
   | ScriptDataErrorMetadataDecode !FilePath !CBOR.DecoderError
   | ScriptDataErrorJsonBytes !ScriptDataJsonBytesError
+  deriving Show
 
 renderScriptDataError :: ScriptDataError -> Doc ann
 renderScriptDataError = \case
@@ -783,6 +783,7 @@ readRequiredSigner (RequiredSignerSkeyFile skFile) = do
 data VoteError
   = VoteErrorFile (FileError TextEnvelopeError)
   | VoteErrorTextNotUnicode Text.UnicodeException
+  | VoteErrorScriptWitness ScriptWitnessError
   deriving Show
 
 instance Error VoteError where
@@ -791,17 +792,17 @@ instance Error VoteError where
       prettyError e
     VoteErrorTextNotUnicode e ->
       "Vote text file not UTF8-encoded: " <> pretty (displayException e)
+    VoteErrorScriptWitness e ->
+      renderScriptWitnessError e
 
-readVotingProceduresFiles :: ()
-  => ConwayEraOnwards era
-  -> [VoteFile In]
-  -> IO (Either VoteError (VotingProcedures era))
+readVotingProceduresFiles
+  :: ConwayEraOnwards era
+  -> [(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -> IO (Either VoteError [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))])
 readVotingProceduresFiles w = \case
-  [] -> return $ Right $ VotingProcedures $ Ledger.VotingProcedures Map.empty
-  files -> runExceptT $ do
-    vpss <- forM files (ExceptT . readVotingProceduresFile w)
+  [] -> return $ return []
+  files -> runExceptT $ forM files (ExceptT . readSingleVote w)
 
-    pure $ foldl unsafeMergeVotingProcedures emptyVotingProcedures vpss
 
 readTxUpdateProposal :: ()
   => ShelleyToBabbageEra era
@@ -810,13 +811,26 @@ readTxUpdateProposal :: ()
 readTxUpdateProposal w (UpdateProposalFile upFp) = do
   TxUpdateProposal w <$> newExceptT (readFileTextEnvelope AsUpdateProposal (File upFp))
 
-readVotingProceduresFile :: ()
+-- Because the 'Voter' type is contained only in the 'VotingProcedures'
+-- type, we must read a single vote as 'VotingProcedures'. The cli will
+-- not read vote files with multiple votes in them because this will
+-- complicate the code further in terms of contructing the redeemer map
+-- when it comes to script witnessed votes.
+readSingleVote :: ()
   => ConwayEraOnwards era
-  -> VoteFile In
-  -> IO (Either VoteError (VotingProcedures era))
-readVotingProceduresFile w fp =
-  conwayEraOnwardsConstraints w
-    $ first VoteErrorFile <$> readFileTextEnvelope AsVotingProcedures fp
+  -> (VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+  -> IO (Either VoteError (VotingProcedures era, Maybe (ScriptWitness WitCtxStake era)))
+readSingleVote w (voteFp, mScriptWitFiles) = do
+  votProceds <- conwayEraOnwardsConstraints w
+                  $ first VoteErrorFile <$> readFileTextEnvelope AsVotingProcedures voteFp
+  case mScriptWitFiles of
+    Nothing -> pure $ (,Nothing) <$> votProceds
+    sWitFile -> do
+      let sbe = conwayEraOnwardsToShelleyBasedEra w
+      runExceptT $ do
+        sWits <- firstExceptT VoteErrorScriptWitness
+                   $ mapM (readScriptWitness sbe) sWitFile
+        hoistEither $ (,sWits) <$> votProceds
 
 data ConstitutionError
   = ConstitutionErrorFile (FileError TextEnvelopeError)
@@ -828,24 +842,34 @@ data ProposalError
   = ProposalErrorFile (FileError TextEnvelopeError)
   | ProposalNotSupportedInEra AnyCardanoEra
   | ProposalNotUnicodeError Text.UnicodeException
+  | ProposalErrorScriptWitness ScriptWitnessError
   deriving Show
 
 readTxGovernanceActions
   :: ShelleyBasedEra era
-  -> [ProposalFile In]
-  -> IO (Either ConstitutionError [Proposal era])
+  -> [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -> IO (Either ProposalError [(Proposal era, Maybe (ScriptWitness WitCtxStake era))])
 readTxGovernanceActions _ [] = return $ Right []
 readTxGovernanceActions era files = runExceptT $ do
   w <- forShelleyBasedEraMaybeEon era
-    & hoistMaybe (ConstitutionNotSupportedInEra $ cardanoEraConstraints (toCardanoEra era) $ AnyCardanoEra (toCardanoEra era))
-  newExceptT $ sequence <$> mapM (fmap (first ConstitutionErrorFile) . readProposal w) files
+    & hoistMaybe (ProposalNotSupportedInEra $ cardanoEraConstraints (toCardanoEra era) $ AnyCardanoEra (toCardanoEra era))
+  newExceptT $ sequence <$> mapM (readProposal w) files
 
 readProposal
   :: ConwayEraOnwards era
-  -> ProposalFile In
-  -> IO (Either (FileError TextEnvelopeError) (Proposal era))
-readProposal w fp =
-    conwayEraOnwardsConstraints w (readFileTextEnvelope AsProposal fp)
+  -> (ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+  -> IO (Either ProposalError (Proposal era, Maybe (ScriptWitness WitCtxStake era)))
+readProposal w (fp, mScriptWit) = do
+    prop <- conwayEraOnwardsConstraints w
+              $ first ProposalErrorFile <$> readFileTextEnvelope AsProposal fp
+    case mScriptWit of
+      Nothing -> pure $ (,Nothing) <$> prop
+      sWitFile -> do
+        let sbe = conwayEraOnwardsToShelleyBasedEra w
+        runExceptT $ do
+          sWit <- firstExceptT ProposalErrorScriptWitness
+                     $ mapM (readScriptWitness sbe) sWitFile
+          hoistEither $ (,sWit) <$> prop
 
 constitutionHashSourceToHash :: ()
   => ConstitutionHashSource

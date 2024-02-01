@@ -170,13 +170,13 @@ runTransactionBuildCmd
   txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
   -- Conway related
-  votingProcedures <-
+  votingProceduresAndMaybeScriptWits <-
     inEonForEra
-      (pure emptyVotingProcedures)
+      (pure mempty)
       (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w voteFiles))
       era
 
-  proposals <- newExceptT $ first TxCmdConstitutionError
+  proposals <- newExceptT $ first TxCmdProposalError
                   <$> readTxGovernanceActions eon proposalFiles
 
   -- the same collateral input can be used for several plutus scripts
@@ -188,16 +188,18 @@ runTransactionBuildCmd
       eon nodeSocketPath networkId mScriptValidity inputsAndMaybeScriptWits readOnlyReferenceInputs
       filteredTxinsc mReturnCollateral mTotalCollateral txOuts changeAddresses valuesWithScriptWits
       mValidityLowerBound mValidityUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
-      requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProcedures proposals buildOutputOptions
+      requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProceduresAndMaybeScriptWits
+      proposals buildOutputOptions
 
   let mScriptWits =
         forEraInEon era [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
-
-  let allReferenceInputs = getAllReferenceInputs
+      allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
                              (snd valuesWithScriptWits)
                              certsAndMaybeScriptWits
                              withdrawalsAndMaybeScriptWits
+                             votingProceduresAndMaybeScriptWits
+                             proposals
                              readOnlyReferenceInputs
 
   let inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
@@ -323,15 +325,15 @@ runTransactionBuildRawCmd
   let filteredTxinsc = Set.toList $ Set.fromList txInsCollateral
 
   -- Conway related
-  votingProcedures <-
+  votingProceduresAndMaybeScriptWits <-
     inEonForShelleyBasedEra
-      (pure emptyVotingProcedures)
-      (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w voteFiles))
+      (pure mempty)
+      (\w -> firstExceptT TxCmdVoteError . ExceptT $ conwayEraOnwardsConstraints w $ readVotingProceduresFiles w voteFiles)
       eon
 
   proposals <-
     lift (readTxGovernanceActions eon proposalFiles)
-      & onLeft (left . TxCmdConstitutionError)
+      & onLeft (left . TxCmdProposalError)
 
   certsAndMaybeScriptWits <-
       shelleyBasedEraConstraints eon $
@@ -345,7 +347,7 @@ runTransactionBuildRawCmd
       eon mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
       mReturnCollateral mTotalCollateral txOuts mValidityLowerBound mValidityUpperBound fee valuesWithScriptWits
       certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits requiredSigners txAuxScripts
-      txMetadata mLedgerPParams txUpdateProposal votingProcedures proposals
+      txMetadata mLedgerPParams txUpdateProposal votingProceduresAndMaybeScriptWits proposals
 
   let noWitTx = makeSignedTransaction [] txBody
   lift (writeTxFileTextEnvelopeCddl eon txBodyOutFile noWitTx)
@@ -402,7 +404,10 @@ runTxBuildRaw sbe
                                (snd valuesWithScriptWits)
                                certsAndMaybeSriptWits
                                withdrawals
+                               votingProcedures
+                               proposals
                                readOnlyRefIns
+
         validatedTxIns = validateTxIns inputsAndMaybeScriptWits
     validatedCollateralTxIns <- validateTxInsCollateral era txinsc
     validatedRefInputs <- validateTxInsReference era allReferenceInputs
@@ -426,8 +431,6 @@ runTxBuildRaw sbe
       <- createTxMintValue sbe valuesWithScriptWits
     validatedTxScriptValidity
       <- first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
-    let validatedTxProposal = proposals
-        validatedTxVotes = votingProcedures
     let txBodyContent =
           TxBodyContent
             { txIns = validatedTxIns
@@ -448,8 +451,8 @@ runTxBuildRaw sbe
             , txUpdateProposal = txUpdateProposal
             , txMintValue = validatedMintValue
             , txScriptValidity = validatedTxScriptValidity
-            , txProposalProcedures = forEraInEonMaybe era (`Featured` validatedTxProposal)
-            , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedTxVotes)
+            , txProposalProcedures = forEraInEonMaybe era (`Featured` (shelleyBasedEraConstraints sbe $ convToTxProposalProcedures proposals))
+            , txVotingProcedures = forEraInEonMaybe era (`Featured` convertToTxVotingProcedures votingProcedures)
             }
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
 
@@ -510,6 +513,8 @@ runTxBuild
                              (snd valuesWithScriptWits)
                              certsAndMaybeScriptWits
                              withdrawals
+                             votingProcedures
+                             proposals
                              readOnlyRefIns
 
   validatedCollateralTxIns <- hoistEither $ validateTxInsCollateral era txinsc
@@ -546,16 +551,14 @@ runTxBuild
           _ -> []
 
   (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits) <-
-    lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs certs)
+    lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ queryStateForBalancedTx nodeEra allTxInputs certs)
       & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
       & onLeft (left . TxCmdQueryConvenienceError)
 
   validatedPParams <- hoistEither $ first TxCmdProtocolParametersValidationError
                                   $ validateProtocolParameters era (Just pparams)
 
-  let validatedTxProposalProcedures = proposals
-      validatedTxVotes = votingProcedures
-      txBodyContent =
+  let txBodyContent =
         TxBodyContent
           { txIns = validateTxIns inputsAndMaybeScriptWits
           , txInsCollateral = validatedCollateralTxIns
@@ -575,8 +578,8 @@ runTxBuild
           , txUpdateProposal = txUpdateProposal
           , txMintValue = validatedMintValue
           , txScriptValidity = validatedTxScriptValidity
-          , txProposalProcedures = forEraInEonMaybe era (`Featured` validatedTxProposalProcedures)
-          , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedTxVotes)
+          , txProposalProcedures = forEraInEonMaybe era (`Featured` convToTxProposalProcedures proposals)
+          , txVotingProcedures = forEraInEonMaybe era (`Featured` convertToTxVotingProcedures votingProcedures)
           }
 
   firstExceptT TxCmdTxInsDoNotExist
@@ -657,18 +660,26 @@ getAllReferenceInputs
  -> [ScriptWitness WitCtxMint era]
  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
+ -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+ -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
  -> [TxIn] -- ^ Read only reference inputs
  -> [TxIn]
-getAllReferenceInputs txins mintWitnesses certFiles withdrawals readOnlyRefIns = do
+getAllReferenceInputs txins mintWitnesses certFiles withdrawals
+                      votingProceduresAndMaybeScriptWits propProceduresAnMaybeScriptWits
+                      readOnlyRefIns = do
   let txinsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- txins]
       mintingRefInputs = map getReferenceInput mintWitnesses
       certsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- certFiles]
       withdrawalsWitByRefInputs = [getReferenceInput sWit | (_, _, Just sWit) <- withdrawals]
+      votesWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- votingProceduresAndMaybeScriptWits]
+      propsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- propProceduresAnMaybeScriptWits]
 
   catMaybes $ concat [ txinsWitByRefInputs
                      , mintingRefInputs
                      , certsWitByRefInputs
                      , withdrawalsWitByRefInputs
+                     , votesWitByRefInputs
+                     , propsWitByRefInputs
                      , map Just readOnlyRefIns
                      ]
  where

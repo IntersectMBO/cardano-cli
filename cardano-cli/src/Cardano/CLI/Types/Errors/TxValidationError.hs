@@ -19,6 +19,8 @@ module Cardano.CLI.Types.Errors.TxValidationError
   , TxReturnCollateralValidationError(..)
   , TxTotalCollateralValidationError(..)
   , TxWithdrawalsValidationError(..)
+  , convToTxProposalProcedures
+  , convertToTxVotingProcedures
   , validateProtocolParameters
   , validateScriptSupportedInEra
   , validateTxAuxScripts
@@ -34,16 +36,21 @@ module Cardano.CLI.Types.Errors.TxValidationError
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
+import qualified Cardano.Ledger.Conway.Governance as Conway
+import qualified Cardano.Ledger.Core as Ledger
 
 import           Prelude
 
 import           Data.Bifunctor (first)
+import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
+import qualified Data.OSet.Strict as OSet
 
 data ScriptLanguageValidationError
   = ScriptLanguageValidationError AnyScriptLanguage AnyCardanoEra
@@ -217,6 +224,9 @@ instance Error TxCertificatesValidationError where
   prettyError (TxCertificatesValidationNotSupported e) =
     "Transaction certificates are not supported in " <> pretty e
 
+-- TODO: Because we have separated Byron related transaction
+-- construction into separate commands, we can parameterize this
+-- on ShelleyBasedEra era and remove Either TxCertificatesValidationError
 validateTxCertificates
   :: forall era.
      CardanoEra era
@@ -298,3 +308,56 @@ conjureWitness :: Eon eon
 conjureWitness era errF =
   maybe (cardanoEraConstraints era $ Left . errF $ AnyCardanoEra era) Right $
     forEraMaybeEon era
+
+getVotingScriptCredentials
+  :: VotingProcedures era
+  -> Maybe (Conway.Voter (L.EraCrypto (ShelleyLedgerEra era)))
+getVotingScriptCredentials (VotingProcedures (Conway.VotingProcedures m)) =
+  listToMaybe $ Map.keys m
+
+votingScriptWitnessSingleton
+  :: VotingProcedures era
+  -> Maybe (ScriptWitness WitCtxStake era)
+  -> Map (Conway.Voter (L.EraCrypto (ShelleyLedgerEra era))) (ScriptWitness WitCtxStake era)
+votingScriptWitnessSingleton _ Nothing = Map.empty
+votingScriptWitnessSingleton votingProcedures (Just scriptWitness) =
+  let voter = fromJust $ getVotingScriptCredentials votingProcedures
+  in Map.singleton voter scriptWitness
+
+-- TODO: We fold twice, we can do it in a single fold
+convertToTxVotingProcedures
+ :: [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+ -> TxVotingProcedures BuildTx era
+convertToTxVotingProcedures votingProcedures =
+  let votingScriptWitnessMap = BuildTxWith
+                                 $ foldl (\acc next -> acc `Map.union` uncurry votingScriptWitnessSingleton next )
+                                   Map.empty
+                                   votingProcedures
+      allVotes = unVotingProcedures
+                   $ foldl
+                       (\acc next -> acc `unsafeMergeVotingProcedures` fst next)
+                       emptyVotingProcedures
+                       votingProcedures
+
+  in TxVotingProcedures allVotes votingScriptWitnessMap
+
+proposingScriptWitnessSingleton
+  :: Proposal era
+  -> Maybe (ScriptWitness WitCtxStake era)
+  -> Map (Conway.ProposalProcedure (ShelleyLedgerEra era)) (ScriptWitness WitCtxStake era)
+proposingScriptWitnessSingleton _ Nothing = Map.empty
+proposingScriptWitnessSingleton (Proposal proposalProcedure) (Just scriptWitness) =
+  Map.singleton proposalProcedure scriptWitness
+
+convToTxProposalProcedures
+  :: Ledger.EraPParams (ShelleyLedgerEra era)
+  => [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
+  -> TxProposalProcedures BuildTx era
+convToTxProposalProcedures proposalProcedures =
+   -- TODO: Ledger does not export snoc so we can't fold here.
+   let proposals = OSet.fromFoldable $ map (unProposal . fst) proposalProcedures
+       sWitMap = BuildTxWith $ foldl sWitMapFolder Map.empty proposalProcedures
+   in TxProposalProcedures proposals sWitMap
+  where
+   sWitMapFolder sWitMapAccum nextSWit = sWitMapAccum `Map.union` uncurry proposingScriptWitnessSingleton nextSWit
+
