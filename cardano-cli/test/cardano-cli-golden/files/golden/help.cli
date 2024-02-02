@@ -270,9 +270,7 @@ Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILE]
                                                          [--utxo-keys INT]
                                                          [--total-supply LOVELACE]
                                                          [--delegated-supply LOVELACE]
-                                                         ( --mainnet
-                                                         | --testnet-magic NATURAL
-                                                         )
+                                                         [--testnet-magic NATURAL]
                                                          [--start-time UTC-TIME]
                                                          --out-dir DIR
 
@@ -1429,9 +1427,7 @@ Usage: cardano-cli allegra genesis create-testnet-data [--spec-shelley FILE]
                                                          [--utxo-keys INT]
                                                          [--total-supply LOVELACE]
                                                          [--delegated-supply LOVELACE]
-                                                         ( --mainnet
-                                                         | --testnet-magic NATURAL
-                                                         )
+                                                         [--testnet-magic NATURAL]
                                                          [--start-time UTC-TIME]
                                                          --out-dir DIR
 
@@ -2586,9 +2582,7 @@ Usage: cardano-cli mary genesis create-testnet-data [--spec-shelley FILE]
                                                       [--utxo-keys INT]
                                                       [--total-supply LOVELACE]
                                                       [--delegated-supply LOVELACE]
-                                                      ( --mainnet
-                                                      | --testnet-magic NATURAL
-                                                      )
+                                                      [--testnet-magic NATURAL]
                                                       [--start-time UTC-TIME]
                                                       --out-dir DIR
 
@@ -3727,9 +3721,7 @@ Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILE]
                                                         [--utxo-keys INT]
                                                         [--total-supply LOVELACE]
                                                         [--delegated-supply LOVELACE]
-                                                        ( --mainnet
-                                                        | --testnet-magic NATURAL
-                                                        )
+                                                        [--testnet-magic NATURAL]
                                                         [--start-time UTC-TIME]
                                                         --out-dir DIR
 
@@ -4892,9 +4884,7 @@ Usage: cardano-cli babbage genesis create-testnet-data [--spec-shelley FILE]
                                                          [--utxo-keys INT]
                                                          [--total-supply LOVELACE]
                                                          [--delegated-supply LOVELACE]
-                                                         ( --mainnet
-                                                         | --testnet-magic NATURAL
-                                                         )
+                                                         [--testnet-magic NATURAL]
                                                          [--start-time UTC-TIME]
                                                          --out-dir DIR
 
@@ -6075,9 +6065,7 @@ Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILE]
                                                         [--utxo-keys INT]
                                                         [--total-supply LOVELACE]
                                                         [--delegated-supply LOVELACE]
-                                                        ( --mainnet
-                                                        | --testnet-magic NATURAL
-                                                        )
+                                                        [--testnet-magic NATURAL]
                                                         [--start-time UTC-TIME]
                                                         --out-dir DIR
 
@@ -7628,9 +7616,7 @@ Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILE]
                                                         [--utxo-keys INT]
                                                         [--total-supply LOVELACE]
                                                         [--delegated-supply LOVELACE]
-                                                        ( --mainnet
-                                                        | --testnet-magic NATURAL
-                                                        )
+                                                        [--testnet-magic NATURAL]
                                                         [--start-time UTC-TIME]
                                                         --out-dir DIR
 

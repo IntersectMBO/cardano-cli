@@ -197,15 +197,21 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
    , outputDir }
    = do
   liftIO $ createDirectoryIfMissing False outputDir
-  shelleyGenesis <-
+  shelleyGenesisInit <-
     case specShelley of
       Just shelleyPath ->
         newExceptT $ readAndDecodeShelleyGenesis shelleyPath
-      Nothing -> do
+      Nothing ->
         -- No template given: a default file is created
-        pure $ shelleyGenesisDefaults { sgNetworkMagic = unNetworkMagic (toNetworkMagic networkId) }
-
-  let -- {0 -> genesis-keys/genesis0/key.vkey, 1 -> genesis-keys/genesis1/key.vkey, ...}
+        pure shelleyGenesisDefaults
+  
+  -- Read NetworkId either from file or from the flag. Flag overrides template file.  
+  let actualNetworkId =
+        case networkId of 
+          Just networkFromFlag -> networkFromFlag
+          Nothing -> fromNetworkMagic (NetworkMagic $ sgNetworkMagic shelleyGenesisInit)
+      shelleyGenesis = shelleyGenesisInit { sgNetworkMagic = unNetworkMagic (toNetworkMagic actualNetworkId) }
+      -- {0 -> genesis-keys/genesis0/key.vkey, 1 -> genesis-keys/genesis1/key.vkey, ...}
       genesisVKeysPaths = mkPaths numGenesisKeys genesisDir "genesis" "key.vkey"
       -- {0 -> delegate-keys/delegate0/key.vkey, 1 -> delegate-keys/delegate1/key.vkey, ...}
       delegateKeys = mkPaths numGenesisKeys delegateDir "delegate" "key.vkey"
@@ -237,7 +243,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
     let poolDir = poolsDir </> ("pool" <> show index)
 
     createPoolCredentials desiredKeyOutputFormat poolDir
-    buildPoolParams networkId poolDir Nothing (fromMaybe mempty mayStakePoolRelays)
+    buildPoolParams actualNetworkId poolDir Nothing (fromMaybe mempty mayStakePoolRelays)
 
   when (0 < numPools) $ writeREADME poolsDir poolsREADME
 
@@ -283,15 +289,15 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
         -- We don't need to be attentive to laziness here, because anyway this
         -- doesn't scale really well (because we're generating legit credentials,
         -- as opposed to the Transient case).
-        zipWithM (computeDelegation networkId) delegates distribution
+        zipWithM (computeDelegation actualNetworkId) delegates distribution
       Transient _ ->
-        liftIO $ Lazy.forStateM g distribution $ flip computeInsecureDelegation networkId
+        liftIO $ Lazy.forStateM g distribution $ flip computeInsecureDelegation actualNetworkId
 
   genDlgs <- readGenDelegsMap genesisVKeysPaths delegateKeys delegateVrfKeys
-  nonDelegAddrs <- readInitialFundAddresses utxoKeys networkId
+  nonDelegAddrs <- readInitialFundAddresses utxoKeys actualNetworkId
   start <- maybe (SystemStart <$> getCurrentTimePlus30) pure systemStart
 
-  let network = toShelleyNetwork networkId
+  let network = toShelleyNetwork actualNetworkId
   stuffedUtxoAddrs <- liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) $ genStuffedAddress network
 
   let stake = second Ledger.ppId . mkDelegationMapEntry <$> delegations

@@ -93,7 +93,7 @@ data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
   , numUtxoKeys :: !Word -- ^ The number of UTxO credentials to create and write to disk.
   , totalSupply :: !(Maybe Lovelace) -- ^ The total number of Lovelace
   , delegatedSupply :: !(Maybe Lovelace) -- ^ The number of Lovelace being delegated
-  , networkId :: !NetworkId -- ^ The network ID to use.
+  , networkId :: !(Maybe NetworkId) -- ^ The network ID to use. Overrides the network id supplied in the spec file.
   , systemStart :: !(Maybe SystemStart) -- ^ The genesis start time.
   , outputDir :: !FilePath -- ^ Directory where to write credentials and files.
   } deriving Show

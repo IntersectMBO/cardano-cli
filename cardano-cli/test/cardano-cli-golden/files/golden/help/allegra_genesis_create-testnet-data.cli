@@ -9,9 +9,7 @@ Usage: cardano-cli allegra genesis create-testnet-data [--spec-shelley FILE]
                                                          [--utxo-keys INT]
                                                          [--total-supply LOVELACE]
                                                          [--delegated-supply LOVELACE]
-                                                         ( --mainnet
-                                                         | --testnet-magic NATURAL
-                                                         )
+                                                         [--testnet-magic NATURAL]
                                                          [--start-time UTC-TIME]
                                                          --out-dir DIR
 
@@ -44,10 +42,8 @@ Available options:
                            delegated. Defaults to 500 000 Ada (i.e. (10^12) / 2
                            Lovelace). Cannot be more than the amount specified
                            with --total-supply.
-  --mainnet                Use the mainnet magic id. This overrides the
-                           CARDANO_NODE_NETWORK_ID environment variable
-  --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
-                           CARDANO_NODE_NETWORK_ID environment variable
+  --testnet-magic NATURAL  Specify a testnet magic id for the cluster. Overrides
+                           the network id supplied in the spec file.
   --start-time UTC-TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
                            format. If unspecified, will be the current time +30
                            seconds.
