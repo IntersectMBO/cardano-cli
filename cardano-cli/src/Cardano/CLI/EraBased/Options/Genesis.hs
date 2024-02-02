@@ -89,7 +89,7 @@ pGenesisCmds envCli =
             ]
     , Just
         $ subParser "create-testnet-data"
-        $ Opt.info (pGenesisCreateTestNetData envCli)
+        $ Opt.info pGenesisCreateTestNetData
         $ Opt.progDesc
         $ mconcat
             [ "Create data to use for starting a testnet."
@@ -199,8 +199,8 @@ pGenesisCreateStaked envCli =
     <*> pStuffedUtxoCount
     <*> Opt.optional pRelayJsonFp
 
-pGenesisCreateTestNetData :: EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateTestNetData envCli =
+pGenesisCreateTestNetData :: Parser (GenesisCmds era)
+pGenesisCreateTestNetData =
   fmap GenesisCreateTestNetData $ GenesisCreateTestNetDataCmdArgs
     <$> (optional $ pSpecFile "shelley")
     <*> pNumGenesisKeys
@@ -211,10 +211,18 @@ pGenesisCreateTestNetData envCli =
     <*> pNumUtxoKeys
     <*> pSupply
     <*> pSupplyDelegated
-    <*> pNetworkId envCli
+    <*> optional pNetworkIdForTestnetData
     <*> pMaybeSystemStart
     <*> pOutputDir
   where
+    pNetworkIdForTestnetData :: Parser NetworkId 
+    pNetworkIdForTestnetData = Testnet . NetworkMagic <$> testnetMagicParser
+      where
+        testnetMagicParser = Opt.option (bounded "TESTNET_MAGIC")
+          (  Opt.long "testnet-magic"
+          <> Opt.metavar "NATURAL"
+          <> Opt.help "Specify a testnet magic id for the cluster. Overrides the network id supplied in the spec file."
+          )
     pSpecFile era = Opt.strOption $ mconcat
       [ Opt.long $ "spec-" <> era
       , Opt.metavar "FILE"
@@ -408,7 +416,6 @@ pSlotLength =
     , Opt.help "slot length (ms) parameter for genesis file [default is 1000]."
     , Opt.value 1_000
     ]
-
 
 pSlotCoefficient :: Parser Rational
 pSlotCoefficient =
