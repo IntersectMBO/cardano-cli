@@ -586,7 +586,7 @@ updateOutputTemplate
   template@ShelleyGenesis{ sgProtocolParams } =
     template
           { sgSystemStart
-          , sgMaxLovelaceSupply = fromIntegral $ nonDelegCoin + delegCoin
+          , sgMaxLovelaceSupply = totalSupply
           , sgGenDelegs = shelleyDelKeys
           , sgInitialFunds = ListMap.fromList
                               [ (toShelleyAddr addr, toShelleyLovelace v)
@@ -611,11 +611,12 @@ updateOutputTemplate
     -- If the initial funds are equal to the maximum funds, rewards cannot be created.
     subtractForTreasury :: Integer
     subtractForTreasury = nonDelegCoin `quot` 10
-    totalSupply, nonDelegCoin, delegCoin :: Integer
+    totalSupply :: Word64
     -- if --total-supply is not specified, supply comes from the template passed to this function:
-    totalSupply = fromIntegral (maybe maximumLovelaceSupply unLovelace mTotalSupply)
-    delegCoin = case mDelegatedSupply of Nothing -> 0; Just amountDeleg -> totalSupply - unLovelace amountDeleg
-    nonDelegCoin = totalSupply - delegCoin
+    totalSupply = maybe maximumLovelaceSupply unLovelace mTotalSupply
+    delegCoin, nonDelegCoin :: Integer
+    delegCoin = case mDelegatedSupply of Nothing -> 0; Just amountDeleg -> fromIntegral totalSupply - unLovelace amountDeleg
+    nonDelegCoin = fromIntegral totalSupply - delegCoin
 
     distribute :: Integer -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     distribute funds nAddrs addrs = zip addrs (fmap Lovelace (coinPerAddr + remainder:repeat coinPerAddr))
