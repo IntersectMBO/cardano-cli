@@ -48,7 +48,9 @@ data TxCmdError
   | TxCmdTxBodyError !TxBodyError
   | TxCmdNotImplemented !Text
   | TxCmdWitnessEraMismatch !AnyCardanoEra !AnyCardanoEra !WitnessFile
-  | TxCmdPolicyIdsMissing ![PolicyId]
+  | TxCmdPolicyIdsMissing ![PolicyId] ![PolicyId]
+    -- The first list is the missing policy Ids, the second list is the
+    -- policy Ids that were provided in the transaction.
   | TxCmdPolicyIdsExcess  ![PolicyId]
   | TxCmdByronEra
   | TxCmdBalanceTxBody !TxBodyErrorAutoBalance
@@ -130,19 +132,20 @@ renderTxCmdError = \case
     "The transaction is for the " <> pretty era <> " era, but the " <>
     "witness in " <> pshow file <> " is for the " <> pretty era' <> " era."
 
-  TxCmdPolicyIdsMissing policyids ->
-    mconcat
+  TxCmdPolicyIdsMissing missingPolicyIds knownPolicyIds ->
+    mconcat $
     [ "The \"--mint\" flag specifies an asset with a policy Id, but no "
     , "corresponding monetary policy script has been provided as a witness "
     , "(via the \"--mint-script-file\" flag). The policy Id in question is: "
-    , mconcat $ List.intersperse ", " (map (pretty . serialiseToRawBytesHexText) policyids)
-    ]
+    , prettyPolicyIdList missingPolicyIds
+    ] <> [". Known policy Ids are: " <> prettyPolicyIdList knownPolicyIds  | not (null knownPolicyIds) ]
+
 
   TxCmdPolicyIdsExcess policyids ->
     mconcat
     [ "A script provided to witness minting does not correspond to the policy "
     , "id of any asset specified in the \"--mint\" field. The script hash is: "
-    , mconcat $ List.intersperse ", " (map (pretty . serialiseToRawBytesHexText) policyids)
+    , prettyPolicyIdList policyids
     ]
   TxCmdByronEra ->
     "This query cannot be used for the Byron era"
@@ -220,3 +223,7 @@ renderTxCmdError = \case
     prettyError e
   TxCmdScriptValidityValidationError e ->
     prettyError e
+
+prettyPolicyIdList :: [PolicyId] -> Doc ann
+prettyPolicyIdList =
+  mconcat .  List.intersperse ", " . fmap (pretty . serialiseToRawBytesHexText)

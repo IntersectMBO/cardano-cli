@@ -858,7 +858,7 @@ createTxMintValue era (val, scriptWitnesses) =
 
   validateAllWitnessesProvided witnessesNeeded witnessesProvided
     | null witnessesMissing = return ()
-    | otherwise = Left (TxCmdPolicyIdsMissing witnessesMissing)
+    | otherwise = Left (TxCmdPolicyIdsMissing witnessesMissing (toList witnessesProvided))
     where
       witnessesMissing = Set.elems (witnessesNeeded Set.\\ witnessesProvided)
 
