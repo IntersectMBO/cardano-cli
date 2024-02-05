@@ -23,7 +23,6 @@ module Cardano.CLI.EraBased.Run.CreateTestnetData
     , runGenesisKeyGenDelegateCmd
     , runGenesisCreateTestNetDataCmd
     , runGenesisKeyGenDelegateVRF
-    , updateCreateStakedOutputTemplate
   ) where
 
 import           Cardano.Api
@@ -192,8 +191,8 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
    , numDrepKeys
    , numStuffedUtxo
    , numUtxoKeys
-   , supply
-   , supplyDelegated
+   , totalSupply
+   , delegatedSupply
    , systemStart
    , outputDir }
    = do
@@ -299,10 +298,9 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
       stakePools = [ (Ledger.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations ]
       delegAddrs = dInitialUtxoAddr <$> delegations
       !shelleyGenesis' =
-        updateCreateStakedOutputTemplate
-          -- Shelley genesis parameters
-          start genDlgs supply (length nonDelegAddrs) nonDelegAddrs stakePools stake
-          supplyDelegated (length delegations) delegAddrs stuffedUtxoAddrs shelleyGenesis
+        updateOutputTemplate
+          start genDlgs totalSupply nonDelegAddrs stakePools stake
+          delegatedSupply (length delegations) delegAddrs stuffedUtxoAddrs shelleyGenesis
 
   -- Write genesis.json file to output
   liftIO $ LBS.writeFile (outputDir </> "genesis.json") $ Aeson.encode shelleyGenesis'
@@ -567,11 +565,10 @@ computeInsecureDelegation g0 nw pool = do
     pure (g2, delegation)
 
 
-updateCreateStakedOutputTemplate
+updateOutputTemplate
     :: SystemStart -- ^ System start time
     -> Map (Hash GenesisKey) (Hash GenesisDelegateKey, Hash VrfKey) -- ^ Genesis delegation (not stake-based)
-    -> Maybe Lovelace -- ^ Amount of lovelace not delegated
-    -> Int -- ^ Number of UTxO addresses that are delegating
+    -> Maybe Lovelace -- ^ Total amount of lovelace
     -> [AddressInEra ShelleyEra] -- ^ UTxO addresses that are not delegating
     -> [(Ledger.KeyHash 'Ledger.StakePool StandardCrypto, Ledger.PoolParams StandardCrypto)] -- ^ Pool map
     -> [(Ledger.KeyHash 'Ledger.Staking StandardCrypto, Ledger.KeyHash 'Ledger.StakePool StandardCrypto)] -- ^ Delegaton map
@@ -581,15 +578,15 @@ updateCreateStakedOutputTemplate
     -> [AddressInEra ShelleyEra] -- ^ Stuffed UTxO addresses
     -> ShelleyGenesis StandardCrypto -- ^ Template from which to build a genesis
     -> ShelleyGenesis StandardCrypto -- ^ Updated genesis
-updateCreateStakedOutputTemplate
+updateOutputTemplate
   (SystemStart sgSystemStart)
-  genDelegMap mAmountNonDeleg nUtxoAddrsNonDeleg utxoAddrsNonDeleg pools stake
-  amountDeleg
+  genDelegMap mTotalSupply utxoAddrsNonDeleg pools stake
+  mDelegatedSupply
   nUtxoAddrsDeleg utxoAddrsDeleg stuffedUtxoAddrs
   template@ShelleyGenesis{ sgProtocolParams } =
     template
           { sgSystemStart
-          , sgMaxLovelaceSupply = fromIntegral $ nonDelegCoin + delegCoin
+          , sgMaxLovelaceSupply = totalSupply
           , sgGenDelegs = shelleyDelKeys
           , sgInitialFunds = ListMap.fromList
                               [ (toShelleyAddr addr, toShelleyLovelace v)
@@ -608,15 +605,18 @@ updateCreateStakedOutputTemplate
           , sgProtocolParams
           }
   where
+    nUtxoAddrsNonDeleg  = length utxoAddrsNonDeleg
     maximumLovelaceSupply :: Word64
     maximumLovelaceSupply = sgMaxLovelaceSupply template
     -- If the initial funds are equal to the maximum funds, rewards cannot be created.
     subtractForTreasury :: Integer
     subtractForTreasury = nonDelegCoin `quot` 10
-    nonDelegCoin, delegCoin :: Integer
-    -- if --supply is not specified, non delegated supply comes from the template passed to this function:
-    nonDelegCoin = fromIntegral (maybe maximumLovelaceSupply unLovelace mAmountNonDeleg)
-    delegCoin = maybe 0 fromIntegral amountDeleg
+    totalSupply :: Word64
+    -- if --total-supply is not specified, supply comes from the template passed to this function:
+    totalSupply = maybe maximumLovelaceSupply unLovelace mTotalSupply
+    delegCoin, nonDelegCoin :: Integer
+    delegCoin = case mDelegatedSupply of Nothing -> 0; Just amountDeleg -> fromIntegral totalSupply - unLovelace amountDeleg
+    nonDelegCoin = fromIntegral totalSupply - delegCoin
 
     distribute :: Integer -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     distribute funds nAddrs addrs = zip addrs (fmap Lovelace (coinPerAddr + remainder:repeat coinPerAddr))

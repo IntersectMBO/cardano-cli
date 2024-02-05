@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Options.Genesis
@@ -273,18 +274,22 @@ pGenesisCreateTestNetData envCli =
     pSupply :: Parser (Maybe Lovelace)
     pSupply =
       Opt.optional $ fmap Lovelace $ Opt.option Opt.auto $ mconcat
-        [ Opt.long "supply"
+        [ Opt.long "total-supply"
         , Opt.metavar "LOVELACE"
-        , Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, non-delegating stake holders. Defaults to 1 million Ada (i.e. 10^12 Lovelace)."
-        , Opt.value 1000000000000
+        , Opt.help $ mconcat [ "The maximum possible amount of Lovelace, which is evenly distributed across stake holders. Defaults to 1 million Ada (i.e. 10^12 Lovelace)."
+                             , " If --delegated-supply is specified, a part of this amount will be delegated."
+                             ]
+        , Opt.value 1_000_000_000_000
         ]
     pSupplyDelegated :: Parser (Maybe Lovelace)
     pSupplyDelegated =
       Opt.optional $ fmap Lovelace $ Opt.option Opt.auto $ mconcat
-        [ Opt.long "supply-delegated"
+        [ Opt.long "delegated-supply"
         , Opt.metavar "LOVELACE"
-        , Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, delegating stake holders. Defaults to 1 million Ada (i.e. 10^12 Lovelace)."
-        , Opt.value 1000000000000
+        , Opt.help $ mconcat [ "The amount of the total supply which is evenly delegated. Defaults to 500 000 Ada (i.e. (10^12) / 2 Lovelace)."
+                             , " Cannot be more than the amount specified with --total-supply."
+                             ]
+        , Opt.value 500_000_000_000
         ]
     pOutputDir = Opt.strOption $ mconcat
       [ Opt.long "out-dir"
@@ -401,7 +406,7 @@ pSlotLength =
     [ Opt.long "slot-length"
     , Opt.metavar "INT"
     , Opt.help "slot length (ms) parameter for genesis file [default is 1000]."
-    , Opt.value 1000
+    , Opt.value 1_000
     ]
 
 
