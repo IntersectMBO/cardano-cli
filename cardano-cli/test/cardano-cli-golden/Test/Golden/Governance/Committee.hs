@@ -181,3 +181,43 @@ hprop_golden_governanceUpdateCommittee =
       ]
 
     H.diffFileVsGoldenFile outFile goldenAnswerFile
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance committee cold extended key signing/"'@
+hprop_golden_governance_committee_cold_extended_key_signing :: Property
+hprop_golden_governance_committee_cold_extended_key_signing =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    skeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc.extended.cold.skey"
+    txBody <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/tx.body"
+
+    outGold <- H.note "test/cardano-cli-golden/files/golden/governance/committee/tx.cold.extended.signed"
+    outFile <- H.noteTempFile tempDir "outFile"
+
+    H.noteM_ $ execCardanoCLI
+      [  "conway", "transaction", "sign"
+      , "--tx-body-file", txBody
+      , "--signing-key-file", skeyFile
+      , "--out-file", outFile
+      ]
+
+    H.diffFileVsGoldenFile outFile outGold
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance committee hot extended key signing/"'@
+hprop_golden_governance_committee_hot_extended_key_signing :: Property
+hprop_golden_governance_committee_hot_extended_key_signing =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    skeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc.extended.hot.skey"
+    txBody <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/tx.body"
+
+    outGold <- H.note "test/cardano-cli-golden/files/golden/governance/committee/tx.hot.extended.signed"
+    outFile <- H.noteTempFile tempDir "outFile"
+
+    H.noteM_ $ execCardanoCLI
+      [  "conway", "transaction", "sign"
+      , "--tx-body-file", txBody
+      , "--signing-key-file", skeyFile
+      , "--out-file", outFile
+      ]
+
+    H.diffFileVsGoldenFile outFile outGold
