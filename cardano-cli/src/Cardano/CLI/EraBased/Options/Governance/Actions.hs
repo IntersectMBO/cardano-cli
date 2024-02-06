@@ -167,6 +167,7 @@ pUpdateProtocolParametersPostConway conwayOnwards =
     <*> pAnchorUrl
     <*> pAnchorDataHash
     <*> pPreviousGovernanceAction
+    <*> optional pConstitutionScriptHash
 
 
 pUpdateProtocolParametersCmd :: ShelleyBasedEra era -> Parser (Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era)
@@ -294,7 +295,7 @@ pIntroducedInConwayPParams =
     <$> convertToLedger id (optional pPoolVotingThresholds)
     <*> convertToLedger id (optional pDRepVotingThresholds)
     <*> convertToLedger id (optional pMinCommitteeSize)
-    <*> convertToLedger id (optional (fromIntegral . unEpochNo <$> pCommitteeTermLength))
+    <*> convertToLedger id (optional pCommitteeTermLength)
     <*> convertToLedger id (optional pGovActionLifetime)
     <*> convertToLedger toShelleyLovelace (optional pNewGovActionDeposit)
     <*> convertToLedger toShelleyLovelace (optional pDRepDeposit)
@@ -358,6 +359,7 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
               <*> pAnchorUrl
               <*> pAnchorDataHash
               <*> many ((,) <$> pStakeVerificationKeyOrHashOrFile (Just "funds-receiving") <*> pTransferAmt)
+              <*> optional pConstitutionScriptHash
               <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
         )
     $ Opt.progDesc "Create a treasury withdrawal."

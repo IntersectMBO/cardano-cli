@@ -88,7 +88,7 @@ import qualified Cardano.Chain.Slotting as Byron
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Crypto as Crypto
 import qualified Cardano.Ledger.SafeHash as L
-import           Cardano.Ledger.Shelley.TxBody (PoolParams (..))
+import           Cardano.Ledger.Shelley.API (PoolParams (..))
 
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
 import qualified Data.Aeson as Aeson
@@ -340,6 +340,10 @@ type ScriptRedeemerOrFile = ScriptDataOrFile
 --
 -- It is era-independent, but witness context-dependent.
 --
+-- TODO: Potentially update to WitnessFiles so we can get
+-- rid of Maybe (ScriptWitnessFiles). This will be clearer
+-- in conveying that we either expect a script witness
+-- or a key witness is provided at the signing stage.
 data ScriptWitnessFiles witctx where
      SimpleScriptWitnessFile  :: ScriptFile
                               -> ScriptWitnessFiles witctx

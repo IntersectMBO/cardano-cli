@@ -7,16 +7,16 @@ Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
                                                               [ --extra-entropy HEX
                                                               | --reset-extra-entropy
                                                               ]
-                                                              [--max-block-header-size NATURAL]
-                                                              [--max-block-body-size NATURAL]
-                                                              [--max-tx-size NATURAL]
+                                                              [--max-block-header-size WORD16]
+                                                              [--max-block-body-size WORD32]
+                                                              [--max-tx-size WORD32]
                                                               [--min-fee-constant LOVELACE]
                                                               [--min-fee-linear LOVELACE]
                                                               [--min-utxo-value NATURAL]
                                                               [--key-reg-deposit-amt NATURAL]
                                                               [--pool-reg-deposit NATURAL]
                                                               [--min-pool-cost NATURAL]
-                                                              [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                              [--pool-retirement-epoch-interval WORD32]
                                                               [--number-of-pools NATURAL]
                                                               [--pool-influence RATIONAL]
                                                               [--monetary-expansion RATIONAL]
@@ -50,11 +50,11 @@ Available options:
                            Decentralization parameter.
   --extra-entropy HEX      Praos extra entropy seed, as a hex byte string.
   --reset-extra-entropy    Reset the Praos extra entropy to none.
-  --max-block-header-size NATURAL
+  --max-block-header-size WORD16
                            Maximum block header size.
-  --max-block-body-size NATURAL
+  --max-block-body-size WORD32
                            Maximal block body size.
-  --max-tx-size NATURAL    Maximum transaction size.
+  --max-tx-size WORD32     Maximum transaction size.
   --min-fee-constant LOVELACE
                            The constant factor for the minimum fee calculation.
   --min-fee-linear LOVELACE
@@ -67,8 +67,8 @@ Available options:
   --pool-reg-deposit NATURAL
                            The amount of a pool registration deposit.
   --min-pool-cost NATURAL  The minimum allowed cost parameter for stake pools.
-  --pool-retirement-epoch-boundary EPOCH_BOUNDARY
-                           Epoch bound on pool retirement.
+  --pool-retirement-epoch-interval WORD32
+                           Epoch interval of pool retirement.
   --number-of-pools NATURAL
                            Desired number of pools.
   --pool-influence RATIONAL

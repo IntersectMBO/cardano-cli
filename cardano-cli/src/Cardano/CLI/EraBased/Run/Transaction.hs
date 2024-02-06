@@ -49,6 +49,7 @@ import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
 import qualified Cardano.Ledger.Alonzo.Core as Ledger
+import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 import           Control.Monad (forM)
@@ -170,13 +171,13 @@ runTransactionBuildCmd
   txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
   -- Conway related
-  votingProcedures <-
+  votingProceduresAndMaybeScriptWits <-
     inEonForEra
-      (pure emptyVotingProcedures)
+      (pure mempty)
       (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w voteFiles))
       era
 
-  proposals <- newExceptT $ first TxCmdConstitutionError
+  proposals <- newExceptT $ first TxCmdProposalError
                   <$> readTxGovernanceActions eon proposalFiles
 
   -- the same collateral input can be used for several plutus scripts
@@ -188,16 +189,18 @@ runTransactionBuildCmd
       eon nodeSocketPath networkId mScriptValidity inputsAndMaybeScriptWits readOnlyReferenceInputs
       filteredTxinsc mReturnCollateral mTotalCollateral txOuts changeAddresses valuesWithScriptWits
       mValidityLowerBound mValidityUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
-      requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProcedures proposals buildOutputOptions
+      requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProceduresAndMaybeScriptWits
+      proposals buildOutputOptions
 
   let mScriptWits =
         forEraInEon era [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
-
-  let allReferenceInputs = getAllReferenceInputs
+      allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
                              (snd valuesWithScriptWits)
                              certsAndMaybeScriptWits
                              withdrawalsAndMaybeScriptWits
+                             votingProceduresAndMaybeScriptWits
+                             proposals
                              readOnlyReferenceInputs
 
   let inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
@@ -213,12 +216,12 @@ runTransactionBuildCmd
       pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
       executionUnitPrices <- pure (getExecutionUnitPrices era pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
 
-      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryCurrentEra)
+      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
       (txEraUtxo, _, eraHistory, systemStart, _, _, _) <-
-        lift (executeLocalStateQueryExpr localNodeConnInfo Nothing (queryStateForBalancedTx nodeEra allTxInputs []))
+        lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip (queryStateForBalancedTx nodeEra allTxInputs []))
           & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . TxCmdQueryConvenienceError)
 
@@ -226,7 +229,7 @@ runTransactionBuildCmd
         & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
       scriptExecUnitsMap <-
-        firstExceptT TxCmdTxExecUnitsErr $ hoistEither
+        firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $ hoistEither
           $ evaluateTransactionExecutionUnits era
               systemStart (toLedgerEpochInfo eraHistory)
               pparams txEraUtxo balancedTxBody
@@ -323,15 +326,15 @@ runTransactionBuildRawCmd
   let filteredTxinsc = Set.toList $ Set.fromList txInsCollateral
 
   -- Conway related
-  votingProcedures <-
+  votingProceduresAndMaybeScriptWits <-
     inEonForShelleyBasedEra
-      (pure emptyVotingProcedures)
-      (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w voteFiles))
+      (pure mempty)
+      (\w -> firstExceptT TxCmdVoteError . ExceptT $ conwayEraOnwardsConstraints w $ readVotingProceduresFiles w voteFiles)
       eon
 
   proposals <-
     lift (readTxGovernanceActions eon proposalFiles)
-      & onLeft (left . TxCmdConstitutionError)
+      & onLeft (left . TxCmdProposalError)
 
   certsAndMaybeScriptWits <-
       shelleyBasedEraConstraints eon $
@@ -345,7 +348,7 @@ runTransactionBuildRawCmd
       eon mScriptValidity inputsAndMaybeScriptWits readOnlyRefIns filteredTxinsc
       mReturnCollateral mTotalCollateral txOuts mValidityLowerBound mValidityUpperBound fee valuesWithScriptWits
       certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits requiredSigners txAuxScripts
-      txMetadata mLedgerPParams txUpdateProposal votingProcedures proposals
+      txMetadata mLedgerPParams txUpdateProposal votingProceduresAndMaybeScriptWits proposals
 
   let noWitTx = makeSignedTransaction [] txBody
   lift (writeTxFileTextEnvelopeCddl eon txBodyOutFile noWitTx)
@@ -384,8 +387,8 @@ runTxBuildRaw :: ()
   -> TxMetadataInEra era
   -> Maybe (LedgerProtocolParameters era)
   -> TxUpdateProposal era
-  -> VotingProcedures era
-  -> [Proposal era]
+  -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> Either TxCmdError (TxBody era)
 runTxBuildRaw sbe
               mScriptValidity inputsAndMaybeScriptWits
@@ -402,7 +405,10 @@ runTxBuildRaw sbe
                                (snd valuesWithScriptWits)
                                certsAndMaybeSriptWits
                                withdrawals
+                               votingProcedures
+                               proposals
                                readOnlyRefIns
+
         validatedTxIns = validateTxIns inputsAndMaybeScriptWits
     validatedCollateralTxIns <- validateTxInsCollateral era txinsc
     validatedRefInputs <- validateTxInsReference era allReferenceInputs
@@ -426,8 +432,6 @@ runTxBuildRaw sbe
       <- createTxMintValue sbe valuesWithScriptWits
     validatedTxScriptValidity
       <- first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
-    let validatedTxProposal = proposals
-        validatedTxVotes = votingProcedures
     let txBodyContent =
           TxBodyContent
             { txIns = validatedTxIns
@@ -448,8 +452,8 @@ runTxBuildRaw sbe
             , txUpdateProposal = txUpdateProposal
             , txMintValue = validatedMintValue
             , txScriptValidity = validatedTxScriptValidity
-            , txProposalProcedures = forEraInEonMaybe era (`Featured` validatedTxProposal)
-            , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedTxVotes)
+            , txProposalProcedures = forEraInEonMaybe era (`Featured` (shelleyBasedEraConstraints sbe $ convToTxProposalProcedures proposals))
+            , txVotingProcedures = forEraInEonMaybe era (`Featured` convertToTxVotingProcedures votingProcedures)
             }
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
 
@@ -488,8 +492,8 @@ runTxBuild :: ()
   -> TxMetadataInEra era
   -> TxUpdateProposal era
   -> Maybe Word
-  -> VotingProcedures era
-  -> [Proposal era]
+  -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
@@ -510,6 +514,8 @@ runTxBuild
                              (snd valuesWithScriptWits)
                              certsAndMaybeScriptWits
                              withdrawals
+                             votingProcedures
+                             proposals
                              readOnlyRefIns
 
   validatedCollateralTxIns <- hoistEither $ validateTxInsCollateral era txinsc
@@ -533,7 +539,7 @@ runTxBuild
                                   , localNodeSocketPath = socketPath
                                   }
 
-  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Nothing queryCurrentEra)
+  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
     & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
     & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
@@ -546,16 +552,14 @@ runTxBuild
           _ -> []
 
   (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits) <-
-    lift (executeLocalStateQueryExpr localNodeConnInfo Nothing $ queryStateForBalancedTx nodeEra allTxInputs certs)
+    lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ queryStateForBalancedTx nodeEra allTxInputs certs)
       & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
       & onLeft (left . TxCmdQueryConvenienceError)
 
   validatedPParams <- hoistEither $ first TxCmdProtocolParametersValidationError
                                   $ validateProtocolParameters era (Just pparams)
 
-  let validatedTxProposalProcedures = proposals
-      validatedTxVotes = votingProcedures
-      txBodyContent =
+  let txBodyContent =
         TxBodyContent
           { txIns = validateTxIns inputsAndMaybeScriptWits
           , txInsCollateral = validatedCollateralTxIns
@@ -575,8 +579,8 @@ runTxBuild
           , txUpdateProposal = txUpdateProposal
           , txMintValue = validatedMintValue
           , txScriptValidity = validatedTxScriptValidity
-          , txProposalProcedures = forEraInEonMaybe era (`Featured` validatedTxProposalProcedures)
-          , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedTxVotes)
+          , txProposalProcedures = forEraInEonMaybe era (`Featured` convToTxProposalProcedures proposals)
+          , txVotingProcedures = forEraInEonMaybe era (`Featured` convertToTxVotingProcedures votingProcedures)
           }
 
   firstExceptT TxCmdTxInsDoNotExist
@@ -588,7 +592,7 @@ runTxBuild
     & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
 
   balancedTxBody@(BalancedTxBody _ _ _ fee) <-
-    firstExceptT TxCmdBalanceTxBody
+    firstExceptT (TxCmdBalanceTxBody . AnyTxBodyErrorAutoBalance)
       . hoistEither
       $ makeTransactionBodyAutoBalance sbe systemStart (toLedgerEpochInfo eraHistory)
                                         pparams stakePools stakeDelegDeposits drepDelegDeposits
@@ -657,18 +661,26 @@ getAllReferenceInputs
  -> [ScriptWitness WitCtxMint era]
  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
+ -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+ -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
  -> [TxIn] -- ^ Read only reference inputs
  -> [TxIn]
-getAllReferenceInputs txins mintWitnesses certFiles withdrawals readOnlyRefIns = do
+getAllReferenceInputs txins mintWitnesses certFiles withdrawals
+                      votingProceduresAndMaybeScriptWits propProceduresAnMaybeScriptWits
+                      readOnlyRefIns = do
   let txinsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- txins]
       mintingRefInputs = map getReferenceInput mintWitnesses
       certsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- certFiles]
       withdrawalsWitByRefInputs = [getReferenceInput sWit | (_, _, Just sWit) <- withdrawals]
+      votesWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- votingProceduresAndMaybeScriptWits]
+      propsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- propProceduresAnMaybeScriptWits]
 
   catMaybes $ concat [ txinsWitByRefInputs
                      , mintingRefInputs
                      , certsWitByRefInputs
                      , withdrawalsWitByRefInputs
+                     , votesWitByRefInputs
+                     , propsWitByRefInputs
                      , map Just readOnlyRefIns
                      ]
  where

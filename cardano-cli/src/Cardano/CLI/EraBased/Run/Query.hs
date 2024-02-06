@@ -74,6 +74,7 @@ import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
 import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
 import           Ouroboros.Consensus.Protocol.TPraos (StandardCrypto)
 import           Ouroboros.Network.Block (Serialised (..))
+import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Control.Monad (forM, forM_, join)
 import           Control.Monad.IO.Class (MonadIO)
@@ -147,7 +148,7 @@ runQueryConstitutionHashCmd
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-  result <- liftIO $ executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+  result <- liftIO $ executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
     AnyCardanoEra era <- lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
     sbe <- requireShelleyBasedEra era
@@ -249,7 +250,7 @@ runQueryTipCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   eLocalState <- ExceptT $ fmap sequence $
-    executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
       era <- lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
       eraHistory <- lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
       mChainBlockNo <- lift queryChainBlockNo & onLeft (left . QueryCmdUnsupportedNtcVersion) & fmap Just
@@ -333,7 +334,7 @@ runQueryUTxOCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   join $ lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
         AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
@@ -367,7 +368,7 @@ runQueryKesPeriodInfoCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   join $ lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
         AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
@@ -624,7 +625,7 @@ runQueryPoolStateCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   join $ lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
         AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
@@ -706,7 +707,7 @@ runQueryStakeSnapshotCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   join $ lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
         AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
@@ -742,7 +743,7 @@ runQueryLedgerStateCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   join $ lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
         AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
@@ -772,7 +773,7 @@ runQueryProtocolStateCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   join $ lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
         AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
@@ -783,7 +784,7 @@ runQueryProtocolStateCmd
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-        pure $ shelleyBasedEraConstraints sbe $ writeProtocolState mOutFile result
+        pure $ shelleyBasedEraConstraints sbe $ writeProtocolState sbe mOutFile result
     )
     & onLeft (left . QueryCmdAcquireFailure)
     & onLeft left
@@ -805,7 +806,7 @@ runQueryStakeAddressInfoCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   join $ lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
         AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
@@ -964,21 +965,45 @@ writePoolState serialisedCurrentEpochState = do
 
   liftIO . LBS.putStrLn $ encodePretty poolStates
 
-writeProtocolState ::
-  ( FromCBOR (Consensus.ChainDepState (ConsensusProtocol era))
-  , ToJSON (Consensus.ChainDepState (ConsensusProtocol era))
-  )
-  => Maybe (File () Out)
+writeProtocolState
+  :: ShelleyBasedEra era
+  -> Maybe (File () Out)
   -> ProtocolState era
   -> ExceptT QueryCmdError IO ()
-writeProtocolState mOutFile ps@(ProtocolState pstate) =
-  case mOutFile of
-    Nothing -> case decodeProtocolState ps of
-      Left (bs, _) -> firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
-      Right chainDepstate -> liftIO . LBS.putStrLn $ encodePretty chainDepstate
-    Just (File fpath) ->
+writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
+  case sbe of
+    ShelleyBasedEraShelley ->
+      case mOutFile of
+        Nothing -> decodePState ps
+        Just (File fpath) -> writePState fpath pstate
+    ShelleyBasedEraAllegra ->
+      case mOutFile of
+        Nothing -> decodePState ps
+        Just (File fpath) -> writePState fpath pstate
+    ShelleyBasedEraMary ->
+      case mOutFile of
+        Nothing -> decodePState ps
+        Just (File fpath) -> writePState fpath pstate
+    ShelleyBasedEraAlonzo ->
+      case mOutFile of
+        Nothing -> decodePState ps
+        Just (File fpath) -> writePState fpath pstate
+    ShelleyBasedEraBabbage ->
+      case mOutFile of
+        Nothing -> decodePState ps
+        Just (File fpath) -> writePState fpath pstate
+    ShelleyBasedEraConway ->
+      case mOutFile of
+        Nothing -> decodePState ps
+        Just (File fpath) -> writePState fpath pstate
+  where
+    writePState fpath pstate' =
       handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath)
-        . LBS.writeFile fpath $ unSerialised pstate
+              . LBS.writeFile fpath $ unSerialised pstate'
+    decodePState ps' =
+      case decodeProtocolState ps' of
+        Left (bs, _) -> firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
+        Right chainDepstate -> liftIO . LBS.putStrLn $ encodePretty chainDepstate
 
 writeFilteredUTxOs :: Api.ShelleyBasedEra era
                    -> Maybe (File () Out)
@@ -1103,7 +1128,7 @@ runQueryStakePoolsCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   join $ lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT @QueryCmdError $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT @QueryCmdError $ do
         AnyCardanoEra era <- lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
         sbe <- requireShelleyBasedEra era
@@ -1143,7 +1168,7 @@ runQueryStakeDistributionCmd
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   join $ lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
         AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
@@ -1221,7 +1246,7 @@ runQueryLeadershipScheduleCmd
     & onLeft (left . QueryCmdGenesisReadError)
 
   join $ lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
         AnyCardanoEra era <- lift queryCurrentEra
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
@@ -1480,7 +1505,7 @@ runQuery :: LocalNodeConnectInfo
          -> ExceptT QueryCmdError IO a
 runQuery localNodeConnInfo query =
   firstExceptT QueryCmdAcquireFailure
-    ( newExceptT $ executeLocalStateQueryExpr localNodeConnInfo Nothing query)
+    ( newExceptT $ executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip query)
       & onLeft (left . QueryCmdUnsupportedNtcVersion)
       & onLeft (left . QueryCmdEraMismatch)
 
@@ -1530,7 +1555,7 @@ utcTimeToSlotNo nodeSocketPath consensusModeParams networkId utcTime = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   lift
-    ( executeLocalStateQueryExpr localNodeConnInfo Nothing $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ runExceptT $ do
         systemStart <- lift querySystemStart
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
 

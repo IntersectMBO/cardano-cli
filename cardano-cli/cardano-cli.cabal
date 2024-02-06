@@ -196,14 +196,14 @@ library
                       , binary
                       , bytestring
                       , canonical-json
-                      , cardano-api ^>= 8.37.1.0
+                      , cardano-api ^>= 8.38.0.0
                       , cardano-binary
                       , cardano-crypto
                       , cardano-crypto-class ^>= 2.1.2
                       , cardano-crypto-wrapper ^>= 1.5.1
                       , cardano-data >= 1.1
                       , cardano-git-rev
-                      , cardano-ledger-alonzo >= 1.5.0.0
+                      , cardano-ledger-alonzo >= 1.6.0.0
                       , cardano-ledger-binary >= 1.2
                       , cardano-ledger-byron >= 1.0.0.2
                       , cardano-ledger-conway >= 1.10
@@ -306,7 +306,6 @@ test-suite cardano-cli-test
   build-tool-depends:   tasty-discover:tasty-discover
 
   other-modules:        Test.Cli.AddCostModels
-                        Test.Cli.CliIntermediateFormat
                         Test.Cli.CreateTestnetData
                         Test.Cli.FilePermissions
                         Test.Cli.Governance.Hash

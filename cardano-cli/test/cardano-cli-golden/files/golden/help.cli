@@ -351,12 +351,12 @@ Usage: cardano-cli shelley governance action create-protocol-parameters-update -
                                                                                  (--genesis-verification-key-file FILE)
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
-                                                                                 [--max-block-body-size NATURAL]
-                                                                                 [--max-tx-size NATURAL]
-                                                                                 [--max-block-header-size NATURAL]
+                                                                                 [--max-block-body-size WORD32]
+                                                                                 [--max-tx-size WORD32]
+                                                                                 [--max-block-header-size WORD16]
                                                                                  [--key-reg-deposit-amt NATURAL]
                                                                                  [--pool-reg-deposit NATURAL]
-                                                                                 [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                                                 [--pool-retirement-epoch-interval WORD32]
                                                                                  [--number-of-pools NATURAL]
                                                                                  [--pool-influence RATIONAL]
                                                                                  [--treasury-expansion RATIONAL]
@@ -1510,12 +1510,12 @@ Usage: cardano-cli allegra governance action create-protocol-parameters-update -
                                                                                  (--genesis-verification-key-file FILE)
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
-                                                                                 [--max-block-body-size NATURAL]
-                                                                                 [--max-tx-size NATURAL]
-                                                                                 [--max-block-header-size NATURAL]
+                                                                                 [--max-block-body-size WORD32]
+                                                                                 [--max-tx-size WORD32]
+                                                                                 [--max-block-header-size WORD16]
                                                                                  [--key-reg-deposit-amt NATURAL]
                                                                                  [--pool-reg-deposit NATURAL]
-                                                                                 [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                                                 [--pool-retirement-epoch-interval WORD32]
                                                                                  [--number-of-pools NATURAL]
                                                                                  [--pool-influence RATIONAL]
                                                                                  [--treasury-expansion RATIONAL]
@@ -2667,12 +2667,12 @@ Usage: cardano-cli mary governance action create-protocol-parameters-update --ep
                                                                               (--genesis-verification-key-file FILE)
                                                                               [--min-fee-constant LOVELACE]
                                                                               [--min-fee-linear LOVELACE]
-                                                                              [--max-block-body-size NATURAL]
-                                                                              [--max-tx-size NATURAL]
-                                                                              [--max-block-header-size NATURAL]
+                                                                              [--max-block-body-size WORD32]
+                                                                              [--max-tx-size WORD32]
+                                                                              [--max-block-header-size WORD16]
                                                                               [--key-reg-deposit-amt NATURAL]
                                                                               [--pool-reg-deposit NATURAL]
-                                                                              [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                                              [--pool-retirement-epoch-interval WORD32]
                                                                               [--number-of-pools NATURAL]
                                                                               [--pool-influence RATIONAL]
                                                                               [--treasury-expansion RATIONAL]
@@ -3808,12 +3808,12 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update --
                                                                                 (--genesis-verification-key-file FILE)
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
-                                                                                [--max-block-body-size NATURAL]
-                                                                                [--max-tx-size NATURAL]
-                                                                                [--max-block-header-size NATURAL]
+                                                                                [--max-block-body-size WORD32]
+                                                                                [--max-tx-size WORD32]
+                                                                                [--max-block-header-size WORD16]
                                                                                 [--key-reg-deposit-amt NATURAL]
                                                                                 [--pool-reg-deposit NATURAL]
-                                                                                [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                                                [--pool-retirement-epoch-interval WORD32]
                                                                                 [--number-of-pools NATURAL]
                                                                                 [--pool-influence RATIONAL]
                                                                                 [--treasury-expansion RATIONAL]
@@ -4976,12 +4976,12 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update -
                                                                                  (--genesis-verification-key-file FILE)
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
-                                                                                 [--max-block-body-size NATURAL]
-                                                                                 [--max-tx-size NATURAL]
-                                                                                 [--max-block-header-size NATURAL]
+                                                                                 [--max-block-body-size WORD32]
+                                                                                 [--max-tx-size WORD32]
+                                                                                 [--max-block-header-size WORD16]
                                                                                  [--key-reg-deposit-amt NATURAL]
                                                                                  [--pool-reg-deposit NATURAL]
-                                                                                 [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                                                 [--pool-retirement-epoch-interval WORD32]
                                                                                  [--number-of-pools NATURAL]
                                                                                  [--pool-influence RATIONAL]
                                                                                  [--treasury-expansion RATIONAL]
@@ -6192,14 +6192,15 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 --anchor-data-hash HASH
                                                                                 [--prev-governance-action-tx-id TXID
                                                                                   --prev-governance-action-index WORD32]
+                                                                                [--constitution-script-hash HASH]
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
-                                                                                [--max-block-body-size NATURAL]
-                                                                                [--max-tx-size NATURAL]
-                                                                                [--max-block-header-size NATURAL]
+                                                                                [--max-block-body-size WORD32]
+                                                                                [--max-tx-size WORD32]
+                                                                                [--max-block-header-size WORD16]
                                                                                 [--key-reg-deposit-amt NATURAL]
                                                                                 [--pool-reg-deposit NATURAL]
-                                                                                [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                                                [--pool-retirement-epoch-interval WORD32]
                                                                                 [--number-of-pools NATURAL]
                                                                                 [--pool-influence RATIONAL]
                                                                                 [--treasury-expansion RATIONAL]
@@ -6216,7 +6217,8 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 [--pool-voting-threshold-motion-no-confidence RATIONAL
                                                                                   --pool-voting-threshold-committee-normal RATIONAL
                                                                                   --pool-voting-threshold-committee-no-confidence RATIONAL
-                                                                                  --pool-voting-threshold-hard-fork-initiation RATIONAL]
+                                                                                  --pool-voting-threshold-hard-fork-initiation RATIONAL
+                                                                                  --pool-voting-threshold-pp-security-group RATIONAL]
                                                                                 [--drep-voting-threshold-motion-no-confidence RATIONAL
                                                                                   --drep-voting-threshold-committee-normal RATIONAL
                                                                                   --drep-voting-threshold-committee-no-confidence RATIONAL
@@ -6228,11 +6230,11 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                   --drep-voting-threshold-pp-governance-group RATIONAL
                                                                                   --drep-voting-threshold-treasury-withdrawal RATIONAL]
                                                                                 [--min-committee-size INT]
-                                                                                [--committee-term-length INT]
-                                                                                [--governance-action-lifetime NATURAL]
+                                                                                [--committee-term-length WORD32]
+                                                                                [--governance-action-lifetime WORD32]
                                                                                 [--new-governance-action-deposit NATURAL]
                                                                                 [--drep-deposit LOVELACE]
-                                                                                [--drep-activity NATURAL]
+                                                                                [--drep-activity WORD32]
                                                                                 [--cost-model-file FILE]
                                                                                 --out-file FILE
 
@@ -6255,6 +6257,7 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                            | --funds-receiving-stake-key-hash HASH
                                                                            )
                                                                            --transfer LOVELACE]
+                                                                         [--constitution-script-hash HASH]
                                                                          --out-file FILE
 
   Create a treasury withdrawal.
@@ -7093,8 +7096,22 @@ Usage: cardano-cli conway transaction build-raw
                                                   | --metadata-cbor-file FILE
                                                   ]
                                                   [--protocol-params-file FILE]
-                                                  [--vote-file FILE]
-                                                  [--proposal-file FILE]
+                                                  [--vote-file FILE
+                                                    [--vote-script-file FILE
+                                                      [
+                                                        ( --vote-redeemer-cbor-file CBOR FILE
+                                                        | --vote-redeemer-file JSON FILE
+                                                        | --vote-redeemer-value JSON VALUE
+                                                        )
+                                                        --vote-execution-units (INT, INT)]]]
+                                                  [--proposal-file FILE
+                                                    [--proposal-script-file FILE
+                                                      [
+                                                        ( --proposal-redeemer-cbor-file CBOR FILE
+                                                        | --proposal-redeemer-file JSON FILE
+                                                        | --proposal-redeemer-value JSON VALUE
+                                                        )
+                                                        --proposal-execution-units (INT, INT)]]]
                                                   --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -7217,8 +7234,18 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                               [ --metadata-json-file FILE
                                               | --metadata-cbor-file FILE
                                               ]
-                                              [--vote-file FILE]
-                                              [--proposal-file FILE]
+                                              [--vote-file FILE
+                                                [--vote-script-file FILE
+                                                  [ --vote-redeemer-cbor-file CBOR FILE
+                                                  | --vote-redeemer-file JSON FILE
+                                                  | --vote-redeemer-value JSON VALUE
+                                                  ]]]
+                                              [--proposal-file FILE
+                                                [--proposal-script-file FILE
+                                                  [ --proposal-redeemer-cbor-file CBOR FILE
+                                                  | --proposal-redeemer-file JSON FILE
+                                                  | --proposal-redeemer-value JSON VALUE
+                                                  ]]]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
                                               )
@@ -7685,12 +7712,12 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update --
                                                                                 (--genesis-verification-key-file FILE)
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
-                                                                                [--max-block-body-size NATURAL]
-                                                                                [--max-tx-size NATURAL]
-                                                                                [--max-block-header-size NATURAL]
+                                                                                [--max-block-body-size WORD32]
+                                                                                [--max-tx-size WORD32]
+                                                                                [--max-block-header-size WORD16]
                                                                                 [--key-reg-deposit-amt NATURAL]
                                                                                 [--pool-reg-deposit NATURAL]
-                                                                                [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                                                [--pool-retirement-epoch-interval WORD32]
                                                                                 [--number-of-pools NATURAL]
                                                                                 [--pool-influence RATIONAL]
                                                                                 [--treasury-expansion RATIONAL]
@@ -8646,16 +8673,16 @@ Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
                                                               [ --extra-entropy HEX
                                                               | --reset-extra-entropy
                                                               ]
-                                                              [--max-block-header-size NATURAL]
-                                                              [--max-block-body-size NATURAL]
-                                                              [--max-tx-size NATURAL]
+                                                              [--max-block-header-size WORD16]
+                                                              [--max-block-body-size WORD32]
+                                                              [--max-tx-size WORD32]
                                                               [--min-fee-constant LOVELACE]
                                                               [--min-fee-linear LOVELACE]
                                                               [--min-utxo-value NATURAL]
                                                               [--key-reg-deposit-amt NATURAL]
                                                               [--pool-reg-deposit NATURAL]
                                                               [--min-pool-cost NATURAL]
-                                                              [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                              [--pool-retirement-epoch-interval WORD32]
                                                               [--number-of-pools NATURAL]
                                                               [--pool-influence RATIONAL]
                                                               [--monetary-expansion RATIONAL]
@@ -9420,8 +9447,18 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                               | --metadata-cbor-file FILE
                                               ]
                                               [--update-proposal-file FILE]
-                                              [--vote-file FILE]
-                                              [--proposal-file FILE]
+                                              [--vote-file FILE
+                                                [--vote-script-file FILE
+                                                  [ --vote-redeemer-cbor-file CBOR FILE
+                                                  | --vote-redeemer-file JSON FILE
+                                                  | --vote-redeemer-value JSON VALUE
+                                                  ]]]
+                                              [--proposal-file FILE
+                                                [--proposal-script-file FILE
+                                                  [ --proposal-redeemer-cbor-file CBOR FILE
+                                                  | --proposal-redeemer-file JSON FILE
+                                                  | --proposal-redeemer-value JSON VALUE
+                                                  ]]]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
                                               )
@@ -9893,16 +9930,16 @@ Usage: cardano-cli governance create-update-proposal --out-file FILE
                                                        [ --extra-entropy HEX
                                                        | --reset-extra-entropy
                                                        ]
-                                                       [--max-block-header-size NATURAL]
-                                                       [--max-block-body-size NATURAL]
-                                                       [--max-tx-size NATURAL]
+                                                       [--max-block-header-size WORD16]
+                                                       [--max-block-body-size WORD32]
+                                                       [--max-tx-size WORD32]
                                                        [--min-fee-constant LOVELACE]
                                                        [--min-fee-linear LOVELACE]
                                                        [--min-utxo-value NATURAL]
                                                        [--key-reg-deposit-amt NATURAL]
                                                        [--pool-reg-deposit NATURAL]
                                                        [--min-pool-cost NATURAL]
-                                                       [--pool-retirement-epoch-boundary EPOCH_BOUNDARY]
+                                                       [--pool-retirement-epoch-interval WORD32]
                                                        [--number-of-pools NATURAL]
                                                        [--pool-influence RATIONAL]
                                                        [--monetary-expansion RATIONAL]
@@ -10626,8 +10663,18 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                        | --metadata-cbor-file FILE
                                        ]
                                        [--update-proposal-file FILE]
-                                       [--vote-file FILE]
-                                       [--proposal-file FILE]
+                                       [--vote-file FILE
+                                         [--vote-script-file FILE
+                                           [ --vote-redeemer-cbor-file CBOR FILE
+                                           | --vote-redeemer-file JSON FILE
+                                           | --vote-redeemer-value JSON VALUE
+                                           ]]]
+                                       [--proposal-file FILE
+                                         [--proposal-script-file FILE
+                                           [ --proposal-redeemer-cbor-file CBOR FILE
+                                           | --proposal-redeemer-file JSON FILE
+                                           | --proposal-redeemer-value JSON VALUE
+                                           ]]]
                                        ( --out-file FILE
                                        | --calculate-plutus-script-cost FILE
                                        )

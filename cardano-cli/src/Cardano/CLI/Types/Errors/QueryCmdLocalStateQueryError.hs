@@ -12,7 +12,6 @@ import           Cardano.Api.Pretty
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 
-import           Prettyprinter ((<+>))
 
 -- | An error that can occur while querying a node's local state.
 newtype QueryCmdLocalStateQueryError

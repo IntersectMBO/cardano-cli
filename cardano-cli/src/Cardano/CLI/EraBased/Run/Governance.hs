@@ -29,7 +29,7 @@ import           Cardano.CLI.EraBased.Run.Governance.Poll
 import           Cardano.CLI.EraBased.Run.Governance.Vote
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
+import qualified Cardano.Ledger.Shelley.API as Shelley
 
 import           Control.Monad
 import           Control.Monad.Trans.Except (ExceptT)

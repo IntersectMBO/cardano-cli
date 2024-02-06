@@ -8,6 +8,8 @@
 
 module Cardano.CLI.Types.Errors.TxCmdError
   ( TxCmdError(..)
+  , AnyTxBodyErrorAutoBalance(..)
+  , AnyTxCmdTxExecUnitsErr(..)
   , renderTxCmdError
   ) where
 
@@ -31,10 +33,17 @@ import           Data.Text (Text)
 
 {- HLINT ignore "Use let" -}
 
+data AnyTxCmdTxExecUnitsErr where
+  AnyTxCmdTxExecUnitsErr :: TransactionValidityError era -> AnyTxCmdTxExecUnitsErr
+
+data AnyTxBodyErrorAutoBalance where
+  AnyTxBodyErrorAutoBalance :: TxBodyErrorAutoBalance era -> AnyTxBodyErrorAutoBalance
+
 data TxCmdError
   = TxCmdMetadataError MetadataError
   | TxCmdVoteError VoteError
   | TxCmdConstitutionError ConstitutionError
+  | TxCmdProposalError ProposalError
   | TxCmdScriptWitnessError ScriptWitnessError
   | TxCmdProtocolParamsError ProtocolParamsError
   | TxCmdScriptFileError (FileError ScriptDecodeError)
@@ -53,13 +62,13 @@ data TxCmdError
     -- policy Ids that were provided in the transaction.
   | TxCmdPolicyIdsExcess  ![PolicyId]
   | TxCmdByronEra
-  | TxCmdBalanceTxBody !TxBodyErrorAutoBalance
+  | TxCmdBalanceTxBody !AnyTxBodyErrorAutoBalance
   | TxCmdTxInsDoNotExist !TxInsExistError
   | TxCmdPParamsErr !ProtocolParametersError
   | TxCmdTextEnvCddlError
       !(FileError TextEnvelopeError)
       !(FileError TextEnvelopeCddlError)
-  | TxCmdTxExecUnitsErr !TransactionValidityError
+  | TxCmdTxExecUnitsErr !AnyTxCmdTxExecUnitsErr
   | TxCmdPlutusScriptCostErr !PlutusScriptCostError
   | TxCmdPParamExecutionUnitsNotAvailable
   | TxCmdPlutusScriptsRequireCardanoMode
@@ -91,9 +100,11 @@ renderTxCmdError = \case
   TxCmdProtocolParamsConverstionError err' ->
     "Error while converting protocol parameters: " <> prettyError err'
   TxCmdVoteError voteErr ->
-    pshow voteErr
+    prettyError voteErr
   TxCmdConstitutionError constErr ->
     pshow constErr
+  TxCmdProposalError propErr ->
+    pshow propErr
   TxCmdReadTextViewFileError fileErr ->
     prettyError fileErr
   TxCmdScriptFileError fileErr ->
@@ -149,8 +160,8 @@ renderTxCmdError = \case
     ]
   TxCmdByronEra ->
     "This query cannot be used for the Byron era"
-  TxCmdBalanceTxBody err' ->
-    prettyError err'
+  TxCmdBalanceTxBody (AnyTxBodyErrorAutoBalance err') ->
+     prettyError err'
   TxCmdTxInsDoNotExist e ->
     pretty $ renderTxInsExistError e
   TxCmdPParamsErr err' ->
@@ -161,7 +172,7 @@ renderTxCmdError = \case
     , "CDDL serialisation format. TextEnvelope error: " <> prettyError textEnvErr <> "\n"
     , "TextEnvelopeCddl error: " <> prettyError cddlErr
     ]
-  TxCmdTxExecUnitsErr err' ->
+  TxCmdTxExecUnitsErr (AnyTxCmdTxExecUnitsErr err') ->
     prettyError err'
   TxCmdPlutusScriptCostErr err'->
     prettyError err'

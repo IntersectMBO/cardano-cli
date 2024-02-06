@@ -27,7 +27,7 @@ import           Cardano.CLI.Types.Key.VerificationKey
 import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Crypto as Crypto
 import qualified Cardano.Ledger.SafeHash as L
-import qualified Cardano.Ledger.Shelley.TxBody as Shelley
+import qualified Cardano.Ledger.Shelley.API as Shelley
 
 import           Control.Monad (mfilter)
 import qualified Data.Aeson as Aeson
@@ -887,13 +887,14 @@ pConstitutionHash =
     ]
 
 pUrl :: String -> String -> Parser Ledger.Url
-pUrl l h = fromMaybe (error "Url longer than 64 bytes")
-         . Ledger.textToUrl <$>
-             Opt.strOption (mconcat
-                            [ Opt.long l
-                            , Opt.metavar "TEXT"
-                            , Opt.help h
-                            ])
+pUrl l h =
+  let toUrl urlText = fromMaybe (error "Url longer than 64 bytes")
+                        $ Ledger.textToUrl (Text.length urlText) urlText
+  in fmap toUrl . Opt.strOption
+       $ mconcat [ Opt.long l
+                 , Opt.metavar "TEXT"
+                 , Opt.help h
+                 ]
 
 pGovActionDeposit :: Parser Lovelace
 pGovActionDeposit =
@@ -1115,6 +1116,53 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
           case scriptDataJsonToHashable ScriptDataJsonNoSchema sDataValue of
             Left err -> fail $ docToString $ prettyError err
             Right sd -> return sd
+
+pVoteFiles
+  :: ShelleyBasedEra era
+  -> BalanceTxExecUnits
+  -> Parser [(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+pVoteFiles sbe bExUnits= caseShelleyToBabbageOrConwayEraOnwards
+        (const $ pure [])
+        (const . many $ pVoteFile bExUnits)
+        sbe
+
+pVoteFile :: BalanceTxExecUnits -> Parser (VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+pVoteFile balExUnits =
+  (,) <$> pFileInDirection "vote-file" "Filepath of the vote."
+      <*> optional (pVoteScriptOrReferenceScriptWitness balExUnits)
+
+ where
+   pVoteScriptOrReferenceScriptWitness
+     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
+   pVoteScriptOrReferenceScriptWitness bExUnits =
+     pScriptWitnessFiles
+       WitCtxStake
+       bExUnits
+       "vote"
+       Nothing
+       "a vote"
+
+pProposalFiles :: ShelleyBasedEra era -> BalanceTxExecUnits -> Parser [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+pProposalFiles sbe balExUnits = caseShelleyToBabbageOrConwayEraOnwards
+        (const $ pure [])
+        (const $ many (pProposalFile balExUnits))
+        sbe
+
+pProposalFile :: BalanceTxExecUnits -> Parser (ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+pProposalFile balExUnits =
+ (,) <$> pFileInDirection "proposal-file" "Filepath of the proposal."
+     <*> optional (pProposingScriptOrReferenceScriptWitness balExUnits)
+
+ where
+   pProposingScriptOrReferenceScriptWitness
+     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
+   pProposingScriptOrReferenceScriptWitness bExUnits =
+     pScriptWitnessFiles
+       WitCtxStake
+       bExUnits
+       "proposal"
+       Nothing
+       "a proposal"
 
 --------------------------------------------------------------------------------
 
@@ -2574,27 +2622,27 @@ pMinPoolCost =
     , Opt.help "The minimum allowed cost parameter for stake pools."
     ]
 
-pMaxBodySize :: Parser Natural
+pMaxBodySize :: Parser Word32
 pMaxBodySize =
   Opt.option Opt.auto $ mconcat
     [ Opt.long "max-block-body-size"
-    , Opt.metavar "NATURAL"
+    , Opt.metavar "WORD32"
     , Opt.help "Maximal block body size."
     ]
 
-pMaxTransactionSize :: Parser Natural
+pMaxTransactionSize :: Parser Word32
 pMaxTransactionSize =
   Opt.option Opt.auto $ mconcat
     [ Opt.long "max-tx-size"
-    , Opt.metavar "NATURAL"
+    , Opt.metavar "WORD32"
     , Opt.help "Maximum transaction size."
     ]
 
-pMaxBlockHeaderSize :: Parser Natural
+pMaxBlockHeaderSize :: Parser Word16
 pMaxBlockHeaderSize =
   Opt.option Opt.auto $ mconcat
    [ Opt.long "max-block-header-size"
-   , Opt.metavar "NATURAL"
+   , Opt.metavar "WORD16"
    , Opt.help "Maximum block header size."
    ]
 
@@ -2622,12 +2670,18 @@ pPoolDeposit =
    , Opt.help "The amount of a pool registration deposit."
    ]
 
-pEpochBoundRetirement :: Parser EpochNo
+pEpochBoundRetirement :: Parser L.EpochInterval
 pEpochBoundRetirement =
-  fmap EpochNo $ Opt.option (bounded "EPOCH_BOUNDARY") $ mconcat
-    [ Opt.long "pool-retirement-epoch-boundary"
-    , Opt.metavar "EPOCH_BOUNDARY"
-    , Opt.help "Epoch bound on pool retirement."
+  fmap L.EpochInterval $ asum
+    [ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
+        [ Opt.long "pool-retirement-epoch-interval"
+        , Opt.metavar "WORD32"
+        , Opt.help "Epoch interval of pool retirement."
+        ]
+    , Opt.option (bounded "EPOCH_BOUNDARY")  $ mconcat
+        [ Opt.long "pool-retirement-epoch-boundary"
+        , Opt.internal
+        ]
     ]
 
 pNumberOfPools :: Parser Natural
@@ -2811,6 +2865,7 @@ pPoolVotingThresholds =
       <*> pCommitteeNormal
       <*> pCommitteeNoConfidence
       <*> pHardForkInitiation
+      <*> pPPSecurityGroup
   where
     pMotionNoConfidence =
       Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
@@ -2835,6 +2890,12 @@ pPoolVotingThresholds =
         [ Opt.long "pool-voting-threshold-hard-fork-initiation"
         , Opt.metavar "RATIONAL"
         , Opt.help "Acceptance threshold for stake pool votes on hard fork initiations."
+        ]
+    pPPSecurityGroup =
+      Opt.option (toUnitIntervalOrErr <$> readRationalUnitInterval) $ mconcat
+        [ Opt.long "pool-voting-threshold-pp-security-group"
+        , Opt.metavar "RATIONAL"
+        , Opt.help "Acceptance threshold for stake pool votes on protocol parameters for parameters in the 'security' group."
         ]
 
 pDRepVotingThresholds :: Parser Ledger.DRepVotingThresholds
@@ -2920,19 +2981,19 @@ pMinCommitteeSize =
     , Opt.help "Minimal size of the constitutional committee."
     ]
 
-pCommitteeTermLength :: Parser EpochNo
+pCommitteeTermLength :: Parser L.EpochInterval
 pCommitteeTermLength =
-  fmap EpochNo $ Opt.option Opt.auto $ mconcat
+  fmap L.EpochInterval $ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
     [ Opt.long "committee-term-length"
-    , Opt.metavar "INT"
+    , Opt.metavar "WORD32"
     , Opt.help "Maximal term length for members of the constitutional committee, in epochs."
     ]
 
-pGovActionLifetime :: Parser EpochNo
+pGovActionLifetime :: Parser L.EpochInterval
 pGovActionLifetime =
-  fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
+  fmap L.EpochInterval $ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
     [ Opt.long "governance-action-lifetime"
-    , Opt.metavar "NATURAL"
+    , Opt.metavar "WORD32"
     , Opt.help "Maximal lifetime of governance actions, in epochs."
     ]
 
@@ -2944,11 +3005,11 @@ pDRepDeposit =
     , Opt.help "DRep deposit amount."
     ]
 
-pDRepActivity :: Parser EpochNo
+pDRepActivity :: Parser L.EpochInterval
 pDRepActivity =
-  fmap EpochNo $ Opt.option (bounded "EPOCH") $ mconcat
+  fmap L.EpochInterval $ Opt.option (bounded "EPOCH_INTERVAL") $ mconcat
     [ Opt.long "drep-activity"
-    , Opt.metavar "NATURAL"
+    , Opt.metavar "WORD32"
     , Opt.help "DRep activity period, in epochs."
     ]
 
@@ -3052,6 +3113,14 @@ pDRepScriptHash =
     [ Opt.long "drep-script-hash"
     , Opt.metavar "HASH"
     , Opt.help "DRep script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+    ]
+
+pConstitutionScriptHash :: Parser ScriptHash
+pConstitutionScriptHash =
+  Opt.option scriptHashReader $ mconcat
+    [ Opt.long "constitution-script-hash"
+    , Opt.metavar "HASH"
+    , Opt.help "Constitution script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
     ]
 
 pDRepVerificationKeyOrHashOrFile

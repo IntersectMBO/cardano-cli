@@ -14,7 +14,6 @@ import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Governance (VoteFile)
 
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)
@@ -181,8 +180,8 @@ pTransactionBuildCmd era envCli = do
                       "Filepath of auxiliary script(s)")
           <*> many pMetadataFile
           <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
-          <*> pVoteFiles sbe
-          <*> pProposalFiles sbe
+          <*> pVoteFiles sbe AutoBalance
+          <*> pProposalFiles sbe AutoBalance
           <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
 pChangeAddress :: Parser TxOutChangeAddress
@@ -216,19 +215,9 @@ pTransactionBuildRaw era =
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
       <*> pFeatured era (optional pUpdateProposalFile)
-      <*> pVoteFiles era
-      <*> pProposalFiles era
+      <*> pVoteFiles era ManualBalance
+      <*> pProposalFiles era ManualBalance
       <*> pTxBodyFileOut
-
-pVoteFiles :: ShelleyBasedEra era -> Parser [VoteFile In]
-pVoteFiles = caseShelleyToBabbageOrConwayEraOnwards 
-        (const $ pure [])
-        (const $ many (pFileInDirection "vote-file" "Filepath of the vote."))
-
-pProposalFiles :: ShelleyBasedEra era -> Parser [ProposalFile In]
-pProposalFiles = caseShelleyToBabbageOrConwayEraOnwards 
-        (const $ pure [])
-        (const $ many (pFileInDirection "proposal-file" "Filepath of the proposal."))
 
 pTransactionSign  :: EnvCli -> Parser (TransactionCmds era)
 pTransactionSign envCli =
