@@ -640,7 +640,9 @@ data SomeSigningWitness
   | ADRepSigningWitness                     (SigningKey DRepKey)
   | ADRepExtendedSigningWitness             (SigningKey DRepExtendedKey)
   | ACommitteeColdSigningWitness            (SigningKey CommitteeColdKey)
+  | ACommitteeColdExtendedSigningWitness    (SigningKey CommitteeColdExtendedKey)
   | ACommitteeHotSigningWitness             (SigningKey CommitteeHotKey)
+  | ACommitteeHotExtendedSigningWitness     (SigningKey CommitteeHotExtendedKey)
   deriving Show
 
 
@@ -677,7 +679,9 @@ categoriseSomeSigningWitness swsk =
     ADRepSigningWitness                     sk      -> AShelleyKeyWitness (WitnessDRepKey                         sk)
     ADRepExtendedSigningWitness             sk      -> AShelleyKeyWitness (WitnessDRepExtendedKey                 sk)
     ACommitteeColdSigningWitness            sk      -> AShelleyKeyWitness (WitnessCommitteeColdKey                sk)
+    ACommitteeColdExtendedSigningWitness    sk      -> AShelleyKeyWitness (WitnessCommitteeColdExtendedKey        sk)
     ACommitteeHotSigningWitness             sk      -> AShelleyKeyWitness (WitnessCommitteeHotKey                 sk)
+    ACommitteeHotExtendedSigningWitness     sk      -> AShelleyKeyWitness (WitnessCommitteeHotExtendedKey         sk)
 
 data ReadWitnessSigningDataError
   = ReadWitnessSigningDataSigningKeyDecodeError !(FileError InputDecodeError)
@@ -727,7 +731,9 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
       , FromSomeType (AsSigningKey AsDRepKey                    ) ADRepSigningWitness
       , FromSomeType (AsSigningKey AsDRepExtendedKey            ) ADRepExtendedSigningWitness
       , FromSomeType (AsSigningKey AsCommitteeColdKey           ) ACommitteeColdSigningWitness
+      , FromSomeType (AsSigningKey AsCommitteeColdExtendedKey   ) ACommitteeColdExtendedSigningWitness
       , FromSomeType (AsSigningKey AsCommitteeHotKey            ) ACommitteeHotSigningWitness
+      , FromSomeType (AsSigningKey AsCommitteeHotExtendedKey    ) ACommitteeHotExtendedSigningWitness
       ]
 
     bech32FileTypes =
