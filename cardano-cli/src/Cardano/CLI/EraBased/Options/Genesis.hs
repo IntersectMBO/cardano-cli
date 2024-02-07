@@ -21,6 +21,7 @@ import           Data.Maybe
 import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
+import           Data.Foldable
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
@@ -89,7 +90,7 @@ pGenesisCmds envCli =
             ]
     , Just
         $ subParser "create-testnet-data"
-        $ Opt.info pGenesisCreateTestNetData
+        $ Opt.info (pGenesisCreateTestNetData envCli)
         $ Opt.progDesc
         $ mconcat
             [ "Create data to use for starting a testnet."
@@ -199,8 +200,8 @@ pGenesisCreateStaked envCli =
     <*> pStuffedUtxoCount
     <*> Opt.optional pRelayJsonFp
 
-pGenesisCreateTestNetData :: Parser (GenesisCmds era)
-pGenesisCreateTestNetData =
+pGenesisCreateTestNetData :: EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateTestNetData envCli =
   fmap GenesisCreateTestNetData $ GenesisCreateTestNetDataCmdArgs
     <$> (optional $ pSpecFile "shelley")
     <*> pNumGenesisKeys
@@ -211,18 +212,10 @@ pGenesisCreateTestNetData =
     <*> pNumUtxoKeys
     <*> pSupply
     <*> pSupplyDelegated
-    <*> optional pNetworkIdForTestnetData
+    <*> (optional $ pNetworkIdForTestnetData envCli)
     <*> pMaybeSystemStart
     <*> pOutputDir
   where
-    pNetworkIdForTestnetData :: Parser NetworkId 
-    pNetworkIdForTestnetData = Testnet . NetworkMagic <$> testnetMagicParser
-      where
-        testnetMagicParser = Opt.option (bounded "TESTNET_MAGIC")
-          (  Opt.long "testnet-magic"
-          <> Opt.metavar "NATURAL"
-          <> Opt.help "Specify a testnet magic id for the cluster. Overrides the network id supplied in the spec file."
-          )
     pSpecFile era = Opt.strOption $ mconcat
       [ Opt.long $ "spec-" <> era
       , Opt.metavar "FILE"
@@ -443,3 +436,20 @@ pBulkPoolsPerFile =
     , Opt.help "Each bulk pool to contain this many pool credential sets [default is 0]."
     , Opt.value 0
     ]
+
+pNetworkIdForTestnetData :: EnvCli -> Parser NetworkId
+pNetworkIdForTestnetData envCli = asum $ mconcat
+  [ [ fmap (Testnet . NetworkMagic) $ Opt.option (bounded "TESTNET_MAGIC") $ mconcat
+      [ Opt.long "testnet-magic"
+      , Opt.metavar "NATURAL"
+      , Opt.help $ mconcat
+        [ "Specify a testnet magic id for the cluster. " 
+        , "This overrides both the network magic from the "
+        , "spec file and CARDANO_NODE_NETWORK_ID environment variable"
+        ]
+      ]
+    ]
+  , -- Default to the network id specified by the environment variable if it is available.
+    pure <$> maybeToList (envCliNetworkId envCli)
+  ]
+
