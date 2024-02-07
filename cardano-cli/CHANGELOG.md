@@ -1,5 +1,40 @@
 # Changelog for cardano-cli
 
+## 8.20.0.0
+
+- - Bump CHaP in preparation for cardano-node 8.8
+  - `--pool-retirement-epoch-boundary` updated to `--pool-retirement-epoch-interval`
+  (breaking)
+  [PR 529](https://github.com/IntersectMBO/cardano-cli/pull/529)
+
+- create-testnet-data: better UX for supply arguments: have a flag for total supply and delegated supply is a fraction of that.
+  (breaking)
+  [PR 581](https://github.com/IntersectMBO/cardano-cli/pull/581)
+
+- Provide more detailed error upon missing policy id
+  (improvement)
+  [PR 527](https://github.com/IntersectMBO/cardano-cli/pull/527)
+
+- Bump hedgehog-extras to 0.6.0.1 to benefit of this fix: https://github.com/input-output-hk/hedgehog-extras/pull/58
+  (compatible, test, release)
+  [PR 589](https://github.com/IntersectMBO/cardano-cli/pull/589)
+
+- Avoid an internal crash of `create-testnet-data`
+  (compatible, bugfix)
+  [PR 588](https://github.com/IntersectMBO/cardano-cli/pull/588)
+
+- Update help for `drep-stake-distribution` and `drep-state` queries
+  (improvement, test)
+  [PR 585](https://github.com/IntersectMBO/cardano-cli/pull/585)
+
+- Improvements to --create-testnet-data
+  (compatible, test)
+  [PR 575](https://github.com/IntersectMBO/cardano-cli/pull/575)
+
+- Support signing with drep extended key
+  (feature, compatible)
+  [PR 556](https://github.com/IntersectMBO/cardano-cli/pull/556)
+
 ## 8.19.0.0
 
 - Update cardano-api 8.37.1
