@@ -21,7 +21,6 @@ import           Data.Maybe
 import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
-import           Data.Foldable
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
