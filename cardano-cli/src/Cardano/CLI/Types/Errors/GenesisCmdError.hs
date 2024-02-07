@@ -39,6 +39,7 @@ data GenesisCmdError
   | GenesisCmdStakePoolRelayFileError !FilePath !IOException
   | GenesisCmdStakePoolRelayJsonDecodeError !FilePath !String
   | GenesisCmdFileInputDecodeError !(FileError InputDecodeError)
+  | GenesisCmdNegativeInitialFunds !Integer -- ^ total supply underflow
   deriving Show
 
 instance Error GenesisCmdError where
@@ -97,3 +98,5 @@ instance Error GenesisCmdError where
       " Error: " <> pretty e
     GenesisCmdFileInputDecodeError ide ->
       "Error occured while decoding a file: " <> pshow ide
+    GenesisCmdNegativeInitialFunds underflow ->
+      "Provided delegated supply value results in negative initial funds. Decrease delegated amount by " <> pretty ((-1) * underflow) <> " or increase total supply by it."
