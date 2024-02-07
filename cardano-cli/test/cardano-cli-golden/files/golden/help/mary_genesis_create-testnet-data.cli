@@ -44,7 +44,7 @@ Available options:
                            with --total-supply.
   --testnet-magic NATURAL  Specify a testnet magic id for the cluster. This
                            overrides both the network magic from the spec file
-                           and CARDANO_NODE_NETWORK_ID environment variable
+                           and CARDANO_NODE_NETWORK_ID environment variable.
   --start-time UTC-TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
                            format. If unspecified, will be the current time +30
                            seconds.

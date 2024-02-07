@@ -3219,7 +3219,7 @@ pNetworkIdForTestnetData envCli = asum $ mconcat
       , Opt.help $ mconcat
         [ "Specify a testnet magic id for the cluster. " 
         , "This overrides both the network magic from the "
-        , "spec file and CARDANO_NODE_NETWORK_ID environment variable"
+        , "spec file and CARDANO_NODE_NETWORK_ID environment variable."
         ]
       ]
     ]
