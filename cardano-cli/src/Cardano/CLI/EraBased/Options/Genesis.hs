@@ -21,7 +21,6 @@ import           Data.Maybe
 import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
-import           Data.Foldable
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
@@ -437,19 +436,4 @@ pBulkPoolsPerFile =
     , Opt.value 0
     ]
 
-pNetworkIdForTestnetData :: EnvCli -> Parser NetworkId
-pNetworkIdForTestnetData envCli = asum $ mconcat
-  [ [ fmap (Testnet . NetworkMagic) $ Opt.option (bounded "TESTNET_MAGIC") $ mconcat
-      [ Opt.long "testnet-magic"
-      , Opt.metavar "NATURAL"
-      , Opt.help $ mconcat
-        [ "Specify a testnet magic id for the cluster. " 
-        , "This overrides both the network magic from the "
-        , "spec file and CARDANO_NODE_NETWORK_ID environment variable"
-        ]
-      ]
-    ]
-  , -- Default to the network id specified by the environment variable if it is available.
-    pure <$> maybeToList (envCliNetworkId envCli)
-  ]
 
