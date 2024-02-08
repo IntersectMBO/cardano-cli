@@ -211,7 +211,7 @@ pGenesisCreateTestNetData envCli =
     <*> pNumUtxoKeys
     <*> pSupply
     <*> pSupplyDelegated
-    <*> pNetworkId envCli
+    <*> (optional $ pNetworkIdForTestnetData envCli)
     <*> pMaybeSystemStart
     <*> pOutputDir
   where
@@ -409,7 +409,6 @@ pSlotLength =
     , Opt.value 1_000
     ]
 
-
 pSlotCoefficient :: Parser Rational
 pSlotCoefficient =
   Opt.option readRationalUnitInterval $ mconcat
@@ -436,3 +435,5 @@ pBulkPoolsPerFile =
     , Opt.help "Each bulk pool to contain this many pool credential sets [default is 0]."
     , Opt.value 0
     ]
+
+

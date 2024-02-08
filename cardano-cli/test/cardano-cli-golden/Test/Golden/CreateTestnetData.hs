@@ -27,7 +27,7 @@ import qualified Hedgehog.Extras.Test.Golden as H
 {- HLINT ignore "Use camelCase" -}
 
 networkMagic :: Word32
-networkMagic = 42
+networkMagic = 623
 
 numDReps :: Int
 numDReps = 5
@@ -62,16 +62,33 @@ tree root = do
   subTrees <- mapM tree subs
   return $ files ++ concat subTrees
 
--- | This test tests the non-transient case, i.e. it maximizes the files
--- that can be written to disk. Execute this test with:
--- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data/'@
+-- Execute this test with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data/"'@
 hprop_golden_create_testnet_data :: Property
 hprop_golden_create_testnet_data =
+  golden_create_testnet_data Nothing
+
+-- Execute this test with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data with template/"'@
+hprop_golden_create_testnet_data_with_template :: Property
+hprop_golden_create_testnet_data_with_template =
+  golden_create_testnet_data $ Just "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
+
+-- | This test tests the non-transient case, i.e. it maximizes the files
+-- that can be written to disk.
+golden_create_testnet_data :: ()
+  => Maybe FilePath -- ^ The path to the shelley template use, if any
+  -> Property
+golden_create_testnet_data mShelleyTemplate =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
 
     let outputDir = tempDir </> "out"
+        templateArg :: [String] =
+          case mShelleyTemplate of
+            Nothing -> []
+            Just shelleyTemplate -> ["--spec-shelley", shelleyTemplate]
 
-    void $ execCardanoCLI $ mkArguments outputDir <> ["--stake-delegators", "4"]
+    void $ execCardanoCLI $ mkArguments outputDir <> ["--stake-delegators", "4"] <> templateArg
 
     generated <- liftIO $ tree outputDir
     -- Sort output for stability, and make relative to avoid storing
