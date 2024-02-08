@@ -4,6 +4,15 @@
 
 - - Bump CHaP in preparation for cardano-node 8.8
   - `--pool-retirement-epoch-boundary` updated to `--pool-retirement-epoch-interval`
+  - `--governance-action-lifetime` and  `--drep-activity` parse an `EpochInterval`
+  - Treasury withdrawals and protocol parameter updates now optionally parse a guard rail script
+  - `transaction build` and `transaction build-raw` commands now parse optional Plutus script witnesses for votes and proposals
+  - The "tx body intermediate format" is now fully deprecated
+  - Protocol parameter parsers are updated as follows:
+    - `pMaxBodySize :: Parser Word32`
+    - `pMaxBlockHeaderSize :: Parser Word32`
+    - `pCommitteeTermLength :: Parser EpochInterval`
+  - New `--pool-voting-threshold-pp-security-group` parser added for protocol parameter updates in the Conway era
   (breaking)
   [PR 529](https://github.com/IntersectMBO/cardano-cli/pull/529)
 
