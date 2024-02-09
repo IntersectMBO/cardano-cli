@@ -31,6 +31,7 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
+import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Data.Text (Text)
 import           Data.Time.Clock
@@ -67,6 +68,7 @@ data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
   , poolColdVerKeyFile  :: !(VerificationKeyOrHashOrFile StakePoolKey)
   , vrkSkeyFp           :: !(SigningKeyFile In)
   , whichSchedule       :: !EpochLeadershipSchedule
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -81,6 +83,7 @@ data QueryConstitutionHashCmdArgs = QueryConstitutionHashCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -88,6 +91,7 @@ data QueryTipCmdArgs = QueryTipCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -95,6 +99,7 @@ data QueryStakePoolsCmdArgs = QueryStakePoolsCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -102,6 +107,7 @@ data QueryStakeDistributionCmdArgs = QueryStakeDistributionCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -110,6 +116,7 @@ data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , addr                :: !StakeAddress
   , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -118,6 +125,7 @@ data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , queryFilter         :: !QueryUTxOFilter
   , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -125,6 +133,7 @@ data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -132,6 +141,7 @@ data QueryProtocolStateCmdArgs = QueryProtocolStateCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -140,6 +150,7 @@ data QueryStakeSnapshotCmdArgs = QueryStakeSnapshotCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , allOrOnlyPoolIds    :: !(AllOrOnly (Hash StakePoolKey))
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -148,6 +159,7 @@ data QueryKesPeriodInfoCmdArgs = QueryKesPeriodInfoCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , nodeOpCertFp        :: !(File () In) -- ^ Node operational certificate
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -156,6 +168,7 @@ data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , allOrOnlyPoolIds    :: !(AllOrOnly (Hash StakePoolKey))
+  , target              :: !(Consensus.Target ChainPoint)
   } deriving (Generic, Show)
 
 data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs
@@ -171,6 +184,7 @@ data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
   , utcTime             :: !UTCTime
   } deriving (Generic, Show)
 
@@ -179,6 +193,7 @@ data QueryNoArgCmdArgs era = QueryNoArgCmdArgs
   , nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
 
@@ -188,6 +203,7 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , drepKeys            :: !(AllOrOnly (VerificationKeyOrHashOrFile DRepKey))
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
 
@@ -197,6 +213,7 @@ data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , drepKeys            :: !(AllOrOnly (VerificationKeyOrHashOrFile DRepKey))
+  , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
 
@@ -208,6 +225,7 @@ data QueryCommitteeMembersStateCmdArgs era = QueryCommitteeMembersStateCmdArgs
   , committeeColdKeys       :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
   , committeeHotKeys        :: ![VerificationKeyOrHashOrFile CommitteeHotKey]
   , memberStatuses          :: ![MemberStatus]
+  , target                  :: !(Consensus.Target ChainPoint)
   , mOutFile                :: !(Maybe (File () Out))
   } deriving Show
 

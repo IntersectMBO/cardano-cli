@@ -4,6 +4,7 @@ Usage: cardano-cli conway query stake-pools --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              [--volatile-tip | --immutable-tip]
                                               [--out-file FILE]
 
   Get the node's current set of stake pool ids
@@ -22,5 +23,8 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --out-file FILE          Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
