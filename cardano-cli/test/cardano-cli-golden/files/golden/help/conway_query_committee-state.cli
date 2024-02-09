@@ -16,6 +16,9 @@ Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
                                                   | --expired
                                                   | --unrecognized
                                                   ]
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
                                                   [--out-file FILE]
 
   Get the committee state
@@ -48,5 +51,8 @@ Available options:
   --expired                Expired committee members
   --unrecognized           Unrecognized committe members: a hot credential for
                            an unknown cold credential
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --out-file FILE          The output file.
   -h,--help                Show this help text

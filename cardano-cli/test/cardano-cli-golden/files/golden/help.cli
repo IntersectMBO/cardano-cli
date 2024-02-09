@@ -6521,6 +6521,7 @@ Usage: cardano-cli conway query protocol-parameters --socket-path SOCKET_PATH
 Usage: cardano-cli conway query tip --socket-path SOCKET_PATH
                                       [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
+                                      [--volatile-tip | --immutable-tip]
                                       [--out-file FILE]
 
   Get the node's current tip (slot no, hash, block no)
@@ -6531,6 +6532,7 @@ Usage: cardano-cli conway query stake-pools --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              [--volatile-tip | --immutable-tip]
                                               [--out-file FILE]
 
   Get the node's current set of stake pool ids
@@ -6541,6 +6543,9 @@ Usage: cardano-cli conway query stake-distribution --socket-path SOCKET_PATH
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
+                                                     [ --volatile-tip
+                                                     | --immutable-tip
+                                                     ]
                                                      [--out-file FILE]
 
   Get the node's current aggregated stake distribution
@@ -6552,6 +6557,9 @@ Usage: cardano-cli conway query stake-address-info --socket-path SOCKET_PATH
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
+                                                     [ --volatile-tip
+                                                     | --immutable-tip
+                                                     ]
                                                      [--out-file FILE]
 
   Get the current delegations and reward accounts filtered by stake address.
@@ -6563,6 +6571,7 @@ Usage: cardano-cli conway query utxo --socket-path SOCKET_PATH
                                        | (--tx-in TX-IN)
                                        )
                                        (--mainnet | --testnet-magic NATURAL)
+                                       [--volatile-tip | --immutable-tip]
                                        [--out-file FILE]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -6573,6 +6582,9 @@ Usage: cardano-cli conway query ledger-state --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
+                                               [ --volatile-tip
+                                               | --immutable-tip
+                                               ]
                                                [--out-file FILE]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
@@ -6584,6 +6596,9 @@ Usage: cardano-cli conway query protocol-state --socket-path SOCKET_PATH
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
+                                                 [ --volatile-tip
+                                                 | --immutable-tip
+                                                 ]
                                                  [--out-file FILE]
 
   Dump the current protocol state of the node (Ledger.ChainDepState -- advanced
@@ -6598,6 +6613,9 @@ Usage: cardano-cli conway query stake-snapshot --socket-path SOCKET_PATH
                                                  ( --all-stake-pools
                                                  | (--stake-pool-id STAKE_POOL_ID)
                                                  )
+                                                 [ --volatile-tip
+                                                 | --immutable-tip
+                                                 ]
                                                  [--out-file FILE]
 
   Obtain the three stake snapshots for a pool, plus the total active stake
@@ -6612,6 +6630,7 @@ Usage: cardano-cli conway query pool-params --socket-path SOCKET_PATH
                                               ( --all-stake-pools
                                               | (--stake-pool-id STAKE_POOL_ID)
                                               )
+                                              [--volatile-tip | --immutable-tip]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
@@ -6630,6 +6649,9 @@ Usage: cardano-cli conway query leadership-schedule --socket-path SOCKET_PATH
                                                       )
                                                       --vrf-signing-key-file FILE
                                                       (--current | --next)
+                                                      [ --volatile-tip
+                                                      | --immutable-tip
+                                                      ]
                                                       [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -6641,6 +6663,9 @@ Usage: cardano-cli conway query kes-period-info --socket-path SOCKET_PATH
                                                   | --testnet-magic NATURAL
                                                   )
                                                   --op-cert-file FILE
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
                                                   [--out-file FILE]
 
   Get information about the current KES period and your node's operational
@@ -6655,6 +6680,7 @@ Usage: cardano-cli conway query pool-state --socket-path SOCKET_PATH
                                              ( --all-stake-pools
                                              | (--stake-pool-id STAKE_POOL_ID)
                                              )
+                                             [--volatile-tip | --immutable-tip]
 
   Dump the pool state
 
@@ -6687,6 +6713,7 @@ Usage: cardano-cli conway query slot-number --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              [--volatile-tip | --immutable-tip]
                                               TIMESTAMP
 
   Query slot number for UTC timestamp
@@ -6697,6 +6724,9 @@ Usage: cardano-cli conway query constitution --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
+                                               [ --volatile-tip
+                                               | --immutable-tip
+                                               ]
                                                [--out-file FILE]
 
   Get the constitution
@@ -6707,6 +6737,7 @@ Usage: cardano-cli conway query gov-state --socket-path SOCKET_PATH
                                             ( --mainnet
                                             | --testnet-magic NATURAL
                                             )
+                                            [--volatile-tip | --immutable-tip]
                                             [--out-file FILE]
 
   Get the governance state
@@ -6724,6 +6755,7 @@ Usage: cardano-cli conway query drep-state --socket-path SOCKET_PATH
                                              | --drep-key-hash HASH
                                              )
                                              )
+                                             [--volatile-tip | --immutable-tip]
                                              [--out-file FILE]
 
   Get the DRep state.
@@ -6742,6 +6774,9 @@ Usage: cardano-cli conway query drep-stake-distribution
                                                           | --drep-key-hash HASH
                                                           )
                                                           )
+                                                          [ --volatile-tip
+                                                          | --immutable-tip
+                                                          ]
                                                           [--out-file FILE]
 
   Get the DRep stake distribution.
@@ -6763,6 +6798,9 @@ Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
                                                   [ --active
                                                   | --expired
                                                   | --unrecognized
+                                                  ]
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
                                                   ]
                                                   [--out-file FILE]
 

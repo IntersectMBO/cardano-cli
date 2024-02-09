@@ -7,6 +7,9 @@ Usage: cardano-cli conway query stake-snapshot --socket-path SOCKET_PATH
                                                  ( --all-stake-pools
                                                  | (--stake-pool-id STAKE_POOL_ID)
                                                  )
+                                                 [ --volatile-tip
+                                                 | --immutable-tip
+                                                 ]
                                                  [--out-file FILE]
 
   Obtain the three stake snapshots for a pool, plus the total active stake
@@ -30,5 +33,8 @@ Available options:
   --stake-pool-id STAKE_POOL_ID
                            Stake pool ID/verification key hash (either
                            Bech32-encoded or hex-encoded).
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --out-file FILE          Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
