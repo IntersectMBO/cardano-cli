@@ -114,7 +114,7 @@ readerFromAttoParser p =
 eDNSName :: String -> Either String ByteString
 eDNSName str =
   -- We're using 'Shelley.textToDns' to validate the string.
-  let dnsNameText = Text.pack str
-  in case Shelley.textToDns (Text.length dnsNameText) dnsNameText of
-      Nothing -> Left $ "DNS name is more than 64 bytes: " <> str
-      Just dnsName -> Right . Text.encodeUtf8 . Shelley.dnsToText $ dnsName
+  -- The limit in the Conway CDDL spec is 128.
+  case Shelley.textToDns 128 (Text.pack str) of
+    Nothing -> Left $ "DNS name is more than 64 bytes: " <> str
+    Just dnsName -> Right . Text.encodeUtf8 . Shelley.dnsToText $ dnsName
