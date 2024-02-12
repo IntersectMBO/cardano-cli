@@ -521,8 +521,8 @@ data CddlError = CddlErrorTextEnv
 instance Error CddlError where
   prettyError = \case
     CddlErrorTextEnv textEnvErr cddlErr ->
-      "Failed to decode neither the cli's serialisation format nor the ledger's " <>
-      "CDDL serialisation format. TextEnvelope error: " <> prettyError textEnvErr <> "\n" <>
+      "Failed to decode the ledger's CDDL serialisation format. " <>
+      "TextEnvelope error: " <> prettyError textEnvErr <> "\n" <>
       "TextEnvelopeCddl error: " <> prettyError cddlErr
     CddlIOError e ->
       prettyError e
@@ -584,9 +584,8 @@ data CddlWitnessError
 instance Error CddlWitnessError where
   prettyError = \case
     CddlWitnessErrorTextEnv teErr cddlErr ->
-      "Failed to decode neither the cli's serialisation format nor the ledger's \
-      \CDDL serialisation format. TextEnvelope error: " <> prettyError teErr <> "\n" <>
-      "TextEnvelopeCddl error: " <> prettyError cddlErr
+      "Failed to decode the ledger's CDDL serialisation format. TextEnvelope error: " <>
+      prettyError teErr <> "\n" <> "TextEnvelopeCddl error: " <> prettyError cddlErr
     CddlWitnessIOError fileE ->
       prettyError fileE
 

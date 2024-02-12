@@ -1,2 +1,2 @@
-Reading transaction CDDL file error: Failed to decode neither the cli's serialisation format nor the ledger's CDDL serialisation format. TextEnvelope error: path/file.txt: TextEnvelope decode error: DecoderErrorCustom "todecode" "decodeerr"
+Reading transaction CDDL file error: Failed to decode the ledger's CDDL serialisation format. TextEnvelope error: path/file.txt: TextEnvelope decode error: DecoderErrorCustom "todecode" "decodeerr"
 TextEnvelopeCddl error: path/file.txt: Unknown key witness specified
