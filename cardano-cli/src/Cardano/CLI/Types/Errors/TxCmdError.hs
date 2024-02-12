@@ -168,8 +168,8 @@ renderTxCmdError = \case
     prettyError err'
   TxCmdTextEnvCddlError textEnvErr cddlErr ->
     mconcat
-    [ "Failed to decode neither the cli's serialisation format nor the ledger's "
-    , "CDDL serialisation format. TextEnvelope error: " <> prettyError textEnvErr <> "\n"
+    [ "Failed to decode the ledger's CDDL serialisation format. "
+    , "TextEnvelope error: " <> prettyError textEnvErr <> "\n"
     , "TextEnvelopeCddl error: " <> prettyError cddlErr
     ]
   TxCmdTxExecUnitsErr (AnyTxCmdTxExecUnitsErr err') ->
