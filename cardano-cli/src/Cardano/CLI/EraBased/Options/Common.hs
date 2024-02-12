@@ -28,6 +28,7 @@ import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Crypto as Crypto
 import qualified Cardano.Ledger.SafeHash as L
 import qualified Cardano.Ledger.Shelley.API as Shelley
+import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Control.Monad (mfilter)
 import qualified Data.Aeson as Aeson
@@ -101,6 +102,29 @@ pNetworkId envCli = asum $ mconcat
   , -- Default to the network id specified by the environment variable if it is available.
     pure <$> maybeToList (envCliNetworkId envCli)
   ]
+
+pTarget :: CardanoEra era -> Parser (Consensus.Target ChainPoint)
+pTarget = inEonForEra (pure Consensus.VolatileTip) pTargetFromConway
+  where
+  pTargetFromConway :: ConwayEraOnwards era -> Parser (Consensus.Target ChainPoint)
+  pTargetFromConway _ =
+    asum $ mconcat
+      [ [ Opt.flag' Consensus.VolatileTip $ mconcat
+          [ Opt.long "volatile-tip"
+          , Opt.help $ mconcat
+            [ "Use the volatile tip as a target. (This is the default)"
+            ]
+          ]
+        , Opt.flag' Consensus.ImmutableTip $ mconcat
+          [ Opt.long "immutable-tip"
+          , Opt.help $ mconcat
+            [ "Use the immutable tip as a target."
+            ]
+          ]
+        ]
+      , -- Default to volatile tip if not specified
+        [ pure Consensus.VolatileTip ]
+      ]
 
 toUnitIntervalOrErr :: Rational -> L.UnitInterval
 toUnitIntervalOrErr r = case Ledger.boundRational r of
@@ -3217,7 +3241,7 @@ pNetworkIdForTestnetData envCli = asum $ mconcat
       [ Opt.long "testnet-magic"
       , Opt.metavar "NATURAL"
       , Opt.help $ mconcat
-        [ "Specify a testnet magic id for the cluster. " 
+        [ "Specify a testnet magic id for the cluster. "
         , "This overrides both the network magic from the "
         , "spec file and CARDANO_NODE_NETWORK_ID environment variable."
         ]

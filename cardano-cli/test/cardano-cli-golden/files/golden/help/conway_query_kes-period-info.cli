@@ -5,6 +5,9 @@ Usage: cardano-cli conway query kes-period-info --socket-path SOCKET_PATH
                                                   | --testnet-magic NATURAL
                                                   )
                                                   --op-cert-file FILE
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
                                                   [--out-file FILE]
 
   Get information about the current KES period and your node's operational
@@ -25,5 +28,8 @@ Available options:
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --op-cert-file FILE      Filepath of the node's operational certificate.
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --out-file FILE          Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

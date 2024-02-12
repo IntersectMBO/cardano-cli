@@ -11,6 +11,9 @@ Usage: cardano-cli conway query leadership-schedule --socket-path SOCKET_PATH
                                                       )
                                                       --vrf-signing-key-file FILE
                                                       (--current | --next)
+                                                      [ --volatile-tip
+                                                      | --immutable-tip
+                                                      ]
                                                       [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -41,5 +44,8 @@ Available options:
                            Input filepath of the VRF signing key.
   --current                Get the leadership schedule for the current epoch.
   --next                   Get the leadership schedule for the following epoch.
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --out-file FILE          Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
