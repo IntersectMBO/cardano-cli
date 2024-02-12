@@ -8,6 +8,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -1434,6 +1435,7 @@ runQueryDRepState
       , Cmd.consensusModeParams
       , Cmd.networkId
       , Cmd.drepKeys = drepKeys'
+      , Cmd.includeStake
       , Cmd.target
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
@@ -1442,17 +1444,32 @@ runQueryDRepState
   let drepKeys = case drepKeys' of
                    All -> []
                    Only l -> l
-  drepCreds <- Set.fromList <$> mapM (firstExceptT QueryCmdDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
+  drepCreds <- mapM (firstExceptT QueryCmdDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
 
-  drepState <- runQuery localNodeConnInfo target $ queryDRepState eon drepCreds
+  drepState <- runQuery localNodeConnInfo target $ queryDRepState eon $ Set.fromList drepCreds
+
+  drepStakeDistribution <-
+    case includeStake of
+      Cmd.WithStake -> runQuery localNodeConnInfo target $
+        queryDRepStakeDistribution eon (Set.fromList $ Ledger.DRepCredential <$> drepCreds)
+      Cmd.NoStake -> return mempty
+
   writeOutput mOutFile $
-    second drepStateToJson <$> Map.assocs drepState
+    drepStateToJson drepStakeDistribution <$> Map.assocs drepState
   where
-    drepStateToJson ds = A.object
-      [ "expiry" .= (ds ^. Ledger.drepExpiryL)
-      , "anchor" .= (ds ^. Ledger.drepAnchorL)
-      , "deposit" .= (ds ^. Ledger.drepDepositL)
-      ]
+    drepStateToJson stakeDistr (cred, ds) = (cred,) . A.object $
+      if Map.null stakeDistr
+      then
+        [ "expiry" .= (ds ^. Ledger.drepExpiryL)
+        , "anchor" .= (ds ^. Ledger.drepAnchorL)
+        , "deposit" .= (ds ^. Ledger.drepDepositL)
+        ]
+      else
+        [ "expiry" .= (ds ^. Ledger.drepExpiryL)
+        , "anchor" .= (ds ^. Ledger.drepAnchorL)
+        , "deposit" .= (ds ^. Ledger.drepDepositL)
+        , "stake" .= Map.lookup (Ledger.DRepCredential cred) stakeDistr
+        ]
 
 runQueryDRepStakeDistribution
   :: Cmd.QueryDRepStakeDistributionCmdArgs era

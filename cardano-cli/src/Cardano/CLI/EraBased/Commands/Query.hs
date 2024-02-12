@@ -25,6 +25,7 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryDRepStateCmdArgs(..)
   , QueryDRepStakeDistributionCmdArgs(..)
   , renderQueryCmds
+  , IncludeStake (..)
   ) where
 
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
@@ -203,9 +204,15 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , drepKeys            :: !(AllOrOnly (VerificationKeyOrHashOrFile DRepKey))
+  , includeStake        :: !IncludeStake
   , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
+
+-- | Whether to include the stake, as queried by drep-stake-distribution, in
+-- the output of drep-state. This is (computationally) expensive, but sometimes
+-- convenient.
+data IncludeStake = WithStake | NoStake deriving Show
 
 data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   { eon                 :: !(ConwayEraOnwards era)
