@@ -241,3 +241,22 @@ hprop_golden_governance_drep_registration_certificate_script_hash = propertyOnce
     ]
 
   H.diffFileVsGoldenFile outFile goldenFile
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep update certificate vkey file/"'@
+hprop_golden_governance_drep_update_certificate_vkey_file :: Property
+hprop_golden_governance_drep_update_certificate_vkey_file = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+  goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate.json"
+
+  outFile <- H.noteTempFile tempDir "drep-upd-cert.txt"
+
+  void $ execCardanoCLI
+    [ "conway", "governance", "drep", "update-certificate"
+    , "--drep-verification-key-file", drepVKeyFile
+    , "--drep-metadata-url", "dummy-url"
+    , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+    , "--out-file", outFile
+    ]
+
+  H.diffFileVsGoldenFile outFile goldenFile

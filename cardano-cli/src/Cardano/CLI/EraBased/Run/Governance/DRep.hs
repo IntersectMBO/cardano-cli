@@ -54,6 +54,10 @@ runGovernanceDRepCmds = \case
     runGovernanceDRepRetirementCertificateCmd args
       & firstExceptT CmdGovernanceCmdError
 
+  Cmd.GovernanceDRepUpdateCertificateCmd args ->
+    runGovernanceDRepUpdateCertificateCmd args
+      & firstExceptT CmdGovernanceCmdError
+
   Cmd.GovernanceDRepMetadataHashCmd args ->
     runGovernanceDRepMetadataHashCmd args
       & firstExceptT CmdGovernanceCmdError
@@ -152,6 +156,24 @@ runGovernanceDRepRetirementCertificateCmd
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "DRep Retirement Certificate"
+
+runGovernanceDRepUpdateCertificateCmd :: ()
+  => Cmd.GovernanceDRepUpdateCertificateCmdArgs era
+  -> ExceptT GovernanceCmdError IO ()
+runGovernanceDRepUpdateCertificateCmd
+    Cmd.GovernanceDRepUpdateCertificateCmdArgs
+      { eon = w
+      , drepVkeyHashSource
+      , mAnchor
+      , outFile
+      } =
+  conwayEraOnwardsConstraints w $ do
+    DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
+      . newExceptT
+      $ readVerificationKeyOrHashOrFile AsDRepKey drepVkeyHashSource
+    makeDrepUpdateCertificate (DRepUpdateRequirements w (KeyHashObj drepKeyHash)) mAnchor
+      & writeFileTextEnvelope outFile (Just "DRep Update Certificate")
+      & firstExceptT GovernanceCmdTextEnvWriteError . newExceptT
 
 runGovernanceDRepMetadataHashCmd :: ()
   => Cmd.GovernanceDRepMetadataHashCmdArgs era
