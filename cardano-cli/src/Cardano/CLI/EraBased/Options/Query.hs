@@ -335,6 +335,16 @@ pQueryDRepStateCmd era envCli = do
         <*> pConsensusModeParams
         <*> pNetworkId envCli
         <*> pAllOrOnlyDRepVerificationKeyOrHashOrFile
+        <*> Opt.flag WithStake NoStake (mconcat
+              [ Opt.long "include-stake"
+              , Opt.help $ mconcat
+                 [ "Also return the stake associated with each DRep. "
+                 , "The result is the same as with \"drep-stake-distribution\"; "
+                 , "this is a convenience option to obtain all information concerning a DRep at once. "
+                 , "This is a potentially expensive query."
+                 ]
+              ]
+            )
         <*> pTarget era
         <*> optional pOutputFile
 

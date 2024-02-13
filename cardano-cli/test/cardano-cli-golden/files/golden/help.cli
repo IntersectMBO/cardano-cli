@@ -6743,6 +6743,7 @@ Usage: cardano-cli conway query drep-state --socket-path SOCKET_PATH
                                              | --drep-key-hash HASH
                                              )
                                              )
+                                             [--include-stake]
                                              [--volatile-tip | --immutable-tip]
                                              [--out-file FILE]
 
