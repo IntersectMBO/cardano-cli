@@ -1299,7 +1299,7 @@ pCertificateFile balanceExecUnits =
     <$> ( fmap CertificateFile $ asum
             [ Opt.strOption $ mconcat
                 [ Opt.long "certificate-file"
-                , Opt.metavar "CERTIFICATEFILE"
+                , Opt.metavar "FILE"
                 , Opt.help helpText
                 , Opt.completer (Opt.bashCompleter "file")
                 ]

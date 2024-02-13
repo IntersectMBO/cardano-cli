@@ -43,3 +43,9 @@ write-ghc-environment-files: always
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+source-repository-package
+    type: git
+    location: https://github.com/IntersectMBO/cardano-api.git
+    tag: 86f843f5ef0aa0eedf2ae4b302e3b898f90c2fd0
+    subdir: cardano-api
