@@ -11,7 +11,7 @@ import           Data.Text (Text)
 import qualified Data.Text as T
 
 import           Cardano.Git.RevFromGit (gitRevFromGit)
-import           GHC.Foreign (peekCStringLen)
+import           GHC.Foreign (peekCStringLen) 
 import           Foreign.C.String (CString)
 import           System.IO (utf8)
 import           System.IO.Unsafe (unsafeDupablePerformIO)
@@ -19,9 +19,10 @@ import           System.IO.Unsafe (unsafeDupablePerformIO)
 foreign import ccall "&_cardano_git_rev" c_gitrev :: CString
 
 gitRev :: Text
-gitRev | gitRevEmbed /= zeroRev = gitRevEmbed
-       | T.null fromGit         = zeroRev
-       | otherwise              = fromGit
+gitRev | gitRevEmbed /= zeroRev      = gitRevEmbed
+       | not (T.null fromGit)        = fromGit
+       | not (T.null gitRevFromEnv)  = gitRevFromEnv
+       | otherwise                   = zeroRev
  where
   -- Git revision embedded after compilation using
   -- Data.FileEmbed.injectWith. If nothing has been injected,
@@ -36,6 +37,13 @@ gitRev | gitRevEmbed /= zeroRev = gitRevEmbed
   fromGit = ""
 #else
   fromGit = T.strip (T.pack $(gitRevFromGit))
+#endif
+
+  gitRevFromEnv :: Text
+#if defined(__GIT_REV__)
+  gitRevFromEnv = T.pack __GIT_REV__
+#else
+  gitRevFromEnv = ""
 #endif
 
 zeroRev :: Text
