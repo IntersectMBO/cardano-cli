@@ -16,7 +16,7 @@ module Cardano.CLI.EraBased.Run.Governance
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance as Cmd
@@ -79,7 +79,7 @@ runGovernanceCmds = \case
 
 runGovernanceMIRCertificatePayStakeAddrs
   :: ShelleyToBabbageEra era
-  -> Ledger.MIRPot
+  -> L.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
@@ -90,8 +90,8 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
               (unFile oFp) (length sAddrs) (length rwdAmts)
 
   let sCreds  = map stakeAddressCredential sAddrs
-      mirTarget = Ledger.StakeAddressesMIR
-                    $ Map.fromList [ (toShelleyStakeCredential scred, Ledger.toDeltaCoin (toShelleyLovelace rwdAmt))
+      mirTarget = L.StakeAddressesMIR
+                    $ Map.fromList [ (toShelleyStakeCredential scred, L.toDeltaCoin (toShelleyLovelace rwdAmt))
                                     | (scred, rwdAmt) <- zip sCreds rwdAmts
                                     ]
   let mirCert = makeMIRCertificate
@@ -113,9 +113,9 @@ runGovernanceCreateMirCertificateTransferToTreasuryCmd :: ()
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
-  let mirTarget = Ledger.SendToOppositePotMIR (toShelleyLovelace ll)
+  let mirTarget = L.SendToOppositePotMIR (toShelleyLovelace ll)
 
-  let mirCert = makeMIRCertificate $ MirCertificateRequirements w Ledger.ReservesMIR mirTarget
+  let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.ReservesMIR mirTarget
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
@@ -132,9 +132,9 @@ runGovernanceCreateMirCertificateTransferToReservesCmd :: ()
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
-  let mirTarget = Ledger.SendToOppositePotMIR (toShelleyLovelace ll)
+  let mirTarget = L.SendToOppositePotMIR (toShelleyLovelace ll)
 
-  let mirCert = makeMIRCertificate $ MirCertificateRequirements w Ledger.TreasuryMIR mirTarget
+  let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.TreasuryMIR mirTarget
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT

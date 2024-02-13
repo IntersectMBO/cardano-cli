@@ -34,7 +34,7 @@ module Cardano.CLI.EraBased.Run.Transaction
 
 import           Cardano.Api
 import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
@@ -247,11 +247,11 @@ runTransactionBuildCmd
       in  lift (cardanoEraConstraints era $ writeTxFileTextEnvelopeCddl eon fpath noWitTx)
             & onLeft (left . TxCmdWriteFileError)
 
-getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe Ledger.Prices
+getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
 getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
   forEraInEonMaybe cEra $ \aeo ->
     alonzoEraOnwardsConstraints aeo $
-      pp ^. Ledger.ppPricesL
+      pp ^. L.ppPricesL
 
 runTransactionBuildRawCmd :: ()
   => Cmd.TransactionBuildRawCmdArgs era
@@ -296,7 +296,7 @@ runTransactionBuildRawCmd
                      mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
   txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
 
-  -- TODO: Conway era - update readProtocolParameters to rely on Ledger.PParams JSON instances
+  -- TODO: Conway era - update readProtocolParameters to rely on L.PParams JSON instances
   pparams <- forM mProtocolParamsFile $ \ppf ->
     firstExceptT TxCmdProtocolParamsError (readProtocolParameters ppf)
 
@@ -714,8 +714,8 @@ toAddressInShelleyBasedEra sbe sAddr = runExcept $
       pure (AddressInEra (ShelleyAddressInEra sbe) sAddr)
 
 
-lovelaceToCoin :: Lovelace -> Ledger.Coin
-lovelaceToCoin (Lovelace ll) = Ledger.Coin ll
+lovelaceToCoin :: Lovelace -> L.Coin
+lovelaceToCoin (Lovelace ll) = L.Coin ll
 
 toTxOutValueInAnyEra
   :: ShelleyBasedEra era

@@ -7,8 +7,7 @@ module Cardano.CLI.EraBased.Options.Governance.Actions
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Ledger
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
@@ -219,20 +218,20 @@ pGovernanceActionProtocolParametersUpdateCmd era = do
     <$> pUpdateProtocolParametersCmd w
 
 
-convertToLedger :: (a -> b) -> Parser (Maybe a) -> Parser (StrictMaybe b)
-convertToLedger conv = fmap (maybeToStrictMaybe . fmap conv)
+convertToLedger :: (a -> b) -> Parser (Maybe a) -> Parser (L.StrictMaybe b)
+convertToLedger conv = fmap (L.maybeToStrictMaybe . fmap conv)
 
-toNonNegativeIntervalOrErr :: Rational -> NonNegativeInterval
-toNonNegativeIntervalOrErr r = case Ledger.boundRational r of
+toNonNegativeIntervalOrErr :: Rational -> L.NonNegativeInterval
+toNonNegativeIntervalOrErr r = case L.boundRational r of
                          Nothing ->
                            error $ mconcat [ "toNonNegativeIntervalOrErr: "
                                            , "rational out of bounds " <> show r
                                            ]
                          Just n -> n
 
-mkProtocolVersionOrErr :: (Natural, Natural) -> Ledger.ProtVer
+mkProtocolVersionOrErr :: (Natural, Natural) -> L.ProtVer
 mkProtocolVersionOrErr (majorProtVer, minorProtVer) =
-  case (`Ledger.ProtVer` minorProtVer) <$> Ledger.mkVersion majorProtVer of
+  case (`L.ProtVer` minorProtVer) <$> L.mkVersion majorProtVer of
     Just v -> v
     Nothing ->
       error $ "mkProtocolVersionOrErr: invalid protocol version " <> show (majorProtVer, minorProtVer)
@@ -273,7 +272,7 @@ pShelleyToAlonzoPParams =
 
 pAlonzoOnwardsPParams :: Parser (AlonzoOnwardsPParams ledgerera)
 pAlonzoOnwardsPParams =
-  AlonzoOnwardsPParams SNothing -- The cost models are read separately from a file, so we use 'SNothing' as the place holder here
+  AlonzoOnwardsPParams L.SNothing -- The cost models are read separately from a file, so we use 'SNothing' as the place holder here
     <$> convertToLedger (either (\e -> error $ "pAlonzoOnwardsPParams: " <> show e) id . toAlonzoPrices)
                         (optional pExecutionUnitPrices)
     <*> convertToLedger toAlonzoExUnits (optional pMaxTxExecutionUnits)
@@ -286,7 +285,7 @@ pAlonzoOnwardsPParams =
 pIntroducedInBabbagePParams :: Parser (IntroducedInBabbagePParams ledgerera)
 pIntroducedInBabbagePParams =
   IntroducedInBabbagePParams
-    <$> convertToLedger (CoinPerByte . toShelleyLovelace) (optional pUTxOCostPerByte)
+    <$> convertToLedger (L.CoinPerByte . toShelleyLovelace) (optional pUTxOCostPerByte)
 
 pIntroducedInConwayPParams :: Parser (IntroducedInConwayPParams ledgerera)
 pIntroducedInConwayPParams =
@@ -363,13 +362,13 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
         )
     $ Opt.progDesc "Create a treasury withdrawal."
 
-pNetwork :: Parser Ledger.Network
+pNetwork :: Parser L.Network
 pNetwork  = asum $ mconcat
-  [ [ Opt.flag' Ledger.Mainnet $ mconcat
+  [ [ Opt.flag' L.Mainnet $ mconcat
       [ Opt.long "mainnet"
       , Opt.help "Use the mainnet magic id."
       ]
-    , Opt.flag' Ledger.Testnet $ mconcat
+    , Opt.flag' L.Testnet $ mconcat
       [ Opt.long "testnet"
       , Opt.help "Use the testnet magic id."
       ]

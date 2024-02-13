@@ -10,7 +10,7 @@ module Cardano.CLI.Legacy.Run.Governance
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Poll as Cmd
@@ -96,7 +96,7 @@ runLegacyGovernanceVerifyPoll pollFile txFile mOutFile =
 
 runLegacyGovernanceMIRCertificatePayStakeAddrs
   :: EraInEon ShelleyToBabbageEra
-  -> Ledger.MIRPot
+  -> L.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
   -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
   -> File () Out

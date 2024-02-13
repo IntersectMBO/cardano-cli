@@ -13,7 +13,6 @@ module Cardano.CLI.EraBased.Options.Common where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
-import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
@@ -124,7 +123,7 @@ pTarget = inEonForEra (pure Consensus.VolatileTip) pTargetFromConway
       ]
 
 toUnitIntervalOrErr :: Rational -> L.UnitInterval
-toUnitIntervalOrErr r = case Ledger.boundRational r of
+toUnitIntervalOrErr r = case L.boundRational r of
                          Nothing ->
                            error $ mconcat [ "toUnitIntervalOrErr: "
                                            , "rational out of bounds " <> show r
@@ -907,10 +906,10 @@ pConstitutionHash =
     , Opt.help "Hash of the constitution data (obtain it with \"cardano-cli conway governance hash anchor-data ...\")."
     ]
 
-pUrl :: String -> String -> Parser Ledger.Url
+pUrl :: String -> String -> Parser L.Url
 pUrl l h =
   let toUrl urlText = fromMaybe (error "Url longer than 64 bytes")
-                        $ Ledger.textToUrl (Text.length urlText) urlText
+                        $ L.textToUrl (Text.length urlText) urlText
   in fmap toUrl . Opt.strOption
        $ mconcat [ Opt.long l
                  , Opt.metavar "TEXT"
@@ -2898,9 +2897,9 @@ pProtocolVersion =
           ]
         ]
 
-pPoolVotingThresholds :: Parser Ledger.PoolVotingThresholds
+pPoolVotingThresholds :: Parser L.PoolVotingThresholds
 pPoolVotingThresholds =
-    Ledger.PoolVotingThresholds
+    L.PoolVotingThresholds
       <$> pMotionNoConfidence
       <*> pCommitteeNormal
       <*> pCommitteeNoConfidence
@@ -2938,9 +2937,9 @@ pPoolVotingThresholds =
         , Opt.help "Acceptance threshold for stake pool votes on protocol parameters for parameters in the 'security' group."
         ]
 
-pDRepVotingThresholds :: Parser Ledger.DRepVotingThresholds
+pDRepVotingThresholds :: Parser L.DRepVotingThresholds
 pDRepVotingThresholds =
-    Ledger.DRepVotingThresholds
+    L.DRepVotingThresholds
       <$> pMotionNoConfidence
       <*> pCommitteeNormal
       <*> pCommitteeNoConfidence

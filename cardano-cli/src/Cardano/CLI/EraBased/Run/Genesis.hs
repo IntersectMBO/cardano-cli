@@ -657,14 +657,14 @@ updateOutputTemplate
     -> Maybe Lovelace -- ^ Amount of lovelace not delegated
     -> Int -- ^ Number of UTxO addresses that are delegating
     -> [AddressInEra ShelleyEra] -- ^ UTxO addresses that are not delegating
-    -> [(Ledger.KeyHash 'Ledger.StakePool StandardCrypto, Ledger.PoolParams StandardCrypto)] -- ^ Pool map
-    -> [(Ledger.KeyHash 'Ledger.Staking StandardCrypto, Ledger.KeyHash 'Ledger.StakePool StandardCrypto)] -- ^ Delegaton map
+    -> [(L.KeyHash 'L.StakePool L.StandardCrypto, L.PoolParams L.StandardCrypto)] -- ^ Pool map
+    -> [(L.KeyHash 'L.Staking L.StandardCrypto, L.KeyHash 'L.StakePool L.StandardCrypto)] -- ^ Delegaton map
     -> Maybe Lovelace -- ^ Amount of lovelace to delegate
     -> Int -- ^ Number of UTxO address for delegation
     -> [AddressInEra ShelleyEra] -- ^ UTxO address for delegation
     -> [AddressInEra ShelleyEra] -- ^ Stuffed UTxO addresses
-    -> ShelleyGenesis StandardCrypto -- ^ Template from which to build a genesis
-    -> ShelleyGenesis StandardCrypto -- ^ Updated genesis
+    -> ShelleyGenesis L.StandardCrypto -- ^ Template from which to build a genesis
+    -> ShelleyGenesis L.StandardCrypto -- ^ Updated genesis
 updateOutputTemplate
   (SystemStart sgSystemStart)
   genDelegMap mAmountNonDeleg nUtxoAddrsNonDeleg utxoAddrsNonDeleg pools stake
@@ -709,10 +709,10 @@ updateOutputTemplate
 
     mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     mkStuffedUtxo xs = (, Lovelace minUtxoVal) <$> xs
-      where Coin minUtxoVal = sgProtocolParams ^. ppMinUTxOValueL
+      where L.Coin minUtxoVal = sgProtocolParams ^. L.ppMinUTxOValueL
 
     shelleyDelKeys = Map.fromList
-      [ (gh, Ledger.GenDelegPair gdh h)
+      [ (gh, L.GenDelegPair gdh h)
       | (GenesisKeyHash gh,
           (GenesisDelegateKeyHash gdh, VrfKeyHash h)) <- Map.toList genDelegMap
       ]

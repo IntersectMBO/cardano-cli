@@ -41,8 +41,6 @@ import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
-import qualified Cardano.Ledger.Conway.Governance as Conway
-import qualified Cardano.Ledger.Core as Ledger
 
 import           Prelude
 
@@ -311,14 +309,14 @@ conjureWitness era errF =
 
 getVotingScriptCredentials
   :: VotingProcedures era
-  -> Maybe (Conway.Voter (L.EraCrypto (ShelleyLedgerEra era)))
-getVotingScriptCredentials (VotingProcedures (Conway.VotingProcedures m)) =
+  -> Maybe (L.Voter (L.EraCrypto (ShelleyLedgerEra era)))
+getVotingScriptCredentials (VotingProcedures (L.VotingProcedures m)) =
   listToMaybe $ Map.keys m
 
 votingScriptWitnessSingleton
   :: VotingProcedures era
   -> Maybe (ScriptWitness WitCtxStake era)
-  -> Map (Conway.Voter (L.EraCrypto (ShelleyLedgerEra era))) (ScriptWitness WitCtxStake era)
+  -> Map (L.Voter (L.EraCrypto (ShelleyLedgerEra era))) (ScriptWitness WitCtxStake era)
 votingScriptWitnessSingleton _ Nothing = Map.empty
 votingScriptWitnessSingleton votingProcedures (Just scriptWitness) =
   let voter = fromJust $ getVotingScriptCredentials votingProcedures
@@ -344,13 +342,13 @@ convertToTxVotingProcedures votingProcedures =
 proposingScriptWitnessSingleton
   :: Proposal era
   -> Maybe (ScriptWitness WitCtxStake era)
-  -> Map (Conway.ProposalProcedure (ShelleyLedgerEra era)) (ScriptWitness WitCtxStake era)
+  -> Map (L.ProposalProcedure (ShelleyLedgerEra era)) (ScriptWitness WitCtxStake era)
 proposingScriptWitnessSingleton _ Nothing = Map.empty
 proposingScriptWitnessSingleton (Proposal proposalProcedure) (Just scriptWitness) =
   Map.singleton proposalProcedure scriptWitness
 
 convToTxProposalProcedures
-  :: Ledger.EraPParams (ShelleyLedgerEra era)
+  :: L.EraPParams (ShelleyLedgerEra era)
   => [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> TxProposalProcedures BuildTx era
 convToTxProposalProcedures proposalProcedures =

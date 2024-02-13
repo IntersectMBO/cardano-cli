@@ -19,7 +19,7 @@ module Cardano.CLI.EraBased.Run.StakeAddress
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.StakeAddress
@@ -219,11 +219,11 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHa
       readVoteDelegationTarget voteDelegationTarget
         & firstExceptT StakeAddressCmdDelegationError
 
-    let delegatee = Ledger.DelegStakeVote poolStakeVKeyHash drep
+    let delegatee = L.DelegStakeVote poolStakeVKeyHash drep
 
     let certificate =
           ConwayCertificate w
-            $ Ledger.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+            $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
 
     firstExceptT StakeAddressCmdWriteFileError
       . newExceptT
@@ -248,11 +248,11 @@ runStakeAddressVoteDelegationCertificateCmd w stakeVerifier voteDelegationTarget
       readVoteDelegationTarget voteDelegationTarget
         & firstExceptT StakeAddressCmdDelegationError
 
-    let delegatee = Ledger.DelegVote drep
+    let delegatee = L.DelegVote drep
 
     let certificate =
           ConwayCertificate w
-            $ Ledger.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+            $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
 
     firstExceptT StakeAddressCmdWriteFileError
       . newExceptT
@@ -269,11 +269,11 @@ createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKey
     (\w ->
       shelleyToBabbageEraConstraints w
         $ ShelleyRelatedCertificate w
-        $ Ledger.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) poolStakeVKeyHash)
+        $ L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) poolStakeVKeyHash)
     (\w ->
       conwayEraOnwardsConstraints w
         $ ConwayCertificate w
-        $ Ledger.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (Ledger.DelegStake poolStakeVKeyHash)
+        $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
     )
 
 runStakeAddressDeregistrationCertificateCmd :: ()
