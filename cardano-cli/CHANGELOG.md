@@ -1,5 +1,36 @@
 # Changelog for cardano-cli
 
+## 8.20.1.0
+
+- Fix `create-testnet-data` creating negative supply
+  (bugfix)
+  [PR 599](https://github.com/IntersectMBO/cardano-cli/pull/599)
+
+- Add the `drep update-certificate` command
+  (feature, compatible)
+  [PR 561](https://github.com/IntersectMBO/cardano-cli/pull/561)
+
+- Add `--include-stake` flag to obtain the stake in the `drep-state` query
+  (compatible)
+  [PR 557](https://github.com/IntersectMBO/cardano-cli/pull/557)
+
+- Allow users to specify the target in conway queries (either immutable tip or volatile tip)
+  (feature)
+  [PR 603](https://github.com/IntersectMBO/cardano-cli/pull/603)
+
+- Fix error messages as support for cardano-cli serialisation format was already removed.
+  (improvement, test)
+  [PR 605](https://github.com/IntersectMBO/cardano-cli/pull/605)
+
+- This PR improves `create-testnet-data` cmd so that it takes testnet magic either from template file or from the  CLI flag `--testnet-magic`, when used.
+  (improvement)
+  [PR 595](https://github.com/IntersectMBO/cardano-cli/pull/595)
+
+- Make committee keys able to sign transactions
+  (feature, compatible)
+  [PR 596](https://github.com/IntersectMBO/cardano-cli/pull/596)
+
+
 ## 8.20.0.0
 
 - - Bump CHaP in preparation for cardano-node 8.8
