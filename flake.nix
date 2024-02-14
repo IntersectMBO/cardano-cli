@@ -40,6 +40,10 @@
         };
         inherit (nixpkgs) lib;
 
+        gitRevFlag = if inputs.self ? rev
+                     then [ ("--ghc-option=-D__GIT_REV__=\\\"" + inputs.self.rev + "\\\"") ]
+                     else [];
+
         # see flake `variants` below for alternative compilers
         defaultCompiler = "ghc963";
         # We use cabalProject' to ensure we don't build the plan for
@@ -85,7 +89,7 @@
           # specific enough, or doesn't allow setting these.
           modules = [
             ({pkgs, ...}: {
-              packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"];
+              packages.cardano-cli.configureFlags = [ "--ghc-option=-Werror" ] ++ gitRevFlag;
               packages.cardano-cli.components.tests.cardano-cli-test.build-tools =
                 with pkgs.buildPackages; [ jq coreutils shellcheck ];
               packages.cardano-cli.components.tests.cardano-cli-golden.build-tools =
