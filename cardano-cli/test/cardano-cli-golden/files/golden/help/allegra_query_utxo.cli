@@ -5,6 +5,7 @@ Usage: cardano-cli allegra query utxo --socket-path SOCKET_PATH
                                         | (--tx-in TX-IN)
                                         )
                                         (--mainnet | --testnet-magic NATURAL)
+                                        [--output-json | --output-text]
                                         [--out-file FILE]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -27,5 +28,9 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --output-json            Format utxo query output to JSON. Default format when
+                           writing to a file
+  --output-text            Format utxo query output to TEXT. Default format when
+                           writing to stdout
   --out-file FILE          Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
