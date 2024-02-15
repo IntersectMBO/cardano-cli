@@ -1565,6 +1565,25 @@ pPoolIdOutputFormat =
     , Opt.value IdOutputFormatBech32
     ]
 
+-- | @pQueryOutputFormat kind@ is a parser to specify in which format
+-- to view some data (json or text). @kind@ is the kind of data considered.
+pQueryOutputFormat :: String -> Parser QueryOutputFormat
+pQueryOutputFormat kind =
+  asum
+    [ make QueryOutputFormatJson "JSON" "json" (Just " Default format when writing to a file")
+    , make QueryOutputFormatText "TEXT" "text" (Just " Default format when writing to stdout")
+    ]
+  where
+    make format desc flag_ extraHelp =
+      -- Not using Opt.flag, because there is no default. We can't have
+      -- a default and preserve the historical behavior (that differed whether
+      -- an output file was specified or not).
+      Opt.flag' format $ mconcat
+      [ Opt.help $
+          "Format " <> kind <> " query output to " <> desc <> "."
+            <> fromMaybe "" extraHelp
+      , Opt.long ("output-" <> flag_)]
+
 pTxViewOutputFormat :: Parser ViewOutputFormat
 pTxViewOutputFormat = pViewOutputFormat "transaction"
 

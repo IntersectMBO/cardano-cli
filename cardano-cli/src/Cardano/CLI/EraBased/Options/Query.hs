@@ -141,6 +141,7 @@ pQueryUTxOCmd envCli =
       <*> pConsensusModeParams
       <*> pQueryUTxOFilter
       <*> pNetworkId envCli
+      <*> (optional $ pQueryOutputFormat "utxo")
       <*> pMaybeOutputFile
 
 pQueryStakePoolsCmd :: EnvCli -> Parser (QueryCmds era)
