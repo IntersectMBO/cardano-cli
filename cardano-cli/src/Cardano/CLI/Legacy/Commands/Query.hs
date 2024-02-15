@@ -108,6 +108,7 @@ data LegacyQueryUTxOCmdArgs = LegacyQueryUTxOCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , queryFilter         :: !QueryUTxOFilter
   , networkId           :: !NetworkId
+  , format              :: Maybe QueryOutputFormat
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
