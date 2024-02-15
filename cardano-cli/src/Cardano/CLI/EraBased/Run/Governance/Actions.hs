@@ -88,7 +88,8 @@ runGovernanceActionInfoCmd
       , Cmd.proposalHash
       , Cmd.outFile
       } = do
-  returnKeyHash <- readStakeKeyHash returnStakeAddress
+  depositStakeCredential <- firstExceptT GovernanceActionsReadStakeCredErrror
+                     $ getStakeCredentialFromVerifier returnStakeAddress
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl
@@ -97,7 +98,7 @@ runGovernanceActionInfoCmd
 
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
       govAction = InfoAct
-      proposalProcedure = createProposalProcedure sbe networkId deposit returnKeyHash govAction proposalAnchor
+      proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
@@ -119,7 +120,9 @@ runGovernanceActionCreateNoConfidenceCmd
       , Cmd.governanceActionIndex
       , Cmd.outFile
       } = do
-  returnKeyHash <- readStakeKeyHash returnStakeAddress
+  depositStakeCredential
+    <- firstExceptT GovernanceActionsReadStakeCredErrror
+         $ getStakeCredentialFromIdentifier returnStakeAddress
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl
@@ -134,7 +137,7 @@ runGovernanceActionCreateNoConfidenceCmd
                                        governanceActionId
                                        governanceActionIndex
 
-      proposalProcedure = createProposalProcedure sbe networkId deposit returnKeyHash previousGovernanceAction proposalAnchor
+      proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential previousGovernanceAction proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
@@ -157,7 +160,9 @@ runGovernanceActionCreateConstitutionCmd
       , Cmd.outFile
       } = do
 
-  stakeKeyHash <- readStakeKeyHash stakeCredential
+  depositStakeCredential
+    <- firstExceptT GovernanceActionsReadStakeCredErrror
+         $ getStakeCredentialFromIdentifier stakeCredential
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl
@@ -173,7 +178,7 @@ runGovernanceActionCreateConstitutionCmd
         }
       govAct = ProposeNewConstitution prevGovActId constitutionAnchor
       sbe = conwayEraOnwardsToShelleyBasedEra eon
-      proposalProcedure = createProposalProcedure sbe networkId deposit stakeKeyHash govAct proposalAnchor
+      proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAct proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
@@ -218,14 +223,16 @@ runGovernanceActionCreateNewCommitteeCmd
       & onLeft (left . GovernanceActionsCmdReadFileError)
     pure (kh, expEpoch)
 
-  returnKeyHash <- readStakeKeyHash returnAddress
+  depositStakeCredential
+    <- firstExceptT GovernanceActionsReadStakeCredErrror
+         $ getStakeCredentialFromIdentifier returnAddress
 
   let proposeNewCommittee = ProposeNewCommittee
                               govActIdentifier
                               oldCommitteeKeyHashes
                               (Map.fromList newCommitteeKeyHashes)
                               quorumRational
-      proposal = createProposalProcedure sbe networkId deposit returnKeyHash proposeNewCommittee proposalAnchor
+      proposal = createProposalProcedure sbe networkId deposit depositStakeCredential proposeNewCommittee proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
@@ -272,7 +279,9 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
 
         eraBasedPParams <- theUpdate
 
-        returnKeyHash <- readStakeKeyHash returnAddr
+        depositStakeCredential
+          <- firstExceptT GovernanceActionsReadStakeCredErrror
+               $ getStakeCredentialFromIdentifier returnAddr
 
         let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
 
@@ -285,7 +294,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
                       (toShelleyScriptHash <$> Ledger.maybeToStrictMaybe mConstitutionalScriptHash)
 
 
-        let proposalProcedure = createProposalProcedure sbe network deposit returnKeyHash govAct proposalAnchor
+        let proposalProcedure = createProposalProcedure sbe network deposit depositStakeCredential govAct proposalAnchor
 
         firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
           $ conwayEraOnwardsConstraints conwayOnwards
@@ -349,7 +358,9 @@ runGovernanceActionTreasuryWithdrawalCmd
         , Ledger.anchorDataHash = proposalHash
         }
 
-  returnKeyHash <- readStakeKeyHash returnAddr
+  depositStakeCredential
+          <- firstExceptT GovernanceActionsReadStakeCredErrror
+               $ getStakeCredentialFromIdentifier returnAddr
 
   withdrawals <- forM treasuryWithdrawal $ \(verificationKeyOrHashOrFile, lovelace) -> do
     stakeKeyHash <- readStakeKeyHash verificationKeyOrHashOrFile
@@ -358,7 +369,7 @@ runGovernanceActionTreasuryWithdrawalCmd
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
       treasuryWithdrawals = TreasuryWithdrawal withdrawals
                               (toShelleyScriptHash <$> Ledger.maybeToStrictMaybe constitutionScriptHash)
-      proposal = createProposalProcedure sbe networkId deposit returnKeyHash treasuryWithdrawals proposalAnchor
+      proposal = createProposalProcedure sbe networkId deposit depositStakeCredential treasuryWithdrawals proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon

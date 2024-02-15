@@ -7,12 +7,14 @@ module Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.Api
 
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Errors.StakeCredentialError
 
 data GovernanceActionsError
   = GovernanceActionsCmdConstitutionError ConstitutionError
   | GovernanceActionsCmdProposalError ProposalError
   | GovernanceActionsCmdCostModelsError CostModelsError
   | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
+  | GovernanceActionsReadStakeCredErrror StakeCredentialError
   | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdWriteFileError (FileError ())
   | GovernanceActionsValueUpdateProtocolParametersNotFound AnyShelleyBasedEra
@@ -37,3 +39,5 @@ instance Error GovernanceActionsError where
         [ "Protocol parameters update value for " <> pshow (toCardanoEra expectedShelleyEra)
         , " was not found."
         ]
+    GovernanceActionsReadStakeCredErrror e ->
+      prettyError e

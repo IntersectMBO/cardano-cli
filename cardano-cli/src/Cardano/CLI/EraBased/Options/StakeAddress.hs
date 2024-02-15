@@ -75,7 +75,7 @@ pStakeAddressBuildCmd era envCli = do
     $ subParser "build"
     $ Opt.info
         ( StakeAddressBuildCmd w
-            <$> pStakeVerifier
+            <$> pStakeVerifier Nothing
             <*> pNetworkId envCli
             <*> pMaybeOutputFile
         )

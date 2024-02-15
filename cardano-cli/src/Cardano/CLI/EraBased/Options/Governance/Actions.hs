@@ -67,7 +67,7 @@ pGovernanceActionNewInfoCmd era = do
             Cmd.GovernanceActionInfoCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pStakeVerificationKeyOrHashOrFile (Just "deposit-return")
+              <*> pStakeVerifier (Just "deposit-return")
               <*> pAnchorUrl
               <*> pAnchorDataHash
               <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
@@ -87,7 +87,7 @@ pGovernanceActionNewConstitutionCmd era = do
             Cmd.GovernanceActionCreateConstitutionCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pStakeVerificationKeyOrHashOrFile (Just "deposit-return")
+              <*> pStakeIdentifier (Just "deposit-return")
               <*> pPreviousGovernanceAction
               <*> pAnchorUrl
               <*> pAnchorDataHash
@@ -117,7 +117,7 @@ pUpdateCommitteeCmd eon =
   Cmd.GoveranceActionUpdateCommitteeCmdArgs eon
     <$> pNetwork
     <*> pGovActionDeposit
-    <*> pStakeVerificationKeyOrHashOrFile (Just "deposit-return")
+    <*> pStakeIdentifier (Just "deposit-return")
     <*> pAnchorUrl
     <*> pAnchorDataHash
     <*> many pRemoveCommitteeColdVerificationKeyOrHashOrFile
@@ -142,7 +142,7 @@ pGovernanceActionNoConfidenceCmd era = do
             Cmd.GovernanceActionCreateNoConfidenceCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pStakeVerificationKeyOrHashOrFile (Just "deposit-return")
+              <*> pStakeIdentifier (Just "deposit-return")
               <*> pAnchorUrl
               <*> pAnchorDataHash
               <*> pTxId "prev-governance-action-tx-id" "Txid of the previous governance action."
@@ -162,7 +162,7 @@ pUpdateProtocolParametersPostConway conwayOnwards =
   Cmd.UpdateProtocolParametersConwayOnwards conwayOnwards
     <$> pNetwork
     <*> pGovActionDeposit
-    <*> pStakeVerificationKeyOrHashOrFile (Just "deposit-return")
+    <*> pStakeIdentifier (Just "deposit-return")
     <*> pAnchorUrl
     <*> pAnchorDataHash
     <*> pPreviousGovernanceAction
@@ -354,7 +354,7 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
             Cmd.GovernanceActionTreasuryWithdrawalCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pStakeVerificationKeyOrHashOrFile (Just "deposit-return")
+              <*> pStakeIdentifier (Just "deposit-return")
               <*> pAnchorUrl
               <*> pAnchorDataHash
               <*> many ((,) <$> pStakeVerificationKeyOrHashOrFile (Just "funds-receiving") <*> pTransferAmt)

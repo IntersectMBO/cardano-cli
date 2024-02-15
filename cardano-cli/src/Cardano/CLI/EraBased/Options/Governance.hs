@@ -72,7 +72,7 @@ pMIRPayStakeAddresses :: ()
 pMIRPayStakeAddresses w =
   GovernanceCreateMirCertificateStakeAddressesCmd w
     <$> pMIRPot
-    <*> some pStakeAddress
+    <*> some (pStakeAddress Nothing)
     <*> some pRewardAmt
     <*> pOutputFile
 
