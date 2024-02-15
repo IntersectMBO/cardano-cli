@@ -46,7 +46,7 @@ data GoveranceActionUpdateCommitteeCmdArgs era
       { eon                     :: !(ConwayEraOnwards era)
       , networkId               :: !L.Network
       , deposit                 :: !Lovelace
-      , returnAddress           :: !(VerificationKeyOrHashOrFile StakeKey)
+      , returnAddress           :: !StakeIdentifier
       , proposalUrl             :: !ProposalUrl
       , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
@@ -61,7 +61,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
       { eon                     :: !(ConwayEraOnwards era)
       , networkId               :: !L.Network
       , deposit                 :: !Lovelace
-      , stakeCredential         :: !(VerificationKeyOrHashOrFile StakeKey)
+      , stakeCredential         :: !StakeIdentifier
       , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
       , proposalUrl             :: !ProposalUrl
       , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
@@ -76,7 +76,7 @@ data GovernanceActionInfoCmdArgs era
       { eon                 :: !(ConwayEraOnwards era)
       , networkId           :: !L.Network
       , deposit             :: !Lovelace
-      , returnStakeAddress  :: !(VerificationKeyOrHashOrFile StakeKey)
+      , returnStakeAddress  :: !StakeVerifier
       , proposalUrl         :: !ProposalUrl
       , proposalHash        :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , outFile             :: !(File () Out)
@@ -87,7 +87,7 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
       { eon                   :: !(ConwayEraOnwards era)
       , networkId             :: !L.Network
       , deposit               :: !Lovelace
-      , returnStakeAddress    :: !(VerificationKeyOrHashOrFile StakeKey)
+      , returnStakeAddress    :: !StakeIdentifier
       , proposalUrl           :: !ProposalUrl
       , proposalHash          :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , governanceActionId    :: !TxId
@@ -117,7 +117,7 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
       { eon                    :: !(ConwayEraOnwards era)
       , networkId              :: !L.Network
       , deposit                :: !Lovelace
-      , returnAddr             :: !(VerificationKeyOrHashOrFile StakeKey)
+      , returnAddr             :: !StakeIdentifier
       , proposalUrl            :: !ProposalUrl
       , proposalHash           :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , treasuryWithdrawal     :: ![(VerificationKeyOrHashOrFile StakeKey, Lovelace)]
@@ -138,7 +138,7 @@ data UpdateProtocolParametersConwayOnwards era
       { eon                 :: !(ConwayEraOnwards era)
       , networkId           :: !L.Network
       , deposit             :: !Lovelace
-      , returnAddr          :: !(VerificationKeyOrHashOrFile StakeKey)
+      , returnAddr          :: !StakeIdentifier
       , proposalUrl         :: !ProposalUrl
       , proposalHash        :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , governanceActionId  :: !(Maybe (TxId, Word32))

@@ -187,7 +187,7 @@ pStakeAddressCmds envCli =
     pStakeAddressBuildCmd :: Parser LegacyStakeAddressCmds
     pStakeAddressBuildCmd =
       StakeAddressBuildCmd
-        <$> pStakeVerifier
+        <$> pStakeVerifier Nothing
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
@@ -830,7 +830,7 @@ pGovernanceCmds envCli =
       GovernanceCreateMirCertificateStakeAddressesCmd
         <$> pAnyShelleyToBabbageEra envCli
         <*> pMIRPot
-        <*> some pStakeAddress
+        <*> some (pStakeAddress Nothing)
         <*> some pRewardAmt
         <*> pOutputFile
 
