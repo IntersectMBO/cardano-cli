@@ -210,17 +210,10 @@ decimal :: Parsec.Parser Integer
 Parsec.TokenParser { Parsec.decimal = decimal } = Parsec.haskell
 
 
-<<<<<<< Updated upstream
-pStakeIdentifier :: Parser StakeIdentifier
-pStakeIdentifier = asum
-  [ StakeIdentifierVerifier <$> pStakeVerifier Nothing
-  , StakeIdentifierAddress <$> pStakeAddress
-=======
 pStakeIdentifier :: Maybe String -> Parser StakeIdentifier
 pStakeIdentifier prefix = asum
   [ StakeIdentifierVerifier <$> pStakeVerifier prefix
   , StakeIdentifierAddress <$> pStakeAddress prefix
->>>>>>> Stashed changes
   ]
 
 pStakeVerifier :: Maybe String -> Parser StakeVerifier

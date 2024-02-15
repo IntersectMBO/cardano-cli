@@ -90,7 +90,7 @@ pStakeAddressRegistrationCertificateCmd era = do
       (const $ subParser "registration-certificate"
             $ Opt.info
                 ( StakeAddressRegistrationCertificateCmd sbe
-                    <$> pStakeIdentifier
+                    <$> pStakeIdentifier Nothing
                     <*> pure Nothing
                     <*> pOutputFile
                 )
@@ -99,7 +99,7 @@ pStakeAddressRegistrationCertificateCmd era = do
       (const $ subParser "registration-certificate"
             $ Opt.info
                 ( StakeAddressRegistrationCertificateCmd sbe
-                    <$> pStakeIdentifier
+                    <$> pStakeIdentifier Nothing
                     <*> fmap Just pKeyRegistDeposit
                     <*> pOutputFile
                 )
@@ -118,7 +118,7 @@ pStakeAddressDeregistrationCertificateCmd era = do
       (\shelleyToBabbage -> subParser "deregistration-certificate"
            $ Opt.info
                ( StakeAddressDeregistrationCertificateCmd (shelleyToBabbageEraToShelleyBasedEra shelleyToBabbage)
-                   <$> pStakeIdentifier
+                   <$> pStakeIdentifier Nothing
                    <*> pure Nothing
                    <*> pOutputFile
                )
@@ -127,7 +127,7 @@ pStakeAddressDeregistrationCertificateCmd era = do
       (\conwayOnwards -> subParser "deregistration-certificate"
            $ Opt.info
                ( StakeAddressDeregistrationCertificateCmd (conwayEraOnwardsToShelleyBasedEra conwayOnwards)
-                   <$> pStakeIdentifier
+                   <$> pStakeIdentifier Nothing
                    <*> fmap Just pKeyRegistDeposit
                    <*> pOutputFile
                )
@@ -144,7 +144,7 @@ pStakeAddressStakeDelegationCertificateCmd era = do
     $ subParser "stake-delegation-certificate"
     $ Opt.info
         ( StakeAddressStakeDelegationCertificateCmd w
-            <$> pStakeIdentifier
+            <$> pStakeIdentifier Nothing
             <*> pStakePoolVerificationKeyOrHashOrFile Nothing
             <*> pOutputFile
         )
@@ -163,7 +163,7 @@ pStakeAddressStakeAndVoteDelegationCertificateCmd era = do
     $ subParser "stake-and-vote-delegation-certificate"
     $ Opt.info
         ( StakeAddressStakeAndVoteDelegationCertificateCmd w
-            <$> pStakeIdentifier
+            <$> pStakeIdentifier Nothing
             <*> pStakePoolVerificationKeyOrHashOrFile Nothing
             <*> pVoteDelegationTarget
             <*> pOutputFile
@@ -183,7 +183,7 @@ pStakeAddressVoteDelegationCertificateCmd era = do
     $ subParser "vote-delegation-certificate"
     $ Opt.info
         ( StakeAddressVoteDelegationCertificateCmd w
-            <$> pStakeIdentifier
+            <$> pStakeIdentifier Nothing
             <*> pVoteDelegationTarget
             <*> pOutputFile
         )

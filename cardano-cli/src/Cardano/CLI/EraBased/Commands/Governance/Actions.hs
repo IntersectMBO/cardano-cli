@@ -78,7 +78,7 @@ data GovernanceActionInfoCmdArgs era
       { eon                 :: !(ConwayEraOnwards era)
       , networkId           :: !Ledger.Network
       , deposit             :: !Lovelace
-      , returnStakeAddress  :: !StakeVerifier
+      , returnStakeAddress  :: !StakeIdentifier
       , proposalUrl         :: !ProposalUrl
       , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
       , outFile             :: !(File () Out)

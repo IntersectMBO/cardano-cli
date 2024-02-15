@@ -875,8 +875,7 @@ Usage: cardano-cli shelley transaction build-raw
                                                    [--invalid-before SLOT]
                                                    [--invalid-hereafter SLOT]
                                                    [--fee LOVELACE]
-                                                   [
-                                                     --certificate-file CERTIFICATEFILE
+                                                   [--certificate-file FILE
                                                      [ --certificate-script-file FILE
                                                        [
                                                          ( --certificate-redeemer-cbor-file CBOR FILE
@@ -1005,8 +1004,7 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                  )]
                                                [--invalid-before SLOT]
                                                [--invalid-hereafter SLOT]
-                                               [
-                                                 --certificate-file CERTIFICATEFILE
+                                               [--certificate-file FILE
                                                  [ --certificate-script-file FILE
                                                    [ --certificate-redeemer-cbor-file CBOR FILE
                                                    | --certificate-redeemer-file JSON FILE
@@ -2033,8 +2031,7 @@ Usage: cardano-cli allegra transaction build-raw
                                                    [--invalid-before SLOT]
                                                    [--invalid-hereafter SLOT]
                                                    [--fee LOVELACE]
-                                                   [
-                                                     --certificate-file CERTIFICATEFILE
+                                                   [--certificate-file FILE
                                                      [ --certificate-script-file FILE
                                                        [
                                                          ( --certificate-redeemer-cbor-file CBOR FILE
@@ -2163,8 +2160,7 @@ Usage: cardano-cli allegra transaction build --socket-path SOCKET_PATH
                                                  )]
                                                [--invalid-before SLOT]
                                                [--invalid-hereafter SLOT]
-                                               [
-                                                 --certificate-file CERTIFICATEFILE
+                                               [--certificate-file FILE
                                                  [ --certificate-script-file FILE
                                                    [ --certificate-redeemer-cbor-file CBOR FILE
                                                    | --certificate-redeemer-file JSON FILE
@@ -3184,8 +3180,7 @@ Usage: cardano-cli mary transaction build-raw
                                                 [--invalid-before SLOT]
                                                 [--invalid-hereafter SLOT]
                                                 [--fee LOVELACE]
-                                                [
-                                                  --certificate-file CERTIFICATEFILE
+                                                [--certificate-file FILE
                                                   [ --certificate-script-file FILE
                                                     [
                                                       ( --certificate-redeemer-cbor-file CBOR FILE
@@ -3312,7 +3307,7 @@ Usage: cardano-cli mary transaction build --socket-path SOCKET_PATH
                                               )]
                                             [--invalid-before SLOT]
                                             [--invalid-hereafter SLOT]
-                                            [--certificate-file CERTIFICATEFILE
+                                            [--certificate-file FILE
                                               [ --certificate-script-file FILE
                                                 [ --certificate-redeemer-cbor-file CBOR FILE
                                                 | --certificate-redeemer-file JSON FILE
@@ -4335,8 +4330,7 @@ Usage: cardano-cli alonzo transaction build-raw
                                                   [--invalid-before SLOT]
                                                   [--invalid-hereafter SLOT]
                                                   [--fee LOVELACE]
-                                                  [
-                                                    --certificate-file CERTIFICATEFILE
+                                                  [--certificate-file FILE
                                                     [ --certificate-script-file FILE
                                                       [
                                                         ( --certificate-redeemer-cbor-file CBOR FILE
@@ -4465,8 +4459,7 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                                 )]
                                               [--invalid-before SLOT]
                                               [--invalid-hereafter SLOT]
-                                              [
-                                                --certificate-file CERTIFICATEFILE
+                                              [--certificate-file FILE
                                                 [ --certificate-script-file FILE
                                                   [ --certificate-redeemer-cbor-file CBOR FILE
                                                   | --certificate-redeemer-file JSON FILE
@@ -5519,8 +5512,7 @@ Usage: cardano-cli babbage transaction build-raw
                                                    [--invalid-before SLOT]
                                                    [--invalid-hereafter SLOT]
                                                    [--fee LOVELACE]
-                                                   [
-                                                     --certificate-file CERTIFICATEFILE
+                                                   [--certificate-file FILE
                                                      [ --certificate-script-file FILE
                                                        [
                                                          ( --certificate-redeemer-cbor-file CBOR FILE
@@ -5649,8 +5641,7 @@ Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
                                                  )]
                                                [--invalid-before SLOT]
                                                [--invalid-hereafter SLOT]
-                                               [
-                                                 --certificate-file CERTIFICATEFILE
+                                               [--certificate-file FILE
                                                  [ --certificate-script-file FILE
                                                    [ --certificate-redeemer-cbor-file CBOR FILE
                                                    | --certificate-redeemer-file JSON FILE
@@ -6103,7 +6094,8 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   --governance-action-deposit NATURAL
                                                                   ( --deposit-return-stake-verification-key STRING
                                                                   | --deposit-return-stake-verification-key-file FILE
-                                                                  | --deposit-return-stake-key-hash HASH
+                                                                  | --deposit-return-stake-script-file FILE
+                                                                  | --deposit-return-stake-address ADDRESS
                                                                   )
                                                                   [--prev-governance-action-tx-id TXID
                                                                     --prev-governance-action-index WORD32]
@@ -6122,7 +6114,8 @@ Usage: cardano-cli conway governance action update-committee
                                                                --governance-action-deposit NATURAL
                                                                ( --deposit-return-stake-verification-key STRING
                                                                | --deposit-return-stake-verification-key-file FILE
-                                                               | --deposit-return-stake-key-hash HASH
+                                                               | --deposit-return-stake-script-file FILE
+                                                               | --deposit-return-stake-address ADDRESS
                                                                )
                                                                --anchor-url TEXT
                                                                --anchor-data-hash HASH
@@ -6147,7 +6140,8 @@ Usage: cardano-cli conway governance action create-info (--mainnet | --testnet)
                                                           --governance-action-deposit NATURAL
                                                           ( --deposit-return-stake-verification-key STRING
                                                           | --deposit-return-stake-verification-key-file FILE
-                                                          | --deposit-return-stake-key-hash HASH
+                                                          | --deposit-return-stake-script-file FILE
+                                                          | --deposit-return-stake-address ADDRESS
                                                           )
                                                           --anchor-url TEXT
                                                           --anchor-data-hash HASH
@@ -6162,7 +6156,8 @@ Usage: cardano-cli conway governance action create-no-confidence
                                                                    --governance-action-deposit NATURAL
                                                                    ( --deposit-return-stake-verification-key STRING
                                                                    | --deposit-return-stake-verification-key-file FILE
-                                                                   | --deposit-return-stake-key-hash HASH
+                                                                   | --deposit-return-stake-script-file FILE
+                                                                   | --deposit-return-stake-address ADDRESS
                                                                    )
                                                                    --anchor-url TEXT
                                                                    --anchor-data-hash HASH
@@ -6179,7 +6174,8 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 --governance-action-deposit NATURAL
                                                                                 ( --deposit-return-stake-verification-key STRING
                                                                                 | --deposit-return-stake-verification-key-file FILE
-                                                                                | --deposit-return-stake-key-hash HASH
+                                                                                | --deposit-return-stake-script-file FILE
+                                                                                | --deposit-return-stake-address ADDRESS
                                                                                 )
                                                                                 --anchor-url TEXT
                                                                                 --anchor-data-hash HASH
@@ -6240,7 +6236,8 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          --governance-action-deposit NATURAL
                                                                          ( --deposit-return-stake-verification-key STRING
                                                                          | --deposit-return-stake-verification-key-file FILE
-                                                                         | --deposit-return-stake-key-hash HASH
+                                                                         | --deposit-return-stake-script-file FILE
+                                                                         | --deposit-return-stake-address ADDRESS
                                                                          )
                                                                          --anchor-url TEXT
                                                                          --anchor-data-hash HASH
@@ -7096,8 +7093,7 @@ Usage: cardano-cli conway transaction build-raw
                                                   [--invalid-before SLOT]
                                                   [--invalid-hereafter SLOT]
                                                   [--fee LOVELACE]
-                                                  [
-                                                    --certificate-file CERTIFICATEFILE
+                                                  [--certificate-file FILE
                                                     [ --certificate-script-file FILE
                                                       [
                                                         ( --certificate-redeemer-cbor-file CBOR FILE
@@ -7241,8 +7237,7 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                                 )]
                                               [--invalid-before SLOT]
                                               [--invalid-hereafter SLOT]
-                                              [
-                                                --certificate-file CERTIFICATEFILE
+                                              [--certificate-file FILE
                                                 [ --certificate-script-file FILE
                                                   [ --certificate-redeemer-cbor-file CBOR FILE
                                                   | --certificate-redeemer-file JSON FILE
@@ -8303,8 +8298,7 @@ Usage: cardano-cli latest transaction build-raw
                                                   [--invalid-before SLOT]
                                                   [--invalid-hereafter SLOT]
                                                   [--fee LOVELACE]
-                                                  [
-                                                    --certificate-file CERTIFICATEFILE
+                                                  [--certificate-file FILE
                                                     [ --certificate-script-file FILE
                                                       [
                                                         ( --certificate-redeemer-cbor-file CBOR FILE
@@ -8433,8 +8427,7 @@ Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
                                                 )]
                                               [--invalid-before SLOT]
                                               [--invalid-hereafter SLOT]
-                                              [
-                                                --certificate-file CERTIFICATEFILE
+                                              [--certificate-file FILE
                                                 [ --certificate-script-file FILE
                                                   [ --certificate-redeemer-cbor-file CBOR FILE
                                                   | --certificate-redeemer-file JSON FILE
@@ -9317,8 +9310,7 @@ Usage: cardano-cli legacy transaction build-raw
                                                   [--invalid-before SLOT]
                                                   [--invalid-hereafter SLOT]
                                                   [--fee LOVELACE]
-                                                  [
-                                                    --certificate-file CERTIFICATEFILE
+                                                  [--certificate-file FILE
                                                     [ --certificate-script-file FILE
                                                       [
                                                         ( --certificate-redeemer-cbor-file CBOR FILE
@@ -9453,8 +9445,7 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                                 )]
                                               [--invalid-before SLOT]
                                               [--invalid-hereafter SLOT]
-                                              [
-                                                --certificate-file CERTIFICATEFILE
+                                              [--certificate-file FILE
                                                 [ --certificate-script-file FILE
                                                   [ --certificate-redeemer-cbor-file CBOR FILE
                                                   | --certificate-redeemer-file JSON FILE
@@ -10541,7 +10532,7 @@ Usage: cardano-cli transaction build-raw
                                            [--invalid-before SLOT]
                                            [--invalid-hereafter SLOT]
                                            [--fee LOVELACE]
-                                           [--certificate-file CERTIFICATEFILE
+                                           [--certificate-file FILE
                                              [ --certificate-script-file FILE
                                                [
                                                  ( --certificate-redeemer-cbor-file CBOR FILE
@@ -10671,7 +10662,7 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                          )]
                                        [--invalid-before SLOT]
                                        [--invalid-hereafter SLOT]
-                                       [--certificate-file CERTIFICATEFILE
+                                       [--certificate-file FILE
                                          [ --certificate-script-file FILE
                                            [ --certificate-redeemer-cbor-file CBOR FILE
                                            | --certificate-redeemer-file JSON FILE

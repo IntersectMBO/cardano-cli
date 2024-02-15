@@ -89,7 +89,7 @@ runGovernanceActionInfoCmd
       , Cmd.outFile
       } = do
   depositStakeCredential <- firstExceptT GovernanceActionsReadStakeCredErrror
-                     $ getStakeCredentialFromVerifier returnStakeAddress
+                     $ getStakeCredentialFromIdentifier returnStakeAddress
 
   let proposalAnchor = Ledger.Anchor
         { Ledger.anchorUrl = unProposalUrl proposalUrl

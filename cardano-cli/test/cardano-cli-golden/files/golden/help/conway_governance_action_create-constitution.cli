@@ -5,7 +5,8 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   --governance-action-deposit NATURAL
                                                                   ( --deposit-return-stake-verification-key STRING
                                                                   | --deposit-return-stake-verification-key-file FILE
-                                                                  | --deposit-return-stake-key-hash HASH
+                                                                  | --deposit-return-stake-script-file FILE
+                                                                  | --deposit-return-stake-address ADDRESS
                                                                   )
                                                                   [--prev-governance-action-tx-id TXID
                                                                     --prev-governance-action-index WORD32]
@@ -26,8 +27,10 @@ Available options:
                            Stake verification key (Bech32 or hex-encoded).
   --deposit-return-stake-verification-key-file FILE
                            Filepath of the staking verification key.
-  --deposit-return-stake-key-hash HASH
-                           Stake verification key hash (hex-encoded).
+  --deposit-return-stake-script-file FILE
+                           Filepath of the staking script.
+  --deposit-return-stake-address ADDRESS
+                           Target stake address (bech32 format).
   --prev-governance-action-tx-id TXID
                            Txid of the previous governance action.
   --prev-governance-action-index WORD32

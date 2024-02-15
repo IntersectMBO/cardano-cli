@@ -63,7 +63,7 @@ pAddressBuild :: EnvCli -> Parser (AddressCmds era)
 pAddressBuild envCli =
   AddressBuild
     <$> pPaymentVerifier
-    <*> Opt.optional pStakeIdentifier
+    <*> Opt.optional (pStakeIdentifier Nothing)
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
