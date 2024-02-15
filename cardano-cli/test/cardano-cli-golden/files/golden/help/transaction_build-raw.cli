@@ -80,7 +80,7 @@ Usage: cardano-cli transaction build-raw
                                            [--invalid-before SLOT]
                                            [--invalid-hereafter SLOT]
                                            [--fee LOVELACE]
-                                           [--certificate-file CERTIFICATEFILE
+                                           [--certificate-file FILE
                                              [ --certificate-script-file FILE
                                                [
                                                  ( --certificate-redeemer-cbor-file CBOR FILE
@@ -313,8 +313,7 @@ Available options:
   --invalid-before SLOT    Time that transaction is valid from (in slots).
   --invalid-hereafter SLOT Time that transaction is valid until (in slots).
   --fee LOVELACE           The fee amount in Lovelace.
-  --certificate-file CERTIFICATEFILE
-                           Filepath of the certificate. This encompasses all
+  --certificate-file FILE  Filepath of the certificate. This encompasses all
                            types of certificates (stake pool certificates, stake
                            key certificates etc). Optionally specify a script
                            witness.

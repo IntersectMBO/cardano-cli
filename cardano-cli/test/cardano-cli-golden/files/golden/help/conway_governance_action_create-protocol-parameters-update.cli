@@ -6,6 +6,8 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 ( --deposit-return-stake-verification-key STRING
                                                                                 | --deposit-return-stake-verification-key-file FILE
                                                                                 | --deposit-return-stake-key-hash HASH
+                                                                                | --deposit-return-stake-script-file FILE
+                                                                                | --deposit-return-stake-address ADDRESS
                                                                                 )
                                                                                 --anchor-url TEXT
                                                                                 --anchor-data-hash HASH
@@ -70,6 +72,10 @@ Available options:
                            Filepath of the staking verification key.
   --deposit-return-stake-key-hash HASH
                            Stake verification key hash (hex-encoded).
+  --deposit-return-stake-script-file FILE
+                           Filepath of the staking script.
+  --deposit-return-stake-address ADDRESS
+                           Target stake address (bech32 format).
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
                            "cardano-cli conway governance hash anchor-data ...")

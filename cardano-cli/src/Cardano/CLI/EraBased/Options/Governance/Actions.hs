@@ -66,7 +66,7 @@ pGovernanceActionNewInfoCmd era = do
             Cmd.GovernanceActionInfoCmdArgs eon
               <$> pNetwork
               <*> pGovActionDeposit
-              <*> pStakeVerifier (Just "deposit-return")
+              <*> pStakeIdentifier (Just "deposit-return")
               <*> pAnchorUrl
               <*> pAnchorDataHash
               <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
