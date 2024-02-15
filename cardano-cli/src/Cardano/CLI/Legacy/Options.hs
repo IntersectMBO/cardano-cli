@@ -648,6 +648,7 @@ pQueryCmds envCli =
           <*> pConsensusModeParams
           <*> pQueryUTxOFilter
           <*> pNetworkId envCli
+          <*> (optional $ pQueryOutputFormat "utxo")
           <*> pMaybeOutputFile
 
     pQueryStakePools :: Parser LegacyQueryCmds

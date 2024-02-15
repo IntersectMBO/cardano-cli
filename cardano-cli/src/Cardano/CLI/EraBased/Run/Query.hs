@@ -86,6 +86,7 @@ import           Data.Aeson as Aeson
 import qualified Data.Aeson as A
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Bifunctor (Bifunctor (..))
+import qualified Data.ByteString.Lazy as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Coerce (coerce)
 import           Data.Function ((&))
@@ -332,6 +333,7 @@ runQueryUTxOCmd
     , Cmd.queryFilter
     , Cmd.networkId
     , Cmd.target
+    , Cmd.format
     , Cmd.mOutFile
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -349,7 +351,7 @@ runQueryUTxOCmd
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
         pure $ do
-          writeFilteredUTxOs sbe mOutFile utxo
+          writeFilteredUTxOs sbe format mOutFile utxo
     )
     & onLeft (left . QueryCmdAcquireFailure)
     & onLeft left
@@ -1016,103 +1018,98 @@ writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
         Right chainDepstate -> liftIO . LBS.putStrLn $ encodePretty chainDepstate
 
 writeFilteredUTxOs :: Api.ShelleyBasedEra era
+                   -> Maybe QueryOutputFormat
                    -> Maybe (File () Out)
                    -> UTxO era
                    -> ExceptT QueryCmdError IO ()
-writeFilteredUTxOs sbe mOutFile utxo =
-  case mOutFile of
-    Nothing -> liftIO $ printFilteredUTxOs sbe utxo
-    Just (File fpath) ->
-      case sbe of
-        ShelleyBasedEraShelley -> writeUTxo fpath utxo
-        ShelleyBasedEraAllegra -> writeUTxo fpath utxo
-        ShelleyBasedEraMary -> writeUTxo fpath utxo
-        ShelleyBasedEraAlonzo -> writeUTxo fpath utxo
-        ShelleyBasedEraBabbage -> writeUTxo fpath utxo
-        ShelleyBasedEraConway -> writeUTxo fpath utxo
- where
-   writeUTxo fpath utxo' =
-     handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath)
-       $ LBS.writeFile fpath (encodePretty utxo')
+writeFilteredUTxOs sbe format mOutFile utxo =
+  shelleyBasedEraConstraints sbe $
+    firstExceptT QueryCmdWriteFileError . newExceptT .
+      writeLazyByteStringOutput mOutFile $
+        case format' of
+          QueryOutputFormatJson -> encodePretty utxo
+          QueryOutputFormatText -> BS.fromChunks [Text.encodeUtf8 $ filteredUTxOsToText sbe utxo]
+  where
+    format' =
+      case (format, mOutFile) of
+        (Just f, _) -> f -- Take flag from CLI if specified
+        (Nothing, Nothing) -> QueryOutputFormatText -- No CLI flag, writing to stdout: write text
+        (Nothing, Just _) -> QueryOutputFormatJson -- No CLI flag, writing to a file: write JSON
 
-printFilteredUTxOs :: Api.ShelleyBasedEra era -> UTxO era -> IO ()
-printFilteredUTxOs sbe (UTxO utxo) = do
-  Text.putStrLn title
-  putStrLn $ replicate (Text.length title + 2) '-'
-  case sbe of
-    ShelleyBasedEraShelley ->
-      mapM_ (printUtxo sbe) $ Map.toList utxo
-    ShelleyBasedEraAllegra ->
-      mapM_ (printUtxo sbe) $ Map.toList utxo
-    ShelleyBasedEraMary    ->
-      mapM_ (printUtxo sbe) $ Map.toList utxo
-    ShelleyBasedEraAlonzo ->
-      mapM_ (printUtxo sbe) $ Map.toList utxo
-    ShelleyBasedEraBabbage ->
-      mapM_ (printUtxo sbe) $ Map.toList utxo
-    ShelleyBasedEraConway ->
-      mapM_ (printUtxo sbe) $ Map.toList utxo
+filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
+filteredUTxOsToText sbe (UTxO utxo) = do
+  mconcat
+    [ title
+    , Text.replicate (Text.length title + 2) "-"
+    , Text.unlines $ case sbe of
+        ShelleyBasedEraShelley ->
+          map (utxoToText sbe) $ Map.toList utxo
+        ShelleyBasedEraAllegra ->
+          map (utxoToText sbe) $ Map.toList utxo
+        ShelleyBasedEraMary    ->
+          map (utxoToText sbe) $ Map.toList utxo
+        ShelleyBasedEraAlonzo ->
+          map (utxoToText sbe) $ Map.toList utxo
+        ShelleyBasedEraBabbage ->
+          map (utxoToText sbe) $ Map.toList utxo
+        ShelleyBasedEraConway ->
+          map (utxoToText sbe) $ Map.toList utxo
+    ]
 
  where
    title :: Text
    title =
      "                           TxHash                                 TxIx        Amount"
 
-printUtxo
+utxoToText
   :: Api.ShelleyBasedEra era
   -> (TxIn, TxOut CtxUTxO era)
-  -> IO ()
-printUtxo sbe txInOutTuple =
+  -> Text
+utxoToText sbe txInOutTuple =
   case sbe of
     ShelleyBasedEraShelley ->
       let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
-      in Text.putStrLn $
-           mconcat
-             [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-             , textShowN 6 index
-             , "        " <> printableValue value
-             ]
+      in mconcat
+           [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+           , textShowN 6 index
+           , "        " <> printableValue value
+           ]
 
     ShelleyBasedEraAllegra ->
       let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
-      in Text.putStrLn $
-           mconcat
-             [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-             , textShowN 6 index
-             , "        " <> printableValue value
-             ]
+      in mconcat
+           [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+           , textShowN 6 index
+           , "        " <> printableValue value
+           ]
     ShelleyBasedEraMary ->
       let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
-      in Text.putStrLn $
-           mconcat
-             [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-             , textShowN 6 index
-             , "        " <> printableValue value
-             ]
+      in mconcat
+           [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+           , textShowN 6 index
+           , "        " <> printableValue value
+           ]
     ShelleyBasedEraAlonzo ->
       let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
-      in Text.putStrLn $
-           mconcat
-             [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-             , textShowN 6 index
-             , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
-             ]
+      in mconcat
+           [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+           , textShowN 6 index
+           , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
+           ]
     ShelleyBasedEraBabbage ->
       let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
-      in Text.putStrLn $
-           mconcat
-             [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-             , textShowN 6 index
-             , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
-             ]
+      in mconcat
+           [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+           , textShowN 6 index
+           , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
+           ]
     ShelleyBasedEraConway ->
       let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
-      in Text.putStrLn $
-           mconcat
-             [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-             , textShowN 6 index
-             , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
-             ]
+      in mconcat
+           [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+           , textShowN 6 index
+           , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
+           ]
  where
   textShowN :: Show a => Int -> a -> Text
   textShowN len x =

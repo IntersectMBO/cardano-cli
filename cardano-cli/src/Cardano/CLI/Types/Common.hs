@@ -44,6 +44,7 @@ module Cardano.CLI.Types.Common
   , ProposalText(..)
   , ProposalUrl(..)
   , ProtocolParamsFile(..)
+  , QueryOutputFormat(..)
   , ReferenceScriptAnyEra (..)
   , RequiredSigner (..)
   , ScriptDataOrFile (..)
@@ -89,6 +90,7 @@ import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Crypto as Crypto
 import qualified Cardano.Ledger.SafeHash as L
 import           Cardano.Ledger.Shelley.API (PoolParams (..))
+import           Cardano.Ledger.PoolParams (PoolParams (..))
 
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
 import qualified Data.Aeson as Aeson
@@ -460,6 +462,11 @@ data TxMempoolQuery =
       TxMempoolQueryTxExists TxId
     | TxMempoolQueryNextTx
     | TxMempoolQueryInfo
+  deriving Show
+
+data QueryOutputFormat
+  = QueryOutputFormatJson
+  | QueryOutputFormatText
   deriving Show
 
 data ViewOutputFormat

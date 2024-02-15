@@ -143,6 +143,7 @@ pQueryUTxOCmd era envCli =
       <*> pQueryUTxOFilter
       <*> pNetworkId envCli
       <*> pTarget era
+      <*> (optional $ pQueryOutputFormat "utxo")
       <*> pMaybeOutputFile
 
 pQueryStakePoolsCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
