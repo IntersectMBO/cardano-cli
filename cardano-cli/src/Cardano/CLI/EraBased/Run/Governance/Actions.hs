@@ -157,6 +157,7 @@ runGovernanceActionCreateConstitutionCmd
       , Cmd.proposalHash
       , Cmd.constitutionUrl
       , Cmd.constitutionHash
+      , Cmd.constitutionScript
       , Cmd.outFile
       } = do
 
@@ -176,7 +177,10 @@ runGovernanceActionCreateConstitutionCmd
         { Ledger.anchorUrl = unConstitutionUrl constitutionUrl
         , Ledger.anchorDataHash = constitutionHash
         }
-      govAct = ProposeNewConstitution prevGovActId constitutionAnchor
+      govAct = ProposeNewConstitution
+                  prevGovActId
+                  constitutionAnchor
+                  (toShelleyScriptHash <$> Ledger.maybeToStrictMaybe constitutionScript)
       sbe = conwayEraOnwardsToShelleyBasedEra eon
       proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAct proposalAnchor
 
