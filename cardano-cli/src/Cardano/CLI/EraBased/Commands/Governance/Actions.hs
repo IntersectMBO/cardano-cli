@@ -67,6 +67,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
       , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , constitutionUrl         :: !ConstitutionUrl
       , constitutionHash        :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+      , constitutionScript      :: !(Maybe ScriptHash)
       , outFile                 :: !(File () Out)
       } deriving Show
 

@@ -92,6 +92,7 @@ pGovernanceActionNewConstitutionCmd era = do
               <*> pAnchorDataHash
               <*> pConstitutionUrl
               <*> pConstitutionHash
+              <*> optional pConstitutionScriptHash
               <*> pFileOutDirection "out-file" "Output filepath of the constitution."
         )
     $ Opt.progDesc "Create a constitution."

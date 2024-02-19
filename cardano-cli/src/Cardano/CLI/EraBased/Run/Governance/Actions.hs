@@ -156,6 +156,7 @@ runGovernanceActionCreateConstitutionCmd
       , Cmd.proposalHash
       , Cmd.constitutionUrl
       , Cmd.constitutionHash
+      , Cmd.constitutionScript
       , Cmd.outFile
       } = do
 
@@ -175,7 +176,10 @@ runGovernanceActionCreateConstitutionCmd
         { L.anchorUrl = unConstitutionUrl constitutionUrl
         , L.anchorDataHash = constitutionHash
         }
-      govAct = ProposeNewConstitution prevGovActId constitutionAnchor
+      govAct = ProposeNewConstitution
+                  prevGovActId
+                  constitutionAnchor
+                  (toShelleyScriptHash <$> L.maybeToStrictMaybe constitutionScript)
       sbe = conwayEraOnwardsToShelleyBasedEra eon
       proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAct proposalAnchor
 
@@ -367,7 +371,7 @@ runGovernanceActionTreasuryWithdrawalCmd
 
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
       treasuryWithdrawals = TreasuryWithdrawal withdrawals
-                              (toShelleyScriptHash <$> Ledger.maybeToStrictMaybe constitutionScriptHash)
+                              (toShelleyScriptHash <$> L.maybeToStrictMaybe constitutionScriptHash)
       proposal = createProposalProcedure sbe networkId deposit depositStakeCredential treasuryWithdrawals proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT

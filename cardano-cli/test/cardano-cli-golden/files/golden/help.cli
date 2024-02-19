@@ -6135,6 +6135,7 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   --anchor-data-hash HASH
                                                                   --constitution-url TEXT
                                                                   --constitution-hash HASH
+                                                                  [--constitution-script-hash HASH]
                                                                   --out-file FILE
 
   Create a constitution.
