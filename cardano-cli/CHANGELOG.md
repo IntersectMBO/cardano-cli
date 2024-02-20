@@ -30,6 +30,9 @@
   (feature, compatible)
   [PR 596](https://github.com/IntersectMBO/cardano-cli/pull/596)
 
+- Fixed git revision showed by --version flag when built using nix
+  (bugfix, compatible)
+  [PR 610](https://github.com/IntersectMBO/cardano-cli/pull/610)
 
 ## 8.20.0.0
 
