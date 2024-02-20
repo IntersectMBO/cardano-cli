@@ -127,6 +127,7 @@ data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   , queryFilter         :: !QueryUTxOFilter
   , networkId           :: !NetworkId
   , target              :: !(Consensus.Target ChainPoint)
+  , format              :: Maybe QueryOutputFormat
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
