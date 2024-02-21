@@ -5,7 +5,6 @@ module Cardano.CLI.Types.Errors.AddressInfoError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import           Data.Text (Text)
 

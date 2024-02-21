@@ -16,7 +16,7 @@ module Cardano.CLI.Helpers
   , validateCBOR
   ) where
 
-import           Cardano.Api.Pretty
+import           Cardano.Api
 
 import           Cardano.Chain.Block (decCBORABlockOrBoundary)
 import qualified Cardano.Chain.Delegation as Delegation
@@ -31,9 +31,6 @@ import           Codec.CBOR.Read (DeserialiseFailure, deserialiseFromBytes)
 import           Codec.CBOR.Term (decodeTerm, encodeTerm)
 import           Control.Exception (Exception (..), IOException)
 import           Control.Monad (unless, when)
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (handleIOExceptT, left)
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS

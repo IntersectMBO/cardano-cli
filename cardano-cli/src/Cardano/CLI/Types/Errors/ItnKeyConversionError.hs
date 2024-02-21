@@ -10,7 +10,6 @@ module Cardano.CLI.Types.Errors.ItnKeyConversionError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import           Control.Exception (Exception (..), IOException)
 import           Data.ByteString (ByteString)

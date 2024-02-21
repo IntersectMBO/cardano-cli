@@ -7,7 +7,6 @@ module Cardano.CLI.Types.Errors.NodeCmdError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 {- HLINT ignore "Reduce duplication" -}
 

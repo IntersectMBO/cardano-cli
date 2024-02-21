@@ -42,7 +42,6 @@ import qualified Cardano.Api as Api
 import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Ledger as Ledger
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
@@ -57,9 +56,7 @@ import           Cardano.CLI.Types.Key
 import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
-import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Core as Core
-import qualified Cardano.Ledger.Credential as L
 import qualified Cardano.Ledger.Crypto as Crypto
 import           Cardano.Ledger.Keys (KeyHash (..), KeyRole (..))
 import           Cardano.Ledger.SafeHash (SafeHash)
@@ -78,11 +75,6 @@ import           Ouroboros.Network.Block (Serialised (..))
 import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Control.Monad (forM, forM_, join)
-import           Control.Monad.IO.Class (MonadIO)
-import           Control.Monad.IO.Unlift (MonadIO (..))
-import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson as Aeson
 import qualified Data.Aeson as A
 import           Data.Aeson.Encode.Pretty (encodePretty)

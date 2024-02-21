@@ -14,7 +14,6 @@ module Cardano.CLI.Types.Errors.TxCmdError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Read

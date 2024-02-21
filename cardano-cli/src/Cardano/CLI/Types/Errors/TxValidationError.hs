@@ -37,7 +37,6 @@ module Cardano.CLI.Types.Errors.TxValidationError
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common

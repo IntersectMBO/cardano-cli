@@ -12,8 +12,6 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra
 
 runGovernanceGenesisKeyDelegationCertificate
   :: ShelleyToBabbageEra era

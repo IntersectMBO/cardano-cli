@@ -11,7 +11,6 @@ module Cardano.CLI.Byron.Vote
   ) where
 
 import           Cardano.Api.Byron
-import           Cardano.Api.Pretty
 
 import qualified Cardano.Binary as Binary
 import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
@@ -24,9 +23,6 @@ import           Cardano.CLI.Types.Common
 import           Ouroboros.Consensus.Ledger.SupportsMempool (txId)
 import           Ouroboros.Consensus.Util.Condense (condense)
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither)
 import           Control.Tracer (stdoutTracer, traceWith)
 import           Data.Bifunctor (first)
 import qualified Data.ByteString as BS

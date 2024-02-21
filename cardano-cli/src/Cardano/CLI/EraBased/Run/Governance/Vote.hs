@@ -22,8 +22,6 @@ import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson.Encode.Pretty
 import           Data.Function
 import qualified Data.Yaml.Pretty as Yaml

@@ -25,7 +25,6 @@ import           Cardano.CLI.Types.Errors.TextViewFileError
 import           Cardano.CLI.Types.Errors.TxCmdError
 
 import           Data.Text (Text)
-import           Prettyprinter
 
 data CmdError
   = CmdAddressError               !AddressCmdError

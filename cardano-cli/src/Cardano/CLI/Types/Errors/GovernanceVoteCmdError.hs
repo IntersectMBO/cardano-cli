@@ -11,7 +11,6 @@ import           Cardano.CLI.Read (VoteError)
 
 import qualified Data.Text.Lazy.Builder as TL
 import qualified Formatting.Buildable as B
-import           Prettyprinter
 
 data GovernanceVoteCmdError
   = GovernanceVoteCmdReadVerificationKeyError !(FileError InputDecodeError)

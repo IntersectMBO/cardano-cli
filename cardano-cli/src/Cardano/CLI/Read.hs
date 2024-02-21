@@ -100,7 +100,6 @@ module Cardano.CLI.Read
 
 import           Cardano.Api as Api
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley as Api
 
 import qualified Cardano.Binary as CBOR
@@ -112,23 +111,17 @@ import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto.Hash.Class as Crypto
 import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
-import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.BaseTypes as Ledger
 import qualified Cardano.Ledger.Credential as Ledger
 import qualified Cardano.Ledger.Crypto as Crypto
 import qualified Cardano.Ledger.Crypto as Ledger
 import qualified Cardano.Ledger.Keys as Ledger
-import qualified Cardano.Ledger.SafeHash as L
 import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Prelude
 
 import           Control.Exception (bracket, displayException)
 import           Control.Monad (forM, unless, when)
-import           Control.Monad.IO.Class
-import           Control.Monad.Trans (MonadTrans (..))
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
 import           Data.ByteString (ByteString)

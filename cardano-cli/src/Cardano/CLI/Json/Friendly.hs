@@ -30,7 +30,6 @@ import qualified Cardano.Ledger.Conway.TxCert as ConwayLedger
 import qualified Cardano.Ledger.Credential as Shelley
 import qualified Cardano.Ledger.Shelley.API as Shelley
 
-import           Control.Monad.Trans (MonadIO)
 import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson

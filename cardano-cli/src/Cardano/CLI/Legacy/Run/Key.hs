@@ -13,7 +13,6 @@ import           Cardano.CLI.Legacy.Commands.Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.KeyCmdError
 
-import           Control.Monad.Trans.Except (ExceptT)
 import           Data.Text (Text)
 
 runLegacyKeyCmds :: ()

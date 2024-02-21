@@ -12,10 +12,9 @@ module Cardano.CLI.Byron.Genesis
   )
 where
 
-import           Cardano.Api (Key (..), NetworkId, writeSecrets)
+import           Cardano.Api (Doc, Key (..), NetworkId, pretty, pshow, writeSecrets)
 import           Cardano.Api.Byron (ByronKey, SerialiseAsRawBytes (..), SigningKey (..),
                    toByronRequiresNetworkMagic)
-import           Cardano.Api.Pretty
 
 import qualified Cardano.Chain.Common as Common
 import           Cardano.Chain.Delegation hiding (Map, epoch)

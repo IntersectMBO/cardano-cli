@@ -86,10 +86,8 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Chain.Slotting as Byron
-import qualified Cardano.Ledger.BaseTypes as L
 import qualified Cardano.Ledger.Crypto as Crypto
 import           Cardano.Ledger.PoolParams (PoolParams (..))
-import qualified Cardano.Ledger.SafeHash as L
 
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
 import qualified Data.Aeson as Aeson

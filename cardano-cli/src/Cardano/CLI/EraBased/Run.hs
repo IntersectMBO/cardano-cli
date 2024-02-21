@@ -22,9 +22,7 @@ import           Cardano.CLI.EraBased.Run.TextView
 import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.Types.Errors.CmdError
 
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra (firstExceptT)
-import           Data.Function ((&))
+import           Data.Function
 
 runAnyEraCommand :: ()
   => AnyEraCommand

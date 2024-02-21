@@ -4,12 +4,10 @@
 module Test.Golden.EraBased.Governance.VerifyPoll where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile (..),
                    readVerificationKeyOrTextEnvFile)
 
-import           Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString.Char8 as BSC
 
 import           Test.Cardano.CLI.Util

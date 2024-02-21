@@ -48,15 +48,11 @@ module Cardano.CLI.Types.Key
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.DelegationError
 
-import           Control.Monad.Trans
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as BS
 import           Data.Function

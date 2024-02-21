@@ -15,14 +15,10 @@ module Test.Cardano.CLI.Util
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import           Cardano.CLI.Read
 
 import           Control.Monad.Catch
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Class (lift)
-import           Control.Monad.Trans.Except (runExceptT)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson

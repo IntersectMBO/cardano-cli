@@ -14,7 +14,6 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad.Trans.Except (ExceptT)
 
 runLegacyStakeAddressCmds :: ()
   => LegacyStakeAddressCmds

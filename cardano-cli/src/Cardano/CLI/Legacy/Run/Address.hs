@@ -20,8 +20,6 @@ import           Cardano.CLI.Types.Errors.AddressInfoError
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
                    VerificationKeyTextOrFile)
 
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT)
 import           Data.Function
 import           Data.Text (Text)
 

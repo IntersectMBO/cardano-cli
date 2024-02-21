@@ -50,7 +50,7 @@ import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 import qualified Options.Applicative.Help as H
-import           Prettyprinter (line, pretty)
+import           Prettyprinter (line)
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}

@@ -3,14 +3,11 @@
 module Test.Golden.Byron.Tx where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import           Cardano.Chain.UTxO (ATxAux)
 import           Cardano.CLI.Byron.Tx
 
 import           Control.Monad (void)
-import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad.Trans.Except (runExceptT)
 import           Data.ByteString (ByteString)
 
 import           Test.Cardano.CLI.Util

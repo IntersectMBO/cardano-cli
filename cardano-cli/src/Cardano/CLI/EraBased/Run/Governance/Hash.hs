@@ -27,8 +27,6 @@ import           Cardano.Ledger.Crypto
 import           Cardano.Ledger.SafeHash (extractHash)
 import qualified Cardano.Ledger.SafeHash as Ledger
 
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import qualified Data.ByteString as BS
 import           Data.Function
 import qualified Data.Text.Encoding as Text

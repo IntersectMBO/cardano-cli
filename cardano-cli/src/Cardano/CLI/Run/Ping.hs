@@ -11,7 +11,7 @@ module Cardano.CLI.Run.Ping
   , parsePingCmd
   ) where
 
-import           Cardano.Api.Pretty
+import           Cardano.Api (Doc, pshow)
 
 import qualified Cardano.Network.Ping as CNP
 

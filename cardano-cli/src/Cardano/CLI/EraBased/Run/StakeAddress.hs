@@ -31,11 +31,6 @@ import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans (lift)
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, left, newExceptT,
-                   onLeft)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 import qualified Data.Text.IO as Text
