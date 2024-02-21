@@ -59,11 +59,6 @@ import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, force)
 import           Control.Monad (forM, forM_, unless, void, when, zipWithM)
-import           Control.Monad.Except (MonadError (..), runExceptT)
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither,
-                   newExceptT)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.Binary.Get as Bin

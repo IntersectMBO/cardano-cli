@@ -5,7 +5,6 @@
 module Cardano.CLI.Types.Errors.GovernanceCmdError where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)

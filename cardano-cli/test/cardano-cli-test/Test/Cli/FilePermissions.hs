@@ -8,8 +8,6 @@ import           Cardano.Api
 import           Cardano.Api.IO (checkVrfFilePermissions)
 
 import           Control.Monad (void)
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (runExceptT)
 
 import           Test.Cardano.CLI.Util (execCardanoCLI)
 

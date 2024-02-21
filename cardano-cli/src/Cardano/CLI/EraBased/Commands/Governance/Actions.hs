@@ -28,9 +28,7 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
-import qualified Cardano.Ledger.BaseTypes as Ledger
 import qualified Cardano.Ledger.Crypto as Crypto
-import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Data.Text (Text)
 import           Data.Word

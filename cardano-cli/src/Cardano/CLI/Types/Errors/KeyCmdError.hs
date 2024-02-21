@@ -9,7 +9,6 @@ module Cardano.CLI.Types.Errors.KeyCmdError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import qualified Cardano.CLI.Byron.Key as Byron
 import           Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError

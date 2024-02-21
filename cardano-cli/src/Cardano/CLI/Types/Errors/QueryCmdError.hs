@@ -14,7 +14,6 @@ module Cardano.CLI.Types.Errors.QueryCmdError
   ) where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Binary (DecoderError)

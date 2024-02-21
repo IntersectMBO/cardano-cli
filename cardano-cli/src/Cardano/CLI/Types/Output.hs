@@ -14,7 +14,6 @@ module Cardano.CLI.Types.Output
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as Ledger
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common

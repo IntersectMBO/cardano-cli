@@ -10,10 +10,9 @@ module Cardano.CLI.Byron.UpdateProposal
   , submitByronUpdateProposal
   ) where
 
-import           Cardano.Api (NetworkId, SerialiseAsRawBytes (..), SocketPath)
+import           Cardano.Api (Doc, NetworkId, SerialiseAsRawBytes (..), SocketPath, pshow)
 import           Cardano.Api.Byron (AsType (AsByronUpdateProposal), ByronProtocolParametersUpdate,
                    ByronUpdateProposal, makeByronUpdateProposal, toByronLedgerUpdateProposal)
-import           Cardano.Api.Pretty
 
 import           Cardano.Chain.Update (InstallerHash (..), ProtocolVersion (..),
                    SoftwareVersion (..), SystemTag (..))

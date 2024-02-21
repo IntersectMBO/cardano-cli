@@ -5,7 +5,6 @@ module Cardano.CLI.Types.Errors.GovernanceActionsError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import           Cardano.CLI.Read
 

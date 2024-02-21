@@ -2,7 +2,8 @@
 
 module Test.Golden.Byron.UpdateProposal where
 
-import           Cardano.Api.Pretty
+
+import           Cardano.Api (docToString)
 
 import           Cardano.CLI.Byron.UpdateProposal
 

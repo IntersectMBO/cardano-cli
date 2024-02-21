@@ -4,8 +4,9 @@ module Cardano.CLI.Pretty
   , hPutLn
   ) where
 
-import           Cardano.Api.Pretty
-import qualified Cardano.Api.Pretty as Pretty
+import           Cardano.Api as Pretty (Ann, Doc, Pretty (..), ShowOf (..), black, blue, cyan,
+                   docToLazyText, docToString, docToText, green, hsep, magenta, prettyException,
+                   pshow, red, vsep, white, yellow, (<+>))
 
 import qualified Control.Concurrent.QSem as IO
 import           Control.Exception (bracket_)

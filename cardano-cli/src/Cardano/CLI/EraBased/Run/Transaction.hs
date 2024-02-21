@@ -48,16 +48,10 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
-import qualified Cardano.Ledger.Alonzo.Core as Ledger
 import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 import           Control.Monad (forM)
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans (MonadTrans (..))
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, hoistMaybe, left,
-                   newExceptT, onLeft, onNothing)
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Char8 as BS

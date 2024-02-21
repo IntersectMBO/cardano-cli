@@ -2,7 +2,7 @@
 
 module Test.Golden.Byron.Vote where
 
-import           Cardano.Api.Pretty
+import           Cardano.Api (docToString)
 
 import           Cardano.CLI.Byron.Vote
 

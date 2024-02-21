@@ -20,7 +20,6 @@ import qualified Cardano.Crypto.Signing as Crypto
 
 import           Codec.CBOR.Read (deserialiseFromBytes)
 import           Control.Monad (void)
-import           Control.Monad.Trans.Except (runExceptT)
 import qualified Data.ByteString.Lazy as LB
 
 import           Test.Cardano.CLI.Util

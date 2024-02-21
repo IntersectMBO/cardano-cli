@@ -27,10 +27,6 @@ import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.RegistrationError
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad.IO.Class
-import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 import qualified Data.Text.Encoding as Text
 

@@ -196,7 +196,7 @@ library
                       , binary
                       , bytestring
                       , canonical-json
-                      , cardano-api ^>= 8.38.0.2
+                      , cardano-api ^>= 8.39.0.0
                       , cardano-binary
                       , cardano-crypto
                       , cardano-crypto-class ^>= 2.1.2
@@ -275,7 +275,6 @@ library cardano-cli-test-lib
                       , hedgehog-extras ^>= 0.6.1.0
                       , process
                       , text
-                      , transformers
 
 test-suite cardano-cli-test
   import:               project-config
@@ -301,7 +300,6 @@ test-suite cardano-cli-test
                       , tasty-hedgehog
                       , text
                       , time
-                      , transformers
 
   build-tool-depends:   tasty-discover:tasty-discover
 

@@ -13,7 +13,6 @@ import           Cardano.Api.Shelley
 import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
-import           Cardano.Ledger.BaseTypes (NonNegativeInterval)
 import qualified Cardano.Ledger.BaseTypes as Ledger
 
 import           Data.Foldable

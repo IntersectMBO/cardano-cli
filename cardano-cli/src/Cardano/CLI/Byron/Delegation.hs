@@ -14,7 +14,6 @@ module Cardano.CLI.Byron.Delegation
 where
 
 import           Cardano.Api.Byron
-import           Cardano.Api.Pretty
 
 import qualified Cardano.Chain.Delegation as Dlg
 import           Cardano.Chain.Slotting (EpochNumber)
@@ -29,9 +28,6 @@ import           Prelude hiding ((.))
 
 import           Control.Category
 import           Control.Monad (unless)
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (left)
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy as LB
 import           Data.Text (Text)

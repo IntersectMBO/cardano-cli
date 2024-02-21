@@ -26,9 +26,6 @@ import           Cardano.CLI.Types.Key
 import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
 
 import           Control.Monad
-import           Control.Monad.Except (ExceptT)
-import           Control.Monad.Trans (MonadTrans (..))
-import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 import qualified Data.Map.Strict as Map
 
