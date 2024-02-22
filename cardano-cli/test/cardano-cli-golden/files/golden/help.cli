@@ -474,6 +474,7 @@ Usage: cardano-cli shelley query stake-pools --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
+                                               [--output-json | --output-text]
                                                [--out-file FILE]
 
   Get the node's current set of stake pool ids
@@ -1632,6 +1633,7 @@ Usage: cardano-cli allegra query stake-pools --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
+                                               [--output-json | --output-text]
                                                [--out-file FILE]
 
   Get the node's current set of stake pool ids
@@ -2788,6 +2790,7 @@ Usage: cardano-cli mary query stake-pools --socket-path SOCKET_PATH
                                             ( --mainnet
                                             | --testnet-magic NATURAL
                                             )
+                                            [--output-json | --output-text]
                                             [--out-file FILE]
 
   Get the node's current set of stake pool ids
@@ -3935,6 +3938,7 @@ Usage: cardano-cli alonzo query stake-pools --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              [--output-json | --output-text]
                                               [--out-file FILE]
 
   Get the node's current set of stake pool ids
@@ -5118,6 +5122,7 @@ Usage: cardano-cli babbage query stake-pools --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
+                                               [--output-json | --output-text]
                                                [--out-file FILE]
 
   Get the node's current set of stake pool ids
@@ -6538,6 +6543,7 @@ Usage: cardano-cli conway query stake-pools --socket-path SOCKET_PATH
                                               | --testnet-magic NATURAL
                                               )
                                               [--volatile-tip | --immutable-tip]
+                                              [--output-json | --output-text]
                                               [--out-file FILE]
 
   Get the node's current set of stake pool ids
@@ -7903,6 +7909,7 @@ Usage: cardano-cli latest query stake-pools --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              [--output-json | --output-text]
                                               [--out-file FILE]
 
   Get the node's current set of stake pool ids
@@ -8917,6 +8924,7 @@ Usage: cardano-cli legacy query stake-pools --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              [--output-json | --output-text]
                                               [--out-file FILE]
 
   Get the node's current set of stake pool ids
@@ -10166,6 +10174,7 @@ Usage: cardano-cli query tip --socket-path SOCKET_PATH
 Usage: cardano-cli query stake-pools --socket-path SOCKET_PATH
                                        [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
+                                       [--output-json | --output-text]
                                        [--out-file FILE]
 
   Get the node's current set of stake pool ids

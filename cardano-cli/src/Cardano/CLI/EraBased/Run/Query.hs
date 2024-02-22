@@ -1027,15 +1027,9 @@ writeFilteredUTxOs sbe format mOutFile utxo =
   shelleyBasedEraConstraints sbe $
     firstExceptT QueryCmdWriteFileError . newExceptT .
       writeLazyByteStringOutput mOutFile $
-        case format' of
+        case newOutputFormat format mOutFile of
           QueryOutputFormatJson -> encodePretty utxo
-          QueryOutputFormatText -> BS.fromChunks [Text.encodeUtf8 $ filteredUTxOsToText sbe utxo]
-  where
-    format' =
-      case (format, mOutFile) of
-        (Just f, _) -> f -- Take flag from CLI if specified
-        (Nothing, Nothing) -> QueryOutputFormatText -- No CLI flag, writing to stdout: write text
-        (Nothing, Just _) -> QueryOutputFormatJson -- No CLI flag, writing to a file: write JSON
+          QueryOutputFormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo
 
 filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
 filteredUTxOsToText sbe (UTxO utxo) = do
@@ -1132,6 +1126,7 @@ runQueryStakePoolsCmd
     , Cmd.consensusModeParams
     , Cmd.networkId
     , Cmd.target
+    , Cmd.format
     , Cmd.mOutFile
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1148,21 +1143,27 @@ runQueryStakePoolsCmd
           & onLeft (left . QueryCmdEraMismatch)
 
         pure $ do
-          writeStakePools mOutFile poolIds
+          writeStakePools (newOutputFormat format mOutFile) mOutFile poolIds
     ) & onLeft (left . QueryCmdAcquireFailure)
       & onLeft left
 
 writeStakePools
-  :: Maybe (File () Out)
+  :: QueryOutputFormat
+  -> Maybe (File () Out)
   -> Set PoolId
   -> ExceptT QueryCmdError IO ()
-writeStakePools (Just (File outFile)) stakePools =
-  handleIOExceptT (QueryCmdWriteFileError . FileIOError outFile) $
-    LBS.writeFile outFile (encodePretty stakePools)
-
-writeStakePools Nothing stakePools =
-  forM_ (Set.toList stakePools) $ \poolId ->
-    liftIO . putStrLn $ Text.unpack (serialiseToBech32 poolId)
+writeStakePools format mOutFile stakePools =
+  firstExceptT QueryCmdWriteFileError . newExceptT $
+      writeLazyByteStringOutput mOutFile toWrite
+  where
+    toWrite :: LBS.ByteString =
+      case format of
+        QueryOutputFormatText ->
+          LBS.unlines
+            $ map (strictTextToLazyBytestring . serialiseToBech32)
+            $ Set.toList stakePools
+        QueryOutputFormatJson ->
+          encodePretty stakePools
 
 runQueryStakeDistributionCmd :: ()
   => Cmd.QueryStakeDistributionCmdArgs
@@ -1614,3 +1615,16 @@ requireEon minEra era =
   hoistMaybe
     (QueryCmdLocalStateQueryError $ mkEraMismatchError NodeEraMismatchError { nodeEra = era, era = minEra })
     (forEraMaybeEon era)
+
+-- | The output format to use, for commands with a recently introduced --output-[json,text] flag
+-- and that used to have the following default: --out-file implies JSON,
+-- output to stdout implied text.
+newOutputFormat :: Maybe QueryOutputFormat -> Maybe a -> QueryOutputFormat
+newOutputFormat format mOutFile =
+  case (format, mOutFile) of
+    (Just f, _) -> f -- Take flag from CLI if specified
+    (Nothing, Nothing) -> QueryOutputFormatText -- No CLI flag, writing to stdout: write text
+    (Nothing, Just _) -> QueryOutputFormatJson -- No CLI flag, writing to a file: write JSON
+
+strictTextToLazyBytestring :: Text -> LBS.ByteString
+strictTextToLazyBytestring t = BS.fromChunks [Text.encodeUtf8 t]
