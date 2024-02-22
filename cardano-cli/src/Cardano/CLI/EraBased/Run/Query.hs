@@ -1125,6 +1125,7 @@ runQueryStakePoolsCmd
     , Cmd.consensusModeParams
     , Cmd.networkId
     , Cmd.target
+    , Cmd.format
     , Cmd.mOutFile
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1141,21 +1142,27 @@ runQueryStakePoolsCmd
           & onLeft (left . QueryCmdEraMismatch)
 
         pure $ do
-          writeStakePools mOutFile poolIds
+          writeStakePools (newOutputFormat format mOutFile) mOutFile poolIds
     ) & onLeft (left . QueryCmdAcquireFailure)
       & onLeft left
 
 writeStakePools
-  :: Maybe (File () Out)
+  :: QueryOutputFormat
+  -> Maybe (File () Out)
   -> Set PoolId
   -> ExceptT QueryCmdError IO ()
-writeStakePools (Just (File outFile)) stakePools =
-  handleIOExceptT (QueryCmdWriteFileError . FileIOError outFile) $
-    LBS.writeFile outFile (encodePretty stakePools)
-
-writeStakePools Nothing stakePools =
-  forM_ (Set.toList stakePools) $ \poolId ->
-    liftIO . putStrLn $ Text.unpack (serialiseToBech32 poolId)
+writeStakePools format mOutFile stakePools =
+  firstExceptT QueryCmdWriteFileError . newExceptT $
+      writeLazyByteStringOutput mOutFile toWrite
+  where
+    toWrite :: LBS.ByteString =
+      case format of
+        QueryOutputFormatText ->
+          encodePretty stakePools
+        QueryOutputFormatJson ->
+          LBS.unlines
+            $ map (textToLazyBytestring . serialiseToBech32)
+            $ Set.toList stakePools
 
 runQueryStakeDistributionCmd :: ()
   => Cmd.QueryStakeDistributionCmdArgs
