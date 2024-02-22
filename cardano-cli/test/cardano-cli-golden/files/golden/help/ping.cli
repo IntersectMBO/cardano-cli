@@ -1,10 +1,13 @@
-Usage: cardano-cli ping [-c|--count COUNT]
-                          ((-h|--host HOST) | (-u|--unixsock SOCKET))
-                          [-p|--port PORT]
-                          [-m|--magic MAGIC]
-                          [-j|--json]
-                          [-q|--quiet]
-                          [-Q|--query-versions]
+Usage: cardano-cli ping 
+                          ( [-c|--count COUNT]
+                            (-h|--host HOST)
+                            [-p|--port PORT]
+                            [-m|--magic MAGIC]
+                            [-j|--json]
+                            [-q|--quiet]
+                            [-Q|--query-versions]
+                          | --handshake-only (-u|--unixsock SOCKET)
+                          )
 
   Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
 
@@ -13,11 +16,15 @@ Available options:
                            responses. If this option is not specified, ping will
                            operate until interrupted.
   -h,--host HOST           Hostname/IP, e.g. relay.iohk.example.
-  -u,--unixsock SOCKET     Unix socket, e.g. file.socket.
   -p,--port PORT           Port number, e.g. 1234.
   -m,--magic MAGIC         Network magic.
   -j,--json                JSON output flag.
   -q,--quiet               Quiet flag, CSV/JSON only output
   -Q,--query-versions      Query the supported protocol versions using the
                            handshake protocol and terminate the connection.
+                           (deprecated; use under --handshake-only instead).
+  --handshake-only         Perform only the handshake process without sending a
+                           ping.
+  -u,--unixsock SOCKET     Unix socket, e.g. file.socket. Requires the
+                           --hanshake-only flag.
   -h,--help                Show this help text
