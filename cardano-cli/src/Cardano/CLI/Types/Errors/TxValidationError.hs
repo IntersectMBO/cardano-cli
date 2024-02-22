@@ -235,7 +235,7 @@ validateTxCertificates _ [] = return TxCertificatesNone
 validateTxCertificates era certsAndScriptWitnesses = cardanoEraConstraints era $ do
   supported <- conjureWitness era TxCertificatesValidationNotSupported
   let certs = map fst certsAndScriptWitnesses
-      reqWits = mapMaybe convert certsAndScriptWitnesses
+      reqWits = Map.fromList $ mapMaybe convert certsAndScriptWitnesses
   pure $ TxCertificates supported certs $ BuildTxWith reqWits
   where
     convert
