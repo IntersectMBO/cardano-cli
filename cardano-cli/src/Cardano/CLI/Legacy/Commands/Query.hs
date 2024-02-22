@@ -85,6 +85,7 @@ data LegacyQueryStakePoolsCmdArgs = LegacyQueryStakePoolsCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
+  , format              :: Maybe QueryOutputFormat
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
