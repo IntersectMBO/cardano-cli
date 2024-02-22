@@ -1026,15 +1026,9 @@ writeFilteredUTxOs sbe format mOutFile utxo =
   shelleyBasedEraConstraints sbe $
     firstExceptT QueryCmdWriteFileError . newExceptT .
       writeLazyByteStringOutput mOutFile $
-        case format' of
+        case newOutputFormat format mOutFile of
           QueryOutputFormatJson -> encodePretty utxo
-          QueryOutputFormatText -> BS.fromChunks [Text.encodeUtf8 $ filteredUTxOsToText sbe utxo]
-  where
-    format' =
-      case (format, mOutFile) of
-        (Just f, _) -> f -- Take flag from CLI if specified
-        (Nothing, Nothing) -> QueryOutputFormatText -- No CLI flag, writing to stdout: write text
-        (Nothing, Just _) -> QueryOutputFormatJson -- No CLI flag, writing to a file: write JSON
+          QueryOutputFormatText -> textToLazyBytestring $ filteredUTxOsToText sbe utxo
 
 filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
 filteredUTxOsToText sbe (UTxO utxo) = do
@@ -1597,3 +1591,16 @@ requireEon minEra era =
   hoistMaybe
     (QueryCmdLocalStateQueryError $ mkEraMismatchError NodeEraMismatchError { nodeEra = era, era = minEra })
     (forEraMaybeEon era)
+
+-- | The output format to use, for commands with a recently introduced --output-[json,text] flag
+-- and that used to have the following default: --out-file implies JSON,
+-- output to stdout implied text.
+newOutputFormat :: Maybe QueryOutputFormat -> Maybe a -> QueryOutputFormat
+newOutputFormat format mOutFile =
+  case (format, mOutFile) of
+    (Just f, _) -> f -- Take flag from CLI if specified
+    (Nothing, Nothing) -> QueryOutputFormatText -- No CLI flag, writing to stdout: write text
+    (Nothing, Just _) -> QueryOutputFormatJson -- No CLI flag, writing to a file: write JSON
+
+textToLazyBytestring :: Text -> LBS.ByteString
+textToLazyBytestring t = BS.fromChunks [Text.encodeUtf8 t]
