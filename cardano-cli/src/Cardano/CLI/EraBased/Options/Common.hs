@@ -206,22 +206,22 @@ decimal :: Parsec.Parser Integer
 Parsec.TokenParser { Parsec.decimal = decimal } = Parsec.haskell
 
 
-pStakeIdentifier :: Parser StakeIdentifier
-pStakeIdentifier = asum
-  [ StakeIdentifierVerifier <$> pStakeVerifier
-  , StakeIdentifierAddress <$> pStakeAddress
+pStakeIdentifier :: Maybe String -> Parser StakeIdentifier
+pStakeIdentifier prefix = asum
+  [ StakeIdentifierVerifier <$> pStakeVerifier prefix
+  , StakeIdentifierAddress <$> pStakeAddress prefix
   ]
 
-pStakeVerifier :: Parser StakeVerifier
-pStakeVerifier = asum
-  [ StakeVerifierKey <$> pStakeVerificationKeyOrFile Nothing
-  , StakeVerifierScriptFile <$> pScriptFor "stake-script-file" Nothing "Filepath of the staking script."
+pStakeVerifier :: Maybe String -> Parser StakeVerifier
+pStakeVerifier prefix = asum
+  [ StakeVerifierKey <$> pStakeVerificationKeyOrHashOrFile prefix
+  , StakeVerifierScriptFile <$> pScriptFor (prefixFlag prefix "stake-script-file") Nothing "Filepath of the staking script."
   ]
 
-pStakeAddress :: Parser StakeAddress
-pStakeAddress =
+pStakeAddress :: Maybe String -> Parser StakeAddress
+pStakeAddress prefix =
   Opt.option (readerFromParsecParser parseStakeAddress) $ mconcat
-    [ Opt.long "stake-address"
+    [ Opt.long $ prefixFlag prefix "stake-address"
     , Opt.metavar "ADDRESS"
     , Opt.help "Target stake address (bech32 format)."
     ]
@@ -1295,7 +1295,7 @@ pCertificateFile balanceExecUnits =
     <$> ( fmap CertificateFile $ asum
             [ Opt.strOption $ mconcat
                 [ Opt.long "certificate-file"
-                , Opt.metavar "CERTIFICATEFILE"
+                , Opt.metavar "FILE"
                 , Opt.help helpText
                 , Opt.completer (Opt.bashCompleter "file")
                 ]

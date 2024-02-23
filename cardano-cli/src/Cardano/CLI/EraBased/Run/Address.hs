@@ -24,7 +24,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.AddressCmdError
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
                    StakeVerifier (..), VerificationKeyTextOrFile, generateKeyPair,
-                   readVerificationKeyOrFile, readVerificationKeyTextOrFileAnyOf)
+                   readVerificationKeyOrHashOrFile, readVerificationKeyTextOrFileAnyOf)
 
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function
@@ -194,10 +194,10 @@ makeStakeAddressRef stakeIdentifier =
     StakeIdentifierVerifier stakeVerifier ->
       case stakeVerifier of
         StakeVerifierKey stkVkeyOrFile -> do
-          stakeVKey <- firstExceptT AddressCmdReadKeyFileError $
-            newExceptT $ readVerificationKeyOrFile AsStakeKey stkVkeyOrFile
+          stakeVKeyHash <- firstExceptT AddressCmdReadKeyFileError $
+            newExceptT $ readVerificationKeyOrHashOrFile AsStakeKey stkVkeyOrFile
 
-          return . StakeAddressByValue . StakeCredentialByKey . verificationKeyHash $ stakeVKey
+          return . StakeAddressByValue $ StakeCredentialByKey stakeVKeyHash
 
         StakeVerifierScriptFile (ScriptFile fp) -> do
           ScriptInAnyLang _lang script <-

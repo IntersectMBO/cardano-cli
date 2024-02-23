@@ -141,7 +141,7 @@ pAddressCmds envCli =
     pAddressBuild :: Parser LegacyAddressCmds
     pAddressBuild = AddressBuild
       <$> pPaymentVerifier
-      <*> Opt.optional pStakeIdentifier
+      <*> Opt.optional (pStakeIdentifier Nothing)
       <*> pNetworkId envCli
       <*> pMaybeOutputFile
 
@@ -187,7 +187,7 @@ pStakeAddressCmds envCli =
     pStakeAddressBuildCmd :: Parser LegacyStakeAddressCmds
     pStakeAddressBuildCmd =
       StakeAddressBuildCmd
-        <$> pStakeVerifier
+        <$> pStakeVerifier Nothing
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
 
@@ -195,7 +195,7 @@ pStakeAddressCmds envCli =
     pStakeAddressRegistrationCertificateCmd =
       StakeAddressRegistrationCertificateCmd
         <$> pAnyShelleyBasedEra envCli
-        <*> pStakeIdentifier
+        <*> pStakeIdentifier Nothing
         <*> optional pKeyRegistDeposit
         <*> pOutputFile
 
@@ -203,7 +203,7 @@ pStakeAddressCmds envCli =
     pStakeAddressDeregistrationCertificateCmd =
       StakeAddressDeregistrationCertificateCmd
         <$> pAnyShelleyBasedEra envCli
-        <*> pStakeIdentifier
+        <*> pStakeIdentifier Nothing
         <*> optional pKeyRegistDeposit
         <*> pOutputFile
 
@@ -211,7 +211,7 @@ pStakeAddressCmds envCli =
     pStakeAddressStakeDelegationCertificateCmd =
       StakeAddressDelegationCertificateCmd
         <$> pAnyShelleyBasedEra envCli
-        <*> pStakeIdentifier
+        <*> pStakeIdentifier Nothing
         <*> pStakePoolVerificationKeyOrHashOrFile Nothing
         <*> pOutputFile
 
@@ -830,7 +830,7 @@ pGovernanceCmds envCli =
       GovernanceCreateMirCertificateStakeAddressesCmd
         <$> pAnyShelleyToBabbageEra envCli
         <*> pMIRPot
-        <*> some pStakeAddress
+        <*> some (pStakeAddress Nothing)
         <*> some pRewardAmt
         <*> pOutputFile
 
