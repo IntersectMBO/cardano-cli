@@ -17,7 +17,7 @@ module Cardano.CLI.Helpers
   ) where
 
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Pretty
+import           Cardano.CLI.Pretty (Doc, pretty, pshow)
 
 import           Cardano.Chain.Block (decCBORABlockOrBoundary)
 import qualified Cardano.Chain.Delegation as Delegation

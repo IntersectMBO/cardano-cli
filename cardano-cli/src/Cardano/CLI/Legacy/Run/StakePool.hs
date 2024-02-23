@@ -17,8 +17,6 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile)
 
-import           Control.Monad.Trans.Except (ExceptT)
-
 runLegacyStakePoolCmds :: ()
   => LegacyStakePoolCmds
   -> ExceptT StakePoolCmdError IO ()

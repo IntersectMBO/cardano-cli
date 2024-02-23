@@ -17,10 +17,6 @@ import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
 
-import           Control.Monad.Except (ExceptT)
-import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad.Trans (lift)
-import           Control.Monad.Trans.Except.Extra
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function

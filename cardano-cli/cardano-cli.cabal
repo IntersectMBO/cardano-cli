@@ -270,7 +270,6 @@ library cardano-cli-test-lib
                       , hedgehog-extras ^>= 0.6.1.0
                       , process
                       , text
-                      , transformers
 
 test-suite cardano-cli-test
   import:               project-config
@@ -296,7 +295,6 @@ test-suite cardano-cli-test
                       , tasty-hedgehog
                       , text
                       , time
-                      , transformers
 
   build-tool-depends:   tasty-discover:tasty-discover
 

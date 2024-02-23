@@ -28,7 +28,6 @@ import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
 import           Cardano.Api.Byron (Address (..), ByronProtocolParametersUpdate (..),
                    toByronLovelace)
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley (ReferenceScript (ReferenceScriptNone))
 
 import           Cardano.Chain.Common (BlockCount (..), TxFeePolicy (..), TxSizeLinear (..),

@@ -24,8 +24,6 @@ import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceHashError
 import           Cardano.Crypto.Hash (hashToTextAsHex)
 
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import qualified Data.ByteString as BS
 import           Data.Function
 import qualified Data.Text.Encoding as Text

@@ -100,7 +100,6 @@ module Cardano.CLI.Read
 
 import           Cardano.Api as Api
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley as Api
 
 import qualified Cardano.Binary as CBOR
@@ -116,10 +115,6 @@ import           Prelude
 
 import           Control.Exception (bracket, displayException)
 import           Control.Monad (forM, unless, when)
-import           Control.Monad.IO.Class
-import           Control.Monad.Trans (MonadTrans (..))
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
 import           Data.ByteString (ByteString)

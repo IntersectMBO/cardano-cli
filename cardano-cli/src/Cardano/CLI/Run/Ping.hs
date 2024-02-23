@@ -11,7 +11,7 @@ module Cardano.CLI.Run.Ping
   , parsePingCmd
   ) where
 
-import           Cardano.Api.Pretty
+import           Cardano.CLI.Pretty
 
 import qualified Cardano.Network.Ping as CNP
 
@@ -21,7 +21,6 @@ import qualified Control.Concurrent.Class.MonadSTM.Strict as STM
 import           Control.Exception (SomeException)
 import           Control.Monad (forM, unless)
 import           Control.Monad.Class.MonadAsync (MonadAsync (async, wait, waitCatch))
-import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (left)
 import           Control.Tracer (Tracer (..))

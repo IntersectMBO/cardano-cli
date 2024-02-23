@@ -41,7 +41,6 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
 import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Pretty
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
@@ -68,11 +67,6 @@ import           Ouroboros.Network.Block (Serialised (..))
 import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Control.Monad (forM, forM_, join)
-import           Control.Monad.IO.Class (MonadIO)
-import           Control.Monad.IO.Unlift (MonadIO (..))
-import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson as Aeson
 import qualified Data.Aeson as A
 import           Data.Aeson.Encode.Pretty (encodePretty)

@@ -17,16 +17,12 @@ module Cardano.CLI.Byron.Key
 where
 
 import           Cardano.Api.Byron
-import           Cardano.Api.Pretty
 
 import qualified Cardano.Chain.Common as Common
 import           Cardano.CLI.Types.Common
 import qualified Cardano.Crypto.Signing as Crypto
 
 import           Control.Exception (Exception (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
-                   right)
 import qualified Data.ByteString as SB
 import qualified Data.ByteString.UTF8 as UTF8
 import           Data.String (IsString, fromString)

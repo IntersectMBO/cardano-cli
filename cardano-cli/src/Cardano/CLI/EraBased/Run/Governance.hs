@@ -31,8 +31,6 @@ import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 
 import           Control.Monad
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 import qualified Data.Map.Strict as Map
 

@@ -21,8 +21,6 @@ import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GenesisCmdError
 
-import           Control.Monad.Trans.Except (ExceptT)
-
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCmds = \case
   GenesisKeyGenGenesis vk sk ->

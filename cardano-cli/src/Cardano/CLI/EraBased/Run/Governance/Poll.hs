@@ -19,10 +19,6 @@ import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 
 import           Control.Monad
-import           Control.Monad.IO.Class
-import           Control.Monad.Trans.Class (lift)
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra
 import qualified Data.ByteString.Char8 as BSC
 import           Data.Function ((&))
 import           Data.String (fromString)

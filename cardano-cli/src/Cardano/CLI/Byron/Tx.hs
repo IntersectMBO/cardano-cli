@@ -28,7 +28,6 @@ where
 import           Cardano.Api
 import           Cardano.Api.Byron
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Pretty
 
 import qualified Cardano.Binary as Binary
 import qualified Cardano.Chain.Common as Common
@@ -42,9 +41,6 @@ import qualified Ouroboros.Consensus.Byron.Ledger as Byron
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (left)
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as B

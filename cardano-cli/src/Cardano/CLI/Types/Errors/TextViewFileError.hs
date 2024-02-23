@@ -10,8 +10,6 @@ import           Cardano.Api
 
 import           Cardano.CLI.Helpers (HelpersError, renderHelpersError)
 
-import           Prettyprinter
-
 data TextViewFileError
   = TextViewReadFileError (FileError TextEnvelopeError)
   | TextViewCBORPrettyPrintError !HelpersError

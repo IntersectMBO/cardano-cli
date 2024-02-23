@@ -48,9 +48,6 @@ import qualified Cardano.Crypto.Wallet as Crypto
 
 import qualified Codec.Binary.Bech32 as Bech32
 import qualified Control.Exception as Exception
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, left, newExceptT)
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
