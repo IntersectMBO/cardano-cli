@@ -1,5 +1,38 @@
 # Changelog for cardano-cli
 
+## 8.20.2.0
+
+- Enable deposit return script addresses
+  Enable constitutional scripts
+  Bump to cardano-api-8.39.1.0
+  (feature, compatible, bugfix)
+  [PR 609](https://github.com/IntersectMBO/cardano-cli/pull/609)
+
+- Add missing newlines to `cardano-cli query utxo` text output.
+  (bugfix)
+  [PR 620](https://github.com/IntersectMBO/cardano-cli/pull/620)
+
+- Update [cardano-api-8.39.0.0](https://github.com/IntersectMBO/cardano-api/blob/main/cardano-api/CHANGELOG.md#83900).
+  Removed direct imports from `Cardano.Ledger`.
+  (improvement)
+  [PR 558](https://github.com/IntersectMBO/cardano-cli/pull/558)
+
+- query stake-pools, add --output-[json,text] flag to control format of the output
+  (feature, compatible)
+  [PR 617](https://github.com/IntersectMBO/cardano-cli/pull/617)
+
+- Upgrade hedgehog-extras to 0.6.1.0
+  (breaking, maintenance)
+  [PR 613](https://github.com/IntersectMBO/cardano-cli/pull/613)
+
+- query utxo: add --output-[json,text] flag to control format of the output. Previous behavior is preserved (write text to stdout, write json to file)
+  (feature, compatible)
+  [PR 611](https://github.com/IntersectMBO/cardano-cli/pull/611)
+
+- Fixed git revision showed by --version flag when built using nix
+  (bugfix)
+  [PR 610](https://github.com/IntersectMBO/cardano-cli/pull/610)
+
 ## 8.20.1.0
 
 - Fix `create-testnet-data` creating negative supply
