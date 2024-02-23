@@ -214,7 +214,7 @@ pStakeIdentifier prefix = asum
 
 pStakeVerifier :: Maybe String -> Parser StakeVerifier
 pStakeVerifier prefix = asum
-  [ StakeVerifierKey <$> pStakeVerificationKeyOrFile prefix
+  [ StakeVerifierKey <$> pStakeVerificationKeyOrHashOrFile prefix
   , StakeVerifierScriptFile <$> pScriptFor (prefixFlag prefix "stake-script-file") Nothing "Filepath of the staking script."
   ]
 

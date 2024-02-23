@@ -1040,10 +1040,10 @@ getStakeCredentialFromVerifier = \case
     pure $ StakeCredentialByScript $ hashScript script
 
   StakeVerifierKey stakeVerKeyOrFile -> do
-    stakeVerKey <-
-      ExceptT (readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile)
+    stakeVerKeyHash <-
+      ExceptT (readVerificationKeyOrHashOrFile AsStakeKey stakeVerKeyOrFile)
         & firstExceptT StakeCredentialInputDecodeError
-    pure $ StakeCredentialByKey $ verificationKeyHash stakeVerKey
+    pure $ StakeCredentialByKey stakeVerKeyHash
 
 getStakeCredentialFromIdentifier :: ()
   => StakeIdentifier

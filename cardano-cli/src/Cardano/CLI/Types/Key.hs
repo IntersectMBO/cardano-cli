@@ -121,7 +121,7 @@ data PaymentVerifier
   deriving (Eq, Show)
 
 data StakeVerifier
-  = StakeVerifierKey (VerificationKeyOrFile StakeKey)
+  = StakeVerifierKey (VerificationKeyOrHashOrFile StakeKey)
   | StakeVerifierScriptFile ScriptFile
   deriving (Eq, Show)
 
