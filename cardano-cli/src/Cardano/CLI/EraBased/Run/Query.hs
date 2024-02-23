@@ -1018,8 +1018,7 @@ writeFilteredUTxOs sbe format mOutFile utxo =
 filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
 filteredUTxOsToText sbe (UTxO utxo) = do
   mconcat
-    [ title
-    , Text.replicate (Text.length title + 2) "-"
+    [ Text.unlines [title, Text.replicate (Text.length title + 2) "-"]
     , Text.unlines $ case sbe of
         ShelleyBasedEraShelley ->
           map (utxoToText sbe) $ Map.toList utxo
