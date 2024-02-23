@@ -4,7 +4,6 @@ module Cardano.CLI.Types.Errors.GovernanceHashError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import           Cardano.CLI.Read (ScriptDecodeError)
 import           Cardano.Prelude (Exception (displayException), IOException)

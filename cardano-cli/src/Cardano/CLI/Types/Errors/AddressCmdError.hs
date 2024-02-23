@@ -17,8 +17,6 @@ import           Cardano.CLI.Types.Errors.AddressInfoError
 import           Cardano.CLI.Types.Key (VerificationKeyTextOrFileError (..),
                    renderVerificationKeyTextOrFileError)
 
-import           Prettyprinter
-
 data AddressCmdError
   = AddressCmdAddressInfoError !AddressInfoError
   | AddressCmdReadKeyFileError !(FileError InputDecodeError)

@@ -15,7 +15,7 @@ module Cardano.CLI.EraBased.Run.StakePool
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.StakePool
@@ -24,11 +24,6 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key (readVerificationKeyOrFile)
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans (lift)
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither, left,
-                   newExceptT, onLeft)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 
@@ -124,7 +119,7 @@ runStakePoolRegistrationCertificateCmd
 
 createStakePoolRegistrationRequirements :: ()
   => ShelleyBasedEra era
-  -> Ledger.PoolParams (Ledger.EraCrypto (ShelleyLedgerEra era))
+  -> L.PoolParams (L.EraCrypto (ShelleyLedgerEra era))
   -> StakePoolRegistrationRequirements era
 createStakePoolRegistrationRequirements sbe pparams =
  case sbe of
@@ -173,7 +168,7 @@ runStakePoolDeregistrationCertificateCmd
 createStakePoolRetirementRequirements :: ()
   => ShelleyBasedEra era
   -> PoolId
-  -> Ledger.EpochNo
+  -> L.EpochNo
   -> StakePoolRetirementRequirements era
 createStakePoolRetirementRequirements sbe pid epoch =
   case sbe of

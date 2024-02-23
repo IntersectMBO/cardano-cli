@@ -11,7 +11,7 @@ module Cardano.CLI.EraBased.Run.Governance.Vote
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Vote as Cmd
@@ -22,8 +22,6 @@ import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import           Data.Aeson.Encode.Pretty
 import           Data.Function
 import qualified Data.Yaml.Pretty as Yaml
@@ -56,24 +54,24 @@ runGovernanceVoteCreateCmd
   voteProcedure <- case mAnchor of
      Nothing -> pure $ createVotingProcedure eon voteChoice Nothing
      Just (VoteUrl url, voteHash) -> shelleyBasedEraConstraints sbe $ do
-       let voteAnchor = Ledger.Anchor { Ledger.anchorUrl = url, Ledger.anchorDataHash = voteHash }
+       let voteAnchor = L.Anchor { L.anchorUrl = url, L.anchorDataHash = voteHash }
            VotingProcedure votingProcedureWithoutAnchor = createVotingProcedure eon voteChoice Nothing
-           votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor { Ledger.vProcAnchor = Ledger.SJust voteAnchor }
+           votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor { L.vProcAnchor = L.SJust voteAnchor }
        pure votingProcedureWithAnchor
 
   shelleyBasedEraConstraints sbe $ do
     voter <- firstExceptT  GovernanceVoteCmdReadVerificationKeyError $ case votingStakeCredentialSource of
       AnyDRepVerificationKeyOrHashOrFile stake -> do
         DRepKeyHash h <- newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey stake
-        pure $ Ledger.DRepVoter $ Ledger.KeyHashObj h
+        pure $ L.DRepVoter $ L.KeyHashObj h
 
       AnyStakePoolVerificationKeyOrHashOrFile stake -> do
         StakePoolKeyHash h <- newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
-        pure $ Ledger.StakePoolVoter h
+        pure $ L.StakePoolVoter h
 
       AnyCommitteeHotVerificationKeyOrHashOrFile stake -> do
         CommitteeHotKeyHash h <-  newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey stake
-        pure $ Ledger.CommitteeVoter $ Ledger.KeyHashObj h
+        pure $ L.CommitteeVoter $ L.KeyHashObj h
 
     let govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
         votingProcedures = singletonVotingProcedures eon voter govActIdentifier (unVotingProcedure voteProcedure)

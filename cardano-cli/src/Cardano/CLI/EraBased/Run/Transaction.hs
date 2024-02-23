@@ -34,7 +34,7 @@ module Cardano.CLI.EraBased.Run.Transaction
 
 import           Cardano.Api
 import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
@@ -48,16 +48,10 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
-import qualified Cardano.Ledger.Alonzo.Core as Ledger
 import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 import           Control.Monad (forM)
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans (MonadTrans (..))
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, hoistMaybe, left,
-                   newExceptT, onLeft, onNothing)
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Char8 as BS
@@ -248,11 +242,11 @@ runTransactionBuildCmd
       in  lift (cardanoEraConstraints era $ writeTxFileTextEnvelopeCddl eon fpath noWitTx)
             & onLeft (left . TxCmdWriteFileError)
 
-getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe Ledger.Prices
+getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
 getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
   forEraInEonMaybe cEra $ \aeo ->
     alonzoEraOnwardsConstraints aeo $
-      pp ^. Ledger.ppPricesL
+      pp ^. L.ppPricesL
 
 runTransactionBuildRawCmd :: ()
   => Cmd.TransactionBuildRawCmdArgs era
@@ -297,7 +291,7 @@ runTransactionBuildRawCmd
                      mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
   txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
 
-  -- TODO: Conway era - update readProtocolParameters to rely on Ledger.PParams JSON instances
+  -- TODO: Conway era - update readProtocolParameters to rely on L.PParams JSON instances
   pparams <- forM mProtocolParamsFile $ \ppf ->
     firstExceptT TxCmdProtocolParamsError (readProtocolParameters ppf)
 
@@ -715,8 +709,8 @@ toAddressInShelleyBasedEra sbe sAddr = runExcept $
       pure (AddressInEra (ShelleyAddressInEra sbe) sAddr)
 
 
-lovelaceToCoin :: Lovelace -> Ledger.Coin
-lovelaceToCoin (Lovelace ll) = Ledger.Coin ll
+lovelaceToCoin :: Lovelace -> L.Coin
+lovelaceToCoin (Lovelace ll) = L.Coin ll
 
 toTxOutValueInAnyEra
   :: ShelleyBasedEra era

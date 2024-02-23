@@ -13,9 +13,6 @@ import           Cardano.CLI.EraBased.Commands.TextView
 import           Cardano.CLI.Helpers (pPrintCBOR)
 import           Cardano.CLI.Types.Errors.TextViewFileError
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, newExceptT)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 
 runTextViewCmds :: TextViewCmds era -> ExceptT TextViewFileError IO ()

@@ -6,7 +6,6 @@ module Cardano.CLI.Types.Errors.GenesisCmdError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import           Cardano.CLI.Byron.Genesis as Byron
 import           Cardano.CLI.Types.Common

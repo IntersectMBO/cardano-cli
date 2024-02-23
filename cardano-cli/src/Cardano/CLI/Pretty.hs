@@ -1,15 +1,38 @@
 module Cardano.CLI.Pretty
-  ( module Pretty
-  , putLn
+  ( putLn
   , hPutLn
+
+  -- Re-exported functions from Cardano.Api related to pretty-printing
+  , black
+  , blue
+  , cyan
+  , docToLazyText
+  , docToString
+  , docToText
+  , green
+  , magenta
+  , prettyException
+  , pshow
+  , red
+  , white
+  , yellow
+  , (<+>)
+  , hsep
+  , vsep
+  , MonadIO(..)
+  , Ann
+  , ShowOf(..)
+  , Doc
+  , Pretty(..)
+
   ) where
 
-import           Cardano.Api.Pretty
-import qualified Cardano.Api.Pretty as Pretty
-
+import Cardano.Api (black, blue, cyan, docToLazyText, docToString,
+                    docToText, green, magenta, prettyException, pshow,
+                    red, white, yellow, (<+>), hsep, vsep, MonadIO(..),
+                    Ann, ShowOf(..), Doc, Pretty(..))
 import qualified Control.Concurrent.QSem as IO
 import           Control.Exception (bracket_)
-import           Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Text.Lazy.IO as TextLazy
 import           Prettyprinter.Render.Terminal
 import qualified System.IO as IO

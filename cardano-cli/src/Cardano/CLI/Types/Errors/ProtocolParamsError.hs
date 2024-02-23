@@ -10,7 +10,6 @@ module Cardano.CLI.Types.Errors.ProtocolParamsError
   ) where
 
 import           Cardano.Api
-import           Cardano.Api.Pretty
 
 import           Data.Text (Text)
 

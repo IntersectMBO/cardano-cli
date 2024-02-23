@@ -14,6 +14,7 @@ module Cardano.CLI.EraBased.Run.Governance.Hash
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Hash as Cmd
 import           Cardano.CLI.Read
@@ -22,13 +23,7 @@ import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceHashError
 import           Cardano.Crypto.Hash (hashToTextAsHex)
-import qualified Cardano.Ledger.BaseTypes as Ledger
-import           Cardano.Ledger.Crypto
-import           Cardano.Ledger.SafeHash (extractHash)
-import qualified Cardano.Ledger.SafeHash as Ledger
 
-import           Control.Monad.Trans.Except
-import           Control.Monad.Trans.Except.Extra
 import qualified Data.ByteString as BS
 import           Data.Function
 import qualified Data.Text.Encoding as Text
@@ -55,23 +50,23 @@ runGovernanceHashAnchorDataCmd Cmd.GovernanceHashAnchorDataCmdArgs { toHash, mou
     Cmd.GovernanceAnchorDataHashSourceBinaryFile fp -> do
       let path = unFile fp
       bytes <- handleIOExceptT (GovernanceHashReadFileError path) $ BS.readFile path
-      let hash = Ledger.hashAnchorData $ Ledger.AnchorData bytes
+      let hash = L.hashAnchorData $ L.AnchorData bytes
       printHash hash
     Cmd.GovernanceAnchorDataHashSourceTextFile fp -> do
       let path = unFile fp
       text <- handleIOExceptT (GovernanceHashReadFileError path) $ Text.readFile path
-      let hash = Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 text
+      let hash = L.hashAnchorData $ L.AnchorData $ Text.encodeUtf8 text
       printHash hash
     Cmd.GovernanceAnchorDataHashSourceText text -> do
-      let hash = Ledger.hashAnchorData $ Ledger.AnchorData $ Text.encodeUtf8 text
+      let hash = L.hashAnchorData $ L.AnchorData $ Text.encodeUtf8 text
       printHash hash
   where
-    printHash :: Ledger.SafeHash StandardCrypto i -> ExceptT GovernanceHashError IO ()
+    printHash :: L.SafeHash L.StandardCrypto i -> ExceptT GovernanceHashError IO ()
     printHash hash = do
       firstExceptT GovernanceHashWriteFileError $
         newExceptT $ writeTextOutput moutFile text
       where
-        text = hashToTextAsHex . extractHash $ hash
+        text = hashToTextAsHex . L.extractHash $ hash
 
 runGovernanceHashScriptCmd :: ()
   => Cmd.GovernanceHashScriptCmdArgs era

@@ -16,7 +16,7 @@ module Cardano.CLI.EraBased.Commands.Governance.DRep
 where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
@@ -52,7 +52,7 @@ data GovernanceDRepRegistrationCertificateCmdArgs era =
     { eon                 :: !(ConwayEraOnwards era)
     , drepHashSource      :: !DRepHashSource
     , deposit             :: !Lovelace
-    , mAnchor             :: !(Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era))))
+    , mAnchor             :: !(Maybe (L.Anchor (L.EraCrypto (ShelleyLedgerEra era))))
     , outFile             :: !(File () Out)
     }
 
@@ -68,7 +68,7 @@ data GovernanceDRepUpdateCertificateCmdArgs era =
   GovernanceDRepUpdateCertificateCmdArgs
     { eon                 :: !(ConwayEraOnwards era)
     , drepVkeyHashSource  :: !(VerificationKeyOrHashOrFile DRepKey)
-    , mAnchor             :: !(Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era))))
+    , mAnchor             :: !(Maybe (L.Anchor (L.EraCrypto (ShelleyLedgerEra era))))
     , outFile             :: !(File () Out)
     }
 

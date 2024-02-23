@@ -26,9 +26,6 @@ import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (.
                    StakeVerifier (..), VerificationKeyTextOrFile, generateKeyPair,
                    readVerificationKeyOrFile, readVerificationKeyTextOrFileAnyOf)
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, left, newExceptT)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function
 import qualified Data.Text.IO as Text

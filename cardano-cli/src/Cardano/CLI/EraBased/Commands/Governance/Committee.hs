@@ -13,7 +13,7 @@ module Cardano.CLI.EraBased.Commands.Governance.Committee
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Key
@@ -61,7 +61,7 @@ data GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era =
   GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
     { eon               :: !(ConwayEraOnwards era)
     , vkeyColdKeySource :: !(VerificationKeyOrHashOrFile CommitteeColdKey)
-    , anchor            :: !(Maybe (Ledger.Anchor (Ledger.EraCrypto (ShelleyLedgerEra era))))
+    , anchor            :: !(Maybe (L.Anchor (L.EraCrypto (ShelleyLedgerEra era))))
     , outFile           :: !(File () Out)
     } deriving Show
 

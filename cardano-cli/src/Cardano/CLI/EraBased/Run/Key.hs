@@ -31,6 +31,7 @@ module Cardano.CLI.EraBased.Run.Key
 import           Cardano.Api
 import qualified Cardano.Api.Byron as ByronApi
 import           Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
+import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.CLI.Byron.Key as Byron
 import qualified Cardano.CLI.EraBased.Commands.Key as Cmd
@@ -44,13 +45,9 @@ import qualified Cardano.Crypto.Signing as Byron
 import qualified Cardano.Crypto.Signing as Byron.Crypto
 import qualified Cardano.Crypto.Signing as Crypto
 import qualified Cardano.Crypto.Wallet as Crypto
-import qualified Cardano.Ledger.Keys as Shelley
 
 import qualified Codec.Binary.Bech32 as Bech32
 import qualified Control.Exception as Exception
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, left, newExceptT)
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
@@ -392,7 +389,7 @@ convertITNVerificationKey :: Text -> Either ItnKeyConversionError (VerificationK
 convertITNVerificationKey pubKey = do
   (_, _, keyBS) <- first ItnKeyBech32DecodeError (decodeBech32 pubKey)
   case DSIGN.rawDeserialiseVerKeyDSIGN keyBS of
-    Just verKey -> Right . StakeVerificationKey $ Shelley.VKey verKey
+    Just verKey -> Right . StakeVerificationKey $ L.VKey verKey
     Nothing -> Left $ ItnVerificationKeyDeserialisationError keyBS
 
 -- | Convert private ed22519 key to a Shelley signing key.

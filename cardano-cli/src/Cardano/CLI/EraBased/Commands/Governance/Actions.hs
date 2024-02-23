@@ -22,15 +22,11 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
-import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
-import qualified Cardano.Ledger.BaseTypes as Ledger
-import qualified Cardano.Ledger.Crypto as Crypto
-import qualified Cardano.Ledger.SafeHash as Ledger
 
 import           Data.Text (Text)
 import           Data.Word
@@ -48,11 +44,11 @@ data GovernanceActionCmds era
 data GoveranceActionUpdateCommitteeCmdArgs era
   = GoveranceActionUpdateCommitteeCmdArgs
       { eon                     :: !(ConwayEraOnwards era)
-      , networkId               :: !Ledger.Network
+      , networkId               :: !L.Network
       , deposit                 :: !Lovelace
       , returnAddress           :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl             :: !ProposalUrl
-      , proposalHash            :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
+      , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
       , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
       , requiredQuorum          :: !Rational
@@ -63,14 +59,14 @@ data GoveranceActionUpdateCommitteeCmdArgs era
 data GovernanceActionCreateConstitutionCmdArgs era
   = GovernanceActionCreateConstitutionCmdArgs
       { eon                     :: !(ConwayEraOnwards era)
-      , networkId               :: !Ledger.Network
+      , networkId               :: !L.Network
       , deposit                 :: !Lovelace
       , stakeCredential         :: !(VerificationKeyOrHashOrFile StakeKey)
       , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
       , proposalUrl             :: !ProposalUrl
-      , proposalHash            :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
+      , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , constitutionUrl         :: !ConstitutionUrl
-      , constitutionHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
+      , constitutionHash        :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , outFile                 :: !(File () Out)
       } deriving Show
 
@@ -78,22 +74,22 @@ data GovernanceActionCreateConstitutionCmdArgs era
 data GovernanceActionInfoCmdArgs era
    = GovernanceActionInfoCmdArgs
       { eon                 :: !(ConwayEraOnwards era)
-      , networkId           :: !Ledger.Network
+      , networkId           :: !L.Network
       , deposit             :: !Lovelace
       , returnStakeAddress  :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
-      , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
+      , proposalHash        :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , outFile             :: !(File () Out)
       } deriving Show
 
 data GovernanceActionCreateNoConfidenceCmdArgs era
   = GovernanceActionCreateNoConfidenceCmdArgs
       { eon                   :: !(ConwayEraOnwards era)
-      , networkId             :: !Ledger.Network
+      , networkId             :: !L.Network
       , deposit               :: !Lovelace
       , returnStakeAddress    :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl           :: !ProposalUrl
-      , proposalHash          :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
+      , proposalHash          :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , governanceActionId    :: !TxId
       , governanceActionIndex :: !Word32
       , outFile               :: !(File () Out)
@@ -119,11 +115,11 @@ data GovernanceActionProtocolParametersUpdateCmdArgs era
 data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
       { eon                    :: !(ConwayEraOnwards era)
-      , networkId              :: !Ledger.Network
+      , networkId              :: !L.Network
       , deposit                :: !Lovelace
       , returnAddr             :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl            :: !ProposalUrl
-      , proposalHash           :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
+      , proposalHash           :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , treasuryWithdrawal     :: ![(VerificationKeyOrHashOrFile StakeKey, Lovelace)]
       , constitutionScriptHash :: !(Maybe ScriptHash)
       , outFile                :: !(File () Out)
@@ -140,11 +136,11 @@ data GovernanceActionViewCmdArgs era
 data UpdateProtocolParametersConwayOnwards era
   = UpdateProtocolParametersConwayOnwards
       { eon                 :: !(ConwayEraOnwards era)
-      , networkId           :: !Ledger.Network
+      , networkId           :: !L.Network
       , deposit             :: !Lovelace
       , returnAddr          :: !(VerificationKeyOrHashOrFile StakeKey)
       , proposalUrl         :: !ProposalUrl
-      , proposalHash        :: !(Ledger.SafeHash Crypto.StandardCrypto Ledger.AnchorData)
+      , proposalHash        :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , governanceActionId  :: !(Maybe (TxId, Word32))
       , constitutionScriptHash :: !(Maybe ScriptHash)
       }
@@ -152,7 +148,7 @@ data UpdateProtocolParametersConwayOnwards era
 data CostModelsFile era
   = CostModelsFile
       { eon :: !(AlonzoEraOnwards era)
-      , costModelsFile :: !(File Alonzo.CostModels In)
+      , costModelsFile :: !(File L.CostModels In)
       } deriving Show
 
 deriving instance Show (UpdateProtocolParametersConwayOnwards era)

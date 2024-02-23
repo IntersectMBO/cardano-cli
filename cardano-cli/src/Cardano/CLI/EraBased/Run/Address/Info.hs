@@ -9,9 +9,6 @@ import           Cardano.Api
 
 import           Cardano.CLI.Types.Errors.AddressInfoError
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (left)
 import           Data.Aeson (ToJSON (..), object, (.=))
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.ByteString.Lazy.Char8 as LBS

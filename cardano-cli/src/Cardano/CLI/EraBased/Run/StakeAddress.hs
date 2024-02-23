@@ -19,7 +19,7 @@ module Cardano.CLI.EraBased.Run.StakeAddress
   ) where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.StakeAddress
@@ -31,11 +31,6 @@ import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans (lift)
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, hoistEither, left, newExceptT,
-                   onLeft)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 import qualified Data.Text.IO as Text
@@ -219,11 +214,11 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHa
       readVoteDelegationTarget voteDelegationTarget
         & firstExceptT StakeAddressCmdDelegationError
 
-    let delegatee = Ledger.DelegStakeVote poolStakeVKeyHash drep
+    let delegatee = L.DelegStakeVote poolStakeVKeyHash drep
 
     let certificate =
           ConwayCertificate w
-            $ Ledger.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+            $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
 
     firstExceptT StakeAddressCmdWriteFileError
       . newExceptT
@@ -248,11 +243,11 @@ runStakeAddressVoteDelegationCertificateCmd w stakeVerifier voteDelegationTarget
       readVoteDelegationTarget voteDelegationTarget
         & firstExceptT StakeAddressCmdDelegationError
 
-    let delegatee = Ledger.DelegVote drep
+    let delegatee = L.DelegVote drep
 
     let certificate =
           ConwayCertificate w
-            $ Ledger.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+            $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
 
     firstExceptT StakeAddressCmdWriteFileError
       . newExceptT
@@ -269,11 +264,11 @@ createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKey
     (\w ->
       shelleyToBabbageEraConstraints w
         $ ShelleyRelatedCertificate w
-        $ Ledger.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) poolStakeVKeyHash)
+        $ L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) poolStakeVKeyHash)
     (\w ->
       conwayEraOnwardsConstraints w
         $ ConwayCertificate w
-        $ Ledger.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (Ledger.DelegStake poolStakeVKeyHash)
+        $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
     )
 
 runStakeAddressDeregistrationCertificateCmd :: ()

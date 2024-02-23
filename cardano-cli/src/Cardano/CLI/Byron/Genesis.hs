@@ -15,7 +15,7 @@ where
 import           Cardano.Api (Key (..), NetworkId, writeSecrets)
 import           Cardano.Api.Byron (ByronKey, SerialiseAsRawBytes (..), SigningKey (..),
                    toByronRequiresNetworkMagic)
-import           Cardano.Api.Pretty
+import           Cardano.CLI.Pretty
 
 import qualified Cardano.Chain.Common as Common
 import           Cardano.Chain.Delegation hiding (Map, epoch)
@@ -28,7 +28,6 @@ import           Cardano.CLI.Types.Common (GenesisFile (..))
 import qualified Cardano.Crypto as Crypto
 import           Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 
-import           Control.Monad.IO.Class (MonadIO (..))
 import           Control.Monad.Trans (MonadTrans (..))
 import           Control.Monad.Trans.Except (ExceptT (..), withExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, left, right)

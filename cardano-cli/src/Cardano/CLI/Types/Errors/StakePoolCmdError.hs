@@ -10,8 +10,6 @@ module Cardano.CLI.Types.Errors.StakePoolCmdError
 
 import           Cardano.Api
 
-import           Prettyprinter
-
 data StakePoolCmdError
   = StakePoolCmdReadFileError !(FileError TextEnvelopeError)
   | StakePoolCmdReadKeyFileError !(FileError InputDecodeError)

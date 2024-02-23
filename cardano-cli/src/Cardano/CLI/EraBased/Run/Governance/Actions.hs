@@ -13,7 +13,7 @@ module Cardano.CLI.EraBased.Run.Governance.Actions
 
 import           Cardano.Api
 import           Cardano.Api.Ledger (StrictMaybe (..))
-import qualified Cardano.Api.Ledger as Ledger
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
@@ -23,12 +23,8 @@ import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
-import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
 
 import           Control.Monad
-import           Control.Monad.Except (ExceptT)
-import           Control.Monad.Trans (MonadTrans (..))
-import           Control.Monad.Trans.Except.Extra
 import           Data.Function
 import qualified Data.Map.Strict as Map
 
@@ -93,9 +89,9 @@ runGovernanceActionInfoCmd
       } = do
   returnKeyHash <- readStakeKeyHash returnStakeAddress
 
-  let proposalAnchor = Ledger.Anchor
-        { Ledger.anchorUrl = unProposalUrl proposalUrl
-        , Ledger.anchorDataHash = proposalHash
+  let proposalAnchor = L.Anchor
+        { L.anchorUrl = unProposalUrl proposalUrl
+        , L.anchorDataHash = proposalHash
         }
 
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
@@ -124,14 +120,14 @@ runGovernanceActionCreateNoConfidenceCmd
       } = do
   returnKeyHash <- readStakeKeyHash returnStakeAddress
 
-  let proposalAnchor = Ledger.Anchor
-        { Ledger.anchorUrl = unProposalUrl proposalUrl
-        , Ledger.anchorDataHash = proposalHash
+  let proposalAnchor = L.Anchor
+        { L.anchorUrl = unProposalUrl proposalUrl
+        , L.anchorDataHash = proposalHash
         }
 
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
       previousGovernanceAction = MotionOfNoConfidence
-                                   $ Ledger.SJust
+                                   $ L.SJust
                                    $ shelleyBasedEraConstraints sbe
                                    $ createPreviousGovernanceActionId
                                        governanceActionId
@@ -162,17 +158,17 @@ runGovernanceActionCreateConstitutionCmd
 
   stakeKeyHash <- readStakeKeyHash stakeCredential
 
-  let proposalAnchor = Ledger.Anchor
-        { Ledger.anchorUrl = unProposalUrl proposalUrl
-        , Ledger.anchorDataHash = proposalHash
+  let proposalAnchor = L.Anchor
+        { L.anchorUrl = unProposalUrl proposalUrl
+        , L.anchorDataHash = proposalHash
         }
 
-  let prevGovActId = Ledger.maybeToStrictMaybe
+  let prevGovActId = L.maybeToStrictMaybe
                        $ shelleyBasedEraConstraints sbe
                        $ uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
-      constitutionAnchor = Ledger.Anchor
-        { Ledger.anchorUrl = unConstitutionUrl constitutionUrl
-        , Ledger.anchorDataHash = constitutionHash
+      constitutionAnchor = L.Anchor
+        { L.anchorUrl = unConstitutionUrl constitutionUrl
+        , L.anchorDataHash = constitutionHash
         }
       govAct = ProposeNewConstitution prevGovActId constitutionAnchor
       sbe = conwayEraOnwardsToShelleyBasedEra eon
@@ -202,14 +198,14 @@ runGovernanceActionCreateNewCommitteeCmd
       , Cmd.outFile
       } = do
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
-      govActIdentifier = Ledger.maybeToStrictMaybe
+      govActIdentifier = L.maybeToStrictMaybe
                            $ shelleyBasedEraConstraints sbe
                            $ uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
       quorumRational = toRational requiredQuorum
 
-  let proposalAnchor = Ledger.Anchor
-        { Ledger.anchorUrl = unProposalUrl proposalUrl
-        , Ledger.anchorDataHash = proposalHash
+  let proposalAnchor = L.Anchor
+        { L.anchorUrl = unProposalUrl proposalUrl
+        , L.anchorDataHash = proposalHash
         }
 
   oldCommitteeKeyHashes <- forM oldCommitteeVkeySource $ \vkeyOrHashOrTextFile ->
@@ -279,13 +275,13 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
 
         let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
 
-            prevGovActId = Ledger.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
-            proposalAnchor = Ledger.Anchor
-              { Ledger.anchorUrl = unProposalUrl proposalUrl
-              , Ledger.anchorDataHash = proposalHash
+            prevGovActId = L.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
+            proposalAnchor = L.Anchor
+              { L.anchorUrl = unProposalUrl proposalUrl
+              , L.anchorDataHash = proposalHash
               }
             govAct = UpdatePParams prevGovActId updateProtocolParams
-                      (toShelleyScriptHash <$> Ledger.maybeToStrictMaybe mConstitutionalScriptHash)
+                      (toShelleyScriptHash <$> L.maybeToStrictMaybe mConstitutionalScriptHash)
 
 
         let proposalProcedure = createProposalProcedure sbe network deposit returnKeyHash govAct proposalAnchor
@@ -312,7 +308,7 @@ readStakeKeyHash stake =
 
 addCostModelsToEraBasedProtocolParametersUpdate
   :: AlonzoEraOnwards era
-  -> Alonzo.CostModels
+  -> L.CostModels
   -> EraBasedProtocolParametersUpdate era
   -> EraBasedProtocolParametersUpdate era
 addCostModelsToEraBasedProtocolParametersUpdate
@@ -347,9 +343,9 @@ runGovernanceActionTreasuryWithdrawalCmd
       , Cmd.outFile
       } = do
 
-  let proposalAnchor = Ledger.Anchor
-        { Ledger.anchorUrl = unProposalUrl proposalUrl
-        , Ledger.anchorDataHash = proposalHash
+  let proposalAnchor = L.Anchor
+        { L.anchorUrl = unProposalUrl proposalUrl
+        , L.anchorDataHash = proposalHash
         }
 
   returnKeyHash <- readStakeKeyHash returnAddr
@@ -360,7 +356,7 @@ runGovernanceActionTreasuryWithdrawalCmd
 
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
       treasuryWithdrawals = TreasuryWithdrawal withdrawals
-                              (toShelleyScriptHash <$> Ledger.maybeToStrictMaybe constitutionScriptHash)
+                              (toShelleyScriptHash <$> L.maybeToStrictMaybe constitutionScriptHash)
       proposal = createProposalProcedure sbe networkId deposit returnKeyHash treasuryWithdrawals proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT

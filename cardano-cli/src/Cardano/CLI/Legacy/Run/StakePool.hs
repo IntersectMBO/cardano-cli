@@ -7,6 +7,7 @@ module Cardano.CLI.Legacy.Run.StakePool
   ) where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
@@ -15,9 +16,6 @@ import           Cardano.CLI.Legacy.Commands.StakePool
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key (VerificationKeyOrFile)
-import qualified Cardano.Ledger.Slot as Shelley
-
-import           Control.Monad.Trans.Except (ExceptT)
 
 runLegacyStakePoolCmds :: ()
   => LegacyStakePoolCmds
@@ -91,7 +89,7 @@ runLegacyStakePoolRegistrationCertificateCmd
 runLegacyStakePoolDeregistrationCertificateCmd :: ()
   => EraInEon ShelleyBasedEra
   -> VerificationKeyOrFile StakePoolKey
-  -> Shelley.EpochNo
+  -> L.EpochNo
   -> File () Out
   -> ExceptT StakePoolCmdError IO ()
 runLegacyStakePoolDeregistrationCertificateCmd inSbe poolVerificationKeyOrFile retireEpoch outFile =

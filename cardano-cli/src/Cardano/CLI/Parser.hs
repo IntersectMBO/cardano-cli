@@ -15,8 +15,9 @@ module Cardano.CLI.Parser
   , eDNSName
   ) where
 
+import qualified Cardano.Api.Ledger as L
+
 import           Cardano.CLI.Types.Common
-import qualified Cardano.Ledger.BaseTypes as Shelley
 
 import qualified Data.Attoparsec.ByteString.Char8 as Atto
 import           Data.ByteString (ByteString)
@@ -114,7 +115,6 @@ readerFromAttoParser p =
 eDNSName :: String -> Either String ByteString
 eDNSName str =
   -- We're using 'Shelley.textToDns' to validate the string.
-  -- The limit in the Conway CDDL spec is 128.
-  case Shelley.textToDns 128 (Text.pack str) of
+  case L.textToDns 128 (Text.pack str) of
     Nothing -> Left $ "DNS name is more than 64 bytes: " <> str
-    Just dnsName -> Right . Text.encodeUtf8 . Shelley.dnsToText $ dnsName
+    Just dnsName -> Right . Text.encodeUtf8 . L.dnsToText $ dnsName
