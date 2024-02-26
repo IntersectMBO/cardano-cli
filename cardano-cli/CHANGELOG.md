@@ -1,5 +1,11 @@
 # Changelog for cardano-cli
 
+## 8.20.3.0
+
+- Update cardano-api-8.39.2, ouroboros-consensus-0.16, ouroboros-consensus-cardano-0.14
+  (compatible)
+  [PR 615](https://github.com/IntersectMBO/cardano-cli/pull/615)
+
 ## 8.20.2.0
 
 - Enable deposit return script addresses
