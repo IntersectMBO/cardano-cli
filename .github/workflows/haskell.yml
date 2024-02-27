@@ -66,9 +66,12 @@ jobs:
     - name: Cabal update
       run: cabal update
 
+    # A dry run `build all` operation does *NOT* downlaod anything, it just looks at the package
+    # indices to generate an install plan.
     - name: Build dry run
       run: cabal build all --enable-tests --dry-run --minimize-conflict-set
 
+    # From the install plan we generate a dependency list.
     - name: Record dependencies
       id: record-deps
       run: |
@@ -77,21 +80,49 @@ jobs:
         ${{ (runner.os == 'Windows' && '$env:PATH=("C:\msys64\mingw64\bin;{0}" -f $env:PATH)') || '' }}
         cat dist-newstyle/cache/plan.json | jq -r '."install-plan"[].id' | sort | uniq > dependencies.txt
 
+    # From the dependency list we restore the cached dependencies.
+    # We use the hash of `dependencies.txt` as part of the cache key because that will be stable
+    # until the `index-state` values in the `cabal.project` file changes.
+    - name: Restore cached dependencies
+      uses: actions/cache/restore@v4
+      id: cache
+      with:
+        path: |
+          ${{ steps.setup-haskell.outputs.cabal-store }}
+          dist-newstyle
+        key: cache-${{ env.CABAL_CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('dependencies.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-ghc-${{ env.GHC_VERSION }}-cabal-${{ env.CABAL_VERSION }}-
+          cache-${{ env.CABAL_CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('dependencies.txt') }}
+
+    # Now we install the dependencies. If the cache was found and restored in the previous step,
+    # this should be a no-op, but if the cache key was not found we need to build stuff so we can
+    # cache it for the next step.
     - name: Install dependencies
       run: cabal build all --enable-tests --only-dependencies -j --ghc-option=-j4
 
+    # Always store the cabal cache.
     - name: Cache Cabal store
-      uses: actions/cache@v3
+      uses: actions/cache/save@v4
       with:
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
           dist-newstyle
         key: cache-${{ env.CABAL_CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('dependencies.txt') }}
 
+    # Now we build.
     - name: Build all
       run: cabal build all --enable-tests
 
-    - name: Run tests
+    - # Delete golden files and regenerate them in the next step to ensure
+      # files that tests designate as golden files are actually golden files
+      # and can be generated.
+      name: Delete golden files
+      shell: bash
+      run: |
+        rm -rf cardano-cli/test/cardano-cli-golden/files/golden
+
+    - name: Run tests regenerate golden files
       env:
         # these two are msys2 env vars, they have no effect on non-msys2 installs.
         MSYS2_PATH_TYPE: inherit
@@ -99,6 +130,7 @@ jobs:
         TMPDIR: ${{ runner.temp }}
         TMP: ${{ runner.temp }}
         KEEP_WORKSPACE: 1
+        CREATE_GOLDEN_FILES: 1
       run: cabal test all --enable-tests --test-show-details=direct -j1
 
     - name: "Tar artifacts"
