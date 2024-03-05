@@ -204,7 +204,7 @@ library
                       , cardano-data >= 1.1
                       , cardano-git-rev
                       , cardano-ledger-byron >= 1.0.0.2
-                      , cardano-ping ^>= 0.2.0.7
+                      , cardano-ping ^>= 0.2.0.13
                       , cardano-prelude
                       , cardano-slotting ^>= 0.1
                       , cardano-strict-containers ^>= 0.1
