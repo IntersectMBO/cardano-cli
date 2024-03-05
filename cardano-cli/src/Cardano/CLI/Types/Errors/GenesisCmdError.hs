@@ -35,6 +35,7 @@ data GenesisCmdError
   | GenesisCmdStakePoolCmdError !StakePoolCmdError
   | GenesisCmdCostModelsError !FilePath
   | GenesisCmdByronError !ByronGenesisError
+  | GenesisCmdTooManyRelaysError !FilePath !Int !Int -- ^ First @Int@ is the number of SPOs, second @Int@ is number of relays
   | GenesisCmdStakePoolRelayFileError !FilePath !IOException
   | GenesisCmdStakePoolRelayJsonDecodeError !FilePath !String
   | GenesisCmdFileInputDecodeError !(FileError InputDecodeError)
@@ -89,6 +90,9 @@ instance Error GenesisCmdError where
     GenesisCmdGenesisFileReadError e ->
       prettyError e
     GenesisCmdByronError e -> pshow e
+    GenesisCmdTooManyRelaysError fp nbSPOs nbRelays ->
+      pretty fp <> " specifies " <> pretty nbRelays <> " relays, but only " <> pretty nbSPOs <> " SPOs have been specified." <>
+      " Please specify a number of relays that is lesser or equal to the number of SPOs."
     GenesisCmdStakePoolRelayFileError fp e ->
       "Error occurred while reading the stake pool relay specification file: " <> pretty fp <>
       " Error: " <> pshow e

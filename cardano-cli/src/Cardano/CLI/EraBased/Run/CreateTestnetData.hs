@@ -227,20 +227,20 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
 
   when (0 < numUtxoKeys) $ writeREADME utxoKeysDir utxoKeysREADME
 
-  mayStakePoolRelays
-    <- forM relays $
-       \fp -> do
-         relaySpecJsonBs <-
-           handleIOExceptT (GenesisCmdStakePoolRelayFileError fp) (LBS.readFile fp)
-         firstExceptT (GenesisCmdStakePoolRelayJsonDecodeError fp)
-           . hoistEither $ Aeson.eitherDecode relaySpecJsonBs
+  mSPOsRelays <- forM relays readRelays
+  case (relays, mSPOsRelays) of
+    (Just fp, Just stakePoolRelays) | Map.size stakePoolRelays > fromIntegral numPools ->
+      throwError $ GenesisCmdTooManyRelaysError fp (fromIntegral numPools) (Map.size stakePoolRelays)
+    _ -> pure ()
 
   -- Pools
   poolParams <- forM [ 1 .. numPools ] $ \index -> do
     let poolDir = poolsDir </> ("pool" <> show index)
 
     createPoolCredentials desiredKeyOutputFormat poolDir
-    buildPoolParams actualNetworkId poolDir Nothing (fromMaybe mempty mayStakePoolRelays)
+    -- Indexes of directories created on disk start at 1, but
+    -- indexes in terms of the relays' list start at 0. Hence 'index - 1' here:
+    buildPoolParams actualNetworkId poolDir (index - 1) (fromMaybe mempty mSPOsRelays)
 
   when (0 < numPools) $ writeREADME poolsDir poolsREADME
 
@@ -484,8 +484,8 @@ data Delegation = Delegation
 buildPoolParams
   :: NetworkId
   -> FilePath -- ^ File directory where the necessary pool credentials were created
-  -> Maybe Word
-  -> Map Word [L.StakePoolRelay] -- ^ User submitted stake pool relay map
+  -> Word -- ^ The index of the pool being built. Starts at 0.
+  -> Map Word [L.StakePoolRelay] -- ^ User submitted stake pool relay map. Starts at 0
   -> ExceptT GenesisCmdError IO (L.PoolParams L.StandardCrypto)
 buildPoolParams nw dir index specifiedRelays = do
     StakePoolVerificationKey poolColdVK
@@ -512,17 +512,11 @@ buildPoolParams nw dir index specifiedRelays = do
       , L.ppMetadata    = L.SNothing
       }
  where
-   lookupPoolRelay
-     :: Map Word [L.StakePoolRelay] -> Seq.StrictSeq L.StakePoolRelay
-   lookupPoolRelay m =
-      case index of
-        Nothing -> mempty
-        Just index' -> maybe mempty Seq.fromList (Map.lookup index' m)
-
-   strIndex = maybe "" show index
-   poolColdVKF = File $ dir </> "cold" ++ strIndex ++ ".vkey"
-   poolVrfVKF = File $ dir </> "vrf" ++ strIndex ++ ".vkey"
-   poolRewardVKF = File $ dir </> "staking-reward" ++ strIndex ++ ".vkey"
+   lookupPoolRelay :: Map Word [L.StakePoolRelay] -> Seq.StrictSeq L.StakePoolRelay
+   lookupPoolRelay m = Seq.fromList $ Map.findWithDefault [] index m
+   poolColdVKF = File $ dir </> "cold.vkey"
+   poolVrfVKF = File $ dir </> "vrf.vkey"
+   poolRewardVKF = File $ dir </> "staking-reward.vkey"
 
 computeDelegation
   :: NetworkId
