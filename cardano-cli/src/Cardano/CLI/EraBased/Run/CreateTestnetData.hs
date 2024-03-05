@@ -18,6 +18,7 @@ module Cardano.CLI.EraBased.Run.CreateTestnetData
   ( genStuffedAddress
     , getCurrentTimePlus30
     , readAndDecodeShelleyGenesis
+    , readRelays
     , runGenesisKeyGenUTxOCmd
     , runGenesisKeyGenGenesisCmd
     , runGenesisKeyGenDelegateCmd
@@ -182,6 +183,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
    , numUtxoKeys
    , totalSupply
    , delegatedSupply
+   , relays
    , systemStart
    , outputDir }
    = do
@@ -225,7 +227,13 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
 
   when (0 < numUtxoKeys) $ writeREADME utxoKeysDir utxoKeysREADME
 
-  let mayStakePoolRelays = Nothing -- TODO @smelc temporary?
+  mayStakePoolRelays
+    <- forM relays $
+       \fp -> do
+         relaySpecJsonBs <-
+           handleIOExceptT (GenesisCmdStakePoolRelayFileError fp) (LBS.readFile fp)
+         firstExceptT (GenesisCmdStakePoolRelayJsonDecodeError fp)
+           . hoistEither $ Aeson.eitherDecode relaySpecJsonBs
 
   -- Pools
   poolParams <- forM [ 1 .. numPools ] $ \index -> do
@@ -648,6 +656,18 @@ readAndDecodeShelleyGenesis fpath = runExceptT $ do
   lbs <- handleIOExceptT (GenesisCmdGenesisFileReadError . FileIOError fpath) $ LBS.readFile fpath
   firstExceptT (GenesisCmdGenesisFileDecodeError fpath . Text.pack)
     . hoistEither $ Aeson.eitherDecode' lbs
+
+-- @readRelays fp@ reads the relays specification from a file
+readRelays :: ()
+  => MonadIO m
+  => FromJSON a
+  => FilePath -- ^ The file to read from
+  -> ExceptT GenesisCmdError m a
+readRelays fp = do
+  relaySpecJsonBs <-
+    handleIOExceptT (GenesisCmdStakePoolRelayFileError fp) (LBS.readFile fp)
+  firstExceptT (GenesisCmdStakePoolRelayJsonDecodeError fp)
+    . hoistEither $ Aeson.eitherDecode relaySpecJsonBs
 
 -- | Current UTCTime plus 30 seconds
 getCurrentTimePlus30 :: ExceptT a IO UTCTime
