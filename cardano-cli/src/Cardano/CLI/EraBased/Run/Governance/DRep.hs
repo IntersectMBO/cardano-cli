@@ -26,6 +26,7 @@ import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.RegistrationError
 import           Cardano.CLI.Types.Key
 
+import           Control.Monad (void)
 import           Data.Function
 import qualified Data.Text.Encoding as Text
 
@@ -34,7 +35,7 @@ runGovernanceDRepCmds :: ()
   -> ExceptT CmdError IO ()
 runGovernanceDRepCmds = \case
   Cmd.GovernanceDRepKeyGenCmd args ->
-    runGovernanceDRepKeyGenCmd args
+    void $ runGovernanceDRepKeyGenCmd args
       & firstExceptT (CmdGovernanceCmdError . GovernanceCmdWriteFileError)
 
   Cmd.GovernanceDRepIdCmd args ->
@@ -59,16 +60,16 @@ runGovernanceDRepCmds = \case
 
 runGovernanceDRepKeyGenCmd :: ()
   => Cmd.GovernanceDRepKeyGenCmdArgs era
-  -> ExceptT (FileError ()) IO ()
+  -> ExceptT (FileError ()) IO (VerificationKey DRepKey, SigningKey DRepKey)
 runGovernanceDRepKeyGenCmd
     Cmd.GovernanceDRepKeyGenCmdArgs
       { vkeyFile
       , skeyFile
       } = do
-  skey <- liftIO $ generateSigningKey AsDRepKey
-  let vkey = getVerificationKey skey
+  (vkey, skey) <- liftIO $ generateKeyPair AsDRepKey
   newExceptT $ writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just skeyDesc) skey)
   newExceptT $ writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey)
+  return (vkey, skey)
   where
     skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Delegate Representative Signing Key"

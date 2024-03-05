@@ -18,7 +18,9 @@ module Cardano.CLI.Types.Common
   , ConstitutionHashSource(..)
   , ConstitutionText(..)
   , ConstitutionUrl(..)
+  , CredentialGenerationMode(..)
   , CurrentKesPeriod (..)
+  , DRepCredentials (..)
   , EpochLeadershipSchedule (..)
   , File(..)
   , FileDirection (..)
@@ -138,10 +140,20 @@ data VoteHashSource
   | VoteHashSourceHash (L.SafeHash L.StandardCrypto L.AnchorData)
   deriving Show
 
-data StakeDelegators
-  = OnDisk !Word -- ^ The number of credentials to write to disk
-  | Transient !Word -- ^ The number of credentials, that are not written to disk
-  deriving Show
+data StakeDelegators = StakeDelegators
+  { stakeDelegatorsGenerationMode :: !CredentialGenerationMode  -- ^ Whether to write them to disk
+  , numOfStakeDelegators :: !Word -- ^ The number of stake credentials to generate
+  } deriving Show
+
+data DRepCredentials = DRepCredentials
+  { dRepCredentialGenerationMode :: !CredentialGenerationMode  -- ^ Whether to write them to disk
+  , numOfDRepCredentials :: !Word -- ^ The number of DRep credentials to generate
+  } deriving Show
+
+data CredentialGenerationMode
+  = OnDisk -- ^ Write credentials to disk
+  | Transient -- ^ Don't write them to disk (process them in memory)
+  deriving (Show, Eq)
 
 -- | Specify whether to render the script cost as JSON
 -- in the cli's build command.

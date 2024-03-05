@@ -5,7 +5,8 @@
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Test.Cardano.CLI.Util
-  ( checkTxCddlFormat
+  ( assertDirectoryMissing
+  , checkTxCddlFormat
   , checkTextEnvelopeFormat
   , equivalence
   , execCardanoCLI
@@ -28,6 +29,7 @@ import           Cardano.CLI.Read
 
 import           Control.Concurrent (QSem, newQSem, signalQSem, waitQSem)
 import           Control.Exception.Lifted (bracket_)
+import           Control.Monad (when)
 import           Control.Monad.Base
 import           Control.Monad.Catch hiding (bracket_)
 import           Control.Monad.Trans.Control (MonadBaseControl)
@@ -195,6 +197,13 @@ createFiles :: Bool
 createFiles = IO.unsafePerformIO $ do
   value <- IO.lookupEnv "CREATE_GOLDEN_FILES"
   return $ value == Just "1"
+
+-- | Asserts that the given directory is missing.
+assertDirectoryMissing :: (MonadTest m, MonadIO m, HasCallStack) => FilePath -> m ()
+assertDirectoryMissing dir = GHC.withFrozenCallStack $ do
+  exists <- H.evalIO $ IO.doesDirectoryExist dir
+  when exists $ H.failWithCustom GHC.callStack Nothing (dir <> " should not have been created.")
+
 
 --------------------------------------------------------------------------------
 -- Helpers, Error rendering & Clean up

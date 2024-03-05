@@ -85,11 +85,13 @@ data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
   } deriving Show
 
 data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
-  { specShelley :: !(Maybe FilePath) -- ^ Path to the @genesis-shelley@ file to use. If unspecified, a default one will be used if omitted.
+  { specShelley :: !(Maybe FilePath) -- ^ Path to the @genesis-shelley@ file to use. If unspecified, a default one will be used.
+  , specAlonzo :: !(Maybe FilePath) -- ^ Path to the @genesis-alonzo@ file to use. If unspecified, a default one will be used.
+  , specConway :: !(Maybe FilePath) -- ^ Path to the @genesis-conway@ file to use. If unspecified, a default one will be used.
   , numGenesisKeys :: !Word -- ^ The number of genesis keys credentials to create and write to disk.
   , numPools :: !Word -- ^ The number of stake pools credentials to create and write to disk.
-  , stakeDelegators :: !StakeDelegators -- ^ The number of delegators to pools to create.
-  , numDrepKeys :: !Word -- ^ The number of DRep keys to create. Right now they receive neither delegation nor are registrated. This will come later.
+  , stakeDelegators :: !StakeDelegators -- ^ The number of delegators to pools and DReps to create.
+  , numDRepKeys :: !DRepCredentials -- ^ The number of DRep keys to create. They are registered and get delegated to by stake delegators
   , numStuffedUtxo :: !Word -- ^ The number of UTxO accounts to make. They are "stuffed" because the credentials are not written to disk.
   , numUtxoKeys :: !Word -- ^ The number of UTxO credentials to create and write to disk.
   , totalSupply :: !(Maybe Coin) -- ^ The total number of Lovelace
