@@ -272,6 +272,7 @@ Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILE]
                                                          [--total-supply LOVELACE]
                                                          [--delegated-supply LOVELACE]
                                                          [--testnet-magic NATURAL]
+                                                         [--relays FILE]
                                                          [--start-time UTC-TIME]
                                                          --out-dir DIR
 
@@ -1434,6 +1435,7 @@ Usage: cardano-cli allegra genesis create-testnet-data [--spec-shelley FILE]
                                                          [--total-supply LOVELACE]
                                                          [--delegated-supply LOVELACE]
                                                          [--testnet-magic NATURAL]
+                                                         [--relays FILE]
                                                          [--start-time UTC-TIME]
                                                          --out-dir DIR
 
@@ -2594,6 +2596,7 @@ Usage: cardano-cli mary genesis create-testnet-data [--spec-shelley FILE]
                                                       [--total-supply LOVELACE]
                                                       [--delegated-supply LOVELACE]
                                                       [--testnet-magic NATURAL]
+                                                      [--relays FILE]
                                                       [--start-time UTC-TIME]
                                                       --out-dir DIR
 
@@ -3739,6 +3742,7 @@ Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILE]
                                                         [--total-supply LOVELACE]
                                                         [--delegated-supply LOVELACE]
                                                         [--testnet-magic NATURAL]
+                                                        [--relays FILE]
                                                         [--start-time UTC-TIME]
                                                         --out-dir DIR
 
@@ -4907,6 +4911,7 @@ Usage: cardano-cli babbage genesis create-testnet-data [--spec-shelley FILE]
                                                          [--total-supply LOVELACE]
                                                          [--delegated-supply LOVELACE]
                                                          [--testnet-magic NATURAL]
+                                                         [--relays FILE]
                                                          [--start-time UTC-TIME]
                                                          --out-dir DIR
 
@@ -6093,6 +6098,7 @@ Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILE]
                                                         [--total-supply LOVELACE]
                                                         [--delegated-supply LOVELACE]
                                                         [--testnet-magic NATURAL]
+                                                        [--relays FILE]
                                                         [--start-time UTC-TIME]
                                                         --out-dir DIR
 
@@ -7715,6 +7721,7 @@ Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILE]
                                                         [--total-supply LOVELACE]
                                                         [--delegated-supply LOVELACE]
                                                         [--testnet-magic NATURAL]
+                                                        [--relays FILE]
                                                         [--start-time UTC-TIME]
                                                         --out-dir DIR
 
