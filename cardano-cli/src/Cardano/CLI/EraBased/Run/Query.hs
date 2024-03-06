@@ -613,6 +613,7 @@ runQueryPoolStateCmd
     , Cmd.networkId
     , Cmd.allOrOnlyPoolIds
     , Cmd.target
+    , Cmd.mOutFile
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
@@ -635,7 +636,7 @@ runQueryPoolStateCmd
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
         pure $ do
-          shelleyBasedEraConstraints sbe writePoolState result
+          shelleyBasedEraConstraints sbe (writePoolState mOutFile) result
     )
     & onLeft (left . QueryCmdAcquireFailure)
     & onLeft left
@@ -939,9 +940,10 @@ writePoolState :: forall era ledgerera. ()
   => ShelleyLedgerEra era ~ ledgerera
   => L.EraCrypto ledgerera ~ StandardCrypto
   => L.Era ledgerera
-  => SerialisedPoolState era
+  => Maybe (File () Out)
+  -> SerialisedPoolState era
   -> ExceptT QueryCmdError IO ()
-writePoolState serialisedCurrentEpochState = do
+writePoolState mOutFile serialisedCurrentEpochState = do
   PoolState poolState <- pure (decodePoolState serialisedCurrentEpochState)
     & onLeft (left . QueryCmdPoolStateDecodeError)
 
@@ -960,7 +962,8 @@ writePoolState serialisedCurrentEpochState = do
           )
         )
 
-  liftIO . LBS.putStrLn $ encodePretty poolStates
+  firstExceptT QueryCmdWriteFileError . newExceptT $
+    writeLazyByteStringOutput mOutFile $ encodePretty poolStates
 
 writeProtocolState
   :: ShelleyBasedEra era

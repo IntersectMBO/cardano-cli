@@ -172,6 +172,7 @@ data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
   , networkId           :: !NetworkId
   , allOrOnlyPoolIds    :: !(AllOrOnly (Hash StakePoolKey))
   , target              :: !(Consensus.Target ChainPoint)
+  , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs

@@ -148,6 +148,7 @@ data LegacyQueryPoolStateCmdArgs = LegacyQueryPoolStateCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , allOrOnlyPoolIds    :: !(AllOrOnly (Hash StakePoolKey))
+  , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
 data LegacyQueryTxMempoolCmdArgs = LegacyQueryTxMempoolCmdArgs

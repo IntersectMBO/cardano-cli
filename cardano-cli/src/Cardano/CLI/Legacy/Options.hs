@@ -726,6 +726,7 @@ pQueryCmds envCli =
           <*> pConsensusModeParams
           <*> pNetworkId envCli
           <*> pAllStakePoolsOrOnly
+          <*> pMaybeOutputFile
 
     pQueryTxMempool :: Parser LegacyQueryCmds
     pQueryTxMempool =
