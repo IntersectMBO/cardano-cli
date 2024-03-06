@@ -228,6 +228,7 @@ pQueryPoolStateCmd era envCli =
       <*> pNetworkId envCli
       <*> pAllStakePoolsOrSome
       <*> pTarget era
+      <*> pMaybeOutputFile
 
 pQueryTxMempoolCmd :: EnvCli -> Parser (QueryCmds era)
 pQueryTxMempoolCmd envCli =
