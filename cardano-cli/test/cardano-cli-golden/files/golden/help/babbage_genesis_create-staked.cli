@@ -53,5 +53,6 @@ Available options:
   --num-stuffed-utxo INT   The number of fake UTxO entries to generate [default
                            is 0].
   --relay-specification-file FILE
-                           JSON file specified the relays of each stake pool.
+                           JSON file that specifies the relays of each stake
+                           pool.
   -h,--help                Show this help text

@@ -654,9 +654,8 @@ readAndDecodeShelleyGenesis fpath = runExceptT $ do
 -- @readRelays fp@ reads the relays specification from a file
 readRelays :: ()
   => MonadIO m
-  => FromJSON a
   => FilePath -- ^ The file to read from
-  -> ExceptT GenesisCmdError m a
+  -> ExceptT GenesisCmdError m (Map Word [L.StakePoolRelay])
 readRelays fp = do
   relaySpecJsonBs <-
     handleIOExceptT (GenesisCmdStakePoolRelayFileError fp) (LBS.readFile fp)
