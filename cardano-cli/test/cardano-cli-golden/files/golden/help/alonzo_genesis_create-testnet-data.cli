@@ -10,6 +10,7 @@ Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILE]
                                                         [--total-supply LOVELACE]
                                                         [--delegated-supply LOVELACE]
                                                         [--testnet-magic NATURAL]
+                                                        [--relays FILE]
                                                         [--start-time UTC-TIME]
                                                         --out-dir DIR
 
@@ -45,6 +46,7 @@ Available options:
   --testnet-magic NATURAL  Specify a testnet magic id for the cluster. This
                            overrides both the network magic from the spec file
                            and CARDANO_NODE_NETWORK_ID environment variable.
+  --relays FILE            JSON file specifying the relays of each stake pool.
   --start-time UTC-TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
                            format. If unspecified, will be the current time +30
                            seconds.

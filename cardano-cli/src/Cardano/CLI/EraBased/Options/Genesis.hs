@@ -198,6 +198,15 @@ pGenesisCreateStaked envCli =
     <*> pBulkPoolsPerFile
     <*> pStuffedUtxoCount
     <*> Opt.optional pRelayJsonFp
+  where
+    pRelayJsonFp :: Parser FilePath
+    pRelayJsonFp =
+      Opt.strOption $ mconcat
+        [ Opt.long "relay-specification-file"
+        , Opt.metavar "FILE"
+        , Opt.help "JSON file specified the relays of each stake pool."
+        , Opt.completer (Opt.bashCompleter "file")
+        ]
 
 pGenesisCreateTestNetData :: EnvCli -> Parser (GenesisCmds era)
 pGenesisCreateTestNetData envCli =
@@ -212,6 +221,7 @@ pGenesisCreateTestNetData envCli =
     <*> pSupply
     <*> pSupplyDelegated
     <*> (optional $ pNetworkIdForTestnetData envCli)
+    <*> Opt.optional pRelays
     <*> pMaybeSystemStart
     <*> pOutputDir
   where
@@ -291,6 +301,14 @@ pGenesisCreateTestNetData envCli =
                              ]
         , Opt.value 500_000_000_000
         ]
+    pRelays :: Parser FilePath
+    pRelays =
+      Opt.strOption $ mconcat
+        [ Opt.long "relays"
+        , Opt.metavar "FILE"
+        , Opt.help "JSON file specifying the relays of each stake pool."
+        , Opt.completer (Opt.bashCompleter "file")
+        ]
     pOutputDir = Opt.strOption $ mconcat
       [ Opt.long "out-dir"
       , Opt.metavar "DIR"
@@ -363,15 +381,6 @@ pStuffedUtxoCount =
     , Opt.metavar "INT"
     , Opt.help "The number of fake UTxO entries to generate [default is 0]."
     , Opt.value 0
-    ]
-
-pRelayJsonFp :: Parser FilePath
-pRelayJsonFp =
-  Opt.strOption $ mconcat
-    [ Opt.long "relay-specification-file"
-    , Opt.metavar "FILE"
-    , Opt.help "JSON file specified the relays of each stake pool."
-    , Opt.completer (Opt.bashCompleter "file")
     ]
 
 pInitialSupplyNonDelegated :: Parser (Maybe Lovelace)

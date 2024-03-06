@@ -560,13 +560,7 @@ runGenesisCreateStakedCmd
   forM_ [ 1 .. numUTxOKeys ] $ \index ->
     createUtxoKeys utxodir index
 
-  mayStakePoolRelays
-    <- forM mStakePoolRelaySpecFile $
-       \fp -> do
-         relaySpecJsonBs <-
-           handleIOExceptT (GenesisCmdStakePoolRelayFileError fp) (LBS.readFile fp)
-         firstExceptT (GenesisCmdStakePoolRelayJsonDecodeError fp)
-           . hoistEither $ Aeson.eitherDecode relaySpecJsonBs
+  mayStakePoolRelays <- forM mStakePoolRelaySpecFile TN.readRelays
 
   poolParams <- forM [ 1 .. numPools ] $ \index -> do
     createPoolCredentials keyOutputFormat pooldir index

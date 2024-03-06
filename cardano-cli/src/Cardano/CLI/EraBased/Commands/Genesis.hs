@@ -94,6 +94,7 @@ data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
   , totalSupply :: !(Maybe Lovelace) -- ^ The total number of Lovelace
   , delegatedSupply :: !(Maybe Lovelace) -- ^ The number of Lovelace being delegated
   , networkId :: !(Maybe NetworkId) -- ^ The network ID to use. Overrides the network id supplied in the spec file.
+  , relays :: !(Maybe FilePath) -- ^ Filepath of the specification of relays
   , systemStart :: !(Maybe SystemStart) -- ^ The genesis start time.
   , outputDir :: !FilePath -- ^ Directory where to write credentials and files.
   } deriving Show

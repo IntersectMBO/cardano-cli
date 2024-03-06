@@ -4,13 +4,14 @@ module Test.Golden.CreateTestnetData where
 import           Cardano.Api.Ledger (StandardCrypto)
 import           Cardano.Api.Shelley (ShelleyGenesis (..))
 
-import           Cardano.Ledger.Shelley.API (ShelleyGenesisStaking (..))
+import qualified Cardano.Ledger.Shelley.API as L
 
-import           Control.Monad (filterM, void)
+import           Control.Monad (filterM, forM_, void)
 import           Control.Monad.IO.Class
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as LBS
 import           Data.List (intercalate, sort)
+import qualified Data.Sequence.Strict as Seq
 import           Data.Word (Word32)
 import           System.Directory
 import           System.Directory.Extra (listDirectories)
@@ -24,6 +25,7 @@ import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
+{- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Use camelCase" -}
 
 networkMagic :: Word32
@@ -49,6 +51,8 @@ mkArguments outputDir =
    , "--testnet-magic", show networkMagic
    , "--pools", show numPools
    , "--drep-keys", show numDReps
+   -- Relays file specifies two relays, like the number of SPOs
+   , "--relays", "test/cardano-cli-golden/files/input/shelley/genesis/relays.json"
   ]
 
 -- | Given a root directory, returns files within this root (recursively)
@@ -104,14 +108,17 @@ golden_create_testnet_data mShelleyTemplate =
     bs <- liftIO $ LBS.readFile $ outputDir </> "genesis.json"
     genesis :: ShelleyGenesis StandardCrypto <- Aeson.throwDecode bs
 
-    H.assert (sgNetworkMagic genesis == networkMagic)
-    H.assert ((length . sgsPools . sgStaking $ genesis) == numPools)
+    sgNetworkMagic genesis H.=== networkMagic
+    (length $ L.sgsPools $ sgStaking genesis) H.=== numPools
+
+    forM_ (L.sgsPools $ sgStaking genesis) $ \pool ->
+      (Seq.length $ L.ppRelays pool) H.=== 1
 
     actualNumDReps <- liftIO $ listDirectories $ outputDir </> "drep-keys"
-    H.assert $ length actualNumDReps == numDReps
+    length actualNumDReps H.=== numDReps
 
     actualNumUtxoKeys <- liftIO $ listDirectories $ outputDir </> "utxo-keys"
-    H.assert $ length actualNumUtxoKeys == numUtxoKeys
+    length actualNumUtxoKeys H.=== numUtxoKeys
 
 -- | This test tests the transient case, i.e. it writes strictly
 -- less things to disk than 'hprop_golden_create_testnet_data'. Execute this test with:

@@ -333,6 +333,7 @@ test-suite cardano-cli-golden
                       , cardano-crypto-wrapper
                       , cardano-ledger-byron
                       , cardano-ledger-shelley >=1.7.0.0
+                      , cardano-strict-containers ^>= 0.1
                       , cborg
                       , containers
                       , directory

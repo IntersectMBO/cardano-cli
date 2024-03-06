@@ -2,6 +2,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 
+-- | Types that are used when writing to standard output or to files.
+-- These types (and their encodings) are typically consumed by users of @cardano-cli@.
 module Cardano.CLI.Types.Output
   ( PlutusScriptCostError
   , QueryKesPeriodInfoOutput (..)
