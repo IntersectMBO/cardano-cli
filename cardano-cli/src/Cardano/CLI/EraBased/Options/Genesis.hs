@@ -204,7 +204,7 @@ pGenesisCreateStaked envCli =
       Opt.strOption $ mconcat
         [ Opt.long "relay-specification-file"
         , Opt.metavar "FILE"
-        , Opt.help "JSON file specified the relays of each stake pool."
+        , Opt.help "JSON file that specifies the relays of each stake pool."
         , Opt.completer (Opt.bashCompleter "file")
         ]
 
