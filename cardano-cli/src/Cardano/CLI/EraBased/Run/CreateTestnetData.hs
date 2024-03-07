@@ -606,9 +606,8 @@ updateOutputTemplate
     getCoinForDistribution :: Integer -> m Natural
     getCoinForDistribution inputCoin = do
       let value = inputCoin - subtrahendForTreasury
-      if value < 0
-         then throwError $ GenesisCmdNegativeInitialFunds value
-         else pure $ fromInteger value
+      when (value < 0) $ throwError $ GenesisCmdNegativeInitialFunds value
+      pure $ fromInteger value
 
     nUtxoAddrsNonDeleg  = length utxoAddrsNonDeleg
     maximumLovelaceSupply :: Word64
