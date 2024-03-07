@@ -6,7 +6,9 @@ import           Cardano.Api.Shelley (ShelleyGenesis (..))
 
 import qualified Cardano.Ledger.Shelley.API as L
 
-import           Control.Monad (filterM, forM_, void)
+import           Control.Concurrent (newQSem)
+import           Control.Concurrent.QSem (QSem)
+import           Control.Monad
 import           Control.Monad.IO.Class
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as LBS
@@ -16,8 +18,9 @@ import           Data.Word (Word32)
 import           System.Directory
 import           System.Directory.Extra (listDirectories)
 import           System.FilePath
+import           System.IO.Unsafe (unsafePerformIO)
 
-import           Test.Cardano.CLI.Util (execCardanoCLI)
+import           Test.Cardano.CLI.Util (bracketSem, execCardanoCLI)
 
 import           Hedgehog (Property)
 import qualified Hedgehog as H
@@ -25,7 +28,6 @@ import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
-{- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Use camelCase" -}
 
 networkMagic :: Word32
@@ -78,6 +80,12 @@ hprop_golden_create_testnet_data_with_template :: Property
 hprop_golden_create_testnet_data_with_template =
   golden_create_testnet_data $ Just "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
 
+-- | Semaphore protecting against locked file error, when running properties concurrently.
+-- This semaphore protects @"test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"@.
+createTestnetDataOutSem :: QSem
+createTestnetDataOutSem = unsafePerformIO $ newQSem 1
+{-# NOINLINE createTestnetDataOutSem  #-}
+
 -- | This test tests the non-transient case, i.e. it maximizes the files
 -- that can be written to disk.
 golden_create_testnet_data :: ()
@@ -103,16 +111,17 @@ golden_create_testnet_data mShelleyTemplate =
         generated'' = map (\c -> if c == '\\' then '/' else c) generated'
     void $ H.note generated''
 
-    H.diffVsGoldenFile generated'' "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
+    bracketSem createTestnetDataOutSem $
+      H.diffVsGoldenFile generated'' "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
 
     bs <- liftIO $ LBS.readFile $ outputDir </> "genesis.json"
     genesis :: ShelleyGenesis StandardCrypto <- Aeson.throwDecode bs
 
     sgNetworkMagic genesis H.=== networkMagic
-    (length $ L.sgsPools $ sgStaking genesis) H.=== numPools
+    length (L.sgsPools $ sgStaking genesis) H.=== numPools
 
     forM_ (L.sgsPools $ sgStaking genesis) $ \pool ->
-      (Seq.length $ L.ppRelays pool) H.=== 1
+      Seq.length (L.ppRelays pool) H.=== 1
 
     actualNumDReps <- liftIO $ listDirectories $ outputDir </> "drep-keys"
     length actualNumDReps H.=== numDReps
