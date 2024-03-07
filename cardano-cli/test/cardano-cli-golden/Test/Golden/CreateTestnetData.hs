@@ -13,6 +13,7 @@ import           Control.Monad.IO.Class
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as LBS
 import           Data.List (intercalate, sort)
+import qualified Data.ListMap as ListMap
 import qualified Data.Sequence.Strict as Seq
 import           Data.Word (Word32)
 import           System.Directory
@@ -28,7 +29,9 @@ import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
+{- HLINT ignore "Redundant bracket" -}
 {- HLINT ignore "Use camelCase" -}
+{- HLINT ignore "Use head" -}
 
 networkMagic :: Word32
 networkMagic = 623
@@ -143,3 +146,40 @@ hprop_golden_create_testnet_data_transient_stake_delegators =
     -- We just test that the command doesn't crash when we execute a different path.
     -- For the golden part of this test, we are anyway covered by 'hprop_golden_create_testnet_data'
     -- that generates strictly more stuff.
+
+-- Execute this test with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data deleg non deleg/"'@
+hprop_golden_create_testnet_data_deleg_non_deleg :: Property
+hprop_golden_create_testnet_data_deleg_non_deleg =
+  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+
+    let outputDir = tempDir </> "out"
+        totalSupply :: Int = 2000000000000 -- 2*10^12
+        delegatedSupply :: Int = 500000000000 -- 5*10^11, i.e. totalSupply / 4
+
+    void $ execCardanoCLI
+      [ "conway", "genesis", "create-testnet-data"
+      , "--utxo-keys", "1"
+      , "--total-supply", show totalSupply
+      , "--delegated-supply", show delegatedSupply
+      , "--out-dir", outputDir]
+
+    bs <- liftIO $ LBS.readFile $ outputDir </> "genesis.json"
+    genesis :: ShelleyGenesis StandardCrypto <- Aeson.throwDecode bs
+
+    -- Because we don't test this elsewhere in this file:
+    (L.sgMaxLovelaceSupply genesis) H.=== (fromIntegral totalSupply)
+
+    let initialFunds = ListMap.toList $ L.sgInitialFunds genesis
+
+    (length initialFunds) H.=== 1
+    let L.Coin onlyHolderCoin = snd $ initialFunds !! 0
+
+    -- The check below may seem weird, but we cannot do a very precise check
+    -- on balances, because of the treasury "stealing" some of the money.
+    -- Nevertheless, this check catches a confusion between delegated and
+    -- non-delegated coins, by virtue of --delegated-supply being a fourth
+    -- of --total-supply above.
+    -- https://github.com/IntersectMBO/cardano-cli/issues/631
+
+    H.assertWith (fromIntegral onlyHolderCoin) (\ohc -> ohc > totalSupply `div` 2)
