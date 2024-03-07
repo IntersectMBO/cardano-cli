@@ -39,6 +39,8 @@ hprop_create_testnet_data_minimal =
       ]
     success
 
+-- Execute this test with:
+-- @cabal test cardano-cli-test --test-options '-p "/create testnet data create nonegative supply/"'@
 hprop_create_testnet_data_create_nonegative_supply :: Property
 hprop_create_testnet_data_create_nonegative_supply = do
   -- FIXME rewrite this as a property test
@@ -46,7 +48,8 @@ hprop_create_testnet_data_create_nonegative_supply = do
         [ -- (total supply, delegated supply, exit code)
           (2_000_000_000, 1_000_000_000, ExitSuccess)
         , (1_100_000_000, 1_000_000_000, ExitSuccess)
-        , (1_000_000_000, 1_000_000_000, ExitFailure 1)
+        , (1_000_000_000, 1_000_000_000, ExitSuccess)
+        , (1_000_000_000, 1_100_000_001, ExitFailure 1)
         , (1_000_000_000, 2_000_000_000, ExitFailure 1)
         ] :: [(Int, Int, ExitCode)]
 
