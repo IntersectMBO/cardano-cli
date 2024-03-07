@@ -7,22 +7,17 @@
 module Test.Cli.CreateTestnetData where
 
 import           Control.Monad
-import           Control.Monad.IO.Class
 import           Data.Aeson (FromJSON, ToJSON)
-import qualified Data.Aeson as A
-import qualified Data.ByteString.Lazy as LBS
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 import           Data.Text (Text)
 import           GHC.Generics
 import           GHC.IO.Exception (ExitCode (..))
-import           GHC.Stack
 import           System.FilePath
 
 import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI)
 
-import           Hedgehog (MonadTest, Property, success, (===))
-import qualified Hedgehog as H
+import           Hedgehog (Property, success, (===))
 import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import qualified Hedgehog.Extras as H
 
@@ -75,7 +70,7 @@ hprop_create_testnet_data_create_nonegative_supply = do
       exitCode === expectedExitCode
 
       when (exitCode == ExitSuccess) $ do
-        testGenesis@TestGenesis{maxLovelaceSupply, initialFunds} <- H.leftFailM . readJsonFile $ outputDir </> "genesis.json"
+        testGenesis@TestGenesis{maxLovelaceSupply, initialFunds} <- H.leftFailM . H.readJsonFile $ outputDir </> "genesis.json"
         H.note_ $ show testGenesis
 
         H.note_ "check that max lovelace supply is set equal to --total-supply flag value"
@@ -93,11 +88,3 @@ data TestGenesis = TestGenesis
   { maxLovelaceSupply :: Int
   , initialFunds :: Map Text Int
   } deriving (Show, Generic, ToJSON, FromJSON)
-
-
--- compabitility shim for hedgehog-extras until https://github.com/input-output-hk/hedgehog-extras/pull/60
--- gets integrated - remove afterwards
-readJsonFile :: forall a m. (MonadTest m, MonadIO m, FromJSON a, HasCallStack) => FilePath -> m (Either String a)
-readJsonFile filePath = withFrozenCallStack $ do
-  void . H.annotate $ "Reading JSON file: " <> filePath
-  H.evalIO $ A.eitherDecode <$> LBS.readFile filePath
