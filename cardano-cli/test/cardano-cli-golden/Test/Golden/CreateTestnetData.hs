@@ -10,8 +10,6 @@ import           Control.Concurrent (newQSem)
 import           Control.Concurrent.QSem (QSem)
 import           Control.Monad
 import           Control.Monad.IO.Class
-import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Lazy as LBS
 import           Data.List (intercalate, sort)
 import qualified Data.ListMap as ListMap
 import qualified Data.Sequence.Strict as Seq
@@ -117,8 +115,7 @@ golden_create_testnet_data mShelleyTemplate =
     bracketSem createTestnetDataOutSem $
       H.diffVsGoldenFile generated'' "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
 
-    bs <- liftIO $ LBS.readFile $ outputDir </> "genesis.json"
-    genesis :: ShelleyGenesis StandardCrypto <- Aeson.throwDecode bs
+    genesis :: ShelleyGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "genesis.json"
 
     sgNetworkMagic genesis H.=== networkMagic
     length (L.sgsPools $ sgStaking genesis) H.=== numPools
@@ -164,8 +161,7 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
       , "--delegated-supply", show delegatedSupply
       , "--out-dir", outputDir]
 
-    bs <- liftIO $ LBS.readFile $ outputDir </> "genesis.json"
-    genesis :: ShelleyGenesis StandardCrypto <- Aeson.throwDecode bs
+    genesis :: ShelleyGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "genesis.json"
 
     -- Because we don't test this elsewhere in this file:
     (L.sgMaxLovelaceSupply genesis) H.=== (fromIntegral totalSupply)
