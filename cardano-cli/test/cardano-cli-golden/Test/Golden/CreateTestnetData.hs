@@ -6,8 +6,6 @@ import           Cardano.Api.Shelley (ShelleyGenesis (..))
 
 import qualified Cardano.Ledger.Shelley.API as L
 
-import           Control.Concurrent (newQSem)
-import           Control.Concurrent.QSem (QSem)
 import           Control.Monad
 import           Control.Monad.IO.Class
 import qualified Data.Aeson as Aeson
@@ -18,9 +16,8 @@ import           Data.Word (Word32)
 import           System.Directory
 import           System.Directory.Extra (listDirectories)
 import           System.FilePath
-import           System.IO.Unsafe (unsafePerformIO)
 
-import           Test.Cardano.CLI.Util (bracketSem, execCardanoCLI)
+import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, newFileSem)
 
 import           Hedgehog (Property)
 import qualified Hedgehog as H
@@ -81,9 +78,8 @@ hprop_golden_create_testnet_data_with_template =
   golden_create_testnet_data $ Just "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
 
 -- | Semaphore protecting against locked file error, when running properties concurrently.
--- This semaphore protects @"test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"@.
-createTestnetDataOutSem :: QSem
-createTestnetDataOutSem = unsafePerformIO $ newQSem 1
+createTestnetDataOutSem :: FileSem
+createTestnetDataOutSem = newFileSem "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
 {-# NOINLINE createTestnetDataOutSem  #-}
 
 -- | This test tests the non-transient case, i.e. it maximizes the files
@@ -112,7 +108,7 @@ golden_create_testnet_data mShelleyTemplate =
     void $ H.note generated''
 
     bracketSem createTestnetDataOutSem $
-      H.diffVsGoldenFile generated'' "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
+      H.diffVsGoldenFile generated''
 
     bs <- liftIO $ LBS.readFile $ outputDir </> "genesis.json"
     genesis :: ShelleyGenesis StandardCrypto <- Aeson.throwDecode bs

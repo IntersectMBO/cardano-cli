@@ -1,5 +1,8 @@
+{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Test.Cardano.CLI.Util
   ( checkTxCddlFormat
@@ -15,13 +18,15 @@ module Test.Cardano.CLI.Util
 
   , redactJsonField
   , bracketSem
+  , FileSem
+  , newFileSem
   ) where
 
 import           Cardano.Api
 
 import           Cardano.CLI.Read
 
-import           Control.Concurrent (QSem, signalQSem, waitQSem)
+import           Control.Concurrent (QSem, newQSem, signalQSem, waitQSem)
 import           Control.Exception.Lifted (bracket_)
 import           Control.Monad.Base
 import           Control.Monad.Catch hiding (bracket_)
@@ -42,6 +47,7 @@ import qualified System.Environment as IO
 import qualified System.Exit as IO
 import           System.FilePath (takeDirectory)
 import qualified System.IO.Unsafe as IO
+import           System.IO.Unsafe (unsafePerformIO)
 import qualified System.Process as IO
 import           System.Process (CreateProcess)
 
@@ -284,7 +290,32 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
         v -> pure v
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
 
--- | Run action acquiring a semaphore, and releasing afterwards. Allows to guard against concurrent access to
--- a block of code
-bracketSem :: MonadBaseControl IO m => QSem -> m c -> m c
-bracketSem semaphore = bracket_ (liftBase $ waitQSem semaphore) (liftBase $ signalQSem semaphore)
+
+-- | A file semaphore protecting against a concurrent path access
+data FileSem = FileSem !FilePath !QSem
+
+instance Show FileSem where
+  show (FileSem path _) = "FileSem " ++ path
+
+deriving via (ShowOf FileSem) instance Pretty FileSem
+
+-- | Create new file semaphore. Always use with @NOINLINE@ pragma! Example:
+-- @
+-- createTestnetDataOutSem :: FileSem
+-- createTestnetDataOutSem = newFileSem "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
+-- {-# NOINLINE createTestnetDataOutSem  #-}
+-- @
+newFileSem :: FilePath -- ^ path to be guarded by a semaphore allowing only one concurrent to access it
+           -> FileSem
+newFileSem fp = unsafePerformIO $ FileSem fp <$> newQSem 1
+{-# INLINE newFileSem #-}
+
+-- | Run action acquiring a semaphore, and releasing afterwards. Guards against concurrent access to
+-- a block of code.
+bracketSem :: MonadBaseControl IO m
+           => FileSem -- ^ a file semaphore
+           -> (FilePath -> m c) -- ^ an action, a file path will be extracted from the semaphore
+           -> m c
+bracketSem (FileSem path semaphore) act =
+  bracket_ (liftBase $ waitQSem semaphore) (liftBase $ signalQSem semaphore) $
+    act path
