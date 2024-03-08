@@ -606,9 +606,8 @@ updateOutputTemplate
     getCoinForDistribution :: Integer -> m Natural
     getCoinForDistribution inputCoin = do
       let value = inputCoin - subtrahendForTreasury
-      if value < 0
-         then throwError $ GenesisCmdNegativeInitialFunds value
-         else pure $ fromInteger value
+      when (value < 0) $ throwError $ GenesisCmdNegativeInitialFunds value
+      pure $ fromInteger value
 
     nUtxoAddrsNonDeleg  = length utxoAddrsNonDeleg
     maximumLovelaceSupply :: Word64
@@ -622,7 +621,8 @@ updateOutputTemplate
     totalSupply = fromIntegral $ maybe maximumLovelaceSupply unLovelace mTotalSupply
 
     delegCoinRaw, nonDelegCoinRaw :: Integer
-    delegCoinRaw = case mDelegatedSupply of Nothing -> 0; Just (Lovelace amountDeleg) -> totalSupply - amountDeleg
+    delegCoinRaw = maybe 0 unLovelace mDelegatedSupply
+    -- Since the user can specify total supply and delegated amount, the non-delegated amount is:
     nonDelegCoinRaw = totalSupply - delegCoinRaw
 
     distribute :: Natural -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
