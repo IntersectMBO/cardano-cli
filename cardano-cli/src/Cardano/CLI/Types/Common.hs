@@ -49,7 +49,7 @@ module Cardano.CLI.Types.Common
   , RequiredSigner (..)
   , ScriptDataOrFile (..)
   , ScriptDatumOrFile (..)
-  , ScriptFile (..)
+  , ScriptFile
   , ScriptRedeemerOrFile
   , ScriptWitnessFiles (..)
   , SigningKeyFile
@@ -82,7 +82,7 @@ module Cardano.CLI.Types.Common
   , DRepMetadataFile
   ) where
 
-import           Cardano.Api
+import           Cardano.Api hiding (Script)
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Chain.Slotting as Byron
@@ -322,8 +322,7 @@ newtype UpdateProposalFile = UpdateProposalFile { unUpdateProposalFile :: FilePa
 
 type VerificationKeyFile = File (VerificationKey ())
 
-newtype ScriptFile = ScriptFile { unScriptFile :: FilePath }
-                     deriving (Eq, Show)
+type ScriptFile = File ScriptInAnyLang In
 
 data ScriptDataOrFile = ScriptDataCborFile  FilePath   -- ^ By reference to a CBOR file
                       | ScriptDataJsonFile  FilePath   -- ^ By reference to a JSON file

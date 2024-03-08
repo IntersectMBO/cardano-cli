@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -21,6 +22,8 @@ module Cardano.CLI.Types.Key
   , VerificationKeyOrHashOrFile (..)
   , readVerificationKeyOrHashOrFile
   , readVerificationKeyOrHashOrTextEnvFile
+
+  , VerificationKeyOrHashOrFileOrScript(..)
 
   , PaymentVerifier(..)
   , StakeIdentifier(..)
@@ -51,11 +54,9 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.DelegationError
 
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as BS
-import           Data.Function
 import qualified Data.List.NonEmpty as NE
 import           Data.Text (Text)
 import qualified Data.Text.Encoding as Text
@@ -323,18 +324,24 @@ data DRepHashSource
       (VerificationKeyOrHashOrFile DRepKey)
   deriving (Eq, Show)
 
-readDRepCredential :: ()
+readDRepCredential
+  :: MonadIOTransError (FileError InputDecodeError) t m
   => DRepHashSource
-  -> ExceptT DelegationError IO (L.Credential 'L.DRepRole L.StandardCrypto)
+  -> t m (L.Credential L.DRepRole L.StandardCrypto)
 readDRepCredential = \case
   DRepHashSourceScript (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)
   DRepHashSourceVerificationKey drepVKeyOrHashOrFile -> do
     DRepKeyHash drepKeyHash <-
-      lift (readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile)
-        & onLeft (left . DelegationDRepReadError)
+      hoistIOEither $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile
     pure $ L.KeyHashObj drepKeyHash
 
+data VerificationKeyOrHashOrFileOrScript keyrole
+  = VkhfsKeyHashFile !(VerificationKeyOrHashOrFile keyrole)
+  | VkhfsScript !(File ScriptInAnyLang In)
+
+deriving instance (Eq (VerificationKeyOrHashOrFile c)) => Eq (VerificationKeyOrHashOrFileOrScript c)
+deriving instance (Show (VerificationKeyOrHashOrFile c)) => Show (VerificationKeyOrHashOrFileOrScript c)
 
 data SomeSigningKey
   = AByronSigningKey                    (SigningKey ByronKey)

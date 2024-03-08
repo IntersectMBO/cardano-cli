@@ -21,3 +21,4 @@ data AnyVerificationKeySource
   = AnyVerificationKeySourceOfText !AnyVerificationKeyText
   | AnyVerificationKeySourceOfFile !(File (VerificationKey ()) In)
   deriving (Eq, Show)
+

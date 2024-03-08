@@ -171,7 +171,7 @@ runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
           left $ AddressCmdExpectedPaymentVerificationKey nonPaymentKey
       return $ serialiseAddress (addr :: AddressAny)
 
-    PaymentVerifierScriptFile (ScriptFile fp) -> do
+    PaymentVerifierScriptFile (File fp) -> do
       ScriptInAnyLang _lang script <-
         firstExceptT AddressCmdReadScriptFileError $
           readFileScriptInAnyLang fp
@@ -199,7 +199,7 @@ makeStakeAddressRef stakeIdentifier =
 
           return . StakeAddressByValue $ StakeCredentialByKey stakeVKeyHash
 
-        StakeVerifierScriptFile (ScriptFile fp) -> do
+        StakeVerifierScriptFile (File fp) -> do
           ScriptInAnyLang _lang script <-
             firstExceptT AddressCmdReadScriptFileError $
               readFileScriptInAnyLang fp

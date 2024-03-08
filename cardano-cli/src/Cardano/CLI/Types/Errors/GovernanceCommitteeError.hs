@@ -6,9 +6,12 @@ module Cardano.CLI.Types.Errors.GovernanceCommitteeError
 
 import           Cardano.Api
 
+import           Cardano.CLI.Types.Errors.ScriptDecodeError
+
 data GovernanceCommitteeError
   = GovernanceCommitteeCmdKeyDecodeError InputDecodeError
   | GovernanceCommitteeCmdKeyReadError (FileError InputDecodeError)
+  | GovernanceCommitteeCmdScriptReadError (FileError ScriptDecodeError)
   | GovernanceCommitteeCmdTextEnvReadFileError (FileError TextEnvelopeError)
   | GovernanceCommitteeCmdTextEnvWriteError (FileError ())
   | GovernanceCommitteeCmdWriteFileError (FileError ())
@@ -26,3 +29,5 @@ instance Error GovernanceCommitteeError where
       "Cannot read text envelope file: " <> prettyError e
     GovernanceCommitteeCmdTextEnvWriteError e ->
       "Cannot write text envelope file: " <> prettyError e
+    GovernanceCommitteeCmdScriptReadError e ->
+      "Cannot read script file: " <> prettyError e

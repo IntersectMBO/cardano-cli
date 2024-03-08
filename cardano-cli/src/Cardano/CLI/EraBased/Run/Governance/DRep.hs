@@ -16,7 +16,6 @@ module Cardano.CLI.EraBased.Run.Governance.DRep
 
 import           Cardano.Api
 import           Cardano.Api.Ledger (Credential (KeyHashObj))
-import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
@@ -111,16 +110,7 @@ runGovernanceDRepRegistrationCertificateCmd
       , outFile
       } =
   conwayEraOnwardsConstraints w $ do
-    drepCred <-
-      case drepHashSource of
-        DRepHashSourceScript (ScriptHash scriptHash) ->
-          return $ L.ScriptHashObj scriptHash
-        DRepHashSourceVerificationKey drepVkeyHashSource -> do
-          DRepKeyHash drepKeyHash <-
-            firstExceptT RegistrationReadError
-              . newExceptT
-              $ readVerificationKeyOrHashOrFile AsDRepKey drepVkeyHashSource
-          return $ L.KeyHashObj $ conwayEraOnwardsConstraints w drepKeyHash
+    drepCred <- modifyError RegistrationReadError $ readDRepCredential drepHashSource
     let req = DRepRegistrationRequirements w drepCred deposit
         registrationCert = makeDrepRegistrationCertificate req mAnchor
         description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"

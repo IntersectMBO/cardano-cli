@@ -13,6 +13,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as Cmd
+import           Cardano.CLI.Read (readVerificationKeyOrHashOrFileOrScript)
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
@@ -137,20 +138,20 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate :: ()
 runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
     Cmd.GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
       { Cmd.eon = eon
-      , Cmd.vkeyColdKeySource = coldVkOrHashOrFp
-      , Cmd.vkeyHotKeySource = hotVkOrHashOrFp
+      , Cmd.vkeyColdKeySource
+      , Cmd.vkeyHotKeySource
       , Cmd.outFile = oFp
       } =
   conwayEraOnwardsConstraints eon $ do
-    CommitteeColdKeyHash coldVKHash <-
-      lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey coldVkOrHashOrFp)
-        & onLeft (left . GovernanceCommitteeCmdKeyReadError)
+    let mapError' = modifyError $ either GovernanceCommitteeCmdScriptReadError  GovernanceCommitteeCmdKeyReadError
+    hotCred <-
+      mapError' $
+        readVerificationKeyOrHashOrFileOrScript AsCommitteeHotKey (\(CommitteeHotKeyHash kh) -> kh) vkeyHotKeySource
+    coldCred <-
+      mapError' $
+        readVerificationKeyOrHashOrFileOrScript AsCommitteeColdKey (\(CommitteeColdKeyHash kh) -> kh) vkeyColdKeySource
 
-    CommitteeHotKeyHash hotVkHash <-
-      lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey hotVkOrHashOrFp)
-        & onLeft (left . GovernanceCommitteeCmdKeyReadError)
-
-    makeCommitteeHotKeyAuthorizationCertificate (CommitteeHotKeyAuthorizationRequirements eon coldVKHash hotVkHash)
+    makeCommitteeHotKeyAuthorizationCertificate (CommitteeHotKeyAuthorizationRequirements eon coldCred hotCred)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)
       & writeLazyByteStringFile oFp
       & firstExceptT GovernanceCommitteeCmdTextEnvWriteError . newExceptT
