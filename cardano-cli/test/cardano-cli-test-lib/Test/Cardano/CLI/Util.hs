@@ -1,4 +1,6 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
+
 module Test.Cardano.CLI.Util
   ( checkTxCddlFormat
   , checkTextEnvelopeFormat
@@ -12,13 +14,18 @@ module Test.Cardano.CLI.Util
   , noteTempFile
 
   , redactJsonField
+  , bracketSem
   ) where
 
 import           Cardano.Api
 
 import           Cardano.CLI.Read
 
-import           Control.Monad.Catch
+import           Control.Concurrent (QSem, signalQSem, waitQSem)
+import           Control.Exception.Lifted (bracket_)
+import           Control.Monad.Base
+import           Control.Monad.Catch hiding (bracket_)
+import           Control.Monad.Trans.Control (MonadBaseControl)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson
@@ -276,3 +283,8 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
               else v
         v -> pure v
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
+
+-- | Run action acquiring a semaphore, and releasing afterwards. Allows to guard against concurrent access to
+-- a block of code
+bracketSem :: MonadBaseControl IO m => QSem -> m c -> m c
+bracketSem semaphore = bracket_ (liftBase $ waitQSem semaphore) (liftBase $ signalQSem semaphore)
