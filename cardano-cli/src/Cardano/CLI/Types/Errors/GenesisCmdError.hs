@@ -39,7 +39,7 @@ data GenesisCmdError
   | GenesisCmdStakePoolRelayFileError !FilePath !IOException
   | GenesisCmdStakePoolRelayJsonDecodeError !FilePath !String
   | GenesisCmdFileInputDecodeError !(FileError InputDecodeError)
-  | GenesisCmdNegativeInitialFunds !Integer -- ^ total supply underflow
+  | GenesisCmdDelegatedSupplyExceedsTotalSupply !Integer !Integer -- ^ First @Integer@ is the delegate supply, second @Integer@ is the total supply
   deriving Show
 
 instance Error GenesisCmdError where
@@ -101,5 +101,7 @@ instance Error GenesisCmdError where
       " Error: " <> pretty e
     GenesisCmdFileInputDecodeError ide ->
       "Error occured while decoding a file: " <> pshow ide
-    GenesisCmdNegativeInitialFunds underflow ->
-      "Provided delegated supply value results in negative initial funds. Decrease delegated amount by " <> pretty ((-1) * underflow) <> " or increase total supply by it."
+    GenesisCmdDelegatedSupplyExceedsTotalSupply delegated total ->
+      "Provided delegated supply is " <> pretty delegated <> ", which is greater than the specified total supply: " <> pretty total <> "." <>
+      "This is incorrect: the delegated supply should be less or equal to the total supply." <>
+      " Note that the total supply can either come from --total-supply or from the default template. Please fix what you use."

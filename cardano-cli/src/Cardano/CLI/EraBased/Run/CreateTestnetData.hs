@@ -582,8 +582,7 @@ updateOutputTemplate
   mDelegatedSupply
   nUtxoAddrsDeleg utxoAddrsDeleg stuffedUtxoAddrs
   template@ShelleyGenesis{ sgProtocolParams } = do
-    nonDelegCoin <- getCoinForDistribution nonDelegCoinRaw
-    delegCoin <- getCoinForDistribution delegCoinRaw
+    when (delegCoinRaw > totalSupply) (throwError $ GenesisCmdDelegatedSupplyExceedsTotalSupply delegCoinRaw totalSupply)
     pure template
           { sgSystemStart
           , sgMaxLovelaceSupply = totalSupply
@@ -603,18 +602,18 @@ updateOutputTemplate
           , sgProtocolParams
           }
   where
-    getCoinForDistribution :: Integer -> m Natural
-    getCoinForDistribution inputCoin = do
-      let value = inputCoin - subtrahendForTreasury
-      when (value < 0) $ throwError $ GenesisCmdNegativeInitialFunds value
-      pure $ fromInteger value
+    nonDelegCoin = getCoinForDistribution nonDelegCoinRaw
+    delegCoin = getCoinForDistribution delegCoinRaw
+
+    getCoinForDistribution :: Integer -> Natural
+    getCoinForDistribution inputCoin =
+      -- If the initial funds are equal to the maximum funds, rewards cannot be created.
+      -- So subtrahend a part for the treasury:
+      fromInteger $ inputCoin - (inputCoin `quot` 10)
 
     nUtxoAddrsNonDeleg  = length utxoAddrsNonDeleg
     maximumLovelaceSupply :: Word64
     maximumLovelaceSupply = sgMaxLovelaceSupply template
-    -- If the initial funds are equal to the maximum funds, rewards cannot be created.
-    subtrahendForTreasury :: Integer
-    subtrahendForTreasury = nonDelegCoinRaw `quot` 10
 
     totalSupply :: Integral a => a
     -- if --total-supply is not specified, supply comes from the template passed to this function:
