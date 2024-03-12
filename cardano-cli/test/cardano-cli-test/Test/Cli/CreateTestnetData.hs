@@ -8,6 +8,7 @@ module Test.Cli.CreateTestnetData where
 
 import           Control.Monad
 import           Data.Aeson (FromJSON, ToJSON)
+import           Data.List (isInfixOf)
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 import           Data.Text (Text)
@@ -49,6 +50,8 @@ hprop_create_testnet_data_create_nonegative_supply = do
           (2_000_000_000, 1_000_000_000, ExitSuccess)
         , (1_100_000_000, 1_000_000_000, ExitSuccess)
         , (1_000_000_000, 1_000_000_000, ExitSuccess)
+        , (1_000_000_000_000, 1_000_000_000, ExitSuccess)
+        , (1_000_000_000, 1_000_000_001, ExitFailure 1)
         , (1_000_000_000, 1_100_000_001, ExitFailure 1)
         , (1_000_000_000, 2_000_000_000, ExitFailure 1)
         ] :: [(Int, Int, ExitCode)]
@@ -57,7 +60,7 @@ hprop_create_testnet_data_create_nonegative_supply = do
     moduleWorkspace "tmp" $ \tempDir -> do
       let outputDir = tempDir </> "out"
 
-      (exitCode, _, _) <- H.noteShowM $ execDetailCardanoCLI
+      (exitCode, _stdout, stderr) <- H.noteShowM $ execDetailCardanoCLI
         ["conway",  "genesis", "create-testnet-data"
         , "--testnet-magic", "42"
         , "--pools", "3"
@@ -72,7 +75,8 @@ hprop_create_testnet_data_create_nonegative_supply = do
       H.note_ "check that exit code is equal to the expected one"
       exitCode === expectedExitCode
 
-      when (exitCode == ExitSuccess) $ do
+      if exitCode == ExitSuccess
+      then do
         testGenesis@TestGenesis{maxLovelaceSupply, initialFunds} <- H.leftFailM . H.readJsonFile $ outputDir </> "genesis.json"
         H.note_ $ show testGenesis
 
@@ -86,6 +90,11 @@ hprop_create_testnet_data_create_nonegative_supply = do
         H.assertWith initialFunds $ \initialFunds' -> do
           let totalDistributed = sum . M.elems $ initialFunds'
           totalDistributed <= maxLovelaceSupply
+      else do
+        H.assertWith stderr (`contains` "delegated supply should be less or equal to the total supply")
+  where
+    contains s1 s2 = s2 `isInfixOf` s1
+
 
 data TestGenesis = TestGenesis
   { maxLovelaceSupply :: Int
