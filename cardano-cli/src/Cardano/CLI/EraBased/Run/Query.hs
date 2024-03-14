@@ -152,11 +152,8 @@ runQueryConstitutionHashCmd
       -> Maybe (L.SafeHash L.StandardCrypto L.AnchorData)
       -> ExceptT QueryCmdError IO ()
     writeConstitutionHash mOutFile' cHash =
-      case mOutFile' of
-        Nothing -> liftIO $ LBS.putStrLn (encodePretty cHash)
-        Just (File fpath) ->
-          handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath) $
-            LBS.writeFile fpath (encodePretty cHash)
+      firstExceptT QueryCmdWriteFileError . newExceptT
+        $ writeLazyByteStringOutput mOutFile' $ encodePretty cHash
 
 runQueryProtocolParametersCmd :: ()
   => Cmd.QueryProtocolParametersCmdArgs
@@ -183,12 +180,8 @@ runQueryProtocolParametersCmd
       -> L.PParams (ShelleyLedgerEra era)
       -> ExceptT QueryCmdError IO ()
     writeProtocolParameters sbe mOutFile' pparams =
-      let apiPParamsJSON = (encodePretty $ fromLedgerPParams sbe pparams)
-      in case mOutFile' of
-        Nothing -> liftIO $ LBS.putStrLn apiPParamsJSON
-        Just (File fpath) ->
-          handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath) $
-            LBS.writeFile fpath apiPParamsJSON
+      firstExceptT QueryCmdWriteFileError . newExceptT
+        $ writeLazyByteStringOutput mOutFile' $ encodePretty $ fromLedgerPParams sbe pparams
 
 -- | Calculate the percentage sync rendered as text.
 percentage
@@ -302,9 +295,8 @@ runQueryTipCmd
           , O.mSyncProgress = mSyncProgress
           }
 
-  case mOutFile of
-    Just (File fpath) -> liftIO $ LBS.writeFile fpath $ encodePretty localStateOutput
-    Nothing                 -> liftIO $ LBS.putStrLn        $ encodePretty localStateOutput
+  firstExceptT QueryCmdWriteFileError . newExceptT
+    $ writeLazyByteStringOutput mOutFile $ encodePretty localStateOutput
 
 -- | Query the UTxO, filtered by a given set of addresses, from a Shelley node
 -- via the local state query protocol.
@@ -664,11 +656,8 @@ runQueryTxMempoolCmd
       TxMempoolQueryInfo -> pure LocalTxMonitoringMempoolInformation
 
   result <- liftIO $ queryTxMonitoringLocal localNodeConnInfo localQuery
-  let renderedResult = encodePretty result
-  case mOutFile of
-    Nothing -> liftIO $ LBS.putStrLn renderedResult
-    Just (File oFp) -> handleIOExceptT (QueryCmdWriteFileError . FileIOError oFp)
-        $ LBS.writeFile oFp renderedResult
+  firstExceptT QueryCmdWriteFileError . newExceptT
+    $ writeLazyByteStringOutput mOutFile $ encodePretty result
 
 runQuerySlotNumberCmd :: ()
   => Cmd.QuerySlotNumberCmdArgs
@@ -1128,8 +1117,7 @@ runQueryStakePoolsCmd
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdEraMismatch)
 
-        pure $ do
-          writeStakePools (newOutputFormat format mOutFile) mOutFile poolIds
+        pure $ writeStakePools (newOutputFormat format mOutFile) mOutFile poolIds
     ) & onLeft (left . QueryCmdAcquireFailure)
       & onLeft left
 
