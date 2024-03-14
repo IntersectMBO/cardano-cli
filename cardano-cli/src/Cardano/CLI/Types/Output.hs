@@ -248,7 +248,7 @@ data ScriptCostOutput =
   ScriptCostOutput
     { scScriptHash :: ScriptHash
     , scExecutionUnits :: ExecutionUnits
-    , scAda :: Lovelace
+    , scAda :: L.Coin
     }
 
 instance ToJSON ScriptCostOutput where

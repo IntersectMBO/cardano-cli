@@ -17,6 +17,7 @@ module Cardano.CLI.EraBased.Commands.Genesis
   , renderGenesisCmds
   ) where
 
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
 import           Cardano.Chain.Common (BlockCount)
@@ -45,7 +46,7 @@ data GenesisCreateCmdArgs = GenesisCreateCmdArgs
   , numGenesisKeys :: !Word
   , numUTxOKeys :: !Word
   , mSystemStart :: !(Maybe SystemStart)
-  , mSupply :: !(Maybe Lovelace)
+  , mSupply :: !(Maybe Coin)
   , network :: !NetworkId
   } deriving Show
 
@@ -54,7 +55,7 @@ data GenesisCreateCardanoCmdArgs = GenesisCreateCardanoCmdArgs
   , numGenesisKeys :: !Word
   , numUTxOKeys :: !Word
   , mSystemStart :: !(Maybe SystemStart)
-  , mSupply :: !(Maybe Lovelace)
+  , mSupply :: !(Maybe Coin)
   , security :: !BlockCount
   , slotLength :: !Word
   , slotCoeff :: !Rational
@@ -74,8 +75,8 @@ data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
   , numPools :: !Word
   , numStakeDelegators :: !Word
   , mSystemStart :: !(Maybe SystemStart)
-  , mNonDelegatedSupply :: !(Maybe Lovelace)
-  , delegatedSupply :: !Lovelace
+  , mNonDelegatedSupply :: !(Maybe Coin)
+  , delegatedSupply :: !Coin
   , network :: !NetworkId
   , numBulkPoolCredFiles :: !Word
   , numBulkPoolsPerFile :: !Word
@@ -91,8 +92,8 @@ data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
   , numDrepKeys :: !Word -- ^ The number of DRep keys to create. Right now they receive neither delegation nor are registrated. This will come later.
   , numStuffedUtxo :: !Word -- ^ The number of UTxO accounts to make. They are "stuffed" because the credentials are not written to disk.
   , numUtxoKeys :: !Word -- ^ The number of UTxO credentials to create and write to disk.
-  , totalSupply :: !(Maybe Lovelace) -- ^ The total number of Lovelace
-  , delegatedSupply :: !(Maybe Lovelace) -- ^ The number of Lovelace being delegated
+  , totalSupply :: !(Maybe Coin) -- ^ The total number of Lovelace
+  , delegatedSupply :: !(Maybe Coin) -- ^ The number of Lovelace being delegated
   , networkId :: !(Maybe NetworkId) -- ^ The network ID to use. Overrides the network id supplied in the spec file.
   , relays :: !(Maybe FilePath) -- ^ Filepath of the specification of relays
   , systemStart :: !(Maybe SystemStart) -- ^ The genesis start time.

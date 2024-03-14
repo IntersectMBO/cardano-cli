@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Options.Genesis
   ) where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import           Cardano.Api.Ledger (Coin (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Environment (EnvCli (..))
@@ -281,9 +282,9 @@ pGenesisCreateTestNetData envCli =
         , Opt.help "The number of UTxO keys to make (default is 0)."
         , Opt.value 0
         ]
-    pSupply :: Parser (Maybe Lovelace)
+    pSupply :: Parser (Maybe Coin)
     pSupply =
-      Opt.optional $ fmap Lovelace $ Opt.option Opt.auto $ mconcat
+      Opt.optional $ fmap Coin $ Opt.option Opt.auto $ mconcat
         [ Opt.long "total-supply"
         , Opt.metavar "LOVELACE"
         , Opt.help $ mconcat [ "The maximum possible amount of Lovelace, which is evenly distributed across stake holders. Defaults to 1 million Ada (i.e. 10^12 Lovelace)."
@@ -291,9 +292,9 @@ pGenesisCreateTestNetData envCli =
                              ]
         , Opt.value 1_000_000_000_000
         ]
-    pSupplyDelegated :: Parser (Maybe Lovelace)
+    pSupplyDelegated :: Parser (Maybe Coin)
     pSupplyDelegated =
-      Opt.optional $ fmap Lovelace $ Opt.option Opt.auto $ mconcat
+      Opt.optional $ fmap Coin $ Opt.option Opt.auto $ mconcat
         [ Opt.long "delegated-supply"
         , Opt.metavar "LOVELACE"
         , Opt.help $ mconcat [ "The amount of the total supply which is evenly delegated. Defaults to 500 000 Ada (i.e. (10^12) / 2 Lovelace)."
@@ -383,17 +384,17 @@ pStuffedUtxoCount =
     , Opt.value 0
     ]
 
-pInitialSupplyNonDelegated :: Parser (Maybe Lovelace)
+pInitialSupplyNonDelegated :: Parser (Maybe Coin)
 pInitialSupplyNonDelegated =
-  Opt.optional $ fmap Lovelace $ Opt.option Opt.auto $ mconcat
+  Opt.optional $ fmap Coin $ Opt.option Opt.auto $ mconcat
     [ Opt.long "supply"
     , Opt.metavar "LOVELACE"
     , Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, non-delegating stake holders."
     ]
 
-pInitialSupplyDelegated :: Parser Lovelace
+pInitialSupplyDelegated :: Parser Coin
 pInitialSupplyDelegated =
-  fmap (Lovelace . fromMaybe 0) $ Opt.optional $ Opt.option Opt.auto $ mconcat
+  fmap (Coin . fromMaybe 0) $ Opt.optional $ Opt.option Opt.auto $ mconcat
     [ Opt.long "supply-delegated"
     , Opt.metavar "LOVELACE"
     , Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, delegating stake holders."

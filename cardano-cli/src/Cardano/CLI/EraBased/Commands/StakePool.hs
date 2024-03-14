@@ -12,6 +12,7 @@ module Cardano.CLI.EraBased.Commands.StakePool
   , StakePoolRegistrationCertificateCmdArgs(..)
   ) where
 
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Types.Common
@@ -57,8 +58,8 @@ data StakePoolRegistrationCertificateCmdArgs era =
     { sbe                               :: !(ShelleyBasedEra era) -- ^ Era in which to register the stake pool.
     , poolVerificationKeyOrFile         :: !(VerificationKeyOrFile StakePoolKey) -- ^ Stake pool verification key.
     , vrfVerificationKeyOrFile          :: !(VerificationKeyOrFile VrfKey) -- ^ VRF Verification key.
-    , poolPledge                        :: !Lovelace -- ^ Pool pledge.
-    , poolCost                          :: !Lovelace -- ^ Pool cost.
+    , poolPledge                        :: !Coin -- ^ Pool pledge.
+    , poolCost                          :: !Coin -- ^ Pool cost.
     , poolMargin                        :: !Rational -- ^ Pool margin.
     , rewardStakeVerificationKeyOrFile  :: !(VerificationKeyOrFile StakeKey) -- ^ Reward account verification staking key.
     , ownerStakeVerificationKeyOrFiles  :: ![VerificationKeyOrFile StakeKey] -- ^ Pool owner verification staking key(s).

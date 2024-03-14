@@ -7,6 +7,7 @@ module Cardano.CLI.Legacy.Commands.StakeAddress
   , renderLegacyStakeAddressCmds
   ) where
 
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
@@ -31,7 +32,7 @@ data LegacyStakeAddressCmds
   | StakeAddressRegistrationCertificateCmd
       (EraInEon ShelleyBasedEra)
       StakeIdentifier
-      (Maybe Lovelace)
+      (Maybe Coin)
       (File () Out)
   | StakeAddressDelegationCertificateCmd
       (EraInEon ShelleyBasedEra)
@@ -41,7 +42,7 @@ data LegacyStakeAddressCmds
   | StakeAddressDeregistrationCertificateCmd
       (EraInEon ShelleyBasedEra)
       StakeIdentifier
-      (Maybe Lovelace)
+      (Maybe Coin)
       (File () Out)
   deriving Show
 

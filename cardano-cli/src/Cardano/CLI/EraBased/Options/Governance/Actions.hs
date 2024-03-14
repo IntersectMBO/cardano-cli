@@ -240,25 +240,25 @@ mkProtocolVersionOrErr (majorProtVer, minorProtVer) =
 pCommonProtocolParameters :: Parser CommonProtocolParametersUpdate
 pCommonProtocolParameters =
   CommonProtocolParametersUpdate
-    <$> convertToLedger toShelleyLovelace (optional pMinFeeConstantFactor)
-    <*> convertToLedger toShelleyLovelace (optional pMinFeePerByteFactor)
+    <$> convertToLedger id (optional pMinFeeConstantFactor)
+    <*> convertToLedger id (optional pMinFeePerByteFactor)
     <*> convertToLedger id (optional pMaxBodySize)
     <*> convertToLedger id (optional pMaxTransactionSize)
     <*> convertToLedger id (optional pMaxBlockHeaderSize)
-    <*> convertToLedger toShelleyLovelace (optional pKeyRegistDeposit)
-    <*> convertToLedger toShelleyLovelace (optional pPoolDeposit)
+    <*> convertToLedger id (optional pKeyRegistDeposit)
+    <*> convertToLedger id (optional pPoolDeposit)
     <*> convertToLedger id (optional pEpochBoundRetirement)
     <*> convertToLedger id (optional pNumberOfPools)
     <*> convertToLedger toNonNegativeIntervalOrErr (optional pPoolInfluence)
     <*> convertToLedger toUnitIntervalOrErr (optional pTreasuryExpansion)
     <*> convertToLedger toUnitIntervalOrErr (optional pMonetaryExpansion)
-    <*> convertToLedger toShelleyLovelace (optional pMinPoolCost)
+    <*> convertToLedger id (optional pMinPoolCost)
 
 
 pDeprecatedAfterMaryPParams :: Parser (DeprecatedAfterMaryPParams ledgerera)
 pDeprecatedAfterMaryPParams =
   DeprecatedAfterMaryPParams
-    <$> convertToLedger toShelleyLovelace (optional pMinUTxOValue)
+    <$> convertToLedger id (optional pMinUTxOValue)
 
 pDeprecatedAfterBabbagePParams :: Parser (DeprecatedAfterBabbagePParams ledgerera)
 pDeprecatedAfterBabbagePParams =
@@ -286,7 +286,7 @@ pAlonzoOnwardsPParams =
 pIntroducedInBabbagePParams :: Parser (IntroducedInBabbagePParams ledgerera)
 pIntroducedInBabbagePParams =
   IntroducedInBabbagePParams
-    <$> convertToLedger (L.CoinPerByte . toShelleyLovelace) (optional pUTxOCostPerByte)
+    <$> convertToLedger L.CoinPerByte (optional pUTxOCostPerByte)
 
 pIntroducedInConwayPParams :: Parser (IntroducedInConwayPParams ledgerera)
 pIntroducedInConwayPParams =
@@ -296,8 +296,8 @@ pIntroducedInConwayPParams =
     <*> convertToLedger id (optional pMinCommitteeSize)
     <*> convertToLedger id (optional pCommitteeTermLength)
     <*> convertToLedger id (optional pGovActionLifetime)
-    <*> convertToLedger toShelleyLovelace (optional pNewGovActionDeposit)
-    <*> convertToLedger toShelleyLovelace (optional pDRepDeposit)
+    <*> convertToLedger id (optional pNewGovActionDeposit)
+    <*> convertToLedger id (optional pDRepDeposit)
     <*> convertToLedger id (optional pDRepActivity)
 
 -- Not necessary in Conway era onwards

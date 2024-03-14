@@ -23,7 +23,7 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (Proposal),
                    ShelleyLedgerEra, StakeAddress (..), fromShelleyPaymentCredential,
-                   fromShelleyStakeReference, toShelleyLovelace, toShelleyStakeCredential)
+                   fromShelleyStakeReference, toShelleyStakeCredential)
 
 import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
@@ -218,7 +218,7 @@ friendlyWithdrawals (TxWithdrawals _ withdrawals) =
   array
     [ object $
         "address" .= serialiseAddress addr :
-        "amount" .= friendlyLovelace (toShelleyLovelace amount) :
+        "amount" .= friendlyLovelace amount :
         friendlyStakeAddress addr
     | (addr, amount, _) <- withdrawals
     ]
@@ -319,12 +319,12 @@ friendlyProtocolParametersUpdate
     , protocolUpdateMaxTxSize <&> ("max transaction size" .=)
     , protocolUpdateTxFeeFixed <&> ("transaction fee constant" .=)
     , protocolUpdateTxFeePerByte <&> ("transaction fee linear per byte" .=)
-    , protocolUpdateMinUTxOValue <&> ("min UTxO value" .=) . friendlyLovelace . toShelleyLovelace
+    , protocolUpdateMinUTxOValue <&> ("min UTxO value" .=) . friendlyLovelace
     , protocolUpdateStakeAddressDeposit <&>
-        ("key registration deposit" .=) . friendlyLovelace . toShelleyLovelace
+        ("key registration deposit" .=) . friendlyLovelace
     , protocolUpdateStakePoolDeposit <&>
-        ("pool registration deposit" .=) . friendlyLovelace . toShelleyLovelace
-    , protocolUpdateMinPoolCost <&> ("min pool cost" .=) . friendlyLovelace . toShelleyLovelace
+        ("pool registration deposit" .=) . friendlyLovelace
+    , protocolUpdateMinPoolCost <&> ("min pool cost" .=) . friendlyLovelace
     , protocolUpdatePoolRetireMaxEpoch <&> ("pool retirement epoch boundary" .=)
     , protocolUpdateStakePoolTargetNum <&> ("number of pools" .=)
     , protocolUpdatePoolPledgeInfluence <&>
@@ -340,7 +340,7 @@ friendlyProtocolParametersUpdate
     , protocolUpdateMaxValueSize <&> ("max value size" .=)
     , protocolUpdatePrices <&> ("execution prices" .=) . friendlyPrices
     , protocolUpdateUTxOCostPerByte <&>
-        ("UTxO storage cost per byte" .=) . friendlyLovelace . toShelleyLovelace
+        ("UTxO storage cost per byte" .=) . friendlyLovelace
     ]
 
 friendlyPrices :: ExecutionUnitPrices -> Aeson.Value
@@ -504,7 +504,7 @@ friendlyMirTarget sbe = \case
     "target stake addresses" .=
       [ object
           [ friendlyStakeCredential credential
-          , "amount" .= friendlyLovelace (toShelleyLovelace (Lovelace 0) `L.addDeltaCoin` lovelace)
+          , "amount" .= friendlyLovelace (L.Coin 0 `L.addDeltaCoin` lovelace)
           ]
       | (credential, lovelace) <- Map.toList (shelleyBasedEraConstraints sbe addresses)
       ]
@@ -545,7 +545,7 @@ friendlyRational r =
 
 friendlyFee :: TxFee era -> Aeson.Value
 friendlyFee = \case
-  TxFeeExplicit _ fee -> friendlyLovelace $ toShelleyLovelace fee
+  TxFeeExplicit _ fee -> friendlyLovelace fee
 
 friendlyLovelace :: L.Coin -> Aeson.Value
 friendlyLovelace (L.Coin value) = String $ textShow value <> " Lovelace"
@@ -557,7 +557,7 @@ friendlyMintValue = \case
 
 friendlyTxOutValue :: TxOutValue era -> Aeson.Value
 friendlyTxOutValue = \case
-  TxOutValueByron lovelace -> friendlyLovelace $ toShelleyLovelace lovelace
+  TxOutValueByron lovelace -> friendlyLovelace lovelace
   TxOutValueShelleyBased sbe v -> friendlyLedgerValue sbe v
 
 friendlyLedgerValue :: ()

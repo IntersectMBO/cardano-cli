@@ -20,6 +20,7 @@ module Cardano.CLI.EraBased.Commands.Transaction
   , renderTransactionCmds
   ) where
 
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
@@ -53,7 +54,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
     -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
   , mReturnCollateral     :: !(Maybe TxOutShelleyBasedEra)
     -- ^ Return collateral
-  , mTotalCollateral      :: !(Maybe Lovelace)
+  , mTotalCollateral      :: !(Maybe Coin)
     -- ^ Total collateral
   , requiredSigners       :: ![RequiredSigner]
     -- ^ Required signers
@@ -64,11 +65,11 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
     -- ^ Transaction validity lower bound
   , mValidityUpperBound   :: !(TxValidityUpperBound era)
     -- ^ Transaction validity upper bound
-  , fee                   :: !(Maybe Lovelace)
+  , fee                   :: !(Maybe Coin)
     -- ^ Transaction fee
   , certificates          :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
     -- ^ Certificates with potential script witness
-  , withdrawals           :: ![(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , withdrawals           :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
   , metadataSchema        :: !TxMetadataJsonSchema
   , scriptFiles           :: ![ScriptFile]
     -- ^ Auxiliary scripts
@@ -100,7 +101,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
     -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
   , mReturnCollateral       :: !(Maybe TxOutShelleyBasedEra)
     -- ^ Return collateral
-  , mTotalCollateral        :: !(Maybe Lovelace)
+  , mTotalCollateral        :: !(Maybe Coin)
     -- ^ Total collateral
   , txouts                  :: ![TxOutAnyEra]
     -- ^ Normal outputs
@@ -114,7 +115,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
     -- ^ Transaction validity upper bound
   , certificates            :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
     -- ^ Certificates with potential script witness
-  , withdrawals             :: ![(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , withdrawals             :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
     -- ^ Withdrawals with potential script witness
   , metadataSchema          :: !TxMetadataJsonSchema
   , scriptFiles             :: ![ScriptFile]

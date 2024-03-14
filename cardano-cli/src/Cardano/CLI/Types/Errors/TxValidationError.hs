@@ -82,7 +82,7 @@ instance Error TxFeeValidationError where
     "Explicit transaction fee not supported in " <> pretty era
 
 validateTxFee :: ShelleyBasedEra era
-              -> Maybe Lovelace -- TODO: Make this mandatory in the cli (Remove Maybe)
+              -> Maybe L.Coin -- TODO: Make this mandatory in the cli (Remove Maybe)
               -> Either TxFeeValidationError (TxFee era)
 validateTxFee era = \case
   Nothing ->
@@ -99,7 +99,7 @@ instance Error TxTotalCollateralValidationError where
     "Transaction collateral not supported in " <> pretty era
 
 validateTxTotalCollateral :: CardanoEra era
-                          -> Maybe Lovelace
+                          -> Maybe L.Coin
                           -> Either TxTotalCollateralValidationError (TxTotalCollateral era)
 validateTxTotalCollateral _ Nothing = return TxTotalCollateralNone
 validateTxTotalCollateral era (Just coll) = do
@@ -197,7 +197,7 @@ instance Error TxWithdrawalsValidationError where
 validateTxWithdrawals
   :: forall era.
      CardanoEra era
-  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))]
   -> Either TxWithdrawalsValidationError (TxWithdrawals BuildTx era)
 validateTxWithdrawals _ [] = return TxWithdrawalsNone
 validateTxWithdrawals era withdrawals = do
@@ -206,8 +206,8 @@ validateTxWithdrawals era withdrawals = do
   pure $ TxWithdrawals supported convWithdrawals
  where
   convert
-    :: (StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))
-    -> (StakeAddress, Lovelace, BuildTxWith BuildTx (Witness WitCtxStake era))
+    :: (StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))
+    -> (StakeAddress, L.Coin, BuildTxWith BuildTx (Witness WitCtxStake era))
   convert (sAddr, ll, mScriptWitnessFiles) =
     case mScriptWitnessFiles of
       Just sWit -> (sAddr, ll, BuildTxWith $ ScriptWitness ScriptWitnessForStakeAddr sWit)

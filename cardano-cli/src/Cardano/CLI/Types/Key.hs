@@ -136,9 +136,9 @@ data StakePoolRegistrationParserRequirements
      -- ^ Stake pool verification key.
      , sprVrfKey :: VerificationKeyOrFile VrfKey
      -- ^ VRF Verification key.
-     , sprPoolPledge :: Lovelace
+     , sprPoolPledge :: L.Coin
      -- ^ Pool pledge.
-     , sprPoolCost :: Lovelace
+     , sprPoolCost :: L.Coin
      -- ^ Pool cost.
      , sprPoolMargin :: Rational
      -- ^ Pool margin.

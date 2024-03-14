@@ -361,20 +361,20 @@ runTxBuildRaw :: ()
   -- ^ TxIn for collateral
   -> Maybe (TxOut CtxTx era)
   -- ^ Return collateral
-  -> Maybe Lovelace
+  -> Maybe L.Coin
   -- ^ Total collateral
   -> [TxOut CtxTx era]
   -> Maybe SlotNo
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> Maybe Lovelace
+  -> Maybe L.Coin
   -- ^ Tx fee
   -> (Value, [ScriptWitness WitCtxMint era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
@@ -465,7 +465,7 @@ runTxBuild :: ()
   -- ^ TxIn for collateral
   -> Maybe (TxOut CtxTx era)
   -- ^ Return collateral
-  -> Maybe Lovelace
+  -> Maybe L.Coin
   -- ^ Total collateral
   -> [TxOut CtxTx era]
   -- ^ Normal outputs
@@ -479,7 +479,7 @@ runTxBuild :: ()
   -- ^ Tx upper bound
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
@@ -500,7 +500,7 @@ runTxBuild
   -- TODO: All functions should be parameterized by ShelleyBasedEra
   -- as it's not possible to call this function with ByronEra
   let era = shelleyBasedToCardanoEra sbe
-      dummyFee = Just $ Lovelace 0
+      dummyFee = Just $ L.Coin 0
       inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
 
   let allReferenceInputs = getAllReferenceInputs
@@ -654,7 +654,7 @@ getAllReferenceInputs
  :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
  -> [ScriptWitness WitCtxMint era]
  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
- -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
+ -> [(StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))]
  -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
  -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
  -> [TxIn] -- ^ Read only reference inputs
@@ -709,9 +709,6 @@ toAddressInShelleyBasedEra sbe sAddr = runExcept $
       pure (AddressInEra (ShelleyAddressInEra sbe) sAddr)
 
 
-lovelaceToCoin :: Lovelace -> L.Coin
-lovelaceToCoin (Lovelace ll) = L.Coin ll
-
 toTxOutValueInAnyEra
   :: ShelleyBasedEra era
   -> Value
@@ -719,7 +716,7 @@ toTxOutValueInAnyEra
 toTxOutValueInAnyEra era val =
   caseShelleyToAllegraOrMaryEraOnwards
     (\_ -> case valueToLovelace val of
-      Just l  -> return (TxOutValueShelleyBased era $ lovelaceToCoin l)
+      Just l  -> return (TxOutValueShelleyBased era l)
       Nothing -> txFeatureMismatchPure (toCardanoEra era) TxFeatureMultiAssetOutputs
     )
     (\w -> return (TxOutValueShelleyBased era (toLedgerValue w val))
@@ -733,7 +730,7 @@ toTxOutValueInShelleyBasedEra
 toTxOutValueInShelleyBasedEra sbe val =
   caseShelleyToAllegraOrMaryEraOnwards
     (\_ -> case valueToLovelace val of
-      Just l  -> return (TxOutValueShelleyBased sbe $ lovelaceToCoin l)
+      Just l  -> return (TxOutValueShelleyBased sbe l)
       Nothing -> txFeatureMismatchPure (toCardanoEra sbe) TxFeatureMultiAssetOutputs
     )
     (\w -> return (TxOutValueShelleyBased sbe (toLedgerValue w val))
@@ -1028,7 +1025,7 @@ runTransactionCalculateMinFeeCmd
       InAnyShelleyBasedEra sbe unwitTx <- pure anyTx
       let txbody =  getTxBody unwitTx
       let tx = makeSignedTransaction [] txbody
-          Lovelace fee = estimateTransactionFee sbe
+          L.Coin fee = estimateTransactionFee sbe
                             networkId
                             (protocolParamTxFeeFixed pparams)
                             (protocolParamTxFeePerByte pparams)
@@ -1042,7 +1039,7 @@ runTransactionCalculateMinFeeCmd
       InAnyShelleyBasedEra sbe txbody <- pure anyTxBody
 
       let tx = makeSignedTransaction [] txbody
-          Lovelace fee = estimateTransactionFee sbe
+          L.Coin fee = estimateTransactionFee sbe
                             networkId
                             (protocolParamTxFeeFixed pparams)
                             (protocolParamTxFeePerByte pparams)

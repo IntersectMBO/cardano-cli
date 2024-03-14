@@ -22,6 +22,7 @@ module Cardano.CLI.Legacy.Options
   ) where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import           Cardano.Api.Ledger (Coin (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
@@ -1115,17 +1116,17 @@ pGenesisCmds envCli =
         , Opt.completer (Opt.bashCompleter "file")
         ]
 
-    pInitialSupplyNonDelegated :: Parser (Maybe Lovelace)
+    pInitialSupplyNonDelegated :: Parser (Maybe Coin)
     pInitialSupplyNonDelegated =
-      Opt.optional $ fmap Lovelace $ Opt.option Opt.auto $ mconcat
+      Opt.optional $ fmap Coin $ Opt.option Opt.auto $ mconcat
         [ Opt.long "supply"
         , Opt.metavar "LOVELACE"
         , Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, non-delegating stake holders."
         ]
 
-    pInitialSupplyDelegated :: Parser Lovelace
+    pInitialSupplyDelegated :: Parser Coin
     pInitialSupplyDelegated =
-      fmap (Lovelace . fromMaybe 0) $ Opt.optional $ Opt.option Opt.auto $ mconcat
+      fmap (Coin . fromMaybe 0) $ Opt.optional $ Opt.option Opt.auto $ mconcat
         [ Opt.long "supply-delegated"
         , Opt.metavar "LOVELACE"
         , Opt.help "The initial coin supply in Lovelace which will be evenly distributed across initial, delegating stake holders."

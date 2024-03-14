@@ -566,11 +566,11 @@ updateOutputTemplate
   :: forall m. MonadError GenesisCmdError m
   => SystemStart -- ^ System start time
   -> Map (Hash GenesisKey) (Hash GenesisDelegateKey, Hash VrfKey) -- ^ Genesis delegation (not stake-based)
-  -> Maybe Lovelace -- ^ Total amount of lovelace
+  -> Maybe L.Coin -- ^ Total amount of lovelace
   -> [AddressInEra ShelleyEra] -- ^ UTxO addresses that are not delegating
   -> [(L.KeyHash 'L.StakePool L.StandardCrypto, L.PoolParams L.StandardCrypto)] -- ^ Pool map
   -> [(L.KeyHash 'L.Staking L.StandardCrypto, L.KeyHash 'L.StakePool L.StandardCrypto)] -- ^ Delegaton map
-  -> Maybe Lovelace -- ^ Amount of lovelace to delegate
+  -> Maybe L.Coin -- ^ Amount of lovelace to delegate
   -> Int -- ^ Number of UTxO address for delegation
   -> [AddressInEra ShelleyEra] -- ^ UTxO address for delegation
   -> [AddressInEra ShelleyEra] -- ^ Stuffed UTxO addresses
@@ -588,7 +588,7 @@ updateOutputTemplate
           , sgMaxLovelaceSupply = totalSupply
           , sgGenDelegs = shelleyDelKeys
           , sgInitialFunds = ListMap.fromList
-                              [ (toShelleyAddr addr, toShelleyLovelace v)
+                              [ (toShelleyAddr addr, v)
                               | (addr, v) <-
                                 distribute nonDelegCoin nUtxoAddrsNonDeleg utxoAddrsNonDeleg
                                 ++ distribute delegCoin nUtxoAddrsDeleg utxoAddrsDeleg
@@ -624,14 +624,14 @@ updateOutputTemplate
     -- Since the user can specify total supply and delegated amount, the non-delegated amount is:
     nonDelegCoinRaw = totalSupply - delegCoinRaw
 
-    distribute :: Natural -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
+    distribute :: Natural -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
     distribute funds nAddrs addrs =
-      zip addrs $ Lovelace . toInteger <$> (coinPerAddr + remainder:repeat coinPerAddr)
+      zip addrs $ L.Coin . toInteger <$> (coinPerAddr + remainder:repeat coinPerAddr)
       where coinPerAddr, remainder :: Natural
             (coinPerAddr, remainder) = funds `divMod` fromIntegral nAddrs
 
-    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
-    mkStuffedUtxo xs = (, Lovelace minUtxoVal) <$> xs
+    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
+    mkStuffedUtxo xs = (, L.Coin minUtxoVal) <$> xs
       where L.Coin minUtxoVal = sgProtocolParams ^. L.ppMinUTxOValueL
     shelleyDelKeys = Map.fromList
       [ (gh, L.GenDelegPair gdh h)
@@ -639,8 +639,8 @@ updateOutputTemplate
           (GenesisDelegateKeyHash gdh, VrfKeyHash h)) <- Map.toList genDelegMap
       ]
 
-    unLovelace :: Integral a => Lovelace -> a
-    unLovelace (Lovelace coin) = fromIntegral coin
+    unLovelace :: Integral a => L.Coin -> a
+    unLovelace (L.Coin coin) = fromIntegral coin
 
 readAndDecodeShelleyGenesis
   :: FilePath

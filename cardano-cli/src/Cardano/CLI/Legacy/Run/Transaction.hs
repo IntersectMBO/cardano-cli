@@ -11,6 +11,7 @@ module Cardano.CLI.Legacy.Run.Transaction
 
 import           Cardano.Api
 import qualified Cardano.Api.Byron as Api
+import           Cardano.Api.Ledger (Coin)
 
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Transaction
@@ -75,14 +76,14 @@ runLegacyTransactionBuildCmd :: ()
   -> [RequiredSigner] -- ^ Required signers
   -> [TxIn] -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
   -> Maybe TxOutShelleyBasedEra -- ^ Return collateral
-  -> Maybe Lovelace -- ^ Total collateral
+  -> Maybe Coin -- ^ Total collateral
   -> [TxOutAnyEra]
   -> TxOutChangeAddress
   -> Maybe (Value, [ScriptWitnessFiles WitCtxMint])
   -> Maybe SlotNo -- ^ Validity lower bound
   -> Maybe SlotNo -- ^ Validity upper bound
   -> [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
-  -> [(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))] -- ^ Withdrawals with potential script witness
+  -> [(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))] -- ^ Withdrawals with potential script witness
   -> TxMetadataJsonSchema
   -> [ScriptFile]
   -> [MetadataFile]
@@ -127,15 +128,15 @@ runLegacyTransactionBuildRawCmd :: ()
   -> [TxIn] -- ^ Read only reference inputs
   -> [TxIn] -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
   -> Maybe TxOutShelleyBasedEra -- ^ Return collateral
-  -> Maybe Lovelace -- ^ Total collateral
+  -> Maybe Coin -- ^ Total collateral
   -> [RequiredSigner]
   -> [TxOutAnyEra]
   -> Maybe (Value, [ScriptWitnessFiles WitCtxMint]) -- ^ Multi-Asset value with script witness
   -> Maybe SlotNo -- ^ Validity lower bound
   -> Maybe SlotNo -- ^ Validity upper bound
-  -> Maybe Lovelace -- ^ Tx fee
+  -> Maybe Coin -- ^ Tx fee
   -> [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
-  -> [(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -> [(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
   -> TxMetadataJsonSchema
   -> [ScriptFile]
   -> [MetadataFile]
