@@ -762,6 +762,7 @@ pQueryCmds envCli =
           <*> pStakePoolVerificationKeyOrHashOrFile Nothing
           <*> pVrfSigningKeyFile
           <*> pWhichLeadershipSchedule
+          <*> (optional $ pQueryOutputFormat "leadership-schedule")
           <*> pMaybeOutputFile
 
     pKesPeriodInfo :: Parser LegacyQueryCmds

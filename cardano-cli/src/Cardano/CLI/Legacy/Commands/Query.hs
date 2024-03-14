@@ -57,6 +57,7 @@ data LegacyQueryLeadershipScheduleCmdArgs = LegacyQueryLeadershipScheduleCmdArgs
   , poolColdVerKeyFile  :: !(VerificationKeyOrHashOrFile StakePoolKey)
   , vrkSkeyFp           :: !(SigningKeyFile In)
   , whichSchedule       :: !EpochLeadershipSchedule
+  , format              :: Maybe QueryOutputFormat
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 

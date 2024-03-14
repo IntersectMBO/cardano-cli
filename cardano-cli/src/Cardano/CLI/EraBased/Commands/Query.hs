@@ -70,6 +70,7 @@ data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
   , vrkSkeyFp           :: !(SigningKeyFile In)
   , whichSchedule       :: !EpochLeadershipSchedule
   , target              :: !(Consensus.Target ChainPoint)
+  , format              :: Maybe QueryOutputFormat
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 

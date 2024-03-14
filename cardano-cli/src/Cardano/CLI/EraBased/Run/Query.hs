@@ -1218,6 +1218,7 @@ runQueryLeadershipScheduleCmd
     , Cmd.vrkSkeyFp
     , Cmd.whichSchedule
     , Cmd.target
+    , Cmd.format
     , Cmd.mOutFile
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1300,23 +1301,27 @@ runQueryLeadershipScheduleCmd
     & onLeft left
   where
     writeSchedule mOutFile' eInfo shelleyGenesis schedule =
-      case mOutFile' of
-        Nothing -> liftIO $ printLeadershipScheduleAsText schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
-        Just (File jsonOutputFile) ->
-          liftIO $ LBS.writeFile jsonOutputFile $
-            printLeadershipScheduleAsJson schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
+      firstExceptT QueryCmdWriteFileError . newExceptT
+        $ writeLazyByteStringOutput mOutFile' toWrite
+      where
+        start = SystemStart $ sgSystemStart shelleyGenesis
+        toWrite =
+          case newOutputFormat format mOutFile' of
+            QueryOutputFormatJson ->
+              encodePretty $ leadershipScheduleToJson schedule eInfo start
+            QueryOutputFormatText ->
+              strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start
 
-    printLeadershipScheduleAsText
+    leadershipScheduleToText
       :: Set SlotNo
       -> EpochInfo (Either Text)
       -> SystemStart
-      -> IO ()
-    printLeadershipScheduleAsText leadershipSlots eInfo sStart = do
-      Text.putStrLn title
-      putStrLn $ replicate (Text.length title + 2) '-'
-      sequence_
-        [ putStrLn $ showLeadershipSlot slot eInfo sStart
-        | slot <- Set.toList leadershipSlots ]
+      -> Text
+    leadershipScheduleToText leadershipSlots eInfo sStart = do
+      Text.unlines $
+        title
+        :  Text.replicate (Text.length title + 2) "-"
+        : [ showLeadershipSlot slot eInfo sStart | slot <- Set.toList leadershipSlots ]
       where
         title :: Text
         title =
@@ -1326,30 +1331,30 @@ runQueryLeadershipScheduleCmd
           :: SlotNo
           -> EpochInfo (Either Text)
           -> SystemStart
-          -> String
+          -> Text
         showLeadershipSlot lSlot@(SlotNo sn) eInfo' sStart' =
           case epochInfoSlotToUTCTime eInfo' sStart' lSlot of
             Right slotTime ->
-              concat
+              mconcat
               [ "     "
-              , show sn
+              , Text.pack $ show sn
               , "                   "
-              , show slotTime
+              , Text.pack $ show slotTime
               ]
             Left err ->
-              concat
+              mconcat
               [ "     "
-              , show sn
+              , Text.pack $ show sn
               , "                   "
-              , Text.unpack err
+              , err
               ]
-    printLeadershipScheduleAsJson
+    leadershipScheduleToJson
       :: Set SlotNo
       -> EpochInfo (Either Text)
       -> SystemStart
-      -> LBS.ByteString
-    printLeadershipScheduleAsJson leadershipSlots eInfo sStart =
-      encodePretty $ showLeadershipSlot <$> List.sort (Set.toList leadershipSlots)
+      -> [Aeson.Value]
+    leadershipScheduleToJson leadershipSlots eInfo sStart =
+      showLeadershipSlot <$> List.sort (Set.toList leadershipSlots)
       where
         showLeadershipSlot :: SlotNo -> Aeson.Value
         showLeadershipSlot lSlot@(SlotNo sn) =

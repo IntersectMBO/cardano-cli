@@ -264,6 +264,7 @@ pLeadershipScheduleCmd era envCli =
       <*> pVrfSigningKeyFile
       <*> pWhichLeadershipSchedule
       <*> pTarget era
+      <*> (optional $ pQueryOutputFormat "leadership-schedule")
       <*> pMaybeOutputFile
 
 pKesPeriodInfoCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
