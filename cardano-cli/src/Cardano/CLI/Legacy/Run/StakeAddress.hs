@@ -6,6 +6,7 @@ module Cardano.CLI.Legacy.Run.StakeAddress
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Run.StakeAddress
@@ -57,7 +58,7 @@ runLegacyStakeAddressBuildCmd =
 runLegacyStakeAddressRegistrationCertificateCmd :: ()
   => EraInEon ShelleyBasedEra
   -> StakeIdentifier
-  -> Maybe Lovelace -- ^ Deposit required in conway era
+  -> Maybe Coin -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressRegistrationCertificateCmd (EraInEon sbe) =
@@ -78,7 +79,7 @@ runLegacyStakeAddresslDelegationCertificateCmd (EraInEon sbe) =
 runLegacyStakeAddressDeregistrationCertificateCmd :: ()
   => EraInEon ShelleyBasedEra
   -> StakeIdentifier
-  -> Maybe Lovelace -- ^ Deposit required in conway era
+  -> Maybe Coin -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressDeregistrationCertificateCmd (EraInEon sbe) =

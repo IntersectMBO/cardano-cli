@@ -8,6 +8,7 @@ module Cardano.CLI.EraBased.Commands.Governance
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley (VrfKey)
 
 import           Cardano.CLI.EraBased.Commands.Governance.Actions
@@ -25,15 +26,15 @@ data GovernanceCmds era
       (ShelleyToBabbageEra era)
       MIRPot
       [StakeAddress]
-      [Lovelace]
+      [Coin]
       (File () Out)
   | GovernanceCreateMirCertificateTransferToTreasuryCmd
       (ShelleyToBabbageEra era)
-      Lovelace
+      Coin
       (File () Out)
   | GovernanceCreateMirCertificateTransferToReservesCmd
       (ShelleyToBabbageEra era)
-      Lovelace
+      Coin
       (File () Out)
   | GovernanceGenesisKeyDelegationCertificate
       (ShelleyToBabbageEra era)

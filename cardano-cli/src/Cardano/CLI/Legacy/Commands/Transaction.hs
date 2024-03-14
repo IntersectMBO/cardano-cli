@@ -6,6 +6,7 @@ module Cardano.CLI.Legacy.Commands.Transaction
   , renderLegacyTransactionCmds
   ) where
 
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
@@ -26,7 +27,7 @@ data LegacyTransactionCmds
       -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
       (Maybe TxOutShelleyBasedEra)
       -- ^ Return collateral
-      (Maybe Lovelace)
+      (Maybe Coin)
       -- ^ Total collateral
       [RequiredSigner]
       -- ^ Required signers
@@ -37,11 +38,11 @@ data LegacyTransactionCmds
       -- ^ Transaction lower bound
       (Maybe SlotNo)
       -- ^ Transaction upper bound
-      (Maybe Lovelace)
+      (Maybe Coin)
       -- ^ Tx fee
       [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
       -- ^ Certificates with potential script witness
-      [(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
+      [(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
       TxMetadataJsonSchema
       [ScriptFile]
       -- ^ Auxiliary scripts
@@ -69,7 +70,7 @@ data LegacyTransactionCmds
       -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
       (Maybe TxOutShelleyBasedEra)
       -- ^ Return collateral
-      (Maybe Lovelace)
+      (Maybe Coin)
       -- ^ Total collateral
       [TxOutAnyEra]
       -- ^ Normal outputs
@@ -83,7 +84,7 @@ data LegacyTransactionCmds
       -- ^ Transaction upper bound
       [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
       -- ^ Certificates with potential script witness
-      [(StakeAddress, Lovelace, Maybe (ScriptWitnessFiles WitCtxStake))]
+      [(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
       -- ^ Withdrawals with potential script witness
       TxMetadataJsonSchema
       [ScriptFile]

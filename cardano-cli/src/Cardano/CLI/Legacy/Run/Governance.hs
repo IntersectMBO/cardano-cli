@@ -96,7 +96,7 @@ runLegacyGovernanceMIRCertificatePayStakeAddrs
   :: EraInEon ShelleyToBabbageEra
   -> L.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
-  -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
+  -> [L.Coin]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceMIRCertificatePayStakeAddrs (EraInEon w) =
@@ -104,7 +104,7 @@ runLegacyGovernanceMIRCertificatePayStakeAddrs (EraInEon w) =
 
 runLegacyGovernanceCreateMirCertificateTransferToTreasuryCmd
   :: EraInEon ShelleyToBabbageEra
-  -> Lovelace
+  -> L.Coin
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceCreateMirCertificateTransferToTreasuryCmd (EraInEon w) =
@@ -112,7 +112,7 @@ runLegacyGovernanceCreateMirCertificateTransferToTreasuryCmd (EraInEon w) =
 
 runLegacyGovernanceCreateMirCertificateTransferToReservesCmd
   :: EraInEon ShelleyToBabbageEra
-  -> Lovelace
+  -> L.Coin
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceCreateMirCertificateTransferToReservesCmd (EraInEon w) =

@@ -293,7 +293,7 @@ parseTxOut =
   pLovelaceTxOut l =
     if l > (maxBound :: Word64)
       then error $ show l <> " lovelace exceeds the Word64 upper bound"
-      else TxOutValueByron . Lovelace $ toInteger l
+      else TxOutValueByron $ L.Coin $ toInteger l
 
 readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
 readerFromAttoParser p =
@@ -696,7 +696,7 @@ parseLovelace optname desc =
     i <- Atto.decimal
     if i > toInteger (maxBound :: Word64)
     then fail $ show i <> " lovelace exceeds the Word64 upper bound"
-    else case toByronLovelace (Lovelace i) of
+    else case toByronLovelace $ L.Coin i of
            Just byronLovelace -> return byronLovelace
            Nothing -> error $ "Error converting lovelace: " <> show i
 

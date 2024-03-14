@@ -6,6 +6,7 @@ module Cardano.CLI.Legacy.Commands.Genesis
   , renderLegacyGenesisCmds
   ) where
 
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
 import           Cardano.Chain.Common (BlockCount)
@@ -20,14 +21,14 @@ data LegacyGenesisCmds
       Word
       Word
       (Maybe SystemStart)
-      (Maybe Lovelace)
+      (Maybe Coin)
       NetworkId
   | GenesisCreateCardano
       GenesisDir
       Word
       Word
       (Maybe SystemStart)
-      (Maybe Lovelace)
+      (Maybe Coin)
       BlockCount
       Word
       Rational
@@ -45,8 +46,8 @@ data LegacyGenesisCmds
       Word
       Word
       (Maybe SystemStart)
-      (Maybe Lovelace)
-      Lovelace
+      (Maybe Coin)
+      Coin
       NetworkId
       Word
       Word

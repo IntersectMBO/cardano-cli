@@ -435,12 +435,12 @@ pFileInDirection l h =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-parseLovelace :: Parsec.Parser Lovelace
+parseLovelace :: Parsec.Parser L.Coin
 parseLovelace = do
   i <- decimal
   if i > toInteger (maxBound :: Word64)
     then fail $ show i <> " lovelace exceeds the Word64 upper bound"
-    else return $ Lovelace i
+    else return $ L.Coin i
 
 -- | The first argument is the optional prefix.
 pStakePoolVerificationKeyOrFile :: Maybe String -> Parser (VerificationKeyOrFile StakePoolKey)
@@ -497,7 +497,7 @@ pMIRPot =
         ]
     ]
 
-pRewardAmt :: Parser Lovelace
+pRewardAmt :: Parser L.Coin
 pRewardAmt =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "reward"
@@ -505,7 +505,7 @@ pRewardAmt =
     , Opt.help "The reward for the relevant reward account."
     ]
 
-pTransferAmt :: Parser Lovelace
+pTransferAmt :: Parser L.Coin
 pTransferAmt =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "transfer"
@@ -915,7 +915,7 @@ pUrl l h =
                  , Opt.help h
                  ]
 
-pGovActionDeposit :: Parser Lovelace
+pGovActionDeposit :: Parser L.Coin
 pGovActionDeposit =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "governance-action-deposit"
@@ -923,7 +923,7 @@ pGovActionDeposit =
     , Opt.help "Deposit required to submit a governance action."
     ]
 
-pNewGovActionDeposit :: Parser Lovelace
+pNewGovActionDeposit :: Parser L.Coin
 pNewGovActionDeposit =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "new-governance-action-deposit"
@@ -1377,7 +1377,7 @@ pMetadataFile =
 pWithdrawal
   :: BalanceTxExecUnits
   -> Parser (StakeAddress,
-            Lovelace,
+            L.Coin,
             Maybe (ScriptWitnessFiles WitCtxStake))
 pWithdrawal balance =
     (\(stakeAddr,lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
@@ -1404,7 +1404,7 @@ pWithdrawal balance =
     , "a script witness."
     ]
 
-  parseWithdrawal :: Parsec.Parser (StakeAddress, Lovelace)
+  parseWithdrawal :: Parsec.Parser (StakeAddress, L.Coin)
   parseWithdrawal =
     (,) <$> parseStakeAddress <* Parsec.char '+' <*> parseLovelace
 
@@ -1898,9 +1898,9 @@ pReturnCollateral =
     <*> pure TxOutDatumByNone -- TODO: Babbage era - we should be able to return these
     <*> pure ReferenceScriptAnyEraNone -- TODO: Babbage era - we should be able to return these
 
-pTotalCollateral :: Parser Lovelace
+pTotalCollateral :: Parser L.Coin
 pTotalCollateral =
-  Opt.option (Lovelace <$> readerFromParsecParser decimal) $ mconcat
+  Opt.option (L.Coin <$> readerFromParsecParser decimal) $ mconcat
   [ Opt.long "tx-total-collateral"
   , Opt.metavar "INTEGER"
   , Opt.help $ mconcat
@@ -2154,9 +2154,9 @@ pInvalidHereafter eon =
     ]
 
 
-pTxFee :: Parser Lovelace
+pTxFee :: Parser L.Coin
 pTxFee =
-  fmap (Lovelace . (fromIntegral :: Natural -> Integer)) $ Opt.option Opt.auto $ mconcat
+  fmap (L.Coin . (fromIntegral :: Natural -> Integer)) $ Opt.option Opt.auto $ mconcat
     [ Opt.long "fee"
     , Opt.metavar "LOVELACE"
     , Opt.help "The fee amount in Lovelace."
@@ -2441,7 +2441,7 @@ pPoolOwnerVerificationKeyOrFile =
     , VerificationKeyFilePath <$> pPoolOwnerVerificationKeyFile
     ]
 
-pPoolPledge :: Parser Lovelace
+pPoolPledge :: Parser L.Coin
 pPoolPledge =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "pool-pledge"
@@ -2449,7 +2449,7 @@ pPoolPledge =
     , Opt.help "The stake pool's pledge."
     ]
 
-pPoolCost :: Parser Lovelace
+pPoolCost :: Parser L.Coin
 pPoolCost =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "pool-cost"
@@ -2628,7 +2628,7 @@ pCostModels =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pMinFeePerByteFactor :: Parser Lovelace
+pMinFeePerByteFactor :: Parser L.Coin
 pMinFeePerByteFactor =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "min-fee-linear"
@@ -2636,7 +2636,7 @@ pMinFeePerByteFactor =
     , Opt.help "The linear factor per byte for the minimum fee calculation."
     ]
 
-pMinFeeConstantFactor :: Parser Lovelace
+pMinFeeConstantFactor :: Parser L.Coin
 pMinFeeConstantFactor =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "min-fee-constant"
@@ -2644,7 +2644,7 @@ pMinFeeConstantFactor =
     , Opt.help "The constant factor for the minimum fee calculation."
     ]
 
-pMinUTxOValue :: Parser Lovelace
+pMinUTxOValue :: Parser L.Coin
 pMinUTxOValue =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "min-utxo-value"
@@ -2652,7 +2652,7 @@ pMinUTxOValue =
     , Opt.help "The minimum allowed UTxO value (Shelley to Mary eras)."
     ]
 
-pMinPoolCost :: Parser Lovelace
+pMinPoolCost :: Parser L.Coin
 pMinPoolCost =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "min-pool-cost"
@@ -2684,7 +2684,7 @@ pMaxBlockHeaderSize =
    , Opt.help "Maximum block header size."
    ]
 
-pKeyRegistDeposit :: Parser Lovelace
+pKeyRegistDeposit :: Parser L.Coin
 pKeyRegistDeposit =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
    [ Opt.long "key-reg-deposit-amt"
@@ -2692,7 +2692,7 @@ pKeyRegistDeposit =
    , Opt.help "Key registration deposit amount."
    ]
 
-pDrepDeposit :: Parser Lovelace
+pDrepDeposit :: Parser L.Coin
 pDrepDeposit =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
    [ Opt.long "deposit-amt"
@@ -2700,7 +2700,7 @@ pDrepDeposit =
    , Opt.help "DRep deposit amount (same at registration and retirement)."
    ]
 
-pPoolDeposit :: Parser Lovelace
+pPoolDeposit :: Parser L.Coin
 pPoolDeposit =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
    [ Opt.long "pool-reg-deposit"
@@ -2784,7 +2784,7 @@ pExtraEntropy =
                       . B16.decode . BSC.pack
                     =<< some Parsec.hexDigit
 
-pUTxOCostPerByte :: Parser Lovelace
+pUTxOCostPerByte :: Parser L.Coin
 pUTxOCostPerByte =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "utxo-cost-per-byte"
@@ -3035,7 +3035,7 @@ pGovActionLifetime =
     , Opt.help "Maximal lifetime of governance actions, in epochs."
     ]
 
-pDRepDeposit :: Parser Lovelace
+pDRepDeposit :: Parser L.Coin
 pDRepDeposit =
   Opt.option (readerFromParsecParser parseLovelace) $ mconcat
     [ Opt.long "drep-deposit"

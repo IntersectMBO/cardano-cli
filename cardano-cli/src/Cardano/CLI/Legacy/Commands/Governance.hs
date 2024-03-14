@@ -5,6 +5,7 @@
 module Cardano.CLI.Legacy.Commands.Governance where
 
 import           Cardano.Api
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
@@ -17,15 +18,15 @@ data LegacyGovernanceCmds
       (EraInEon ShelleyToBabbageEra)
       MIRPot
       [StakeAddress]
-      [Lovelace]
+      [Coin]
       (File () Out)
   | GovernanceCreateMirCertificateTransferToTreasuryCmd
       (EraInEon ShelleyToBabbageEra)
-      Lovelace
+      Coin
       (File () Out)
   | GovernanceCreateMirCertificateTransferToReservesCmd
       (EraInEon ShelleyToBabbageEra)
-      Lovelace
+      Coin
       (File () Out)
   | GovernanceGenesisKeyDelegationCertificate
       (EraInEon ShelleyToBabbageEra)

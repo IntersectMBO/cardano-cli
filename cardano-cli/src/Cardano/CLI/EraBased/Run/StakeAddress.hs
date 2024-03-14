@@ -115,7 +115,7 @@ runStakeAddressBuildCmd stakeVerifier network mOutputFp = do
 runStakeAddressRegistrationCertificateCmd :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
-  -> Maybe Lovelace -- ^ Deposit required in conway era
+  -> Maybe L.Coin -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
@@ -141,7 +141,7 @@ runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
 createRegistrationCertRequirements :: ()
   => ShelleyBasedEra era
   -> StakeCredential
-  -> Maybe Lovelace -- ^ Deposit required in conway era
+  -> Maybe L.Coin -- ^ Deposit required in conway era
   -> Either StakeAddressRegistrationError (StakeAddressRequirements era)
 createRegistrationCertRequirements sbe stakeCred mdeposit =
   case sbe of
@@ -274,7 +274,7 @@ createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKey
 runStakeAddressDeregistrationCertificateCmd :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
-  -> Maybe Lovelace -- ^ Deposit required in conway era
+  -> Maybe L.Coin -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressDeregistrationCertificateCmd sbe stakeVerifier mDeposit oFp = do

@@ -10,6 +10,7 @@ module Cardano.CLI.Legacy.Run.Genesis
   ) where
 
 import           Cardano.Api
+import           Cardano.Api.Ledger (Coin (..))
 
 import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.EraBased.Commands.Genesis
@@ -122,7 +123,7 @@ runLegacyGenesisCreateCmd :: ()
   -> Word  -- ^ num genesis & delegate keys to make
   -> Word  -- ^ num utxo keys to make
   -> Maybe SystemStart
-  -> Maybe Lovelace
+  -> Maybe Coin
   -> NetworkId
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCreateCmd fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
@@ -142,7 +143,7 @@ runLegacyGenesisCreateCardanoCmd :: ()
   -> Word  -- ^ num genesis & delegate keys to make
   -> Word  -- ^ num utxo keys to make
   -> Maybe SystemStart
-  -> Maybe Lovelace
+  -> Maybe Coin
   -> BlockCount
   -> Word     -- ^ slot length in ms
   -> Rational
@@ -182,8 +183,8 @@ runLegacyGenesisCreateStakedCmd :: ()
   -> Word               -- ^ num pools to make
   -> Word               -- ^ num delegators to make
   -> Maybe SystemStart
-  -> Maybe Lovelace     -- ^ supply going to non-delegators
-  -> Lovelace           -- ^ supply going to delegators
+  -> Maybe Coin     -- ^ supply going to non-delegators
+  -> Coin           -- ^ supply going to delegators
   -> NetworkId
   -> Word               -- ^ bulk credential files to write
   -> Word               -- ^ pool credentials per bulk file

@@ -845,7 +845,7 @@ writeStakeAddressInfo
   :: ShelleyBasedEra era
   -> Maybe (File () Out)
   -> DelegationsAndRewards
-  -> Map StakeAddress Lovelace -- ^ deposits
+  -> Map StakeAddress L.Coin -- ^ deposits
   -> Map StakeAddress (L.DRep L.StandardCrypto) -- ^ vote delegatees
   -> ExceptT QueryCmdError IO ()
 writeStakeAddressInfo
@@ -890,7 +890,7 @@ writeStakeAddressInfo
   friendlyDRep (L.DRepCredential cred) =
     L.credToText cred -- this will pring "keyHash-..." or "scriptHash-...", depending on the type of credential
 
-  merged :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe (L.DRep L.StandardCrypto), Maybe Lovelace)]
+  merged :: [(StakeAddress, Maybe L.Coin, Maybe PoolId, Maybe (L.DRep L.StandardCrypto), Maybe L.Coin)]
   merged =
     [ (addr, mBalance, mPoolId, mDRep, mDeposit)
     | addr <- Set.toList (Set.unions [ Map.keysSet stakeAccountBalances
@@ -1100,7 +1100,7 @@ utxoToText sbe txInOutTuple =
 
   printableValue :: TxOutValue era -> Text
   printableValue = \case
-    TxOutValueByron (Lovelace i) -> Text.pack $ show i
+    TxOutValueByron (L.Coin i) -> Text.pack $ show i
     TxOutValueShelleyBased sbe2 val -> renderValue $ Api.fromLedgerValue sbe2 val
 
 runQueryStakePoolsCmd :: ()

@@ -6,6 +6,7 @@ module Cardano.CLI.Legacy.Commands.StakePool
   , renderLegacyStakePoolCmds
   ) where
 
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Types.Common
@@ -38,9 +39,9 @@ data LegacyStakePoolCmds
       -- ^ Stake pool verification key.
       (VerificationKeyOrFile VrfKey)
       -- ^ VRF Verification key.
-      Lovelace
+      Coin
       -- ^ Pool pledge.
-      Lovelace
+      Coin
       -- ^ Pool cost.
       Rational
       -- ^ Pool margin.

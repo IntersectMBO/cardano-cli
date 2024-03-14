@@ -272,7 +272,7 @@ runGenesisCreateCmd
   let shelleyGenesis =
         updateTemplate
           -- Shelley genesis parameters
-          start genDlgs mSupply utxoAddrs mempty (Lovelace 0) [] [] template
+          start genDlgs mSupply utxoAddrs mempty (L.Coin 0) [] [] template
 
   void $ writeFileGenesis (rootdir </> "genesis.json")        $ WritePretty shelleyGenesis
   void $ writeFileGenesis (rootdir </> "genesis.alonzo.json") $ WritePretty alonzoGenesis
@@ -643,12 +643,12 @@ runGenesisCreateStakedCmd
 updateOutputTemplate
     :: SystemStart -- ^ System start time
     -> Map (Hash GenesisKey) (Hash GenesisDelegateKey, Hash VrfKey) -- ^ Genesis delegation (not stake-based)
-    -> Maybe Lovelace -- ^ Amount of lovelace not delegated
+    -> Maybe L.Coin -- ^ Amount of lovelace not delegated
     -> Int -- ^ Number of UTxO addresses that are delegating
     -> [AddressInEra ShelleyEra] -- ^ UTxO addresses that are not delegating
     -> [(L.KeyHash 'L.StakePool L.StandardCrypto, L.PoolParams L.StandardCrypto)] -- ^ Pool map
     -> [(L.KeyHash 'L.Staking L.StandardCrypto, L.KeyHash 'L.StakePool L.StandardCrypto)] -- ^ Delegaton map
-    -> Maybe Lovelace -- ^ Amount of lovelace to delegate
+    -> Maybe L.Coin -- ^ Amount of lovelace to delegate
     -> Int -- ^ Number of UTxO address for delegation
     -> [AddressInEra ShelleyEra] -- ^ UTxO address for delegation
     -> [AddressInEra ShelleyEra] -- ^ Stuffed UTxO addresses
@@ -665,7 +665,7 @@ updateOutputTemplate
           , sgMaxLovelaceSupply = fromIntegral $ nonDelegCoin + delegCoin
           , sgGenDelegs = shelleyDelKeys
           , sgInitialFunds = ListMap.fromList
-                              [ (toShelleyAddr addr, toShelleyLovelace v)
+                              [ (toShelleyAddr addr, v)
                               | (addr, v) <-
                                 distribute (nonDelegCoin - subtractForTreasury) nUtxoAddrsNonDeleg  utxoAddrsNonDeleg
                                 ++
@@ -691,13 +691,13 @@ updateOutputTemplate
     nonDelegCoin = fromIntegral (maybe maximumLovelaceSupply unLovelace mAmountNonDeleg)
     delegCoin = maybe 0 fromIntegral amountDeleg
 
-    distribute :: Integer -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
-    distribute funds nAddrs addrs = zip addrs (fmap Lovelace (coinPerAddr + remainder:repeat coinPerAddr))
+    distribute :: Integer -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
+    distribute funds nAddrs addrs = zip addrs (fmap L.Coin (coinPerAddr + remainder:repeat coinPerAddr))
       where coinPerAddr, remainder :: Integer
             (coinPerAddr, remainder) = funds `divMod` fromIntegral nAddrs
 
-    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
-    mkStuffedUtxo xs = (, Lovelace minUtxoVal) <$> xs
+    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
+    mkStuffedUtxo xs = (, L.Coin minUtxoVal) <$> xs
       where L.Coin minUtxoVal = sgProtocolParams ^. L.ppMinUTxOValueL
 
     shelleyDelKeys = Map.fromList
@@ -706,8 +706,8 @@ updateOutputTemplate
           (GenesisDelegateKeyHash gdh, VrfKeyHash h)) <- Map.toList genDelegMap
       ]
 
-    unLovelace :: Integral a => Lovelace -> a
-    unLovelace (Lovelace coin) = fromIntegral coin
+    unLovelace :: Integral a => L.Coin -> a
+    unLovelace (L.Coin coin) = fromIntegral coin
 
 createDelegateKeys :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdError IO ()
 createDelegateKeys fmt dir index = do
@@ -915,17 +915,17 @@ readShelleyGenesisWithDefault fpath adjustDefaults = do
 updateTemplate
     :: SystemStart  -- ^ System start time
     -> Map (Hash GenesisKey) (Hash GenesisDelegateKey, Hash VrfKey) -- ^ Genesis delegation (not stake-based)
-    -> Maybe Lovelace -- ^ Amount of lovelace not delegated
+    -> Maybe L.Coin -- ^ Amount of lovelace not delegated
     -> [AddressInEra ShelleyEra] -- ^ UTxO addresses that are not delegating
     -> Map (L.KeyHash 'L.Staking L.StandardCrypto) (L.PoolParams L.StandardCrypto) -- ^ Genesis staking: pools/delegation map & delegated initial UTxO spec
-    -> Lovelace -- ^ Number of UTxO Addresses for delegation
+    -> L.Coin -- ^ Number of UTxO Addresses for delegation
     -> [AddressInEra ShelleyEra] -- ^ UTxO Addresses for delegation
     -> [AddressInEra ShelleyEra] -- ^ Stuffed UTxO addresses
     -> ShelleyGenesis L.StandardCrypto -- ^ Template from which to build a genesis
     -> ShelleyGenesis L.StandardCrypto -- ^ Updated genesis
 updateTemplate (SystemStart start)
                genDelegMap mAmountNonDeleg utxoAddrsNonDeleg
-               poolSpecs (Lovelace amountDeleg) utxoAddrsDeleg stuffedUtxoAddrs
+               poolSpecs (L.Coin amountDeleg) utxoAddrsDeleg stuffedUtxoAddrs
                template = do
 
     let pparamsFromTemplate = sgProtocolParams template
@@ -934,7 +934,7 @@ updateTemplate (SystemStart start)
           , sgMaxLovelaceSupply = fromIntegral $ nonDelegCoin + delegCoin
           , sgGenDelegs = shelleyDelKeys
           , sgInitialFunds = ListMap.fromList
-                              [ (toShelleyAddr addr, toShelleyLovelace v)
+                              [ (toShelleyAddr addr, v)
                               | (addr, v) <-
                                 distribute (nonDelegCoin - subtractForTreasury) utxoAddrsNonDeleg ++
                                 distribute (delegCoin - subtractForTreasury)    utxoAddrsDeleg ++
@@ -959,7 +959,7 @@ updateTemplate (SystemStart start)
     nonDelegCoin = fromIntegral (maybe maximumLovelaceSupply unLovelace mAmountNonDeleg)
     delegCoin = fromIntegral amountDeleg
 
-    distribute :: Integer -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
+    distribute :: Integer -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
     distribute funds addrs =
       fst $ List.foldl' folder ([], fromIntegral funds) addrs
      where
@@ -968,16 +968,16 @@ updateTemplate (SystemStart start)
        coinPerAddr = funds `div` nAddrs
        splitThreshold = coinPerAddr + nAddrs
 
-       folder :: ([(AddressInEra ShelleyEra, Lovelace)], Integer)
+       folder :: ([(AddressInEra ShelleyEra, L.Coin)], Integer)
               -> AddressInEra ShelleyEra
-              -> ([(AddressInEra ShelleyEra, Lovelace)], Integer)
+              -> ([(AddressInEra ShelleyEra, L.Coin)], Integer)
        folder (acc, rest) addr
          | rest > splitThreshold =
-             ((addr, Lovelace coinPerAddr) : acc, rest - coinPerAddr)
-         | otherwise = ((addr, Lovelace rest) : acc, 0)
+             ((addr, L.Coin coinPerAddr) : acc, rest - coinPerAddr)
+         | otherwise = ((addr, L.Coin rest) : acc, 0)
 
-    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
-    mkStuffedUtxo xs = (, Lovelace minUtxoVal) <$> xs
+    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
+    mkStuffedUtxo xs = (, L.Coin minUtxoVal) <$> xs
       where L.Coin minUtxoVal = sgProtocolParams template ^. L.ppMinUTxOValueL
 
     shelleyDelKeys =
@@ -987,8 +987,8 @@ updateTemplate (SystemStart start)
            (GenesisDelegateKeyHash gdh, VrfKeyHash h)) <- Map.toList genDelegMap
         ]
 
-    unLovelace :: Integral a => Lovelace -> a
-    unLovelace (Lovelace coin) = fromIntegral coin
+    unLovelace :: Integral a => L.Coin -> a
+    unLovelace (L.Coin coin) = fromIntegral coin
 
 writeFileGenesis
   :: FilePath

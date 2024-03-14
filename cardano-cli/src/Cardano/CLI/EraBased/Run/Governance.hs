@@ -79,7 +79,7 @@ runGovernanceMIRCertificatePayStakeAddrs
   :: ShelleyToBabbageEra era
   -> L.MIRPot
   -> [StakeAddress] -- ^ Stake addresses
-  -> [Lovelace]     -- ^ Corresponding reward amounts (same length)
+  -> [L.Coin]     -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
@@ -89,7 +89,7 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
 
   let sCreds  = map stakeAddressCredential sAddrs
       mirTarget = L.StakeAddressesMIR
-                    $ Map.fromList [ (toShelleyStakeCredential scred, L.toDeltaCoin (toShelleyLovelace rwdAmt))
+                    $ Map.fromList [ (toShelleyStakeCredential scred, L.toDeltaCoin rwdAmt)
                                     | (scred, rwdAmt) <- zip sCreds rwdAmts
                                     ]
   let mirCert = makeMIRCertificate
@@ -107,11 +107,11 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
 
 runGovernanceCreateMirCertificateTransferToTreasuryCmd :: ()
   => ShelleyToBabbageEra era
-  -> Lovelace
+  -> L.Coin
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
-  let mirTarget = L.SendToOppositePotMIR (toShelleyLovelace ll)
+  let mirTarget = L.SendToOppositePotMIR ll
 
   let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.ReservesMIR mirTarget
 
@@ -126,11 +126,11 @@ runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
 
 runGovernanceCreateMirCertificateTransferToReservesCmd :: ()
   => ShelleyToBabbageEra era
-  -> Lovelace
+  -> L.Coin
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
-  let mirTarget = L.SendToOppositePotMIR (toShelleyLovelace ll)
+  let mirTarget = L.SendToOppositePotMIR ll
 
   let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.TreasuryMIR mirTarget
 
