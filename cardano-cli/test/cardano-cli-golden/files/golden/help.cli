@@ -578,6 +578,9 @@ Usage: cardano-cli shelley query leadership-schedule --socket-path SOCKET_PATH
                                                        )
                                                        --vrf-signing-key-file FILE
                                                        (--current | --next)
+                                                       [ --output-json
+                                                       | --output-text
+                                                       ]
                                                        [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -1743,6 +1746,9 @@ Usage: cardano-cli allegra query leadership-schedule --socket-path SOCKET_PATH
                                                        )
                                                        --vrf-signing-key-file FILE
                                                        (--current | --next)
+                                                       [ --output-json
+                                                       | --output-text
+                                                       ]
                                                        [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -2906,6 +2912,9 @@ Usage: cardano-cli mary query leadership-schedule --socket-path SOCKET_PATH
                                                     )
                                                     --vrf-signing-key-file FILE
                                                     (--current | --next)
+                                                    [ --output-json
+                                                    | --output-text
+                                                    ]
                                                     [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -4061,6 +4070,9 @@ Usage: cardano-cli alonzo query leadership-schedule --socket-path SOCKET_PATH
                                                       )
                                                       --vrf-signing-key-file FILE
                                                       (--current | --next)
+                                                      [ --output-json
+                                                      | --output-text
+                                                      ]
                                                       [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -5251,6 +5263,9 @@ Usage: cardano-cli babbage query leadership-schedule --socket-path SOCKET_PATH
                                                        )
                                                        --vrf-signing-key-file FILE
                                                        (--current | --next)
+                                                       [ --output-json
+                                                       | --output-text
+                                                       ]
                                                        [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -6711,6 +6726,9 @@ Usage: cardano-cli conway query leadership-schedule --socket-path SOCKET_PATH
                                                       [ --volatile-tip
                                                       | --immutable-tip
                                                       ]
+                                                      [ --output-json
+                                                      | --output-text
+                                                      ]
                                                       [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -8065,6 +8083,9 @@ Usage: cardano-cli latest query leadership-schedule --socket-path SOCKET_PATH
                                                       )
                                                       --vrf-signing-key-file FILE
                                                       (--current | --next)
+                                                      [ --output-json
+                                                      | --output-text
+                                                      ]
                                                       [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -9084,6 +9105,9 @@ Usage: cardano-cli legacy query leadership-schedule --socket-path SOCKET_PATH
                                                       )
                                                       --vrf-signing-key-file FILE
                                                       (--current | --next)
+                                                      [ --output-json
+                                                      | --output-text
+                                                      ]
                                                       [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -10327,6 +10351,7 @@ Usage: cardano-cli query leadership-schedule --socket-path SOCKET_PATH
                                                )
                                                --vrf-signing-key-file FILE
                                                (--current | --next)
+                                               [--output-json | --output-text]
                                                [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
