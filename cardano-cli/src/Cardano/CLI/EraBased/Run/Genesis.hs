@@ -6,6 +6,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -404,11 +405,11 @@ runGenesisCreateCardanoCmd
       , sgSecurityParam = unBlockCount security
       , sgUpdateQuorum = fromIntegral $ ((numGenesisKeys `div` 3) * 2) + 1
       , sgEpochLength = EpochSize $ floor $ (fromIntegral (unBlockCount security) * 10) / slotCoeff
-      , sgMaxLovelaceSupply = 45000000000000000
+      , sgMaxLovelaceSupply = 45_000_000_000_000_000
       , sgSystemStart = getSystemStart start
       , sgSlotLength = L.secondsToNominalDiffTimeMicro $ MkFixed (fromIntegral slotLength) * 1000
       }
-  shelleyGenesisTemplate' <- liftIO $ overrideShelleyGenesis . fromRight (error "shelley genesis template not found") <$> TN.readAndDecodeShelleyGenesis shelleyGenesisTemplate
+  shelleyGenesisTemplate' <- liftIO $ overrideShelleyGenesis . fromRight (error "shelley genesis template not found") <$> TN.readAndDecodeGenesisFile shelleyGenesisTemplate
   alonzoGenesis <- readAlonzoGenesis alonzoGenesisTemplate
   conwayGenesis <- readConwayGenesis conwayGenesisTemplate
   (delegateMap, vrfKeys, kesKeys, opCerts) <- liftIO $ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys
@@ -782,7 +783,7 @@ createPoolCredentials fmt dir index = do
         (KESPeriod 0)
         (File $ dir </> "opcert" ++ strIndex ++ ".cert")
   firstExceptT GenesisCmdStakeAddressCmdError $
-    runStakeAddressKeyGenCmd
+    void $ runStakeAddressKeyGenCmd
         fmt
         (File @(VerificationKey ()) $ dir </> "staking-reward" ++ strIndex ++ ".vkey")
         (File @(SigningKey ()) $ dir </> "staking-reward" ++ strIndex ++ ".skey")
@@ -897,7 +898,7 @@ readShelleyGenesisWithDefault
   -> (ShelleyGenesis L.StandardCrypto -> ShelleyGenesis L.StandardCrypto)
   -> ExceptT GenesisCmdError IO (ShelleyGenesis L.StandardCrypto)
 readShelleyGenesisWithDefault fpath adjustDefaults = do
-    newExceptT (TN.readAndDecodeShelleyGenesis fpath)
+    newExceptT (TN.readAndDecodeGenesisFile fpath)
       `catchError` \err ->
         case err of
           GenesisCmdGenesisFileReadError (FileIOError _ ioe)

@@ -44,7 +44,7 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
-import           Cardano.CLI.EraBased.Run.CreateTestnetData (readAndDecodeShelleyGenesis)
+import           Cardano.CLI.EraBased.Run.CreateTestnetData (readAndDecodeGenesisFile)
 import           Cardano.CLI.Helpers
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -1229,7 +1229,7 @@ runQueryLeadershipScheduleCmd
   vrkSkey <- lift (readFileTextEnvelope (AsSigningKey AsVrfKey) vrkSkeyFp)
     & onLeft (left . QueryCmdTextEnvelopeReadError)
 
-  shelleyGenesis <- lift (readAndDecodeShelleyGenesis genFile)
+  shelleyGenesis <- lift (readAndDecodeGenesisFile @(ShelleyGenesis StandardCrypto) genFile)
     & onLeft (left . QueryCmdGenesisReadError)
 
   join $ lift

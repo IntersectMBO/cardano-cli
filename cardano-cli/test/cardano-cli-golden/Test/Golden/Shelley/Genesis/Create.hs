@@ -1,3 +1,4 @@
+{-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -85,7 +86,7 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
 
     fmtStartTime <- fmap H.formatIso8601 $ H.evalIO DT.getCurrentTime
 
-    (supply, fmtSupply) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 10000000 4000000000)
+    (supply, fmtSupply) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 10_000_000 4_000_000_000)
     (delegateCount, fmtDelegateCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
     (utxoCount, fmtUtxoCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
 
@@ -116,9 +117,9 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
     actualStartTime === fmtStartTime
     actualDelegateCount === delegateCount
     actualDelegateCount === utxoCount
-    actualTotalSupply === supply - 1000000  -- Check that the sum of the initial fund amounts matches the total supply
-                                            -- We don't use the entire supply so there is ada in the treasury. This is
-                                            -- required for stake pool rewards.
+    actualTotalSupply === supply - 1_000_000 -- Check that the sum of the initial fund amounts matches the total supply
+                                             -- We don't use the entire supply so there is ada in the treasury. This is
+                                             -- required for stake pool rewards.
 
     -- Check uniqueness and count of hash keys
     S.size (S.fromList actualHashKeys) === length actualHashKeys -- This isn't strictly necessary because we use aeson which guarantees uniqueness of keys
@@ -157,7 +158,7 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
 
     fmtStartTime <- fmap H.formatIso8601 $ H.evalIO DT.getCurrentTime
 
-    (supply, fmtSupply) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 10000000 4000000000)
+    (supply, fmtSupply) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 10_000_000 4_000_000_000)
     (delegateCount, fmtDelegateCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
     (utxoCount, fmtUtxoCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
 
@@ -196,7 +197,7 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
     actualStartTime === fmtStartTime
     actualDelegateCount === delegateCount
     actualDelegateCount === utxoCount
-    actualTotalSupply === supply - 1000000  -- Check that the sum of the initial fund amounts matches the total supply
+    actualTotalSupply === supply - 1_000_000  -- Check that the sum of the initial fund amounts matches the total supply
                                             -- We don't use the entire supply so there is ada in the treasury. This is
                                             -- required for stake pool rewards.
     -- Check uniqueness and count of hash keys

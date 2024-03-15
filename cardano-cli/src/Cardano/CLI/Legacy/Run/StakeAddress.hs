@@ -15,6 +15,8 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 import           Cardano.CLI.Types.Key
 
+import           Control.Monad (void)
+
 runLegacyStakeAddressCmds :: ()
   => LegacyStakeAddressCmds
   -> ExceptT StakeAddressCmdError IO ()
@@ -37,8 +39,8 @@ runLegacyStakeAddressKeyGenCmd :: ()
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT StakeAddressCmdError IO ()
-runLegacyStakeAddressKeyGenCmd =
-  runStakeAddressKeyGenCmd
+runLegacyStakeAddressKeyGenCmd vk sk =
+  void <$> runStakeAddressKeyGenCmd vk sk
 
 runLegacyStakeAddressKeyHashCmd :: ()
   => VerificationKeyOrFile StakeKey

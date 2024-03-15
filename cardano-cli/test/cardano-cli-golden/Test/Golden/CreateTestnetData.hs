@@ -1,7 +1,8 @@
+{-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Test.Golden.CreateTestnetData where
 
-import           Cardano.Api.Ledger (StandardCrypto)
+import           Cardano.Api.Ledger (ConwayGenesis (..), StandardCrypto)
 import           Cardano.Api.Shelley (ShelleyGenesis (..))
 
 import qualified Cardano.Ledger.Shelley.API as L
@@ -96,8 +97,9 @@ golden_create_testnet_data mShelleyTemplate =
           case mShelleyTemplate of
             Nothing -> []
             Just shelleyTemplate -> ["--spec-shelley", shelleyTemplate]
+        numStakeDelegs = 4
 
-    void $ execCardanoCLI $ mkArguments outputDir <> ["--stake-delegators", "4"] <> templateArg
+    void $ execCardanoCLI $ mkArguments outputDir <> ["--stake-delegators", show numStakeDelegs] <> templateArg
 
     generated <- liftIO $ tree outputDir
     -- Sort output for stability, and make relative to avoid storing
@@ -111,12 +113,12 @@ golden_create_testnet_data mShelleyTemplate =
     bracketSem createTestnetDataOutSem $
       H.diffVsGoldenFile generated''
 
-    genesis :: ShelleyGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "genesis.json"
+    shelleyGenesis :: ShelleyGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
-    sgNetworkMagic genesis H.=== networkMagic
-    length (L.sgsPools $ sgStaking genesis) H.=== numPools
+    sgNetworkMagic shelleyGenesis H.=== networkMagic
+    length (L.sgsPools $ sgStaking shelleyGenesis) H.=== numPools
 
-    forM_ (L.sgsPools $ sgStaking genesis) $ \pool ->
+    forM_ (L.sgsPools $ sgStaking shelleyGenesis) $ \pool ->
       Seq.length (L.ppRelays pool) H.=== 1
 
     actualNumDReps <- liftIO $ listDirectories $ outputDir </> "drep-keys"
@@ -125,20 +127,12 @@ golden_create_testnet_data mShelleyTemplate =
     actualNumUtxoKeys <- liftIO $ listDirectories $ outputDir </> "utxo-keys"
     length actualNumUtxoKeys H.=== numUtxoKeys
 
--- | This test tests the transient case, i.e. it writes strictly
--- less things to disk than 'hprop_golden_create_testnet_data'. Execute this test with:
--- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data transient stake delegators/'@
-hprop_golden_create_testnet_data_transient_stake_delegators :: Property
-hprop_golden_create_testnet_data_transient_stake_delegators =
-  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+    conwayGenesis :: ConwayGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "conway-genesis.json"
 
-    let outputDir = tempDir </> "out"
+    length (cgInitialDReps conwayGenesis) H.=== numDReps
 
-    void $ execCardanoCLI $ mkArguments outputDir <> ["--transient-stake-delegators", "4"]
+    length (cgDelegs conwayGenesis) H.=== numStakeDelegs
 
-    -- We just test that the command doesn't crash when we execute a different path.
-    -- For the golden part of this test, we are anyway covered by 'hprop_golden_create_testnet_data'
-    -- that generates strictly more stuff.
 
 -- Execute this test with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data deleg non deleg/"'@
@@ -147,8 +141,8 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
 
     let outputDir = tempDir </> "out"
-        totalSupply :: Int = 2000000000000 -- 2*10^12
-        delegatedSupply :: Int = 500000000000 -- 5*10^11, i.e. totalSupply / 4
+        totalSupply :: Int = 2_000_000_000_000 -- 2*10^12
+        delegatedSupply :: Int = 500_000_000_000 -- 5*10^11, i.e. totalSupply / 4
 
     void $ execCardanoCLI
       [ "conway", "genesis", "create-testnet-data"
@@ -157,7 +151,7 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
       , "--delegated-supply", show delegatedSupply
       , "--out-dir", outputDir]
 
-    genesis :: ShelleyGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "genesis.json"
+    genesis :: ShelleyGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
     -- Because we don't test this elsewhere in this file:
     (L.sgMaxLovelaceSupply genesis) H.=== (fromIntegral totalSupply)

@@ -31,6 +31,7 @@ import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 
+import           Control.Monad (void)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 import qualified Data.Text.IO as Text
@@ -40,7 +41,7 @@ runStakeAddressCmds :: ()
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressCmds = \case
   StakeAddressKeyGenCmd _ fmt vk sk ->
-    runStakeAddressKeyGenCmd fmt vk sk
+    void $ runStakeAddressKeyGenCmd fmt vk sk
   StakeAddressKeyHashCmd _ vk mOutputFp ->
     runStakeAddressKeyHashCmd vk mOutputFp
   StakeAddressBuildCmd _ stakeVerifier nw mOutputFp ->
@@ -60,7 +61,7 @@ runStakeAddressKeyGenCmd :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
-  -> ExceptT StakeAddressCmdError IO ()
+  -> ExceptT StakeAddressCmdError IO (VerificationKey StakeKey, SigningKey StakeKey)
 runStakeAddressKeyGenCmd fmt vkFp skFp = do
   let skeyDesc = "Stake Signing Key"
 
@@ -80,6 +81,7 @@ runStakeAddressKeyGenCmd fmt vkFp skFp = do
         newExceptT $ writeLazyByteStringFile vkFp $ textEnvelopeToJSON (Just Key.stakeVkeyDesc) vkey
       KeyOutputFormatBech32 ->
         newExceptT $ writeTextFile vkFp $ serialiseToBech32 vkey
+  return (vkey, skey)
 
 runStakeAddressKeyHashCmd :: ()
   => VerificationKeyOrFile StakeKey

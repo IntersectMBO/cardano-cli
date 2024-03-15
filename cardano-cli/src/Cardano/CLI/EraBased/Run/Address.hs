@@ -7,10 +7,10 @@
 
 module Cardano.CLI.EraBased.Run.Address
   ( runAddressCmds
-
   , runAddressBuildCmd
   , runAddressKeyGenCmd
   , runAddressKeyHashCmd
+  , generateAndWriteKeyFiles
   ) where
 
 import           Cardano.Api
@@ -26,6 +26,7 @@ import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (.
                    StakeVerifier (..), VerificationKeyTextOrFile, generateKeyPair,
                    readVerificationKeyOrHashOrFile, readVerificationKeyTextOrFileAnyOf)
 
+import           Control.Monad (void)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function
 import qualified Data.Text.IO as Text
@@ -50,9 +51,9 @@ runAddressKeyGenCmd
   -> SigningKeyFile Out
   -> ExceptT AddressCmdError IO ()
 runAddressKeyGenCmd fmt kt vkf skf = case kt of
-  AddressKeyShelley         -> generateAndWriteKeyFiles fmt  AsPaymentKey          vkf skf
-  AddressKeyShelleyExtended -> generateAndWriteKeyFiles fmt  AsPaymentExtendedKey  vkf skf
-  AddressKeyByron           -> generateAndWriteByronKeyFiles AsByronKey            vkf skf
+  AddressKeyShelley         -> void $ generateAndWriteKeyFiles fmt AsPaymentKey vkf skf
+  AddressKeyShelleyExtended -> void $ generateAndWriteKeyFiles fmt AsPaymentExtendedKey vkf skf
+  AddressKeyByron           -> generateAndWriteByronKeyFiles AsByronKey vkf skf
 
 generateAndWriteByronKeyFiles :: ()
   => Key keyrole
@@ -73,9 +74,11 @@ generateAndWriteKeyFiles :: ()
   -> AsType keyrole
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
-  -> ExceptT AddressCmdError IO ()
+  -> ExceptT AddressCmdError IO (VerificationKey keyrole, SigningKey keyrole)
 generateAndWriteKeyFiles fmt asType vkf skf = do
-  uncurry (writePaymentKeyFiles fmt vkf skf) =<< liftIO (generateKeyPair asType)
+  (vk, sk) <- liftIO (generateKeyPair asType)
+  writePaymentKeyFiles fmt vkf skf vk sk
+  return (vk, sk)
 
 writePaymentKeyFiles
   :: Key keyrole

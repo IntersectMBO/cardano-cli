@@ -7,6 +7,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -17,8 +18,8 @@
 module Cardano.CLI.EraBased.Run.CreateTestnetData
   ( genStuffedAddress
     , getCurrentTimePlus30
-    , readAndDecodeShelleyGenesis
     , readRelays
+    , readAndDecodeGenesisFile
     , runGenesisKeyGenUTxOCmd
     , runGenesisKeyGenGenesisCmd
     , runGenesisKeyGenDelegateCmd
@@ -26,14 +27,22 @@ module Cardano.CLI.EraBased.Run.CreateTestnetData
     , runGenesisKeyGenDelegateVRF
   ) where
 
-import           Cardano.Api
+import           Cardano.Api hiding (ConwayEra)
+import           Cardano.Api.Ledger (StrictMaybe (SNothing))
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import           Cardano.Api.Shelley (Address (ShelleyAddress),
+                   Hash (DRepKeyHash, GenesisDelegateKeyHash, GenesisKeyHash, StakeKeyHash, VrfKeyHash),
+                   KESPeriod (KESPeriod),
+                   OperationalCertificateIssueCounter (OperationalCertificateIssueCounter),
+                   ShelleyGenesis (ShelleyGenesis, sgGenDelegs, sgInitialFunds, sgMaxLovelaceSupply, sgNetworkMagic, sgProtocolParams, sgStaking, sgSystemStart),
+                   StakeCredential (StakeCredentialByKey), VerificationKey (VrfVerificationKey),
+                   VrfKey, alonzoGenesisDefaults, conwayGenesisDefaults, shelleyGenesisDefaults,
+                   toShelleyAddr, toShelleyNetwork, toShelleyStakeAddr)
 
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as DRep
 import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
-import           Cardano.CLI.EraBased.Run.Address (runAddressKeyGenCmd)
+import           Cardano.CLI.EraBased.Run.Address (generateAndWriteKeyFiles)
 import qualified Cardano.CLI.EraBased.Run.Governance.DRep as DRep
 import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
@@ -45,14 +54,13 @@ import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
-import qualified Cardano.CLI.Types.Key as Keys
 import           Cardano.Crypto.Hash (HashAlgorithm)
 import qualified Cardano.Crypto.Hash as Hash
 import qualified Cardano.Crypto.Random as Crypto
 import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
-import           Control.DeepSeq (NFData, force)
-import           Control.Monad (forM, forM_, unless, void, when, zipWithM)
+import           Control.DeepSeq (NFData, deepseq)
+import           Control.Monad (forM, forM_, unless, void, when)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.Binary.Get as Bin
@@ -69,6 +77,7 @@ import qualified Data.Sequence.Strict as Seq
 import           Data.String (fromString)
 import qualified Data.Text as Text
 import           Data.Time (NominalDiffTime, UTCTime, addUTCTime, getCurrentTime)
+import           Data.Tuple (swap)
 import           Data.Word (Word64)
 import           GHC.Generics (Generic)
 import           GHC.Num (Natural)
@@ -79,7 +88,6 @@ import qualified System.Random as Random
 import           System.Random (StdGen)
 
 import           Crypto.Random (getRandomBytes)
-
 
 runGenesisKeyGenGenesisCmd
   :: GenesisKeyGenGenesisCmdArgs
@@ -147,7 +155,6 @@ runGenesisKeyGenDelegateVRF vkeyPath skeyPath = do
     skeyDesc = "VRF Signing Key"
     vkeyDesc = "VRF Verification Key"
 
-
 runGenesisKeyGenUTxOCmd
   :: GenesisKeyGenUTxOCmdArgs
   -> ExceptT GenesisCmdError IO ()
@@ -168,33 +175,34 @@ runGenesisKeyGenUTxOCmd
     skeyDesc = "Genesis Initial UTxO Signing Key"
     vkeyDesc = "Genesis Initial UTxO Verification Key"
 
-
 runGenesisCreateTestNetDataCmd
   :: GenesisCreateTestNetDataCmdArgs
   -> ExceptT GenesisCmdError IO ()
 runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
-  {  networkId
-   , specShelley
-   , numGenesisKeys
-   , numPools
-   , stakeDelegators
-   , numDrepKeys
-   , numStuffedUtxo
-   , numUtxoKeys
-   , totalSupply
-   , delegatedSupply
+  { networkId
+  , specShelley
+  , specAlonzo
+  , specConway
+  , numGenesisKeys
+  , numPools
+  , stakeDelegators = StakeDelegators { stakeDelegatorsGenerationMode
+                                      , numOfStakeDelegators
+                                      }
+  , numDRepKeys = DRepCredentials { dRepCredentialGenerationMode
+                                  , numOfDRepCredentials
+                                  }
+  , numStuffedUtxo
+  , numUtxoKeys
+  , totalSupply
+  , delegatedSupply
    , relays
-   , systemStart
-   , outputDir }
-   = do
+  , systemStart
+  , outputDir
+  } = do
   liftIO $ createDirectoryIfMissing False outputDir
-  shelleyGenesisInit <-
-    case specShelley of
-      Just shelleyPath ->
-        newExceptT $ readAndDecodeShelleyGenesis shelleyPath
-      Nothing ->
-        -- No template given: a default file is created
-        pure shelleyGenesisDefaults
+  shelleyGenesisInit <- maybeReadAndDecodeGenesisFileSpec specShelley shelleyGenesisDefaults
+  alonzoGenesis <- maybeReadAndDecodeGenesisFileSpec specAlonzo alonzoGenesisDefaults
+  conwayGenesis <- maybeReadAndDecodeGenesisFileSpec specConway conwayGenesisDefaults
 
   -- Read NetworkId either from file or from the flag. Flag overrides template file.
   let actualNetworkId =
@@ -209,7 +217,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
       -- {0 -> delegate-keys/delegate0/vrf.vkey, 1 -> delegate-keys/delegate1/vrf.vkey, ...}
       delegateVrfKeys = mkPaths numGenesisKeys delegateDir "delegate" "vrf.vkey"
       -- {"stake-delegators/delegator1", "stake-delegators/delegator2", ...}
-      stakeDelegatorsDirs = [stakeDelegatorsDir </> "delegator" <> show i | i <- [1 .. numStakeDelegators]]
+      stakeDelegatorsDirs = [stakeDelegatorsDir </> "delegator" <> show i | i <- [1 .. numOfStakeDelegators]]
 
   forM_ [ 1 .. numGenesisKeys ] $ \index -> do
     createGenesisKeys (genesisDir </> ("genesis" <> show index))
@@ -220,10 +228,10 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
     writeREADME delegateDir delegatesREADME
 
   -- UTxO keys
-  let utxoKeys = [utxoKeysDir </> ("utxo" <> show index) </> "utxo.vkey"
-                  | index <-  [ 1 .. numUtxoKeys ]]
+  let utxoKeyFileNames = [utxoKeysDir </> ("utxo" <> show index) </> "utxo.vkey"
+                           | index <-  [ 1 .. numUtxoKeys ]]
   forM_ [ 1 .. numUtxoKeys ] $ \index ->
-    createUtxoKeys $ utxoKeysDir </> ("utxo" <> show index)
+       createUtxoKeys (utxoKeysDir </> ("utxo" <> show index))
 
   when (0 < numUtxoKeys) $ writeREADME utxoKeysDir utxoKeysREADME
 
@@ -245,57 +253,51 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
   when (0 < numPools) $ writeREADME poolsDir poolsREADME
 
   -- DReps
-  forM_ [ 1 .. numDrepKeys ] $ \index -> do
-    let drepDir = drepsDir </> "drep" <> show index
-        vkeyFile = File @(VerificationKey ()) $ drepDir </> "drep.vkey"
-        skeyFile = File @(SigningKey ()) $ drepDir </> "drep.skey"
-        cmd = DRep.GovernanceDRepKeyGenCmdArgs ConwayEraOnwardsConway vkeyFile skeyFile
-    liftIO $ createDirectoryIfMissing True drepDir
-    firstExceptT GenesisCmdFileError $ DRep.runGovernanceDRepKeyGenCmd cmd
+  g <- Random.getStdGen
 
-  when (0 < numDrepKeys) $ writeREADME drepsDir drepsREADME
+  dRepKeys <- firstExceptT GenesisCmdFileError $
+    case dRepCredentialGenerationMode of
+      OnDisk -> forM [ 1 .. numOfDRepCredentials ] $ \index -> do
+                  let drepDir = drepsDir </> "drep" <> show index
+                      vkeyFile = File @(VerificationKey ()) $ drepDir </> "drep.vkey"
+                      skeyFile = File @(SigningKey ()) $ drepDir </> "drep.skey"
+                      cmd = DRep.GovernanceDRepKeyGenCmdArgs ConwayEraOnwardsConway vkeyFile skeyFile
+                  liftIO $ createDirectoryIfMissing True drepDir
+                  fst <$> DRep.runGovernanceDRepKeyGenCmd cmd
+      Transient -> liftIO $ mapAccumM (\g' _ -> swap . first getVerificationKey <$> generateInsecureSigningKey g' AsDRepKey)
+                                      g [ 1 .. numOfStakeDelegators ]
+
+  when (0 < numOfDRepCredentials && dRepCredentialGenerationMode == OnDisk) $ writeREADME drepsDir drepsREADME
+
 
   -- Stake delegators
-  case stakeDelegators of
-    OnDisk _ ->
-      forM_ [ 1 .. numStakeDelegators] $ \index -> do
-        createStakeDelegatorCredentials (stakeDelegatorsDir </> "delegator" <> show index)
-    Transient _ -> pure ()
+  g2 <- Random.getStdGen
+  delegatorKeys <- case stakeDelegatorsGenerationMode of
+    OnDisk -> forM stakeDelegatorsDirs $ \delegator -> createStakeDelegatorCredentials delegator
+    Transient -> liftIO $ mapAccumM (\g' _ -> computeInsecureStakeKeyAddr g') g2 [ 1 .. numOfStakeDelegators ]
 
   let (delegsPerPool, delegsRemaining) =
         if numPools == 0
         then (0, 0)
-        else numStakeDelegators `divMod` numPools
+        else numOfStakeDelegators `divMod` numPools
       delegsForPool poolIx =
-        if delegsRemaining /= 0 && poolIx == numPools
-        then delegsPerPool
-        else delegsPerPool + delegsRemaining
+        if poolIx <= delegsRemaining
+        then delegsPerPool + 1
+        else delegsPerPool
       distribution = [pool | (pool, poolIx) <- zip poolParams [1 ..], _ <- [1 .. delegsForPool poolIx]]
 
-  g <- Random.getStdGen
-
   -- Distribute M delegates across N pools:
-  delegations <-
-    case stakeDelegators of
-      OnDisk 0 ->
-        -- Required because the most general case below loops in this case
-        -- (try @zipWith _ (concat $ repeat []) _@ in a REPL)
-        pure []
-      OnDisk _ -> do
-        let delegates = concat $ repeat stakeDelegatorsDirs
-        -- We don't need to be attentive to laziness here, because anyway this
-        -- doesn't scale really well (because we're generating legit credentials,
-        -- as opposed to the Transient case).
-        zipWithM (computeDelegation actualNetworkId) delegates distribution
-      Transient _ ->
-        liftIO $ Lazy.forStateM g distribution $ flip computeInsecureDelegation actualNetworkId
+  let delegations = zipWithDeepSeq (computeDelegation actualNetworkId) delegatorKeys distribution
 
   genDlgs <- readGenDelegsMap genesisVKeysPaths delegateKeys delegateVrfKeys
-  nonDelegAddrs <- readInitialFundAddresses utxoKeys actualNetworkId
+  nonDelegAddrs <- readInitialFundAddresses utxoKeyFileNames actualNetworkId
   start <- maybe (SystemStart <$> getCurrentTimePlus30) pure systemStart
 
   let network = toShelleyNetwork actualNetworkId
   stuffedUtxoAddrs <- liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) $ genStuffedAddress network
+
+
+  let conwayGenesis' = addDRepsToConwayGenesis dRepKeys (map snd delegatorKeys) conwayGenesis
 
   let stake = second L.ppId . mkDelegationMapEntry <$> delegations
       stakePools = [ (L.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations ]
@@ -306,7 +308,9 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
       delegAddrs stuffedUtxoAddrs shelleyGenesis
 
   -- Write genesis.json file to output
-  liftIO $ LBS.writeFile (outputDir </> "genesis.json") $ Aeson.encode shelleyGenesis'
+  liftIO $ LBS.writeFile (outputDir </> "conway-genesis.json") $ Aeson.encode conwayGenesis'
+  liftIO $ LBS.writeFile (outputDir </> "shelley-genesis.json") $ Aeson.encode shelleyGenesis'
+  liftIO $ LBS.writeFile (outputDir </> "alonzo-genesis.json") $ Aeson.encode alonzoGenesis
   where
     genesisDir = outputDir </> "genesis-keys"
     delegateDir = outputDir </> "delegate-keys"
@@ -314,9 +318,51 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
     utxoKeysDir = outputDir </> "utxo-keys"
     poolsDir = outputDir </> "pools-keys"
     stakeDelegatorsDir = outputDir </> "stake-delegators"
-    numStakeDelegators = case stakeDelegators of OnDisk n -> n; Transient n -> n
     mkDelegationMapEntry :: Delegation -> (L.KeyHash L.Staking L.StandardCrypto, L.PoolParams L.StandardCrypto)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
+
+    addDRepsToConwayGenesis :: [VerificationKey DRepKey] -> [VerificationKey StakeKey]
+                            -> L.ConwayGenesis L.StandardCrypto -> L.ConwayGenesis L.StandardCrypto
+    addDRepsToConwayGenesis dRepKeys stakingKeys conwayGenesis =
+      conwayGenesis { L.cgDelegs = delegs (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
+                    , L.cgInitialDReps = initialDReps (L.ucppDRepDeposit $ L.cgUpgradePParams conwayGenesis) dRepKeys
+                    }
+
+      where
+      delegs :: [(VerificationKey StakeKey, VerificationKey DRepKey)] -> ListMap (L.Credential L.Staking L.StandardCrypto) (L.Delegatee L.StandardCrypto)
+      delegs = ListMap.fromList . map (bimap verificationKeytoStakeCredential (L.DelegVote . L.DRepCredential . verificationKeyToDRepCredential))
+
+      initialDReps :: L.Coin -> [VerificationKey DRepKey] -> ListMap (L.Credential L.DRepRole L.StandardCrypto) (L.DRepState L.StandardCrypto)
+      initialDReps minDeposit = ListMap.fromList . map (\c -> ( verificationKeyToDRepCredential c
+                                                              , L.DRepState { L.drepExpiry = EpochNo 1000
+                                                                            , L.drepAnchor = SNothing
+                                                                            , L.drepDeposit = max (L.Coin 1_000_000) minDeposit
+                                                                            }))
+
+      verificationKeyToDRepCredential :: VerificationKey DRepKey -> L.Credential L.DRepRole L.StandardCrypto
+      verificationKeyToDRepCredential vk = dRepKeyToCredential (verificationKeyHash vk)
+        where
+          dRepKeyToCredential :: Hash DRepKey -> L.Credential L.DRepRole L.StandardCrypto
+          dRepKeyToCredential (DRepKeyHash v) = L.KeyHashObj v
+
+      verificationKeytoStakeCredential :: VerificationKey StakeKey -> L.Credential L.Staking L.StandardCrypto
+      verificationKeytoStakeCredential vk = stakeKeyToCredential (verificationKeyHash vk)
+        where
+          stakeKeyToCredential :: Hash StakeKey -> L.Credential L.Staking L.StandardCrypto
+          stakeKeyToCredential (StakeKeyHash v) = L.KeyHashObj v
+
+    zipWithDeepSeq :: NFData c => (a -> b -> c) -> [a] -> [b] -> [c]
+    zipWithDeepSeq _ _ [] = []
+    zipWithDeepSeq _ [] _ = []
+    zipWithDeepSeq f (h1:t1) (h2:t2) = let h = f h1 h2 in
+                                       h `deepseq` (h:zipWithDeepSeq f t1 t2)
+
+    -- | Manually implemented (because the one in Data.Traversable requires `base-4.18` or greater)
+    mapAccumM :: (acc -> b -> IO (acc, c)) -> acc -> [b] -> IO [c]
+    mapAccumM _ _ [] = return []
+    mapAccumM f a (h:t) = do (a', h') <- f a h
+                             rest <- mapAccumM f a' t
+                             return $ h':rest
 
 -- | The output format used all along this file
 desiredKeyOutputFormat :: KeyOutputFormat
@@ -345,7 +391,10 @@ delegatesREADME = Text.intercalate "\n"
 
 drepsREADME :: Text.Text
 drepsREADME = Text.intercalate "\n"
-  ["Keys generated by the --drep-keys flag."]
+  ["Keys generated by the --drep-keys flag. These keys are for Delegate Representatives (DReps) that make decisions in",
+   "Funds of the Catalyst Project. Delegators that do not want to vote for each decision will pick DReps in line with",
+   "their views delegate their voting power to them. The DRep's in this generated testnet data will automatically get",
+   "registered and all the stake delegators (if any) will automatically delegate their vote to one of the DReps here."]
 
 utxoKeysREADME :: Text.Text
 utxoKeysREADME = Text.intercalate "\n"
@@ -419,18 +468,20 @@ createGenesisKeys dir = do
     , signingKeyPath = File @(SigningKey ()) $ dir </> "key.skey"
     }
 
-createStakeDelegatorCredentials :: FilePath -> ExceptT GenesisCmdError IO ()
+createStakeDelegatorCredentials :: FilePath
+                                -> ExceptT GenesisCmdError IO (VerificationKey PaymentKey,
+                                                               VerificationKey StakeKey)
 createStakeDelegatorCredentials dir = do
   liftIO $ createDirectoryIfMissing True dir
-  firstExceptT GenesisCmdAddressCmdError $
-    runAddressKeyGenCmd desiredKeyOutputFormat AddressKeyShelley paymentVK paymentSK
-  firstExceptT GenesisCmdStakeAddressCmdError $
-    runStakeAddressKeyGenCmd desiredKeyOutputFormat stakingVK stakingSK
+  (pvk, _psk) <- firstExceptT GenesisCmdAddressCmdError $ generateAndWriteKeyFiles desiredKeyOutputFormat AsPaymentKey paymentVK paymentSK
+  (svk, _ssk) <- firstExceptT GenesisCmdStakeAddressCmdError $ runStakeAddressKeyGenCmd desiredKeyOutputFormat stakingVK stakingSK
+  return (pvk, svk)
   where
     paymentVK = File @(VerificationKey ()) $ dir </> "payment.vkey"
     paymentSK = File @(SigningKey ()) $ dir </> "payment.skey"
     stakingVK = File @(VerificationKey ()) $ dir </> "staking.vkey"
     stakingSK = File @(SigningKey ()) $ dir </> "staking.skey"
+
 
 createUtxoKeys :: FilePath -> ExceptT GenesisCmdError IO ()
 createUtxoKeys dir = do
@@ -465,7 +516,7 @@ createPoolCredentials fmt dir = do
         (KESPeriod 0)
         (File $ dir </> "opcert.cert")
   firstExceptT GenesisCmdStakeAddressCmdError $
-    runStakeAddressKeyGenCmd
+    void $ runStakeAddressKeyGenCmd
         fmt
         (File @(VerificationKey ()) $ dir </> "staking-reward.vkey")
         (File @(SigningKey ()) $ dir </> "staking-reward.skey")
@@ -518,49 +569,29 @@ buildPoolParams nw dir index specifiedRelays = do
    poolVrfVKF = File $ dir </> "vrf.vkey"
    poolRewardVKF = File $ dir </> "staking-reward.vkey"
 
-computeDelegation
-  :: NetworkId
-  -> FilePath
-  -> L.PoolParams L.StandardCrypto
-  -> ExceptT GenesisCmdError IO Delegation
-computeDelegation nw delegDir dPoolParams = do
-    payVK   <- readVKeyFromDisk AsPaymentKey payVKF
-    stakeVK <- readVKeyFromDisk AsStakeKey   stakeVKF
-    let paymentCredential = PaymentCredentialByKey $ verificationKeyHash payVK
-        stakeAddrRef = StakeAddressByValue $ StakeCredentialByKey $ verificationKeyHash stakeVK
-        dInitialUtxoAddr = makeShelleyAddressInEra ShelleyBasedEraShelley nw paymentCredential stakeAddrRef
-        dDelegStaking = L.hashKey $ unStakeVerificationKey stakeVK
-
-    pure $ Delegation { dInitialUtxoAddr, dDelegStaking, dPoolParams }
-   where
-     payVKF = File @(VerificationKey ()) $ delegDir </> "payment.vkey"
-     stakeVKF = File @(VerificationKey ()) $ delegDir </> "staking.vkey"
-     readVKeyFromDisk role file =
-      firstExceptT GenesisCmdFileInputDecodeError $ newExceptT $
-        Keys.readVerificationKeyOrFile role (VerificationKeyFilePath file)
-
 -- | This function should only be used for testing purposes.
 -- Keys returned by this function are not cryptographically secure.
-computeInsecureDelegation
-  :: StdGen
-  -> NetworkId
+computeInsecureStakeKeyAddr :: StdGen
+                            -> IO (StdGen, ( VerificationKey PaymentKey
+                                           , VerificationKey StakeKey ))
+computeInsecureStakeKeyAddr g0 = do
+    (paymentKeys, g1) <- first getVerificationKey <$> generateInsecureSigningKey g0 AsPaymentKey
+    (stakeKeys  , g2) <- first getVerificationKey <$> generateInsecureSigningKey g1 AsStakeKey
+    return (g2, (paymentKeys, stakeKeys))
+
+computeDelegation
+  :: NetworkId
+  -> (VerificationKey PaymentKey, VerificationKey StakeKey)
   -> L.PoolParams L.StandardCrypto
-  -> IO (StdGen, Delegation)
-computeInsecureDelegation g0 nw pool = do
-    (paymentVK, g1) <- first getVerificationKey <$> generateInsecureSigningKey g0 AsPaymentKey
-    (stakeVK  , g2) <- first getVerificationKey <$> generateInsecureSigningKey g1 AsStakeKey
-
+  -> Delegation
+computeDelegation nw (paymentVK, stakeVK) dPoolParams = do
+    let paymentCredential = PaymentCredentialByKey (verificationKeyHash paymentVK)
     let stakeAddressReference = StakeAddressByValue . StakeCredentialByKey . verificationKeyHash $ stakeVK
-    let initialUtxoAddr = makeShelleyAddress nw (PaymentCredentialByKey (verificationKeyHash paymentVK)) stakeAddressReference
-
-    delegation <- pure $ force Delegation
-      { dInitialUtxoAddr = shelleyAddressInEra ShelleyBasedEraShelley initialUtxoAddr
-      , dDelegStaking = L.hashKey (unStakeVerificationKey stakeVK)
-      , dPoolParams = pool
+    Delegation
+      { dInitialUtxoAddr = makeShelleyAddressInEra ShelleyBasedEraShelley nw paymentCredential stakeAddressReference
+      , dDelegStaking = L.hashKey $ unStakeVerificationKey stakeVK
+      , dPoolParams
       }
-
-    pure (g2, delegation)
-
 
 updateOutputTemplate
   :: forall m. MonadError GenesisCmdError m
@@ -642,10 +673,17 @@ updateOutputTemplate
     unLovelace :: Integral a => L.Coin -> a
     unLovelace (L.Coin coin) = fromIntegral coin
 
-readAndDecodeShelleyGenesis
-  :: FilePath
-  -> IO (Either GenesisCmdError (ShelleyGenesis L.StandardCrypto))
-readAndDecodeShelleyGenesis fpath = runExceptT $ do
+maybeReadAndDecodeGenesisFileSpec :: (FromJSON a) => Maybe FilePath -> a -> ExceptT GenesisCmdError IO a
+maybeReadAndDecodeGenesisFileSpec spec defaultSpec =
+  case spec of
+    Just specPath ->
+      newExceptT $ readAndDecodeGenesisFile specPath
+    Nothing ->
+      -- No template given: a default file is created
+      pure defaultSpec
+
+readAndDecodeGenesisFile :: (FromJSON a) => FilePath -> IO (Either GenesisCmdError a)
+readAndDecodeGenesisFile fpath = runExceptT $ do
   lbs <- handleIOExceptT (GenesisCmdGenesisFileReadError . FileIOError fpath) $ LBS.readFile fpath
   firstExceptT (GenesisCmdGenesisFileDecodeError fpath . Text.pack)
     . hoistEither $ Aeson.eitherDecode' lbs
@@ -729,13 +767,13 @@ readKeys asType genesisVKeys = do
 
 readInitialFundAddresses :: [FilePath] -> NetworkId
                          -> ExceptT GenesisCmdError IO [AddressInEra ShelleyEra]
-readInitialFundAddresses utxoKeys nw = do
+readInitialFundAddresses utxoKeyFileNames nw = do
     vkeys <- firstExceptT GenesisCmdTextEnvReadFileError $
                sequence
                  [ newExceptT $
                      readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey)
                                           (File file)
-                 | file <- utxoKeys ]
+                 | file <- utxoKeyFileNames ]
     return [ addr | vkey <- vkeys
            , let vkh  = verificationKeyHash (castVerificationKey vkey)
                  addr = makeShelleyAddressInEra ShelleyBasedEraShelley nw (PaymentCredentialByKey vkh)

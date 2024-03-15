@@ -261,12 +261,16 @@ Usage: cardano-cli shelley genesis create-staked [--key-output-format STRING]
   genesis/delegation/spending keys.
 
 Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILE]
+                                                         [--spec-alonzo FILE]
+                                                         [--spec-conway FILE]
                                                          [--genesis-keys INT]
                                                          [--pools INT]
                                                          [ --stake-delegators INT
                                                          | --transient-stake-delegators INT
                                                          ]
-                                                         [--drep-keys INT]
+                                                         [ --drep-keys INT
+                                                         | --transient-drep-keys INT
+                                                         ]
                                                          [--stuffed-utxo INT]
                                                          [--utxo-keys INT]
                                                          [--total-supply LOVELACE]
@@ -1429,12 +1433,16 @@ Usage: cardano-cli allegra genesis create-staked [--key-output-format STRING]
   genesis/delegation/spending keys.
 
 Usage: cardano-cli allegra genesis create-testnet-data [--spec-shelley FILE]
+                                                         [--spec-alonzo FILE]
+                                                         [--spec-conway FILE]
                                                          [--genesis-keys INT]
                                                          [--pools INT]
                                                          [ --stake-delegators INT
                                                          | --transient-stake-delegators INT
                                                          ]
-                                                         [--drep-keys INT]
+                                                         [ --drep-keys INT
+                                                         | --transient-drep-keys INT
+                                                         ]
                                                          [--stuffed-utxo INT]
                                                          [--utxo-keys INT]
                                                          [--total-supply LOVELACE]
@@ -2595,12 +2603,16 @@ Usage: cardano-cli mary genesis create-staked [--key-output-format STRING]
   genesis/delegation/spending keys.
 
 Usage: cardano-cli mary genesis create-testnet-data [--spec-shelley FILE]
+                                                      [--spec-alonzo FILE]
+                                                      [--spec-conway FILE]
                                                       [--genesis-keys INT]
                                                       [--pools INT]
                                                       [ --stake-delegators INT
                                                       | --transient-stake-delegators INT
                                                       ]
-                                                      [--drep-keys INT]
+                                                      [ --drep-keys INT
+                                                      | --transient-drep-keys INT
+                                                      ]
                                                       [--stuffed-utxo INT]
                                                       [--utxo-keys INT]
                                                       [--total-supply LOVELACE]
@@ -3746,12 +3758,16 @@ Usage: cardano-cli alonzo genesis create-staked [--key-output-format STRING]
   genesis/delegation/spending keys.
 
 Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILE]
+                                                        [--spec-alonzo FILE]
+                                                        [--spec-conway FILE]
                                                         [--genesis-keys INT]
                                                         [--pools INT]
                                                         [ --stake-delegators INT
                                                         | --transient-stake-delegators INT
                                                         ]
-                                                        [--drep-keys INT]
+                                                        [ --drep-keys INT
+                                                        | --transient-drep-keys INT
+                                                        ]
                                                         [--stuffed-utxo INT]
                                                         [--utxo-keys INT]
                                                         [--total-supply LOVELACE]
@@ -4920,12 +4936,16 @@ Usage: cardano-cli babbage genesis create-staked [--key-output-format STRING]
   genesis/delegation/spending keys.
 
 Usage: cardano-cli babbage genesis create-testnet-data [--spec-shelley FILE]
+                                                         [--spec-alonzo FILE]
+                                                         [--spec-conway FILE]
                                                          [--genesis-keys INT]
                                                          [--pools INT]
                                                          [ --stake-delegators INT
                                                          | --transient-stake-delegators INT
                                                          ]
-                                                         [--drep-keys INT]
+                                                         [ --drep-keys INT
+                                                         | --transient-drep-keys INT
+                                                         ]
                                                          [--stuffed-utxo INT]
                                                          [--utxo-keys INT]
                                                          [--total-supply LOVELACE]
@@ -6112,12 +6132,16 @@ Usage: cardano-cli conway genesis create-staked [--key-output-format STRING]
   genesis/delegation/spending keys.
 
 Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILE]
+                                                        [--spec-alonzo FILE]
+                                                        [--spec-conway FILE]
                                                         [--genesis-keys INT]
                                                         [--pools INT]
                                                         [ --stake-delegators INT
                                                         | --transient-stake-delegators INT
                                                         ]
-                                                        [--drep-keys INT]
+                                                        [ --drep-keys INT
+                                                        | --transient-drep-keys INT
+                                                        ]
                                                         [--stuffed-utxo INT]
                                                         [--utxo-keys INT]
                                                         [--total-supply LOVELACE]
@@ -7742,12 +7766,16 @@ Usage: cardano-cli latest genesis create-staked [--key-output-format STRING]
   genesis/delegation/spending keys.
 
 Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILE]
+                                                        [--spec-alonzo FILE]
+                                                        [--spec-conway FILE]
                                                         [--genesis-keys INT]
                                                         [--pools INT]
                                                         [ --stake-delegators INT
                                                         | --transient-stake-delegators INT
                                                         ]
-                                                        [--drep-keys INT]
+                                                        [ --drep-keys INT
+                                                        | --transient-drep-keys INT
+                                                        ]
                                                         [--stuffed-utxo INT]
                                                         [--utxo-keys INT]
                                                         [--total-supply LOVELACE]
