@@ -14,6 +14,9 @@ Usage: cardano-cli conway query leadership-schedule --socket-path SOCKET_PATH
                                                       [ --volatile-tip
                                                       | --immutable-tip
                                                       ]
+                                                      [ --output-json
+                                                      | --output-text
+                                                      ]
                                                       [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -47,5 +50,9 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
+  --output-json            Format leadership-schedule query output to JSON.
+                           Default format when writing to a file
+  --output-text            Format leadership-schedule query output to TEXT.
+                           Default format when writing to stdout
   --out-file FILE          Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

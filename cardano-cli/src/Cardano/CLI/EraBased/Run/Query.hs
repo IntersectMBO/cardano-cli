@@ -152,11 +152,8 @@ runQueryConstitutionHashCmd
       -> Maybe (L.SafeHash L.StandardCrypto L.AnchorData)
       -> ExceptT QueryCmdError IO ()
     writeConstitutionHash mOutFile' cHash =
-      case mOutFile' of
-        Nothing -> liftIO $ LBS.putStrLn (encodePretty cHash)
-        Just (File fpath) ->
-          handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath) $
-            LBS.writeFile fpath (encodePretty cHash)
+      firstExceptT QueryCmdWriteFileError . newExceptT
+        $ writeLazyByteStringOutput mOutFile' $ encodePretty cHash
 
 runQueryProtocolParametersCmd :: ()
   => Cmd.QueryProtocolParametersCmdArgs
@@ -183,12 +180,8 @@ runQueryProtocolParametersCmd
       -> L.PParams (ShelleyLedgerEra era)
       -> ExceptT QueryCmdError IO ()
     writeProtocolParameters sbe mOutFile' pparams =
-      let apiPParamsJSON = (encodePretty $ fromLedgerPParams sbe pparams)
-      in case mOutFile' of
-        Nothing -> liftIO $ LBS.putStrLn apiPParamsJSON
-        Just (File fpath) ->
-          handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath) $
-            LBS.writeFile fpath apiPParamsJSON
+      firstExceptT QueryCmdWriteFileError . newExceptT
+        $ writeLazyByteStringOutput mOutFile' $ encodePretty $ fromLedgerPParams sbe pparams
 
 -- | Calculate the percentage sync rendered as text.
 percentage
@@ -302,9 +295,8 @@ runQueryTipCmd
           , O.mSyncProgress = mSyncProgress
           }
 
-  case mOutFile of
-    Just (File fpath) -> liftIO $ LBS.writeFile fpath $ encodePretty localStateOutput
-    Nothing                 -> liftIO $ LBS.putStrLn        $ encodePretty localStateOutput
+  firstExceptT QueryCmdWriteFileError . newExceptT
+    $ writeLazyByteStringOutput mOutFile $ encodePretty localStateOutput
 
 -- | Query the UTxO, filtered by a given set of addresses, from a Shelley node
 -- via the local state query protocol.
@@ -664,11 +656,8 @@ runQueryTxMempoolCmd
       TxMempoolQueryInfo -> pure LocalTxMonitoringMempoolInformation
 
   result <- liftIO $ queryTxMonitoringLocal localNodeConnInfo localQuery
-  let renderedResult = encodePretty result
-  case mOutFile of
-    Nothing -> liftIO $ LBS.putStrLn renderedResult
-    Just (File oFp) -> handleIOExceptT (QueryCmdWriteFileError . FileIOError oFp)
-        $ LBS.writeFile oFp renderedResult
+  firstExceptT QueryCmdWriteFileError . newExceptT
+    $ writeLazyByteStringOutput mOutFile $ encodePretty result
 
 runQuerySlotNumberCmd :: ()
   => Cmd.QuerySlotNumberCmdArgs
@@ -1128,8 +1117,7 @@ runQueryStakePoolsCmd
           & onLeft (left . QueryCmdUnsupportedNtcVersion)
           & onLeft (left . QueryCmdEraMismatch)
 
-        pure $ do
-          writeStakePools (newOutputFormat format mOutFile) mOutFile poolIds
+        pure $ writeStakePools (newOutputFormat format mOutFile) mOutFile poolIds
     ) & onLeft (left . QueryCmdAcquireFailure)
       & onLeft left
 
@@ -1230,6 +1218,7 @@ runQueryLeadershipScheduleCmd
     , Cmd.vrkSkeyFp
     , Cmd.whichSchedule
     , Cmd.target
+    , Cmd.format
     , Cmd.mOutFile
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1312,23 +1301,27 @@ runQueryLeadershipScheduleCmd
     & onLeft left
   where
     writeSchedule mOutFile' eInfo shelleyGenesis schedule =
-      case mOutFile' of
-        Nothing -> liftIO $ printLeadershipScheduleAsText schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
-        Just (File jsonOutputFile) ->
-          liftIO $ LBS.writeFile jsonOutputFile $
-            printLeadershipScheduleAsJson schedule eInfo (SystemStart $ sgSystemStart shelleyGenesis)
+      firstExceptT QueryCmdWriteFileError . newExceptT
+        $ writeLazyByteStringOutput mOutFile' toWrite
+      where
+        start = SystemStart $ sgSystemStart shelleyGenesis
+        toWrite =
+          case newOutputFormat format mOutFile' of
+            QueryOutputFormatJson ->
+              encodePretty $ leadershipScheduleToJson schedule eInfo start
+            QueryOutputFormatText ->
+              strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start
 
-    printLeadershipScheduleAsText
+    leadershipScheduleToText
       :: Set SlotNo
       -> EpochInfo (Either Text)
       -> SystemStart
-      -> IO ()
-    printLeadershipScheduleAsText leadershipSlots eInfo sStart = do
-      Text.putStrLn title
-      putStrLn $ replicate (Text.length title + 2) '-'
-      sequence_
-        [ putStrLn $ showLeadershipSlot slot eInfo sStart
-        | slot <- Set.toList leadershipSlots ]
+      -> Text
+    leadershipScheduleToText leadershipSlots eInfo sStart = do
+      Text.unlines $
+        title
+        :  Text.replicate (Text.length title + 2) "-"
+        : [ showLeadershipSlot slot eInfo sStart | slot <- Set.toList leadershipSlots ]
       where
         title :: Text
         title =
@@ -1338,30 +1331,30 @@ runQueryLeadershipScheduleCmd
           :: SlotNo
           -> EpochInfo (Either Text)
           -> SystemStart
-          -> String
+          -> Text
         showLeadershipSlot lSlot@(SlotNo sn) eInfo' sStart' =
           case epochInfoSlotToUTCTime eInfo' sStart' lSlot of
             Right slotTime ->
-              concat
+              mconcat
               [ "     "
-              , show sn
+              , Text.pack $ show sn
               , "                   "
-              , show slotTime
+              , Text.pack $ show slotTime
               ]
             Left err ->
-              concat
+              mconcat
               [ "     "
-              , show sn
+              , Text.pack $ show sn
               , "                   "
-              , Text.unpack err
+              , err
               ]
-    printLeadershipScheduleAsJson
+    leadershipScheduleToJson
       :: Set SlotNo
       -> EpochInfo (Either Text)
       -> SystemStart
-      -> LBS.ByteString
-    printLeadershipScheduleAsJson leadershipSlots eInfo sStart =
-      encodePretty $ showLeadershipSlot <$> List.sort (Set.toList leadershipSlots)
+      -> [Aeson.Value]
+    leadershipScheduleToJson leadershipSlots eInfo sStart =
+      showLeadershipSlot <$> List.sort (Set.toList leadershipSlots)
       where
         showLeadershipSlot :: SlotNo -> Aeson.Value
         showLeadershipSlot lSlot@(SlotNo sn) =

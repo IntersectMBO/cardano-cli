@@ -11,6 +11,9 @@ Usage: cardano-cli allegra query leadership-schedule --socket-path SOCKET_PATH
                                                        )
                                                        --vrf-signing-key-file FILE
                                                        (--current | --next)
+                                                       [ --output-json
+                                                       | --output-text
+                                                       ]
                                                        [--out-file FILE]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -41,5 +44,9 @@ Available options:
                            Input filepath of the VRF signing key.
   --current                Get the leadership schedule for the current epoch.
   --next                   Get the leadership schedule for the following epoch.
+  --output-json            Format leadership-schedule query output to JSON.
+                           Default format when writing to a file
+  --output-text            Format leadership-schedule query output to TEXT.
+                           Default format when writing to stdout
   --out-file FILE          Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
