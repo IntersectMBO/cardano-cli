@@ -151,7 +151,7 @@ runTransactionBuildCmd
     readTxMetadata eon metadataSchema metadataFiles
   valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
   scripts <- firstExceptT TxCmdScriptFileError $
-    mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
+    mapM (readFileScriptInAnyLang . unFile) scriptFiles
   txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
 
   mProp <- case mfUpdateProposalFile of
@@ -288,7 +288,7 @@ runTransactionBuildRawCmd
                   . newExceptT $ readTxMetadata eon metadataSchema metadataFiles
   valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
   scripts <- firstExceptT TxCmdScriptFileError $
-                     mapM (readFileScriptInAnyLang . unScriptFile) scriptFiles
+                     mapM (readFileScriptInAnyLang . unFile) scriptFiles
   txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
 
   -- TODO: Conway era - update readProtocolParameters to rely on L.PParams JSON instances
@@ -1077,7 +1077,7 @@ runTransactionPolicyIdCmd :: ()
   -> ExceptT TxCmdError IO ()
 runTransactionPolicyIdCmd
     Cmd.TransactionPolicyIdCmdArgs
-      { scriptFile = ScriptFile sFile
+      { scriptFile = File sFile
       } = do
   ScriptInAnyLang _ script <- firstExceptT TxCmdScriptFileError $
                                 readFileScriptInAnyLang sFile

@@ -241,7 +241,7 @@ pStakeVerificationKeyOrFile prefix =
 
 pScriptFor :: String -> Maybe String -> String -> Parser ScriptFile
 pScriptFor name Nothing help' =
-  fmap ScriptFile $ Opt.strOption $ mconcat
+  fmap File $ Opt.strOption $ mconcat
     [ Opt.long name
     , Opt.metavar "FILE"
     , Opt.help help'
@@ -250,7 +250,7 @@ pScriptFor name Nothing help' =
 
 pScriptFor name (Just deprecated) help' =
       pScriptFor name Nothing help'
-  <|> ScriptFile <$> Opt.strOption
+  <|> File <$> Opt.strOption
         (  Opt.long deprecated
         <> Opt.internal
         )

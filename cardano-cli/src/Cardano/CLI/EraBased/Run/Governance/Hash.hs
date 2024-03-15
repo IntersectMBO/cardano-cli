@@ -7,8 +7,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-{- HLINT ignore "Use let" -}
-
 module Cardano.CLI.EraBased.Run.Governance.Hash
   ( runGovernanceHashCmds
   ) where
@@ -18,7 +16,6 @@ import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Hash as Cmd
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceHashError
@@ -71,12 +68,11 @@ runGovernanceHashAnchorDataCmd Cmd.GovernanceHashAnchorDataCmdArgs { toHash, mou
 runGovernanceHashScriptCmd :: ()
   => Cmd.GovernanceHashScriptCmdArgs era
   -> ExceptT GovernanceHashError IO ()
-runGovernanceHashScriptCmd Cmd.GovernanceHashScriptCmdArgs { Cmd.toHash = ScriptFile toHash, moutFile } = do
+runGovernanceHashScriptCmd Cmd.GovernanceHashScriptCmdArgs { Cmd.toHash = File toHash, moutFile } = do
   ScriptInAnyLang _ script <-
     readFileScriptInAnyLang toHash
       & firstExceptT (GovernanceHashReadScriptError toHash)
   firstExceptT GovernanceHashWriteFileError
     . newExceptT
     . writeTextOutput moutFile . serialiseToRawBytesHexText $ hashScript script
-
 

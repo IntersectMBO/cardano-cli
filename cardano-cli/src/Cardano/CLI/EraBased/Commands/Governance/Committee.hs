@@ -52,8 +52,8 @@ data GovernanceCommitteeKeyHashCmdArgs era =
 data GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era =
   GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
     { eon               :: !(ConwayEraOnwards era)
-    , vkeyColdKeySource :: !(VerificationKeyOrHashOrFile CommitteeColdKey)
-    , vkeyHotKeySource  :: !(VerificationKeyOrHashOrFile CommitteeHotKey)
+    , vkeyColdKeySource :: !(VerificationKeyOrHashOrFileOrScript CommitteeColdKey)
+    , vkeyHotKeySource  :: !(VerificationKeyOrHashOrFileOrScript CommitteeHotKey)
     , outFile           :: !(File () Out)
     } deriving Show
 
@@ -66,14 +66,14 @@ data GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era =
     } deriving Show
 
 renderGovernanceCommitteeCmds :: GovernanceCommitteeCmds era -> Text
-renderGovernanceCommitteeCmds = \case
+renderGovernanceCommitteeCmds = ("governance committee " <>) . \case
   GovernanceCommitteeKeyGenColdCmd {} ->
-    "governance committee key-gen-cold"
+    "key-gen-cold"
   GovernanceCommitteeKeyGenHotCmd {} ->
-    "governance committee key-gen-hot"
+    "key-gen-hot"
   GovernanceCommitteeKeyHashCmd {} ->
-    "governance committee key-hash"
+    "key-hash"
   GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd {} ->
-    "governance committee create-hot-key-authorization-certificate"
+    "create-hot-key-authorization-certificate"
   GovernanceCommitteeCreateColdKeyResignationCertificateCmd {} ->
-    "governance committee create-cold-key-resignation-certificate"
+    "create-cold-key-resignation-certificate"

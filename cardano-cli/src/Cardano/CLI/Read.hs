@@ -96,6 +96,8 @@ module Cardano.CLI.Read
 
   -- * Vote related
   , readVoteDelegationTarget
+
+  , readVerificationKeyOrHashOrFileOrScript
   ) where
 
 import           Cardano.Api as Api
@@ -259,7 +261,7 @@ readScriptWitness
   :: ShelleyBasedEra era
   -> ScriptWitnessFiles witctx
   -> ExceptT ScriptWitnessError IO (ScriptWitness witctx era)
-readScriptWitness era (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
+readScriptWitness era (SimpleScriptWitnessFile (File scriptFile)) = do
     script@(ScriptInAnyLang lang _) <- firstExceptT ScriptWitnessErrorFile $
                                          readFileScriptInAnyLang scriptFile
     ScriptInEra langInEra script'   <- validateScriptSupportedInEra era script
@@ -276,7 +278,7 @@ readScriptWitness era (SimpleScriptWitnessFile (ScriptFile scriptFile)) = do
                  (AnyScriptLanguage lang)
 
 readScriptWitness era (PlutusScriptWitnessFiles
-                          (ScriptFile scriptFile)
+                          (File scriptFile)
                           datumOrFile
                           redeemerOrFile
                           execUnits) = do
@@ -420,17 +422,35 @@ readScriptDataOrFile (ScriptDataCborFile fp) = do
           $ hoistEither $ validateScriptData $ getScriptData hSd
   return hSd
 
+readVerificationKeyOrHashOrFileOrScript
+  :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m
+  => Key keyrole
+  => AsType keyrole
+  -> (Hash keyrole -> L.KeyHash kr L.StandardCrypto)
+  -> VerificationKeyOrHashOrFileOrScript keyrole
+  -> t m (L.Credential kr L.StandardCrypto)
+readVerificationKeyOrHashOrFileOrScript asType extractHash = \case
+  VkhfsScript (File fp) -> do
+    ScriptInAnyLang _lang script <-
+      modifyError Left $
+        readFileScriptInAnyLang fp
+    pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
+  VkhfsKeyHashFile vkOrHashOrFp ->
+    fmap (L.KeyHashObj . extractHash) . modifyError Right . hoistIOEither $
+      readVerificationKeyOrHashOrTextEnvFile asType vkOrHashOrFp
+
 -- | Read a script file. The file can either be in the text envelope format
 -- wrapping the binary representation of any of the supported script languages,
 -- or alternatively it can be a JSON format file for one of the simple script
 -- language versions.
 --
-readFileScriptInAnyLang :: FilePath
-                        -> ExceptT (FileError ScriptDecodeError) IO
-                                   ScriptInAnyLang
+readFileScriptInAnyLang
+  :: MonadIOTransError (FileError ScriptDecodeError) t m
+  => FilePath
+  -> t m ScriptInAnyLang
 readFileScriptInAnyLang file = do
-  scriptBytes <- handleIOExceptT (FileIOError file) $ BS.readFile file
-  firstExceptT (FileError file) $ hoistEither $
+  scriptBytes <- handleIOExceptionsLiftWith (FileIOError file) . liftIO $ BS.readFile file
+  modifyError (FileError file) $ hoistEither $
     deserialiseScriptInAnyLang scriptBytes
 
 
@@ -1033,7 +1053,7 @@ getStakeCredentialFromVerifier :: ()
   => StakeVerifier
   -> ExceptT StakeCredentialError IO StakeCredential
 getStakeCredentialFromVerifier = \case
-  StakeVerifierScriptFile (ScriptFile sFile) -> do
+  StakeVerifierScriptFile (File sFile) -> do
     ScriptInAnyLang _ script <-
       readFileScriptInAnyLang sFile
         & firstExceptT StakeCredentialScriptDecodeError
@@ -1128,16 +1148,9 @@ readVoteDelegationTarget :: ()
   -> ExceptT DelegationError IO (L.DRep L.StandardCrypto)
 readVoteDelegationTarget voteDelegationTarget =
   case voteDelegationTarget of
-    VoteDelegationTargetOfDRep drepHashSource -> do
-      drepHash <- case drepHashSource of
-        DRepHashSourceScript (ScriptHash scriptHash) ->
-          pure $ L.ScriptHashObj scriptHash
-        DRepHashSourceVerificationKey drepVKeyOrHashOrFile -> do
-          DRepKeyHash drepKeyHash <-
-            lift (readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile)
-              & onLeft (left . DelegationDRepReadError)
-          pure $ L.KeyHashObj drepKeyHash
-      pure $ L.DRepCredential drepHash
+    VoteDelegationTargetOfDRep drepHashSource ->
+      modifyError  DelegationDRepReadError $
+        L.DRepCredential <$> readDRepCredential drepHashSource
     VoteDelegationTargetOfAbstain ->
       pure L.DRepAlwaysAbstain
     VoteDelegationTargetOfNoConfidence ->

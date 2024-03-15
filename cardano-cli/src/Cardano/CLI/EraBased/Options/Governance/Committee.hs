@@ -11,7 +11,9 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Common hiding (pAnchorUrl)
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Key
 
+import           Data.Foldable (asum)
 import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
 
@@ -103,14 +105,23 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
     $ Opt.info
         ( fmap GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd $
             GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs w
-              <$> pCommitteeColdVerificationKeyOrHashOrFile
-              <*> pCommitteeHotKeyOrHashOrFile
+              <$> pColdVerificationKeyOrHashOrFileOrScript
+              <*> pHotVerificationKeyOrHashOrFileOrScript
               <*> pOutputFile
         )
     $ Opt.progDesc
     $ mconcat
         [ "Create hot key authorization certificate for a Constitutional Committee Member"
         ]
+  where
+    pColdVerificationKeyOrHashOrFileOrScript = asum
+      [ VkhfsKeyHashFile <$> pCommitteeColdVerificationKeyOrHashOrFile
+      , VkhfsScript <$> pScriptFor "cold-script-file" Nothing "Cold Native or Plutus script file"
+      ]
+    pHotVerificationKeyOrHashOrFileOrScript = asum
+      [ VkhfsKeyHashFile <$> pCommitteeHotKeyOrHashOrFile
+      , VkhfsScript <$> pScriptFor "hot-script-file" Nothing "Hot Native or Plutus script file"
+      ]
 
 pGovernanceCommitteeCreateColdKeyResignationCertificateCmd :: ()
   => CardanoEra era
