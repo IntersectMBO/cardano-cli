@@ -1,5 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 -- | Dispatch for running all the CLI commands
 module Cardano.CLI.Run
@@ -14,13 +15,13 @@ import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCm
                    runByronClientCommand)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run
-import           Cardano.CLI.IO.GitRev (gitRev)
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Run (runLegacyCmds)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run.Ping (PingClientCmdError (..), PingCmd (..),
                    renderPingClientCmdError, runPingCmd)
 import           Cardano.CLI.Types.Errors.CmdError
+import           Cardano.Git.Rev (gitRev)
 
 import           Control.Monad (forM_)
 import           Control.Monad.IO.Unlift (MonadIO (..))
@@ -90,7 +91,7 @@ runDisplayVersion = do
     [ "cardano-cli ", renderVersion version
     , " - ", Text.pack os, "-", Text.pack arch
     , " - ", Text.pack compilerName, "-", renderVersion compilerVersion
-    , "\ngit rev ", gitRev
+    , "\ngit rev ", $(gitRev)
     ]
   where
     renderVersion = Text.pack . showVersion

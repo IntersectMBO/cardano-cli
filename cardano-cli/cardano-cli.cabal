@@ -111,7 +111,6 @@ library
                         Cardano.CLI.EraBased.Run.TextView
                         Cardano.CLI.EraBased.Run.Transaction
                         Cardano.CLI.Helpers
-                        Cardano.CLI.IO.GitRev
                         Cardano.CLI.IO.Lazy
                         Cardano.CLI.Json.Friendly
                         Cardano.CLI.Legacy.Commands
@@ -202,7 +201,7 @@ library
                       , cardano-crypto-class ^>= 2.1.2
                       , cardano-crypto-wrapper ^>= 1.5.1
                       , cardano-data >= 1.1
-                      , cardano-git-rev
+                      , cardano-git-rev ^>= 0.2.1
                       , cardano-ledger-byron >= 1.0.0.2
                       , cardano-ping ^>= 0.2.0.13
                       , cardano-prelude
