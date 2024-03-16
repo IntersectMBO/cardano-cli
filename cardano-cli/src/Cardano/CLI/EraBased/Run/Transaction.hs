@@ -1027,31 +1027,22 @@ runTransactionCalculateMinFeeCmd
 
   let nShelleyKeyWitW32 = fromIntegral nShelleyKeyWitnesses
 
-  case unwitnessed of
+  InAnyShelleyBasedEra sbe txbody <- case unwitnessed of
     IncompleteCddlFormattedTx (InAnyShelleyBasedEra sbe unwitTx) -> do
-      let txbody =  getTxBody unwitTx
-      lpparams <- getLedgerPParams sbe pparams
-      let shelleyfee = evaluateTransactionFee sbe lpparams txbody nShelleyKeyWitW32 0
-
-      let byronfee = calculateByronWitnessFees
-                      (protocolParamTxFeePerByte pparams)
-                      nByronKeyWitnesses
-
-      let L.Coin fee = shelleyfee + byronfee
-
-      liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
+      pure $ InAnyShelleyBasedEra sbe $ getTxBody unwitTx
 
     UnwitnessedCliFormattedTxBody (InAnyShelleyBasedEra sbe txbody) -> do
-      lpparams <- getLedgerPParams sbe pparams
-      let shelleyfee = evaluateTransactionFee sbe lpparams txbody nShelleyKeyWitW32 0
-      let byronfee = calculateByronWitnessFees
-                      (protocolParamTxFeePerByte pparams)
-                      nByronKeyWitnesses
+      pure $ InAnyShelleyBasedEra sbe txbody
 
-      let L.Coin fee = shelleyfee + byronfee
+  lpparams <- getLedgerPParams sbe pparams
 
-      liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
+  let shelleyfee = evaluateTransactionFee sbe lpparams txbody nShelleyKeyWitW32 0
 
+  let byronfee = calculateByronWitnessFees (protocolParamTxFeePerByte pparams) nByronKeyWitnesses
+
+  let L.Coin fee = shelleyfee + byronfee
+
+  liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
 
 getLedgerPParams :: forall era. ()
   => ShelleyBasedEra era
