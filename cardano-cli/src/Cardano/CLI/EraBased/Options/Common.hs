@@ -76,6 +76,19 @@ prefixFlag prefix longFlag =
     Nothing -> longFlag
     Just prefix' -> prefix' <> "-" <> longFlag
 
+pNetworkIdDeprecated :: Parser NetworkId
+pNetworkIdDeprecated = asum
+  [ Opt.flag' Mainnet $ mconcat
+    [ Opt.long "mainnet"
+    , Opt.help "DEPRECATED. This argument has no effect."
+    ]
+  , fmap (Testnet . NetworkMagic) $ Opt.option (bounded "TESTNET_MAGIC") $ mconcat
+    [ Opt.long "testnet-magic"
+    , Opt.metavar "NATURAL"
+    , Opt.help "DEPRECATED. This argument has no effect."
+    ]
+  ]
+
 pNetworkId :: EnvCli -> Parser NetworkId
 pNetworkId envCli = asum $ mconcat
   [ [ Opt.flag' Mainnet $ mconcat
@@ -2226,20 +2239,20 @@ pInputTxOrTxBodyFile =
     , InputTxFile <$> pTxFileIn
     ]
 
-pTxInCount :: Parser TxInCount
-pTxInCount =
+pTxInCountDeprecated :: Parser TxInCount
+pTxInCountDeprecated =
   fmap TxInCount $ Opt.option Opt.auto $ mconcat
     [ Opt.long "tx-in-count"
     , Opt.metavar "NATURAL"
-    , Opt.help "The number of transaction inputs."
+    , Opt.help "DEPRECATED. This argument has no effect."
     ]
 
-pTxOutCount :: Parser TxOutCount
-pTxOutCount =
+pTxOutCountDeprecated :: Parser TxOutCount
+pTxOutCountDeprecated =
   fmap TxOutCount $ Opt.option Opt.auto $ mconcat
     [ Opt.long "tx-out-count"
     , Opt.metavar "NATURAL"
-    , Opt.help "The number of transaction outputs."
+    , Opt.help "DEPRECATED. This argument has no effect."
     ]
 
 pTxShelleyWitnessCount :: Parser TxShelleyWitnessCount

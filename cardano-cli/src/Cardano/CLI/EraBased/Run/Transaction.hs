@@ -37,6 +37,8 @@ import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
+import qualified Cardano.Binary as CBOR
+import qualified Cardano.Chain.Common as Byron
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis
 import           Cardano.CLI.Json.Friendly (FriendlyFormat (..), friendlyTx, friendlyTxBody)
@@ -54,6 +56,7 @@ import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 import           Control.Monad (forM)
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Bifunctor (Bifunctor (..))
+import qualified Data.ByteString as Data.Bytestring
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Data ((:~:) (..))
@@ -1009,45 +1012,93 @@ runTransactionCalculateMinFeeCmd :: ()
 runTransactionCalculateMinFeeCmd
     Cmd.TransactionCalculateMinFeeCmdArgs
       { txBodyFile = File txbodyFilePath
-      , networkId = networkId
       , protocolParamsFile = protocolParamsFile
-      , txInCount = TxInCount nInputs
-      , txOutCount = TxOutCount nOutputs
       , txShelleyWitnessCount = TxShelleyWitnessCount nShelleyKeyWitnesses
       , txByronWitnessCount = TxByronWitnessCount nByronKeyWitnesses
       } = do
 
   txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-  unwitnessed <- firstExceptT TxCmdCddlError . newExceptT $ readFileTxBody txbodyFile
-  pparams <- firstExceptT TxCmdProtocolParamsError $ readProtocolParameters protocolParamsFile
+  unwitnessed <-
+    firstExceptT TxCmdCddlError . newExceptT
+      $ readFileTxBody txbodyFile
+  pparams <-
+    firstExceptT TxCmdProtocolParamsError
+      $ readProtocolParameters protocolParamsFile
+
+  let nShelleyKeyWitW32 = fromIntegral nShelleyKeyWitnesses
+
   case unwitnessed of
-    IncompleteCddlFormattedTx anyTx -> do
-      InAnyShelleyBasedEra sbe unwitTx <- pure anyTx
+    IncompleteCddlFormattedTx (InAnyShelleyBasedEra sbe unwitTx) -> do
       let txbody =  getTxBody unwitTx
-      let tx = makeSignedTransaction [] txbody
-          L.Coin fee = estimateTransactionFee sbe
-                            networkId
-                            (protocolParamTxFeeFixed pparams)
-                            (protocolParamTxFeePerByte pparams)
-                            tx
-                            nInputs nOutputs
-                            nShelleyKeyWitnesses nByronKeyWitnesses
+      lpparams <- getLedgerPParams sbe pparams
+      let shelleyfee = evaluateTransactionFee sbe lpparams txbody nShelleyKeyWitW32 0
+
+      let byronfee = calculateByronWitnessFees
+                      (protocolParamTxFeePerByte pparams)
+                      nByronKeyWitnesses
+
+      let L.Coin fee = shelleyfee + byronfee
 
       liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
 
-    UnwitnessedCliFormattedTxBody anyTxBody -> do
-      InAnyShelleyBasedEra sbe txbody <- pure anyTxBody
+    UnwitnessedCliFormattedTxBody (InAnyShelleyBasedEra sbe txbody) -> do
+      lpparams <- getLedgerPParams sbe pparams
+      let shelleyfee = evaluateTransactionFee sbe lpparams txbody nShelleyKeyWitW32 0
+      let byronfee = calculateByronWitnessFees
+                      (protocolParamTxFeePerByte pparams)
+                      nByronKeyWitnesses
 
-      let tx = makeSignedTransaction [] txbody
-          L.Coin fee = estimateTransactionFee sbe
-                            networkId
-                            (protocolParamTxFeeFixed pparams)
-                            (protocolParamTxFeePerByte pparams)
-                            tx
-                            nInputs nOutputs
-                            nByronKeyWitnesses nShelleyKeyWitnesses
+      let L.Coin fee = shelleyfee + byronfee
 
       liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
+
+
+getLedgerPParams :: forall era. ()
+  => ShelleyBasedEra era
+  -> ProtocolParameters
+  -> ExceptT TxCmdError IO (L.PParams (ShelleyLedgerEra era))
+getLedgerPParams sbe pparams =
+  firstExceptT TxCmdProtocolParamsConverstionError $
+  hoistEither $ toLedgerPParams sbe pparams
+
+-- Extra logic to handle byron witnesses.
+-- TODO: move this to Cardano.API.Fee.evaluateTransactionFee.
+calculateByronWitnessFees :: ()
+  => L.Coin   -- ^ The tx fee per byte (from protocol parameters)
+  -> Int      -- ^ The number of Byron key witnesses
+  -> L.Coin
+calculateByronWitnessFees txFeePerByte byronwitcount =
+    L.Coin
+      $ toInteger txFeePerByte
+      * toInteger byronwitcount
+      * toInteger sizeByronKeyWitnesses
+  where
+    sizeByronKeyWitnesses = smallArray + keyObj + sigObj + ccodeObj + attrsObj
+
+    smallArray  = 1
+
+    keyObj      = 2 + keyLen
+    keyLen      = 32
+
+    sigObj      = 2 + sigLen
+    sigLen      = 64
+
+    ccodeObj    = 2 + ccodeLen
+    ccodeLen    = 32
+
+    attrsObj    = 2 + Data.Bytestring.length attributes
+
+    -- We assume testnet network magic here to avoid having
+    -- to thread the actual network ID into this function
+    -- merely to calculate the fees of byron witnesses more accurately.
+    -- This may slightly over-estimate min fees for byron witnesses
+    -- in mainnet transaction by one Word32 per witness.
+    attributes  = CBOR.serialize' $
+                    Byron.mkAttributes Byron.AddrAttributes {
+                      Byron.aaVKDerivationPath = Nothing,
+                      Byron.aaNetworkMagic     = Byron.NetworkTestnet maxBound
+                    }
+
 
 -- ----------------------------------------------------------------------------
 -- Transaction fee calculation

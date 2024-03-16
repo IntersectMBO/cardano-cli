@@ -43,8 +43,8 @@ runLegacyTransactionCmds = \case
       runLegacyTransactionSignCmd txinfile skfiles network txoutfile
   TransactionSubmitCmd mNodeSocketPath consensusModeParams network txFp ->
       runLegacyTransactionSubmitCmd mNodeSocketPath consensusModeParams network txFp
-  TransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses ->
-      runLegacyTransactionCalculateMinFeeCmd txbody nw pParamsFile nInputs nOutputs nShelleyKeyWitnesses nByronKeyWitnesses
+  TransactionCalculateMinFeeCmd txbody pParamsFile nShelleyKeyWitnesses nByronKeyWitnesses ->
+      runLegacyTransactionCalculateMinFeeCmd txbody pParamsFile nShelleyKeyWitnesses nByronKeyWitnesses
   TransactionCalculateMinValueCmd (EraInEon sbe) pParamsFile txOuts' ->
       runLegacyTransactionCalculateMinValueCmd (AnyShelleyBasedEra sbe) pParamsFile txOuts'
   TransactionHashScriptDataCmd scriptDataOrFile ->
@@ -222,28 +222,19 @@ runLegacyTransactionSubmitCmd
 
 runLegacyTransactionCalculateMinFeeCmd :: ()
   => TxBodyFile In
-  -> NetworkId
   -> ProtocolParamsFile
-  -> TxInCount
-  -> TxOutCount
   -> TxShelleyWitnessCount
   -> TxByronWitnessCount
   -> ExceptT TxCmdError IO ()
 runLegacyTransactionCalculateMinFeeCmd
     txbodyFile
-    nw
     pParamsFile
-    txInCount
-    txOutCount
     txShelleyWitnessCount
     txByronWitnessCount =
   runTransactionCalculateMinFeeCmd
     ( Cmd.TransactionCalculateMinFeeCmdArgs
         txbodyFile
-        nw
         pParamsFile
-        txInCount
-        txOutCount
         txShelleyWitnessCount
         txByronWitnessCount
     )
