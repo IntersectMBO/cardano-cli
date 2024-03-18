@@ -4,7 +4,7 @@
 
 module Test.Golden.Governance.Committee where
 
-import           Control.Monad (void)
+import           Control.Monad (forM_, void)
 import           Text.Regex.TDFA ((=~))
 
 import           Test.Cardano.CLI.Util
@@ -221,3 +221,28 @@ hprop_golden_governance_committee_hot_extended_key_signing =
       ]
 
     H.diffFileVsGoldenFile outFile outGold
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden verification key committee/"'@
+hprop_golden_verification_key_committee :: Property
+hprop_golden_verification_key_committee = do
+  let values = [ ( "test/cardano-cli-golden/files/input/governance/committee/cc.extended.hot.skey"
+                 , "test/cardano-cli-golden/files/golden/governance/committee/cc.extended.hot.vkey"
+                 )
+                 ,
+                 ( "test/cardano-cli-golden/files/input/governance/committee/cc.extended.cold.skey"
+                 , "test/cardano-cli-golden/files/golden/governance/committee/cc.extended.cold.vkey"
+                 )
+               ]
+
+  propertyOnce $ forM_ values $ \(skeyFile, vkeyGolden) ->
+    H.moduleWorkspace "tmp" $ \tempDir -> do
+      vkeyFileOut <- noteTempFile tempDir "cc.extended.vkey"
+
+      H.noteM_ $ execCardanoCLI
+        [  "conway", "key", "verification-key"
+        , "--signing-key-file", skeyFile
+        , "--verification-key-file", vkeyFileOut
+        ]
+
+      H.diffFileVsGoldenFile vkeyFileOut vkeyGolden
