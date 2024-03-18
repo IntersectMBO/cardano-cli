@@ -4,7 +4,8 @@ module Test.Golden.Governance.Vote where
 
 import           Control.Monad (void)
 
-import           Test.Cardano.CLI.Util (execCardanoCLI, noteInputFile, propertyOnce)
+import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, newFileSem,
+                   noteInputFile, propertyOnce)
 
 import           Hedgehog
 import qualified Hedgehog.Extras.Test.Base as H
@@ -30,31 +31,37 @@ hprop_golden_governance_governance_vote_create =
 
     H.diffFileVsGoldenFile voteFile voteGold
 
+voteViewJsonSem :: FileSem
+voteViewJsonSem = newFileSem "test/cardano-cli-golden/files/golden/governance/vote/voteViewJSON"
+{-# NOINLINE voteViewJsonSem #-}
+
 hprop_golden_governance_governance_vote_view_json_stdout :: Property
 hprop_golden_governance_governance_vote_view_json_stdout =
   propertyOnce $ do
     voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
-    voteViewGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/voteViewJSON"
+    H.noteShow_ voteViewJsonSem
     voteView <- execCardanoCLI
       [ "conway", "governance", "vote", "view"
       , "--vote-file", voteFile
       ]
 
-    H.diffVsGoldenFile voteView voteViewGold
+    bracketSem voteViewJsonSem $
+      H.diffVsGoldenFile voteView
 
 hprop_golden_governance_governance_vote_view_json_outfile :: Property
 hprop_golden_governance_governance_vote_view_json_outfile =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
     voteViewFile <- H.noteTempFile tempDir "voteView"
-    voteViewGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/voteViewJSON"
+    H.noteShow_ voteViewJsonSem
     void $ execCardanoCLI
       [ "conway", "governance", "vote", "view"
       , "--vote-file", voteFile
       , "--out-file", voteViewFile
       ]
 
-    H.diffFileVsGoldenFile voteViewFile voteViewGold
+    bracketSem voteViewJsonSem $
+      H.diffFileVsGoldenFile voteViewFile
 
 hprop_golden_governance_governance_vote_view_yaml :: Property
 hprop_golden_governance_governance_vote_view_yaml =
