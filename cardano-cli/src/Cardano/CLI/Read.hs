@@ -19,7 +19,7 @@ module Cardano.CLI.Read
   , readScriptDataOrFile
   , readScriptWitness
   , readScriptWitnessFiles
-  , readScriptWitnessFilesThruple
+  , readScriptWitnessFilesTuple
   , ScriptDecodeError (..)
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
@@ -246,11 +246,11 @@ readScriptWitnessFiles era = mapM readSwitFile
       return (tIn, Just sWit)
   readSwitFile (tIn, Nothing) = return (tIn, Nothing)
 
-readScriptWitnessFilesThruple
+readScriptWitnessFilesTuple
   :: ShelleyBasedEra era
   -> [(a, b, Maybe (ScriptWitnessFiles ctx))]
   -> ExceptT ScriptWitnessError IO [(a, b, Maybe (ScriptWitness ctx era))]
-readScriptWitnessFilesThruple era = mapM readSwitFile
+readScriptWitnessFilesTuple era = mapM readSwitFile
  where
   readSwitFile (tIn, b, Just switFile) = do
       sWit <- readScriptWitness era switFile
@@ -436,7 +436,7 @@ readVerificationKeyOrHashOrFileOrScript asType extractHash = \case
         readFileScriptInAnyLang fp
     pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
   VkhfsKeyHashFile vkOrHashOrFp ->
-    fmap (L.KeyHashObj . extractHash) . modifyError Right . hoistIOEither $
+    fmap (L.KeyHashObj . extractHash) . modifyError Right $
       readVerificationKeyOrHashOrTextEnvFile asType vkOrHashOrFp
 
 -- | Read a script file. The file can either be in the text envelope format
@@ -1062,9 +1062,8 @@ getStakeCredentialFromVerifier = \case
     pure $ StakeCredentialByScript $ hashScript script
 
   StakeVerifierKey stakeVerKeyOrFile -> do
-    stakeVerKeyHash <-
-      ExceptT (readVerificationKeyOrHashOrFile AsStakeKey stakeVerKeyOrFile)
-        & firstExceptT StakeCredentialInputDecodeError
+    stakeVerKeyHash <- modifyError StakeCredentialInputDecodeError $
+      readVerificationKeyOrHashOrFile AsStakeKey stakeVerKeyOrFile
     pure $ StakeCredentialByKey stakeVerKeyHash
 
 getStakeCredentialFromIdentifier :: ()
@@ -1082,33 +1081,33 @@ getStakeAddressFromVerifier networkId stakeVerifier =
   makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier
 
 getDRepCredentialFromVerKeyHashOrFile :: ()
+  => MonadIOTransError (FileError InputDecodeError) t m
   => VerificationKeyOrHashOrFile DRepKey
-  -> ExceptT (FileError InputDecodeError) IO (L.Credential L.DRepRole L.StandardCrypto)
+  -> t m (L.Credential L.DRepRole L.StandardCrypto)
 getDRepCredentialFromVerKeyHashOrFile = \case
   VerificationKeyOrFile verKeyOrFile -> do
-    drepVerKey <-
-      ExceptT (readVerificationKeyOrFile AsDRepKey verKeyOrFile)
+    drepVerKey <- readVerificationKeyOrFile AsDRepKey verKeyOrFile
     pure . L.KeyHashObj . unDRepKeyHash $ verificationKeyHash drepVerKey
   VerificationKeyHash kh -> pure . L.KeyHashObj $ unDRepKeyHash kh
 
 getCommitteeColdCredentialFromVerKeyHashOrFile :: ()
+  => MonadIOTransError (FileError InputDecodeError) t m
   => VerificationKeyOrHashOrFile CommitteeColdKey
-  -> ExceptT (FileError InputDecodeError) IO (L.Credential L.ColdCommitteeRole L.StandardCrypto)
+  -> t m (L.Credential L.ColdCommitteeRole L.StandardCrypto)
 getCommitteeColdCredentialFromVerKeyHashOrFile = \case
   VerificationKeyOrFile verKeyOrFile -> do
-    commmitteeColdVerKey <-
-      ExceptT (readVerificationKeyOrFile AsCommitteeColdKey verKeyOrFile)
+    commmitteeColdVerKey <- readVerificationKeyOrFile AsCommitteeColdKey verKeyOrFile
     let CommitteeColdKeyHash kh = verificationKeyHash commmitteeColdVerKey
     pure $ L.KeyHashObj kh
   VerificationKeyHash (CommitteeColdKeyHash kh) -> pure $ L.KeyHashObj kh
 
 getCommitteeHotCredentialFromVerKeyHashOrFile :: ()
+  => MonadIOTransError (FileError InputDecodeError) t m
   => VerificationKeyOrHashOrFile CommitteeHotKey
-  -> ExceptT (FileError InputDecodeError) IO (L.Credential L.HotCommitteeRole L.StandardCrypto)
+  -> t m (L.Credential L.HotCommitteeRole L.StandardCrypto)
 getCommitteeHotCredentialFromVerKeyHashOrFile = \case
   VerificationKeyOrFile verKeyOrFile -> do
-    commmitteeHotVerKey <-
-      ExceptT (readVerificationKeyOrFile AsCommitteeHotKey verKeyOrFile)
+    commmitteeHotVerKey <- readVerificationKeyOrFile AsCommitteeHotKey verKeyOrFile
     let CommitteeHotKeyHash kh = verificationKeyHash commmitteeHotVerKey
     pure $ L.KeyHashObj kh
   VerificationKeyHash (CommitteeHotKeyHash kh) -> pure $ L.KeyHashObj kh

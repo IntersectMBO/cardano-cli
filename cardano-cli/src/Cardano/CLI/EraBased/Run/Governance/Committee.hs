@@ -45,7 +45,7 @@ runGovernanceCommitteeKeyGenCold
       { Cmd.vkeyOutFile = vkeyPath
       , Cmd.skeyOutFile = skeyPath
       } = do
-  skey <- liftIO $ generateSigningKey AsCommitteeColdKey
+  skey <- generateSigningKey AsCommitteeColdKey
 
   let vkey = getVerificationKey skey
 
@@ -71,7 +71,7 @@ runGovernanceCommitteeKeyGenHot
       , Cmd.vkeyOutFile = vkeyPath
       , Cmd.skeyOutFile = skeyPath
       } = do
-  skey <- liftIO $ generateSigningKey AsCommitteeHotKey
+  skey <- generateSigningKey AsCommitteeHotKey
 
   let vkey = getVerificationKey skey
 
@@ -171,9 +171,8 @@ runGovernanceCommitteeColdKeyResignationCertificate
       , Cmd.outFile           = oFp
       } =
   conwayEraOnwardsConstraints w $ do
-    CommitteeColdKeyHash coldVKHash <-
-      lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey coldVkOrHashOrFp)
-        & onLeft (left . GovernanceCommitteeCmdKeyReadError)
+    CommitteeColdKeyHash coldVKHash <- modifyError GovernanceCommitteeCmdKeyReadError $
+      readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey coldVkOrHashOrFp
 
     makeCommitteeColdkeyResignationCertificate (CommitteeColdkeyResignationRequirements w coldVKHash anchor)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)

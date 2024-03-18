@@ -24,14 +24,11 @@ runGovernanceGenesisKeyDelegationCertificate stb
                                              genDelVkOrHashOrFp
                                              vrfVkOrHashOrFp
                                              oFp = do
-  genesisVkHash <- firstExceptT GovernanceCmdKeyReadError
-    . newExceptT
+  genesisVkHash <- modifyError GovernanceCmdKeyReadError
     $ readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
-  genesisDelVkHash <-firstExceptT GovernanceCmdKeyReadError
-    . newExceptT
+  genesisDelVkHash <- modifyError GovernanceCmdKeyReadError
     $ readVerificationKeyOrHashOrTextEnvFile AsGenesisDelegateKey genDelVkOrHashOrFp
-  vrfVkHash <- firstExceptT GovernanceCmdKeyReadError
-    . newExceptT
+  vrfVkHash <- modifyError GovernanceCmdKeyReadError
     $ readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
 
   let req = GenesisKeyDelegationRequirements stb genesisVkHash genesisDelVkHash vrfVkHash

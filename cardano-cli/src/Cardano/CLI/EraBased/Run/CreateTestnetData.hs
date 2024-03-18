@@ -97,7 +97,7 @@ runGenesisKeyGenGenesisCmd
     { Cmd.verificationKeyPath
     , Cmd.signingKeyPath
     } = do
-    skey <- liftIO $ generateSigningKey AsGenesisKey
+    skey <- generateSigningKey AsGenesisKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
       void $ writeLazyByteStringFile signingKeyPath $ textEnvelopeToJSON (Just skeyDesc) skey
@@ -116,7 +116,7 @@ runGenesisKeyGenDelegateCmd
     , Cmd.signingKeyPath
     , Cmd.opCertCounterPath
     } = do
-    skey <- liftIO $ generateSigningKey AsGenesisDelegateKey
+    skey <- generateSigningKey AsGenesisDelegateKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
       void $ writeLazyByteStringFile signingKeyPath
@@ -143,7 +143,7 @@ runGenesisKeyGenDelegateVRF ::
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
 runGenesisKeyGenDelegateVRF vkeyPath skeyPath = do
-    skey <- liftIO $ generateSigningKey AsVrfKey
+    skey <- generateSigningKey AsVrfKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
       void $ writeLazyByteStringFile skeyPath
@@ -163,7 +163,7 @@ runGenesisKeyGenUTxOCmd
     { Cmd.verificationKeyPath
     , Cmd.signingKeyPath
     } = do
-    skey <- liftIO $ generateSigningKey AsGenesisUTxOKey
+    skey <- generateSigningKey AsGenesisUTxOKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
       void $ writeLazyByteStringFile signingKeyPath
@@ -334,7 +334,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
 
       initialDReps :: L.Coin -> [VerificationKey DRepKey] -> ListMap (L.Credential L.DRepRole L.StandardCrypto) (L.DRepState L.StandardCrypto)
       initialDReps minDeposit = ListMap.fromList . map (\c -> ( verificationKeyToDRepCredential c
-                                                              , L.DRepState { L.drepExpiry = EpochNo 1000
+                                                              , L.DRepState { L.drepExpiry = EpochNo 1_000
                                                                             , L.drepAnchor = SNothing
                                                                             , L.drepDeposit = max (L.Coin 1_000_000) minDeposit
                                                                             }))

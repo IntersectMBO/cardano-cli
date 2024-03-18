@@ -49,7 +49,7 @@ runNodeKeyGenColdCmd
       , skeyFile
       , operationalCertificateIssueCounter
       } = do
-  skey <- liftIO $ generateSigningKey AsStakePoolKey
+  skey <- generateSigningKey AsStakePoolKey
   let vkey = getVerificationKey skey
 
   case keyOutputFormat of
@@ -106,7 +106,7 @@ runNodeKeyGenKesCmd
       , vkeyFile
       , skeyFile
       } = do
-  skey <- liftIO $ generateSigningKey AsKesKey
+  skey <- generateSigningKey AsKesKey
 
   let vkey = getVerificationKey skey
 
@@ -150,7 +150,7 @@ runNodeKeyGenVrfCmd
       , vkeyFile
       , skeyFile
       } = do
-  skey <- liftIO $ generateSigningKey AsVrfKey
+  skey <- generateSigningKey AsVrfKey
 
   let vkey = getVerificationKey skey
 
@@ -191,7 +191,6 @@ runNodeKeyHashVrfCmd
       , mOutFile
       } = do
   vkey <- firstExceptT NodeCmdReadKeyFileError
-    . newExceptT
     $ readVerificationKeyOrFile AsVrfKey vkeySource
 
   let hexKeyHash = serialiseToRawBytesHex (verificationKeyHash vkey)
@@ -235,7 +234,6 @@ runNodeIssueOpCertCmd
     $ readFileTextEnvelope AsOperationalCertificateIssueCounter (onlyIn operationalCertificateCounterFile)
 
   verKeyKes <- firstExceptT NodeCmdReadKeyFileError
-    . newExceptT
     $ readVerificationKeyOrFile AsKesKey kesVkeySource
 
   signKey <- firstExceptT NodeCmdReadKeyFileError

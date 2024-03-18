@@ -149,7 +149,7 @@ runTransactionBuildCmd
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
   withdrawalsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $
-    readScriptWitnessFilesThruple eon withdrawals
+    readScriptWitnessFilesTuple eon withdrawals
   txMetadata <- firstExceptT TxCmdMetadataError . newExceptT $
     readTxMetadata eon metadataSchema metadataFiles
   valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
@@ -286,7 +286,7 @@ runTransactionBuildRawCmd
                                    $ readScriptWitnessFiles eon certificates
 
   withdrawalsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
-                                     $ readScriptWitnessFilesThruple eon withdrawals
+                                     $ readScriptWitnessFilesTuple eon withdrawals
   txMetadata <- firstExceptT TxCmdMetadataError
                   . newExceptT $ readTxMetadata eon metadataSchema metadataFiles
   valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue

@@ -197,9 +197,8 @@ makeStakeAddressRef stakeIdentifier =
     StakeIdentifierVerifier stakeVerifier ->
       case stakeVerifier of
         StakeVerifierKey stkVkeyOrFile -> do
-          stakeVKeyHash <- firstExceptT AddressCmdReadKeyFileError $
-            newExceptT $ readVerificationKeyOrHashOrFile AsStakeKey stkVkeyOrFile
-
+          stakeVKeyHash <- modifyError AddressCmdReadKeyFileError $
+            readVerificationKeyOrHashOrFile AsStakeKey stkVkeyOrFile
           return . StakeAddressByValue $ StakeCredentialByKey stakeVKeyHash
 
         StakeVerifierScriptFile (File fp) -> do
