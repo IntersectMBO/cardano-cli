@@ -386,47 +386,27 @@ readSigningKeyFile skFile =
       readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
   where
     textEnvFileTypes =
-      [ FromSomeType (AsSigningKey AsByronKey)
-                      AByronSigningKey
-      , FromSomeType (AsSigningKey AsPaymentKey)
-                      APaymentSigningKey
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey)
-                      APaymentExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakeKey)
-                      AStakeSigningKey
-      , FromSomeType (AsSigningKey AsStakeExtendedKey)
-                      AStakeExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakePoolKey)
-                      AStakePoolSigningKey
-      , FromSomeType (AsSigningKey AsGenesisKey)
-                      AGenesisSigningKey
-      , FromSomeType (AsSigningKey AsGenesisExtendedKey)
-                      AGenesisExtendedSigningKey
-      , FromSomeType (AsSigningKey AsGenesisDelegateKey)
-                      AGenesisDelegateSigningKey
-      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey)
-                      AGenesisDelegateExtendedSigningKey
-      , FromSomeType (AsSigningKey AsGenesisUTxOKey)
-                      AGenesisUTxOSigningKey
-      , FromSomeType (AsSigningKey AsVrfKey)
-                      AVrfSigningKey
-      , FromSomeType (AsSigningKey AsKesKey)
-                      AKesSigningKey
+      [ FromSomeType (AsSigningKey AsByronKey)                   AByronSigningKey
+      , FromSomeType (AsSigningKey AsPaymentKey)                 APaymentSigningKey
+      , FromSomeType (AsSigningKey AsPaymentExtendedKey)         APaymentExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakeKey)                   AStakeSigningKey
+      , FromSomeType (AsSigningKey AsStakeExtendedKey)           AStakeExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakePoolKey)               AStakePoolSigningKey
+      , FromSomeType (AsSigningKey AsGenesisKey)                 AGenesisSigningKey
+      , FromSomeType (AsSigningKey AsGenesisExtendedKey)         AGenesisExtendedSigningKey
+      , FromSomeType (AsSigningKey AsGenesisDelegateKey)         AGenesisDelegateSigningKey
+      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey) AGenesisDelegateExtendedSigningKey
+      , FromSomeType (AsSigningKey AsGenesisUTxOKey)             AGenesisUTxOSigningKey
+      , FromSomeType (AsSigningKey AsVrfKey)                     AVrfSigningKey
+      , FromSomeType (AsSigningKey AsKesKey)                     AKesSigningKey
       ]
 
     bech32FileTypes =
-      [ FromSomeType (AsSigningKey AsPaymentKey)
-                      APaymentSigningKey
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey)
-                      APaymentExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakeKey)
-                      AStakeSigningKey
-      , FromSomeType (AsSigningKey AsStakeExtendedKey)
-                      AStakeExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakePoolKey)
-                      AStakePoolSigningKey
-      , FromSomeType (AsSigningKey AsVrfKey)
-                      AVrfSigningKey
-      , FromSomeType (AsSigningKey AsKesKey)
-                      AKesSigningKey
+      [ FromSomeType (AsSigningKey AsPaymentKey)         APaymentSigningKey
+      , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakeKey)           AStakeSigningKey
+      , FromSomeType (AsSigningKey AsStakeExtendedKey)   AStakeExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakePoolKey)       AStakePoolSigningKey
+      , FromSomeType (AsSigningKey AsVrfKey)             AVrfSigningKey
+      , FromSomeType (AsSigningKey AsKesKey)             AKesSigningKey
       ]
