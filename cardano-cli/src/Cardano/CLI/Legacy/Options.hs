@@ -414,12 +414,13 @@ pTransaction envCli =
   pTransactionCalculateMinFee =
     TransactionCalculateMinFeeCmd
       <$> pTxBodyFileIn
-      <*> pNetworkId envCli
       <*> pProtocolParamsFile
-      <*> pTxInCount
-      <*> pTxOutCount
       <*> pTxShelleyWitnessCount
       <*> pTxByronWitnessCount
+      -- Deprecated options:
+      <*  optional pNetworkIdDeprecated
+      <*  optional pTxInCountDeprecated
+      <*  optional pTxOutCountDeprecated
 
   pTransactionCalculateMinReqUTxO :: Parser LegacyTransactionCmds
   pTransactionCalculateMinReqUTxO =

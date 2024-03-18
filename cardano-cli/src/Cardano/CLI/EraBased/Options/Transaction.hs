@@ -76,7 +76,7 @@ pTransactionCmds era envCli =
         $ Opt.progDesc "Calculate the PolicyId from the monetary policy script."
     , Just
         $ subParser "calculate-min-fee"
-        $ Opt.info (pTransactionCalculateMinFee envCli)
+        $ Opt.info pTransactionCalculateMinFee
         $ Opt.progDesc "Calculate the minimum fee for a transaction."
     , Just $ subParser "calculate-min-required-utxo"
            $ Opt.info (pTransactionCalculateMinReqUTxO era)
@@ -260,17 +260,18 @@ pTransactionPolicyId =
     TransactionPolicyIdCmdArgs
       <$> pScript
 
-pTransactionCalculateMinFee :: EnvCli -> Parser (TransactionCmds era)
-pTransactionCalculateMinFee envCli  =
+pTransactionCalculateMinFee :: Parser (TransactionCmds era)
+pTransactionCalculateMinFee =
   fmap TransactionCalculateMinFeeCmd $
     TransactionCalculateMinFeeCmdArgs
       <$> pTxBodyFileIn
-      <*> pNetworkId envCli
       <*> pProtocolParamsFile
-      <*> pTxInCount
-      <*> pTxOutCount
       <*> pTxShelleyWitnessCount
       <*> pTxByronWitnessCount
+      -- Deprecated options:
+      <*  optional pNetworkIdDeprecated
+      <*  optional pTxInCountDeprecated
+      <*  optional pTxOutCountDeprecated
 
 pTransactionCalculateMinReqUTxO :: ShelleyBasedEra era -> Parser (TransactionCmds era)
 pTransactionCalculateMinReqUTxO era =

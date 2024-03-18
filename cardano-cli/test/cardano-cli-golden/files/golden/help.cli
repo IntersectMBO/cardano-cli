@@ -1117,14 +1117,14 @@ Usage: cardano-cli shelley transaction policyid --script-file FILE
   Calculate the PolicyId from the monetary policy script.
 
 Usage: cardano-cli shelley transaction calculate-min-fee --tx-body-file FILE
-                                                           ( --mainnet
-                                                           | --testnet-magic NATURAL
-                                                           )
                                                            --protocol-params-file FILE
-                                                           --tx-in-count NATURAL
-                                                           --tx-out-count NATURAL
                                                            --witness-count NATURAL
                                                            [--byron-witness-count NATURAL]
+                                                           [ --mainnet
+                                                           | --testnet-magic NATURAL
+                                                           ]
+                                                           [--tx-in-count NATURAL]
+                                                           [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -2289,14 +2289,14 @@ Usage: cardano-cli allegra transaction policyid --script-file FILE
   Calculate the PolicyId from the monetary policy script.
 
 Usage: cardano-cli allegra transaction calculate-min-fee --tx-body-file FILE
-                                                           ( --mainnet
-                                                           | --testnet-magic NATURAL
-                                                           )
                                                            --protocol-params-file FILE
-                                                           --tx-in-count NATURAL
-                                                           --tx-out-count NATURAL
                                                            --witness-count NATURAL
                                                            [--byron-witness-count NATURAL]
+                                                           [ --mainnet
+                                                           | --testnet-magic NATURAL
+                                                           ]
+                                                           [--tx-in-count NATURAL]
+                                                           [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -3447,14 +3447,14 @@ Usage: cardano-cli mary transaction policyid --script-file FILE
   Calculate the PolicyId from the monetary policy script.
 
 Usage: cardano-cli mary transaction calculate-min-fee --tx-body-file FILE
-                                                        ( --mainnet
-                                                        | --testnet-magic NATURAL
-                                                        )
                                                         --protocol-params-file FILE
-                                                        --tx-in-count NATURAL
-                                                        --tx-out-count NATURAL
                                                         --witness-count NATURAL
                                                         [--byron-witness-count NATURAL]
+                                                        [ --mainnet
+                                                        | --testnet-magic NATURAL
+                                                        ]
+                                                        [--tx-in-count NATURAL]
+                                                        [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -4620,14 +4620,14 @@ Usage: cardano-cli alonzo transaction policyid --script-file FILE
   Calculate the PolicyId from the monetary policy script.
 
 Usage: cardano-cli alonzo transaction calculate-min-fee --tx-body-file FILE
-                                                          ( --mainnet
-                                                          | --testnet-magic NATURAL
-                                                          )
                                                           --protocol-params-file FILE
-                                                          --tx-in-count NATURAL
-                                                          --tx-out-count NATURAL
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
+                                                          [ --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          ]
+                                                          [--tx-in-count NATURAL]
+                                                          [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -5818,14 +5818,14 @@ Usage: cardano-cli babbage transaction policyid --script-file FILE
   Calculate the PolicyId from the monetary policy script.
 
 Usage: cardano-cli babbage transaction calculate-min-fee --tx-body-file FILE
-                                                           ( --mainnet
-                                                           | --testnet-magic NATURAL
-                                                           )
                                                            --protocol-params-file FILE
-                                                           --tx-in-count NATURAL
-                                                           --tx-out-count NATURAL
                                                            --witness-count NATURAL
                                                            [--byron-witness-count NATURAL]
+                                                           [ --mainnet
+                                                           | --testnet-magic NATURAL
+                                                           ]
+                                                           [--tx-in-count NATURAL]
+                                                           [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -7452,14 +7452,14 @@ Usage: cardano-cli conway transaction policyid --script-file FILE
   Calculate the PolicyId from the monetary policy script.
 
 Usage: cardano-cli conway transaction calculate-min-fee --tx-body-file FILE
-                                                          ( --mainnet
-                                                          | --testnet-magic NATURAL
-                                                          )
                                                           --protocol-params-file FILE
-                                                          --tx-in-count NATURAL
-                                                          --tx-out-count NATURAL
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
+                                                          [ --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          ]
+                                                          [--tx-in-count NATURAL]
+                                                          [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -8647,14 +8647,14 @@ Usage: cardano-cli latest transaction policyid --script-file FILE
   Calculate the PolicyId from the monetary policy script.
 
 Usage: cardano-cli latest transaction calculate-min-fee --tx-body-file FILE
-                                                          ( --mainnet
-                                                          | --testnet-magic NATURAL
-                                                          )
                                                           --protocol-params-file FILE
-                                                          --tx-in-count NATURAL
-                                                          --tx-out-count NATURAL
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
+                                                          [ --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          ]
+                                                          [--tx-in-count NATURAL]
+                                                          [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -9683,14 +9683,14 @@ Usage: cardano-cli legacy transaction policyid --script-file FILE
   Calculate the PolicyId from the monetary policy script.
 
 Usage: cardano-cli legacy transaction calculate-min-fee --tx-body-file FILE
-                                                          ( --mainnet
-                                                          | --testnet-magic NATURAL
-                                                          )
                                                           --protocol-params-file FILE
-                                                          --tx-in-count NATURAL
-                                                          --tx-out-count NATURAL
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
+                                                          [ --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          ]
+                                                          [--tx-in-count NATURAL]
+                                                          [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -10899,14 +10899,14 @@ Usage: cardano-cli transaction policyid --script-file FILE
   Calculate the PolicyId from the monetary policy script.
 
 Usage: cardano-cli transaction calculate-min-fee --tx-body-file FILE
-                                                   ( --mainnet
-                                                   | --testnet-magic NATURAL
-                                                   )
                                                    --protocol-params-file FILE
-                                                   --tx-in-count NATURAL
-                                                   --tx-out-count NATURAL
                                                    --witness-count NATURAL
                                                    [--byron-witness-count NATURAL]
+                                                   [ --mainnet
+                                                   | --testnet-magic NATURAL
+                                                   ]
+                                                   [--tx-in-count NATURAL]
+                                                   [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 

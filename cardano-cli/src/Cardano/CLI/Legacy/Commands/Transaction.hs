@@ -117,10 +117,7 @@ data LegacyTransactionCmds
       ScriptFile
   | TransactionCalculateMinFeeCmd
       (TxBodyFile In)
-      NetworkId
       ProtocolParamsFile
-      TxInCount
-      TxOutCount
       TxShelleyWitnessCount
       TxByronWitnessCount
   | TransactionCalculateMinValueCmd

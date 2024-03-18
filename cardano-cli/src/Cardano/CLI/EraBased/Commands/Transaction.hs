@@ -160,10 +160,7 @@ newtype TransactionPolicyIdCmdArgs = TransactionPolicyIdCmdArgs
 
 data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
   { txBodyFile            :: !(TxBodyFile In)
-  , networkId             :: !NetworkId
   , protocolParamsFile    :: !ProtocolParamsFile
-  , txInCount             :: !TxInCount
-  , txOutCount            :: !TxOutCount
   , txShelleyWitnessCount :: !TxShelleyWitnessCount
   , txByronWitnessCount   :: !TxByronWitnessCount
   } deriving Show

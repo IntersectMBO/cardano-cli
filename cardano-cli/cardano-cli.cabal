@@ -356,7 +356,8 @@ test-suite cardano-cli-golden
   build-tool-depends:   cardano-cli:cardano-cli
                       , tasty-discover:tasty-discover
 
-  other-modules:        Test.Golden.Byron.SigningKeys
+  other-modules:        Test.Golden.Babbage.Transaction.CalculateMinFee
+                        Test.Golden.Byron.SigningKeys
                         Test.Golden.Byron.Tx
                         Test.Golden.Byron.TxBody
                         Test.Golden.Byron.UpdateProposal
