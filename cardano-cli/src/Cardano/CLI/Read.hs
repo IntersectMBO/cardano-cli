@@ -721,6 +721,8 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
           -- A Byron address should only be specified along with a Byron signing key.
           Left ReadWitnessSigningDataSigningKeyAndAddressMismatch
   where
+    -- If you update these variables, consider updating the ones with the same
+    -- names in Cardano.CLI.Types.Key
     textEnvFileTypes =
       [ FromSomeType (AsSigningKey AsByronKey                   ) (`AByronSigningWitness` mbByronAddr)
       , FromSomeType (AsSigningKey AsPaymentKey                 ) APaymentSigningWitness
