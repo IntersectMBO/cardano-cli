@@ -16,7 +16,8 @@ import           Numeric (showOct)
 import           System.Posix.Files (fileMode, getFileStatus)
 #endif
 
-import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, noteInputFile, noteTempFile, propertyOnce, newFileSem)
+import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, newFileSem,
+                   noteInputFile, noteTempFile, propertyOnce)
 
 import           Hedgehog
 import qualified Hedgehog as H
@@ -105,7 +106,7 @@ hprop_golden_governance_drep_extended_key_signing =
     outFile <- H.noteTempFile tempDir "outFile"
     outGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/extended-key-signing/tx.signed"
 
-    void $ execCardanoCLI
+    H.noteShowM_ $ execCardanoCLI
       [  "conway", "transaction", "sign"
       , "--tx-body-file", txBody
       , "--signing-key-file", skeyFile
@@ -276,3 +277,20 @@ hprop_golden_governance_drep_update_certificate_vkey_file = propertyOnce . H.mod
     ]
 
   H.diffFileVsGoldenFile outFile goldenFile
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden verification key drep/"'@
+hprop_golden_verification_key_drep :: Property
+hprop_golden_verification_key_drep =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    skeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
+    vkeyFileOut <- noteTempFile tempDir "drep.extended.vkey"
+    goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep-extended.vkey.out"
+
+    H.noteShowM_ $ execCardanoCLI
+      [  "conway", "key", "verification-key"
+      , "--signing-key-file", skeyFile
+      , "--verification-key-file", vkeyFileOut
+      ]
+
+    H.diffFileVsGoldenFile vkeyFileOut goldenFile
