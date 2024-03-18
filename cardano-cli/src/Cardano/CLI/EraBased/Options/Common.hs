@@ -634,11 +634,12 @@ pOperatorCertIssueCounterFile =
 
 ---
 
-pAddCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeColdKey)
+pAddCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFileOrScript CommitteeColdKey)
 pAddCommitteeColdVerificationKeyOrHashOrFile =
   asum
-    [ VerificationKeyOrFile <$> pAddCommitteeColdVerificationKeyOrFile
-    , VerificationKeyHash <$> pAddCommitteeColdVerificationKeyHash
+    [ VkhfsKeyHashFile . VerificationKeyOrFile <$> pAddCommitteeColdVerificationKeyOrFile
+    , VkhfsKeyHashFile . VerificationKeyHash <$> pAddCommitteeColdVerificationKeyHash
+    , VkhfsScript <$> pScriptFor "add-cc-cold-script-file" Nothing "Cold Native or Plutus script file"
     ]
 
 pAddCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
@@ -686,11 +687,12 @@ pAddCommitteeColdVerificationKeyFile =
     ]
 
 ---
-pRemoveCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeColdKey)
+pRemoveCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFileOrScript CommitteeColdKey)
 pRemoveCommitteeColdVerificationKeyOrHashOrFile =
   asum
-    [ VerificationKeyOrFile <$> pRemoveCommitteeColdVerificationKeyOrFile
-    , VerificationKeyHash <$> pRemoveCommitteeColdVerificationKeyHash
+    [ VkhfsKeyHashFile . VerificationKeyOrFile <$> pRemoveCommitteeColdVerificationKeyOrFile
+    , VkhfsKeyHashFile . VerificationKeyHash <$> pRemoveCommitteeColdVerificationKeyHash
+    , VkhfsScript <$> pScriptFor "remove-cc-cold-script-file" Nothing "Cold Native or Plutus script file"
     ]
 
 pRemoveCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)

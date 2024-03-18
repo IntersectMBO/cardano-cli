@@ -146,10 +146,10 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
     let mapError' = modifyError $ either GovernanceCommitteeCmdScriptReadError  GovernanceCommitteeCmdKeyReadError
     hotCred <-
       mapError' $
-        readVerificationKeyOrHashOrFileOrScript AsCommitteeHotKey (\(CommitteeHotKeyHash kh) -> kh) vkeyHotKeySource
+        readVerificationKeyOrHashOrFileOrScript AsCommitteeHotKey unCommitteeHotKeyHash vkeyHotKeySource
     coldCred <-
       mapError' $
-        readVerificationKeyOrHashOrFileOrScript AsCommitteeColdKey (\(CommitteeColdKeyHash kh) -> kh) vkeyColdKeySource
+        readVerificationKeyOrHashOrFileOrScript AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
 
     makeCommitteeHotKeyAuthorizationCertificate (CommitteeHotKeyAuthorizationRequirements eon coldCred hotCred)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)

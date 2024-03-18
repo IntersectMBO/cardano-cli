@@ -31,10 +31,10 @@ hprop_golden_governanceVerifyPoll = propertyOnce $ do
     , "--poll-file", pollFile
     , "--tx-file", txFile
     ]
-
-  liftIO (readVerificationKeyOrTextEnvFile AsStakePoolKey goldenVkFile) >>= \case
-    Left e ->
-      H.failWith Nothing $ docToString $ prettyError e
+  H.evalIO (runExceptT $ readVerificationKeyOrTextEnvFile AsStakePoolKey goldenVkFile) >>= \case
+    Left e -> do
+      H.noteShow_ $ prettyError e
+      H.failure
     Right vk -> do
       let expected = prettyPrintJSON $ serialiseToRawBytesHexText <$> [verificationKeyHash vk]
       H.assert $ expected `BSC.isInfixOf` stdout

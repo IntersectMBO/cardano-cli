@@ -25,8 +25,7 @@ import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad
-import           Data.Function
-import           GHC.IsList
+import           GHC.Exts (IsList (..))
 
 runGovernanceActionCmds :: ()
   => GovernanceActionCmds era
@@ -216,14 +215,15 @@ runGovernanceActionUpdateCommitteeCmd
         { L.anchorUrl = unProposalUrl proposalUrl
         , L.anchorDataHash = proposalHash
         }
+      mapError' = modifyError $ either GovernanceActionsCmdScriptReadError GovernanceActionsCmdReadFileError
 
   oldCommitteeKeyHashes <- forM oldCommitteeVkeySource $ \vkeyOrHashOrTextFile ->
-    modifyError GovernanceActionsCmdReadFileError $
-      readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey vkeyOrHashOrTextFile
+    mapError' $
+      readVerificationKeyOrHashOrFileOrScript AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
 
   newCommitteeKeyHashes <- forM newCommitteeVkeySource $ \(vkeyOrHashOrTextFile, expEpoch) -> do
-    kh <- modifyError GovernanceActionsCmdReadFileError $
-      readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey vkeyOrHashOrTextFile
+    kh <- mapError' $
+      readVerificationKeyOrHashOrFileOrScript AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
     pure (kh, expEpoch)
 
   depositStakeCredential

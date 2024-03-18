@@ -6211,11 +6211,13 @@ Usage: cardano-cli conway governance action update-committee
                                                                [ --remove-cc-cold-verification-key STRING
                                                                | --remove-cc-cold-verification-key-file FILE
                                                                | --remove-cc-cold-verification-key-hash STRING
+                                                               | --remove-cc-cold-script-file FILE
                                                                ]
                                                                [
                                                                  ( --add-cc-cold-verification-key STRING
                                                                  | --add-cc-cold-verification-key-file FILE
                                                                  | --add-cc-cold-verification-key-hash STRING
+                                                                 | --add-cc-cold-script-file FILE
                                                                  )
                                                                  --epoch NATURAL]
                                                                --quorum RATIONAL

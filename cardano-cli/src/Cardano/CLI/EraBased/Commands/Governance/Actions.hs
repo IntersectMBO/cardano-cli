@@ -49,8 +49,8 @@ data GoveranceActionUpdateCommitteeCmdArgs era
       , returnAddress           :: !StakeIdentifier
       , proposalUrl             :: !ProposalUrl
       , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
-      , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
-      , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFile CommitteeColdKey, EpochNo)]
+      , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFileOrScript CommitteeColdKey]
+      , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFileOrScript CommitteeColdKey, EpochNo)]
       , requiredQuorum          :: !Rational
       , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
       , outFile                 :: !(File () Out)
