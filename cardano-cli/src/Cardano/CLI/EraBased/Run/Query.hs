@@ -19,6 +19,7 @@ module Cardano.CLI.EraBased.Run.Query
   , runQueryKesPeriodInfoCmd
   , runQueryLeadershipScheduleCmd
   , runQueryLedgerStateCmd
+  , runQueryLedger1
   , runQueryPoolStateCmd
   , runQueryProtocolParametersCmd
   , runQueryProtocolStateCmd
@@ -109,6 +110,7 @@ runQueryCmds = \case
   Cmd.QueryStakeDistributionCmd     args -> runQueryStakeDistributionCmd args
   Cmd.QueryStakeAddressInfoCmd      args -> runQueryStakeAddressInfoCmd args
   Cmd.QueryLedgerStateCmd           args -> runQueryLedgerStateCmd args
+  Cmd.QueryLedgerPeerSnapshotCmd    args -> runQueryLedger1 args
   Cmd.QueryStakeSnapshotCmd         args -> runQueryStakeSnapshotCmd args
   Cmd.QueryProtocolStateCmd         args -> runQueryProtocolStateCmd args
   Cmd.QueryUTxOCmd                  args -> runQueryUTxOCmd args
@@ -745,6 +747,37 @@ runQueryLedgerStateCmd
     & onLeft (left . QueryCmdAcquireFailure)
     & onLeft left
 
+runQueryLedger1 :: ()
+  => Cmd.QueryLedgerStateCmdArgs
+  -> ExceptT QueryCmdError IO ()
+runQueryLedger1
+    Cmd.QueryLedgerStateCmdArgs
+    { Cmd.nodeSocketPath
+    , Cmd.consensusModeParams
+    , Cmd.networkId
+    , Cmd.target
+    , Cmd.mOutFile
+     } = do
+  let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+
+  join $ lift
+    ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
+        AnyCardanoEra era <- lift queryCurrentEra
+          & onLeft (left . QueryCmdUnsupportedNtcVersion)
+
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left QueryCmdByronEra)
+
+        result <- lift (queryDebugLedgerState sbe)
+          & onLeft (left . QueryCmdUnsupportedNtcVersion)
+          & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+
+        pure $ do
+          shelleyBasedEraConstraints sbe (writeLedgerState mOutFile) result
+    )
+    & onLeft (left . QueryCmdAcquireFailure)
+    & onLeft left
+    
 runQueryProtocolStateCmd :: ()
   => Cmd.QueryProtocolStateCmdArgs
   -> ExceptT QueryCmdError IO ()

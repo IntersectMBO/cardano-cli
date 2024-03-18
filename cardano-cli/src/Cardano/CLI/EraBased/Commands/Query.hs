@@ -48,6 +48,7 @@ data QueryCmds era
   | QueryStakeAddressInfoCmd        !QueryStakeAddressInfoCmdArgs
   | QueryUTxOCmd                    !QueryUTxOCmdArgs
   | QueryLedgerStateCmd             !QueryLedgerStateCmdArgs
+  | QueryLedgerPeerSnapshotCmd      !QueryLedgerStateCmdArgs
   | QueryProtocolStateCmd           !QueryProtocolStateCmdArgs
   | QueryStakeSnapshotCmd           !QueryStakeSnapshotCmdArgs
   | QueryKesPeriodInfoCmd           !QueryKesPeriodInfoCmdArgs
@@ -134,6 +135,14 @@ data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   } deriving (Generic, Show)
 
 data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !ConsensusModeParams
+  , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
+data QueryLedgerPeerSnapshotCmd = QueryLedgerPeerSnapshotCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
@@ -260,6 +269,8 @@ renderQueryCmds = \case
     "query utxo"
   QueryLedgerStateCmd {} ->
     "query ledger-state"
+  QueryLedgerPeerSnapshotCmd {} ->
+    "query ledger-peer-snapshot"
   QueryProtocolStateCmd {} ->
     "query protocol-state"
   QueryStakeSnapshotCmd {} ->
