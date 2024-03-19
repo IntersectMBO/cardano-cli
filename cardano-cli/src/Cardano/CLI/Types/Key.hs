@@ -355,6 +355,12 @@ data SomeSigningKey
   | AGenesisDelegateSigningKey          (SigningKey GenesisDelegateKey)
   | AGenesisDelegateExtendedSigningKey  (SigningKey GenesisDelegateExtendedKey)
   | AGenesisUTxOSigningKey              (SigningKey GenesisUTxOKey)
+  | ADRepSigningKey                     (SigningKey DRepKey)
+  | ADRepExtendedSigningKey             (SigningKey DRepExtendedKey)
+  | ACommitteeColdSigningKey            (SigningKey CommitteeColdKey)
+  | ACommitteeColdExtendedSigningKey    (SigningKey CommitteeColdExtendedKey)
+  | ACommitteeHotSigningKey             (SigningKey CommitteeHotKey)
+  | ACommitteeHotExtendedSigningKey     (SigningKey CommitteeHotExtendedKey)
   | AVrfSigningKey                      (SigningKey VrfKey)
   | AKesSigningKey                      (SigningKey KesKey)
 
@@ -375,6 +381,12 @@ withSomeSigningKey ssk f =
       AGenesisDelegateSigningKey          sk -> f sk
       AGenesisDelegateExtendedSigningKey  sk -> f sk
       AGenesisUTxOSigningKey              sk -> f sk
+      ADRepSigningKey                     sk -> f sk
+      ADRepExtendedSigningKey             sk -> f sk
+      ACommitteeColdSigningKey            sk -> f sk
+      ACommitteeColdExtendedSigningKey    sk -> f sk
+      ACommitteeHotSigningKey             sk -> f sk
+      ACommitteeHotExtendedSigningKey     sk -> f sk
       AVrfSigningKey                      sk -> f sk
       AKesSigningKey                      sk -> f sk
 
@@ -385,48 +397,36 @@ readSigningKeyFile skFile =
     newExceptT $
       readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
   where
+    -- If you update these variables, consider updating the ones with the same
+    -- names in Cardano.CLI.Read
     textEnvFileTypes =
-      [ FromSomeType (AsSigningKey AsByronKey)
-                      AByronSigningKey
-      , FromSomeType (AsSigningKey AsPaymentKey)
-                      APaymentSigningKey
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey)
-                      APaymentExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakeKey)
-                      AStakeSigningKey
-      , FromSomeType (AsSigningKey AsStakeExtendedKey)
-                      AStakeExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakePoolKey)
-                      AStakePoolSigningKey
-      , FromSomeType (AsSigningKey AsGenesisKey)
-                      AGenesisSigningKey
-      , FromSomeType (AsSigningKey AsGenesisExtendedKey)
-                      AGenesisExtendedSigningKey
-      , FromSomeType (AsSigningKey AsGenesisDelegateKey)
-                      AGenesisDelegateSigningKey
-      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey)
-                      AGenesisDelegateExtendedSigningKey
-      , FromSomeType (AsSigningKey AsGenesisUTxOKey)
-                      AGenesisUTxOSigningKey
-      , FromSomeType (AsSigningKey AsVrfKey)
-                      AVrfSigningKey
-      , FromSomeType (AsSigningKey AsKesKey)
-                      AKesSigningKey
+      [ FromSomeType (AsSigningKey AsByronKey)                   AByronSigningKey
+      , FromSomeType (AsSigningKey AsPaymentKey)                 APaymentSigningKey
+      , FromSomeType (AsSigningKey AsPaymentExtendedKey)         APaymentExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakeKey)                   AStakeSigningKey
+      , FromSomeType (AsSigningKey AsStakeExtendedKey)           AStakeExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakePoolKey)               AStakePoolSigningKey
+      , FromSomeType (AsSigningKey AsGenesisKey)                 AGenesisSigningKey
+      , FromSomeType (AsSigningKey AsGenesisExtendedKey)         AGenesisExtendedSigningKey
+      , FromSomeType (AsSigningKey AsGenesisDelegateKey)         AGenesisDelegateSigningKey
+      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey) AGenesisDelegateExtendedSigningKey
+      , FromSomeType (AsSigningKey AsGenesisUTxOKey)             AGenesisUTxOSigningKey
+      , FromSomeType (AsSigningKey AsDRepKey)                    ADRepSigningKey
+      , FromSomeType (AsSigningKey AsDRepExtendedKey)            ADRepExtendedSigningKey
+      , FromSomeType (AsSigningKey AsCommitteeColdKey)           ACommitteeColdSigningKey
+      , FromSomeType (AsSigningKey AsCommitteeColdExtendedKey)   ACommitteeColdExtendedSigningKey
+      , FromSomeType (AsSigningKey AsCommitteeHotKey)            ACommitteeHotSigningKey
+      , FromSomeType (AsSigningKey AsCommitteeHotExtendedKey)    ACommitteeHotExtendedSigningKey
+      , FromSomeType (AsSigningKey AsVrfKey)                     AVrfSigningKey
+      , FromSomeType (AsSigningKey AsKesKey)                     AKesSigningKey
       ]
 
     bech32FileTypes =
-      [ FromSomeType (AsSigningKey AsPaymentKey)
-                      APaymentSigningKey
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey)
-                      APaymentExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakeKey)
-                      AStakeSigningKey
-      , FromSomeType (AsSigningKey AsStakeExtendedKey)
-                      AStakeExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakePoolKey)
-                      AStakePoolSigningKey
-      , FromSomeType (AsSigningKey AsVrfKey)
-                      AVrfSigningKey
-      , FromSomeType (AsSigningKey AsKesKey)
-                      AKesSigningKey
+      [ FromSomeType (AsSigningKey AsPaymentKey)         APaymentSigningKey
+      , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakeKey)           AStakeSigningKey
+      , FromSomeType (AsSigningKey AsStakeExtendedKey)   AStakeExtendedSigningKey
+      , FromSomeType (AsSigningKey AsStakePoolKey)       AStakePoolSigningKey
+      , FromSomeType (AsSigningKey AsVrfKey)             AVrfSigningKey
+      , FromSomeType (AsSigningKey AsKesKey)             AKesSigningKey
       ]

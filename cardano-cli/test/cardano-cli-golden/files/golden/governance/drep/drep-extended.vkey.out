@@ -1,0 +1,5 @@
+{
+    "type": "DRepExtendedVerificationKey_ed25519_bip32",
+    "description": "",
+    "cborHex": "5840b18eacea2003b68e39137545e9d42ce5bca133ca0334d6a75aa9cb1fd02be7ec90e91f5357e2c68949f0f09717c5b9809b6a74d5f87ea35383c82841f2357564"
+}
