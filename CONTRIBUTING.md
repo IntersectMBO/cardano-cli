@@ -16,12 +16,12 @@ from all code owners (even though GitHub doesn't give a way to enforce it).
 ## Updating dependencies
 
 ### From Hackage
-Updating package dependencies from Hackage should work like normal in a Haskell project. 
-The most important thing to note is that we pin the `index-state` of the Hackage package index in `cabal.project`. 
-This means that cabal will always see Hackage “as if” it was that time, ensuring reproducibility. 
+Updating package dependencies from Hackage should work like normal in a Haskell project.
+The most important thing to note is that we pin the `index-state` of the Hackage package index in `cabal.project`.
+This means that cabal will always see Hackage “as if” it was that time, ensuring reproducibility.
 But it also means that if you need a package version that was released *after* that time, you need to bump the `index-state` (and to run `cabal update` locally).
 
-Because of how we use Nix to manage our Haskell build, whenever you do this you will also need to pull in the Nix equivalent of the newer `index-state`. 
+Because of how we use Nix to manage our Haskell build, whenever you do this you will also need to pull in the Nix equivalent of the newer `index-state`.
 You can do this by running `nix flake lock --update-input haskellNix/hackage`.
 
 ### from the Cardano package repository
@@ -43,15 +43,25 @@ In that case, release a patched version to the [CHaP repository][CHaP], which al
 
 ## Troubleshooting
 
-If pretty much any test (launched with `cabal test`) fails with `<stdout>: commitBuffer: invalid argument (invalid character)` or `withFile: invalid argument (invalid byte sequence)`, make sure to execute `export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive` in your shell (consider doing this automatically when entering the repository, with [direnv](https://direnv.net/)).
+### `<stdout>: commitBuffer: invalid argument (invalid character)` error when launching tests
+If pretty much any test (launched with `cabal test`) fails with
+```
+<stdout>: commitBuffer: invalid argument (invalid character)
+```
+or
+```
+withFile: invalid argument (invalid byte sequence)
+```
+1. Make sure that you have file `/usr/lib/locale/locale-archive` present in your system.
+    * If you don't have `locale-archive` file present on your system, you need to generate it.
+      Please consult your system distribution manual how to configure locale and generate that file.
+1. Execute `export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive` in your shell (consider doing this automatically when entering the repository, with [direnv](https://direnv.net/)).
 
-## Releasing a version of the `cardano-cli`
-
-### to the Cardano Haskell Package repository
+## Releasing a version of the `cardano-cli` to the Cardano Haskell Packages repository
 
 When releasing a new version of `cardano-cli`, it and the other packages in this repository should be released to the [CHaP repository][CHaP].
 
-See the [RELEASING.md] for instructions. 
+See the [RELEASING.md](RELEASING.md) for instructions.
 
 Please note that libraries need bounds on the version of their dependencies to avoid bitrot and be effectively reusable.
 
