@@ -8,7 +8,7 @@
 
 module Cardano.CLI.EraBased.Commands.Governance.Actions
   ( GovernanceActionCmds(..)
-  , GoveranceActionUpdateCommitteeCmdArgs(..)
+  , GovernanceActionUpdateCommitteeCmdArgs(..)
   , GovernanceActionCreateConstitutionCmdArgs(..)
   , GovernanceActionCreateNoConfidenceCmdArgs(..)
   , GovernanceActionInfoCmdArgs(..)
@@ -33,7 +33,7 @@ import           Data.Word
 
 data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd         !(GovernanceActionCreateConstitutionCmdArgs era)
-  | GoveranceActionUpdateCommitteeCmd             !(GoveranceActionUpdateCommitteeCmdArgs era)
+  | GovernanceActionUpdateCommitteeCmd            !(GovernanceActionUpdateCommitteeCmdArgs era)
   | GovernanceActionCreateNoConfidenceCmd         !(GovernanceActionCreateNoConfidenceCmdArgs era)
   | GovernanceActionProtocolParametersUpdateCmd   !(GovernanceActionProtocolParametersUpdateCmdArgs era)
   | GovernanceActionTreasuryWithdrawalCmd         !(GovernanceActionTreasuryWithdrawalCmdArgs era)
@@ -41,16 +41,16 @@ data GovernanceActionCmds era
   | GovernanceActionViewCmd                       !(GovernanceActionViewCmdArgs era)
   deriving Show
 
-data GoveranceActionUpdateCommitteeCmdArgs era
-  = GoveranceActionUpdateCommitteeCmdArgs
+data GovernanceActionUpdateCommitteeCmdArgs era
+  = GovernanceActionUpdateCommitteeCmdArgs
       { eon                     :: !(ConwayEraOnwards era)
       , networkId               :: !L.Network
       , deposit                 :: !L.Coin
       , returnAddress           :: !StakeIdentifier
       , proposalUrl             :: !ProposalUrl
       , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
-      , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFileOrScript CommitteeColdKey]
-      , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFileOrScript CommitteeColdKey, EpochNo)]
+      , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey]
+      , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey, EpochNo)]
       , requiredQuorum          :: !Rational
       , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
       , outFile                 :: !(File () Out)
@@ -175,7 +175,7 @@ renderGovernanceActionCmds = ("governance action " <>) . \case
   GovernanceActionTreasuryWithdrawalCmd {} ->
     "create-treasury-withdrawal"
 
-  GoveranceActionUpdateCommitteeCmd {} ->
+  GovernanceActionUpdateCommitteeCmd {} ->
     "update-committee"
 
   GovernanceActionCreateNoConfidenceCmd {} ->

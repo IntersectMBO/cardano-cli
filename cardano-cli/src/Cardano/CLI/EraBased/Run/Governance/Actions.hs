@@ -40,7 +40,7 @@ runGovernanceActionCmds = \case
   GovernanceActionTreasuryWithdrawalCmd args ->
     runGovernanceActionTreasuryWithdrawalCmd args
 
-  GoveranceActionUpdateCommitteeCmd args ->
+  GovernanceActionUpdateCommitteeCmd args ->
     runGovernanceActionUpdateCommitteeCmd args
 
   GovernanceActionCreateNoConfidenceCmd args ->
@@ -189,10 +189,10 @@ runGovernanceActionCreateConstitutionCmd
 -- TODO: Conway era - After ledger bump update this function
 -- with the new ledger types
 runGovernanceActionUpdateCommitteeCmd :: ()
-  => GoveranceActionUpdateCommitteeCmdArgs era
+  => GovernanceActionUpdateCommitteeCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionUpdateCommitteeCmd
-    Cmd.GoveranceActionUpdateCommitteeCmdArgs
+    Cmd.GovernanceActionUpdateCommitteeCmdArgs
       { Cmd.eon
       , Cmd.networkId
       , Cmd.deposit
@@ -215,15 +215,14 @@ runGovernanceActionUpdateCommitteeCmd
         { L.anchorUrl = unProposalUrl proposalUrl
         , L.anchorDataHash = proposalHash
         }
-      mapError' = modifyError $ either GovernanceActionsCmdScriptReadError GovernanceActionsCmdReadFileError
 
   oldCommitteeKeyHashes <- forM oldCommitteeVkeySource $ \vkeyOrHashOrTextFile ->
-    mapError' $
-      readVerificationKeyOrHashOrFileOrScript AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
+    modifyError GovernanceActionsCmdReadFileError $
+      readVerificaitonKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
 
   newCommitteeKeyHashes <- forM newCommitteeVkeySource $ \(vkeyOrHashOrTextFile, expEpoch) -> do
-    kh <- mapError' $
-      readVerificationKeyOrHashOrFileOrScript AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
+    kh <- modifyError GovernanceActionsCmdReadFileError $
+      readVerificaitonKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
     pure (kh, expEpoch)
 
   depositStakeCredential

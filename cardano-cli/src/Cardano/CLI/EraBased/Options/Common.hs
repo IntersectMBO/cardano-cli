@@ -634,12 +634,15 @@ pOperatorCertIssueCounterFile =
 
 ---
 
-pAddCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFileOrScript CommitteeColdKey)
+pAddCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
 pAddCommitteeColdVerificationKeyOrHashOrFile =
   asum
-    [ VkhfsKeyHashFile . VerificationKeyOrFile <$> pAddCommitteeColdVerificationKeyOrFile
-    , VkhfsKeyHashFile . VerificationKeyHash <$> pAddCommitteeColdVerificationKeyHash
-    , VkhfsScript <$> pScriptFor "add-cc-cold-script-file" Nothing "Cold Native or Plutus script file"
+    [ VkhfshKeyHashFile . VerificationKeyOrFile <$> pAddCommitteeColdVerificationKeyOrFile
+    , VkhfshKeyHashFile . VerificationKeyHash <$> pAddCommitteeColdVerificationKeyHash
+    , VkhfshScriptHash <$>
+        pScriptHash
+          "add-cc-cold-script-hash"
+          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
     ]
 
 pAddCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
@@ -687,12 +690,26 @@ pAddCommitteeColdVerificationKeyFile =
     ]
 
 ---
-pRemoveCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFileOrScript CommitteeColdKey)
+pRemoveCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
 pRemoveCommitteeColdVerificationKeyOrHashOrFile =
   asum
-    [ VkhfsKeyHashFile . VerificationKeyOrFile <$> pRemoveCommitteeColdVerificationKeyOrFile
-    , VkhfsKeyHashFile . VerificationKeyHash <$> pRemoveCommitteeColdVerificationKeyHash
-    , VkhfsScript <$> pScriptFor "remove-cc-cold-script-file" Nothing "Cold Native or Plutus script file"
+    [ VkhfshKeyHashFile . VerificationKeyOrFile <$> pRemoveCommitteeColdVerificationKeyOrFile
+    , VkhfshKeyHashFile . VerificationKeyHash <$> pRemoveCommitteeColdVerificationKeyHash
+    , VkhfshScriptHash <$>
+        pScriptHash
+          "remove-cc-cold-script-hash"
+          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+    ]
+
+pScriptHash
+  :: String -- ^ long option name
+  -> String -- ^ help text
+  -> Parser ScriptHash
+pScriptHash longOptionName helpText =
+  Opt.option scriptHashReader $ mconcat
+    [ Opt.long longOptionName
+    , Opt.metavar "HASH"
+    , Opt.help helpText
     ]
 
 pRemoveCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
@@ -3162,19 +3179,15 @@ pDRepHashSource =
 
 pDRepScriptHash :: Parser ScriptHash
 pDRepScriptHash =
-  Opt.option scriptHashReader $ mconcat
-    [ Opt.long "drep-script-hash"
-    , Opt.metavar "HASH"
-    , Opt.help "DRep script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
-    ]
+  pScriptHash
+    "drep-script-hash"
+    "DRep script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
 
 pConstitutionScriptHash :: Parser ScriptHash
 pConstitutionScriptHash =
-  Opt.option scriptHashReader $ mconcat
-    [ Opt.long "constitution-script-hash"
-    , Opt.metavar "HASH"
-    , Opt.help "Constitution script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
-    ]
+  pScriptHash
+    "constitution-script-hash"
+    "Constitution script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
 
 pDRepVerificationKeyOrHashOrFile
   :: Parser (VerificationKeyOrHashOrFile DRepKey)

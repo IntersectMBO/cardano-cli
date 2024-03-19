@@ -24,6 +24,8 @@ module Cardano.CLI.Types.Key
   , readVerificationKeyOrHashOrTextEnvFile
 
   , VerificationKeyOrHashOrFileOrScript(..)
+  , VerificationKeyOrHashOrFileOrScriptHash(..)
+  , readVerificaitonKeyOrHashOrFileOrScriptHash
 
   , PaymentVerifier(..)
   , StakeIdentifier(..)
@@ -335,9 +337,8 @@ readDRepCredential = \case
   DRepHashSourceScript (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)
   DRepHashSourceVerificationKey drepVKeyOrHashOrFile -> do
-    DRepKeyHash drepKeyHash <-
+    L.KeyHashObj . unDRepKeyHash <$>
       readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile
-    pure $ L.KeyHashObj drepKeyHash
 
 data VerificationKeyOrHashOrFileOrScript keyrole
   = VkhfsKeyHashFile !(VerificationKeyOrHashOrFile keyrole)
@@ -345,6 +346,27 @@ data VerificationKeyOrHashOrFileOrScript keyrole
 
 deriving instance (Eq (VerificationKeyOrHashOrFile c)) => Eq (VerificationKeyOrHashOrFileOrScript c)
 deriving instance (Show (VerificationKeyOrHashOrFile c)) => Show (VerificationKeyOrHashOrFileOrScript c)
+
+data VerificationKeyOrHashOrFileOrScriptHash keyrole
+  = VkhfshKeyHashFile !(VerificationKeyOrHashOrFile keyrole)
+  | VkhfshScriptHash !ScriptHash
+
+deriving instance (Eq (VerificationKeyOrHashOrFile c)) => Eq (VerificationKeyOrHashOrFileOrScriptHash c)
+deriving instance (Show (VerificationKeyOrHashOrFile c)) => Show (VerificationKeyOrHashOrFileOrScriptHash c)
+
+readVerificationKeyOrHashOrFileOrScriptHash
+  :: MonadIOTransError (FileError InputDecodeError) t m
+  => Key keyrole
+  => AsType keyrole
+  -> (Hash keyrole -> L.KeyHash kr L.StandardCrypto)
+  -> VerificationKeyOrHashOrFileOrScriptHash keyrole
+  -> t m (L.Credential kr L.StandardCrypto)
+readVerificationKeyOrHashOrFileOrScriptHash asType extractHash = \case
+  VkhfshScriptHash (ScriptHash scriptHash) ->
+    pure (L.ScriptHashObj scriptHash)
+  VkhfshKeyHashFile vKeyOrHashOrFile -> do
+    L.KeyHashObj . extractHash <$>
+      readVerificationKeyOrHashOrTextEnvFile asType vKeyOrHashOrFile
 
 data SomeSigningKey
   = AByronSigningKey                    (SigningKey ByronKey)

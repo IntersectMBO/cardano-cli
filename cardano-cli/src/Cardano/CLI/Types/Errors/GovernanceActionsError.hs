@@ -14,7 +14,6 @@ data GovernanceActionsError
   | GovernanceActionsCmdProposalError ProposalError
   | GovernanceActionsCmdCostModelsError CostModelsError
   | GovernanceActionsCmdReadFileError (FileError InputDecodeError)
-  | GovernanceActionsCmdScriptReadError (FileError ScriptDecodeError)
   | GovernanceActionsReadStakeCredErrror StakeCredentialError
   | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdWriteFileError (FileError ())
@@ -31,8 +30,6 @@ instance Error GovernanceActionsError where
       "Cannot read constitution: " <> pshow e -- TODO Conway render this properly
     GovernanceActionsCmdReadFileError e ->
       "Cannot read file: " <> prettyError e
-    GovernanceActionsCmdScriptReadError e ->
-      "Cannot read script file: " <> prettyError e
     GovernanceActionsCmdReadTextEnvelopeFileError e ->
       "Cannot read text envelope file: " <> prettyError e
     GovernanceActionsCmdWriteFileError e ->

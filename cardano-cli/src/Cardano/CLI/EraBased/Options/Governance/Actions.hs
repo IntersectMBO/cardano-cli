@@ -105,16 +105,16 @@ pGovernanceActionUpdateCommitteeCmd era = do
   pure
     $ subParser "update-committee"
     $ Opt.info
-        ( Cmd.GoveranceActionUpdateCommitteeCmd
+        ( Cmd.GovernanceActionUpdateCommitteeCmd
             <$> pUpdateCommitteeCmd eon
         )
     $ Opt.progDesc "Create or update a new committee proposal."
 
 pUpdateCommitteeCmd :: ()
   => ConwayEraOnwards era
-  -> Parser (Cmd.GoveranceActionUpdateCommitteeCmdArgs era)
+  -> Parser (Cmd.GovernanceActionUpdateCommitteeCmdArgs era)
 pUpdateCommitteeCmd eon =
-  Cmd.GoveranceActionUpdateCommitteeCmdArgs eon
+  Cmd.GovernanceActionUpdateCommitteeCmdArgs eon
     <$> pNetwork
     <*> pGovActionDeposit
     <*> pStakeIdentifier (Just "deposit-return")
