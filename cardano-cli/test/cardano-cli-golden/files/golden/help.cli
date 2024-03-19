@@ -6402,6 +6402,7 @@ Usage: cardano-cli conway governance committee create-cold-key-resignation-certi
                                                                                          ( --cold-verification-key STRING
                                                                                          | --cold-verification-key-file FILE
                                                                                          | --cold-verification-key-hash STRING
+                                                                                         | --cold-script-hash HASH
                                                                                          )
                                                                                          [--resignation-metadata-url TEXT
                                                                                            --resignation-metadata-hash HASH]
