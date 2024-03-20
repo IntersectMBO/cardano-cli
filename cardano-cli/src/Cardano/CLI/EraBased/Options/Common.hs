@@ -722,7 +722,7 @@ pRemoveCommitteeColdVerificationKeyHash =
   where
     deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
     deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Consitutional Committee cold key hash: " <> prettyError e)
+      first (\e -> docToString $ "Invalid Constitutional Committee cold key hash: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
         . BSC.pack
 
@@ -897,17 +897,11 @@ pCommitteeHotKeyHash prefix =
         . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
         . BSC.pack
 
-pCommitteeHotKeyOrFile :: Parser (VerificationKeyOrFile CommitteeHotKey)
-pCommitteeHotKeyOrFile =
-  asum
-    [ VerificationKeyValue <$> pCommitteeHotKey
-    , VerificationKeyFilePath <$> pCommitteeHotKeyFile
-    ]
-
 pCommitteeHotKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeHotKey)
 pCommitteeHotKeyOrHashOrFile =
   asum
-    [ VerificationKeyOrFile <$> pCommitteeHotKeyOrFile
+    [ VerificationKeyOrFile . VerificationKeyValue <$> pCommitteeHotKey
+    , VerificationKeyOrFile . VerificationKeyFilePath <$> pCommitteeHotKeyFile
     , VerificationKeyHash <$> pCommitteeHotKeyHash Nothing
     ]
 
@@ -917,6 +911,16 @@ pCommitteeHotVerificationKeyOrHashOrVerificationFile =
     [ VerificationKeyOrFile . VerificationKeyValue <$> pCommitteeHotVerificationKey,
       VerificationKeyOrFile . VerificationKeyFilePath <$> pCommitteeHotVerificationKeyFile,
       VerificationKeyHash <$> pCommitteeHotKeyHash (Just "cc")
+    ]
+
+pCommitteeHotVerificationKeyOrHashOrVerificationFileOrScriptHash :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey)
+pCommitteeHotVerificationKeyOrHashOrVerificationFileOrScriptHash =
+  asum
+    [ VkhfshKeyHashFile <$> pCommitteeHotVerificationKeyOrHashOrVerificationFile
+    , VkhfshScriptHash <$>
+        pScriptHash
+          "cc-hot-script-hash"
+          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
     ]
 
 catCommands :: [Parser a] -> Maybe (Parser a)
@@ -3195,6 +3199,17 @@ pDRepVerificationKeyOrHashOrFile =
   asum
     [ VerificationKeyOrFile <$> pDRepVerificationKeyOrFile
     , VerificationKeyHash <$> pDRepVerificationKeyHash
+    ]
+
+pDRepVerificationKeyOrHashOrFileOrScriptHash :: Parser (VerificationKeyOrHashOrFileOrScriptHash DRepKey)
+pDRepVerificationKeyOrHashOrFileOrScriptHash =
+  asum
+    [ VkhfshKeyHashFile . VerificationKeyOrFile <$> pDRepVerificationKeyOrFile
+    , VkhfshKeyHashFile . VerificationKeyHash <$> pDRepVerificationKeyHash
+    , VkhfshScriptHash <$>
+        pScriptHash
+          "drep-script-hash"
+          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
     ]
 
 pAllOrOnlyDRepVerificationKeyOrHashOrFile

@@ -51,9 +51,9 @@ pGovernanceVoteCreateCmdArgs cOnwards =
 
 pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile
 pAnyVotingStakeVerificationKeyOrHashOrFile =
-  asum [ AnyDRepVerificationKeyOrHashOrFile <$> pDRepVerificationKeyOrHashOrFile
+  asum [ AnyDRepVerificationKeyOrHashOrFileOrScriptHash <$> pDRepVerificationKeyOrHashOrFileOrScriptHash
        , AnyStakePoolVerificationKeyOrHashOrFile <$> pStakePoolVerificationKeyOrHashOrFile Nothing
-       , AnyCommitteeHotVerificationKeyOrHashOrFile <$> pCommitteeHotVerificationKeyOrHashOrVerificationFile
+       , AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash <$> pCommitteeHotVerificationKeyOrHashOrVerificationFileOrScriptHash
        ]
 
 pGovernanceVoteViewCmd :: ()
