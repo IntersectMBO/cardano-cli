@@ -1493,11 +1493,11 @@ runQueryCommitteeMembersState
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   let coldKeysFromVerKeyHashOrFile =
-        firstExceptT QueryCmdCommitteeColdKeyError . getCommitteeColdCredentialFromVerKeyHashOrFile
+        modifyError QueryCmdCommitteeColdKeyError . readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash
   coldKeys <- Set.fromList <$> mapM coldKeysFromVerKeyHashOrFile coldCredKeys
 
   let hotKeysFromVerKeyHashOrFile =
-        firstExceptT QueryCmdCommitteeHotKeyError . getCommitteeHotCredentialFromVerKeyHashOrFile
+        modifyError QueryCmdCommitteeHotKeyError . readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeHotKey unCommitteeHotKeyHash
   hotKeys <- Set.fromList <$> mapM hotKeysFromVerKeyHashOrFile hotCredKeys
 
   committeeState <- runQuery localNodeConnInfo target $

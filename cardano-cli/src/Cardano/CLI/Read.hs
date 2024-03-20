@@ -81,10 +81,6 @@ module Cardano.CLI.Read
   -- * DRep credentials
   , getDRepCredentialFromVerKeyHashOrFile
 
-  -- * Committee credentials
-  , getCommitteeColdCredentialFromVerKeyHashOrFile
-  , getCommitteeHotCredentialFromVerKeyHashOrFile
-
   , ReadSafeHashError(..)
   , readHexAsSafeHash
   , readSafeHash
@@ -1089,28 +1085,6 @@ getDRepCredentialFromVerKeyHashOrFile = \case
     drepVerKey <- readVerificationKeyOrFile AsDRepKey verKeyOrFile
     pure . L.KeyHashObj . unDRepKeyHash $ verificationKeyHash drepVerKey
   VerificationKeyHash kh -> pure . L.KeyHashObj $ unDRepKeyHash kh
-
-getCommitteeColdCredentialFromVerKeyHashOrFile :: ()
-  => MonadIOTransError (FileError InputDecodeError) t m
-  => VerificationKeyOrHashOrFile CommitteeColdKey
-  -> t m (L.Credential L.ColdCommitteeRole L.StandardCrypto)
-getCommitteeColdCredentialFromVerKeyHashOrFile = \case
-  VerificationKeyOrFile verKeyOrFile -> do
-    commmitteeColdVerKey <- readVerificationKeyOrFile AsCommitteeColdKey verKeyOrFile
-    let CommitteeColdKeyHash kh = verificationKeyHash commmitteeColdVerKey
-    pure $ L.KeyHashObj kh
-  VerificationKeyHash (CommitteeColdKeyHash kh) -> pure $ L.KeyHashObj kh
-
-getCommitteeHotCredentialFromVerKeyHashOrFile :: ()
-  => MonadIOTransError (FileError InputDecodeError) t m
-  => VerificationKeyOrHashOrFile CommitteeHotKey
-  -> t m (L.Credential L.HotCommitteeRole L.StandardCrypto)
-getCommitteeHotCredentialFromVerKeyHashOrFile = \case
-  VerificationKeyOrFile verKeyOrFile -> do
-    commmitteeHotVerKey <- readVerificationKeyOrFile AsCommitteeHotKey verKeyOrFile
-    let CommitteeHotKeyHash kh = verificationKeyHash commmitteeHotVerKey
-    pure $ L.KeyHashObj kh
-  VerificationKeyHash (CommitteeHotKeyHash kh) -> pure $ L.KeyHashObj kh
 
 data ReadSafeHashError
   = ReadSafeHashErrorNotHex ByteString String

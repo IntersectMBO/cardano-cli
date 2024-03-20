@@ -172,7 +172,7 @@ runGovernanceCommitteeColdKeyResignationCertificate
       } =
   conwayEraOnwardsConstraints eon $ do
     coldVKeyCred <- modifyError GovernanceCommitteeCmdKeyReadError $
-      readVerificaitonKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
+      readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
 
     makeCommitteeColdkeyResignationCertificate (CommitteeColdkeyResignationRequirements eon coldVKeyCred anchor)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)

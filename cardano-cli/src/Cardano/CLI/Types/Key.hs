@@ -25,7 +25,7 @@ module Cardano.CLI.Types.Key
 
   , VerificationKeyOrHashOrFileOrScript(..)
   , VerificationKeyOrHashOrFileOrScriptHash(..)
-  , readVerificaitonKeyOrHashOrFileOrScriptHash
+  , readVerificationKeyOrHashOrFileOrScriptHash
 
   , PaymentVerifier(..)
   , StakeIdentifier(..)

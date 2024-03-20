@@ -218,11 +218,11 @@ runGovernanceActionUpdateCommitteeCmd
 
   oldCommitteeKeyHashes <- forM oldCommitteeVkeySource $ \vkeyOrHashOrTextFile ->
     modifyError GovernanceActionsCmdReadFileError $
-      readVerificaitonKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
+      readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
 
   newCommitteeKeyHashes <- forM newCommitteeVkeySource $ \(vkeyOrHashOrTextFile, expEpoch) -> do
     kh <- modifyError GovernanceActionsCmdReadFileError $
-      readVerificaitonKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
+      readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
     pure (kh, expEpoch)
 
   depositStakeCredential
