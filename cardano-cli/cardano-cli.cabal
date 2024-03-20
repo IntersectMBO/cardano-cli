@@ -208,6 +208,7 @@ library
                       , cardano-slotting ^>= 0.1
                       , cardano-strict-containers ^>= 0.1
                       , cborg >= 0.2.4 && < 0.3
+                      , cborg-json
                       , containers
                       , contra-tracer
                       , cryptonite

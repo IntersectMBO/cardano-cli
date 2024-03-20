@@ -25,6 +25,9 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    ShelleyLedgerEra, StakeAddress (..), fromShelleyPaymentCredential,
                    fromShelleyStakeReference, toShelleyStakeCredential)
 
+import           Codec.CBOR.Encoding (Encoding)
+import           Codec.CBOR.FlatTerm (fromFlatTerm, toFlatTerm)
+import           Codec.CBOR.JSON (decodeValue)
 import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
@@ -135,7 +138,7 @@ friendlyTxBodyImpl :: ()
   -> [Aeson.Pair]
 friendlyTxBodyImpl
   era
-  (TxBody
+  tb@(TxBody
     TxBodyContent
       { txAuxScripts
       , txCertificates
@@ -151,10 +154,11 @@ friendlyTxBodyImpl
       , txInsReference
       , txUpdateProposal
       , txValidityLowerBound
-       ,txValidityUpperBound
+      , txValidityUpperBound
       , txWithdrawals
       }) =
   cardanoEraConstraints era
+    (redeemerIfShelleyBased era tb ++
     [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
     , "certificates" .= forEraInEon era Null (`friendlyCertificates` txCertificates)
     , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
@@ -172,7 +176,16 @@ friendlyTxBodyImpl
     , "update proposal" .= friendlyUpdateProposal txUpdateProposal
     , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
     , "withdrawals" .= friendlyWithdrawals txWithdrawals
-    ]
+    ])
+
+redeemerIfShelleyBased :: CardanoEra era -> TxBody era -> [Aeson.Pair]
+redeemerIfShelleyBased era tb = caseByronOrShelleyBasedEra [] (\shEra -> [ "redeemers" .= friendlyRedeemer shEra tb ] ) era
+
+friendlyRedeemer :: ShelleyBasedEra era -> TxBody era -> Aeson.Value
+friendlyRedeemer _ (ShelleyTxBody _ _ _ TxBodyNoScriptData _ _) = Aeson.Null
+friendlyRedeemer _ (ShelleyTxBody _ _ _ (TxBodyScriptData _ _ r) _ _) = encodingToJSON $ L.toCBOR r
+  where encodingToJSON :: Encoding -> Aeson.Value
+        encodingToJSON e = either (Aeson.String . Text.pack) id $ fromFlatTerm (decodeValue True) $ toFlatTerm e
 
 friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
 friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null
