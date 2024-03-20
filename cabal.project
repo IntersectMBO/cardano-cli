@@ -40,6 +40,12 @@ test-show-details: direct
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
 
+-- FIXME: remove this when bumping ouroboros-consensus
+-- this is required to build with ouroboros-consensus-cardano-0.14.0.1
+allow-newer: 
+  cardano-git-rev
+
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
