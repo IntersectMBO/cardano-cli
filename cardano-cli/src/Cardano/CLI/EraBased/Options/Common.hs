@@ -634,8 +634,8 @@ pOperatorCertIssueCounterFile =
 
 ---
 
-pAddCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
-pAddCommitteeColdVerificationKeyOrHashOrFile =
+pAddCommitteeColdVerificationKeySource :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
+pAddCommitteeColdVerificationKeySource =
   asum
     [ VkhfshKeyHashFile . VerificationKeyOrFile <$> pAddCommitteeColdVerificationKeyOrFile
     , VkhfshKeyHashFile . VerificationKeyHash <$> pAddCommitteeColdVerificationKeyHash
@@ -690,8 +690,8 @@ pAddCommitteeColdVerificationKeyFile =
     ]
 
 ---
-pRemoveCommitteeColdVerificationKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
-pRemoveCommitteeColdVerificationKeyOrHashOrFile =
+pRemoveCommitteeColdVerificationKeySource :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
+pRemoveCommitteeColdVerificationKeySource =
   asum
     [ VkhfshKeyHashFile . VerificationKeyOrFile <$> pRemoveCommitteeColdVerificationKeyOrFile
     , VkhfshKeyHashFile . VerificationKeyHash <$> pRemoveCommitteeColdVerificationKeyHash

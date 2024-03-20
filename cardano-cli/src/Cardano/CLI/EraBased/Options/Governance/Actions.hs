@@ -120,10 +120,10 @@ pUpdateCommitteeCmd eon =
     <*> pStakeIdentifier (Just "deposit-return")
     <*> pAnchorUrl
     <*> pAnchorDataHash
-    <*> many pRemoveCommitteeColdVerificationKeyOrHashOrFile
+    <*> many pRemoveCommitteeColdVerificationKeySource
     <*> many
           ( (,)
-              <$> pAddCommitteeColdVerificationKeyOrHashOrFile
+              <$> pAddCommitteeColdVerificationKeySource
               <*> pEpochNo "Committee member expiry epoch")
     <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
     <*> pPreviousGovernanceAction

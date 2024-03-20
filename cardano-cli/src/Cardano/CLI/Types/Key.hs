@@ -276,7 +276,7 @@ readVerificationKeyOrHashOrFile
   => AsType keyrole
   -> VerificationKeyOrHashOrFile keyrole
   -> t m (Hash keyrole)
-readVerificationKeyOrHashOrFile asType  =
+readVerificationKeyOrHashOrFile asType =
   \case
     VerificationKeyOrFile vkOrFile ->
       verificationKeyHash <$> readVerificationKeyOrFile asType vkOrFile
@@ -336,7 +336,7 @@ readDRepCredential
 readDRepCredential = \case
   DRepHashSourceScript (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)
-  DRepHashSourceVerificationKey drepVKeyOrHashOrFile -> do
+  DRepHashSourceVerificationKey drepVKeyOrHashOrFile ->
     L.KeyHashObj . unDRepKeyHash <$>
       readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile
 
@@ -364,7 +364,7 @@ readVerificationKeyOrHashOrFileOrScriptHash
 readVerificationKeyOrHashOrFileOrScriptHash asType extractHash = \case
   VkhfshScriptHash (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)
-  VkhfshKeyHashFile vKeyOrHashOrFile -> do
+  VkhfshKeyHashFile vKeyOrHashOrFile ->
     L.KeyHashObj . extractHash <$>
       readVerificationKeyOrHashOrTextEnvFile asType vKeyOrHashOrFile
 
