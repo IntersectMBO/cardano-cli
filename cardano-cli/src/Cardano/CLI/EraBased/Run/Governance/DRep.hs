@@ -83,9 +83,8 @@ runGovernanceDRepIdCmd
       , idOutputFormat
       , mOutFile
       } = do
-  drepVerKey <-
-    lift (readVerificationKeyOrTextEnvFile AsDRepKey vkeySource)
-      & onLeft (left . ReadFileError)
+  drepVerKey <- modifyError ReadFileError $
+    readVerificationKeyOrTextEnvFile AsDRepKey vkeySource
 
   content <-
     pure $ case idOutputFormat of
@@ -134,7 +133,6 @@ runGovernanceDRepRetirementCertificateCmd
       } =
   conwayEraOnwardsConstraints w $ do
     DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
-      . newExceptT
       $ readVerificationKeyOrHashOrFile AsDRepKey vkeyHashSource
     makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w (KeyHashObj drepKeyHash) deposit)
       & writeFileTextEnvelope outFile (Just genKeyDelegCertDesc)
@@ -156,7 +154,6 @@ runGovernanceDRepUpdateCertificateCmd
       } =
   conwayEraOnwardsConstraints w $ do
     DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
-      . newExceptT
       $ readVerificationKeyOrHashOrFile AsDRepKey drepVkeyHashSource
     makeDrepUpdateCertificate (DRepUpdateRequirements w (KeyHashObj drepKeyHash)) mAnchor
       & writeFileTextEnvelope outFile (Just "DRep Update Certificate")

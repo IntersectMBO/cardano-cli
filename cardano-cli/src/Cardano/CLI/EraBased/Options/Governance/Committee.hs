@@ -136,13 +136,19 @@ pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
         [ "Create cold key resignation certificate for a Constitutional Committee Member"
         ]
  where
-  mkParser w = GovernanceCommitteeCreateColdKeyResignationCertificateCmd <$>
-    (
-      GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs w <$>
-        pCommitteeColdVerificationKeyOrHashOrFile <*>
-        pAnchor <*>
-        pOutputFile
-    )
+  mkParser w =
+    GovernanceCommitteeCreateColdKeyResignationCertificateCmd <$>
+      (GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs w <$>
+        coldVKeyOrFileOrScriptHash <*> pAnchor <*> pOutputFile)
+  coldVKeyOrFileOrScriptHash =
+    asum
+      [ VkhfshKeyHashFile . VerificationKeyOrFile <$> pCommitteeColdVerificationKeyOrFile
+      , VkhfshKeyHashFile . VerificationKeyHash <$> pCommitteeColdVerificationKeyHash
+      , VkhfshScriptHash <$>
+          pScriptHash
+            "cold-script-hash"
+            "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+      ]
 
 pAnchor :: Parser (Maybe (L.Anchor L.StandardCrypto))
 pAnchor =

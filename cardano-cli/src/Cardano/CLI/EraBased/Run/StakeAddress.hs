@@ -65,7 +65,7 @@ runStakeAddressKeyGenCmd :: ()
 runStakeAddressKeyGenCmd fmt vkFp skFp = do
   let skeyDesc = "Stake Signing Key"
 
-  skey <- liftIO $ generateSigningKey AsStakeKey
+  skey <- generateSigningKey AsStakeKey
 
   let vkey = getVerificationKey skey
 
@@ -88,9 +88,8 @@ runStakeAddressKeyHashCmd :: ()
   -> Maybe (File () Out)
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressKeyHashCmd stakeVerKeyOrFile mOutputFp = do
-  vkey <- firstExceptT StakeAddressCmdReadKeyFileError
-    . newExceptT
-    $ readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
+  vkey <- modifyError StakeAddressCmdReadKeyFileError $
+    readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
 
   let hexKeyHash = serialiseToRawBytesHex (verificationKeyHash vkey)
 
@@ -177,9 +176,8 @@ runStakeAddressStakeDelegationCertificateCmd :: ()
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrFile outFp =
   shelleyBasedEraConstraints sbe $ do
-    poolStakeVKeyHash <-
-      lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile)
-        & onLeft (left . StakeAddressCmdReadKeyFileError)
+    poolStakeVKeyHash <- modifyError StakeAddressCmdReadKeyFileError $
+      readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
 
     stakeCred <-
       getStakeCredentialFromIdentifier stakeVerifier
@@ -204,13 +202,11 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd :: ()
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile voteDelegationTarget outFp =
   conwayEraOnwardsConstraints w $ do
-    StakePoolKeyHash poolStakeVKeyHash <-
-      lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile)
-        & onLeft (left . StakeAddressCmdReadKeyFileError)
+    StakePoolKeyHash poolStakeVKeyHash <- modifyError StakeAddressCmdReadKeyFileError $
+      readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
 
-    stakeCredential <-
+    stakeCredential <- modifyError StakeAddressCmdStakeCredentialError $
       getStakeCredentialFromIdentifier stakeVerifier
-        & firstExceptT StakeAddressCmdStakeCredentialError
 
     drep <-
       readVoteDelegationTarget voteDelegationTarget

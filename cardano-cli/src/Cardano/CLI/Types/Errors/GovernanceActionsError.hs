@@ -35,9 +35,6 @@ instance Error GovernanceActionsError where
     GovernanceActionsCmdWriteFileError e ->
       "Cannot write file: " <> prettyError e
     GovernanceActionsValueUpdateProtocolParametersNotFound (AnyShelleyBasedEra expectedShelleyEra) ->
-      mconcat
-        [ "Protocol parameters update value for " <> pshow (toCardanoEra expectedShelleyEra)
-        , " was not found."
-        ]
+      "Protocol parameters update value for" <+> pretty expectedShelleyEra <+> "was not found."
     GovernanceActionsReadStakeCredErrror e ->
       prettyError e

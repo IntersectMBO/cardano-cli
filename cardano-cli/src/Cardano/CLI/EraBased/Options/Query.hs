@@ -15,6 +15,7 @@ import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.Query
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Key
 
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)
@@ -388,11 +389,31 @@ pQueryGetCommitteeStateCmd era envCli = do
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
-      <*> many pCommitteeColdVerificationKeyOrHashOrFile
-      <*> many pCommitteeHotKeyOrHashOrFile
+      <*> many pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
+      <*> many pCommitteeHotKeyOrHashOrFileOrScriptHash
       <*> many pMemberStatus
       <*> pTarget era
       <*> optional pOutputFile
+
+    pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
+    pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash =
+      asum
+        [ VkhfshKeyHashFile <$> pCommitteeColdVerificationKeyOrHashOrFile
+        , VkhfshScriptHash <$>
+            pScriptHash
+              "cold-script-hash"
+              "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+        ]
+
+    pCommitteeHotKeyOrHashOrFileOrScriptHash :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey)
+    pCommitteeHotKeyOrHashOrFileOrScriptHash =
+      asum
+        [ VkhfshKeyHashFile <$> pCommitteeHotKeyOrHashOrFile
+        , VkhfshScriptHash <$>
+            pScriptHash
+              "hot-script-hash"
+              "Hot Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+        ]
 
     pMemberStatus :: Parser MemberStatus
     pMemberStatus =

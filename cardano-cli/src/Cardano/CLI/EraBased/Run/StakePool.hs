@@ -64,19 +64,16 @@ runStakePoolRegistrationCertificateCmd
     = shelleyBasedEraConstraints sbe $ do
     -- Pool verification key
     stakePoolVerKey <- firstExceptT StakePoolCmdReadKeyFileError
-      . newExceptT
       $ readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
     let stakePoolId' = verificationKeyHash stakePoolVerKey
 
     -- VRF verification key
     vrfVerKey <- firstExceptT StakePoolCmdReadKeyFileError
-      . newExceptT
       $ readVerificationKeyOrFile AsVrfKey vrfVerificationKeyOrFile
     let vrfKeyHash' = verificationKeyHash vrfVerKey
 
     -- Pool reward account
     rwdStakeVerKey <- firstExceptT StakePoolCmdReadKeyFileError
-      . newExceptT
       $ readVerificationKeyOrFile AsStakeKey rewardStakeVerificationKeyOrFile
     let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
         rewardAccountAddr = makeStakeAddress network stakeCred
@@ -85,7 +82,6 @@ runStakePoolRegistrationCertificateCmd
     sPoolOwnerVkeys <-
       mapM
         (firstExceptT StakePoolCmdReadKeyFileError
-          . newExceptT
           . readVerificationKeyOrFile AsStakeKey
         )
         ownerStakeVerificationKeyOrFiles
@@ -150,7 +146,6 @@ runStakePoolDeregistrationCertificateCmd
   shelleyBasedEraConstraints sbe $ do
     -- Pool verification key
     stakePoolVerKey <- firstExceptT StakePoolCmdReadKeyFileError
-      . newExceptT
       $ readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
 
     let stakePoolId' = verificationKeyHash stakePoolVerKey
@@ -195,7 +190,6 @@ runStakePoolIdCmd
       , mOutFile
       } = do
   stakePoolVerKey <- firstExceptT StakePoolCmdReadKeyFileError
-    . newExceptT
     $ readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
 
   case outputFormat of

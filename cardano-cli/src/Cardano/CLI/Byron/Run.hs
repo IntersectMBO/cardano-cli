@@ -154,7 +154,7 @@ runPrintSigningKeyAddress bKeyFormat networkid skF = do
 
 runKeygen :: NewSigningKeyFile -> ExceptT ByronClientCmdError IO ()
 runKeygen (NewSigningKeyFile skF)  = do
-  sK <- liftIO $ generateSigningKey AsByronKey
+  sK <- generateSigningKey AsByronKey
   firstExceptT ByronCmdHelpersError . ensureNewFileLBS skF $ serialiseToRawBytes sK
 
 runToVerification :: ByronKeyFormat -> SigningKeyFile In -> NewVerificationKeyFile -> ExceptT ByronClientCmdError IO ()

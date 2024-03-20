@@ -233,8 +233,8 @@ data QueryCommitteeMembersStateCmdArgs era = QueryCommitteeMembersStateCmdArgs
   , nodeSocketPath          :: !SocketPath
   , consensusModeParams     :: !ConsensusModeParams
   , networkId               :: !NetworkId
-  , committeeColdKeys       :: ![VerificationKeyOrHashOrFile CommitteeColdKey]
-  , committeeHotKeys        :: ![VerificationKeyOrHashOrFile CommitteeHotKey]
+  , committeeColdKeys       :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey]
+  , committeeHotKeys        :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey]
   , memberStatuses          :: ![MemberStatus]
   , target                  :: !(Consensus.Target ChainPoint)
   , mOutFile                :: !(Maybe (File () Out))

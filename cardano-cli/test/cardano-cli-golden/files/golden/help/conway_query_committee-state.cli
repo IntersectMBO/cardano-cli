@@ -7,10 +7,12 @@ Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
                                                   [ --cold-verification-key STRING
                                                   | --cold-verification-key-file FILE
                                                   | --cold-verification-key-hash STRING
+                                                  | --cold-script-hash HASH
                                                   ]
                                                   [ --hot-key STRING
                                                   | --hot-key-file FILE
                                                   | --hot-key-hash STRING
+                                                  | --hot-script-hash HASH
                                                   ]
                                                   [ --active
                                                   | --expired
@@ -43,9 +45,15 @@ Available options:
                            Filepath of the Consitutional Committee cold key.
   --cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
+  --cold-script-hash HASH  Cold Native or Plutus script file hash (hex-encoded).
+                           Obtain it with "cardano-cli conway governance hash
+                           script ...".
   --hot-key STRING         Constitutional Committee hot key (hex-encoded).
   --hot-key-file FILE      Filepath of the Consitutional Committee hot key.
   --hot-key-hash STRING    Constitutional Committee key hash (hex-encoded).
+  --hot-script-hash HASH   Hot Native or Plutus script file hash (hex-encoded).
+                           Obtain it with "cardano-cli conway governance hash
+                           script ...".
   --active                 Active committee members (members whose vote will
                            count during ratification)
   --expired                Expired committee members

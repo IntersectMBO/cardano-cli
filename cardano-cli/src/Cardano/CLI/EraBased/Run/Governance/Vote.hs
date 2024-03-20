@@ -62,15 +62,15 @@ runGovernanceVoteCreateCmd
   shelleyBasedEraConstraints sbe $ do
     voter <- firstExceptT  GovernanceVoteCmdReadVerificationKeyError $ case votingStakeCredentialSource of
       AnyDRepVerificationKeyOrHashOrFile stake -> do
-        DRepKeyHash h <- newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsDRepKey stake
+        DRepKeyHash h <- readVerificationKeyOrHashOrTextEnvFile AsDRepKey stake
         pure $ L.DRepVoter $ L.KeyHashObj h
 
       AnyStakePoolVerificationKeyOrHashOrFile stake -> do
-        StakePoolKeyHash h <- newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
+        StakePoolKeyHash h <- readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
         pure $ L.StakePoolVoter h
 
       AnyCommitteeHotVerificationKeyOrHashOrFile stake -> do
-        CommitteeHotKeyHash h <-  newExceptT $ readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey stake
+        CommitteeHotKeyHash h <- readVerificationKeyOrHashOrTextEnvFile AsCommitteeHotKey stake
         pure $ L.CommitteeVoter $ L.KeyHashObj h
 
     let govActIdentifier = createGovernanceActionId govActionTxId govActionIndex

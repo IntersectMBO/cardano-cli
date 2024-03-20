@@ -45,7 +45,7 @@ runGovernanceCommitteeKeyGenCold
       { Cmd.vkeyOutFile = vkeyPath
       , Cmd.skeyOutFile = skeyPath
       } = do
-  skey <- liftIO $ generateSigningKey AsCommitteeColdKey
+  skey <- generateSigningKey AsCommitteeColdKey
 
   let vkey = getVerificationKey skey
 
@@ -71,7 +71,7 @@ runGovernanceCommitteeKeyGenHot
       , Cmd.vkeyOutFile = vkeyPath
       , Cmd.skeyOutFile = skeyPath
       } = do
-  skey <- liftIO $ generateSigningKey AsCommitteeHotKey
+  skey <- generateSigningKey AsCommitteeHotKey
 
   let vkey = getVerificationKey skey
 
@@ -146,10 +146,10 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
     let mapError' = modifyError $ either GovernanceCommitteeCmdScriptReadError  GovernanceCommitteeCmdKeyReadError
     hotCred <-
       mapError' $
-        readVerificationKeyOrHashOrFileOrScript AsCommitteeHotKey (\(CommitteeHotKeyHash kh) -> kh) vkeyHotKeySource
+        readVerificationKeyOrHashOrFileOrScript AsCommitteeHotKey unCommitteeHotKeyHash vkeyHotKeySource
     coldCred <-
       mapError' $
-        readVerificationKeyOrHashOrFileOrScript AsCommitteeColdKey (\(CommitteeColdKeyHash kh) -> kh) vkeyColdKeySource
+        readVerificationKeyOrHashOrFileOrScript AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
 
     makeCommitteeHotKeyAuthorizationCertificate (CommitteeHotKeyAuthorizationRequirements eon coldCred hotCred)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)
@@ -165,19 +165,18 @@ runGovernanceCommitteeColdKeyResignationCertificate :: ()
   -> ExceptT GovernanceCommitteeError IO ()
 runGovernanceCommitteeColdKeyResignationCertificate
     Cmd.GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
-      { Cmd.eon               = w
-      , Cmd.vkeyColdKeySource = coldVkOrHashOrFp
-      , Cmd.anchor            = anchor
-      , Cmd.outFile           = oFp
+      { Cmd.eon
+      , Cmd.vkeyColdKeySource
+      , Cmd.anchor
+      , Cmd.outFile
       } =
-  conwayEraOnwardsConstraints w $ do
-    CommitteeColdKeyHash coldVKHash <-
-      lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey coldVkOrHashOrFp)
-        & onLeft (left . GovernanceCommitteeCmdKeyReadError)
+  conwayEraOnwardsConstraints eon $ do
+    coldVKeyCred <- modifyError GovernanceCommitteeCmdKeyReadError $
+      readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
 
-    makeCommitteeColdkeyResignationCertificate (CommitteeColdkeyResignationRequirements w coldVKHash anchor)
+    makeCommitteeColdkeyResignationCertificate (CommitteeColdkeyResignationRequirements eon coldVKeyCred anchor)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)
-      & writeLazyByteStringFile oFp
+      & writeLazyByteStringFile outFile
       & firstExceptT GovernanceCommitteeCmdTextEnvWriteError . newExceptT
 
   where

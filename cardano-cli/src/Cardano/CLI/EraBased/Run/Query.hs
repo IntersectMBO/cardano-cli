@@ -1223,14 +1223,14 @@ runQueryLeadershipScheduleCmd
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-  poolid <- lift (readVerificationKeyOrHashOrFile AsStakePoolKey poolColdVerKeyFile)
-    & onLeft (left . QueryCmdTextReadError)
+  poolid <- modifyError QueryCmdTextReadError $
+    readVerificationKeyOrHashOrFile AsStakePoolKey poolColdVerKeyFile
 
-  vrkSkey <- lift (readFileTextEnvelope (AsSigningKey AsVrfKey) vrkSkeyFp)
-    & onLeft (left . QueryCmdTextEnvelopeReadError)
+  vrkSkey <- modifyError QueryCmdTextEnvelopeReadError . hoistIOEither $
+    readFileTextEnvelope (AsSigningKey AsVrfKey) vrkSkeyFp
 
-  shelleyGenesis <- lift (readAndDecodeGenesisFile @(ShelleyGenesis StandardCrypto) genFile)
-    & onLeft (left . QueryCmdGenesisReadError)
+  shelleyGenesis <- modifyError QueryCmdGenesisReadError . hoistIOEither $
+    readAndDecodeGenesisFile @(ShelleyGenesis StandardCrypto) genFile
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
@@ -1493,11 +1493,11 @@ runQueryCommitteeMembersState
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
   let coldKeysFromVerKeyHashOrFile =
-        firstExceptT QueryCmdCommitteeColdKeyError . getCommitteeColdCredentialFromVerKeyHashOrFile
+        modifyError QueryCmdCommitteeColdKeyError . readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash
   coldKeys <- Set.fromList <$> mapM coldKeysFromVerKeyHashOrFile coldCredKeys
 
   let hotKeysFromVerKeyHashOrFile =
-        firstExceptT QueryCmdCommitteeHotKeyError . getCommitteeHotCredentialFromVerKeyHashOrFile
+        modifyError QueryCmdCommitteeHotKeyError . readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeHotKey unCommitteeHotKeyHash
   hotKeys <- Set.fromList <$> mapM hotKeysFromVerKeyHashOrFile hotCredKeys
 
   committeeState <- runQuery localNodeConnInfo target $

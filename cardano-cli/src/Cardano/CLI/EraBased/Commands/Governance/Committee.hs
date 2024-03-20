@@ -60,7 +60,7 @@ data GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era =
 data GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era =
   GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
     { eon               :: !(ConwayEraOnwards era)
-    , vkeyColdKeySource :: !(VerificationKeyOrHashOrFile CommitteeColdKey)
+    , vkeyColdKeySource :: !(VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
     , anchor            :: !(Maybe (L.Anchor (L.EraCrypto (ShelleyLedgerEra era))))
     , outFile           :: !(File () Out)
     } deriving Show

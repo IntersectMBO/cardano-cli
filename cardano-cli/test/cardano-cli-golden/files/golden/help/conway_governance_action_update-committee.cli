@@ -14,11 +14,13 @@ Usage: cardano-cli conway governance action update-committee
                                                                [ --remove-cc-cold-verification-key STRING
                                                                | --remove-cc-cold-verification-key-file FILE
                                                                | --remove-cc-cold-verification-key-hash STRING
+                                                               | --remove-cc-cold-script-hash HASH
                                                                ]
                                                                [
                                                                  ( --add-cc-cold-verification-key STRING
                                                                  | --add-cc-cold-verification-key-file FILE
                                                                  | --add-cc-cold-verification-key-hash STRING
+                                                                 | --add-cc-cold-script-hash HASH
                                                                  )
                                                                  --epoch NATURAL]
                                                                --quorum RATIONAL
@@ -52,12 +54,20 @@ Available options:
                            Filepath of the Consitutional Committee cold key.
   --remove-cc-cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
+  --remove-cc-cold-script-hash HASH
+                           Cold Native or Plutus script file hash (hex-encoded).
+                           Obtain it with "cardano-cli conway governance hash
+                           script ...".
   --add-cc-cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
   --add-cc-cold-verification-key-file FILE
                            Filepath of the Consitutional Committee cold key.
   --add-cc-cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
+  --add-cc-cold-script-hash HASH
+                           Cold Native or Plutus script file hash (hex-encoded).
+                           Obtain it with "cardano-cli conway governance hash
+                           script ...".
   --epoch NATURAL          Committee member expiry epoch
   --quorum RATIONAL        Quorum of the committee that is necessary for a
                            successful vote.

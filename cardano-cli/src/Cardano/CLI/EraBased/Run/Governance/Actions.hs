@@ -25,8 +25,7 @@ import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad
-import           Data.Function
-import qualified Data.Map.Strict as Map
+import           GHC.Exts (IsList (..))
 
 runGovernanceActionCmds :: ()
   => GovernanceActionCmds era
@@ -41,8 +40,8 @@ runGovernanceActionCmds = \case
   GovernanceActionTreasuryWithdrawalCmd args ->
     runGovernanceActionTreasuryWithdrawalCmd args
 
-  GoveranceActionUpdateCommitteeCmd args ->
-    runGovernanceActionCreateNewCommitteeCmd args
+  GovernanceActionUpdateCommitteeCmd args ->
+    runGovernanceActionUpdateCommitteeCmd args
 
   GovernanceActionCreateNoConfidenceCmd args ->
     runGovernanceActionCreateNoConfidenceCmd args
@@ -189,11 +188,11 @@ runGovernanceActionCreateConstitutionCmd
 
 -- TODO: Conway era - After ledger bump update this function
 -- with the new ledger types
-runGovernanceActionCreateNewCommitteeCmd :: ()
-  => GoveranceActionUpdateCommitteeCmdArgs era
+runGovernanceActionUpdateCommitteeCmd :: ()
+  => GovernanceActionUpdateCommitteeCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
-runGovernanceActionCreateNewCommitteeCmd
-    Cmd.GoveranceActionUpdateCommitteeCmdArgs
+runGovernanceActionUpdateCommitteeCmd
+    Cmd.GovernanceActionUpdateCommitteeCmdArgs
       { Cmd.eon
       , Cmd.networkId
       , Cmd.deposit
@@ -218,12 +217,12 @@ runGovernanceActionCreateNewCommitteeCmd
         }
 
   oldCommitteeKeyHashes <- forM oldCommitteeVkeySource $ \vkeyOrHashOrTextFile ->
-    lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey vkeyOrHashOrTextFile)
-      & onLeft (left . GovernanceActionsCmdReadFileError)
+    modifyError GovernanceActionsCmdReadFileError $
+      readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
 
   newCommitteeKeyHashes <- forM newCommitteeVkeySource $ \(vkeyOrHashOrTextFile, expEpoch) -> do
-    kh <- lift (readVerificationKeyOrHashOrTextEnvFile AsCommitteeColdKey vkeyOrHashOrTextFile)
-      & onLeft (left . GovernanceActionsCmdReadFileError)
+    kh <- modifyError GovernanceActionsCmdReadFileError $
+      readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyOrHashOrTextFile
     pure (kh, expEpoch)
 
   depositStakeCredential
@@ -233,7 +232,7 @@ runGovernanceActionCreateNewCommitteeCmd
   let proposeNewCommittee = ProposeNewCommittee
                               govActIdentifier
                               oldCommitteeKeyHashes
-                              (Map.fromList newCommitteeKeyHashes)
+                              (fromList newCommitteeKeyHashes)
                               quorumRational
       proposal = createProposalProcedure sbe networkId deposit depositStakeCredential proposeNewCommittee proposalAnchor
 
@@ -316,8 +315,8 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
 
 readStakeKeyHash :: VerificationKeyOrHashOrFile StakeKey -> ExceptT GovernanceActionsError IO (Hash StakeKey)
 readStakeKeyHash stake =
-  firstExceptT GovernanceActionsCmdReadFileError
-    . newExceptT $ readVerificationKeyOrHashOrFile AsStakeKey stake
+  modifyError GovernanceActionsCmdReadFileError $
+    readVerificationKeyOrHashOrFile AsStakeKey stake
 
 addCostModelsToEraBasedProtocolParametersUpdate
   :: AlonzoEraOnwards era
