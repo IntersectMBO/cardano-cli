@@ -6,7 +6,8 @@ Usage: cardano-cli conway query drep-state --socket-path SOCKET_PATH
                                              )
                                              ( --all-dreps
                                              | 
-                                             ( --drep-verification-key STRING
+                                             ( --drep-script-hash HASH
+                                             | --drep-verification-key STRING
                                              | --drep-verification-key-file FILE
                                              | --drep-key-hash HASH
                                              )
@@ -32,6 +33,8 @@ Available options:
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --all-dreps              Query for all DReps.
+  --drep-script-hash HASH  DRep script hash (hex-encoded). Obtain it with
+                           "cardano-cli conway governance hash script ...".
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).
   --drep-verification-key-file FILE

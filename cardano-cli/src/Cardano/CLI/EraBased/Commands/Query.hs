@@ -207,7 +207,7 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
   , nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , drepKeys            :: !(AllOrOnly (VerificationKeyOrHashOrFile DRepKey))
+  , drepHashSources     :: !(AllOrOnly DRepHashSource)
   , includeStake        :: !IncludeStake
   , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
@@ -223,7 +223,7 @@ data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   , nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , drepKeys            :: !(AllOrOnly (VerificationKeyOrHashOrFile DRepKey))
+  , drepHashSources     :: !(AllOrOnly DRepHashSource)
   , target              :: !(Consensus.Target ChainPoint)
   , mOutFile            :: !(Maybe (File () Out))
   } deriving Show
