@@ -1,5 +1,63 @@
 # Changelog for cardano-cli
 
+## 8.21.0.0
+
+- vote create: support DRep and CC script hash
+  (feature, compatible)
+  [PR 665](https://github.com/IntersectMBO/cardano-cli/pull/665)
+
+- Add Plutus script hash support in `update-committee`, `overnance committee create-cold-key-resignation-certificate` and `query committee-state` commands.
+  (feature, improvement)
+  [PR 658](https://github.com/IntersectMBO/cardano-cli/pull/658)
+
+- verification-key: support DRep keys as well as committee keys, extended or not
+  (feature, compatible, bugfix)
+  [PR 652](https://github.com/IntersectMBO/cardano-cli/pull/652)
+
+- Fix calculate-min-fee by switching to use Cardano.Api.evaluateTransactionFee
+  instead of the deprecated Cardano.Api.estimateTransactionFee.
+  This also deprecates the --mainnet, --testnet-magic, --tx-in-count,
+  and --tx-out-count command args, which are no longer necessary.
+  They can still be provided, but have no effect.
+  (feature, improvement, bugfix, test)
+  [PR 642](https://github.com/IntersectMBO/cardano-cli/pull/642)
+
+- Modified `create-testnet-data` option so that it registers DReps generated and delegates stake delegators to them. Also introduced transient drep delegation and refactored existing code so that more is reused.
+  (feature, improvement)
+  [PR 646](https://github.com/IntersectMBO/cardano-cli/pull/646)
+
+- Extend committee `create-hot-key-authorization-certificate` to support scripts
+  (feature, compatible, improvement)
+  [PR 641](https://github.com/IntersectMBO/cardano-cli/pull/641)
+
+- query leadership: add --output-[json,text] flag to control format of the output. Previous behavior is preserved (write text to stdout, write json to file)
+  (feature, compatible)
+  [PR 649](https://github.com/IntersectMBO/cardano-cli/pull/649)
+
+- Update [cardano-api-8.40.0.0](https://github.com/IntersectMBO/cardano-api/blob/main/cardano-api/CHANGELOG.md#84000)
+  (improvement)
+  [PR 648](https://github.com/IntersectMBO/cardano-cli/pull/648)
+
+- create-testnet-data: fix that treasury could be unexpectedly negative
+  (breaking, improvement, bugfix)
+  [PR 644](https://github.com/IntersectMBO/cardano-cli/pull/644)
+
+- create-testnet-data: fixes that amount of delegated coins was incorrect
+  (breaking, bugfix)
+  [PR 638](https://github.com/IntersectMBO/cardano-cli/pull/638)
+
+- Allow an output file to be specified for the various versions of query pool-state
+  (compatible, improvement)
+  [PR 635](https://github.com/IntersectMBO/cardano-cli/pull/635)
+
+- create-testnet-data: allow to specify relays for SPOs (like create-staked)
+  (feature, compatible)
+  [PR 632](https://github.com/IntersectMBO/cardano-cli/pull/632)
+
+- Bump cardano-ping version
+  (compatible)
+  [PR 633](https://github.com/IntersectMBO/cardano-cli/pull/633)
+
 ## 8.20.3.0
 
 - Update cardano-api-8.39.2, ouroboros-consensus-0.16, ouroboros-consensus-cardano-0.14
