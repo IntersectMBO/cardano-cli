@@ -7,7 +7,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Key (DRepHashSource, VerificationKeyOrFile,
-                   VerificationKeyOrHashOrFile)
+                   VerificationKeyOrHashOrFile, VerificationKeyOrHashOrFileOrScriptHash)
 
 import           Data.Word
 
@@ -29,18 +29,11 @@ data VType = VCC -- committee
            | VSP -- spo
            deriving Show
 
-data AnyVotingStakeVerificationKeyOrHashOrFile where
-  AnyDRepVerificationKeyOrHashOrFile
-    :: VerificationKeyOrHashOrFile DRepKey
-    -> AnyVotingStakeVerificationKeyOrHashOrFile
-
-  AnyStakePoolVerificationKeyOrHashOrFile
-    :: VerificationKeyOrHashOrFile StakePoolKey
-    -> AnyVotingStakeVerificationKeyOrHashOrFile
-
-  AnyCommitteeHotVerificationKeyOrHashOrFile
-    :: VerificationKeyOrHashOrFile CommitteeHotKey
-    -> AnyVotingStakeVerificationKeyOrHashOrFile
+-- | Possible credentials for creating a vote
+data AnyVotingStakeVerificationKeyOrHashOrFile =
+    AnyDRepVerificationKeyOrHashOrFileOrScriptHash (VerificationKeyOrHashOrFileOrScriptHash DRepKey)
+  | AnyStakePoolVerificationKeyOrHashOrFile (VerificationKeyOrHashOrFile StakePoolKey)
+  | AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash (VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey)
 
 data VoteDelegationTarget
   = VoteDelegationTargetOfDRep DRepHashSource
