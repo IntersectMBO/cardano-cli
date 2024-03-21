@@ -29,7 +29,7 @@ data GovernanceHashAnchorDataCmdArgs era
   } deriving Show
 
 data GovernanceAnchorDataHashSource
-  = GovernanceAnchorDataHashSourceBinaryFile (File ProposalText In)
+  = GovernanceAnchorDataHashSourceBinaryFile (File ProposalBinary In)
   | GovernanceAnchorDataHashSourceTextFile (File ProposalText In)
   | GovernanceAnchorDataHashSourceText Text
   deriving Show
