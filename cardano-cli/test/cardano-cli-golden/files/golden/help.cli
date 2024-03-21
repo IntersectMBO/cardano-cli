@@ -6504,12 +6504,14 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    ( --drep-verification-key STRING
                                                    | --drep-verification-key-file FILE
                                                    | --drep-key-hash HASH
+                                                   | --drep-script-hash HASH
                                                    | --stake-pool-verification-key STRING
                                                    | --cold-verification-key-file FILE
                                                    | --stake-pool-id STAKE_POOL_ID
                                                    | --cc-hot-verification-key STRING
                                                    | --cc-hot-verification-key-file FILE
                                                    | --cc-hot-key-hash STRING
+                                                   | --cc-hot-script-hash HASH
                                                    )
                                                    [--anchor-url TEXT
                                                      --anchor-data-hash HASH]
