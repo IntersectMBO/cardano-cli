@@ -147,6 +147,7 @@ library
                         Cardano.CLI.Run.Ping
                         Cardano.CLI.TopHandler
                         Cardano.CLI.Types.Common
+                        Cardano.CLI.Types.MonadWarning
                         Cardano.CLI.Types.Errors.AddressCmdError
                         Cardano.CLI.Types.Errors.AddressInfoError
                         Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -299,6 +300,7 @@ test-suite cardano-cli-test
                       , tasty-hedgehog
                       , text
                       , time
+                      , transformers
 
   build-tool-depends:   tasty-discover:tasty-discover
 
@@ -309,6 +311,7 @@ test-suite cardano-cli-test
                         Test.Cli.Governance.Hash
                         Test.Cli.ITN
                         Test.Cli.JSON
+                        Test.Cli.MonadWarning
                         Test.Cli.Pioneers.Exercise1
                         Test.Cli.Pioneers.Exercise2
                         Test.Cli.Pioneers.Exercise3
