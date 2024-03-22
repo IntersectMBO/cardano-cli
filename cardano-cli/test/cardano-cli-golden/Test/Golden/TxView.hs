@@ -4,6 +4,7 @@ module Test.Golden.TxView
   ( hprop_golden_view_shelley_yaml
   , hprop_golden_view_allegra_yaml
   , hprop_golden_view_mary_yaml
+  , hprop_golden_view_redeemer
   , hprop_golden_view_alonzo_yaml
   , hprop_golden_view_alonzo_signed_yaml
   ) where
@@ -247,6 +248,38 @@ hprop_golden_view_mary_yaml =
       execCardanoCLI
         ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
     H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/mary/transaction-view.out"
+
+hprop_golden_view_redeemer :: Property
+hprop_golden_view_redeemer = do
+  propertyOnce $
+    moduleWorkspace "tmp" $ \tempDir -> do
+      transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
+      scriptTxBody transactionBodyFile
+
+      -- View transaction body
+      result <-
+        execCardanoCLI
+          ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
+
+      H.diffVsGoldenFile result "test/cardano-cli-golden/files/golden/babbage/transaction-view-redeemer.out"
+  where
+  scriptTxBody :: FilePath -> Integration ()
+  scriptTxBody transactionBodyFile =
+      void $ execCardanoCLI
+        [ "babbage", "transaction", "build-raw"
+        , "--tx-in"
+        ,   "ed7c8f68c194cc763ee65ad22ef0973e26481be058c65005fd39fb93f9c43a20#213"
+        , "--tx-in-datum-value", "6666"
+        , "--tx-in-redeemer-value", "42"
+        , "--tx-in-script-file", "test/cardano-cli-golden/files/input/AlwaysSucceeds.plutus"
+        , "--tx-in-execution-units", "(100, 200)"
+        , "--tx-in-collateral"
+        ,   "c9765d7d0e3955be8920e6d7a38e1f3f2032eac48c7c59b0b9193caa87727e7e#256"
+        , "--protocol-params-file"
+        ,   "test/cardano-cli-golden/files/input/babbage/transaction-calculate-min-fee/protocol-params.json"
+        , "--fee", "213"
+        , "--out-file", transactionBodyFile
+        ]
 
 createAlonzoTxBody :: Maybe FilePath -> FilePath -> Integration ()
 createAlonzoTxBody mUpdateProposalFile transactionBodyFile = do
