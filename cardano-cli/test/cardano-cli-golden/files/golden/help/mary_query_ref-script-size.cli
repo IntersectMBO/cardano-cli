@@ -1,0 +1,34 @@
+Usage: cardano-cli mary query ref-script-size --socket-path SOCKET_PATH
+                                                [--cardano-mode
+                                                  [--epoch-slots SLOTS]]
+                                                (--tx-in TX-IN)
+                                                ( --mainnet
+                                                | --testnet-magic NATURAL
+                                                )
+                                                [--output-json | --output-text]
+                                                [--out-file FILE]
+
+  Calculate the reference input scripts size in bytes for provided transaction
+  inputs.
+
+Available options:
+  --socket-path SOCKET_PATH
+                           Path to the node socket. This overrides the
+                           CARDANO_NODE_SOCKET_PATH environment variable. The
+                           argument is optional if CARDANO_NODE_SOCKET_PATH is
+                           defined and mandatory otherwise.
+  --cardano-mode           For talking to a node running in full Cardano mode
+                           (default).
+  --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
+                           (default: 21600)
+  --tx-in TX-IN            Transaction input (TxId#TxIx).
+  --mainnet                Use the mainnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --output-json            Format reference inputs query output to JSON. Default
+                           format when writing to a file
+  --output-text            Format reference inputs query output to TEXT. Default
+                           format when writing to stdout
+  --out-file FILE          Optional output file. Default is to write to stdout.
+  -h,--help                Show this help text
