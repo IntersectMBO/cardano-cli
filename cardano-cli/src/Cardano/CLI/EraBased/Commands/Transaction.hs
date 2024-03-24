@@ -12,6 +12,7 @@ module Cardano.CLI.EraBased.Commands.Transaction
   , TransactionSubmitCmdArgs(..)
   , TransactionPolicyIdCmdArgs(..)
   , TransactionCalculateMinFeeCmdArgs(..)
+  , TransactionCalculateMinFee2CmdArgs(..)
   , TransactionCalculateMinValueCmdArgs(..)
   , TransactionHashScriptDataCmdArgs(..)
   , TransactionTxIdCmdArgs(..)
@@ -37,6 +38,7 @@ data TransactionCmds era
   | TransactionSubmitCmd              !TransactionSubmitCmdArgs
   | TransactionPolicyIdCmd            !TransactionPolicyIdCmdArgs
   | TransactionCalculateMinFeeCmd     !TransactionCalculateMinFeeCmdArgs
+  | TransactionCalculateMinFee2Cmd    !(TransactionCalculateMinFee2CmdArgs era)
   | TransactionCalculateMinValueCmd   !(TransactionCalculateMinValueCmdArgs era)
   | TransactionHashScriptDataCmd      !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd                !TransactionTxIdCmdArgs
@@ -165,6 +167,25 @@ data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
   , txByronWitnessCount   :: !TxByronWitnessCount
   } deriving Show
 
+data TransactionCalculateMinFee2CmdArgs era = TransactionCalculateMinFee2CmdArgs
+  { eon                     :: !(ShelleyBasedEra era)
+  , nodeSocketPath          :: !SocketPath
+  , consensusModeParams     :: !ConsensusModeParams
+  , networkId               :: !NetworkId
+  , txBodyFile              :: !(TxBodyFile In)
+  , protocolParamsFile      :: !ProtocolParamsFile
+  , txIns                   :: ![(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]                 -- ^ Transaction inputs with optional spending scripts
+  , readOnlyReferenceInputs :: ![TxIn]                                                          -- ^ Read only reference inputs
+  , txinsc                  :: ![TxIn]                                                          -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
+  , mValue                  :: !(Maybe (Value, [ScriptWitnessFiles WitCtxMint]))                -- ^ Multi-Asset value with script witness
+  , certificates            :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]     -- ^ Certificates with potential script witness
+  , withdrawals             :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]  -- ^ Withdrawals with potential script witness
+  , voteFiles               :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , proposalFiles           :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , txShelleyWitnessCount   :: !TxShelleyWitnessCount
+  , txByronWitnessCount     :: !TxByronWitnessCount
+  } deriving Show
+
 data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdArgs
   { eon                 :: !(ShelleyBasedEra era)
   , protocolParamsFile  :: !ProtocolParamsFile
@@ -195,6 +216,7 @@ renderTransactionCmds = \case
   TransactionSubmitCmd                    {} -> "transaction submit"
   TransactionPolicyIdCmd                  {} -> "transaction policyid"
   TransactionCalculateMinFeeCmd           {} -> "transaction calculate-min-fee"
+  TransactionCalculateMinFee2Cmd          {} -> "transaction calculate-min-fee-2"
   TransactionCalculateMinValueCmd         {} -> "transaction calculate-min-value"
   TransactionHashScriptDataCmd            {} -> "transaction hash-script-data"
   TransactionTxIdCmd                      {} -> "transaction txid"
