@@ -78,6 +78,10 @@ pTransactionCmds era envCli =
         $ subParser "calculate-min-fee"
         $ Opt.info pTransactionCalculateMinFee
         $ Opt.progDesc "Calculate the minimum fee for a transaction."
+    , Just
+        $ subParser "calculate-min-fee-2"
+        $ Opt.info (pTransactionCalculateMinFee2 era envCli)
+        $ Opt.progDesc "Calculate the minimum fee for a transaction."
     , Just $ subParser "calculate-min-required-utxo"
            $ Opt.info (pTransactionCalculateMinReqUTxO era)
            $ Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
@@ -266,6 +270,29 @@ pTransactionCalculateMinFee =
     TransactionCalculateMinFeeCmdArgs
       <$> pTxBodyFileIn
       <*> pProtocolParamsFile
+      <*> pTxShelleyWitnessCount
+      <*> pTxByronWitnessCount
+      -- Deprecated options:
+      <*  optional pTxInCountDeprecated
+      <*  optional pTxOutCountDeprecated
+
+pTransactionCalculateMinFee2 :: ShelleyBasedEra era -> EnvCli ->  Parser (TransactionCmds era)
+pTransactionCalculateMinFee2 sbe envCli =
+  fmap TransactionCalculateMinFee2Cmd $
+    TransactionCalculateMinFee2CmdArgs sbe
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> pTxBodyFileIn
+      <*> pProtocolParamsFile
+      <*> some (pTxIn ManualBalance)
+      <*> many pReadOnlyReferenceTxIn
+      <*> many pTxInCollateral
+      <*> optional (pMintMultiAsset ManualBalance)
+      <*> many (pCertificateFile ManualBalance)
+      <*> many (pWithdrawal ManualBalance)
+      <*> pVoteFiles sbe ManualBalance
+      <*> pProposalFiles sbe ManualBalance
       <*> pTxShelleyWitnessCount
       <*> pTxByronWitnessCount
       -- Deprecated options:

@@ -82,6 +82,7 @@ runTransactionCmds = \case
   Cmd.TransactionSignCmd              args -> runTransactionSignCmd args
   Cmd.TransactionSubmitCmd            args -> runTransactionSubmitCmd args
   Cmd.TransactionCalculateMinFeeCmd   args -> runTransactionCalculateMinFeeCmd args
+  Cmd.TransactionCalculateMinFee2Cmd  args -> runTransactionCalculateMinFee2Cmd args
   Cmd.TransactionCalculateMinValueCmd args -> runTransactionCalculateMinValueCmd args
   Cmd.TransactionHashScriptDataCmd    args -> runTransactionHashScriptDataCmd args
   Cmd.TransactionTxIdCmd              args -> runTransactionTxIdCmd args
@@ -1042,7 +1043,110 @@ runTransactionCalculateMinFeeCmd
 
   let L.Coin fee = shelleyfee + byronfee
 
-  liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
+  liftIO . putStrLn . docToString $ pretty fee
+
+runTransactionCalculateMinFee2Cmd :: forall era. ()
+  => Cmd.TransactionCalculateMinFee2CmdArgs era
+  -> ExceptT TxCmdError IO ()
+runTransactionCalculateMinFee2Cmd
+    Cmd.TransactionCalculateMinFee2CmdArgs
+      { eon
+      , nodeSocketPath
+      , consensusModeParams
+      , networkId
+      , txBodyFile = File txbodyFilePath
+      , protocolParamsFile
+      , txIns
+      , readOnlyReferenceInputs
+      , txinsc
+      , mValue
+      , certificates
+      , withdrawals
+      , voteFiles
+      , proposalFiles
+      , txShelleyWitnessCount = TxShelleyWitnessCount nShelleyKeyWitnesses
+      , txByronWitnessCount = TxByronWitnessCount nByronKeyWitnesses
+      } = do
+
+  let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+
+  txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
+  unwitnessed <-
+    firstExceptT TxCmdCddlError . newExceptT
+      $ readFileTxBody txbodyFile
+  pparams <-
+    firstExceptT TxCmdProtocolParamsError
+      $ readProtocolParameters protocolParamsFile
+
+  let nShelleyKeyWitW32 = fromIntegral nShelleyKeyWitnesses
+
+  InAnyShelleyBasedEra sbe txbody <- case unwitnessed of
+    IncompleteCddlFormattedTx (InAnyShelleyBasedEra sbe unwitTx) -> do
+      pure $ InAnyShelleyBasedEra sbe $ getTxBody unwitTx
+
+    UnwitnessedCliFormattedTxBody (InAnyShelleyBasedEra sbe txbody) -> do
+      pure $ InAnyShelleyBasedEra sbe txbody
+
+  lpparams <- getLedgerPParams sbe pparams
+
+  -- The same collateral input can be used for several plutus scripts
+  let filteredTxinsc = Set.toList $ Set.fromList txinsc
+
+  inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles eon txIns
+
+  certFilesAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles eon certificates
+
+  certsAndMaybeScriptWits <-
+    shelleyBasedEraConstraints eon $
+      sequence
+        [ fmap (,mSwit) (firstExceptT TxCmdReadTextViewFileError . newExceptT $
+            readFileTextEnvelope AsCertificate (File certFile))
+        | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
+        ]
+
+  valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
+
+  votingProceduresAndMaybeScriptWits <-
+    inEonForEra
+      (pure mempty)
+      (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w voteFiles))
+      (shelleyBasedToCardanoEra eon)
+
+  withdrawalsAndMaybeScriptWits <- readScriptWitnessFilesTuple eon withdrawals
+     & firstExceptT TxCmdScriptWitnessError
+
+  proposals <-
+    lift (readTxGovernanceActions eon proposalFiles)
+      & onLeft (left . TxCmdProposalError)
+
+  let allReferenceInputs = getAllReferenceInputs
+                             inputsAndMaybeScriptWits
+                             (snd valuesWithScriptWits)
+                             certsAndMaybeScriptWits
+                             withdrawalsAndMaybeScriptWits
+                             votingProceduresAndMaybeScriptWits
+                             proposals
+                             readOnlyReferenceInputs
+
+  let inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
+
+  let allTxIns = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
+
+  utxo <- lift
+    ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ do
+        queryUtxo sbe (QueryUTxOByTxIn (Set.fromList allTxIns))
+    )
+    & onLeft (left . TxCmdAcquireFailure)
+    & onLeft (left . TxCmdUnsupportedNtcVersion)
+    & onLeft (left . TxCmdTxSubmitErrorEraMismatch)
+
+  let shelleyfee = calculateMinTxFee sbe lpparams utxo txbody nShelleyKeyWitW32
+
+  let byronfee = calculateByronWitnessFees (protocolParamTxFeePerByte pparams) nByronKeyWitnesses
+
+  let L.Coin fee = shelleyfee + byronfee
+
+  liftIO . putStrLn . docToString $ pretty fee
 
 getLedgerPParams :: forall era. ()
   => ShelleyBasedEra era
