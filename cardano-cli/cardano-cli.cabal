@@ -201,7 +201,7 @@ library
                       , cardano-crypto-class ^>= 2.1.2
                       , cardano-crypto-wrapper ^>= 1.5.1
                       , cardano-data >= 1.1
-                      , cardano-git-rev ^>= 0.2.1
+                      , cardano-git-rev ^>= 0.2.2
                       , cardano-ledger-byron >= 1.0.0.2
                       , cardano-ping ^>= 0.2.0.13
                       , cardano-prelude
