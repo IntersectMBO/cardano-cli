@@ -59,7 +59,7 @@ data GovernanceDRepRegistrationCertificateCmdArgs era =
 data GovernanceDRepRetirementCertificateCmdArgs era =
   GovernanceDRepRetirementCertificateCmdArgs
     { eon             :: !(ConwayEraOnwards era)
-    , vkeyHashSource  :: !(VerificationKeyOrHashOrFile DRepKey)
+    , drepHashSource  :: !DRepHashSource
     , deposit         :: !L.Coin
     , outFile         :: !(File () Out)
     }

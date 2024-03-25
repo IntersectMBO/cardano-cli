@@ -136,7 +136,7 @@ pRetirementCertificateCmd era = do
     $ Opt.info
       ( fmap GovernanceDRepRetirementCertificateCmd $
           GovernanceDRepRetirementCertificateCmdArgs w
-            <$> pDRepVerificationKeyOrHashOrFile
+            <$> pDRepHashSource
             <*> pDrepDeposit
             <*> pOutputFile
       )

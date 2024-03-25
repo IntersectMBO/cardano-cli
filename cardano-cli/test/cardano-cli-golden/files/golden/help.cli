@@ -6449,7 +6449,8 @@ Usage: cardano-cli conway governance drep registration-certificate
   Create a registration certificate.
 
 Usage: cardano-cli conway governance drep retirement-certificate 
-                                                                   ( --drep-verification-key STRING
+                                                                   ( --drep-script-hash HASH
+                                                                   | --drep-verification-key STRING
                                                                    | --drep-verification-key-file FILE
                                                                    | --drep-key-hash HASH
                                                                    )
