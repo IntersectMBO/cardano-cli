@@ -429,6 +429,8 @@ runTxBuildRaw sbe
       <- createTxMintValue sbe valuesWithScriptWits
     validatedTxScriptValidity
       <- first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
+    validatedVotingProcedures
+      <- first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures
     let txBodyContent =
           TxBodyContent
             { txIns = validatedTxIns
@@ -450,7 +452,7 @@ runTxBuildRaw sbe
             , txMintValue = validatedMintValue
             , txScriptValidity = validatedTxScriptValidity
             , txProposalProcedures = forEraInEonMaybe era (`Featured` (shelleyBasedEraConstraints sbe $ convToTxProposalProcedures proposals))
-            , txVotingProcedures = forEraInEonMaybe era (`Featured` convertToTxVotingProcedures votingProcedures)
+            , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedVotingProcedures)
             }
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
 
@@ -528,6 +530,7 @@ runTxBuild
   validatedTxCerts <- hoistEither (first TxCmdTxCertificatesValidationError $ validateTxCertificates era certsAndMaybeScriptWits)
   validatedMintValue <- hoistEither $ createTxMintValue sbe valuesWithScriptWits
   validatedTxScriptValidity <- hoistEither (first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity)
+  validatedVotingProcedures <- hoistEither (first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures)
 
   let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
       localNodeConnInfo = LocalNodeConnectInfo
@@ -577,7 +580,7 @@ runTxBuild
           , txMintValue = validatedMintValue
           , txScriptValidity = validatedTxScriptValidity
           , txProposalProcedures = forEraInEonMaybe era (`Featured` convToTxProposalProcedures proposals)
-          , txVotingProcedures = forEraInEonMaybe era (`Featured` convertToTxVotingProcedures votingProcedures)
+          , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedVotingProcedures)
           }
 
   firstExceptT TxCmdTxInsDoNotExist
