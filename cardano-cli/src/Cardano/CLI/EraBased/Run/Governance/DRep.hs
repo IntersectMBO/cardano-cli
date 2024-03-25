@@ -127,16 +127,15 @@ runGovernanceDRepRetirementCertificateCmd :: ()
 runGovernanceDRepRetirementCertificateCmd
     Cmd.GovernanceDRepRetirementCertificateCmdArgs
       { eon = w
-      , vkeyHashSource
+      , drepHashSource
       , deposit
       , outFile
       } =
   conwayEraOnwardsConstraints w $ do
-    DRepKeyHash drepKeyHash <- firstExceptT GovernanceCmdKeyReadError
-      $ readVerificationKeyOrHashOrFile AsDRepKey vkeyHashSource
-    makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w (KeyHashObj drepKeyHash) deposit)
+    drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
+    makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w drepCredential deposit)
       & writeFileTextEnvelope outFile (Just genKeyDelegCertDesc)
-      & firstExceptT GovernanceCmdTextEnvWriteError . newExceptT
+      & modifyError GovernanceCmdTextEnvWriteError . newExceptT
 
   where
     genKeyDelegCertDesc :: TextEnvelopeDescr
