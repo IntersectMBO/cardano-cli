@@ -806,6 +806,7 @@ Usage: cardano-cli shelley transaction
                                          | submit
                                          | policyid
                                          | calculate-min-fee
+                                         | calculate-min-fee-2
                                          | calculate-min-required-utxo
                                          | hash-script-data
                                          | txid
@@ -1125,6 +1126,114 @@ Usage: cardano-cli shelley transaction calculate-min-fee --tx-body-file FILE
                                                            ]
                                                            [--tx-in-count NATURAL]
                                                            [--tx-out-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli shelley transaction calculate-min-fee-2 
+                                                             --socket-path SOCKET_PATH
+                                                             [--cardano-mode
+                                                               [--epoch-slots SLOTS]]
+                                                             ( --mainnet
+                                                             | --testnet-magic NATURAL
+                                                             )
+                                                             --tx-body-file FILE
+                                                             --protocol-params-file FILE
+                                                             (--tx-in TX-IN
+                                                               [ --spending-tx-in-reference TX-IN
+                                                                 ( --spending-plutus-script-v2
+                                                                 | --spending-plutus-script-v3
+                                                                 )
+                                                                 ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                                 | --spending-reference-tx-in-datum-file JSON FILE
+                                                                 | --spending-reference-tx-in-datum-value JSON VALUE
+                                                                 | --spending-reference-tx-in-inline-datum-present
+                                                                 )
+                                                                 ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --spending-reference-tx-in-execution-units (INT, INT)
+                                                               | --simple-script-tx-in-reference TX-IN
+                                                               | --tx-in-script-file FILE
+                                                                 [
+                                                                   ( --tx-in-datum-cbor-file CBOR FILE
+                                                                   | --tx-in-datum-file JSON FILE
+                                                                   | --tx-in-datum-value JSON VALUE
+                                                                   | --tx-in-inline-datum-present
+                                                                   )
+                                                                   ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                                   | --tx-in-redeemer-file JSON FILE
+                                                                   | --tx-in-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --tx-in-execution-units (INT, INT)]
+                                                               ])
+                                                             [--read-only-tx-in-reference TX-IN]
+                                                             [--tx-in-collateral TX-IN]
+                                                             [--mint VALUE
+                                                               ( --mint-script-file FILE
+                                                                 [
+                                                                   ( --mint-redeemer-cbor-file CBOR FILE
+                                                                   | --mint-redeemer-file JSON FILE
+                                                                   | --mint-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --mint-execution-units (INT, INT)]
+                                                               | --simple-minting-script-tx-in-reference TX-IN
+                                                                 --policy-id HASH
+                                                               | --mint-tx-in-reference TX-IN
+                                                                 ( --mint-plutus-script-v2
+                                                                 | --mint-plutus-script-v3
+                                                                 )
+                                                                 ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --mint-reference-tx-in-execution-units (INT, INT)
+                                                                 --policy-id HASH
+                                                               )]
+                                                             [
+                                                               --certificate-file FILE
+                                                               [ --certificate-script-file FILE
+                                                                 [
+                                                                   ( --certificate-redeemer-cbor-file CBOR FILE
+                                                                   | --certificate-redeemer-file JSON FILE
+                                                                   | --certificate-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --certificate-execution-units (INT, INT)]
+                                                               | --certificate-tx-in-reference TX-IN
+                                                                 ( --certificate-plutus-script-v2
+                                                                 | --certificate-plutus-script-v3
+                                                                 )
+                                                                 ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --certificate-reference-tx-in-execution-units (INT, INT)
+                                                               ]]
+                                                             [--withdrawal WITHDRAWAL
+                                                               [ --withdrawal-script-file FILE
+                                                                 [
+                                                                   ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                                   | --withdrawal-redeemer-file JSON FILE
+                                                                   | --withdrawal-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --withdrawal-execution-units (INT, INT)]
+                                                               | --withdrawal-tx-in-reference TX-IN
+                                                                 ( --withdrawal-plutus-script-v2
+                                                                 | --withdrawal-plutus-script-v3
+                                                                 )
+                                                                 ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                               ]]
+                                                             --witness-count NATURAL
+                                                             [--byron-witness-count NATURAL]
+                                                             [ --mainnet
+                                                             | --testnet-magic NATURAL
+                                                             ]
+                                                             [--tx-in-count NATURAL]
+                                                             [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -1978,6 +2087,7 @@ Usage: cardano-cli allegra transaction
                                          | submit
                                          | policyid
                                          | calculate-min-fee
+                                         | calculate-min-fee-2
                                          | calculate-min-required-utxo
                                          | hash-script-data
                                          | txid
@@ -2297,6 +2407,114 @@ Usage: cardano-cli allegra transaction calculate-min-fee --tx-body-file FILE
                                                            ]
                                                            [--tx-in-count NATURAL]
                                                            [--tx-out-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli allegra transaction calculate-min-fee-2 
+                                                             --socket-path SOCKET_PATH
+                                                             [--cardano-mode
+                                                               [--epoch-slots SLOTS]]
+                                                             ( --mainnet
+                                                             | --testnet-magic NATURAL
+                                                             )
+                                                             --tx-body-file FILE
+                                                             --protocol-params-file FILE
+                                                             (--tx-in TX-IN
+                                                               [ --spending-tx-in-reference TX-IN
+                                                                 ( --spending-plutus-script-v2
+                                                                 | --spending-plutus-script-v3
+                                                                 )
+                                                                 ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                                 | --spending-reference-tx-in-datum-file JSON FILE
+                                                                 | --spending-reference-tx-in-datum-value JSON VALUE
+                                                                 | --spending-reference-tx-in-inline-datum-present
+                                                                 )
+                                                                 ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --spending-reference-tx-in-execution-units (INT, INT)
+                                                               | --simple-script-tx-in-reference TX-IN
+                                                               | --tx-in-script-file FILE
+                                                                 [
+                                                                   ( --tx-in-datum-cbor-file CBOR FILE
+                                                                   | --tx-in-datum-file JSON FILE
+                                                                   | --tx-in-datum-value JSON VALUE
+                                                                   | --tx-in-inline-datum-present
+                                                                   )
+                                                                   ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                                   | --tx-in-redeemer-file JSON FILE
+                                                                   | --tx-in-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --tx-in-execution-units (INT, INT)]
+                                                               ])
+                                                             [--read-only-tx-in-reference TX-IN]
+                                                             [--tx-in-collateral TX-IN]
+                                                             [--mint VALUE
+                                                               ( --mint-script-file FILE
+                                                                 [
+                                                                   ( --mint-redeemer-cbor-file CBOR FILE
+                                                                   | --mint-redeemer-file JSON FILE
+                                                                   | --mint-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --mint-execution-units (INT, INT)]
+                                                               | --simple-minting-script-tx-in-reference TX-IN
+                                                                 --policy-id HASH
+                                                               | --mint-tx-in-reference TX-IN
+                                                                 ( --mint-plutus-script-v2
+                                                                 | --mint-plutus-script-v3
+                                                                 )
+                                                                 ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --mint-reference-tx-in-execution-units (INT, INT)
+                                                                 --policy-id HASH
+                                                               )]
+                                                             [
+                                                               --certificate-file FILE
+                                                               [ --certificate-script-file FILE
+                                                                 [
+                                                                   ( --certificate-redeemer-cbor-file CBOR FILE
+                                                                   | --certificate-redeemer-file JSON FILE
+                                                                   | --certificate-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --certificate-execution-units (INT, INT)]
+                                                               | --certificate-tx-in-reference TX-IN
+                                                                 ( --certificate-plutus-script-v2
+                                                                 | --certificate-plutus-script-v3
+                                                                 )
+                                                                 ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --certificate-reference-tx-in-execution-units (INT, INT)
+                                                               ]]
+                                                             [--withdrawal WITHDRAWAL
+                                                               [ --withdrawal-script-file FILE
+                                                                 [
+                                                                   ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                                   | --withdrawal-redeemer-file JSON FILE
+                                                                   | --withdrawal-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --withdrawal-execution-units (INT, INT)]
+                                                               | --withdrawal-tx-in-reference TX-IN
+                                                                 ( --withdrawal-plutus-script-v2
+                                                                 | --withdrawal-plutus-script-v3
+                                                                 )
+                                                                 ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                               ]]
+                                                             --witness-count NATURAL
+                                                             [--byron-witness-count NATURAL]
+                                                             [ --mainnet
+                                                             | --testnet-magic NATURAL
+                                                             ]
+                                                             [--tx-in-count NATURAL]
+                                                             [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -3143,6 +3361,7 @@ Usage: cardano-cli mary transaction
                                       | submit
                                       | policyid
                                       | calculate-min-fee
+                                      | calculate-min-fee-2
                                       | calculate-min-required-utxo
                                       | hash-script-data
                                       | txid
@@ -3455,6 +3674,114 @@ Usage: cardano-cli mary transaction calculate-min-fee --tx-body-file FILE
                                                         ]
                                                         [--tx-in-count NATURAL]
                                                         [--tx-out-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli mary transaction calculate-min-fee-2 
+                                                          --socket-path SOCKET_PATH
+                                                          [--cardano-mode
+                                                            [--epoch-slots SLOTS]]
+                                                          ( --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          )
+                                                          --tx-body-file FILE
+                                                          --protocol-params-file FILE
+                                                          (--tx-in TX-IN
+                                                            [ --spending-tx-in-reference TX-IN
+                                                              ( --spending-plutus-script-v2
+                                                              | --spending-plutus-script-v3
+                                                              )
+                                                              ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                              | --spending-reference-tx-in-datum-file JSON FILE
+                                                              | --spending-reference-tx-in-datum-value JSON VALUE
+                                                              | --spending-reference-tx-in-inline-datum-present
+                                                              )
+                                                              ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                              | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                              | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                              )
+                                                              --spending-reference-tx-in-execution-units (INT, INT)
+                                                            | --simple-script-tx-in-reference TX-IN
+                                                            | --tx-in-script-file FILE
+                                                              [
+                                                                ( --tx-in-datum-cbor-file CBOR FILE
+                                                                | --tx-in-datum-file JSON FILE
+                                                                | --tx-in-datum-value JSON VALUE
+                                                                | --tx-in-inline-datum-present
+                                                                )
+                                                                ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --tx-in-redeemer-file JSON FILE
+                                                                | --tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --tx-in-execution-units (INT, INT)]
+                                                            ])
+                                                          [--read-only-tx-in-reference TX-IN]
+                                                          [--tx-in-collateral TX-IN]
+                                                          [--mint VALUE
+                                                            ( --mint-script-file FILE
+                                                              [
+                                                                ( --mint-redeemer-cbor-file CBOR FILE
+                                                                | --mint-redeemer-file JSON FILE
+                                                                | --mint-redeemer-value JSON VALUE
+                                                                )
+                                                                --mint-execution-units (INT, INT)]
+                                                            | --simple-minting-script-tx-in-reference TX-IN
+                                                              --policy-id HASH
+                                                            | --mint-tx-in-reference TX-IN
+                                                              ( --mint-plutus-script-v2
+                                                              | --mint-plutus-script-v3
+                                                              )
+                                                              ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                              | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                              | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                              )
+                                                              --mint-reference-tx-in-execution-units (INT, INT)
+                                                              --policy-id HASH
+                                                            )]
+                                                          [
+                                                            --certificate-file FILE
+                                                            [ --certificate-script-file FILE
+                                                              [
+                                                                ( --certificate-redeemer-cbor-file CBOR FILE
+                                                                | --certificate-redeemer-file JSON FILE
+                                                                | --certificate-redeemer-value JSON VALUE
+                                                                )
+                                                                --certificate-execution-units (INT, INT)]
+                                                            | --certificate-tx-in-reference TX-IN
+                                                              ( --certificate-plutus-script-v2
+                                                              | --certificate-plutus-script-v3
+                                                              )
+                                                              ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                              | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                              | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                              )
+                                                              --certificate-reference-tx-in-execution-units (INT, INT)
+                                                            ]]
+                                                          [--withdrawal WITHDRAWAL
+                                                            [ --withdrawal-script-file FILE
+                                                              [
+                                                                ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                                | --withdrawal-redeemer-file JSON FILE
+                                                                | --withdrawal-redeemer-value JSON VALUE
+                                                                )
+                                                                --withdrawal-execution-units (INT, INT)]
+                                                            | --withdrawal-tx-in-reference TX-IN
+                                                              ( --withdrawal-plutus-script-v2
+                                                              | --withdrawal-plutus-script-v3
+                                                              )
+                                                              ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                              | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                              | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                              )
+                                                              --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                            ]]
+                                                          --witness-count NATURAL
+                                                          [--byron-witness-count NATURAL]
+                                                          [ --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          ]
+                                                          [--tx-in-count NATURAL]
+                                                          [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -4309,6 +4636,7 @@ Usage: cardano-cli alonzo transaction
                                         | submit
                                         | policyid
                                         | calculate-min-fee
+                                        | calculate-min-fee-2
                                         | calculate-min-required-utxo
                                         | hash-script-data
                                         | txid
@@ -4628,6 +4956,114 @@ Usage: cardano-cli alonzo transaction calculate-min-fee --tx-body-file FILE
                                                           ]
                                                           [--tx-in-count NATURAL]
                                                           [--tx-out-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli alonzo transaction calculate-min-fee-2 
+                                                            --socket-path SOCKET_PATH
+                                                            [--cardano-mode
+                                                              [--epoch-slots SLOTS]]
+                                                            ( --mainnet
+                                                            | --testnet-magic NATURAL
+                                                            )
+                                                            --tx-body-file FILE
+                                                            --protocol-params-file FILE
+                                                            (--tx-in TX-IN
+                                                              [ --spending-tx-in-reference TX-IN
+                                                                ( --spending-plutus-script-v2
+                                                                | --spending-plutus-script-v3
+                                                                )
+                                                                ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                                | --spending-reference-tx-in-datum-file JSON FILE
+                                                                | --spending-reference-tx-in-datum-value JSON VALUE
+                                                                | --spending-reference-tx-in-inline-datum-present
+                                                                )
+                                                                ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                                | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --spending-reference-tx-in-execution-units (INT, INT)
+                                                              | --simple-script-tx-in-reference TX-IN
+                                                              | --tx-in-script-file FILE
+                                                                [
+                                                                  ( --tx-in-datum-cbor-file CBOR FILE
+                                                                  | --tx-in-datum-file JSON FILE
+                                                                  | --tx-in-datum-value JSON VALUE
+                                                                  | --tx-in-inline-datum-present
+                                                                  )
+                                                                  ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                                  | --tx-in-redeemer-file JSON FILE
+                                                                  | --tx-in-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --tx-in-execution-units (INT, INT)]
+                                                              ])
+                                                            [--read-only-tx-in-reference TX-IN]
+                                                            [--tx-in-collateral TX-IN]
+                                                            [--mint VALUE
+                                                              ( --mint-script-file FILE
+                                                                [
+                                                                  ( --mint-redeemer-cbor-file CBOR FILE
+                                                                  | --mint-redeemer-file JSON FILE
+                                                                  | --mint-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --mint-execution-units (INT, INT)]
+                                                              | --simple-minting-script-tx-in-reference TX-IN
+                                                                --policy-id HASH
+                                                              | --mint-tx-in-reference TX-IN
+                                                                ( --mint-plutus-script-v2
+                                                                | --mint-plutus-script-v3
+                                                                )
+                                                                ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                                | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --mint-reference-tx-in-execution-units (INT, INT)
+                                                                --policy-id HASH
+                                                              )]
+                                                            [
+                                                              --certificate-file FILE
+                                                              [ --certificate-script-file FILE
+                                                                [
+                                                                  ( --certificate-redeemer-cbor-file CBOR FILE
+                                                                  | --certificate-redeemer-file JSON FILE
+                                                                  | --certificate-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --certificate-execution-units (INT, INT)]
+                                                              | --certificate-tx-in-reference TX-IN
+                                                                ( --certificate-plutus-script-v2
+                                                                | --certificate-plutus-script-v3
+                                                                )
+                                                                ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                                | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --certificate-reference-tx-in-execution-units (INT, INT)
+                                                              ]]
+                                                            [--withdrawal WITHDRAWAL
+                                                              [ --withdrawal-script-file FILE
+                                                                [
+                                                                  ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                                  | --withdrawal-redeemer-file JSON FILE
+                                                                  | --withdrawal-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --withdrawal-execution-units (INT, INT)]
+                                                              | --withdrawal-tx-in-reference TX-IN
+                                                                ( --withdrawal-plutus-script-v2
+                                                                | --withdrawal-plutus-script-v3
+                                                                )
+                                                                ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                                | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                              ]]
+                                                            --witness-count NATURAL
+                                                            [--byron-witness-count NATURAL]
+                                                            [ --mainnet
+                                                            | --testnet-magic NATURAL
+                                                            ]
+                                                            [--tx-in-count NATURAL]
+                                                            [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -5507,6 +5943,7 @@ Usage: cardano-cli babbage transaction
                                          | submit
                                          | policyid
                                          | calculate-min-fee
+                                         | calculate-min-fee-2
                                          | calculate-min-required-utxo
                                          | hash-script-data
                                          | txid
@@ -5826,6 +6263,114 @@ Usage: cardano-cli babbage transaction calculate-min-fee --tx-body-file FILE
                                                            ]
                                                            [--tx-in-count NATURAL]
                                                            [--tx-out-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli babbage transaction calculate-min-fee-2 
+                                                             --socket-path SOCKET_PATH
+                                                             [--cardano-mode
+                                                               [--epoch-slots SLOTS]]
+                                                             ( --mainnet
+                                                             | --testnet-magic NATURAL
+                                                             )
+                                                             --tx-body-file FILE
+                                                             --protocol-params-file FILE
+                                                             (--tx-in TX-IN
+                                                               [ --spending-tx-in-reference TX-IN
+                                                                 ( --spending-plutus-script-v2
+                                                                 | --spending-plutus-script-v3
+                                                                 )
+                                                                 ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                                 | --spending-reference-tx-in-datum-file JSON FILE
+                                                                 | --spending-reference-tx-in-datum-value JSON VALUE
+                                                                 | --spending-reference-tx-in-inline-datum-present
+                                                                 )
+                                                                 ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --spending-reference-tx-in-execution-units (INT, INT)
+                                                               | --simple-script-tx-in-reference TX-IN
+                                                               | --tx-in-script-file FILE
+                                                                 [
+                                                                   ( --tx-in-datum-cbor-file CBOR FILE
+                                                                   | --tx-in-datum-file JSON FILE
+                                                                   | --tx-in-datum-value JSON VALUE
+                                                                   | --tx-in-inline-datum-present
+                                                                   )
+                                                                   ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                                   | --tx-in-redeemer-file JSON FILE
+                                                                   | --tx-in-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --tx-in-execution-units (INT, INT)]
+                                                               ])
+                                                             [--read-only-tx-in-reference TX-IN]
+                                                             [--tx-in-collateral TX-IN]
+                                                             [--mint VALUE
+                                                               ( --mint-script-file FILE
+                                                                 [
+                                                                   ( --mint-redeemer-cbor-file CBOR FILE
+                                                                   | --mint-redeemer-file JSON FILE
+                                                                   | --mint-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --mint-execution-units (INT, INT)]
+                                                               | --simple-minting-script-tx-in-reference TX-IN
+                                                                 --policy-id HASH
+                                                               | --mint-tx-in-reference TX-IN
+                                                                 ( --mint-plutus-script-v2
+                                                                 | --mint-plutus-script-v3
+                                                                 )
+                                                                 ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --mint-reference-tx-in-execution-units (INT, INT)
+                                                                 --policy-id HASH
+                                                               )]
+                                                             [
+                                                               --certificate-file FILE
+                                                               [ --certificate-script-file FILE
+                                                                 [
+                                                                   ( --certificate-redeemer-cbor-file CBOR FILE
+                                                                   | --certificate-redeemer-file JSON FILE
+                                                                   | --certificate-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --certificate-execution-units (INT, INT)]
+                                                               | --certificate-tx-in-reference TX-IN
+                                                                 ( --certificate-plutus-script-v2
+                                                                 | --certificate-plutus-script-v3
+                                                                 )
+                                                                 ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --certificate-reference-tx-in-execution-units (INT, INT)
+                                                               ]]
+                                                             [--withdrawal WITHDRAWAL
+                                                               [ --withdrawal-script-file FILE
+                                                                 [
+                                                                   ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                                   | --withdrawal-redeemer-file JSON FILE
+                                                                   | --withdrawal-redeemer-value JSON VALUE
+                                                                   )
+                                                                   --withdrawal-execution-units (INT, INT)]
+                                                               | --withdrawal-tx-in-reference TX-IN
+                                                                 ( --withdrawal-plutus-script-v2
+                                                                 | --withdrawal-plutus-script-v3
+                                                                 )
+                                                                 ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                 | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                                 | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                                 )
+                                                                 --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                               ]]
+                                                             --witness-count NATURAL
+                                                             [--byron-witness-count NATURAL]
+                                                             [ --mainnet
+                                                             | --testnet-magic NATURAL
+                                                             ]
+                                                             [--tx-in-count NATURAL]
+                                                             [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -7122,6 +7667,7 @@ Usage: cardano-cli conway transaction
                                         | submit
                                         | policyid
                                         | calculate-min-fee
+                                        | calculate-min-fee-2
                                         | calculate-min-required-utxo
                                         | hash-script-data
                                         | txid
@@ -7467,6 +8013,130 @@ Usage: cardano-cli conway transaction calculate-min-fee --tx-body-file FILE
                                                           ]
                                                           [--tx-in-count NATURAL]
                                                           [--tx-out-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli conway transaction calculate-min-fee-2 
+                                                            --socket-path SOCKET_PATH
+                                                            [--cardano-mode
+                                                              [--epoch-slots SLOTS]]
+                                                            ( --mainnet
+                                                            | --testnet-magic NATURAL
+                                                            )
+                                                            --tx-body-file FILE
+                                                            --protocol-params-file FILE
+                                                            (--tx-in TX-IN
+                                                              [ --spending-tx-in-reference TX-IN
+                                                                ( --spending-plutus-script-v2
+                                                                | --spending-plutus-script-v3
+                                                                )
+                                                                ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                                | --spending-reference-tx-in-datum-file JSON FILE
+                                                                | --spending-reference-tx-in-datum-value JSON VALUE
+                                                                | --spending-reference-tx-in-inline-datum-present
+                                                                )
+                                                                ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                                | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --spending-reference-tx-in-execution-units (INT, INT)
+                                                              | --simple-script-tx-in-reference TX-IN
+                                                              | --tx-in-script-file FILE
+                                                                [
+                                                                  ( --tx-in-datum-cbor-file CBOR FILE
+                                                                  | --tx-in-datum-file JSON FILE
+                                                                  | --tx-in-datum-value JSON VALUE
+                                                                  | --tx-in-inline-datum-present
+                                                                  )
+                                                                  ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                                  | --tx-in-redeemer-file JSON FILE
+                                                                  | --tx-in-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --tx-in-execution-units (INT, INT)]
+                                                              ])
+                                                            [--read-only-tx-in-reference TX-IN]
+                                                            [--tx-in-collateral TX-IN]
+                                                            [--mint VALUE
+                                                              ( --mint-script-file FILE
+                                                                [
+                                                                  ( --mint-redeemer-cbor-file CBOR FILE
+                                                                  | --mint-redeemer-file JSON FILE
+                                                                  | --mint-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --mint-execution-units (INT, INT)]
+                                                              | --simple-minting-script-tx-in-reference TX-IN
+                                                                --policy-id HASH
+                                                              | --mint-tx-in-reference TX-IN
+                                                                ( --mint-plutus-script-v2
+                                                                | --mint-plutus-script-v3
+                                                                )
+                                                                ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                                | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --mint-reference-tx-in-execution-units (INT, INT)
+                                                                --policy-id HASH
+                                                              )]
+                                                            [
+                                                              --certificate-file FILE
+                                                              [ --certificate-script-file FILE
+                                                                [
+                                                                  ( --certificate-redeemer-cbor-file CBOR FILE
+                                                                  | --certificate-redeemer-file JSON FILE
+                                                                  | --certificate-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --certificate-execution-units (INT, INT)]
+                                                              | --certificate-tx-in-reference TX-IN
+                                                                ( --certificate-plutus-script-v2
+                                                                | --certificate-plutus-script-v3
+                                                                )
+                                                                ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                                | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --certificate-reference-tx-in-execution-units (INT, INT)
+                                                              ]]
+                                                            [--withdrawal WITHDRAWAL
+                                                              [ --withdrawal-script-file FILE
+                                                                [
+                                                                  ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                                  | --withdrawal-redeemer-file JSON FILE
+                                                                  | --withdrawal-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --withdrawal-execution-units (INT, INT)]
+                                                              | --withdrawal-tx-in-reference TX-IN
+                                                                ( --withdrawal-plutus-script-v2
+                                                                | --withdrawal-plutus-script-v3
+                                                                )
+                                                                ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                                | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                              ]]
+                                                            [--vote-file FILE
+                                                              [--vote-script-file FILE
+                                                                [
+                                                                  ( --vote-redeemer-cbor-file CBOR FILE
+                                                                  | --vote-redeemer-file JSON FILE
+                                                                  | --vote-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --vote-execution-units (INT, INT)]]]
+                                                            [--proposal-file FILE
+                                                              [--proposal-script-file FILE
+                                                                [
+                                                                  ( --proposal-redeemer-cbor-file CBOR FILE
+                                                                  | --proposal-redeemer-file JSON FILE
+                                                                  | --proposal-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --proposal-execution-units (INT, INT)]]]
+                                                            --witness-count NATURAL
+                                                            [--byron-witness-count NATURAL]
+                                                            [ --mainnet
+                                                            | --testnet-magic NATURAL
+                                                            ]
+                                                            [--tx-in-count NATURAL]
+                                                            [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 
@@ -8343,6 +9013,7 @@ Usage: cardano-cli latest transaction
                                         | submit
                                         | policyid
                                         | calculate-min-fee
+                                        | calculate-min-fee-2
                                         | calculate-min-required-utxo
                                         | hash-script-data
                                         | txid
@@ -8662,6 +9333,114 @@ Usage: cardano-cli latest transaction calculate-min-fee --tx-body-file FILE
                                                           ]
                                                           [--tx-in-count NATURAL]
                                                           [--tx-out-count NATURAL]
+
+  Calculate the minimum fee for a transaction.
+
+Usage: cardano-cli latest transaction calculate-min-fee-2 
+                                                            --socket-path SOCKET_PATH
+                                                            [--cardano-mode
+                                                              [--epoch-slots SLOTS]]
+                                                            ( --mainnet
+                                                            | --testnet-magic NATURAL
+                                                            )
+                                                            --tx-body-file FILE
+                                                            --protocol-params-file FILE
+                                                            (--tx-in TX-IN
+                                                              [ --spending-tx-in-reference TX-IN
+                                                                ( --spending-plutus-script-v2
+                                                                | --spending-plutus-script-v3
+                                                                )
+                                                                ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
+                                                                | --spending-reference-tx-in-datum-file JSON FILE
+                                                                | --spending-reference-tx-in-datum-value JSON VALUE
+                                                                | --spending-reference-tx-in-inline-datum-present
+                                                                )
+                                                                ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --spending-reference-tx-in-redeemer-file JSON FILE
+                                                                | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --spending-reference-tx-in-execution-units (INT, INT)
+                                                              | --simple-script-tx-in-reference TX-IN
+                                                              | --tx-in-script-file FILE
+                                                                [
+                                                                  ( --tx-in-datum-cbor-file CBOR FILE
+                                                                  | --tx-in-datum-file JSON FILE
+                                                                  | --tx-in-datum-value JSON VALUE
+                                                                  | --tx-in-inline-datum-present
+                                                                  )
+                                                                  ( --tx-in-redeemer-cbor-file CBOR FILE
+                                                                  | --tx-in-redeemer-file JSON FILE
+                                                                  | --tx-in-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --tx-in-execution-units (INT, INT)]
+                                                              ])
+                                                            [--read-only-tx-in-reference TX-IN]
+                                                            [--tx-in-collateral TX-IN]
+                                                            [--mint VALUE
+                                                              ( --mint-script-file FILE
+                                                                [
+                                                                  ( --mint-redeemer-cbor-file CBOR FILE
+                                                                  | --mint-redeemer-file JSON FILE
+                                                                  | --mint-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --mint-execution-units (INT, INT)]
+                                                              | --simple-minting-script-tx-in-reference TX-IN
+                                                                --policy-id HASH
+                                                              | --mint-tx-in-reference TX-IN
+                                                                ( --mint-plutus-script-v2
+                                                                | --mint-plutus-script-v3
+                                                                )
+                                                                ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --mint-reference-tx-in-redeemer-file JSON FILE
+                                                                | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --mint-reference-tx-in-execution-units (INT, INT)
+                                                                --policy-id HASH
+                                                              )]
+                                                            [
+                                                              --certificate-file FILE
+                                                              [ --certificate-script-file FILE
+                                                                [
+                                                                  ( --certificate-redeemer-cbor-file CBOR FILE
+                                                                  | --certificate-redeemer-file JSON FILE
+                                                                  | --certificate-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --certificate-execution-units (INT, INT)]
+                                                              | --certificate-tx-in-reference TX-IN
+                                                                ( --certificate-plutus-script-v2
+                                                                | --certificate-plutus-script-v3
+                                                                )
+                                                                ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --certificate-reference-tx-in-redeemer-file JSON FILE
+                                                                | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --certificate-reference-tx-in-execution-units (INT, INT)
+                                                              ]]
+                                                            [--withdrawal WITHDRAWAL
+                                                              [ --withdrawal-script-file FILE
+                                                                [
+                                                                  ( --withdrawal-redeemer-cbor-file CBOR FILE
+                                                                  | --withdrawal-redeemer-file JSON FILE
+                                                                  | --withdrawal-redeemer-value JSON VALUE
+                                                                  )
+                                                                  --withdrawal-execution-units (INT, INT)]
+                                                              | --withdrawal-tx-in-reference TX-IN
+                                                                ( --withdrawal-plutus-script-v2
+                                                                | --withdrawal-plutus-script-v3
+                                                                )
+                                                                ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
+                                                                | --withdrawal-reference-tx-in-redeemer-file JSON FILE
+                                                                | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                                )
+                                                                --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                              ]]
+                                                            --witness-count NATURAL
+                                                            [--byron-witness-count NATURAL]
+                                                            [ --mainnet
+                                                            | --testnet-magic NATURAL
+                                                            ]
+                                                            [--tx-in-count NATURAL]
+                                                            [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 

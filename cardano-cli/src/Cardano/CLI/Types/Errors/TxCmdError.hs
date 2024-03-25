@@ -93,6 +93,8 @@ data TxCmdError
   | TxCmdTxUpdateProposalValidationError TxUpdateProposalValidationError
   | TxCmdScriptValidityValidationError TxScriptValidityValidationError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
+  | TxCmdUnsupportedNtcVersion UnsupportedNtcVersionError
+  | TxCmdAcquireFailure !AcquiringFailure
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -233,6 +235,14 @@ renderTxCmdError = \case
     prettyError e
   TxCmdScriptValidityValidationError e ->
     prettyError e
+  TxCmdUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
+    vsep
+      [ "Unsupported feature for the node-to-client protocol version."
+      , "This query requires at least " <> pshow minNtcVersion <> " but the node negotiated " <> pshow ntcVersion <> "."
+      , "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
+      ]
+  TxCmdAcquireFailure acquireFail ->
+    pshow acquireFail
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =
