@@ -576,9 +576,9 @@ buildPoolParams nw dir index specifiedRelays = do
 
 -- | This function should only be used for testing purposes.
 -- Keys returned by this function are not cryptographically secure.
-computeInsecureStakeKeyAddr :: StdGen
-                            -> IO (StdGen, ( VerificationKey PaymentKey
-                                           , VerificationKey StakeKey ))
+computeInsecureStakeKeyAddr
+  :: StdGen
+  -> IO (StdGen, (VerificationKey PaymentKey, VerificationKey StakeKey))
 computeInsecureStakeKeyAddr g0 = do
     (paymentKeys, g1) <- first getVerificationKey <$> generateInsecureSigningKey g0 AsPaymentKey
     (stakeKeys  , g2) <- first getVerificationKey <$> generateInsecureSigningKey g1 AsStakeKey
