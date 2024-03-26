@@ -10,6 +10,7 @@ module Cardano.CLI.Types.Errors.TxValidationError
   ( TxAuxScriptsValidationError(..)
   , TxCertificatesValidationError(..)
   , TxFeeValidationError(..)
+  , TxGovDuplicateVotes(..)
   , TxProtocolParametersValidationError
   , TxScriptValidityValidationError(..)
   , TxUpdateProposalValidationError(..)
@@ -43,11 +44,14 @@ import           Cardano.CLI.Types.Common
 
 import           Prelude
 
+import           Control.Monad (foldM)
 import           Data.Bifunctor (first)
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
 import qualified Data.OSet.Strict as OSet
+import qualified Data.Set as Set
+import           Prettyprinter (viaShow)
 
 data ScriptLanguageValidationError
   = ScriptLanguageValidationError AnyScriptLanguage AnyCardanoEra
@@ -321,22 +325,48 @@ votingScriptWitnessSingleton votingProcedures (Just scriptWitness) =
   let voter = fromJust $ getVotingScriptCredentials votingProcedures
   in Map.singleton voter scriptWitness
 
+newtype TxGovDuplicateVotes era =
+  TxGovDuplicateVotes [L.GovActionId (L.EraCrypto (ShelleyLedgerEra era))]
+
+instance Error (TxGovDuplicateVotes era) where
+  prettyError (TxGovDuplicateVotes actionIds) =
+    "Trying to merge votes with similar action identifiers: " <> viaShow actionIds <>
+      ". This would cause ignoring some of the votes, so not proceeding."
+
 -- TODO: We fold twice, we can do it in a single fold
 convertToTxVotingProcedures
  :: [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
- -> TxVotingProcedures BuildTx era
-convertToTxVotingProcedures votingProcedures =
-  let votingScriptWitnessMap = BuildTxWith
-                                 $ foldl (\acc next -> acc `Map.union` uncurry votingScriptWitnessSingleton next )
-                                   Map.empty
-                                   votingProcedures
-      allVotes = unVotingProcedures
-                   $ foldl
-                       (\acc next -> acc `unsafeMergeVotingProcedures` fst next)
-                       emptyVotingProcedures
-                       votingProcedures
+ -> Either (TxGovDuplicateVotes era) (TxVotingProcedures BuildTx era)
+convertToTxVotingProcedures votingProcedures = do
+  VotingProcedures procedure <- foldM f emptyVotingProcedures votingProcedures
+  pure $ TxVotingProcedures procedure (BuildTxWith votingScriptWitnessMap)
+  where
+    votingScriptWitnessMap = foldl (\acc next -> acc `Map.union` uncurry votingScriptWitnessSingleton next)
+                               Map.empty
+                               votingProcedures
+    f acc (procedure, _witness) = mergeVotingProcedures acc procedure
 
-  in TxVotingProcedures allVotes votingScriptWitnessMap
+mergeVotingProcedures :: ()
+  => VotingProcedures era
+  -> VotingProcedures era
+  -> Either (TxGovDuplicateVotes era) (VotingProcedures era) -- ^ Either an error message, or the merged voting procedures
+mergeVotingProcedures vpsa vpsb =
+  VotingProcedures . L.VotingProcedures <$> foldM mergeVotesOfOneVoter Map.empty allVoters
+  where
+    mapa = L.unVotingProcedures (unVotingProcedures vpsa)
+    mapb = L.unVotingProcedures (unVotingProcedures vpsb)
+    allVoters = Set.union (Map.keysSet mapa) (Map.keysSet mapb)
+    mergeVotesOfOneVoter acc voter =
+      Map.union acc <$> case (Map.lookup voter mapa, Map.lookup voter mapb) of
+        (Just v, Nothing) -> Right $ Map.singleton voter v -- Take only available value
+        (Nothing, Just v) -> Right $ Map.singleton voter v -- Take only available value
+        (Nothing, Nothing) -> Right Map.empty -- No value
+        (Just va, Just vb) -> -- Here's the case where we're unioning different votes for the same voter
+          if null intersection -- No conflict: sets of keys from left and right is disjoint
+          then Right $ Map.singleton voter (Map.union va vb)
+          else Left $ TxGovDuplicateVotes intersection -- Ooops conflict! Let's report it!
+          where
+            intersection = Map.keys $ Map.intersection va vb
 
 proposingScriptWitnessSingleton
   :: Proposal era
