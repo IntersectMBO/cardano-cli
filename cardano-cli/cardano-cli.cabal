@@ -317,6 +317,7 @@ test-suite cardano-cli-test
                         Test.Cli.Pipes
                         Test.Cli.VerificationKey
                         Test.Cli.Shelley.Run.Query
+                        Test.Cli.Shelley.Transaction.Build
 
   ghc-options:          -threaded -rtsopts "-with-rtsopts=-N -T"
 
