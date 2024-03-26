@@ -196,17 +196,17 @@ library
                       , binary
                       , bytestring
                       , canonical-json
-                      , cardano-api ^>= 8.42.0.0
+                      , cardano-api ^>= 8.44.0.0
                       , cardano-binary
                       , cardano-crypto
                       , cardano-crypto-class ^>= 2.1.2
                       , cardano-crypto-wrapper ^>= 1.5.1
                       , cardano-data >= 1.1
                       , cardano-git-rev ^>= 0.2.2
-                      , cardano-ledger-byron >= 1.0.0.2
+                      , cardano-ledger-byron >= 1.0.1.0
                       , cardano-ping ^>= 0.2.0.13
                       , cardano-prelude
-                      , cardano-slotting ^>= 0.1
+                      , cardano-slotting ^>= 0.2.0.0
                       , cardano-strict-containers ^>= 0.1
                       , cborg >= 0.2.4 && < 0.3
                       , cborg-json
@@ -223,11 +223,12 @@ library
                       , microlens
                       , network
                       , optparse-applicative-fork
-                      , ouroboros-consensus >= 0.16
-                      , ouroboros-consensus-cardano >= 0.14.2
-                      , ouroboros-consensus-protocol >= 0.7
+                      , ouroboros-consensus >= 0.17
+                      -- TODO: bump consensus back
+                      , ouroboros-consensus-cardano >= 0.15
+                      , ouroboros-consensus-protocol >= 0.8
                       , ouroboros-network-api
-                      , ouroboros-network-protocols
+                      , ouroboros-network-protocols ^>=0.8
                       , parsec
                       , prettyprinter
                       , prettyprinter-ansi-terminal
@@ -343,7 +344,7 @@ test-suite cardano-cli-golden
                       , cardano-crypto-wrapper
                       , cardano-data >= 1.1
                       , cardano-ledger-byron
-                      , cardano-ledger-shelley >=1.7.0.0
+                      , cardano-ledger-shelley >=1.10.0.0
                       , cardano-strict-containers ^>= 0.1
                       , cborg
                       , containers

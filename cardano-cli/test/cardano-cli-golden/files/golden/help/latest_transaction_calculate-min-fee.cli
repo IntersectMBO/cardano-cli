@@ -2,6 +2,7 @@ Usage: cardano-cli latest transaction calculate-min-fee --tx-body-file FILE
                                                           --protocol-params-file FILE
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
+                                                          --reference-script-size INT
                                                           [ --mainnet
                                                           | --testnet-magic NATURAL
                                                           ]
@@ -17,6 +18,8 @@ Available options:
   --witness-count NATURAL  The number of Shelley key witnesses.
   --byron-witness-count NATURAL
                            The number of Byron key witnesses (default is 0).
+  --reference-script-size INT
+                           Total size in bytes of transaction reference scripts
   --mainnet                DEPRECATED. This argument has no effect.
   --testnet-magic NATURAL  DEPRECATED. This argument has no effect.
   --tx-in-count NATURAL    DEPRECATED. This argument has no effect.

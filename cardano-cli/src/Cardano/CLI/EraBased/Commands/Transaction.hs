@@ -163,6 +163,8 @@ data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
   , protocolParamsFile    :: !ProtocolParamsFile
   , txShelleyWitnessCount :: !TxShelleyWitnessCount
   , txByronWitnessCount   :: !TxByronWitnessCount
+    -- | The total size in bytes of the transaction reference scripts.
+  , referenceScriptSize   :: !Int
   } deriving Show
 
 data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdArgs

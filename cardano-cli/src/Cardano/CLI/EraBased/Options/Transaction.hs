@@ -268,6 +268,7 @@ pTransactionCalculateMinFee =
       <*> pProtocolParamsFile
       <*> pTxShelleyWitnessCount
       <*> pTxByronWitnessCount
+      <*> pReferenceScriptSize
       -- Deprecated options:
       <*  optional pNetworkIdDeprecated
       <*  optional pTxInCountDeprecated
