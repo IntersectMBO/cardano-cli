@@ -45,8 +45,10 @@ module Cardano.CLI.Types.MonadWarning
   , monadWarningInStateT
   ) where
 
-import           Cardano.Prelude (MonadIO (liftIO), MonadState (state), Print (hPutStrLn), StateT,
-                   stderr)
+import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           Control.Monad.State (MonadState (..))
+import           Control.Monad.Trans.State (StateT)
+import           System.IO (hPutStrLn, stderr)
 
 -- | Type class for monads that support reporting warnings.
 class Monad m => MonadWarning m where
