@@ -8,8 +8,8 @@
 -- which either fail or return a value).
 --
 -- It also includes two functions that instantiate it into either a 'MonadIO'
--- ('monadWarningInMonadIO') or a 'StateT' monad with a '[String]' as state
--- ('monadWarningInStateT') respectively.
+-- ('runWarningIO') or a 'StateT' monad with a '[String]' as state
+-- ('runWarningStateT') respectively.
 --
 -- In the case of 'MonadIO', warnings are printed to 'stderr'.
 -- In the case of 'StateT', with a '[String]' state, warnings are added to the
@@ -30,7 +30,7 @@
 -- -- Using 'IO' monad to perform computation and report warnings.
 -- main :: IO ()
 -- main = do
---     result <- monadWarningInMonadIO $ computeWithWarning (-4)
+--     result <- runWarningIO $ computeWithWarning (-4)
 --     putStrLn $ "Result: " ++ show result
 -- @
 -----------------------------------------------------------------------------
@@ -41,8 +41,8 @@
 module Cardano.CLI.Types.MonadWarning
   ( MonadWarning(..)
   , eitherToWarning
-  , monadWarningInMonadIO
-  , monadWarningInStateT
+  , runWarningIO
+  , runWarningStateT
   ) where
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
@@ -58,32 +58,22 @@ class Monad m => MonadWarning m where
 
 -- | Wrapper newtype for 'MonadIO' with 'MonadWarning' instance.
 -- We need to have wrapper to avoid overlapping instances.
-newtype WarningMonadIO m a = WarningMonadIO (m a)
+newtype WarningIO m a = WarningIO { runWarningIO :: m a }
     deriving (Functor, Applicative, Monad, MonadIO)
 
 -- | This instance prints the issue to the 'stderr'.
-instance MonadIO m => MonadWarning (WarningMonadIO m) where
-    reportIssue :: String -> WarningMonadIO m ()
+instance MonadIO m => MonadWarning (WarningIO m) where
+    reportIssue :: String -> WarningIO m ()
     reportIssue issue = liftIO (hPutStrLn stderr issue)
 
--- | Convert a 'MonadWarning' into a 'MonadIO' by reporting
--- warnings to 'stderr'.
-monadWarningInMonadIO :: WarningMonadIO m a -> m a
-monadWarningInMonadIO (WarningMonadIO m) = m
-
 -- | Wrapper newtype for 'StateT [String]' with 'MonadWarning' instance.
-newtype WarningStateT m a = WarningState (StateT [String] m a)
+newtype WarningStateT m a = WarningStateT { runWarningStateT :: StateT [String] m a }
     deriving (Functor, Applicative, Monad, MonadState [String])
 
 -- | This instance adds the issue to the '[String]' in the state.
 instance Monad m => MonadWarning (WarningStateT m) where
     reportIssue :: String -> WarningStateT m ()
     reportIssue issue = state (\ x -> ((), issue : x))
-
--- | Convert a 'MonadWarning' into a 'StateT [String]' monad,
--- by accumulating warnings into the state.
-monadWarningInStateT :: WarningStateT m a -> StateT [String] m a
-monadWarningInStateT (WarningState m) = m
 
 -- | Convert an 'Either' into a 'MonadWarning'. If 'Either' is 'Left'
 -- it returns the default value (first parameter) and reports the value

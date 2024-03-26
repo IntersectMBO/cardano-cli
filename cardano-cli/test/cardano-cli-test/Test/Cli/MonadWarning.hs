@@ -2,7 +2,7 @@ module Test.Cli.MonadWarning
   ( hprop_monad_warning
   ) where
 
-import           Cardano.CLI.Types.MonadWarning (MonadWarning, monadWarningInStateT, reportIssue)
+import           Cardano.CLI.Types.MonadWarning (MonadWarning, reportIssue, runWarningStateT)
 
 import           Control.Monad (when)
 import           Control.Monad.Trans.State (State, runState)
@@ -15,7 +15,7 @@ hprop_monad_warning = property $ do
   (4, []) === duplicateNumber 2
   where
     duplicateNumber :: Int -> (Int, [String])
-    duplicateNumber n = runState (monadWarningInStateT $ computeWithWarning n :: State [String] Int) []
+    duplicateNumber n = runState (runWarningStateT $ computeWithWarning n :: State [String] Int) []
 
     computeWithWarning :: (MonadWarning m) => Int -> m Int
     computeWithWarning x = do

@@ -20,8 +20,7 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    ShelleyLedgerEra, StakeAddress (..), fromShelleyPaymentCredential,
                    fromShelleyStakeReference, toShelleyStakeCredential)
 
-import           Cardano.CLI.Types.MonadWarning (MonadWarning, eitherToWarning,
-                   monadWarningInMonadIO)
+import           Cardano.CLI.Types.MonadWarning (MonadWarning, eitherToWarning, runWarningIO)
 import           Cardano.Prelude (first)
 
 import           Codec.CBOR.Encoding (Encoding)
@@ -71,7 +70,7 @@ friendlyTx ::
   -> Tx era
   -> m (Either (FileError e) ())
 friendlyTx format mOutFile era =
-  cardanoEraConstraints era (\tx -> do pairs <- monadWarningInMonadIO $ friendlyTxImpl era tx
+  cardanoEraConstraints era (\tx -> do pairs <- runWarningIO $ friendlyTxImpl era tx
                                        friendly format mOutFile $ object pairs)
 
 friendlyTxBody ::
@@ -82,7 +81,7 @@ friendlyTxBody ::
   -> TxBody era
   -> m (Either (FileError e) ())
 friendlyTxBody format mOutFile era =
-  cardanoEraConstraints era (\tx -> do pairs <- monadWarningInMonadIO $ friendlyTxBodyImpl era tx
+  cardanoEraConstraints era (\tx -> do pairs <- runWarningIO $ friendlyTxBodyImpl era tx
                                        friendly format mOutFile $ object pairs)
 
 friendlyProposal ::
