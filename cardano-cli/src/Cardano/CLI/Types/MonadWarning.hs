@@ -30,8 +30,8 @@
 -- -- Using 'IO' monad to perform computation and report warnings.
 -- main :: IO ()
 -- main = do
---     result <- runWarningIO $ computeWithWarning (-4)
---     putStrLn $ "Result: " ++ show result
+--   result <- runWarningIO $ computeWithWarning (-4)
+--   putStrLn $ "Result: " ++ show result
 -- @
 -----------------------------------------------------------------------------
 
@@ -52,28 +52,28 @@ import           System.IO (hPutStrLn, stderr)
 
 -- | Type class for monads that support reporting warnings.
 class Monad m => MonadWarning m where
-    -- | Report a warning issue.
-    reportIssue :: String -- ^ The warning message to report.
-                -> m ()   -- ^ The action that reports the warning.
+  -- | Report a warning issue.
+  reportIssue :: String -- ^ The warning message to report.
+              -> m ()   -- ^ The action that reports the warning.
 
 -- | Wrapper newtype for 'MonadIO' with 'MonadWarning' instance.
 -- We need to have wrapper to avoid overlapping instances.
 newtype WarningIO m a = WarningIO { runWarningIO :: m a }
-    deriving (Functor, Applicative, Monad, MonadIO)
+  deriving (Functor, Applicative, Monad, MonadIO)
 
 -- | This instance prints the issue to the 'stderr'.
 instance MonadIO m => MonadWarning (WarningIO m) where
-    reportIssue :: String -> WarningIO m ()
-    reportIssue issue = liftIO (hPutStrLn stderr issue)
+  reportIssue :: String -> WarningIO m ()
+  reportIssue issue = liftIO (hPutStrLn stderr issue)
 
 -- | Wrapper newtype for 'StateT [String]' with 'MonadWarning' instance.
 newtype WarningStateT m a = WarningStateT { runWarningStateT :: StateT [String] m a }
-    deriving (Functor, Applicative, Monad, MonadState [String])
+  deriving (Functor, Applicative, Monad, MonadState [String])
 
 -- | This instance adds the issue to the '[String]' in the state.
 instance Monad m => MonadWarning (WarningStateT m) where
-    reportIssue :: String -> WarningStateT m ()
-    reportIssue issue = state (\ x -> ((), issue : x))
+  reportIssue :: String -> WarningStateT m ()
+  reportIssue issue = state (\ x -> ((), issue : x))
 
 -- | Convert an 'Either' into a 'MonadWarning'. If 'Either' is 'Left'
 -- it returns the default value (first parameter) and reports the value
