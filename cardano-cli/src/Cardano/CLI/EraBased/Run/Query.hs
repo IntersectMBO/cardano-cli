@@ -46,7 +46,6 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
 import           Cardano.CLI.EraBased.Run.CreateTestnetData (readAndDecodeGenesisFile)
 import           Cardano.CLI.Helpers
-import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.QueryCmdError
@@ -1411,17 +1410,17 @@ runQueryDRepState
       , Cmd.nodeSocketPath
       , Cmd.consensusModeParams
       , Cmd.networkId
-      , Cmd.drepKeys = drepKeys'
+      , Cmd.drepHashSources = drepHashSources'
       , Cmd.includeStake
       , Cmd.target
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-  let drepKeys = case drepKeys' of
-                   All -> []
-                   Only l -> l
-  drepCreds <- mapM (firstExceptT QueryCmdDRepKeyError . getDRepCredentialFromVerKeyHashOrFile) drepKeys
+  let drepHashSources = case drepHashSources' of
+                          All -> []
+                          Only l -> l
+  drepCreds <- modifyError QueryCmdDRepKeyError $ mapM readDRepCredential drepHashSources
 
   drepState <- runQuery localNodeConnInfo target $ queryDRepState eon $ Set.fromList drepCreds
 
@@ -1457,19 +1456,19 @@ runQueryDRepStakeDistribution
       , Cmd.nodeSocketPath
       , Cmd.consensusModeParams
       , Cmd.networkId
-      , Cmd.drepKeys = drepKeys'
+      , Cmd.drepHashSources = drepHashSources'
       , Cmd.target
       , Cmd.mOutFile
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-  let drepFromVrfKey = fmap L.DRepCredential
+  let drepFromSource = fmap L.DRepCredential
                      . firstExceptT QueryCmdDRepKeyError
-                     . getDRepCredentialFromVerKeyHashOrFile
-      drepKeys = case drepKeys' of
-                   All -> []
-                   Only l -> l
-  dreps <- Set.fromList <$> mapM drepFromVrfKey drepKeys
+                     . readDRepCredential
+      drepHashSources = case drepHashSources' of
+                          All -> []
+                          Only l -> l
+  dreps <- Set.fromList <$> mapM drepFromSource drepHashSources
 
   drepStakeDistribution <- runQuery localNodeConnInfo target $ queryDRepStakeDistribution eon dreps
   writeOutput mOutFile $
