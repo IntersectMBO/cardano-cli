@@ -351,6 +351,11 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
           stakeKeyToCredential :: Hash StakeKey -> L.Credential L.Staking L.StandardCrypto
           stakeKeyToCredential (StakeKeyHash v) = L.KeyHashObj v
 
+    -- | 'zipWithDeepSeq' is like 'zipWith' but it ensures each element of the result is fully
+    -- evaluated before calculating the rest of the list. We do this in order to avoid the
+    -- case were we expand the intermediate representation (the two input lists) before
+    -- converging to the result. The intermediate representation is larger than the result,
+    -- so we try to avoid having it all in memory at once to reduce the memory footprint.
     zipWithDeepSeq :: NFData c => (a -> b -> c) -> [a] -> [b] -> [c]
     zipWithDeepSeq _ _ [] = []
     zipWithDeepSeq _ [] _ = []
