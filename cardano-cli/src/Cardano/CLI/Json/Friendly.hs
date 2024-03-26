@@ -1,12 +1,7 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
@@ -25,6 +20,12 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    ShelleyLedgerEra, StakeAddress (..), fromShelleyPaymentCredential,
                    fromShelleyStakeReference, toShelleyStakeCredential)
 
+import           Cardano.CLI.Types.MonadWarning (MonadWarning, eitherToWarning, runWarningIO)
+import           Cardano.Prelude (first)
+
+import           Codec.CBOR.Encoding (Encoding)
+import           Codec.CBOR.FlatTerm (fromFlatTerm, toFlatTerm)
+import           Codec.CBOR.JSON (decodeValue)
 import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
@@ -69,8 +70,8 @@ friendlyTx ::
   -> Tx era
   -> m (Either (FileError e) ())
 friendlyTx format mOutFile era =
-  cardanoEraConstraints era $
-    friendly format mOutFile . object . friendlyTxImpl era
+  cardanoEraConstraints era (\tx -> do pairs <- runWarningIO $ friendlyTxImpl era tx
+                                       friendly format mOutFile $ object pairs)
 
 friendlyTxBody ::
   (MonadIO m)
@@ -80,8 +81,8 @@ friendlyTxBody ::
   -> TxBody era
   -> m (Either (FileError e) ())
 friendlyTxBody format mOutFile era =
-  cardanoEraConstraints era $
-    friendly format mOutFile . object . friendlyTxBodyImpl era
+  cardanoEraConstraints era (\tx -> do pairs <- runWarningIO $ friendlyTxBodyImpl era tx
+                                       friendly format mOutFile $ object pairs)
 
 friendlyProposal ::
   (MonadIO m)
@@ -112,12 +113,12 @@ friendlyProposalImpl
     , "anchor" .= pProcAnchor
     ]
 
-friendlyTxImpl :: ()
+friendlyTxImpl :: MonadWarning m
   => CardanoEra era
   -> Tx era
-  -> [Aeson.Pair]
+  -> m [Aeson.Pair]
 friendlyTxImpl era (Tx body witnesses) =
-  ("witnesses" .= map friendlyKeyWitness witnesses) : friendlyTxBodyImpl era body
+  (("witnesses" .= map friendlyKeyWitness witnesses) :) <$> friendlyTxBodyImpl era body
 
 friendlyKeyWitness :: KeyWitness era -> Aeson.Value
 friendlyKeyWitness =
@@ -129,13 +130,13 @@ friendlyKeyWitness =
       ShelleyKeyWitness _era (L.WitVKey key signature) ->
         ["key" .= textShow key, "signature" .= textShow signature]
 
-friendlyTxBodyImpl :: ()
+friendlyTxBodyImpl :: MonadWarning m
   => CardanoEra era
   -> TxBody era
-  -> [Aeson.Pair]
+  -> m [Aeson.Pair]
 friendlyTxBodyImpl
   era
-  (TxBody
+  tb@(TxBody
     TxBodyContent
       { txAuxScripts
       , txCertificates
@@ -151,28 +152,43 @@ friendlyTxBodyImpl
       , txInsReference
       , txUpdateProposal
       , txValidityLowerBound
-       ,txValidityUpperBound
+      , txValidityUpperBound
       , txWithdrawals
       }) =
-  cardanoEraConstraints era
-    [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
-    , "certificates" .= forEraInEon era Null (`friendlyCertificates` txCertificates)
-    , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
-    , "era" .= era
-    , "fee" .= friendlyFee txFee
-    , "inputs" .= friendlyInputs txIns
-    , "metadata" .= friendlyMetadata txMetadata
-    , "mint" .= friendlyMintValue txMintValue
-    , "outputs" .= map (friendlyTxOut era) txOuts
-    , "reference inputs" .= friendlyReferenceInputs txInsReference
-    , "total collateral" .= friendlyTotalCollateral txTotalCollateral
-    , "return collateral" .= friendlyReturnCollateral era txReturnCollateral
-    , "required signers (payment key hashes needed for scripts)" .=
-        friendlyExtraKeyWits txExtraKeyWits
-    , "update proposal" .= friendlyUpdateProposal txUpdateProposal
-    , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
-    , "withdrawals" .= friendlyWithdrawals txWithdrawals
-    ]
+  do redeemerDetails <- redeemerIfShelleyBased era tb
+     return $ cardanoEraConstraints era
+                ( redeemerDetails ++
+                  [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
+                  , "certificates" .= forEraInEon era Null (`friendlyCertificates` txCertificates)
+                  , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
+                  , "era" .= era
+                  , "fee" .= friendlyFee txFee
+                  , "inputs" .= friendlyInputs txIns
+                  , "metadata" .= friendlyMetadata txMetadata
+                  , "mint" .= friendlyMintValue txMintValue
+                  , "outputs" .= map (friendlyTxOut era) txOuts
+                  , "reference inputs" .= friendlyReferenceInputs txInsReference
+                  , "total collateral" .= friendlyTotalCollateral txTotalCollateral
+                  , "return collateral" .= friendlyReturnCollateral era txReturnCollateral
+                  , "required signers (payment key hashes needed for scripts)" .=
+                      friendlyExtraKeyWits txExtraKeyWits
+                  , "update proposal" .= friendlyUpdateProposal txUpdateProposal
+                  , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
+                  , "withdrawals" .= friendlyWithdrawals txWithdrawals
+                  ])
+
+redeemerIfShelleyBased :: MonadWarning m => CardanoEra era -> TxBody era -> m [Aeson.Pair]
+redeemerIfShelleyBased era tb =
+  caseByronOrShelleyBasedEra (return [])
+                             (\shEra -> do redeemerInfo <- friendlyRedeemer shEra tb
+                                           return [ "redeemers" .=  redeemerInfo ]) era
+
+friendlyRedeemer :: MonadWarning m => ShelleyBasedEra era -> TxBody era -> m Aeson.Value
+friendlyRedeemer _ (ShelleyTxBody _ _ _ TxBodyNoScriptData _ _) = return Aeson.Null
+friendlyRedeemer _ (ShelleyTxBody _ _ _ (TxBodyScriptData _ _ r) _ _) = encodingToJSON $ L.toCBOR r
+  where encodingToJSON :: MonadWarning m => Encoding -> m Aeson.Value
+        encodingToJSON e = eitherToWarning Aeson.Null $ first ("Error decoding redeemer: " ++) $
+                               fromFlatTerm (decodeValue True) $ toFlatTerm e
 
 friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
 friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null
@@ -628,4 +644,3 @@ friendlyCollateralInputs :: TxInsCollateral era -> Aeson.Value
 friendlyCollateralInputs = \case
   TxInsCollateralNone -> Null
   TxInsCollateral _ txins -> toJSON txins
-
