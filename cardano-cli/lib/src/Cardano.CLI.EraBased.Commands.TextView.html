@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Commands.TextView</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TextView.html#TextViewCmds"><span class="hs-identifier">TextViewCmds</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TextView.html#renderTextViewCmds"><span class="hs-identifier">renderTextViewCmds</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.42.0.0-adb97c8b64f7cfe714110d64a9ae13dc2e91150493dd46e036c3aac765a8924e/share/doc/html/src"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/text-2.1.1-bbee7c9bd28dc53516c9ba858aed18cff0abbafc1926ee799672dad6f7317e04/share/doc/html/src"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/text-2.1.1-bbee7c9bd28dc53516c9ba858aed18cff0abbafc1926ee799672dad6f7317e04/share/doc/html/src"><span class="hs-identifier">Text</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">data</span><span> </span><span id="TextViewCmds"><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TextView.html#TextViewCmds"><span class="hs-identifier hs-var">TextViewCmds</span></a></span></span><span> </span><span id="local-6989586621681747456"><span class="annot"><a href="#local-6989586621681747456"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="TextViewInfo"><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TextView.html#TextViewInfo"><span class="hs-identifier hs-var">TextViewInfo</span></a></span></span><span>
+</span><span id="line-15"></span><span>      </span><span class="hs-glyph">!</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-16"></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.42.0.0-l-internal-5393c6027a1ca238590744b1a14949dcdf273de60b172deaeff5474982cbae5c/share/doc/html/src"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.42.0.0-l-internal-5393c6027a1ca238590744b1a14949dcdf273de60b172deaeff5474982cbae5c/share/doc/html/src"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681747433"><span id="local-6989586621681747435"><span id="local-6989586621681747445"><span class="annot"><span class="annottext">Int -&gt; TextViewCmds era -&gt; ShowS
+forall era. Int -&gt; TextViewCmds era -&gt; ShowS
+forall era. [TextViewCmds era] -&gt; ShowS
+forall era. TextViewCmds era -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [TextViewCmds era] -&gt; ShowS
+$cshowList :: forall era. [TextViewCmds era] -&gt; ShowS
+show :: TextViewCmds era -&gt; String
+$cshow :: forall era. TextViewCmds era -&gt; String
+showsPrec :: Int -&gt; TextViewCmds era -&gt; ShowS
+$cshowsPrec :: forall era. Int -&gt; TextViewCmds era -&gt; ShowS
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span id="local-6989586621681747455"><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TextView.html#renderTextViewCmds"><span class="hs-identifier hs-type">renderTextViewCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TextView.html#TextViewCmds"><span class="hs-identifier hs-type">TextViewCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681747455"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/text-2.1.1-bbee7c9bd28dc53516c9ba858aed18cff0abbafc1926ee799672dad6f7317e04/share/doc/html/src"><span class="hs-identifier hs-type">Text</span></a></span></span><span>
+</span><span id="line-20"></span><span id="renderTextViewCmds"><span class="annot"><span class="annottext">renderTextViewCmds :: forall era. TextViewCmds era -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Commands.TextView.html#renderTextViewCmds"><span class="hs-identifier hs-var hs-var">renderTextViewCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-21"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TextView.html#TextViewInfo"><span class="hs-identifier hs-type">TextViewInfo</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;text-view decode-cbor&quot;</span></span><span>
+</span><span id="line-22"></span></pre></body></html>
