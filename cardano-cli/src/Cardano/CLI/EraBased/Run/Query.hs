@@ -1,4 +1,6 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -81,6 +83,7 @@ import qualified Data.Map.Strict as Map
 import           Data.Proxy (Proxy (..))
 import           Data.Set (Set)
 import qualified Data.Set as Set
+import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
@@ -88,6 +91,7 @@ import qualified Data.Text.IO as T
 import qualified Data.Text.IO as Text
 import qualified Data.Text.Lazy.IO as LT
 import           Data.Time.Clock
+import           GHC.Generics
 import           Lens.Micro ((^.))
 import           Numeric (showEFloat)
 import           Prettyprinter
@@ -115,6 +119,7 @@ runQueryCmds = \case
   Cmd.QueryPoolStateCmd             args -> runQueryPoolStateCmd args
   Cmd.QueryTxMempoolCmd             args -> runQueryTxMempoolCmd args
   Cmd.QuerySlotNumberCmd            args -> runQuerySlotNumberCmd args
+  Cmd.QueryRefScriptSizeCmd         args -> runQueryRefScriptSizeCmd args
   Cmd.QueryConstitutionCmd          args -> runQueryConstitution args
   Cmd.QueryGovStateCmd              args -> runQueryGovState args
   Cmd.QueryDRepStateCmd             args -> runQueryDRepState args
@@ -672,6 +677,51 @@ runQuerySlotNumberCmd
   SlotNo slotNo <- utcTimeToSlotNo nodeSocketPath consensusModeParams networkId target utcTime
   liftIO . putStr $ show slotNo
 
+runQueryRefScriptSizeCmd
+  :: ()
+  => Cmd.QueryRefScriptSizeCmdArgs
+  -> ExceptT QueryCmdError IO ()
+runQueryRefScriptSizeCmd
+    Cmd.QueryRefScriptSizeCmdArgs
+    { Cmd.nodeSocketPath
+    , Cmd.consensusModeParams
+    , Cmd.transactionInputs
+    , Cmd.networkId
+    , Cmd.target
+    , Cmd.format
+    , Cmd.mOutFile
+    } = do
+  let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+
+  join $ lift
+    ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
+        AnyCardanoEra era <- lift queryCurrentEra
+          & onLeft (left . QueryCmdUnsupportedNtcVersion)
+
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left QueryCmdByronEra)
+
+        beo <- requireEon BabbageEra era
+
+        utxo <- lift (queryUtxo sbe $ QueryUTxOByTxIn transactionInputs)
+          & onLeft (left . QueryCmdUnsupportedNtcVersion)
+          & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+
+        pure $
+          writeFormattedOutput format mOutFile $
+            RefInputScriptSize $
+              getReferenceInputsSizeForTxIds beo (toLedgerUTxO sbe utxo) transactionInputs
+    )
+    & onLeft (left . QueryCmdAcquireFailure)
+    & onLeft left
+
+newtype RefInputScriptSize = RefInputScriptSize { refInputScriptSize :: Int }
+  deriving (Generic)
+  deriving anyclass (ToJSON)
+
+instance Pretty RefInputScriptSize where
+  pretty (RefInputScriptSize s) = "Reference inputs scripts size is" <+> pretty s <+> "bytes."
+
 -- | Obtain stake snapshot information for a pool, plus information about the total active stake.
 -- This information can be used for leader slot calculation, for example, and has been requested by SPOs.
 -- Obtaining the information directly is significantly more time and memory efficient than using a full ledger state dump.
@@ -1120,6 +1170,7 @@ runQueryStakePoolsCmd
     ) & onLeft (left . QueryCmdAcquireFailure)
       & onLeft left
 
+-- TODO: replace with writeFormattedOutput
 writeStakePools
   :: QueryOutputFormat
   -> Maybe (File () Out)
@@ -1137,6 +1188,23 @@ writeStakePools format mOutFile stakePools =
             $ Set.toList stakePools
         QueryOutputFormatJson ->
           encodePretty stakePools
+
+writeFormattedOutput
+  :: MonadIOTransError QueryCmdError t m
+  => ToJSON a
+  => Pretty a
+  => Maybe QueryOutputFormat
+  -> Maybe (File b Out)
+  -> a
+  -> t m ()
+writeFormattedOutput mFormat mOutFile value =
+  modifyError QueryCmdWriteFileError . hoistIOEither $
+      writeLazyByteStringOutput mOutFile toWrite
+  where
+    toWrite :: LBS.ByteString =
+      case newOutputFormat mFormat mOutFile of
+        QueryOutputFormatText -> fromString . docToString $ pretty value
+        QueryOutputFormatJson -> encodePretty value
 
 runQueryStakeDistributionCmd :: ()
   => Cmd.QueryStakeDistributionCmdArgs

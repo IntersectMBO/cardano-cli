@@ -97,6 +97,7 @@ hprop_golden_HelpCmds =
       let usages = List.filter (not . null) $ fmap extractCmd $ maybeToList . selectCmd =<< lines
 
       forM_ usages $ \usage -> do
+        -- FIXME: this is sloow
         H.noteShow_ usage
         let expectedCmdHelpFp = "test/cardano-cli-golden/files/golden/help" </> Text.unpack (Text.intercalate "_" usage) <> ".cli"
 

@@ -452,6 +452,7 @@ Usage: cardano-cli shelley query
                                    | pool-state
                                    | tx-mempool
                                    | slot-number
+                                   | ref-script-size
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -646,6 +647,21 @@ Usage: cardano-cli shelley query slot-number --socket-path SOCKET_PATH
                                                TIMESTAMP
 
   Query slot number for UTC timestamp
+
+Usage: cardano-cli shelley query ref-script-size --socket-path SOCKET_PATH
+                                                   [--cardano-mode
+                                                     [--epoch-slots SLOTS]]
+                                                   (--tx-in TX-IN)
+                                                   ( --mainnet
+                                                   | --testnet-magic NATURAL
+                                                   )
+                                                   [ --output-json
+                                                   | --output-text
+                                                   ]
+                                                   [--out-file FILE]
+
+  Calculate the reference input scripts size in bytes for provided transaction
+  ids
 
 Usage: cardano-cli shelley stake-address 
                                            ( key-gen
@@ -1624,6 +1640,7 @@ Usage: cardano-cli allegra query
                                    | pool-state
                                    | tx-mempool
                                    | slot-number
+                                   | ref-script-size
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -1818,6 +1835,21 @@ Usage: cardano-cli allegra query slot-number --socket-path SOCKET_PATH
                                                TIMESTAMP
 
   Query slot number for UTC timestamp
+
+Usage: cardano-cli allegra query ref-script-size --socket-path SOCKET_PATH
+                                                   [--cardano-mode
+                                                     [--epoch-slots SLOTS]]
+                                                   (--tx-in TX-IN)
+                                                   ( --mainnet
+                                                   | --testnet-magic NATURAL
+                                                   )
+                                                   [ --output-json
+                                                   | --output-text
+                                                   ]
+                                                   [--out-file FILE]
+
+  Calculate the reference input scripts size in bytes for provided transaction
+  ids
 
 Usage: cardano-cli allegra stake-address 
                                            ( key-gen
@@ -2794,6 +2826,7 @@ Usage: cardano-cli mary query
                                 | pool-state
                                 | tx-mempool
                                 | slot-number
+                                | ref-script-size
                                 )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -2984,6 +3017,19 @@ Usage: cardano-cli mary query slot-number --socket-path SOCKET_PATH
                                             TIMESTAMP
 
   Query slot number for UTC timestamp
+
+Usage: cardano-cli mary query ref-script-size --socket-path SOCKET_PATH
+                                                [--cardano-mode
+                                                  [--epoch-slots SLOTS]]
+                                                (--tx-in TX-IN)
+                                                ( --mainnet
+                                                | --testnet-magic NATURAL
+                                                )
+                                                [--output-json | --output-text]
+                                                [--out-file FILE]
+
+  Calculate the reference input scripts size in bytes for provided transaction
+  ids
 
 Usage: cardano-cli mary stake-address 
                                         ( key-gen
@@ -3956,6 +4002,7 @@ Usage: cardano-cli alonzo query
                                   | pool-state
                                   | tx-mempool
                                   | slot-number
+                                  | ref-script-size
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -4150,6 +4197,21 @@ Usage: cardano-cli alonzo query slot-number --socket-path SOCKET_PATH
                                               TIMESTAMP
 
   Query slot number for UTC timestamp
+
+Usage: cardano-cli alonzo query ref-script-size --socket-path SOCKET_PATH
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
+                                                  (--tx-in TX-IN)
+                                                  ( --mainnet
+                                                  | --testnet-magic NATURAL
+                                                  )
+                                                  [ --output-json
+                                                  | --output-text
+                                                  ]
+                                                  [--out-file FILE]
+
+  Calculate the reference input scripts size in bytes for provided transaction
+  ids
 
 Usage: cardano-cli alonzo stake-address 
                                           ( key-gen
@@ -5153,6 +5215,7 @@ Usage: cardano-cli babbage query
                                    | pool-state
                                    | tx-mempool
                                    | slot-number
+                                   | ref-script-size
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -5347,6 +5410,21 @@ Usage: cardano-cli babbage query slot-number --socket-path SOCKET_PATH
                                                TIMESTAMP
 
   Query slot number for UTC timestamp
+
+Usage: cardano-cli babbage query ref-script-size --socket-path SOCKET_PATH
+                                                   [--cardano-mode
+                                                     [--epoch-slots SLOTS]]
+                                                   (--tx-in TX-IN)
+                                                   ( --mainnet
+                                                   | --testnet-magic NATURAL
+                                                   )
+                                                   [ --output-json
+                                                   | --output-text
+                                                   ]
+                                                   [--out-file FILE]
+
+  Calculate the reference input scripts size in bytes for provided transaction
+  ids
 
 Usage: cardano-cli babbage stake-address 
                                            ( key-gen
@@ -6601,6 +6679,7 @@ Usage: cardano-cli conway query
                                   | pool-state
                                   | tx-mempool
                                   | slot-number
+                                  | ref-script-size
                                   | constitution
                                   | gov-state
                                   | drep-state
@@ -6827,6 +6906,24 @@ Usage: cardano-cli conway query slot-number --socket-path SOCKET_PATH
                                               TIMESTAMP
 
   Query slot number for UTC timestamp
+
+Usage: cardano-cli conway query ref-script-size --socket-path SOCKET_PATH
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
+                                                  (--tx-in TX-IN)
+                                                  ( --mainnet
+                                                  | --testnet-magic NATURAL
+                                                  )
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
+                                                  [ --output-json
+                                                  | --output-text
+                                                  ]
+                                                  [--out-file FILE]
+
+  Calculate the reference input scripts size in bytes for provided transaction
+  ids
 
 Usage: cardano-cli conway query constitution --socket-path SOCKET_PATH
                                                [--cardano-mode
@@ -7993,6 +8090,7 @@ Usage: cardano-cli latest query
                                   | pool-state
                                   | tx-mempool
                                   | slot-number
+                                  | ref-script-size
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -8187,6 +8285,21 @@ Usage: cardano-cli latest query slot-number --socket-path SOCKET_PATH
                                               TIMESTAMP
 
   Query slot number for UTC timestamp
+
+Usage: cardano-cli latest query ref-script-size --socket-path SOCKET_PATH
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
+                                                  (--tx-in TX-IN)
+                                                  ( --mainnet
+                                                  | --testnet-magic NATURAL
+                                                  )
+                                                  [ --output-json
+                                                  | --output-text
+                                                  ]
+                                                  [--out-file FILE]
+
+  Calculate the reference input scripts size in bytes for provided transaction
+  ids
 
 Usage: cardano-cli latest stake-address 
                                           ( key-gen
