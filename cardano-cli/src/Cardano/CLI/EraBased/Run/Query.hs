@@ -148,7 +148,7 @@ runQueryConstitutionHashCmd
   where
     writeConstitutionHash
       :: Maybe (File () Out)
-      -> Maybe (L.SafeHash L.StandardCrypto L.AnchorData)
+      -> L.SafeHash L.StandardCrypto L.AnchorData
       -> ExceptT QueryCmdError IO ()
     writeConstitutionHash mOutFile' cHash =
       firstExceptT QueryCmdWriteFileError . newExceptT
