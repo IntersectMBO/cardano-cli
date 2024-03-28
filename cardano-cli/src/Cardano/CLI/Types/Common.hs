@@ -42,9 +42,9 @@ module Cardano.CLI.Types.Common
   , ParserFileDirection (..)
   , IdOutputFormat (..)
   , PrivKeyFile(..)
-  , ProposalBinary(..)
+  , ProposalBinary
   , ProposalFile
-  , ProposalText(..)
+  , ProposalText
   , ProposalUrl(..)
   , ProtocolParamsFile(..)
   , QueryOutputFormat(..)
@@ -92,7 +92,6 @@ import qualified Cardano.Chain.Slotting as Byron
 
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
 import qualified Data.Aeson as Aeson
-import qualified Data.ByteString as BS
 import           Data.String (IsString)
 import           Data.Text (Text)
 import qualified Data.Text as Text
@@ -124,13 +123,11 @@ newtype ProposalUrl = ProposalUrl
   { unProposalUrl :: L.Url
   } deriving (Eq, Show)
 
-newtype ProposalBinary = ProposalBinary
-  { unProposalBinary :: BS.ByteString
-  } deriving (Eq, Show)
+-- | Tag for tracking proposals submitted as 'Bytestring'
+data ProposalBinary
 
-newtype ProposalText = ProposalText
-  { unProposalText :: Text
-  } deriving (Eq, Show)
+-- | Tag for tracking proposals submitted as 'Text.Text'
+data ProposalText
 
 newtype VoteUrl = VoteUrl
   { unVoteUrl :: L.Url
