@@ -157,15 +157,16 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
     (L.sgMaxLovelaceSupply genesis) H.=== (fromIntegral totalSupply)
 
     let initialFunds = ListMap.toList $ L.sgInitialFunds genesis
-
+    -- This checks that there is actually only one funded address
     (length initialFunds) H.=== 1
+
     let L.Coin onlyHolderCoin = snd $ initialFunds !! 0
 
     -- The check below may seem weird, but we cannot do a very precise check
     -- on balances, because of the treasury "stealing" some of the money.
     -- Nevertheless, this check catches a confusion between delegated and
     -- non-delegated coins, by virtue of --delegated-supply being a fourth
-    -- of --total-supply above.
-    -- https://github.com/IntersectMBO/cardano-cli/issues/631
+    -- of --total-supply above. This confusion actually happened in the past, as
+    -- https://github.com/IntersectMBO/cardano-cli/issues/631 witnesses.
 
     H.assertWith (fromIntegral onlyHolderCoin) (\ohc -> ohc > totalSupply `div` 2)
