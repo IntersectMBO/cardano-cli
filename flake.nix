@@ -15,11 +15,12 @@
   outputs = inputs: let
     supportedSystems = [
       "x86_64-linux"
+      "x86_64-darwin"
+      # this is slow as we don't have aarch64-linux native builders as of 2024-04-03
       # disabling to reduce CI time initially. Uncomment later
       # When you uncomment, lookup the "TODO generalize" comments in release-upload.yaml
-      #"x86_64-darwin"
-      #"aarch64-linux"
-      #"aarch64-darwin"
+      # "aarch64-linux"
+      "aarch64-darwin"
     ];
   in
     {inherit (inputs) incl;}

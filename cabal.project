@@ -27,6 +27,10 @@ package cryptonite
   -- generation is dubious. Set the flag so we use /dev/urandom by default.
   flags: -support_rdrand
 
+package bitvec
+  -- Workaround for windows cross-compilation
+  flags: -simd
+
 tests: True
 
 test-show-details: direct
