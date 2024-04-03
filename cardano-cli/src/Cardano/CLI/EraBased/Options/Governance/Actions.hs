@@ -125,7 +125,7 @@ pUpdateCommitteeCmd eon =
           ( (,)
               <$> pAddCommitteeColdVerificationKeySource
               <*> pEpochNo "Committee member expiry epoch")
-    <*> pRational "quorum" "Quorum of the committee that is necessary for a successful vote."
+    <*> pRational "threshold" "Threshold of YES votes that are necessary for approving a governance action."
     <*> pPreviousGovernanceAction
     <*> pOutputFile
 

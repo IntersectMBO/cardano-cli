@@ -6220,7 +6220,7 @@ Usage: cardano-cli conway governance action update-committee
                                                                  | --add-cc-cold-script-hash HASH
                                                                  )
                                                                  --epoch NATURAL]
-                                                               --quorum RATIONAL
+                                                               --threshold RATIONAL
                                                                [--prev-governance-action-tx-id TXID
                                                                  --prev-governance-action-index WORD32]
                                                                --out-file FILE

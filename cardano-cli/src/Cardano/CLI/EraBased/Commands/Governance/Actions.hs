@@ -51,7 +51,7 @@ data GovernanceActionUpdateCommitteeCmdArgs era
       , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey]
       , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey, EpochNo)]
-      , requiredQuorum          :: !Rational
+      , requiredThreshold       :: !Rational
       , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
       , outFile                 :: !(File () Out)
       } deriving Show

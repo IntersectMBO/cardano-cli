@@ -108,7 +108,7 @@ hprop_golden_conway_governance_action_view_update_committee_yaml =
       , "--deposit-return-stake-verification-key-file", stakeAddressVKeyFile
       , "--anchor-url", "proposal-dummy-url"
       , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
-      , "--quorum", "0.61"
+      , "--threshold", "0.61"
       , "--out-file", actionFile
       ]
 
