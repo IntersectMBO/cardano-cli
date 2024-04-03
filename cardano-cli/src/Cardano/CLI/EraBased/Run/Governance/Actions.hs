@@ -201,7 +201,7 @@ runGovernanceActionUpdateCommitteeCmd
       , Cmd.proposalHash
       , Cmd.oldCommitteeVkeySource
       , Cmd.newCommitteeVkeySource
-      , Cmd.requiredQuorum
+      , Cmd.requiredThreshold
       , Cmd.mPrevGovernanceActionId
       , Cmd.outFile
       } = do
@@ -209,7 +209,7 @@ runGovernanceActionUpdateCommitteeCmd
       govActIdentifier = L.maybeToStrictMaybe
                            $ shelleyBasedEraConstraints sbe
                            $ uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
-      quorumRational = toRational requiredQuorum
+      thresholdRational = toRational requiredThreshold
 
   let proposalAnchor = L.Anchor
         { L.anchorUrl = unProposalUrl proposalUrl
@@ -233,7 +233,7 @@ runGovernanceActionUpdateCommitteeCmd
                               govActIdentifier
                               oldCommitteeKeyHashes
                               (fromList newCommitteeKeyHashes)
-                              quorumRational
+                              thresholdRational
       proposal = createProposalProcedure sbe networkId deposit depositStakeCredential proposeNewCommittee proposalAnchor
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT

@@ -23,7 +23,7 @@ Usage: cardano-cli conway governance action update-committee
                                                                  | --add-cc-cold-script-hash HASH
                                                                  )
                                                                  --epoch NATURAL]
-                                                               --quorum RATIONAL
+                                                               --threshold RATIONAL
                                                                [--prev-governance-action-tx-id TXID
                                                                  --prev-governance-action-index WORD32]
                                                                --out-file FILE
@@ -69,8 +69,8 @@ Available options:
                            Obtain it with "cardano-cli conway governance hash
                            script ...".
   --epoch NATURAL          Committee member expiry epoch
-  --quorum RATIONAL        Quorum of the committee that is necessary for a
-                           successful vote.
+  --threshold RATIONAL     Threshold of YES votes that are necessary for
+                           approving a governance action.
   --prev-governance-action-tx-id TXID
                            Txid of the previous governance action.
   --prev-governance-action-index WORD32

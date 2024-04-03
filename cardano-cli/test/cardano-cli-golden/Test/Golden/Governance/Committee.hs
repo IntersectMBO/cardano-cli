@@ -176,7 +176,7 @@ hprop_golden_governanceUpdateCommittee =
       , "--epoch", "202"
       , "--add-cc-cold-verification-key-file", coldCCVkey2
       , "--epoch", "252"
-      , "--quorum", "51/100"
+      , "--threshold", "51/100"
       , "--out-file", outFile
       ]
 
