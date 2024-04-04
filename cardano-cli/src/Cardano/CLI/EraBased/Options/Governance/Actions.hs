@@ -240,8 +240,8 @@ mkProtocolVersionOrErr (majorProtVer, minorProtVer) =
 pCommonProtocolParameters :: Parser CommonProtocolParametersUpdate
 pCommonProtocolParameters =
   CommonProtocolParametersUpdate
-    <$> convertToLedger id (optional pMinFeeConstantFactor)
-    <*> convertToLedger id (optional pMinFeePerByteFactor)
+    <$> convertToLedger id (optional pMinFeePerByteFactor)
+    <*> convertToLedger id (optional pMinFeeConstantFactor)
     <*> convertToLedger id (optional pMaxBodySize)
     <*> convertToLedger id (optional pMaxTransactionSize)
     <*> convertToLedger id (optional pMaxBlockHeaderSize)
