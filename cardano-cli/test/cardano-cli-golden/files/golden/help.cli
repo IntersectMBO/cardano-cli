@@ -138,7 +138,10 @@ Usage: cardano-cli shelley key convert-itn-bip32-key --itn-signing-key-file FILE
   corresponding Shelley stake signing key
 
 Usage: cardano-cli shelley key convert-cardano-address-key 
-                                                             ( --shelley-payment-key
+                                                             ( --cc-cold-key
+                                                             | --cc-hot-key
+                                                             | --drep-key
+                                                             | --shelley-payment-key
                                                              | --shelley-stake-key
                                                              | --icarus-payment-key
                                                              | --byron-payment-key
@@ -1311,7 +1314,10 @@ Usage: cardano-cli allegra key convert-itn-bip32-key --itn-signing-key-file FILE
   corresponding Shelley stake signing key
 
 Usage: cardano-cli allegra key convert-cardano-address-key 
-                                                             ( --shelley-payment-key
+                                                             ( --cc-cold-key
+                                                             | --cc-hot-key
+                                                             | --drep-key
+                                                             | --shelley-payment-key
                                                              | --shelley-stake-key
                                                              | --icarus-payment-key
                                                              | --byron-payment-key
@@ -2484,7 +2490,10 @@ Usage: cardano-cli mary key convert-itn-bip32-key --itn-signing-key-file FILE
   corresponding Shelley stake signing key
 
 Usage: cardano-cli mary key convert-cardano-address-key 
-                                                          ( --shelley-payment-key
+                                                          ( --cc-cold-key
+                                                          | --cc-hot-key
+                                                          | --drep-key
+                                                          | --shelley-payment-key
                                                           | --shelley-stake-key
                                                           | --icarus-payment-key
                                                           | --byron-payment-key
@@ -3640,7 +3649,10 @@ Usage: cardano-cli alonzo key convert-itn-bip32-key --itn-signing-key-file FILE
   corresponding Shelley stake signing key
 
 Usage: cardano-cli alonzo key convert-cardano-address-key 
-                                                            ( --shelley-payment-key
+                                                            ( --cc-cold-key
+                                                            | --cc-hot-key
+                                                            | --drep-key
+                                                            | --shelley-payment-key
                                                             | --shelley-stake-key
                                                             | --icarus-payment-key
                                                             | --byron-payment-key
@@ -4817,7 +4829,10 @@ Usage: cardano-cli babbage key convert-itn-bip32-key --itn-signing-key-file FILE
   corresponding Shelley stake signing key
 
 Usage: cardano-cli babbage key convert-cardano-address-key 
-                                                             ( --shelley-payment-key
+                                                             ( --cc-cold-key
+                                                             | --cc-hot-key
+                                                             | --drep-key
+                                                             | --shelley-payment-key
                                                              | --shelley-stake-key
                                                              | --icarus-payment-key
                                                              | --byron-payment-key
@@ -6016,7 +6031,10 @@ Usage: cardano-cli conway key convert-itn-bip32-key --itn-signing-key-file FILE
   corresponding Shelley stake signing key
 
 Usage: cardano-cli conway key convert-cardano-address-key 
-                                                            ( --shelley-payment-key
+                                                            ( --cc-cold-key
+                                                            | --cc-hot-key
+                                                            | --drep-key
+                                                            | --shelley-payment-key
                                                             | --shelley-stake-key
                                                             | --icarus-payment-key
                                                             | --byron-payment-key
@@ -7661,7 +7679,10 @@ Usage: cardano-cli latest key convert-itn-bip32-key --itn-signing-key-file FILE
   corresponding Shelley stake signing key
 
 Usage: cardano-cli latest key convert-cardano-address-key 
-                                                            ( --shelley-payment-key
+                                                            ( --cc-cold-key
+                                                            | --cc-hot-key
+                                                            | --drep-key
+                                                            | --shelley-payment-key
                                                             | --shelley-stake-key
                                                             | --icarus-payment-key
                                                             | --byron-payment-key
@@ -9853,7 +9874,10 @@ Usage: cardano-cli legacy key convert-itn-bip32-key --itn-signing-key-file FILE
   corresponding Shelley stake signing key
 
 Usage: cardano-cli legacy key convert-cardano-address-key 
-                                                            ( --shelley-payment-key
+                                                            ( --cc-cold-key
+                                                            | --cc-hot-key
+                                                            | --drep-key
+                                                            | --shelley-payment-key
                                                             | --shelley-stake-key
                                                             | --icarus-payment-key
                                                             | --byron-payment-key
@@ -11065,7 +11089,10 @@ Usage: cardano-cli key convert-itn-bip32-key --itn-signing-key-file FILE
   corresponding Shelley stake signing key
 
 Usage: cardano-cli key convert-cardano-address-key 
-                                                     ( --shelley-payment-key
+                                                     ( --cc-cold-key
+                                                     | --cc-hot-key
+                                                     | --drep-key
+                                                     | --shelley-payment-key
                                                      | --shelley-stake-key
                                                      | --icarus-payment-key
                                                      | --byron-payment-key
