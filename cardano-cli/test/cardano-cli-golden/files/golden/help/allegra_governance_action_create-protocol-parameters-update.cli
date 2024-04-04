@@ -1,7 +1,7 @@
 Usage: cardano-cli allegra governance action create-protocol-parameters-update --epoch NATURAL
                                                                                  (--genesis-verification-key-file FILE)
-                                                                                 [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
+                                                                                 [--min-fee-constant LOVELACE]
                                                                                  [--max-block-body-size WORD32]
                                                                                  [--max-tx-size WORD32]
                                                                                  [--max-block-header-size WORD16]
@@ -29,11 +29,11 @@ Available options:
                            valid.
   --genesis-verification-key-file FILE
                            Filepath of the genesis verification key.
-  --min-fee-constant LOVELACE
-                           The constant factor for the minimum fee calculation.
   --min-fee-linear LOVELACE
                            The linear factor per byte for the minimum fee
                            calculation.
+  --min-fee-constant LOVELACE
+                           The constant factor for the minimum fee calculation.
   --max-block-body-size WORD32
                            Maximal block body size.
   --max-tx-size WORD32     Maximum transaction size.

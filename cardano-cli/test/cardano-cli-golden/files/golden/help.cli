@@ -353,8 +353,8 @@ Usage: cardano-cli shelley governance action create-protocol-parameters-update
 
 Usage: cardano-cli shelley governance action create-protocol-parameters-update --epoch NATURAL
                                                                                  (--genesis-verification-key-file FILE)
-                                                                                 [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
+                                                                                 [--min-fee-constant LOVELACE]
                                                                                  [--max-block-body-size WORD32]
                                                                                  [--max-tx-size WORD32]
                                                                                  [--max-block-header-size WORD16]
@@ -1525,8 +1525,8 @@ Usage: cardano-cli allegra governance action create-protocol-parameters-update
 
 Usage: cardano-cli allegra governance action create-protocol-parameters-update --epoch NATURAL
                                                                                  (--genesis-verification-key-file FILE)
-                                                                                 [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
+                                                                                 [--min-fee-constant LOVELACE]
                                                                                  [--max-block-body-size WORD32]
                                                                                  [--max-tx-size WORD32]
                                                                                  [--max-block-header-size WORD16]
@@ -2695,8 +2695,8 @@ Usage: cardano-cli mary governance action create-protocol-parameters-update
 
 Usage: cardano-cli mary governance action create-protocol-parameters-update --epoch NATURAL
                                                                               (--genesis-verification-key-file FILE)
-                                                                              [--min-fee-constant LOVELACE]
                                                                               [--min-fee-linear LOVELACE]
+                                                                              [--min-fee-constant LOVELACE]
                                                                               [--max-block-body-size WORD32]
                                                                               [--max-tx-size WORD32]
                                                                               [--max-block-header-size WORD16]
@@ -3850,8 +3850,8 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update
 
 Usage: cardano-cli alonzo governance action create-protocol-parameters-update --epoch NATURAL
                                                                                 (--genesis-verification-key-file FILE)
-                                                                                [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
+                                                                                [--min-fee-constant LOVELACE]
                                                                                 [--max-block-body-size WORD32]
                                                                                 [--max-tx-size WORD32]
                                                                                 [--max-block-header-size WORD16]
@@ -5031,8 +5031,8 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update
 
 Usage: cardano-cli babbage governance action create-protocol-parameters-update --epoch NATURAL
                                                                                  (--genesis-verification-key-file FILE)
-                                                                                 [--min-fee-constant LOVELACE]
                                                                                  [--min-fee-linear LOVELACE]
+                                                                                 [--min-fee-constant LOVELACE]
                                                                                  [--max-block-body-size WORD32]
                                                                                  [--max-tx-size WORD32]
                                                                                  [--max-block-header-size WORD16]
@@ -6276,8 +6276,8 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 [--prev-governance-action-tx-id TXID
                                                                                   --prev-governance-action-index WORD32]
                                                                                 [--constitution-script-hash HASH]
-                                                                                [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
+                                                                                [--min-fee-constant LOVELACE]
                                                                                 [--max-block-body-size WORD32]
                                                                                 [--max-tx-size WORD32]
                                                                                 [--max-block-header-size WORD16]
@@ -7871,8 +7871,8 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update
 
 Usage: cardano-cli latest governance action create-protocol-parameters-update --epoch NATURAL
                                                                                 (--genesis-verification-key-file FILE)
-                                                                                [--min-fee-constant LOVELACE]
                                                                                 [--min-fee-linear LOVELACE]
+                                                                                [--min-fee-constant LOVELACE]
                                                                                 [--max-block-body-size WORD32]
                                                                                 [--max-tx-size WORD32]
                                                                                 [--max-block-header-size WORD16]
