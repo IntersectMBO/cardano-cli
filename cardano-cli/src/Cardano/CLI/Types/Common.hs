@@ -557,6 +557,9 @@ data CardanoAddressKeyType
   | CardanoAddressShelleyStakeKey
   | CardanoAddressIcarusPaymentKey
   | CardanoAddressByronPaymentKey
+  | CardanoAddressCommitteeColdKey
+  | CardanoAddressCommitteeHotKey
+  | CardanoAddressDRepKey
   deriving Show
 
 type OpCertCounterFile = File OpCertCounter

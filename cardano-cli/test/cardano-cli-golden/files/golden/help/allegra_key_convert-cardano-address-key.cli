@@ -1,5 +1,8 @@
 Usage: cardano-cli allegra key convert-cardano-address-key 
-                                                             ( --shelley-payment-key
+                                                             ( --cc-cold-key
+                                                             | --cc-hot-key
+                                                             | --drep-key
+                                                             | --shelley-payment-key
                                                              | --shelley-stake-key
                                                              | --icarus-payment-key
                                                              | --byron-payment-key
@@ -11,6 +14,9 @@ Usage: cardano-cli allegra key convert-cardano-address-key
   Shelley-format key.
 
 Available options:
+  --cc-cold-key            Use a committee cold key.
+  --cc-hot-key             Use a committee hot key.
+  --drep-key               Use a DRep key.
   --shelley-payment-key    Use a Shelley-era extended payment key.
   --shelley-stake-key      Use a Shelley-era extended stake key.
   --icarus-payment-key     Use a Byron-era extended payment key formatted in the

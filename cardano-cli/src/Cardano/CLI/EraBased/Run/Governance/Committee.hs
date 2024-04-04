@@ -13,6 +13,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as Cmd
+import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Read (readVerificationKeyOrHashOrFileOrScript)
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Key
@@ -49,18 +50,11 @@ runGovernanceCommitteeKeyGenCold
 
   let vkey = getVerificationKey skey
 
-  writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just skeyDesc) skey)
+  writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just Key.ccColdSkeyDesc) skey)
     & onLeft (left . GovernanceCommitteeCmdWriteFileError)
 
-  writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just vkeyDesc) vkey)
+  writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.ccColdVkeyDesc) vkey)
     & onLeft (left . GovernanceCommitteeCmdWriteFileError)
-
-  where
-    skeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Constitutional Committee Cold Signing Key"
-
-    vkeyDesc :: TextEnvelopeDescr
-    vkeyDesc = "Constitutional Committee Cold Verification Key"
 
 runGovernanceCommitteeKeyGenHot :: ()
   => Cmd.GovernanceCommitteeKeyGenHotCmdArgs era
@@ -78,19 +72,12 @@ runGovernanceCommitteeKeyGenHot
   firstExceptT GovernanceCommitteeCmdWriteFileError
     . newExceptT
     $ writeLazyByteStringFile skeyPath
-    $ textEnvelopeToJSON (Just skeyDesc) skey
+    $ textEnvelopeToJSON (Just Key.ccHotSkeyDesc) skey
 
   firstExceptT GovernanceCommitteeCmdWriteFileError
     . newExceptT
     $ writeLazyByteStringFile vkeyPath
-    $ textEnvelopeToJSON (Just vkeyDesc) vkey
-
-  where
-    skeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Constitutional Committee Hot Signing Key"
-
-    vkeyDesc :: TextEnvelopeDescr
-    vkeyDesc = "Constitutional Committee Hot Verification Key"
+    $ textEnvelopeToJSON (Just Key.ccHotVkeyDesc) vkey
 
 data SomeCommitteeKey f
   = ACommitteeHotKey  (f CommitteeHotKey)

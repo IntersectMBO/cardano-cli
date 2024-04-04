@@ -67,12 +67,9 @@ runGovernanceDRepKeyGenCmd
       , skeyFile
       } = do
   (vkey, skey) <- liftIO $ generateKeyPair AsDRepKey
-  newExceptT $ writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just skeyDesc) skey)
+  newExceptT $ writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just Key.drepSkeyDesc) skey)
   newExceptT $ writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey)
   return (vkey, skey)
-  where
-    skeyDesc :: TextEnvelopeDescr
-    skeyDesc = "Delegate Representative Signing Key"
 
 runGovernanceDRepIdCmd :: ()
   => Cmd.GovernanceDRepIdCmdArgs era

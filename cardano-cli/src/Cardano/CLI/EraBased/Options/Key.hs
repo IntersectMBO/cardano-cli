@@ -258,7 +258,19 @@ pKeyConvertCardanoAddressKeyCmd =
 pCardanoAddressKeyType :: Parser CardanoAddressKeyType
 pCardanoAddressKeyType =
   asum
-    [ Opt.flag' CardanoAddressShelleyPaymentKey $ mconcat
+    [ Opt.flag' CardanoAddressCommitteeColdKey $ mconcat
+        [ Opt.long "cc-cold-key"
+        , Opt.help "Use a committee cold key."
+        ]
+    , Opt.flag' CardanoAddressCommitteeHotKey $ mconcat
+        [ Opt.long "cc-hot-key"
+        , Opt.help "Use a committee hot key."
+        ]
+    , Opt.flag' CardanoAddressDRepKey $ mconcat
+        [ Opt.long "drep-key"
+        , Opt.help "Use a DRep key."
+        ]
+    , Opt.flag' CardanoAddressShelleyPaymentKey $ mconcat
         [ Opt.long "shelley-payment-key"
         , Opt.help "Use a Shelley-era extended payment key."
         ]
