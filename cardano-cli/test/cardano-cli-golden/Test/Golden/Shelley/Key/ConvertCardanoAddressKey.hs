@@ -3,12 +3,16 @@
 module Test.Golden.Shelley.Key.ConvertCardanoAddressKey where
 
 import           Control.Monad (void)
+import           Control.Monad.Extra (forM_)
 import           Data.Text (Text)
+import           System.FilePath.Posix ((</>))
 
+import qualified Test.Cardano.CLI.Aeson as Aeson
+import qualified Test.Cardano.CLI.Util as H
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
-import qualified Hedgehog.Extras.Test.Base as H
+import qualified Hedgehog.Extras.Test.Base as H hiding (noteTempFile)
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
@@ -171,3 +175,35 @@ hprop_golden_convertCardanoAddressShelleyStakeSigningKey =
     -- the golden file.
     H.diffFileVsGoldenFile convertedSigningKeyFp
       "test/cardano-cli-golden/files/golden/shelley/keys/converted_cardano-address_keys/shelley_stake_signing_key"
+
+-- | Test that converting a @cardano-address@ CC/DRep signing key
+-- yields the expected result.
+-- Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/convert cardano address cc drep/"'@
+hprop_golden_convert_cardano_address_cc_drep :: Property
+hprop_golden_convert_cardano_address_cc_drep = do
+  let supplyValues =
+        [ ("cc_cold.key", "--cc-cold-key", "Constitutional Committee Cold")
+        , ("cc_hot.key",  "--cc-hot-key",  "Constitutional Committee Hot")
+        , ("drep.key",    "--drep-key",    "Delegate Representative")
+        ]
+
+  propertyOnce $ forM_ supplyValues $ \(filename, flag, descPrefix) -> H.moduleWorkspace "tmp" $ \tempDir -> do
+
+    let outFile = tempDir </> "out.json"
+
+    -- `cardano-address` signing key filepath
+    signingKeyFp <- H.noteInputFile $ "test/cardano-cli-golden/files/input/shelley/convert-cardano-address/" <> filename
+
+    -- Convert the `cardano-address` signing key
+    H.noteShowM_ $ execCardanoCLI
+      [ "key", "convert-cardano-address-key"
+      , flag
+      , "--signing-key-file", signingKeyFp
+      , "--out-file", outFile
+      ]
+
+    H.diffFileVsGoldenFile outFile
+      ("test/cardano-cli-golden/files/golden/shelley/keys/converted_cardano-address_keys/" <> filename)
+
+    Aeson.assertHasMappings [("description", descPrefix <> " Extended Signing Key")] outFile
