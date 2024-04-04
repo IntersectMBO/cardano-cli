@@ -68,8 +68,14 @@ import           System.Exit (exitFailure)
 ccColdSkeyDesc :: TextEnvelopeDescr
 ccColdSkeyDesc = "Constitutional Committee Cold Signing Key"
 
+ccColdExtendedSkeyDesc :: TextEnvelopeDescr
+ccColdExtendedSkeyDesc = "Constitutional Committee Cold Extended Signing Key"
+
 ccColdVkeyDesc :: TextEnvelopeDescr
 ccColdVkeyDesc = "Constitutional Committee Cold Verification Key"
+
+ccHotExtendedSkeyDesc :: TextEnvelopeDescr
+ccHotExtendedSkeyDesc = "Constitutional Committee Hot Extended Signing Key"
 
 ccHotSkeyDesc :: TextEnvelopeDescr
 ccHotSkeyDesc = "Constitutional Committee Hot Signing Key"
@@ -79,6 +85,9 @@ ccHotVkeyDesc = "Constitutional Committee Hot Verification Key"
 
 drepSkeyDesc :: TextEnvelopeDescr
 drepSkeyDesc = "Delegate Representative Signing Key"
+
+drepExtendedSkeyDesc :: TextEnvelopeDescr
+drepExtendedSkeyDesc = "Delegate Representative Extended Signing Key"
 
 drepVkeyDesc :: TextEnvelopeDescr
 drepVkeyDesc = "Delegate Representative Verification Key"
@@ -470,8 +479,11 @@ runConvertCardanoAddressKeyCmd
 -- signing key.
 data SomeCardanoAddressSigningKey
   = ACardanoAddrShelleyPaymentSigningKey !(SigningKey PaymentExtendedKey)
-  | ACardanoAddrShelleyStakeSigningKey !(SigningKey StakeExtendedKey)
-  | ACardanoAddrByronSigningKey !(SigningKey ByronKey)
+  | ACardanoAddrShelleyStakeSigningKey   !(SigningKey StakeExtendedKey)
+  | ACardanoAddrByronSigningKey  !(SigningKey ByronKey)
+  | ACardanoAddrCommitteeColdKey !(SigningKey CommitteeColdExtendedKey)
+  | ACardanoAddrCommitteeHotKey  !(SigningKey CommitteeHotExtendedKey)
+  | ACardanoAddrDRepKey          !(SigningKey DRepExtendedKey)
 
 -- | Decode a Bech32-encoded string.
 decodeBech32
@@ -533,6 +545,9 @@ readSomeCardanoAddressSigningKeyFile keyType skFile = do
         CardanoAddressShelleyStakeKey   -> ACardanoAddrShelleyStakeSigningKey   (StakeExtendedSigningKey xPrv)
         CardanoAddressIcarusPaymentKey  -> ACardanoAddrByronSigningKey $ ByronSigningKey (Byron.SigningKey xPrv)
         CardanoAddressByronPaymentKey   -> ACardanoAddrByronSigningKey $ ByronSigningKey (Byron.SigningKey xPrv)
+        CardanoAddressCommitteeColdKey  -> ACardanoAddrCommitteeColdKey         (CommitteeColdExtendedSigningKey xPrv)
+        CardanoAddressCommitteeHotKey   -> ACardanoAddrCommitteeHotKey          (CommitteeHotExtendedSigningKey xPrv)
+        CardanoAddressDRepKey           -> ACardanoAddrDRepKey                  (DRepExtendedSigningKey xPrv)
 
 -- | Write a text envelope formatted file containing a @cardano-address@
 -- extended signing key, but converted to a format supported by @cardano-cli@.
@@ -545,5 +560,8 @@ writeSomeCardanoAddressSigningKeyFile outFile =
     ACardanoAddrShelleyPaymentSigningKey sk -> go Nothing sk
     ACardanoAddrShelleyStakeSigningKey   sk -> go Nothing sk
     ACardanoAddrByronSigningKey          sk -> go Nothing sk
+    ACardanoAddrCommitteeColdKey         sk -> go (Just ccColdExtendedSkeyDesc) sk
+    ACardanoAddrCommitteeHotKey          sk -> go (Just ccHotExtendedSkeyDesc)  sk
+    ACardanoAddrDRepKey                  sk -> go (Just drepExtendedSkeyDesc)   sk
   where
     go envelope sk = writeLazyByteStringFile outFile $ textEnvelopeToJSON envelope sk
