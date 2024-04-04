@@ -20,6 +20,7 @@ hprop_golden_shelley_transaction_calculate_min_fee = propertyOnce $ do
     , "--byron-witness-count", "10"
     , "--witness-count", "5"
     , "--protocol-params-file", protocolParamsJsonFile
+    , "--reference-script-size", "0"
     , "--tx-body-file", txBodyFile
     ]
 

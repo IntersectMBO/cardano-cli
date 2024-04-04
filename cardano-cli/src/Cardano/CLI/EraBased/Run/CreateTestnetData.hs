@@ -556,16 +556,16 @@ buildPoolParams nw dir index specifiedRelays = do
            . newExceptT $ readFileTextEnvelope (AsVerificationKey AsStakeKey) poolRewardVKF
 
     pure L.PoolParams
-      { L.ppId          = L.hashKey poolColdVK
-      , L.ppVrf         = L.hashVerKeyVRF poolVrfVK
-      , L.ppPledge      = L.Coin 0
-      , L.ppCost        = L.Coin 0
-      , L.ppMargin      = minBound
-      , L.ppRewardAcnt  =
+      { L.ppId             = L.hashKey poolColdVK
+      , L.ppVrf            = L.hashVerKeyVRF poolVrfVK
+      , L.ppPledge         = L.Coin 0
+      , L.ppCost           = L.Coin 0
+      , L.ppMargin         = minBound
+      , L.ppRewardAccount  =
           toShelleyStakeAddr $ makeStakeAddress nw $ StakeCredentialByKey (verificationKeyHash rewardsSVK)
-      , L.ppOwners      = mempty
-      , L.ppRelays      = lookupPoolRelay specifiedRelays
-      , L.ppMetadata    = L.SNothing
+      , L.ppOwners         = mempty
+      , L.ppRelays         = lookupPoolRelay specifiedRelays
+      , L.ppMetadata       = L.SNothing
       }
  where
    lookupPoolRelay :: Map Word [L.StakePoolRelay] -> Seq.StrictSeq L.StakePoolRelay

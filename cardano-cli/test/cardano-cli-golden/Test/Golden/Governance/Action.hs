@@ -178,6 +178,8 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update :: Prope
 hprop_golden_conway_governance_action_create_protocol_parameters_update =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
+    -- different versions of https://github.com/IntersectMBO/plutus/blob/master/plutus-core/cost-model/data/builtinCostModel.json
+    -- transformed and compiled together
     costModelsFile <- H.note "test/cardano-cli-golden/files/input/governance/costmodels.json"
 
     actionFile <- noteTempFile tempDir "action"

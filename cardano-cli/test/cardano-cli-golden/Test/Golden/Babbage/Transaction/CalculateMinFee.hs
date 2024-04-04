@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Babbage.Transaction.CalculateMinFee 
+module Test.Golden.Babbage.Transaction.CalculateMinFee
   ( hprop_golden_babbage_transaction_calculate_min_fee
   ) where
 
@@ -20,6 +20,7 @@ hprop_golden_babbage_transaction_calculate_min_fee = propertyOnce $ do
     [ "transaction","calculate-min-fee"
     , "--witness-count", "1"
     , "--protocol-params-file", protocolParamsJsonFile
+    , "--reference-script-size", "0"
     , "--tx-body-file", txBodyFile
     ]
 
