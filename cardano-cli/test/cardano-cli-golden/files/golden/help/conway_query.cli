@@ -13,6 +13,7 @@ Usage: cardano-cli conway query
                                   | pool-state
                                   | tx-mempool
                                   | slot-number
+                                  | ref-script-size
                                   | constitution
                                   | gov-state
                                   | drep-state
@@ -52,6 +53,8 @@ Available commands:
   pool-state               Dump the pool state
   tx-mempool               Local Mempool info
   slot-number              Query slot number for UTC timestamp
+  ref-script-size          Calculate the reference input scripts size in bytes
+                           for provided transaction inputs.
   constitution             Get the constitution
   gov-state                Get the governance state
   drep-state               Get the DRep state.

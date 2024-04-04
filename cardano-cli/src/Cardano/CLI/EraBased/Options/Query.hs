@@ -18,6 +18,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
 import           Data.Foldable
+import           GHC.Exts (IsList (..))
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
@@ -109,6 +110,10 @@ pQueryCmds era envCli =
         $ subParser "slot-number"
         $ Opt.info (pQuerySlotNumberCmd era envCli)
         $ Opt.progDesc "Query slot number for UTC timestamp"
+    , Just
+        . subParser "ref-script-size"
+        . Opt.info (pQueryRefScriptSizeCmd era envCli)
+        $ Opt.progDesc "Calculate the reference input scripts size in bytes for provided transaction inputs."
     , pQueryGetConstitutionCmd era envCli
     , pQueryGetGovStateCmd era envCli
     , pQueryDRepStateCmd era envCli
@@ -293,6 +298,26 @@ pQuerySlotNumberCmd era envCli =
       convertTime <$> (Opt.strArgument . mconcat)
         [ Opt.metavar "TIMESTAMP"
         , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
+        ]
+
+pQueryRefScriptSizeCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryRefScriptSizeCmd era envCli =
+  fmap QueryRefScriptSizeCmd $
+    QueryRefScriptSizeCmdArgs
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> (fromList <$> some pByTxIn)
+      <*> pNetworkId envCli
+      <*> pTarget era
+      <*> (optional $ pQueryOutputFormat "reference inputs")
+      <*> pMaybeOutputFile
+  where
+    pByTxIn :: Parser TxIn
+    pByTxIn =
+      Opt.option (readerFromParsecParser parseTxIn) $ mconcat
+        [ Opt.long "tx-in"
+        , Opt.metavar "TX-IN"
+        , Opt.help "Transaction input (TxId#TxIx)."
         ]
 
 pQueryGetConstitutionCmd :: ()

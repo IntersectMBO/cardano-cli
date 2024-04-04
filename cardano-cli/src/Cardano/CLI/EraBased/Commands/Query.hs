@@ -21,6 +21,7 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryPoolStateCmdArgs(..)
   , QueryTxMempoolCmdArgs(..)
   , QuerySlotNumberCmdArgs(..)
+  , QueryRefScriptSizeCmdArgs(..)
   , QueryNoArgCmdArgs(..)
   , QueryDRepStateCmdArgs(..)
   , QueryDRepStakeDistributionCmdArgs(..)
@@ -34,6 +35,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
+import           Data.Set (Set)
 import           Data.Text (Text)
 import           Data.Time.Clock
 import           GHC.Generics
@@ -54,6 +56,7 @@ data QueryCmds era
   | QueryPoolStateCmd               !QueryPoolStateCmdArgs
   | QueryTxMempoolCmd               !QueryTxMempoolCmdArgs
   | QuerySlotNumberCmd              !QuerySlotNumberCmdArgs
+  | QueryRefScriptSizeCmd           !QueryRefScriptSizeCmdArgs
   | QueryConstitutionCmd            !(QueryNoArgCmdArgs era)
   | QueryGovStateCmd                !(QueryNoArgCmdArgs era)
   | QueryDRepStateCmd               !(QueryDRepStateCmdArgs era)
@@ -193,6 +196,16 @@ data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
   , utcTime             :: !UTCTime
   } deriving (Generic, Show)
 
+data QueryRefScriptSizeCmdArgs = QueryRefScriptSizeCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !ConsensusModeParams
+  , transactionInputs   :: !(Set TxIn)
+  , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
+  , format              :: Maybe QueryOutputFormat
+  , mOutFile            :: !(Maybe (File () Out))
+  } deriving (Generic, Show)
+
 data QueryNoArgCmdArgs era = QueryNoArgCmdArgs
   { eon                 :: !(ConwayEraOnwards era)
   , nodeSocketPath      :: !SocketPath
@@ -272,6 +285,8 @@ renderQueryCmds = \case
     "query tx-mempool" <> renderTxMempoolQuery q
   QuerySlotNumberCmd {} ->
     "query slot-number"
+  QueryRefScriptSizeCmd {} ->
+    "query ref-script-size"
   QueryConstitutionCmd {} ->
     "constitution"
   QueryGovStateCmd {} ->

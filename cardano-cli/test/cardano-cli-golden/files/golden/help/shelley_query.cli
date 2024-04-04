@@ -13,6 +13,7 @@ Usage: cardano-cli shelley query
                                    | pool-state
                                    | tx-mempool
                                    | slot-number
+                                   | ref-script-size
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -47,3 +48,5 @@ Available commands:
   pool-state               Dump the pool state
   tx-mempool               Local Mempool info
   slot-number              Query slot number for UTC timestamp
+  ref-script-size          Calculate the reference input scripts size in bytes
+                           for provided transaction inputs.
