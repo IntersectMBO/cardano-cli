@@ -10,7 +10,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -38,6 +37,8 @@ module Cardano.CLI.EraBased.Run.Query
   , renderOpCertIntervalInformation
   , percentage
   ) where
+
+{- HLINT ignore "Use list comprehension" -}
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
@@ -1485,9 +1486,7 @@ runQueryDRepState
       } = conwayEraOnwardsConstraints eon $ do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-  let drepHashSources = case drepHashSources' of
-                          All -> []
-                          Only l -> l
+  let drepHashSources = case drepHashSources' of All -> []; Only l -> l
   drepCreds <- modifyError QueryCmdDRepKeyError $ mapM readDRepCredential drepHashSources
 
   drepState <- runQuery localNodeConnInfo target $ queryDRepState eon $ Set.fromList drepCreds
@@ -1501,19 +1500,19 @@ runQueryDRepState
   writeOutput mOutFile $
     drepStateToJson drepStakeDistribution <$> Map.assocs drepState
   where
-    drepStateToJson stakeDistr (cred, ds) = (cred,) . A.object $
-      if Map.null stakeDistr
-      then
-        [ "expiry" .= (ds ^. L.drepExpiryL)
-        , "anchor" .= (ds ^. L.drepAnchorL)
-        , "deposit" .= (ds ^. L.drepDepositL)
-        ]
-      else
-        [ "expiry" .= (ds ^. L.drepExpiryL)
-        , "anchor" .= (ds ^. L.drepAnchorL)
-        , "deposit" .= (ds ^. L.drepDepositL)
-        , "stake" .= Map.lookup (L.DRepCredential cred) stakeDistr
-        ]
+    drepStateToJson :: ()
+      => ToJSON a
+      => Map (L.DRep StandardCrypto) a
+      -> (L.Credential L.DRepRole StandardCrypto, L.DRepState StandardCrypto)
+      -> (L.Credential L.DRepRole StandardCrypto, A.Value)
+    drepStateToJson stakeDistr (cred, ds) = (cred, A.object $
+      [ "expiry"  .= (ds ^. L.drepExpiryL)
+      , "anchor"  .= (ds ^. L.drepAnchorL)
+      , "deposit" .= (ds ^. L.drepDepositL)
+      ] <>
+        (case includeStake of
+           Cmd.WithStake -> [ "stake" .= Map.lookup (L.DRepCredential cred) stakeDistr ]
+           Cmd.NoStake   -> []))
 
 runQueryDRepStakeDistribution
   :: Cmd.QueryDRepStakeDistributionCmdArgs era
