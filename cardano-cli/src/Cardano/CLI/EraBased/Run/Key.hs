@@ -177,6 +177,7 @@ runNonExtendedKeyCmd
       vk@AVrfVerificationKey {}         -> goFail vk
       vk@AStakeVerificationKey {}       -> goFail vk
       vk@ADRepVerificationKey {}        -> goFail vk
+      _ -> error "writeExtendedVerificationKey: TODO"
     where
       goFail nonExtendedKey = left $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
 
@@ -213,6 +214,7 @@ readExtendedVerificationKeyFile evkfile = do
       k@AVrfVerificationKey{}           -> goFail k
       k@AStakeVerificationKey{}         -> goFail k
       k@ADRepVerificationKey{}          -> goFail k
+      _ -> error "readExtendedVerificationKeyFile: TODO"
   where
     goFail k = left $ KeyCmdExpectedExtendedVerificationKey k
 
