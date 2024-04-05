@@ -500,7 +500,7 @@ runTxBuild
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
-    txUpdateProposal mOverrideWits votingProcedures proposals _outputOptions = shelleyBasedEraConstraints sbe $ do
+    txUpdateProposal _mOverrideWits votingProcedures proposals _outputOptions = shelleyBasedEraConstraints sbe $ do
 
   -- TODO: All functions should be parameterized by ShelleyBasedEra
   -- as it's not possible to call this function with ByronEra
@@ -551,7 +551,7 @@ runTxBuild
           TxCertificates _ cs _ -> cs
           _ -> []
 
-  (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits) <-
+  (txEraUtxo, pparams, _eraHistory, _systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits) <-
     lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ queryStateForBalancedTx nodeEra allTxInputs certs)
       & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
       & onLeft (left . TxCmdQueryConvenienceError)
@@ -592,15 +592,22 @@ runTxBuild
     & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
 
   balancedTxBody@(BalancedTxBody _ _ _ fee) <-
-    firstExceptT (TxCmdBalanceTxBody . AnyTxBodyErrorAutoBalance)
-      . hoistEither
-      $ makeTransactionBodyAutoBalance sbe systemStart (toLedgerEpochInfo eraHistory)
-                                        pparams stakePools stakeDelegDeposits drepDelegDeposits
-                                        txEraUtxo txBodyContent cAddr mOverrideWits
+    forShelleyBasedEraInEon
+    sbe
+    (error "Can estimate in Mary era onwards")
+    (\w -> firstExceptT TxCmdFeeEstimationError
+               . hoistEither
+               $ estimateBalancedTxBody w txBodyContent (unLedgerProtocolParameters pparams) stakePools
+                                        stakeDelegDeposits drepDelegDeposits mempty 0 1 0 0 cAddr (getTotalUTxOValue txEraUtxo)
+    )
+
 
   liftIO $ putStrLn $ "Estimated transaction fee: " <> (show fee :: String)
 
   return balancedTxBody
+
+getTotalUTxOValue :: UTxO era -> Value
+getTotalUTxOValue (UTxO utxo) = mconcat $ map (\(TxOut _ v _ _) -> txOutValueToValue v) $ Map.elems utxo
 
 -- ----------------------------------------------------------------------------
 -- Transaction body validation and conversion

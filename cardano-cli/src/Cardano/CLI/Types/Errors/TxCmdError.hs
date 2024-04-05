@@ -94,6 +94,8 @@ data TxCmdError
   | TxCmdScriptValidityValidationError TxScriptValidityValidationError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
+  | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
+
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -236,6 +238,8 @@ renderTxCmdError = \case
     prettyError e
   TxCmdTxGovDuplicateVotes e ->
     prettyError e
+  TxCmdFeeEstimationError e ->
+    pretty $ show e
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =
