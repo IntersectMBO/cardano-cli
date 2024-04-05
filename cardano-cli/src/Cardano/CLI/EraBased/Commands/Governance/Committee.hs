@@ -52,7 +52,7 @@ data GovernanceCommitteeKeyHashCmdArgs era =
 data GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era =
   GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
     { eon               :: !(ConwayEraOnwards era)
-    , vkeyColdKeySource :: !(VerificationKeyOrHashOrFileOrScript CommitteeColdKey)
+    , vkeyColdKeySource :: !(VerificationKeySource CommitteeColdKey)
     , vkeyHotKeySource  :: !(VerificationKeyOrHashOrFileOrScript CommitteeHotKey)
     , outFile           :: !(File () Out)
     } deriving Show
@@ -60,7 +60,7 @@ data GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era =
 data GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era =
   GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
     { eon               :: !(ConwayEraOnwards era)
-    , vkeyColdKeySource :: !(VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
+    , vkeyColdKeySource :: !(VerificationKeySource CommitteeColdKey)
     , anchor            :: !(Maybe (L.Anchor (L.EraCrypto (ShelleyLedgerEra era))))
     , outFile           :: !(File () Out)
     } deriving Show

@@ -94,6 +94,7 @@ module Cardano.CLI.Read
   , readVoteDelegationTarget
 
   , readVerificationKeyOrHashOrFileOrScript
+  , readVerificationKeySource
   ) where
 
 import           Cardano.Api as Api
@@ -434,6 +435,25 @@ readVerificationKeyOrHashOrFileOrScript asType extractHash = \case
   VkhfsKeyHashFile vkOrHashOrFp ->
     fmap (L.KeyHashObj . extractHash) . modifyError Right $
       readVerificationKeyOrHashOrTextEnvFile asType vkOrHashOrFp
+
+readVerificationKeySource
+  :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m
+  => Key keyrole
+  => AsType keyrole
+  -> (Hash keyrole -> L.KeyHash kr L.StandardCrypto)
+  -> VerificationKeySource keyrole
+  -> t m (L.Credential kr L.StandardCrypto)
+readVerificationKeySource asType extractHash = \case
+  VksScriptHash (ScriptHash scriptHash) ->
+    pure $ L.ScriptHashObj scriptHash
+  VksScript (File fp) -> do
+    ScriptInAnyLang _lang script <-
+      modifyError Left $
+        readFileScriptInAnyLang fp
+    pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
+  VksKeyHashFile vKeyOrHashOrFile ->
+    fmap (L.KeyHashObj . extractHash) . modifyError Right $
+      readVerificationKeyOrHashOrTextEnvFile asType vKeyOrHashOrFile
 
 -- | Read a script file. The file can either be in the text envelope format
 -- wrapping the binary representation of any of the supported script languages,

@@ -105,7 +105,7 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
     $ Opt.info
         ( fmap GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd $
             GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs w
-              <$> pColdVerificationKeyOrHashOrFileOrScript
+              <$> pColdCredential
               <*> pHotVerificationKeyOrHashOrFileOrScript
               <*> pOutputFile
         )
@@ -114,10 +114,6 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
         [ "Create hot key authorization certificate for a Constitutional Committee Member"
         ]
   where
-    pColdVerificationKeyOrHashOrFileOrScript = asum
-      [ VkhfsKeyHashFile <$> pCommitteeColdVerificationKeyOrHashOrFile
-      , VkhfsScript <$> pScriptFor "cold-script-file" Nothing "Cold Native or Plutus script file"
-      ]
     pHotVerificationKeyOrHashOrFileOrScript = asum
       [ VkhfsKeyHashFile <$> pCommitteeHotKeyOrHashOrFile
       , VkhfsScript <$> pScriptFor "hot-script-file" Nothing "Hot Native or Plutus script file"
@@ -139,16 +135,19 @@ pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
   mkParser w =
     GovernanceCommitteeCreateColdKeyResignationCertificateCmd <$>
       (GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs w <$>
-        coldVKeyOrFileOrScriptHash <*> pAnchor <*> pOutputFile)
-  coldVKeyOrFileOrScriptHash =
-    asum
-      [ VkhfshKeyHashFile . VerificationKeyOrFile <$> pCommitteeColdVerificationKeyOrFile
-      , VkhfshKeyHashFile . VerificationKeyHash <$> pCommitteeColdVerificationKeyHash
-      , VkhfshScriptHash <$>
-          pScriptHash
-            "cold-script-hash"
-            "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
-      ]
+        pColdCredential <*> pAnchor <*> pOutputFile)
+
+pColdCredential :: Parser (VerificationKeySource CommitteeColdKey)
+pColdCredential =
+  asum
+    [ VksKeyHashFile . VerificationKeyOrFile <$> pCommitteeColdVerificationKeyOrFile
+    , VksKeyHashFile . VerificationKeyHash <$> pCommitteeColdVerificationKeyHash
+    , VksScriptHash <$>
+        pScriptHash
+          "cold-script-hash"
+          "Committee cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+    , VksScript <$> pScriptFor "cold-script-file" Nothing "Cold Native or Plutus script file"
+    ]
 
 pAnchor :: Parser (Maybe (L.Anchor L.StandardCrypto))
 pAnchor =
