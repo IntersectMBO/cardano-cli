@@ -45,7 +45,7 @@ Available options:
                            result is the same as with "drep-stake-distribution";
                            this is a convenience option to obtain all
                            information concerning a DRep at once. This is a
-                           potentially expensive query.
+                           potentially expensive query, so it's OFF by default.
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
