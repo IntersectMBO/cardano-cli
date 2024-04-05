@@ -364,7 +364,7 @@ pQueryDRepStateCmd era envCli = do
         <$> pSocketPath envCli
         <*> pConsensusModeParams
         <*> pNetworkId envCli
-        <*> pAllOrOnlyDRepHashSoure
+        <*> pAllOrOnlyDRepHashSource
         <*> Opt.flag NoStake WithStake (mconcat
               [ Opt.long "include-stake"
               , Opt.help $ mconcat
@@ -394,7 +394,7 @@ pQueryDRepStakeDistributionCmd era envCli = do
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
-      <*> pAllOrOnlyDRepHashSoure
+      <*> pAllOrOnlyDRepHashSource
       <*> pTarget era
       <*> optional pOutputFile
 

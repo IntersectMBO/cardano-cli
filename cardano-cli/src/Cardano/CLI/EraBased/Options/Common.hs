@@ -3212,9 +3212,9 @@ pDRepVerificationKeyOrHashOrFileOrScriptHash =
           "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
     ]
 
-pAllOrOnlyDRepHashSoure
+pAllOrOnlyDRepHashSource
   :: Parser (AllOrOnly DRepHashSource)
-pAllOrOnlyDRepHashSoure = pAll <|> pOnly
+pAllOrOnlyDRepHashSource = pAll <|> pOnly
   where pOnly = Only <$> some pDRepHashSource
         pAll = Opt.flag' All $ mconcat
           [ Opt.long "all-dreps"
