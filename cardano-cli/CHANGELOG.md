@@ -1,5 +1,45 @@
 # Changelog for cardano-cli
 
+## 8.22.0.0
+
+- Add `ref-script-size` query command
+  (feature, compatible)
+  [PR 672](https://github.com/IntersectMBO/cardano-cli/pull/672)
+
+- convert-cardano-address-key: support DRep and CC keys
+  (feature, compatible)
+  [PR 691](https://github.com/IntersectMBO/cardano-cli/pull/691)
+
+- - New required flag `--reference-script-size` for `transaction calculate-min-fee`
+  - Update cardano-api-8.44 https://github.com/IntersectMBO/cardano-api/blob/main/cardano-api/CHANGELOG.md#84400
+  - Update ouroboros-consensus-0.17, ouroboros-consensus-cardano-0.15, ouroboros-consensus-protocol-0.8, cardano-ledger-shelley-1.10, cardano-ledger-byron-1.0.1
+  (feature, breaking)
+  [PR 680](https://github.com/IntersectMBO/cardano-cli/pull/680)
+
+- Fix protocol params order for minFeeA and minFeeB
+  (bugfix)
+  [PR 693](https://github.com/IntersectMBO/cardano-cli/pull/693)
+
+- Update CLI to use `threshold` instead of `quorum` for constitutional committee.
+  (feature, breaking)
+  [PR 689](https://github.com/IntersectMBO/cardano-cli/pull/689)
+
+- Add info about redeemers to output of `transaction view` command.
+  (feature)
+  [PR 664](https://github.com/IntersectMBO/cardano-cli/pull/664)
+
+- Add support for querying drep state and stake distribution by script hash
+  (feature)
+  [PR 666](https://github.com/IntersectMBO/cardano-cli/pull/666)
+
+- transaction build{,-raw}: throw an error on identical action-ids in votes files
+  (breaking, bugfix)
+  [PR 681](https://github.com/IntersectMBO/cardano-cli/pull/681)
+
+- Add `--drep-script-hash` parameter to `conway governance drep retirement-certificate`
+  (feature)
+  [PR 678](https://github.com/IntersectMBO/cardano-cli/pull/678)
+
 ## 8.21.0.0
 
 - vote create: support DRep and CC script hash
