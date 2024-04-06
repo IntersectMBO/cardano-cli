@@ -250,8 +250,8 @@ pCommonProtocolParameters =
     <*> convertToLedger id (optional pEpochBoundRetirement)
     <*> convertToLedger id (optional pNumberOfPools)
     <*> convertToLedger toNonNegativeIntervalOrErr (optional pPoolInfluence)
-    <*> convertToLedger toUnitIntervalOrErr (optional pTreasuryExpansion)
     <*> convertToLedger toUnitIntervalOrErr (optional pMonetaryExpansion)
+    <*> convertToLedger toUnitIntervalOrErr (optional pTreasuryExpansion)
     <*> convertToLedger id (optional pMinPoolCost)
 
 
@@ -340,8 +340,8 @@ dpGovActionProtocolParametersUpdate = \case
   ShelleyBasedEraConway ->
     ConwayEraBasedProtocolParametersUpdate
       <$> pCommonProtocolParameters
+      <*> pIntroducedInBabbagePParams   
       <*> pAlonzoOnwardsPParams
-      <*> pIntroducedInBabbagePParams
       <*> pIntroducedInConwayPParams
 
 pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (Cmd.GovernanceActionCmds era))
