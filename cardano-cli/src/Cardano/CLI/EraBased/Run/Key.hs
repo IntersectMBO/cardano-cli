@@ -24,6 +24,8 @@ module Cardano.CLI.EraBased.Run.Key
   , ccHotVkeyDesc
   , drepSkeyDesc
   , drepVkeyDesc
+  , ccColdVkeyDesc
+  , ccHotVkeyDesc
   , genesisVkeyDesc
   , genesisVkeyDelegateDesc
   , stakeVkeyDesc
@@ -91,6 +93,12 @@ drepExtendedSkeyDesc = "Delegate Representative Extended Signing Key"
 
 drepVkeyDesc :: TextEnvelopeDescr
 drepVkeyDesc = "Delegate Representative Verification Key"
+
+ccColdVkeyDesc :: TextEnvelopeDescr
+ccColdVkeyDesc = "Constitution Committee Cold Verification Key"
+
+ccHotVkeyDesc :: TextEnvelopeDescr
+ccHotVkeyDesc = "Constitution Committee Hot Verification Key"
 
 genesisVkeyDesc :: TextEnvelopeDescr
 genesisVkeyDesc = "Genesis Verification Key"
@@ -163,6 +171,10 @@ runNonExtendedKeyCmd
         writeToDisk vkf (Just paymentVkeyDesc) (castVerificationKey vk :: VerificationKey PaymentKey)
       ADRepExtendedVerificationKey vk ->
         writeToDisk vkf (Just drepVkeyDesc) (castVerificationKey vk :: VerificationKey DRepKey)
+      ACommitteeColdExtendedVerificationKey vk ->
+        writeToDisk vkf (Just ccColdVkeyDesc) (castVerificationKey vk :: VerificationKey CommitteeColdKey)
+      ACommitteeHotExtendedVerificationKey vk ->
+        writeToDisk vkf (Just ccHotVkeyDesc) (castVerificationKey vk :: VerificationKey CommitteeHotKey)
       AStakeExtendedVerificationKey vk ->
         writeToDisk vkf (Just stakeVkeyDesc) (castVerificationKey vk :: VerificationKey StakeKey)
       AGenesisExtendedVerificationKey vk ->
@@ -193,6 +205,8 @@ readExtendedVerificationKeyFile evkfile = do
   case vKey of
       k@APaymentExtendedVerificationKey{} -> return k
       k@ADRepExtendedVerificationKey{} -> return k
+      k@ACommitteeColdExtendedVerificationKey{} -> return k
+      k@ACommitteeHotExtendedVerificationKey{} -> return k
       k@AStakeExtendedVerificationKey{} -> return k
       k@AGenesisExtendedVerificationKey{} -> return k
       k@AGenesisDelegateExtendedVerificationKey{} -> return k

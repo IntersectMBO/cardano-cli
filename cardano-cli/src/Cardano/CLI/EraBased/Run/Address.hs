@@ -242,3 +242,7 @@ foldSomeAddressVerificationKey f = \case
   AStakeExtendedVerificationKey           vk -> f vk
   ADRepVerificationKey                    vk -> f vk
   ADRepExtendedVerificationKey            vk -> f vk
+  ACommitteeColdVerificationKey                    vk -> f vk
+  ACommitteeColdExtendedVerificationKey            vk -> f vk
+  ACommiteeHotVerificationKey                    vk -> f vk
+  ACommiteeHotExtendedVerificationKey            vk -> f vk
