@@ -364,14 +364,14 @@ pQueryDRepStateCmd era envCli = do
         <$> pSocketPath envCli
         <*> pConsensusModeParams
         <*> pNetworkId envCli
-        <*> pAllOrOnlyDRepHashSoure
-        <*> Opt.flag WithStake NoStake (mconcat
+        <*> pAllOrOnlyDRepHashSource
+        <*> Opt.flag NoStake WithStake (mconcat
               [ Opt.long "include-stake"
               , Opt.help $ mconcat
                  [ "Also return the stake associated with each DRep. "
                  , "The result is the same as with \"drep-stake-distribution\"; "
                  , "this is a convenience option to obtain all information concerning a DRep at once. "
-                 , "This is a potentially expensive query."
+                 , "This is a potentially expensive query, so it's OFF by default."
                  ]
               ]
             )
@@ -394,7 +394,7 @@ pQueryDRepStakeDistributionCmd era envCli = do
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
-      <*> pAllOrOnlyDRepHashSoure
+      <*> pAllOrOnlyDRepHashSource
       <*> pTarget era
       <*> optional pOutputFile
 
