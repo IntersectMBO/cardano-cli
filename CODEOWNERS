@@ -1,25 +1,17 @@
 # Technical writers
-README.*                                                      @Jimbo4350 @newhoggy @carbolymer @olgahryniuk
-cardano-cli/README.md                                         @Jimbo4350 @newhoggy @carbolymer @olgahryniuk
+README.*                                                      @Jimbo4350 @newhoggy @carbolymer @smelc @palas @olgahryniuk
+cardano-cli/README.md                                         @Jimbo4350 @newhoggy @carbolymer @smelc @palas @olgahryniuk
 
-# Release manager added for notification on dependency updates
-cabal.project                                                 @Jimbo4350 @newhoggy @carbolymer
+cabal.project                                                 @Jimbo4350 @newhoggy @carbolymer @smelc @palas
 
 # General reviewers per PR
-#                        Jordan     John      Mateusz     Kevin         Sam
-*                        @Jimbo4350 @newhoggy @carbolymer @kevinhammond @disassembler
+#                        Jordan     John      Mateusz     Clément Pablo  Kevin         Sam
+*                        @Jimbo4350 @newhoggy @carbolymer @smelc  @palas @kevinhammond @disassembler
 
 # Specific reviewers for code pieces
 # NB - The last matching pattern takes precedence
 
-
-
-# /doc folder and README.* needs to be owned by @docs-access
-doc/                                                          @input-output-hk/docs-access
-
-README.*                                                      @input-output-hk/docs-access
-
-*.nix                                                         @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
-flake.lock                                                    @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
-.github/workflows                                             @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
-configuration/                                                @input-output-hk/core-tech-devx @input-output-hk/core-tech-release
+*.nix                                                         @intersectmbo/core-tech-devx @intersectmbo/core-tech-release-1
+flake.lock                                                    @intersectmbo/core-tech-devx @intersectmbo/core-tech-release-1
+.github/workflows                                             @intersectmbo/core-tech-devx @intersectmbo/core-tech-release-1
+configuration/                                                @intersectmbo/core-tech-devx @intersectmbo/core-tech-release-1
