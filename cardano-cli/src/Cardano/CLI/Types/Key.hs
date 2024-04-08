@@ -25,6 +25,7 @@ module Cardano.CLI.Types.Key
 
   , VerificationKeyOrHashOrFileOrScript(..)
   , VerificationKeyOrHashOrFileOrScriptHash(..)
+  , VerificationKeySource(..)
   , readVerificationKeyOrHashOrFileOrScriptHash
 
   , PaymentVerifier(..)
@@ -344,15 +345,29 @@ data VerificationKeyOrHashOrFileOrScript keyrole
   = VkhfsKeyHashFile !(VerificationKeyOrHashOrFile keyrole)
   | VkhfsScript !(File ScriptInAnyLang In)
 
-deriving instance (Eq (VerificationKeyOrHashOrFile c)) => Eq (VerificationKeyOrHashOrFileOrScript c)
-deriving instance (Show (VerificationKeyOrHashOrFile c)) => Show (VerificationKeyOrHashOrFileOrScript c)
+deriving instance (Eq (VerificationKeyOrHashOrFile keyrole))
+  => Eq (VerificationKeyOrHashOrFileOrScript keyrole)
+deriving instance (Show (VerificationKeyOrHashOrFile keyrole))
+  => Show (VerificationKeyOrHashOrFileOrScript keyrole)
 
 data VerificationKeyOrHashOrFileOrScriptHash keyrole
   = VkhfshKeyHashFile !(VerificationKeyOrHashOrFile keyrole)
   | VkhfshScriptHash !ScriptHash
 
-deriving instance (Eq (VerificationKeyOrHashOrFile c)) => Eq (VerificationKeyOrHashOrFileOrScriptHash c)
-deriving instance (Show (VerificationKeyOrHashOrFile c)) => Show (VerificationKeyOrHashOrFileOrScriptHash c)
+deriving instance (Eq (VerificationKeyOrHashOrFile keyrole))
+  => Eq (VerificationKeyOrHashOrFileOrScriptHash keyrole)
+deriving instance (Show (VerificationKeyOrHashOrFile keyrole))
+  => Show (VerificationKeyOrHashOrFileOrScriptHash keyrole)
+
+data VerificationKeySource keyrole
+  = VksKeyHashFile !(VerificationKeyOrHashOrFile keyrole)
+  | VksScript !(File ScriptInAnyLang In)
+  | VksScriptHash !ScriptHash
+
+deriving instance (Eq (VerificationKeyOrHashOrFile keyrole))
+  => Eq (VerificationKeySource keyrole)
+deriving instance (Show (VerificationKeyOrHashOrFile keyrole))
+  => Show (VerificationKeySource keyrole)
 
 readVerificationKeyOrHashOrFileOrScriptHash
   :: MonadIOTransError (FileError InputDecodeError) t m

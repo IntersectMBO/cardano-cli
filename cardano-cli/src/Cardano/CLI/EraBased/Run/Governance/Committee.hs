@@ -14,9 +14,9 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as Cmd
 import qualified Cardano.CLI.EraBased.Run.Key as Key
-import           Cardano.CLI.Read (readVerificationKeyOrHashOrFileOrScript)
+import           Cardano.CLI.Read (readVerificationKeyOrHashOrFileOrScript,
+                   readVerificationKeySource)
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
-import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
 
 import           Data.ByteString (ByteString)
@@ -136,7 +136,7 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
         readVerificationKeyOrHashOrFileOrScript AsCommitteeHotKey unCommitteeHotKeyHash vkeyHotKeySource
     coldCred <-
       mapError' $
-        readVerificationKeyOrHashOrFileOrScript AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
+        readVerificationKeySource AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
 
     makeCommitteeHotKeyAuthorizationCertificate (CommitteeHotKeyAuthorizationRequirements eon coldCred hotCred)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)
@@ -158,8 +158,9 @@ runGovernanceCommitteeColdKeyResignationCertificate
       , Cmd.outFile
       } =
   conwayEraOnwardsConstraints eon $ do
-    coldVKeyCred <- modifyError GovernanceCommitteeCmdKeyReadError $
-      readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
+    let modifyError' = modifyError $ either GovernanceCommitteeCmdScriptReadError  GovernanceCommitteeCmdKeyReadError
+    coldVKeyCred <- modifyError' $
+      readVerificationKeySource AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
 
     makeCommitteeColdkeyResignationCertificate (CommitteeColdkeyResignationRequirements eon coldVKeyCred anchor)
       & textEnvelopeToJSON (Just genKeyDelegCertDesc)
