@@ -25,6 +25,8 @@ See the [Contributing guide](CONTRIBUTING.md) for how to contribute to this proj
 * [Jordan Millar](https://github.com/Jimbo4350)
 * [John Ky](https://github.com/newhoggy)
 * [Mateusz Gałażyn](https://github.com/carbolymer)
+* [Clément Hurlin](https://github.com/smelc)
+* [Pablo Lamela](https://github.com/palas)
 
 ## Documentation
 
