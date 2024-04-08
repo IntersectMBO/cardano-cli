@@ -33,7 +33,7 @@ module Cardano.CLI.Read
   -- * Tx
   , CddlError(..)
   , CddlTx(..)
-  , IncompleteTx(..)
+  , IncompleteCddlTxBody(..)
   , readFileTx
   , readFileTxBody
   , readCddlTx -- For testing purposes
@@ -518,21 +518,21 @@ readFileTx file = do
     Left e -> fmap unCddlTx <$> acceptTxCDDLSerialisation file e
     Right tx -> return $ Right tx
 
--- IncompleteCddlFormattedTx is an CDDL formatted tx or partial tx
--- (respectively needs additional witnesses or totally unwitnessed)
--- while UnwitnessedCliFormattedTxBody is CLI formatted TxBody and
--- needs to be key witnessed.
+newtype IncompleteCddlTxBody =
+  IncompleteCddlTxBody { unIncompleteCddlTxBody :: InAnyShelleyBasedEra TxBody }
 
-data IncompleteTx
-  = UnwitnessedCliFormattedTxBody (InAnyShelleyBasedEra TxBody)
-  | IncompleteCddlFormattedTx (InAnyShelleyBasedEra Tx)
-
-readFileTxBody :: FileOrPipe -> IO (Either CddlError IncompleteTx)
+readFileTxBody :: FileOrPipe -> IO (Either CddlError IncompleteCddlTxBody)
 readFileTxBody file = do
   eTxBody <- readFileInAnyShelleyBasedEra AsTxBody file
   case eTxBody of
-    Left e -> fmap (IncompleteCddlFormattedTx . unCddlTx) <$> acceptTxCDDLSerialisation file e
-    Right txBody -> return $ Right $ UnwitnessedCliFormattedTxBody txBody
+    Left e -> do
+      cddlErrOrTx <- acceptTxCDDLSerialisation file e
+      case cddlErrOrTx of
+        Left cddlErr -> return $ Left cddlErr
+        Right cddlTx -> do
+          InAnyShelleyBasedEra sbe tx <- pure $ unCddlTx cddlTx
+          return $ Right $ IncompleteCddlTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
+    Right txBody -> return $ Right $ IncompleteCddlTxBody txBody
 
 data CddlError = CddlErrorTextEnv
                    !(FileError TextEnvelopeError)
