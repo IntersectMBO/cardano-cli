@@ -7,6 +7,7 @@ module Cardano.CLI.EraBased.Commands.Transaction
   , TransactionBuildRawCmdArgs(..)
   , TransactionBuildCmdArgs(..)
   , TransactionBuildEstimateCmdArgs(..)
+  , TransactionEchoCmdArgs(..)
   , TransactionSignCmdArgs(..)
   , TransactionWitnessCmdArgs(..)
   , TransactionSignWitnessCmdArgs(..)
@@ -33,6 +34,7 @@ data TransactionCmds era
   = TransactionBuildRawCmd            !(TransactionBuildRawCmdArgs era)
   | TransactionBuildCmd               !(TransactionBuildCmdArgs era)
   | TransactionBuildEstimateCmd       !(TransactionBuildEstimateCmdArgs era)
+  | TransactionEchoCmd                !TransactionEchoCmdArgs
   | TransactionSignCmd                !TransactionSignCmdArgs
   | TransactionWitnessCmd             !TransactionWitnessCmdArgs
   | TransactionSignWitnessCmd         !TransactionSignWitnessCmdArgs
@@ -177,6 +179,11 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , txBodyOutFile            :: !(TxBodyFile Out)
   }
 
+data TransactionEchoCmdArgs = TransactionEchoCmdArgs
+  { txOrTxBodyFile      :: !InputTxBodyOrTxFile
+  , outTxFile           :: !(TxFile Out)
+  } deriving Show
+
 data TransactionSignCmdArgs = TransactionSignCmdArgs
   { txOrTxBodyFile      :: !InputTxBodyOrTxFile
   , witnessSigningData  :: ![WitnessSigningData]
@@ -242,6 +249,7 @@ renderTransactionCmds = \case
   TransactionBuildCmd                     {} -> "transaction build"
   TransactionBuildEstimateCmd             {} -> "transaction build-estimate"
   TransactionBuildRawCmd                  {} -> "transaction build-raw"
+  TransactionEchoCmd                      {} -> "transaction echo"
   TransactionSignCmd                      {} -> "transaction sign"
   TransactionWitnessCmd                   {} -> "transaction witness"
   TransactionSignWitnessCmd               {} -> "transaction sign-witness"
