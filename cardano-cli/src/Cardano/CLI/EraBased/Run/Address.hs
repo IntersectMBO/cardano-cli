@@ -139,7 +139,7 @@ runAddressKeyHashCmd vkeyTextOrFile mOutputFp = do
   vkey <- firstExceptT AddressCmdVerificationKeyTextOrFileError $
              newExceptT $ readVerificationKeyTextOrFileAnyOf vkeyTextOrFile
 
-  let hexKeyHash = foldSomeAddressVerificationKey
+  let hexKeyHash = mapSomeAddressVerificationKey
                      (serialiseToRawBytesHex . verificationKeyHash) vkey
 
   case mOutputFp of
@@ -218,27 +218,3 @@ buildShelleyAddress
   -> ExceptT AddressCmdError IO (Address ShelleyAddr)
 buildShelleyAddress vkey mbStakeVerifier nw =
   makeShelleyAddress nw (PaymentCredentialByKey (verificationKeyHash vkey)) <$> maybe (return NoStakeAddress) makeStakeAddressRef mbStakeVerifier
-
-
---
--- Handling the variety of address key types
---
-
-
-foldSomeAddressVerificationKey :: ()
-  => (forall keyrole. Key keyrole => VerificationKey keyrole -> a)
-  -> SomeAddressVerificationKey
-  -> a
-foldSomeAddressVerificationKey f = \case
-  AByronVerificationKey                   vk -> f vk
-  APaymentVerificationKey                 vk -> f vk
-  APaymentExtendedVerificationKey         vk -> f vk
-  AGenesisUTxOVerificationKey             vk -> f vk
-  AKesVerificationKey                     vk -> f vk
-  AGenesisDelegateExtendedVerificationKey vk -> f vk
-  AGenesisExtendedVerificationKey         vk -> f vk
-  AVrfVerificationKey                     vk -> f vk
-  AStakeVerificationKey                   vk -> f vk
-  AStakeExtendedVerificationKey           vk -> f vk
-  ADRepVerificationKey                    vk -> f vk
-  ADRepExtendedVerificationKey            vk -> f vk
