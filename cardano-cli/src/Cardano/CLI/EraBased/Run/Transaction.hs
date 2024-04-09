@@ -19,6 +19,7 @@ module Cardano.CLI.EraBased.Run.Transaction
   ( runTransactionCmds
   , runTransactionBuildCmd
   , runTransactionBuildRawCmd
+  , runTransactionEchoCmd
   , runTransactionSignCmd
   , runTransactionSubmitCmd
   , runTransactionCalculateMinFeeCmd
@@ -85,6 +86,7 @@ runTransactionCmds = \case
   Cmd.TransactionBuildCmd args -> runTransactionBuildCmd args
   Cmd.TransactionBuildEstimateCmd args -> runTransactionBuildEstimateCmd args
   Cmd.TransactionBuildRawCmd args -> runTransactionBuildRawCmd args
+  Cmd.TransactionEchoCmd args -> runTransactionEchoCmd args
   Cmd.TransactionSignCmd args -> runTransactionSignCmd args
   Cmd.TransactionSubmitCmd args -> runTransactionSubmitCmd args
   Cmd.TransactionCalculateMinFeeCmd args -> runTransactionCalculateMinFeeCmd args
@@ -1447,6 +1449,43 @@ runTransactionSignCmd
 
             lift (writeTxFileTextEnvelopeCddl sbe outTxFile tx)
               & onLeft (left . TxCmdWriteFileError)
+
+-- ----------------------------------------------------------------------------
+-- Transaction echoing
+--
+
+runTransactionEchoCmd
+  :: ()
+  => Cmd.TransactionEchoCmdArgs
+  -> ExceptT TxCmdError IO ()
+runTransactionEchoCmd
+  Cmd.TransactionEchoCmdArgs
+    { txOrTxBodyFile = txOrTxBody
+    , outTxFile = outTxFile
+    } = do
+    case txOrTxBody of
+      InputTxFile (File inputTxFilePath) -> do
+        inputTxFile <- liftIO $ fileOrPipe inputTxFilePath
+        anyTx <- lift (readFileTx inputTxFile) & onLeft (left . TxCmdTextEnvCddlError)
+
+        InAnyShelleyBasedEra sbe tx <- pure anyTx
+
+        lift (writeTxFileTextEnvelopeCddl sbe outTxFile tx)
+          & onLeft (left . TxCmdWriteFileError)
+      InputTxBodyFile (File txbodyFilePath) -> do
+        txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
+        unwitnessed <- firstExceptT TxCmdTextEnvCddlError . newExceptT $ readFileTxBody txbodyFile
+
+        case unwitnessed of
+          IncompleteCddlTxBody anyTxBody -> do
+            InAnyShelleyBasedEra sbe txbody <- pure anyTxBody
+
+            let tx = makeSignedTransaction [] txbody
+
+            firstExceptT TxCmdWriteFileError . newExceptT $
+              writeLazyByteStringFile outTxFile $
+                shelleyBasedEraConstraints sbe $
+                  textEnvelopeToJSON Nothing tx
 
 -- ----------------------------------------------------------------------------
 -- Transaction submission
