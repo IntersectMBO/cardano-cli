@@ -147,17 +147,17 @@ runNonExtendedKeyCmd
       { Cmd.extendedVkeyFileIn = evkf
       , Cmd.nonExtendedVkeyFileOut = vkf
       } =
-  writeVerificationKey =<< readExtendedVerificationKeyFile evkf
+  writeExtendedVerificationKey =<< readExtendedVerificationKeyFile evkf
  where
   -- TODO: Expose a function specifically for this purpose
   -- and explain the extended verification keys can be converted
   -- to their non-extended counterparts however this is NOT the case
   -- for extended signing keys
 
-  writeVerificationKey
+  writeExtendedVerificationKey
     :: SomeAddressVerificationKey
     -> ExceptT KeyCmdError IO ()
-  writeVerificationKey ssk =
+  writeExtendedVerificationKey ssk =
     case ssk of
       APaymentExtendedVerificationKey vk ->
         writeToDisk vkf (Just paymentVkeyDesc) (castVerificationKey vk :: VerificationKey PaymentKey)
@@ -169,7 +169,16 @@ runNonExtendedKeyCmd
         writeToDisk vkf (Just genesisVkeyDesc) (castVerificationKey vk :: VerificationKey GenesisKey)
       AGenesisDelegateExtendedVerificationKey vk ->
         writeToDisk vkf (Just genesisVkeyDelegateDesc) (castVerificationKey vk :: VerificationKey GenesisDelegateKey)
-      nonExtendedKey -> left $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
+      -- Non-extended keys are below and cause failure.
+      vk@AByronVerificationKey {}       -> goFail vk
+      vk@APaymentVerificationKey {}     -> goFail vk
+      vk@AGenesisUTxOVerificationKey {} -> goFail vk
+      vk@AKesVerificationKey {}         -> goFail vk
+      vk@AVrfVerificationKey {}         -> goFail vk
+      vk@AStakeVerificationKey {}       -> goFail vk
+      vk@ADRepVerificationKey {}        -> goFail vk
+    where
+      goFail nonExtendedKey = left $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
 
 
   writeToDisk
@@ -196,8 +205,16 @@ readExtendedVerificationKeyFile evkfile = do
       k@AStakeExtendedVerificationKey{} -> return k
       k@AGenesisExtendedVerificationKey{} -> return k
       k@AGenesisDelegateExtendedVerificationKey{} -> return k
-      nonExtendedKey ->
-        left $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
+      -- Non-extended keys are below and cause failure.
+      k@AByronVerificationKey{}         -> goFail k
+      k@APaymentVerificationKey{}       -> goFail k
+      k@AGenesisUTxOVerificationKey{}   -> goFail k
+      k@AKesVerificationKey{}           -> goFail k
+      k@AVrfVerificationKey{}           -> goFail k
+      k@AStakeVerificationKey{}         -> goFail k
+      k@ADRepVerificationKey{}          -> goFail k
+  where
+    goFail k = left $ KeyCmdExpectedExtendedVerificationKey k
 
 
 runConvertByronKeyCmd
