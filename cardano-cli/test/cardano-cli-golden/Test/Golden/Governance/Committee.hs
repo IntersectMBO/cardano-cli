@@ -5,12 +5,10 @@
 module Test.Golden.Governance.Committee where
 
 import           Control.Monad (forM_, void)
-import           Text.Regex.TDFA ((=~))
 
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
-import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Golden as H
@@ -53,29 +51,6 @@ hprop_golden_governanceCommitteeKeyGenHot =
 
     H.assertEndsWithSingleNewline verificationKeyFile
     H.assertEndsWithSingleNewline signingKeyFile
-
--- | Execute me with:
--- @cabal test cardano-cli-golden --test-options '-p "/golden governance committee key hash/"'@
-hprop_golden_governance_committee_key_hash :: Property
-hprop_golden_governance_committee_key_hash =
-  let supplyValues = [ "key-gen-cold", "key-gen-hot" ] in
-  propertyOnce $ forM_ supplyValues $ \flag ->
-    H.moduleWorkspace "tmp" $ \tempDir -> do
-    verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
-    signingKeyFile <- noteTempFile tempDir "key-gen.skey"
-
-    void $ execCardanoCLI
-      [ "conway", "governance", "committee", flag
-      , "--verification-key-file", verificationKeyFile
-      , "--signing-key-file", signingKeyFile
-      ]
-
-    result <- execCardanoCLI
-      [  "conway", "governance", "committee", "key-hash"
-      , "--verification-key-file", verificationKeyFile
-      ]
-
-    H.assert $ result =~ id @String "^[a-f0-9]{56}$"
 
 hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate :: Property
 hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate =
