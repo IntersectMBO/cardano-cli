@@ -1139,7 +1139,7 @@ Usage: cardano-cli shelley transaction calculate-min-fee --tx-body-file FILE
                                                            --protocol-params-file FILE
                                                            --witness-count NATURAL
                                                            [--byron-witness-count NATURAL]
-                                                           --reference-script-size INT
+                                                           [--reference-script-size NATURAL]
                                                            [ --mainnet
                                                            | --testnet-magic NATURAL
                                                            ]
@@ -2331,7 +2331,7 @@ Usage: cardano-cli allegra transaction calculate-min-fee --tx-body-file FILE
                                                            --protocol-params-file FILE
                                                            --witness-count NATURAL
                                                            [--byron-witness-count NATURAL]
-                                                           --reference-script-size INT
+                                                           [--reference-script-size NATURAL]
                                                            [ --mainnet
                                                            | --testnet-magic NATURAL
                                                            ]
@@ -3507,7 +3507,7 @@ Usage: cardano-cli mary transaction calculate-min-fee --tx-body-file FILE
                                                         --protocol-params-file FILE
                                                         --witness-count NATURAL
                                                         [--byron-witness-count NATURAL]
-                                                        --reference-script-size INT
+                                                        [--reference-script-size NATURAL]
                                                         [ --mainnet
                                                         | --testnet-magic NATURAL
                                                         ]
@@ -4700,7 +4700,7 @@ Usage: cardano-cli alonzo transaction calculate-min-fee --tx-body-file FILE
                                                           --protocol-params-file FILE
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
-                                                          --reference-script-size INT
+                                                          [--reference-script-size NATURAL]
                                                           [ --mainnet
                                                           | --testnet-magic NATURAL
                                                           ]
@@ -5918,7 +5918,7 @@ Usage: cardano-cli babbage transaction calculate-min-fee --tx-body-file FILE
                                                            --protocol-params-file FILE
                                                            --witness-count NATURAL
                                                            [--byron-witness-count NATURAL]
-                                                           --reference-script-size INT
+                                                           [--reference-script-size NATURAL]
                                                            [ --mainnet
                                                            | --testnet-magic NATURAL
                                                            ]
@@ -7587,7 +7587,7 @@ Usage: cardano-cli conway transaction calculate-min-fee --tx-body-file FILE
                                                           --protocol-params-file FILE
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
-                                                          --reference-script-size INT
+                                                          [--reference-script-size NATURAL]
                                                           [ --mainnet
                                                           | --testnet-magic NATURAL
                                                           ]
@@ -8802,7 +8802,7 @@ Usage: cardano-cli latest transaction calculate-min-fee --tx-body-file FILE
                                                           --protocol-params-file FILE
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
-                                                          --reference-script-size INT
+                                                          [--reference-script-size NATURAL]
                                                           [ --mainnet
                                                           | --testnet-magic NATURAL
                                                           ]
@@ -9839,7 +9839,7 @@ Usage: cardano-cli legacy transaction calculate-min-fee --tx-body-file FILE
                                                           --protocol-params-file FILE
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
-                                                          --reference-script-size INT
+                                                          [--reference-script-size NATURAL]
                                                           [ --mainnet
                                                           | --testnet-magic NATURAL
                                                           ]
@@ -11059,7 +11059,7 @@ Usage: cardano-cli transaction calculate-min-fee --tx-body-file FILE
                                                    --protocol-params-file FILE
                                                    --witness-count NATURAL
                                                    [--byron-witness-count NATURAL]
-                                                   --reference-script-size INT
+                                                   [--reference-script-size NATURAL]
                                                    [ --mainnet
                                                    | --testnet-magic NATURAL
                                                    ]
