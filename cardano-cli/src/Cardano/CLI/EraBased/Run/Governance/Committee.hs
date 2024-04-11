@@ -79,9 +79,9 @@ runGovernanceCommitteeKeyGenHot
     $ writeLazyByteStringFile vkeyPath
     $ textEnvelopeToJSON (Just Key.ccHotVkeyDesc) vkey
 
-data SomeCommitteeKey f
-  = ACommitteeHotKey  (f CommitteeHotKey)
-  | ACommitteeColdKey (f CommitteeColdKey)
+data SomeCommitteeKey
+  = ACommitteeHotKey  (VerificationKey CommitteeHotKey)
+  | ACommitteeColdKey (VerificationKey CommitteeColdKey)
 
 runGovernanceCommitteeKeyHash :: ()
   => Cmd.GovernanceCommitteeKeyHashCmdArgs era
@@ -110,7 +110,7 @@ runGovernanceCommitteeKeyHash
   liftIO $ BS.putStrLn (renderKeyHash vkey)
 
   where
-    renderKeyHash :: SomeCommitteeKey VerificationKey -> ByteString
+    renderKeyHash :: SomeCommitteeKey -> ByteString
     renderKeyHash = \case
       ACommitteeHotKey  vk -> renderVerificationKeyHash vk
       ACommitteeColdKey vk -> renderVerificationKeyHash vk
