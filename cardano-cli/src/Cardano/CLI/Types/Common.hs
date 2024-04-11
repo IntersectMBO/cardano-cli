@@ -49,6 +49,7 @@ module Cardano.CLI.Types.Common
   , ProtocolParamsFile(..)
   , QueryOutputFormat(..)
   , ReferenceScriptAnyEra (..)
+  , ReferenceScriptSize (..)
   , RequiredSigner (..)
   , ScriptDataOrFile (..)
   , ScriptDatumOrFile (..)
@@ -504,6 +505,10 @@ newtype TxShelleyWitnessCount
 
 newtype TxByronWitnessCount
   = TxByronWitnessCount Int
+  deriving Show
+
+newtype ReferenceScriptSize
+  = ReferenceScriptSize Int
   deriving Show
 
 newtype BlockId

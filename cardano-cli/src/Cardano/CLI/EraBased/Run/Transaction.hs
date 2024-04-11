@@ -1018,7 +1018,7 @@ runTransactionCalculateMinFeeCmd
       , protocolParamsFile = protocolParamsFile
       , txShelleyWitnessCount = TxShelleyWitnessCount nShelleyKeyWitnesses
       , txByronWitnessCount = TxByronWitnessCount nByronKeyWitnesses
-      , referenceScriptSize
+      , referenceScriptSize = ReferenceScriptSize sReferenceScript
       } = do
 
   txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
@@ -1040,7 +1040,7 @@ runTransactionCalculateMinFeeCmd
 
   lpparams <- getLedgerPParams sbe pparams
 
-  let shelleyfee = evaluateTransactionFee sbe lpparams txbody nShelleyKeyWitW32 0 referenceScriptSize
+  let shelleyfee = evaluateTransactionFee sbe lpparams txbody nShelleyKeyWitW32 0 sReferenceScript
 
   let byronfee = calculateByronWitnessFees (protocolParamTxFeePerByte pparams) nByronKeyWitnesses
 

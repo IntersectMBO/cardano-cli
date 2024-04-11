@@ -3308,12 +3308,13 @@ pNetworkIdForTestnetData envCli = asum $ mconcat
     pure <$> maybeToList (envCliNetworkId envCli)
   ]
 
-pReferenceScriptSize :: Parser Int
+pReferenceScriptSize :: Parser ReferenceScriptSize
 pReferenceScriptSize =
-  Opt.option auto $ mconcat
+  fmap ReferenceScriptSize $ Opt.option Opt.auto $ mconcat
     [ Opt.long "reference-script-size"
-    , Opt.metavar "INT"
-    , Opt.help "Total size in bytes of transaction reference scripts"
+    , Opt.metavar "NATURAL"
+    , Opt.help "Total size in bytes of transaction reference scripts (default is 0)."
+    , Opt.value 0
     ]
 
 --------------------------------------------------------------------------------

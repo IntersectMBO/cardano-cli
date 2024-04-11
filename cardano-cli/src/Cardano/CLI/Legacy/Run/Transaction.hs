@@ -225,7 +225,7 @@ runLegacyTransactionCalculateMinFeeCmd :: ()
   -> ProtocolParamsFile
   -> TxShelleyWitnessCount
   -> TxByronWitnessCount
-  -> Int
+  -> ReferenceScriptSize
   -> ExceptT TxCmdError IO ()
 runLegacyTransactionCalculateMinFeeCmd
     txbodyFile
