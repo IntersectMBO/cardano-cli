@@ -2,15 +2,16 @@ module Test.Cli.Shelley.Transaction.Build where
 
 import           Data.List (isInfixOf)
 import           System.Exit (ExitCode (..))
+import           System.FilePath ((</>))
 
-import           Test.Cardano.CLI.Util (execDetailCardanoCLI, propertyOnce)
+import           Test.Cardano.CLI.Util
 
 import           Hedgehog
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 
-{- HLINT ignore "Use camelCase" -}
-{- HLINT ignore "Redundant bracket" -}
+inputDir :: FilePath
+inputDir = "test/cardano-cli-test/files/input/shelley/transaction"
 
 -- | This is a test of https://github.com/IntersectMBO/cardano-cli/issues/662
 -- Execute me with:
@@ -25,10 +26,10 @@ hprop_conway_transaction_build_one_voter_many_votes = propertyOnce $ H.moduleWor
     , "--tx-out", "addr_test1vpfwv0ezc5g8a4mkku8hhy3y3vp92t7s3ul8g778g5yegsgalc6gc+24910487859"
     , "--invalid-hereafter", "24325742"
     , "--fee" , "178569"
-    , "--vote-file", "test/cardano-cli-test/files/input/shelley/transaction/vote1.drep.json"
-    , "--vote-file", "test/cardano-cli-test/files/input/shelley/transaction/vote2.drep.json"
+    , "--vote-file", inputDir </> "vote1.drep.json"
+    , "--vote-file", inputDir </> "vote2.drep.json"
     , "--out-file", outFile
     ]
 
-  exitCode H.=== (ExitFailure 1)
+  exitCode H.=== ExitFailure 1
   H.assertWith stderr ("This would cause ignoring some of the votes" `isInfixOf`)

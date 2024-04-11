@@ -386,7 +386,7 @@ Available options:
                            including top-level strings and numbers.
   --json-metadata-no-schema
                            Use the "no schema" conversion from JSON to tx
-                           metadata.
+                           metadata (default).
   --json-metadata-detailed-schema
                            Use the "detailed schema" conversion from JSON to tx
                            metadata.

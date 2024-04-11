@@ -1,0 +1,24 @@
+{
+  "0": {
+    "map":
+    [ { "k": {"string": "aaa"}
+      , "v": {"string": "b4"}
+      }
+    , { "k": {"int": 1}
+      , "v": {"string": "b6"}
+      }
+    , { "k": {"string": "aa"}
+      , "v": {"string": "b2"}
+      }
+    , { "k": {"string": "ab"}
+      , "v": {"string": "b3"}
+      }
+    , { "k": {"string": "b"}
+      , "v": {"string": "b5"}
+      }
+    , { "k": {"string": "a"}
+      , "v": {"string": "b1"}
+      }
+    ]
+  }
+}
