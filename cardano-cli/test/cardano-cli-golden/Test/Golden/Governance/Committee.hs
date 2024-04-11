@@ -6,54 +6,42 @@ module Test.Golden.Governance.Committee where
 
 import           Control.Monad (forM_, void)
 
+import           Test.Cardano.CLI.Aeson (assertHasMappings)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
-hprop_golden_governanceCommitteeKeyGenCold :: Property
-hprop_golden_governanceCommitteeKeyGenCold =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance committee key gen/"'@
+hprop_golden_governance_committee_key_gen :: Property
+hprop_golden_governance_committee_key_gen =
+  let supplyValues = [ ("key-gen-cold", "Cold")
+                     , ("key-gen-hot",  "Hot") ] in
+  propertyOnce $ forM_ supplyValues $ \(flag, inJson) ->
+    H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "committee", "key-gen-cold"
+    H.noteShowM_ $ execCardanoCLI
+      [ "conway", "governance", "committee", flag
       , "--verification-key-file", verificationKeyFile
       , "--signing-key-file", signingKeyFile
       ]
 
-    H.assertFileOccurences 1 "ConstitutionalCommitteeColdVerificationKey_ed25519" verificationKeyFile
-    H.assertFileOccurences 1 "ConstitutionalCommitteeColdSigningKey_ed25519" signingKeyFile
+    assertHasMappings [ ("type",        "ConstitutionalCommittee" <> inJson <> "VerificationKey_ed25519")
+                      , ("description", "Constitutional Committee " <> inJson <> " Verification Key")]
+                      verificationKeyFile
 
-    H.assertEndsWithSingleNewline verificationKeyFile
-    H.assertEndsWithSingleNewline signingKeyFile
+    assertHasMappings [ ("type",        "ConstitutionalCommittee" <> inJson <> "SigningKey_ed25519")
+                      , ("description", "Constitutional Committee " <> inJson <> " Signing Key")]
+                      signingKeyFile
 
-hprop_golden_governanceCommitteeKeyGenHot :: Property
-hprop_golden_governanceCommitteeKeyGenHot =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
-    signingKeyFile <- noteTempFile tempDir "key-gen.skey"
-
-    void $ execCardanoCLI
-      [  "conway", "governance", "committee", "key-gen-hot"
-      , "--verification-key-file", verificationKeyFile
-      , "--signing-key-file", signingKeyFile
-      ]
-
-    H.assertFileOccurences 1 "ConstitutionalCommitteeHotVerificationKey_ed25519" verificationKeyFile
-    H.assertFileOccurences 1 "ConstitutionalCommitteeHotSigningKey_ed25519" signingKeyFile
-
-    H.assertFileOccurences 1 "Constitutional Committee Hot Verification Key" verificationKeyFile
-    H.assertFileOccurences 1 "Constitutional Committee Hot Signing Key" signingKeyFile
-
-    H.assertEndsWithSingleNewline verificationKeyFile
-    H.assertEndsWithSingleNewline signingKeyFile
-
-hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate :: Property
-hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate =
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance CommitteeCreateHotKeyAuthorizationCertificate/"'@
+hprop_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate :: Property
+hprop_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     ccColdVKey <- noteTempFile tempDir "cc-cold.vkey"
     ccColdSKey <- noteTempFile tempDir "cc-cold.skey"
@@ -74,18 +62,21 @@ hprop_golden_governanceCommitteeCreateHotKeyAuthorizationCertificate =
       , "--signing-key-file", ccHotSKey
       ]
 
-    void $ execCardanoCLI
+    H.noteShowM_ $ execCardanoCLI
       [ "conway", "governance", "committee", "create-hot-key-authorization-certificate"
       , "--cold-verification-key-file", ccColdVKey
       , "--hot-key-file", ccHotVKey
       , "--out-file", certFile
       ]
 
-    H.assertFileOccurences 1 "CertificateConway" certFile
-    H.assertFileOccurences 1 "Constitutional Committee Hot Key Registration Certificate" certFile
+    assertHasMappings [ ("type", "CertificateConway")
+                      , ("description", "Constitutional Committee Hot Key Registration Certificate")]
+                      certFile
 
-hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate :: Property
-hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate =
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance CommitteeCreateColdKeyResignationCertificate/"'@
+hprop_golden_governance_CommitteeCreateColdKeyResignationCertificate :: Property
+hprop_golden_governance_CommitteeCreateColdKeyResignationCertificate =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     ccColdVKey <- noteTempFile tempDir "cold.vkey"
     ccColdSKey <- noteTempFile tempDir "cold.skey"
@@ -104,11 +95,14 @@ hprop_golden_governanceCommitteeCreateColdKeyResignationCertificate =
       , "--out-file", certFile
       ]
 
-    H.assertFileOccurences 1 "CertificateConway" certFile
-    H.assertFileOccurences 1 "Constitutional Committee Cold Key Resignation Certificate" certFile
+    assertHasMappings [ ("type", "CertificateConway")
+                      , ("description", "Constitutional Committee Cold Key Resignation Certificate")]
+                      certFile
 
-hprop_golden_governanceUpdateCommittee :: Property
-hprop_golden_governanceUpdateCommittee =
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance UpdateCommittee/"'@
+hprop_golden_governance_UpdateCommittee :: Property
+hprop_golden_governance_UpdateCommittee =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     stakeVkey <- noteInputFile "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
     ccProposal <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-proposal.txt"
