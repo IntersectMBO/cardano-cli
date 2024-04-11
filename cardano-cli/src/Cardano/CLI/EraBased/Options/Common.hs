@@ -1370,7 +1370,7 @@ pTxMetadataJsonSchema =
   asum
     [ Opt.flag' ()
         (  Opt.long "json-metadata-no-schema"
-        <> Opt.help "Use the \"no schema\" conversion from JSON to tx metadata."
+        <> Opt.help "Use the \"no schema\" conversion from JSON to tx metadata (default)."
         )
         $> TxMetadataJsonNoSchema
     , Opt.flag' ()

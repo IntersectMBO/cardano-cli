@@ -1,0 +1,41 @@
+auxiliary scripts: null
+certificates: null
+collateral inputs: []
+era: Babbage
+fee: 21300 Lovelace
+inputs:
+- ed7c8f68c194cc763ee65ad22ef0973e26481be058c65005fd39fb93f9c43a20#213
+metadata:
+  '0':
+  - - aaa
+    - b4
+  - - 1
+    - b6
+  - - aa
+    - b2
+  - - ab
+    - b3
+  - - b
+    - b5
+  - - a
+    - b1
+mint: null
+outputs:
+- address: addr_test1vpfwv0ezc5g8a4mkku8hhy3y3vp92t7s3ul8g778g5yegsgalc6gc
+  address era: Shelley
+  amount:
+    lovelace: 24910487859
+  network: Testnet
+  payment credential key hash: 52e63f22c5107ed776b70f7b92248b02552fd08f3e747bc745099441
+  reference script: null
+  stake reference: null
+redeemers: []
+reference inputs: []
+required signers (payment key hashes needed for scripts): null
+return collateral: null
+total collateral: null
+update proposal: null
+validity range:
+  lower bound: null
+  upper bound: null
+withdrawals: null
