@@ -81,7 +81,9 @@ runGovernanceCommitteeKeyGenHot
 
 data SomeCommitteeKey
   = ACommitteeHotKey  (VerificationKey CommitteeHotKey)
+  | ACommitteeHotExtendedKey  (VerificationKey CommitteeHotExtendedKey)
   | ACommitteeColdKey (VerificationKey CommitteeColdKey)
+  | ACommitteeColdExtendedKey (VerificationKey CommitteeColdExtendedKey)
 
 runGovernanceCommitteeKeyHash :: ()
   => Cmd.GovernanceCommitteeKeyHashCmdArgs era
@@ -94,15 +96,19 @@ runGovernanceCommitteeKeyHash
     case vkeySource of
       AnyVerificationKeySourceOfText vkText -> do
         let asTypes =
-              [ FromSomeType (AsVerificationKey AsCommitteeHotKey ) ACommitteeHotKey
-              , FromSomeType (AsVerificationKey AsCommitteeColdKey) ACommitteeColdKey
+              [ FromSomeType (AsVerificationKey AsCommitteeHotKey)          ACommitteeHotKey
+              , FromSomeType (AsVerificationKey AsCommitteeHotExtendedKey)  ACommitteeHotExtendedKey
+              , FromSomeType (AsVerificationKey AsCommitteeColdKey)         ACommitteeColdKey
+              , FromSomeType (AsVerificationKey AsCommitteeColdExtendedKey) ACommitteeColdExtendedKey
               ]
         pure (deserialiseAnyOfFromBech32 asTypes (unAnyVerificationKeyText vkText))
           & onLeft (left . GovernanceCommitteeCmdKeyDecodeError . InputBech32DecodeError)
       AnyVerificationKeySourceOfFile vkeyPath -> do
         let asTypes =
-              [ FromSomeType (AsVerificationKey AsCommitteeHotKey ) ACommitteeHotKey
-              , FromSomeType (AsVerificationKey AsCommitteeColdKey) ACommitteeColdKey
+              [ FromSomeType (AsVerificationKey AsCommitteeHotKey)          ACommitteeHotKey
+              , FromSomeType (AsVerificationKey AsCommitteeHotExtendedKey)  ACommitteeHotExtendedKey
+              , FromSomeType (AsVerificationKey AsCommitteeColdKey)         ACommitteeColdKey
+              , FromSomeType (AsVerificationKey AsCommitteeColdExtendedKey) ACommitteeColdExtendedKey
               ]
         readFileTextEnvelopeAnyOf asTypes vkeyPath
           & firstExceptT GovernanceCommitteeCmdTextEnvReadFileError . newExceptT
@@ -112,8 +118,10 @@ runGovernanceCommitteeKeyHash
   where
     renderKeyHash :: SomeCommitteeKey -> ByteString
     renderKeyHash = \case
-      ACommitteeHotKey  vk -> renderVerificationKeyHash vk
-      ACommitteeColdKey vk -> renderVerificationKeyHash vk
+      ACommitteeHotKey vk          -> renderVerificationKeyHash vk
+      ACommitteeHotExtendedKey vk  -> renderVerificationKeyHash vk
+      ACommitteeColdKey vk         -> renderVerificationKeyHash vk
+      ACommitteeColdExtendedKey vk -> renderVerificationKeyHash vk
 
     renderVerificationKeyHash :: Key keyrole => VerificationKey keyrole -> ByteString
     renderVerificationKeyHash = serialiseToRawBytesHex
