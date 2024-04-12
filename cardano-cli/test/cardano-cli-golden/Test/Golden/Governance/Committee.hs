@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Use camelCase" -}
@@ -8,9 +9,11 @@ import           Control.Monad (forM_, void)
 import           System.FilePath ((</>))
 
 import           Test.Cardano.CLI.Aeson (assertHasMappings)
+import qualified Test.Cardano.CLI.Util as H hiding (noteTempFile)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
+import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
@@ -205,3 +208,21 @@ hprop_golden_verification_key_committee = do
         ]
 
       H.diffFileVsGoldenFile vkeyFileOut vkeyGolden
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance extended committee key hash/"'@
+hprop_golden_governance_extended_committee_key_hash :: Property
+hprop_golden_governance_extended_committee_key_hash =
+  let supplyValues = [ (inputDir </> "governance/committee/cc.extended.cold.vkey", "9fe92405abcd903d34e21a97328e7cd222eebd4ced5995a95777f7a3\n")
+                     , (inputDir </> "governance/committee/cc.extended.hot.vkey",  "4eb7202ffcc6d5513dba5edc618bd7b582a257c76d6b0cd83975f4e6\n")
+                     ] in
+  propertyOnce $ forM_ supplyValues $ \(extendedKeyFile, expected) ->
+    H.moduleWorkspace "tmp" $ \_tempDir -> do
+    verificationKeyFile <- H.noteInputFile extendedKeyFile
+
+    result <- execCardanoCLI
+      [  "conway", "governance", "committee", "key-hash"
+      , "--verification-key-file", verificationKeyFile
+      ]
+
+    result H.=== expected
