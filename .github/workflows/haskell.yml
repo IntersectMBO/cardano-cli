@@ -8,22 +8,34 @@ on:
     # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#restrictions-for-accessing-a-cache
     branches:
       - main
+  # GH caches are removed when not accessed within 7 days - this schedule runs the job every 6 days making
+  # sure that we always have some caches on main
+  schedule:
+    - cron: '0 0 */6 * *'
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.sys.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        # If you edit these versions, make sure the version in the lonely macos-latest job below is updated accordingly
         ghc: ["9.6.4", "9.8.2"]
-        cabal: ["3.10.2.1"]
-        os: [windows-latest, ubuntu-latest]
+        cabal: ["3.10.3.0"]
+        sys:
+          - { os: windows-latest, shell: 'C:/msys64/usr/bin/bash.exe -e {0}' }
+          - { os: ubuntu-latest, shell: bash }
+
+    defaults:
+      run:
+        shell: ${{ matrix.sys.shell }}
 
     env:
       # Modify this value to "invalidate" the cabal cache.
       CABAL_CACHE_VERSION: "2024-02-23-4"
+      # these two are msys2 env vars, they have no effect on non-msys2 installs.
+      MSYS2_PATH_TYPE: inherit
+      MSYSTEM: MINGW64
 
     concurrency:
       group: >
@@ -32,7 +44,7 @@ jobs:
         c+${{ github.job }}
         d+${{ matrix.ghc }}
         e+${{ matrix.cabal }}
-        f+${{ matrix.os }}
+        f+${{ matrix.sys.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
 
@@ -45,7 +57,7 @@ jobs:
         c+${{ github.job }}
         d+${{ matrix.ghc }}
         e+${{ matrix.cabal }}
-        f+${{ matrix.os }}
+        f+${{ matrix.sys.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
 
     - name: Install Haskell
@@ -74,10 +86,11 @@ jobs:
     - name: Record dependencies
       id: record-deps
       run: |
-        # The tests call out to msys2 commands. We generally do not want to mix toolchains, so
-        # we are very deliberate about only adding msys64 to the path where absolutely necessary.
-        ${{ (runner.os == 'Windows' && '$env:PATH=("C:\msys64\mingw64\bin;{0}" -f $env:PATH)') || '' }}
         cat dist-newstyle/cache/plan.json | jq -r '."install-plan"[] | select(.style != "local") | .id' | sort | uniq > dependencies.txt
+
+    # Use a fresh cache each month
+    - name: Store month number as environment variable used in cache version
+      run:  echo "MONTHNUM=$(/usr/bin/date -u '+%m')" >> $GITHUB_ENV
 
     # From the dependency list we restore the cached dependencies.
     # We use the hash of `dependencies.txt` as part of the cache key because that will be stable
@@ -89,7 +102,11 @@ jobs:
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
           dist-newstyle
-        key: cache-${{ env.CABAL_CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('dependencies.txt') }}
+        key:
+          cache-${{ env.CABAL_CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ env.MONTHNUM }}-${{ hashFiles('dependencies.txt') }}
+        # try to restore previous cache from this month if there's no cache for the dependencies set
+        restore-keys: |
+          cache-${{ env.CABAL_CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ env.MONTHNUM }}-
 
     # Now we install the dependencies. If the cache was found and restored in the previous step,
     # this should be a no-op, but if the cache key was not found we need to build stuff so we can
@@ -105,7 +122,8 @@ jobs:
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
           dist-newstyle
-        key: cache-${{ env.CABAL_CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('dependencies.txt') }}
+        key:
+          cache-${{ env.CABAL_CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ env.MONTHNUM }}-${{ hashFiles('dependencies.txt') }}
 
     # Now we build.
     - name: Build all
@@ -115,15 +133,11 @@ jobs:
       # files that tests designate as golden files are actually golden files
       # and can be generated.
       name: Delete golden files
-      shell: bash
       run: |
         rm -rf cardano-cli/test/cardano-cli-golden/files/golden
 
     - name: Run tests regenerate golden files
       env:
-        # these two are msys2 env vars, they have no effect on non-msys2 installs.
-        MSYS2_PATH_TYPE: inherit
-        MSYSTEM: MINGW64
         TMPDIR: ${{ runner.temp }}
         TMP: ${{ runner.temp }}
         KEEP_WORKSPACE: 1
@@ -131,7 +145,6 @@ jobs:
       run: cabal test all --enable-tests --test-show-details=direct -j1
 
     - name: "Tar artifacts"
-      shell: bash
       run: |
         mkdir -p artifacts
 
@@ -150,7 +163,7 @@ jobs:
     - name: Save Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: artifacts-${{ matrix.os }}-${{ matrix.ghc }}
+        name: artifacts-${{ matrix.sys.os }}-${{ matrix.ghc }}
         path: ./artifacts
 
     # Uncomment the following back in for debugging. Remember to launch a `pwsh` from

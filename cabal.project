@@ -19,13 +19,7 @@ index-state:
 packages:
   cardano-cli
 
-package cardano-cli
-  ghc-options: -Werror
-
-package cardano-api
-  ghc-options: -Werror
-
-package cardano-api-gen
+program-options
   ghc-options: -Werror
 
 package cryptonite
