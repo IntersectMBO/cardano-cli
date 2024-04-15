@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Use camelCase" -}
@@ -5,13 +6,20 @@
 module Test.Golden.Governance.Committee where
 
 import           Control.Monad (forM_, void)
+import           System.FilePath ((</>))
 
 import           Test.Cardano.CLI.Aeson (assertHasMappings)
+import qualified Test.Cardano.CLI.Util as H hiding (noteTempFile)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
+import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.Golden as H
+
+goldenDir, inputDir :: FilePath
+goldenDir = "test/cardano-cli-golden/files/golden"
+inputDir  = "test/cardano-cli-golden/files/input"
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance committee key gen/"'@
@@ -104,10 +112,10 @@ hprop_golden_governance_CommitteeCreateColdKeyResignationCertificate =
 hprop_golden_governance_UpdateCommittee :: Property
 hprop_golden_governance_UpdateCommittee =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    stakeVkey <- noteInputFile "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
-    ccProposal <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-proposal.txt"
-    coldCCVkey1 <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-cold1.vkey"
-    coldCCVkey2 <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc-cold2.vkey"
+    stakeVkey <- noteInputFile $ inputDir </> "governance/stake-address.vkey"
+    ccProposal <- noteInputFile $ inputDir </> "governance/committee/cc-proposal.txt"
+    coldCCVkey1 <- noteInputFile $ inputDir </> "governance/committee/cc-cold1.vkey"
+    coldCCVkey2 <- noteInputFile $ inputDir </> "governance/committee/cc-cold2.vkey"
 
     outFile <- H.noteTempFile tempDir "answer-file.json"
 
@@ -118,7 +126,7 @@ hprop_golden_governance_UpdateCommittee =
     H.note_ proposalHash
     H.note_ $ show $ length proposalHash
 
-    goldenAnswerFile <- H.note "test/cardano-cli-golden/files/golden/governance/committee/update-committee-answer.json"
+    goldenAnswerFile <- H.note $ goldenDir </> "governance/committee/update-committee-answer.json"
 
     void $ execCardanoCLI
       [ "conway", "governance", "action", "update-committee"
@@ -141,10 +149,10 @@ hprop_golden_governance_UpdateCommittee =
 hprop_golden_governance_committee_cold_extended_key_signing :: Property
 hprop_golden_governance_committee_cold_extended_key_signing =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    skeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc.extended.cold.skey"
-    txBody <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/tx.body"
+    skeyFile <- noteInputFile $ inputDir </> "governance/committee/cc.extended.cold.skey"
+    txBody <- noteInputFile $ inputDir </> "governance/drep/extended-key-signing/tx.body"
 
-    outGold <- H.note "test/cardano-cli-golden/files/golden/governance/committee/tx.cold.extended.signed"
+    outGold <- H.note $ goldenDir </> "governance/committee/tx.cold.extended.signed"
     outFile <- H.noteTempFile tempDir "outFile"
 
     H.noteM_ $ execCardanoCLI
@@ -161,10 +169,10 @@ hprop_golden_governance_committee_cold_extended_key_signing =
 hprop_golden_governance_committee_hot_extended_key_signing :: Property
 hprop_golden_governance_committee_hot_extended_key_signing =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    skeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/committee/cc.extended.hot.skey"
-    txBody <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/tx.body"
+    skeyFile <- noteInputFile $ inputDir </> "governance/committee/cc.extended.hot.skey"
+    txBody <- noteInputFile $ inputDir </> "governance/drep/extended-key-signing/tx.body"
 
-    outGold <- H.note "test/cardano-cli-golden/files/golden/governance/committee/tx.hot.extended.signed"
+    outGold <- H.note $ goldenDir </> "governance/committee/tx.hot.extended.signed"
     outFile <- H.noteTempFile tempDir "outFile"
 
     H.noteM_ $ execCardanoCLI
@@ -180,12 +188,12 @@ hprop_golden_governance_committee_hot_extended_key_signing =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden verification key committee/"'@
 hprop_golden_verification_key_committee :: Property
 hprop_golden_verification_key_committee = do
-  let values = [ ( "test/cardano-cli-golden/files/input/governance/committee/cc.extended.hot.skey"
-                 , "test/cardano-cli-golden/files/golden/governance/committee/cc.extended.hot.vkey"
+  let values = [ ( inputDir </> "governance/committee/cc.extended.hot.skey"
+                 , goldenDir </> "governance/committee/cc.extended.hot.vkey"
                  )
                  ,
-                 ( "test/cardano-cli-golden/files/input/governance/committee/cc.extended.cold.skey"
-                 , "test/cardano-cli-golden/files/golden/governance/committee/cc.extended.cold.vkey"
+                 ( inputDir </> "governance/committee/cc.extended.cold.skey"
+                 , goldenDir </> "governance/committee/cc.extended.cold.vkey"
                  )
                ]
 
@@ -200,3 +208,21 @@ hprop_golden_verification_key_committee = do
         ]
 
       H.diffFileVsGoldenFile vkeyFileOut vkeyGolden
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance extended committee key hash/"'@
+hprop_golden_governance_extended_committee_key_hash :: Property
+hprop_golden_governance_extended_committee_key_hash =
+  let supplyValues = [ (inputDir </> "governance/committee/cc.extended.cold.vkey", "9fe92405abcd903d34e21a97328e7cd222eebd4ced5995a95777f7a3\n")
+                     , (inputDir </> "governance/committee/cc.extended.hot.vkey",  "4eb7202ffcc6d5513dba5edc618bd7b582a257c76d6b0cd83975f4e6\n")
+                     ] in
+  propertyOnce $ forM_ supplyValues $ \(extendedKeyFile, expected) ->
+    H.moduleWorkspace "tmp" $ \_tempDir -> do
+    verificationKeyFile <- H.noteInputFile extendedKeyFile
+
+    result <- execCardanoCLI
+      [  "conway", "governance", "committee", "key-hash"
+      , "--verification-key-file", verificationKeyFile
+      ]
+
+    result H.=== expected
