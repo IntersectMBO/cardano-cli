@@ -218,6 +218,7 @@ Usage: cardano-cli query
                            | pool-state
                            | tx-mempool
                            | slot-number
+                           | ledger-peer-snapshot
                            )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -400,6 +401,20 @@ Usage: cardano-cli query slot-number --socket-path SOCKET_PATH
                                        TIMESTAMP
 
   Query slot number for UTC timestamp
+
+Usage: cardano-cli query ledger-peer-snapshot --socket-path SOCKET_PATH
+                                                [--cardano-mode
+                                                  [--epoch-slots SLOTS]]
+                                                ( --mainnet
+                                                | --testnet-magic NATURAL
+                                                )
+                                                [ --volatile-tip
+                                                | --immutable-tip
+                                                ]
+                                                [--out-file FILEPATH]
+
+  Dump the current snapshot of big ledger peers. These are the largest pools
+  that cumulatively hold 90% of total stake.
 
 Usage: cardano-cli legacy Legacy commands
 
@@ -1360,6 +1375,7 @@ Usage: cardano-cli shelley query
                                    | stake-address-info
                                    | utxo
                                    | ledger-state
+                                   | ledger-peer-snapshot
                                    | protocol-state
                                    | stake-snapshot
                                    | leadership-schedule
@@ -1447,6 +1463,17 @@ Usage: cardano-cli shelley query ledger-state --socket-path SOCKET_PATH
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
+
+Usage: cardano-cli shelley query ledger-peer-snapshot --socket-path SOCKET_PATH
+                                                        [--cardano-mode
+                                                          [--epoch-slots SLOTS]]
+                                                        ( --mainnet
+                                                        | --testnet-magic NATURAL
+                                                        )
+                                                        [--out-file FILEPATH]
+
+  Dump the current snapshot of ledger peers.These are the largest pools that
+  cumulatively hold 90% of total stake.
 
 Usage: cardano-cli shelley query protocol-state --socket-path SOCKET_PATH
                                                   [--cardano-mode
@@ -2412,6 +2439,7 @@ Usage: cardano-cli allegra query
                                    | stake-address-info
                                    | utxo
                                    | ledger-state
+                                   | ledger-peer-snapshot
                                    | protocol-state
                                    | stake-snapshot
                                    | leadership-schedule
@@ -2499,6 +2527,17 @@ Usage: cardano-cli allegra query ledger-state --socket-path SOCKET_PATH
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
+
+Usage: cardano-cli allegra query ledger-peer-snapshot --socket-path SOCKET_PATH
+                                                        [--cardano-mode
+                                                          [--epoch-slots SLOTS]]
+                                                        ( --mainnet
+                                                        | --testnet-magic NATURAL
+                                                        )
+                                                        [--out-file FILEPATH]
+
+  Dump the current snapshot of ledger peers.These are the largest pools that
+  cumulatively hold 90% of total stake.
 
 Usage: cardano-cli allegra query protocol-state --socket-path SOCKET_PATH
                                                   [--cardano-mode
@@ -3462,6 +3501,7 @@ Usage: cardano-cli mary query
                                 | stake-address-info
                                 | utxo
                                 | ledger-state
+                                | ledger-peer-snapshot
                                 | protocol-state
                                 | stake-snapshot
                                 | leadership-schedule
@@ -3549,6 +3589,17 @@ Usage: cardano-cli mary query ledger-state --socket-path SOCKET_PATH
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
+
+Usage: cardano-cli mary query ledger-peer-snapshot --socket-path SOCKET_PATH
+                                                     [--cardano-mode
+                                                       [--epoch-slots SLOTS]]
+                                                     ( --mainnet
+                                                     | --testnet-magic NATURAL
+                                                     )
+                                                     [--out-file FILEPATH]
+
+  Dump the current snapshot of ledger peers.These are the largest pools that
+  cumulatively hold 90% of total stake.
 
 Usage: cardano-cli mary query protocol-state --socket-path SOCKET_PATH
                                                [--cardano-mode
@@ -4511,6 +4562,7 @@ Usage: cardano-cli alonzo query
                                   | stake-address-info
                                   | utxo
                                   | ledger-state
+                                  | ledger-peer-snapshot
                                   | protocol-state
                                   | stake-snapshot
                                   | leadership-schedule
@@ -4598,6 +4650,17 @@ Usage: cardano-cli alonzo query ledger-state --socket-path SOCKET_PATH
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
+
+Usage: cardano-cli alonzo query ledger-peer-snapshot --socket-path SOCKET_PATH
+                                                       [--cardano-mode
+                                                         [--epoch-slots SLOTS]]
+                                                       ( --mainnet
+                                                       | --testnet-magic NATURAL
+                                                       )
+                                                       [--out-file FILEPATH]
+
+  Dump the current snapshot of ledger peers.These are the largest pools that
+  cumulatively hold 90% of total stake.
 
 Usage: cardano-cli alonzo query protocol-state --socket-path SOCKET_PATH
                                                  [--cardano-mode
@@ -5609,6 +5672,7 @@ Usage: cardano-cli babbage query
                                    | stake-address-info
                                    | utxo
                                    | ledger-state
+                                   | ledger-peer-snapshot
                                    | protocol-state
                                    | stake-snapshot
                                    | leadership-schedule
@@ -5696,6 +5760,17 @@ Usage: cardano-cli babbage query ledger-state --socket-path SOCKET_PATH
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
+
+Usage: cardano-cli babbage query ledger-peer-snapshot --socket-path SOCKET_PATH
+                                                        [--cardano-mode
+                                                          [--epoch-slots SLOTS]]
+                                                        ( --mainnet
+                                                        | --testnet-magic NATURAL
+                                                        )
+                                                        [--out-file FILEPATH]
+
+  Dump the current snapshot of ledger peers.These are the largest pools that
+  cumulatively hold 90% of total stake.
 
 Usage: cardano-cli babbage query protocol-state --socket-path SOCKET_PATH
                                                   [--cardano-mode
@@ -7248,6 +7323,7 @@ Usage: cardano-cli conway query
                                   | stake-address-info
                                   | utxo
                                   | ledger-state
+                                  | ledger-peer-snapshot
                                   | protocol-state
                                   | stake-snapshot
                                   | leadership-schedule
@@ -7355,6 +7431,20 @@ Usage: cardano-cli conway query ledger-state --socket-path SOCKET_PATH
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
+
+Usage: cardano-cli conway query ledger-peer-snapshot --socket-path SOCKET_PATH
+                                                       [--cardano-mode
+                                                         [--epoch-slots SLOTS]]
+                                                       ( --mainnet
+                                                       | --testnet-magic NATURAL
+                                                       )
+                                                       [ --volatile-tip
+                                                       | --immutable-tip
+                                                       ]
+                                                       [--out-file FILEPATH]
+
+  Dump the current snapshot of ledger peers.These are the largest pools that
+  cumulatively hold 90% of total stake.
 
 Usage: cardano-cli conway query protocol-state --socket-path SOCKET_PATH
                                                  [--cardano-mode
@@ -9270,6 +9360,7 @@ Usage: cardano-cli latest query
                                   | stake-address-info
                                   | utxo
                                   | ledger-state
+                                  | ledger-peer-snapshot
                                   | protocol-state
                                   | stake-snapshot
                                   | leadership-schedule
@@ -9377,6 +9468,20 @@ Usage: cardano-cli latest query ledger-state --socket-path SOCKET_PATH
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
+
+Usage: cardano-cli latest query ledger-peer-snapshot --socket-path SOCKET_PATH
+                                                       [--cardano-mode
+                                                         [--epoch-slots SLOTS]]
+                                                       ( --mainnet
+                                                       | --testnet-magic NATURAL
+                                                       )
+                                                       [ --volatile-tip
+                                                       | --immutable-tip
+                                                       ]
+                                                       [--out-file FILEPATH]
+
+  Dump the current snapshot of ledger peers.These are the largest pools that
+  cumulatively hold 90% of total stake.
 
 Usage: cardano-cli latest query protocol-state --socket-path SOCKET_PATH
                                                  [--cardano-mode

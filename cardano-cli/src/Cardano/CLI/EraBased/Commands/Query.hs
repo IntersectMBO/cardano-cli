@@ -28,6 +28,7 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryDRepStakeDistributionCmdArgs (..)
   , QuerySPOStakeDistributionCmdArgs (..)
   , QueryTreasuryValueCmdArgs (..)
+  , QueryLedgerPeerSnapshotCmdArgs (..)
   , renderQueryCmds
   , IncludeStake (..)
   )
@@ -69,6 +70,7 @@ data QueryCmds era
   | QueryCommitteeMembersStateCmd !(QueryCommitteeMembersStateCmdArgs era)
   | QueryTreasuryValueCmd !(QueryTreasuryValueCmdArgs era)
   | QueryProposalsCmd !(QueryProposalsCmdArgs era)
+  | QueryLedgerPeerSnapshotCmd !QueryLedgerPeerSnapshotCmdArgs
   deriving (Generic, Show)
 
 -- | Fields that are common to most queries
@@ -137,6 +139,12 @@ data QueryUTxOCmdArgs = QueryUTxOCmdArgs
 data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
   { commons :: !QueryCommons
   , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving (Generic, Show)
+
+data QueryLedgerPeerSnapshotCmdArgs = QueryLedgerPeerSnapshotCmdArgs
+  { commons :: !QueryCommons
+  , outFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
@@ -266,6 +274,8 @@ renderQueryCmds = \case
     "query utxo"
   QueryLedgerStateCmd{} ->
     "query ledger-state"
+  QueryLedgerPeerSnapshotCmd{} ->
+    "query ledger-peer-snapshot"
   QueryProtocolStateCmd{} ->
     "query protocol-state"
   QueryStakeSnapshotCmd{} ->

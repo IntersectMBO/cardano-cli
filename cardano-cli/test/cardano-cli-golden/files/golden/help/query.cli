@@ -13,6 +13,7 @@ Usage: cardano-cli query
                            | pool-state
                            | tx-mempool
                            | slot-number
+                           | ledger-peer-snapshot
                            )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -47,3 +48,6 @@ Available commands:
   pool-state               Dump the pool state
   tx-mempool               Local Mempool info
   slot-number              Query slot number for UTC timestamp
+  ledger-peer-snapshot     Dump the current snapshot of big ledger peers. These
+                           are the largest pools that cumulatively hold 90% of
+                           total stake.
