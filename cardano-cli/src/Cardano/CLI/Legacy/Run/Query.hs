@@ -33,7 +33,15 @@ runLegacyQueryCmds = \case
   Cmd.QueryPoolStateCmd           args -> runLegacyQueryPoolStateCmd args
   Cmd.QueryTxMempoolCmd           args -> runLegacyQueryTxMempoolCmd args
   Cmd.QuerySlotNumberCmd          args -> runLegacyQuerySlotNumberCmd args
+  Cmd.QueryLedgerPeerSnapshotCmd  args -> runLegacyQueryPeerSnapshot args
 
+runLegacyQueryPeerSnapshot :: ()
+  => Cmd.LegacyQueryLedgerPeerSnapshotCmdArgs
+  -> ExceptT QueryCmdError IO ()
+runLegacyQueryPeerSnapshot Cmd.LegacyQueryLedgerPeerSnapshotCmdArgs {..} =
+  EraBased.runQueryLedgerPeerSnapshot
+    EraBased.QueryLedgerPeerSnapshotCmdArgs {target = Consensus.VolatileTip, ..}
+  
 runLegacyQueryProtocolParametersCmd :: ()
   => Cmd.LegacyQueryProtocolParametersCmdArgs
   -> ExceptT QueryCmdError IO ()
