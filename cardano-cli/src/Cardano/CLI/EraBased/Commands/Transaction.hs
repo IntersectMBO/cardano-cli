@@ -6,6 +6,7 @@ module Cardano.CLI.EraBased.Commands.Transaction
   ( TransactionCmds (..)
   , TransactionBuildRawCmdArgs(..)
   , TransactionBuildCmdArgs(..)
+  , TransactionBuildEstimateCmdArgs(..)
   , TransactionSignCmdArgs(..)
   , TransactionWitnessCmdArgs(..)
   , TransactionSignWitnessCmdArgs(..)
@@ -21,16 +22,20 @@ module Cardano.CLI.EraBased.Commands.Transaction
   ) where
 
 import           Cardano.Api.Ledger (Coin)
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 
+import           Data.Map.Strict (Map)
+import           Data.Set (Set)
 import           Data.Text (Text)
 
 data TransactionCmds era
   = TransactionBuildRawCmd            !(TransactionBuildRawCmdArgs era)
   | TransactionBuildCmd               !(TransactionBuildCmdArgs era)
+  | TransactionBuildEstimateCmd       !(TransactionBuildEstimateCmdArgs era)
   | TransactionSignCmd                !TransactionSignCmdArgs
   | TransactionWitnessCmd             !TransactionWitnessCmdArgs
   | TransactionSignWitnessCmd         !TransactionSignWitnessCmdArgs
@@ -121,11 +126,68 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , scriptFiles             :: ![ScriptFile]
     -- ^ Auxiliary scripts
   , metadataFiles           :: ![MetadataFile]
-  , mfUpdateProposalFile    :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+  , mUpdateProposalFile    :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles               :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , proposalFiles           :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , buildOutputOptions      :: !TxBuildOutputOptions
   } deriving Show
+
+-- | Like 'TransactionBuildCmd' but does not require explicit access to a running node
+data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
+  { eon                     :: !(ShelleyBasedEra era)
+  , mScriptValidity         :: !(Maybe ScriptValidity)
+    -- ^ Mark script as expected to pass or fail validation
+  , shelleyWitnesses        :: !Int
+    -- ^ Number of shelley witnesses to be added
+  , mByronWitnesses          :: !(Maybe Int)
+  , protocolParamsFile      :: !ProtocolParamsFile
+  , totalUTxOValue          :: !Value
+  , txins                   :: ![(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+    -- ^ Transaction inputs with optional spending scripts
+  , readOnlyReferenceInputs :: ![TxIn]
+    -- ^ Read only reference inputs
+  , requiredSigners         :: ![RequiredSigner]
+    -- ^ Required signers
+  , txinsc                  :: ![TxIn]
+    -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
+  , mReturnCollateral       :: !(Maybe TxOutShelleyBasedEra)
+    -- ^ Return collateral
+  , totalCollateral         :: !Coin
+    -- ^ Total collateral
+  , txouts                  :: ![TxOutAnyEra]
+    -- ^ Normal outputs
+  , changeAddress           :: !TxOutChangeAddress
+    -- ^ A change output
+  , mValue                  :: !(Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
+    -- ^ Multi-Asset value with script witness
+  , mValidityLowerBound     :: !(Maybe SlotNo)
+    -- ^ Transaction validity lower bound
+  , mValidityUpperBound     :: !(TxValidityUpperBound era)
+    -- ^ Transaction validity upper bound
+  , certificates            :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+    -- ^ Certificates with potential script witness
+  , withdrawals             :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+    -- ^ Withdrawals with potential script witness
+  , drepsToDeregister       :: !(Map (L.Credential L.DRepRole L.StandardCrypto) L.Coin)
+    -- ^ Map of all deposits for drep credentials that are being
+    --   unregistered in this transaction
+  , stakeCredentialsToDeregister :: !(Map StakeCredential L.Coin)
+    -- ^ Map of all deposits for stake credentials that are being
+    --   unregistered in this transaction)
+  , plutusExecutionUnits     :: !(Map ScriptWitnessIndex ExecutionUnits)
+    -- ^ Plutus script execution units
+  , totalReferenceScriptSize :: !(Maybe Int)
+    -- ^ Size of all reference scripts in bytes
+  , metadataSchema           :: !TxMetadataJsonSchema
+  , scriptFiles              :: ![ScriptFile]
+    -- ^ Auxiliary scripts
+  , metadataFiles            :: ![MetadataFile]
+  , mUpdateProposalFile      :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+  , voteFiles                :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , proposalFiles            :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , poolsToDeregister        :: !(Set PoolId)
+  , txBodyOutFile            :: !(TxBodyFile Out)
+  }
 
 data TransactionSignCmdArgs = TransactionSignCmdArgs
   { txOrTxBodyFile      :: !InputTxBodyOrTxFile
@@ -190,6 +252,7 @@ data TransactionViewCmdArgs = TransactionViewCmdArgs
 renderTransactionCmds :: TransactionCmds era -> Text
 renderTransactionCmds = \case
   TransactionBuildCmd                     {} -> "transaction build"
+  TransactionBuildEstimateCmd             {} -> "transaction build-estimate"
   TransactionBuildRawCmd                  {} -> "transaction build-raw"
   TransactionSignCmd                      {} -> "transaction sign"
   TransactionWitnessCmd                   {} -> "transaction witness"

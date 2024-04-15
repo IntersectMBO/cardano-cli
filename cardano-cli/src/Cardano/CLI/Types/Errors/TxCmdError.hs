@@ -59,7 +59,7 @@ data TxCmdError
   | TxCmdPolicyIdsMissing ![PolicyId] ![PolicyId]
     -- The first list is the missing policy Ids, the second list is the
     -- policy Ids that were provided in the transaction.
-  | TxCmdPolicyIdsExcess  ![PolicyId]
+  | TxCmdPolicyIdsExcess ![PolicyId]
   | TxCmdByronEra
   | TxCmdBalanceTxBody !AnyTxBodyErrorAutoBalance
   | TxCmdTxInsDoNotExist !TxInsExistError
@@ -94,6 +94,8 @@ data TxCmdError
   | TxCmdScriptValidityValidationError TxScriptValidityValidationError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
+  | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
+  | TxCmdFeeEstimationOnlySupportedMaryOnwards
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -236,6 +238,10 @@ renderTxCmdError = \case
     prettyError e
   TxCmdTxGovDuplicateVotes e ->
     prettyError e
+  TxCmdFeeEstimationError e ->
+    prettyError e
+  TxCmdFeeEstimationOnlySupportedMaryOnwards ->
+    "Fee estimation is only supported for the Mary era and onwards"
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =
