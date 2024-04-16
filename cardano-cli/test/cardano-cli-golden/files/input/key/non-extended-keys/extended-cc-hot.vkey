@@ -1,0 +1,5 @@
+{
+    "type": "ConstitutionalCommitteeHotExtendedVerificationKey_ed25519_bip32",
+    "description": "",
+    "cborHex": "5840f010c4332699c6ea1e43b427919860277169382d43d2969b28a110cfa08d955c4f178f20955541ce918a6a1352c32536f22677008f9f918d109663e4d2bdc084"
+}

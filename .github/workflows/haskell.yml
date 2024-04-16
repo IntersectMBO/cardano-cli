@@ -129,6 +129,11 @@ jobs:
     - name: Build all
       run: cabal build all --enable-tests
 
+    # This step is temporary. We'll soon remove it and check instead
+    # that golden files have not been modified when creating them below.
+    - name: Test all
+      run: cabal test all --enable-tests --test-show-details=direct -j1
+
     - # Delete golden files and regenerate them in the next step to ensure
       # files that tests designate as golden files are actually golden files
       # and can be generated.

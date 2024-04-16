@@ -163,6 +163,10 @@ runNonExtendedKeyCmd
         writeToDisk vkf (Just paymentVkeyDesc) (castVerificationKey vk :: VerificationKey PaymentKey)
       ADRepExtendedVerificationKey vk ->
         writeToDisk vkf (Just drepVkeyDesc) (castVerificationKey vk :: VerificationKey DRepKey)
+      ACommitteeColdExtendedVerificationKey vk ->
+        writeToDisk vkf (Just ccColdVkeyDesc) (castVerificationKey vk :: VerificationKey CommitteeColdKey)
+      ACommitteeHotExtendedVerificationKey vk ->
+        writeToDisk vkf (Just ccHotVkeyDesc) (castVerificationKey vk :: VerificationKey CommitteeHotKey)
       AStakeExtendedVerificationKey vk ->
         writeToDisk vkf (Just stakeVkeyDesc) (castVerificationKey vk :: VerificationKey StakeKey)
       AGenesisExtendedVerificationKey vk ->
@@ -177,6 +181,8 @@ runNonExtendedKeyCmd
       vk@AVrfVerificationKey {}         -> goFail vk
       vk@AStakeVerificationKey {}       -> goFail vk
       vk@ADRepVerificationKey {}        -> goFail vk
+      vk@ACommitteeColdVerificationKey{} -> goFail vk
+      vk@ACommitteeHotVerificationKey{} -> goFail vk
     where
       goFail nonExtendedKey = left $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
 
@@ -202,6 +208,8 @@ readExtendedVerificationKeyFile evkfile = do
   case vKey of
       k@APaymentExtendedVerificationKey{} -> return k
       k@ADRepExtendedVerificationKey{} -> return k
+      k@ACommitteeColdExtendedVerificationKey{} -> return k
+      k@ACommitteeHotExtendedVerificationKey{} -> return k
       k@AStakeExtendedVerificationKey{} -> return k
       k@AGenesisExtendedVerificationKey{} -> return k
       k@AGenesisDelegateExtendedVerificationKey{} -> return k
@@ -213,6 +221,8 @@ readExtendedVerificationKeyFile evkfile = do
       k@AVrfVerificationKey{}           -> goFail k
       k@AStakeVerificationKey{}         -> goFail k
       k@ADRepVerificationKey{}          -> goFail k
+      k@ACommitteeColdVerificationKey{} -> goFail k
+      k@ACommitteeHotVerificationKey{}  -> goFail k
   where
     goFail k = left $ KeyCmdExpectedExtendedVerificationKey k
 
