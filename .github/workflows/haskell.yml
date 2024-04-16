@@ -144,6 +144,16 @@ jobs:
         CREATE_GOLDEN_FILES: 1
       run: cabal test all --enable-tests --test-show-details=direct -j1
 
+    - name: Check golden files are all being used
+      run: |
+        NB_UNUSED_GOLDEN_FILES=$(git ls-files -d | wc -l)
+        if [[ "$NB_UNUSED_GOLDEN_FILES" != "0" ]]; then
+          echo "⚠️ The following golden files are not used anymore:"
+          git ls-files -d
+          echo "Please delete them."
+          exit 1
+        fi
+
     - name: "Tar artifacts"
       run: |
         mkdir -p artifacts
