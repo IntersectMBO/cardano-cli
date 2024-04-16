@@ -144,6 +144,16 @@ jobs:
         CREATE_GOLDEN_FILES: 1
       run: cabal test all --enable-tests --test-show-details=direct -j1
 
+    - name: Check golden files are up-to-date
+      run: |
+        NB_MODIFIED_GOLDEN_FILES=$(git ls-files -m | wc -l)
+        if [[ "$NB_MODIFIED_GOLDEN_FILES" != "0" ]]; then
+          echo "The following golden files are not up-to-date:"
+          git ls-files -m
+          echo "Please run the tests locally and update the golden files, or fix your changes."
+          exit 1
+        fi
+
     - name: "Tar artifacts"
       run: |
         mkdir -p artifacts
