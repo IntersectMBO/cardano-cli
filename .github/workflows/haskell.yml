@@ -149,6 +149,30 @@ jobs:
         CREATE_GOLDEN_FILES: 1
       run: cabal test all --enable-tests --test-show-details=direct -j1
 
+    # We want this check to run first because $(git ls-files -m) (see below) returns both
+    # modified files *and* deleted files. So we want to fail on deleted files first.
+    # This makes sure we only report modified files (and not deleted ones) in the next step,
+    # which is more intuitive.
+    - name: Check golden files are all being used
+      run: |
+        NB_UNUSED_GOLDEN_FILES=$(git ls-files -d | wc -l)
+        if [[ "$NB_UNUSED_GOLDEN_FILES" != "0" ]]; then
+          echo -e "⚠️ The following golden files are not used anymore:\n"
+          git ls-files -d
+          echo -e "\nPlease delete them."
+          exit 1
+        fi
+
+    - name: Check golden files are up-to-date
+      run: |
+        NB_MODIFIED_GOLDEN_FILES=$(git ls-files -m | wc -l)
+        if [[ "$NB_MODIFIED_GOLDEN_FILES" != "0" ]]; then
+          echo -e "💣 The following golden files are not up-to-date:\n"
+          git ls-files -m
+          echo -e "\nPlease run the tests locally and update the golden files, or fix your changes."
+          exit 1
+        fi
+
     - name: "Tar artifacts"
       run: |
         mkdir -p artifacts
