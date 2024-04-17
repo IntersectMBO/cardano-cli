@@ -49,6 +49,7 @@ pTransactionCmds era envCli =
                 ]
             ]
     , pTransactionBuildCmd era envCli
+    , pTransactionBuildEstimateCmd era envCli
     , Just
         $ subParser "sign"
         $ Opt.info (pTransactionSign envCli)
@@ -183,6 +184,65 @@ pTransactionBuildCmd era envCli = do
           <*> pVoteFiles sbe AutoBalance
           <*> pProposalFiles sbe AutoBalance
           <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
+
+-- | Estimate the transaction fees without access to a live node.
+pTransactionBuildEstimateCmd :: ShelleyBasedEra era -> EnvCli -> Maybe (Parser (TransactionCmds era))
+pTransactionBuildEstimateCmd era _envCli = do
+  pure
+    $ subParser "build-estimate"
+    $ Opt.info (pCmd era)
+    $ Opt.progDescDoc
+    $ Just $ mconcat
+        [ pretty @String "Build a balanced transaction without access to a live node (automatically calculates fees)"
+        , line
+        , line
+        , H.yellow $ mconcat
+            [ "Please note "
+            , H.underline "the order"
+            , " of some cmd options is crucial. If used incorrectly may produce "
+            , "undesired tx body. See nested [] notation above for details."
+            ]
+        ]
+  where
+    pCmd :: ShelleyBasedEra era -> Parser (TransactionCmds era)
+    pCmd sbe =
+     fmap TransactionBuildEstimateCmd $
+        TransactionBuildEstimateCmdArgs sbe
+          <$> optional pScriptValidity
+          <*> pNumberOfShelleyKeyWitnesses
+          <*> optional pNumberOfByronKeyWitnesses
+          <*> pProtocolParamsFile
+          <*> pTotalUTxOValue
+          <*> some (pTxIn AutoBalance)
+          <*> many pReadOnlyReferenceTxIn
+          <*> many pRequiredSigner
+          <*> many pTxInCollateral
+          <*> optional pReturnCollateral
+          <*> pTotalCollateral
+          <*> many pTxOut
+          <*> pChangeAddress
+          <*> optional (pMintMultiAsset AutoBalance)
+          <*> optional pInvalidBefore
+          <*> pInvalidHereafter sbe
+          <*> many (pCertificateFile AutoBalance)
+          <*> many (pWithdrawal AutoBalance)
+          <*> pure mempty -- TODO: Dreps to deregister
+          <*> pure mempty -- TODO: Stake credentials to deregister
+          <*> pure mempty -- TOOD: Plutus execution units (Map ScriptWitnessIndex ExecutionUnits)
+          <*> pure Nothing -- TODO: Total ref scripts size
+          --- dreps to register TODO:LEft off here
+          <*> pTxMetadataJsonSchema
+          <*> many (pScriptFor
+                      "auxiliary-script-file"
+                      Nothing
+                      "Filepath of auxiliary script(s)")
+          <*> many pMetadataFile
+          <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
+          <*> pVoteFiles sbe AutoBalance
+          <*> pProposalFiles sbe AutoBalance
+          <*> pure mempty -- TODO: Pools to deregister
+          <*> pTxBodyFileOut
+
 
 pChangeAddress :: Parser TxOutChangeAddress
 pChangeAddress =

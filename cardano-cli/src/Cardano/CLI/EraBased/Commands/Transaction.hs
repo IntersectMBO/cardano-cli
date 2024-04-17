@@ -139,7 +139,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
     -- ^ Mark script as expected to pass or fail validation
   , shelleyWitnesses        :: !Int
     -- ^ Number of shelley witnesses to be added
-  , mByronWitnesses          :: !(Maybe Int)
+  , mByronWitnesses         :: !(Maybe Int)
   , protocolParamsFile      :: !ProtocolParamsFile
   , totalUTxOValue          :: !Value
   , txins                   :: ![(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
