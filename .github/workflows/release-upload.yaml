@@ -1,0 +1,168 @@
+name: Release Upload
+# This makes it easy to get download release binaries built using
+# a github action for any tagged commit.
+#
+# This workflow builds and uploads the macOS, win64 and linux
+# binary packages as github assets.
+#
+# It uses `--builders "" --max-jobs 0` to ensure the assets are
+# from the IOG cache.
+on:
+  workflow_dispatch:
+    inputs:
+      target_tag:
+        description: 'The tag of the release to attach binaries to'
+        default: ''
+        required: false
+        type: string
+  release:
+    types:
+      - published
+  push:
+    tags:
+      - '**'
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  wait_for_hydra:
+    name: "Wait for Hydra check-runs"
+    runs-on: ubuntu-latest
+    outputs:
+      TARGET_TAG: ${{ steps.store_target_tag.outputs.TARGET_TAG }}
+      DRY_RUN:    ${{ steps.store_target_tag.outputs.DRY_RUN }}
+      FLAKE_REF:  ${{ steps.define_flake_ref.outputs.FLAKE_REF }}
+    steps:
+    - name: Define target tag (1/2)
+      if: ${{ inputs.target_tag != '' }} # If a tag was specified manually as input, use it
+      run: |
+        echo "TARGET_TAG=${{ inputs.target_tag }}" >> "$GITHUB_ENV"
+    - name: Define target tag (2/2)
+      if: ${{ inputs.target_tag == '' }} # If no tag was specified manually as input, take the tag from the current commit
+      run: |
+        current_tag=$(git tag --points-to HEAD | head -n 1)
+        if [[ "$current_tag" != "" ]]
+        then
+          # The workflow runs on a commit that has a tag, use this tag
+          echo "TARGET_TAG=$current_tag" >> "$GITHUB_ENV"
+        fi
+    - name: Default tag if needed and store it in outputs
+      id: store_target_tag
+      run: |
+        if [[ "${{ env.TARGET_TAG }}" == "" ]]
+        then
+          echo "Tag not yet defined, using current commit as reference."
+          echo "No release will be created."
+          echo "TARGET_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
+          echo "DRY_RUN=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "DRY_RUN=false" >> "$GITHUB_OUTPUT"
+        fi
+        echo "TARGET_TAG=${{ env.TARGET_TAG }}" >> "$GITHUB_OUTPUT"
+    - name: Define FLAKE_REF
+      id: define_flake_ref
+      run: |
+        flake_ref="github:${{ github.repository }}/${{ env.TARGET_TAG }}"
+        echo "FLAKE_REF=$flake_ref" >> "$GITHUB_ENV"
+        echo "FLAKE_REF=$flake_ref" >> "$GITHUB_OUTPUT"
+    - name: Get specific check run status
+      timeout-minutes: 120
+      run: |
+        while true; do
+          # When supporting other architectures than Linux, this query should be adapted:
+          conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/${{ env.TARGET_TAG }}/check-runs" --jq '.check_runs[] | select(.name | test("ci/hydra-build:.*-linux.required")) | .conclusion')
+          case "$conclusion" in
+            success)
+              echo "ci/hydra-build:required succeeded"
+              exit 0;;
+            failure)
+              echo "ci/hydra-build:required failed"
+              exit 1;;
+            *)
+              echo "ci/hydra-build:required pending. Waiting 30s..."
+              sleep 30;;
+          esac
+        done
+    
+  pull:
+    needs: [wait_for_hydra]
+    strategy:
+      matrix:
+        arch: [linux]
+        # TODO generalize
+        # arch: [linux, macos, win64]
+    name: "Download Asset from the Cache"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Nix with good defaults
+        uses: input-output-hk/install-nix-action@v20
+        with:
+          extra_nix_config: |
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+            substituters = https://cache.iog.io/ https://cache.nixos.org/
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Display flake metadata
+        id: flake-metadata
+        run: |
+          nix flake metadata "${{ needs.wait_for_hydra.outputs.FLAKE_REF }}"
+          nix flake metadata "${{ needs.wait_for_hydra.outputs.FLAKE_REF }}" --json | jq -r '"LOCKED_URL=\(.url)"' >> "$GITHUB_ENV"
+      - name: Build
+        run: |
+          case ${{ matrix.arch }} in
+            linux)
+              nix build --builders "" --max-jobs 0 ${{ env.LOCKED_URL }}#cardano-cli:exe:cardano-cli
+              tree result
+              cp result/bin/cardano-cli cardano-cli-${{ matrix.arch }} # (1)
+              ;;
+            # TODO generalize
+            # macos)
+            #   nix build --builders "" --max-jobs 0 ${{ steps.flake-metadata.outputs.LOCKED_URL }}#cardano-cli:exe:cardano-cli
+            #   tree result
+            #   ;;
+            # win64)
+            #   nix build --builders "" --max-jobs 0 ${{ steps.flake-metadata.outputs.LOCKED_URL }}#x86_64-w64-mingw32:cardano-cli:exe:cardano-cli
+            #   tree result
+            #   ;;              
+          esac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cardano-cli-${{ matrix.arch }} # (2)
+          path: cardano-cli-* # Should match (1)
+          retention-days: 1
+
+  create-release:
+    needs: [wait_for_hydra, pull]
+    name: "Create Release"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cardano-cli-linux # Should match (2)
+      # TODO generalize
+      # - uses: actions/download-artifact@v3
+      #   with:
+      #     name: cardano-cli-macos # Should match (2)
+      # - uses: actions/download-artifact@v3
+      #   with:
+      #     name: cardano-cli-win64 # Should match (2)
+      - name: Compress
+        run: |
+          # (3)
+          # TARGET_TAG is of the form cardano-cli-8.22.0, so we don't need to prefix the tar.gz's name
+          # with cardano-cli
+          tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-linux.tar.gz cardano-cli-linux
+          # TODO generalize
+          # tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-macos.tar.gz cardano-cli-macos
+          # zip ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip cardano-cli-win64
+      - name: Create Release
+        uses: input-output-hk/action-gh-release@v1
+        if: ${{ needs.wait_for_hydra.outputs.DRY_RUN == 'false' }}
+        with:
+          draft: true
+          tag_name: ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}
+          # TODO generalize
+          # cardano-cli-${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-macos.tar.gz
+          # cardano-cli-${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip
+          # All entries in 'files' below should match (3)
+          files: |
+            ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-linux.tar.gz
