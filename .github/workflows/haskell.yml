@@ -129,11 +129,6 @@ jobs:
     - name: Build all
       run: cabal build all --enable-tests
 
-    # This step is temporary. We'll soon remove it and check instead
-    # that golden files have not been modified when creating them below.
-    - name: Test all
-      run: cabal test all --enable-tests --test-show-details=direct -j1
-
     - # Delete golden files and regenerate them in the next step to ensure
       # files that tests designate as golden files are actually golden files
       # and can be generated.
@@ -141,13 +136,43 @@ jobs:
       run: |
         rm -rf cardano-cli/test/cardano-cli-golden/files/golden
 
-    - name: Run tests regenerate golden files
+    - name: Run tests, generating golden files on the fly
       env:
         TMPDIR: ${{ runner.temp }}
         TMP: ${{ runner.temp }}
         KEEP_WORKSPACE: 1
         CREATE_GOLDEN_FILES: 1
       run: cabal test all --enable-tests --test-show-details=direct -j1
+
+    # We want this check to run first because $(git ls-files -m) (see below) returns both
+    # modified files *and* deleted files. So we want to fail on deleted files first.
+    # This makes sure we only report modified files (and not deleted ones) in the next step,
+    # which is more intuitive.
+    - name: Check golden files are all being used
+      # We don't run this step on Windows, because some tests do not run on Windows,
+      # and so some golden files don't get regenerated. See
+      # https://github.com/IntersectMBO/cardano-cli/blob/0048f119036ffb9eab357b25dcaf7d320362f071/cardano-cli/test/cardano-cli-golden/Test/Golden/Help.hs#L54
+      if: ${{ matrix.sys.os != 'windows-latest' }}
+      run: |
+        NB_UNUSED_GOLDEN_FILES=$(git ls-files -d | wc -l)
+        if [[ "$NB_UNUSED_GOLDEN_FILES" != "0" ]]; then
+          echo -e "⚠️ The following golden files are not used anymore:\n"
+          git ls-files -d
+          echo -e "\nPlease delete them."
+          exit 1
+        fi
+
+    - name: Check golden files are up-to-date
+      # We don't run this step on Windows, as explained in the previous step.
+      if: ${{ matrix.sys.os != 'windows-latest' }}
+      run: |
+        NB_MODIFIED_GOLDEN_FILES=$(git ls-files -m | wc -l)
+        if [[ "$NB_MODIFIED_GOLDEN_FILES" != "0" ]]; then
+          echo -e "💣 The following golden files are not up-to-date:\n"
+          git ls-files -m
+          echo -e "\nPlease run the tests locally and update the golden files, or fix your changes."
+          exit 1
+        fi
 
     - name: "Tar artifacts"
       run: |
