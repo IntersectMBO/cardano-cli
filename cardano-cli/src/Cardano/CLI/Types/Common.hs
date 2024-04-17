@@ -508,7 +508,7 @@ newtype TxByronWitnessCount
   deriving Show
 
 newtype ReferenceScriptSize
-  = ReferenceScriptSize Int
+  = ReferenceScriptSize { unReferenceScriptSize :: Int }
   deriving Show
 
 newtype BlockId

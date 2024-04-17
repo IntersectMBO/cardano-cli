@@ -46,6 +46,7 @@ data TxCmdError
   | TxCmdScriptWitnessError ScriptWitnessError
   | TxCmdProtocolParamsError ProtocolParamsError
   | TxCmdScriptFileError (FileError ScriptDecodeError)
+  | TxCmdKeyFileError (FileError InputDecodeError)
   | TxCmdReadTextViewFileError !(FileError TextEnvelopeError)
   | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
   | TxCmdWriteFileError !(FileError ())
@@ -95,7 +96,6 @@ data TxCmdError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
-  | TxCmdFeeEstimationOnlySupportedMaryOnwards
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -110,6 +110,8 @@ renderTxCmdError = \case
   TxCmdReadTextViewFileError fileErr ->
     prettyError fileErr
   TxCmdScriptFileError fileErr ->
+    prettyError fileErr
+  TxCmdKeyFileError fileErr ->
     prettyError fileErr
   TxCmdReadWitnessSigningDataError witSignDataErr ->
     renderReadWitnessSigningDataError witSignDataErr
@@ -240,8 +242,6 @@ renderTxCmdError = \case
     prettyError e
   TxCmdFeeEstimationError e ->
     prettyError e
-  TxCmdFeeEstimationOnlySupportedMaryOnwards ->
-    "Fee estimation is only supported for the Mary era and onwards"
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

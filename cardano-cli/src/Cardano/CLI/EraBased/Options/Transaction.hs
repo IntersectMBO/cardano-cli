@@ -49,7 +49,7 @@ pTransactionCmds era envCli =
                 ]
             ]
     , pTransactionBuildCmd era envCli
-    , pTransactionBuildEstimateCmd era envCli
+    , forShelleyBasedEraInEon era Nothing (`pTransactionBuildEstimateCmd` envCli)
     , Just
         $ subParser "sign"
         $ Opt.info (pTransactionSign envCli)
@@ -186,14 +186,14 @@ pTransactionBuildCmd era envCli = do
           <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
 -- | Estimate the transaction fees without access to a live node.
-pTransactionBuildEstimateCmd :: ShelleyBasedEra era -> EnvCli -> Maybe (Parser (TransactionCmds era))
+pTransactionBuildEstimateCmd :: MaryEraOnwards era -> EnvCli -> Maybe (Parser (TransactionCmds era))
 pTransactionBuildEstimateCmd era _envCli = do
   pure
     $ subParser "build-estimate"
     $ Opt.info (pCmd era)
     $ Opt.progDescDoc
     $ Just $ mconcat
-        [ pretty @String "Build a balanced transaction without access to a live node (automatically calculates fees)"
+        [ pretty @String "Build a balanced transaction without access to a live node (automatically estimates fees)"
         , line
         , line
         , H.yellow $ mconcat
@@ -204,33 +204,30 @@ pTransactionBuildEstimateCmd era _envCli = do
             ]
         ]
   where
-    pCmd :: ShelleyBasedEra era -> Parser (TransactionCmds era)
-    pCmd sbe =
+    pCmd :: MaryEraOnwards era -> Parser (TransactionCmds era)
+    pCmd w = do
+     let sbe = maryEraOnwardsToShelleyBasedEra w
      fmap TransactionBuildEstimateCmd $
-        TransactionBuildEstimateCmdArgs sbe
+        TransactionBuildEstimateCmdArgs w
           <$> optional pScriptValidity
           <*> pNumberOfShelleyKeyWitnesses
           <*> optional pNumberOfByronKeyWitnesses
           <*> pProtocolParamsFile
           <*> pTotalUTxOValue
-          <*> some (pTxIn AutoBalance)
+          <*> some (pTxIn ManualBalance)
           <*> many pReadOnlyReferenceTxIn
           <*> many pRequiredSigner
           <*> many pTxInCollateral
           <*> optional pReturnCollateral
-          <*> pTotalCollateral
           <*> many pTxOut
           <*> pChangeAddress
-          <*> optional (pMintMultiAsset AutoBalance)
+          <*> optional (pMintMultiAsset ManualBalance)
           <*> optional pInvalidBefore
           <*> pInvalidHereafter sbe
-          <*> many (pCertificateFile AutoBalance)
-          <*> many (pWithdrawal AutoBalance)
-          <*> pure mempty -- TODO: Dreps to deregister
-          <*> pure mempty -- TODO: Stake credentials to deregister
-          <*> pure mempty -- TOOD: Plutus execution units (Map ScriptWitnessIndex ExecutionUnits)
-          <*> pure Nothing -- TODO: Total ref scripts size
-          --- dreps to register TODO:LEft off here
+          <*> many (pCertificateFile ManualBalance)
+          <*> many (pWithdrawal ManualBalance)
+          <*> optional pTotalCollateral
+          <*> optional pReferenceScriptSize
           <*> pTxMetadataJsonSchema
           <*> many (pScriptFor
                       "auxiliary-script-file"
@@ -240,9 +237,7 @@ pTransactionBuildEstimateCmd era _envCli = do
           <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
           <*> pVoteFiles sbe AutoBalance
           <*> pProposalFiles sbe AutoBalance
-          <*> pure mempty -- TODO: Pools to deregister
           <*> pTxBodyFileOut
-
 
 pChangeAddress :: Parser TxOutChangeAddress
 pChangeAddress =

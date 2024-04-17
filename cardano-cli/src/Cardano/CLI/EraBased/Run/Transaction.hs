@@ -9,6 +9,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeOperators #-}
 
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
@@ -263,7 +264,6 @@ runTransactionBuildEstimateCmd
     , requiredSigners = reqSigners
     , txinsc = txInsCollateral
     , mReturnCollateral = mReturnColl
-    , totalCollateral
     , txouts
     , changeAddress = TxOutChangeAddress changeAddr
     , mValue
@@ -277,29 +277,27 @@ runTransactionBuildEstimateCmd
     , mUpdateProposalFile
     , voteFiles
     , proposalFiles
-    , poolsToDeregister = poolids
-    , drepsToDeregister
-    , stakeCredentialsToDeregister
-    , plutusExecutionUnits
+    , plutusCollateral
     , totalReferenceScriptSize
     , txBodyOutFile
     } = do
+  let sbe = maryEraOnwardsToShelleyBasedEra eon
   legacyPParams <- firstExceptT TxCmdProtocolParamsError $ readProtocolParameters protocolParamsFile
   ledgerPParams <- hoistEither . first TxCmdProtocolParamsConverstionError
-                               $ convertToLedgerProtocolParameters eon legacyPParams
+                               $ convertToLedgerProtocolParameters sbe legacyPParams
   inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
-                                 $ readScriptWitnessFiles eon txins
+                                $ readScriptWitnessFiles sbe txins
   certFilesAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
-                                   $ readScriptWitnessFiles eon certificates
+                                   $ readScriptWitnessFiles sbe certificates
 
   withdrawalsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
-                                     $ readScriptWitnessFilesTuple eon withdrawals
+                                     $ readScriptWitnessFilesTuple sbe withdrawals
   txMetadata <- firstExceptT TxCmdMetadataError
-                  . newExceptT $ readTxMetadata eon metadataSchema metadataFiles
-  valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
+                  . newExceptT $ readTxMetadata sbe metadataSchema metadataFiles
+  valuesWithScriptWits <- readValueScriptWitnesses sbe $ fromMaybe mempty mValue
   scripts <- firstExceptT TxCmdScriptFileError $
                      mapM (readFileScriptInAnyLang . unFile) scriptFiles
-  txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
+  txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts sbe scripts
 
 
   txUpdateProposal <- case mUpdateProposalFile of
@@ -309,15 +307,11 @@ runTransactionBuildEstimateCmd
 
   requiredSigners  <- mapM (firstExceptT TxCmdRequiredSignerError .  newExceptT . readRequiredSigner) reqSigners
 
-  mReturnCollateral <- case mReturnColl of
-                         Nothing -> return Nothing
-                         Just retColl -> do
-                          txOut <- toTxOutInShelleyBasedEra eon retColl
-                          return $ Just txOut
+  mReturnCollateral <- mapM (toTxOutInShelleyBasedEra sbe) mReturnColl
 
-  txOuts <- mapM (toTxOutInAnyEra eon) txouts
+  txOuts <- mapM (toTxOutInAnyEra sbe) txouts
 
-    -- the same collateral input can be used for several plutus scripts
+  -- the same collateral input can be used for several plutus scripts
   let filteredTxinsc = Set.toList $ Set.fromList txInsCollateral
 
   -- Conway related
@@ -325,14 +319,14 @@ runTransactionBuildEstimateCmd
     inEonForShelleyBasedEra
       (pure mempty)
       (\w -> firstExceptT TxCmdVoteError . ExceptT $ conwayEraOnwardsConstraints w $ readVotingProceduresFiles w voteFiles)
-      eon
+      sbe
 
   proposals <-
-    lift (readTxGovernanceActions eon proposalFiles)
+    lift (readTxGovernanceActions sbe proposalFiles)
       & onLeft (left . TxCmdProposalError)
 
   certsAndMaybeScriptWits <-
-      shelleyBasedEraConstraints eon $
+      shelleyBasedEraConstraints sbe $
         sequence
           [ fmap (,mSwit) (firstExceptT TxCmdReadTextViewFileError . newExceptT $
               readFileTextEnvelope AsCertificate (File certFile))
@@ -340,13 +334,13 @@ runTransactionBuildEstimateCmd
           ]
 
   txBodyContent <- hoistEither $ constructTxBodyContent
-                     eon mScriptValidity
+                     sbe mScriptValidity
                      (Just $ unLedgerProtocolParameters ledgerPParams)
                      inputsAndMaybeScriptWits
                      readOnlyRefIns
                      filteredTxinsc
                      mReturnCollateral
-                     (Just totalCollateral)
+                     Nothing -- TODO: Remove total collateral parameter from estimateBalancedTxBody
                      txOuts
                      mValidityLowerBound
                      mValidityUpperBound
@@ -360,21 +354,104 @@ runTransactionBuildEstimateCmd
                      txUpdateProposal
                      votingProceduresAndMaybeScriptWits
                      proposals
+  let stakeCredentialsToDeregisterMap = Map.fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
+      drepsToDeregisterMap = Map.fromList $ catMaybes [getDRepDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
+      poolsToDeregister = Set.fromList $ catMaybes [getPoolDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
+      totCol = fromMaybe 0 plutusCollateral
+      pScriptExecUnits = Map.fromList [ (sWitIndex, execUnits)
+                                      | (sWitIndex, (AnyScriptWitness (PlutusScriptWitness _ _ _ _ _ execUnits))) <- collectTxBodyScriptWitnesses sbe txBodyContent
+                                      ]
 
   BalancedTxBody _ balancedTxBody _ _ <-
-    forShelleyBasedEraInEon
-      eon
-      (left undefined)
-      (\w -> hoistEither $ first TxCmdFeeEstimationError $
-               estimateBalancedTxBody w txBodyContent (unLedgerProtocolParameters ledgerPParams) poolids
-                                      stakeCredentialsToDeregister drepsToDeregister
-                                      plutusExecutionUnits totalCollateral shelleyWitnesses (fromMaybe 0 mByronWitnesses)
-                                      (fromMaybe 0 totalReferenceScriptSize) (anyAddressInShelleyBasedEra eon changeAddr)
-                                      totalUTxOValue
-      )
+    hoistEither $ first TxCmdFeeEstimationError $
+      estimateBalancedTxBody eon txBodyContent (unLedgerProtocolParameters ledgerPParams) poolsToDeregister
+                             stakeCredentialsToDeregisterMap drepsToDeregisterMap
+                             pScriptExecUnits totCol shelleyWitnesses (fromMaybe 0 mByronWitnesses)
+                             (fromMaybe 0 (unReferenceScriptSize <$> totalReferenceScriptSize)) (anyAddressInShelleyBasedEra sbe changeAddr)
+                             totalUTxOValue
+
   let noWitTx = makeSignedTransaction [] balancedTxBody
-  lift (writeTxFileTextEnvelopeCddl eon txBodyOutFile noWitTx)
+  lift (writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx)
         & onLeft (left . TxCmdWriteFileError)
+
+getPoolDeregistrationInfo
+  :: Certificate era
+  -> Maybe PoolId
+getPoolDeregistrationInfo (ShelleyRelatedCertificate w cert) =
+  shelleyToBabbageEraConstraints w $ getShelleyDeregistrationPoolId cert
+getPoolDeregistrationInfo (ConwayCertificate w cert) =
+  conwayEraOnwardsConstraints w $ getConwayDeregistrationPoolId cert
+
+getShelleyDeregistrationPoolId
+  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+  => L.ShelleyEraTxCert (ShelleyLedgerEra era)
+  => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
+  => L.ShelleyTxCert (ShelleyLedgerEra era)
+  -> Maybe PoolId
+getShelleyDeregistrationPoolId cert = do
+  case cert of
+    L.RetirePoolTxCert poolId _ -> Just (StakePoolKeyHash poolId)
+    _ -> Nothing
+
+getConwayDeregistrationPoolId
+  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  => L.ConwayEraTxCert (ShelleyLedgerEra era)
+  => L.ConwayTxCert (ShelleyLedgerEra era)
+  -> Maybe PoolId
+getConwayDeregistrationPoolId cert = do
+  case cert of
+    L.RetirePoolTxCert poolId _ -> Just (StakePoolKeyHash poolId)
+    _ -> Nothing
+
+getDRepDeregistrationInfo
+  :: Certificate era
+  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, L.Coin)
+getDRepDeregistrationInfo ShelleyRelatedCertificate{} = Nothing
+getDRepDeregistrationInfo (ConwayCertificate w cert) =
+  conwayEraOnwardsConstraints w $ getConwayDRepDeregistrationInfo cert
+
+getConwayDRepDeregistrationInfo
+  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  => L.ConwayEraTxCert (ShelleyLedgerEra era)
+  => L.ConwayTxCert (ShelleyLedgerEra era)
+  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, L.Coin)
+getConwayDRepDeregistrationInfo = L.getUnRegDRepTxCert
+
+getStakeDeregistrationInfo
+  :: Certificate era
+  -> Maybe (StakeCredential, L.Coin)
+getStakeDeregistrationInfo (ShelleyRelatedCertificate w cert) =
+  shelleyToBabbageEraConstraints w $ getShelleyDeregistrationInfo cert
+
+getStakeDeregistrationInfo (ConwayCertificate w cert) =
+  conwayEraOnwardsConstraints w $ getConwayDeregistrationInfo cert
+
+-- There for no deposits required pre-conway for registering stake
+-- credentials.
+getShelleyDeregistrationInfo
+  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+  => L.ShelleyEraTxCert (ShelleyLedgerEra era)
+  => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
+  => L.ShelleyTxCert (ShelleyLedgerEra era)
+  -> Maybe (StakeCredential, L.Coin)
+getShelleyDeregistrationInfo cert = do
+  case cert of
+    L.UnRegTxCert stakeCred  -> Just (fromShelleyStakeCredential stakeCred, 0)
+    _ -> Nothing
+
+getConwayDeregistrationInfo
+  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  => L.ConwayEraTxCert (ShelleyLedgerEra era)
+  => L.ConwayTxCert (ShelleyLedgerEra era)
+  -> Maybe (StakeCredential, L.Coin)
+getConwayDeregistrationInfo cert = do
+  case cert of
+    L.UnRegDepositTxCert stakeCred depositRefund -> Just (fromShelleyStakeCredential stakeCred, depositRefund)
+    _ -> Nothing
+
 
 getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
 getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
@@ -442,11 +519,7 @@ runTransactionBuildRawCmd
 
   requiredSigners  <- mapM (firstExceptT TxCmdRequiredSignerError .  newExceptT . readRequiredSigner) reqSigners
 
-  mReturnCollateral <- case mReturnColl of
-                         Nothing -> return Nothing
-                         Just retColl -> do
-                          txOut <- toTxOutInShelleyBasedEra eon retColl
-                          return $ Just txOut
+  mReturnCollateral <- mapM (toTxOutInShelleyBasedEra eon) mReturnColl
 
   txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
@@ -592,7 +665,7 @@ constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits rea
     <- first TxCmdTotalCollateralValidationError $ validateTxTotalCollateral era mTotCollateral
   validatedRetCol
     <- first TxCmdReturnCollateralValidationError $ validateTxReturnCollateral era mReturnCollateral
-  dFee <- first TxCmdTxFeeValidationError $ validateTxFee sbe mFee
+  dFee <- first TxCmdTxFeeValidationError . validateTxFee sbe . Just $ fromMaybe (L.Coin 0) mFee
   validatedLowerBound <- first TxCmdTxValidityLowerBoundValidationError (validateTxValidityLowerBound era mLowerBound)
   validatedReqSigners <- first TxCmdRequiredSignersValidationError $ validateRequiredSigners era reqSigners
   validatedTxWtdrwls <- first TxCmdTxWithdrawalsValidationError $ validateTxWithdrawals era withdrawals
@@ -705,10 +778,15 @@ runTxBuild
   Refl <- testEquality era nodeEra
     & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
-  TxCertificates _ certs _
+  validatedTxCerts
      <- hoistEither
           . first TxCmdTxCertificatesValidationError
           $ validateTxCertificates era certsAndMaybeScriptWits
+
+  let certs =
+        case validatedTxCerts of
+          TxCertificates _ cs _ -> cs
+          _ -> []
 
   (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits) <-
     lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ queryStateForBalancedTx nodeEra allTxInputs certs)

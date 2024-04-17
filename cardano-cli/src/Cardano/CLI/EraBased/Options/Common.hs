@@ -3196,6 +3196,20 @@ pAlwaysNoConfidence =
     , Opt.help "Always vote no confidence"
     ]
 
+pDrepRefund :: Parser (DRepHashSource, L.Coin)
+pDrepRefund =
+  (,) <$> pDRepHashSource
+      <*> pDepositRefund
+
+pDepositRefund :: Parser L.Coin
+pDepositRefund =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "deposit-refund"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "Deposit refund amount."
+    ]
+
+
 pDRepHashSource :: Parser DRepHashSource
 pDRepHashSource =
   asum

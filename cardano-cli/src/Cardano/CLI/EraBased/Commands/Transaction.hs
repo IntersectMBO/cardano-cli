@@ -22,14 +22,11 @@ module Cardano.CLI.EraBased.Commands.Transaction
   ) where
 
 import           Cardano.Api.Ledger (Coin)
-import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 
-import           Data.Map.Strict (Map)
-import           Data.Set (Set)
 import           Data.Text (Text)
 
 data TransactionCmds era
@@ -126,7 +123,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , scriptFiles             :: ![ScriptFile]
     -- ^ Auxiliary scripts
   , metadataFiles           :: ![MetadataFile]
-  , mUpdateProposalFile    :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+  , mUpdateProposalFile     :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles               :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , proposalFiles           :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , buildOutputOptions      :: !TxBuildOutputOptions
@@ -134,7 +131,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
 
 -- | Like 'TransactionBuildCmd' but does not require explicit access to a running node
 data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
-  { eon                     :: !(ShelleyBasedEra era)
+  { eon                     :: !(MaryEraOnwards era)
   , mScriptValidity         :: !(Maybe ScriptValidity)
     -- ^ Mark script as expected to pass or fail validation
   , shelleyWitnesses        :: !Int
@@ -152,8 +149,6 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
     -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
   , mReturnCollateral       :: !(Maybe TxOutShelleyBasedEra)
     -- ^ Return collateral
-  , totalCollateral         :: !Coin
-    -- ^ Total collateral
   , txouts                  :: ![TxOutAnyEra]
     -- ^ Normal outputs
   , changeAddress           :: !TxOutChangeAddress
@@ -168,15 +163,9 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
     -- ^ Certificates with potential script witness
   , withdrawals             :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
     -- ^ Withdrawals with potential script witness
-  , drepsToDeregister       :: !(Map (L.Credential L.DRepRole L.StandardCrypto) L.Coin)
-    -- ^ Map of all deposits for drep credentials that are being
-    --   unregistered in this transaction
-  , stakeCredentialsToDeregister :: !(Map StakeCredential L.Coin)
-    -- ^ Map of all deposits for stake credentials that are being
-    --   unregistered in this transaction)
-  , plutusExecutionUnits     :: !(Map ScriptWitnessIndex ExecutionUnits)
-    -- ^ Plutus script execution units
-  , totalReferenceScriptSize :: !(Maybe Int)
+  , plutusCollateral :: !(Maybe Coin)
+    -- ^ Total collateral
+  , totalReferenceScriptSize :: !(Maybe ReferenceScriptSize)
     -- ^ Size of all reference scripts in bytes
   , metadataSchema           :: !TxMetadataJsonSchema
   , scriptFiles              :: ![ScriptFile]
@@ -185,7 +174,6 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , mUpdateProposalFile      :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles                :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , proposalFiles            :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
-  , poolsToDeregister        :: !(Set PoolId)
   , txBodyOutFile            :: !(TxBodyFile Out)
   }
 
