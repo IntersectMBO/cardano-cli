@@ -149,6 +149,10 @@ jobs:
     # This makes sure we only report modified files (and not deleted ones) in the next step,
     # which is more intuitive.
     - name: Check golden files are all being used
+      # We don't run this step on Windows, because some tests do not run on Windows,
+      # and so some golden files don't get regenerated. See
+      # https://github.com/IntersectMBO/cardano-cli/blob/0048f119036ffb9eab357b25dcaf7d320362f071/cardano-cli/test/cardano-cli-golden/Test/Golden/Help.hs#L54
+      if: ${{ matrix.sys.os != 'windows-latest' }}
       run: |
         NB_UNUSED_GOLDEN_FILES=$(git ls-files -d | wc -l)
         if [[ "$NB_UNUSED_GOLDEN_FILES" != "0" ]]; then
@@ -159,6 +163,8 @@ jobs:
         fi
 
     - name: Check golden files are up-to-date
+      # We don't run this step on Windows, as explained in the previous step.
+      if: ${{ matrix.sys.os != 'windows-latest' }}
       run: |
         NB_MODIFIED_GOLDEN_FILES=$(git ls-files -m | wc -l)
         if [[ "$NB_MODIFIED_GOLDEN_FILES" != "0" ]]; then
