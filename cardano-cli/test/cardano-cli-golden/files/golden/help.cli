@@ -441,7 +441,7 @@ Usage: cardano-cli shelley node issue-op-cert
 
   Issue a node operational certificate
 
-Usage: cardano-cli shelley query
+Usage: cardano-cli shelley query 
                                    ( protocol-parameters
                                    | tip
                                    | stake-pools
@@ -1647,7 +1647,7 @@ Usage: cardano-cli allegra node issue-op-cert
 
   Issue a node operational certificate
 
-Usage: cardano-cli allegra query
+Usage: cardano-cli allegra query 
                                    ( protocol-parameters
                                    | tip
                                    | stake-pools
@@ -2851,7 +2851,7 @@ Usage: cardano-cli mary node issue-op-cert
 
   Issue a node operational certificate
 
-Usage: cardano-cli mary query
+Usage: cardano-cli mary query 
                                 ( protocol-parameters
                                 | tip
                                 | stake-pools
@@ -2957,7 +2957,7 @@ Usage: cardano-cli mary query ledger-peer-snapshot --socket-path SOCKET_PATH
                                                      --out-file FILE
 
   Dump the current snapshot of ledger peers
-  
+
 Usage: cardano-cli mary query protocol-state --socket-path SOCKET_PATH
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
@@ -4178,7 +4178,7 @@ Usage: cardano-cli alonzo node issue-op-cert
 
   Issue a node operational certificate
 
-Usage: cardano-cli alonzo query
+Usage: cardano-cli alonzo query 
                                   ( protocol-parameters
                                   | tip
                                   | stake-pools
@@ -5542,7 +5542,7 @@ Usage: cardano-cli babbage node issue-op-cert
 
   Issue a node operational certificate
 
-Usage: cardano-cli babbage query
+Usage: cardano-cli babbage query 
                                    ( protocol-parameters
                                    | tip
                                    | stake-pools
@@ -7182,7 +7182,7 @@ Usage: cardano-cli conway node issue-op-cert
 
   Issue a node operational certificate
 
-Usage: cardano-cli conway query
+Usage: cardano-cli conway query 
                                   ( protocol-parameters
                                   | tip
                                   | stake-pools
@@ -8762,7 +8762,7 @@ Usage: cardano-cli latest node issue-op-cert
 
   Issue a node operational certificate
 
-Usage: cardano-cli latest query
+Usage: cardano-cli latest query 
                                   ( protocol-parameters
                                   | tip
                                   | stake-pools
@@ -9948,7 +9948,7 @@ Usage: cardano-cli legacy genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli legacy query
+Usage: cardano-cli legacy query 
                                   ( protocol-parameters
                                   | tip
                                   | stake-pools
@@ -10033,6 +10033,16 @@ Usage: cardano-cli legacy query utxo --socket-path SOCKET_PATH
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
+Usage: cardano-cli legacy query ledger-peer-snapshot --socket-path SOCKET_PATH
+                                                       [--cardano-mode
+                                                         [--epoch-slots SLOTS]]
+                                                       ( --mainnet
+                                                       | --testnet-magic NATURAL
+                                                       )
+                                                       --out-file FILE
+
+  Dump the current ledger peer snapshot (CBOR encoded)
+
 Usage: cardano-cli legacy query ledger-state --socket-path SOCKET_PATH
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
@@ -10043,16 +10053,6 @@ Usage: cardano-cli legacy query ledger-state --socket-path SOCKET_PATH
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
-
-Usage: cardano-cli legacy query ledger-peer-snapshot --socket-path SOCKET_PATH
-                                                       [--cardano-mode
-                                                         [--epoch-slots SLOTS]]
-                                                       ( --mainnet
-                                                       | --testnet-magic NATURAL
-                                                       )
-                                                       --out-file FILE
-
-  Dump the current ledger peer snapshot
 
 Usage: cardano-cli legacy query protocol-state --socket-path SOCKET_PATH
                                                  [--cardano-mode
@@ -11227,7 +11227,7 @@ Usage: cardano-cli genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli query
+Usage: cardano-cli query 
                            ( protocol-parameters
                            | tip
                            | stake-pools
@@ -11307,14 +11307,6 @@ Usage: cardano-cli query utxo --socket-path SOCKET_PATH
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
-Usage: cardano-cli query ledger-state --socket-path SOCKET_PATH
-                                        [--cardano-mode [--epoch-slots SLOTS]]
-                                        (--mainnet | --testnet-magic NATURAL)
-                                        [--out-file FILE]
-
-  Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
-  command)
-
 Usage: cardano-cli query ledger-peer-snapshot --socket-path SOCKET_PATH
                                                 [--cardano-mode
                                                   [--epoch-slots SLOTS]]
@@ -11323,7 +11315,15 @@ Usage: cardano-cli query ledger-peer-snapshot --socket-path SOCKET_PATH
                                                 )
                                                 --out-file FILE
 
-  Dump the current ledger peer snapshot
+  Dump the current ledger peer snapshot (CBOR encoded)
+
+Usage: cardano-cli query ledger-state --socket-path SOCKET_PATH
+                                        [--cardano-mode [--epoch-slots SLOTS]]
+                                        (--mainnet | --testnet-magic NATURAL)
+                                        [--out-file FILE]
+
+  Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
+  command)
 
 Usage: cardano-cli query protocol-state --socket-path SOCKET_PATH
                                           [--cardano-mode [--epoch-slots SLOTS]]
