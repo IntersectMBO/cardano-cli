@@ -31,4 +31,8 @@ NUMBER_OF_LINES=$((NUMBER_OF_LINES - 1))
 # Uncomment to debug
 # echo "Found number of lines: $NUMBER_OF_LINES"
 
+# Piping tail doesn't play nice with "set -o pipefail" so turning it off
+# See https://superuser.com/questions/554855/how-can-i-fix-a-broken-pipe-error
+set +o pipefail
+
 tail -n "+$CHANGELOG_START_LINE" "$CHANGELOG" | head -n "$NUMBER_OF_LINES"

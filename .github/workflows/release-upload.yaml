@@ -160,6 +160,7 @@ jobs:
     name: "Create Release"
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4 # We need the repo to execute extract-changelog.sh  below
       - uses: actions/download-artifact@v4
         with:
           name: cardano-cli-linux # Should match (2)
@@ -186,6 +187,10 @@ jobs:
           long_tag=${{ needs.wait_for_hydra.outputs.TARGET_TAG }}
           short_tag="${long_tag#cardano-cli-}"
           echo "SHORT_TAG=$short_tag" >> "$GITHUB_ENV"
+      - name: Create changelog
+        run: |
+          echo -e "# Changelog\n" > RELEASE_CHANGELOG.md
+          ./scripts/ci/extract-changelog.sh ${{ env.SHORT_TAG }} >> RELEASE_CHANGELOG.md
       - name: Create Release
         uses: input-output-hk/action-gh-release@v1
         if: ${{ needs.wait_for_hydra.outputs.DRY_RUN == 'false' }}
@@ -199,3 +204,4 @@ jobs:
           # All entries in 'files' below should match (3)
           files: |
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-linux.tar.gz
+          body_path: RELEASE_CHANGELOG.md
