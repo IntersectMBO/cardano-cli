@@ -56,7 +56,7 @@ jobs:
     steps:
       - name: Create README
         run: |
-          echo "First trial" > FOO.md
+          echo "Second trial" > FOO.md
       - name: Create Release
         uses: input-output-hk/action-gh-release@v1
         with:
