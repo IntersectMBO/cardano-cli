@@ -1,0 +1,55 @@
+name: Test1
+# Pipeline to download binaries from Hydra builds and create GitHub
+# releases out of them (or attaching the binaries to an already existing release)
+#
+# This pipeline is divided in three jobs:
+#
+# 1. The "wait_for_hydra" job looks up the status of the Hydra build corresponding to
+#    the tag for which we want to release. If the status is success, the pipeline
+#    continues. If the status cannot be determined or is a failure, the pipeline stops.
+# 2. The "pull" job downloads the binaries from the Hydra build and uploads them as artifacts.
+#    This job uses a matrix to handle all 3 platforms. Uploading as an artifact allows to
+#    do the last job without a matrix.
+#
+#    This job uses `--builders "" --max-jobs 0` to ensure the assets are downloaded
+#    from the IOG cache.
+# 3. The "create_release" job downloads the artifacts and attaches them to the target release.
+#
+# This pipeline is triggered in one of the following 3 ways:
+#
+# 1. When a release is published, this release's commit must have a tag for the pipeline to succeed
+# 2. When a tag is pushed. If this tag has a corresponding release, the release will be augmented.
+#    If there is no release, it will be created.
+# 3. By launching it manually, optionally specifying the tag to release:
+#      gh workflow run "Release Upload" -r $(git branch --show-current) -f target_tag=cardano-cli-8.22.0.0
+#    This mode is not supported by the pipeline of cardano-node (which was copied to create this pipeline),
+#    but we anticipate this mode to be useful when debugging, or releasing a posteriori.
+#
+#    If the tag is not specified, this pipeline will run, but skip the final "create_release" job,
+#    so no release will get created. This is useful for debugging or
+#    trying to build a release before tagging it.
+#
+# So far this pipeline only supports releasing Linux binaries. However everything is ready to support
+# other platforms. Please see the "TODO generalize" comments in this file to support new platforms.
+
+on:
+  workflow_dispatch:
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  test1:
+    name: "Test1"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create README
+        run: |
+          echo "First trial" > FOO.md
+      - name: Create Release
+        uses: input-output-hk/action-gh-release@v1
+        with:
+          draft: true
+          tag_name: test-tag-1
+          files: |
+            FOO.md
