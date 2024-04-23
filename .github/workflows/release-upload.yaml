@@ -159,6 +159,7 @@ jobs:
     needs: [wait_for_hydra, pull]
     name: "Create Release"
     runs-on: ubuntu-latest
+    if: ${{ needs.wait_for_hydra.outputs.DRY_RUN == 'false' }}
     steps:
       - uses: actions/checkout@v4 # We need the repo to execute extract-changelog.sh  below
       - uses: actions/download-artifact@v4
@@ -193,7 +194,6 @@ jobs:
           ./scripts/ci/extract-changelog.sh ${{ env.SHORT_TAG }} >> RELEASE_CHANGELOG.md
       - name: Create Release
         uses: input-output-hk/action-gh-release@v1
-        if: ${{ needs.wait_for_hydra.outputs.DRY_RUN == 'false' }}
         with:
           draft: true
           tag_name: ${{ needs.wait_for_hydra.outputs.TARGET_TAG }} # Git tag the release is attached to
