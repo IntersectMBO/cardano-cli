@@ -65,7 +65,7 @@ jobs:
     - name: Define target tag (2/2)
       if: ${{ inputs.target_tag == '' }} # If no tag was specified manually as input, take the tag from the current commit
       run: |
-        current_tag=$(git tag --points-to HEAD | head -n 1)
+        current_tag=$(git tag --points-at HEAD | head -n 1)
         if [[ "$current_tag" != "" ]]
         then
           # The workflow runs on a commit that has a tag, use this tag
