@@ -71,19 +71,21 @@ jobs:
           # The workflow runs on a commit that has a tag, use this tag
           echo "TARGET_TAG=$current_tag" >> "$GITHUB_ENV"
         fi
-    - name: Default tag if needed and store it in outputs
+    - name: Default tag if needed and compute dryness
       id: store_target_tag
       run: |
         if [[ "${{ env.TARGET_TAG }}" == "" ]]
         then
           echo "Tag not yet defined, using current commit as reference."
-          echo "No release will be created."
           echo "TARGET_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
+        fi
+        if [[ $(git tag --points-at ${{ env.TARGET_TAG }} | wc -l) == "0" ]]
+        then
+          echo "Run targets a commit that has no attached tag: no release will be published."
           echo "DRY_RUN=true" >> "$GITHUB_OUTPUT"
         else
           echo "DRY_RUN=false" >> "$GITHUB_OUTPUT"
         fi
-        echo "TARGET_TAG=${{ env.TARGET_TAG }}" >> "$GITHUB_OUTPUT"
     - name: Define FLAKE_REF
       id: define_flake_ref
       run: |
