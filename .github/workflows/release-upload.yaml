@@ -179,12 +179,20 @@ jobs:
           # TODO generalize
           # tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-macos.tar.gz cardano-cli-macos
           # zip ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip cardano-cli-win64
+      - name: Create short tag
+        run: |
+          # Transform the long tag (e.g. "cardano-cli-8.22.0.0")
+          # into the short version (e.g. "8.22.0.0")
+          long_tag=${{ needs.wait_for_hydra.outputs.TARGET_TAG }}
+          short_tag="${long_tag#cardano-cli-}"
+          echo "SHORT_TAG=$short_tag" >> "$GITHUB_ENV"
       - name: Create Release
         uses: input-output-hk/action-gh-release@v1
         if: ${{ needs.wait_for_hydra.outputs.DRY_RUN == 'false' }}
         with:
           draft: true
-          tag_name: ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}
+          tag_name: ${{ needs.wait_for_hydra.outputs.TARGET_TAG }} # Git tag the release is attached to
+          name: ${{ env.SHORT_TAG }} # Release name in GitHub UI
           # TODO generalize
           # cardano-cli-${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-macos.tar.gz
           # cardano-cli-${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip
