@@ -131,9 +131,8 @@ jobs:
     needs: [wait_for_hydra]
     strategy:
       matrix:
-        arch: [linux, x86_64-darwin, aarch64-darwin]
         # TODO generalize
-        # arch: [linux, macos, win64]
+        arch: [x86_64-linux, x86_64-darwin, aarch64-darwin]
     name: "Download Asset"
     runs-on: ubuntu-latest
     steps:
@@ -151,29 +150,13 @@ jobs:
           nix flake metadata "${{ needs.wait_for_hydra.outputs.FLAKE_REF }}" --json | jq -r '"LOCKED_URL=\(.url)"' >> "$GITHUB_ENV"
       - name: Build
         run: |
-          case ${{ matrix.arch }} in
-            linux)
-              derivation="hydraJobs.x86_64-linux.packages.cardano-cli:exe:cardano-cli"
-              ;;
-            x86_64-darwin|aarch64-darwin)
-              derivation="hydraJobs.${{ matrix.arch }}.packages.cardano-cli:exe:cardano-cli"
-              ;;
-            # TODO generalize
-            #   ;;
-            # win64)
-            #   derivation="x86_64-w64-mingw32:cardano-cli:exe:cardano-cli"
-            #   ;;              
-            *)
-              echo "Unrecognized arch: ${{ matrix.arch }}"
-              exit 1
-              ;;
-          esac
+          derivation="hydraJobs.${{ matrix.arch }}.packages.cardano-cli:exe:cardano-cli"
           nix build --builders "" --max-jobs 0 ${{ env.LOCKED_URL }}#$derivation
           tree result
           cp result/bin/cardano-cli cardano-cli-${{ matrix.arch }} # (1)
       - uses: actions/upload-artifact@v4
         with:
-          name: cardano-cli-${{ matrix.arch }} # (2)
+          name: cardano-cli-${{ matrix.arch }}
           path: cardano-cli-* # Should match (1)
           retention-days: 1
 
@@ -189,11 +172,10 @@ jobs:
           merge-multiple: true
       - name: Compress
         run: |
-          # (3)
+          # (2)
           # TARGET_TAG is of the form cardano-cli-8.22.0, so we don't need to prefix the tar.gz's name
           # with cardano-cli
-          for arch in linux x86_64-darwin aarch64-darwin
-          do
+          for arch in x86_64-linux x86_64-darwin aarch64-darwin; do
             tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-$arch.tar.gz cardano-cli-$arch
           done
           # TODO generalize
@@ -217,9 +199,9 @@ jobs:
           name: ${{ env.SHORT_TAG }} # Release name in GitHub UI
           # TODO generalize
           # cardano-cli-${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip
-          # All entries in 'files' below should match (3)
+          # All entries in 'files' below should match (2)
           files: |
-            ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-linux.tar.gz
+            ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-x86_64-linux.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-x86_64-darwin.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-aarch64-darwin.tar.gz
           body_path: RELEASE_CHANGELOG.md
