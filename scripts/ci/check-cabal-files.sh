@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
+#
+# Runs "cabal check" in all directories containing a versioned .cabal file
 
-for x in $(find . -name '*.cabal' | grep -v dist-newstyle | cut -c 3-); do
-  (
-    d=$(dirname $x)
-    echo "== $d =="
-    cd $d
-    cabal check
-  )
+for cabal_file in $(git ls-files "*.cabal")
+do
+  cd "$(dirname "$cabal_file")" || { echo "Cannot cd"; exit 1; }
+  echo "$(pwd)> cabal-check"
+  cabal check
+  cd - || { echo "Cannot cd back"; exit 1; }
 done

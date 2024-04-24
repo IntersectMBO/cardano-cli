@@ -1,2 +1,1 @@
 .github/bin/haddocks.sh
-scripts/ci/check-cabal-files.sh
