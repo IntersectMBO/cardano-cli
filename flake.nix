@@ -81,7 +81,7 @@
               stylish-haskell = "0.14.5.0";
             };
           # and from nixpkgs or other inputs
-          shell.nativeBuildInputs = with nixpkgs; [ gh jq yq-go ];
+          shell.nativeBuildInputs = with nixpkgs; [ gh jq yq-go shellcheck ];
           # disable Hoogle until someone request it
           shell.withHoogle = false;
           # Skip cross compilers for the shell
@@ -93,9 +93,9 @@
             ({pkgs, ...}: {
               packages.cardano-cli.configureFlags = [ "--ghc-option=-Werror" ] ++ gitRevFlag;
               packages.cardano-cli.components.tests.cardano-cli-test.build-tools =
-                with pkgs.buildPackages; [ jq coreutils shellcheck ];
+                with pkgs.buildPackages; [ jq coreutils ];
               packages.cardano-cli.components.tests.cardano-cli-golden.build-tools =
-                with pkgs.buildPackages; [ jq coreutils shellcheck ];
+                with pkgs.buildPackages; [ jq coreutils ];
             })
             ({
               pkgs,
