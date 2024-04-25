@@ -29,8 +29,8 @@ name: Release Upload
 #    so no release will get created. This is useful for debugging or
 #    trying to build a release before tagging it.
 #
-# So far this pipeline only supports releasing Linux binaries. However everything is ready to support
-# other platforms. Please see the "TODO generalize" comments in this file to support new platforms.
+# So far this pipeline supports releasing Linux and Darwin binaries.
+# Please see the "TODO generalize" comments in this file to support new platforms.
 
 on:
   workflow_dispatch:
@@ -65,25 +65,27 @@ jobs:
     - name: Define target tag (2/2)
       if: ${{ inputs.target_tag == '' }} # If no tag was specified manually as input, take the tag from the current commit
       run: |
-        current_tag=$(git tag --points-to HEAD | head -n 1)
+        current_tag=$(git tag --points-at HEAD | head -n 1)
         if [[ "$current_tag" != "" ]]
         then
           # The workflow runs on a commit that has a tag, use this tag
           echo "TARGET_TAG=$current_tag" >> "$GITHUB_ENV"
         fi
-    - name: Default tag if needed and store it in outputs
+    - name: Default tag if needed and compute dryness
       id: store_target_tag
       run: |
         if [[ "${{ env.TARGET_TAG }}" == "" ]]
         then
           echo "Tag not yet defined, using current commit as reference."
-          echo "No release will be created."
           echo "TARGET_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
+        fi
+        if [[ $(git tag --points-at ${{ env.TARGET_TAG }} | wc -l) == "0" ]]
+        then
+          echo "Run targets a commit that has no attached tag: no release will be published."
           echo "DRY_RUN=true" >> "$GITHUB_OUTPUT"
         else
           echo "DRY_RUN=false" >> "$GITHUB_OUTPUT"
         fi
-        echo "TARGET_TAG=${{ env.TARGET_TAG }}" >> "$GITHUB_OUTPUT"
     - name: Define FLAKE_REF
       id: define_flake_ref
       run: |
@@ -94,29 +96,44 @@ jobs:
       timeout-minutes: 120
       run: |
         while true; do
-          # When supporting other architectures than Linux, this query should be adapted:
-          conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/${{ env.TARGET_TAG }}/check-runs" --jq '.check_runs[] | select(.name | test("ci/hydra-build:.*-linux.required")) | .conclusion')
-          case "$conclusion" in
-            success)
-              echo "ci/hydra-build:required succeeded"
-              exit 0;;
-            failure)
-              echo "ci/hydra-build:required failed"
-              exit 1;;
-            *)
-              echo "ci/hydra-build:required pending. Waiting 30s..."
-              sleep 30;;
-          esac
+          conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/${{ env.TARGET_TAG }}/check-runs" --jq '.check_runs[] | select(.name | test("ci/hydra-build:.*\\.required")) | .conclusion')
+          # Here we are being careful, because we query the status of multiple jobs (once per line)
+          # But the only thing we are sure is that "success" means a green job. There
+          # could be unknown statuses, which is why we may retry when unsure (see 'sleep') below.
+          echo "ci/hydra-build:.*\\.required returned status: $conclusion"
+          # conclusion is of the form (note the newlines, which matter because we use 'wc -l' below)
+          # success
+          # failure
+          # success
+          # Because we care of the newlines, quoting $conclusion with "" is especially important below!
+          # (see https://stackoverflow.com/questions/22101778/how-to-preserve-line-breaks-when-storing-command-output-to-a-variable)
+
+          # shellcheck disable=SC2126
+          nb_failure=$(echo "$conclusion" | grep "^failure" | wc -l)
+          nb_statuses=$(echo "$conclusion" | wc -l)
+          # shellcheck disable=SC2126
+          nb_success=$(echo  "$conclusion" | grep "^success" | wc -l)
+          echo "nb_failure=$nb_failure nb_statuses=$nb_statuses nb_success=$nb_success"
+          if [[ "$nb_failure" != "0" ]]; then
+            echo "ci/hydra-build:required failed"
+            exit 1
+          elif [[ "$nb_statuses" == "$nb_success" ]]; then
+            echo "ci/hydra-build:required succeeded"
+            exit 0
+          else
+            # Unclear (some non-failure, non-success)
+            echo "ci/hydra-build:required pending with $conclusion. Waiting 30s..."
+            sleep 30
+          fi
         done
     
   pull:
     needs: [wait_for_hydra]
     strategy:
       matrix:
-        arch: [linux]
         # TODO generalize
-        # arch: [linux, macos, win64]
-    name: "Download Asset from the Cache"
+        arch: [x86_64-linux, x86_64-darwin, aarch64-darwin]
+    name: "Download Asset"
     runs-on: ubuntu-latest
     steps:
       - name: Install Nix with good defaults
@@ -133,25 +150,13 @@ jobs:
           nix flake metadata "${{ needs.wait_for_hydra.outputs.FLAKE_REF }}" --json | jq -r '"LOCKED_URL=\(.url)"' >> "$GITHUB_ENV"
       - name: Build
         run: |
-          case ${{ matrix.arch }} in
-            linux)
-              nix build --builders "" --max-jobs 0 ${{ env.LOCKED_URL }}#cardano-cli:exe:cardano-cli
-              tree result
-              cp result/bin/cardano-cli cardano-cli-${{ matrix.arch }} # (1)
-              ;;
-            # TODO generalize
-            # macos)
-            #   nix build --builders "" --max-jobs 0 ${{ steps.flake-metadata.outputs.LOCKED_URL }}#cardano-cli:exe:cardano-cli
-            #   tree result
-            #   ;;
-            # win64)
-            #   nix build --builders "" --max-jobs 0 ${{ steps.flake-metadata.outputs.LOCKED_URL }}#x86_64-w64-mingw32:cardano-cli:exe:cardano-cli
-            #   tree result
-            #   ;;              
-          esac
+          derivation="hydraJobs.${{ matrix.arch }}.packages.cardano-cli:exe:cardano-cli"
+          nix build --builders "" --max-jobs 0 ${{ env.LOCKED_URL }}#$derivation
+          tree result
+          cp result/bin/cardano-cli cardano-cli-${{ matrix.arch }} # (1)
       - uses: actions/upload-artifact@v4
         with:
-          name: cardano-cli-${{ matrix.arch }} # (2)
+          name: cardano-cli-${{ matrix.arch }}
           path: cardano-cli-* # Should match (1)
           retention-days: 1
 
@@ -159,26 +164,21 @@ jobs:
     needs: [wait_for_hydra, pull]
     name: "Create Release"
     runs-on: ubuntu-latest
+    if: ${{ needs.wait_for_hydra.outputs.DRY_RUN == 'false' }}
     steps:
       - uses: actions/checkout@v4 # We need the repo to execute extract-changelog.sh  below
       - uses: actions/download-artifact@v4
         with:
-          name: cardano-cli-linux # Should match (2)
-      # TODO generalize
-      # - uses: actions/download-artifact@v3
-      #   with:
-      #     name: cardano-cli-macos # Should match (2)
-      # - uses: actions/download-artifact@v3
-      #   with:
-      #     name: cardano-cli-win64 # Should match (2)
+          merge-multiple: true
       - name: Compress
         run: |
-          # (3)
+          # (2)
           # TARGET_TAG is of the form cardano-cli-8.22.0, so we don't need to prefix the tar.gz's name
           # with cardano-cli
-          tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-linux.tar.gz cardano-cli-linux
+          for arch in x86_64-linux x86_64-darwin aarch64-darwin; do
+            tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-$arch.tar.gz cardano-cli-$arch
+          done
           # TODO generalize
-          # tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-macos.tar.gz cardano-cli-macos
           # zip ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip cardano-cli-win64
       - name: Create short tag
         run: |
@@ -193,15 +193,15 @@ jobs:
           ./scripts/ci/extract-changelog.sh ${{ env.SHORT_TAG }} >> RELEASE_CHANGELOG.md
       - name: Create Release
         uses: input-output-hk/action-gh-release@v1
-        if: ${{ needs.wait_for_hydra.outputs.DRY_RUN == 'false' }}
         with:
           draft: true
           tag_name: ${{ needs.wait_for_hydra.outputs.TARGET_TAG }} # Git tag the release is attached to
           name: ${{ env.SHORT_TAG }} # Release name in GitHub UI
           # TODO generalize
-          # cardano-cli-${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-macos.tar.gz
           # cardano-cli-${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip
-          # All entries in 'files' below should match (3)
+          # All entries in 'files' below should match (2)
           files: |
-            ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-linux.tar.gz
+            ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-x86_64-linux.tar.gz
+            ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-x86_64-darwin.tar.gz
+            ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-aarch64-darwin.tar.gz
           body_path: RELEASE_CHANGELOG.md
