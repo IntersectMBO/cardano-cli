@@ -13,6 +13,7 @@ import           Cardano.Api.Shelley
 import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Parser
 
 import           Data.Foldable
 import           GHC.Natural (Natural)
@@ -218,6 +219,13 @@ pGovernanceActionProtocolParametersUpdateCmd era = do
   pure $ Cmd.GovernanceActionProtocolParametersUpdateCmd
     <$> pUpdateProtocolParametersCmd w
 
+pMinFeeRefScriptCostPerByte :: Parser L.NonNegativeInterval
+pMinFeeRefScriptCostPerByte =
+  Opt.option (toNonNegativeIntervalOrErr <$> readRational)  $ mconcat
+    [ Opt.long "ref-script-cost-per-byte"
+    , Opt.metavar "RATIONAL"
+    , Opt.help "Reference script cost per byte for free calculation"
+    ]
 
 convertToLedger :: (a -> b) -> Parser (Maybe a) -> Parser (L.StrictMaybe b)
 convertToLedger conv = fmap (L.maybeToStrictMaybe . fmap conv)
@@ -299,6 +307,7 @@ pIntroducedInConwayPParams =
     <*> convertToLedger id (optional pNewGovActionDeposit)
     <*> convertToLedger id (optional pDRepDeposit)
     <*> convertToLedger id (optional pDRepActivity)
+    <*> convertToLedger id (optional pMinFeeRefScriptCostPerByte)
 
 -- Not necessary in Conway era onwards
 pProtocolParametersUpdateGenesisKeys :: Parser [VerificationKeyFile In]
@@ -375,3 +384,5 @@ pNetwork  = asum $ mconcat
       ]
     ]
   ]
+
+
