@@ -3,6 +3,7 @@ name: Check Stylish Haskell
 on:
   merge_group:
   pull_request:
+  workflow_dispatch:
 
 # When pushing branches (and/or updating PRs), we do want to cancel previous
 # build runs. We assume they are stale now; and do not want to spend CI time and
@@ -36,7 +37,6 @@ jobs:
 
     steps:
     - name: Download stylish-haskell
-      if: runner.os == 'Linux'
       run: |
         version="${{ env.STYLISH_HASKELL_VERSION }}"
 
@@ -44,7 +44,7 @@ jobs:
           "https://github.com/haskell/stylish-haskell/releases/download/v$version/stylish-haskell-v$version-linux-x86_64.tar.gz" \
           | tar -C "/tmp" -xz
 
-        echo "PATH=/tmp/stylish-haskell-v$version-linux-x86_64:$PATH" >> $GITHUB_ENV
+        echo "PATH=/tmp/stylish-haskell-v$version-linux-x86_64:$PATH" >> "$GITHUB_ENV"
 
     - uses: actions/checkout@v3
 
@@ -55,10 +55,10 @@ jobs:
 
         for x in $(git ls-tree --full-tree --name-only -r HEAD ${{ env.STYLISH_HASKELL_PATHS }}); do
           if [ "${x##*.}" == "hs" ]; then
-            if grep -qE '^#' $x; then
+            if grep -qE '^#' "$x"; then
               echo "$x contains CPP.  Skipping."
             else
-              stylish-haskell -i $x
+              stylish-haskell -i "$x"
             fi
           fi
         done
@@ -72,10 +72,10 @@ jobs:
         git fetch origin ${{ github.base_ref }} --unshallow
         for x in $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}..HEAD ${{ env.STYLISH_HASKELL_PATHS }}); do
           if [ "${x##*.}" == "hs" ]; then
-            if grep -qE '^#' $x; then
+            if grep -qE '^#' "$x"; then
               echo "$x contains CPP.  Skipping."
             else
-              stylish-haskell -i $x
+              stylish-haskell -i "$x"
             fi
           fi
         done

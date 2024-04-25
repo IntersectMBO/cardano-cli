@@ -1,1 +1,0 @@
-.github/workflows/check-stylish-haskell.yml
