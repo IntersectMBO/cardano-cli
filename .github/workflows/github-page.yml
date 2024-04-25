@@ -124,10 +124,6 @@ jobs:
     - name: Build Haddock documentation 🔧
       run: ./.github/bin/haddocks.sh ./haddocks true
 
-    - name: View HTML files
-      run: |
-        find "dist-newstyle/build" -name '*.html' | xargs grep html
-
     - name: Upload documentation
       uses: actions/upload-artifact@v2
       if: ${{ always() }}
