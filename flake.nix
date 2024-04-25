@@ -92,10 +92,6 @@
           modules = [
             ({pkgs, ...}: {
               packages.cardano-cli.configureFlags = [ "--ghc-option=-Werror" ] ++ gitRevFlag;
-              packages.cardano-cli.components.tests.cardano-cli-test.build-tools =
-                with pkgs.buildPackages; [ jq coreutils ];
-              packages.cardano-cli.components.tests.cardano-cli-golden.build-tools =
-                with pkgs.buildPackages; [ jq coreutils ];
             })
             ({
               pkgs,
