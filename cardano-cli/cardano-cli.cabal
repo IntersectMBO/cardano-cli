@@ -226,7 +226,7 @@ library
                       , ouroboros-consensus >= 0.17
                       -- TODO: bump consensus back
                       , ouroboros-consensus-cardano >= 0.15
-                      , ouroboros-consensus-protocol >= 0.8
+                      , ouroboros-consensus-protocol >= 0.9
                       , ouroboros-network-api
                       , ouroboros-network-protocols ^>=0.8
                       , parsec
