@@ -6419,6 +6419,7 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 [--new-governance-action-deposit NATURAL]
                                                                                 [--drep-deposit LOVELACE]
                                                                                 [--drep-activity WORD32]
+                                                                                [--ref-script-cost-per-byte RATIONAL]
                                                                                 [--cost-model-file FILE]
                                                                                 --out-file FILE
 

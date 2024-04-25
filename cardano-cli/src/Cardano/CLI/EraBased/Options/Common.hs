@@ -47,8 +47,8 @@ import           GHC.Natural (Natural)
 import           Network.Socket (PortNumber)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
-import qualified Text.Parsec as Parsec
 import           Text.Parsec ((<?>))
+import qualified Text.Parsec as Parsec
 import qualified Text.Parsec.Error as Parsec
 import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
