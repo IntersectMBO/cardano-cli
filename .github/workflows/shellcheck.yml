@@ -8,6 +8,7 @@ name: Shellcheck
 
 on:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   shellcheck:
@@ -34,6 +35,7 @@ jobs:
             then
               echo "⚠️ $file is ignored from shellcheck's verifications. Please consider fixing it."
             else
+              echo "shellcheck $file"
               shellcheck "$file"
             fi
           done
