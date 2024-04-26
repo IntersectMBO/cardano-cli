@@ -495,6 +495,9 @@ Usage: cardano-cli shelley query stake-distribution --socket-path SOCKET_PATH
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
+                                                      [ --output-json
+                                                      | --output-text
+                                                      ]
                                                       [--out-file FILE]
 
   Get the node's current aggregated stake distribution
@@ -1687,6 +1690,9 @@ Usage: cardano-cli allegra query stake-distribution --socket-path SOCKET_PATH
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
+                                                      [ --output-json
+                                                      | --output-text
+                                                      ]
                                                       [--out-file FILE]
 
   Get the node's current aggregated stake distribution
@@ -2877,6 +2883,9 @@ Usage: cardano-cli mary query stake-distribution --socket-path SOCKET_PATH
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
+                                                   [ --output-json
+                                                   | --output-text
+                                                   ]
                                                    [--out-file FILE]
 
   Get the node's current aggregated stake distribution
@@ -4190,6 +4199,9 @@ Usage: cardano-cli alonzo query stake-distribution --socket-path SOCKET_PATH
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
+                                                     [ --output-json
+                                                     | --output-text
+                                                     ]
                                                      [--out-file FILE]
 
   Get the node's current aggregated stake distribution
@@ -5540,6 +5552,9 @@ Usage: cardano-cli babbage query stake-distribution --socket-path SOCKET_PATH
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
+                                                      [ --output-json
+                                                      | --output-text
+                                                      ]
                                                       [--out-file FILE]
 
   Get the node's current aggregated stake distribution
@@ -7154,6 +7169,9 @@ Usage: cardano-cli conway query stake-distribution --socket-path SOCKET_PATH
                                                      [ --volatile-tip
                                                      | --immutable-tip
                                                      ]
+                                                     [ --output-json
+                                                     | --output-text
+                                                     ]
                                                      [--out-file FILE]
 
   Get the node's current aggregated stake distribution
@@ -8703,6 +8721,9 @@ Usage: cardano-cli latest query stake-distribution --socket-path SOCKET_PATH
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
+                                                     [ --output-json
+                                                     | --output-text
+                                                     ]
                                                      [--out-file FILE]
 
   Get the node's current aggregated stake distribution
@@ -9874,6 +9895,9 @@ Usage: cardano-cli legacy query stake-distribution --socket-path SOCKET_PATH
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
+                                                     [ --output-json
+                                                     | --output-text
+                                                     ]
                                                      [--out-file FILE]
 
   Get the node's current aggregated stake distribution
@@ -11136,6 +11160,7 @@ Usage: cardano-cli query stake-distribution --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              [--output-json | --output-text]
                                               [--out-file FILE]
 
   Get the node's current aggregated stake distribution
