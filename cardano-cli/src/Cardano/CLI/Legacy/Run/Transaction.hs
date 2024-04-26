@@ -99,7 +99,7 @@ runLegacyTransactionBuildCmd
     mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpdateProposal voteFiles
     proposalFiles outputOptions = do
 
-  mfUpdateProposalFile <-
+  mUpdateProposalFile <-
     validateUpdateProposalFile (shelleyBasedToCardanoEra sbe) mUpdateProposal
       & hoistEither
       & firstExceptT TxCmdTxUpdateProposalValidationError
@@ -110,7 +110,7 @@ runLegacyTransactionBuildCmd
     ( Cmd.TransactionBuildCmdArgs sbe socketPath
         consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
-        upperBound certs wdrls metadataSchema scriptFiles metadataFiles mfUpdateProposalFile voteFiles
+        upperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpdateProposalFile voteFiles
         proposalFiles outputOptions
     )
 
@@ -166,7 +166,7 @@ runLegacyTransactionBuildRawCmd
   caseByronOrShelleyBasedEra
     (error "runLegacyTransactionBuildRawCmd: This should be impossible")
     (\sbe -> do
-       mfUpdateProposalFile <- validateUpdateProposalFile era mUpdateProposal
+       mUpdateProposalFile <- validateUpdateProposalFile era mUpdateProposal
                                  & hoistEither
                                  & firstExceptT TxCmdTxUpdateProposalValidationError
 
@@ -176,7 +176,7 @@ runLegacyTransactionBuildRawCmd
          ( Cmd.TransactionBuildRawCmdArgs
              sbe mScriptValidity txins readOnlyRefIns txinsc mReturnColl
              mTotColl reqSigners txouts mValue mLowBound upperBound fee certs wdrls
-             metadataSchema scriptFiles metadataFiles mProtocolParamsFile mfUpdateProposalFile [] []
+             metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpdateProposalFile [] []
              outFile
          )
          )

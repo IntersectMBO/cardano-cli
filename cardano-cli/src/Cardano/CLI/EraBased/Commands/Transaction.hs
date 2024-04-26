@@ -6,6 +6,7 @@ module Cardano.CLI.EraBased.Commands.Transaction
   ( TransactionCmds (..)
   , TransactionBuildRawCmdArgs(..)
   , TransactionBuildCmdArgs(..)
+  , TransactionBuildEstimateCmdArgs(..)
   , TransactionSignCmdArgs(..)
   , TransactionWitnessCmdArgs(..)
   , TransactionSignWitnessCmdArgs(..)
@@ -31,6 +32,7 @@ import           Data.Text (Text)
 data TransactionCmds era
   = TransactionBuildRawCmd            !(TransactionBuildRawCmdArgs era)
   | TransactionBuildCmd               !(TransactionBuildCmdArgs era)
+  | TransactionBuildEstimateCmd       !(TransactionBuildEstimateCmdArgs era)
   | TransactionSignCmd                !TransactionSignCmdArgs
   | TransactionWitnessCmd             !TransactionWitnessCmdArgs
   | TransactionSignWitnessCmd         !TransactionSignWitnessCmdArgs
@@ -121,11 +123,59 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , scriptFiles             :: ![ScriptFile]
     -- ^ Auxiliary scripts
   , metadataFiles           :: ![MetadataFile]
-  , mfUpdateProposalFile    :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+  , mUpdateProposalFile     :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles               :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , proposalFiles           :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , buildOutputOptions      :: !TxBuildOutputOptions
   } deriving Show
+
+-- | Like 'TransactionBuildCmd' but does not require explicit access to a running node
+data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
+  { eon                     :: !(MaryEraOnwards era)
+  , mScriptValidity         :: !(Maybe ScriptValidity)
+    -- ^ Mark script as expected to pass or fail validation
+  , shelleyWitnesses        :: !Int
+    -- ^ Number of shelley witnesses to be added
+  , mByronWitnesses         :: !(Maybe Int)
+  , protocolParamsFile      :: !ProtocolParamsFile
+  , totalUTxOValue          :: !Value
+  , txins                   :: ![(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+    -- ^ Transaction inputs with optional spending scripts
+  , readOnlyReferenceInputs :: ![TxIn]
+    -- ^ Read only reference inputs
+  , requiredSigners         :: ![RequiredSigner]
+    -- ^ Required signers
+  , txinsc                  :: ![TxIn]
+    -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
+  , mReturnCollateral       :: !(Maybe TxOutShelleyBasedEra)
+    -- ^ Return collateral
+  , txouts                  :: ![TxOutAnyEra]
+    -- ^ Normal outputs
+  , changeAddress           :: !TxOutChangeAddress
+    -- ^ A change output
+  , mValue                  :: !(Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
+    -- ^ Multi-Asset value with script witness
+  , mValidityLowerBound     :: !(Maybe SlotNo)
+    -- ^ Transaction validity lower bound
+  , mValidityUpperBound     :: !(TxValidityUpperBound era)
+    -- ^ Transaction validity upper bound
+  , certificates            :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+    -- ^ Certificates with potential script witness
+  , withdrawals             :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+    -- ^ Withdrawals with potential script witness
+  , plutusCollateral :: !(Maybe Coin)
+    -- ^ Total collateral
+  , totalReferenceScriptSize :: !(Maybe ReferenceScriptSize)
+    -- ^ Size of all reference scripts in bytes
+  , metadataSchema           :: !TxMetadataJsonSchema
+  , scriptFiles              :: ![ScriptFile]
+    -- ^ Auxiliary scripts
+  , metadataFiles            :: ![MetadataFile]
+  , mUpdateProposalFile      :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+  , voteFiles                :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , proposalFiles            :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , txBodyOutFile            :: !(TxBodyFile Out)
+  }
 
 data TransactionSignCmdArgs = TransactionSignCmdArgs
   { txOrTxBodyFile      :: !InputTxBodyOrTxFile
@@ -190,6 +240,7 @@ data TransactionViewCmdArgs = TransactionViewCmdArgs
 renderTransactionCmds :: TransactionCmds era -> Text
 renderTransactionCmds = \case
   TransactionBuildCmd                     {} -> "transaction build"
+  TransactionBuildEstimateCmd             {} -> "transaction build-estimate"
   TransactionBuildRawCmd                  {} -> "transaction build-raw"
   TransactionSignCmd                      {} -> "transaction sign"
   TransactionWitnessCmd                   {} -> "transaction witness"

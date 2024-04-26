@@ -1,6 +1,7 @@
 Usage: cardano-cli conway transaction 
                                         ( build-raw
                                         | build
+                                        | build-estimate
                                         | sign
                                         | witness
                                         | assemble
@@ -23,6 +24,9 @@ Available commands:
 
                            Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
   build                    Build a balanced transaction (automatically calculates fees)
+
+                           Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+  build-estimate           Build a balanced transaction without access to a live node (automatically estimates fees)
 
                            Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
   sign                     Sign a transaction

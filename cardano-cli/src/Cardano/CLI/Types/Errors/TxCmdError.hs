@@ -46,6 +46,7 @@ data TxCmdError
   | TxCmdScriptWitnessError ScriptWitnessError
   | TxCmdProtocolParamsError ProtocolParamsError
   | TxCmdScriptFileError (FileError ScriptDecodeError)
+  | TxCmdKeyFileError (FileError InputDecodeError)
   | TxCmdReadTextViewFileError !(FileError TextEnvelopeError)
   | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
   | TxCmdWriteFileError !(FileError ())
@@ -59,7 +60,7 @@ data TxCmdError
   | TxCmdPolicyIdsMissing ![PolicyId] ![PolicyId]
     -- The first list is the missing policy Ids, the second list is the
     -- policy Ids that were provided in the transaction.
-  | TxCmdPolicyIdsExcess  ![PolicyId]
+  | TxCmdPolicyIdsExcess ![PolicyId]
   | TxCmdByronEra
   | TxCmdBalanceTxBody !AnyTxBodyErrorAutoBalance
   | TxCmdTxInsDoNotExist !TxInsExistError
@@ -94,6 +95,7 @@ data TxCmdError
   | TxCmdScriptValidityValidationError TxScriptValidityValidationError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
+  | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -108,6 +110,8 @@ renderTxCmdError = \case
   TxCmdReadTextViewFileError fileErr ->
     prettyError fileErr
   TxCmdScriptFileError fileErr ->
+    prettyError fileErr
+  TxCmdKeyFileError fileErr ->
     prettyError fileErr
   TxCmdReadWitnessSigningDataError witSignDataErr ->
     renderReadWitnessSigningDataError witSignDataErr
@@ -235,6 +239,8 @@ renderTxCmdError = \case
   TxCmdScriptValidityValidationError e ->
     prettyError e
   TxCmdTxGovDuplicateVotes e ->
+    prettyError e
+  TxCmdFeeEstimationError e ->
     prettyError e
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann

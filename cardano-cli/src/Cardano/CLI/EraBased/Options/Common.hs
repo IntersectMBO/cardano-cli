@@ -1953,6 +1953,28 @@ pWitnessOverride = Opt.option Opt.auto $ mconcat
   , Opt.help "Specify and override the number of witnesses the transaction requires."
   ]
 
+pNumberOfShelleyKeyWitnesses :: Parser Int
+pNumberOfShelleyKeyWitnesses = Opt.option Opt.auto $ mconcat
+  [ Opt.long "shelley-key-witnesses"
+  , Opt.metavar "INT"
+  , Opt.help "Specify the number of Shelley key witnesses the transaction requires."
+  ]
+
+pNumberOfByronKeyWitnesses :: Parser Int
+pNumberOfByronKeyWitnesses = Opt.option Opt.auto $ mconcat
+  [ Opt.long "byron-key-witnesses"
+  , Opt.metavar "Int"
+  , Opt.help "Specify the number of Byron key witnesses the transaction requires."
+  ]
+
+pTotalUTxOValue :: Parser Value
+pTotalUTxOValue =
+  Opt.option (readerFromParsecParser parseValue) $ mconcat
+    [ Opt.long "total-utxo-value"
+    , Opt.metavar "VALUE"
+    , Opt.help "The total value of the UTxO that exists at the tx inputs being spent."
+    ]
+
 
 pTxOut :: Parser TxOutAnyEra
 pTxOut =
@@ -3173,6 +3195,20 @@ pAlwaysNoConfidence =
     [ Opt.long "always-no-confidence"
     , Opt.help "Always vote no confidence"
     ]
+
+pDrepRefund :: Parser (DRepHashSource, L.Coin)
+pDrepRefund =
+  (,) <$> pDRepHashSource
+      <*> pDepositRefund
+
+pDepositRefund :: Parser L.Coin
+pDepositRefund =
+  Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+    [ Opt.long "deposit-refund"
+    , Opt.metavar "LOVELACE"
+    , Opt.help "Deposit refund amount."
+    ]
+
 
 pDRepHashSource :: Parser DRepHashSource
 pDRepHashSource =

@@ -49,6 +49,7 @@ pTransactionCmds era envCli =
                 ]
             ]
     , pTransactionBuildCmd era envCli
+    , forShelleyBasedEraInEon era Nothing (`pTransactionBuildEstimateCmd` envCli)
     , Just
         $ subParser "sign"
         $ Opt.info (pTransactionSign envCli)
@@ -183,6 +184,60 @@ pTransactionBuildCmd era envCli = do
           <*> pVoteFiles sbe AutoBalance
           <*> pProposalFiles sbe AutoBalance
           <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
+
+-- | Estimate the transaction fees without access to a live node.
+pTransactionBuildEstimateCmd :: MaryEraOnwards era -> EnvCli -> Maybe (Parser (TransactionCmds era))
+pTransactionBuildEstimateCmd era _envCli = do
+  pure
+    $ subParser "build-estimate"
+    $ Opt.info (pCmd era)
+    $ Opt.progDescDoc
+    $ Just $ mconcat
+        [ pretty @String "Build a balanced transaction without access to a live node (automatically estimates fees)"
+        , line
+        , line
+        , H.yellow $ mconcat
+            [ "Please note "
+            , H.underline "the order"
+            , " of some cmd options is crucial. If used incorrectly may produce "
+            , "undesired tx body. See nested [] notation above for details."
+            ]
+        ]
+  where
+    pCmd :: MaryEraOnwards era -> Parser (TransactionCmds era)
+    pCmd w = do
+     let sbe = maryEraOnwardsToShelleyBasedEra w
+     fmap TransactionBuildEstimateCmd $
+        TransactionBuildEstimateCmdArgs w
+          <$> optional pScriptValidity
+          <*> pNumberOfShelleyKeyWitnesses
+          <*> optional pNumberOfByronKeyWitnesses
+          <*> pProtocolParamsFile
+          <*> pTotalUTxOValue
+          <*> some (pTxIn ManualBalance)
+          <*> many pReadOnlyReferenceTxIn
+          <*> many pRequiredSigner
+          <*> many pTxInCollateral
+          <*> optional pReturnCollateral
+          <*> many pTxOut
+          <*> pChangeAddress
+          <*> optional (pMintMultiAsset ManualBalance)
+          <*> optional pInvalidBefore
+          <*> pInvalidHereafter sbe
+          <*> many (pCertificateFile ManualBalance)
+          <*> many (pWithdrawal ManualBalance)
+          <*> optional pTotalCollateral
+          <*> optional pReferenceScriptSize
+          <*> pTxMetadataJsonSchema
+          <*> many (pScriptFor
+                      "auxiliary-script-file"
+                      Nothing
+                      "Filepath of auxiliary script(s)")
+          <*> many pMetadataFile
+          <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
+          <*> pVoteFiles sbe AutoBalance
+          <*> pProposalFiles sbe AutoBalance
+          <*> pTxBodyFileOut
 
 pChangeAddress :: Parser TxOutChangeAddress
 pChangeAddress =

@@ -9,6 +9,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeOperators #-}
 
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
@@ -78,6 +79,7 @@ import qualified System.IO as IO
 runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
 runTransactionCmds = \case
   Cmd.TransactionBuildCmd             args -> runTransactionBuildCmd args
+  Cmd.TransactionBuildEstimateCmd     args -> runTransactionBuildEstimateCmd args
   Cmd.TransactionBuildRawCmd          args -> runTransactionBuildRawCmd args
   Cmd.TransactionSignCmd              args -> runTransactionSignCmd args
   Cmd.TransactionSubmitCmd            args -> runTransactionSubmitCmd args
@@ -121,7 +123,7 @@ runTransactionBuildCmd
       , metadataSchema
       , scriptFiles
       , metadataFiles
-      , mfUpdateProposalFile
+      , mUpdateProposalFile
       , voteFiles
       , proposalFiles
       , buildOutputOptions
@@ -157,7 +159,7 @@ runTransactionBuildCmd
     mapM (readFileScriptInAnyLang . unFile) scriptFiles
   txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
 
-  mProp <- case mfUpdateProposalFile of
+  mProp <- case mUpdateProposalFile of
     Just (Featured w (Just updateProposalFile)) ->
       readTxUpdateProposal w updateProposalFile & firstExceptT TxCmdReadTextViewFileError
     _ -> pure TxUpdateProposalNone
@@ -245,6 +247,212 @@ runTransactionBuildCmd
       in  lift (cardanoEraConstraints era $ writeTxFileTextEnvelopeCddl eon fpath noWitTx)
             & onLeft (left . TxCmdWriteFileError)
 
+runTransactionBuildEstimateCmd
+  :: ()
+  => Cmd.TransactionBuildEstimateCmdArgs era
+  -> ExceptT TxCmdError IO ()
+runTransactionBuildEstimateCmd
+  Cmd.TransactionBuildEstimateCmdArgs
+    { eon
+    , mScriptValidity
+    , shelleyWitnesses
+    , mByronWitnesses
+    , protocolParamsFile
+    , totalUTxOValue
+    , txins
+    , readOnlyReferenceInputs = readOnlyRefIns
+    , requiredSigners = reqSigners
+    , txinsc = txInsCollateral
+    , mReturnCollateral = mReturnColl
+    , txouts
+    , changeAddress = TxOutChangeAddress changeAddr
+    , mValue
+    , mValidityLowerBound
+    , mValidityUpperBound
+    , certificates
+    , withdrawals
+    , metadataSchema
+    , scriptFiles
+    , metadataFiles
+    , mUpdateProposalFile
+    , voteFiles
+    , proposalFiles
+    , plutusCollateral
+    , totalReferenceScriptSize
+    , txBodyOutFile
+    } = do
+  let sbe = maryEraOnwardsToShelleyBasedEra eon
+  legacyPParams <- firstExceptT TxCmdProtocolParamsError $ readProtocolParameters protocolParamsFile
+  ledgerPParams <- hoistEither . first TxCmdProtocolParamsConverstionError
+                               $ convertToLedgerProtocolParameters sbe legacyPParams
+  inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
+                                $ readScriptWitnessFiles sbe txins
+  certFilesAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
+                                   $ readScriptWitnessFiles sbe certificates
+
+  withdrawalsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
+                                     $ readScriptWitnessFilesTuple sbe withdrawals
+  txMetadata <- firstExceptT TxCmdMetadataError
+                  . newExceptT $ readTxMetadata sbe metadataSchema metadataFiles
+  valuesWithScriptWits <- readValueScriptWitnesses sbe $ fromMaybe mempty mValue
+  scripts <- firstExceptT TxCmdScriptFileError $
+                     mapM (readFileScriptInAnyLang . unFile) scriptFiles
+  txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts sbe scripts
+
+
+  txUpdateProposal <- case mUpdateProposalFile of
+    Just (Featured w (Just updateProposalFile)) ->
+      readTxUpdateProposal w updateProposalFile & firstExceptT TxCmdReadTextViewFileError
+    _ -> pure TxUpdateProposalNone
+
+  requiredSigners  <- mapM (firstExceptT TxCmdRequiredSignerError .  newExceptT . readRequiredSigner) reqSigners
+
+  mReturnCollateral <- mapM (toTxOutInShelleyBasedEra sbe) mReturnColl
+
+  txOuts <- mapM (toTxOutInAnyEra sbe) txouts
+
+  -- the same collateral input can be used for several plutus scripts
+  let filteredTxinsc = Set.toList $ Set.fromList txInsCollateral
+
+  -- Conway related
+  votingProceduresAndMaybeScriptWits <-
+    inEonForShelleyBasedEra
+      (pure mempty)
+      (\w -> firstExceptT TxCmdVoteError . ExceptT $ conwayEraOnwardsConstraints w $ readVotingProceduresFiles w voteFiles)
+      sbe
+
+  proposals <-
+    lift (readTxGovernanceActions sbe proposalFiles)
+      & onLeft (left . TxCmdProposalError)
+
+  certsAndMaybeScriptWits <-
+      shelleyBasedEraConstraints sbe $
+        sequence
+          [ fmap (,mSwit) (firstExceptT TxCmdReadTextViewFileError . newExceptT $
+              readFileTextEnvelope AsCertificate (File certFile))
+          | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
+          ]
+
+  txBodyContent <- hoistEither $ constructTxBodyContent
+                     sbe mScriptValidity
+                     (Just $ unLedgerProtocolParameters ledgerPParams)
+                     inputsAndMaybeScriptWits
+                     readOnlyRefIns
+                     filteredTxinsc
+                     mReturnCollateral
+                     Nothing -- TODO: Remove total collateral parameter from estimateBalancedTxBody
+                     txOuts
+                     mValidityLowerBound
+                     mValidityUpperBound
+                     valuesWithScriptWits
+                     certsAndMaybeScriptWits
+                     withdrawalsAndMaybeScriptWits
+                     requiredSigners
+                     Nothing
+                     txAuxScripts
+                     txMetadata
+                     txUpdateProposal
+                     votingProceduresAndMaybeScriptWits
+                     proposals
+  let stakeCredentialsToDeregisterMap = Map.fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
+      drepsToDeregisterMap = Map.fromList $ catMaybes [getDRepDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
+      poolsToDeregister = Set.fromList $ catMaybes [getPoolDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
+      totCol = fromMaybe 0 plutusCollateral
+      pScriptExecUnits = Map.fromList [ (sWitIndex, execUnits)
+                                      | (sWitIndex, (AnyScriptWitness (PlutusScriptWitness _ _ _ _ _ execUnits))) <- collectTxBodyScriptWitnesses sbe txBodyContent
+                                      ]
+
+  BalancedTxBody _ balancedTxBody _ _ <-
+    hoistEither $ first TxCmdFeeEstimationError $
+      estimateBalancedTxBody eon txBodyContent (unLedgerProtocolParameters ledgerPParams) poolsToDeregister
+                             stakeCredentialsToDeregisterMap drepsToDeregisterMap
+                             pScriptExecUnits totCol shelleyWitnesses (fromMaybe 0 mByronWitnesses)
+                             (fromMaybe 0 (unReferenceScriptSize <$> totalReferenceScriptSize)) (anyAddressInShelleyBasedEra sbe changeAddr)
+                             totalUTxOValue
+
+  let noWitTx = makeSignedTransaction [] balancedTxBody
+  lift (writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx)
+        & onLeft (left . TxCmdWriteFileError)
+
+getPoolDeregistrationInfo
+  :: Certificate era
+  -> Maybe PoolId
+getPoolDeregistrationInfo (ShelleyRelatedCertificate w cert) =
+  shelleyToBabbageEraConstraints w $ getShelleyDeregistrationPoolId cert
+getPoolDeregistrationInfo (ConwayCertificate w cert) =
+  conwayEraOnwardsConstraints w $ getConwayDeregistrationPoolId cert
+
+getShelleyDeregistrationPoolId
+  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+  => L.ShelleyEraTxCert (ShelleyLedgerEra era)
+  => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
+  => L.ShelleyTxCert (ShelleyLedgerEra era)
+  -> Maybe PoolId
+getShelleyDeregistrationPoolId cert = do
+  case cert of
+    L.RetirePoolTxCert poolId _ -> Just (StakePoolKeyHash poolId)
+    _ -> Nothing
+
+getConwayDeregistrationPoolId
+  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  => L.ConwayEraTxCert (ShelleyLedgerEra era)
+  => L.ConwayTxCert (ShelleyLedgerEra era)
+  -> Maybe PoolId
+getConwayDeregistrationPoolId cert = do
+  case cert of
+    L.RetirePoolTxCert poolId _ -> Just (StakePoolKeyHash poolId)
+    _ -> Nothing
+
+getDRepDeregistrationInfo
+  :: Certificate era
+  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, L.Coin)
+getDRepDeregistrationInfo ShelleyRelatedCertificate{} = Nothing
+getDRepDeregistrationInfo (ConwayCertificate w cert) =
+  conwayEraOnwardsConstraints w $ getConwayDRepDeregistrationInfo cert
+
+getConwayDRepDeregistrationInfo
+  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  => L.ConwayEraTxCert (ShelleyLedgerEra era)
+  => L.ConwayTxCert (ShelleyLedgerEra era)
+  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, L.Coin)
+getConwayDRepDeregistrationInfo = L.getUnRegDRepTxCert
+
+getStakeDeregistrationInfo
+  :: Certificate era
+  -> Maybe (StakeCredential, L.Coin)
+getStakeDeregistrationInfo (ShelleyRelatedCertificate w cert) =
+  shelleyToBabbageEraConstraints w $ getShelleyDeregistrationInfo cert
+
+getStakeDeregistrationInfo (ConwayCertificate w cert) =
+  conwayEraOnwardsConstraints w $ getConwayDeregistrationInfo cert
+
+-- There for no deposits required pre-conway for registering stake
+-- credentials.
+getShelleyDeregistrationInfo
+  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+  => L.ShelleyEraTxCert (ShelleyLedgerEra era)
+  => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
+  => L.ShelleyTxCert (ShelleyLedgerEra era)
+  -> Maybe (StakeCredential, L.Coin)
+getShelleyDeregistrationInfo cert = do
+  case cert of
+    L.UnRegTxCert stakeCred  -> Just (fromShelleyStakeCredential stakeCred, 0)
+    _ -> Nothing
+
+getConwayDeregistrationInfo
+  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  => L.ConwayEraTxCert (ShelleyLedgerEra era)
+  => L.ConwayTxCert (ShelleyLedgerEra era)
+  -> Maybe (StakeCredential, L.Coin)
+getConwayDeregistrationInfo cert = do
+  case cert of
+    L.UnRegDepositTxCert stakeCred depositRefund -> Just (fromShelleyStakeCredential stakeCred, depositRefund)
+    _ -> Nothing
+
+
 getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
 getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
   forEraInEonMaybe cEra $ \aeo ->
@@ -311,11 +519,7 @@ runTransactionBuildRawCmd
 
   requiredSigners  <- mapM (firstExceptT TxCmdRequiredSignerError .  newExceptT . readRequiredSigner) reqSigners
 
-  mReturnCollateral <- case mReturnColl of
-                         Nothing -> return Nothing
-                         Just retColl -> do
-                          txOut <- toTxOutInShelleyBasedEra eon retColl
-                          return $ Just txOut
+  mReturnCollateral <- mapM (toTxOutInShelleyBasedEra eon) mReturnColl
 
   txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
@@ -396,65 +600,108 @@ runTxBuildRaw sbe
               certsAndMaybeSriptWits withdrawals reqSigners
               txAuxScripts txMetadata mpparams txUpdateProposal votingProcedures proposals = do
 
-    let era = toCardanoEra sbe
-        allReferenceInputs = getAllReferenceInputs
-                               inputsAndMaybeScriptWits
-                               (snd valuesWithScriptWits)
-                               certsAndMaybeSriptWits
-                               withdrawals
-                               votingProcedures
-                               proposals
-                               readOnlyRefIns
+    txBodyContent <- constructTxBodyContent sbe mScriptValidity (unLedgerProtocolParameters <$> mpparams) inputsAndMaybeScriptWits readOnlyRefIns txinsc
+                      mReturnCollateral mTotCollateral txouts mLowerBound mUpperBound valuesWithScriptWits
+                      certsAndMaybeSriptWits withdrawals reqSigners mFee txAuxScripts txMetadata txUpdateProposal
+                      votingProcedures proposals
 
-        validatedTxIns = validateTxIns inputsAndMaybeScriptWits
-    validatedCollateralTxIns <- validateTxInsCollateral era txinsc
-    validatedRefInputs <- validateTxInsReference era allReferenceInputs
-    validatedTotCollateral
-      <- first TxCmdTotalCollateralValidationError $ validateTxTotalCollateral era mTotCollateral
-    validatedRetCol
-      <- first TxCmdReturnCollateralValidationError $ validateTxReturnCollateral era mReturnCollateral
-    validatedFee
-      <- first TxCmdTxFeeValidationError $ validateTxFee sbe mFee
-    validatedLowerBound
-      <- first TxCmdTxValidityLowerBoundValidationError (validateTxValidityLowerBound era mLowerBound)
-    validatedReqSigners
-      <- first TxCmdRequiredSignersValidationError $ validateRequiredSigners era reqSigners
-    validatedPParams
-      <- first TxCmdProtocolParametersValidationError $ validateProtocolParameters era mpparams
-    validatedTxWtdrwls
-      <- first TxCmdTxWithdrawalsValidationError $ validateTxWithdrawals era withdrawals
-    validatedTxCerts
-      <- first TxCmdTxCertificatesValidationError $ validateTxCertificates era certsAndMaybeSriptWits
-    validatedMintValue
-      <- createTxMintValue sbe valuesWithScriptWits
-    validatedTxScriptValidity
-      <- first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
-    validatedVotingProcedures
-      <- first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures
-    let txBodyContent =
-          TxBodyContent
-            { txIns = validatedTxIns
-            , txInsCollateral = validatedCollateralTxIns
-            , txInsReference = validatedRefInputs
-            , txOuts = txouts
-            , txTotalCollateral = validatedTotCollateral
-            , txReturnCollateral = validatedRetCol
-            , txFee = validatedFee
-            , txValidityLowerBound = validatedLowerBound
-            , txValidityUpperBound = mUpperBound
-            , txMetadata = txMetadata
-            , txAuxScripts = txAuxScripts
-            , txExtraKeyWits = validatedReqSigners
-            , txProtocolParams = validatedPParams
-            , txWithdrawals = validatedTxWtdrwls
-            , txCertificates = validatedTxCerts
-            , txUpdateProposal = txUpdateProposal
-            , txMintValue = validatedMintValue
-            , txScriptValidity = validatedTxScriptValidity
-            , txProposalProcedures = forEraInEonMaybe era (`Featured` (shelleyBasedEraConstraints sbe $ convToTxProposalProcedures proposals))
-            , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedVotingProcedures)
-            }
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
+
+constructTxBodyContent
+  :: ShelleyBasedEra era
+  -> Maybe ScriptValidity
+  -> Maybe (L.PParams (ShelleyLedgerEra era))
+  -> [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
+  -- ^ TxIn with potential script witness
+  -> [TxIn]
+  -- ^ Read only reference inputs
+  -> [TxIn]
+  -- ^ TxIn for collateral
+  -> Maybe (TxOut CtxTx era)
+  -- ^ Return collateral
+  -> Maybe L.Coin
+  -- ^ Total collateral
+  -> [TxOut CtxTx era]
+  -- ^ Normal outputs
+  -> Maybe SlotNo
+  -- ^ Tx lower bound
+  -> TxValidityUpperBound era
+  -- ^ Tx upper bound
+  -> (Value, [ScriptWitness WitCtxMint era])
+  -- ^ Multi-Asset value(s)
+  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
+  -- ^ Certificate with potential script witness
+  -> [(StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))]
+  -- ^ Withdrawals
+  -> [Hash PaymentKey]
+  -- ^ Required signers
+  -> Maybe L.Coin
+  -- ^ Tx fee
+  -> TxAuxScripts era
+  -> TxMetadataInEra era
+  -> TxUpdateProposal era
+  -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
+  -> Either TxCmdError (TxBodyContent BuildTx era)
+constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits readOnlyRefIns txinsc
+                       mReturnCollateral mTotCollateral txouts mLowerBound mUpperBound
+                       valuesWithScriptWits certsAndMaybeScriptWits withdrawals
+                       reqSigners mFee txAuxScripts txMetadata txUpdateProposal
+                       votingProcedures proposals
+                       = do
+  let era = toCardanoEra sbe -- TODO: Propagate SBE
+      allReferenceInputs = getAllReferenceInputs
+                             inputsAndMaybeScriptWits
+                             (snd valuesWithScriptWits)
+                             certsAndMaybeScriptWits
+                             withdrawals
+                             votingProcedures
+                             proposals
+                             readOnlyRefIns
+
+  validatedCollateralTxIns <- validateTxInsCollateral sbe txinsc
+  validatedRefInputs <- validateTxInsReference sbe allReferenceInputs
+  validatedTotCollateral
+    <- first TxCmdTotalCollateralValidationError $ validateTxTotalCollateral era mTotCollateral
+  validatedRetCol
+    <- first TxCmdReturnCollateralValidationError $ validateTxReturnCollateral era mReturnCollateral
+  dFee <- first TxCmdTxFeeValidationError . validateTxFee sbe . Just $ fromMaybe (L.Coin 0) mFee
+  validatedLowerBound <- first TxCmdTxValidityLowerBoundValidationError (validateTxValidityLowerBound era mLowerBound)
+  validatedReqSigners <- first TxCmdRequiredSignersValidationError $ validateRequiredSigners era reqSigners
+  validatedTxWtdrwls <- first TxCmdTxWithdrawalsValidationError $ validateTxWithdrawals era withdrawals
+  validatedTxCerts <- first TxCmdTxCertificatesValidationError $ validateTxCertificates era certsAndMaybeScriptWits
+  validatedMintValue <- createTxMintValue sbe valuesWithScriptWits
+  validatedTxScriptValidity <- first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
+  validatedVotingProcedures <- first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures
+  validatedPParams <- first TxCmdProtocolParametersValidationError
+                                  $ validateProtocolParameters era (LedgerProtocolParameters <$> mPparams)
+  return $ shelleyBasedEraConstraints sbe $ (defaultTxBodyContent sbe
+             & setTxIns (validateTxIns inputsAndMaybeScriptWits)
+             & setTxInsCollateral validatedCollateralTxIns
+             & setTxInsReference validatedRefInputs
+             & setTxOuts txouts
+             & setTxTotalCollateral validatedTotCollateral
+             & setTxReturnCollateral validatedRetCol
+             & setTxFee dFee
+             & setTxValidityLowerBound validatedLowerBound
+             & setTxValidityUpperBound mUpperBound
+             & setTxMetadata txMetadata
+             & setTxAuxScripts txAuxScripts
+             & setTxExtraKeyWits validatedReqSigners
+             & setTxProtocolParams validatedPParams
+             & setTxWithdrawals validatedTxWtdrwls
+             & setTxCertificates validatedTxCerts
+             & setTxUpdateProposal txUpdateProposal
+             & setTxMintValue validatedMintValue
+             & setTxScriptValidity validatedTxScriptValidity)
+             -- TODO: Create set* function for proposal procedures and voting procedures
+             { txProposalProcedures = forEraInEonMaybe era (`Featured` convToTxProposalProcedures proposals)
+             , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedVotingProcedures)
+             }
+
+
+
+
 
 runTxBuild :: ()
   => ShelleyBasedEra era
@@ -505,7 +752,6 @@ runTxBuild
   -- TODO: All functions should be parameterized by ShelleyBasedEra
   -- as it's not possible to call this function with ByronEra
   let era = shelleyBasedToCardanoEra sbe
-      dummyFee = Just $ L.Coin 0
       inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
 
   let allReferenceInputs = getAllReferenceInputs
@@ -517,20 +763,6 @@ runTxBuild
                              proposals
                              readOnlyRefIns
 
-  validatedCollateralTxIns <- hoistEither $ validateTxInsCollateral era txinsc
-  validatedRefInputs <- hoistEither $ validateTxInsReference era allReferenceInputs
-  validatedTotCollateral
-    <- hoistEither $ first TxCmdTotalCollateralValidationError $ validateTxTotalCollateral era mTotCollateral
-  validatedRetCol
-    <- hoistEither $ first TxCmdReturnCollateralValidationError $ validateTxReturnCollateral era mReturnCollateral
-  dFee <- hoistEither $ first TxCmdTxFeeValidationError $ validateTxFee sbe dummyFee
-  validatedLowerBound <- hoistEither (first TxCmdTxValidityLowerBoundValidationError (validateTxValidityLowerBound era mLowerBound))
-  validatedReqSigners <- hoistEither (first TxCmdRequiredSignersValidationError $ validateRequiredSigners era reqSigners)
-  validatedTxWtdrwls <- hoistEither (first TxCmdTxWithdrawalsValidationError $ validateTxWithdrawals era withdrawals)
-  validatedTxCerts <- hoistEither (first TxCmdTxCertificatesValidationError $ validateTxCertificates era certsAndMaybeScriptWits)
-  validatedMintValue <- hoistEither $ createTxMintValue sbe valuesWithScriptWits
-  validatedTxScriptValidity <- hoistEither (first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity)
-  validatedVotingProcedures <- hoistEither (first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures)
 
   let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
       localNodeConnInfo = LocalNodeConnectInfo
@@ -546,6 +778,11 @@ runTxBuild
   Refl <- testEquality era nodeEra
     & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
+  validatedTxCerts
+     <- hoistEither
+          . first TxCmdTxCertificatesValidationError
+          $ validateTxCertificates era certsAndMaybeScriptWits
+
   let certs =
         case validatedTxCerts of
           TxCertificates _ cs _ -> cs
@@ -556,32 +793,26 @@ runTxBuild
       & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
       & onLeft (left . TxCmdQueryConvenienceError)
 
-  validatedPParams <- hoistEither $ first TxCmdProtocolParametersValidationError
-                                  $ validateProtocolParameters era (Just pparams)
-
-  let txBodyContent =
-        TxBodyContent
-          { txIns = validateTxIns inputsAndMaybeScriptWits
-          , txInsCollateral = validatedCollateralTxIns
-          , txInsReference = validatedRefInputs
-          , txOuts = txouts
-          , txTotalCollateral = validatedTotCollateral
-          , txReturnCollateral = validatedRetCol
-          , txFee = dFee
-          , txValidityLowerBound = validatedLowerBound
-          , txValidityUpperBound = mUpperBound
-          , txMetadata = txMetadata
-          , txAuxScripts = txAuxScripts
-          , txExtraKeyWits = validatedReqSigners
-          , txProtocolParams = validatedPParams
-          , txWithdrawals = validatedTxWtdrwls
-          , txCertificates = validatedTxCerts
-          , txUpdateProposal = txUpdateProposal
-          , txMintValue = validatedMintValue
-          , txScriptValidity = validatedTxScriptValidity
-          , txProposalProcedures = forEraInEonMaybe era (`Featured` convToTxProposalProcedures proposals)
-          , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedVotingProcedures)
-          }
+  txBodyContent <- hoistEither $ constructTxBodyContent
+                     sbe mScriptValidity
+                     (Just $ unLedgerProtocolParameters pparams)
+                     inputsAndMaybeScriptWits
+                     readOnlyRefIns
+                     txinsc
+                     mReturnCollateral
+                     mTotCollateral
+                     txouts
+                     mLowerBound
+                     mUpperBound
+                     valuesWithScriptWits
+                     certsAndMaybeScriptWits
+                     withdrawals
+                     reqSigners
+                     Nothing
+                     txAuxScripts
+                     txMetadata
+                     txUpdateProposal
+                     votingProcedures proposals
 
   firstExceptT TxCmdTxInsDoNotExist
     . hoistEither $ txInsExistInUTxO allTxInputs txEraUtxo
@@ -637,24 +868,23 @@ validateTxIns = map convert
          (txin, BuildTxWith $ KeyWitness KeyWitnessForSpending)
 
 
-validateTxInsCollateral :: CardanoEra era
+validateTxInsCollateral :: ShelleyBasedEra era
                         -> [TxIn]
                         -> Either TxCmdError (TxInsCollateral era)
 validateTxInsCollateral _   []    = return TxInsCollateralNone
 validateTxInsCollateral era txins = do
-  supported <- forEraMaybeEon era
-    & maybe (txFeatureMismatchPure era TxFeatureCollateral) Right
-  pure $ TxInsCollateral supported txins
+  forShelleyBasedEraInEonMaybe era (\supported -> TxInsCollateral supported txins)
+    & maybe (txFeatureMismatchPure (toCardanoEra era) TxFeatureCollateral) Right
+
 
 validateTxInsReference
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> [TxIn]
   -> Either TxCmdError (TxInsReference BuildTx era)
 validateTxInsReference _ []  = return TxInsReferenceNone
-validateTxInsReference era allRefIns = do
-  supported <- forEraMaybeEon era
-    & maybe (txFeatureMismatchPure era TxFeatureReferenceInputs) Right
-  pure $ TxInsReference supported allRefIns
+validateTxInsReference sbe allRefIns = do
+  forShelleyBasedEraInEonMaybe sbe (\supported -> TxInsReference supported allRefIns)
+    & maybe (txFeatureMismatchPure (toCardanoEra sbe) TxFeatureReferenceInputs) Right
 
 getAllReferenceInputs
  :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
