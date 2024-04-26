@@ -89,7 +89,6 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as T
-import qualified Data.Text.IO as Text
 import qualified Data.Text.Lazy.IO as LT
 import           Data.Time.Clock
 import           GHC.Generics
@@ -1215,6 +1214,7 @@ runQueryStakeDistributionCmd
     { Cmd.nodeSocketPath
     , Cmd.consensusModeParams
     , Cmd.networkId
+    , Cmd.format
     , Cmd.target
     , Cmd.mOutFile
     } = do
@@ -1233,45 +1233,41 @@ runQueryStakeDistributionCmd
           & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
         pure $ do
-          writeStakeDistribution mOutFile result
+          writeStakeDistribution (newOutputFormat format mOutFile) mOutFile result
     )
     & onLeft (left . QueryCmdAcquireFailure)
     & onLeft left
 
 writeStakeDistribution
-  :: Maybe (File () Out)
+  :: QueryOutputFormat
+  -> Maybe (File () Out)
   -> Map PoolId Rational
   -> ExceptT QueryCmdError IO ()
-writeStakeDistribution (Just (File outFile)) stakeDistrib =
-  handleIOExceptT (QueryCmdWriteFileError . FileIOError outFile) $
-    LBS.writeFile outFile (encodePretty stakeDistrib)
-
-writeStakeDistribution Nothing stakeDistrib =
-  liftIO $ printStakeDistribution stakeDistrib
-
-
-printStakeDistribution :: Map PoolId Rational -> IO ()
-printStakeDistribution stakeDistrib = do
-  Text.putStrLn title
-  putStrLn $ replicate (Text.length title + 2) '-'
-  sequence_
-    [ putStrLn $ showStakeDistr poolId stakeFraction
-    | (poolId, stakeFraction) <- Map.toList stakeDistrib ]
- where
-   title :: Text
-   title =
-     "                           PoolId                                 Stake frac"
-
-   showStakeDistr :: PoolId
-                  -> Rational
-                  -- ^ Stake fraction
-                  -> String
-   showStakeDistr poolId stakeFraction =
-     concat
-       [ Text.unpack (serialiseToBech32 poolId)
-       , "   "
-       , showEFloat (Just 3) (fromRational stakeFraction :: Double) ""
-       ]
+writeStakeDistribution format mOutFile stakeDistrib =
+  firstExceptT QueryCmdWriteFileError . newExceptT
+    $ writeLazyByteStringOutput mOutFile toWrite
+  where
+    toWrite :: LBS.ByteString =
+      case format of
+        QueryOutputFormatJson -> encodePretty stakeDistrib
+        QueryOutputFormatText -> strictTextToLazyBytestring stakeDistributionText
+    stakeDistributionText =
+      Text.unlines $
+        [ title
+        , Text.replicate (Text.length title + 2) "-"
+        ] ++
+        [ showStakeDistr poolId stakeFraction | (poolId, stakeFraction) <- Map.toList stakeDistrib ]
+       where
+         title :: Text
+         title =
+           "                           PoolId                                 Stake frac"
+         showStakeDistr :: PoolId -> Rational -> Text
+         showStakeDistr poolId stakeFraction =
+           mconcat
+             [ serialiseToBech32 poolId
+             , "   "
+             , Text.pack $ showEFloat (Just 3) (fromRational stakeFraction :: Double) ""
+             ]
 
 runQueryLeadershipScheduleCmd
   :: Cmd.QueryLeadershipScheduleCmdArgs

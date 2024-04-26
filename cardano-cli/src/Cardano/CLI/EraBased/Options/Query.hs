@@ -171,6 +171,7 @@ pQueryStakeDistributionCmd era envCli =
       <*> pConsensusModeParams
       <*> pNetworkId envCli
       <*> pTarget era
+      <*> (optional $ pQueryOutputFormat "stake-distribution")
       <*> pMaybeOutputFile
 
 pQueryStakeAddressInfoCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
