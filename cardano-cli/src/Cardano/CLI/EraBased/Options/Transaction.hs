@@ -235,8 +235,8 @@ pTransactionBuildEstimateCmd era _envCli = do
                       "Filepath of auxiliary script(s)")
           <*> many pMetadataFile
           <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
-          <*> pVoteFiles sbe AutoBalance
-          <*> pProposalFiles sbe AutoBalance
+          <*> pVoteFiles sbe ManualBalance
+          <*> pProposalFiles sbe ManualBalance
           <*> pTxBodyFileOut
 
 pChangeAddress :: Parser TxOutChangeAddress
