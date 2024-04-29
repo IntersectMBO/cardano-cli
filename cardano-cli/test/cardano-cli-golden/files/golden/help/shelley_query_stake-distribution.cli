@@ -4,6 +4,9 @@ Usage: cardano-cli shelley query stake-distribution --socket-path SOCKET_PATH
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
+                                                      [ --output-json
+                                                      | --output-text
+                                                      ]
                                                       [--out-file FILE]
 
   Get the node's current aggregated stake distribution
@@ -22,5 +25,9 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --output-json            Format stake-distribution query output to JSON.
+                           Default format when writing to a file
+  --output-text            Format stake-distribution query output to TEXT.
+                           Default format when writing to stdout
   --out-file FILE          Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

@@ -671,6 +671,7 @@ pQueryCmds envCli =
         <$> pSocketPath envCli
         <*> pConsensusModeParams
         <*> pNetworkId envCli
+        <*> (optional $ pQueryOutputFormat "stake-distribution")
         <*> pMaybeOutputFile
 
     pQueryStakeAddressInfo :: Parser LegacyQueryCmds
