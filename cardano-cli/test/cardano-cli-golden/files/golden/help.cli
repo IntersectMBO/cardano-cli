@@ -8079,16 +8079,20 @@ Usage: cardano-cli conway transaction build-estimate
                                                        ]
                                                        [--vote-file FILE
                                                          [--vote-script-file FILE
-                                                           [ --vote-redeemer-cbor-file CBOR FILE
-                                                           | --vote-redeemer-file JSON FILE
-                                                           | --vote-redeemer-value JSON VALUE
-                                                           ]]]
+                                                           [
+                                                             ( --vote-redeemer-cbor-file CBOR FILE
+                                                             | --vote-redeemer-file JSON FILE
+                                                             | --vote-redeemer-value JSON VALUE
+                                                             )
+                                                             --vote-execution-units (INT, INT)]]]
                                                        [--proposal-file FILE
                                                          [--proposal-script-file FILE
-                                                           [ --proposal-redeemer-cbor-file CBOR FILE
-                                                           | --proposal-redeemer-file JSON FILE
-                                                           | --proposal-redeemer-value JSON VALUE
-                                                           ]]]
+                                                           [
+                                                             ( --proposal-redeemer-cbor-file CBOR FILE
+                                                             | --proposal-redeemer-file JSON FILE
+                                                             | --proposal-redeemer-value JSON VALUE
+                                                             )
+                                                             --proposal-execution-units (INT, INT)]]]
                                                        --out-file FILE
 
   Build a balanced transaction without access to a live node (automatically estimates fees)
