@@ -6683,6 +6683,7 @@ Usage: cardano-cli conway governance action
                                               | create-no-confidence
                                               | create-protocol-parameters-update
                                               | create-treasury-withdrawal
+                                              | create-hardfork
                                               | view
                                               )
 
@@ -6862,6 +6863,27 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          --out-file FILE
 
   Create a treasury withdrawal.
+
+Usage: cardano-cli conway governance action create-hardfork 
+                                                              ( --mainnet
+                                                              | --testnet
+                                                              )
+                                                              --governance-action-deposit NATURAL
+                                                              ( --deposit-return-stake-verification-key STRING
+                                                              | --deposit-return-stake-verification-key-file FILE
+                                                              | --deposit-return-stake-key-hash HASH
+                                                              | --deposit-return-stake-script-file FILE
+                                                              | --deposit-return-stake-address ADDRESS
+                                                              )
+                                                              [--prev-governance-action-tx-id TXID
+                                                                --prev-governance-action-index WORD32]
+                                                              --anchor-url TEXT
+                                                              --anchor-data-hash HASH
+                                                              --protocol-major-version MAJOR
+                                                              --protocol-minor-version MINOR
+                                                              --out-file FILE
+
+  Create a hardfork initiation proposal.
 
 Usage: cardano-cli conway governance action view --action-file FILE
                                                    [ --output-json

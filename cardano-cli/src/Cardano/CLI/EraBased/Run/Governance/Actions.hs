@@ -46,6 +46,9 @@ runGovernanceActionCmds = \case
   GovernanceActionCreateNoConfidenceCmd args ->
     runGovernanceActionCreateNoConfidenceCmd args
 
+  GovernanceActionHardforkInitCmd args ->
+    runGovernanceActionHardforkInitCmd args
+
   GovernanceActionInfoCmd args ->
     runGovernanceActionInfoCmd args
 
@@ -376,3 +379,41 @@ runGovernanceActionTreasuryWithdrawalCmd
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
     $ writeFileTextEnvelope outFile Nothing proposal
+
+runGovernanceActionHardforkInitCmd :: ()
+  => GovernanceActionHardforkInitCmdArgs era
+  -> ExceptT GovernanceActionsError IO ()
+runGovernanceActionHardforkInitCmd
+    Cmd.GovernanceActionHardforkInitCmdArgs
+      { Cmd.eon
+      , Cmd.networkId
+      , Cmd.deposit
+      , Cmd.returnStakeAddress
+      , Cmd.mPrevGovernanceActionId
+      , Cmd.proposalUrl
+      , Cmd.proposalHash = anchorDataHash
+      , Cmd.protVer
+      , Cmd.outFile
+      } = do
+  depositStakeCredential
+    <- firstExceptT GovernanceActionsReadStakeCredErrror
+         $ getStakeCredentialFromIdentifier returnStakeAddress
+
+  let proposalAnchor = L.Anchor
+        { L.anchorUrl = unProposalUrl proposalUrl
+        , L.anchorDataHash
+        }
+
+  let sbe = conwayEraOnwardsToShelleyBasedEra eon
+      govActIdentifier = L.maybeToStrictMaybe
+                           $ shelleyBasedEraConstraints sbe
+                           $ uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
+      initHardfork = InitiateHardfork
+                      govActIdentifier
+                      protVer
+
+      proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential initHardfork proposalAnchor
+
+  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+    $ conwayEraOnwardsConstraints eon
+    $ writeFileTextEnvelope outFile (Just "Hardfork initiation governance action") proposalProcedure

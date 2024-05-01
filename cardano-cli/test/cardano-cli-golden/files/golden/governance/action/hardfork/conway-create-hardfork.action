@@ -1,0 +1,5 @@
+{
+    "type": "Governance proposal",
+    "description": "Hardfork initiation governance action",
+    "cborHex": "84193039581de18f4a3466a404c11eb410313015b88e447d81b60089e25f611600e6058301f6820a00826b6578616d706c652e636f6d5820c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
+}
