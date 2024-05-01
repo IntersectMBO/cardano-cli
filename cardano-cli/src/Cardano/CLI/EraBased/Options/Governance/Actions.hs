@@ -12,8 +12,8 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
 import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Parser
+import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
 import           GHC.Natural (Natural)
@@ -36,6 +36,7 @@ pGovernanceActionCmds era =
     , pGovernanceActionNoConfidenceCmd era
     , pGovernanceActionProtocolParametersUpdateCmd era
     , pGovernanceActionTreasuryWithdrawalCmd era
+    , pGovernanceActionHardforkInitCmd era
     , pGovernanceActionViewCmd era
     ]
 
@@ -385,4 +386,48 @@ pNetwork  = asum $ mconcat
     ]
   ]
 
+pNewProtVer :: Parser (Natural, Natural)
+pNewProtVer = (,) <$> pProtMajor <*> pProtMinor
+  where
+    pProtMajor :: Parser Natural
+    pProtMajor =
+        Opt.option Opt.auto $ mconcat
+            [ Opt.long "protocol-major-version"
+            , Opt.metavar "MAJOR"
+            , Opt.help $ mconcat
+              ["Specify the major protocol version to fork into. It must be the next natural number " 
+              , "after the current version and must be supported by the node."
+              ]
+            ]  
+          
+    pProtMinor :: Parser Natural
+    pProtMinor =
+        Opt.option Opt.auto $ mconcat
+            [ Opt.long "protocol-minor-version"
+            , Opt.metavar "MINOR"
+            , Opt.help "Minor protocol version. Must be zero when the major protocol version is increased." 
+            ]
 
+pPV :: Parser L.ProtVer
+pPV = mkProtocolVersionOrErr <$> pNewProtVer
+
+pGovernanceActionHardforkInitCmd
+  :: CardanoEra era
+  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionHardforkInitCmd era = do
+  eon <- forEraMaybeEon era
+  pure
+    $ subParser "create-hardfork"
+    $ Opt.info
+        ( fmap Cmd.GovernanceActionHardforkInitCmd $
+            Cmd.GovernanceActionHardforkInitCmdArgs eon
+              <$> pNetwork
+              <*> pGovActionDeposit
+              <*> pStakeIdentifier (Just "deposit-return")
+              <*> pPreviousGovernanceAction
+              <*> pAnchorUrl
+              <*> pAnchorDataHash
+              <*> pPV
+              <*> pFileOutDirection "out-file" "Output filepath of the hardfork proposal."
+        )
+    $ Opt.progDesc "Create a hardfork initiation proposal."
