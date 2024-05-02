@@ -6,9 +6,24 @@
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Json.Friendly
-  ( friendlyTx
+  ( -- * Functions in IO
+    --
+    -- Use them when writing to stdout or to files.
+    friendlyTx
   , friendlyTxBody
   , friendlyProposal
+    -- * Functions that are not in IO
+    --
+    -- They are more low-level, but can be used in any context.
+    -- The '*Impl' functions give you access to the Aeson representation
+    -- of various structures. Then use 'friendlyBS' to format the Aeson
+    -- values to a ByteString, in a manner consistent with the IO functions
+    -- of this module.
+  , friendlyBS
+  , friendlyTxImpl
+  , friendlyTxBodyImpl
+  , friendlyProposalImpl
+    -- * Ubiquitous types
   , FriendlyFormat(..)
   ) where
 
@@ -31,7 +46,9 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson
 import qualified Data.Aeson.Types as Aeson
+import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BSC
+import qualified Data.ByteString.Lazy as LBS
 import           Data.Char (isAscii)
 import           Data.Function ((&))
 import           Data.Functor ((<&>))
@@ -55,6 +72,14 @@ friendly ::
   -> m (Either (FileError e) ())
 friendly FriendlyJson mOutFile = writeLazyByteStringOutput mOutFile . Aeson.encodePretty' jsonConfig
 friendly FriendlyYaml mOutFile = writeByteStringOutput mOutFile . Yaml.encodePretty yamlConfig
+
+friendlyBS :: ()
+  => (Aeson.ToJSON a)
+  => FriendlyFormat
+  -> a
+  -> BS.ByteString
+friendlyBS FriendlyJson a = BS.concat . LBS.toChunks $ Aeson.encodePretty' jsonConfig a
+friendlyBS FriendlyYaml a = Yaml.encodePretty yamlConfig a
 
 jsonConfig :: Aeson.Config
 jsonConfig = Aeson.defConfig {Aeson.confCompare = compare}
@@ -526,8 +551,6 @@ friendlyMirTarget sbe = \case
       ]
   L.SendToOppositePotMIR amount -> "MIR amount" .= friendlyLovelace amount
 
--- TODO: Conway era. Replace cardano-api's StakeCredential definition with
--- the ledger's StakeCredential definition.
 friendlyStakeCredential
   :: L.Credential L.Staking L.StandardCrypto -> Aeson.Pair
 friendlyStakeCredential = \case
