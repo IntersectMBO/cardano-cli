@@ -198,7 +198,8 @@ Available options:
   --drep-deposit LOVELACE  DRep deposit amount.
   --drep-activity WORD32   DRep activity period, in epochs.
   --ref-script-cost-per-byte RATIONAL
-                           Reference script cost per byte for free calculation
+                           Reference script cost per byte for the minimum fee
+                           calculation.
   --cost-model-file FILE   Filepath of the JSON formatted cost model
   --out-file FILE          The output file.
   -h,--help                Show this help text
