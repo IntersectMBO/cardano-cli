@@ -10,6 +10,7 @@ module Cardano.CLI.EraBased.Run.Address
   , runAddressBuildCmd
   , runAddressKeyGenCmd
   , runAddressKeyHashCmd
+  , buildShelleyAddress
   , generateAndWriteKeyFiles
   ) where
 
