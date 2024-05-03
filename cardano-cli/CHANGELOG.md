@@ -1,5 +1,56 @@
 # Changelog for cardano-cli
 
+## 8.23.0.0
+
+- Introduces the `governance action create-hardfork` cmd.
+  (feature, test)
+  [PR 746](https://github.com/IntersectMBO/cardano-cli/pull/746)
+
+- Export friendly function that returns ByteString + export buildShelleyAddress
+  (compatible)
+  [PR 748](https://github.com/IntersectMBO/cardano-cli/pull/748)
+
+- Export toTxOutInAnyEra
+  (compatible)
+  [PR 745](https://github.com/IntersectMBO/cardano-cli/pull/745)
+
+- Enable manual specification of execution units for plutus voting and proposing scripts
+  (feature, breaking)
+  [PR 744](https://github.com/IntersectMBO/cardano-cli/pull/744)
+
+- query stake-distribution: add --output-{json,text} flags
+  (feature, breaking)
+  [PR 743](https://github.com/IntersectMBO/cardano-cli/pull/743)
+
+- Introduce new `cardano-cli latest transaction build-estimate` command which will
+  produce a balanced transaction body without requiring a connection to a live node
+  (feature)
+  [PR 728](https://github.com/IntersectMBO/cardano-cli/pull/728)
+
+- Add `minFeeRefScriptCostPerByte`  to create-protocol-parameter-update governance action command.
+  (feature)
+  [PR 736](https://github.com/IntersectMBO/cardano-cli/pull/736)
+
+- Fixed misunderstanding in generated README file by `genesis create-testnet-data`.
+  (bugfix)
+  [PR 726](https://github.com/IntersectMBO/cardano-cli/pull/726)
+
+- conway governance committe key-hash: support extended CC keys
+  (feature, compatible, bugfix)
+  [PR 717](https://github.com/IntersectMBO/cardano-cli/pull/717)
+
+- Defaulted `calculate-min-fee --reference-script-size`'s value to `0`
+  (improvement)
+  [PR 716](https://github.com/IntersectMBO/cardano-cli/pull/716)
+
+- Enable both `--cold-script-file` and `--cold-script-hash` for `governance committee create-hot-key-authorization-certificate` and `committee create-cold-key-resignation-certificate`
+  (feature, compatible)
+  [PR 699](https://github.com/IntersectMBO/cardano-cli/pull/699)
+
+- Fixed `--include-stake` behavior in `query drep-state`
+  (breaking, bugfix)
+  [PR 698](https://github.com/IntersectMBO/cardano-cli/pull/698)
+
 ## 8.22.0.0
 
 - Add `ref-script-size` query command
