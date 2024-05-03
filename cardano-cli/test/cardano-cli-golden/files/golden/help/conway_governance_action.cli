@@ -5,6 +5,7 @@ Usage: cardano-cli conway governance action
                                               | create-no-confidence
                                               | create-protocol-parameters-update
                                               | create-treasury-withdrawal
+                                              | create-hardfork
                                               | view
                                               )
 
@@ -22,4 +23,5 @@ Available commands:
                            Create a protocol parameters update.
   create-treasury-withdrawal
                            Create a treasury withdrawal.
+  create-hardfork          Create a hardfork initiation proposal.
   view                     View a governance action.
