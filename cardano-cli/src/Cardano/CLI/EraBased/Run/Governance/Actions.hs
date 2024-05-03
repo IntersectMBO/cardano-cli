@@ -46,6 +46,9 @@ runGovernanceActionCmds = \case
   GovernanceActionCreateNoConfidenceCmd args ->
     runGovernanceActionCreateNoConfidenceCmd args
 
+  GovernanceActionHardforkInitCmd args ->
+    runGovernanceActionHardforkInitCmd args
+
   GovernanceActionInfoCmd args ->
     runGovernanceActionInfoCmd args
 
@@ -100,7 +103,7 @@ runGovernanceActionInfoCmd
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
-    $ writeFileTextEnvelope outFile Nothing proposalProcedure
+    $ writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
 
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd :: ()
@@ -139,7 +142,7 @@ runGovernanceActionCreateNoConfidenceCmd
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
-    $ writeFileTextEnvelope outFile Nothing proposalProcedure
+    $ writeFileTextEnvelope outFile (Just "Motion of no confidence proposal") proposalProcedure
 
 runGovernanceActionCreateConstitutionCmd :: ()
   => GovernanceActionCreateConstitutionCmdArgs era
@@ -184,7 +187,7 @@ runGovernanceActionCreateConstitutionCmd
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
-    $ writeFileTextEnvelope outFile Nothing proposalProcedure
+    $ writeFileTextEnvelope outFile (Just "Update to the Constitution or policy proposal") proposalProcedure
 
 -- TODO: Conway era - After ledger bump update this function
 -- with the new ledger types
@@ -238,7 +241,7 @@ runGovernanceActionUpdateCommitteeCmd
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
-    $ writeFileTextEnvelope outFile Nothing proposal
+    $ writeFileTextEnvelope outFile (Just "New constitutional committee and/or threshold and/or terms proposal") proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd :: ()
   => Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era
@@ -300,7 +303,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
 
         firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
           $ conwayEraOnwardsConstraints conwayOnwards
-          $ writeFileTextEnvelope oFp Nothing proposalProcedure
+          $ writeFileTextEnvelope oFp (Just "Update protocol parameters proposal") proposalProcedure
     )
     sbe
   where
@@ -375,4 +378,42 @@ runGovernanceActionTreasuryWithdrawalCmd
 
   firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
     $ conwayEraOnwardsConstraints eon
-    $ writeFileTextEnvelope outFile Nothing proposal
+    $ writeFileTextEnvelope outFile (Just "Treasury withdrawal proposal") proposal
+
+runGovernanceActionHardforkInitCmd :: ()
+  => GovernanceActionHardforkInitCmdArgs era
+  -> ExceptT GovernanceActionsError IO ()
+runGovernanceActionHardforkInitCmd
+    Cmd.GovernanceActionHardforkInitCmdArgs
+      { Cmd.eon
+      , Cmd.networkId
+      , Cmd.deposit
+      , Cmd.returnStakeAddress
+      , Cmd.mPrevGovernanceActionId
+      , Cmd.proposalUrl
+      , Cmd.proposalHash = anchorDataHash
+      , Cmd.protVer
+      , Cmd.outFile
+      } = do
+  depositStakeCredential
+    <- firstExceptT GovernanceActionsReadStakeCredErrror
+         $ getStakeCredentialFromIdentifier returnStakeAddress
+
+  let proposalAnchor = L.Anchor
+        { L.anchorUrl = unProposalUrl proposalUrl
+        , L.anchorDataHash
+        }
+
+  let sbe = conwayEraOnwardsToShelleyBasedEra eon
+      govActIdentifier = L.maybeToStrictMaybe
+                           $ shelleyBasedEraConstraints sbe
+                           $ uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
+      initHardfork = InitiateHardfork
+                      govActIdentifier
+                      protVer
+
+      proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential initHardfork proposalAnchor
+
+  firstExceptT GovernanceActionsCmdWriteFileError . newExceptT
+    $ conwayEraOnwardsConstraints eon
+    $ writeFileTextEnvelope outFile (Just "Hardfork initiation proposal") proposalProcedure

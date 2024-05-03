@@ -222,3 +222,24 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_
     goldenActionFile <- H.note "test/cardano-cli-golden/files/golden/governance/action/conway-create-protocol-parameters-update-partial-costmodels.action"
     H.diffFileVsGoldenFile actionFile goldenActionFile
 
+hprop_golden_conway_governance_action_create_hardfork :: Property
+hprop_golden_conway_governance_action_create_hardfork =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
+
+    actionFile <- noteTempFile tempDir "action"
+
+    void $ execCardanoCLI
+      ["conway", "governance", "action", "create-hardfork"
+      , "--anchor-url", "example.com"
+      , "--anchor-data-hash", "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
+      , "--mainnet"
+      , "--deposit-return-stake-verification-key-file", stakeAddressVKeyFile
+      , "--governance-action-deposit", "12345"
+      , "--protocol-major-version", "10"
+      , "--protocol-minor-version", "0"
+      , "--out-file", actionFile
+      ]
+
+    goldenActionFile <- H.note "test/cardano-cli-golden/files/golden/governance/action/hardfork/conway-create-hardfork.action"
+    H.diffFileVsGoldenFile actionFile goldenActionFile

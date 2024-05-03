@@ -17,6 +17,7 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   , GovernanceActionTreasuryWithdrawalCmdArgs(..)
   , UpdateProtocolParametersConwayOnwards(..)
   , UpdateProtocolParametersPreConway(..)
+  , GovernanceActionHardforkInitCmdArgs(..)
   , CostModelsFile(..)
   , renderGovernanceActionCmds
   ) where
@@ -37,6 +38,7 @@ data GovernanceActionCmds era
   | GovernanceActionCreateNoConfidenceCmd         !(GovernanceActionCreateNoConfidenceCmdArgs era)
   | GovernanceActionProtocolParametersUpdateCmd   !(GovernanceActionProtocolParametersUpdateCmdArgs era)
   | GovernanceActionTreasuryWithdrawalCmd         !(GovernanceActionTreasuryWithdrawalCmdArgs era)
+  | GovernanceActionHardforkInitCmd               !(GovernanceActionHardforkInitCmdArgs era) 
   | GovernanceActionInfoCmd                       !(GovernanceActionInfoCmdArgs era)
   | GovernanceActionViewCmd                       !(GovernanceActionViewCmdArgs era)
   deriving Show
@@ -126,6 +128,19 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
       , outFile                :: !(File () Out)
       } deriving Show
 
+data GovernanceActionHardforkInitCmdArgs era
+  = GovernanceActionHardforkInitCmdArgs
+      { eon                   :: !(ConwayEraOnwards era)
+      , networkId             :: !L.Network
+      , deposit               :: !L.Coin
+      , returnStakeAddress    :: !StakeIdentifier
+      , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
+      , proposalUrl           :: !ProposalUrl
+      , proposalHash          :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+      , protVer               :: !L.ProtVer
+      , outFile               :: !(File () Out)
+      } deriving Show
+
 data GovernanceActionViewCmdArgs era
   = GovernanceActionViewCmdArgs
       { eon        :: !(ConwayEraOnwards era)
@@ -180,6 +195,9 @@ renderGovernanceActionCmds = ("governance action " <>) . \case
 
   GovernanceActionCreateNoConfidenceCmd {} ->
     "create-no-confidence"
+
+  GovernanceActionHardforkInitCmd {} ->
+    "create-hardfork"
 
   GovernanceActionInfoCmd {} ->
     "create-info"
