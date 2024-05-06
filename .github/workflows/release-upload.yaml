@@ -58,6 +58,10 @@ jobs:
       DRY_RUN:    ${{ steps.store_target_tag.outputs.DRY_RUN }}
       FLAKE_REF:  ${{ steps.define_flake_ref.outputs.FLAKE_REF }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Because the target tag may not be HEAD
+          fetch-tags: true # So that tags are known to git commands
       - name: Define target tag (1/2)
         if: ${{ inputs.target_tag != '' }} # If a tag was specified manually as input, use it
         run: |
@@ -76,6 +80,7 @@ jobs:
         run: |
           if [[ "${{ env.TARGET_TAG }}" == "" ]]
           then
+            # Tag was not specified manually as input, and current commit has no tag.
             echo "Tag not yet defined, using current commit as reference."
             echo "TARGET_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
           fi
