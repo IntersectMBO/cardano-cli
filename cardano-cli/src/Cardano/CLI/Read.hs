@@ -385,7 +385,7 @@ renderScriptDataError = \case
     "Error validating script data at: " <> pshow fp <> ":\n" <> prettyError sDataRangeErr
   ScriptDataErrorMetadataDecode fp decoderErr->
     "Error decoding CBOR metadata at: " <> pshow fp <> " Error: " <> pshow decoderErr
-  ScriptDataErrorJsonBytes e->
+  ScriptDataErrorJsonBytes e ->
     prettyError e
 
 

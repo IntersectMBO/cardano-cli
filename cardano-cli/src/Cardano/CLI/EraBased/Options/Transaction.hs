@@ -342,8 +342,8 @@ pTxHashScriptData =
     TransactionHashScriptDataCmdArgs
       <$> pScriptDataOrFile
             "script-data"
-            "The script data, in JSON syntax."
-            "The script data, in the given JSON file."
+            "The script data."
+            "The script data file."
 
 pTransactionId  :: Parser (TransactionCmds era)
 pTransactionId =
