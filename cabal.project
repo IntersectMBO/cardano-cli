@@ -13,8 +13,9 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2024-04-15T08:36:34Z
-  , cardano-haskell-packages 	2024-04-24T22:24:37Z
+  , hackage.haskell.org 2024-05-02T11:03:23Z
+  , cardano-haskell-packages 2024-05-03T12:56:13Z
+
 packages:
   cardano-cli
 

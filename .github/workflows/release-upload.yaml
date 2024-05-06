@@ -58,74 +58,80 @@ jobs:
       DRY_RUN:    ${{ steps.store_target_tag.outputs.DRY_RUN }}
       FLAKE_REF:  ${{ steps.define_flake_ref.outputs.FLAKE_REF }}
     steps:
-    - name: Define target tag (1/2)
-      if: ${{ inputs.target_tag != '' }} # If a tag was specified manually as input, use it
-      run: |
-        echo "TARGET_TAG=${{ inputs.target_tag }}" >> "$GITHUB_ENV"
-    - name: Define target tag (2/2)
-      if: ${{ inputs.target_tag == '' }} # If no tag was specified manually as input, take the tag from the current commit
-      run: |
-        current_tag=$(git tag --points-at HEAD | head -n 1)
-        if [[ "$current_tag" != "" ]]
-        then
-          # The workflow runs on a commit that has a tag, use this tag
-          echo "TARGET_TAG=$current_tag" >> "$GITHUB_ENV"
-        fi
-    - name: Default tag if needed and compute dryness
-      id: store_target_tag
-      run: |
-        if [[ "${{ env.TARGET_TAG }}" == "" ]]
-        then
-          echo "Tag not yet defined, using current commit as reference."
-          echo "TARGET_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
-        fi
-        if [[ $(git tag --points-at ${{ env.TARGET_TAG }} | wc -l) == "0" ]]
-        then
-          echo "Run targets a commit that has no attached tag: no release will be published."
-          echo "DRY_RUN=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "DRY_RUN=false" >> "$GITHUB_OUTPUT"
-        fi
-    - name: Define FLAKE_REF
-      id: define_flake_ref
-      run: |
-        flake_ref="github:${{ github.repository }}/${{ env.TARGET_TAG }}"
-        echo "FLAKE_REF=$flake_ref" >> "$GITHUB_ENV"
-        echo "FLAKE_REF=$flake_ref" >> "$GITHUB_OUTPUT"
-    - name: Get specific check run status
-      timeout-minutes: 120
-      run: |
-        while true; do
-          conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/${{ env.TARGET_TAG }}/check-runs" --jq '.check_runs[] | select(.name | test("ci/hydra-build:.*\\.required")) | .conclusion')
-          # Here we are being careful, because we query the status of multiple jobs (once per line)
-          # But the only thing we are sure is that "success" means a green job. There
-          # could be unknown statuses, which is why we may retry when unsure (see 'sleep') below.
-          echo "ci/hydra-build:.*\\.required returned status: $conclusion"
-          # conclusion is of the form (note the newlines, which matter because we use 'wc -l' below)
-          # success
-          # failure
-          # success
-          # Because we care of the newlines, quoting $conclusion with "" is especially important below!
-          # (see https://stackoverflow.com/questions/22101778/how-to-preserve-line-breaks-when-storing-command-output-to-a-variable)
-
-          # shellcheck disable=SC2126
-          nb_failure=$(echo "$conclusion" | grep "^failure" | wc -l)
-          nb_statuses=$(echo "$conclusion" | wc -l)
-          # shellcheck disable=SC2126
-          nb_success=$(echo  "$conclusion" | grep "^success" | wc -l)
-          echo "nb_failure=$nb_failure nb_statuses=$nb_statuses nb_success=$nb_success"
-          if [[ "$nb_failure" != "0" ]]; then
-            echo "ci/hydra-build:required failed"
-            exit 1
-          elif [[ "$nb_statuses" == "$nb_success" ]]; then
-            echo "ci/hydra-build:required succeeded"
-            exit 0
-          else
-            # Unclear (some non-failure, non-success)
-            echo "ci/hydra-build:required pending with $conclusion. Waiting 30s..."
-            sleep 30
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Because the target tag may not be HEAD
+          fetch-tags: true # So that tags are known to git commands
+      - name: Define target tag (1/2)
+        if: ${{ inputs.target_tag != '' }} # If a tag was specified manually as input, use it
+        run: |
+          echo "TARGET_TAG=${{ inputs.target_tag }}" >> "$GITHUB_ENV"
+      - name: Define target tag (2/2)
+        if: ${{ inputs.target_tag == '' }} # If no tag was specified manually as input, take the tag from the current commit
+        run: |
+          current_tag=$(git tag --points-at HEAD | head -n 1)
+          if [[ "$current_tag" != "" ]]
+          then
+            # The workflow runs on a commit that has a tag, use this tag
+            echo "TARGET_TAG=$current_tag" >> "$GITHUB_ENV"
           fi
-        done
+      - name: Default tag if needed and compute dryness
+        id: store_target_tag
+        run: |
+          if [[ "${{ env.TARGET_TAG }}" == "" ]]
+          then
+            # Tag was not specified manually as input, and current commit has no tag.
+            echo "Tag not yet defined, using current commit as reference."
+            echo "TARGET_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
+          fi
+          if [[ $(git tag --points-at ${{ env.TARGET_TAG }} | wc -l) == "0" ]]
+          then
+            echo "Run targets a commit that has no attached tag: no release will be published."
+            echo "DRY_RUN=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "DRY_RUN=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "TARGET_TAG=${{ env.TARGET_TAG }}" >> "$GITHUB_OUTPUT"
+      - name: Define FLAKE_REF
+        id: define_flake_ref
+        run: |
+          flake_ref="github:${{ github.repository }}/${{ env.TARGET_TAG }}"
+          echo "FLAKE_REF=$flake_ref" >> "$GITHUB_ENV"
+          echo "FLAKE_REF=$flake_ref" >> "$GITHUB_OUTPUT"
+      - name: Get specific check run status
+        timeout-minutes: 120
+        run: |
+          while true; do
+            conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/${{ env.TARGET_TAG }}/check-runs" --jq '.check_runs[] | select(.name | test("ci/hydra-build:.*\\.required")) | .conclusion')
+            # Here we are being careful, because we query the status of multiple jobs (once per line)
+            # But the only thing we are sure is that "success" means a green job. There
+            # could be unknown statuses, which is why we may retry when unsure (see 'sleep') below.
+            echo "ci/hydra-build:.*\\.required returned status: $conclusion"
+            # conclusion is of the form (note the newlines, which matter because we use 'wc -l' below)
+            # success
+            # failure
+            # success
+            # Because we care of the newlines, quoting $conclusion with "" is especially important below!
+            # (see https://stackoverflow.com/questions/22101778/how-to-preserve-line-breaks-when-storing-command-output-to-a-variable)
+  
+            # shellcheck disable=SC2126
+            nb_failure=$(echo "$conclusion" | grep "^failure" | wc -l)
+            nb_statuses=$(echo "$conclusion" | wc -l)
+            # shellcheck disable=SC2126
+            nb_success=$(echo  "$conclusion" | grep "^success" | wc -l)
+            echo "nb_failure=$nb_failure nb_statuses=$nb_statuses nb_success=$nb_success"
+            if [[ "$nb_failure" != "0" ]]; then
+              echo "ci/hydra-build:required failed"
+              exit 1
+            elif [[ "$nb_statuses" == "$nb_success" ]]; then
+              echo "ci/hydra-build:required succeeded"
+              exit 0
+            else
+              # Unclear (some non-failure, non-success)
+              echo "ci/hydra-build:required pending with $conclusion. Waiting 30s..."
+              sleep 30
+            fi
+          done
     
   pull:
     needs: [wait_for_hydra]
