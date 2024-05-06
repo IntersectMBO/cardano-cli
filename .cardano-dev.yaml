@@ -11,9 +11,12 @@ changelog:
       breaking: add
       compatible: add
       optimisation: add
-      improvement: add
       bugfix: add
+      refactoring: skip
       test: skip
       maintenance: skip
       release: skip
       documentation: skip
+
+      # deprecated, left here only for backwards compatible changelog generation
+      improvement: add
