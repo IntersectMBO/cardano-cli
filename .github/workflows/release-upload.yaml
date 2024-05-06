@@ -91,6 +91,7 @@ jobs:
           else
             echo "DRY_RUN=false" >> "$GITHUB_OUTPUT"
           fi
+          echo "TARGET_TAG=${{ env.TARGET_TAG }}" >> "$GITHUB_OUTPUT"
       - name: Define FLAKE_REF
         id: define_flake_ref
         run: |
