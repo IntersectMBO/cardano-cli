@@ -38,7 +38,7 @@ data GovernanceActionCmds era
   | GovernanceActionCreateNoConfidenceCmd         !(GovernanceActionCreateNoConfidenceCmdArgs era)
   | GovernanceActionProtocolParametersUpdateCmd   !(GovernanceActionProtocolParametersUpdateCmdArgs era)
   | GovernanceActionTreasuryWithdrawalCmd         !(GovernanceActionTreasuryWithdrawalCmdArgs era)
-  | GovernanceActionHardforkInitCmd               !(GovernanceActionHardforkInitCmdArgs era) 
+  | GovernanceActionHardforkInitCmd               !(GovernanceActionHardforkInitCmdArgs era)
   | GovernanceActionInfoCmd                       !(GovernanceActionInfoCmdArgs era)
   | GovernanceActionViewCmd                       !(GovernanceActionViewCmdArgs era)
   deriving Show
@@ -87,15 +87,14 @@ data GovernanceActionInfoCmdArgs era
 
 data GovernanceActionCreateNoConfidenceCmdArgs era
   = GovernanceActionCreateNoConfidenceCmdArgs
-      { eon                   :: !(ConwayEraOnwards era)
-      , networkId             :: !L.Network
-      , deposit               :: !L.Coin
-      , returnStakeAddress    :: !StakeIdentifier
-      , proposalUrl           :: !ProposalUrl
-      , proposalHash          :: !(L.SafeHash L.StandardCrypto L.AnchorData)
-      , governanceActionId    :: !TxId
-      , governanceActionIndex :: !Word32
-      , outFile               :: !(File () Out)
+      { eon                     :: !(ConwayEraOnwards era)
+      , networkId               :: !L.Network
+      , deposit                 :: !L.Coin
+      , returnStakeAddress      :: !StakeIdentifier
+      , proposalUrl             :: !ProposalUrl
+      , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+      , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
+      , outFile                 :: !(File () Out)
       } deriving Show
 
 data GovernanceActionProtocolParametersUpdateCmdArgs era
