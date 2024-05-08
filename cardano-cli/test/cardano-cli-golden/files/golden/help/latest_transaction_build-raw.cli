@@ -7,27 +7,27 @@ Usage: cardano-cli latest transaction build-raw
                                                       ( --spending-plutus-script-v2
                                                       | --spending-plutus-script-v3
                                                       )
-                                                      ( --spending-reference-tx-in-datum-cbor-file CBOR FILE
-                                                      | --spending-reference-tx-in-datum-file JSON FILE
-                                                      | --spending-reference-tx-in-datum-value JSON VALUE
+                                                      ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                                      | --spending-reference-tx-in-datum-file JSON_FILE
+                                                      | --spending-reference-tx-in-datum-value JSON_VALUE
                                                       | --spending-reference-tx-in-inline-datum-present
                                                       )
-                                                      ( --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
-                                                      | --spending-reference-tx-in-redeemer-file JSON FILE
-                                                      | --spending-reference-tx-in-redeemer-value JSON VALUE
+                                                      ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                      | --spending-reference-tx-in-redeemer-file JSON_FILE
+                                                      | --spending-reference-tx-in-redeemer-value JSON_VALUE
                                                       )
                                                       --spending-reference-tx-in-execution-units (INT, INT)
                                                     | --simple-script-tx-in-reference TX-IN
                                                     | --tx-in-script-file FILE
                                                       [
-                                                        ( --tx-in-datum-cbor-file CBOR FILE
-                                                        | --tx-in-datum-file JSON FILE
-                                                        | --tx-in-datum-value JSON VALUE
+                                                        ( --tx-in-datum-cbor-file CBOR_FILE
+                                                        | --tx-in-datum-file JSON_FILE
+                                                        | --tx-in-datum-value JSON_VALUE
                                                         | --tx-in-inline-datum-present
                                                         )
-                                                        ( --tx-in-redeemer-cbor-file CBOR FILE
-                                                        | --tx-in-redeemer-file JSON FILE
-                                                        | --tx-in-redeemer-value JSON VALUE
+                                                        ( --tx-in-redeemer-cbor-file CBOR_FILE
+                                                        | --tx-in-redeemer-file JSON_FILE
+                                                        | --tx-in-redeemer-value JSON_VALUE
                                                         )
                                                         --tx-in-execution-units (INT, INT)]
                                                     ])
@@ -40,23 +40,23 @@ Usage: cardano-cli latest transaction build-raw
                                                   ]
                                                   [--tx-out ADDRESS VALUE
                                                     [ --tx-out-datum-hash HASH
-                                                    | --tx-out-datum-hash-cbor-file CBOR FILE
-                                                    | --tx-out-datum-hash-file JSON FILE
-                                                    | --tx-out-datum-hash-value JSON VALUE
-                                                    | --tx-out-datum-embed-cbor-file CBOR FILE
-                                                    | --tx-out-datum-embed-file JSON FILE
-                                                    | --tx-out-datum-embed-value JSON VALUE
-                                                    | --tx-out-inline-datum-cbor-file CBOR FILE
-                                                    | --tx-out-inline-datum-file JSON FILE
-                                                    | --tx-out-inline-datum-value JSON VALUE
+                                                    | --tx-out-datum-hash-cbor-file CBOR_FILE
+                                                    | --tx-out-datum-hash-file JSON_FILE
+                                                    | --tx-out-datum-hash-value JSON_VALUE
+                                                    | --tx-out-datum-embed-cbor-file CBOR_FILE
+                                                    | --tx-out-datum-embed-file JSON_FILE
+                                                    | --tx-out-datum-embed-value JSON_VALUE
+                                                    | --tx-out-inline-datum-cbor-file CBOR_FILE
+                                                    | --tx-out-inline-datum-file JSON_FILE
+                                                    | --tx-out-inline-datum-value JSON_VALUE
                                                     ]
                                                     [--tx-out-reference-script-file FILE]]
                                                   [--mint VALUE
                                                     ( --mint-script-file FILE
                                                       [
-                                                        ( --mint-redeemer-cbor-file CBOR FILE
-                                                        | --mint-redeemer-file JSON FILE
-                                                        | --mint-redeemer-value JSON VALUE
+                                                        ( --mint-redeemer-cbor-file CBOR_FILE
+                                                        | --mint-redeemer-file JSON_FILE
+                                                        | --mint-redeemer-value JSON_VALUE
                                                         )
                                                         --mint-execution-units (INT, INT)]
                                                     | --simple-minting-script-tx-in-reference TX-IN
@@ -65,9 +65,9 @@ Usage: cardano-cli latest transaction build-raw
                                                       ( --mint-plutus-script-v2
                                                       | --mint-plutus-script-v3
                                                       )
-                                                      ( --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
-                                                      | --mint-reference-tx-in-redeemer-file JSON FILE
-                                                      | --mint-reference-tx-in-redeemer-value JSON VALUE
+                                                      ( --mint-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                      | --mint-reference-tx-in-redeemer-file JSON_FILE
+                                                      | --mint-reference-tx-in-redeemer-value JSON_VALUE
                                                       )
                                                       --mint-reference-tx-in-execution-units (INT, INT)
                                                       --policy-id HASH
@@ -78,36 +78,36 @@ Usage: cardano-cli latest transaction build-raw
                                                   [--certificate-file FILE
                                                     [ --certificate-script-file FILE
                                                       [
-                                                        ( --certificate-redeemer-cbor-file CBOR FILE
-                                                        | --certificate-redeemer-file JSON FILE
-                                                        | --certificate-redeemer-value JSON VALUE
+                                                        ( --certificate-redeemer-cbor-file CBOR_FILE
+                                                        | --certificate-redeemer-file JSON_FILE
+                                                        | --certificate-redeemer-value JSON_VALUE
                                                         )
                                                         --certificate-execution-units (INT, INT)]
                                                     | --certificate-tx-in-reference TX-IN
                                                       ( --certificate-plutus-script-v2
                                                       | --certificate-plutus-script-v3
                                                       )
-                                                      ( --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
-                                                      | --certificate-reference-tx-in-redeemer-file JSON FILE
-                                                      | --certificate-reference-tx-in-redeemer-value JSON VALUE
+                                                      ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                      | --certificate-reference-tx-in-redeemer-file JSON_FILE
+                                                      | --certificate-reference-tx-in-redeemer-value JSON_VALUE
                                                       )
                                                       --certificate-reference-tx-in-execution-units (INT, INT)
                                                     ]]
                                                   [--withdrawal WITHDRAWAL
                                                     [ --withdrawal-script-file FILE
                                                       [
-                                                        ( --withdrawal-redeemer-cbor-file CBOR FILE
-                                                        | --withdrawal-redeemer-file JSON FILE
-                                                        | --withdrawal-redeemer-value JSON VALUE
+                                                        ( --withdrawal-redeemer-cbor-file CBOR_FILE
+                                                        | --withdrawal-redeemer-file JSON_FILE
+                                                        | --withdrawal-redeemer-value JSON_VALUE
                                                         )
                                                         --withdrawal-execution-units (INT, INT)]
                                                     | --withdrawal-tx-in-reference TX-IN
                                                       ( --withdrawal-plutus-script-v2
                                                       | --withdrawal-plutus-script-v3
                                                       )
-                                                      ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
-                                                      | --withdrawal-reference-tx-in-redeemer-file JSON FILE
-                                                      | --withdrawal-reference-tx-in-redeemer-value JSON VALUE
+                                                      ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                      | --withdrawal-reference-tx-in-redeemer-file JSON_FILE
+                                                      | --withdrawal-reference-tx-in-redeemer-value JSON_VALUE
                                                       )
                                                       --withdrawal-reference-tx-in-execution-units (INT, INT)
                                                     ]]
@@ -139,28 +139,28 @@ Available options:
                            Specify a plutus script v2 reference script.
   --spending-plutus-script-v3
                            Specify a plutus script v3 reference script.
-  --spending-reference-tx-in-datum-cbor-file CBOR FILE
-                           The script datum, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --spending-reference-tx-in-datum-file JSON FILE
-                           The script datum, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --spending-reference-tx-in-datum-value JSON VALUE
-                           The script datum, in JSON syntax. There is no schema:
-                           (almost) any JSON value is supported, including
-                           top-level strings and numbers.
+  --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                           The script datum file. The file has to be in CBOR
+                           format.
+  --spending-reference-tx-in-datum-file JSON_FILE
+                           The script datum file. The file must follow the
+                           detailed JSON schema for script data.
+  --spending-reference-tx-in-datum-value JSON_VALUE
+                           The script datum. There is no schema: (almost) any
+                           JSON value is supported, including top-level strings
+                           and numbers.
   --spending-reference-tx-in-inline-datum-present
                            Inline datum present at transaction input.
-  --spending-reference-tx-in-redeemer-cbor-file CBOR FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --spending-reference-tx-in-redeemer-file JSON FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --spending-reference-tx-in-redeemer-value JSON VALUE
-                           The script redeemer, in JSON syntax. There is no
-                           schema: (almost) any JSON value is supported,
-                           including top-level strings and numbers.
+  --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --spending-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --spending-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
   --spending-reference-tx-in-execution-units (INT, INT)
                            The time and space units needed by the script.
   --simple-script-tx-in-reference TX-IN
@@ -168,28 +168,28 @@ Available options:
                            input must have a simple reference script attached.
   --tx-in-script-file FILE The file containing the script to witness the
                            spending of the transaction input.
-  --tx-in-datum-cbor-file CBOR FILE
-                           The script datum, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --tx-in-datum-file JSON FILE
-                           The script datum, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --tx-in-datum-value JSON VALUE
-                           The script datum, in JSON syntax. There is no schema:
-                           (almost) any JSON value is supported, including
-                           top-level strings and numbers.
+  --tx-in-datum-cbor-file CBOR_FILE
+                           The script datum file. The file has to be in CBOR
+                           format.
+  --tx-in-datum-file JSON_FILE
+                           The script datum file. The file must follow the
+                           detailed JSON schema for script data.
+  --tx-in-datum-value JSON_VALUE
+                           The script datum. There is no schema: (almost) any
+                           JSON value is supported, including top-level strings
+                           and numbers.
   --tx-in-inline-datum-present
                            Inline datum present at transaction input.
-  --tx-in-redeemer-cbor-file CBOR FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --tx-in-redeemer-file JSON FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --tx-in-redeemer-value JSON VALUE
-                           The script redeemer, in JSON syntax. There is no
-                           schema: (almost) any JSON value is supported,
-                           including top-level strings and numbers.
+  --tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
   --tx-in-execution-units (INT, INT)
                            The time and space units needed by the script.
   --read-only-tx-in-reference TX-IN
@@ -220,61 +220,60 @@ Available options:
                            Lovelace).
   --tx-out-datum-hash HASH The script datum hash for this tx output, as the raw
                            datum hash (in hex).
-  --tx-out-datum-hash-cbor-file CBOR FILE
+  --tx-out-datum-hash-cbor-file CBOR_FILE
                            The script datum hash for this tx output, by hashing
-                           the script datum in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --tx-out-datum-hash-file JSON FILE
+                           the script datum in the file. The file has to be in
+                           CBOR format.
+  --tx-out-datum-hash-file JSON_FILE
                            The script datum hash for this tx output, by hashing
-                           the script datum in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --tx-out-datum-hash-value JSON VALUE
+                           the script datum in the file. The file must follow
+                           the detailed JSON schema for script data.
+  --tx-out-datum-hash-value JSON_VALUE
                            The script datum hash for this tx output, by hashing
-                           the script datum given here in JSON syntax. There is
-                           no schema: (almost) any JSON value is supported,
-                           including top-level strings and numbers.
-  --tx-out-datum-embed-cbor-file CBOR FILE
-                           The script datum to embed in the tx for this output,
-                           in the given JSON file. The file must follow the
-                           special JSON schema for script data.
-  --tx-out-datum-embed-file JSON FILE
-                           The script datum to embed in the tx for this output,
-                           in the given JSON file. The file must follow the
-                           special JSON schema for script data.
-  --tx-out-datum-embed-value JSON VALUE
-                           The script datum to embed in the tx for this output,
-                           given here in JSON syntax. There is no schema:
+                           the script datum given here. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --tx-out-inline-datum-cbor-file CBOR FILE
+  --tx-out-datum-embed-cbor-file CBOR_FILE
+                           The script datum to embed in the tx for this output,
+                           in the given file. The file has to be in CBOR format.
+  --tx-out-datum-embed-file JSON_FILE
+                           The script datum to embed in the tx for this output,
+                           in the given file. The file must follow the detailed
+                           JSON schema for script data.
+  --tx-out-datum-embed-value JSON_VALUE
+                           The script datum to embed in the tx for this output,
+                           given here. There is no schema: (almost) any JSON
+                           value is supported, including top-level strings and
+                           numbers.
+  --tx-out-inline-datum-cbor-file CBOR_FILE
                            The script datum to embed in the tx output as an
-                           inline datum, in the given JSON file. The file must
-                           follow the special JSON schema for script data.
-  --tx-out-inline-datum-file JSON FILE
+                           inline datum, in the given file. The file has to be
+                           in CBOR format.
+  --tx-out-inline-datum-file JSON_FILE
                            The script datum to embed in the tx output as an
-                           inline datum, in the given JSON file. The file must
-                           follow the special JSON schema for script data.
-  --tx-out-inline-datum-value JSON VALUE
+                           inline datum, in the given file. The file must follow
+                           the detailed JSON schema for script data.
+  --tx-out-inline-datum-value JSON_VALUE
                            The script datum to embed in the tx output as an
-                           inline datum, given here in JSON syntax. There is no
-                           schema: (almost) any JSON value is supported,
-                           including top-level strings and numbers.
+                           inline datum, given here. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
   --tx-out-reference-script-file FILE
                            Reference script input file.
   --mint VALUE             Mint multi-asset value(s) with the multi-asset cli
                            syntax. You must specify a script witness.
   --mint-script-file FILE  The file containing the script to witness the minting
                            of assets for a particular policy Id.
-  --mint-redeemer-cbor-file CBOR FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --mint-redeemer-file JSON FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --mint-redeemer-value JSON VALUE
-                           The script redeemer, in JSON syntax. There is no
-                           schema: (almost) any JSON value is supported,
-                           including top-level strings and numbers.
+  --mint-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --mint-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --mint-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
   --mint-execution-units (INT, INT)
                            The time and space units needed by the script.
   --simple-minting-script-tx-in-reference TX-IN
@@ -286,16 +285,16 @@ Available options:
                            input must have a plutus reference script attached.
   --mint-plutus-script-v2  Specify a plutus script v2 reference script.
   --mint-plutus-script-v3  Specify a plutus script v3 reference script.
-  --mint-reference-tx-in-redeemer-cbor-file CBOR FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --mint-reference-tx-in-redeemer-file JSON FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --mint-reference-tx-in-redeemer-value JSON VALUE
-                           The script redeemer, in JSON syntax. There is no
-                           schema: (almost) any JSON value is supported,
-                           including top-level strings and numbers.
+  --mint-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --mint-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --mint-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
   --mint-reference-tx-in-execution-units (INT, INT)
                            The time and space units needed by the script.
   --policy-id HASH         Policy id of minting script.
@@ -309,16 +308,16 @@ Available options:
   --certificate-script-file FILE
                            The file containing the script to witness the use of
                            the certificate.
-  --certificate-redeemer-cbor-file CBOR FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --certificate-redeemer-file JSON FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --certificate-redeemer-value JSON VALUE
-                           The script redeemer, in JSON syntax. There is no
-                           schema: (almost) any JSON value is supported,
-                           including top-level strings and numbers.
+  --certificate-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --certificate-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --certificate-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
   --certificate-execution-units (INT, INT)
                            The time and space units needed by the script.
   --certificate-tx-in-reference TX-IN
@@ -328,16 +327,16 @@ Available options:
                            Specify a plutus script v2 reference script.
   --certificate-plutus-script-v3
                            Specify a plutus script v3 reference script.
-  --certificate-reference-tx-in-redeemer-cbor-file CBOR FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --certificate-reference-tx-in-redeemer-file JSON FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --certificate-reference-tx-in-redeemer-value JSON VALUE
-                           The script redeemer, in JSON syntax. There is no
-                           schema: (almost) any JSON value is supported,
-                           including top-level strings and numbers.
+  --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --certificate-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --certificate-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
   --certificate-reference-tx-in-execution-units (INT, INT)
                            The time and space units needed by the script.
   --withdrawal WITHDRAWAL  The reward withdrawal as StakeAddress+Lovelace where
@@ -347,16 +346,16 @@ Available options:
   --withdrawal-script-file FILE
                            The file containing the script to witness the
                            withdrawal of rewards.
-  --withdrawal-redeemer-cbor-file CBOR FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --withdrawal-redeemer-file JSON FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --withdrawal-redeemer-value JSON VALUE
-                           The script redeemer, in JSON syntax. There is no
-                           schema: (almost) any JSON value is supported,
-                           including top-level strings and numbers.
+  --withdrawal-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --withdrawal-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --withdrawal-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
   --withdrawal-execution-units (INT, INT)
                            The time and space units needed by the script.
   --withdrawal-tx-in-reference TX-IN
@@ -366,16 +365,16 @@ Available options:
                            Specify a plutus script v2 reference script.
   --withdrawal-plutus-script-v3
                            Specify a plutus script v3 reference script.
-  --withdrawal-reference-tx-in-redeemer-cbor-file CBOR FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --withdrawal-reference-tx-in-redeemer-file JSON FILE
-                           The script redeemer, in the given JSON file. The file
-                           must follow the special JSON schema for script data.
-  --withdrawal-reference-tx-in-redeemer-value JSON VALUE
-                           The script redeemer, in JSON syntax. There is no
-                           schema: (almost) any JSON value is supported,
-                           including top-level strings and numbers.
+  --withdrawal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --withdrawal-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --withdrawal-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
   --withdrawal-reference-tx-in-execution-units (INT, INT)
                            The time and space units needed by the script.
   --json-metadata-no-schema

@@ -47,8 +47,8 @@ import           GHC.Natural (Natural)
 import           Network.Socket (PortNumber)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
-import           Text.Parsec ((<?>))
 import qualified Text.Parsec as Parsec
+import           Text.Parsec ((<?>))
 import qualified Text.Parsec.Error as Parsec
 import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
@@ -1103,19 +1103,20 @@ pExecutionUnits scriptFlagPrefix =
 pScriptRedeemerOrFile :: String -> Parser ScriptDataOrFile
 pScriptRedeemerOrFile scriptFlagPrefix =
   pScriptDataOrFile (scriptFlagPrefix ++ "-redeemer")
-    "The script redeemer, in JSON syntax."
-    "The script redeemer, in the given JSON file."
+    "The script redeemer value."
+    "The script redeemer file."
 
 
 pScriptDatumOrFile :: String -> WitCtx witctx -> Parser (ScriptDatumOrFile witctx)
 pScriptDatumOrFile scriptFlagPrefix witctx =
   case witctx of
-    WitCtxTxIn  -> (ScriptDatumOrFileForTxIn <$>
-                     pScriptDataOrFile
-                       (scriptFlagPrefix ++ "-datum")
-                       "The script datum, in JSON syntax."
-                       "The script datum, in the given JSON file.") <|>
-                    pInlineDatumPresent
+    WitCtxTxIn  -> asum [ ScriptDatumOrFileForTxIn <$>
+                            pScriptDataOrFile
+                              (scriptFlagPrefix ++ "-datum")
+                              "The script datum."
+                              "The script datum file."
+                        , pInlineDatumPresent
+                        ]
     WitCtxMint  -> pure NoScriptDatumOrFileForMint
     WitCtxStake -> pure NoScriptDatumOrFileForStake
  where
@@ -1126,7 +1127,11 @@ pScriptDatumOrFile scriptFlagPrefix witctx =
       , Opt.help "Inline datum present at transaction input."
       ]
 
-pScriptDataOrFile :: String -> String -> String -> Parser ScriptDataOrFile
+pScriptDataOrFile
+  :: String -- ^ data flag prefix
+  -> String -- ^ value help text
+  -> String -- ^ file help text
+  -> Parser ScriptDataOrFile
 pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
   asum
     [ pScriptDataCborFile
@@ -1136,25 +1141,25 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
   where
     pScriptDataCborFile = fmap ScriptDataCborFile . Opt.strOption $ mconcat
       [ Opt.long (dataFlagPrefix ++ "-cbor-file")
-      , Opt.metavar "CBOR FILE"
+      , Opt.metavar "CBOR_FILE"
       , Opt.help $ mconcat
         [ helpTextForFile
-        , " The file must follow the special JSON schema for script data."
+        , " The file has to be in CBOR format."
         ]
       ]
 
     pScriptDataFile = fmap ScriptDataJsonFile . Opt.strOption $ mconcat
       [ Opt.long (dataFlagPrefix ++ "-file")
-      , Opt.metavar "JSON FILE"
+      , Opt.metavar "JSON_FILE"
       , Opt.help $ mconcat
-        [ helpTextForFile ++ " The file must follow the special "
-        , "JSON schema for script data."
+        [ helpTextForFile
+        , " The file must follow the detailed JSON schema for script data."
         ]
       ]
 
     pScriptDataValue = fmap ScriptDataValue . Opt.option readerScriptData $ mconcat
       [ Opt.long (dataFlagPrefix ++ "-value")
-      , Opt.metavar "JSON VALUE"
+      , Opt.metavar "JSON_VALUE"
       , Opt.help $ mconcat
         [ helpTextForValue
         , " There is no schema: (almost) any JSON value is supported, including "
@@ -1165,18 +1170,17 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
     readerScriptData :: ReadM HashableScriptData
     readerScriptData = do
       v <- Opt.str
-      case Aeson.eitherDecode v of
-        Left e -> fail $ "readerScriptData: " <> e
-        Right sDataValue ->
-          case scriptDataJsonToHashable ScriptDataJsonNoSchema sDataValue of
-            Left err -> fail $ docToString $ prettyError err
-            Right sd -> return sd
+      sDataValue <- liftWith ("readerScriptData: " <>) $
+        Aeson.eitherDecode v
+      liftWith (docToString . prettyError) $
+        scriptDataJsonToHashable ScriptDataJsonNoSchema sDataValue
+      where liftWith f = either (fail . f) pure
 
 pVoteFiles
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
   -> Parser [(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
-pVoteFiles sbe bExUnits= caseShelleyToBabbageOrConwayEraOnwards
+pVoteFiles sbe bExUnits = caseShelleyToBabbageOrConwayEraOnwards
         (const $ pure [])
         (const . many $ pVoteFile bExUnits)
         sbe
@@ -2025,46 +2029,24 @@ pTxOutDatum =
     pTxOutDatumByHashOf = TxOutDatumByHashOf <$>
         pScriptDataOrFile
           "tx-out-datum-hash"
-          ( mconcat
-            [ "The script datum hash for this tx output, by hashing the "
-            , "script datum given here in JSON syntax."
-            ]
-          )
-          ( mconcat
-            [ "The script datum hash for this tx output, by hashing the "
-            , "script datum in the given JSON file."
-            ]
-          )
+           "The script datum hash for this tx output, by hashing the script datum given here."
+           "The script datum hash for this tx output, by hashing the script datum in the file."
 
     pTxOutDatumByValue =
       TxOutDatumByValue <$>
         pScriptDataOrFile
           "tx-out-datum-embed"
-          ( mconcat
-            [ "The script datum to embed in the tx for this output, "
-            , "given here in JSON syntax."
-            ]
-          )
-          ( mconcat
-            [ "The script datum to embed in the tx for this output, "
-            , "in the given JSON file."
-            ]
-          )
+          "The script datum to embed in the tx for this output, given here."
+          "The script datum to embed in the tx for this output, in the given file."
 
     pTxOutInlineDatumByValue =
       TxOutInlineDatumByValue <$>
         pScriptDataOrFile
           "tx-out-inline-datum"
-          ( mconcat
-            [ "The script datum to embed in the tx output as an inline datum, "
-            , "given here in JSON syntax."
-            ]
-          )
-          ( mconcat
-            [ "The script datum to embed in the tx output as an inline datum, "
-            , "in the given JSON file."
-            ]
-          )
+          "The script datum to embed in the tx output as an inline datum, given here."
+          "The script datum to embed in the tx output as an inline datum, in the given file."
+
+
 
 pRefScriptFp :: Parser ReferenceScriptAnyEra
 pRefScriptFp =
