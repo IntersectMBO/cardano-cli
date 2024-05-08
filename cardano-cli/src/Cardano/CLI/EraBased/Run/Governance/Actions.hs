@@ -117,8 +117,7 @@ runGovernanceActionCreateNoConfidenceCmd
       , Cmd.returnStakeAddress
       , Cmd.proposalUrl
       , Cmd.proposalHash
-      , Cmd.governanceActionId
-      , Cmd.governanceActionIndex
+      , Cmd.mPrevGovernanceActionId
       , Cmd.outFile
       } = do
   depositStakeCredential
@@ -131,12 +130,10 @@ runGovernanceActionCreateNoConfidenceCmd
         }
 
   let sbe = conwayEraOnwardsToShelleyBasedEra eon
-      previousGovernanceAction = MotionOfNoConfidence
-                                   $ L.SJust
-                                   $ shelleyBasedEraConstraints sbe
-                                   $ createPreviousGovernanceActionId
-                                       governanceActionId
-                                       governanceActionIndex
+      previousGovernanceAction =
+        MotionOfNoConfidence $ L.maybeToStrictMaybe
+                             $ shelleyBasedEraConstraints sbe
+                             $ uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
 
       proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential previousGovernanceAction proposalAnchor
 

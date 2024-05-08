@@ -147,8 +147,7 @@ pGovernanceActionNoConfidenceCmd era = do
               <*> pStakeIdentifier (Just "deposit-return")
               <*> pAnchorUrl
               <*> pAnchorDataHash
-              <*> pTxId "prev-governance-action-tx-id" "Txid of the previous governance action."
-              <*> pWord32 "prev-governance-action-index" "Action index of the previous governance action."
+              <*> pPreviousGovernanceAction
               <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
         )
     $ Opt.progDesc "Create a no confidence proposal."
@@ -395,17 +394,17 @@ pNewProtVer = (,) <$> pProtMajor <*> pProtMinor
             [ Opt.long "protocol-major-version"
             , Opt.metavar "MAJOR"
             , Opt.help $ mconcat
-              ["Specify the major protocol version to fork into. It must be the next natural number " 
+              ["Specify the major protocol version to fork into. It must be the next natural number "
               , "after the current version and must be supported by the node."
               ]
-            ]  
-          
+            ]
+
     pProtMinor :: Parser Natural
     pProtMinor =
         Opt.option Opt.auto $ mconcat
             [ Opt.long "protocol-minor-version"
             , Opt.metavar "MINOR"
-            , Opt.help "Minor protocol version. Must be zero when the major protocol version is increased." 
+            , Opt.help "Minor protocol version. Must be zero when the major protocol version is increased."
             ]
 
 pPV :: Parser L.ProtVer
