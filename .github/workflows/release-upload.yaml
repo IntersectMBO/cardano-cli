@@ -1,6 +1,6 @@
 name: Release Upload
 # Pipeline to download binaries from Hydra builds and create GitHub
-# releases out of them (or attaching the binaries to an already existing release)
+# releases out of them (or attaching the binaries to an already existing release).
 #
 # This pipeline is divided in three jobs:
 #
@@ -112,15 +112,15 @@ jobs:
             # (see https://stackoverflow.com/questions/22101778/how-to-preserve-line-breaks-when-storing-command-output-to-a-variable)
   
             # shellcheck disable=SC2126
-            nb_failure=$(echo "$conclusion" | grep "^failure" | wc -l)
-            nb_statuses=$(echo "$conclusion" | wc -l)
+            num_failure=$(echo "$conclusion" | grep "^failure" | wc -l)
+            num_status=$(echo "$conclusion" | wc -l)
             # shellcheck disable=SC2126
-            nb_success=$(echo  "$conclusion" | grep "^success" | wc -l)
-            echo "nb_failure=$nb_failure nb_statuses=$nb_statuses nb_success=$nb_success"
-            if [[ "$nb_failure" != "0" ]]; then
+            num_success=$(echo  "$conclusion" | grep "^success" | wc -l)
+            echo "num_failure=$num_failure num_status=$num_status num_success=$num_success"
+            if [[ "$num_failure" != "0" ]]; then
               echo "ci/hydra-build:required failed"
               exit 1
-            elif [[ "$nb_statuses" == "$nb_success" ]]; then
+            elif [[ "$num_status" == "$num_success" ]]; then
               echo "ci/hydra-build:required succeeded"
               exit 0
             else
