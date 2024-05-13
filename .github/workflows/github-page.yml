@@ -125,7 +125,7 @@ jobs:
       run: ./.github/bin/haddocks.sh ./haddocks true
 
     - name: Upload documentation
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       continue-on-error: true
       with:
