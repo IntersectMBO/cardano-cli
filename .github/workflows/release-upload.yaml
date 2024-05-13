@@ -54,50 +54,47 @@ jobs:
     name: "Wait for Hydra check-runs"
     runs-on: ubuntu-latest
     outputs:
-      TARGET_TAG: ${{ steps.store_target_tag.outputs.TARGET_TAG }}
-      DRY_RUN:    ${{ steps.store_target_tag.outputs.DRY_RUN }}
-      FLAKE_REF:  ${{ steps.define_flake_ref.outputs.FLAKE_REF }}
+      TARGET_TAG: ${{ steps.store_vars.outputs.TARGET_TAG }}
+      DRY_RUN:    ${{ steps.store_vars.outputs.DRY_RUN }}
+      FLAKE_REF:  ${{ steps.store_vars.outputs.FLAKE_REF }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Because the target tag may not be HEAD
           fetch-tags: true # So that tags are known to git commands
-      - name: Define target tag (1/2)
-        if: ${{ inputs.target_tag != '' }} # If a tag was specified manually as input, use it
+      - name: Define target tag, flake ref, and compute drynesss
+        id: store_vars
         run: |
-          echo "TARGET_TAG=${{ inputs.target_tag }}" >> "$GITHUB_ENV"
-      - name: Define target tag (2/2)
-        if: ${{ inputs.target_tag == '' }} # If no tag was specified manually as input, take the tag from the current commit
-        run: |
-          current_tag=$(git tag --points-at HEAD | head -n 1)
-          if [[ "$current_tag" != "" ]]
+          dry_run="false"
+          if [[ -z "${{ inputs.target_tag }}" ]]
           then
-            # The workflow runs on a commit that has a tag, use this tag
-            echo "TARGET_TAG=$current_tag" >> "$GITHUB_ENV"
-          fi
-      - name: Default tag if needed and compute dryness
-        id: store_target_tag
-        run: |
-          if [[ "${{ env.TARGET_TAG }}" == "" ]]
-          then
-            # Tag was not specified manually as input, and current commit has no tag.
-            echo "Tag not yet defined, using current commit as reference."
-            echo "TARGET_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
-          fi
-          if [[ $(git tag --points-at ${{ env.TARGET_TAG }} | wc -l) == "0" ]]
-          then
-            echo "Run targets a commit that has no attached tag: no release will be published."
-            echo "DRY_RUN=true" >> "$GITHUB_OUTPUT"
+            # No tag was specified manually as input, take the tag from the current commit (if any)
+            current_tag=$(git tag --points-at HEAD | head -n 1)
+            if [[ -z "$current_tag" ]]
+            then
+              # No tag was specified manually as input, and current commit has no tag.
+              echo "Tag not yet defined, using current commit as reference."
+              target_tag="${{ github.ref_name }}"
+
+              echo "Run targets a commit that has no attached tag: no release will be published."
+              # This is the only case we won't run the create_release job at the end
+              dry_run="true"
+            else
+              # Workflow runs on a commit that has a tag, use this tag
+              target_tag="$current_tag"
+            fi
           else
-            echo "DRY_RUN=false" >> "$GITHUB_OUTPUT"
+            # A tag was specified manually as input, use it
+            target_tag="${{ inputs.target_tag }}"
           fi
-          echo "TARGET_TAG=${{ env.TARGET_TAG }}" >> "$GITHUB_OUTPUT"
-      - name: Define FLAKE_REF
-        id: define_flake_ref
-        run: |
+          # Set variables in GITHUB_ENV for next steps and in GITHUB_OUTPUT for next jobs
+          echo "TARGET_TAG=$target_tag" >> "$GITHUB_ENV"
+          echo "TARGET_TAG=$target_tag" >> "$GITHUB_OUTPUT"
+
           flake_ref="github:${{ github.repository }}/${{ env.TARGET_TAG }}"
-          echo "FLAKE_REF=$flake_ref" >> "$GITHUB_ENV"
           echo "FLAKE_REF=$flake_ref" >> "$GITHUB_OUTPUT"
+
+          echo "DRY_RUN=$dry_run" >> "$GITHUB_OUTPUT"
       - name: Get specific check run status
         timeout-minutes: 120
         run: |
