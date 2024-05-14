@@ -224,7 +224,7 @@ pMinFeeRefScriptCostPerByte =
   Opt.option (toNonNegativeIntervalOrErr <$> readRational)  $ mconcat
     [ Opt.long "ref-script-cost-per-byte"
     , Opt.metavar "RATIONAL"
-    , Opt.help "Reference script cost per byte for free calculation"
+    , Opt.help "Reference script cost per byte for the minimum fee calculation."
     ]
 
 convertToLedger :: (a -> b) -> Parser (Maybe a) -> Parser (L.StrictMaybe b)
