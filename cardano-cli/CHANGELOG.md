@@ -1,5 +1,11 @@
 # Changelog for cardano-cli
 
+## 8.23.1.0
+
+- Make `--prev-governance-action-tx-id` and `--prev-governance-action-tx-id` optional for `create-no-confidence` command
+  (feature, compatible)
+  [PR 753](https://github.com/IntersectMBO/cardano-cli/pull/753)
+
 ## 8.23.0.0
 
 - Introduces the `governance action create-hardfork` cmd.
