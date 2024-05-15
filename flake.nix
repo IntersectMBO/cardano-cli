@@ -81,7 +81,7 @@
               stylish-haskell = "0.14.5.0";
             };
           # and from nixpkgs or other inputs
-          shell.nativeBuildInputs = with nixpkgs; [ gh jq yq-go shellcheck ];
+          shell.nativeBuildInputs = with nixpkgs; [ gh jq yq-go actionlint shellcheck ];
           # disable Hoogle until someone request it
           shell.withHoogle = false;
           # Skip cross compilers for the shell

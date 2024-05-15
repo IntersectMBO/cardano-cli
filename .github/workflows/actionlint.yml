@@ -9,8 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # We want to install Nix to provision shellcheck, so that actionlint doesn't install
-      # its own shellcheck. This will also make sure that this pipeline runs using
+      # Note that, because our Nix configuration provisions *both* shellcheck and actionlint,
+      # actionlint is not going to install its own shellcheck.
+      # This also makes sure that this pipeline runs using
       # the same shellcheck as the ones in Nix shells of developers.
       - name: Install Nix with good defaults
         uses: input-output-hk/install-nix-action@v20
@@ -25,11 +26,6 @@ jobs:
       # Make the Nix environment available to next steps
       - uses: rrbutani/use-nix-shell-action@v1
 
-      - name: Install actionlint
-        run: |
-          # Puts the "actionlint" binary in the working folder
-          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
-
       - name: Run Actionlint
         run: |
           for file in $(git ls-files ".github/workflows/*.y*ml")
@@ -38,7 +34,7 @@ jobs:
             then
               echo "⚠️ $file is ignored from actionlint's verifications. Please consider fixing it."
             else
-              echo "./actionlint $file"
-              ./actionlint "$file"
+              echo "actionlint $file"
+              actionlint "$file"
             fi
           done
