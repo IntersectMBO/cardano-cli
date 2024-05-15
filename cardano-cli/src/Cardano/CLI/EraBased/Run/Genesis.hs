@@ -1177,11 +1177,10 @@ readConwayGenesis fpath = do
 --TODO: eliminate this and get only the necessary params, and get them in a more
 -- helpful way rather than requiring them as a local file.
 readProtocolParameters :: ()
-  => FromJSON (L.PParams (ShelleyLedgerEra era))
   => ShelleyBasedEra era
   -> ProtocolParamsFile
   -> ExceptT ProtocolParamsError IO (L.PParams (ShelleyLedgerEra era))
-readProtocolParameters _era (ProtocolParamsFile fpath) = do
+readProtocolParameters sbe (ProtocolParamsFile fpath) = do
   pparams <- handleIOExceptT (ProtocolParamsErrorFile . FileIOError fpath) $ LBS.readFile fpath
   firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither $
-    Aeson.eitherDecode' pparams
+    shelleyBasedEraConstraints sbe $ Aeson.eitherDecode' pparams
