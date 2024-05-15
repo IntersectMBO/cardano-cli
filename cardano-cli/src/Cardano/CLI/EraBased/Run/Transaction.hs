@@ -52,6 +52,7 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
+import qualified Cardano.Ledger.Api.PParams as L
 import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
@@ -283,9 +284,7 @@ runTransactionBuildEstimateCmd
     , txBodyOutFile
     } = do
   let sbe = maryEraOnwardsToShelleyBasedEra eon
-  legacyPParams <- firstExceptT TxCmdProtocolParamsError $ readProtocolParameters protocolParamsFile
-  ledgerPParams <- hoistEither . first TxCmdProtocolParamsConverstionError
-                               $ convertToLedgerProtocolParameters sbe legacyPParams
+  ledgerPParams <- firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
   inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
                                 $ readScriptWitnessFiles sbe txins
   certFilesAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
@@ -336,7 +335,7 @@ runTransactionBuildEstimateCmd
 
   txBodyContent <- hoistEither $ constructTxBodyContent
                      sbe mScriptValidity
-                     (Just $ unLedgerProtocolParameters ledgerPParams)
+                     (Just ledgerPParams)
                      inputsAndMaybeScriptWits
                      readOnlyRefIns
                      filteredTxinsc
@@ -365,7 +364,7 @@ runTransactionBuildEstimateCmd
 
   BalancedTxBody _ balancedTxBody _ _ <-
     hoistEither $ first TxCmdFeeEstimationError $
-      estimateBalancedTxBody eon txBodyContent (unLedgerProtocolParameters ledgerPParams) poolsToDeregister
+      estimateBalancedTxBody eon txBodyContent ledgerPParams poolsToDeregister
                              stakeCredentialsToDeregisterMap drepsToDeregisterMap
                              pScriptExecUnits totCol shelleyWitnesses (fromMaybe 0 mByronWitnesses)
                              (maybe 0 unReferenceScriptSize totalReferenceScriptSize) (anyAddressInShelleyBasedEra sbe changeAddr)
@@ -503,15 +502,10 @@ runTransactionBuildRawCmd
                      mapM (readFileScriptInAnyLang . unFile) scriptFiles
   txAuxScripts <- hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
 
-  -- TODO: Conway era - update readProtocolParameters to rely on L.PParams JSON instances
   pparams <- forM mProtocolParamsFile $ \ppf ->
-    firstExceptT TxCmdProtocolParamsError (readProtocolParameters ppf)
+    firstExceptT TxCmdProtocolParamsError (readProtocolParameters eon ppf)
 
-  mLedgerPParams <- case pparams of
-                      Nothing -> return Nothing
-                      Just pp -> do
-                        ledgerpp <- firstExceptT TxCmdProtocolParamsConverstionError . hoistEither $ convertToLedgerProtocolParameters eon pp
-                        return $ Just ledgerpp
+  let mLedgerPParams = LedgerProtocolParameters <$> pparams
 
   txUpdateProposal <- case mUpdateProprosalFile of
     Just (Featured w (Just updateProposalFile)) ->
@@ -1239,31 +1233,22 @@ runTransactionCalculateMinFeeCmd
   unwitnessed <-
     firstExceptT TxCmdTextEnvCddlError . newExceptT
       $ readFileTxBody txbodyFile
-  pparams <-
-    firstExceptT TxCmdProtocolParamsError
-      $ readProtocolParameters protocolParamsFile
 
   let nShelleyKeyWitW32 = fromIntegral nShelleyKeyWitnesses
 
   InAnyShelleyBasedEra sbe txbody <- pure $ unIncompleteCddlTxBody unwitnessed
 
-  lpparams <- getLedgerPParams sbe pparams
+  lpparams <-
+    firstExceptT TxCmdProtocolParamsError
+      $ readProtocolParameters sbe protocolParamsFile
 
   let shelleyfee = evaluateTransactionFee sbe lpparams txbody nShelleyKeyWitW32 0 sReferenceScript
 
-  let byronfee = calculateByronWitnessFees (protocolParamTxFeePerByte pparams) nByronKeyWitnesses
+  let byronfee = shelleyBasedEraConstraints sbe $ calculateByronWitnessFees (lpparams ^. L.ppMinFeeAL) nByronKeyWitnesses
 
   let L.Coin fee = shelleyfee + byronfee
 
   liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
-
-getLedgerPParams :: forall era. ()
-  => ShelleyBasedEra era
-  -> ProtocolParameters
-  -> ExceptT TxCmdError IO (L.PParams (ShelleyLedgerEra era))
-getLedgerPParams sbe pparams =
-  firstExceptT TxCmdProtocolParamsConverstionError $
-  hoistEither $ toLedgerPParams sbe pparams
 
 -- Extra logic to handle byron witnesses.
 -- TODO: move this to Cardano.API.Fee.evaluateTransactionFee.
@@ -1317,14 +1302,12 @@ runTransactionCalculateMinValueCmd
       , protocolParamsFile
       , txOut
       } = do
-  pp <- firstExceptT TxCmdProtocolParamsError (readProtocolParameters protocolParamsFile)
+  pp <- firstExceptT TxCmdProtocolParamsError (readProtocolParameters eon protocolParamsFile)
   out <- toTxOutInShelleyBasedEra eon txOut
-  -- TODO: shouldn't we just require shelley based era here instead of error-ing for byron?
 
   firstExceptT TxCmdPParamsErr . hoistEither
-    $ checkProtocolParameters eon pp
-  pp' <- hoistEither . first TxCmdProtocolParamsConverstionError $ toLedgerPParams eon pp
-  let minValue = calculateMinimumUTxO eon out pp'
+    $ checkProtocolParameters eon (fromLedgerPParams eon pp)
+  let minValue = calculateMinimumUTxO eon out pp
   liftIO . IO.print $ minValue
 
 runTransactionPolicyIdCmd :: ()
