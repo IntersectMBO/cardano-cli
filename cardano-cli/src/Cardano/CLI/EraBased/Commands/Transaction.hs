@@ -36,7 +36,7 @@ data TransactionCmds era
   | TransactionSignWitnessCmd         !TransactionSignWitnessCmdArgs
   | TransactionSubmitCmd              !TransactionSubmitCmdArgs
   | TransactionPolicyIdCmd            !TransactionPolicyIdCmdArgs
-  | TransactionCalculateMinFeeCmd     !TransactionCalculateMinFeeCmdArgs
+  | TransactionCalculateMinFeeCmd     !(TransactionCalculateMinFeeCmdArgs era)
   | TransactionCalculateMinValueCmd   !(TransactionCalculateMinValueCmdArgs era)
   | TransactionHashScriptDataCmd      !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd                !TransactionTxIdCmdArgs
@@ -158,8 +158,9 @@ newtype TransactionPolicyIdCmdArgs = TransactionPolicyIdCmdArgs
   { scriptFile  :: ScriptFile
   } deriving Show
 
-data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
-  { txBodyFile            :: !(TxBodyFile In)
+data TransactionCalculateMinFeeCmdArgs era = TransactionCalculateMinFeeCmdArgs
+  { eon                   :: !(ShelleyBasedEra era)
+  , txBodyFile            :: !(TxBodyFile In)
   , protocolParamsFile    :: !ProtocolParamsFile
   , txShelleyWitnessCount :: !TxShelleyWitnessCount
   , txByronWitnessCount   :: !TxByronWitnessCount
