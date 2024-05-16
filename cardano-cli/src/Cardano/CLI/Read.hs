@@ -511,28 +511,26 @@ deserialiseScriptInAnyLang bs =
 
 newtype CddlTx = CddlTx {unCddlTx :: InAnyShelleyBasedEra Tx} deriving (Show, Eq)
 
-readFileTx :: FileOrPipe -> IO (Either CddlError (InAnyShelleyBasedEra Tx))
+readFileTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra Tx))
 readFileTx file = do
-  eAnyTx <- readFileInAnyShelleyBasedEra AsTx file
-  case eAnyTx of
-    Left e -> fmap unCddlTx <$> acceptTxCDDLSerialisation file e
-    Right tx -> return $ Right tx
+  cddlTxOrErr <- readCddlTx file
+  case cddlTxOrErr of
+    Left e -> return $ Left e
+    Right cddlTx -> do
+      InAnyShelleyBasedEra sbe tx <- pure $ unCddlTx cddlTx
+      return $ Right $ inAnyShelleyBasedEra sbe tx
 
 newtype IncompleteCddlTxBody =
   IncompleteCddlTxBody { unIncompleteCddlTxBody :: InAnyShelleyBasedEra TxBody }
 
-readFileTxBody :: FileOrPipe -> IO (Either CddlError IncompleteCddlTxBody)
+readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) IncompleteCddlTxBody)
 readFileTxBody file = do
-  eTxBody <- readFileInAnyShelleyBasedEra AsTxBody file
-  case eTxBody of
-    Left e -> do
-      cddlErrOrTx <- acceptTxCDDLSerialisation file e
-      case cddlErrOrTx of
-        Left cddlErr -> return $ Left cddlErr
-        Right cddlTx -> do
-          InAnyShelleyBasedEra sbe tx <- pure $ unCddlTx cddlTx
-          return $ Right $ IncompleteCddlTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
-    Right txBody -> return $ Right $ IncompleteCddlTxBody txBody
+  cddlTxOrErr <- readCddlTx file
+  case cddlTxOrErr of
+    Left e -> return $ Left e
+    Right cddlTx -> do
+      InAnyShelleyBasedEra sbe tx <- pure $ unCddlTx cddlTx
+      return $ Right $ IncompleteCddlTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
 
 data CddlError = CddlErrorTextEnv
                    !(FileError TextEnvelopeError)
@@ -548,22 +546,6 @@ instance Error CddlError where
       "TextEnvelopeCddl error: " <> prettyError cddlErr
     CddlIOError e ->
       prettyError e
-
-acceptTxCDDLSerialisation
-  :: FileOrPipe
-  -> FileError TextEnvelopeError
-  -> IO (Either CddlError CddlTx)
-acceptTxCDDLSerialisation file err =
-  case err of
-   e@(FileError _ (TextEnvelopeDecodeError _)) ->
-      first (CddlErrorTextEnv e) <$> readCddlTx file
-   e@(FileError _ (TextEnvelopeAesonDecodeError _)) ->
-      first (CddlErrorTextEnv e) <$> readCddlTx file
-   e@(FileError _ (TextEnvelopeTypeError _ _)) ->
-      first (CddlErrorTextEnv e) <$> readCddlTx file
-   e@FileErrorTempFile{} -> return . Left $ CddlIOError e
-   e@FileDoesNotExistError{} -> return . Left $ CddlIOError e
-   e@FileIOError{} -> return . Left $ CddlIOError e
 
 readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
 readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes

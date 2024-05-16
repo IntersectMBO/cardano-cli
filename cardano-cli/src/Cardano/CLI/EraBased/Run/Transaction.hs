@@ -1150,7 +1150,7 @@ runTransactionSignCmd
   case txOrTxBody of
     InputTxFile (File inputTxFilePath) -> do
       inputTxFile <- liftIO $ fileOrPipe inputTxFilePath
-      anyTx <- lift (readFileTx inputTxFile) & onLeft (left . TxCmdCddlError)
+      anyTx <- lift (readFileTx inputTxFile) & onLeft (left . TxCmdTextEnvCddlError)
 
       InAnyShelleyBasedEra sbe tx <- pure anyTx
 
@@ -1169,7 +1169,7 @@ runTransactionSignCmd
 
     InputTxBodyFile (File txbodyFilePath) -> do
       txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-      unwitnessed <- firstExceptT TxCmdCddlError . newExceptT
+      unwitnessed <- firstExceptT TxCmdTextEnvCddlError . newExceptT
                        $ readFileTxBody txbodyFile
 
       case unwitnessed of
@@ -1203,7 +1203,7 @@ runTransactionSubmitCmd
       , txFile
       } = do
   txFileOrPipe <- liftIO $ fileOrPipe txFile
-  InAnyShelleyBasedEra era tx <- lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdCddlError)
+  InAnyShelleyBasedEra era tx <- lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdTextEnvCddlError)
   let txInMode = TxInMode era tx
       localNodeConnInfo = LocalNodeConnectInfo
                             { localConsensusModeParams = consensusModeParams
@@ -1237,7 +1237,7 @@ runTransactionCalculateMinFeeCmd
 
   txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
   unwitnessed <-
-    firstExceptT TxCmdCddlError . newExceptT
+    firstExceptT TxCmdTextEnvCddlError . newExceptT
       $ readFileTxBody txbodyFile
   pparams <-
     firstExceptT TxCmdProtocolParamsError
@@ -1407,13 +1407,13 @@ runTransactionTxIdCmd
     case inputTxBodyOrTxFile of
       InputTxBodyFile (File txbodyFilePath) -> do
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-        unwitnessed <- firstExceptT TxCmdCddlError . newExceptT
+        unwitnessed <- firstExceptT TxCmdTextEnvCddlError . newExceptT
                          $ readFileTxBody txbodyFile
         return $ unIncompleteCddlTxBody unwitnessed
 
       InputTxFile (File txFilePath) -> do
         txFile <- liftIO $ fileOrPipe txFilePath
-        InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdCddlError)
+        InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
         return . InAnyShelleyBasedEra era $ getTxBody tx
 
   liftIO $ BS.putStrLn $ serialiseToRawBytesHex (getTxId txbody)
@@ -1430,7 +1430,7 @@ runTransactionViewCmd
   case inputTxBodyOrTxFile of
     InputTxBodyFile (File txbodyFilePath) -> do
       txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-      unwitnessed <- firstExceptT TxCmdCddlError . newExceptT
+      unwitnessed <- firstExceptT TxCmdTextEnvCddlError . newExceptT
                       $ readFileTxBody txbodyFile
       InAnyShelleyBasedEra era txbody <- pure $ unIncompleteCddlTxBody unwitnessed
       -- Why are we differentiating between a transaction body and a transaction?
@@ -1444,7 +1444,7 @@ runTransactionViewCmd
           ViewOutputFormatJson -> friendlyTxBody FriendlyJson mOutFile (toCardanoEra era) txbody
     InputTxFile (File txFilePath) -> do
       txFile <- liftIO $ fileOrPipe txFilePath
-      InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdCddlError)
+      InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
       firstExceptT TxCmdWriteFileError . newExceptT $
         case outputFormat of
           ViewOutputFormatYaml -> friendlyTx FriendlyYaml mOutFile (toCardanoEra era) tx
@@ -1465,7 +1465,7 @@ runTransactionWitnessCmd
       , outFile
       } = do
   txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-  unwitnessed <- firstExceptT TxCmdCddlError . newExceptT
+  unwitnessed <- firstExceptT TxCmdTextEnvCddlError . newExceptT
                    $ readFileTxBody txbodyFile
   case unwitnessed of
     IncompleteCddlTxBody anyTxBody -> do
@@ -1496,7 +1496,7 @@ runTransactionSignWitnessCmd
       , outFile = outFile
       } = do
   txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-  unwitnessed <- lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdCddlError)
+  unwitnessed <- lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvCddlError)
   case unwitnessed of
     IncompleteCddlTxBody (InAnyShelleyBasedEra era txbody) -> do
       -- TODO: Left off here. Remember we were never reading byron key witnesses anyways!
