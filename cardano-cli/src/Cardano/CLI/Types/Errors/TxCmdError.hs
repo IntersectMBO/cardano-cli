@@ -76,7 +76,6 @@ data TxCmdError
   | TxCmdQueryConvenienceError !QueryConvenienceError
   | TxCmdQueryNotScriptLocked !ScriptLockedTxInsError
   | TxCmdScriptDataError !ScriptDataError
-  | TxCmdCddlError CddlError
   | TxCmdCddlWitnessError CddlWitnessError
   | TxCmdRequiredSignerError RequiredSignerError
   -- Validation errors
@@ -210,8 +209,6 @@ renderTxCmdError = \case
     renderScriptDataError e
   TxCmdProtocolParamsError e ->
     renderProtocolParamsError e
-  TxCmdCddlError e ->
-    prettyError e
   TxCmdCddlWitnessError e ->
     prettyError e
   TxCmdRequiredSignerError e ->
