@@ -84,7 +84,6 @@ data TxCmdError
   | TxCmdAuxScriptsValidationError TxAuxScriptsValidationError
   | TxCmdTotalCollateralValidationError TxTotalCollateralValidationError
   | TxCmdReturnCollateralValidationError TxReturnCollateralValidationError
-  | TxCmdTxFeeValidationError TxFeeValidationError
   | TxCmdTxValidityLowerBoundValidationError TxValidityLowerBoundValidationError
   | TxCmdTxValidityUpperBoundValidationError TxValidityUpperBoundValidationError
   | TxCmdRequiredSignersValidationError TxRequiredSignersValidationError
@@ -219,8 +218,6 @@ renderTxCmdError = \case
   TxCmdTotalCollateralValidationError e ->
     prettyError e
   TxCmdReturnCollateralValidationError e ->
-    prettyError e
-  TxCmdTxFeeValidationError e ->
     prettyError e
   TxCmdTxValidityLowerBoundValidationError e ->
     prettyError e

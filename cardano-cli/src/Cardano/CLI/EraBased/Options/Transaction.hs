@@ -262,7 +262,7 @@ pTransactionBuildRaw era =
       <*> optional (pMintMultiAsset ManualBalance)
       <*> optional pInvalidBefore
       <*> pInvalidHereafter era
-      <*> optional pTxFee
+      <*> pTxFee
       <*> many (pCertificateFile ManualBalance )
       <*> many (pWithdrawal ManualBalance)
       <*> pTxMetadataJsonSchema
