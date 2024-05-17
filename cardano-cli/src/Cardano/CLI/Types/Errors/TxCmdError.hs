@@ -65,9 +65,8 @@ data TxCmdError
   | TxCmdBalanceTxBody !AnyTxBodyErrorAutoBalance
   | TxCmdTxInsDoNotExist !TxInsExistError
   | TxCmdPParamsErr !ProtocolParametersError
-  | TxCmdTextEnvCddlError
-      !(FileError TextEnvelopeError)
-      !(FileError TextEnvelopeCddlError)
+  | TxCmdTextEnvError !(FileError TextEnvelopeError)
+  | TxCmdTextEnvCddlError !(FileError TextEnvelopeCddlError)
   | TxCmdTxExecUnitsErr !AnyTxCmdTxExecUnitsErr
   | TxCmdPlutusScriptCostErr !PlutusScriptCostError
   | TxCmdPParamExecutionUnitsNotAvailable
@@ -77,7 +76,6 @@ data TxCmdError
   | TxCmdQueryConvenienceError !QueryConvenienceError
   | TxCmdQueryNotScriptLocked !ScriptLockedTxInsError
   | TxCmdScriptDataError !ScriptDataError
-  | TxCmdCddlError CddlError
   | TxCmdCddlWitnessError CddlWitnessError
   | TxCmdRequiredSignerError RequiredSignerError
   -- Validation errors
@@ -170,10 +168,14 @@ renderTxCmdError = \case
     pretty $ renderTxInsExistError e
   TxCmdPParamsErr err' ->
     prettyError err'
-  TxCmdTextEnvCddlError textEnvErr cddlErr ->
+  TxCmdTextEnvError err' ->
     mconcat
     [ "Failed to decode the ledger's CDDL serialisation format. "
-    , "TextEnvelope error: " <> prettyError textEnvErr <> "\n"
+    , "File error: " <> prettyError err'
+    ]
+  TxCmdTextEnvCddlError cddlErr ->
+    mconcat
+    [ "Failed to decode the ledger's CDDL serialisation format. "
     , "TextEnvelopeCddl error: " <> prettyError cddlErr
     ]
   TxCmdTxExecUnitsErr (AnyTxCmdTxExecUnitsErr err') ->
@@ -207,8 +209,6 @@ renderTxCmdError = \case
     renderScriptDataError e
   TxCmdProtocolParamsError e ->
     renderProtocolParamsError e
-  TxCmdCddlError e ->
-    prettyError e
   TxCmdCddlWitnessError e ->
     prettyError e
   TxCmdRequiredSignerError e ->

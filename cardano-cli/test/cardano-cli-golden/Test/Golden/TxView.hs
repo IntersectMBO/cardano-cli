@@ -345,6 +345,8 @@ createAlonzoTxBody mUpdateProposalFile transactionBodyFile = do
           ]
       )
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden view alonzo yaml/"'@
 hprop_golden_view_alonzo_yaml :: Property
 hprop_golden_view_alonzo_yaml =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
@@ -381,6 +383,8 @@ hprop_golden_view_alonzo_yaml =
           ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
       H.diffVsGoldenFile result $ goldenDir </> "alonzo/transaction-view.out"
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden view alonzo signed yaml/"'@
 hprop_golden_view_alonzo_signed_yaml :: Property
 hprop_golden_view_alonzo_signed_yaml =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do

@@ -28,6 +28,7 @@ data GovernanceCmdError
   | GovernanceCmdHashError !GovernanceHashError
   | GovernanceCmdProposalError ProposalError
   | GovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
+  | GovernanceCmdTextEnvCddlReadError !(FileError TextEnvelopeCddlError)
   | GovernanceCmdCddlError !CddlError
   | GovernanceCmdKeyReadError !(FileError InputDecodeError)
   | GovernanceCmdCostModelReadError !(FileError ())
@@ -75,6 +76,8 @@ instance Error GovernanceCmdError where
       "Proposal error " <> pshow e -- TODO Conway render this properly
     GovernanceCmdTextEnvReadError fileError ->
       "Cannot read text envelope: " <> prettyError fileError
+    GovernanceCmdTextEnvCddlReadError fileError ->
+      "Cannot read text cddl envelope: " <> prettyError fileError
     GovernanceCmdCddlError cddlError ->
       "Reading transaction CDDL file error: " <> prettyError cddlError
     GovernanceCmdKeyReadError fileError ->

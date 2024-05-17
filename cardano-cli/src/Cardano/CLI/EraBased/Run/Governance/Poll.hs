@@ -165,7 +165,7 @@ runGovernanceVerifyPollCmd
     readFileTextEnvelope AsGovernancePoll pollFile
 
   txFileOrPipe <- liftIO $ fileOrPipe (unFile txFile)
-  tx <- firstExceptT GovernanceCmdCddlError . newExceptT $
+  tx <- firstExceptT GovernanceCmdTextEnvCddlReadError . newExceptT $
     readFileTx txFileOrPipe
 
   signatories <- firstExceptT GovernanceCmdVerifyPollError . newExceptT $ pure $
