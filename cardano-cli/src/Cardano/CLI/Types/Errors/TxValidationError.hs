@@ -9,7 +9,6 @@
 module Cardano.CLI.Types.Errors.TxValidationError
   ( TxAuxScriptsValidationError(..)
   , TxCertificatesValidationError(..)
-  , TxFeeValidationError(..)
   , TxGovDuplicateVotes(..)
   , TxProtocolParametersValidationError
   , TxScriptValidityValidationError(..)
@@ -26,7 +25,6 @@ module Cardano.CLI.Types.Errors.TxValidationError
   , validateScriptSupportedInEra
   , validateTxAuxScripts
   , validateTxCertificates
-  , validateTxFee
   , validateRequiredSigners
   , validateTxReturnCollateral
   , validateTxScriptValidity
@@ -71,27 +69,6 @@ validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
     Nothing -> Left $ ScriptLanguageValidationError
                         (AnyScriptLanguage lang) (anyCardanoEra $ toCardanoEra era)
     Just script' -> pure script'
-
-
-data TxFeeValidationError
-  = TxFeatureImplicitFeesE AnyCardanoEra -- ^ Expected an explicit fee
-  | TxFeatureExplicitFeesE AnyCardanoEra -- ^ Expected an implicit fee
-  deriving Show
-
-instance Error TxFeeValidationError where
-  prettyError (TxFeatureImplicitFeesE era) =
-    "Implicit transaction fee not supported in " <> pretty era
-  prettyError (TxFeatureExplicitFeesE era) =
-    "Explicit transaction fee not supported in " <> pretty era
-
-validateTxFee :: ShelleyBasedEra era
-              -> Maybe L.Coin -- TODO: Make this mandatory in the cli (Remove Maybe)
-              -> Either TxFeeValidationError (TxFee era)
-validateTxFee era = \case
-  Nothing ->
-    let cEra = toCardanoEra era
-    in Left . TxFeatureImplicitFeesE $ cardanoEraConstraints cEra $ AnyCardanoEra cEra
-  Just fee -> pure (TxFeeExplicit era fee)
 
 newtype TxTotalCollateralValidationError
   = TxTotalCollateralNotSupported AnyCardanoEra

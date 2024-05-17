@@ -349,7 +349,7 @@ runTransactionBuildEstimateCmd
                      certsAndMaybeScriptWits
                      withdrawalsAndMaybeScriptWits
                      requiredSigners
-                     Nothing
+                     0
                      txAuxScripts
                      txMetadata
                      txUpdateProposal
@@ -360,7 +360,7 @@ runTransactionBuildEstimateCmd
       poolsToDeregister = Set.fromList $ catMaybes [getPoolDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
       totCol = fromMaybe 0 plutusCollateral
       pScriptExecUnits = Map.fromList [ (sWitIndex, execUnits)
-                                      | (sWitIndex, (AnyScriptWitness (PlutusScriptWitness _ _ _ _ _ execUnits))) <- collectTxBodyScriptWitnesses sbe txBodyContent
+                                      | (sWitIndex, AnyScriptWitness (PlutusScriptWitness _ _ _ _ _ execUnits)) <- collectTxBodyScriptWitnesses sbe txBodyContent
                                       ]
 
   BalancedTxBody _ balancedTxBody _ _ <-
@@ -368,7 +368,7 @@ runTransactionBuildEstimateCmd
       estimateBalancedTxBody eon txBodyContent (unLedgerProtocolParameters ledgerPParams) poolsToDeregister
                              stakeCredentialsToDeregisterMap drepsToDeregisterMap
                              pScriptExecUnits totCol shelleyWitnesses (fromMaybe 0 mByronWitnesses)
-                             (fromMaybe 0 (unReferenceScriptSize <$> totalReferenceScriptSize)) (anyAddressInShelleyBasedEra sbe changeAddr)
+                             (maybe 0 unReferenceScriptSize totalReferenceScriptSize) (anyAddressInShelleyBasedEra sbe changeAddr)
                              totalUTxOValue
 
   let noWitTx = makeSignedTransaction [] balancedTxBody
@@ -576,7 +576,7 @@ runTxBuildRaw :: ()
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> Maybe L.Coin
+  -> L.Coin
   -- ^ Tx fee
   -> (Value, [ScriptWitness WitCtxMint era])
   -- ^ Multi-Asset value(s)
@@ -597,13 +597,13 @@ runTxBuildRaw sbe
               readOnlyRefIns txinsc
               mReturnCollateral mTotCollateral txouts
               mLowerBound mUpperBound
-              mFee valuesWithScriptWits
+              fee valuesWithScriptWits
               certsAndMaybeSriptWits withdrawals reqSigners
               txAuxScripts txMetadata mpparams txUpdateProposal votingProcedures proposals = do
 
     txBodyContent <- constructTxBodyContent sbe mScriptValidity (unLedgerProtocolParameters <$> mpparams) inputsAndMaybeScriptWits readOnlyRefIns txinsc
                       mReturnCollateral mTotCollateral txouts mLowerBound mUpperBound valuesWithScriptWits
-                      certsAndMaybeSriptWits withdrawals reqSigners mFee txAuxScripts txMetadata txUpdateProposal
+                      certsAndMaybeSriptWits withdrawals reqSigners fee txAuxScripts txMetadata txUpdateProposal
                       votingProcedures proposals
 
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
@@ -636,7 +636,7 @@ constructTxBodyContent
   -- ^ Withdrawals
   -> [Hash PaymentKey]
   -- ^ Required signers
-  -> Maybe L.Coin
+  -> L.Coin
   -- ^ Tx fee
   -> TxAuxScripts era
   -> TxMetadataInEra era
@@ -647,7 +647,7 @@ constructTxBodyContent
 constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits readOnlyRefIns txinsc
                        mReturnCollateral mTotCollateral txouts mLowerBound mUpperBound
                        valuesWithScriptWits certsAndMaybeScriptWits withdrawals
-                       reqSigners mFee txAuxScripts txMetadata txUpdateProposal
+                       reqSigners fee txAuxScripts txMetadata txUpdateProposal
                        votingProcedures proposals
                        = do
   let era = toCardanoEra sbe -- TODO: Propagate SBE
@@ -666,7 +666,7 @@ constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits rea
     <- first TxCmdTotalCollateralValidationError $ validateTxTotalCollateral era mTotCollateral
   validatedRetCol
     <- first TxCmdReturnCollateralValidationError $ validateTxReturnCollateral era mReturnCollateral
-  dFee <- first TxCmdTxFeeValidationError . validateTxFee sbe . Just $ fromMaybe (L.Coin 0) mFee
+  let txFee = TxFeeExplicit sbe fee
   validatedLowerBound <- first TxCmdTxValidityLowerBoundValidationError (validateTxValidityLowerBound era mLowerBound)
   validatedReqSigners <- first TxCmdRequiredSignersValidationError $ validateRequiredSigners era reqSigners
   validatedTxWtdrwls <- first TxCmdTxWithdrawalsValidationError $ validateTxWithdrawals era withdrawals
@@ -683,7 +683,7 @@ constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits rea
              & setTxOuts txouts
              & setTxTotalCollateral validatedTotCollateral
              & setTxReturnCollateral validatedRetCol
-             & setTxFee dFee
+             & setTxFee txFee
              & setTxValidityLowerBound validatedLowerBound
              & setTxValidityUpperBound mUpperBound
              & setTxMetadata txMetadata
@@ -809,7 +809,7 @@ runTxBuild
                      certsAndMaybeScriptWits
                      withdrawals
                      reqSigners
-                     Nothing
+                     0
                      txAuxScripts
                      txMetadata
                      txUpdateProposal

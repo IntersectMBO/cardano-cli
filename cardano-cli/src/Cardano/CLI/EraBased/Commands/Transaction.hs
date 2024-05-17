@@ -67,7 +67,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
     -- ^ Transaction validity lower bound
   , mValidityUpperBound   :: !(TxValidityUpperBound era)
     -- ^ Transaction validity upper bound
-  , fee                   :: !(Maybe Coin)
+  , fee                   :: !Coin
     -- ^ Transaction fee
   , certificates          :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
     -- ^ Certificates with potential script witness

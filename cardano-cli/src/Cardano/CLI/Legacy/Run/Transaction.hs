@@ -22,6 +22,7 @@ import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Governance
 
 import           Data.Function
+import           Data.Maybe
 
 runLegacyTransactionCmds :: LegacyTransactionCmds -> ExceptT TxCmdError IO ()
 runLegacyTransactionCmds = \case
@@ -175,7 +176,7 @@ runLegacyTransactionBuildRawCmd
        runTransactionBuildRawCmd
          ( Cmd.TransactionBuildRawCmdArgs
              sbe mScriptValidity txins readOnlyRefIns txinsc mReturnColl
-             mTotColl reqSigners txouts mValue mLowBound upperBound fee certs wdrls
+             mTotColl reqSigners txouts mValue mLowBound upperBound (fromMaybe 0 fee) certs wdrls
              metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpdateProposalFile [] []
              outFile
          )
