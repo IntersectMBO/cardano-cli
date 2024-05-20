@@ -192,7 +192,7 @@ runSpendGenesisUTxO genesisFile nw bKeyFormat (NewTxFile ctTx) ctKey genRichAddr
 
     let tx = txSpendGenesisUTxOByronPBFT genesis nw sk genRichAddr outs
     firstExceptT ByronCmdHelpersError . ensureNewFileLBS ctTx
-      $ teCddlRawCBOR $ serializeByronTx tx
+      $ teRawCBOR $ serializeByronTx tx
 
 -- Construct a Byron era tx
 runSpendUTxO
@@ -208,4 +208,4 @@ runSpendUTxO nw bKeyFormat (NewTxFile ctTx) ctKey ins outs = do
 
     let gTx = txSpendUTxOByronPBFT nw sk ins outs
     firstExceptT ByronCmdHelpersError . ensureNewFileLBS ctTx
-      $ teCddlRawCBOR $ serializeByronTx gTx
+      $ teRawCBOR $ serializeByronTx gTx
