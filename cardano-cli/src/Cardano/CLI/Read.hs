@@ -32,7 +32,6 @@ module Cardano.CLI.Read
 
   -- * Tx
   , CddlError(..)
-  , CddlTx(..)
   , IncompleteTx(..)
   , readFileTx
   , readFileTxBody
@@ -121,6 +120,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Base16 as Base16
 import qualified Data.ByteString.Builder as Builder
 import qualified Data.ByteString.Lazy.Char8 as LBS
+import           Data.Coerce (coerce)
 import           Data.Function ((&))
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
@@ -509,13 +509,11 @@ deserialiseScriptInAnyLang bs =
 
 -- Tx & TxBody
 
-newtype CddlTx = CddlTx {unCddlTx :: InAnyShelleyBasedEra Tx} deriving (Show, Eq)
-
 readFileTx :: FileOrPipe -> IO (Either CddlError (InAnyShelleyBasedEra Tx))
 readFileTx file = do
   eAnyTx <- readFileInAnyShelleyBasedEra AsTx file
   case eAnyTx of
-    Left e -> fmap unCddlTx <$> acceptTxCDDLSerialisation file e
+    Left e -> acceptTxCDDLSerialisation file e
     Right tx -> return $ Right tx
 
 -- IncompleteCddlFormattedTx is an CDDL formatted tx or partial tx
@@ -531,7 +529,7 @@ readFileTxBody :: FileOrPipe -> IO (Either CddlError IncompleteTx)
 readFileTxBody file = do
   eTxBody <- readFileInAnyShelleyBasedEra AsTxBody file
   case eTxBody of
-    Left e -> fmap (IncompleteCddlFormattedTx . unCddlTx) <$> acceptTxCDDLSerialisation file e
+    Left e -> fmap IncompleteCddlFormattedTx <$> acceptTxCDDLSerialisation file e
     Right txBody -> return $ Right $ UnwitnessedCliFormattedTxBody txBody
 
 data CddlError = CddlErrorTextEnv
@@ -552,7 +550,7 @@ instance Error CddlError where
 acceptTxCDDLSerialisation
   :: FileOrPipe
   -> FileError TextEnvelopeError
-  -> IO (Either CddlError CddlTx)
+  -> IO (Either CddlError (InAnyShelleyBasedEra Tx))
 acceptTxCDDLSerialisation file err =
   case err of
    e@(FileError _ (TextEnvelopeDecodeError _)) ->
@@ -565,27 +563,25 @@ acceptTxCDDLSerialisation file err =
    e@FileDoesNotExistError{} -> return . Left $ CddlIOError e
    e@FileIOError{} -> return . Left $ CddlIOError e
 
-readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
+readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra Tx))
 readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
  where
-    teTypes = [ FromCDDLTx "Witnessed Tx ShelleyEra" CddlTx
-              , FromCDDLTx "Witnessed Tx AllegraEra" CddlTx
-              , FromCDDLTx "Witnessed Tx MaryEra" CddlTx
-              , FromCDDLTx "Witnessed Tx AlonzoEra" CddlTx
-              , FromCDDLTx "Witnessed Tx BabbageEra" CddlTx
-              , FromCDDLTx "Witnessed Tx ConwayEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx ByronEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx ShelleyEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx AllegraEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx MaryEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx AlonzoEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx BabbageEra" CddlTx
-              , FromCDDLTx "Unwitnessed Tx ConwayEra" CddlTx
+    teTypes = [ FromCDDLTx "Witnessed Tx ShelleyEra" coerce
+              , FromCDDLTx "Witnessed Tx AllegraEra" coerce
+              , FromCDDLTx "Witnessed Tx MaryEra" coerce
+              , FromCDDLTx "Witnessed Tx AlonzoEra" coerce
+              , FromCDDLTx "Witnessed Tx BabbageEra" coerce
+              , FromCDDLTx "Witnessed Tx ConwayEra" coerce
+              , FromCDDLTx "Unwitnessed Tx ByronEra" coerce
+              , FromCDDLTx "Unwitnessed Tx ShelleyEra" coerce
+              , FromCDDLTx "Unwitnessed Tx AllegraEra" coerce
+              , FromCDDLTx "Unwitnessed Tx MaryEra" coerce
+              , FromCDDLTx "Unwitnessed Tx AlonzoEra" coerce
+              , FromCDDLTx "Unwitnessed Tx BabbageEra" coerce
+              , FromCDDLTx "Unwitnessed Tx ConwayEra" coerce
               ]
 
 -- Tx witnesses
-
-newtype CddlWitness = CddlWitness { unCddlWitness :: InAnyShelleyBasedEra KeyWitness}
 
 readFileTxKeyWitness :: FilePath
                      -> IO (Either CddlWitnessError (InAnyShelleyBasedEra KeyWitness))
@@ -593,7 +589,7 @@ readFileTxKeyWitness fp = do
   file <- fileOrPipe fp
   eWitness <- readFileInAnyShelleyBasedEra AsKeyWitness file
   case eWitness of
-    Left e -> fmap unCddlWitness <$> acceptKeyWitnessCDDLSerialisation e
+    Left e -> acceptKeyWitnessCDDLSerialisation e
     Right keyWit -> return $ Right keyWit
 
 data CddlWitnessError
@@ -617,7 +613,7 @@ instance Error CddlWitnessError where
 -- the cli's serialisation format
 acceptKeyWitnessCDDLSerialisation
   :: FileError TextEnvelopeError
-  -> IO (Either CddlWitnessError CddlWitness)
+  -> IO (Either CddlWitnessError (InAnyShelleyBasedEra KeyWitness))
 acceptKeyWitnessCDDLSerialisation err =
   case err of
     e@(FileError fp (TextEnvelopeDecodeError _)) ->
@@ -632,16 +628,16 @@ acceptKeyWitnessCDDLSerialisation err =
 
 readCddlWitness
   :: FilePath
-  -> IO (Either (FileError TextEnvelopeCddlError) CddlWitness)
+  -> IO (Either (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra KeyWitness))
 readCddlWitness fp = do
   readFileTextEnvelopeCddlAnyOf teTypes fp
  where
-  teTypes = [ FromCDDLWitness "TxWitness ShelleyEra" CddlWitness
-            , FromCDDLWitness "TxWitness AllegraEra" CddlWitness
-            , FromCDDLWitness "TxWitness MaryEra" CddlWitness
-            , FromCDDLWitness "TxWitness AlonzoEra" CddlWitness
-            , FromCDDLWitness "TxWitness BabbageEra" CddlWitness
-            , FromCDDLWitness "TxWitness ConwayEra" CddlWitness
+  teTypes = [ FromCDDLWitness "TxWitness ShelleyEra" coerce
+            , FromCDDLWitness "TxWitness AllegraEra" coerce
+            , FromCDDLWitness "TxWitness MaryEra" coerce
+            , FromCDDLWitness "TxWitness AlonzoEra" coerce
+            , FromCDDLWitness "TxWitness BabbageEra" coerce
+            , FromCDDLWitness "TxWitness ConwayEra" coerce
             ]
 
 -- Witness handling
