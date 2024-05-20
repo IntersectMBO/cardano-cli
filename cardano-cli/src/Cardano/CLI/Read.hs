@@ -1044,7 +1044,7 @@ readFileOrPipeTextEnvelopeAnyOf types file = do
         deserialiseFromTextEnvelopeAnyOf types te
 
 readFileOrPipeTextEnvelopeCddlAnyOf
-  :: [FromSomeTypeCDDL TextEnvelopeCddl b]
+  :: [FromSomeTypeCDDL TextEnvelope b]
   -> FileOrPipe
   -> IO (Either (FileError TextEnvelopeCddlError) b)
 readFileOrPipeTextEnvelopeCddlAnyOf types file = do
@@ -1056,7 +1056,7 @@ readFileOrPipeTextEnvelopeCddlAnyOf types file = do
 
 readTextEnvelopeCddlFromFileOrPipe
   :: FileOrPipe
-  -> IO (Either (FileError TextEnvelopeCddlError) TextEnvelopeCddl)
+  -> IO (Either (FileError TextEnvelopeCddlError) TextEnvelope)
 readTextEnvelopeCddlFromFileOrPipe file = do
   let path = fileOrPipePath file
   runExceptT $ do
