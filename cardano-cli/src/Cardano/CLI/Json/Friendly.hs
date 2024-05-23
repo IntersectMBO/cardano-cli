@@ -2,6 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
@@ -36,7 +37,7 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    fromShelleyStakeReference, toShelleyStakeCredential)
 
 import           Cardano.CLI.Types.MonadWarning (MonadWarning, eitherToWarning, runWarningIO)
-import           Cardano.Prelude (first)
+import           Cardano.Prelude (Foldable (..), first)
 
 import           Codec.CBOR.Encoding (Encoding)
 import           Codec.CBOR.FlatTerm (fromFlatTerm, toFlatTerm)
@@ -56,11 +57,15 @@ import qualified Data.Map.Strict as Map
 import           Data.Maybe (catMaybes, isJust, maybeToList)
 import           Data.Ratio (numerator)
 import qualified Data.Text as Text
+import qualified Data.Vector as Vector
 import           Data.Yaml (array)
 import           Data.Yaml.Pretty (setConfCompare)
 import qualified Data.Yaml.Pretty as Yaml
 import           GHC.Real (denominator)
 import           GHC.Unicode (isAlphaNum)
+
+{- HLINT ignore "Redundant bracket" -}
+{- HLINT ignore "Move brackets to avoid $" -}
 
 data FriendlyFormat = FriendlyJson | FriendlyYaml
 
@@ -175,6 +180,8 @@ friendlyTxBodyImpl
       , txTotalCollateral
       , txReturnCollateral
       , txInsReference
+      , txProposalProcedures
+      , txVotingProcedures
       , txUpdateProposal
       , txValidityLowerBound
       , txValidityUpperBound
@@ -200,7 +207,37 @@ friendlyTxBodyImpl
                   , "update proposal" .= friendlyUpdateProposal txUpdateProposal
                   , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
                   , "withdrawals" .= friendlyWithdrawals txWithdrawals
+                  , "governance actions" .=
+                       (inEonForEra
+                         Null
+                         (\(cOnwards :: ConwayEraOnwards era) ->
+                             case txProposalProcedures of
+                              Nothing -> Null
+                              Just (Featured _ TxProposalProceduresNone) -> Null
+                              Just (Featured _ (TxProposalProcedures lProposals _witnesses)) ->
+                                friendlyLedgerProposals cOnwards $ toList lProposals)
+                         era)
+                  , "voters" .=
+                      (inEonForEra
+                        Null
+                        (\cOnwards ->
+                          case txVotingProcedures of
+                             Nothing -> Null
+                             Just (Featured _ TxVotingProceduresNone) -> Null
+                             Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
+                               friendlyVotingProcedures cOnwards votes)
+                        era)
                   ])
+  where
+    friendlyLedgerProposals :: ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
+    friendlyLedgerProposals cOnwards proposalProcedures =
+      Array $ Vector.fromList $ map (friendlyLedgerProposal cOnwards) proposalProcedures
+
+friendlyLedgerProposal :: ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
+friendlyLedgerProposal cOnwards proposalProcedure = object $ friendlyProposalImpl cOnwards (Proposal proposalProcedure)
+
+friendlyVotingProcedures :: ConwayEraOnwards era -> L.VotingProcedures (ShelleyLedgerEra era) -> Aeson.Value
+friendlyVotingProcedures cOnwards x = conwayEraOnwardsConstraints cOnwards $ toJSON x
 
 redeemerIfShelleyBased :: MonadWarning m => CardanoEra era -> TxBody era -> m [Aeson.Pair]
 redeemerIfShelleyBased era tb =

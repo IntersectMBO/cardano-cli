@@ -242,6 +242,7 @@ library
                       , transformers-except ^>= 0.1.3
                       , unliftio-core
                       , utf8-string
+                      , vector
                       , yaml
 
 executable cardano-cli
