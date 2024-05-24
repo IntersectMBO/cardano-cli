@@ -1,0 +1,65 @@
+{
+    "auxiliary scripts": null,
+    "certificates": null,
+    "collateral inputs": [],
+    "era": "Conway",
+    "fee": "185433 Lovelace",
+    "governance actions": [],
+    "inputs": [
+        "96e3be606ca03f67b0d299ca0eb0d660670edaa8452fffcc4bfccd8757a9b45d#0"
+    ],
+    "metadata": null,
+    "mint": null,
+    "outputs": [
+        {
+            "address": "addr_test1qp39w0fa0ccdc4gmg87puydf2kxt5mgt0vteq4a22ktrcssg7ysmx64l90xa0k4z25wpuejngya833qeu9cdxvveynfscsskf5",
+            "address era": "Shelley",
+            "amount": {
+                "lovelace": 49497089775
+            },
+            "network": "Testnet",
+            "payment credential key hash": "62573d3d7e30dc551b41fc1e11a9558cba6d0b7b179057aa55963c42",
+            "reference script": null,
+            "stake reference": {
+                "stake credential key hash": "08f121b36abf2bcdd7daa2551c1e6653413a78c419e170d3319924d3"
+            }
+        }
+    ],
+    "redeemers": {},
+    "reference inputs": [],
+    "required signers (payment key hashes needed for scripts)": null,
+    "return collateral": null,
+    "total collateral": null,
+    "update proposal": null,
+    "validity range": {
+        "lower bound": null,
+        "upper bound": null
+    },
+    "voters": {
+        "drep-keyHash-efda35608d806f37ac3948f1ddaff912e5f9130e9b52035c166bd8f2": {
+            "4c2121ececebac2a364878d295c959029e55225b426dfea5e0511ae0abc28d50#0": {
+                "anchor": null,
+                "decision": "VoteYes"
+            },
+            "67820c121787464a9b670cf4c648f67cabd9573eb71b220214971ce467d25027#0": {
+                "anchor": null,
+                "decision": "VoteNo"
+            },
+            "9bd2b6547ab8e8ed5c34049d6b984772a8352ac70e92198e1a7f6cdbb12d6397#0": {
+                "anchor": null,
+                "decision": "Abstain"
+            }
+        }
+    },
+    "withdrawals": null,
+    "witnesses": [
+        {
+            "key": "VKey (VerKeyEd25519DSIGN \"8e090717d4c91437d3b8c467acc850197485913efdbfb48114a4d6cf0ca2dc02\")",
+            "signature": "SignedDSIGN (SigEd25519DSIGN \"8e92da471878c0fe6b97a4390df93cc81a6b84348bf1b393e6270b680b0d6402c9681672f393a54b35817c92884f7806ed5a00811e5aff6cfee8468100fecb04\")"
+        },
+        {
+            "key": "VKey (VerKeyEd25519DSIGN \"8a10253789af22a6493dbe6a3a415732152989a9bd00b010e18f07a7cabcc74a\")",
+            "signature": "SignedDSIGN (SigEd25519DSIGN \"80bf834e873c59259fe6248cb98d7de49e7214f293895bbc7e0064030c7de10e565f867c5dfded379aaa8bfd2140f41ace6301f02e2b6678ad020a72e26b6505\")"
+        }
+    ]
+}
