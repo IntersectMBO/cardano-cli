@@ -1,6 +1,7 @@
 auxiliary scripts: null
 certificates: null
 collateral inputs: []
+currentTreasuryValue: null
 era: Babbage
 fee: 21300 Lovelace
 governance actions: null
@@ -35,6 +36,7 @@ reference inputs: []
 required signers (payment key hashes needed for scripts): null
 return collateral: null
 total collateral: null
+treasuryDonation: null
 update proposal: null
 validity range:
   lower bound: null

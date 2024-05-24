@@ -183,6 +183,7 @@ pTransactionBuildCmd era envCli = do
           <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
           <*> pVoteFiles sbe AutoBalance
           <*> pProposalFiles sbe AutoBalance
+          <*> pTreasuryDonation sbe
           <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
 
 -- | Estimate the transaction fees without access to a live node.
@@ -237,6 +238,8 @@ pTransactionBuildEstimateCmd era _envCli = do
           <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
           <*> pVoteFiles sbe ManualBalance
           <*> pProposalFiles sbe ManualBalance
+          <*> pCurrentTreasuryValue sbe
+          <*> pTreasuryDonation sbe
           <*> pTxBodyFileOut
 
 pChangeAddress :: Parser TxOutChangeAddress
@@ -272,6 +275,8 @@ pTransactionBuildRaw era =
       <*> pFeatured era (optional pUpdateProposalFile)
       <*> pVoteFiles era ManualBalance
       <*> pProposalFiles era ManualBalance
+      <*> pCurrentTreasuryValue era
+      <*> pTreasuryDonation era
       <*> pTxBodyFileOut
 
 pTransactionSign  :: EnvCli -> Parser (TransactionCmds era)

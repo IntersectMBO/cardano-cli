@@ -66,6 +66,7 @@ module Cardano.CLI.Types.Common
   , TxBuildOutputOptions(..)
   , TxByronWitnessCount(..)
   , TxFile
+  , TxTreasuryDonation(..)
   , TxInCount(..)
   , TxMempoolQuery (..)
   , TxOutAnyEra (..)
@@ -467,6 +468,9 @@ data EpochLeadershipSchedule
 type TxBodyFile = File (TxBody ())
 
 type TxFile = File (Tx ())
+
+newtype TxTreasuryDonation = TxTreasuryDonation { unTxTreasuryDonation :: L.Coin }
+  deriving Show
 
 data TxMempoolQuery =
       TxMempoolQueryTxExists TxId

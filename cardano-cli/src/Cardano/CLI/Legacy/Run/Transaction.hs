@@ -28,11 +28,11 @@ runLegacyTransactionCmds = \case
   TransactionBuildCmd mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
             reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
             mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
-            mNewConstitution outputOptions -> do
+            mNewConstitution mTreasuryDonation outputOptions -> do
       runLegacyTransactionBuildCmd mNodeSocketPath era consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
             reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
             mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpProp mconwayVote
-            mNewConstitution outputOptions
+            mNewConstitution mTreasuryDonation outputOptions
   TransactionBuildRawCmd era mScriptValidity txins readOnlyRefIns txinsc mReturnColl
                mTotColl reqSigners txouts mValue mLowBound mUpperBound fee certs wdrls
                metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpProp out -> do
@@ -90,6 +90,7 @@ runLegacyTransactionBuildCmd :: ()
   -> Maybe UpdateProposalFile
   -> [(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   -> [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -> Maybe TxTreasuryDonation
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO ()
 runLegacyTransactionBuildCmd
@@ -97,7 +98,9 @@ runLegacyTransactionBuildCmd
     consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
     reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
     mUpperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpdateProposal voteFiles
-    proposalFiles outputOptions = do
+    proposalFiles
+    mTreasuryDonation
+    outputOptions = do
 
   mUpdateProposalFile <-
     validateUpdateProposalFile (shelleyBasedToCardanoEra sbe) mUpdateProposal
@@ -111,7 +114,7 @@ runLegacyTransactionBuildCmd
         consensusModeParams nid mScriptValidity mOverrideWits txins readOnlyRefIns
         reqSigners txinsc mReturnColl mTotCollateral txouts changeAddr mValue mLowBound
         upperBound certs wdrls metadataSchema scriptFiles metadataFiles mUpdateProposalFile voteFiles
-        proposalFiles outputOptions
+        proposalFiles mTreasuryDonation outputOptions
     )
 
 -- TODO: Neither QA nor Sam is using `cardano-cli byron transaction build-raw`
@@ -177,6 +180,7 @@ runLegacyTransactionBuildRawCmd
              sbe mScriptValidity txins readOnlyRefIns txinsc mReturnColl
              mTotColl reqSigners txouts mValue mLowBound upperBound fee certs wdrls
              metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpdateProposalFile [] []
+             Nothing Nothing
              outFile
          )
          )

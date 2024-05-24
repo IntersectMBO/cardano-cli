@@ -135,6 +135,8 @@ Usage: cardano-cli conway transaction build-raw
                                                         | --proposal-redeemer-value JSON_VALUE
                                                         )
                                                         --proposal-execution-units (INT, INT)]]]
+                                                  [--current-treasury-value LOVELACE]
+                                                  [--treasury-donation LOVELACE]
                                                   --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -435,5 +437,9 @@ Available options:
                            top-level strings and numbers.
   --proposal-execution-units (INT, INT)
                            The time and space units needed by the script.
+  --current-treasury-value LOVELACE
+                           The current treasury value.
+  --treasury-donation LOVELACE
+                           The donation to the treasury to perform.
   --out-file FILE          Output filepath of the JSON TxBody.
   -h,--help                Show this help text

@@ -2,6 +2,7 @@
     "auxiliary scripts": null,
     "certificates": null,
     "collateral inputs": [],
+    "currentTreasuryValue": null,
     "era": "Conway",
     "fee": "185433 Lovelace",
     "governance actions": [],
@@ -30,6 +31,7 @@
     "required signers (payment key hashes needed for scripts)": null,
     "return collateral": null,
     "total collateral": null,
+    "treasuryDonation": 0,
     "update proposal": null,
     "validity range": {
         "lower bound": null,

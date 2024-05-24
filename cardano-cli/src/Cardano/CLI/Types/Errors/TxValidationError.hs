@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -20,6 +21,8 @@ module Cardano.CLI.Types.Errors.TxValidationError
   , validateTxTotalCollateral
   , validateTxValidityLowerBound
   , validateUpdateProposalFile
+  , validateTxCurrentTreasuryValue
+  , validateTxTreasuryDonation
   ) where
 
 import           Cardano.Api
@@ -90,6 +93,32 @@ validateTxTotalCollateral _ Nothing = return TxTotalCollateralNone
 validateTxTotalCollateral sbe (Just coll) = do
   supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction collateral"
   pure $ TxTotalCollateral supported coll
+
+validateTxCurrentTreasuryValue :: ()
+  => ShelleyBasedEra era
+  -> Maybe TxCurrentTreasuryValue
+  -> Either (TxNotSupportedInEraValidationError era) (Maybe (Featured ConwayEraOnwards era L.Coin))
+validateTxCurrentTreasuryValue sbe mCurrentTreasuryValue =
+  case mCurrentTreasuryValue of
+    Nothing -> Right Nothing
+    Just (TxCurrentTreasuryValue { unTxCurrentTreasuryValue }) ->
+      caseShelleyToBabbageOrConwayEraOnwards
+        (const $ Left $ TxNotSupportedInShelleyBasedEraValidationError "Current treasury value" sbe)
+        (\cOnwards -> Right $ Just $ Featured cOnwards unTxCurrentTreasuryValue)
+        sbe
+
+validateTxTreasuryDonation :: ()
+  => ShelleyBasedEra era
+  -> Maybe TxTreasuryDonation
+  -> Either (TxNotSupportedInEraValidationError era) (Maybe (Featured ConwayEraOnwards era L.Coin))
+validateTxTreasuryDonation sbe mTreasuryDonation =
+  case mTreasuryDonation of
+    Nothing -> Right Nothing
+    Just (TxTreasuryDonation { unTxTreasuryDonation }) ->
+      caseShelleyToBabbageOrConwayEraOnwards
+        (const $ Left $ TxNotSupportedInShelleyBasedEraValidationError "Treasury donation" sbe)
+        (\cOnwards -> Right $ Just $ Featured cOnwards unTxTreasuryDonation )
+        sbe
 
 validateTxReturnCollateral :: ShelleyBasedEra era
                            -> Maybe (TxOut CtxTx era)

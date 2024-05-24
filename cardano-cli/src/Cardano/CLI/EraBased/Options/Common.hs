@@ -1223,6 +1223,32 @@ pProposalFile balExUnits =
        Nothing
        "a proposal"
 
+pCurrentTreasuryValue :: ShelleyBasedEra era -> Parser (Maybe TxCurrentTreasuryValue)
+pCurrentTreasuryValue =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (const $ pure Nothing)
+    (const $ optional $ TxCurrentTreasuryValue <$> coinParser)
+  where
+    coinParser :: Parser L.Coin =
+      Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+        [ Opt.long "current-treasury-value"
+        , Opt.metavar "LOVELACE"
+        , Opt.help "The current treasury value."
+        ]
+
+pTreasuryDonation :: ShelleyBasedEra era -> Parser (Maybe TxTreasuryDonation)
+pTreasuryDonation =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (const $ pure Nothing)
+    (const $ optional $ TxTreasuryDonation <$> coinParser)
+  where
+    coinParser :: Parser L.Coin =
+      Opt.option (readerFromParsecParser parseLovelace) $ mconcat
+        [ Opt.long "treasury-donation"
+        , Opt.metavar "LOVELACE"
+        , Opt.help "The donation to the treasury to perform."
+        ]
+
 --------------------------------------------------------------------------------
 
 pPaymentVerifier :: Parser PaymentVerifier
