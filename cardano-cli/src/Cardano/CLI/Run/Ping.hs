@@ -11,8 +11,8 @@ module Cardano.CLI.Run.Ping
   , parsePingCmd
   ) where
 
+import           Cardano.CLI.Commands.Ping
 import           Cardano.CLI.Pretty
-
 import qualified Cardano.Network.Ping as CNP
 
 import           Control.Applicative ((<|>))
@@ -27,7 +27,6 @@ import           Control.Tracer (Tracer (..))
 import           Data.List (foldl')
 import qualified Data.List as L
 import qualified Data.List as List
-import           Data.Word (Word32)
 import           Network.Socket (AddrInfo)
 import qualified Network.Socket as Socket
 import qualified Options.Applicative as Opt
@@ -36,8 +35,6 @@ import qualified System.Exit as IO
 import qualified System.IO as IO
 
 newtype PingClientCmdError = PingClientCmdError [(AddrInfo, SomeException)]
-
-data EndPoint = HostEndPoint String | UnixSockEndPoint String deriving (Eq, Show)
 
 maybeHostEndPoint :: EndPoint -> Maybe String
 maybeHostEndPoint = \case
@@ -48,16 +45,6 @@ maybeUnixSockEndPoint :: EndPoint -> Maybe String
 maybeUnixSockEndPoint = \case
   HostEndPoint _ -> Nothing
   UnixSockEndPoint sock -> Just sock
-
-data PingCmd = PingCmd
-  { pingCmdCount           :: !Word32
-  , pingCmdEndPoint        :: !EndPoint
-  , pingCmdPort            :: !String
-  , pingCmdMagic           :: !Word32
-  , pingCmdJson            :: !Bool
-  , pingCmdQuiet           :: !Bool
-  , pingOptsHandshakeQuery :: !Bool
-  } deriving (Eq, Show)
 
 pingClient :: Tracer IO CNP.LogMsg -> Tracer IO String -> PingCmd -> [CNP.NodeVersion] -> AddrInfo -> IO ()
 pingClient stdout stderr cmd = CNP.pingClient stdout stderr opts
