@@ -15,9 +15,9 @@ import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Legacy.Options (parseLegacyCmds)
+import           Cardano.CLI.Options.Ping (parsePingCmd)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run (ClientCommand (..))
-import           Cardano.CLI.Run.Ping (parsePingCmd)
 
 import           Data.Foldable
 import           Options.Applicative

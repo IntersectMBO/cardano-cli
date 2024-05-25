@@ -5,9 +5,9 @@ module Cardano.CLI.Commands
   ) where
 
 import           Cardano.CLI.Byron.Commands (ByronCommand)
+import           Cardano.CLI.Commands.Ping (PingCmd (..))
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.Legacy.Commands
-import           Cardano.CLI.Run.Ping (PingCmd (..))
 
 import           Options.Applicative.Types (ParserInfo (..), ParserPrefs (..))
 

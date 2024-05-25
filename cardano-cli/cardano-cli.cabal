@@ -140,6 +140,7 @@ library
                         Cardano.CLI.Legacy.Run.TextView
                         Cardano.CLI.Legacy.Run.Transaction
                         Cardano.CLI.Options
+                        Cardano.CLI.Options.Ping
                         Cardano.CLI.OS.Posix
                         Cardano.CLI.Parser
                         Cardano.CLI.Pretty
