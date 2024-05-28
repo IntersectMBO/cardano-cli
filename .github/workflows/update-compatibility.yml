@@ -1,0 +1,60 @@
+name: Update Compatibility Notes
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_node_tag:
+        description: 'The cardano-node tag to lookup, for example 8.9.2'
+        default: ''
+        required: false
+        type: string
+
+jobs:
+  update_compatibility_notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Define target cardano-node tag
+        run: |
+          if [[ ${{ inputs.target_node_tag == '' }} ]]
+          then
+            # Use tag specified as input
+            target_node_tag="${{ inputs.target_node_tag }}"
+          else
+            # Use latest tag
+            target_node_tag=$(git for-each-ref --sort=creatordate --format '%(refname) %(creatordate)' refs/tags | tail -n 1 | awk '{print $1}' | sed 's/refs\/tags\///g')
+          fi
+          echo "TARGET_NODE_TAG=$target_node_tag" >> "$GITHUB_ENV"
+      - name: Obtain cardano-node and cardano-cli versions
+        run: |
+          git clone --depth 1 --branch "${{ env.TARGET_NODE_TAG }}" "https://github.com/IntersectMBO/cardano-node"
+          cd "cardano-node" || { echo "cannot cd in cardano-node"; exit 1; }
+          versions=$(./../scripts/ci/node-cli-versions.sh)
+          # For example 8.10.1
+          node_version=$(echo "$versions" | head -n 1)
+          # For example 8.22
+          cli_version=$(echo "$versions" | tail -n 1)
+
+          echo "NODE_VERSION=$node_version" >> "$GITHUB_ENV"
+          echo "CLI_VERSION=$cli_version" >> "$GITHUB_ENV"
+      - name: Get cardano-cli changelog
+        run: |
+          # cli_version is of the form "8.22" but CLI releases are indexed by tags
+          # of the form "cardano-cli-8.22.0.0". Because of that, and because we are not exactly
+          # sure of the shape of the version number specified in cardano-node's cabal file,
+          # we create the following variants:
+          # "cardano-cli-8.22", "cardano-cli-8.22.0", and "cardano-cli-8.22.0.0"
+          # Note that, if cardano-node specifies a longer version number, such as "8.22.1", we generate:
+          # "cardano-cli-8.22.1", "cardano-cli-8.22.1.0", and "cardano-cli-8.22.1.0.0"
+          # The last one doesn't make sense but that's OK; because we try them in this specific order.
+          long_cli_tag="cardano-cli-${{ env.CLI_VERSION }}"
+          long_cli_tag_0="$long_cli_tag.0"
+          long_cli_tag_00="$long_cli_tag.0.0"
+          for tag_trial in $long_cli_tag $long_cli_tag_0 $long_cli_tag_00; do
+            cli_release_json=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag_trial")
+            if [[ "$?" == "0" ]]; then
+              echo "Found CLI release tag: echo $tag_trial"
+              found_long_cli_tag="$tag_trial"
+              break
+            fi
+          done

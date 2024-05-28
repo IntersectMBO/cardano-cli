@@ -198,7 +198,11 @@ jobs:
           echo "SHORT_TAG=$short_tag" >> "$GITHUB_ENV"
       - name: Create changelog
         run: |
-          echo -e "# Changelog\n" > RELEASE_CHANGELOG.md
+          echo -e "# Compatibility\n" > RELEASE_CHANGELOG.md
+          echo -e "This \`cardano-cli\` version is not yet officially compatible with a \`cardano-node\` version.\n" >> RELEASE_CHANGELOG.md
+          echo -e "This is to be expected, because \`cardano-cli\` is released beforce \`cardano-node\`.\n" >> RELEASE_CHANGELOG.md 
+          echo -e "This placeholder will be updated when a \`cardano-node\` version is declared compatible with this version of \`cardano-cli\`.\n" >> RELEASE_CHANGELOG.md 
+          echo -e "# Changelog\n" >> RELEASE_CHANGELOG.md
           ./scripts/ci/extract-changelog.sh ${{ env.SHORT_TAG }} >> RELEASE_CHANGELOG.md
       - name: Create Release
         uses: input-output-hk/action-gh-release@v1
