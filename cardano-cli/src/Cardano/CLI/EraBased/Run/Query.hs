@@ -177,7 +177,6 @@ runQueryProtocolParametersCmd
           . newExceptT $ executeQueryAnyMode localNodeConnInfo qInMode
   writeProtocolParameters sbe mOutFile pp
   where
-    -- TODO: Conway era - use ledger PParams JSON
     writeProtocolParameters
       :: ShelleyBasedEra era
       -> Maybe (File () Out)
@@ -185,7 +184,9 @@ runQueryProtocolParametersCmd
       -> ExceptT QueryCmdError IO ()
     writeProtocolParameters sbe mOutFile' pparams =
       firstExceptT QueryCmdWriteFileError . newExceptT
-        $ writeLazyByteStringOutput mOutFile' $ encodePretty $ fromLedgerPParams sbe pparams
+        $ writeLazyByteStringOutput mOutFile'
+          $ shelleyBasedEraConstraints sbe
+            $ encodePretty pparams
 
 -- | Calculate the percentage sync rendered as text.
 percentage
