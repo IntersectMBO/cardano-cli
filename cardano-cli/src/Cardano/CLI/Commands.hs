@@ -5,6 +5,7 @@ module Cardano.CLI.Commands
   ) where
 
 import           Cardano.CLI.Byron.Commands (ByronCommand)
+import           Cardano.CLI.Commands.Debug
 import           Cardano.CLI.Commands.Ping (PingCmd (..))
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.Legacy.Commands
@@ -22,6 +23,7 @@ data ClientCommand =
   | LegacyCmds LegacyCmds
 
   | CliPingCommand PingCmd
+  | CliDebugCmds DebugCmds
 
   | forall a. Help ParserPrefs (ParserInfo a)
   | DisplayVersion

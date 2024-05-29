@@ -18,6 +18,7 @@ import           Cardano.CLI.EraBased.Run
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Run (runLegacyCmds)
 import           Cardano.CLI.Render (customRenderHelp)
+import           Cardano.CLI.Run.Debug
 import           Cardano.CLI.Run.Ping (PingClientCmdError (..), renderPingClientCmdError,
                    runPingCmd)
 import           Cardano.CLI.Types.Errors.CmdError
@@ -45,6 +46,7 @@ data ClientCommandErrors
   = ByronClientError ByronClientCmdError
   | CmdError Text CmdError
   | PingClientError PingClientCmdError
+  | DebugCmdError DebugCmdError
 
 runClientCommand :: ClientCommand -> ExceptT ClientCommandErrors IO ()
 runClientCommand = \case
@@ -56,6 +58,8 @@ runClientCommand = \case
     firstExceptT (CmdError (renderLegacyCommand cmds)) $ runLegacyCmds cmds
   CliPingCommand cmds ->
     firstExceptT PingClientError $ runPingCmd cmds
+  CliDebugCmds cmds ->
+    firstExceptT DebugCmdError $ runDebugCmds cmds
   Help pprefs allParserInfo ->
     runHelp pprefs allParserInfo
   DisplayVersion ->
@@ -69,6 +73,8 @@ renderClientCommandError = \case
     renderByronClientCmdError err
   PingClientError err ->
     renderPingClientCmdError err
+  DebugCmdError err ->
+    renderDebugCmdError err
 
 runDisplayVersion :: ExceptT ClientCommandErrors IO ()
 runDisplayVersion = do

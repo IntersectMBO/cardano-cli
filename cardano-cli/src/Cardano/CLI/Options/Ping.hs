@@ -1,5 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
+{- HLINT ignore "Move brackets to avoid $" -}
+
 module Cardano.CLI.Options.Ping
   ( parsePingCmd
   ) where
