@@ -3,6 +3,7 @@ certificates: null
 collateral inputs: null
 era: Mary
 fee: 139 Lovelace
+governance actions: null
 inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
 metadata: null
@@ -42,4 +43,5 @@ update proposal: null
 validity range:
   lower bound: 140
   upper bound: null
+voters: null
 withdrawals: null

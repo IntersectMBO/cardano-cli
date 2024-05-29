@@ -3,6 +3,7 @@ certificates: null
 collateral inputs: []
 era: Babbage
 fee: 21300 Lovelace
+governance actions: null
 inputs:
 - ed7c8f68c194cc763ee65ad22ef0973e26481be058c65005fd39fb93f9c43a20#213
 metadata:
@@ -38,4 +39,5 @@ update proposal: null
 validity range:
   lower bound: null
   upper bound: null
+voters: null
 withdrawals: null

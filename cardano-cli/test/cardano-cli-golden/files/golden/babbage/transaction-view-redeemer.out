@@ -4,6 +4,7 @@ collateral inputs:
 - c9765d7d0e3955be8920e6d7a38e1f3f2032eac48c7c59b0b9193caa87727e7e#256
 era: Babbage
 fee: 213 Lovelace
+governance actions: null
 inputs:
 - ed7c8f68c194cc763ee65ad22ef0973e26481be058c65005fd39fb93f9c43a20#213
 metadata: null
@@ -23,4 +24,5 @@ update proposal: null
 validity range:
   lower bound: null
   upper bound: null
+voters: null
 withdrawals: null
