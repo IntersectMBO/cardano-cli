@@ -3,6 +3,7 @@ certificates: null
 collateral inputs: null
 era: Allegra
 fee: 100 Lovelace
+governance actions: null
 inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#94
 metadata: null
@@ -26,4 +27,5 @@ update proposal: null
 validity range:
   lower bound: null
   upper bound: 101
+voters: null
 withdrawals: null

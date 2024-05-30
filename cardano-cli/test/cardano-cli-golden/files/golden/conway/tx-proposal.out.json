@@ -1,0 +1,70 @@
+{
+    "auxiliary scripts": null,
+    "certificates": null,
+    "collateral inputs": [],
+    "era": "Conway",
+    "fee": "181517 Lovelace",
+    "governance actions": [
+        {
+            "anchor": {
+                "dataHash": "6fad941a5236c151b44c23458fb99d6812bbc5c6eb3a3a8a5d2518e8be8962ab",
+                "url": "https://github.com/carloslodelar/proposals/blob/main/why-hardfork-to-10.txt"
+            },
+            "deposit": 50000000000,
+            "governance action": {
+                "contents": [
+                    null,
+                    {
+                        "major": 10,
+                        "minor": 0
+                    }
+                ],
+                "tag": "HardForkInitiation"
+            },
+            "return address": {
+                "credential": {
+                    "keyHash": "08f121b36abf2bcdd7daa2551c1e6653413a78c419e170d3319924d3"
+                },
+                "network": "Testnet"
+            }
+        }
+    ],
+    "inputs": [
+        "e51d839ec4ef4b3522a965dab8cbd0a2c52ecd5959a469384c001c8691a98ab6#0"
+    ],
+    "metadata": null,
+    "mint": null,
+    "outputs": [
+        {
+            "address": "addr_test1qp39w0fa0ccdc4gmg87puydf2kxt5mgt0vteq4a22ktrcssg7ysmx64l90xa0k4z25wpuejngya833qeu9cdxvveynfscsskf5",
+            "address era": "Shelley",
+            "amount": {
+                "lovelace": 49999818483
+            },
+            "network": "Testnet",
+            "payment credential key hash": "62573d3d7e30dc551b41fc1e11a9558cba6d0b7b179057aa55963c42",
+            "reference script": null,
+            "stake reference": {
+                "stake credential key hash": "08f121b36abf2bcdd7daa2551c1e6653413a78c419e170d3319924d3"
+            }
+        }
+    ],
+    "redeemers": {},
+    "reference inputs": [],
+    "required signers (payment key hashes needed for scripts)": null,
+    "return collateral": null,
+    "total collateral": null,
+    "update proposal": null,
+    "validity range": {
+        "lower bound": null,
+        "upper bound": null
+    },
+    "voters": {},
+    "withdrawals": null,
+    "witnesses": [
+        {
+            "key": "VKey (VerKeyEd25519DSIGN \"8e090717d4c91437d3b8c467acc850197485913efdbfb48114a4d6cf0ca2dc02\")",
+            "signature": "SignedDSIGN (SigEd25519DSIGN \"28230d2507267600d17c7f062d9f3184f4686af570c31e2f9ed652d339d776dcd72fccf30dd17bc077d2615845bbad64fd6ddffdba5b2874651d0c3533e10d0b\")"
+        }
+    ]
+}

@@ -8,6 +8,8 @@ module Test.Golden.TxView
   , hprop_golden_view_metadata
   , hprop_golden_view_alonzo_yaml
   , hprop_golden_view_alonzo_signed_yaml
+  , hprop_golden_view_conway_three_votes
+  , hprop_golden_view_conway_proposal
   ) where
 
 import           Cardano.Api (TxMetadataJsonSchema (..))
@@ -389,7 +391,7 @@ hprop_golden_view_alonzo_signed_yaml :: Property
 hprop_golden_view_alonzo_signed_yaml =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
     let golden = goldenDir </> "alonzo"
-    let input = inputDir </> "alonzo"
+        input = inputDir </> "alonzo"
 
     transactionBodyFile <- noteTempFile tempDir "transaction-body"
     transactionFile <- noteTempFile tempDir "transaction"
@@ -412,3 +414,30 @@ hprop_golden_view_alonzo_signed_yaml =
 
     H.diffVsGoldenFile result (golden </> "signed-transaction-view.out")
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden view conway three votes/"'@
+hprop_golden_view_conway_three_votes :: Property
+hprop_golden_view_conway_three_votes =
+  propertyOnce $ do
+    let golden = goldenDir </> "conway"
+        input = inputDir </> "conway"
+
+    result <-
+      execCardanoCLI
+        ["transaction", "view", "--tx-file", input </> "tx-three-votes.json", "--output-json"]
+
+    H.diffVsGoldenFile result (golden </> "tx-three-votes-view.out.json")
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden view conway proposal/"'@
+hprop_golden_view_conway_proposal :: Property
+hprop_golden_view_conway_proposal =
+  propertyOnce $ do
+    let golden = goldenDir </> "conway"
+        input = inputDir </> "conway"
+
+    result <-
+      execCardanoCLI
+        ["transaction", "view", "--tx-file", input </> "tx-proposal.json", "--output-json"]
+
+    H.diffVsGoldenFile result (golden </> "tx-proposal.out.json")
