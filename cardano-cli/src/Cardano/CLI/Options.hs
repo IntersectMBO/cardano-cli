@@ -15,9 +15,10 @@ import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Legacy.Options (parseLegacyCmds)
+import           Cardano.CLI.Options.Debug
+import           Cardano.CLI.Options.Ping (parsePingCmd)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run (ClientCommand (..))
-import           Cardano.CLI.Run.Ping (parsePingCmd)
 
 import           Data.Foldable
 import           Options.Applicative
@@ -55,6 +56,7 @@ parseClientCommand envCli =
     , parseTopLevelLegacy envCli
     , parseByron envCli
     , parsePing
+    , parseDebug envCli
     , backwardsCompatibilityCommands envCli
     , parseDisplayVersion (opts envCli)
     ]
@@ -70,6 +72,9 @@ parseByron mNetworkId =
 
 parsePing :: Parser ClientCommand
 parsePing = CliPingCommand <$> parsePingCmd
+
+parseDebug :: EnvCli -> Parser ClientCommand
+parseDebug envCli = CliDebugCmds <$> parseDebugCmds envCli
 
 parseAnyEra :: EnvCli -> Parser ClientCommand
 parseAnyEra envCli = AnyEraCommand <$> pAnyEraCommand envCli

@@ -1,0 +1,19 @@
+Usage: cardano-cli debug log-epoch-state --socket-path SOCKET_PATH
+                                           --node-configuration-file FILE
+                                           --out-file FILE
+
+  Log epoch state of a running node. This command will connect to a local node
+  and log the epoch state to a file. The log file format is line delimited JSON.
+  The command will not terminate.
+
+Available options:
+  --socket-path SOCKET_PATH
+                           Path to the node socket. This overrides the
+                           CARDANO_NODE_SOCKET_PATH environment variable. The
+                           argument is optional if CARDANO_NODE_SOCKET_PATH is
+                           defined and mandatory otherwise.
+  --node-configuration-file FILE
+                           Input filepath of the node configuration file.
+  --out-file FILE          Output filepath of the log file. The log file format
+                           is line delimited JSON.
+  -h,--help                Show this help text

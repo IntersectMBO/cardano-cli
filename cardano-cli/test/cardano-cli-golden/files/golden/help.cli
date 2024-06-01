@@ -10,6 +10,7 @@ Usage: cardano-cli
                      | Legacy commands
                      | byron
                      | ping
+                     | debug commands
                      | version
                      )
 
@@ -12368,6 +12369,18 @@ Usage: cardano-cli ping [-c|--count COUNT]
                           [-Q|--query-versions]
 
   Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
+
+Usage: cardano-cli debug log-epoch-state
+
+  Debug commands
+
+Usage: cardano-cli debug log-epoch-state --socket-path SOCKET_PATH
+                                           --node-configuration-file FILE
+                                           --out-file FILE
+
+  Log epoch state of a running node. This command will connect to a local node
+  and log the epoch state to a file. The log file format is line delimited JSON.
+  The command will not terminate.
 
 Usage: cardano-cli genesis --genesis-output-dir FILEPATH
                              --start-time POSIXSECONDS

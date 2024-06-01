@@ -1,21 +1,17 @@
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Move brackets to avoid $" -}
 
 module Cardano.CLI.Run.Ping
-  ( PingCmd(..)
-  , PingClientCmdError(..)
+  ( PingClientCmdError(..)
   , renderPingClientCmdError
   , runPingCmd
-  , parsePingCmd
   ) where
 
+import           Cardano.CLI.Commands.Ping
 import           Cardano.CLI.Pretty
-
 import qualified Cardano.Network.Ping as CNP
 
-import           Control.Applicative ((<|>))
 import           Control.Concurrent.Class.MonadSTM.Strict (StrictTMVar)
 import qualified Control.Concurrent.Class.MonadSTM.Strict as STM
 import           Control.Exception (SomeException)
@@ -27,17 +23,12 @@ import           Control.Tracer (Tracer (..))
 import           Data.List (foldl')
 import qualified Data.List as L
 import qualified Data.List as List
-import           Data.Word (Word32)
 import           Network.Socket (AddrInfo)
 import qualified Network.Socket as Socket
-import qualified Options.Applicative as Opt
-import qualified Prettyprinter as PP
 import qualified System.Exit as IO
 import qualified System.IO as IO
 
 newtype PingClientCmdError = PingClientCmdError [(AddrInfo, SomeException)]
-
-data EndPoint = HostEndPoint String | UnixSockEndPoint String deriving (Eq, Show)
 
 maybeHostEndPoint :: EndPoint -> Maybe String
 maybeHostEndPoint = \case
@@ -48,16 +39,6 @@ maybeUnixSockEndPoint :: EndPoint -> Maybe String
 maybeUnixSockEndPoint = \case
   HostEndPoint _ -> Nothing
   UnixSockEndPoint sock -> Just sock
-
-data PingCmd = PingCmd
-  { pingCmdCount           :: !Word32
-  , pingCmdEndPoint        :: !EndPoint
-  , pingCmdPort            :: !String
-  , pingCmdMagic           :: !Word32
-  , pingCmdJson            :: !Bool
-  , pingCmdQuiet           :: !Bool
-  , pingOptsHandshakeQuery :: !Bool
-  } deriving (Eq, Show)
 
 pingClient :: Tracer IO CNP.LogMsg -> Tracer IO String -> PingCmd -> [CNP.NodeVersion] -> AddrInfo -> IO ()
 pingClient stdout stderr cmd = CNP.pingClient stdout stderr opts
@@ -125,82 +106,3 @@ runPingCmd options = do
 renderPingClientCmdError :: PingClientCmdError -> Doc ann
 renderPingClientCmdError = \case
   PingClientCmdError es -> mconcat $ List.intersperse "\n" $ pshow <$> es
-
-parsePingCmd :: Opt.Parser PingCmd
-parsePingCmd = Opt.hsubparser $ mconcat
-  [ Opt.metavar "ping"
-  , Opt.command "ping" $ Opt.info pPing $ Opt.progDescDoc $ Just $ mconcat
-    [ PP.pretty @String "Ping a cardano node either using node-to-node or node-to-client protocol. "
-    , PP.pretty @String "It negotiates a handshake and keeps sending keep alive messages."
-    ]
-  ]
-
-pHost :: Opt.Parser String
-pHost =
-  Opt.strOption $ mconcat
-    [ Opt.long "host"
-    , Opt.short 'h'
-    , Opt.metavar "HOST"
-    , Opt.help "Hostname/IP, e.g. relay.iohk.example."
-    ]
-
-pUnixSocket :: Opt.Parser String
-pUnixSocket =
-  Opt.strOption $ mconcat
-    [ Opt.long "unixsock"
-    , Opt.short 'u'
-    , Opt.metavar "SOCKET"
-    , Opt.help "Unix socket, e.g. file.socket."
-    ]
-
-pEndPoint :: Opt.Parser EndPoint
-pEndPoint = fmap HostEndPoint pHost <|> fmap UnixSockEndPoint pUnixSocket
-
-pPing :: Opt.Parser PingCmd
-pPing = PingCmd
-  <$> ( Opt.option Opt.auto $ mconcat
-        [ Opt.long "count"
-        , Opt.short 'c'
-        , Opt.metavar "COUNT"
-        , Opt.help $ mconcat
-          [ "Stop after sending count requests and receiving count responses.  "
-          , "If this option is not specified, ping will operate until interrupted.  "
-          ]
-        , Opt.value maxBound
-        ]
-      )
-  <*> pEndPoint
-  <*> ( Opt.strOption $ mconcat
-        [ Opt.long "port"
-        , Opt.short 'p'
-        , Opt.metavar "PORT"
-        , Opt.help "Port number, e.g. 1234."
-        , Opt.value "3001"
-        ]
-      )
-  <*> ( Opt.option Opt.auto $ mconcat
-        [ Opt.long "magic"
-        , Opt.short 'm'
-        , Opt.metavar "MAGIC"
-        , Opt.help "Network magic."
-        , Opt.value CNP.mainnetMagic
-        ]
-      )
-  <*> ( Opt.switch $ mconcat
-        [ Opt.long "json"
-        , Opt.short 'j'
-        , Opt.help "JSON output flag."
-        ]
-      )
-  <*> ( Opt.switch $ mconcat
-        [ Opt.long "quiet"
-        , Opt.short 'q'
-        , Opt.help "Quiet flag, CSV/JSON only output"
-        ]
-      )
-  <*> ( Opt.switch $ mconcat
-        [ Opt.long "query-versions"
-        , Opt.short 'Q'
-        , Opt.help "Query the supported protocol versions using the handshake protocol and terminate the connection."
-        ]
-      )

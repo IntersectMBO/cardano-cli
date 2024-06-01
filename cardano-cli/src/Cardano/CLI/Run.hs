@@ -10,16 +10,17 @@ module Cardano.CLI.Run
   , runClientCommand
   ) where
 
-import           Cardano.CLI.Byron.Commands (ByronCommand)
 import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCmdError,
                    runByronClientCommand)
+import           Cardano.CLI.Commands
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Run (runLegacyCmds)
 import           Cardano.CLI.Render (customRenderHelp)
-import           Cardano.CLI.Run.Ping (PingClientCmdError (..), PingCmd (..),
-                   renderPingClientCmdError, runPingCmd)
+import           Cardano.CLI.Run.Debug
+import           Cardano.CLI.Run.Ping (PingClientCmdError (..), renderPingClientCmdError,
+                   runPingCmd)
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.Git.Rev (gitRev)
 
@@ -41,25 +42,11 @@ import qualified System.IO as IO
 
 import           Paths_cardano_cli (version)
 
--- | Sub-commands of 'cardano-cli'.
-data ClientCommand =
-    AnyEraCommand AnyEraCommand
-
-    -- | Byron Related Commands
-  | ByronCommand ByronCommand
-
-    -- | Legacy shelley-based Commands
-  | LegacyCmds LegacyCmds
-
-  | CliPingCommand PingCmd
-
-  | forall a. Help ParserPrefs (ParserInfo a)
-  | DisplayVersion
-
 data ClientCommandErrors
   = ByronClientError ByronClientCmdError
   | CmdError Text CmdError
   | PingClientError PingClientCmdError
+  | DebugCmdError DebugCmdError
 
 runClientCommand :: ClientCommand -> ExceptT ClientCommandErrors IO ()
 runClientCommand = \case
@@ -71,6 +58,8 @@ runClientCommand = \case
     firstExceptT (CmdError (renderLegacyCommand cmds)) $ runLegacyCmds cmds
   CliPingCommand cmds ->
     firstExceptT PingClientError $ runPingCmd cmds
+  CliDebugCmds cmds ->
+    firstExceptT DebugCmdError $ runDebugCmds cmds
   Help pprefs allParserInfo ->
     runHelp pprefs allParserInfo
   DisplayVersion ->
@@ -84,6 +73,8 @@ renderClientCommandError = \case
     renderByronClientCmdError err
   PingClientError err ->
     renderPingClientCmdError err
+  DebugCmdError err ->
+    renderDebugCmdError err
 
 runDisplayVersion :: ExceptT ClientCommandErrors IO ()
 runDisplayVersion = do
