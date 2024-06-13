@@ -166,27 +166,31 @@ friendlyTxBodyImpl :: MonadWarning m
   -> m [Aeson.Pair]
 friendlyTxBodyImpl
   era
-  tb@(TxBody
-    TxBodyContent
-      { txAuxScripts
-      , txCertificates
-      , txExtraKeyWits
-      , txFee
-      , txIns
-      , txInsCollateral
-      , txMetadata
-      , txMintValue
-      , txOuts
-      , txTotalCollateral
-      , txReturnCollateral
-      , txInsReference
-      , txProposalProcedures
-      , txVotingProcedures
-      , txUpdateProposal
-      , txValidityLowerBound
-      , txValidityUpperBound
-      , txWithdrawals
-      }) =
+  tb@(TxBody 
+       -- Enumerating the fields, so that we are warned by GHC when we add a new one
+       (TxBodyContent
+         txIns
+         txInsCollateral
+         txInsReference
+         txOuts
+         txTotalCollateral
+         txReturnCollateral
+         txFee
+         txValidityLowerBound
+         txValidityUpperBound
+         txMetadata
+         txAuxScripts
+         txExtraKeyWits
+         _txProtocolParams
+         txWithdrawals
+         txCertificates
+         txUpdateProposal
+         txMintValue
+         _txScriptValidity
+         txProposalProcedures
+         txVotingProcedures
+         _txCurrentTreasuryValue
+         _txTreasuryDonation)) =
   do redeemerDetails <- redeemerIfShelleyBased era tb
      return $ cardanoEraConstraints era
                 ( redeemerDetails ++
