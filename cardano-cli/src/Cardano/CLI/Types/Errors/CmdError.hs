@@ -15,6 +15,7 @@ import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Errors.GovernanceQueryError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
+import           Cardano.CLI.Types.Errors.HashCmdError (HashCmdError)
 import           Cardano.CLI.Types.Errors.KeyCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Errors.QueryCmdError
@@ -35,6 +36,7 @@ data CmdError
   | CmdGovernanceCommitteeError   !GovernanceCommitteeError
   | CmdGovernanceQueryError       !GovernanceQueryError
   | CmdGovernanceVoteError        !GovernanceVoteCmdError
+  | CmdHashError                  !HashCmdError -- TODO delete me
   | CmdKeyError                   !KeyCmdError
   | CmdNodeError                  !NodeCmdError
   | CmdQueryError                 !QueryCmdError
@@ -54,6 +56,7 @@ renderCmdError cmdText = \case
   CmdGovernanceCommitteeError   e -> renderError prettyError e
   CmdGovernanceQueryError       e -> renderError prettyError e
   CmdGovernanceVoteError        e -> renderError prettyError e
+  CmdHashError                  e -> renderError prettyError e
   CmdKeyError                   e -> renderError renderKeyCmdError e
   CmdNodeError                  e -> renderError renderNodeCmdError e
   CmdQueryError                 e -> renderError renderQueryCmdError e
