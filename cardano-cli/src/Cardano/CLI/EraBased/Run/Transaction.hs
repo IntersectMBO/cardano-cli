@@ -1305,8 +1305,6 @@ runTransactionCalculateMinValueCmd
   pp <- firstExceptT TxCmdProtocolParamsError (readProtocolParameters eon protocolParamsFile)
   out <- toTxOutInShelleyBasedEra eon txOut
 
-  firstExceptT TxCmdPParamsErr . hoistEither
-    $ checkProtocolParameters eon (fromLedgerPParams eon pp)
   let minValue = calculateMinimumUTxO eon out pp
   liftIO . IO.print $ minValue
 
