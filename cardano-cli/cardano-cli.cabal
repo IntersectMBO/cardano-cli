@@ -334,6 +334,7 @@ test-suite cardano-cli-test
                         Test.Cli.Pioneers.Exercise6
                         Test.Cli.Pipes
                         Test.Cli.VerificationKey
+                        Test.Cli.Shelley.Run.Hash
                         Test.Cli.Shelley.Run.Query
                         Test.Cli.Shelley.Transaction.Build
 
@@ -394,9 +395,9 @@ test-suite cardano-cli-golden
                         Test.Golden.Governance.Action
                         Test.Golden.Governance.Committee
                         Test.Golden.Governance.DRep
-                        Test.Golden.Governance.Hash
                         Test.Golden.Governance.StakeAddress
                         Test.Golden.Governance.Vote
+                        Test.Golden.Hash.Hash
                         Test.Golden.Help
                         Test.Golden.Key.NonExtendedKey
                         Test.Golden.Shelley.Address.Build
