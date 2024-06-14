@@ -45,3 +45,63 @@ write-ghc-environment-files: always
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  tag: ad8e222e41dc6faff7495552e97ef4b3d2892c53
+  --sha256: sha256-CIQlM6uL4Eoh0ZBADru3Wcvq3q4lfcehIbvtBp+8N1g=
+  subdir:
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/alonzo/test-suite
+    eras/babbage/impl
+    eras/babbage/test-suite
+    eras/conway/impl
+    eras/conway/test-suite
+    eras/mary/impl
+    eras/shelley/impl
+    eras/shelley/test-suite
+    eras/shelley-ma/test-suite
+    libs/cardano-ledger-api
+    libs/cardano-ledger-core
+    libs/cardano-ledger-binary
+    libs/cardano-protocol-tpraos
+    libs/non-integral
+    libs/small-steps
+    libs/cardano-data
+    libs/set-algebra
+    libs/vector-map
+    -- == Byron era ==
+    -- byron-spec-chain:
+    eras/byron/chain/executable-spec
+    -- byron-spec-ledger:
+    eras/byron/ledger/executable-spec
+    -- cardano-ledger-byron:
+    eras/byron/ledger/impl
+    -- cardano-ledger-byron-test:
+    eras/byron/ledger/impl/test
+    -- cardano-crypto-wrapper:
+    eras/byron/crypto
+    -- cardano-crypto-test:
+    eras/byron/crypto/test
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: e853eaffb7cd867c4def9395b5d7a5ce8cbc59ab
+  --sha256: sha256-WG7Rngp3bCI/U6/b8dpsCzeIjETl0Pd/1ctTNyr10P4=
+  subdir:
+    ouroboros-consensus
+    ouroboros-consensus-cardano
+    ouroboros-consensus-protocol
+    ouroboros-consensus-diffusion
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 45cb8ad222c35f7977cfb09a1621d891fd98af54
+  --sha256: sha256-a8zVOkk0ZKNgzldI6CL5GGIlivd5kWpw39sa4rY6XDQ=
+  subdir:
+    cardano-api
+    cardano-api-gen
