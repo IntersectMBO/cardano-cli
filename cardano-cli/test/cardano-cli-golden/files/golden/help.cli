@@ -6702,7 +6702,7 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   | --deposit-return-stake-address ADDRESS
                                                                   )
                                                                   [--prev-governance-action-tx-id TXID
-                                                                    --prev-governance-action-index WORD32]
+                                                                    --prev-governance-action-index WORD16]
                                                                   --anchor-url TEXT
                                                                   --anchor-data-hash HASH
                                                                   --constitution-url TEXT
@@ -6739,7 +6739,7 @@ Usage: cardano-cli conway governance action update-committee
                                                                  --epoch NATURAL]
                                                                --threshold RATIONAL
                                                                [--prev-governance-action-tx-id TXID
-                                                                 --prev-governance-action-index WORD32]
+                                                                 --prev-governance-action-index WORD16]
                                                                --out-file FILE
 
   Create or update a new committee proposal.
@@ -6772,7 +6772,7 @@ Usage: cardano-cli conway governance action create-no-confidence
                                                                    --anchor-url TEXT
                                                                    --anchor-data-hash HASH
                                                                    [--prev-governance-action-tx-id TXID
-                                                                     --prev-governance-action-index WORD32]
+                                                                     --prev-governance-action-index WORD16]
                                                                    --out-file FILE
 
   Create a no confidence proposal.
@@ -6791,7 +6791,7 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 --anchor-url TEXT
                                                                                 --anchor-data-hash HASH
                                                                                 [--prev-governance-action-tx-id TXID
-                                                                                  --prev-governance-action-index WORD32]
+                                                                                  --prev-governance-action-index WORD16]
                                                                                 [--constitution-script-hash HASH]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--min-fee-constant LOVELACE]
@@ -6877,7 +6877,7 @@ Usage: cardano-cli conway governance action create-hardfork
                                                               | --deposit-return-stake-address ADDRESS
                                                               )
                                                               [--prev-governance-action-tx-id TXID
-                                                                --prev-governance-action-index WORD32]
+                                                                --prev-governance-action-index WORD16]
                                                               --anchor-url TEXT
                                                               --anchor-data-hash HASH
                                                               --protocol-major-version MAJOR
@@ -7042,7 +7042,7 @@ Usage: cardano-cli conway governance vote (create | view)
 
 Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    --governance-action-tx-id TXID
-                                                   --governance-action-index WORD32
+                                                   --governance-action-index WORD16
                                                    ( --drep-verification-key STRING
                                                    | --drep-verification-key-file FILE
                                                    | --drep-key-hash HASH

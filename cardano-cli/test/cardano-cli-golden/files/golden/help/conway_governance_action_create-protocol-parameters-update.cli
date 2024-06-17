@@ -12,7 +12,7 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 --anchor-url TEXT
                                                                                 --anchor-data-hash HASH
                                                                                 [--prev-governance-action-tx-id TXID
-                                                                                  --prev-governance-action-index WORD32]
+                                                                                  --prev-governance-action-index WORD16]
                                                                                 [--constitution-script-hash HASH]
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--min-fee-constant LOVELACE]
@@ -82,7 +82,7 @@ Available options:
                            "cardano-cli conway governance hash anchor-data ...")
   --prev-governance-action-tx-id TXID
                            Txid of the previous governance action.
-  --prev-governance-action-index WORD32
+  --prev-governance-action-index WORD16
                            Action index of the previous governance action.
   --constitution-script-hash HASH
                            Constitution script hash (hex-encoded). Obtain it

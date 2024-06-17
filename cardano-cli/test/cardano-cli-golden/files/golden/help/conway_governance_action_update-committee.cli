@@ -25,7 +25,7 @@ Usage: cardano-cli conway governance action update-committee
                                                                  --epoch NATURAL]
                                                                --threshold RATIONAL
                                                                [--prev-governance-action-tx-id TXID
-                                                                 --prev-governance-action-index WORD32]
+                                                                 --prev-governance-action-index WORD16]
                                                                --out-file FILE
 
   Create or update a new committee proposal.
@@ -73,7 +73,7 @@ Available options:
                            approving a governance action.
   --prev-governance-action-tx-id TXID
                            Txid of the previous governance action.
-  --prev-governance-action-index WORD32
+  --prev-governance-action-index WORD16
                            Action index of the previous governance action.
   --out-file FILE          The output file.
   -h,--help                Show this help text

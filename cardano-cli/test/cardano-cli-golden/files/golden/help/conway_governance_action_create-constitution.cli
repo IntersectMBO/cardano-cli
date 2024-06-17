@@ -10,7 +10,7 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   | --deposit-return-stake-address ADDRESS
                                                                   )
                                                                   [--prev-governance-action-tx-id TXID
-                                                                    --prev-governance-action-index WORD32]
+                                                                    --prev-governance-action-index WORD16]
                                                                   --anchor-url TEXT
                                                                   --anchor-data-hash HASH
                                                                   --constitution-url TEXT
@@ -37,7 +37,7 @@ Available options:
                            Target stake address (bech32 format).
   --prev-governance-action-tx-id TXID
                            Txid of the previous governance action.
-  --prev-governance-action-index WORD32
+  --prev-governance-action-index WORD16
                            Action index of the previous governance action.
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with

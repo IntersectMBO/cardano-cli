@@ -1,6 +1,6 @@
 Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    --governance-action-tx-id TXID
-                                                   --governance-action-index WORD32
+                                                   --governance-action-index WORD16
                                                    ( --drep-verification-key STRING
                                                    | --drep-verification-key-file FILE
                                                    | --drep-key-hash HASH
@@ -22,7 +22,7 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
 Available options:
   --governance-action-tx-id TXID
                            Txid of the governance action.
-  --governance-action-index WORD32
+  --governance-action-index WORD16
                            Tx's governance action index.
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).

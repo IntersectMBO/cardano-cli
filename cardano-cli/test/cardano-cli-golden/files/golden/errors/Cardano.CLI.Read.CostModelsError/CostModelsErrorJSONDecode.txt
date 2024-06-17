@@ -1,4 +1,4 @@
-Error decoding JSON cost model at "some/file.txt": "some error"
+Error decoding JSON cost model at "some/file.txt": some error
 The expected format of the cost models file is 
 {
   "PlutusV1" : <costModel>,
