@@ -14,7 +14,7 @@ repository cardano-haskell-packages
 -- you need to run if you change them
 index-state:
   , hackage.haskell.org 2024-06-13T08:49:27Z
-  , cardano-haskell-packages 2024-06-12T11:52:25Z
+  , cardano-haskell-packages 2024-06-17T12:18:52Z
 
 packages:
   cardano-cli
@@ -57,8 +57,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-ledger
-  tag: b1eedacfc60c5c2d215d4d8b27f6ac6a45e57f78
-  --sha256: sha256-eNZno0XuQVlgdxJmM9NXlADp2IrbAajmLDaDje5jMC0=
+  tag: 434cf8cac8332246c2a41b47a36a8d13de61da26
+  --sha256: sha256-r18PIrbmfDaDFnE9brK0jCFyXDU60yfcaSab3il8sC8=
   subdir:
     eras/alonzo/impl
     eras/alonzo/test-suite
@@ -89,18 +89,8 @@ source-repository-package
 
 source-repository-package
   type: git
-  location: https://github.com/IntersectMBO/plutus
-  tag: 5dffbd7fe2bf6b030d5c3c945886a38be5a09b35
-  --sha256: sha256-8L926zcs3BpzniLQ2pi1YNDry266I/54lbm1ebkWp4M=
-  subdir:
-    plutus-core
-    plutus-ledger-api
-    plutus-tx
-
-source-repository-package
-  type: git
   location: https://github.com/IntersectMBO/cardano-api
-  tag: 5a2cac07c0cfafda016a045f843816f834aeb257
-  --sha256: sha256-cfHNDUm8cBaXRnj98Vrp79HSel69mOlQgGxjmFGUwRQ=
+  tag: da4ad7729abc3447f22a9af280c95b85c427e5ab
+  --sha256: sha256-LgUsBiLj21eGFVei70CZ6TsS/Ub51o2VyVDiZS7ELtQ=
   subdir:
     cardano-api
