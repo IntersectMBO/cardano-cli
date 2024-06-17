@@ -28,7 +28,7 @@ data GovernanceVoteCreateCmdArgs era
   = GovernanceVoteCreateCmdArgs
       { eon                         :: ConwayEraOnwards era
       , voteChoice                  :: Vote
-      , governanceAction            :: (TxId, Word32)
+      , governanceAction            :: (TxId, Word16)
       , votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
       , mAnchor                     :: Maybe (VoteUrl, L.SafeHash L.StandardCrypto L.AnchorData)
       , outFile                     :: VoteFile Out

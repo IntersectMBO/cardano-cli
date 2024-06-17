@@ -3284,21 +3284,29 @@ pAnchorDataHash =
     , Opt.help "Proposal anchor data hash (obtain it with \"cardano-cli conway governance hash anchor-data ...\")"
     ]
 
-pPreviousGovernanceAction :: Parser (Maybe (TxId, Word32))
+pPreviousGovernanceAction :: Parser (Maybe (TxId, Word16))
 pPreviousGovernanceAction = optional $
   (,) <$> pTxId "prev-governance-action-tx-id" "Txid of the previous governance action."
-      <*> pWord32 "prev-governance-action-index" "Action index of the previous governance action."
+      <*> pWord16 "prev-governance-action-index" "Action index of the previous governance action."
 
-pGovernanceActionId :: Parser (TxId, Word32)
+pGovernanceActionId :: Parser (TxId, Word16)
 pGovernanceActionId =
   (,) <$> pTxId "governance-action-tx-id" "Txid of the governance action."
-      <*> pWord32 "governance-action-index" "Tx's governance action index."
+      <*> pWord16 "governance-action-index" "Tx's governance action index."
 
 pWord32 :: String -> String -> Parser Word32
 pWord32 l h =
   Opt.option auto $ mconcat
     [ Opt.long l
     , Opt.metavar "WORD32"
+    , Opt.help h
+    ]
+
+pWord16 :: String -> String -> Parser Word16
+pWord16 l h =
+  Opt.option auto $ mconcat
+    [ Opt.long l
+    , Opt.metavar "WORD16"
     , Opt.help h
     ]
 

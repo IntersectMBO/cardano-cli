@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2024-06-12T10:10:17Z
-  , cardano-haskell-packages 2024-06-12T10:10:17Z
+  , hackage.haskell.org 2024-06-13T08:49:27Z
+  , cardano-haskell-packages 2024-06-12T11:52:25Z
 
 packages:
   cardano-cli
@@ -31,10 +31,6 @@ package bitvec
   -- Workaround for windows cross-compilation
   flags: -simd
 
-constraints:
-  -- io-classes-mtl-0.1.2.0 is not buildable
-  io-classes-mtl < 0.1.2.0
-
 tests: True
 
 test-show-details: direct
@@ -45,3 +41,66 @@ write-ghc-environment-files: always
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: ead2494e080664b39360225fac8f4e6d921ebd93
+  --sha256: sha256-+M3kmlkaB0ssQoNQG2iLxcuYSTv8AzTxtvZdOpaViss=
+  subdir:
+    ouroboros-consensus
+    ouroboros-consensus-cardano
+    ouroboros-consensus-diffusion
+    ouroboros-consensus-protocol
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  tag: b1eedacfc60c5c2d215d4d8b27f6ac6a45e57f78
+  --sha256: sha256-eNZno0XuQVlgdxJmM9NXlADp2IrbAajmLDaDje5jMC0=
+  subdir:
+    eras/alonzo/impl
+    eras/alonzo/test-suite
+    eras/allegra/impl
+    eras/babbage/impl
+    eras/babbage/test-suite
+    eras/byron/chain/executable-spec
+    eras/byron/crypto
+    eras/byron/crypto/test
+    eras/byron/ledger/executable-spec
+    eras/byron/ledger/impl
+    eras/byron/ledger/impl/test
+    eras/conway/impl
+    eras/conway/test-suite
+    eras/mary/impl
+    eras/shelley-ma/test-suite
+    eras/shelley/impl
+    eras/shelley/test-suite
+    libs/cardano-data
+    libs/cardano-ledger-api
+    libs/cardano-ledger-binary
+    libs/cardano-ledger-core
+    libs/cardano-protocol-tpraos
+    libs/non-integral
+    libs/set-algebra
+    libs/small-steps
+    libs/vector-map
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/plutus
+  tag: 5dffbd7fe2bf6b030d5c3c945886a38be5a09b35
+  --sha256: sha256-8L926zcs3BpzniLQ2pi1YNDry266I/54lbm1ebkWp4M=
+  subdir:
+    plutus-core
+    plutus-ledger-api
+    plutus-tx
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 5a2cac07c0cfafda016a045f843816f834aeb257
+  --sha256: sha256-cfHNDUm8cBaXRnj98Vrp79HSel69mOlQgGxjmFGUwRQ=
+  subdir:
+    cardano-api

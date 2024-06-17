@@ -17,7 +17,7 @@ data ConwayVote
   = ConwayVote
     { cvVoteChoice :: Vote
     , cvVoterType :: VType
-    , cvGovActionId :: (TxId, Word32)
+    , cvGovActionId :: (TxId, Word16)
     , cvVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
     , cvEra :: AnyShelleyBasedEra
     , cvFilepath :: VoteFile Out
