@@ -655,13 +655,13 @@ constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits rea
 
   validatedCollateralTxIns <- validateTxInsCollateral sbe txinsc
   validatedRefInputs <- validateTxInsReference sbe allReferenceInputs
-  validatedTotCollateral <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxTotalCollateral sbe mTotCollateral
-  validatedRetCol        <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxReturnCollateral sbe mReturnCollateral
+  validatedTotCollateral <- first TxCmdNotSupportedInEraValidationError $ validateTxTotalCollateral sbe mTotCollateral
+  validatedRetCol        <- first TxCmdNotSupportedInEraValidationError $ validateTxReturnCollateral sbe mReturnCollateral
   let txFee = TxFeeExplicit sbe fee
-  validatedLowerBound <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxValidityLowerBound sbe mLowerBound
-  validatedReqSigners <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateRequiredSigners sbe reqSigners
+  validatedLowerBound <- first TxCmdNotSupportedInEraValidationError $ validateTxValidityLowerBound sbe mLowerBound
+  validatedReqSigners <- first TxCmdNotSupportedInEraValidationError $ validateRequiredSigners sbe reqSigners
   validatedMintValue <- createTxMintValue sbe valuesWithScriptWits
-  validatedTxScriptValidity <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxScriptValidity sbe mScriptValidity
+  validatedTxScriptValidity <- first TxCmdNotSupportedInEraValidationError $ validateTxScriptValidity sbe mScriptValidity
   validatedVotingProcedures <- first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures
   return $ shelleyBasedEraConstraints sbe $ (defaultTxBodyContent sbe
              & setTxIns (validateTxIns inputsAndMaybeScriptWits)

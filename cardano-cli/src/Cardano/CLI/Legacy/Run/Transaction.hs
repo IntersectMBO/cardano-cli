@@ -102,7 +102,7 @@ runLegacyTransactionBuildCmd
   mUpdateProposalFile <-
     validateUpdateProposalFile (shelleyBasedToCardanoEra sbe) mUpdateProposal
       & hoistEither
-      & firstExceptT TxCmdNotSupportedInAnyCardanoEraValidationError
+      & firstExceptT TxCmdNotSupportedInEraValidationError
 
   let upperBound = TxValidityUpperBound sbe mUpperBound
 
@@ -168,7 +168,7 @@ runLegacyTransactionBuildRawCmd
     (\sbe -> do
        mUpdateProposalFile <- validateUpdateProposalFile era mUpdateProposal
                                  & hoistEither
-                                 & firstExceptT TxCmdNotSupportedInAnyCardanoEraValidationError
+                                 & firstExceptT TxCmdNotSupportedInEraValidationError
 
        let upperBound = TxValidityUpperBound sbe mUpperBound
 
