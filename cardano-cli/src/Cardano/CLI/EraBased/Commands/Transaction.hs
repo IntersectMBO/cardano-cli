@@ -25,6 +25,7 @@ where
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Commands.Debug.Transaction.Echo
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 
@@ -183,12 +184,6 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
   , txBodyOutFile :: !(TxBodyFile Out)
   }
-
-data TransactionEchoCmdArgs = TransactionEchoCmdArgs
-  { txOrTxBodyFile :: !InputTxBodyOrTxFile
-  , outTxFile :: !(TxFile Out)
-  }
-  deriving Show
 
 data TransactionSignCmdArgs = TransactionSignCmdArgs
   { txOrTxBodyFile :: !InputTxBodyOrTxFile

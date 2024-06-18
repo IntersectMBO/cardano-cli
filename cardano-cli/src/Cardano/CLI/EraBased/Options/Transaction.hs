@@ -60,10 +60,6 @@ pTransactionCmds era envCli =
           Opt.info (pTransactionSign envCli) $
             Opt.progDesc "Sign a transaction"
     , Just $
-        subParser "echo" $
-          Opt.info pTransactionEcho $
-            Opt.progDesc "Echo a transaction"
-    , Just $
         subParser "witness" $
           Opt.info (pTransactionCreateWitness envCli) $
             Opt.progDesc "Create a transaction witness"
@@ -309,13 +305,6 @@ pTransactionSign envCli =
       <$> pInputTxOrTxBodyFile
       <*> many pWitnessSigningData
       <*> optional (pNetworkId envCli)
-      <*> pTxFileOut
-
-pTransactionEcho :: Parser (TransactionCmds era)
-pTransactionEcho =
-  fmap TransactionEchoCmd $
-    TransactionEchoCmdArgs
-      <$> pInputTxOrTxBodyFile
       <*> pTxFileOut
 
 pTransactionCreateWitness :: EnvCli -> Parser (TransactionCmds era)

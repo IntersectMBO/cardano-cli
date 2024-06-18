@@ -825,7 +825,6 @@ Usage: cardano-cli shelley transaction
                                          ( build-raw
                                          | build
                                          | sign
-                                         | echo
                                          | witness
                                          | assemble
                                          | submit
@@ -1103,14 +1102,6 @@ Usage: cardano-cli shelley transaction sign
                                               --out-file FILE
 
   Sign a transaction
-
-Usage: cardano-cli shelley transaction echo 
-                                              ( --tx-body-file FILE
-                                              | --tx-file FILE
-                                              )
-                                              --out-file FILE
-
-  Echo a transaction
 
 Usage: cardano-cli shelley transaction witness --tx-body-file FILE
                                                  --signing-key-file FILE
@@ -2033,7 +2024,6 @@ Usage: cardano-cli allegra transaction
                                          ( build-raw
                                          | build
                                          | sign
-                                         | echo
                                          | witness
                                          | assemble
                                          | submit
@@ -2311,14 +2301,6 @@ Usage: cardano-cli allegra transaction sign
                                               --out-file FILE
 
   Sign a transaction
-
-Usage: cardano-cli allegra transaction echo 
-                                              ( --tx-body-file FILE
-                                              | --tx-file FILE
-                                              )
-                                              --out-file FILE
-
-  Echo a transaction
 
 Usage: cardano-cli allegra transaction witness --tx-body-file FILE
                                                  --signing-key-file FILE
@@ -3233,7 +3215,6 @@ Usage: cardano-cli mary transaction
                                       | build
                                       | build-estimate
                                       | sign
-                                      | echo
                                       | witness
                                       | assemble
                                       | submit
@@ -3636,11 +3617,6 @@ Usage: cardano-cli mary transaction sign (--tx-body-file FILE | --tx-file FILE)
                                            --out-file FILE
 
   Sign a transaction
-
-Usage: cardano-cli mary transaction echo (--tx-body-file FILE | --tx-file FILE)
-                                           --out-file FILE
-
-  Echo a transaction
 
 Usage: cardano-cli mary transaction witness --tx-body-file FILE
                                               --signing-key-file FILE
@@ -4565,7 +4541,6 @@ Usage: cardano-cli alonzo transaction
                                         | build
                                         | build-estimate
                                         | sign
-                                        | echo
                                         | witness
                                         | assemble
                                         | submit
@@ -4975,14 +4950,6 @@ Usage: cardano-cli alonzo transaction sign
                                              --out-file FILE
 
   Sign a transaction
-
-Usage: cardano-cli alonzo transaction echo 
-                                             ( --tx-body-file FILE
-                                             | --tx-file FILE
-                                             )
-                                             --out-file FILE
-
-  Echo a transaction
 
 Usage: cardano-cli alonzo transaction witness --tx-body-file FILE
                                                 --signing-key-file FILE
@@ -5932,7 +5899,6 @@ Usage: cardano-cli babbage transaction
                                          | build
                                          | build-estimate
                                          | sign
-                                         | echo
                                          | witness
                                          | assemble
                                          | submit
@@ -6342,14 +6308,6 @@ Usage: cardano-cli babbage transaction sign
                                               --out-file FILE
 
   Sign a transaction
-
-Usage: cardano-cli babbage transaction echo 
-                                              ( --tx-body-file FILE
-                                              | --tx-file FILE
-                                              )
-                                              --out-file FILE
-
-  Echo a transaction
 
 Usage: cardano-cli babbage transaction witness --tx-body-file FILE
                                                  --signing-key-file FILE
@@ -7728,7 +7686,6 @@ Usage: cardano-cli conway transaction
                                         | build
                                         | build-estimate
                                         | sign
-                                        | echo
                                         | witness
                                         | assemble
                                         | submit
@@ -8184,14 +8141,6 @@ Usage: cardano-cli conway transaction sign
                                              --out-file FILE
 
   Sign a transaction
-
-Usage: cardano-cli conway transaction echo 
-                                             ( --tx-body-file FILE
-                                             | --tx-file FILE
-                                             )
-                                             --out-file FILE
-
-  Echo a transaction
 
 Usage: cardano-cli conway transaction witness --tx-body-file FILE
                                                 --signing-key-file FILE
@@ -9138,7 +9087,6 @@ Usage: cardano-cli latest transaction
                                         | build
                                         | build-estimate
                                         | sign
-                                        | echo
                                         | witness
                                         | assemble
                                         | submit
@@ -9548,14 +9496,6 @@ Usage: cardano-cli latest transaction sign
                                              --out-file FILE
 
   Sign a transaction
-
-Usage: cardano-cli latest transaction echo 
-                                             ( --tx-body-file FILE
-                                             | --tx-file FILE
-                                             )
-                                             --out-file FILE
-
-  Echo a transaction
 
 Usage: cardano-cli latest transaction witness --tx-body-file FILE
                                                 --signing-key-file FILE

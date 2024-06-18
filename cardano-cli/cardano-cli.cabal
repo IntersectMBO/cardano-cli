@@ -60,6 +60,8 @@ library
     Cardano.CLI.Commands
     Cardano.CLI.Commands.Debug
     Cardano.CLI.Commands.Debug.LogEpochState
+    Cardano.CLI.Commands.Debug.Transaction
+    Cardano.CLI.Commands.Debug.Transaction.Echo
     Cardano.CLI.Commands.Hash
     Cardano.CLI.Commands.Ping
     Cardano.CLI.Environment
@@ -145,6 +147,8 @@ library
     Cardano.CLI.OS.Posix
     Cardano.CLI.Options
     Cardano.CLI.Options.Debug
+    Cardano.CLI.Options.Debug.Transaction
+    Cardano.CLI.Options.Debug.Transaction.Echo
     Cardano.CLI.Options.Hash
     Cardano.CLI.Options.Ping
     Cardano.CLI.Orphans
@@ -155,6 +159,8 @@ library
     Cardano.CLI.Run
     Cardano.CLI.Run.Debug
     Cardano.CLI.Run.Debug.LogEpochState
+    Cardano.CLI.Run.Debug.Transaction
+    Cardano.CLI.Run.Debug.Transaction.Echo
     Cardano.CLI.Run.Hash
     Cardano.CLI.Run.Ping
     Cardano.CLI.TopHandler
@@ -164,6 +170,7 @@ library
     Cardano.CLI.Types.Errors.BootstrapWitnessError
     Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
     Cardano.CLI.Types.Errors.CmdError
+    Cardano.CLI.Types.Errors.DebugCmdError
     Cardano.CLI.Types.Errors.DelegationError
     Cardano.CLI.Types.Errors.GenesisCmdError
     Cardano.CLI.Types.Errors.GovernanceActionsError
