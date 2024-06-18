@@ -587,6 +587,10 @@ pQueryCmds envCli =
         $ Opt.progDesc $ mconcat
             [ "Get a portion of the current UTxO: by tx in, by address or the whole."
             ]
+    , subParser "ledger-peer-snapshot"
+        $ Opt.info pQueryLedgerSnapshot
+        $ Opt.progDesc $ mconcat
+            [ "Dump the current ledger peer snapshot (CBOR encoded)" ]
     , subParser "ledger-state"
         $ Opt.info pQueryLedgerState
         $ Opt.progDesc $ mconcat
@@ -692,6 +696,15 @@ pQueryCmds envCli =
         <*> pConsensusModeParams
         <*> pNetworkId envCli
         <*> pMaybeOutputFile
+
+    pQueryLedgerSnapshot :: Parser LegacyQueryCmds
+    pQueryLedgerSnapshot =
+      fmap QueryLedgerPeerSnapshotCmd $
+        LegacyQueryLedgerPeerSnapshotCmdArgs
+        <$> pSocketPath envCli
+        <*> pConsensusModeParams
+        <*> pNetworkId envCli
+        <*> pOutputFile        
 
     pQueryProtocolState :: Parser LegacyQueryCmds
     pQueryProtocolState =

@@ -5,6 +5,7 @@ Usage: cardano-cli query
                            | stake-distribution
                            | stake-address-info
                            | utxo
+                           | ledger-peer-snapshot
                            | ledger-state
                            | protocol-state
                            | stake-snapshot
@@ -30,6 +31,7 @@ Available commands:
                            filtered by stake address.
   utxo                     Get a portion of the current UTxO: by tx in, by
                            address or the whole.
+  ledger-peer-snapshot     Dump the current ledger peer snapshot (CBOR encoded)
   ledger-state             Dump the current ledger state of the node
                            (Ledger.NewEpochState -- advanced command)
   protocol-state           Dump the current protocol state of the node
