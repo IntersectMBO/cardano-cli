@@ -769,6 +769,22 @@
         "type": "github"
       }
     },
+    "patched-hls": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1709288263,
+        "narHash": "sha256-RYW58pDTJJ/gJTj0fKPImR3vUyZBAKaMSaL4dJZNLf4=",
+        "owner": "carbolymer",
+        "repo": "haskell-language-server",
+        "rev": "67209fba47e15218aef455b159c7da5ea080208f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "carbolymer",
+        "repo": "haskell-language-server",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "CHaP": "CHaP",
@@ -779,7 +795,8 @@
         "nixpkgs": [
           "haskellNix",
           "nixpkgs-unstable"
-        ]
+        ],
+        "patched-hls": "patched-hls"
       }
     },
     "secp256k1": {

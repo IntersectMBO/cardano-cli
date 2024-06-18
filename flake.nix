@@ -7,7 +7,7 @@
     iohkNix.url = "github:input-output-hk/iohk-nix";
     incl.url = "github:divnix/incl";
     flake-utils.url = "github:hamishmack/flake-utils/hkm/nested-hydraJobs";
-
+    "patched-hls" = { url = "github:carbolymer/haskell-language-server"; flake = false; };
     CHaP.url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
     CHaP.flake = false;
   };
@@ -76,7 +76,7 @@
             }
             // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
               # tools that work only with default compiler
-              haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.6";
+              haskell-language-server.src = inputs.patched-hls;
               hlint = "3.6.1";
               stylish-haskell = "0.14.5.0";
             };
