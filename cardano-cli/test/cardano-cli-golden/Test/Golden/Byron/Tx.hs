@@ -1,30 +1,29 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
+
+{- HLINT ignore "Use camelCase" -}
 
 module Test.Golden.Byron.Tx where
 
-import           Cardano.Api
+import           Cardano.Api hiding (Error)
 
 import           Cardano.Chain.UTxO (ATxAux)
 import           Cardano.CLI.Byron.Tx
 
-import           Control.Monad (void)
-import           Data.ByteString (ByteString)
+import           Test.Cardano.CLI.Polysemy
 
-import           Test.Cardano.CLI.Util
-
-import           Hedgehog (Property, (===))
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
-import           Hedgehog.Internal.Property (failWith)
-
-{- HLINT ignore "Use camelCase" -}
+import           HaskellWorks.Polysemy
+import           HaskellWorks.Polysemy.Hedgehog
+import           HaskellWorks.Prelude
 
 hprop_byronTx_legacy :: Property
-hprop_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
-  expectedTx <- noteInputFile "test/cardano-cli-golden/files/input/byron/tx/legacy.tx"
-  createdTx <- noteTempFile tempDir "tx"
-  void $ execCardanoCLI
+hprop_byronTx_legacy = propertyOnce $ localWorkspace $ do
+  signingKey <- jotPkgInputFile "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
+  expectedTx <- jotPkgInputFile "test/cardano-cli-golden/files/input/byron/tx/legacy.tx"
+  createdTx <- jotTempFile "tx"
+
+  execCardanoCli_
     [ "byron", "transaction", "issue-utxo-expenditure"
     , "--mainnet"
     , "--byron-legacy-formats"
@@ -34,14 +33,15 @@ hprop_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     , "--txout", "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
     ]
 
-  compareByronTxs createdTx expectedTx
+  void $ compareByronTxs createdTx expectedTx
 
 hprop_byronTx :: Property
-hprop_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
-  expectedTx <- noteInputFile "test/cardano-cli-golden/files/input/byron/tx/normal.tx"
-  createdTx <- noteTempFile tempDir "tx"
-  void $ execCardanoCLI
+hprop_byronTx = propertyOnce $ localWorkspace $ do
+  signingKey <- jotPkgInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
+  expectedTx <- jotPkgInputFile "test/cardano-cli-golden/files/input/byron/tx/normal.tx"
+  createdTx <- jotTempFile "tx"
+
+  execCardanoCli_
     [ "byron", "transaction", "issue-utxo-expenditure"
     , "--mainnet"
     , "--byron-formats"
@@ -53,16 +53,24 @@ hprop_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
 
   compareByronTxs createdTx expectedTx
 
-getTxByteString :: FilePath -> H.PropertyT IO (ATxAux ByteString)
+getTxByteString :: ()
+  => Member (Embed IO) r
+  => Member (Error ByronTxError) r
+  => FilePath
+  -> Sem r (ATxAux ByteString)
 getTxByteString txFp = do
-  eATxAuxBS <- liftIO . runExceptT $ readByronTx $ File txFp
-  case eATxAuxBS of
-    Left err -> failWith Nothing . docToString $ renderByronTxError err
-    Right aTxAuxBS -> return aTxAuxBS
+  embed (runExceptT $ readByronTx $ File txFp)
+    & onLeftM throw
 
-compareByronTxs :: FilePath -> FilePath -> H.PropertyT IO ()
+compareByronTxs :: ()
+  => HasCallStack
+  => Member (Embed IO) r
+  => Member Hedgehog r
+  => FilePath
+  -> FilePath
+  -> Sem r ()
 compareByronTxs createdTx expectedTx = do
-  createdATxAuxBS <- getTxByteString createdTx
-  expectedATxAuxBS <- getTxByteString expectedTx
+  createdATxAuxBS <- getTxByteString createdTx & trapFail @ByronTxError
+  expectedATxAuxBS <- getTxByteString expectedTx & trapFail @ByronTxError
 
   normalByronTxToGenTx expectedATxAuxBS === normalByronTxToGenTx createdATxAuxBS

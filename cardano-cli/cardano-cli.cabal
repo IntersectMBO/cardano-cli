@@ -147,6 +147,7 @@ library
                         Cardano.CLI.Orphans
                         Cardano.CLI.OS.Posix
                         Cardano.CLI.Parser
+                        Cardano.CLI.Polysemy
                         Cardano.CLI.Pretty
                         Cardano.CLI.Read
                         Cardano.CLI.Render
@@ -228,6 +229,7 @@ library
                       , directory
                       , filepath
                       , formatting
+                      , hw-polysemy:core ^>= 0.2.8.0
                       , io-classes
                       , iproute
                       , mtl
@@ -241,6 +243,8 @@ library
                       , ouroboros-network-api
                       , ouroboros-network-protocols ^>=0.8
                       , parsec
+                      , polysemy
+                      , polysemy-plugin
                       , prettyprinter
                       , prettyprinter-ansi-terminal
                       , random
@@ -254,6 +258,7 @@ library
                       , utf8-string
                       , vector
                       , yaml
+  ghc-options:          -fplugin=Polysemy.Plugin
 
 executable cardano-cli
   import:               project-config
@@ -270,18 +275,27 @@ library cardano-cli-test-lib
   import:               project-config
   visibility:           public
   hs-source-dirs:       test/cardano-cli-test-lib
-  exposed-modules:      Test.Cardano.CLI.Aeson
+  exposed-modules:      Test.Cardano.Api.Polysemy
+                        Test.Cardano.CLI.Aeson
+                        Test.Cardano.CLI.Polysemy
                         Test.Cardano.CLI.Util
+  ghc-options:          -fplugin=Polysemy.Plugin
   build-depends:        aeson
                       , aeson-pretty
                       , bytestring
                       , cardano-api
+                      , cardano-api:internal
                       , cardano-cli
                       , directory
                       , exceptions
                       , filepath
                       , hedgehog
                       , hedgehog-extras ^>= 0.6.1.0
+                      , hw-polysemy:core ^>= 0.2.8.0
+                      , hw-polysemy:hedgehog ^>= 0.2.8.0
+                      , mtl
+                      , polysemy
+                      , polysemy-plugin
                       , lifted-base
                       , monad-control
                       , process
@@ -305,16 +319,22 @@ test-suite cardano-cli-test
                       , cardano-ledger-alonzo
                       , cardano-slotting
                       , containers
+                      , exceptions
                       , filepath
                       , hedgehog
                       , hedgehog-extras ^>= 0.6.1.0
-                      , exceptions
+                      , hw-polysemy:core ^>= 0.2.8.0
+                      , hw-polysemy:hedgehog ^>= 0.2.8.0
+                      , polysemy
+                      , polysemy-plugin
                       , regex-tdfa
                       , tasty
                       , tasty-hedgehog
                       , text
                       , time
                       , transformers
+
+  ghc-options:          -fplugin=Polysemy.Plugin
 
   build-tool-depends:   tasty-discover:tasty-discover
 
@@ -366,6 +386,10 @@ test-suite cardano-cli-golden
                       , filepath
                       , hedgehog ^>= 1.4
                       , hedgehog-extras ^>= 0.6.1.0
+                      , hw-polysemy:core ^>= 0.2.8.0
+                      , hw-polysemy:hedgehog ^>= 0.2.8.0
+                      , polysemy
+                      , polysemy-plugin
                       , regex-compat
                       , regex-tdfa
                       , tasty
@@ -376,6 +400,8 @@ test-suite cardano-cli-golden
                       , unordered-containers
   build-tool-depends:   cardano-cli:cardano-cli
                       , tasty-discover:tasty-discover
+
+  ghc-options:          -fplugin=Polysemy.Plugin
 
   other-modules:        Test.Golden.Babbage.Transaction.CalculateMinFee
                         Test.Golden.Byron.SigningKeys
