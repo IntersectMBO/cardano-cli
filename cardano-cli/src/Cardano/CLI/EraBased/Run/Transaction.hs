@@ -68,7 +68,7 @@ import           Data.Function ((&))
 import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import           Data.Maybe (catMaybes, fromMaybe)
+import           Data.Maybe (catMaybes, fromMaybe, mapMaybe)
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -644,8 +644,7 @@ constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits rea
                        reqSigners fee txAuxScripts txMetadata txUpdateProposal
                        votingProcedures proposals
                        = do
-  let era = toCardanoEra sbe -- TODO: Propagate SBE
-      allReferenceInputs = getAllReferenceInputs
+  let allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
                              (snd valuesWithScriptWits)
                              certsAndMaybeScriptWits
@@ -656,20 +655,14 @@ constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits rea
 
   validatedCollateralTxIns <- validateTxInsCollateral sbe txinsc
   validatedRefInputs <- validateTxInsReference sbe allReferenceInputs
-  validatedTotCollateral
-    <- first TxCmdTotalCollateralValidationError $ validateTxTotalCollateral era mTotCollateral
-  validatedRetCol
-    <- first TxCmdReturnCollateralValidationError $ validateTxReturnCollateral era mReturnCollateral
+  validatedTotCollateral <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxTotalCollateral sbe mTotCollateral
+  validatedRetCol        <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxReturnCollateral sbe mReturnCollateral
   let txFee = TxFeeExplicit sbe fee
-  validatedLowerBound <- first TxCmdTxValidityLowerBoundValidationError (validateTxValidityLowerBound era mLowerBound)
-  validatedReqSigners <- first TxCmdRequiredSignersValidationError $ validateRequiredSigners era reqSigners
-  validatedTxWtdrwls <- first TxCmdTxWithdrawalsValidationError $ validateTxWithdrawals era withdrawals
-  validatedTxCerts <- first TxCmdTxCertificatesValidationError $ validateTxCertificates era certsAndMaybeScriptWits
+  validatedLowerBound <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxValidityLowerBound sbe mLowerBound
+  validatedReqSigners <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateRequiredSigners sbe reqSigners
   validatedMintValue <- createTxMintValue sbe valuesWithScriptWits
-  validatedTxScriptValidity <- first TxCmdScriptValidityValidationError $ validateTxScriptValidity era mScriptValidity
+  validatedTxScriptValidity <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxScriptValidity sbe mScriptValidity
   validatedVotingProcedures <- first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures
-  validatedPParams <- first TxCmdProtocolParametersValidationError
-                                  $ validateProtocolParameters era (LedgerProtocolParameters <$> mPparams)
   return $ shelleyBasedEraConstraints sbe $ (defaultTxBodyContent sbe
              & setTxIns (validateTxIns inputsAndMaybeScriptWits)
              & setTxInsCollateral validatedCollateralTxIns
@@ -683,20 +676,24 @@ constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits rea
              & setTxMetadata txMetadata
              & setTxAuxScripts txAuxScripts
              & setTxExtraKeyWits validatedReqSigners
-             & setTxProtocolParams validatedPParams
-             & setTxWithdrawals validatedTxWtdrwls
-             & setTxCertificates validatedTxCerts
+             & setTxProtocolParams (BuildTxWith $ LedgerProtocolParameters <$> mPparams)
+             & setTxWithdrawals (TxWithdrawals sbe $ map convertWithdrawals withdrawals)
+             & setTxCertificates (convertCertificates sbe certsAndMaybeScriptWits)
              & setTxUpdateProposal txUpdateProposal
              & setTxMintValue validatedMintValue
              & setTxScriptValidity validatedTxScriptValidity)
              -- TODO: Create set* function for proposal procedures and voting procedures
-             { txProposalProcedures = forEraInEonMaybe era (`Featured` convToTxProposalProcedures proposals)
-             , txVotingProcedures = forEraInEonMaybe era (`Featured` validatedVotingProcedures)
+             { txProposalProcedures = forShelleyBasedEraInEonMaybe sbe (`Featured` convToTxProposalProcedures proposals)
+             , txVotingProcedures = forShelleyBasedEraInEonMaybe sbe (`Featured` validatedVotingProcedures)
              }
-
-
-
-
+ where
+  convertWithdrawals
+    :: (StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))
+    -> (StakeAddress, L.Coin, BuildTxWith BuildTx (Witness WitCtxStake era))
+  convertWithdrawals (sAddr, ll, mScriptWitnessFiles) =
+    case mScriptWitnessFiles of
+      Just sWit -> (sAddr, ll, BuildTxWith $ ScriptWitness ScriptWitnessForStakeAddr sWit)
+      Nothing   -> (sAddr, ll, BuildTxWith $ KeyWitness KeyWitnessForStakeAddr)
 
 runTxBuild :: ()
   => ShelleyBasedEra era
@@ -773,13 +770,8 @@ runTxBuild
   Refl <- testEquality era nodeEra
     & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
-  validatedTxCerts
-     <- hoistEither
-          . first TxCmdTxCertificatesValidationError
-          $ validateTxCertificates era certsAndMaybeScriptWits
-
   let certs =
-        case validatedTxCerts of
+        case convertCertificates sbe certsAndMaybeScriptWits of
           TxCertificates _ cs _ -> cs
           _ -> []
 
@@ -827,6 +819,23 @@ runTxBuild
   liftIO $ putStrLn $ "Estimated transaction fee: " <> (show fee :: String)
 
   return balancedTxBody
+
+convertCertificates :: ()
+  => ShelleyBasedEra era
+  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
+  -> TxCertificates BuildTx era
+convertCertificates sbe certsAndScriptWitnesses =
+  TxCertificates sbe certs $ BuildTxWith reqWits
+  where
+    certs = map fst certsAndScriptWitnesses
+    reqWits = Map.fromList $ mapMaybe convert certsAndScriptWitnesses
+    convert :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
+               -> Maybe (StakeCredential, Witness WitCtxStake era)
+    convert (cert, mScriptWitnessFiles) = do
+      sCred <- selectStakeCredentialWitness cert
+      Just $ case mScriptWitnessFiles of
+        Just sWit -> (sCred, ScriptWitness ScriptWitnessForStakeAddr sWit)
+        Nothing   -> (sCred, KeyWitness KeyWitnessForStakeAddr)
 
 -- ----------------------------------------------------------------------------
 -- Transaction body validation and conversion

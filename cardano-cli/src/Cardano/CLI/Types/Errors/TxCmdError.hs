@@ -79,17 +79,8 @@ data TxCmdError
   | TxCmdCddlWitnessError CddlWitnessError
   | TxCmdRequiredSignerError RequiredSignerError
   -- Validation errors
+  | forall era. TxCmdNotSupportedInAnyCardanoEraValidationError (TxNotSupportedInAnyCardanoEraValidationError era)
   | TxCmdAuxScriptsValidationError TxAuxScriptsValidationError
-  | TxCmdTotalCollateralValidationError TxTotalCollateralValidationError
-  | TxCmdReturnCollateralValidationError TxReturnCollateralValidationError
-  | TxCmdTxValidityLowerBoundValidationError TxValidityLowerBoundValidationError
-  | TxCmdTxValidityUpperBoundValidationError TxValidityUpperBoundValidationError
-  | TxCmdRequiredSignersValidationError TxRequiredSignersValidationError
-  | TxCmdProtocolParametersValidationError TxProtocolParametersValidationError
-  | TxCmdTxWithdrawalsValidationError TxWithdrawalsValidationError
-  | TxCmdTxCertificatesValidationError TxCertificatesValidationError
-  | TxCmdTxUpdateProposalValidationError TxUpdateProposalValidationError
-  | TxCmdScriptValidityValidationError TxScriptValidityValidationError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
@@ -213,27 +204,9 @@ renderTxCmdError = \case
   TxCmdRequiredSignerError e ->
     prettyError e
   -- Validation errors
+  TxCmdNotSupportedInAnyCardanoEraValidationError e ->
+    prettyError e
   TxCmdAuxScriptsValidationError e ->
-    prettyError e
-  TxCmdTotalCollateralValidationError e ->
-    prettyError e
-  TxCmdReturnCollateralValidationError e ->
-    prettyError e
-  TxCmdTxValidityLowerBoundValidationError e ->
-    prettyError e
-  TxCmdTxValidityUpperBoundValidationError e ->
-    prettyError e
-  TxCmdRequiredSignersValidationError e ->
-    prettyError e
-  TxCmdProtocolParametersValidationError e ->
-    prettyError e
-  TxCmdTxWithdrawalsValidationError e ->
-    prettyError e
-  TxCmdTxCertificatesValidationError e ->
-    prettyError e
-  TxCmdTxUpdateProposalValidationError e ->
-    prettyError e
-  TxCmdScriptValidityValidationError e ->
     prettyError e
   TxCmdTxGovDuplicateVotes e ->
     prettyError e

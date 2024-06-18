@@ -8,29 +8,17 @@
 
 module Cardano.CLI.Types.Errors.TxValidationError
   ( TxAuxScriptsValidationError(..)
-  , TxCertificatesValidationError(..)
   , TxGovDuplicateVotes(..)
-  , TxProtocolParametersValidationError
-  , TxScriptValidityValidationError(..)
-  , TxUpdateProposalValidationError(..)
-  , TxValidityLowerBoundValidationError(..)
-  , TxValidityUpperBoundValidationError(..)
-  , TxRequiredSignersValidationError
-  , TxReturnCollateralValidationError(..)
-  , TxTotalCollateralValidationError(..)
-  , TxWithdrawalsValidationError(..)
+  , TxNotSupportedInAnyCardanoEraValidationError(..)
   , convToTxProposalProcedures
   , convertToTxVotingProcedures
-  , validateProtocolParameters
   , validateScriptSupportedInEra
   , validateTxAuxScripts
-  , validateTxCertificates
   , validateRequiredSigners
   , validateTxReturnCollateral
   , validateTxScriptValidity
   , validateTxTotalCollateral
   , validateTxValidityLowerBound
-  , validateTxWithdrawals
   , validateUpdateProposalFile
   ) where
 
@@ -48,6 +36,7 @@ import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
 import qualified Data.OSet.Strict as OSet
+import qualified Data.Text as T
 import           Prettyprinter (viaShow)
 
 data ScriptLanguageValidationError
@@ -70,63 +59,42 @@ validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
                         (AnyScriptLanguage lang) (anyCardanoEra $ toCardanoEra era)
     Just script' -> pure script'
 
-newtype TxTotalCollateralValidationError
-  = TxTotalCollateralNotSupported AnyCardanoEra
-  deriving Show
+data TxNotSupportedInAnyCardanoEraValidationError era =
+    -- | First argument is the kind of data that is not supported.
+    -- Second argument is the era that doesn't support the data.
+    TxNotSupportedInAnyCardanoEraValidationError T.Text AnyCardanoEra
 
-instance Error TxTotalCollateralValidationError where
-  prettyError (TxTotalCollateralNotSupported era) =
-    "Transaction collateral not supported in " <> pretty era
+instance Show (TxNotSupportedInAnyCardanoEraValidationError era) where
+  show (TxNotSupportedInAnyCardanoEraValidationError a era) =
+    show (pretty a) <> " not supported in " <> show era
 
-validateTxTotalCollateral :: CardanoEra era
+instance Error (TxNotSupportedInAnyCardanoEraValidationError era) where
+  prettyError (TxNotSupportedInAnyCardanoEraValidationError a era) =
+    pretty a <+> "not supported in" <+> viaShow era
+
+validateTxTotalCollateral :: ShelleyBasedEra era
                           -> Maybe L.Coin
-                          -> Either TxTotalCollateralValidationError (TxTotalCollateral era)
+                          -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (TxTotalCollateral era)
 validateTxTotalCollateral _ Nothing = return TxTotalCollateralNone
-validateTxTotalCollateral era (Just coll) = do
-  supported <- conjureWitness era TxTotalCollateralNotSupported
+validateTxTotalCollateral sbe (Just coll) = do
+  supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction collateral"
   pure $ TxTotalCollateral supported coll
 
-newtype TxReturnCollateralValidationError
-  = TxReturnCollateralNotSupported AnyCardanoEra
-  deriving Show
-
-instance Error TxReturnCollateralValidationError where
-  prettyError (TxReturnCollateralNotSupported era) =
-    "Transaction return collateral not supported in " <> pretty era
-
-validateTxReturnCollateral :: CardanoEra era
+validateTxReturnCollateral :: ShelleyBasedEra era
                            -> Maybe (TxOut CtxTx era)
-                           -> Either TxReturnCollateralValidationError (TxReturnCollateral CtxTx era)
+                           -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (TxReturnCollateral CtxTx era)
 validateTxReturnCollateral _ Nothing = return TxReturnCollateralNone
-validateTxReturnCollateral era (Just retColTxOut) = do
-  supported <- conjureWitness era TxReturnCollateralNotSupported
+validateTxReturnCollateral sbe (Just retColTxOut) = do
+  supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction return collateral"
   pure $ TxReturnCollateral supported retColTxOut
 
-newtype TxValidityLowerBoundValidationError
-  = TxValidityLowerBoundNotSupported AnyCardanoEra
-  deriving Show
-
-instance Error TxValidityLowerBoundValidationError where
-  prettyError (TxValidityLowerBoundNotSupported era) =
-    "Transaction validity lower bound not supported in " <> pretty era
-
-
-validateTxValidityLowerBound :: CardanoEra era
+validateTxValidityLowerBound :: ShelleyBasedEra era
                              -> Maybe SlotNo
-                             -> Either TxValidityLowerBoundValidationError (TxValidityLowerBound era)
+                             -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (TxValidityLowerBound era)
 validateTxValidityLowerBound _ Nothing = return TxValidityNoLowerBound
-validateTxValidityLowerBound era (Just slot) = do
-  supported <- conjureWitness era TxValidityLowerBoundNotSupported
+validateTxValidityLowerBound sbe (Just slot) = do
+  supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction validity lower bound"
   pure $ TxValidityLowerBound supported slot
-
-newtype TxValidityUpperBoundValidationError
-  = TxValidityUpperBoundNotSupported AnyCardanoEra
-  deriving Show
-
-instance Error TxValidityUpperBoundValidationError where
-  prettyError (TxValidityUpperBoundNotSupported era) =
-    "Transaction validity upper bound must be specified in " <> pretty era
-
 
 data TxAuxScriptsValidationError
   = TxAuxScriptsNotSupportedInEra AnyCardanoEra
@@ -149,135 +117,37 @@ validateTxAuxScripts era scripts = do
   scriptsInEra <- mapM (first TxAuxScriptsLanguageError . validateScriptSupportedInEra era) scripts
   pure $ TxAuxScripts supported scriptsInEra
 
-newtype TxRequiredSignersValidationError
-  = TxRequiredSignersValidationError AnyCardanoEra
-  deriving Show
-
-instance Error TxRequiredSignersValidationError where
-  prettyError (TxRequiredSignersValidationError e) =
-    "Transaction required signers are not supported in " <> pretty e
-
 validateRequiredSigners
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> [Hash PaymentKey]
-  -> Either TxRequiredSignersValidationError (TxExtraKeyWitnesses era)
+  -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (TxExtraKeyWitnesses era)
 validateRequiredSigners _ [] = return TxExtraKeyWitnessesNone
-validateRequiredSigners era reqSigs = do
-  supported <- conjureWitness era TxRequiredSignersValidationError
+validateRequiredSigners sbe reqSigs = do
+  supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction required signers"
   pure $ TxExtraKeyWitnesses supported reqSigs
 
-newtype TxWithdrawalsValidationError
-  = TxWithdrawalsNotSupported AnyCardanoEra
-  deriving Show
-
-instance Error TxWithdrawalsValidationError where
-  prettyError (TxWithdrawalsNotSupported e) =
-    "Transaction withdrawals are not supported in " <> pretty e
-
-validateTxWithdrawals
-  :: forall era.
-     CardanoEra era
-  -> [(StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))]
-  -> Either TxWithdrawalsValidationError (TxWithdrawals BuildTx era)
-validateTxWithdrawals _ [] = return TxWithdrawalsNone
-validateTxWithdrawals era withdrawals = do
-  supported <- conjureWitness era TxWithdrawalsNotSupported
-  let convWithdrawals = map convert withdrawals
-  pure $ TxWithdrawals supported convWithdrawals
- where
-  convert
-    :: (StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))
-    -> (StakeAddress, L.Coin, BuildTxWith BuildTx (Witness WitCtxStake era))
-  convert (sAddr, ll, mScriptWitnessFiles) =
-    case mScriptWitnessFiles of
-      Just sWit -> (sAddr, ll, BuildTxWith $ ScriptWitness ScriptWitnessForStakeAddr sWit)
-      Nothing   -> (sAddr, ll, BuildTxWith $ KeyWitness KeyWitnessForStakeAddr)
-
-newtype TxCertificatesValidationError
-  = TxCertificatesValidationNotSupported AnyCardanoEra
-  deriving Show
-
-instance Error TxCertificatesValidationError where
-  prettyError (TxCertificatesValidationNotSupported e) =
-    "Transaction certificates are not supported in " <> pretty e
-
--- TODO: Because we have separated Byron related transaction
--- construction into separate commands, we can parameterize this
--- on ShelleyBasedEra era and remove Either TxCertificatesValidationError
-validateTxCertificates
-  :: forall era.
-     CardanoEra era
-  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
-  -> Either TxCertificatesValidationError (TxCertificates BuildTx era)
-validateTxCertificates _ [] = return TxCertificatesNone
-validateTxCertificates era certsAndScriptWitnesses = cardanoEraConstraints era $ do
-  supported <- conjureWitness era TxCertificatesValidationNotSupported
-  let certs = map fst certsAndScriptWitnesses
-      reqWits = Map.fromList $ mapMaybe convert certsAndScriptWitnesses
-  pure $ TxCertificates supported certs $ BuildTxWith reqWits
-  where
-    convert
-      :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
-      -> Maybe (StakeCredential, Witness WitCtxStake era)
-    convert (cert, mScriptWitnessFiles) = do
-      sCred <- selectStakeCredentialWitness cert
-      Just $ case mScriptWitnessFiles of
-        Just sWit -> (sCred, ScriptWitness ScriptWitnessForStakeAddr sWit)
-        Nothing   -> (sCred, KeyWitness KeyWitnessForStakeAddr)
-
-newtype TxProtocolParametersValidationError
-  = ProtocolParametersNotSupported AnyCardanoEra
-  deriving Show
-
-instance Error TxProtocolParametersValidationError where
-  prettyError (ProtocolParametersNotSupported e) =
-    "Transaction protocol parameters are not supported in " <> pretty e
-
-validateProtocolParameters
-  :: CardanoEra era
-  -> Maybe (LedgerProtocolParameters era)
-  -> Either TxProtocolParametersValidationError (BuildTxWith BuildTx (Maybe (LedgerProtocolParameters era)))
-validateProtocolParameters _ Nothing = return (BuildTxWith Nothing)
-validateProtocolParameters era (Just pparams) = do
-  _ <- conjureWitness @ShelleyBasedEra era ProtocolParametersNotSupported
-  pure . BuildTxWith $ Just pparams
-
-newtype TxUpdateProposalValidationError
-  = TxUpdateProposalNotSupported AnyCardanoEra
-  deriving Show
-
-instance Error TxUpdateProposalValidationError where
-  prettyError (TxUpdateProposalNotSupported e) =
-    "Transaction update proposal is not supported in " <> pretty e
-
-newtype TxScriptValidityValidationError
-  = ScriptValidityNotSupported AnyCardanoEra
-  deriving Show
-
-instance Error TxScriptValidityValidationError where
-  prettyError (ScriptValidityNotSupported e) =
-    "Transaction script validity is not supported in " <> pretty e
-
 validateTxScriptValidity
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> Maybe ScriptValidity
-  -> Either TxScriptValidityValidationError (TxScriptValidity era)
+  -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (TxScriptValidity era)
 validateTxScriptValidity _ Nothing = pure TxScriptValidityNone
-validateTxScriptValidity era (Just scriptValidity) = do
-  supported <- conjureWitness era ScriptValidityNotSupported
+validateTxScriptValidity sbe (Just scriptValidity) = do
+  supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction script validity"
   pure $ TxScriptValidity supported scriptValidity
 
 -- TODO legacy. This can be deleted when legacy commands are removed.
 validateUpdateProposalFile
   :: CardanoEra era
   -> Maybe UpdateProposalFile
-  -> Either TxUpdateProposalValidationError (Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+  -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
 validateUpdateProposalFile era = \case
   Nothing -> pure Nothing
   Just updateProposal -> do
-    supported <- conjureWitness era TxUpdateProposalNotSupported
+    supported <- conjureWitness era $ TxNotSupportedInAnyCardanoEraValidationError "Transaction update proposal"
     pure $ Just $ Featured supported $ Just updateProposal
 
+-- TODO make this function take a ShelleyBasedEra when the last
+-- CardanoEra caller is removed (there remains only one).
 conjureWitness :: Eon eon
                => CardanoEra era -- ^ era to try to conjure eon from
                -> (AnyCardanoEra -> e)  -- ^ error wrapper function
