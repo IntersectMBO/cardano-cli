@@ -6,22 +6,13 @@ module Cardano.CLI.Types.Governance where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Key (DRepHashSource, VerificationKeyOrFile,
-                   VerificationKeyOrHashOrFile, VerificationKeyOrHashOrFileOrScriptHash)
+import           Cardano.CLI.Types.Key (DRepHashSource, VerificationKeyOrHashOrFile,
+                   VerificationKeyOrHashOrFileOrScriptHash)
 
-import           Data.Word
-
-type VoteFile = File ConwayVote
 
 data ConwayVote
-  = ConwayVote
-    { cvVoteChoice :: Vote
-    , cvVoterType :: VType
-    , cvGovActionId :: (TxId, Word32)
-    , cvVotingStakeCredential :: VerificationKeyOrFile StakePoolKey
-    , cvEra :: AnyShelleyBasedEra
-    , cvFilepath :: VoteFile Out
-    } deriving Show
+type VoteFile = File ConwayVote
+
 
 -- Vote type -- TODO: Conway era - remove me
 data VType = VCC -- committee

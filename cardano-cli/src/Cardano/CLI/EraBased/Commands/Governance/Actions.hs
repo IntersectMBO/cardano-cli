@@ -54,7 +54,7 @@ data GovernanceActionUpdateCommitteeCmdArgs era
       , oldCommitteeVkeySource  :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey]
       , newCommitteeVkeySource  :: ![(VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey, EpochNo)]
       , requiredThreshold       :: !Rational
-      , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
+      , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
       , outFile                 :: !(File () Out)
       } deriving Show
 
@@ -64,7 +64,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
       , networkId               :: !L.Network
       , deposit                 :: !L.Coin
       , stakeCredential         :: !StakeIdentifier
-      , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
+      , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
       , proposalUrl             :: !ProposalUrl
       , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , constitutionUrl         :: !ConstitutionUrl
@@ -93,7 +93,7 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
       , returnStakeAddress      :: !StakeIdentifier
       , proposalUrl             :: !ProposalUrl
       , proposalHash            :: !(L.SafeHash L.StandardCrypto L.AnchorData)
-      , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
+      , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
       , outFile                 :: !(File () Out)
       } deriving Show
 
@@ -133,7 +133,7 @@ data GovernanceActionHardforkInitCmdArgs era
       , networkId             :: !L.Network
       , deposit               :: !L.Coin
       , returnStakeAddress    :: !StakeIdentifier
-      , mPrevGovernanceActionId :: !(Maybe (TxId, Word32))
+      , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
       , proposalUrl           :: !ProposalUrl
       , proposalHash          :: !(L.SafeHash L.StandardCrypto L.AnchorData)
       , protVer               :: !L.ProtVer
@@ -156,7 +156,7 @@ data UpdateProtocolParametersConwayOnwards era
       , returnAddr          :: !StakeIdentifier
       , proposalUrl         :: !ProposalUrl
       , proposalHash        :: !(L.SafeHash L.StandardCrypto L.AnchorData)
-      , governanceActionId  :: !(Maybe (TxId, Word32))
+      , governanceActionId  :: !(Maybe (TxId, Word16))
       , constitutionScriptHash :: !(Maybe ScriptHash)
       }
 

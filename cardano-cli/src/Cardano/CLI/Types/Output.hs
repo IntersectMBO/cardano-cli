@@ -28,6 +28,7 @@ import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Text (Text)
+import qualified Data.Text as Text
 import           Data.Time.Clock (UTCTime)
 import           Data.Word
 
@@ -261,7 +262,10 @@ instance ToJSON ScriptCostOutput where
 data PlutusScriptCostError
   = PlutusScriptCostErrPlutusScriptNotFound ScriptWitnessIndex
   | PlutusScriptCostErrExecError ScriptWitnessIndex (Maybe ScriptHash) ScriptExecutionError
-  | PlutusScriptCostErrRationalExceedsBound L.Prices  ExecutionUnits
+  | PlutusScriptCostErrRationalExceedsBound
+      [Text] -- ^ Execution logs
+      L.Prices
+      ExecutionUnits
   | PlutusScriptCostErrRefInputNoScript TxIn
   | PlutusScriptCostErrRefInputNotInUTxO TxIn
   deriving Show
@@ -274,9 +278,17 @@ instance Error PlutusScriptCostError where
     PlutusScriptCostErrExecError sWitIndex sHash sExecErro ->
       "Plutus script at: " <> pshow sWitIndex <> " with hash: " <> pshow sHash <>
       " errored with: " <> prettyError sExecErro
-    PlutusScriptCostErrRationalExceedsBound eUnitPrices eUnits ->
-      "Either the execution unit prices: " <> pshow eUnitPrices <> " or the execution units: " <>
-      pshow eUnits <> " or both are either too precise or not within bounds"
+    PlutusScriptCostErrRationalExceedsBound executionLogs eUnitPrices eUnits ->
+      let firstLine = mconcat [ "Either the execution unit prices: "
+                              , pshow eUnitPrices
+                              , " or the execution units: "
+                              , pshow eUnits
+                              , " or both are either too precise or not within bounds"
+                              ]
+      in vsep [ firstLine
+              , "Execution logs: " <> pretty (Text.unlines executionLogs)
+              ]
+
     PlutusScriptCostErrRefInputNoScript txin ->
       "No reference script found at input: " <> pretty (renderTxIn txin)
     PlutusScriptCostErrRefInputNotInUTxO txin ->
@@ -289,7 +301,7 @@ renderScriptCosts
   -- ^ Initial mapping of script witness index to actual script.
   -- We need this in order to know which script corresponds to the
   -- calculated execution units.
-  -> Map ScriptWitnessIndex (Either ScriptExecutionError ExecutionUnits)
+  -> Map ScriptWitnessIndex (Either ScriptExecutionError ([Text], ExecutionUnits))
   -- ^ Post execution cost calculation mapping of script witness
   -- index to execution units.
   -> Either PlutusScriptCostError [ScriptCostOutput]
@@ -302,13 +314,13 @@ renderScriptCosts (UTxO utxo) eUnitPrices scriptMapping executionCostMapping =
         Just (AnyScriptWitness (PlutusScriptWitness _ pVer (PScript pScript) _ _ _)) -> do
           let scriptHash = hashScript $ PlutusScript pVer pScript
           case eExecUnits of
-            Right execUnits ->
+            Right (logs, execUnits) ->
               case calculateExecutionUnitsLovelace eUnitPrices execUnits of
                 Just llCost ->
                   Right (ScriptCostOutput scriptHash execUnits llCost)
                     : accum
                 Nothing ->
-                  Left (PlutusScriptCostErrRationalExceedsBound eUnitPrices execUnits)
+                  Left (PlutusScriptCostErrRationalExceedsBound logs eUnitPrices execUnits)
                     : accum
             Left err -> Left (PlutusScriptCostErrExecError sWitInd (Just scriptHash) err) : accum
         -- TODO: Create a new sum type to encapsulate the fact that we can also
@@ -321,13 +333,13 @@ renderScriptCosts (UTxO utxo) eUnitPrices scriptMapping executionCostMapping =
                 ReferenceScriptNone -> Left (PlutusScriptCostErrRefInputNoScript refTxIn) : accum
                 ReferenceScript _ (ScriptInAnyLang _ script) ->
                   case eExecUnits of
-                    Right execUnits ->
+                    Right (logs, execUnits) ->
                       case calculateExecutionUnitsLovelace eUnitPrices execUnits of
                         Just llCost ->
                           Right (ScriptCostOutput (hashScript script) execUnits llCost)
                             : accum
                         Nothing ->
-                          Left (PlutusScriptCostErrRationalExceedsBound eUnitPrices execUnits)
+                          Left (PlutusScriptCostErrRationalExceedsBound logs eUnitPrices execUnits)
                             : accum
                     Left err -> Left (PlutusScriptCostErrExecError sWitInd Nothing err) : accum
 

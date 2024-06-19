@@ -909,7 +909,7 @@ instance Error CostModelsError where
     CostModelsErrorReadFile e ->
       "Cannot read cost model: " <> prettyError e
     CostModelsErrorJSONDecode fp err ->
-      "Error decoding JSON cost model at " <> pshow fp <> ": " <> pshow err <> formatExplanation
+      "Error decoding JSON cost model at " <> pshow fp <> ": " <> pretty err <> formatExplanation
     CostModelsErrorEmpty fp ->
       "The decoded cost model was empty at: " <> pshow fp <> formatExplanation
     where
