@@ -7,6 +7,7 @@
     iohkNix.url = "github:input-output-hk/iohk-nix";
     incl.url = "github:divnix/incl";
     flake-utils.url = "github:hamishmack/flake-utils/hkm/nested-hydraJobs";
+    # TODO remove me when HLS version is updated
     "patched-hls" = { url = "github:carbolymer/haskell-language-server"; flake = false; };
     CHaP.url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
     CHaP.flake = false;
