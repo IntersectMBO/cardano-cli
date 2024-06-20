@@ -1,5 +1,36 @@
 # Changelog for cardano-cli
 
+## 8.24.0.0 
+
+- Pre-integration for cardano-node 8.12 release
+  `cardano-cli transaction build ... --calculate-plutus-script-cost` now returns the execution logs of the scripts
+  (breaking)
+  [PR 789](https://github.com/IntersectMBO/cardano-cli/pull/789)
+
+- New `debug log-epoch-state` command
+  (feature, compatible, refactoring)
+  [PR 775](https://github.com/IntersectMBO/cardano-cli/pull/775)
+
+- transaction view: show proposals and votes
+  
+  This adds to new fields to the JSON output of `transaction view`: `governance actions` and `voters`.
+  Please see https://github.com/IntersectMBO/cardano-cli/pull/774#issuecomment-2139062455 for example outputs.
+  When those fields are irrelevant, they are present but there value is `null`.
+  (compatible)
+  [PR 774](https://github.com/IntersectMBO/cardano-cli/pull/774)
+
+- query protocol-parameters: use ledger JSON encoding, not API one
+  (breaking)
+  [PR 758](https://github.com/IntersectMBO/cardano-cli/pull/758)
+
+- Make `--fee` mandatory in `transaction build-raw`. Remove `TxCmdTxFeeValidationError` type.
+  (breaking, bugfix)
+  [PR 768](https://github.com/IntersectMBO/cardano-cli/pull/768)
+
+- Remove UnwitnessedCliFormattedTxBody constructor
+  (improvement)
+  [PR 707](https://github.com/IntersectMBO/cardano-cli/pull/707)
+
 ## 8.23.1.0
 
 - Make `--prev-governance-action-tx-id` and `--prev-governance-action-tx-id` optional for `create-no-confidence` command
