@@ -193,7 +193,7 @@ friendlyTxBodyImpl
          _txTreasuryDonation)) =
   do redeemerDetails <- redeemerIfShelleyBased era tb
      return $ cardanoEraConstraints era
-                ( redeemerDetails ++
+                (( redeemerDetails ++
                   [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
                   , "certificates" .= forEraInEon era Null (`friendlyCertificates` txCertificates)
                   , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
@@ -208,7 +208,6 @@ friendlyTxBodyImpl
                   , "return collateral" .= friendlyReturnCollateral era txReturnCollateral
                   , "required signers (payment key hashes needed for scripts)" .=
                       friendlyExtraKeyWits txExtraKeyWits
-                  , "update proposal" .= friendlyUpdateProposal txUpdateProposal
                   , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
                   , "withdrawals" .= friendlyWithdrawals txWithdrawals
                   , "governance actions" .=
@@ -231,7 +230,15 @@ friendlyTxBodyImpl
                              Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
                                friendlyVotingProcedures cOnwards votes)
                         era)
-                  ])
+                  ]) ++ (
+                    -- TODO introduce case ByronToBabbageOrConwayOnwards
+                    caseByronOrShelleyBasedEra
+                      ["update proposal" .= friendlyUpdateProposal txUpdateProposal])
+                      (caseShelleyToBabbageOrConwayEraOnwards
+                         (const ["update proposal" .= friendlyUpdateProposal txUpdateProposal])
+                         (const []))
+                      era
+                  )
   where
     friendlyLedgerProposals :: ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
     friendlyLedgerProposals cOnwards proposalProcedures =
