@@ -14,7 +14,7 @@ Available options:
 Available commands:
   key-gen-cold             Create a cold key pair for a Constitutional Committee
                            Member
-  key-gen-hot              Create a cold key pair for a Constitutional Committee
+  key-gen-hot              Create a hot key pair for a Constitutional Committee
                            Member
   key-hash                 Print the identifier (hash) of a public key
   create-hot-key-authorization-certificate

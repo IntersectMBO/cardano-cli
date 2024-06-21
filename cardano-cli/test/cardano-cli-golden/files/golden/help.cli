@@ -6913,7 +6913,7 @@ Usage: cardano-cli conway governance committee key-gen-cold
 Usage: cardano-cli conway governance committee key-gen-hot --verification-key-file FILE
                                                              --signing-key-file FILE
 
-  Create a cold key pair for a Constitutional Committee Member
+  Create a hot key pair for a Constitutional Committee Member
 
 Usage: cardano-cli conway governance committee key-hash 
                                                           ( --verification-key STRING
