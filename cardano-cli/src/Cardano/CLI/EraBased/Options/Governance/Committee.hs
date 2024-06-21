@@ -66,7 +66,7 @@ pGovernanceCommitteeKeyGenHotCmd era = do
     $ Opt.info (pCmd w)
     $ Opt.progDesc
     $ mconcat
-        [ "Create a cold key pair for a Constitutional Committee Member"
+        [ "Create a hot key pair for a Constitutional Committee Member"
         ]
   where
     pCmd :: ()
