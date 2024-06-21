@@ -38,7 +38,7 @@ data LegacyTransactionCmds
       -- ^ Transaction lower bound
       (Maybe SlotNo)
       -- ^ Transaction upper bound
-      (Maybe Coin)
+      Coin
       -- ^ Tx fee
       [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
       -- ^ Certificates with potential script witness

@@ -364,7 +364,7 @@ pTransaction envCli =
       <*> optional (pMintMultiAsset ManualBalance)
       <*> optional pInvalidBefore
       <*> optional pLegacyInvalidHereafter
-      <*> optional pTxFee
+      <*> pTxFee
       <*> many (pCertificateFile ManualBalance )
       <*> many (pWithdrawal ManualBalance)
       <*> pTxMetadataJsonSchema
