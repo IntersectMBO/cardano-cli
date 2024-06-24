@@ -184,7 +184,7 @@ pTransactionBuildCmd era envCli = do
           <*> pVoteFiles sbe AutoBalance
           <*> pProposalFiles sbe AutoBalance
           <*> pTreasuryDonation sbe
-          <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
+          <*> pTxBuildOutputOptions
 
 -- | Estimate the transaction fees without access to a live node.
 pTransactionBuildEstimateCmd :: MaryEraOnwards era -> EnvCli -> Maybe (Parser (TransactionCmds era))

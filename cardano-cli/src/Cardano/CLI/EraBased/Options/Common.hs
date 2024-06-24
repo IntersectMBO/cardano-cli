@@ -1344,14 +1344,18 @@ pProtocolParamsFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pCalculatePlutusScriptCost :: Parser TxBuildOutputOptions
-pCalculatePlutusScriptCost =
-  OutputScriptCostOnly <$> Opt.strOption
-   ( Opt.long "calculate-plutus-script-cost" <>
-     Opt.metavar "FILE" <>
-     Opt.help "(File () Out) filepath of the script cost information." <>
-     Opt.completer (Opt.bashCompleter "file")
-   )
+pTxBuildOutputOptions :: Parser TxBuildOutputOptions
+pTxBuildOutputOptions =
+  (OutputTxBodyOnly <$> pTxBodyFileOut) <|> pCalculatePlutusScriptCost
+  where
+    pCalculatePlutusScriptCost :: Parser TxBuildOutputOptions
+    pCalculatePlutusScriptCost =
+      OutputScriptCostOnly <$> Opt.strOption
+       ( Opt.long "calculate-plutus-script-cost" <>
+         Opt.metavar "FILE" <>
+         Opt.help "(File () Out) filepath of the script cost information." <>
+         Opt.completer (Opt.bashCompleter "file")
+       )
 
 pCertificateFile
   :: BalanceTxExecUnits
