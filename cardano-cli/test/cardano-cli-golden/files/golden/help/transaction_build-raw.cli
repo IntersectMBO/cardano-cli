@@ -79,7 +79,7 @@ Usage: cardano-cli transaction build-raw
                                              )]
                                            [--invalid-before SLOT]
                                            [--invalid-hereafter SLOT]
-                                           [--fee LOVELACE]
+                                           --fee LOVELACE
                                            [--certificate-file FILE
                                              [ --certificate-script-file FILE
                                                [
