@@ -28,6 +28,8 @@ module Cardano.CLI.Json.Friendly
   , FriendlyFormat(..)
   ) where
 
+import System.IO.Unsafe (unsafePerformIO)
+
 import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
 import qualified Cardano.Api.Ledger as L
@@ -191,7 +193,7 @@ friendlyTxBodyImpl
          txVotingProcedures
          _txCurrentTreasuryValue
          _txTreasuryDonation)) =
-  do redeemerDetails <- redeemerIfShelleyBased era tb
+  do redeemerDetails <- redeemerIfShelleyBased (unsafePerformIO (putStrLn (show era)) `seq` era) tb
      return $ cardanoEraConstraints era
                 (( redeemerDetails ++
                   [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
@@ -222,13 +224,13 @@ friendlyTxBodyImpl
                          era)
                   ]) ++ (
                     -- .= :: Key -> Value -> KeyValue
-                    friendlyConwayOnwards "voters_foo"
+                    friendlyConwayOnwards "voters"
                       (\cOnwards ->
                          case txVotingProcedures of
-                           Nothing -> Null
-                           Just (Featured _ TxVotingProceduresNone) -> Null
+                           Nothing -> unsafePerformIO (putStrLn "case1") `seq` Null
+                           Just (Featured _ TxVotingProceduresNone) -> unsafePerformIO (putStrLn "case2") `seq` Null
                            Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
-                             friendlyVotingProcedures cOnwards votes) era
+                             unsafePerformIO (putStrLn "case3") `seq` (friendlyVotingProcedures cOnwards votes)) era
                   ) ++ (
                     -- TODO introduce case ByronToBabbageOrConwayOnwards
                     caseByronOrShelleyBasedEra

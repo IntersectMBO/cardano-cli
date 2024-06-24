@@ -1433,6 +1433,7 @@ runTransactionViewCmd
           ViewOutputFormatYaml -> friendlyTxBody FriendlyYaml mOutFile (toCardanoEra era) txbody
           ViewOutputFormatJson -> friendlyTxBody FriendlyJson mOutFile (toCardanoEra era) txbody
     InputTxFile (File txFilePath) -> do
+      liftIO $ putStrLn ("runTransactionViewCmd, era:" <> show era)
       txFile <- liftIO $ fileOrPipe txFilePath
       InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
       firstExceptT TxCmdWriteFileError . newExceptT $
