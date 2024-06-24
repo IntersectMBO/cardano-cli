@@ -220,17 +220,16 @@ friendlyTxBodyImpl
                               Just (Featured _ (TxProposalProcedures lProposals _witnesses)) ->
                                 friendlyLedgerProposals cOnwards $ toList lProposals)
                          era)
-                  , "voters" .=
-                      (inEonForEra
-                        Null
-                        (\cOnwards ->
-                          case txVotingProcedures of
-                             Nothing -> Null
-                             Just (Featured _ TxVotingProceduresNone) -> Null
-                             Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
-                               friendlyVotingProcedures cOnwards votes)
-                        era)
                   ]) ++ (
+                    -- .= :: Key -> Value -> KeyValue
+                    friendlyConwayOnwards "voters_foo"
+                      (\cOnwards ->
+                         case txVotingProcedures of
+                           Nothing -> Null
+                           Just (Featured _ TxVotingProceduresNone) -> Null
+                           Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
+                             friendlyVotingProcedures cOnwards votes) era
+                  ) ++ (
                     -- TODO introduce case ByronToBabbageOrConwayOnwards
                     caseByronOrShelleyBasedEra
                       ["update proposal" .= friendlyUpdateProposal txUpdateProposal])
@@ -243,6 +242,19 @@ friendlyTxBodyImpl
     friendlyLedgerProposals :: ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
     friendlyLedgerProposals cOnwards proposalProcedures =
       Array $ Vector.fromList $ map (friendlyLedgerProposal cOnwards) proposalProcedures
+    -- | Function to return a value only in Conway onwards
+    friendlyConwayOnwards :: ()
+      => Aeson.Key
+      -> (ConwayEraOnwards era -> Aeson.Value)
+      -> CardanoEra era
+      -> [Aeson.Pair]
+    friendlyConwayOnwards key conwayOnwardsFun era' =
+      caseByronOrShelleyBasedEra
+        []
+        (caseShelleyToBabbageOrConwayEraOnwards
+          (const [])
+          (\cOnwards -> [key .= conwayOnwardsFun cOnwards]))
+        era'
 
 friendlyLedgerProposal :: ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
 friendlyLedgerProposal cOnwards proposalProcedure = object $ friendlyProposalImpl cOnwards (Proposal proposalProcedure)
