@@ -10,20 +10,42 @@ permissions:
   contents: read
   
 jobs:
+
   test-hls-works:
+    env:
+      # Modify this value to "invalidate" the cache.
+      HLS_CACHE_VERSION: "2024-06-25"
+  
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repo
+        uses: actions/checkout@v4
       - name: Install Nix with good defaults
         uses: input-output-hk/install-nix-action@v20
         with:
           extra_nix_config: |
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
             substituters = https://cache.iog.io/ https://cache.nixos.org/
-          nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/install-nix-action@v18
+          nix_path: nixpkgs=channel:nixos-unstable 
+      - name: Open nix environment
+        uses: rrbutani/use-nix-shell-action@v1
+      - name: Update dependencies
+        run: cabal update; cabal freeze
+      - name: Obtain GHC version
+        run: |
+          echo "VERSION=$(ghc --numeric-version)" >> "$GITHUB_OUTPUT"
+        id: ghc
+      - name: HLS caching
+        uses: actions/cache@v4
         with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      # Make the Nix environment available to next steps
-      - uses: rrbutani/use-nix-shell-action@v1
-      - run: cabal update; haskell-language-server
+          path: |
+            /home/runner/.cache/hie-bios
+            /home/runner/.cache/ghcide
+            /home/runner/.local/state/cabal
+            .ghc.environment.x86_64-linux-9.8.2
+            dist-newstyle
+          key: hls-cache-${{ env.HLS_CACHE_VERSION }}-${{ runner.os }}-${{ steps.ghc.outputs.VERSION }}-${{ hashFiles('**/cabal.project.freeze') }}-${{ hashFiles('**/*.cabal', '**/cabal.project') }}
+          restore-keys: |
+            hls-cache-${{ env.HLS_CACHE_VERSION }}-${{ runner.os }}-${{ steps.ghc.outputs.VERSION }}-${{ hashFiles('**/cabal.project.freeze') }}-
+      - name: Test HLS works
+        run: haskell-language-server
