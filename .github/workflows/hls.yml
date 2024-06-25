@@ -17,6 +17,7 @@ jobs:
       HLS_CACHE_VERSION: "2024-06-25"
   
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
