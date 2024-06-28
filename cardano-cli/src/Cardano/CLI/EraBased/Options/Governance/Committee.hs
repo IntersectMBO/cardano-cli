@@ -106,18 +106,13 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
         ( fmap GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd $
             GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs w
               <$> pColdCredential
-              <*> pHotVerificationKeyOrHashOrFileOrScript
+              <*> pHotCredential
               <*> pOutputFile
         )
     $ Opt.progDesc
     $ mconcat
         [ "Create hot key authorization certificate for a Constitutional Committee Member"
         ]
-  where
-    pHotVerificationKeyOrHashOrFileOrScript = asum
-      [ VkhfsKeyHashFile <$> pCommitteeHotKeyOrHashOrFile
-      , VkhfsScript <$> pScriptFor "hot-script-file" Nothing "Hot Native or Plutus script file"
-      ]
 
 pGovernanceCommitteeCreateColdKeyResignationCertificateCmd :: ()
   => CardanoEra era
@@ -147,6 +142,18 @@ pColdCredential =
           "cold-script-hash"
           "Committee cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
     , VksScript <$> pScriptFor "cold-script-file" Nothing "Cold Native or Plutus script file"
+    ]
+
+pHotCredential :: Parser (VerificationKeySource CommitteeHotKey)
+pHotCredential =
+  asum
+    [ VksKeyHashFile . VerificationKeyOrFile <$> pCommitteeHotVerificationKeyOrFile
+    , VksKeyHashFile . VerificationKeyHash <$> pCommitteeHotVerificationKeyHash
+    , VksScriptHash <$>
+        pScriptHash
+          "hot-script-hash"
+          "Committee hot Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
+    , VksScript <$> pScriptFor "hot-script-file" Nothing "Hot Native or Plutus script file"
     ]
 
 pAnchor :: Parser (Maybe (L.Anchor L.StandardCrypto))
