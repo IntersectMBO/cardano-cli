@@ -221,7 +221,7 @@ runTransactionBuildCmd
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
-      (txEraUtxo, _, eraHistory, systemStart, _, _, _) <-
+      (txEraUtxo, _, eraHistory, systemStart, _, _, _, _) <-
         lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip (queryStateForBalancedTx nodeEra allTxInputs []))
           & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . TxCmdQueryConvenienceError)
@@ -775,7 +775,7 @@ runTxBuild
           TxCertificates _ cs _ -> cs
           _ -> []
 
-  (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits) <-
+  (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits, _) <-
     lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ queryStateForBalancedTx nodeEra allTxInputs certs)
       & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
       & onLeft (left . TxCmdQueryConvenienceError)
