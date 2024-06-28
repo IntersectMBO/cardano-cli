@@ -48,6 +48,6 @@ Available options:
                            ...").
   --constitution-script-hash HASH
                            Constitution script hash (hex-encoded). Obtain it
-                           with "cardano-cli conway governance hash script ...".
+                           with "cardano-cli hash script ...".
   --out-file FILE          Output filepath of the constitution.
   -h,--help                Show this help text
