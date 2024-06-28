@@ -428,7 +428,7 @@ pQueryGetCommitteeStateCmd era envCli = do
         , VkhfshScriptHash <$>
             pScriptHash
               "cold-script-hash"
-              "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+              "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
         ]
 
     pCommitteeHotKeyOrHashOrFileOrScriptHash :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey)
@@ -438,7 +438,7 @@ pQueryGetCommitteeStateCmd era envCli = do
         , VkhfshScriptHash <$>
             pScriptHash
               "hot-script-hash"
-              "Hot Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+              "Hot Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
         ]
 
     pMemberStatus :: Parser MemberStatus
