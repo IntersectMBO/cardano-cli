@@ -47,7 +47,7 @@ module Cardano.CLI.Types.Common
   , ProposalText
   , ProposalUrl(..)
   , ProtocolParamsFile(..)
-  , QueryOutputFormat(..)
+  , OutputFormatJsonOrText(..)
   , ReferenceScriptAnyEra (..)
   , ReferenceScriptSize (..)
   , RequiredSigner (..)
@@ -478,9 +478,9 @@ data TxMempoolQuery =
     | TxMempoolQueryInfo
   deriving Show
 
-data QueryOutputFormat
-  = QueryOutputFormatJson
-  | QueryOutputFormatText
+data OutputFormatJsonOrText
+  = OutputFormatJson
+  | OutputFormatText
   deriving Show
 
 data ViewOutputFormat
