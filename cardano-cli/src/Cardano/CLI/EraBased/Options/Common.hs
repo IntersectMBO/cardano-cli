@@ -880,15 +880,6 @@ deserialiseHotCCKeyHashFromHex =
     . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
     . BSC.pack
 
-pCommitteeHotKeyFile :: Parser (VerificationKeyFile In)
-pCommitteeHotKeyFile =
-  fmap File $ Opt.strOption $ mconcat
-    [ Opt.long "hot-key-file"
-    , Opt.metavar "FILE"
-    , Opt.help "Filepath of the Consitutional Committee hot key."
-    , Opt.completer (Opt.bashCompleter "file")
-    ]
-
 pCommitteeHotVerificationKeyFile :: String -> Parser (VerificationKeyFile In)
 pCommitteeHotVerificationKeyFile longFlag =
   fmap File $ Opt.strOption $ mconcat
@@ -911,7 +902,7 @@ pCommitteeHotKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeHot
 pCommitteeHotKeyOrHashOrFile =
   asum
     [ VerificationKeyOrFile . VerificationKeyValue <$> pCommitteeHotKey
-    , VerificationKeyOrFile . VerificationKeyFilePath <$> pCommitteeHotKeyFile
+    , VerificationKeyOrFile . VerificationKeyFilePath <$> pCommitteeHotVerificationKeyFile "hot-key-file"
     , VerificationKeyHash <$> pCommitteeHotKeyHash Nothing
     ]
 
