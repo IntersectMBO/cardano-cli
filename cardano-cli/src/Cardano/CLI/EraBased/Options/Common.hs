@@ -854,17 +854,11 @@ pCommitteeHotVerificationKeyOrFile =
 
 pCommitteeHotVerificationKeyHash :: Parser (Hash CommitteeHotKey)
 pCommitteeHotVerificationKeyHash =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option (Opt.eitherReader deserialiseHotCCKeyHashFromHex) $ mconcat
     [ Opt.long "hot-verification-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (Hash CommitteeHotKey)
-    deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Consitutional Committee hot key hash: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
-        . BSC.pack
 
 pCommitteeHotVerificationKey :: String -> Parser (VerificationKey CommitteeHotKey)
 pCommitteeHotVerificationKey longFlag =
@@ -878,6 +872,12 @@ deserialiseHotCCKeyFromHex :: String -> Either String (VerificationKey Committee
 deserialiseHotCCKeyFromHex =
   first (\e -> docToString $ "Invalid Constitutional Committee hot key: " <> prettyError e)
     . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey)
+    . BSC.pack
+
+deserialiseHotCCKeyHashFromHex :: String -> Either String (Hash CommitteeHotKey)
+deserialiseHotCCKeyHashFromHex =
+  first (\e -> docToString $ "Invalid Consitutional Committee hot key hash: " <> prettyError e)
+    . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
     . BSC.pack
 
 pCommitteeHotKeyFile :: Parser (VerificationKeyFile In)
@@ -901,17 +901,11 @@ pCommitteeHotVerificationKeyFile longFlag =
 -- | The first argument is the optional prefix.
 pCommitteeHotKeyHash :: Maybe String -> Parser (Hash CommitteeHotKey)
 pCommitteeHotKeyHash prefix =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option (Opt.eitherReader deserialiseHotCCKeyHashFromHex) $ mconcat
     [ Opt.long $ prefixFlag prefix "hot-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (Hash CommitteeHotKey)
-    deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Consitutional Committee hot key hash: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
-        . BSC.pack
 
 pCommitteeHotKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeHotKey)
 pCommitteeHotKeyOrHashOrFile =
