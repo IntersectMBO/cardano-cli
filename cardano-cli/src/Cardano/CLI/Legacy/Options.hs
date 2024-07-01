@@ -652,7 +652,7 @@ pQueryCmds envCli =
           <*> pConsensusModeParams
           <*> pQueryUTxOFilter
           <*> pNetworkId envCli
-          <*> (optional $ pQueryOutputFormat "utxo")
+          <*> (optional $ pOutputFormatJsonOrText "utxo")
           <*> pMaybeOutputFile
 
     pQueryStakePools :: Parser LegacyQueryCmds
@@ -662,7 +662,7 @@ pQueryCmds envCli =
           <$> pSocketPath envCli
           <*> pConsensusModeParams
           <*> pNetworkId envCli
-          <*> (optional $ pQueryOutputFormat "stake-pools")
+          <*> (optional $ pOutputFormatJsonOrText "stake-pools")
           <*> pMaybeOutputFile
 
     pQueryStakeDistribution :: Parser LegacyQueryCmds
@@ -672,7 +672,7 @@ pQueryCmds envCli =
         <$> pSocketPath envCli
         <*> pConsensusModeParams
         <*> pNetworkId envCli
-        <*> (optional $ pQueryOutputFormat "stake-distribution")
+        <*> (optional $ pOutputFormatJsonOrText "stake-distribution")
         <*> pMaybeOutputFile
 
     pQueryStakeAddressInfo :: Parser LegacyQueryCmds
@@ -766,7 +766,7 @@ pQueryCmds envCli =
           <*> pStakePoolVerificationKeyOrHashOrFile Nothing
           <*> pVrfSigningKeyFile
           <*> pWhichLeadershipSchedule
-          <*> (optional $ pQueryOutputFormat "leadership-schedule")
+          <*> (optional $ pOutputFormatJsonOrText "leadership-schedule")
           <*> pMaybeOutputFile
 
     pKesPeriodInfo :: Parser LegacyQueryCmds

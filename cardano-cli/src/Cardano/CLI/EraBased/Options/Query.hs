@@ -149,7 +149,7 @@ pQueryUTxOCmd era envCli =
       <*> pQueryUTxOFilter
       <*> pNetworkId envCli
       <*> pTarget era
-      <*> (optional $ pQueryOutputFormat "utxo")
+      <*> (optional $ pOutputFormatJsonOrText "utxo")
       <*> pMaybeOutputFile
 
 pQueryStakePoolsCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
@@ -160,7 +160,7 @@ pQueryStakePoolsCmd era envCli =
       <*> pConsensusModeParams
       <*> pNetworkId envCli
       <*> pTarget era
-      <*> (optional $ pQueryOutputFormat "stake-pools")
+      <*> (optional $ pOutputFormatJsonOrText "stake-pools")
       <*> pMaybeOutputFile
 
 pQueryStakeDistributionCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
@@ -171,7 +171,7 @@ pQueryStakeDistributionCmd era envCli =
       <*> pConsensusModeParams
       <*> pNetworkId envCli
       <*> pTarget era
-      <*> (optional $ pQueryOutputFormat "stake-distribution")
+      <*> (optional $ pOutputFormatJsonOrText "stake-distribution")
       <*> pMaybeOutputFile
 
 pQueryStakeAddressInfoCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
@@ -271,7 +271,7 @@ pLeadershipScheduleCmd era envCli =
       <*> pVrfSigningKeyFile
       <*> pWhichLeadershipSchedule
       <*> pTarget era
-      <*> (optional $ pQueryOutputFormat "leadership-schedule")
+      <*> (optional $ pOutputFormatJsonOrText "leadership-schedule")
       <*> pMaybeOutputFile
 
 pKesPeriodInfoCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
@@ -310,7 +310,7 @@ pQueryRefScriptSizeCmd era envCli =
       <*> (fromList <$> some pByTxIn)
       <*> pNetworkId envCli
       <*> pTarget era
-      <*> (optional $ pQueryOutputFormat "reference inputs")
+      <*> (optional $ pOutputFormatJsonOrText "reference inputs")
       <*> pMaybeOutputFile
   where
     pByTxIn :: Parser TxIn
