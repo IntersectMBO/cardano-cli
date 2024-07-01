@@ -43,6 +43,7 @@ import qualified Cardano.Binary as CBOR
 import qualified Cardano.Chain.Common as Byron
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis
+import           Cardano.CLI.EraBased.Run.Query
 import           Cardano.CLI.Json.Friendly (FriendlyFormat (..), friendlyTx, friendlyTxBody)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -57,6 +58,8 @@ import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 import           Control.Monad (forM)
+import           Data.Aeson ((.=))
+import qualified Data.Aeson as Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as Data.Bytestring
@@ -1262,6 +1265,8 @@ runTransactionCalculateMinFeeCmd
       , txShelleyWitnessCount = TxShelleyWitnessCount nShelleyKeyWitnesses
       , txByronWitnessCount = TxByronWitnessCount nByronKeyWitnesses
       , referenceScriptSize = ReferenceScriptSize sReferenceScript
+      , outputFormat
+      , outFile
       } = do
 
   txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
@@ -1282,8 +1287,18 @@ runTransactionCalculateMinFeeCmd
   let byronfee = shelleyBasedEraConstraints sbe $ calculateByronWitnessFees (lpparams ^. L.ppMinFeeAL) nByronKeyWitnesses
 
   let L.Coin fee = shelleyfee + byronfee
+      textToWrite = Text.pack ((show fee :: String) <> " Lovelace")
+      jsonToWrite = encodePretty $ Aeson.object ["fee" .= fee]
 
-  liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
+  case (newOutputFormat outputFormat outFile, outFile) of
+    (OutputFormatText, Nothing) ->
+       liftIO $ Text.putStrLn textToWrite
+    (OutputFormatText, Just file) ->
+       firstExceptT TxCmdWriteFileError . newExceptT $ writeTextFile file textToWrite
+    (OutputFormatJson, Nothing) ->
+       liftIO $ LBS.putStrLn jsonToWrite
+    (OutputFormatJson, Just file) ->
+       firstExceptT TxCmdWriteFileError . newExceptT $ writeLazyByteStringFile file jsonToWrite
 
 -- Extra logic to handle byron witnesses.
 -- TODO: move this to Cardano.API.Fee.evaluateTransactionFee.

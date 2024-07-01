@@ -33,6 +33,7 @@ module Cardano.CLI.EraBased.Run.Query
   , runQueryUTxOCmd
 
   , DelegationsAndRewards(..)
+  , newOutputFormat
   , renderQueryCmdError
   , renderOpCertIntervalInformation
   , percentage

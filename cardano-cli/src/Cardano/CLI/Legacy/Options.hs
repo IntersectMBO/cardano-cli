@@ -419,6 +419,8 @@ pTransaction envCli =
       <*> pTxShelleyWitnessCount
       <*> pTxByronWitnessCount
       <*> pReferenceScriptSize
+      <*> (optional $ pOutputFormatJsonOrText "calculate-min-fee")
+      <*> optional pOutputFile
       -- Deprecated options:
       <*  optional pNetworkIdDeprecated
       <*  optional pTxInCountDeprecated

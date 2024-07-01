@@ -218,6 +218,8 @@ data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
   , txByronWitnessCount   :: !TxByronWitnessCount
     -- | The total size in bytes of the transaction reference scripts.
   , referenceScriptSize   :: !ReferenceScriptSize
+  , outputFormat          :: !(Maybe OutputFormatJsonOrText)
+  , outFile               :: !(Maybe (File () Out))
   } deriving Show
 
 data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdArgs
