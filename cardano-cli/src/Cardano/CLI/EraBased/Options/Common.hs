@@ -843,12 +843,7 @@ pAnyVerificationKeySource helpText =
     ]
 
 pCommitteeHotKey :: Parser (VerificationKey CommitteeHotKey)
-pCommitteeHotKey =
-  Opt.option (Opt.eitherReader deserialiseHotCCKeyFromHex) $ mconcat
-    [ Opt.long "hot-key"
-    , Opt.metavar "STRING"
-    , Opt.help "Constitutional Committee hot key (hex-encoded)."
-    ]
+pCommitteeHotKey = pCommitteeHotVerificationKey "hot-key"
 
 pCommitteeHotVerificationKeyOrFile :: Parser (VerificationKeyOrFile CommitteeHotKey)
 pCommitteeHotVerificationKeyOrFile =
