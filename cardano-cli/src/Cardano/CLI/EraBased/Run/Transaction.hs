@@ -1260,6 +1260,8 @@ runTransactionCalculateMinFeeCmd
       , txShelleyWitnessCount = TxShelleyWitnessCount nShelleyKeyWitnesses
       , txByronWitnessCount = TxByronWitnessCount nByronKeyWitnesses
       , referenceScriptSize = ReferenceScriptSize sReferenceScript
+      -- , outputFormat
+      -- , outFile
       } = do
 
   txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
@@ -1281,6 +1283,9 @@ runTransactionCalculateMinFeeCmd
 
   let L.Coin fee = shelleyfee + byronfee
 
+        -- case outputFormat of
+        --   ViewOutputFormatYaml -> friendlyTx FriendlyYaml mOutFile (toCardanoEra era) tx
+        --   ViewOutputFormatJson -> friendlyTx FriendlyJson mOutFile (toCardanoEra era) tx
   liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
 
 -- Extra logic to handle byron witnesses.

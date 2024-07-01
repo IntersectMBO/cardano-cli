@@ -329,6 +329,8 @@ pTransactionCalculateMinFee =
       <*> pTxShelleyWitnessCount
       <*> pTxByronWitnessCount
       <*> pReferenceScriptSize
+      <*> pOutputFormatJsonOrText "calculcate-min-fee"
+      <*> optional pOutputFile
       -- Deprecated options:
       <*  optional pNetworkIdDeprecated
       <*  optional pTxInCountDeprecated

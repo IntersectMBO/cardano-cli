@@ -122,6 +122,8 @@ data LegacyTransactionCmds
       TxShelleyWitnessCount
       TxByronWitnessCount
       ReferenceScriptSize
+      OutputFormatJsonOrText
+      (Maybe (File () Out))
       -- ^ The total size in bytes of the transaction reference scripts.
   | TransactionCalculateMinValueCmd
       (EraInEon ShelleyBasedEra)
