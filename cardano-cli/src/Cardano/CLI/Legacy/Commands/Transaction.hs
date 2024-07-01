@@ -93,6 +93,7 @@ data LegacyTransactionCmds
       (Maybe UpdateProposalFile)
       [(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
       [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+      (Maybe TxTreasuryDonation)
       TxBuildOutputOptions
   | TransactionSignCmd
       InputTxBodyOrTxFile

@@ -31,6 +31,7 @@ certificates:
       network: Mainnet
     vrf: 8d445260282cef45e4c6a862b8a924aeed1b316ccba779dd39f9517220e96407
 collateral inputs: null
+currentTreasuryValue: null
 era: Shelley
 fee: 32 Lovelace
 governance actions: null
@@ -52,6 +53,7 @@ reference inputs: null
 required signers (payment key hashes needed for scripts): null
 return collateral: null
 total collateral: null
+treasuryDonation: null
 update proposal:
   epoch: 64
   updates:

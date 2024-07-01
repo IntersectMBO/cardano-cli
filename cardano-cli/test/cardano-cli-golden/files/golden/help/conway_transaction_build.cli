@@ -125,6 +125,7 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                                   | --proposal-redeemer-file JSON_FILE
                                                   | --proposal-redeemer-value JSON_VALUE
                                                   ]]]
+                                              [--treasury-donation LOVELACE]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
                                               )
@@ -420,6 +421,8 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
+  --treasury-donation LOVELACE
+                           The donation to the treasury to perform.
   --out-file FILE          Output filepath of the JSON TxBody.
   --calculate-plutus-script-cost FILE
                            (File () Out) filepath of the script cost

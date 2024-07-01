@@ -80,6 +80,8 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , mUpdateProprosalFile  :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles             :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , proposalFiles         :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , currentTreasuryValue  :: !(Maybe TxCurrentTreasuryValue)
+  , treasuryDonation      :: !(Maybe TxTreasuryDonation)
   , txBodyOutFile         :: !(TxBodyFile Out)
   } deriving Show
 
@@ -126,6 +128,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , mUpdateProposalFile     :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles               :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , proposalFiles           :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , treasuryDonation        :: !(Maybe TxTreasuryDonation)
   , buildOutputOptions      :: !TxBuildOutputOptions
   } deriving Show
 
@@ -174,6 +177,8 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , mUpdateProposalFile      :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles                :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , proposalFiles            :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , currentTreasuryValue     :: !(Maybe TxCurrentTreasuryValue)
+  , treasuryDonation         :: !(Maybe TxTreasuryDonation)
   , txBodyOutFile            :: !(TxBodyFile Out)
   }
 

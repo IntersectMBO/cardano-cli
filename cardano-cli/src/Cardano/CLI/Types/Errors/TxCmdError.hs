@@ -79,7 +79,7 @@ data TxCmdError
   | TxCmdCddlWitnessError CddlWitnessError
   | TxCmdRequiredSignerError RequiredSignerError
   -- Validation errors
-  | forall era. TxCmdNotSupportedInAnyCardanoEraValidationError (TxNotSupportedInAnyCardanoEraValidationError era)
+  | forall era. TxCmdNotSupportedInEraValidationError (TxNotSupportedInEraValidationError era)
   | TxCmdAuxScriptsValidationError TxAuxScriptsValidationError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
@@ -204,7 +204,7 @@ renderTxCmdError = \case
   TxCmdRequiredSignerError e ->
     prettyError e
   -- Validation errors
-  TxCmdNotSupportedInAnyCardanoEraValidationError e ->
+  TxCmdNotSupportedInEraValidationError e ->
     prettyError e
   TxCmdAuxScriptsValidationError e ->
     prettyError e

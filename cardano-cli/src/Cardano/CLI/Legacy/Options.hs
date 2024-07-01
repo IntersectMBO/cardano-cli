@@ -339,7 +339,8 @@ pTransaction envCli =
       <*> optional pUpdateProposalFile
       <*> pVoteFiles ShelleyBasedEraConway AutoBalance
       <*> pProposalFiles ShelleyBasedEraConway AutoBalance
-      <*> (OutputTxBodyOnly <$> pTxBodyFileOut <|> pCalculatePlutusScriptCost)
+      <*> pTreasuryDonation ShelleyBasedEraConway
+      <*> pTxBuildOutputOptions
 
   pChangeAddress :: Parser TxOutChangeAddress
   pChangeAddress =

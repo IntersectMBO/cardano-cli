@@ -128,6 +128,7 @@ runTransactionBuildCmd
       , mUpdateProposalFile
       , voteFiles
       , proposalFiles
+      , treasuryDonation
       , buildOutputOptions
       } = shelleyBasedEraConstraints eon $ do
   let era = shelleyBasedToCardanoEra eon
@@ -184,18 +185,7 @@ runTransactionBuildCmd
   -- the same collateral input can be used for several plutus scripts
   let filteredTxinsc = Set.toList $ Set.fromList txinsc
 
-  -- We need to construct the txBodycontent outside of runTxBuild
-  BalancedTxBody txBodyContent balancedTxBody _ _ <-
-    runTxBuild
-      eon nodeSocketPath networkId mScriptValidity inputsAndMaybeScriptWits readOnlyReferenceInputs
-      filteredTxinsc mReturnCollateral mTotalCollateral txOuts changeAddresses valuesWithScriptWits
-      mValidityLowerBound mValidityUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
-      requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProceduresAndMaybeScriptWits
-      proposals buildOutputOptions
-
-  let mScriptWits =
-        forEraInEon era [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
-      allReferenceInputs = getAllReferenceInputs
+  let allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
                              (snd valuesWithScriptWits)
                              certsAndMaybeScriptWits
@@ -207,6 +197,26 @@ runTransactionBuildCmd
   let inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
       allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
 
+  AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
+    & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+    & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+
+  (txEraUtxo, _, eraHistory, systemStart, _, _, _, featuredCurrentTreasuryValueM) <-
+    lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip (queryStateForBalancedTx nodeEra allTxInputs []))
+      & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+      & onLeft (left . TxCmdQueryConvenienceError)
+
+  -- We need to construct the txBodycontent outside of runTxBuild
+  BalancedTxBody txBodyContent balancedTxBody _ _ <-
+    runTxBuild
+      eon nodeSocketPath networkId mScriptValidity inputsAndMaybeScriptWits readOnlyReferenceInputs
+      filteredTxinsc mReturnCollateral mTotalCollateral txOuts changeAddresses valuesWithScriptWits
+      mValidityLowerBound mValidityUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
+      requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProceduresAndMaybeScriptWits
+      proposals
+      (unFeatured <$> featuredCurrentTreasuryValueM) treasuryDonation
+      buildOutputOptions
+
   -- TODO: Calculating the script cost should live as a different command.
   -- Why? Because then we can simply read a txbody and figure out
   -- the script cost vs having to build the tx body each time
@@ -217,15 +227,6 @@ runTransactionBuildCmd
       pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
       executionUnitPrices <- pure (getExecutionUnitPrices era pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
 
-      AnyCardanoEra nodeEra <- lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
-        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
-
-      (txEraUtxo, _, eraHistory, systemStart, _, _, _, _) <-
-        lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip (queryStateForBalancedTx nodeEra allTxInputs []))
-          & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-          & onLeft (left . TxCmdQueryConvenienceError)
-
       Refl <- testEquality era nodeEra
         & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
@@ -234,6 +235,8 @@ runTransactionBuildCmd
           $ evaluateTransactionExecutionUnits era
               systemStart (toLedgerEpochInfo eraHistory)
               pparams txEraUtxo balancedTxBody
+
+      let mScriptWits = forEraInEon era [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
 
       scriptCostOutput <-
         firstExceptT TxCmdPlutusScriptCostErr $ hoistEither
@@ -281,6 +284,8 @@ runTransactionBuildEstimateCmd
     , proposalFiles
     , plutusCollateral
     , totalReferenceScriptSize
+    , currentTreasuryValue
+    , treasuryDonation
     , txBodyOutFile
     } = do
   let sbe = maryEraOnwardsToShelleyBasedEra eon
@@ -354,6 +359,8 @@ runTransactionBuildEstimateCmd
                      txUpdateProposal
                      votingProceduresAndMaybeScriptWits
                      proposals
+                     currentTreasuryValue
+                     treasuryDonation
   let stakeCredentialsToDeregisterMap = Map.fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
       drepsToDeregisterMap = Map.fromList $ catMaybes [getDRepDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
       poolsToDeregister = Set.fromList $ catMaybes [getPoolDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
@@ -487,6 +494,8 @@ runTransactionBuildRawCmd
       , voteFiles
       , proposalFiles
       , txBodyOutFile
+      , currentTreasuryValue
+      , treasuryDonation
       } = do
   inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
                                 $ readScriptWitnessFiles eon txIns
@@ -545,6 +554,7 @@ runTransactionBuildRawCmd
       mReturnCollateral mTotalCollateral txOuts mValidityLowerBound mValidityUpperBound fee valuesWithScriptWits
       certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits requiredSigners txAuxScripts
       txMetadata mLedgerPParams txUpdateProposal votingProceduresAndMaybeScriptWits proposals
+      currentTreasuryValue treasuryDonation
 
   let noWitTx = makeSignedTransaction [] txBody
   lift (writeTxFileTextEnvelopeCddl eon txBodyOutFile noWitTx)
@@ -585,6 +595,8 @@ runTxBuildRaw :: ()
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
+  -> Maybe TxCurrentTreasuryValue
+  -> Maybe TxTreasuryDonation
   -> Either TxCmdError (TxBody era)
 runTxBuildRaw sbe
               mScriptValidity inputsAndMaybeScriptWits
@@ -593,12 +605,13 @@ runTxBuildRaw sbe
               mLowerBound mUpperBound
               fee valuesWithScriptWits
               certsAndMaybeSriptWits withdrawals reqSigners
-              txAuxScripts txMetadata mpparams txUpdateProposal votingProcedures proposals = do
+              txAuxScripts txMetadata mpparams txUpdateProposal votingProcedures proposals
+              mCurrentTreasuryValue mTreasuryDonation = do
 
     txBodyContent <- constructTxBodyContent sbe mScriptValidity (unLedgerProtocolParameters <$> mpparams) inputsAndMaybeScriptWits readOnlyRefIns txinsc
                       mReturnCollateral mTotCollateral txouts mLowerBound mUpperBound valuesWithScriptWits
                       certsAndMaybeSriptWits withdrawals reqSigners fee txAuxScripts txMetadata txUpdateProposal
-                      votingProcedures proposals
+                      votingProcedures proposals mCurrentTreasuryValue mTreasuryDonation
 
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
 
@@ -637,12 +650,14 @@ constructTxBodyContent
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
+  -> Maybe TxCurrentTreasuryValue
+  -> Maybe TxTreasuryDonation
   -> Either TxCmdError (TxBodyContent BuildTx era)
 constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits readOnlyRefIns txinsc
                        mReturnCollateral mTotCollateral txouts mLowerBound mUpperBound
                        valuesWithScriptWits certsAndMaybeScriptWits withdrawals
                        reqSigners fee txAuxScripts txMetadata txUpdateProposal
-                       votingProcedures proposals
+                       votingProcedures proposals mCurrentTreasuryValue mTreasuryDonation
                        = do
   let allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
@@ -655,14 +670,16 @@ constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits rea
 
   validatedCollateralTxIns <- validateTxInsCollateral sbe txinsc
   validatedRefInputs <- validateTxInsReference sbe allReferenceInputs
-  validatedTotCollateral <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxTotalCollateral sbe mTotCollateral
-  validatedRetCol        <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxReturnCollateral sbe mReturnCollateral
+  validatedTotCollateral <- first TxCmdNotSupportedInEraValidationError $ validateTxTotalCollateral sbe mTotCollateral
+  validatedRetCol        <- first TxCmdNotSupportedInEraValidationError $ validateTxReturnCollateral sbe mReturnCollateral
   let txFee = TxFeeExplicit sbe fee
-  validatedLowerBound <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxValidityLowerBound sbe mLowerBound
-  validatedReqSigners <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateRequiredSigners sbe reqSigners
+  validatedLowerBound <- first TxCmdNotSupportedInEraValidationError $ validateTxValidityLowerBound sbe mLowerBound
+  validatedReqSigners <- first TxCmdNotSupportedInEraValidationError $ validateRequiredSigners sbe reqSigners
   validatedMintValue <- createTxMintValue sbe valuesWithScriptWits
-  validatedTxScriptValidity <- first TxCmdNotSupportedInAnyCardanoEraValidationError $ validateTxScriptValidity sbe mScriptValidity
+  validatedTxScriptValidity <- first TxCmdNotSupportedInEraValidationError $ validateTxScriptValidity sbe mScriptValidity
   validatedVotingProcedures <- first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures
+  validatedCurrentTreasuryValue <- first TxCmdNotSupportedInEraValidationError (validateTxCurrentTreasuryValue sbe mCurrentTreasuryValue)
+  validatedTreasuryDonation <- first TxCmdNotSupportedInEraValidationError (validateTxTreasuryDonation sbe mTreasuryDonation)
   return $ shelleyBasedEraConstraints sbe $ (defaultTxBodyContent sbe
              & setTxIns (validateTxIns inputsAndMaybeScriptWits)
              & setTxInsCollateral validatedCollateralTxIns
@@ -686,6 +703,8 @@ constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits rea
              { txProposalProcedures = forShelleyBasedEraInEonMaybe sbe (`Featured` convToTxProposalProcedures proposals)
              , txVotingProcedures = forShelleyBasedEraInEonMaybe sbe (`Featured` validatedVotingProcedures)
              }
+             & setTxCurrentTreasuryValue validatedCurrentTreasuryValue
+             & setTxTreasuryDonation validatedTreasuryDonation
  where
   convertWithdrawals
     :: (StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))
@@ -732,6 +751,8 @@ runTxBuild :: ()
   -> Maybe Word
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
+  -> Maybe TxCurrentTreasuryValue
+  -> Maybe TxTreasuryDonation
   -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
@@ -739,7 +760,9 @@ runTxBuild
     inputsAndMaybeScriptWits readOnlyRefIns txinsc mReturnCollateral mTotCollateral txouts
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
-    txUpdateProposal mOverrideWits votingProcedures proposals _outputOptions = shelleyBasedEraConstraints sbe $ do
+    txUpdateProposal mOverrideWits votingProcedures proposals
+    mCurrentTreasuryValue mTreasuryDonation
+    _outputOptions = shelleyBasedEraConstraints sbe $ do
 
   -- TODO: All functions should be parameterized by ShelleyBasedEra
   -- as it's not possible to call this function with ByronEra
@@ -800,6 +823,7 @@ runTxBuild
                      txMetadata
                      txUpdateProposal
                      votingProcedures proposals
+                     mCurrentTreasuryValue mTreasuryDonation
 
   firstExceptT TxCmdTxInsDoNotExist
     . hoistEither $ txInsExistInUTxO allTxInputs txEraUtxo

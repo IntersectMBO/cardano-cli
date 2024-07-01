@@ -1,6 +1,7 @@
 auxiliary scripts: null
 certificates: null
 collateral inputs: null
+currentTreasuryValue: null
 era: Allegra
 fee: 100 Lovelace
 governance actions: null
@@ -23,6 +24,7 @@ reference inputs: null
 required signers (payment key hashes needed for scripts): null
 return collateral: null
 total collateral: null
+treasuryDonation: null
 update proposal: null
 validity range:
   lower bound: null

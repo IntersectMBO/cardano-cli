@@ -189,8 +189,8 @@ friendlyTxBodyImpl
          _txScriptValidity
          txProposalProcedures
          txVotingProcedures
-         _txCurrentTreasuryValue
-         _txTreasuryDonation)) =
+         txCurrentTreasuryValue
+         txTreasuryDonation)) =
   do redeemerDetails <- redeemerIfShelleyBased era tb
      return $ cardanoEraConstraints era
                 ( redeemerDetails ++
@@ -231,6 +231,8 @@ friendlyTxBodyImpl
                              Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
                                friendlyVotingProcedures cOnwards votes)
                         era)
+                  , "currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)
+                  , "treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)
                   ])
   where
     friendlyLedgerProposals :: ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value

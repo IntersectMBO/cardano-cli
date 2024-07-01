@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -9,7 +10,7 @@
 module Cardano.CLI.Types.Errors.TxValidationError
   ( TxAuxScriptsValidationError(..)
   , TxGovDuplicateVotes(..)
-  , TxNotSupportedInAnyCardanoEraValidationError(..)
+  , TxNotSupportedInEraValidationError(..)
   , convToTxProposalProcedures
   , convertToTxVotingProcedures
   , validateScriptSupportedInEra
@@ -20,6 +21,8 @@ module Cardano.CLI.Types.Errors.TxValidationError
   , validateTxTotalCollateral
   , validateTxValidityLowerBound
   , validateUpdateProposalFile
+  , validateTxCurrentTreasuryValue
+  , validateTxTreasuryDonation
   ) where
 
 import           Cardano.Api
@@ -59,30 +62,67 @@ validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
                         (AnyScriptLanguage lang) (anyCardanoEra $ toCardanoEra era)
     Just script' -> pure script'
 
-data TxNotSupportedInAnyCardanoEraValidationError era =
+data TxNotSupportedInEraValidationError era =
     -- | First argument is the kind of data that is not supported.
     -- Second argument is the era that doesn't support the data.
     TxNotSupportedInAnyCardanoEraValidationError T.Text AnyCardanoEra
+    -- | First argument is the kind of data that is not supported.
+    -- Second argument is the Shelley era that doesn't support the data.
+  | TxNotSupportedInShelleyBasedEraValidationError T.Text (ShelleyBasedEra era)
 
-instance Show (TxNotSupportedInAnyCardanoEraValidationError era) where
-  show (TxNotSupportedInAnyCardanoEraValidationError a era) =
-    show (pretty a) <> " not supported in " <> show era
+instance Show (TxNotSupportedInEraValidationError era) where
+  show =
+    \case
+      TxNotSupportedInAnyCardanoEraValidationError a cEra -> go a cEra
+      TxNotSupportedInShelleyBasedEraValidationError a sbe -> go a sbe
+    where
+      go a era = show (pretty a) <> " not supported in " <> show era
 
-instance Error (TxNotSupportedInAnyCardanoEraValidationError era) where
-  prettyError (TxNotSupportedInAnyCardanoEraValidationError a era) =
-    pretty a <+> "not supported in" <+> viaShow era
+instance Error (TxNotSupportedInEraValidationError era) where
+  prettyError =
+    \case
+      TxNotSupportedInAnyCardanoEraValidationError a cEra -> go a cEra
+      TxNotSupportedInShelleyBasedEraValidationError a sbe -> go a sbe
+    where
+      go a cEra = pretty a <+> "not supported in" <+> viaShow cEra
 
 validateTxTotalCollateral :: ShelleyBasedEra era
                           -> Maybe L.Coin
-                          -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (TxTotalCollateral era)
+                          -> Either (TxNotSupportedInEraValidationError era) (TxTotalCollateral era)
 validateTxTotalCollateral _ Nothing = return TxTotalCollateralNone
 validateTxTotalCollateral sbe (Just coll) = do
   supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction collateral"
   pure $ TxTotalCollateral supported coll
 
+validateTxCurrentTreasuryValue :: ()
+  => ShelleyBasedEra era
+  -> Maybe TxCurrentTreasuryValue
+  -> Either (TxNotSupportedInEraValidationError era) (Maybe (Featured ConwayEraOnwards era L.Coin))
+validateTxCurrentTreasuryValue sbe mCurrentTreasuryValue =
+  case mCurrentTreasuryValue of
+    Nothing -> Right Nothing
+    Just (TxCurrentTreasuryValue { unTxCurrentTreasuryValue }) ->
+      caseShelleyToBabbageOrConwayEraOnwards
+        (const $ Left $ TxNotSupportedInShelleyBasedEraValidationError "Current treasury value" sbe)
+        (\cOnwards -> Right $ Just $ Featured cOnwards unTxCurrentTreasuryValue)
+        sbe
+
+validateTxTreasuryDonation :: ()
+  => ShelleyBasedEra era
+  -> Maybe TxTreasuryDonation
+  -> Either (TxNotSupportedInEraValidationError era) (Maybe (Featured ConwayEraOnwards era L.Coin))
+validateTxTreasuryDonation sbe mTreasuryDonation =
+  case mTreasuryDonation of
+    Nothing -> Right Nothing
+    Just (TxTreasuryDonation { unTxTreasuryDonation }) ->
+      caseShelleyToBabbageOrConwayEraOnwards
+        (const $ Left $ TxNotSupportedInShelleyBasedEraValidationError "Treasury donation" sbe)
+        (\cOnwards -> Right $ Just $ Featured cOnwards unTxTreasuryDonation )
+        sbe
+
 validateTxReturnCollateral :: ShelleyBasedEra era
                            -> Maybe (TxOut CtxTx era)
-                           -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (TxReturnCollateral CtxTx era)
+                           -> Either (TxNotSupportedInEraValidationError era) (TxReturnCollateral CtxTx era)
 validateTxReturnCollateral _ Nothing = return TxReturnCollateralNone
 validateTxReturnCollateral sbe (Just retColTxOut) = do
   supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction return collateral"
@@ -90,7 +130,7 @@ validateTxReturnCollateral sbe (Just retColTxOut) = do
 
 validateTxValidityLowerBound :: ShelleyBasedEra era
                              -> Maybe SlotNo
-                             -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (TxValidityLowerBound era)
+                             -> Either (TxNotSupportedInEraValidationError era) (TxValidityLowerBound era)
 validateTxValidityLowerBound _ Nothing = return TxValidityNoLowerBound
 validateTxValidityLowerBound sbe (Just slot) = do
   supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction validity lower bound"
@@ -120,7 +160,7 @@ validateTxAuxScripts era scripts = do
 validateRequiredSigners
   :: ShelleyBasedEra era
   -> [Hash PaymentKey]
-  -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (TxExtraKeyWitnesses era)
+  -> Either (TxNotSupportedInEraValidationError era) (TxExtraKeyWitnesses era)
 validateRequiredSigners _ [] = return TxExtraKeyWitnessesNone
 validateRequiredSigners sbe reqSigs = do
   supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction required signers"
@@ -129,7 +169,7 @@ validateRequiredSigners sbe reqSigs = do
 validateTxScriptValidity
   :: ShelleyBasedEra era
   -> Maybe ScriptValidity
-  -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (TxScriptValidity era)
+  -> Either (TxNotSupportedInEraValidationError era) (TxScriptValidity era)
 validateTxScriptValidity _ Nothing = pure TxScriptValidityNone
 validateTxScriptValidity sbe (Just scriptValidity) = do
   supported <- conjureWitness (toCardanoEra sbe) $ TxNotSupportedInAnyCardanoEraValidationError "Transaction script validity"
@@ -139,7 +179,7 @@ validateTxScriptValidity sbe (Just scriptValidity) = do
 validateUpdateProposalFile
   :: CardanoEra era
   -> Maybe UpdateProposalFile
-  -> Either (TxNotSupportedInAnyCardanoEraValidationError era) (Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+  -> Either (TxNotSupportedInEraValidationError era) (Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
 validateUpdateProposalFile era = \case
   Nothing -> pure Nothing
   Just updateProposal -> do

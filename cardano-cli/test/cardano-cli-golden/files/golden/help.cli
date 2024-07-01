@@ -7834,6 +7834,8 @@ Usage: cardano-cli conway transaction build-raw
                                                         | --proposal-redeemer-value JSON_VALUE
                                                         )
                                                         --proposal-execution-units (INT, INT)]]]
+                                                  [--current-treasury-value LOVELACE]
+                                                  [--treasury-donation LOVELACE]
                                                   --out-file FILE
 
   Build a transaction (low-level, inconvenient)
@@ -7967,6 +7969,7 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                                   | --proposal-redeemer-file JSON_FILE
                                                   | --proposal-redeemer-value JSON_VALUE
                                                   ]]]
+                                              [--treasury-donation LOVELACE]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
                                               )
@@ -8116,6 +8119,8 @@ Usage: cardano-cli conway transaction build-estimate
                                                              | --proposal-redeemer-value JSON_VALUE
                                                              )
                                                              --proposal-execution-units (INT, INT)]]]
+                                                       [--current-treasury-value LOVELACE]
+                                                       [--treasury-donation LOVELACE]
                                                        --out-file FILE
 
   Build a balanced transaction without access to a live node (automatically estimates fees)
@@ -10505,6 +10510,7 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                                   | --proposal-redeemer-file JSON_FILE
                                                   | --proposal-redeemer-value JSON_VALUE
                                                   ]]]
+                                              [--treasury-donation LOVELACE]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
                                               )
@@ -11736,6 +11742,7 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                            | --proposal-redeemer-file JSON_FILE
                                            | --proposal-redeemer-value JSON_VALUE
                                            ]]]
+                                       [--treasury-donation LOVELACE]
                                        ( --out-file FILE
                                        | --calculate-plutus-script-cost FILE
                                        )
