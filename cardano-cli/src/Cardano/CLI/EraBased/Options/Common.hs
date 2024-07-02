@@ -526,13 +526,18 @@ pTransferAmt =
     , Opt.help "The amount to transfer."
     ]
 
-pHexHash
-  :: SerialiseAsRawBytes (Hash a) => AsType a -> ReadM (Hash a)
-pHexHash a =
+pHexHash :: ()
+  => SerialiseAsRawBytes (Hash a)
+  => AsType a
+  -> Maybe String -- | Optional prefix to the error message
+  -> ReadM (Hash a)
+pHexHash a mErrPrefix =
   Opt.eitherReader $
-    first (docToString . prettyError)
+    first (\e -> errPrefix <> (docToString $ prettyError e))
       . deserialiseFromRawBytesHex (AsHash a)
       . BSC.pack
+  where
+    errPrefix = maybe "" ((<>) ": ") mErrPrefix
 
 pBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
 pBech32KeyHash a =
@@ -966,7 +971,7 @@ pStakeVerificationKeyOrHashOrFile prefix = asum
 -- | First argument is the optional prefix
 pStakeVerificationKeyHash :: Maybe String -> Parser (Hash StakeKey)
 pStakeVerificationKeyHash prefix =
-   Opt.option (pHexHash AsStakeKey) $ mconcat
+   Opt.option (pHexHash AsStakeKey Nothing) $ mconcat
       [ Opt.long $ prefixFlag prefix "stake-key-hash"
       , Opt.metavar "HASH"
       , Opt.help "Stake verification key hash (hex-encoded)."
@@ -2384,10 +2389,10 @@ pAddress =
     , Opt.help "A Cardano address"
     ]
 
--- | First argument is the prefix to use
+-- | First argument is the prefix for the option's flag to use
 pStakePoolVerificationKeyHash :: Maybe String -> Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash prefix =
-    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat
+    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey Nothing) $ mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-id"
       , Opt.metavar "STAKE_POOL_ID"
       , Opt.help
@@ -3260,7 +3265,7 @@ pAllOrOnlyDRepHashSource = pAll <|> pOnly
 
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
 pDRepVerificationKeyHash =
-    Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey) $ mconcat
+    Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey Nothing) $ mconcat
       [ Opt.long "drep-key-hash"
       , Opt.metavar "HASH"
       , Opt.help "DRep verification key hash (either Bech32-encoded or hex-encoded)."
