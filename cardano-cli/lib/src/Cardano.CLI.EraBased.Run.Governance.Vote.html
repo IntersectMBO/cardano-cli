@@ -1,0 +1,364 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-7"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Run.Governance.Vote</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Vote.html#runGovernanceVoteCmds"><span class="hs-identifier">runGovernanceVoteCmds</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-0af544499259a795e36e20a1471e1f03f59020c0d90619f68a24a238bb0ac12f/share/doc/html/src"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-0af544499259a795e36e20a1471e1f03f59020c0d90619f68a24a238bb0ac12f/share/doc/html/src"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-0af544499259a795e36e20a1471e1f03f59020c0d90619f68a24a238bb0ac12f/share/doc/html/src"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html"><span class="hs-identifier">Cardano.CLI.EraBased.Commands.Governance.Vote</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Read.html"><span class="hs-identifier">Cardano.CLI.Read</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Read.html#readSingleVote"><span class="hs-identifier">readSingleVote</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Common.html"><span class="hs-identifier">Cardano.CLI.Types.Common</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.CmdError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.CmdError</span></a></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.GovernanceVoteCmdError</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Governance.html"><span class="hs-identifier">Cardano.CLI.Types.Governance</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Key.html"><span class="hs-identifier">Cardano.CLI.Types.Key</span></a></span><span>
+</span><span id="line-24"></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-c1322339586af5fb48cdcd11114ebdde3ce8b2130d87b44936d35d1f466fb88f/share/doc/html/src"><span class="hs-identifier">Data.Aeson.Encode.Pretty</span></a></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">Data.Function</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/yaml-0.11.11.2-424594dc2abfd4b725ca72312f9e08425dc2cf6cae9701ceca14e69a6b3a7738/share/doc/html/src"><span class="hs-identifier">Data.Yaml.Pretty</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Yaml</span></span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span id="local-6989586621682022367"><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Vote.html#runGovernanceVoteCmds"><span class="hs-identifier hs-type">runGovernanceVoteCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#GovernanceVoteCmds"><span class="hs-identifier hs-type">Cmd.GovernanceVoteCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682022367"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdError"><span class="hs-identifier hs-type">CmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-32"></span><span id="runGovernanceVoteCmds"><span class="annot"><span class="annottext">runGovernanceVoteCmds :: forall era. GovernanceVoteCmds era -&gt; ExceptT CmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Vote.html#runGovernanceVoteCmds"><span class="hs-identifier hs-var hs-var">runGovernanceVoteCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-33"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#GovernanceVoteCreateCmd"><span class="hs-identifier hs-type">Cmd.GovernanceVoteCreateCmd</span></a></span><span> </span><span id="local-6989586621682022187"><span class="annot"><span class="annottext">GovernanceVoteCreateCmdArgs era
+</span><a href="#local-6989586621682022187"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><span class="annottext">forall era.
+GovernanceVoteCreateCmdArgs era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Vote.html#runGovernanceVoteCreateCmd"><span class="hs-identifier hs-var">runGovernanceVoteCreateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceVoteCreateCmdArgs era
+</span><a href="#local-6989586621682022187"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-35"></span><span>      </span><span class="annot"><span class="annottext">forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceVoteCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdGovernanceVoteError"><span class="hs-identifier hs-var">CmdGovernanceVoteError</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#GovernanceVoteViewCmd"><span class="hs-identifier hs-type">Cmd.GovernanceVoteViewCmd</span></a></span><span> </span><span id="local-6989586621682022181"><span class="annot"><span class="annottext">GovernanceVoteViewCmdArgs era
+</span><a href="#local-6989586621682022181"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-37"></span><span>    </span><span class="annot"><span class="annottext">forall era.
+GovernanceVoteViewCmdArgs era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Vote.html#runGovernanceVoteViewCmd"><span class="hs-identifier hs-var">runGovernanceVoteViewCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceVoteViewCmdArgs era
+</span><a href="#local-6989586621682022181"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-38"></span><span>      </span><span class="annot"><span class="annottext">forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceVoteCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdGovernanceVoteError"><span class="hs-identifier hs-var">CmdGovernanceVoteError</span></a></span><span>
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span><span id="local-6989586621682022361"><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Vote.html#runGovernanceVoteCreateCmd"><span class="hs-identifier hs-type">runGovernanceVoteCreateCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#GovernanceVoteCreateCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceVoteCreateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682022361"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdError"><span class="hs-identifier hs-type">GovernanceVoteCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-43"></span><span id="runGovernanceVoteCreateCmd"><span class="annot"><span class="annottext">runGovernanceVoteCreateCmd :: forall era.
+GovernanceVoteCreateCmdArgs era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Vote.html#runGovernanceVoteCreateCmd"><span class="hs-identifier hs-var hs-var">runGovernanceVoteCreateCmd</span></a></span></span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#GovernanceVoteCreateCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceVoteCreateCmdArgs</span></a></span><span>
+</span><span id="line-45"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="local-6989586621682022171"><span class="annot"><span class="annottext">ConwayEraOnwards era
+$sel:eon:GovernanceVoteCreateCmdArgs :: forall era. GovernanceVoteCreateCmdArgs era -&gt; ConwayEraOnwards era
+eon :: ConwayEraOnwards era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#%24sel%3Aeon%3AGovernanceVoteCreateCmdArgs"><span class="hs-identifier hs-var hs-var">eon</span></a></span></span><span>
+</span><span id="line-46"></span><span>      </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682022169"><span class="annot"><span class="annottext">Vote
+$sel:voteChoice:GovernanceVoteCreateCmdArgs :: forall era. GovernanceVoteCreateCmdArgs era -&gt; Vote
+voteChoice :: Vote
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#%24sel%3AvoteChoice%3AGovernanceVoteCreateCmdArgs"><span class="hs-identifier hs-var hs-var">voteChoice</span></a></span></span><span>
+</span><span id="line-47"></span><span>      </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682022167"><span class="annot"><span class="annottext">(TxId, Word16)
+$sel:governanceAction:GovernanceVoteCreateCmdArgs :: forall era. GovernanceVoteCreateCmdArgs era -&gt; (TxId, Word16)
+governanceAction :: (TxId, Word16)
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#%24sel%3AgovernanceAction%3AGovernanceVoteCreateCmdArgs"><span class="hs-identifier hs-var hs-var">governanceAction</span></a></span></span><span>
+</span><span id="line-48"></span><span>      </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682022165"><span class="annot"><span class="annottext">AnyVotingStakeVerificationKeyOrHashOrFile
+$sel:votingStakeCredentialSource:GovernanceVoteCreateCmdArgs :: forall era.
+GovernanceVoteCreateCmdArgs era
+-&gt; AnyVotingStakeVerificationKeyOrHashOrFile
+votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#%24sel%3AvotingStakeCredentialSource%3AGovernanceVoteCreateCmdArgs"><span class="hs-identifier hs-var hs-var">votingStakeCredentialSource</span></a></span></span><span>
+</span><span id="line-49"></span><span>      </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682022163"><span class="annot"><span class="annottext">Maybe (VoteUrl, SafeHash StandardCrypto AnchorData)
+$sel:mAnchor:GovernanceVoteCreateCmdArgs :: forall era.
+GovernanceVoteCreateCmdArgs era
+-&gt; Maybe (VoteUrl, SafeHash StandardCrypto AnchorData)
+mAnchor :: Maybe (VoteUrl, SafeHash StandardCrypto AnchorData)
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#%24sel%3AmAnchor%3AGovernanceVoteCreateCmdArgs"><span class="hs-identifier hs-var hs-var">mAnchor</span></a></span></span><span>
+</span><span id="line-50"></span><span>      </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682022161"><span class="annot"><span class="annottext">VoteFile 'Out
+$sel:outFile:GovernanceVoteCreateCmdArgs :: forall era. GovernanceVoteCreateCmdArgs era -&gt; VoteFile 'Out
+outFile :: VoteFile 'Out
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#%24sel%3AoutFile%3AGovernanceVoteCreateCmdArgs"><span class="hs-identifier hs-var hs-var">outFile</span></a></span></span><span>
+</span><span id="line-51"></span><span>      </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-52"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682022159"><span class="annot"><span class="annottext">TxId
+</span><a href="#local-6989586621682022159"><span class="hs-identifier hs-var">govActionTxId</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682022158"><span class="annot"><span class="annottext">Word16
+</span><a href="#local-6989586621682022158"><span class="hs-identifier hs-var">govActionIndex</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(TxId, Word16)
+</span><a href="#local-6989586621682022167"><span class="hs-identifier hs-var">governanceAction</span></a></span><span>
+</span><span id="line-53"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682022157"><span class="annot"><span class="annottext">sbe :: ShelleyBasedEra era
+</span><a href="#local-6989586621682022157"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall era. ConwayEraOnwards era -&gt; ShelleyBasedEra era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">conwayEraOnwardsToShelleyBasedEra</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682022171"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="hs-comment">-- TODO: Conway era - update vote creation related function to take ConwayEraOnwards</span><span>
+</span><span id="line-54"></span><span>  </span><span id="local-6989586621682022155"><span class="annot"><span class="annottext">VotingProcedure era
+</span><a href="#local-6989586621682022155"><span class="hs-identifier hs-var">voteProcedure</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe (VoteUrl, SafeHash StandardCrypto AnchorData)
+</span><a href="#local-6989586621682022163"><span class="hs-identifier hs-var">mAnchor</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-55"></span><span>     </span><span class="annot"><span class="annottext">Maybe (VoteUrl, SafeHash StandardCrypto AnchorData)
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall era.
+ConwayEraOnwards era
+-&gt; Vote -&gt; Maybe (Url, Text) -&gt; VotingProcedure era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">createVotingProcedure</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682022171"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="annot"><span class="annottext">Vote
+</span><a href="#local-6989586621682022169"><span class="hs-identifier hs-var">voteChoice</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Maybe a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-56"></span><span>     </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#VoteUrl"><span class="hs-identifier hs-type">VoteUrl</span></a></span><span> </span><span id="local-6989586621682022152"><span class="annot"><span class="annottext">Url
+</span><a href="#local-6989586621682022152"><span class="hs-identifier hs-var">url</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682022151"><span class="annot"><span class="annottext">SafeHash StandardCrypto AnchorData
+</span><a href="#local-6989586621682022151"><span class="hs-identifier hs-var">voteHash</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682022157"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-57"></span><span>       </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682022139"><span class="annot"><span class="annottext">voteAnchor :: Anchor StandardCrypto
+</span><a href="#local-6989586621682022139"><span class="hs-identifier hs-var hs-var">voteAnchor</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.13.1.0-5d6384bc796974b54ddb0c816bc18a41b761cb5c74d5039c9ccdde7d74e9f7bf/share/doc/html/src"><span class="hs-identifier hs-type">L.Anchor</span></a></span><span> </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">anchorUrl :: Url
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.13.1.0-5d6384bc796974b54ddb0c816bc18a41b761cb5c74d5039c9ccdde7d74e9f7bf/share/doc/html/src"><span class="hs-identifier hs-var">L.anchorUrl</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Url
+</span><a href="#local-6989586621682022152"><span class="hs-identifier hs-var">url</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">anchorDataHash :: SafeHash StandardCrypto AnchorData
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.13.1.0-5d6384bc796974b54ddb0c816bc18a41b761cb5c74d5039c9ccdde7d74e9f7bf/share/doc/html/src"><span class="hs-identifier hs-var">L.anchorDataHash</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SafeHash StandardCrypto AnchorData
+</span><a href="#local-6989586621682022151"><span class="hs-identifier hs-var">voteHash</span></a></span><span> </span><span class="hs-special">}</span><span>
+</span><span id="line-58"></span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">VotingProcedure</span></a></span><span> </span><span id="local-6989586621682022134"><span class="annot"><span class="annottext">VotingProcedure (ShelleyLedgerEra era)
+</span><a href="#local-6989586621682022134"><span class="hs-identifier hs-var">votingProcedureWithoutAnchor</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall era.
+ConwayEraOnwards era
+-&gt; Vote -&gt; Maybe (Url, Text) -&gt; VotingProcedure era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">createVotingProcedure</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682022171"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="annot"><span class="annottext">Vote
+</span><a href="#local-6989586621682022169"><span class="hs-identifier hs-var">voteChoice</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Maybe a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-59"></span><span>           </span><span id="local-6989586621682022133"><span class="annot"><span class="annottext">votingProcedureWithAnchor :: VotingProcedure era
+</span><a href="#local-6989586621682022133"><span class="hs-identifier hs-var hs-var">votingProcedureWithAnchor</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall era.
+VotingProcedure (ShelleyLedgerEra era) -&gt; VotingProcedure era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">VotingProcedure</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">VotingProcedure (ShelleyLedgerEra era)
+</span><a href="#local-6989586621682022134"><span class="hs-identifier hs-var">votingProcedureWithoutAnchor</span></a></span><span> </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">vProcAnchor :: StrictMaybe (Anchor (EraCrypto (ShelleyLedgerEra era)))
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-conway-1.15.1.0-cf1243af1721436fa14c3b897b893ec54b8b1c9bbb2b7ba47ddbcc3ca0173f14/share/doc/html/src"><span class="hs-identifier hs-var">L.vProcAnchor</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall a. a -&gt; StrictMaybe a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-strict-containers-0.1.3.0-bf2aa4c716bf48ebae33acc37388a7aace7f9040b41a75648957b34d4ab1c0ab/share/doc/html/src"><span class="hs-identifier hs-var">L.SJust</span></a></span><span> </span><span class="annot"><span class="annottext">Anchor StandardCrypto
+</span><a href="#local-6989586621682022139"><span class="hs-identifier hs-var">voteAnchor</span></a></span><span> </span><span class="hs-special">}</span><span>
+</span><span id="line-60"></span><span>       </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">VotingProcedure era
+</span><a href="#local-6989586621682022133"><span class="hs-identifier hs-var">votingProcedureWithAnchor</span></a></span><span>
+</span><span id="line-61"></span><span>
+</span><span id="line-62"></span><span>  </span><span class="annot"><span class="annottext">forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682022157"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-63"></span><span>    </span><span id="local-6989586621682022091"><span class="annot"><span class="annottext">Voter StandardCrypto
+</span><a href="#local-6989586621682022091"><span class="hs-identifier hs-var">voter</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span>  </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; GovernanceVoteCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdReadVerificationKeyError"><span class="hs-identifier hs-var">GovernanceVoteCmdReadVerificationKeyError</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">AnyVotingStakeVerificationKeyOrHashOrFile
+</span><a href="#local-6989586621682022165"><span class="hs-identifier hs-var">votingStakeCredentialSource</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-64"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Types.Governance.html#AnyDRepVerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-type">AnyDRepVerificationKeyOrHashOrFileOrScriptHash</span></a></span><span> </span><span id="local-6989586621682022088"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFileOrScriptHash DRepKey
+</span><a href="#local-6989586621682022088"><span class="hs-identifier hs-var">stake</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-65"></span><span>        </span><span id="local-6989586621682022087"><span class="annot"><span class="annottext">Credential 'DRepRole StandardCrypto
+</span><a href="#local-6989586621682022087"><span class="hs-identifier hs-var">drepCred</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole
+       (kr :: KeyRole).
+(MonadIOTransError (FileError InputDecodeError) t m,
+ Key keyrole) =&gt;
+AsType keyrole
+-&gt; (Hash keyrole -&gt; KeyHash kr StandardCrypto)
+-&gt; VerificationKeyOrHashOrFileOrScriptHash keyrole
+-&gt; t m (Credential kr StandardCrypto)
+</span><a href="Cardano.CLI.Types.Key.html#readVerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-var">readVerificationKeyOrHashOrFileOrScriptHash</span></a></span><span> </span><span class="annot"><span class="annottext">AsType DRepKey
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">AsDRepKey</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepKey -&gt; KeyHash 'DRepRole StandardCrypto
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">unDRepKeyHash</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFileOrScriptHash DRepKey
+</span><a href="#local-6989586621682022088"><span class="hs-identifier hs-var">stake</span></a></span><span>
+</span><span id="line-66"></span><span>        </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall c. Credential 'DRepRole c -&gt; Voter c
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-conway-1.15.1.0-cf1243af1721436fa14c3b897b893ec54b8b1c9bbb2b7ba47ddbcc3ca0173f14/share/doc/html/src"><span class="hs-identifier hs-var">L.DRepVoter</span></a></span><span> </span><span class="annot"><span class="annottext">Credential 'DRepRole StandardCrypto
+</span><a href="#local-6989586621682022087"><span class="hs-identifier hs-var">drepCred</span></a></span><span>
+</span><span id="line-67"></span><span>
+</span><span id="line-68"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Types.Governance.html#AnyStakePoolVerificationKeyOrHashOrFile"><span class="hs-identifier hs-type">AnyStakePoolVerificationKeyOrHashOrFile</span></a></span><span> </span><span id="local-6989586621682022081"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile StakePoolKey
+</span><a href="#local-6989586621682022081"><span class="hs-identifier hs-var">stake</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-69"></span><span>        </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">StakePoolKeyHash</span></a></span><span> </span><span id="local-6989586621682022079"><span class="annot"><span class="annottext">KeyHash 'StakePool StandardCrypto
+</span><a href="#local-6989586621682022079"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m,
+ Key keyrole) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrHashOrFile keyrole -&gt; t m (Hash keyrole)
+</span><a href="Cardano.CLI.Types.Key.html#readVerificationKeyOrHashOrTextEnvFile"><span class="hs-identifier hs-var">readVerificationKeyOrHashOrTextEnvFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType StakePoolKey
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">AsStakePoolKey</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile StakePoolKey
+</span><a href="#local-6989586621682022081"><span class="hs-identifier hs-var">stake</span></a></span><span>
+</span><span id="line-70"></span><span>        </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall c. KeyHash 'StakePool c -&gt; Voter c
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-conway-1.15.1.0-cf1243af1721436fa14c3b897b893ec54b8b1c9bbb2b7ba47ddbcc3ca0173f14/share/doc/html/src"><span class="hs-identifier hs-var">L.StakePoolVoter</span></a></span><span> </span><span class="annot"><span class="annottext">KeyHash 'StakePool StandardCrypto
+</span><a href="#local-6989586621682022079"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-71"></span><span>
+</span><span id="line-72"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Types.Governance.html#AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-type">AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash</span></a></span><span> </span><span id="local-6989586621682022074"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey
+</span><a href="#local-6989586621682022074"><span class="hs-identifier hs-var">stake</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-73"></span><span>        </span><span id="local-6989586621682022073"><span class="annot"><span class="annottext">Credential 'HotCommitteeRole StandardCrypto
+</span><a href="#local-6989586621682022073"><span class="hs-identifier hs-var">hotCred</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole
+       (kr :: KeyRole).
+(MonadIOTransError (FileError InputDecodeError) t m,
+ Key keyrole) =&gt;
+AsType keyrole
+-&gt; (Hash keyrole -&gt; KeyHash kr StandardCrypto)
+-&gt; VerificationKeyOrHashOrFileOrScriptHash keyrole
+-&gt; t m (Credential kr StandardCrypto)
+</span><a href="Cardano.CLI.Types.Key.html#readVerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-var">readVerificationKeyOrHashOrFileOrScriptHash</span></a></span><span> </span><span class="annot"><span class="annottext">AsType CommitteeHotKey
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">AsCommitteeHotKey</span></a></span><span> </span><span class="annot"><span class="annottext">Hash CommitteeHotKey -&gt; KeyHash 'HotCommitteeRole StandardCrypto
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">unCommitteeHotKeyHash</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey
+</span><a href="#local-6989586621682022074"><span class="hs-identifier hs-var">stake</span></a></span><span>
+</span><span id="line-74"></span><span>        </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall c. Credential 'HotCommitteeRole c -&gt; Voter c
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-conway-1.15.1.0-cf1243af1721436fa14c3b897b893ec54b8b1c9bbb2b7ba47ddbcc3ca0173f14/share/doc/html/src"><span class="hs-identifier hs-var">L.CommitteeVoter</span></a></span><span> </span><span class="annot"><span class="annottext">Credential 'HotCommitteeRole StandardCrypto
+</span><a href="#local-6989586621682022073"><span class="hs-identifier hs-var">hotCred</span></a></span><span>
+</span><span id="line-75"></span><span>
+</span><span id="line-76"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682022069"><span class="annot"><span class="annottext">govActIdentifier :: GovActionId StandardCrypto
+</span><a href="#local-6989586621682022069"><span class="hs-identifier hs-var hs-var">govActIdentifier</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TxId -&gt; Word16 -&gt; GovActionId StandardCrypto
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">createGovernanceActionId</span></a></span><span> </span><span class="annot"><span class="annottext">TxId
+</span><a href="#local-6989586621682022159"><span class="hs-identifier hs-var">govActionTxId</span></a></span><span> </span><span class="annot"><span class="annottext">Word16
+</span><a href="#local-6989586621682022158"><span class="hs-identifier hs-var">govActionIndex</span></a></span><span>
+</span><span id="line-77"></span><span>        </span><span id="local-6989586621682022067"><span class="annot"><span class="annottext">votingProcedures :: VotingProcedures era
+</span><a href="#local-6989586621682022067"><span class="hs-identifier hs-var hs-var">votingProcedures</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall era.
+ConwayEraOnwards era
+-&gt; Voter (EraCrypto (ShelleyLedgerEra era))
+-&gt; GovActionId (EraCrypto (ShelleyLedgerEra era))
+-&gt; VotingProcedure (ShelleyLedgerEra era)
+-&gt; VotingProcedures era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">singletonVotingProcedures</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682022171"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="annot"><span class="annottext">Voter StandardCrypto
+</span><a href="#local-6989586621682022091"><span class="hs-identifier hs-var">voter</span></a></span><span> </span><span class="annot"><span class="annottext">GovActionId StandardCrypto
+</span><a href="#local-6989586621682022069"><span class="hs-identifier hs-var">govActIdentifier</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall era.
+VotingProcedure era -&gt; VotingProcedure (ShelleyLedgerEra era)
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">unVotingProcedure</span></a></span><span> </span><span class="annot"><span class="annottext">VotingProcedure era
+</span><a href="#local-6989586621682022155"><span class="hs-identifier hs-var">voteProcedure</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-78"></span><span>    </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; GovernanceVoteCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdWriteError"><span class="hs-identifier hs-var">GovernanceVoteCmdWriteError</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">newExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall a content.
+HasTextEnvelope a =&gt;
+File content 'Out
+-&gt; Maybe TextEnvelopeDescr -&gt; a -&gt; IO (Either (FileError ()) ())
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">writeFileTextEnvelope</span></a></span><span> </span><span class="annot"><span class="annottext">VoteFile 'Out
+</span><a href="#local-6989586621682022161"><span class="hs-identifier hs-var">outFile</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Maybe a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="annot"><span class="annottext">VotingProcedures era
+</span><a href="#local-6989586621682022067"><span class="hs-identifier hs-var">votingProcedures</span></a></span><span>
+</span><span id="line-79"></span><span>
+</span><span id="line-80"></span><span id="local-6989586621682022352"><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Vote.html#runGovernanceVoteViewCmd"><span class="hs-identifier hs-type">runGovernanceVoteViewCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-81"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#GovernanceVoteViewCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceVoteViewCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682022352"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-82"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdError"><span class="hs-identifier hs-type">GovernanceVoteCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-83"></span><span id="runGovernanceVoteViewCmd"><span class="annot"><span class="annottext">runGovernanceVoteViewCmd :: forall era.
+GovernanceVoteViewCmdArgs era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Vote.html#runGovernanceVoteViewCmd"><span class="hs-identifier hs-var hs-var">runGovernanceVoteViewCmd</span></a></span></span><span>
+</span><span id="line-84"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#GovernanceVoteViewCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceVoteViewCmdArgs</span></a></span><span>
+</span><span id="line-85"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="local-6989586621682022059"><span class="annot"><span class="annottext">ConwayEraOnwards era
+$sel:eon:GovernanceVoteViewCmdArgs :: forall era. GovernanceVoteViewCmdArgs era -&gt; ConwayEraOnwards era
+eon :: ConwayEraOnwards era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#%24sel%3Aeon%3AGovernanceVoteViewCmdArgs"><span class="hs-identifier hs-var hs-var">eon</span></a></span></span><span>
+</span><span id="line-86"></span><span>      </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682022057"><span class="annot"><span class="annottext">ViewOutputFormat
+$sel:outFormat:GovernanceVoteViewCmdArgs :: forall era. GovernanceVoteViewCmdArgs era -&gt; ViewOutputFormat
+outFormat :: ViewOutputFormat
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#%24sel%3AoutFormat%3AGovernanceVoteViewCmdArgs"><span class="hs-identifier hs-var hs-var">outFormat</span></a></span></span><span>
+</span><span id="line-87"></span><span>      </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682022055"><span class="annot"><span class="annottext">VoteFile 'In
+$sel:voteFile:GovernanceVoteViewCmdArgs :: forall era. GovernanceVoteViewCmdArgs era -&gt; VoteFile 'In
+voteFile :: VoteFile 'In
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#%24sel%3AvoteFile%3AGovernanceVoteViewCmdArgs"><span class="hs-identifier hs-var hs-var">voteFile</span></a></span></span><span>
+</span><span id="line-88"></span><span>      </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682022053"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+$sel:mOutFile:GovernanceVoteViewCmdArgs :: forall era. GovernanceVoteViewCmdArgs era -&gt; Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Vote.html#%24sel%3AmOutFile%3AGovernanceVoteViewCmdArgs"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span>
+</span><span id="line-89"></span><span>      </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-90"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682022051"><span class="annot"><span class="annottext">sbe :: ShelleyBasedEra era
+</span><a href="#local-6989586621682022051"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall era. ConwayEraOnwards era -&gt; ShelleyBasedEra era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">conwayEraOnwardsToShelleyBasedEra</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682022059"><span class="hs-identifier hs-var">eon</span></a></span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span>  </span><span class="annot"><span class="annottext">forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682022051"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-93"></span><span>    </span><span id="local-6989586621682022033"><span class="annot"><span class="annottext">VotingProcedures era
+</span><a href="#local-6989586621682022033"><span class="hs-identifier hs-var">voteProcedures</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a, b) -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">fst</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">VoteError -&gt; GovernanceVoteCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdReadVoteFileError"><span class="hs-identifier hs-var">GovernanceVoteCmdReadVoteFileError</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">newExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-94"></span><span>     </span><span class="annot"><span class="annottext">forall era.
+ConwayEraOnwards era
+-&gt; (VoteFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))
+-&gt; IO
+     (Either
+        VoteError
+        (VotingProcedures era, Maybe (ScriptWitness WitCtxStake era)))
+</span><a href="Cardano.CLI.Read.html#readSingleVote"><span class="hs-identifier hs-var">readSingleVote</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682022059"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">VoteFile 'In
+</span><a href="#local-6989586621682022055"><span class="hs-identifier hs-var">voteFile</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">forall a. Maybe a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Nothing</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-95"></span><span>    </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; GovernanceVoteCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdWriteError"><span class="hs-identifier hs-var">GovernanceVoteCmdWriteError</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span>
+</span><span id="line-96"></span><span>      </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">newExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span>
+</span><span id="line-97"></span><span>      </span><span class="hs-special">(</span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ViewOutputFormat
+</span><a href="#local-6989586621682022057"><span class="hs-identifier hs-var">outFormat</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-98"></span><span>         </span><span class="annot"><span class="annottext">ViewOutputFormat
+</span><a href="Cardano.CLI.Types.Common.html#ViewOutputFormatYaml"><span class="hs-identifier hs-var">ViewOutputFormatYaml</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-99"></span><span>           </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">writeByteStringOutput</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682022053"><span class="hs-identifier hs-var">mOutFile</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. ToJSON a =&gt; Config -&gt; a -&gt; ByteString
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/yaml-0.11.11.2-424594dc2abfd4b725ca72312f9e08425dc2cf6cae9701ceca14e69a6b3a7738/share/doc/html/src"><span class="hs-identifier hs-var">Yaml.encodePretty</span></a></span><span>
+</span><span id="line-100"></span><span>             </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Text -&gt; Text -&gt; Ordering) -&gt; Config -&gt; Config
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/yaml-0.11.11.2-424594dc2abfd4b725ca72312f9e08425dc2cf6cae9701ceca14e69a6b3a7738/share/doc/html/src"><span class="hs-identifier hs-var">Yaml.setConfCompare</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Ord a =&gt; a -&gt; a -&gt; Ordering
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-var">compare</span></a></span><span> </span><span class="annot"><span class="annottext">Config
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/yaml-0.11.11.2-424594dc2abfd4b725ca72312f9e08425dc2cf6cae9701ceca14e69a6b3a7738/share/doc/html/src"><span class="hs-identifier hs-var">Yaml.defConfig</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-101"></span><span>         </span><span class="annot"><span class="annottext">ViewOutputFormat
+</span><a href="Cardano.CLI.Types.Common.html#ViewOutputFormatJson"><span class="hs-identifier hs-var">ViewOutputFormatJson</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-102"></span><span>           </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">writeLazyByteStringOutput</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682022053"><span class="hs-identifier hs-var">mOutFile</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. ToJSON a =&gt; Config -&gt; a -&gt; ByteString
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-c1322339586af5fb48cdcd11114ebdde3ce8b2130d87b44936d35d1f466fb88f/share/doc/html/src"><span class="hs-identifier hs-var">encodePretty'</span></a></span><span>
+</span><span id="line-103"></span><span>             </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Config
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-c1322339586af5fb48cdcd11114ebdde3ce8b2130d87b44936d35d1f466fb88f/share/doc/html/src"><span class="hs-identifier hs-var">defConfig</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">confCompare :: Text -&gt; Text -&gt; Ordering
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-c1322339586af5fb48cdcd11114ebdde3ce8b2130d87b44936d35d1f466fb88f/share/doc/html/src"><span class="hs-identifier hs-var">confCompare</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall a. Ord a =&gt; a -&gt; a -&gt; Ordering
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-var">compare</span></a></span><span class="hs-special">}</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span>
+</span><span id="line-104"></span><span>      </span><span class="annot"><span class="annottext">forall era.
+VotingProcedures era -&gt; VotingProcedures (ShelleyLedgerEra era)
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">unVotingProcedures</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-105"></span><span>      </span><span class="annot"><span class="annottext">VotingProcedures era
+</span><a href="#local-6989586621682022033"><span class="hs-identifier hs-var">voteProcedures</span></a></span><span>
+</span><span id="line-106"></span></pre></body></html>

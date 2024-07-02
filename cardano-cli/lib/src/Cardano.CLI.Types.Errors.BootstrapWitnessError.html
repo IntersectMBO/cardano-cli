@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Types.Errors.BootstrapWitnessError</span><span>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.BootstrapWitnessError.html#BootstrapWitnessError"><span class="hs-identifier">BootstrapWitnessError</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-3"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.BootstrapWitnessError.html#renderBootstrapWitnessError"><span class="hs-identifier">renderBootstrapWitnessError</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/prettyprinter-1.7.1-566e5d4946e451e1b3a1377ccf0f615abc1808b2c8cd5c5b32f319217b7b7dba/share/doc/html/src"><span class="hs-identifier">Prettyprinter</span></a></span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-comment">-- | Error constructing a Shelley bootstrap witness (i.e. a Byron key witness</span><span>
+</span><span id="line-9"></span><span class="hs-comment">-- in the Shelley era).</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">data</span><span> </span><span id="BootstrapWitnessError"><span class="annot"><a href="Cardano.CLI.Types.Errors.BootstrapWitnessError.html#BootstrapWitnessError"><span class="hs-identifier hs-var">BootstrapWitnessError</span></a></span></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="MissingNetworkIdOrByronAddressError"><span class="annot"><a href="Cardano.CLI.Types.Errors.BootstrapWitnessError.html#MissingNetworkIdOrByronAddressError"><span class="hs-identifier hs-var">MissingNetworkIdOrByronAddressError</span></a></span></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-comment">-- ^ Neither a network ID nor a Byron address were provided to construct the</span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-comment">-- Shelley bootstrap witness. One or the other is required.</span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681992321"><span id="local-6989586621681992323"><span id="local-6989586621681992325"><span class="annot"><span class="annottext">Int -&gt; BootstrapWitnessError -&gt; ShowS
+[BootstrapWitnessError] -&gt; ShowS
+BootstrapWitnessError -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [BootstrapWitnessError] -&gt; ShowS
+$cshowList :: [BootstrapWitnessError] -&gt; ShowS
+show :: BootstrapWitnessError -&gt; String
+$cshow :: BootstrapWitnessError -&gt; String
+showsPrec :: Int -&gt; BootstrapWitnessError -&gt; ShowS
+$cshowsPrec :: Int -&gt; BootstrapWitnessError -&gt; ShowS
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-comment">-- | Render an error message for a 'BootstrapWitnessError'.</span><span>
+</span><span id="line-17"></span><span id="local-6989586621681992337"><span class="annot"><a href="Cardano.CLI.Types.Errors.BootstrapWitnessError.html#renderBootstrapWitnessError"><span class="hs-identifier hs-type">renderBootstrapWitnessError</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.BootstrapWitnessError.html#BootstrapWitnessError"><span class="hs-identifier hs-type">BootstrapWitnessError</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/prettyprinter-1.7.1-566e5d4946e451e1b3a1377ccf0f615abc1808b2c8cd5c5b32f319217b7b7dba/share/doc/html/src"><span class="hs-identifier hs-type">Doc</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681992337"><span class="hs-identifier hs-type">ann</span></a></span></span><span>
+</span><span id="line-18"></span><span id="renderBootstrapWitnessError"><span class="annot"><span class="annottext">renderBootstrapWitnessError :: forall ann. BootstrapWitnessError -&gt; Doc ann
+</span><a href="Cardano.CLI.Types.Errors.BootstrapWitnessError.html#renderBootstrapWitnessError"><span class="hs-identifier hs-var hs-var">renderBootstrapWitnessError</span></a></span></span><span> </span><span class="annot"><span class="annottext">BootstrapWitnessError
+</span><a href="Cardano.CLI.Types.Errors.BootstrapWitnessError.html#MissingNetworkIdOrByronAddressError"><span class="hs-identifier hs-var">MissingNetworkIdOrByronAddressError</span></a></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-19"></span><span>  </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Transactions witnessed by a Byron signing key must be accompanied by a &quot;</span></span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;network ID. Either provide a network ID or provide a Byron &quot;</span></span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;address with each Byron signing key (network IDs can be derived &quot;</span></span><span>
+</span><span id="line-22"></span><span>    </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;from Byron addresses).&quot;</span></span><span>
+</span><span id="line-23"></span></pre></body></html>

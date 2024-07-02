@@ -1,0 +1,1042 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Legacy.Run.Transaction</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionCmds"><span class="hs-identifier">runLegacyTransactionCmds</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-0af544499259a795e36e20a1471e1f03f59020c0d90619f68a24a238bb0ac12f/share/doc/html/src"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-0af544499259a795e36e20a1471e1f03f59020c0d90619f68a24a238bb0ac12f/share/doc/html/src"><span class="hs-identifier">Cardano.Api.Byron</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Api</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-0af544499259a795e36e20a1471e1f03f59020c0d90619f68a24a238bb0ac12f/share/doc/html/src"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.13.1.0-5d6384bc796974b54ddb0c816bc18a41b761cb5c74d5039c9ccdde7d74e9f7bf/share/doc/html/src"><span class="hs-identifier">Coin</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Transaction.html"><span class="hs-identifier">Cardano.CLI.EraBased.Commands.Transaction</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Transaction.html"><span class="hs-identifier">Cardano.CLI.EraBased.Run.Transaction</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html"><span class="hs-identifier">Cardano.CLI.Legacy.Commands.Transaction</span></a></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Common.html"><span class="hs-identifier">Cardano.CLI.Types.Common</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.TxCmdError</span></a></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxValidationError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.TxValidationError</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Governance.html"><span class="hs-identifier">Cardano.CLI.Types.Governance</span></a></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">Data.Function</span></a></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionCmds"><span class="hs-identifier hs-type">runLegacyTransactionCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#LegacyTransactionCmds"><span class="hs-identifier hs-type">LegacyTransactionCmds</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span id="runLegacyTransactionCmds"><span class="annot"><span class="annottext">runLegacyTransactionCmds :: LegacyTransactionCmds -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionCmds"><span class="hs-identifier hs-var hs-var">runLegacyTransactionCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-28"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionBuildCmd"><span class="hs-identifier hs-type">TransactionBuildCmd</span></a></span><span> </span><span id="local-6989586621682034219"><span class="annot"><span class="annottext">SocketPath
+</span><a href="#local-6989586621682034219"><span class="hs-identifier hs-var">mNodeSocketPath</span></a></span></span><span> </span><span id="local-6989586621682034218"><span class="annot"><span class="annottext">EraInEon ShelleyBasedEra
+</span><a href="#local-6989586621682034218"><span class="hs-identifier hs-var">era</span></a></span></span><span> </span><span id="local-6989586621682034217"><span class="annot"><span class="annottext">ConsensusModeParams
+</span><a href="#local-6989586621682034217"><span class="hs-identifier hs-var">consensusModeParams</span></a></span></span><span> </span><span id="local-6989586621682034216"><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682034216"><span class="hs-identifier hs-var">nid</span></a></span></span><span> </span><span id="local-6989586621682034215"><span class="annot"><span class="annottext">Maybe ScriptValidity
+</span><a href="#local-6989586621682034215"><span class="hs-identifier hs-var">mScriptValidity</span></a></span></span><span> </span><span id="local-6989586621682034214"><span class="annot"><span class="annottext">Maybe Word
+</span><a href="#local-6989586621682034214"><span class="hs-identifier hs-var">mOverrideWits</span></a></span></span><span> </span><span id="local-6989586621682034213"><span class="annot"><span class="annottext">[(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+</span><a href="#local-6989586621682034213"><span class="hs-identifier hs-var">txins</span></a></span></span><span> </span><span id="local-6989586621682034212"><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034212"><span class="hs-identifier hs-var">readOnlyRefIns</span></a></span></span><span>
+</span><span id="line-29"></span><span>            </span><span id="local-6989586621682034211"><span class="annot"><span class="annottext">[RequiredSigner]
+</span><a href="#local-6989586621682034211"><span class="hs-identifier hs-var">reqSigners</span></a></span></span><span> </span><span id="local-6989586621682034210"><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034210"><span class="hs-identifier hs-var">txinsc</span></a></span></span><span> </span><span id="local-6989586621682034209"><span class="annot"><span class="annottext">Maybe TxOutShelleyBasedEra
+</span><a href="#local-6989586621682034209"><span class="hs-identifier hs-var">mReturnColl</span></a></span></span><span> </span><span id="local-6989586621682034208"><span class="annot"><span class="annottext">Maybe Coin
+</span><a href="#local-6989586621682034208"><span class="hs-identifier hs-var">mTotCollateral</span></a></span></span><span> </span><span id="local-6989586621682034207"><span class="annot"><span class="annottext">[TxOutAnyEra]
+</span><a href="#local-6989586621682034207"><span class="hs-identifier hs-var">txouts</span></a></span></span><span> </span><span id="local-6989586621682034206"><span class="annot"><span class="annottext">TxOutChangeAddress
+</span><a href="#local-6989586621682034206"><span class="hs-identifier hs-var">changeAddr</span></a></span></span><span> </span><span id="local-6989586621682034205"><span class="annot"><span class="annottext">Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+</span><a href="#local-6989586621682034205"><span class="hs-identifier hs-var">mValue</span></a></span></span><span> </span><span id="local-6989586621682034204"><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034204"><span class="hs-identifier hs-var">mLowBound</span></a></span></span><span>
+</span><span id="line-30"></span><span>            </span><span id="local-6989586621682034203"><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034203"><span class="hs-identifier hs-var">mUpperBound</span></a></span></span><span> </span><span id="local-6989586621682034202"><span class="annot"><span class="annottext">[(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034202"><span class="hs-identifier hs-var">certs</span></a></span></span><span> </span><span id="local-6989586621682034201"><span class="annot"><span class="annottext">[(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034201"><span class="hs-identifier hs-var">wdrls</span></a></span></span><span> </span><span id="local-6989586621682034200"><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><a href="#local-6989586621682034200"><span class="hs-identifier hs-var">metadataSchema</span></a></span></span><span> </span><span id="local-6989586621682034199"><span class="annot"><span class="annottext">[ScriptFile]
+</span><a href="#local-6989586621682034199"><span class="hs-identifier hs-var">scriptFiles</span></a></span></span><span> </span><span id="local-6989586621682034198"><span class="annot"><span class="annottext">[MetadataFile]
+</span><a href="#local-6989586621682034198"><span class="hs-identifier hs-var">metadataFiles</span></a></span></span><span> </span><span id="local-6989586621682034197"><span class="annot"><span class="annottext">Maybe UpdateProposalFile
+</span><a href="#local-6989586621682034197"><span class="hs-identifier hs-var">mUpProp</span></a></span></span><span> </span><span id="local-6989586621682034196"><span class="annot"><span class="annottext">[(VoteFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034196"><span class="hs-identifier hs-var">mconwayVote</span></a></span></span><span>
+</span><span id="line-31"></span><span>            </span><span id="local-6989586621682034195"><span class="annot"><span class="annottext">[(ProposalFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034195"><span class="hs-identifier hs-var">mNewConstitution</span></a></span></span><span> </span><span id="local-6989586621682034194"><span class="annot"><span class="annottext">Maybe TxTreasuryDonation
+</span><a href="#local-6989586621682034194"><span class="hs-identifier hs-var">mTreasuryDonation</span></a></span></span><span> </span><span id="local-6989586621682034193"><span class="annot"><span class="annottext">TxBuildOutputOptions
+</span><a href="#local-6989586621682034193"><span class="hs-identifier hs-var">outputOptions</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-32"></span><span>      </span><span class="annot"><span class="annottext">SocketPath
+-&gt; EraInEon ShelleyBasedEra
+-&gt; ConsensusModeParams
+-&gt; NetworkId
+-&gt; Maybe ScriptValidity
+-&gt; Maybe Word
+-&gt; [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+-&gt; [TxIn]
+-&gt; [RequiredSigner]
+-&gt; [TxIn]
+-&gt; Maybe TxOutShelleyBasedEra
+-&gt; Maybe Coin
+-&gt; [TxOutAnyEra]
+-&gt; TxOutChangeAddress
+-&gt; Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+-&gt; Maybe SlotNo
+-&gt; Maybe SlotNo
+-&gt; [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; [(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; TxMetadataJsonSchema
+-&gt; [ScriptFile]
+-&gt; [MetadataFile]
+-&gt; Maybe UpdateProposalFile
+-&gt; [(VoteFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; [(ProposalFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; Maybe TxTreasuryDonation
+-&gt; TxBuildOutputOptions
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionBuildCmd"><span class="hs-identifier hs-var">runLegacyTransactionBuildCmd</span></a></span><span> </span><span class="annot"><span class="annottext">SocketPath
+</span><a href="#local-6989586621682034219"><span class="hs-identifier hs-var">mNodeSocketPath</span></a></span><span> </span><span class="annot"><span class="annottext">EraInEon ShelleyBasedEra
+</span><a href="#local-6989586621682034218"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="annot"><span class="annottext">ConsensusModeParams
+</span><a href="#local-6989586621682034217"><span class="hs-identifier hs-var">consensusModeParams</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682034216"><span class="hs-identifier hs-var">nid</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe ScriptValidity
+</span><a href="#local-6989586621682034215"><span class="hs-identifier hs-var">mScriptValidity</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Word
+</span><a href="#local-6989586621682034214"><span class="hs-identifier hs-var">mOverrideWits</span></a></span><span> </span><span class="annot"><span class="annottext">[(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+</span><a href="#local-6989586621682034213"><span class="hs-identifier hs-var">txins</span></a></span><span> </span><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034212"><span class="hs-identifier hs-var">readOnlyRefIns</span></a></span><span>
+</span><span id="line-33"></span><span>            </span><span class="annot"><span class="annottext">[RequiredSigner]
+</span><a href="#local-6989586621682034211"><span class="hs-identifier hs-var">reqSigners</span></a></span><span> </span><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034210"><span class="hs-identifier hs-var">txinsc</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TxOutShelleyBasedEra
+</span><a href="#local-6989586621682034209"><span class="hs-identifier hs-var">mReturnColl</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Coin
+</span><a href="#local-6989586621682034208"><span class="hs-identifier hs-var">mTotCollateral</span></a></span><span> </span><span class="annot"><span class="annottext">[TxOutAnyEra]
+</span><a href="#local-6989586621682034207"><span class="hs-identifier hs-var">txouts</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutChangeAddress
+</span><a href="#local-6989586621682034206"><span class="hs-identifier hs-var">changeAddr</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+</span><a href="#local-6989586621682034205"><span class="hs-identifier hs-var">mValue</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034204"><span class="hs-identifier hs-var">mLowBound</span></a></span><span>
+</span><span id="line-34"></span><span>            </span><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034203"><span class="hs-identifier hs-var">mUpperBound</span></a></span><span> </span><span class="annot"><span class="annottext">[(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034202"><span class="hs-identifier hs-var">certs</span></a></span><span> </span><span class="annot"><span class="annottext">[(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034201"><span class="hs-identifier hs-var">wdrls</span></a></span><span> </span><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><a href="#local-6989586621682034200"><span class="hs-identifier hs-var">metadataSchema</span></a></span><span> </span><span class="annot"><span class="annottext">[ScriptFile]
+</span><a href="#local-6989586621682034199"><span class="hs-identifier hs-var">scriptFiles</span></a></span><span> </span><span class="annot"><span class="annottext">[MetadataFile]
+</span><a href="#local-6989586621682034198"><span class="hs-identifier hs-var">metadataFiles</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe UpdateProposalFile
+</span><a href="#local-6989586621682034197"><span class="hs-identifier hs-var">mUpProp</span></a></span><span> </span><span class="annot"><span class="annottext">[(VoteFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034196"><span class="hs-identifier hs-var">mconwayVote</span></a></span><span>
+</span><span id="line-35"></span><span>            </span><span class="annot"><span class="annottext">[(ProposalFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034195"><span class="hs-identifier hs-var">mNewConstitution</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TxTreasuryDonation
+</span><a href="#local-6989586621682034194"><span class="hs-identifier hs-var">mTreasuryDonation</span></a></span><span> </span><span class="annot"><span class="annottext">TxBuildOutputOptions
+</span><a href="#local-6989586621682034193"><span class="hs-identifier hs-var">outputOptions</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionBuildRawCmd"><span class="hs-identifier hs-type">TransactionBuildRawCmd</span></a></span><span> </span><span id="local-6989586621682034190"><span class="annot"><span class="annottext">AnyCardanoEra
+</span><a href="#local-6989586621682034190"><span class="hs-identifier hs-var">era</span></a></span></span><span> </span><span id="local-6989586621682034189"><span class="annot"><span class="annottext">Maybe ScriptValidity
+</span><a href="#local-6989586621682034189"><span class="hs-identifier hs-var">mScriptValidity</span></a></span></span><span> </span><span id="local-6989586621682034188"><span class="annot"><span class="annottext">[(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+</span><a href="#local-6989586621682034188"><span class="hs-identifier hs-var">txins</span></a></span></span><span> </span><span id="local-6989586621682034187"><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034187"><span class="hs-identifier hs-var">readOnlyRefIns</span></a></span></span><span> </span><span id="local-6989586621682034186"><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034186"><span class="hs-identifier hs-var">txinsc</span></a></span></span><span> </span><span id="local-6989586621682034185"><span class="annot"><span class="annottext">Maybe TxOutShelleyBasedEra
+</span><a href="#local-6989586621682034185"><span class="hs-identifier hs-var">mReturnColl</span></a></span></span><span>
+</span><span id="line-37"></span><span>               </span><span id="local-6989586621682034184"><span class="annot"><span class="annottext">Maybe Coin
+</span><a href="#local-6989586621682034184"><span class="hs-identifier hs-var">mTotColl</span></a></span></span><span> </span><span id="local-6989586621682034183"><span class="annot"><span class="annottext">[RequiredSigner]
+</span><a href="#local-6989586621682034183"><span class="hs-identifier hs-var">reqSigners</span></a></span></span><span> </span><span id="local-6989586621682034182"><span class="annot"><span class="annottext">[TxOutAnyEra]
+</span><a href="#local-6989586621682034182"><span class="hs-identifier hs-var">txouts</span></a></span></span><span> </span><span id="local-6989586621682034181"><span class="annot"><span class="annottext">Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+</span><a href="#local-6989586621682034181"><span class="hs-identifier hs-var">mValue</span></a></span></span><span> </span><span id="local-6989586621682034180"><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034180"><span class="hs-identifier hs-var">mLowBound</span></a></span></span><span> </span><span id="local-6989586621682034179"><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034179"><span class="hs-identifier hs-var">mUpperBound</span></a></span></span><span> </span><span id="local-6989586621682034178"><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682034178"><span class="hs-identifier hs-var">fee</span></a></span></span><span> </span><span id="local-6989586621682034177"><span class="annot"><span class="annottext">[(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034177"><span class="hs-identifier hs-var">certs</span></a></span></span><span> </span><span id="local-6989586621682034176"><span class="annot"><span class="annottext">[(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034176"><span class="hs-identifier hs-var">wdrls</span></a></span></span><span>
+</span><span id="line-38"></span><span>               </span><span id="local-6989586621682034175"><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><a href="#local-6989586621682034175"><span class="hs-identifier hs-var">metadataSchema</span></a></span></span><span> </span><span id="local-6989586621682034174"><span class="annot"><span class="annottext">[ScriptFile]
+</span><a href="#local-6989586621682034174"><span class="hs-identifier hs-var">scriptFiles</span></a></span></span><span> </span><span id="local-6989586621682034173"><span class="annot"><span class="annottext">[MetadataFile]
+</span><a href="#local-6989586621682034173"><span class="hs-identifier hs-var">metadataFiles</span></a></span></span><span> </span><span id="local-6989586621682034172"><span class="annot"><span class="annottext">Maybe ProtocolParamsFile
+</span><a href="#local-6989586621682034172"><span class="hs-identifier hs-var">mProtocolParamsFile</span></a></span></span><span> </span><span id="local-6989586621682034171"><span class="annot"><span class="annottext">Maybe UpdateProposalFile
+</span><a href="#local-6989586621682034171"><span class="hs-identifier hs-var">mUpProp</span></a></span></span><span> </span><span id="local-6989586621682034170"><span class="annot"><span class="annottext">TxBodyFile 'Out
+</span><a href="#local-6989586621682034170"><span class="hs-identifier hs-var">out</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-39"></span><span>      </span><span class="annot"><span class="annottext">AnyCardanoEra
+-&gt; Maybe ScriptValidity
+-&gt; [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+-&gt; [TxIn]
+-&gt; [TxIn]
+-&gt; Maybe TxOutShelleyBasedEra
+-&gt; Maybe Coin
+-&gt; [RequiredSigner]
+-&gt; [TxOutAnyEra]
+-&gt; Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+-&gt; Maybe SlotNo
+-&gt; Maybe SlotNo
+-&gt; Coin
+-&gt; [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; [(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; TxMetadataJsonSchema
+-&gt; [ScriptFile]
+-&gt; [MetadataFile]
+-&gt; Maybe ProtocolParamsFile
+-&gt; Maybe UpdateProposalFile
+-&gt; TxBodyFile 'Out
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionBuildRawCmd"><span class="hs-identifier hs-var">runLegacyTransactionBuildRawCmd</span></a></span><span> </span><span class="annot"><span class="annottext">AnyCardanoEra
+</span><a href="#local-6989586621682034190"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe ScriptValidity
+</span><a href="#local-6989586621682034189"><span class="hs-identifier hs-var">mScriptValidity</span></a></span><span> </span><span class="annot"><span class="annottext">[(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+</span><a href="#local-6989586621682034188"><span class="hs-identifier hs-var">txins</span></a></span><span> </span><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034187"><span class="hs-identifier hs-var">readOnlyRefIns</span></a></span><span> </span><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034186"><span class="hs-identifier hs-var">txinsc</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TxOutShelleyBasedEra
+</span><a href="#local-6989586621682034185"><span class="hs-identifier hs-var">mReturnColl</span></a></span><span>
+</span><span id="line-40"></span><span>               </span><span class="annot"><span class="annottext">Maybe Coin
+</span><a href="#local-6989586621682034184"><span class="hs-identifier hs-var">mTotColl</span></a></span><span> </span><span class="annot"><span class="annottext">[RequiredSigner]
+</span><a href="#local-6989586621682034183"><span class="hs-identifier hs-var">reqSigners</span></a></span><span> </span><span class="annot"><span class="annottext">[TxOutAnyEra]
+</span><a href="#local-6989586621682034182"><span class="hs-identifier hs-var">txouts</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+</span><a href="#local-6989586621682034181"><span class="hs-identifier hs-var">mValue</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034180"><span class="hs-identifier hs-var">mLowBound</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034179"><span class="hs-identifier hs-var">mUpperBound</span></a></span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682034178"><span class="hs-identifier hs-var">fee</span></a></span><span> </span><span class="annot"><span class="annottext">[(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034177"><span class="hs-identifier hs-var">certs</span></a></span><span> </span><span class="annot"><span class="annottext">[(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034176"><span class="hs-identifier hs-var">wdrls</span></a></span><span>
+</span><span id="line-41"></span><span>               </span><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><a href="#local-6989586621682034175"><span class="hs-identifier hs-var">metadataSchema</span></a></span><span> </span><span class="annot"><span class="annottext">[ScriptFile]
+</span><a href="#local-6989586621682034174"><span class="hs-identifier hs-var">scriptFiles</span></a></span><span> </span><span class="annot"><span class="annottext">[MetadataFile]
+</span><a href="#local-6989586621682034173"><span class="hs-identifier hs-var">metadataFiles</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe ProtocolParamsFile
+</span><a href="#local-6989586621682034172"><span class="hs-identifier hs-var">mProtocolParamsFile</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe UpdateProposalFile
+</span><a href="#local-6989586621682034171"><span class="hs-identifier hs-var">mUpProp</span></a></span><span> </span><span class="annot"><span class="annottext">TxBodyFile 'Out
+</span><a href="#local-6989586621682034170"><span class="hs-identifier hs-var">out</span></a></span><span>
+</span><span id="line-42"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionSignCmd"><span class="hs-identifier hs-type">TransactionSignCmd</span></a></span><span> </span><span id="local-6989586621682034167"><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682034167"><span class="hs-identifier hs-var">txinfile</span></a></span></span><span> </span><span id="local-6989586621682034166"><span class="annot"><span class="annottext">[WitnessSigningData]
+</span><a href="#local-6989586621682034166"><span class="hs-identifier hs-var">skfiles</span></a></span></span><span> </span><span id="local-6989586621682034165"><span class="annot"><span class="annottext">Maybe NetworkId
+</span><a href="#local-6989586621682034165"><span class="hs-identifier hs-var">network</span></a></span></span><span> </span><span id="local-6989586621682034164"><span class="annot"><span class="annottext">TxFile 'Out
+</span><a href="#local-6989586621682034164"><span class="hs-identifier hs-var">txoutfile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-43"></span><span>      </span><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+-&gt; [WitnessSigningData]
+-&gt; Maybe NetworkId
+-&gt; TxFile 'Out
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionSignCmd"><span class="hs-identifier hs-var">runLegacyTransactionSignCmd</span></a></span><span> </span><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682034167"><span class="hs-identifier hs-var">txinfile</span></a></span><span> </span><span class="annot"><span class="annottext">[WitnessSigningData]
+</span><a href="#local-6989586621682034166"><span class="hs-identifier hs-var">skfiles</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe NetworkId
+</span><a href="#local-6989586621682034165"><span class="hs-identifier hs-var">network</span></a></span><span> </span><span class="annot"><span class="annottext">TxFile 'Out
+</span><a href="#local-6989586621682034164"><span class="hs-identifier hs-var">txoutfile</span></a></span><span>
+</span><span id="line-44"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionSubmitCmd"><span class="hs-identifier hs-type">TransactionSubmitCmd</span></a></span><span> </span><span id="local-6989586621682034161"><span class="annot"><span class="annottext">SocketPath
+</span><a href="#local-6989586621682034161"><span class="hs-identifier hs-var">mNodeSocketPath</span></a></span></span><span> </span><span id="local-6989586621682034160"><span class="annot"><span class="annottext">ConsensusModeParams
+</span><a href="#local-6989586621682034160"><span class="hs-identifier hs-var">consensusModeParams</span></a></span></span><span> </span><span id="local-6989586621682034159"><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682034159"><span class="hs-identifier hs-var">network</span></a></span></span><span> </span><span id="local-6989586621682034158"><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621682034158"><span class="hs-identifier hs-var">txFp</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-45"></span><span>      </span><span class="annot"><span class="annottext">SocketPath
+-&gt; ConsensusModeParams
+-&gt; NetworkId
+-&gt; FilePath
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionSubmitCmd"><span class="hs-identifier hs-var">runLegacyTransactionSubmitCmd</span></a></span><span> </span><span class="annot"><span class="annottext">SocketPath
+</span><a href="#local-6989586621682034161"><span class="hs-identifier hs-var">mNodeSocketPath</span></a></span><span> </span><span class="annot"><span class="annottext">ConsensusModeParams
+</span><a href="#local-6989586621682034160"><span class="hs-identifier hs-var">consensusModeParams</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682034159"><span class="hs-identifier hs-var">network</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621682034158"><span class="hs-identifier hs-var">txFp</span></a></span><span>
+</span><span id="line-46"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionCalculateMinFeeCmd"><span class="hs-identifier hs-type">TransactionCalculateMinFeeCmd</span></a></span><span> </span><span id="local-6989586621682034155"><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682034155"><span class="hs-identifier hs-var">txbody</span></a></span></span><span> </span><span id="local-6989586621682034154"><span class="annot"><span class="annottext">ProtocolParamsFile
+</span><a href="#local-6989586621682034154"><span class="hs-identifier hs-var">pParamsFile</span></a></span></span><span> </span><span id="local-6989586621682034153"><span class="annot"><span class="annottext">TxShelleyWitnessCount
+</span><a href="#local-6989586621682034153"><span class="hs-identifier hs-var">nShelleyKeyWitnesses</span></a></span></span><span> </span><span id="local-6989586621682034152"><span class="annot"><span class="annottext">TxByronWitnessCount
+</span><a href="#local-6989586621682034152"><span class="hs-identifier hs-var">nByronKeyWitnesses</span></a></span></span><span> </span><span id="local-6989586621682034151"><span class="annot"><span class="annottext">ReferenceScriptSize
+</span><a href="#local-6989586621682034151"><span class="hs-identifier hs-var">referenceScriptSize</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-47"></span><span>      </span><span class="annot"><span class="annottext">TxBodyFile 'In
+-&gt; ProtocolParamsFile
+-&gt; TxShelleyWitnessCount
+-&gt; TxByronWitnessCount
+-&gt; ReferenceScriptSize
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionCalculateMinFeeCmd"><span class="hs-identifier hs-var">runLegacyTransactionCalculateMinFeeCmd</span></a></span><span> </span><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682034155"><span class="hs-identifier hs-var">txbody</span></a></span><span> </span><span class="annot"><span class="annottext">ProtocolParamsFile
+</span><a href="#local-6989586621682034154"><span class="hs-identifier hs-var">pParamsFile</span></a></span><span> </span><span class="annot"><span class="annottext">TxShelleyWitnessCount
+</span><a href="#local-6989586621682034153"><span class="hs-identifier hs-var">nShelleyKeyWitnesses</span></a></span><span> </span><span class="annot"><span class="annottext">TxByronWitnessCount
+</span><a href="#local-6989586621682034152"><span class="hs-identifier hs-var">nByronKeyWitnesses</span></a></span><span> </span><span class="annot"><span class="annottext">ReferenceScriptSize
+</span><a href="#local-6989586621682034151"><span class="hs-identifier hs-var">referenceScriptSize</span></a></span><span>
+</span><span id="line-48"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionCalculateMinValueCmd"><span class="hs-identifier hs-type">TransactionCalculateMinValueCmd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">EraInEon</span></a></span><span> </span><span id="local-6989586621682034143"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682034143"><span class="hs-identifier hs-var">sbe</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621682034142"><span class="annot"><span class="annottext">ProtocolParamsFile
+</span><a href="#local-6989586621682034142"><span class="hs-identifier hs-var">pParamsFile</span></a></span></span><span> </span><span id="local-6989586621682034141"><span class="annot"><span class="annottext">TxOutShelleyBasedEra
+</span><a href="#local-6989586621682034141"><span class="hs-identifier hs-var">txOuts'</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-49"></span><span>      </span><span class="annot"><span class="annottext">AnyShelleyBasedEra
+-&gt; ProtocolParamsFile
+-&gt; TxOutShelleyBasedEra
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionCalculateMinValueCmd"><span class="hs-identifier hs-var">runLegacyTransactionCalculateMinValueCmd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; AnyShelleyBasedEra
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">AnyShelleyBasedEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682034143"><span class="hs-identifier hs-var">sbe</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ProtocolParamsFile
+</span><a href="#local-6989586621682034142"><span class="hs-identifier hs-var">pParamsFile</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutShelleyBasedEra
+</span><a href="#local-6989586621682034141"><span class="hs-identifier hs-var">txOuts'</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionHashScriptDataCmd"><span class="hs-identifier hs-type">TransactionHashScriptDataCmd</span></a></span><span> </span><span id="local-6989586621682034137"><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682034137"><span class="hs-identifier hs-var">scriptDataOrFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-51"></span><span>      </span><span class="annot"><span class="annottext">ScriptDataOrFile -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionHashScriptDataCmd"><span class="hs-identifier hs-var">runLegacyTransactionHashScriptDataCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682034137"><span class="hs-identifier hs-var">scriptDataOrFile</span></a></span><span>
+</span><span id="line-52"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionTxIdCmd"><span class="hs-identifier hs-type">TransactionTxIdCmd</span></a></span><span> </span><span id="local-6989586621682034134"><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682034134"><span class="hs-identifier hs-var">txinfile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-53"></span><span>      </span><span class="annot"><span class="annottext">InputTxBodyOrTxFile -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionTxIdCmd"><span class="hs-identifier hs-var">runLegacyTransactionTxIdCmd</span></a></span><span> </span><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682034134"><span class="hs-identifier hs-var">txinfile</span></a></span><span>
+</span><span id="line-54"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionViewCmd"><span class="hs-identifier hs-type">TransactionViewCmd</span></a></span><span> </span><span id="local-6989586621682034131"><span class="annot"><span class="annottext">ViewOutputFormat
+</span><a href="#local-6989586621682034131"><span class="hs-identifier hs-var">yamlOrJson</span></a></span></span><span> </span><span id="local-6989586621682034130"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682034130"><span class="hs-identifier hs-var">mOutFile</span></a></span></span><span> </span><span id="local-6989586621682034129"><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682034129"><span class="hs-identifier hs-var">txinfile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-55"></span><span>      </span><span class="annot"><span class="annottext">ViewOutputFormat
+-&gt; Maybe (File () 'Out)
+-&gt; InputTxBodyOrTxFile
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionViewCmd"><span class="hs-identifier hs-var">runLegacyTransactionViewCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ViewOutputFormat
+</span><a href="#local-6989586621682034131"><span class="hs-identifier hs-var">yamlOrJson</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682034130"><span class="hs-identifier hs-var">mOutFile</span></a></span><span> </span><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682034129"><span class="hs-identifier hs-var">txinfile</span></a></span><span>
+</span><span id="line-56"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionPolicyIdCmd"><span class="hs-identifier hs-type">TransactionPolicyIdCmd</span></a></span><span> </span><span id="local-6989586621682034126"><span class="annot"><span class="annottext">ScriptFile
+</span><a href="#local-6989586621682034126"><span class="hs-identifier hs-var">sFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-57"></span><span>      </span><span class="annot"><span class="annottext">ScriptFile -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionPolicyIdCmd"><span class="hs-identifier hs-var">runLegacyTransactionPolicyIdCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptFile
+</span><a href="#local-6989586621682034126"><span class="hs-identifier hs-var">sFile</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionWitnessCmd"><span class="hs-identifier hs-type">TransactionWitnessCmd</span></a></span><span> </span><span id="local-6989586621682034123"><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682034123"><span class="hs-identifier hs-var">txBodyfile</span></a></span></span><span> </span><span id="local-6989586621682034122"><span class="annot"><span class="annottext">WitnessSigningData
+</span><a href="#local-6989586621682034122"><span class="hs-identifier hs-var">witSignData</span></a></span></span><span> </span><span id="local-6989586621682034121"><span class="annot"><span class="annottext">Maybe NetworkId
+</span><a href="#local-6989586621682034121"><span class="hs-identifier hs-var">mbNw</span></a></span></span><span> </span><span id="local-6989586621682034120"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682034120"><span class="hs-identifier hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-59"></span><span>      </span><span class="annot"><span class="annottext">TxBodyFile 'In
+-&gt; WitnessSigningData
+-&gt; Maybe NetworkId
+-&gt; File () 'Out
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionWitnessCmd"><span class="hs-identifier hs-var">runLegacyTransactionWitnessCmd</span></a></span><span> </span><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682034123"><span class="hs-identifier hs-var">txBodyfile</span></a></span><span> </span><span class="annot"><span class="annottext">WitnessSigningData
+</span><a href="#local-6989586621682034122"><span class="hs-identifier hs-var">witSignData</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe NetworkId
+</span><a href="#local-6989586621682034121"><span class="hs-identifier hs-var">mbNw</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682034120"><span class="hs-identifier hs-var">outFile</span></a></span><span>
+</span><span id="line-60"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Transaction.html#TransactionSignWitnessCmd"><span class="hs-identifier hs-type">TransactionSignWitnessCmd</span></a></span><span> </span><span id="local-6989586621682034117"><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682034117"><span class="hs-identifier hs-var">txBodyFile</span></a></span></span><span> </span><span id="local-6989586621682034116"><span class="annot"><span class="annottext">[WitnessFile]
+</span><a href="#local-6989586621682034116"><span class="hs-identifier hs-var">witnessFile</span></a></span></span><span> </span><span id="local-6989586621682034115"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682034115"><span class="hs-identifier hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-61"></span><span>      </span><span class="annot"><span class="annottext">TxBodyFile 'In
+-&gt; [WitnessFile] -&gt; File () 'Out -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionSignWitnessCmd"><span class="hs-identifier hs-var">runLegacyTransactionSignWitnessCmd</span></a></span><span> </span><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682034117"><span class="hs-identifier hs-var">txBodyFile</span></a></span><span> </span><span class="annot"><span class="annottext">[WitnessFile]
+</span><a href="#local-6989586621682034116"><span class="hs-identifier hs-var">witnessFile</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682034115"><span class="hs-identifier hs-var">outFile</span></a></span><span>
+</span><span id="line-62"></span><span>
+</span><span id="line-63"></span><span class="hs-comment">-- ----------------------------------------------------------------------------</span><span>
+</span><span id="line-64"></span><span class="hs-comment">-- Building transactions</span><span>
+</span><span id="line-65"></span><span class="hs-comment">--</span><span>
+</span><span id="line-66"></span><span>
+</span><span id="line-67"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionBuildCmd"><span class="hs-identifier hs-type">runLegacyTransactionBuildCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-68"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">SocketPath</span></a></span><span>
+</span><span id="line-69"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">EraInEon</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">ConsensusModeParams</span></a></span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">NetworkId</span></a></span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">ScriptValidity</span></a></span><span>
+</span><span id="line-73"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">Word</span></a></span><span> </span><span class="hs-comment">-- ^ Override the required number of tx witnesses</span><span>
+</span><span id="line-74"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">TxIn</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptWitnessFiles"><span class="hs-identifier hs-type">ScriptWitnessFiles</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">WitCtxTxIn</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Transaction inputs with optional spending scripts</span><span>
+</span><span id="line-75"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">TxIn</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Read only reference inputs</span><span>
+</span><span id="line-76"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#RequiredSigner"><span class="hs-identifier hs-type">RequiredSigner</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Required signers</span><span>
+</span><span id="line-77"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">TxIn</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Transaction inputs for collateral, only key witnesses, no scripts.</span><span>
+</span><span id="line-78"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxOutShelleyBasedEra"><span class="hs-identifier hs-type">TxOutShelleyBasedEra</span></a></span><span> </span><span class="hs-comment">-- ^ Return collateral</span><span>
+</span><span id="line-79"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.13.1.0-5d6384bc796974b54ddb0c816bc18a41b761cb5c74d5039c9ccdde7d74e9f7bf/share/doc/html/src"><span class="hs-identifier hs-type">Coin</span></a></span><span> </span><span class="hs-comment">-- ^ Total collateral</span><span>
+</span><span id="line-80"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxOutAnyEra"><span class="hs-identifier hs-type">TxOutAnyEra</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-81"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxOutChangeAddress"><span class="hs-identifier hs-type">TxOutChangeAddress</span></a></span><span>
+</span><span id="line-82"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">Value</span></a></span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptWitnessFiles"><span class="hs-identifier hs-type">ScriptWitnessFiles</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">WitCtxMint</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-83"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-slotting-0.2.0.0-ff64c67dec8088d619ab9ab7a03f7aaaf7d47311f06553faf0edc25e7505bc7e/share/doc/html/src"><span class="hs-identifier hs-type">SlotNo</span></a></span><span> </span><span class="hs-comment">-- ^ Validity lower bound</span><span>
+</span><span id="line-84"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-slotting-0.2.0.0-ff64c67dec8088d619ab9ab7a03f7aaaf7d47311f06553faf0edc25e7505bc7e/share/doc/html/src"><span class="hs-identifier hs-type">SlotNo</span></a></span><span> </span><span class="hs-comment">-- ^ Validity upper bound</span><span>
+</span><span id="line-85"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#CertificateFile"><span class="hs-identifier hs-type">CertificateFile</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptWitnessFiles"><span class="hs-identifier hs-type">ScriptWitnessFiles</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">WitCtxStake</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">StakeAddress</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.13.1.0-5d6384bc796974b54ddb0c816bc18a41b761cb5c74d5039c9ccdde7d74e9f7bf/share/doc/html/src"><span class="hs-identifier hs-type">Coin</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptWitnessFiles"><span class="hs-identifier hs-type">ScriptWitnessFiles</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">WitCtxStake</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Withdrawals with potential script witness</span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">TxMetadataJsonSchema</span></a></span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptFile"><span class="hs-identifier hs-type">ScriptFile</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-89"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#MetadataFile"><span class="hs-identifier hs-type">MetadataFile</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-90"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#UpdateProposalFile"><span class="hs-identifier hs-type">UpdateProposalFile</span></a></span><span>
+</span><span id="line-91"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Governance.html#VoteFile"><span class="hs-identifier hs-type">VoteFile</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">In</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptWitnessFiles"><span class="hs-identifier hs-type">ScriptWitnessFiles</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">WitCtxStake</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-92"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ProposalFile"><span class="hs-identifier hs-type">ProposalFile</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">In</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptWitnessFiles"><span class="hs-identifier hs-type">ScriptWitnessFiles</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">WitCtxStake</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-93"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxTreasuryDonation"><span class="hs-identifier hs-type">TxTreasuryDonation</span></a></span><span>
+</span><span id="line-94"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxBuildOutputOptions"><span class="hs-identifier hs-type">TxBuildOutputOptions</span></a></span><span>
+</span><span id="line-95"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-96"></span><span id="runLegacyTransactionBuildCmd"><span class="annot"><span class="annottext">runLegacyTransactionBuildCmd :: SocketPath
+-&gt; EraInEon ShelleyBasedEra
+-&gt; ConsensusModeParams
+-&gt; NetworkId
+-&gt; Maybe ScriptValidity
+-&gt; Maybe Word
+-&gt; [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+-&gt; [TxIn]
+-&gt; [RequiredSigner]
+-&gt; [TxIn]
+-&gt; Maybe TxOutShelleyBasedEra
+-&gt; Maybe Coin
+-&gt; [TxOutAnyEra]
+-&gt; TxOutChangeAddress
+-&gt; Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+-&gt; Maybe SlotNo
+-&gt; Maybe SlotNo
+-&gt; [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; [(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; TxMetadataJsonSchema
+-&gt; [ScriptFile]
+-&gt; [MetadataFile]
+-&gt; Maybe UpdateProposalFile
+-&gt; [(VoteFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; [(ProposalFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; Maybe TxTreasuryDonation
+-&gt; TxBuildOutputOptions
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionBuildCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionBuildCmd</span></a></span></span><span>
+</span><span id="line-97"></span><span>    </span><span id="local-6989586621682034113"><span class="annot"><span class="annottext">SocketPath
+</span><a href="#local-6989586621682034113"><span class="hs-identifier hs-var">socketPath</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">EraInEon</span></a></span><span> </span><span id="local-6989586621682034102"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682034102"><span class="hs-identifier hs-var">sbe</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-98"></span><span>    </span><span id="local-6989586621682034101"><span class="annot"><span class="annottext">ConsensusModeParams
+</span><a href="#local-6989586621682034101"><span class="hs-identifier hs-var">consensusModeParams</span></a></span></span><span> </span><span id="local-6989586621682034100"><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682034100"><span class="hs-identifier hs-var">nid</span></a></span></span><span> </span><span id="local-6989586621682034099"><span class="annot"><span class="annottext">Maybe ScriptValidity
+</span><a href="#local-6989586621682034099"><span class="hs-identifier hs-var">mScriptValidity</span></a></span></span><span> </span><span id="local-6989586621682034098"><span class="annot"><span class="annottext">Maybe Word
+</span><a href="#local-6989586621682034098"><span class="hs-identifier hs-var">mOverrideWits</span></a></span></span><span> </span><span id="local-6989586621682034097"><span class="annot"><span class="annottext">[(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+</span><a href="#local-6989586621682034097"><span class="hs-identifier hs-var">txins</span></a></span></span><span> </span><span id="local-6989586621682034096"><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034096"><span class="hs-identifier hs-var">readOnlyRefIns</span></a></span></span><span>
+</span><span id="line-99"></span><span>    </span><span id="local-6989586621682034095"><span class="annot"><span class="annottext">[RequiredSigner]
+</span><a href="#local-6989586621682034095"><span class="hs-identifier hs-var">reqSigners</span></a></span></span><span> </span><span id="local-6989586621682034094"><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034094"><span class="hs-identifier hs-var">txinsc</span></a></span></span><span> </span><span id="local-6989586621682034093"><span class="annot"><span class="annottext">Maybe TxOutShelleyBasedEra
+</span><a href="#local-6989586621682034093"><span class="hs-identifier hs-var">mReturnColl</span></a></span></span><span> </span><span id="local-6989586621682034092"><span class="annot"><span class="annottext">Maybe Coin
+</span><a href="#local-6989586621682034092"><span class="hs-identifier hs-var">mTotCollateral</span></a></span></span><span> </span><span id="local-6989586621682034091"><span class="annot"><span class="annottext">[TxOutAnyEra]
+</span><a href="#local-6989586621682034091"><span class="hs-identifier hs-var">txouts</span></a></span></span><span> </span><span id="local-6989586621682034090"><span class="annot"><span class="annottext">TxOutChangeAddress
+</span><a href="#local-6989586621682034090"><span class="hs-identifier hs-var">changeAddr</span></a></span></span><span> </span><span id="local-6989586621682034089"><span class="annot"><span class="annottext">Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+</span><a href="#local-6989586621682034089"><span class="hs-identifier hs-var">mValue</span></a></span></span><span> </span><span id="local-6989586621682034088"><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034088"><span class="hs-identifier hs-var">mLowBound</span></a></span></span><span>
+</span><span id="line-100"></span><span>    </span><span id="local-6989586621682034087"><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034087"><span class="hs-identifier hs-var">mUpperBound</span></a></span></span><span> </span><span id="local-6989586621682034086"><span class="annot"><span class="annottext">[(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034086"><span class="hs-identifier hs-var">certs</span></a></span></span><span> </span><span id="local-6989586621682034085"><span class="annot"><span class="annottext">[(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034085"><span class="hs-identifier hs-var">wdrls</span></a></span></span><span> </span><span id="local-6989586621682034084"><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><a href="#local-6989586621682034084"><span class="hs-identifier hs-var">metadataSchema</span></a></span></span><span> </span><span id="local-6989586621682034083"><span class="annot"><span class="annottext">[ScriptFile]
+</span><a href="#local-6989586621682034083"><span class="hs-identifier hs-var">scriptFiles</span></a></span></span><span> </span><span id="local-6989586621682034082"><span class="annot"><span class="annottext">[MetadataFile]
+</span><a href="#local-6989586621682034082"><span class="hs-identifier hs-var">metadataFiles</span></a></span></span><span> </span><span id="local-6989586621682034081"><span class="annot"><span class="annottext">Maybe UpdateProposalFile
+</span><a href="#local-6989586621682034081"><span class="hs-identifier hs-var">mUpdateProposal</span></a></span></span><span> </span><span id="local-6989586621682034080"><span class="annot"><span class="annottext">[(VoteFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034080"><span class="hs-identifier hs-var">voteFiles</span></a></span></span><span>
+</span><span id="line-101"></span><span>    </span><span id="local-6989586621682034079"><span class="annot"><span class="annottext">[(ProposalFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034079"><span class="hs-identifier hs-var">proposalFiles</span></a></span></span><span>
+</span><span id="line-102"></span><span>    </span><span id="local-6989586621682034078"><span class="annot"><span class="annottext">Maybe TxTreasuryDonation
+</span><a href="#local-6989586621682034078"><span class="hs-identifier hs-var">mTreasuryDonation</span></a></span></span><span>
+</span><span id="line-103"></span><span>    </span><span id="local-6989586621682034077"><span class="annot"><span class="annottext">TxBuildOutputOptions
+</span><a href="#local-6989586621682034077"><span class="hs-identifier hs-var">outputOptions</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-104"></span><span>
+</span><span id="line-105"></span><span>  </span><span id="local-6989586621682034076"><span class="annot"><span class="annottext">Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+</span><a href="#local-6989586621682034076"><span class="hs-identifier hs-var">mUpdateProposalFile</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-106"></span><span>    </span><span class="annot"><span class="annottext">forall era.
+CardanoEra era
+-&gt; Maybe UpdateProposalFile
+-&gt; Either
+     (TxNotSupportedInEraValidationError era)
+     (Maybe
+        (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+</span><a href="Cardano.CLI.Types.Errors.TxValidationError.html#validateUpdateProposalFile"><span class="hs-identifier hs-var">validateUpdateProposalFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall era. ShelleyBasedEra era -&gt; CardanoEra era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">shelleyBasedToCardanoEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682034102"><span class="hs-identifier hs-var">sbe</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe UpdateProposalFile
+</span><a href="#local-6989586621682034081"><span class="hs-identifier hs-var">mUpdateProposal</span></a></span><span>
+</span><span id="line-107"></span><span>      </span><span class="annot"><span class="annottext">forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">hoistEither</span></a></span><span>
+</span><span id="line-108"></span><span>      </span><span class="annot"><span class="annottext">forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">forall era. TxNotSupportedInEraValidationError era -&gt; TxCmdError
+</span><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdNotSupportedInEraValidationError"><span class="hs-identifier hs-var">TxCmdNotSupportedInEraValidationError</span></a></span><span>
+</span><span id="line-109"></span><span>
+</span><span id="line-110"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682034069"><span class="annot"><span class="annottext">upperBound :: TxValidityUpperBound era
+</span><a href="#local-6989586621682034069"><span class="hs-identifier hs-var hs-var">upperBound</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall era.
+ShelleyBasedEra era -&gt; Maybe SlotNo -&gt; TxValidityUpperBound era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">TxValidityUpperBound</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682034102"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034087"><span class="hs-identifier hs-var">mUpperBound</span></a></span><span>
+</span><span id="line-111"></span><span>
+</span><span id="line-112"></span><span>  </span><span class="annot"><span class="annottext">forall era. TransactionBuildCmdArgs era -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionBuildCmd"><span class="hs-identifier hs-var">runTransactionBuildCmd</span></a></span><span>
+</span><span id="line-113"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">forall era.
+ShelleyBasedEra era
+-&gt; SocketPath
+-&gt; ConsensusModeParams
+-&gt; NetworkId
+-&gt; Maybe ScriptValidity
+-&gt; Maybe Word
+-&gt; [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+-&gt; [TxIn]
+-&gt; [RequiredSigner]
+-&gt; [TxIn]
+-&gt; Maybe TxOutShelleyBasedEra
+-&gt; Maybe Coin
+-&gt; [TxOutAnyEra]
+-&gt; TxOutChangeAddress
+-&gt; Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+-&gt; Maybe SlotNo
+-&gt; TxValidityUpperBound era
+-&gt; [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; [(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; TxMetadataJsonSchema
+-&gt; [ScriptFile]
+-&gt; [MetadataFile]
+-&gt; Maybe
+     (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+-&gt; [(VoteFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; [(ProposalFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; Maybe TxTreasuryDonation
+-&gt; TxBuildOutputOptions
+-&gt; TransactionBuildCmdArgs era
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionBuildCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionBuildCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682034102"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">SocketPath
+</span><a href="#local-6989586621682034113"><span class="hs-identifier hs-var">socketPath</span></a></span><span>
+</span><span id="line-114"></span><span>        </span><span class="annot"><span class="annottext">ConsensusModeParams
+</span><a href="#local-6989586621682034101"><span class="hs-identifier hs-var">consensusModeParams</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682034100"><span class="hs-identifier hs-var">nid</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe ScriptValidity
+</span><a href="#local-6989586621682034099"><span class="hs-identifier hs-var">mScriptValidity</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Word
+</span><a href="#local-6989586621682034098"><span class="hs-identifier hs-var">mOverrideWits</span></a></span><span> </span><span class="annot"><span class="annottext">[(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+</span><a href="#local-6989586621682034097"><span class="hs-identifier hs-var">txins</span></a></span><span> </span><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034096"><span class="hs-identifier hs-var">readOnlyRefIns</span></a></span><span>
+</span><span id="line-115"></span><span>        </span><span class="annot"><span class="annottext">[RequiredSigner]
+</span><a href="#local-6989586621682034095"><span class="hs-identifier hs-var">reqSigners</span></a></span><span> </span><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034094"><span class="hs-identifier hs-var">txinsc</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TxOutShelleyBasedEra
+</span><a href="#local-6989586621682034093"><span class="hs-identifier hs-var">mReturnColl</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Coin
+</span><a href="#local-6989586621682034092"><span class="hs-identifier hs-var">mTotCollateral</span></a></span><span> </span><span class="annot"><span class="annottext">[TxOutAnyEra]
+</span><a href="#local-6989586621682034091"><span class="hs-identifier hs-var">txouts</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutChangeAddress
+</span><a href="#local-6989586621682034090"><span class="hs-identifier hs-var">changeAddr</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+</span><a href="#local-6989586621682034089"><span class="hs-identifier hs-var">mValue</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034088"><span class="hs-identifier hs-var">mLowBound</span></a></span><span>
+</span><span id="line-116"></span><span>        </span><span class="annot"><span class="annottext">TxValidityUpperBound era
+</span><a href="#local-6989586621682034069"><span class="hs-identifier hs-var">upperBound</span></a></span><span> </span><span class="annot"><span class="annottext">[(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034086"><span class="hs-identifier hs-var">certs</span></a></span><span> </span><span class="annot"><span class="annottext">[(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034085"><span class="hs-identifier hs-var">wdrls</span></a></span><span> </span><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><a href="#local-6989586621682034084"><span class="hs-identifier hs-var">metadataSchema</span></a></span><span> </span><span class="annot"><span class="annottext">[ScriptFile]
+</span><a href="#local-6989586621682034083"><span class="hs-identifier hs-var">scriptFiles</span></a></span><span> </span><span class="annot"><span class="annottext">[MetadataFile]
+</span><a href="#local-6989586621682034082"><span class="hs-identifier hs-var">metadataFiles</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+</span><a href="#local-6989586621682034076"><span class="hs-identifier hs-var">mUpdateProposalFile</span></a></span><span> </span><span class="annot"><span class="annottext">[(VoteFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034080"><span class="hs-identifier hs-var">voteFiles</span></a></span><span>
+</span><span id="line-117"></span><span>        </span><span class="annot"><span class="annottext">[(ProposalFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034079"><span class="hs-identifier hs-var">proposalFiles</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TxTreasuryDonation
+</span><a href="#local-6989586621682034078"><span class="hs-identifier hs-var">mTreasuryDonation</span></a></span><span> </span><span class="annot"><span class="annottext">TxBuildOutputOptions
+</span><a href="#local-6989586621682034077"><span class="hs-identifier hs-var">outputOptions</span></a></span><span>
+</span><span id="line-118"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-119"></span><span>
+</span><span id="line-120"></span><span class="hs-comment">-- TODO: Neither QA nor Sam is using `cardano-cli byron transaction build-raw`</span><span>
+</span><span id="line-121"></span><span class="hs-comment">-- for Byron era transactions. So we can parameterize this function on ShelleyBasedEra.</span><span>
+</span><span id="line-122"></span><span class="hs-comment">-- They are using `issue-utxo-expenditure`. However we will deprecate it in a follow up PR.</span><span>
+</span><span id="line-123"></span><span class="hs-comment">-- TODO: As a follow up we need to expose a simple tx building command that only</span><span>
+</span><span id="line-124"></span><span class="hs-comment">-- uses inputs, outputs and update proposals. NB: Update proposals are a separate</span><span>
+</span><span id="line-125"></span><span class="hs-comment">-- thing in the Byron era so we need to figure out how we are handling that at the</span><span>
+</span><span id="line-126"></span><span class="hs-comment">-- cli command level.</span><span>
+</span><span id="line-127"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionBuildRawCmd"><span class="hs-identifier hs-type">runLegacyTransactionBuildRawCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-128"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">AnyCardanoEra</span></a></span><span>
+</span><span id="line-129"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">ScriptValidity</span></a></span><span>
+</span><span id="line-130"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">TxIn</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptWitnessFiles"><span class="hs-identifier hs-type">ScriptWitnessFiles</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">WitCtxTxIn</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-131"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">TxIn</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Read only reference inputs</span><span>
+</span><span id="line-132"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">TxIn</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Transaction inputs for collateral, only key witnesses, no scripts.</span><span>
+</span><span id="line-133"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxOutShelleyBasedEra"><span class="hs-identifier hs-type">TxOutShelleyBasedEra</span></a></span><span> </span><span class="hs-comment">-- ^ Return collateral</span><span>
+</span><span id="line-134"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.13.1.0-5d6384bc796974b54ddb0c816bc18a41b761cb5c74d5039c9ccdde7d74e9f7bf/share/doc/html/src"><span class="hs-identifier hs-type">Coin</span></a></span><span> </span><span class="hs-comment">-- ^ Total collateral</span><span>
+</span><span id="line-135"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#RequiredSigner"><span class="hs-identifier hs-type">RequiredSigner</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-136"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxOutAnyEra"><span class="hs-identifier hs-type">TxOutAnyEra</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-137"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">Value</span></a></span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptWitnessFiles"><span class="hs-identifier hs-type">ScriptWitnessFiles</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">WitCtxMint</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- ^ Multi-Asset value with script witness</span><span>
+</span><span id="line-138"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-slotting-0.2.0.0-ff64c67dec8088d619ab9ab7a03f7aaaf7d47311f06553faf0edc25e7505bc7e/share/doc/html/src"><span class="hs-identifier hs-type">SlotNo</span></a></span><span> </span><span class="hs-comment">-- ^ Validity lower bound</span><span>
+</span><span id="line-139"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-slotting-0.2.0.0-ff64c67dec8088d619ab9ab7a03f7aaaf7d47311f06553faf0edc25e7505bc7e/share/doc/html/src"><span class="hs-identifier hs-type">SlotNo</span></a></span><span> </span><span class="hs-comment">-- ^ Validity upper bound</span><span>
+</span><span id="line-140"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.13.1.0-5d6384bc796974b54ddb0c816bc18a41b761cb5c74d5039c9ccdde7d74e9f7bf/share/doc/html/src"><span class="hs-identifier hs-type">Coin</span></a></span><span> </span><span class="hs-comment">-- ^ Tx fee</span><span>
+</span><span id="line-141"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#CertificateFile"><span class="hs-identifier hs-type">CertificateFile</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptWitnessFiles"><span class="hs-identifier hs-type">ScriptWitnessFiles</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">WitCtxStake</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-142"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">StakeAddress</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.13.1.0-5d6384bc796974b54ddb0c816bc18a41b761cb5c74d5039c9ccdde7d74e9f7bf/share/doc/html/src"><span class="hs-identifier hs-type">Coin</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptWitnessFiles"><span class="hs-identifier hs-type">ScriptWitnessFiles</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">WitCtxStake</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-143"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">TxMetadataJsonSchema</span></a></span><span>
+</span><span id="line-144"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptFile"><span class="hs-identifier hs-type">ScriptFile</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-145"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#MetadataFile"><span class="hs-identifier hs-type">MetadataFile</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-146"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ProtocolParamsFile"><span class="hs-identifier hs-type">ProtocolParamsFile</span></a></span><span>
+</span><span id="line-147"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#UpdateProposalFile"><span class="hs-identifier hs-type">UpdateProposalFile</span></a></span><span>
+</span><span id="line-148"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxBodyFile"><span class="hs-identifier hs-type">TxBodyFile</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">Out</span></a></span><span>
+</span><span id="line-149"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-150"></span><span id="runLegacyTransactionBuildRawCmd"><span class="annot"><span class="annottext">runLegacyTransactionBuildRawCmd :: AnyCardanoEra
+-&gt; Maybe ScriptValidity
+-&gt; [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+-&gt; [TxIn]
+-&gt; [TxIn]
+-&gt; Maybe TxOutShelleyBasedEra
+-&gt; Maybe Coin
+-&gt; [RequiredSigner]
+-&gt; [TxOutAnyEra]
+-&gt; Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+-&gt; Maybe SlotNo
+-&gt; Maybe SlotNo
+-&gt; Coin
+-&gt; [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; [(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; TxMetadataJsonSchema
+-&gt; [ScriptFile]
+-&gt; [MetadataFile]
+-&gt; Maybe ProtocolParamsFile
+-&gt; Maybe UpdateProposalFile
+-&gt; TxBodyFile 'Out
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionBuildRawCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionBuildRawCmd</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">AnyCardanoEra</span></a></span><span> </span><span class="annot"><span class="annottext">CardanoEra era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">ByronEra</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ScriptValidity
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621682034042"><span class="annot"><span class="annottext">[(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+</span><a href="#local-6989586621682034042"><span class="hs-identifier hs-var">txins</span></a></span></span><span> </span><span class="annot"><span class="annottext">[TxIn]
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">[TxIn]
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Maybe TxOutShelleyBasedEra
+</span><span class="hs-identifier">_</span></span><span>
+</span><span id="line-151"></span><span>    </span><span class="annot"><span class="annottext">Maybe Coin
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">[RequiredSigner]
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621682034041"><span class="annot"><span class="annottext">[TxOutAnyEra]
+</span><a href="#local-6989586621682034041"><span class="hs-identifier hs-var">txouts</span></a></span></span><span> </span><span class="annot"><span class="annottext">Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Maybe SlotNo
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Maybe SlotNo
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Coin
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">[(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">[(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><span class="hs-identifier">_</span></span><span>
+</span><span id="line-152"></span><span>    </span><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">[ScriptFile]
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">[MetadataFile]
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Maybe ProtocolParamsFile
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">Maybe UpdateProposalFile
+</span><span class="hs-identifier">_</span></span><span>
+</span><span id="line-153"></span><span>    </span><span id="local-6989586621682034040"><span class="annot"><span class="annottext">TxBodyFile 'Out
+</span><a href="#local-6989586621682034040"><span class="hs-identifier hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-154"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682034039"><span class="annot"><span class="annottext">apiTxIns :: [(TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn ByronEra))]
+</span><a href="#local-6989586621682034039"><span class="hs-identifier hs-var hs-var">apiTxIns</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">TxIn
+</span><a href="#local-6989586621682034038"><span class="hs-identifier hs-var">txIn</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">forall a. a -&gt; BuildTxWith BuildTx a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">BuildTxWith</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall witctx era. KeyWitnessInCtx witctx -&gt; Witness witctx era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">KeyWitness</span></a></span><span> </span><span class="annot"><span class="annottext">KeyWitnessInCtx WitCtxTxIn
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">KeyWitnessForSpending</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682034038"><span class="annot"><span class="annottext">TxIn
+</span><a href="#local-6989586621682034038"><span class="hs-identifier hs-var">txIn</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (ScriptWitnessFiles WitCtxTxIn)
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+</span><a href="#local-6989586621682034042"><span class="hs-identifier hs-var">txins</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-155"></span><span>      </span><span id="local-6989586621682034034"><span class="annot"><span class="annottext">[TxOut CtxTx ByronEra]
+</span><a href="#local-6989586621682034034"><span class="hs-identifier hs-var">byronOuts</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Traversable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m (t b)
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">mapM</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutAnyEra -&gt; ExceptT TxCmdError IO (TxOut CtxTx ByronEra)
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#toTxOutByronEra"><span class="hs-identifier hs-var">toTxOutByronEra</span></a></span><span> </span><span class="annot"><span class="annottext">[TxOutAnyEra]
+</span><a href="#local-6989586621682034041"><span class="hs-identifier hs-var">txouts</span></a></span><span>
+</span><span id="line-156"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[(TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn ByronEra))]
+-&gt; [TxOut CtxTx ByronEra]
+-&gt; Either TxBodyError (Annotated Tx ByteString)
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">makeByronTransactionBody</span></a></span><span> </span><span class="annot"><span class="annottext">[(TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn ByronEra))]
+</span><a href="#local-6989586621682034039"><span class="hs-identifier hs-var">apiTxIns</span></a></span><span> </span><span class="annot"><span class="annottext">[TxOut CtxTx ByronEra]
+</span><a href="#local-6989586621682034034"><span class="hs-identifier hs-var">byronOuts</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-157"></span><span>        </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Left</span></a></span><span> </span><span id="local-6989586621682034030"><span class="annot"><span class="annottext">TxBodyError
+</span><a href="#local-6989586621682034030"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">forall a. HasCallStack =&gt; FilePath -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">error</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><span class="hs-string">&quot;Error occurred while creating a Byron based UTxO transaction: &quot;</span></span><span> </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Show a =&gt; a -&gt; FilePath
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">show</span></a></span><span> </span><span class="annot"><span class="annottext">TxBodyError
+</span><a href="#local-6989586621682034030"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-158"></span><span>        </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Right</span></a></span><span> </span><span id="local-6989586621682034027"><span class="annot"><span class="annottext">Annotated Tx ByteString
+</span><a href="#local-6989586621682034027"><span class="hs-identifier hs-var">txBody</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-159"></span><span>          </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682034026"><span class="annot"><span class="annottext">noWitTx :: ATxAux ByteString
+</span><a href="#local-6989586621682034026"><span class="hs-identifier hs-var hs-var">noWitTx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall era.
+[KeyWitness era] -&gt; Annotated Tx ByteString -&gt; ATxAux ByteString
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">makeSignedByronTransaction</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">Annotated Tx ByteString
+</span><a href="#local-6989586621682034027"><span class="hs-identifier hs-var">txBody</span></a></span><span>
+</span><span id="line-160"></span><span>          </span><span class="annot"><span class="annottext">forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
+(MonadTrans t, Monad m) =&gt;
+m a -&gt; t m a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-var">lift</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall content.
+File content 'Out
+-&gt; ATxAux ByteString -&gt; IO (Either (FileError ()) ())
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">Api.writeByronTxFileTextEnvelopeCddl</span></a></span><span> </span><span class="annot"><span class="annottext">TxBodyFile 'Out
+</span><a href="#local-6989586621682034040"><span class="hs-identifier hs-var">outFile</span></a></span><span> </span><span class="annot"><span class="annottext">ATxAux ByteString
+</span><a href="#local-6989586621682034026"><span class="hs-identifier hs-var">noWitTx</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-161"></span><span>            </span><span class="annot"><span class="annottext">forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">forall e x (m :: * -&gt; *) a.
+Monad m =&gt;
+(e -&gt; ExceptT x m a) -&gt; ExceptT x m (Either e a) -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">onLeft</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">left</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; TxCmdError
+</span><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdWriteFileError"><span class="hs-identifier hs-var">TxCmdWriteFileError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-162"></span><span>
+</span><span id="line-163"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionBuildRawCmd"><span class="hs-identifier hs-var">runLegacyTransactionBuildRawCmd</span></a></span><span>
+</span><span id="line-164"></span><span>    </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">AnyCardanoEra</span></a></span><span> </span><span id="local-6989586621682034015"><span class="annot"><span class="annottext">CardanoEra era
+</span><a href="#local-6989586621682034015"><span class="hs-identifier hs-var">era</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621682034014"><span class="annot"><span class="annottext">Maybe ScriptValidity
+</span><a href="#local-6989586621682034014"><span class="hs-identifier hs-var">mScriptValidity</span></a></span></span><span> </span><span id="local-6989586621682034013"><span class="annot"><span class="annottext">[(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+</span><a href="#local-6989586621682034013"><span class="hs-identifier hs-var">txins</span></a></span></span><span> </span><span id="local-6989586621682034012"><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034012"><span class="hs-identifier hs-var">readOnlyRefIns</span></a></span></span><span> </span><span id="local-6989586621682034011"><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034011"><span class="hs-identifier hs-var">txinsc</span></a></span></span><span> </span><span id="local-6989586621682034010"><span class="annot"><span class="annottext">Maybe TxOutShelleyBasedEra
+</span><a href="#local-6989586621682034010"><span class="hs-identifier hs-var">mReturnColl</span></a></span></span><span>
+</span><span id="line-165"></span><span>    </span><span id="local-6989586621682034009"><span class="annot"><span class="annottext">Maybe Coin
+</span><a href="#local-6989586621682034009"><span class="hs-identifier hs-var">mTotColl</span></a></span></span><span> </span><span id="local-6989586621682034008"><span class="annot"><span class="annottext">[RequiredSigner]
+</span><a href="#local-6989586621682034008"><span class="hs-identifier hs-var">reqSigners</span></a></span></span><span> </span><span id="local-6989586621682034007"><span class="annot"><span class="annottext">[TxOutAnyEra]
+</span><a href="#local-6989586621682034007"><span class="hs-identifier hs-var">txouts</span></a></span></span><span> </span><span id="local-6989586621682034006"><span class="annot"><span class="annottext">Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+</span><a href="#local-6989586621682034006"><span class="hs-identifier hs-var">mValue</span></a></span></span><span> </span><span id="local-6989586621682034005"><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034005"><span class="hs-identifier hs-var">mLowBound</span></a></span></span><span> </span><span id="local-6989586621682034004"><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034004"><span class="hs-identifier hs-var">mUpperBound</span></a></span></span><span> </span><span id="local-6989586621682034003"><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682034003"><span class="hs-identifier hs-var">fee</span></a></span></span><span> </span><span id="local-6989586621682034002"><span class="annot"><span class="annottext">[(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034002"><span class="hs-identifier hs-var">certs</span></a></span></span><span> </span><span id="local-6989586621682034001"><span class="annot"><span class="annottext">[(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034001"><span class="hs-identifier hs-var">wdrls</span></a></span></span><span>
+</span><span id="line-166"></span><span>    </span><span id="local-6989586621682034000"><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><a href="#local-6989586621682034000"><span class="hs-identifier hs-var">metadataSchema</span></a></span></span><span> </span><span id="local-6989586621682033999"><span class="annot"><span class="annottext">[ScriptFile]
+</span><a href="#local-6989586621682033999"><span class="hs-identifier hs-var">scriptFiles</span></a></span></span><span> </span><span id="local-6989586621682033998"><span class="annot"><span class="annottext">[MetadataFile]
+</span><a href="#local-6989586621682033998"><span class="hs-identifier hs-var">metadataFiles</span></a></span></span><span> </span><span id="local-6989586621682033997"><span class="annot"><span class="annottext">Maybe ProtocolParamsFile
+</span><a href="#local-6989586621682033997"><span class="hs-identifier hs-var">mProtocolParamsFile</span></a></span></span><span> </span><span id="local-6989586621682033996"><span class="annot"><span class="annottext">Maybe UpdateProposalFile
+</span><a href="#local-6989586621682033996"><span class="hs-identifier hs-var">mUpdateProposal</span></a></span></span><span>
+</span><span id="line-167"></span><span>    </span><span id="local-6989586621682033995"><span class="annot"><span class="annottext">TxBodyFile 'Out
+</span><a href="#local-6989586621682033995"><span class="hs-identifier hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-168"></span><span>
+</span><span id="line-169"></span><span>  </span><span class="annot"><span class="annottext">forall a era.
+a
+-&gt; (ShelleyBasedEraConstraints era =&gt; ShelleyBasedEra era -&gt; a)
+-&gt; CardanoEra era
+-&gt; a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">caseByronOrShelleyBasedEra</span></a></span><span>
+</span><span id="line-170"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall a. HasCallStack =&gt; FilePath -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">error</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><span class="hs-string">&quot;runLegacyTransactionBuildRawCmd: This should be impossible&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-171"></span><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621682033988"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682033988"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-172"></span><span>       </span><span id="local-6989586621682033987"><span class="annot"><span class="annottext">Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+</span><a href="#local-6989586621682033987"><span class="hs-identifier hs-var">mUpdateProposalFile</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall era.
+CardanoEra era
+-&gt; Maybe UpdateProposalFile
+-&gt; Either
+     (TxNotSupportedInEraValidationError era)
+     (Maybe
+        (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+</span><a href="Cardano.CLI.Types.Errors.TxValidationError.html#validateUpdateProposalFile"><span class="hs-identifier hs-var">validateUpdateProposalFile</span></a></span><span> </span><span class="annot"><span class="annottext">CardanoEra era
+</span><a href="#local-6989586621682034015"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe UpdateProposalFile
+</span><a href="#local-6989586621682033996"><span class="hs-identifier hs-var">mUpdateProposal</span></a></span><span>
+</span><span id="line-173"></span><span>                                 </span><span class="annot"><span class="annottext">forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">hoistEither</span></a></span><span>
+</span><span id="line-174"></span><span>                                 </span><span class="annot"><span class="annottext">forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-3f839ef362bea7a797f0874fcfaf3bd743ba6e0b32de2953ecc4df20e563f33d/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">forall era. TxNotSupportedInEraValidationError era -&gt; TxCmdError
+</span><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdNotSupportedInEraValidationError"><span class="hs-identifier hs-var">TxCmdNotSupportedInEraValidationError</span></a></span><span>
+</span><span id="line-175"></span><span>
+</span><span id="line-176"></span><span>       </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682033986"><span class="annot"><span class="annottext">upperBound :: TxValidityUpperBound era
+</span><a href="#local-6989586621682033986"><span class="hs-identifier hs-var hs-var">upperBound</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall era.
+ShelleyBasedEra era -&gt; Maybe SlotNo -&gt; TxValidityUpperBound era
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-var">TxValidityUpperBound</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682033988"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034004"><span class="hs-identifier hs-var">mUpperBound</span></a></span><span>
+</span><span id="line-177"></span><span>
+</span><span id="line-178"></span><span>       </span><span class="annot"><span class="annottext">forall era.
+TransactionBuildRawCmdArgs era -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionBuildRawCmd"><span class="hs-identifier hs-var">runTransactionBuildRawCmd</span></a></span><span>
+</span><span id="line-179"></span><span>         </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">forall era.
+ShelleyBasedEra era
+-&gt; Maybe ScriptValidity
+-&gt; [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+-&gt; [TxIn]
+-&gt; [TxIn]
+-&gt; Maybe TxOutShelleyBasedEra
+-&gt; Maybe Coin
+-&gt; [RequiredSigner]
+-&gt; [TxOutAnyEra]
+-&gt; Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+-&gt; Maybe SlotNo
+-&gt; TxValidityUpperBound era
+-&gt; Coin
+-&gt; [(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; [(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; TxMetadataJsonSchema
+-&gt; [ScriptFile]
+-&gt; [MetadataFile]
+-&gt; Maybe ProtocolParamsFile
+-&gt; Maybe
+     (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+-&gt; [(VoteFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; [(ProposalFile 'In, Maybe (ScriptWitnessFiles WitCtxStake))]
+-&gt; Maybe TxCurrentTreasuryValue
+-&gt; Maybe TxTreasuryDonation
+-&gt; TxBodyFile 'Out
+-&gt; TransactionBuildRawCmdArgs era
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionBuildRawCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionBuildRawCmdArgs</span></a></span><span>
+</span><span id="line-180"></span><span>             </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682033988"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe ScriptValidity
+</span><a href="#local-6989586621682034014"><span class="hs-identifier hs-var">mScriptValidity</span></a></span><span> </span><span class="annot"><span class="annottext">[(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+</span><a href="#local-6989586621682034013"><span class="hs-identifier hs-var">txins</span></a></span><span> </span><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034012"><span class="hs-identifier hs-var">readOnlyRefIns</span></a></span><span> </span><span class="annot"><span class="annottext">[TxIn]
+</span><a href="#local-6989586621682034011"><span class="hs-identifier hs-var">txinsc</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TxOutShelleyBasedEra
+</span><a href="#local-6989586621682034010"><span class="hs-identifier hs-var">mReturnColl</span></a></span><span>
+</span><span id="line-181"></span><span>             </span><span class="annot"><span class="annottext">Maybe Coin
+</span><a href="#local-6989586621682034009"><span class="hs-identifier hs-var">mTotColl</span></a></span><span> </span><span class="annot"><span class="annottext">[RequiredSigner]
+</span><a href="#local-6989586621682034008"><span class="hs-identifier hs-var">reqSigners</span></a></span><span> </span><span class="annot"><span class="annottext">[TxOutAnyEra]
+</span><a href="#local-6989586621682034007"><span class="hs-identifier hs-var">txouts</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Value, [ScriptWitnessFiles WitCtxMint])
+</span><a href="#local-6989586621682034006"><span class="hs-identifier hs-var">mValue</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe SlotNo
+</span><a href="#local-6989586621682034005"><span class="hs-identifier hs-var">mLowBound</span></a></span><span> </span><span class="annot"><span class="annottext">TxValidityUpperBound era
+</span><a href="#local-6989586621682033986"><span class="hs-identifier hs-var">upperBound</span></a></span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682034003"><span class="hs-identifier hs-var">fee</span></a></span><span> </span><span class="annot"><span class="annottext">[(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034002"><span class="hs-identifier hs-var">certs</span></a></span><span> </span><span class="annot"><span class="annottext">[(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+</span><a href="#local-6989586621682034001"><span class="hs-identifier hs-var">wdrls</span></a></span><span>
+</span><span id="line-182"></span><span>             </span><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><a href="#local-6989586621682034000"><span class="hs-identifier hs-var">metadataSchema</span></a></span><span> </span><span class="annot"><span class="annottext">[ScriptFile]
+</span><a href="#local-6989586621682033999"><span class="hs-identifier hs-var">scriptFiles</span></a></span><span> </span><span class="annot"><span class="annottext">[MetadataFile]
+</span><a href="#local-6989586621682033998"><span class="hs-identifier hs-var">metadataFiles</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe ProtocolParamsFile
+</span><a href="#local-6989586621682033997"><span class="hs-identifier hs-var">mProtocolParamsFile</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+</span><a href="#local-6989586621682033987"><span class="hs-identifier hs-var">mUpdateProposalFile</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-183"></span><span>             </span><span class="annot"><span class="annottext">forall a. Maybe a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Maybe a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-184"></span><span>             </span><span class="annot"><span class="annottext">TxBodyFile 'Out
+</span><a href="#local-6989586621682033995"><span class="hs-identifier hs-var">outFile</span></a></span><span>
+</span><span id="line-185"></span><span>         </span><span class="hs-special">)</span><span>
+</span><span id="line-186"></span><span>         </span><span class="hs-special">)</span><span>
+</span><span id="line-187"></span><span>    </span><span class="annot"><span class="annottext">CardanoEra era
+</span><a href="#local-6989586621682034015"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-188"></span><span>
+</span><span id="line-189"></span><span>
+</span><span id="line-190"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionSignCmd"><span class="hs-identifier hs-type">runLegacyTransactionSignCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#InputTxBodyOrTxFile"><span class="hs-identifier hs-type">InputTxBodyOrTxFile</span></a></span><span>
+</span><span id="line-191"></span><span>          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#WitnessSigningData"><span class="hs-identifier hs-type">WitnessSigningData</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-192"></span><span>          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">NetworkId</span></a></span><span>
+</span><span id="line-193"></span><span>          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxFile"><span class="hs-identifier hs-type">TxFile</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">Out</span></a></span><span>
+</span><span id="line-194"></span><span>          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-195"></span><span id="runLegacyTransactionSignCmd"><span class="annot"><span class="annottext">runLegacyTransactionSignCmd :: InputTxBodyOrTxFile
+-&gt; [WitnessSigningData]
+-&gt; Maybe NetworkId
+-&gt; TxFile 'Out
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionSignCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionSignCmd</span></a></span></span><span>
+</span><span id="line-196"></span><span>    </span><span id="local-6989586621682033983"><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682033983"><span class="hs-identifier hs-var">txOrTxBody</span></a></span></span><span>
+</span><span id="line-197"></span><span>    </span><span id="local-6989586621682033982"><span class="annot"><span class="annottext">[WitnessSigningData]
+</span><a href="#local-6989586621682033982"><span class="hs-identifier hs-var">witSigningData</span></a></span></span><span>
+</span><span id="line-198"></span><span>    </span><span id="local-6989586621682033981"><span class="annot"><span class="annottext">Maybe NetworkId
+</span><a href="#local-6989586621682033981"><span class="hs-identifier hs-var">mnw</span></a></span></span><span>
+</span><span id="line-199"></span><span>    </span><span id="local-6989586621682033980"><span class="annot"><span class="annottext">TxFile 'Out
+</span><a href="#local-6989586621682033980"><span class="hs-identifier hs-var">outTxFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-200"></span><span>  </span><span class="annot"><span class="annottext">TransactionSignCmdArgs -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionSignCmd"><span class="hs-identifier hs-var">runTransactionSignCmd</span></a></span><span>
+</span><span id="line-201"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+-&gt; [WitnessSigningData]
+-&gt; Maybe NetworkId
+-&gt; TxFile 'Out
+-&gt; TransactionSignCmdArgs
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionSignCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionSignCmdArgs</span></a></span><span>
+</span><span id="line-202"></span><span>       </span><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682033983"><span class="hs-identifier hs-var">txOrTxBody</span></a></span><span>
+</span><span id="line-203"></span><span>       </span><span class="annot"><span class="annottext">[WitnessSigningData]
+</span><a href="#local-6989586621682033982"><span class="hs-identifier hs-var">witSigningData</span></a></span><span>
+</span><span id="line-204"></span><span>       </span><span class="annot"><span class="annottext">Maybe NetworkId
+</span><a href="#local-6989586621682033981"><span class="hs-identifier hs-var">mnw</span></a></span><span>
+</span><span id="line-205"></span><span>       </span><span class="annot"><span class="annottext">TxFile 'Out
+</span><a href="#local-6989586621682033980"><span class="hs-identifier hs-var">outTxFile</span></a></span><span>
+</span><span id="line-206"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-207"></span><span>
+</span><span id="line-208"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionSubmitCmd"><span class="hs-identifier hs-type">runLegacyTransactionSubmitCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-209"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">SocketPath</span></a></span><span>
+</span><span id="line-210"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">ConsensusModeParams</span></a></span><span>
+</span><span id="line-211"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">NetworkId</span></a></span><span>
+</span><span id="line-212"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-213"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-214"></span><span id="runLegacyTransactionSubmitCmd"><span class="annot"><span class="annottext">runLegacyTransactionSubmitCmd :: SocketPath
+-&gt; ConsensusModeParams
+-&gt; NetworkId
+-&gt; FilePath
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionSubmitCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionSubmitCmd</span></a></span></span><span>
+</span><span id="line-215"></span><span>    </span><span id="local-6989586621682033977"><span class="annot"><span class="annottext">SocketPath
+</span><a href="#local-6989586621682033977"><span class="hs-identifier hs-var">socketPath</span></a></span></span><span>
+</span><span id="line-216"></span><span>    </span><span id="local-6989586621682033976"><span class="annot"><span class="annottext">ConsensusModeParams
+</span><a href="#local-6989586621682033976"><span class="hs-identifier hs-var">consensusModeParams</span></a></span></span><span>
+</span><span id="line-217"></span><span>    </span><span id="local-6989586621682033975"><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682033975"><span class="hs-identifier hs-var">network</span></a></span></span><span>
+</span><span id="line-218"></span><span>    </span><span id="local-6989586621682033974"><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621682033974"><span class="hs-identifier hs-var">txFilePath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-219"></span><span>  </span><span class="annot"><span class="annottext">TransactionSubmitCmdArgs -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionSubmitCmd"><span class="hs-identifier hs-var">runTransactionSubmitCmd</span></a></span><span>
+</span><span id="line-220"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">SocketPath
+-&gt; ConsensusModeParams
+-&gt; NetworkId
+-&gt; FilePath
+-&gt; TransactionSubmitCmdArgs
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionSubmitCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionSubmitCmdArgs</span></a></span><span>
+</span><span id="line-221"></span><span>        </span><span class="annot"><span class="annottext">SocketPath
+</span><a href="#local-6989586621682033977"><span class="hs-identifier hs-var">socketPath</span></a></span><span>
+</span><span id="line-222"></span><span>        </span><span class="annot"><span class="annottext">ConsensusModeParams
+</span><a href="#local-6989586621682033976"><span class="hs-identifier hs-var">consensusModeParams</span></a></span><span>
+</span><span id="line-223"></span><span>        </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682033975"><span class="hs-identifier hs-var">network</span></a></span><span>
+</span><span id="line-224"></span><span>        </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621682033974"><span class="hs-identifier hs-var">txFilePath</span></a></span><span>
+</span><span id="line-225"></span><span>     </span><span class="hs-special">)</span><span>
+</span><span id="line-226"></span><span>
+</span><span id="line-227"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionCalculateMinFeeCmd"><span class="hs-identifier hs-type">runLegacyTransactionCalculateMinFeeCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-228"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxBodyFile"><span class="hs-identifier hs-type">TxBodyFile</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">In</span></a></span><span>
+</span><span id="line-229"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ProtocolParamsFile"><span class="hs-identifier hs-type">ProtocolParamsFile</span></a></span><span>
+</span><span id="line-230"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxShelleyWitnessCount"><span class="hs-identifier hs-type">TxShelleyWitnessCount</span></a></span><span>
+</span><span id="line-231"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxByronWitnessCount"><span class="hs-identifier hs-type">TxByronWitnessCount</span></a></span><span>
+</span><span id="line-232"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ReferenceScriptSize"><span class="hs-identifier hs-type">ReferenceScriptSize</span></a></span><span>
+</span><span id="line-233"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-234"></span><span id="runLegacyTransactionCalculateMinFeeCmd"><span class="annot"><span class="annottext">runLegacyTransactionCalculateMinFeeCmd :: TxBodyFile 'In
+-&gt; ProtocolParamsFile
+-&gt; TxShelleyWitnessCount
+-&gt; TxByronWitnessCount
+-&gt; ReferenceScriptSize
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionCalculateMinFeeCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionCalculateMinFeeCmd</span></a></span></span><span>
+</span><span id="line-235"></span><span>    </span><span id="local-6989586621682033971"><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682033971"><span class="hs-identifier hs-var">txbodyFile</span></a></span></span><span>
+</span><span id="line-236"></span><span>    </span><span id="local-6989586621682033970"><span class="annot"><span class="annottext">ProtocolParamsFile
+</span><a href="#local-6989586621682033970"><span class="hs-identifier hs-var">pParamsFile</span></a></span></span><span>
+</span><span id="line-237"></span><span>    </span><span id="local-6989586621682033969"><span class="annot"><span class="annottext">TxShelleyWitnessCount
+</span><a href="#local-6989586621682033969"><span class="hs-identifier hs-var">txShelleyWitnessCount</span></a></span></span><span>
+</span><span id="line-238"></span><span>    </span><span id="local-6989586621682033968"><span class="annot"><span class="annottext">TxByronWitnessCount
+</span><a href="#local-6989586621682033968"><span class="hs-identifier hs-var">txByronWitnessCount</span></a></span></span><span>
+</span><span id="line-239"></span><span>    </span><span id="local-6989586621682033967"><span class="annot"><span class="annottext">ReferenceScriptSize
+</span><a href="#local-6989586621682033967"><span class="hs-identifier hs-var">referenceScriptSize</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-240"></span><span>  </span><span class="annot"><span class="annottext">TransactionCalculateMinFeeCmdArgs -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionCalculateMinFeeCmd"><span class="hs-identifier hs-var">runTransactionCalculateMinFeeCmd</span></a></span><span>
+</span><span id="line-241"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">TxBodyFile 'In
+-&gt; ProtocolParamsFile
+-&gt; TxShelleyWitnessCount
+-&gt; TxByronWitnessCount
+-&gt; ReferenceScriptSize
+-&gt; TransactionCalculateMinFeeCmdArgs
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionCalculateMinFeeCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionCalculateMinFeeCmdArgs</span></a></span><span>
+</span><span id="line-242"></span><span>        </span><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682033971"><span class="hs-identifier hs-var">txbodyFile</span></a></span><span>
+</span><span id="line-243"></span><span>        </span><span class="annot"><span class="annottext">ProtocolParamsFile
+</span><a href="#local-6989586621682033970"><span class="hs-identifier hs-var">pParamsFile</span></a></span><span>
+</span><span id="line-244"></span><span>        </span><span class="annot"><span class="annottext">TxShelleyWitnessCount
+</span><a href="#local-6989586621682033969"><span class="hs-identifier hs-var">txShelleyWitnessCount</span></a></span><span>
+</span><span id="line-245"></span><span>        </span><span class="annot"><span class="annottext">TxByronWitnessCount
+</span><a href="#local-6989586621682033968"><span class="hs-identifier hs-var">txByronWitnessCount</span></a></span><span>
+</span><span id="line-246"></span><span>        </span><span class="annot"><span class="annottext">ReferenceScriptSize
+</span><a href="#local-6989586621682033967"><span class="hs-identifier hs-var">referenceScriptSize</span></a></span><span>
+</span><span id="line-247"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-248"></span><span>
+</span><span id="line-249"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionCalculateMinValueCmd"><span class="hs-identifier hs-type">runLegacyTransactionCalculateMinValueCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-250"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">AnyShelleyBasedEra</span></a></span><span>
+</span><span id="line-251"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ProtocolParamsFile"><span class="hs-identifier hs-type">ProtocolParamsFile</span></a></span><span>
+</span><span id="line-252"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxOutShelleyBasedEra"><span class="hs-identifier hs-type">TxOutShelleyBasedEra</span></a></span><span>
+</span><span id="line-253"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-254"></span><span id="runLegacyTransactionCalculateMinValueCmd"><span class="annot"><span class="annottext">runLegacyTransactionCalculateMinValueCmd :: AnyShelleyBasedEra
+-&gt; ProtocolParamsFile
+-&gt; TxOutShelleyBasedEra
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionCalculateMinValueCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionCalculateMinValueCmd</span></a></span></span><span>
+</span><span id="line-255"></span><span>    </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">AnyShelleyBasedEra</span></a></span><span> </span><span id="local-6989586621682033963"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682033963"><span class="hs-identifier hs-var">era</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-256"></span><span>    </span><span id="local-6989586621682033962"><span class="annot"><span class="annottext">ProtocolParamsFile
+</span><a href="#local-6989586621682033962"><span class="hs-identifier hs-var">pParamsFile</span></a></span></span><span>
+</span><span id="line-257"></span><span>    </span><span id="local-6989586621682033961"><span class="annot"><span class="annottext">TxOutShelleyBasedEra
+</span><a href="#local-6989586621682033961"><span class="hs-identifier hs-var">txOut</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-258"></span><span>  </span><span class="annot"><span class="annottext">forall era.
+TransactionCalculateMinValueCmdArgs era -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionCalculateMinValueCmd"><span class="hs-identifier hs-var">runTransactionCalculateMinValueCmd</span></a></span><span>
+</span><span id="line-259"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">forall era.
+ShelleyBasedEra era
+-&gt; ProtocolParamsFile
+-&gt; TxOutShelleyBasedEra
+-&gt; TransactionCalculateMinValueCmdArgs era
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionCalculateMinValueCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionCalculateMinValueCmdArgs</span></a></span><span>
+</span><span id="line-260"></span><span>        </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682033963"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-261"></span><span>        </span><span class="annot"><span class="annottext">ProtocolParamsFile
+</span><a href="#local-6989586621682033962"><span class="hs-identifier hs-var">pParamsFile</span></a></span><span>
+</span><span id="line-262"></span><span>        </span><span class="annot"><span class="annottext">TxOutShelleyBasedEra
+</span><a href="#local-6989586621682033961"><span class="hs-identifier hs-var">txOut</span></a></span><span>
+</span><span id="line-263"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-264"></span><span>
+</span><span id="line-265"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionPolicyIdCmd"><span class="hs-identifier hs-type">runLegacyTransactionPolicyIdCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span>  </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptFile"><span class="hs-identifier hs-type">ScriptFile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-266"></span><span id="runLegacyTransactionPolicyIdCmd"><span class="annot"><span class="annottext">runLegacyTransactionPolicyIdCmd :: ScriptFile -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionPolicyIdCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionPolicyIdCmd</span></a></span></span><span> </span><span id="local-6989586621682033958"><span class="annot"><span class="annottext">ScriptFile
+</span><a href="#local-6989586621682033958"><span class="hs-identifier hs-var">scriptFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-267"></span><span>  </span><span class="annot"><span class="annottext">TransactionPolicyIdCmdArgs -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionPolicyIdCmd"><span class="hs-identifier hs-var">runTransactionPolicyIdCmd</span></a></span><span>
+</span><span id="line-268"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">ScriptFile -&gt; TransactionPolicyIdCmdArgs
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionPolicyIdCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionPolicyIdCmdArgs</span></a></span><span>
+</span><span id="line-269"></span><span>        </span><span class="annot"><span class="annottext">ScriptFile
+</span><a href="#local-6989586621682033958"><span class="hs-identifier hs-var">scriptFile</span></a></span><span>
+</span><span id="line-270"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-271"></span><span>
+</span><span id="line-272"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionHashScriptDataCmd"><span class="hs-identifier hs-type">runLegacyTransactionHashScriptDataCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ScriptDataOrFile"><span class="hs-identifier hs-type">ScriptDataOrFile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-273"></span><span id="runLegacyTransactionHashScriptDataCmd"><span class="annot"><span class="annottext">runLegacyTransactionHashScriptDataCmd :: ScriptDataOrFile -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionHashScriptDataCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionHashScriptDataCmd</span></a></span></span><span> </span><span id="local-6989586621682033955"><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682033955"><span class="hs-identifier hs-var">scriptDataOrFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-274"></span><span>  </span><span class="annot"><span class="annottext">TransactionHashScriptDataCmdArgs -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionHashScriptDataCmd"><span class="hs-identifier hs-var">runTransactionHashScriptDataCmd</span></a></span><span>
+</span><span id="line-275"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile -&gt; TransactionHashScriptDataCmdArgs
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionHashScriptDataCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionHashScriptDataCmdArgs</span></a></span><span>
+</span><span id="line-276"></span><span>        </span><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682033955"><span class="hs-identifier hs-var">scriptDataOrFile</span></a></span><span>
+</span><span id="line-277"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-278"></span><span>
+</span><span id="line-279"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionTxIdCmd"><span class="hs-identifier hs-type">runLegacyTransactionTxIdCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#InputTxBodyOrTxFile"><span class="hs-identifier hs-type">InputTxBodyOrTxFile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-280"></span><span id="runLegacyTransactionTxIdCmd"><span class="annot"><span class="annottext">runLegacyTransactionTxIdCmd :: InputTxBodyOrTxFile -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionTxIdCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionTxIdCmd</span></a></span></span><span> </span><span id="local-6989586621682033952"><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682033952"><span class="hs-identifier hs-var">txfile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-281"></span><span>  </span><span class="annot"><span class="annottext">TransactionTxIdCmdArgs -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionTxIdCmd"><span class="hs-identifier hs-var">runTransactionTxIdCmd</span></a></span><span>
+</span><span id="line-282"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">InputTxBodyOrTxFile -&gt; TransactionTxIdCmdArgs
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionTxIdCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionTxIdCmdArgs</span></a></span><span>
+</span><span id="line-283"></span><span>        </span><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682033952"><span class="hs-identifier hs-var">txfile</span></a></span><span>
+</span><span id="line-284"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-285"></span><span>
+</span><span id="line-286"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionViewCmd"><span class="hs-identifier hs-type">runLegacyTransactionViewCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ViewOutputFormat"><span class="hs-identifier hs-type">ViewOutputFormat</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#InputTxBodyOrTxFile"><span class="hs-identifier hs-type">InputTxBodyOrTxFile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-287"></span><span id="runLegacyTransactionViewCmd"><span class="annot"><span class="annottext">runLegacyTransactionViewCmd :: ViewOutputFormat
+-&gt; Maybe (File () 'Out)
+-&gt; InputTxBodyOrTxFile
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionViewCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionViewCmd</span></a></span></span><span>
+</span><span id="line-288"></span><span>    </span><span id="local-6989586621682033949"><span class="annot"><span class="annottext">ViewOutputFormat
+</span><a href="#local-6989586621682033949"><span class="hs-identifier hs-var">yamlOrJson</span></a></span></span><span>
+</span><span id="line-289"></span><span>    </span><span id="local-6989586621682033948"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682033948"><span class="hs-identifier hs-var">mOutFile</span></a></span></span><span>
+</span><span id="line-290"></span><span>    </span><span id="local-6989586621682033947"><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682033947"><span class="hs-identifier hs-var">inputTxBodyOrTxFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-291"></span><span>  </span><span class="annot"><span class="annottext">TransactionViewCmdArgs -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionViewCmd"><span class="hs-identifier hs-var">runTransactionViewCmd</span></a></span><span>
+</span><span id="line-292"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">ViewOutputFormat
+-&gt; Maybe (File () 'Out)
+-&gt; InputTxBodyOrTxFile
+-&gt; TransactionViewCmdArgs
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionViewCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionViewCmdArgs</span></a></span><span>
+</span><span id="line-293"></span><span>        </span><span class="annot"><span class="annottext">ViewOutputFormat
+</span><a href="#local-6989586621682033949"><span class="hs-identifier hs-var">yamlOrJson</span></a></span><span>
+</span><span id="line-294"></span><span>        </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682033948"><span class="hs-identifier hs-var">mOutFile</span></a></span><span>
+</span><span id="line-295"></span><span>        </span><span class="annot"><span class="annottext">InputTxBodyOrTxFile
+</span><a href="#local-6989586621682033947"><span class="hs-identifier hs-var">inputTxBodyOrTxFile</span></a></span><span>
+</span><span id="line-296"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-297"></span><span>
+</span><span id="line-298"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionWitnessCmd"><span class="hs-identifier hs-type">runLegacyTransactionWitnessCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-299"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxBodyFile"><span class="hs-identifier hs-type">TxBodyFile</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">In</span></a></span><span>
+</span><span id="line-300"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#WitnessSigningData"><span class="hs-identifier hs-type">WitnessSigningData</span></a></span><span>
+</span><span id="line-301"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">NetworkId</span></a></span><span>
+</span><span id="line-302"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">Out</span></a></span><span>
+</span><span id="line-303"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-304"></span><span id="runLegacyTransactionWitnessCmd"><span class="annot"><span class="annottext">runLegacyTransactionWitnessCmd :: TxBodyFile 'In
+-&gt; WitnessSigningData
+-&gt; Maybe NetworkId
+-&gt; File () 'Out
+-&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionWitnessCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionWitnessCmd</span></a></span></span><span>
+</span><span id="line-305"></span><span>    </span><span id="local-6989586621682033944"><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682033944"><span class="hs-identifier hs-var">txbodyFile</span></a></span></span><span>
+</span><span id="line-306"></span><span>    </span><span id="local-6989586621682033943"><span class="annot"><span class="annottext">WitnessSigningData
+</span><a href="#local-6989586621682033943"><span class="hs-identifier hs-var">witSignData</span></a></span></span><span>
+</span><span id="line-307"></span><span>    </span><span id="local-6989586621682033942"><span class="annot"><span class="annottext">Maybe NetworkId
+</span><a href="#local-6989586621682033942"><span class="hs-identifier hs-var">mbNw</span></a></span></span><span>
+</span><span id="line-308"></span><span>    </span><span id="local-6989586621682033941"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682033941"><span class="hs-identifier hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-309"></span><span>  </span><span class="annot"><span class="annottext">TransactionWitnessCmdArgs -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionWitnessCmd"><span class="hs-identifier hs-var">runTransactionWitnessCmd</span></a></span><span>
+</span><span id="line-310"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">TxBodyFile 'In
+-&gt; WitnessSigningData
+-&gt; Maybe NetworkId
+-&gt; File () 'Out
+-&gt; TransactionWitnessCmdArgs
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionWitnessCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionWitnessCmdArgs</span></a></span><span>
+</span><span id="line-311"></span><span>        </span><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682033944"><span class="hs-identifier hs-var">txbodyFile</span></a></span><span>
+</span><span id="line-312"></span><span>        </span><span class="annot"><span class="annottext">WitnessSigningData
+</span><a href="#local-6989586621682033943"><span class="hs-identifier hs-var">witSignData</span></a></span><span>
+</span><span id="line-313"></span><span>        </span><span class="annot"><span class="annottext">Maybe NetworkId
+</span><a href="#local-6989586621682033942"><span class="hs-identifier hs-var">mbNw</span></a></span><span>
+</span><span id="line-314"></span><span>        </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682033941"><span class="hs-identifier hs-var">outFile</span></a></span><span>
+</span><span id="line-315"></span><span>     </span><span class="hs-special">)</span><span>
+</span><span id="line-316"></span><span>
+</span><span id="line-317"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionSignWitnessCmd"><span class="hs-identifier hs-type">runLegacyTransactionSignWitnessCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-318"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxBodyFile"><span class="hs-identifier hs-type">TxBodyFile</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">In</span></a></span><span>
+</span><span id="line-319"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#WitnessFile"><span class="hs-identifier hs-type">WitnessFile</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-320"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-api-8.49.0.0-l-internal-ed687e277851b3da5c7480d4d7cce8bb94ad6992eebd0c4d2ecb1b8fed670256/share/doc/html/src"><span class="hs-identifier hs-type">Out</span></a></span><span>
+</span><span id="line-321"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-322"></span><span id="runLegacyTransactionSignWitnessCmd"><span class="annot"><span class="annottext">runLegacyTransactionSignWitnessCmd :: TxBodyFile 'In
+-&gt; [WitnessFile] -&gt; File () 'Out -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Transaction.html#runLegacyTransactionSignWitnessCmd"><span class="hs-identifier hs-var hs-var">runLegacyTransactionSignWitnessCmd</span></a></span></span><span>
+</span><span id="line-323"></span><span>    </span><span id="local-6989586621682033938"><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682033938"><span class="hs-identifier hs-var">txbodyFile</span></a></span></span><span>
+</span><span id="line-324"></span><span>    </span><span id="local-6989586621682033937"><span class="annot"><span class="annottext">[WitnessFile]
+</span><a href="#local-6989586621682033937"><span class="hs-identifier hs-var">witnessFiles</span></a></span></span><span>
+</span><span id="line-325"></span><span>    </span><span id="local-6989586621682033936"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682033936"><span class="hs-identifier hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-326"></span><span>  </span><span class="annot"><span class="annottext">TransactionSignWitnessCmdArgs -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionSignWitnessCmd"><span class="hs-identifier hs-var">runTransactionSignWitnessCmd</span></a></span><span>
+</span><span id="line-327"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">TxBodyFile 'In
+-&gt; [WitnessFile] -&gt; File () 'Out -&gt; TransactionSignWitnessCmdArgs
+</span><a href="Cardano.CLI.EraBased.Commands.Transaction.html#TransactionSignWitnessCmdArgs"><span class="hs-identifier hs-var">Cmd.TransactionSignWitnessCmdArgs</span></a></span><span>
+</span><span id="line-328"></span><span>        </span><span class="annot"><span class="annottext">TxBodyFile 'In
+</span><a href="#local-6989586621682033938"><span class="hs-identifier hs-var">txbodyFile</span></a></span><span>
+</span><span id="line-329"></span><span>        </span><span class="annot"><span class="annottext">[WitnessFile]
+</span><a href="#local-6989586621682033937"><span class="hs-identifier hs-var">witnessFiles</span></a></span><span>
+</span><span id="line-330"></span><span>        </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682033936"><span class="hs-identifier hs-var">outFile</span></a></span><span>
+</span><span id="line-331"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-332"></span></pre></body></html>
