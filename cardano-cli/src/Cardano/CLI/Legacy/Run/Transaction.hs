@@ -103,7 +103,7 @@ runLegacyTransactionBuildCmd
     outputOptions = do
 
   mUpdateProposalFile <-
-    validateUpdateProposalFile (toCardanoEra sbe) mUpdateProposal
+    validateUpdateProposalFile (shelleyBasedToCardanoEra sbe) mUpdateProposal
       & hoistEither
       & firstExceptT TxCmdNotSupportedInEraValidationError
 

@@ -1,5 +1,18 @@
 # Changelog for cardano-cli
 
+## 9.0.0.0
+
+- Add --hot-script-hash option to committee create-hot-key-authorization-certificate subcommand
+  (breaking)
+  [PR 806](https://github.com/IntersectMBO/cardano-cli/pull/806)
+
+- Move "conway governance hash" commands to "hash". Users should adapt their calls as follows:
+
+  `cardano-cli conway governance hash anchor-data ...` becomes `cardano-cli hash anchor-data ...`
+  `cardano-cli conway governance hash script ...` becomes `cardano-cli hash script ...`
+  (breaking)
+  [PR 787](https://github.com/IntersectMBO/cardano-cli/pull/787)
+
 ## 8.25.0.0
 
 - Add --current-treasury-value and --treasury-donation to transaction build and friends
@@ -26,7 +39,7 @@
   [PR 775](https://github.com/IntersectMBO/cardano-cli/pull/775)
 
 - transaction view: show proposals and votes
-  
+
   This adds to new fields to the JSON output of `transaction view`: `governance actions` and `voters`.
   Please see https://github.com/IntersectMBO/cardano-cli/pull/774#issuecomment-2139062455 for example outputs.
   When those fields are irrelevant, they are present but there value is `null`.

@@ -180,7 +180,7 @@ pTransactionBuildCmd era envCli = do
                       Nothing
                       "Filepath of auxiliary script(s)")
           <*> many pMetadataFile
-          <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
+          <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
           <*> pVoteFiles sbe AutoBalance
           <*> pProposalFiles sbe AutoBalance
           <*> pTreasuryDonation sbe
@@ -235,7 +235,7 @@ pTransactionBuildEstimateCmd era _envCli = do
                       Nothing
                       "Filepath of auxiliary script(s)")
           <*> many pMetadataFile
-          <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
+          <*> pFeatured (shelleyBasedToCardanoEra sbe) (optional pUpdateProposalFile)
           <*> pVoteFiles sbe ManualBalance
           <*> pProposalFiles sbe ManualBalance
           <*> pCurrentTreasuryValue sbe

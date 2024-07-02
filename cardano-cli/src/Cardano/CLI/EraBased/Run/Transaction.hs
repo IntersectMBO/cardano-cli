@@ -131,7 +131,7 @@ runTransactionBuildCmd
       , treasuryDonation
       , buildOutputOptions
       } = shelleyBasedEraConstraints eon $ do
-  let era = toCardanoEra eon
+  let era = shelleyBasedToCardanoEra eon
 
   -- The user can specify an era prior to the era that the node is currently in.
   -- We cannot use the user specified era to construct a query against a node because it may differ
@@ -766,7 +766,7 @@ runTxBuild
 
   -- TODO: All functions should be parameterized by ShelleyBasedEra
   -- as it's not possible to call this function with ByronEra
-  let era = toCardanoEra sbe
+  let era = shelleyBasedToCardanoEra sbe
       inputsThatRequireWitnessing = [input | (input,_) <- inputsAndMaybeScriptWits]
 
   let allReferenceInputs = getAllReferenceInputs
@@ -1078,7 +1078,7 @@ toTxAlonzoDatum supp cliDatum =
       sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
       pure (TxOutDatumInTx supp sData)
     TxOutInlineDatumByValue sDataOrFile -> do
-      let cEra = toCardanoEra supp
+      let cEra = alonzoEraOnwardsToCardanoEra supp
       forEraInEon cEra (txFeatureMismatch cEra TxFeatureInlineDatums) $ \babbageOnwards -> do
         sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
         pure $ TxOutDatumInline babbageOnwards sData
@@ -1521,7 +1521,7 @@ runTransactionSignWitnessCmd
                 lift (readFileTxKeyWitness file) & onLeft (left . TxCmdCddlWitnessError)
 
               case testEquality era era' of
-                Nothing   -> left $ TxCmdWitnessEraMismatch (AnyCardanoEra $ toCardanoEra era) (AnyCardanoEra $ toCardanoEra era') witnessFile
+                Nothing   -> left $ TxCmdWitnessEraMismatch (AnyCardanoEra $ shelleyBasedToCardanoEra era) (AnyCardanoEra $ shelleyBasedToCardanoEra era') witnessFile
                 Just Refl -> return witness
           | witnessFile@(WitnessFile file) <- witnessFiles ]
 
