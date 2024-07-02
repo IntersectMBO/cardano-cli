@@ -537,7 +537,7 @@ pHexHash a mErrPrefix =
       . deserialiseFromRawBytesHex (AsHash a)
       . BSC.pack
   where
-    errPrefix = maybe "" ((<>) ": ") mErrPrefix
+    errPrefix = maybe "" (": " <>) mErrPrefix
 
 pBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
 pBech32KeyHash a =
