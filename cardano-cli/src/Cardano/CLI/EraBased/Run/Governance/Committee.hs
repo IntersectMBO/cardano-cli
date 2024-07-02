@@ -14,8 +14,7 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as Cmd
 import qualified Cardano.CLI.EraBased.Run.Key as Key
-import           Cardano.CLI.Read (readVerificationKeyOrHashOrFileOrScript,
-                   readVerificationKeySource)
+import           Cardano.CLI.Read (readVerificationKeySource)
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Key.VerificationKey
 
@@ -141,7 +140,7 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
     let mapError' = modifyError $ either GovernanceCommitteeCmdScriptReadError  GovernanceCommitteeCmdKeyReadError
     hotCred <-
       mapError' $
-        readVerificationKeyOrHashOrFileOrScript AsCommitteeHotKey unCommitteeHotKeyHash vkeyHotKeySource
+        readVerificationKeySource AsCommitteeHotKey unCommitteeHotKeyHash vkeyHotKeySource
     coldCred <-
       mapError' $
         readVerificationKeySource AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource

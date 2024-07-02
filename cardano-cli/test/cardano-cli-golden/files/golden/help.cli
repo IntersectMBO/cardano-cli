@@ -6930,9 +6930,10 @@ Usage: cardano-cli conway governance committee create-hot-key-authorization-cert
                                                                                           | --cold-script-hash HASH
                                                                                           | --cold-script-file FILE
                                                                                           )
-                                                                                          ( --hot-key STRING
-                                                                                          | --hot-key-file FILE
-                                                                                          | --hot-key-hash STRING
+                                                                                          ( --hot-verification-key STRING
+                                                                                          | --hot-verification-key-file FILE
+                                                                                          | --hot-verification-key-hash STRING
+                                                                                          | --hot-script-hash HASH
                                                                                           | --hot-script-file FILE
                                                                                           )
                                                                                           --out-file FILE

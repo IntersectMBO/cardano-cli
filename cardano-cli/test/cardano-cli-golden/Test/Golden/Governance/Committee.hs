@@ -73,7 +73,7 @@ hprop_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate =
     H.noteShowM_ $ execCardanoCLI
       [ "conway", "governance", "committee", "create-hot-key-authorization-certificate"
       , "--cold-verification-key-file", ccColdVKey
-      , "--hot-key-file", ccHotVKey
+      , "--hot-verification-key-file", ccHotVKey
       , "--out-file", certFile
       ]
 

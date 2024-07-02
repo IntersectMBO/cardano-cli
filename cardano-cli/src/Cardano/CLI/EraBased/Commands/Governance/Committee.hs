@@ -53,7 +53,7 @@ data GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era =
   GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
     { eon               :: !(ConwayEraOnwards era)
     , vkeyColdKeySource :: !(VerificationKeySource CommitteeColdKey)
-    , vkeyHotKeySource  :: !(VerificationKeyOrHashOrFileOrScript CommitteeHotKey)
+    , vkeyHotKeySource  :: !(VerificationKeySource CommitteeHotKey)
     , outFile           :: !(File () Out)
     } deriving Show
 

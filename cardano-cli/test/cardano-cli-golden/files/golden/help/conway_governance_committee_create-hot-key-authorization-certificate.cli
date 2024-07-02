@@ -5,9 +5,10 @@ Usage: cardano-cli conway governance committee create-hot-key-authorization-cert
                                                                                           | --cold-script-hash HASH
                                                                                           | --cold-script-file FILE
                                                                                           )
-                                                                                          ( --hot-key STRING
-                                                                                          | --hot-key-file FILE
-                                                                                          | --hot-key-hash STRING
+                                                                                          ( --hot-verification-key STRING
+                                                                                          | --hot-verification-key-file FILE
+                                                                                          | --hot-verification-key-hash STRING
+                                                                                          | --hot-script-hash HASH
                                                                                           | --hot-script-file FILE
                                                                                           )
                                                                                           --out-file FILE
@@ -25,9 +26,15 @@ Available options:
                            (hex-encoded). Obtain it with "cardano-cli hash
                            script ...".
   --cold-script-file FILE  Cold Native or Plutus script file
-  --hot-key STRING         Constitutional Committee hot key (hex-encoded).
-  --hot-key-file FILE      Filepath of the Consitutional Committee hot key.
-  --hot-key-hash STRING    Constitutional Committee key hash (hex-encoded).
+  --hot-verification-key STRING
+                           Constitutional Committee hot key (hex-encoded).
+  --hot-verification-key-file FILE
+                           Filepath of the Consitutional Committee hot key.
+  --hot-verification-key-hash STRING
+                           Constitutional Committee key hash (hex-encoded).
+  --hot-script-hash HASH   Committee hot Native or Plutus script file hash
+                           (hex-encoded). Obtain it with "cardano-cli hash
+                           script ...".
   --hot-script-file FILE   Hot Native or Plutus script file
   --out-file FILE          The output file.
   -h,--help                Show this help text

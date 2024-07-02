@@ -850,10 +850,31 @@ pCommitteeHotKey =
     , Opt.help "Constitutional Committee hot key (hex-encoded)."
     ]
 
-pCommitteeHotVerificationKey :: Parser (VerificationKey CommitteeHotKey)
-pCommitteeHotVerificationKey =
+pCommitteeHotVerificationKeyOrFile :: Parser (VerificationKeyOrFile CommitteeHotKey)
+pCommitteeHotVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pCommitteeHotVerificationKey "hot-verification-key"
+    , VerificationKeyFilePath <$> pCommitteeHotVerificationKeyFile "hot-verification-key-file"
+    ]
+
+pCommitteeHotVerificationKeyHash :: Parser (Hash CommitteeHotKey)
+pCommitteeHotVerificationKeyHash =
+  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+    [ Opt.long "hot-verification-key-hash"
+    , Opt.metavar "STRING"
+    , Opt.help "Constitutional Committee key hash (hex-encoded)."
+    ]
+  where
+    deserialiseFromHex :: String -> Either String (Hash CommitteeHotKey)
+    deserialiseFromHex =
+      first (\e -> docToString $ "Invalid Consitutional Committee hot key hash: " <> prettyError e)
+        . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
+        . BSC.pack
+
+pCommitteeHotVerificationKey :: String -> Parser (VerificationKey CommitteeHotKey)
+pCommitteeHotVerificationKey longFlag =
   Opt.option (Opt.eitherReader deserialiseHotCCKeyFromHex) $ mconcat
-    [ Opt.long "cc-hot-verification-key"
+    [ Opt.long longFlag
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee hot key (hex-encoded)."
     ]
@@ -873,10 +894,10 @@ pCommitteeHotKeyFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pCommitteeHotVerificationKeyFile :: Parser (VerificationKeyFile In)
-pCommitteeHotVerificationKeyFile =
+pCommitteeHotVerificationKeyFile :: String -> Parser (VerificationKeyFile In)
+pCommitteeHotVerificationKeyFile longFlag =
   fmap File $ Opt.strOption $ mconcat
-    [ Opt.long "cc-hot-verification-key-file"
+    [ Opt.long longFlag
     , Opt.metavar "FILE"
     , Opt.help "Filepath of the Consitutional Committee hot key."
     , Opt.completer (Opt.bashCompleter "file")
@@ -908,8 +929,8 @@ pCommitteeHotKeyOrHashOrFile =
 pCommitteeHotVerificationKeyOrHashOrVerificationFile :: Parser (VerificationKeyOrHashOrFile CommitteeHotKey)
 pCommitteeHotVerificationKeyOrHashOrVerificationFile =
   asum
-    [ VerificationKeyOrFile . VerificationKeyValue <$> pCommitteeHotVerificationKey,
-      VerificationKeyOrFile . VerificationKeyFilePath <$> pCommitteeHotVerificationKeyFile,
+    [ VerificationKeyOrFile . VerificationKeyValue <$> pCommitteeHotVerificationKey "cc-hot-verification-key",
+      VerificationKeyOrFile . VerificationKeyFilePath <$> pCommitteeHotVerificationKeyFile "cc-hot-verification-key-file",
       VerificationKeyHash <$> pCommitteeHotKeyHash (Just "cc")
     ]
 
