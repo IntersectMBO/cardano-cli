@@ -1260,8 +1260,8 @@ runTransactionCalculateMinFeeCmd
       , txShelleyWitnessCount = TxShelleyWitnessCount nShelleyKeyWitnesses
       , txByronWitnessCount = TxByronWitnessCount nByronKeyWitnesses
       , referenceScriptSize = ReferenceScriptSize sReferenceScript
-      -- , outputFormat
-      -- , outFile
+      , outputFormat
+      , outFile
       } = do
 
   txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
@@ -1283,10 +1283,17 @@ runTransactionCalculateMinFeeCmd
 
   let L.Coin fee = shelleyfee + byronfee
 
-        -- case outputFormat of
-        --   ViewOutputFormatYaml -> friendlyTx FriendlyYaml mOutFile (toCardanoEra era) tx
-        --   ViewOutputFormatJson -> friendlyTx FriendlyJson mOutFile (toCardanoEra era) tx
-  liftIO $ putStrLn $ (show fee :: String) <> " Lovelace"
+  case (outputFormat, outFile) of
+    (OutputFormatText, Nothing) -> -- friendlyTx FriendlyYaml mOutFile (toCardanoEra era) tx
+       liftIO $ Text.putStrLn $ feeToPrintedString fee
+    (OutputFormatText, Just file) -> -- friendlyTx FriendlyYaml mOutFile (toCardanoEra era) tx
+       firstExceptT TxCmdWriteFileError . newExceptT $ writeTextFile file $ feeToPrintedString fee -- writeTextFile returns a FileError
+    (OutputFormatJson, Nothing) ->
+       undefined -- friendlyTx FriendlyJson mOutFile (toCardanoEra era) tx
+    (OutputFormatJson, Just file) ->
+       undefined
+  where
+    feeToPrintedString fee = Text.pack $ ((show fee :: String) <> " Lovelace")
 
 -- Extra logic to handle byron witnesses.
 -- TODO: move this to Cardano.API.Fee.evaluateTransactionFee.
