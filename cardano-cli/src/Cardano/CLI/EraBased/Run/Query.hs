@@ -170,11 +170,11 @@ runQueryProtocolParametersCmd
     , Cmd.mOutFile
     } = do
   let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
-  AnyCardanoEra era <- firstExceptT QueryCmdAcquireFailure $ newExceptT $ determineEra localNodeConnInfo
+  AnyCardanoEra era <- firstExceptT QueryCmdAcquireFailure $ determineEra localNodeConnInfo
   sbe <- forEraInEon @ShelleyBasedEra era (left QueryCmdByronEra) pure
   let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
   pp <- firstExceptT QueryCmdConvenienceError
-          . newExceptT $ executeQueryAnyMode localNodeConnInfo qInMode
+          $ executeQueryAnyMode localNodeConnInfo qInMode
   writeProtocolParameters sbe mOutFile pp
   where
     writeProtocolParameters
@@ -654,8 +654,7 @@ runQueryTxMempoolCmd
 
   localQuery <- case query of
       TxMempoolQueryTxExists tx -> do
-        AnyCardanoEra era <- lift (determineEra localNodeConnInfo)
-          & onLeft (left . QueryCmdAcquireFailure)
+        AnyCardanoEra era <- modifyError QueryCmdAcquireFailure (determineEra localNodeConnInfo)
         pure $ LocalTxMonitoringQueryTx $ TxIdInMode era tx
       TxMempoolQueryNextTx -> pure LocalTxMonitoringSendNextTx
       TxMempoolQueryInfo -> pure LocalTxMonitoringMempoolInformation
