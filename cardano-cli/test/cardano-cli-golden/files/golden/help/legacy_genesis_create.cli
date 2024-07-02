@@ -1,4 +1,12 @@
-Usage: cardano-cli legacy genesis create [--key-output-format STRING]
+Usage: cardano-cli legacy genesis create 
+                                           [ --shelley-era
+                                           | --allegra-era
+                                           | --mary-era
+                                           | --alonzo-era
+                                           | --babbage-era
+                                           | --conway-era
+                                           ]
+                                           [--key-output-format STRING]
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]
@@ -10,6 +18,12 @@ Usage: cardano-cli legacy genesis create [--key-output-format STRING]
   genesis/delegation/spending keys.
 
 Available options:
+  --shelley-era            Specify the Shelley era
+  --allegra-era            Specify the Allegra era
+  --mary-era               Specify the Mary era
+  --alonzo-era             Specify the Alonzo era
+  --babbage-era            Specify the Babbage era (default)
+  --conway-era             Specify the Conway era
   --key-output-format STRING
                            Optional key output format. Accepted output formats
                            are "text-envelope" and "bech32" (default is

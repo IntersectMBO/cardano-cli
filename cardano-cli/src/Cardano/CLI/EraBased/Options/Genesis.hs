@@ -23,13 +23,11 @@ import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
-{- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Move brackets to avoid $" -}
-
 pGenesisCmds :: ()
-  => EnvCli
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GenesisCmds era))
-pGenesisCmds envCli =
+pGenesisCmds era envCli =
   subInfoParser "genesis"
     ( Opt.progDesc
         $ mconcat
@@ -64,33 +62,33 @@ pGenesisCmds envCli =
         $ subParser "initial-txin"
         $ Opt.info (pGenesisTxIn envCli)
         $ Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
-    , Just
-        $ subParser "create-cardano"
-        $ Opt.info (pGenesisCreateCardano envCli)
+    , forEraInEonMaybe era $ \sbe ->
+        subParser "create-cardano"
+        $ Opt.info (pGenesisCreateCardano sbe envCli)
         $ Opt.progDesc
         $ mconcat
             [ "Create a Byron and Shelley genesis file from a genesis "
             , "template and genesis/delegation/spending keys."
             ]
-    , Just
-        $ subParser "create"
-        $ Opt.info (pGenesisCreate envCli)
+    , forEraInEonMaybe era $ \sbe ->
+        subParser "create"
+        $ Opt.info (pGenesisCreate sbe envCli)
         $ Opt.progDesc
         $ mconcat
             [ "Create a Shelley genesis file from a genesis "
             , "template and genesis/delegation/spending keys."
             ]
-    , Just
-        $ subParser "create-staked"
-        $ Opt.info (pGenesisCreateStaked envCli)
+    , forEraInEonMaybe era $ \sbe ->
+        subParser "create-staked"
+        $ Opt.info (pGenesisCreateStaked sbe envCli)
         $ Opt.progDesc
         $ mconcat
             [ "Create a staked Shelley genesis file from a genesis "
             , "template and genesis/delegation/spending keys."
             ]
-    , Just
-        $ subParser "create-testnet-data"
-        $ Opt.info (pGenesisCreateTestNetData envCli)
+    , forEraInEonMaybe era $ \sbe ->
+        subParser "create-testnet-data"
+        $ Opt.info (pGenesisCreateTestNetData sbe envCli)
         $ Opt.progDesc
         $ mconcat
             [ "Create data to use for starting a testnet."
@@ -145,9 +143,9 @@ pGenesisTxIn envCli =
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
-pGenesisCreateCardano :: EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateCardano envCli =
-  fmap GenesisCreateCardano $ GenesisCreateCardanoCmdArgs
+pGenesisCreateCardano :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateCardano sbe envCli =
+  fmap GenesisCreateCardano $ GenesisCreateCardanoCmdArgs sbe
     <$> pGenesisDir
     <*> pGenesisNumGenesisKeys
     <*> pGenesisNumUTxOKeys
@@ -171,9 +169,9 @@ pGenesisCreateCardano envCli =
           "JSON file with genesis defaults for conway."
     <*> pNodeConfigTemplate
 
-pGenesisCreate :: EnvCli -> Parser (GenesisCmds era)
-pGenesisCreate envCli =
-  fmap GenesisCreate $ GenesisCreateCmdArgs
+pGenesisCreate :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
+pGenesisCreate sbe envCli =
+  fmap GenesisCreate $ GenesisCreateCmdArgs sbe
     <$> pKeyOutputFormat
     <*> pGenesisDir
     <*> pGenesisNumGenesisKeys
@@ -182,9 +180,9 @@ pGenesisCreate envCli =
     <*> pInitialSupplyNonDelegated
     <*> pNetworkId envCli
 
-pGenesisCreateStaked :: EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateStaked envCli =
-  fmap GenesisCreateStaked $ GenesisCreateStakedCmdArgs
+pGenesisCreateStaked :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateStaked sbe envCli =
+  fmap GenesisCreateStaked $ GenesisCreateStakedCmdArgs sbe
     <$> pKeyOutputFormat
     <*> pGenesisDir
     <*> pGenesisNumGenesisKeys
@@ -209,12 +207,12 @@ pGenesisCreateStaked envCli =
         , Opt.completer (Opt.bashCompleter "file")
         ]
 
-pGenesisCreateTestNetData :: EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateTestNetData envCli =
-  fmap GenesisCreateTestNetData $ GenesisCreateTestNetDataCmdArgs
-    <$> (optional $ pSpecFile "shelley")
-    <*> (optional $ pSpecFile "alonzo")
-    <*> (optional $ pSpecFile "conway")
+pGenesisCreateTestNetData :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateTestNetData sbe envCli =
+  fmap GenesisCreateTestNetData $ GenesisCreateTestNetDataCmdArgs sbe
+    <$> optional (pSpecFile "shelley")
+    <*> optional (pSpecFile "alonzo")
+    <*> optional (pSpecFile "conway")
     <*> pNumGenesisKeys
     <*> pNumPools
     <*> pNumStakeDelegs
@@ -223,15 +221,15 @@ pGenesisCreateTestNetData envCli =
     <*> pNumUtxoKeys
     <*> pSupply
     <*> pSupplyDelegated
-    <*> (optional $ pNetworkIdForTestnetData envCli)
+    <*> optional (pNetworkIdForTestnetData envCli)
     <*> Opt.optional pRelays
     <*> pMaybeSystemStart
     <*> pOutputDir
   where
-    pSpecFile era = Opt.strOption $ mconcat
-      [ Opt.long $ "spec-" <> era
+    pSpecFile eraStr = Opt.strOption $ mconcat
+      [ Opt.long $ "spec-" <> eraStr
       , Opt.metavar "FILE"
-      , Opt.help $ "The " <> era <> " specification file to use as input. A default one is generated if omitted."
+      , Opt.help $ "The " <> eraStr <> " specification file to use as input. A default one is generated if omitted."
       ]
     pNumGenesisKeys = Opt.option Opt.auto $ mconcat
       [ Opt.long "genesis-keys"
@@ -255,7 +253,7 @@ pGenesisCreateTestNetData envCli =
         pDReps :: CredentialGenerationMode -> String -> String -> Parser DRepCredentials
         pDReps mode modeOptionName modeExplanation =
           DRepCredentials mode <$>
-              (Opt.option Opt.auto $ mconcat
+              Opt.option Opt.auto (mconcat
                  [ Opt.long modeOptionName
                  , Opt.help $ "The number of DRep credentials to make (default is 0). " <> modeExplanation
                  , Opt.metavar "INT", Opt.value 0
@@ -268,7 +266,7 @@ pGenesisCreateTestNetData envCli =
         pStakeDelegators :: CredentialGenerationMode -> String -> String -> Parser StakeDelegators
         pStakeDelegators mode modeOptionName modeExplanation =
           StakeDelegators mode <$>
-              (Opt.option Opt.auto $ mconcat
+              Opt.option Opt.auto (mconcat
                  [ Opt.long modeOptionName
                  , Opt.help $ "The number of stake delegator credential sets to make (default is 0). " <> modeExplanation
                  , Opt.metavar "INT", Opt.value 0

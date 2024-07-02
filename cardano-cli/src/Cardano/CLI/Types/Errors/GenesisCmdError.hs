@@ -18,34 +18,30 @@ import           Control.Exception (IOException)
 import           Data.Text (Text)
 
 data GenesisCmdError
-  = GenesisCmdAesonDecodeError !FilePath !Text
-  | GenesisCmdGenesisFileReadError !(FileError IOException)
+  = GenesisCmdAddressCmdError !AddressCmdError
+  | GenesisCmdByronError !ByronGenesisError
+  | GenesisCmdCostModelsError !FilePath
+  | GenesisCmdDelegatedSupplyExceedsTotalSupply !Integer !Integer -- ^ First @Integer@ is the delegate supply, second @Integer@ is the total supply
+  | GenesisCmdFileError !(FileError ())
+  | GenesisCmdFileDecodeError !FilePath !Text
+  | GenesisCmdFilesDupIndex [FilePath]
+  | GenesisCmdFilesNoIndex [FilePath]
   | GenesisCmdGenesisFileDecodeError !FilePath !Text
   | GenesisCmdGenesisFileError !(FileError ())
-  | GenesisCmdFileError !(FileError ())
   | GenesisCmdMismatchedGenesisKeyFiles [Int] [Int] [Int]
-  | GenesisCmdFilesNoIndex [FilePath]
-  | GenesisCmdFilesDupIndex [FilePath]
-  | GenesisCmdTextEnvReadFileError !(FileError TextEnvelopeError)
-  | GenesisCmdUnexpectedAddressVerificationKey !(VerificationKeyFile In) !Text !SomeAddressVerificationKey
-  | GenesisCmdTooFewPoolsForBulkCreds !Word !Word !Word
-  | GenesisCmdAddressCmdError !AddressCmdError
   | GenesisCmdNodeCmdError !NodeCmdError
   | GenesisCmdStakeAddressCmdError !StakeAddressCmdError
   | GenesisCmdStakePoolCmdError !StakePoolCmdError
-  | GenesisCmdCostModelsError !FilePath
-  | GenesisCmdByronError !ByronGenesisError
-  | GenesisCmdTooManyRelaysError !FilePath !Int !Int -- ^ First @Int@ is the number of SPOs, second @Int@ is number of relays
   | GenesisCmdStakePoolRelayFileError !FilePath !IOException
   | GenesisCmdStakePoolRelayJsonDecodeError !FilePath !String
-  | GenesisCmdFileInputDecodeError !(FileError InputDecodeError)
-  | GenesisCmdDelegatedSupplyExceedsTotalSupply !Integer !Integer -- ^ First @Integer@ is the delegate supply, second @Integer@ is the total supply
+  | GenesisCmdTextEnvReadFileError !(FileError TextEnvelopeError)
+  | GenesisCmdTooFewPoolsForBulkCreds !Word !Word !Word
+  | GenesisCmdTooManyRelaysError !FilePath !Int !Int -- ^ First @Int@ is the number of SPOs, second @Int@ is number of relays
+  | GenesisCmdUnexpectedAddressVerificationKey !(VerificationKeyFile In) !Text !SomeAddressVerificationKey
   deriving Show
 
 instance Error GenesisCmdError where
   prettyError = \case
-    GenesisCmdAesonDecodeError fp decErr ->
-      "Error while decoding Shelley genesis at: " <> pretty fp <> " Error: " <> pretty decErr
     GenesisCmdGenesisFileError fe ->
       prettyError fe
     GenesisCmdFileError fe ->
@@ -61,6 +57,8 @@ instance Error GenesisCmdError where
     GenesisCmdFilesDupIndex files ->
       "The genesis keys files are expected to have a unique numeric index but these do not:\n"
         <> vsep (fmap pretty files)
+    GenesisCmdFileDecodeError path errorTxt ->
+      "Cannot decode file:" <+> pretty path <+> "\nError:" <+> pretty errorTxt
     GenesisCmdTextEnvReadFileError fileErr ->
       prettyError fileErr
     GenesisCmdUnexpectedAddressVerificationKey (File file) expect got ->
@@ -87,8 +85,6 @@ instance Error GenesisCmdError where
     GenesisCmdGenesisFileDecodeError fp e ->
       "Error while decoding Shelley genesis at: " <> pretty fp <>
       " Error: " <>  pretty e
-    GenesisCmdGenesisFileReadError e ->
-      prettyError e
     GenesisCmdByronError e -> pshow e
     GenesisCmdTooManyRelaysError fp nbSPOs nbRelays ->
       pretty fp <> " specifies " <> pretty nbRelays <> " relays, but only " <> pretty nbSPOs <> " SPOs have been specified." <>
@@ -99,8 +95,6 @@ instance Error GenesisCmdError where
     GenesisCmdStakePoolRelayJsonDecodeError fp e ->
       "Error occurred while decoding the stake pool relay specification file: " <> pretty fp <>
       " Error: " <> pretty e
-    GenesisCmdFileInputDecodeError ide ->
-      "Error occured while decoding a file: " <> pshow ide
     GenesisCmdDelegatedSupplyExceedsTotalSupply delegated total ->
       "Provided delegated supply is " <> pretty delegated <> ", which is greater than the specified total supply: " <> pretty total <> "." <>
       "This is incorrect: the delegated supply should be less or equal to the total supply." <>

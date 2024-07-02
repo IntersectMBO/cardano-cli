@@ -48,7 +48,7 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
-import           Cardano.CLI.EraBased.Run.CreateTestnetData (readAndDecodeGenesisFile)
+import           Cardano.CLI.EraBased.Run.Genesis.Common
 import           Cardano.CLI.Helpers
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
@@ -174,8 +174,8 @@ runQueryProtocolParametersCmd
   AnyCardanoEra era <- firstExceptT QueryCmdAcquireFailure $ determineEra localNodeConnInfo
   sbe <- forEraInEon @ShelleyBasedEra era (left QueryCmdByronEra) pure
   let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
-  pp <- firstExceptT QueryCmdConvenienceError
-          $ executeQueryAnyMode localNodeConnInfo qInMode
+  pp <- executeQueryAnyMode localNodeConnInfo qInMode
+          & modifyError QueryCmdConvenienceError
   writeProtocolParameters sbe mOutFile pp
   where
     writeProtocolParameters
@@ -655,7 +655,8 @@ runQueryTxMempoolCmd
 
   localQuery <- case query of
       TxMempoolQueryTxExists tx -> do
-        AnyCardanoEra era <- modifyError QueryCmdAcquireFailure (determineEra localNodeConnInfo)
+        AnyCardanoEra era <- determineEra localNodeConnInfo
+          & modifyError QueryCmdAcquireFailure
         pure $ LocalTxMonitoringQueryTx $ TxIdInMode era tx
       TxMempoolQueryNextTx -> pure LocalTxMonitoringSendNextTx
       TxMempoolQueryInfo -> pure LocalTxMonitoringMempoolInformation
@@ -1294,8 +1295,8 @@ runQueryLeadershipScheduleCmd
   vrkSkey <- modifyError QueryCmdTextEnvelopeReadError . hoistIOEither $
     readFileTextEnvelope (AsSigningKey AsVrfKey) vrkSkeyFp
 
-  shelleyGenesis <- modifyError QueryCmdGenesisReadError . hoistIOEither $
-    readAndDecodeGenesisFile @(ShelleyGenesis StandardCrypto) genFile
+  shelleyGenesis <- modifyError QueryCmdGenesisReadError $
+    decodeShelleyGenesisFile genFile
 
   join $ lift
     ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do

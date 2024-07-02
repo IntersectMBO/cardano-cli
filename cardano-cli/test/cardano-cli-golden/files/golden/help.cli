@@ -9828,7 +9828,15 @@ Usage: cardano-cli legacy genesis initial-txin --verification-key-file FILE
 
   Get the TxIn for an initial UTxO based on the verification key
 
-Usage: cardano-cli legacy genesis create-cardano --genesis-dir DIR
+Usage: cardano-cli legacy genesis create-cardano 
+                                                   [ --shelley-era
+                                                   | --allegra-era
+                                                   | --mary-era
+                                                   | --alonzo-era
+                                                   | --babbage-era
+                                                   | --conway-era
+                                                   ]
+                                                   --genesis-dir DIR
                                                    [--gen-genesis-keys INT]
                                                    [--gen-utxo-keys INT]
                                                    [--start-time UTC-TIME]
@@ -9848,7 +9856,15 @@ Usage: cardano-cli legacy genesis create-cardano --genesis-dir DIR
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli legacy genesis create [--key-output-format STRING]
+Usage: cardano-cli legacy genesis create 
+                                           [ --shelley-era
+                                           | --allegra-era
+                                           | --mary-era
+                                           | --alonzo-era
+                                           | --babbage-era
+                                           | --conway-era
+                                           ]
+                                           [--key-output-format STRING]
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]
@@ -9859,7 +9875,15 @@ Usage: cardano-cli legacy genesis create [--key-output-format STRING]
   Create a Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli legacy genesis create-staked [--key-output-format STRING]
+Usage: cardano-cli legacy genesis create-staked 
+                                                  [ --shelley-era
+                                                  | --allegra-era
+                                                  | --mary-era
+                                                  | --alonzo-era
+                                                  | --babbage-era
+                                                  | --conway-era
+                                                  ]
+                                                  [--key-output-format STRING]
                                                   --genesis-dir DIR
                                                   [--gen-genesis-keys INT]
                                                   [--gen-utxo-keys INT]
@@ -11103,7 +11127,15 @@ Usage: cardano-cli genesis initial-txin --verification-key-file FILE
 
   Get the TxIn for an initial UTxO based on the verification key
 
-Usage: cardano-cli genesis create-cardano --genesis-dir DIR
+Usage: cardano-cli genesis create-cardano 
+                                            [ --shelley-era
+                                            | --allegra-era
+                                            | --mary-era
+                                            | --alonzo-era
+                                            | --babbage-era
+                                            | --conway-era
+                                            ]
+                                            --genesis-dir DIR
                                             [--gen-genesis-keys INT]
                                             [--gen-utxo-keys INT]
                                             [--start-time UTC-TIME]
@@ -11123,7 +11155,15 @@ Usage: cardano-cli genesis create-cardano --genesis-dir DIR
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli genesis create [--key-output-format STRING]
+Usage: cardano-cli genesis create 
+                                    [ --shelley-era
+                                    | --allegra-era
+                                    | --mary-era
+                                    | --alonzo-era
+                                    | --babbage-era
+                                    | --conway-era
+                                    ]
+                                    [--key-output-format STRING]
                                     --genesis-dir DIR
                                     [--gen-genesis-keys INT]
                                     [--gen-utxo-keys INT]
@@ -11134,7 +11174,15 @@ Usage: cardano-cli genesis create [--key-output-format STRING]
   Create a Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli genesis create-staked [--key-output-format STRING]
+Usage: cardano-cli genesis create-staked 
+                                           [ --shelley-era
+                                           | --allegra-era
+                                           | --mary-era
+                                           | --alonzo-era
+                                           | --babbage-era
+                                           | --conway-era
+                                           ]
+                                           [--key-output-format STRING]
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]

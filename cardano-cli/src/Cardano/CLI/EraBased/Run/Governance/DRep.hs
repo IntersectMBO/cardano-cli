@@ -163,11 +163,8 @@ runGovernanceDRepMetadataHashCmd
       { metadataFile
       , mOutFile
       } = do
-  metadataBytes <- firstExceptT ReadFileError $ newExceptT (readByteStringFile metadataFile)
-  (_metadata, metadataHash) <-
-    firstExceptT GovernanceCmdDRepMetadataValidationError
-     . hoistEither
-     $ validateAndHashDRepMetadata metadataBytes
+  metadataBytes <- firstExceptT ReadFileError . newExceptT $ readByteStringFile metadataFile
+  let (_metadata, metadataHash) = hashDRepMetadata metadataBytes
   firstExceptT WriteFileError
     . newExceptT
     . writeByteStringOutput mOutFile
