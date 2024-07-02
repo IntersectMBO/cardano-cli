@@ -401,7 +401,7 @@ runGenesisCreateCardanoCmd
     overrideShelleyGenesis t = t
       { sgNetworkMagic = unNetworkMagic (toNetworkMagic network)
       , sgNetworkId = toShelleyNetwork network
-      , sgActiveSlotsCoeff = fromMaybe (error $ "Could not convert from Rational: " ++ show slotCoeff) $ L.boundRational slotCoeff
+      , sgActiveSlotsCoeff = unsafeBoundedRational slotCoeff
       , sgSecurityParam = unBlockCount security
       , sgUpdateQuorum = fromIntegral $ ((numGenesisKeys `div` 3) * 2) + 1
       , sgEpochLength = EpochSize $ floor $ (fromIntegral (unBlockCount security) * 10) / slotCoeff
