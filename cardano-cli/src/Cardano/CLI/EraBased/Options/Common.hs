@@ -642,7 +642,7 @@ pAddCommitteeColdVerificationKeySource =
     , VkhfshScriptHash <$>
         pScriptHash
           "add-cc-cold-script-hash"
-          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
     ]
 
 pAddCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
@@ -698,7 +698,7 @@ pRemoveCommitteeColdVerificationKeySource =
     , VkhfshScriptHash <$>
         pScriptHash
           "remove-cc-cold-script-hash"
-          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
     ]
 
 pScriptHash
@@ -920,7 +920,7 @@ pCommitteeHotVerificationKeyOrHashOrVerificationFileOrScriptHash =
     , VkhfshScriptHash <$>
         pScriptHash
           "cc-hot-script-hash"
-          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
     ]
 
 catCommands :: [Parser a] -> Maybe (Parser a)
@@ -3233,13 +3233,13 @@ pDRepScriptHash :: Parser ScriptHash
 pDRepScriptHash =
   pScriptHash
     "drep-script-hash"
-    "DRep script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+    "DRep script hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
 
 pConstitutionScriptHash :: Parser ScriptHash
 pConstitutionScriptHash =
   pScriptHash
     "constitution-script-hash"
-    "Constitution script hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+    "Constitution script hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
 
 pDRepVerificationKeyOrHashOrFile
   :: Parser (VerificationKeyOrHashOrFile DRepKey)
@@ -3257,7 +3257,7 @@ pDRepVerificationKeyOrHashOrFileOrScriptHash =
     , VkhfshScriptHash <$>
         pScriptHash
           "drep-script-hash"
-          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+          "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
     ]
 
 pAllOrOnlyDRepHashSource

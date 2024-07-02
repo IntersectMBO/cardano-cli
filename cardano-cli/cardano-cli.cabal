@@ -56,6 +56,7 @@ library
                         Cardano.CLI.Byron.UpdateProposal
                         Cardano.CLI.Byron.Vote
                         Cardano.CLI.Commands
+                        Cardano.CLI.Commands.Hash
                         Cardano.CLI.Commands.Ping
                         Cardano.CLI.Commands.Debug
                         Cardano.CLI.Commands.Debug.LogEpochState
@@ -67,7 +68,6 @@ library
                         Cardano.CLI.EraBased.Commands.Governance.Actions
                         Cardano.CLI.EraBased.Commands.Governance.Committee
                         Cardano.CLI.EraBased.Commands.Governance.DRep
-                        Cardano.CLI.EraBased.Commands.Governance.Hash
                         Cardano.CLI.EraBased.Commands.Governance.Poll
                         Cardano.CLI.EraBased.Commands.Governance.Vote
                         Cardano.CLI.EraBased.Commands.Key
@@ -84,7 +84,6 @@ library
                         Cardano.CLI.EraBased.Options.Governance.Actions
                         Cardano.CLI.EraBased.Options.Governance.Committee
                         Cardano.CLI.EraBased.Options.Governance.DRep
-                        Cardano.CLI.EraBased.Options.Governance.Hash
                         Cardano.CLI.EraBased.Options.Governance.Poll
                         Cardano.CLI.EraBased.Options.Governance.Vote
                         Cardano.CLI.EraBased.Options.Key
@@ -103,7 +102,6 @@ library
                         Cardano.CLI.EraBased.Run.Governance.Actions
                         Cardano.CLI.EraBased.Run.Governance.Committee
                         Cardano.CLI.EraBased.Run.Governance.DRep
-                        Cardano.CLI.EraBased.Run.Governance.Hash
                         Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
                         Cardano.CLI.EraBased.Run.Governance.Poll
                         Cardano.CLI.EraBased.Run.Governance.Vote
@@ -143,6 +141,7 @@ library
                         Cardano.CLI.Legacy.Run.Transaction
                         Cardano.CLI.Options
                         Cardano.CLI.Options.Debug
+                        Cardano.CLI.Options.Hash
                         Cardano.CLI.Options.Ping
                         Cardano.CLI.Orphans
                         Cardano.CLI.OS.Posix
@@ -153,6 +152,7 @@ library
                         Cardano.CLI.Run
                         Cardano.CLI.Run.Debug
                         Cardano.CLI.Run.Debug.LogEpochState
+                        Cardano.CLI.Run.Hash
                         Cardano.CLI.Run.Ping
                         Cardano.CLI.TopHandler
                         Cardano.CLI.Types.Common
@@ -167,9 +167,9 @@ library
                         Cardano.CLI.Types.Errors.GovernanceActionsError
                         Cardano.CLI.Types.Errors.GovernanceCmdError
                         Cardano.CLI.Types.Errors.GovernanceCommitteeError
-                        Cardano.CLI.Types.Errors.GovernanceHashError
                         Cardano.CLI.Types.Errors.GovernanceQueryError
                         Cardano.CLI.Types.Errors.GovernanceVoteCmdError
+                        Cardano.CLI.Types.Errors.HashCmdError
                         Cardano.CLI.Types.Errors.ItnKeyConversionError
                         Cardano.CLI.Types.Errors.KeyCmdError
                         Cardano.CLI.Types.Errors.NodeCmdError
@@ -334,6 +334,7 @@ test-suite cardano-cli-test
                         Test.Cli.Pioneers.Exercise6
                         Test.Cli.Pipes
                         Test.Cli.VerificationKey
+                        Test.Cli.Shelley.Run.Hash
                         Test.Cli.Shelley.Run.Query
                         Test.Cli.Shelley.Transaction.Build
 
@@ -394,9 +395,9 @@ test-suite cardano-cli-golden
                         Test.Golden.Governance.Action
                         Test.Golden.Governance.Committee
                         Test.Golden.Governance.DRep
-                        Test.Golden.Governance.Hash
                         Test.Golden.Governance.StakeAddress
                         Test.Golden.Governance.Vote
+                        Test.Golden.Hash.Hash
                         Test.Golden.Help
                         Test.Golden.Key.NonExtendedKey
                         Test.Golden.Shelley.Address.Build

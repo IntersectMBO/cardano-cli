@@ -86,7 +86,7 @@ Available options:
                            Action index of the previous governance action.
   --constitution-script-hash HASH
                            Constitution script hash (hex-encoded). Obtain it
-                           with "cardano-cli conway governance hash script ...".
+                           with "cardano-cli hash script ...".
   --min-fee-linear LOVELACE
                            The linear factor per byte for the minimum fee
                            calculation.

@@ -36,7 +36,7 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --all-dreps              Query for all DReps.
   --drep-script-hash HASH  DRep script hash (hex-encoded). Obtain it with
-                           "cardano-cli conway governance hash script ...".
+                           "cardano-cli hash script ...".
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).
   --drep-verification-key-file FILE

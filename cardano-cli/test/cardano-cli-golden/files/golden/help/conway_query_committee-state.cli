@@ -46,14 +46,12 @@ Available options:
   --cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
   --cold-script-hash HASH  Cold Native or Plutus script file hash (hex-encoded).
-                           Obtain it with "cardano-cli conway governance hash
-                           script ...".
+                           Obtain it with "cardano-cli hash script ...".
   --hot-key STRING         Constitutional Committee hot key (hex-encoded).
   --hot-key-file FILE      Filepath of the Consitutional Committee hot key.
   --hot-key-hash STRING    Constitutional Committee key hash (hex-encoded).
   --hot-script-hash HASH   Hot Native or Plutus script file hash (hex-encoded).
-                           Obtain it with "cardano-cli conway governance hash
-                           script ...".
+                           Obtain it with "cardano-cli hash script ...".
   --active                 Active committee members (members whose vote will
                            count during ratification)
   --expired                Expired committee members

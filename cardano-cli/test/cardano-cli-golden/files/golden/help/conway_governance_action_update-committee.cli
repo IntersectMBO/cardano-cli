@@ -56,8 +56,7 @@ Available options:
                            Constitutional Committee key hash (hex-encoded).
   --remove-cc-cold-script-hash HASH
                            Cold Native or Plutus script file hash (hex-encoded).
-                           Obtain it with "cardano-cli conway governance hash
-                           script ...".
+                           Obtain it with "cardano-cli hash script ...".
   --add-cc-cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
   --add-cc-cold-verification-key-file FILE
@@ -66,8 +65,7 @@ Available options:
                            Constitutional Committee key hash (hex-encoded).
   --add-cc-cold-script-hash HASH
                            Cold Native or Plutus script file hash (hex-encoded).
-                           Obtain it with "cardano-cli conway governance hash
-                           script ...".
+                           Obtain it with "cardano-cli hash script ...".
   --epoch NATURAL          Committee member expiry epoch
   --threshold RATIONAL     Threshold of YES votes that are necessary for
                            approving a governance action.

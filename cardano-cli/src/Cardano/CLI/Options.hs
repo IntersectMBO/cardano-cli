@@ -16,6 +16,7 @@ import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Legacy.Options (parseLegacyCmds)
 import           Cardano.CLI.Options.Debug
+import           Cardano.CLI.Options.Hash
 import           Cardano.CLI.Options.Ping (parsePingCmd)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run (ClientCommand (..))
@@ -55,6 +56,7 @@ parseClientCommand envCli =
     -- , parseTopLevelLatest envCli -- TODO restore this when the governance command group is fully operational
     , parseTopLevelLegacy envCli
     , parseByron envCli
+    , parseHash
     , parsePing
     , parseDebug envCli
     , backwardsCompatibilityCommands envCli
@@ -69,6 +71,9 @@ parseByron mNetworkId =
     , metavar "Byron specific commands"
     , command' "byron" "Byron specific commands" $ parseByronCommands mNetworkId
     ]
+
+parseHash :: Parser ClientCommand
+parseHash = HashCmds <$> pHashCmds
 
 parsePing :: Parser ClientCommand
 parsePing = CliPingCommand <$> parsePingCmd

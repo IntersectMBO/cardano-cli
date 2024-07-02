@@ -9,6 +9,7 @@ Usage: cardano-cli
                      | legacy
                      | Legacy commands
                      | byron
+                     | hash
                      | ping
                      | debug commands
                      | version
@@ -6673,7 +6674,7 @@ Usage: cardano-cli conway genesis hash --genesis FILE
 
   Compute the hash of a genesis file
 
-Usage: cardano-cli conway governance (action | committee | drep | hash | vote)
+Usage: cardano-cli conway governance (action | committee | drep | vote)
 
   Governance commands.
 
@@ -7015,26 +7016,6 @@ Usage: cardano-cli conway governance drep metadata-hash --drep-metadata-file FIL
                                                           [--out-file FILE]
 
   Calculate the hash of a metadata file.
-
-Usage: cardano-cli conway governance hash (anchor-data | script)
-
-  Compute the hash to pass to the various --*-hash arguments of governance
-  commands.
-
-Usage: cardano-cli conway governance hash anchor-data 
-                                                        ( --text TEXT
-                                                        | --file-binary FILE
-                                                        | --file-text FILE
-                                                        )
-                                                        [--out-file FILE]
-
-  Compute the hash of some anchor data (to then pass it to other governance
-  commands).
-
-Usage: cardano-cli conway governance hash script --script-file FILE
-                                                   [--out-file FILE]
-
-  Compute the hash of a script (to then pass it to other governance commands).
 
 Usage: cardano-cli conway governance vote (create | view)
 
@@ -12366,6 +12347,23 @@ Usage: cardano-cli byron create-update-proposal
                                                   [--unlock-stake-epoch WORD64]
 
   Create an update proposal.
+
+Usage: cardano-cli hash (anchor-data | script)
+
+  Compute the hash to pass to the various --*-hash arguments of commands.
+
+Usage: cardano-cli hash anchor-data 
+                                      ( --text TEXT
+                                      | --file-binary FILE
+                                      | --file-text FILE
+                                      )
+                                      [--out-file FILE]
+
+  Compute the hash of some anchor data (to then pass it to other commands).
+
+Usage: cardano-cli hash script --script-file FILE [--out-file FILE]
+
+  Compute the hash of a script (to then pass it to other commands).
 
 Usage: cardano-cli ping [-c|--count COUNT]
                           ((-h|--host HOST) | (-u|--unixsock SOCKET))

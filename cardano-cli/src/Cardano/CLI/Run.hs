@@ -10,9 +10,12 @@ module Cardano.CLI.Run
   , runClientCommand
   ) where
 
+import           Cardano.Api
+
 import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCmdError,
                    runByronClientCommand)
 import           Cardano.CLI.Commands
+import           Cardano.CLI.Run.Hash (runHashCmds)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run
 import           Cardano.CLI.Legacy.Commands
@@ -22,12 +25,10 @@ import           Cardano.CLI.Run.Debug
 import           Cardano.CLI.Run.Ping (PingClientCmdError (..), renderPingClientCmdError,
                    runPingCmd)
 import           Cardano.CLI.Types.Errors.CmdError
+import           Cardano.CLI.Types.Errors.HashCmdError
 import           Cardano.Git.Rev (gitRev)
 
 import           Control.Monad (forM_)
-import           Control.Monad.IO.Unlift (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT)
 import qualified Data.List as L
 import           Data.Text (Text)
 import qualified Data.Text as Text
@@ -36,7 +37,6 @@ import           Data.Version (showVersion)
 import           Options.Applicative.Help.Core
 import           Options.Applicative.Types (OptReader (..), Option (..), Parser (..),
                    ParserInfo (..), ParserPrefs (..))
-import           Prettyprinter
 import           System.Info (arch, compilerName, compilerVersion, os)
 import qualified System.IO as IO
 
@@ -45,6 +45,7 @@ import           Paths_cardano_cli (version)
 data ClientCommandErrors
   = ByronClientError ByronClientCmdError
   | CmdError Text CmdError
+  | HashCmdError HashCmdError
   | PingClientError PingClientCmdError
   | DebugCmdError DebugCmdError
 
@@ -54,6 +55,8 @@ runClientCommand = \case
     firstExceptT (CmdError (renderAnyEraCommand cmds)) $ runAnyEraCommand cmds
   ByronCommand cmds ->
     firstExceptT ByronClientError $ runByronClientCommand cmds
+  HashCmds cmds ->
+    firstExceptT HashCmdError $ runHashCmds cmds
   LegacyCmds cmds ->
     firstExceptT (CmdError (renderLegacyCommand cmds)) $ runLegacyCmds cmds
   CliPingCommand cmds ->
@@ -71,6 +74,8 @@ renderClientCommandError = \case
     renderCmdError cmdText err
   ByronClientError err ->
     renderByronClientCmdError err
+  HashCmdError err ->
+    prettyError err
   PingClientError err ->
     renderPingClientCmdError err
   DebugCmdError err ->

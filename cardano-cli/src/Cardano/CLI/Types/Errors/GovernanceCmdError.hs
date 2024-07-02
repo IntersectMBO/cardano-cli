@@ -9,7 +9,6 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.GovernanceHashError (GovernanceHashError)
 import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 
 import qualified Data.List as List
@@ -25,7 +24,6 @@ data GovernanceCmdError
   | ReadFileError (FileError InputDecodeError)
     -- Governance action related
   | GovernanceCmdConstitutionError ConstitutionError
-  | GovernanceCmdHashError !GovernanceHashError
   | GovernanceCmdProposalError ProposalError
   | GovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
   | GovernanceCmdTextEnvCddlReadError !(FileError TextEnvelopeCddlError)
@@ -70,8 +68,6 @@ instance Error GovernanceCmdError where
       prettyError fileError
     GovernanceCmdConstitutionError e ->
       "Constitution error " <> pshow e -- TODO Conway render this properly
-    GovernanceCmdHashError e ->
-      "Hash error " <> prettyError e
     GovernanceCmdProposalError e ->
       "Proposal error " <> pshow e -- TODO Conway render this properly
     GovernanceCmdTextEnvReadError fileError ->

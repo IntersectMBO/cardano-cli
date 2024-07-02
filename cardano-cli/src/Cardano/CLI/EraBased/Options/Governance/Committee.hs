@@ -145,7 +145,7 @@ pColdCredential =
     , VksScriptHash <$>
         pScriptHash
           "cold-script-hash"
-          "Committee cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli conway governance hash script ...\"."
+          "Committee cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
     , VksScript <$> pScriptFor "cold-script-file" Nothing "Cold Native or Plutus script file"
     ]
 
