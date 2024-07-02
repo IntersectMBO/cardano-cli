@@ -28,6 +28,7 @@ runLogEpochStateCmd
   LBS.appendFile outputFilePath ""
 
   result <- runExceptT $ foldEpochState
+    AlonzoEraOnwardsConway -- FIXME: get this from somewhere, prolly query the node beforehand for an era
     configurationFile
     nodeSocketPath
     Api.QuickValidation

@@ -195,7 +195,7 @@ runGenesisCreateTestNetDataCmd Cmd.GenesisCreateTestNetDataCmdArgs
   , numUtxoKeys
   , totalSupply
   , delegatedSupply
-   , relays
+  , relays
   , systemStart
   , outputDir
   } = do
