@@ -7,6 +7,7 @@ module Cardano.CLI.EraBased.Commands.Transaction
   , TransactionBuildRawCmdArgs(..)
   , TransactionBuildCmdArgs(..)
   , TransactionBuildEstimateCmdArgs(..)
+  , TransactionEchoCmdArgs(..)
   , TransactionSignCmdArgs(..)
   , TransactionWitnessCmdArgs(..)
   , TransactionSignWitnessCmdArgs(..)
@@ -24,6 +25,7 @@ module Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Commands.Debug.Transaction.Echo
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 
@@ -33,6 +35,7 @@ data TransactionCmds era
   = TransactionBuildRawCmd            !(TransactionBuildRawCmdArgs era)
   | TransactionBuildCmd               !(TransactionBuildCmdArgs era)
   | TransactionBuildEstimateCmd       !(TransactionBuildEstimateCmdArgs era)
+  | TransactionEchoCmd                !TransactionEchoCmdArgs
   | TransactionSignCmd                !TransactionSignCmdArgs
   | TransactionWitnessCmd             !TransactionWitnessCmdArgs
   | TransactionSignWitnessCmd         !TransactionSignWitnessCmdArgs
@@ -247,6 +250,7 @@ renderTransactionCmds = \case
   TransactionBuildCmd                     {} -> "transaction build"
   TransactionBuildEstimateCmd             {} -> "transaction build-estimate"
   TransactionBuildRawCmd                  {} -> "transaction build-raw"
+  TransactionEchoCmd                      {} -> "transaction echo"
   TransactionSignCmd                      {} -> "transaction sign"
   TransactionWitnessCmd                   {} -> "transaction witness"
   TransactionSignWitnessCmd               {} -> "transaction sign-witness"

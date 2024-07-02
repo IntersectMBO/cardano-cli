@@ -279,7 +279,7 @@ pTransactionBuildRaw era =
       <*> pTreasuryDonation era
       <*> pTxBodyFileOut
 
-pTransactionSign  :: EnvCli -> Parser (TransactionCmds era)
+pTransactionSign :: EnvCli -> Parser (TransactionCmds era)
 pTransactionSign envCli =
   fmap TransactionSignCmd $
     TransactionSignCmdArgs
