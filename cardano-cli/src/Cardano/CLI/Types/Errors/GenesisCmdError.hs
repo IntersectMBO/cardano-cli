@@ -19,39 +19,35 @@ import           Control.Exception (IOException)
 import           Data.Text (Text)
 
 data GenesisCmdError
-  = GenesisCmdAesonDecodeError !FilePath !Text
-  | GenesisCmdGenesisFileReadError !(FileError IOException)
+  = GenesisCmdAddressCmdError !AddressCmdError
+  | GenesisCmdByronError !ByronGenesisError
+  | GenesisCmdCostModelsError !FilePath
+  | -- | First @Integer@ is the delegate supply, second @Integer@ is the total supply
+    GenesisCmdDelegatedSupplyExceedsTotalSupply !Integer !Integer
+  | GenesisCmdFileError !(FileError ())
+  | GenesisCmdFileDecodeError !FilePath !Text
+  | GenesisCmdFilesDupIndex [FilePath]
+  | GenesisCmdFilesNoIndex [FilePath]
   | GenesisCmdGenesisFileDecodeError !FilePath !Text
   | GenesisCmdGenesisFileError !(FileError ())
-  | GenesisCmdFileError !(FileError ())
   | GenesisCmdMismatchedGenesisKeyFiles [Int] [Int] [Int]
-  | GenesisCmdFilesNoIndex [FilePath]
-  | GenesisCmdFilesDupIndex [FilePath]
+  | GenesisCmdNodeCmdError !NodeCmdError
+  | GenesisCmdStakeAddressCmdError !StakeAddressCmdError
+  | GenesisCmdStakePoolCmdError !StakePoolCmdError
+  | GenesisCmdStakePoolRelayFileError !FilePath !IOException
+  | GenesisCmdStakePoolRelayJsonDecodeError !FilePath !String
   | GenesisCmdTextEnvReadFileError !(FileError TextEnvelopeError)
+  | GenesisCmdTooFewPoolsForBulkCreds !Word !Word !Word
+  | -- | First @Int@ is the number of SPOs, second @Int@ is number of relays
+    GenesisCmdTooManyRelaysError !FilePath !Int !Int
   | GenesisCmdUnexpectedAddressVerificationKey
       !(VerificationKeyFile In)
       !Text
       !SomeAddressVerificationKey
-  | GenesisCmdTooFewPoolsForBulkCreds !Word !Word !Word
-  | GenesisCmdAddressCmdError !AddressCmdError
-  | GenesisCmdNodeCmdError !NodeCmdError
-  | GenesisCmdStakeAddressCmdError !StakeAddressCmdError
-  | GenesisCmdStakePoolCmdError !StakePoolCmdError
-  | GenesisCmdCostModelsError !FilePath
-  | GenesisCmdByronError !ByronGenesisError
-  | -- | First @Int@ is the number of SPOs, second @Int@ is number of relays
-    GenesisCmdTooManyRelaysError !FilePath !Int !Int
-  | GenesisCmdStakePoolRelayFileError !FilePath !IOException
-  | GenesisCmdStakePoolRelayJsonDecodeError !FilePath !String
-  | GenesisCmdFileInputDecodeError !(FileError InputDecodeError)
-  | -- | First @Integer@ is the delegate supply, second @Integer@ is the total supply
-    GenesisCmdDelegatedSupplyExceedsTotalSupply !Integer !Integer
   deriving Show
 
 instance Error GenesisCmdError where
   prettyError = \case
-    GenesisCmdAesonDecodeError fp decErr ->
-      "Error while decoding Shelley genesis at: " <> pretty fp <> " Error: " <> pretty decErr
     GenesisCmdGenesisFileError fe ->
       prettyError fe
     GenesisCmdFileError fe ->
@@ -72,6 +68,8 @@ instance Error GenesisCmdError where
     GenesisCmdFilesDupIndex files ->
       "The genesis keys files are expected to have a unique numeric index but these do not:\n"
         <> vsep (fmap pretty files)
+    GenesisCmdFileDecodeError path errorTxt ->
+      "Cannot decode file:" <+> pretty path <+> "\nError:" <+> pretty errorTxt
     GenesisCmdTextEnvReadFileError fileErr ->
       prettyError fileErr
     GenesisCmdUnexpectedAddressVerificationKey (File file) expect got ->
@@ -108,8 +106,6 @@ instance Error GenesisCmdError where
         <> pretty fp
         <> " Error: "
         <> pretty e
-    GenesisCmdGenesisFileReadError e ->
-      prettyError e
     GenesisCmdByronError e -> pshow e
     GenesisCmdTooManyRelaysError fp nbSPOs nbRelays ->
       pretty fp
@@ -129,8 +125,6 @@ instance Error GenesisCmdError where
         <> pretty fp
         <> " Error: "
         <> pretty e
-    GenesisCmdFileInputDecodeError ide ->
-      "Error occured while decoding a file: " <> pshow ide
     GenesisCmdDelegatedSupplyExceedsTotalSupply delegated total ->
       "Provided delegated supply is "
         <> pretty delegated

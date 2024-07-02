@@ -12,15 +12,8 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 
-{- HLINT ignore "Redundant <$>" -}
-{- HLINT ignore "Use let" -}
-
-module Cardano.CLI.EraBased.Run.CreateTestnetData
-  ( genStuffedAddress
-  , getCurrentTimePlus30
-  , readRelays
-  , readAndDecodeGenesisFile
-  , runGenesisKeyGenUTxOCmd
+module Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData
+  ( runGenesisKeyGenUTxOCmd
   , runGenesisKeyGenGenesisCmd
   , runGenesisKeyGenDelegateCmd
   , runGenesisCreateTestNetDataCmd
@@ -31,8 +24,8 @@ where
 import           Cardano.Api hiding (ConwayEra)
 import           Cardano.Api.Ledger (StrictMaybe (SNothing))
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (Address (ShelleyAddress),
-                   Hash (DRepKeyHash, GenesisDelegateKeyHash, GenesisKeyHash, StakeKeyHash, VrfKeyHash),
+import           Cardano.Api.Shelley
+                   (Hash (DRepKeyHash, GenesisDelegateKeyHash, GenesisKeyHash, StakeKeyHash, VrfKeyHash),
                    KESPeriod (KESPeriod),
                    OperationalCertificateIssueCounter (OperationalCertificateIssueCounter),
                    ShelleyGenesis (ShelleyGenesis, sgGenDelegs, sgInitialFunds, sgMaxLovelaceSupply, sgNetworkMagic, sgProtocolParams, sgStaking, sgSystemStart),
@@ -44,6 +37,7 @@ import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as DRep
 import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Run.Address (generateAndWriteKeyFiles)
+import           Cardano.CLI.EraBased.Run.Genesis.Common
 import qualified Cardano.CLI.EraBased.Run.Governance.DRep as DRep
 import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
@@ -55,20 +49,13 @@ import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
-import           Cardano.Crypto.Hash (HashAlgorithm)
-import qualified Cardano.Crypto.Hash as Hash
-import qualified Cardano.Crypto.Random as Crypto
 import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, deepseq)
 import           Control.Monad (forM, forM_, unless, void, when)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (Bifunctor (..))
-import qualified Data.Binary.Get as Bin
-import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Coerce (coerce)
-import           Data.Data (Proxy (..))
 import           Data.ListMap (ListMap (..))
 import qualified Data.ListMap as ListMap
 import           Data.Map.Strict (Map, fromList, toList)
@@ -77,7 +64,6 @@ import           Data.Maybe (fromMaybe)
 import qualified Data.Sequence.Strict as Seq
 import           Data.String (fromString)
 import qualified Data.Text as Text
-import           Data.Time (NominalDiffTime, UTCTime, addUTCTime, getCurrentTime)
 import           Data.Tuple (swap)
 import           Data.Word (Word64)
 import           GHC.Generics (Generic)
@@ -87,8 +73,6 @@ import           System.Directory (createDirectoryIfMissing)
 import           System.FilePath ((</>))
 import qualified System.Random as Random
 import           System.Random (StdGen)
-
-import           Crypto.Random (getRandomBytes)
 
 runGenesisKeyGenGenesisCmd
   :: GenesisKeyGenGenesisCmdArgs
@@ -180,11 +164,12 @@ runGenesisKeyGenUTxOCmd
     vkeyDesc = "Genesis Initial UTxO Verification Key"
 
 runGenesisCreateTestNetDataCmd
-  :: GenesisCreateTestNetDataCmdArgs
+  :: GenesisCreateTestNetDataCmdArgs era
   -> ExceptT GenesisCmdError IO ()
 runGenesisCreateTestNetDataCmd
   Cmd.GenesisCreateTestNetDataCmdArgs
-    { networkId
+    { eon
+    , networkId
     , specShelley
     , specAlonzo
     , specConway
@@ -209,9 +194,12 @@ runGenesisCreateTestNetDataCmd
     , outputDir
     } = do
     liftIO $ createDirectoryIfMissing False outputDir
-    shelleyGenesisInit <- maybeReadAndDecodeGenesisFileSpec specShelley shelleyGenesisDefaults
-    alonzoGenesis <- maybeReadAndDecodeGenesisFileSpec specAlonzo (alonzoGenesisDefaults BabbageEra) -- FIXED in https://github.com/IntersectMBO/cardano-cli/pull/812
-    conwayGenesis <- maybeReadAndDecodeGenesisFileSpec specConway conwayGenesisDefaults
+    let era = toCardanoEra eon
+    shelleyGenesisInit <-
+      fromMaybe shelleyGenesisDefaults <$> traverse decodeShelleyGenesisFile specShelley
+    alonzoGenesis <-
+      fromMaybe (alonzoGenesisDefaults era) <$> traverse (decodeAlonzoGenesisFile (Just era)) specAlonzo
+    conwayGenesis <- fromMaybe conwayGenesisDefaults <$> traverse decodeConwayGenesisFile specConway
 
     -- Read NetworkId either from file or from the flag. Flag overrides template file.
     let actualNetworkId =
@@ -483,29 +471,6 @@ mkPaths numKeys dir segment filename =
     [ (fromIntegral idx, dir </> (segment <> show idx) </> filename)
     | idx <- [1 .. numKeys]
     ]
-
-genStuffedAddress :: L.Network -> IO (AddressInEra ShelleyEra)
-genStuffedAddress network =
-  shelleyAddressInEra ShelleyBasedEraShelley
-    <$> ( ShelleyAddress
-            <$> pure network
-            <*> ( L.KeyHashObj . mkKeyHash . read64BitInt
-                    <$> Crypto.runSecureRandom (getRandomBytes 8)
-                )
-            <*> pure L.StakeRefNull
-        )
- where
-  read64BitInt :: ByteString -> Int
-  read64BitInt =
-    (fromIntegral :: Word64 -> Int)
-      . Bin.runGet Bin.getWord64le
-      . LBS.fromStrict
-
-  mkDummyHash :: forall h a. HashAlgorithm h => Proxy h -> Int -> Hash.Hash h a
-  mkDummyHash _ = coerce . L.hashWithSerialiser @h L.toCBOR
-
-  mkKeyHash :: forall c discriminator. L.Crypto c => Int -> L.KeyHash discriminator c
-  mkKeyHash = L.KeyHash . mkDummyHash (Proxy @(L.ADDRHASH c))
 
 createDelegateKeys :: KeyOutputFormat -> FilePath -> ExceptT GenesisCmdError IO ()
 createDelegateKeys fmt dir = do
@@ -799,45 +764,6 @@ updateOutputTemplate
 
     unLovelace :: Integral a => L.Coin -> a
     unLovelace (L.Coin coin) = fromIntegral coin
-
-maybeReadAndDecodeGenesisFileSpec
-  :: FromJSON a => Maybe FilePath -> a -> ExceptT GenesisCmdError IO a
-maybeReadAndDecodeGenesisFileSpec spec defaultSpec =
-  case spec of
-    Just specPath ->
-      newExceptT $ readAndDecodeGenesisFile specPath
-    Nothing ->
-      -- No template given: a default file is created
-      pure defaultSpec
-
-readAndDecodeGenesisFile :: FromJSON a => FilePath -> IO (Either GenesisCmdError a)
-readAndDecodeGenesisFile fpath = runExceptT $ do
-  lbs <- handleIOExceptT (GenesisCmdGenesisFileReadError . FileIOError fpath) $ LBS.readFile fpath
-  firstExceptT (GenesisCmdGenesisFileDecodeError fpath . Text.pack)
-    . hoistEither
-    $ Aeson.eitherDecode' lbs
-
--- @readRelays fp@ reads the relays specification from a file
-readRelays
-  :: ()
-  => MonadIO m
-  => FilePath
-  -- ^ The file to read from
-  -> ExceptT GenesisCmdError m (Map Word [L.StakePoolRelay])
-readRelays fp = do
-  relaySpecJsonBs <-
-    handleIOExceptT (GenesisCmdStakePoolRelayFileError fp) (LBS.readFile fp)
-  firstExceptT (GenesisCmdStakePoolRelayJsonDecodeError fp)
-    . hoistEither
-    $ Aeson.eitherDecode relaySpecJsonBs
-
--- | Current UTCTime plus 30 seconds
-getCurrentTimePlus30 :: ExceptT a IO UTCTime
-getCurrentTimePlus30 =
-  plus30sec <$> liftIO getCurrentTime
- where
-  plus30sec :: UTCTime -> UTCTime
-  plus30sec = addUTCTime (30 :: NominalDiffTime)
 
 readGenDelegsMap
   :: Map Int FilePath

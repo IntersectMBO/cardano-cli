@@ -117,7 +117,7 @@ pCmds era envCli =
     catMaybes
       [ fmap AddressCmds <$> pAddressCmds (toCardanoEra era) envCli
       , fmap KeyCmds <$> pKeyCmds
-      , fmap GenesisCmds <$> pGenesisCmds envCli
+      , fmap GenesisCmds <$> pGenesisCmds (toCardanoEra era) envCli
       , fmap GovernanceCmds <$> pGovernanceCmds (toCardanoEra era)
       , fmap NodeCmds <$> pNodeCmds
       , fmap QueryCmds <$> pQueryCmds (toCardanoEra era) envCli

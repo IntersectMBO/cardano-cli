@@ -168,7 +168,7 @@ runGovernanceDRepMetadataHashCmd
     { metadataFile
     , mOutFile
     } = do
-    metadataBytes <- firstExceptT ReadFileError $ newExceptT (readByteStringFile metadataFile)
+    metadataBytes <- firstExceptT ReadFileError . newExceptT $ readByteStringFile metadataFile
     let (_metadata, metadataHash) = hashDRepMetadata metadataBytes
     firstExceptT WriteFileError
       . newExceptT

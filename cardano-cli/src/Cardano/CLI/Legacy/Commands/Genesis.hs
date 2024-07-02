@@ -17,6 +17,7 @@ import           Data.Text (Text)
 
 data LegacyGenesisCmds
   = GenesisCreate
+      (EraInEon ShelleyBasedEra)
       KeyOutputFormat
       GenesisDir
       Word
@@ -25,6 +26,7 @@ data LegacyGenesisCmds
       (Maybe Coin)
       NetworkId
   | GenesisCreateCardano
+      (EraInEon ShelleyBasedEra)
       GenesisDir
       Word
       Word
@@ -41,6 +43,7 @@ data LegacyGenesisCmds
       (Maybe FilePath)
   | -- | Relay specification filepath
     GenesisCreateStaked
+      (EraInEon ShelleyBasedEra)
       KeyOutputFormat
       GenesisDir
       Word

@@ -27,10 +27,10 @@ import           Cardano.CLI.Types.Common
 import           Data.Text (Text)
 
 data GenesisCmds era
-  = GenesisCreate !GenesisCreateCmdArgs
-  | GenesisCreateCardano !GenesisCreateCardanoCmdArgs
-  | GenesisCreateStaked !GenesisCreateStakedCmdArgs
-  | GenesisCreateTestNetData !GenesisCreateTestNetDataCmdArgs
+  = GenesisCreate !(GenesisCreateCmdArgs era)
+  | GenesisCreateCardano !(GenesisCreateCardanoCmdArgs era)
+  | GenesisCreateStaked !(GenesisCreateStakedCmdArgs era)
+  | GenesisCreateTestNetData !(GenesisCreateTestNetDataCmdArgs era)
   | GenesisKeyGenGenesis !GenesisKeyGenGenesisCmdArgs
   | GenesisKeyGenDelegate !GenesisKeyGenDelegateCmdArgs
   | GenesisKeyGenUTxO !GenesisKeyGenUTxOCmdArgs
@@ -41,8 +41,9 @@ data GenesisCmds era
   | GenesisHashFile !GenesisFile
   deriving Show
 
-data GenesisCreateCmdArgs = GenesisCreateCmdArgs
-  { keyOutputFormat :: !KeyOutputFormat
+data GenesisCreateCmdArgs era = GenesisCreateCmdArgs
+  { eon :: !(ShelleyBasedEra era)
+  , keyOutputFormat :: !KeyOutputFormat
   , genesisDir :: !GenesisDir
   , numGenesisKeys :: !Word
   , numUTxOKeys :: !Word
@@ -52,8 +53,9 @@ data GenesisCreateCmdArgs = GenesisCreateCmdArgs
   }
   deriving Show
 
-data GenesisCreateCardanoCmdArgs = GenesisCreateCardanoCmdArgs
-  { genesisDir :: !GenesisDir
+data GenesisCreateCardanoCmdArgs era = GenesisCreateCardanoCmdArgs
+  { eon :: !(ShelleyBasedEra era)
+  , genesisDir :: !GenesisDir
   , numGenesisKeys :: !Word
   , numUTxOKeys :: !Word
   , mSystemStart :: !(Maybe SystemStart)
@@ -70,8 +72,9 @@ data GenesisCreateCardanoCmdArgs = GenesisCreateCardanoCmdArgs
   }
   deriving Show
 
-data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
-  { keyOutputFormat :: !KeyOutputFormat
+data GenesisCreateStakedCmdArgs era = GenesisCreateStakedCmdArgs
+  { eon :: !(ShelleyBasedEra era)
+  , keyOutputFormat :: !KeyOutputFormat
   , genesisDir :: !GenesisDir
   , numGenesisKeys :: !Word
   , numUTxOKeys :: !Word
@@ -89,8 +92,9 @@ data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
   }
   deriving Show
 
-data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
-  { specShelley :: !(Maybe FilePath)
+data GenesisCreateTestNetDataCmdArgs era = GenesisCreateTestNetDataCmdArgs
+  { eon :: !(ShelleyBasedEra era)
+  , specShelley :: !(Maybe FilePath)
   -- ^ Path to the @genesis-shelley@ file to use. If unspecified, a default one will be used.
   , specAlonzo :: !(Maybe FilePath)
   -- ^ Path to the @genesis-alonzo@ file to use. If unspecified, a default one will be used.
