@@ -1,6 +1,20 @@
 # Changelog for cardano-cli
 
-## 8.24.0.0 
+## 8.25.0.0
+
+- Add --current-treasury-value and --treasury-donation to transaction build and friends
+  (feature, breaking)
+  [PR 778](https://github.com/IntersectMBO/cardano-cli/pull/778)
+
+- Update cardano-api to 8.49.0.0
+  (compatible)
+  [PR 804](https://github.com/IntersectMBO/cardano-cli/pull/804)
+
+- Make `--fee` mandatory in legacy transaction build-raw
+  (breaking, bugfix)
+  [PR 797](https://github.com/IntersectMBO/cardano-cli/pull/797)
+
+## 8.24.0.0
 
 - Pre-integration for cardano-node 8.12 release
   `cardano-cli transaction build ... --calculate-plutus-script-cost` now returns the execution logs of the scripts
