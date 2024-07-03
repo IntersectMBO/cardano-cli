@@ -281,7 +281,7 @@ readScriptWitness era (PlutusScriptWitnessFiles
                           execUnits) = do
     script@(ScriptInAnyLang lang _) <- firstExceptT ScriptWitnessErrorFile $
                                          readFileScriptInAnyLang scriptFile
-    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era script
+    ScriptInEra langInEra script' <- validateScriptSupportedInEra era script
     case script' of
       PlutusScript version pscript -> do
         datum <- firstExceptT ScriptWitnessErrorScriptData
@@ -391,11 +391,12 @@ renderScriptDataError = \case
 
 readScriptDatumOrFile :: ScriptDatumOrFile witctx
                       -> ExceptT ScriptDataError IO (ScriptDatum witctx)
-readScriptDatumOrFile (ScriptDatumOrFileForTxIn df) = ScriptDatumForTxIn <$>
-                                                        readScriptDataOrFile df
-readScriptDatumOrFile InlineDatumPresentAtTxIn      = pure InlineScriptDatum
-readScriptDatumOrFile NoScriptDatumOrFileForMint    = pure NoScriptDatumForMint
-readScriptDatumOrFile NoScriptDatumOrFileForStake   = pure NoScriptDatumForStake
+readScriptDatumOrFile (ScriptDatumOrFileForTxIn Nothing) = pure $ ScriptDatumForTxIn Nothing
+readScriptDatumOrFile (ScriptDatumOrFileForTxIn (Just df))  = ScriptDatumForTxIn . Just <$>
+                                                         readScriptDataOrFile df
+readScriptDatumOrFile InlineDatumPresentAtTxIn       = pure InlineScriptDatum
+readScriptDatumOrFile NoScriptDatumOrFileForMint     = pure NoScriptDatumForMint
+readScriptDatumOrFile NoScriptDatumOrFileForStake    = pure NoScriptDatumForStake
 
 readScriptRedeemerOrFile :: ScriptRedeemerOrFile
                          -> ExceptT ScriptDataError IO ScriptRedeemer

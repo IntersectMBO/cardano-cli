@@ -1127,11 +1127,30 @@ pScriptRedeemerOrFile scriptFlagPrefix =
     "The script redeemer value."
     "The script redeemer file."
 
+pScriptDatumOrFileCip69 :: String -> WitCtx witctx -> Parser (ScriptDatumOrFile witctx)
+pScriptDatumOrFileCip69 scriptFlagPrefix witctx =
+  case witctx of
+    WitCtxTxIn  -> asum [ ScriptDatumOrFileForTxIn  <$>
+                            optional (pScriptDataOrFile
+                              (scriptFlagPrefix ++ "-datum")
+                              "The script datum."
+                              "The script datum file.")
+                        , pInlineDatumPresent
+                        ]
+    WitCtxMint  -> pure NoScriptDatumOrFileForMint
+    WitCtxStake -> pure NoScriptDatumOrFileForStake
+ where
+  pInlineDatumPresent :: Parser (ScriptDatumOrFile WitCtxTxIn)
+  pInlineDatumPresent  =
+    flag' InlineDatumPresentAtTxIn $ mconcat
+      [ long (scriptFlagPrefix ++ "-inline-datum-present")
+      , Opt.help "Inline datum present at transaction input."
+      ]
 
 pScriptDatumOrFile :: String -> WitCtx witctx -> Parser (ScriptDatumOrFile witctx)
 pScriptDatumOrFile scriptFlagPrefix witctx =
   case witctx of
-    WitCtxTxIn  -> asum [ ScriptDatumOrFileForTxIn <$>
+    WitCtxTxIn  -> asum [ ScriptDatumOrFileForTxIn . Just <$>
                             pScriptDataOrFile
                               (scriptFlagPrefix ++ "-datum")
                               "The script datum."
@@ -1909,17 +1928,18 @@ pTxSubmitFile =
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
-pTxIn :: BalanceTxExecUnits
+pTxIn :: ShelleyBasedEra era
+      -> BalanceTxExecUnits
       -> Parser (TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))
-pTxIn balance =
+pTxIn sbe balance =
      (,) <$> Opt.option (readerFromParsecParser parseTxIn)
                (  Opt.long "tx-in"
                 <> Opt.metavar "TX-IN"
                <> Opt.help "TxId#TxIx"
                )
-         <*> optional (pPlutusReferenceScriptWitness balance <|>
+         <*> optional (pPlutusReferenceScriptWitness sbe balance <|>
                        pSimpleReferenceSpendingScriptWitess <|>
-                       pEmbeddedPlutusScriptWitness
+                       pEmbeddedPlutusScriptWitness --sbe
                        )
  where
   pSimpleReferenceSpendingScriptWitess :: Parser (ScriptWitnessFiles WitCtxTxIn)
@@ -1934,16 +1954,29 @@ pTxIn balance =
       let simpleLang = AnyScriptLanguage SimpleScriptLanguage
       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang Nothing
 
-  pPlutusReferenceScriptWitness :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxTxIn)
-  pPlutusReferenceScriptWitness autoBalanceExecUnits =
-    createPlutusReferenceScriptWitnessFiles
-      <$> pReferenceTxIn "spending-" "plutus"
-      <*> pPlutusScriptLanguage "spending-"
-      <*> pScriptDatumOrFile "spending-reference-tx-in" WitCtxTxIn
-      <*> pScriptRedeemerOrFile "spending-reference-tx-in"
-      <*> (case autoBalanceExecUnits of
-              AutoBalance -> pure (ExecutionUnits 0 0)
-              ManualBalance -> pExecutionUnits "spending-reference-tx-in")
+  pPlutusReferenceScriptWitness
+    :: ShelleyBasedEra era -> BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxTxIn)
+  pPlutusReferenceScriptWitness sbe' autoBalanceExecUnits =
+    caseShelleyToBabbageOrConwayEraOnwards
+      (const $ createPlutusReferenceScriptWitnessFiles
+                 <$> pReferenceTxIn "spending-" "plutus"
+                 <*> pPlutusScriptLanguage "spending-"
+                 <*> pScriptDatumOrFile "spending-reference-tx-in" WitCtxTxIn
+                 <*> pScriptRedeemerOrFile "spending-reference-tx-in"
+                 <*> (case autoBalanceExecUnits of
+                         AutoBalance -> pure (ExecutionUnits 0 0)
+                         ManualBalance -> pExecutionUnits "spending-reference-tx-in"))
+      (const $ createPlutusReferenceScriptWitnessFiles
+                 <$> pReferenceTxIn "spending-" "plutus"
+                 <*> pPlutusScriptLanguage "spending-"
+                 <*> pScriptDatumOrFileCip69 "spending-reference-tx-in" WitCtxTxIn
+                 <*> pScriptRedeemerOrFile "spending-reference-tx-in"
+                 <*> (case autoBalanceExecUnits of
+                         AutoBalance -> pure (ExecutionUnits 0 0)
+                         ManualBalance -> pExecutionUnits "spending-reference-tx-in")
+
+      )
+      sbe'
    where
     createPlutusReferenceScriptWitnessFiles
       :: TxIn
@@ -3210,9 +3243,9 @@ pAlwaysAbstain =
     ]
 
 pVoteAnchor :: Parser (VoteUrl, L.SafeHash L.StandardCrypto L.AnchorData)
-pVoteAnchor = (,)
-  <$> (VoteUrl <$> pUrl "anchor-url" "Vote anchor URL")
-  <*> pVoteAnchorDataHash
+pVoteAnchor =
+  ((,) . VoteUrl <$> pUrl "anchor-url" "Vote anchor URL")
+                 <*> pVoteAnchorDataHash
 
 pVoteAnchorDataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pVoteAnchorDataHash =

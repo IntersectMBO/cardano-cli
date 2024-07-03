@@ -161,7 +161,7 @@ pTransactionBuildCmd era envCli = do
           <*> pNetworkId envCli
           <*> optional pScriptValidity
           <*> optional pWitnessOverride
-          <*> some (pTxIn AutoBalance)
+          <*> some (pTxIn sbe AutoBalance)
           <*> many pReadOnlyReferenceTxIn
           <*> many pRequiredSigner
           <*> many pTxInCollateral
@@ -215,7 +215,7 @@ pTransactionBuildEstimateCmd era _envCli = do
           <*> optional pNumberOfByronKeyWitnesses
           <*> pProtocolParamsFile
           <*> pTotalUTxOValue
-          <*> some (pTxIn ManualBalance)
+          <*> some (pTxIn sbe ManualBalance)
           <*> many pReadOnlyReferenceTxIn
           <*> many pRequiredSigner
           <*> many pTxInCollateral
@@ -255,7 +255,7 @@ pTransactionBuildRaw era =
   fmap TransactionBuildRawCmd $
     TransactionBuildRawCmdArgs era
       <$> optional pScriptValidity
-      <*> some (pTxIn ManualBalance)
+      <*> some (pTxIn era ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxInCollateral
       <*> optional pReturnCollateral

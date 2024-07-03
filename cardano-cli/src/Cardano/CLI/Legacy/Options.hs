@@ -317,7 +317,7 @@ pTransaction envCli =
       <*> pNetworkId envCli
       <*> optional pScriptValidity
       <*> optional pWitnessOverride
-      <*> some (pTxIn AutoBalance)
+      <*> some (pTxIn ShelleyBasedEraConway AutoBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pRequiredSigner
       <*> many pTxInCollateral
@@ -355,7 +355,7 @@ pTransaction envCli =
     TransactionBuildRawCmd
       <$> pLegacyCardanoEra envCli
       <*> optional pScriptValidity
-      <*> some (pTxIn ManualBalance)
+      <*> some (pTxIn ShelleyBasedEraConway ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxInCollateral
       <*> optional pReturnCollateral
