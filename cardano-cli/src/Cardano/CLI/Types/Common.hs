@@ -387,12 +387,12 @@ data ScriptWitnessFiles witctx where
 deriving instance Show (ScriptWitnessFiles witctx)
 
 data ScriptDatumOrFile witctx where
-     ScriptDatumOrFileForTxIn    :: ScriptDataOrFile
-                                 -> ScriptDatumOrFile WitCtxTxIn
-     InlineDatumPresentAtTxIn    :: ScriptDatumOrFile WitCtxTxIn
+     ScriptDatumOrFileForTxIn       :: Maybe ScriptDataOrFile -- CIP-0069 - Spending datums optional in Conway era onwards
+                                    -> ScriptDatumOrFile WitCtxTxIn
+     InlineDatumPresentAtTxIn       :: ScriptDatumOrFile WitCtxTxIn
 
-     NoScriptDatumOrFileForMint  :: ScriptDatumOrFile WitCtxMint
-     NoScriptDatumOrFileForStake :: ScriptDatumOrFile WitCtxStake
+     NoScriptDatumOrFileForMint     :: ScriptDatumOrFile WitCtxMint
+     NoScriptDatumOrFileForStake    :: ScriptDatumOrFile WitCtxStake
 
 deriving instance Show (ScriptDatumOrFile witctx)
 
