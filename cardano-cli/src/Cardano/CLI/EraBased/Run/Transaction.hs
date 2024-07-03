@@ -215,7 +215,6 @@ runTransactionBuildCmd
       requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProceduresAndMaybeScriptWits
       proposals
       (unFeatured <$> featuredCurrentTreasuryValueM) treasuryDonation
-      buildOutputOptions
 
   -- TODO: Calculating the script cost should live as a different command.
   -- Why? Because then we can simply read a txbody and figure out
@@ -753,7 +752,6 @@ runTxBuild :: ()
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> Maybe TxCurrentTreasuryValue
   -> Maybe TxTreasuryDonation
-  -> TxBuildOutputOptions
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
     sbe socketPath networkId mScriptValidity
@@ -761,8 +759,8 @@ runTxBuild
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
     txUpdateProposal mOverrideWits votingProcedures proposals
-    mCurrentTreasuryValue mTreasuryDonation
-    _outputOptions = shelleyBasedEraConstraints sbe $ do
+    mCurrentTreasuryValue mTreasuryDonation =
+    shelleyBasedEraConstraints sbe $ do
 
   -- TODO: All functions should be parameterized by ShelleyBasedEra
   -- as it's not possible to call this function with ByronEra
