@@ -19,11 +19,11 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                                   ( --spending-plutus-script-v2
                                                   | --spending-plutus-script-v3
                                                   )
-                                                  ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                                  [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                                   | --spending-reference-tx-in-datum-file JSON_FILE
                                                   | --spending-reference-tx-in-datum-value JSON_VALUE
                                                   | --spending-reference-tx-in-inline-datum-present
-                                                  )
+                                                  ]
                                                   ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                   | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                   | --spending-reference-tx-in-redeemer-value JSON_VALUE
@@ -31,11 +31,11 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                                 | --simple-script-tx-in-reference TX-IN
                                                 | --tx-in-script-file FILE
                                                   [
-                                                    ( --tx-in-datum-cbor-file CBOR_FILE
+                                                    [ --tx-in-datum-cbor-file CBOR_FILE
                                                     | --tx-in-datum-file JSON_FILE
                                                     | --tx-in-datum-value JSON_VALUE
                                                     | --tx-in-inline-datum-present
-                                                    )
+                                                    ]
                                                     ( --tx-in-redeemer-cbor-file CBOR_FILE
                                                     | --tx-in-redeemer-file JSON_FILE
                                                     | --tx-in-redeemer-value JSON_VALUE
@@ -121,17 +121,31 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                               ]
                                               [--update-proposal-file FILE]
                                               [--vote-file FILE
-                                                [--vote-script-file FILE
+                                                [ --vote-script-file FILE
                                                   [ --vote-redeemer-cbor-file CBOR_FILE
                                                   | --vote-redeemer-file JSON_FILE
                                                   | --vote-redeemer-value JSON_VALUE
-                                                  ]]]
+                                                  ]
+                                                | --vote-tx-in-reference TX-IN
+                                                  --vote-plutus-script-v3
+                                                  ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                  | --vote-reference-tx-in-redeemer-file JSON_FILE
+                                                  | --vote-reference-tx-in-redeemer-value JSON_VALUE
+                                                  )
+                                                ]]
                                               [--proposal-file FILE
-                                                [--proposal-script-file FILE
+                                                [ --proposal-script-file FILE
                                                   [ --proposal-redeemer-cbor-file CBOR_FILE
                                                   | --proposal-redeemer-file JSON_FILE
                                                   | --proposal-redeemer-value JSON_VALUE
-                                                  ]]]
+                                                  ]
+                                                | --proposal-tx-in-reference TX-IN
+                                                  --proposal-plutus-script-v3
+                                                  ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                  | --proposal-reference-tx-in-redeemer-file JSON_FILE
+                                                  | --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                                                  )
+                                                ]]
                                               [--treasury-donation LOVELACE]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
@@ -422,6 +436,20 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
+  --vote-tx-in-reference TX-IN
+                           TxId#TxIx - Specify a reference input. The reference
+                           input must have a plutus reference script attached.
+  --vote-plutus-script-v3  Specify a plutus script v3 reference script.
+  --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --vote-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --vote-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
   --proposal-file FILE     Filepath of the proposal.
   --proposal-script-file FILE
                            The file containing the script to witness a proposal
@@ -432,6 +460,21 @@ Available options:
                            The script redeemer file. The file must follow the
                            detailed JSON schema for script data.
   --proposal-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --proposal-tx-in-reference TX-IN
+                           TxId#TxIx - Specify a reference input. The reference
+                           input must have a plutus reference script attached.
+  --proposal-plutus-script-v3
+                           Specify a plutus script v3 reference script.
+  --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --proposal-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --proposal-reference-tx-in-redeemer-value JSON_VALUE
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
