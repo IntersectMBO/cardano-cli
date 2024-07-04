@@ -42,13 +42,13 @@ Available options:
   --cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
   --cold-verification-key-file FILE
-                           Filepath of the Consitutional Committee cold key.
+                           Filepath of the Constitutional Committee cold key.
   --cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
   --cold-script-hash HASH  Cold Native or Plutus script file hash (hex-encoded).
                            Obtain it with "cardano-cli hash script ...".
   --hot-key STRING         Constitutional Committee hot key (hex-encoded).
-  --hot-key-file FILE      Filepath of the Consitutional Committee hot key.
+  --hot-key-file FILE      Filepath of the Constitutional Committee hot key.
   --hot-key-hash STRING    Constitutional Committee key hash (hex-encoded).
   --hot-script-hash HASH   Hot Native or Plutus script file hash (hex-encoded).
                            Obtain it with "cardano-cli hash script ...".

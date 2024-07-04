@@ -537,7 +537,7 @@ pHexHash a mErrPrefix =
       . deserialiseFromRawBytesHex (AsHash a)
       . BSC.pack
   where
-    errPrefix = maybe "" ((<>) ": ") mErrPrefix
+    errPrefix = maybe "" (": " <>) mErrPrefix
 
 pBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
 pBech32KeyHash a =
@@ -660,7 +660,7 @@ pAddCommitteeColdVerificationKeyHash =
   where
     deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
     deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Consitutional Committee cold key hash: " <> prettyError e)
+      first (\e -> docToString $ "Invalid Constitutional Committee cold key hash: " <> prettyError e)
         . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
         . BSC.pack
 
@@ -690,7 +690,7 @@ pAddCommitteeColdVerificationKeyFile =
   fmap File $ Opt.strOption $ mconcat
     [ Opt.long "add-cc-cold-verification-key-file"
     , Opt.metavar "FILE"
-    , Opt.help "Filepath of the Consitutional Committee cold key."
+    , Opt.help "Filepath of the Constitutional Committee cold key."
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
@@ -755,7 +755,7 @@ pRemoveCommitteeColdVerificationKeyFile =
   fmap File $ Opt.strOption $ mconcat
     [ Opt.long "remove-cc-cold-verification-key-file"
     , Opt.metavar "FILE"
-    , Opt.help "Filepath of the Consitutional Committee cold key."
+    , Opt.help "Filepath of the Constitutional Committee cold key."
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
@@ -796,7 +796,7 @@ pCommitteeColdVerificationKeyFile =
   fmap File $ Opt.strOption $ mconcat
     [ Opt.long "cold-verification-key-file"
     , Opt.metavar "FILE"
-    , Opt.help "Filepath of the Consitutional Committee cold key."
+    , Opt.help "Filepath of the Constitutional Committee cold key."
     , Opt.completer (Opt.bashCompleter "file")
     ]
 
@@ -867,14 +867,14 @@ deserialiseHotCCKeyFromHex =
 
 deserialiseHotCCKeyHashFromHex :: ReadM (Hash CommitteeHotKey)
 deserialiseHotCCKeyHashFromHex =
-  pHexHash AsCommitteeHotKey (Just "Invalid Consitutional Committee hot key hash")
+  pHexHash AsCommitteeHotKey (Just "Invalid Constitutional Committee hot key hash")
 
 pCommitteeHotVerificationKeyFile :: String -> Parser (VerificationKeyFile In)
 pCommitteeHotVerificationKeyFile longFlag =
   fmap File $ Opt.strOption $ mconcat
     [ Opt.long longFlag
     , Opt.metavar "FILE"
-    , Opt.help "Filepath of the Consitutional Committee hot key."
+    , Opt.help "Filepath of the Constitutional Committee hot key."
     , Opt.completer (Opt.bashCompleter "file")
     ]
 

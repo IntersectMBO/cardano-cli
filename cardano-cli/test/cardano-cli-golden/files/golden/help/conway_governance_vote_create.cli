@@ -42,7 +42,7 @@ Available options:
   --cc-hot-verification-key STRING
                            Constitutional Committee hot key (hex-encoded).
   --cc-hot-verification-key-file FILE
-                           Filepath of the Consitutional Committee hot key.
+                           Filepath of the Constitutional Committee hot key.
   --cc-hot-key-hash STRING Constitutional Committee key hash (hex-encoded).
   --cc-hot-script-hash HASH
                            Cold Native or Plutus script file hash (hex-encoded).

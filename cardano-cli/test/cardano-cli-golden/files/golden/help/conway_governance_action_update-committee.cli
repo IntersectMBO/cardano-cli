@@ -51,7 +51,7 @@ Available options:
   --remove-cc-cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
   --remove-cc-cold-verification-key-file FILE
-                           Filepath of the Consitutional Committee cold key.
+                           Filepath of the Constitutional Committee cold key.
   --remove-cc-cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
   --remove-cc-cold-script-hash HASH
@@ -60,7 +60,7 @@ Available options:
   --add-cc-cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
   --add-cc-cold-verification-key-file FILE
-                           Filepath of the Consitutional Committee cold key.
+                           Filepath of the Constitutional Committee cold key.
   --add-cc-cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
   --add-cc-cold-script-hash HASH
