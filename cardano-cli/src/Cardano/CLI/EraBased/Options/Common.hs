@@ -526,13 +526,18 @@ pTransferAmt =
     , Opt.help "The amount to transfer."
     ]
 
-pHexHash
-  :: SerialiseAsRawBytes (Hash a) => AsType a -> ReadM (Hash a)
-pHexHash a =
+pHexHash :: ()
+  => SerialiseAsRawBytes (Hash a)
+  => AsType a
+  -> Maybe String -- | Optional prefix to the error message
+  -> ReadM (Hash a)
+pHexHash a mErrPrefix =
   Opt.eitherReader $
-    first (docToString . prettyError)
+    first (\e -> errPrefix <> (docToString $ prettyError e))
       . deserialiseFromRawBytesHex (AsHash a)
       . BSC.pack
+  where
+    errPrefix = maybe "" ((<>) ": ") mErrPrefix
 
 pBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
 pBech32KeyHash a =
@@ -714,17 +719,11 @@ pScriptHash longOptionName helpText =
 
 pRemoveCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
 pRemoveCommitteeColdVerificationKeyHash =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseColdCCKeyHashFromHex $ mconcat
     [ Opt.long "remove-cc-cold-verification-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
-    deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Constitutional Committee cold key hash: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
-        . BSC.pack
 
 pRemoveCommitteeColdVerificationKeyOrFile :: Parser (VerificationKeyOrFile CommitteeColdKey)
 pRemoveCommitteeColdVerificationKeyOrFile =
@@ -735,17 +734,21 @@ pRemoveCommitteeColdVerificationKeyOrFile =
 
 pRemoveCommitteeColdVerificationKey :: Parser (VerificationKey CommitteeColdKey)
 pRemoveCommitteeColdVerificationKey =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option (Opt.eitherReader deserialiseColdCCKeyFromHex) $ mconcat
     [ Opt.long "remove-cc-cold-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee cold key (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
-    deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Constitutional Committee cold key: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
-        . BSC.pack
+
+deserialiseColdCCKeyFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
+deserialiseColdCCKeyFromHex =
+  first (\e -> docToString $ "Invalid Constitutional Committee cold key: " <> prettyError e)
+    . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
+    . BSC.pack
+
+deserialiseColdCCKeyHashFromHex :: ReadM (Hash CommitteeColdKey)
+deserialiseColdCCKeyHashFromHex =
+  pHexHash AsCommitteeColdKey (Just "Invalid Constitutional Committee cold key hash")
 
 pRemoveCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
 pRemoveCommitteeColdVerificationKeyFile =
@@ -774,31 +777,19 @@ pCommitteeColdVerificationKeyOrFile =
 
 pCommitteeColdVerificationKey :: Parser (VerificationKey CommitteeColdKey)
 pCommitteeColdVerificationKey =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option (Opt.eitherReader deserialiseColdCCKeyFromHex) $ mconcat
     [ Opt.long "cold-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee cold key (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
-    deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Constitutional Committee cold key: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
-        . BSC.pack
 
 pCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
 pCommitteeColdVerificationKeyHash =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseColdCCKeyHashFromHex $ mconcat
     [ Opt.long "cold-verification-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
-    deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Consitutional Committee cold key hash: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
-        . BSC.pack
 
 pCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
 pCommitteeColdVerificationKeyFile =
@@ -843,12 +834,7 @@ pAnyVerificationKeySource helpText =
     ]
 
 pCommitteeHotKey :: Parser (VerificationKey CommitteeHotKey)
-pCommitteeHotKey =
-  Opt.option (Opt.eitherReader deserialiseHotCCKeyFromHex) $ mconcat
-    [ Opt.long "hot-key"
-    , Opt.metavar "STRING"
-    , Opt.help "Constitutional Committee hot key (hex-encoded)."
-    ]
+pCommitteeHotKey = pCommitteeHotVerificationKey "hot-key"
 
 pCommitteeHotVerificationKeyOrFile :: Parser (VerificationKeyOrFile CommitteeHotKey)
 pCommitteeHotVerificationKeyOrFile =
@@ -859,17 +845,11 @@ pCommitteeHotVerificationKeyOrFile =
 
 pCommitteeHotVerificationKeyHash :: Parser (Hash CommitteeHotKey)
 pCommitteeHotVerificationKeyHash =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseHotCCKeyHashFromHex $ mconcat
     [ Opt.long "hot-verification-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (Hash CommitteeHotKey)
-    deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Consitutional Committee hot key hash: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
-        . BSC.pack
 
 pCommitteeHotVerificationKey :: String -> Parser (VerificationKey CommitteeHotKey)
 pCommitteeHotVerificationKey longFlag =
@@ -885,14 +865,9 @@ deserialiseHotCCKeyFromHex =
     . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey)
     . BSC.pack
 
-pCommitteeHotKeyFile :: Parser (VerificationKeyFile In)
-pCommitteeHotKeyFile =
-  fmap File $ Opt.strOption $ mconcat
-    [ Opt.long "hot-key-file"
-    , Opt.metavar "FILE"
-    , Opt.help "Filepath of the Consitutional Committee hot key."
-    , Opt.completer (Opt.bashCompleter "file")
-    ]
+deserialiseHotCCKeyHashFromHex :: ReadM (Hash CommitteeHotKey)
+deserialiseHotCCKeyHashFromHex =
+  pHexHash AsCommitteeHotKey (Just "Invalid Consitutional Committee hot key hash")
 
 pCommitteeHotVerificationKeyFile :: String -> Parser (VerificationKeyFile In)
 pCommitteeHotVerificationKeyFile longFlag =
@@ -906,23 +881,17 @@ pCommitteeHotVerificationKeyFile longFlag =
 -- | The first argument is the optional prefix.
 pCommitteeHotKeyHash :: Maybe String -> Parser (Hash CommitteeHotKey)
 pCommitteeHotKeyHash prefix =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseHotCCKeyHashFromHex $ mconcat
     [ Opt.long $ prefixFlag prefix "hot-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (Hash CommitteeHotKey)
-    deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Consitutional Committee hot key hash: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsHash AsCommitteeHotKey)
-        . BSC.pack
 
 pCommitteeHotKeyOrHashOrFile :: Parser (VerificationKeyOrHashOrFile CommitteeHotKey)
 pCommitteeHotKeyOrHashOrFile =
   asum
     [ VerificationKeyOrFile . VerificationKeyValue <$> pCommitteeHotKey
-    , VerificationKeyOrFile . VerificationKeyFilePath <$> pCommitteeHotKeyFile
+    , VerificationKeyOrFile . VerificationKeyFilePath <$> pCommitteeHotVerificationKeyFile "hot-key-file"
     , VerificationKeyHash <$> pCommitteeHotKeyHash Nothing
     ]
 
@@ -998,7 +967,7 @@ pStakeVerificationKeyOrHashOrFile prefix = asum
 -- | First argument is the optional prefix
 pStakeVerificationKeyHash :: Maybe String -> Parser (Hash StakeKey)
 pStakeVerificationKeyHash prefix =
-   Opt.option (pHexHash AsStakeKey) $ mconcat
+   Opt.option (pHexHash AsStakeKey Nothing) $ mconcat
       [ Opt.long $ prefixFlag prefix "stake-key-hash"
       , Opt.metavar "HASH"
       , Opt.help "Stake verification key hash (hex-encoded)."
@@ -2416,10 +2385,10 @@ pAddress =
     , Opt.help "A Cardano address"
     ]
 
--- | First argument is the prefix to use
+-- | First argument is the prefix for the option's flag to use
 pStakePoolVerificationKeyHash :: Maybe String -> Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash prefix =
-    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey) $ mconcat
+    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey Nothing) $ mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-id"
       , Opt.metavar "STAKE_POOL_ID"
       , Opt.help
@@ -3292,7 +3261,7 @@ pAllOrOnlyDRepHashSource = pAll <|> pOnly
 
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
 pDRepVerificationKeyHash =
-    Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey) $ mconcat
+    Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey Nothing) $ mconcat
       [ Opt.long "drep-key-hash"
       , Opt.metavar "HASH"
       , Opt.help "DRep verification key hash (either Bech32-encoded or hex-encoded)."
