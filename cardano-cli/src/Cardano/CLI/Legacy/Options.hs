@@ -325,11 +325,11 @@ pTransaction envCli =
       <*> optional pTotalCollateral
       <*> many pTxOut
       <*> pChangeAddress
-      <*> optional (pMintMultiAsset AutoBalance)
+      <*> optional (pMintMultiAsset ShelleyBasedEraConway AutoBalance)
       <*> optional pInvalidBefore
       <*> optional pLegacyInvalidHereafter
-      <*> many (pCertificateFile AutoBalance)
-      <*> many (pWithdrawal AutoBalance)
+      <*> many (pCertificateFile ShelleyBasedEraConway AutoBalance)
+      <*> many (pWithdrawal ShelleyBasedEraConway AutoBalance)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor
                   "auxiliary-script-file"
@@ -362,12 +362,12 @@ pTransaction envCli =
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
       <*> many pTxOut
-      <*> optional (pMintMultiAsset ManualBalance)
+      <*> optional (pMintMultiAsset ShelleyBasedEraConway ManualBalance)
       <*> optional pInvalidBefore
       <*> optional pLegacyInvalidHereafter
       <*> pTxFee
-      <*> many (pCertificateFile ManualBalance )
-      <*> many (pWithdrawal ManualBalance)
+      <*> many (pCertificateFile ShelleyBasedEraConway ManualBalance)
+      <*> many (pWithdrawal ShelleyBasedEraConway ManualBalance)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile

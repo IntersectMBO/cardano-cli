@@ -169,11 +169,11 @@ pTransactionBuildCmd era envCli = do
           <*> optional pTotalCollateral
           <*> many pTxOut
           <*> pChangeAddress
-          <*> optional (pMintMultiAsset AutoBalance)
+          <*> optional (pMintMultiAsset sbe AutoBalance)
           <*> optional pInvalidBefore
           <*> pInvalidHereafter sbe
-          <*> many (pCertificateFile AutoBalance)
-          <*> many (pWithdrawal AutoBalance)
+          <*> many (pCertificateFile sbe AutoBalance)
+          <*> many (pWithdrawal sbe AutoBalance)
           <*> pTxMetadataJsonSchema
           <*> many (pScriptFor
                       "auxiliary-script-file"
@@ -222,11 +222,11 @@ pTransactionBuildEstimateCmd era _envCli = do
           <*> optional pReturnCollateral
           <*> many pTxOut
           <*> pChangeAddress
-          <*> optional (pMintMultiAsset ManualBalance)
+          <*> optional (pMintMultiAsset sbe ManualBalance)
           <*> optional pInvalidBefore
           <*> pInvalidHereafter sbe
-          <*> many (pCertificateFile ManualBalance)
-          <*> many (pWithdrawal ManualBalance)
+          <*> many (pCertificateFile sbe ManualBalance)
+          <*> many (pWithdrawal sbe ManualBalance)
           <*> optional pTotalCollateral
           <*> optional pReferenceScriptSize
           <*> pTxMetadataJsonSchema
@@ -262,12 +262,12 @@ pTransactionBuildRaw era =
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
       <*> many pTxOut
-      <*> optional (pMintMultiAsset ManualBalance)
+      <*> optional (pMintMultiAsset era ManualBalance)
       <*> optional pInvalidBefore
       <*> pInvalidHereafter era
       <*> pTxFee
-      <*> many (pCertificateFile ManualBalance )
-      <*> many (pWithdrawal ManualBalance)
+      <*> many (pCertificateFile era ManualBalance )
+      <*> many (pWithdrawal era ManualBalance)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile

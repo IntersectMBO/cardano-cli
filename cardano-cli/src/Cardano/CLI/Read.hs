@@ -261,7 +261,7 @@ readScriptWitness
 readScriptWitness era (SimpleScriptWitnessFile (File scriptFile)) = do
     script@(ScriptInAnyLang lang _) <- firstExceptT ScriptWitnessErrorFile $
                                          readFileScriptInAnyLang scriptFile
-    ScriptInEra langInEra script'   <- validateScriptSupportedInEra era script
+    ScriptInEra langInEra script' <- validateScriptSupportedInEra era script
     case script' of
       SimpleScript sscript ->
         return . SimpleScriptWitness langInEra $ SScript sscript
