@@ -185,6 +185,25 @@ hprop_golden_governance_drep_metadata_hash = propertyOnce . H.moduleWorkspace "t
 
   H.diffFileVsGoldenFile outputDRepMetadataHash goldenDRepMetadataHash
 
+-- Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep metadata hash cip119/"'@
+hprop_golden_governance_drep_metadata_hash_cip119 :: Property
+hprop_golden_governance_drep_metadata_hash_cip119 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  goldenDRepMetadataHashCip119 <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash_cip119"
+  
+  --Use jsonld file from test vector of CIP119 https://github.com/cardano-foundation/CIPs/blob/master/CIP-0119/test-vector.md
+  drepMetadataFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/drep.jsonld"
+
+  outputDRepMetadataHashCip119 <- H.noteTempFile tempDir "drep-metadata-hash-cip119.txt"
+
+  void $ execCardanoCLI
+    [ "conway", "governance", "drep","metadata-hash"
+    , "--drep-metadata-file", drepMetadataFile
+    , "--out-file", outputDRepMetadataHashCip119
+    ]
+
+  H.diffFileVsGoldenFile outputDRepMetadataHashCip119 goldenDRepMetadataHashCip119
+
 hprop_golden_governance_drep_registration_certificate_vkey_file :: Property
 hprop_golden_governance_drep_registration_certificate_vkey_file = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
