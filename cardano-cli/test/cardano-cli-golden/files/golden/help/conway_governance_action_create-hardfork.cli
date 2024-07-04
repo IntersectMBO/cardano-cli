@@ -40,7 +40,7 @@ Available options:
                            Action index of the previous governance action.
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
-                           "cardano-cli conway governance hash anchor-data ...")
+                           "cardano-cli hash anchor-data ...")
   --protocol-major-version MAJOR
                            Specify the major protocol version to fork into. It
                            must be the next natural number after the current

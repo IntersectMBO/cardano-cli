@@ -29,7 +29,7 @@ Available options:
                            Target stake address (bech32 format).
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
-                           "cardano-cli conway governance hash anchor-data ...")
+                           "cardano-cli hash anchor-data ...")
   --out-file FILE          Path to action file to be used later on with build or
                            build-raw
   -h,--help                Show this help text

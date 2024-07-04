@@ -959,7 +959,7 @@ pConstitutionHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "constitution-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Hash of the constitution data (obtain it with \"cardano-cli conway governance hash anchor-data ...\")."
+    , Opt.help "Hash of the constitution data (obtain it with \"cardano-cli hash anchor-data ...\")."
     ]
 
 pUrl :: String -> String -> Parser L.Url
@@ -3219,7 +3219,7 @@ pVoteAnchorDataHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Hash of the vote anchor data (obtain it with \"cardano-cli conway governance hash anchor-data ...\")."
+    , Opt.help "Hash of the vote anchor data (obtain it with \"cardano-cli hash anchor-data ...\")."
     ]
 
 pAlwaysNoConfidence :: Parser ()
@@ -3332,7 +3332,7 @@ pAnchorDataHash =
   Opt.option readSafeHash $ mconcat
     [ Opt.long "anchor-data-hash"
     , Opt.metavar "HASH"
-    , Opt.help "Proposal anchor data hash (obtain it with \"cardano-cli conway governance hash anchor-data ...\")"
+    , Opt.help "Proposal anchor data hash (obtain it with \"cardano-cli hash anchor-data ...\")"
     ]
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word16))
