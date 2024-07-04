@@ -526,12 +526,12 @@ pTransferAmt =
     , Opt.help "The amount to transfer."
     ]
 
-pHexHash :: ()
+rHexHash :: ()
   => SerialiseAsRawBytes (Hash a)
   => AsType a
   -> Maybe String -- | Optional prefix to the error message
   -> ReadM (Hash a)
-pHexHash a mErrPrefix =
+rHexHash a mErrPrefix =
   Opt.eitherReader $
     first (\e -> errPrefix <> (docToString $ prettyError e))
       . deserialiseFromRawBytesHex (AsHash a)
@@ -539,8 +539,8 @@ pHexHash a mErrPrefix =
   where
     errPrefix = maybe "" (": " <>) mErrPrefix
 
-pBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
-pBech32KeyHash a =
+rBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
+rBech32KeyHash a =
   Opt.eitherReader $
     first (docToString . prettyError)
     . deserialiseFromBech32 (AsHash a)
@@ -745,7 +745,7 @@ deserialiseColdCCKeyFromHex =
 
 deserialiseColdCCKeyHashFromHex :: ReadM (Hash CommitteeColdKey)
 deserialiseColdCCKeyHashFromHex =
-  pHexHash AsCommitteeColdKey (Just "Invalid Constitutional Committee cold key hash")
+  rHexHash AsCommitteeColdKey (Just "Invalid Constitutional Committee cold key hash")
 
 pRemoveCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
 pRemoveCommitteeColdVerificationKeyFile =
@@ -862,7 +862,7 @@ deserialiseHotCCKeyFromHex =
 
 deserialiseHotCCKeyHashFromHex :: ReadM (Hash CommitteeHotKey)
 deserialiseHotCCKeyHashFromHex =
-  pHexHash AsCommitteeHotKey (Just "Invalid Constitutional Committee hot key hash")
+  rHexHash AsCommitteeHotKey (Just "Invalid Constitutional Committee hot key hash")
 
 pCommitteeHotVerificationKeyFile :: String -> Parser (VerificationKeyFile In)
 pCommitteeHotVerificationKeyFile longFlag =
@@ -962,7 +962,7 @@ pStakeVerificationKeyOrHashOrFile prefix = asum
 -- | First argument is the optional prefix
 pStakeVerificationKeyHash :: Maybe String -> Parser (Hash StakeKey)
 pStakeVerificationKeyHash prefix =
-   Opt.option (pHexHash AsStakeKey Nothing) $ mconcat
+   Opt.option (rHexHash AsStakeKey Nothing) $ mconcat
       [ Opt.long $ prefixFlag prefix "stake-key-hash"
       , Opt.metavar "HASH"
       , Opt.help "Stake verification key hash (hex-encoded)."
@@ -1741,7 +1741,7 @@ pGenesisVerificationKeyHash =
   where
     deserialiseFromHex :: ReadM (Hash GenesisKey)
     deserialiseFromHex =
-      pHexHash AsGenesisKey (Just "Invalid genesis verification key hash")
+      rHexHash AsGenesisKey (Just "Invalid genesis verification key hash")
 
 pGenesisVerificationKey :: Parser (VerificationKey GenesisKey)
 pGenesisVerificationKey =
@@ -1787,7 +1787,7 @@ pGenesisDelegateVerificationKeyHash =
   where
     deserialiseFromHex :: ReadM (Hash GenesisDelegateKey)
     deserialiseFromHex =
-      pHexHash AsGenesisDelegateKey (Just "Invalid genesis delegate verification key hash")
+      rHexHash AsGenesisDelegateKey (Just "Invalid genesis delegate verification key hash")
 
 pGenesisDelegateVerificationKeyOrFile
   :: Parser (VerificationKeyOrFile GenesisDelegateKey)
@@ -2374,7 +2374,7 @@ pAddress =
 -- | First argument is the prefix for the option's flag to use
 pStakePoolVerificationKeyHash :: Maybe String -> Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash prefix =
-    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey Nothing) $ mconcat
+    Opt.option (rBech32KeyHash AsStakePoolKey <|> rHexHash AsStakePoolKey Nothing) $ mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-id"
       , Opt.metavar "STAKE_POOL_ID"
       , Opt.help
@@ -2400,7 +2400,7 @@ pVrfVerificationKeyHash =
   where
     deserialiseFromHex :: ReadM (Hash VrfKey)
     deserialiseFromHex =
-      pHexHash AsVrfKey (Just "Invalid VRF verification key hash")
+      rHexHash AsVrfKey (Just "Invalid VRF verification key hash")
 
 pVrfVerificationKey :: Parser (VerificationKey VrfKey)
 pVrfVerificationKey =
@@ -2615,7 +2615,7 @@ pStakePoolMetadataHash =
   where
     deserializeFromHex :: ReadM (Hash StakePoolMetadata)
     deserializeFromHex =
-      pHexHash AsStakePoolMetadata Nothing
+      rHexHash AsStakePoolMetadata Nothing
 
 pStakePoolRegistrationParserRequirements
   :: EnvCli -> Parser StakePoolRegistrationParserRequirements
@@ -3243,7 +3243,7 @@ pAllOrOnlyDRepHashSource = pAll <|> pOnly
 
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
 pDRepVerificationKeyHash =
-    Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey Nothing) $ mconcat
+    Opt.option (rBech32KeyHash AsDRepKey <|> rHexHash AsDRepKey Nothing) $ mconcat
       [ Opt.long "drep-key-hash"
       , Opt.metavar "HASH"
       , Opt.help "DRep verification key hash (either Bech32-encoded or hex-encoded)."
