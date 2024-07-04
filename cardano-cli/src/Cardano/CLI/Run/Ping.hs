@@ -51,6 +51,7 @@ pingClient stdout stderr cmd = CNP.pingClient stdout stderr opts
           , CNP.pingOptsPort           = pingCmdPort cmd
           , CNP.pingOptsMagic          = pingCmdMagic cmd
           , CNP.pingOptsHandshakeQuery = pingOptsHandshakeQuery cmd
+          , CNP.pingOptsGetTip         = pingOptsGetTip cmd
           }
 
 runPingCmd :: PingCmd -> ExceptT PingClientCmdError IO ()
@@ -72,7 +73,7 @@ runPingCmd options = do
       return ([addr], CNP.supportedNodeToClientVersions $ pingCmdMagic options)
 
   -- Logger async thread handle
-  laid <- liftIO . async $ CNP.logger msgQueue (pingCmdJson options) (pingOptsHandshakeQuery options)
+  laid <- liftIO . async $ CNP.logger msgQueue (pingCmdJson options) (pingOptsHandshakeQuery options) (pingOptsGetTip options)
   -- Ping client thread handles
   caids <- forM addresses $ liftIO . async . pingClient (Tracer $ doLog msgQueue) (Tracer doErrLog) options versions
   res <- L.zip addresses <$> mapM (liftIO . waitCatch) caids

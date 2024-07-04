@@ -18,4 +18,5 @@ data PingCmd = PingCmd
   , pingCmdJson            :: !Bool
   , pingCmdQuiet           :: !Bool
   , pingOptsHandshakeQuery :: !Bool
+  , pingOptsGetTip         :: !Bool
   } deriving (Eq, Show)

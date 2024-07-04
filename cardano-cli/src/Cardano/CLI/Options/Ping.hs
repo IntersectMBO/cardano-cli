@@ -91,3 +91,9 @@ pPing = PingCmd
         , Opt.help "Query the supported protocol versions using the handshake protocol and terminate the connection."
         ]
       )
+  <*> ( Opt.switch $ mconcat
+        [ Opt.long "tip"
+        , Opt.short 't'
+        , Opt.help "Request tip then exit."
+        ]
+      )
