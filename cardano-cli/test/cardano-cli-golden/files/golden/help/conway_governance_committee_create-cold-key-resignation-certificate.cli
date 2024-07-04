@@ -15,7 +15,7 @@ Available options:
   --cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
   --cold-verification-key-file FILE
-                           Filepath of the Consitutional Committee cold key.
+                           Filepath of the Constitutional Committee cold key.
   --cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
   --cold-script-hash HASH  Committee cold Native or Plutus script file hash
