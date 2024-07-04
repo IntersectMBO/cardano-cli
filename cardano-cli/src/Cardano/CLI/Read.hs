@@ -451,7 +451,7 @@ readScriptDatumOrFile
   :: ScriptDatumOrFile witctx
   -> ExceptT ScriptDataError IO (ScriptDatum witctx)
 readScriptDatumOrFile (ScriptDatumOrFileForTxIn df) =
-  ScriptDatumForTxIn
+  ScriptDatumForTxIn . Just
     <$> readScriptDataOrFile df
 readScriptDatumOrFile InlineDatumPresentAtTxIn = pure InlineScriptDatum
 readScriptDatumOrFile NoScriptDatumOrFileForMint = pure NoScriptDatumForMint
