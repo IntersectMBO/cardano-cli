@@ -85,8 +85,8 @@
 
           # we also want cross compilation to windows on linux (and only with default compiler).
           crossPlatforms = p:
-            lib.optional (system == "x86_64-linux" && config.compiler-nix-name == mingwVersion)
-            p.mingwW64;
+            lib.optionals (system == "x86_64-linux" && config.compiler-nix-name == mingwVersion)
+            [ p.mingwW64 p.aarch64-multiplatform-musl ];
 
           # CHaP input map, so we can find CHaP packages (needs to be more
           # recent than the index-state we set!). Can be updated with
