@@ -135,7 +135,7 @@ jobs:
     strategy:
       matrix:
         # TODO generalize
-        arch: [x86_64-linux, x86_64-darwin, aarch64-darwin]
+        arch: [x86_64-linux, x86_64-darwin, aarch64-darwin, aarch64-linux]
     name: "Download Asset"
     runs-on: ubuntu-latest
     steps:
@@ -153,7 +153,23 @@ jobs:
           nix flake metadata "${{ needs.wait_for_hydra.outputs.FLAKE_REF }}" --json | jq -r '"LOCKED_URL=\(.url)"' >> "$GITHUB_ENV"
       - name: Build
         run: |
-          derivation="hydraJobs.${{ matrix.arch }}.packages.cardano-cli:exe:cardano-cli"
+          derivation="hydraJobs."
+          case ${{ matrix.arch }} in
+            "x86_64-darwin" | "aarch64-darwin")
+              derivation+="${{ matrix.arch }}"
+              ;;
+            "x86_64-linux")
+              derivation+="x86_64-linux.x86_64-unknown-linux-musl"
+              ;;
+            "aarch64-linux")
+              derivation+="x86_64-linux.aarch64-unknown-linux-musl"
+              ;;
+            *)
+              echo "Unexpected matrix.arch value: ${{ matrix.arch }}"
+              exit 1
+              ;;
+          esac
+          derivation+=".packages.cardano-cli:exe:cardano-cli"
           nix build --builders "" --max-jobs 0 ${{ env.LOCKED_URL }}#$derivation
           tree result
           cp result/bin/cardano-cli cardano-cli-${{ matrix.arch }} # (1)
@@ -178,7 +194,7 @@ jobs:
           # (2)
           # TARGET_TAG is of the form cardano-cli-8.22.0, so we don't need to prefix the tar.gz's name
           # with cardano-cli
-          for arch in x86_64-linux x86_64-darwin aarch64-darwin; do
+          for arch in x86_64-linux x86_64-darwin aarch64-darwin aarch64-linux; do
             tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-$arch.tar.gz cardano-cli-$arch
           done
           # TODO generalize
@@ -186,7 +202,7 @@ jobs:
       - name: Checksums
         run: |
           # (3)
-          for arch in x86_64-linux x86_64-darwin aarch64-darwin; do
+          for arch in x86_64-linux x86_64-darwin aarch64-darwin aarch64-linux; do
             sha256sum ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-$arch.tar.gz >> ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-sha256sums.txt
           done
       - name: Create short tag
@@ -213,5 +229,6 @@ jobs:
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-x86_64-linux.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-x86_64-darwin.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-aarch64-darwin.tar.gz
+            ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-aarch64-linux.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-sha256sums.txt
           body_path: RELEASE_CHANGELOG.md
