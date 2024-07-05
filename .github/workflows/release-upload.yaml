@@ -91,7 +91,7 @@ jobs:
           echo "TARGET_TAG=$target_tag" >> "$GITHUB_ENV"
           echo "TARGET_TAG=$target_tag" >> "$GITHUB_OUTPUT"
 
-          flake_ref="github:${{ github.repository }}/${{ env.TARGET_TAG }}"
+          flake_ref="github:${{ github.repository }}/$target_tag"
           echo "FLAKE_REF=$flake_ref" >> "$GITHUB_OUTPUT"
 
           echo "DRY_RUN=$dry_run" >> "$GITHUB_OUTPUT"
