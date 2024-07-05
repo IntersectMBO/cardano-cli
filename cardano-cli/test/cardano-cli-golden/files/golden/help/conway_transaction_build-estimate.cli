@@ -139,8 +139,8 @@ Usage: cardano-cli conway transaction build-estimate
                                                              | --proposal-redeemer-value JSON_VALUE
                                                              )
                                                              --proposal-execution-units (INT, INT)]]]
-                                                       [--current-treasury-value LOVELACE]
-                                                       [--treasury-donation LOVELACE]
+                                                       [--current-treasury-value LOVELACE
+                                                         --treasury-donation LOVELACE]
                                                        --out-file FILE
 
   Build a balanced transaction without access to a live node (automatically estimates fees)
