@@ -274,10 +274,7 @@ pTransactionBuildRaw era =
       <*> pFeatured era (optional pUpdateProposalFile)
       <*> pVoteFiles era ManualBalance
       <*> pProposalFiles era ManualBalance
-      <*> undefined
-      <*> undefined
-      -- <*> pCurrentTreasuryValue era
-      -- <*> pTreasuryDonation era
+      <*> pCurrentTreasuryValueAndDonation era
       <*> pTxBodyFileOut
 
 pTransactionSign  :: EnvCli -> Parser (TransactionCmds era)

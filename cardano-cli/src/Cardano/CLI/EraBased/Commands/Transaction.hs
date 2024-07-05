@@ -80,8 +80,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , mUpdateProprosalFile  :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles             :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   , proposalFiles         :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
-  , currentTreasuryValue  :: !(Maybe TxCurrentTreasuryValue)
-  , treasuryDonation      :: !(Maybe TxTreasuryDonation)
+  , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
   , txBodyOutFile         :: !(TxBodyFile Out)
   } deriving Show
 

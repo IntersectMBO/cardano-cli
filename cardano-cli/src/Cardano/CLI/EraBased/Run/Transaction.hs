@@ -496,9 +496,8 @@ runTransactionBuildRawCmd
       , mUpdateProprosalFile
       , voteFiles
       , proposalFiles
+      , currentTreasuryValueAndDonation
       , txBodyOutFile
-      , currentTreasuryValue
-      , treasuryDonation
       } = do
   inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError
                                 $ readScriptWitnessFiles eon txIns
@@ -557,14 +556,14 @@ runTransactionBuildRawCmd
       mReturnCollateral mTotalCollateral txOuts mValidityLowerBound mValidityUpperBound fee valuesWithScriptWits
       certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits requiredSigners txAuxScripts
       txMetadata mLedgerPParams txUpdateProposal votingProceduresAndMaybeScriptWits proposals
-      currentTreasuryValue treasuryDonation
+      currentTreasuryValueAndDonation
 
   let noWitTx = makeSignedTransaction [] txBody
   lift (writeTxFileTextEnvelopeCddl eon txBodyOutFile noWitTx)
     & onLeft (left . TxCmdWriteFileError)
 
 
-runTxBuildRaw :: () -- TODO change parser API
+runTxBuildRaw :: ()
   => ShelleyBasedEra era
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
@@ -598,8 +597,7 @@ runTxBuildRaw :: () -- TODO change parser API
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
-  -> Maybe TxCurrentTreasuryValue
-  -> Maybe TxTreasuryDonation
+  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -> Either TxCmdError (TxBody era)
 runTxBuildRaw sbe
               mScriptValidity inputsAndMaybeScriptWits
@@ -609,12 +607,12 @@ runTxBuildRaw sbe
               fee valuesWithScriptWits
               certsAndMaybeSriptWits withdrawals reqSigners
               txAuxScripts txMetadata mpparams txUpdateProposal votingProcedures proposals
-              _mCurrentTreasuryValue _mTreasuryDonation = do
+              mCurrentTreasuryValueAndDonation = do
 
     txBodyContent <- constructTxBodyContent sbe mScriptValidity (unLedgerProtocolParameters <$> mpparams) inputsAndMaybeScriptWits readOnlyRefIns txinsc
                       mReturnCollateral mTotCollateral txouts mLowerBound mUpperBound valuesWithScriptWits
                       certsAndMaybeSriptWits withdrawals reqSigners fee txAuxScripts txMetadata txUpdateProposal
-                      votingProcedures proposals undefined -- TODO mCurrentTreasuryValue mTreasuryDonation
+                      votingProcedures proposals mCurrentTreasuryValueAndDonation
 
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
 
