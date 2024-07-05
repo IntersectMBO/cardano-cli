@@ -261,7 +261,7 @@ runTransactionBuildEstimateCmd
   :: ()
   => Cmd.TransactionBuildEstimateCmdArgs era
   -> ExceptT TxCmdError IO ()
-runTransactionBuildEstimateCmd
+runTransactionBuildEstimateCmd -- TODO change type
   Cmd.TransactionBuildEstimateCmdArgs
     { eon
     , mScriptValidity
@@ -289,8 +289,8 @@ runTransactionBuildEstimateCmd
     , proposalFiles
     , plutusCollateral
     , totalReferenceScriptSize
-    , currentTreasuryValue
-    , treasuryDonation
+    , currentTreasuryValue = _
+    , treasuryDonation = _
     , txBodyOutFile
     } = do
   let sbe = maryEraOnwardsToShelleyBasedEra eon
@@ -364,8 +364,9 @@ runTransactionBuildEstimateCmd
                      txUpdateProposal
                      votingProceduresAndMaybeScriptWits
                      proposals
-                     currentTreasuryValue
-                     treasuryDonation
+                     undefined -- TODO
+                     -- currentTreasuryValue
+                     -- treasuryDonation
   let stakeCredentialsToDeregisterMap = Map.fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
       drepsToDeregisterMap = Map.fromList $ catMaybes [getDRepDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
       poolsToDeregister = Set.fromList $ catMaybes [getPoolDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
@@ -566,7 +567,7 @@ runTransactionBuildRawCmd
     & onLeft (left . TxCmdWriteFileError)
 
 
-runTxBuildRaw :: ()
+runTxBuildRaw :: () -- TODO change parser API
   => ShelleyBasedEra era
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
@@ -611,12 +612,12 @@ runTxBuildRaw sbe
               fee valuesWithScriptWits
               certsAndMaybeSriptWits withdrawals reqSigners
               txAuxScripts txMetadata mpparams txUpdateProposal votingProcedures proposals
-              mCurrentTreasuryValue mTreasuryDonation = do
+              _mCurrentTreasuryValue _mTreasuryDonation = do
 
     txBodyContent <- constructTxBodyContent sbe mScriptValidity (unLedgerProtocolParameters <$> mpparams) inputsAndMaybeScriptWits readOnlyRefIns txinsc
                       mReturnCollateral mTotCollateral txouts mLowerBound mUpperBound valuesWithScriptWits
                       certsAndMaybeSriptWits withdrawals reqSigners fee txAuxScripts txMetadata txUpdateProposal
-                      votingProcedures proposals mCurrentTreasuryValue mTreasuryDonation
+                      votingProcedures proposals undefined -- TODO mCurrentTreasuryValue mTreasuryDonation
 
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
 
@@ -655,14 +656,15 @@ constructTxBodyContent
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
-  -> Maybe TxCurrentTreasuryValue -- TODO join?
-  -> Maybe TxTreasuryDonation
+  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -- ^ The current treasury value and the donation. They go together, because the current treasury value
+  -- must be passed iff a donation is being done.
   -> Either TxCmdError (TxBodyContent BuildTx era)
 constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits readOnlyRefIns txinsc
                        mReturnCollateral mTotCollateral txouts mLowerBound mUpperBound
                        valuesWithScriptWits certsAndMaybeScriptWits withdrawals
                        reqSigners fee txAuxScripts txMetadata txUpdateProposal
-                       votingProcedures proposals mCurrentTreasuryValue mTreasuryDonation
+                       votingProcedures proposals mCurrentTreasuryValueAndDonation
                        = do
   let allReferenceInputs = getAllReferenceInputs
                              inputsAndMaybeScriptWits
@@ -683,8 +685,8 @@ constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits rea
   validatedMintValue <- createTxMintValue sbe valuesWithScriptWits
   validatedTxScriptValidity <- first TxCmdNotSupportedInEraValidationError $ validateTxScriptValidity sbe mScriptValidity
   validatedVotingProcedures <- first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures
-  validatedCurrentTreasuryValue <- first TxCmdNotSupportedInEraValidationError (validateTxCurrentTreasuryValue sbe mCurrentTreasuryValue)
-  validatedTreasuryDonation <- first TxCmdNotSupportedInEraValidationError (validateTxTreasuryDonation sbe mTreasuryDonation)
+  validatedCurrentTreasuryValue <- first TxCmdNotSupportedInEraValidationError (validateTxCurrentTreasuryValue sbe (fst <$> mCurrentTreasuryValueAndDonation))
+  validatedTreasuryDonation <- first TxCmdNotSupportedInEraValidationError (validateTxTreasuryDonation sbe (snd <$> mCurrentTreasuryValueAndDonation))
   return $ shelleyBasedEraConstraints sbe $ (defaultTxBodyContent sbe
              & setTxIns (validateTxIns inputsAndMaybeScriptWits)
              & setTxInsCollateral validatedCollateralTxIns
@@ -828,8 +830,7 @@ runTxBuild
                      txMetadata
                      txUpdateProposal
                      votingProcedures proposals
-                     (fst <$> mCurrentTreasuryValueAndDonation)
-                     (snd <$> mCurrentTreasuryValueAndDonation)
+                     mCurrentTreasuryValueAndDonation
 
   firstExceptT TxCmdTxInsDoNotExist
     . hoistEither $ txInsExistInUTxO allTxInputs txEraUtxo
