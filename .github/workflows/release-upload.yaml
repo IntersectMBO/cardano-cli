@@ -97,6 +97,7 @@ jobs:
           echo "DRY_RUN=$dry_run" >> "$GITHUB_OUTPUT"
       - name: Get specific check run status
         timeout-minutes: 120
+        if: false # DON'T MERGE ME, FOR TESTING ONLY
         run: |
           while true; do
             conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/${{ env.TARGET_TAG }}/check-runs" --jq '.check_runs[] | select(.name | test("ci/hydra-build:.*\\.required")) | .conclusion')
