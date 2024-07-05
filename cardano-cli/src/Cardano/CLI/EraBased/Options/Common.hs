@@ -526,12 +526,12 @@ pTransferAmt =
     , Opt.help "The amount to transfer."
     ]
 
-pHexHash :: ()
+rHexHash :: ()
   => SerialiseAsRawBytes (Hash a)
   => AsType a
   -> Maybe String -- | Optional prefix to the error message
   -> ReadM (Hash a)
-pHexHash a mErrPrefix =
+rHexHash a mErrPrefix =
   Opt.eitherReader $
     first (\e -> errPrefix <> (docToString $ prettyError e))
       . deserialiseFromRawBytesHex (AsHash a)
@@ -539,8 +539,8 @@ pHexHash a mErrPrefix =
   where
     errPrefix = maybe "" (": " <>) mErrPrefix
 
-pBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
-pBech32KeyHash a =
+rBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
+rBech32KeyHash a =
   Opt.eitherReader $
     first (docToString . prettyError)
     . deserialiseFromBech32 (AsHash a)
@@ -548,20 +548,28 @@ pBech32KeyHash a =
 
 pGenesisDelegateVerificationKey :: Parser (VerificationKey GenesisDelegateKey)
 pGenesisDelegateVerificationKey =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseFromHex $ mconcat
     [ Opt.long "genesis-delegate-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Genesis delegate verification key (hex-encoded)."
     ]
   where
-    deserialiseFromHex
-      :: String
-      -> Either String (VerificationKey GenesisDelegateKey)
     deserialiseFromHex =
-      first
-        (\e -> docToString $ "Invalid genesis delegate verification key: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsVerificationKey AsGenesisDelegateKey)
-        . BSC.pack
+      rVerificationKey AsGenesisDelegateKey (Just "Invalid genesis delegate verification key")
+
+-- | Reader for verification keys
+rVerificationKey :: ()
+  => SerialiseAsRawBytes (VerificationKey a)
+  => AsType a -- | Singleton value identifying the kind of verification keys
+  -> Maybe String -- | Optional prefix to the error message
+  -> ReadM (VerificationKey a)
+rVerificationKey a mErrPrefix =
+  Opt.eitherReader $ first
+    (\e -> errPrefix <> (docToString $ prettyError e))
+    . deserialiseFromRawBytesHex (AsVerificationKey a)
+    . BSC.pack
+  where
+    errPrefix = maybe "" (": " <>) mErrPrefix
 
 -- | The first argument is the optional prefix.
 pColdVerificationKeyOrFile :: Maybe String -> Parser ColdVerificationKeyOrFile
@@ -652,17 +660,11 @@ pAddCommitteeColdVerificationKeySource =
 
 pAddCommitteeColdVerificationKeyHash :: Parser (Hash CommitteeColdKey)
 pAddCommitteeColdVerificationKeyHash =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseColdCCKeyHashFromHex $ mconcat
     [ Opt.long "add-cc-cold-verification-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee key hash (hex-encoded)."
     ]
-  where
-    deserialiseFromHex :: String -> Either String (Hash CommitteeColdKey)
-    deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Constitutional Committee cold key hash: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsHash AsCommitteeColdKey)
-        . BSC.pack
 
 pAddCommitteeColdVerificationKeyOrFile :: Parser (VerificationKeyOrFile CommitteeColdKey)
 pAddCommitteeColdVerificationKeyOrFile =
@@ -673,17 +675,14 @@ pAddCommitteeColdVerificationKeyOrFile =
 
 pAddCommitteeColdVerificationKey :: Parser (VerificationKey CommitteeColdKey)
 pAddCommitteeColdVerificationKey =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseFromHex $ mconcat
     [ Opt.long "add-cc-cold-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee cold key (hex-encoded)."
     ]
   where
-    deserialiseFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
     deserialiseFromHex =
-      first (\e -> docToString $ "Invalid Constitutional Committee cold key: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
-        . BSC.pack
+      rVerificationKey AsCommitteeColdKey (Just "Invalid Constitutional Committee cold key")
 
 pAddCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
 pAddCommitteeColdVerificationKeyFile =
@@ -734,21 +733,19 @@ pRemoveCommitteeColdVerificationKeyOrFile =
 
 pRemoveCommitteeColdVerificationKey :: Parser (VerificationKey CommitteeColdKey)
 pRemoveCommitteeColdVerificationKey =
-  Opt.option (Opt.eitherReader deserialiseColdCCKeyFromHex) $ mconcat
+  Opt.option deserialiseColdCCKeyFromHex $ mconcat
     [ Opt.long "remove-cc-cold-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee cold key (hex-encoded)."
     ]
 
-deserialiseColdCCKeyFromHex :: String -> Either String (VerificationKey CommitteeColdKey)
+deserialiseColdCCKeyFromHex :: ReadM (VerificationKey CommitteeColdKey)
 deserialiseColdCCKeyFromHex =
-  first (\e -> docToString $ "Invalid Constitutional Committee cold key: " <> prettyError e)
-    . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey)
-    . BSC.pack
+  rVerificationKey AsCommitteeColdKey (Just "Invalid Constitutional Committee cold key")
 
 deserialiseColdCCKeyHashFromHex :: ReadM (Hash CommitteeColdKey)
 deserialiseColdCCKeyHashFromHex =
-  pHexHash AsCommitteeColdKey (Just "Invalid Constitutional Committee cold key hash")
+  rHexHash AsCommitteeColdKey (Just "Invalid Constitutional Committee cold key hash")
 
 pRemoveCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
 pRemoveCommitteeColdVerificationKeyFile =
@@ -777,7 +774,7 @@ pCommitteeColdVerificationKeyOrFile =
 
 pCommitteeColdVerificationKey :: Parser (VerificationKey CommitteeColdKey)
 pCommitteeColdVerificationKey =
-  Opt.option (Opt.eitherReader deserialiseColdCCKeyFromHex) $ mconcat
+  Opt.option deserialiseColdCCKeyFromHex $ mconcat
     [ Opt.long "cold-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee cold key (hex-encoded)."
@@ -853,21 +850,19 @@ pCommitteeHotVerificationKeyHash =
 
 pCommitteeHotVerificationKey :: String -> Parser (VerificationKey CommitteeHotKey)
 pCommitteeHotVerificationKey longFlag =
-  Opt.option (Opt.eitherReader deserialiseHotCCKeyFromHex) $ mconcat
+  Opt.option deserialiseHotCCKeyFromHex $ mconcat
     [ Opt.long longFlag
     , Opt.metavar "STRING"
     , Opt.help "Constitutional Committee hot key (hex-encoded)."
     ]
 
-deserialiseHotCCKeyFromHex :: String -> Either String (VerificationKey CommitteeHotKey)
+deserialiseHotCCKeyFromHex :: ReadM (VerificationKey CommitteeHotKey)
 deserialiseHotCCKeyFromHex =
-  first (\e -> docToString $ "Invalid Constitutional Committee hot key: " <> prettyError e)
-    . deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey)
-    . BSC.pack
+  rVerificationKey AsCommitteeHotKey (Just "Invalid Constitutional Committee hot key")
 
 deserialiseHotCCKeyHashFromHex :: ReadM (Hash CommitteeHotKey)
 deserialiseHotCCKeyHashFromHex =
-  pHexHash AsCommitteeHotKey (Just "Invalid Constitutional Committee hot key hash")
+  rHexHash AsCommitteeHotKey (Just "Invalid Constitutional Committee hot key hash")
 
 pCommitteeHotVerificationKeyFile :: String -> Parser (VerificationKeyFile In)
 pCommitteeHotVerificationKeyFile longFlag =
@@ -967,7 +962,7 @@ pStakeVerificationKeyOrHashOrFile prefix = asum
 -- | First argument is the optional prefix
 pStakeVerificationKeyHash :: Maybe String -> Parser (Hash StakeKey)
 pStakeVerificationKeyHash prefix =
-   Opt.option (pHexHash AsStakeKey Nothing) $ mconcat
+   Opt.option (rHexHash AsStakeKey Nothing) $ mconcat
       [ Opt.long $ prefixFlag prefix "stake-key-hash"
       , Opt.metavar "HASH"
       , Opt.help "Stake verification key hash (hex-encoded)."
@@ -1738,31 +1733,26 @@ pGenesisVerificationKeyFile =
 
 pGenesisVerificationKeyHash :: Parser (Hash GenesisKey)
 pGenesisVerificationKeyHash =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseFromHex $ mconcat
     [ Opt.long "genesis-verification-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Genesis verification key hash (hex-encoded)."
     ]
   where
-    deserialiseFromHex :: String -> Either String (Hash GenesisKey)
+    deserialiseFromHex :: ReadM (Hash GenesisKey)
     deserialiseFromHex =
-      first (\e -> docToString $ "Invalid genesis verification key hash: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsHash AsGenesisKey)
-        . BSC.pack
+      rHexHash AsGenesisKey (Just "Invalid genesis verification key hash")
 
 pGenesisVerificationKey :: Parser (VerificationKey GenesisKey)
 pGenesisVerificationKey =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseFromHex $ mconcat
     [ Opt.long "genesis-verification-key"
     , Opt.metavar "STRING"
     , Opt.help "Genesis verification key (hex-encoded)."
     ]
   where
-    deserialiseFromHex :: String -> Either String (VerificationKey GenesisKey)
     deserialiseFromHex =
-      first (\e -> docToString $ "Invalid genesis verification key: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsVerificationKey AsGenesisKey)
-        . BSC.pack
+      rVerificationKey AsGenesisKey (Just "Invalid genesis verification key")
 
 pGenesisVerificationKeyOrFile :: Parser (VerificationKeyOrFile GenesisKey)
 pGenesisVerificationKeyOrFile =
@@ -1789,19 +1779,15 @@ pGenesisDelegateVerificationKeyFile =
 
 pGenesisDelegateVerificationKeyHash :: Parser (Hash GenesisDelegateKey)
 pGenesisDelegateVerificationKeyHash =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseFromHex $ mconcat
     [ Opt.long "genesis-delegate-verification-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "Genesis delegate verification key hash (hex-encoded)."
     ]
   where
-    deserialiseFromHex :: String -> Either String (Hash GenesisDelegateKey)
+    deserialiseFromHex :: ReadM (Hash GenesisDelegateKey)
     deserialiseFromHex =
-      first
-        (\e ->
-          docToString $ "Invalid genesis delegate verification key hash: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsHash AsGenesisDelegateKey)
-        . BSC.pack
+      rHexHash AsGenesisDelegateKey (Just "Invalid genesis delegate verification key hash")
 
 pGenesisDelegateVerificationKeyOrFile
   :: Parser (VerificationKeyOrFile GenesisDelegateKey)
@@ -2388,7 +2374,7 @@ pAddress =
 -- | First argument is the prefix for the option's flag to use
 pStakePoolVerificationKeyHash :: Maybe String -> Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash prefix =
-    Opt.option (pBech32KeyHash AsStakePoolKey <|> pHexHash AsStakePoolKey Nothing) $ mconcat
+    Opt.option (rBech32KeyHash AsStakePoolKey <|> rHexHash AsStakePoolKey Nothing) $ mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-id"
       , Opt.metavar "STAKE_POOL_ID"
       , Opt.help
@@ -2406,17 +2392,15 @@ pVrfVerificationKeyFile =
 
 pVrfVerificationKeyHash :: Parser (Hash VrfKey)
 pVrfVerificationKeyHash =
-  Opt.option (Opt.eitherReader deserialiseFromHex) $ mconcat
+  Opt.option deserialiseFromHex $ mconcat
     [ Opt.long "vrf-verification-key-hash"
     , Opt.metavar "STRING"
     , Opt.help "VRF verification key hash (hex-encoded)."
     ]
   where
-    deserialiseFromHex :: String -> Either String (Hash VrfKey)
+    deserialiseFromHex :: ReadM (Hash VrfKey)
     deserialiseFromHex =
-      first (\e -> docToString $ "Invalid VRF verification key hash: " <> prettyError e)
-        . deserialiseFromRawBytesHex (AsHash AsVrfKey)
-        . BSC.pack
+      rHexHash AsVrfKey (Just "Invalid VRF verification key hash")
 
 pVrfVerificationKey :: Parser (VerificationKey VrfKey)
 pVrfVerificationKey =
@@ -2623,17 +2607,15 @@ pStakePoolMetadataUrl =
 
 pStakePoolMetadataHash :: Parser (Hash StakePoolMetadata)
 pStakePoolMetadataHash =
-  Opt.option (Opt.eitherReader metadataHash) $ mconcat
+  Opt.option deserializeFromHex $ mconcat
     [ Opt.long "metadata-hash"
     , Opt.metavar "HASH"
     , Opt.help "Pool metadata hash."
     ]
   where
-    metadataHash :: String -> Either String (Hash StakePoolMetadata)
-    metadataHash =
-      first (docToString . prettyError)
-        . deserialiseFromRawBytesHex (AsHash AsStakePoolMetadata)
-        . BSC.pack
+    deserializeFromHex :: ReadM (Hash StakePoolMetadata)
+    deserializeFromHex =
+      rHexHash AsStakePoolMetadata Nothing
 
 pStakePoolRegistrationParserRequirements
   :: EnvCli -> Parser StakePoolRegistrationParserRequirements
@@ -3261,7 +3243,7 @@ pAllOrOnlyDRepHashSource = pAll <|> pOnly
 
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
 pDRepVerificationKeyHash =
-    Opt.option (pBech32KeyHash AsDRepKey <|> pHexHash AsDRepKey Nothing) $ mconcat
+    Opt.option (rBech32KeyHash AsDRepKey <|> rHexHash AsDRepKey Nothing) $ mconcat
       [ Opt.long "drep-key-hash"
       , Opt.metavar "HASH"
       , Opt.help "DRep verification key hash (either Bech32-encoded or hex-encoded)."
