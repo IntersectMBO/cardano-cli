@@ -238,8 +238,7 @@ pTransactionBuildEstimateCmd era _envCli = do
           <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
           <*> pVoteFiles sbe ManualBalance
           <*> pProposalFiles sbe ManualBalance
-          <*> pCurrentTreasuryValue sbe
-          <*> pTreasuryDonation sbe
+          <*> pCurrentTreasuryValueAndDonation sbe
           <*> pTxBodyFileOut
 
 pChangeAddress :: Parser TxOutChangeAddress
@@ -275,8 +274,10 @@ pTransactionBuildRaw era =
       <*> pFeatured era (optional pUpdateProposalFile)
       <*> pVoteFiles era ManualBalance
       <*> pProposalFiles era ManualBalance
-      <*> pCurrentTreasuryValue era
-      <*> pTreasuryDonation era
+      <*> undefined
+      <*> undefined
+      -- <*> pCurrentTreasuryValue era
+      -- <*> pTreasuryDonation era
       <*> pTxBodyFileOut
 
 pTransactionSign  :: EnvCli -> Parser (TransactionCmds era)

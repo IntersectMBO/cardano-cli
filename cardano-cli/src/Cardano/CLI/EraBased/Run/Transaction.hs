@@ -289,8 +289,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , proposalFiles
     , plutusCollateral
     , totalReferenceScriptSize
-    , currentTreasuryValue = _
-    , treasuryDonation = _
+    , currentTreasuryValueAndDonation
     , txBodyOutFile
     } = do
   let sbe = maryEraOnwardsToShelleyBasedEra eon
@@ -364,9 +363,7 @@ runTransactionBuildEstimateCmd -- TODO change type
                      txUpdateProposal
                      votingProceduresAndMaybeScriptWits
                      proposals
-                     undefined -- TODO
-                     -- currentTreasuryValue
-                     -- treasuryDonation
+                     currentTreasuryValueAndDonation
   let stakeCredentialsToDeregisterMap = Map.fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
       drepsToDeregisterMap = Map.fromList $ catMaybes [getDRepDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
       poolsToDeregister = Set.fromList $ catMaybes [getPoolDeregistrationInfo cert | (cert,_) <- certsAndMaybeScriptWits]
