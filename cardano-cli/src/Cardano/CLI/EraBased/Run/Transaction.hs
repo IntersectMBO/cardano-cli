@@ -128,7 +128,7 @@ runTransactionBuildCmd
       , mUpdateProposalFile
       , voteFiles
       , proposalFiles
-      , treasuryDonation
+      , treasuryDonation -- Maybe TxTreasuryDonation
       , buildOutputOptions
       } = shelleyBasedEraConstraints eon $ do
   let era = toCardanoEra eon
@@ -206,6 +206,12 @@ runTransactionBuildCmd
       & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
       & onLeft (left . TxCmdQueryConvenienceError)
 
+  let currentTreasuryValueAndDonation =
+        case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
+          (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
+          (Just _td, Nothing) -> undefined -- TODO: Current treasury value couldn't be obtained but is required: we should fail suggesting that the node's version is too old
+          (Just td, Just ctv) -> Just (ctv, td)
+
   -- We need to construct the txBodycontent outside of runTxBuild
   BalancedTxBody txBodyContent balancedTxBody _ _ <-
     runTxBuild
@@ -214,7 +220,7 @@ runTransactionBuildCmd
       mValidityLowerBound mValidityUpperBound certsAndMaybeScriptWits withdrawalsAndMaybeScriptWits
       requiredSigners txAuxScripts txMetadata mProp mOverrideWitnesses votingProceduresAndMaybeScriptWits
       proposals
-      (unFeatured <$> featuredCurrentTreasuryValueM) treasuryDonation
+      currentTreasuryValueAndDonation
 
   -- TODO: Calculating the script cost should live as a different command.
   -- Why? Because then we can simply read a txbody and figure out
@@ -649,7 +655,7 @@ constructTxBodyContent
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
-  -> Maybe TxCurrentTreasuryValue
+  -> Maybe TxCurrentTreasuryValue -- TODO join?
   -> Maybe TxTreasuryDonation
   -> Either TxCmdError (TxBodyContent BuildTx era)
 constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits readOnlyRefIns txinsc
@@ -750,8 +756,9 @@ runTxBuild :: ()
   -> Maybe Word
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
-  -> Maybe TxCurrentTreasuryValue
-  -> Maybe TxTreasuryDonation
+  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -- ^ The current treasury value and the donation. They go together, because the current treasury value
+  -- must be passed iff a donation is being done (see https://github.com/IntersectMBO/cardano-cli/issues/825)
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
     sbe socketPath networkId mScriptValidity
@@ -759,7 +766,7 @@ runTxBuild
     (TxOutChangeAddress changeAddr) valuesWithScriptWits mLowerBound mUpperBound
     certsAndMaybeScriptWits withdrawals reqSigners txAuxScripts txMetadata
     txUpdateProposal mOverrideWits votingProcedures proposals
-    mCurrentTreasuryValue mTreasuryDonation =
+    mCurrentTreasuryValueAndDonation =
     shelleyBasedEraConstraints sbe $ do
 
   -- TODO: All functions should be parameterized by ShelleyBasedEra
@@ -821,7 +828,8 @@ runTxBuild
                      txMetadata
                      txUpdateProposal
                      votingProcedures proposals
-                     mCurrentTreasuryValue mTreasuryDonation
+                     (fst <$> mCurrentTreasuryValueAndDonation)
+                     (snd <$> mCurrentTreasuryValueAndDonation)
 
   firstExceptT TxCmdTxInsDoNotExist
     . hoistEither $ txInsExistInUTxO allTxInputs txEraUtxo
