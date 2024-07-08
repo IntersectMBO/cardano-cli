@@ -180,7 +180,7 @@ runLegacyTransactionBuildRawCmd
              sbe mScriptValidity txins readOnlyRefIns txinsc mReturnColl
              mTotColl reqSigners txouts mValue mLowBound upperBound fee certs wdrls
              metadataSchema scriptFiles metadataFiles mProtocolParamsFile mUpdateProposalFile [] []
-             Nothing Nothing
+             Nothing
              outFile
          )
          )
