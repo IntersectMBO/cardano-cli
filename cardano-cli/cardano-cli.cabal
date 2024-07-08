@@ -388,6 +388,7 @@ test-suite cardano-cli-golden
                         Test.Golden.CreateStaked
                         Test.Golden.CreateTestnetData
                         Test.Golden.Conway.Transaction.Assemble
+                        Test.Golden.Conway.Transaction.BuildRaw
                         Test.Golden.EraBased.Governance.AnswerPoll
                         Test.Golden.EraBased.Governance.CreatePoll
                         Test.Golden.EraBased.Governance.VerifyPoll

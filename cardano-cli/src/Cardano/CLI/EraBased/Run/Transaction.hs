@@ -209,7 +209,7 @@ runTransactionBuildCmd
   let currentTreasuryValueAndDonation =
         case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
           (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
-          (Just _td, Nothing) -> undefined -- TODO: Current treasury value couldn't be obtained but is required: we should fail suggesting that the node's version is too old
+          (Just _td, Nothing) -> Nothing -- TODO: Current treasury value couldn't be obtained but is required: we should fail suggesting that the node's version is too old
           (Just td, Just ctv) -> Just (ctv, td)
 
   -- We need to construct the txBodycontent outside of runTxBuild
@@ -652,8 +652,9 @@ constructTxBodyContent
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
-  -- ^ The current treasury value and the donation. They go together, because the current treasury value
-  -- must be passed iff a donation is being done.
+  -- ^ The current treasury value and the donation. This is a stop gap as the
+  -- semantics of the donation and treasury value depend on the script languages
+  -- being used.
   -> Either TxCmdError (TxBodyContent BuildTx era)
 constructTxBodyContent sbe mScriptValidity mPparams inputsAndMaybeScriptWits readOnlyRefIns txinsc
                        mReturnCollateral mTotCollateral txouts mLowerBound mUpperBound
@@ -754,8 +755,7 @@ runTxBuild :: ()
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
-  -- ^ The current treasury value and the donation. They go together, because the current treasury value
-  -- must be passed iff a donation is being done (see https://github.com/IntersectMBO/cardano-cli/issues/825)
+  -- ^ The current treasury value and the donation.
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
     sbe socketPath networkId mScriptValidity

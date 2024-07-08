@@ -1212,7 +1212,7 @@ pCurrentTreasuryValueAndDonation :: ShelleyBasedEra era -> Parser (Maybe (TxCurr
 pCurrentTreasuryValueAndDonation sbe =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure Nothing)
-    (const $ optional $ ((,) <$> pCurrentTreasuryValue' <*> pTreasuryDonation'))
+    (const $ optional ((,) <$> pCurrentTreasuryValue' <*> pTreasuryDonation'))
     sbe
 
 pCurrentTreasuryValue' :: Parser TxCurrentTreasuryValue
@@ -1227,7 +1227,7 @@ pTreasuryDonation :: ShelleyBasedEra era -> Parser (Maybe TxTreasuryDonation)
 pTreasuryDonation =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure Nothing)
-    (const $ optional $ pTreasuryDonation')
+    (const $ optional pTreasuryDonation')
 
 pTreasuryDonation' :: Parser TxTreasuryDonation
 pTreasuryDonation' =
