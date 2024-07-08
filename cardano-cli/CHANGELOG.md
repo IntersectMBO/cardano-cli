@@ -1,5 +1,15 @@
 # Changelog for cardano-cli
 
+## 9.0.0.1 
+
+- transaction-build and build-estimate: include current treasury value only if a donation is being done
+  (breaking)
+  [PR 826](https://github.com/IntersectMBO/cardano-cli/pull/826)
+
+- Fix typo in committee help and error messages
+  (compatible)
+  [PR 820](https://github.com/IntersectMBO/cardano-cli/pull/820)
+
 ## 9.0.0.0
 
 - Add --hot-script-hash option to committee create-hot-key-authorization-certificate subcommand
