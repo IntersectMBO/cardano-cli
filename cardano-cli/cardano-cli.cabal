@@ -113,6 +113,7 @@ library
                         Cardano.CLI.EraBased.Run.TextView
                         Cardano.CLI.EraBased.Run.Transaction
                         Cardano.CLI.Helpers
+                        Cardano.CLI.IO.Compat
                         Cardano.CLI.IO.Lazy
                         Cardano.CLI.Json.Friendly
                         Cardano.CLI.Legacy.Commands
