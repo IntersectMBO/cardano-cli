@@ -24,9 +24,9 @@
     ];
 
     # see flake `variants` below for alternative compilers
-    defaultCompiler = "ghc965";
+    defaultCompiler = "ghc982";
     haddockShellCompiler = defaultCompiler;
-
+    mingwVersion = "ghc965";
     cabalHeadOverlay = final: prev: {
       cabal-head =
         (final.haskell-nix.cabalProject {
@@ -85,7 +85,7 @@
 
           # we also want cross compilation to windows on linux (and only with default compiler).
           crossPlatforms = p:
-            lib.optional (system == "x86_64-linux" && config.compiler-nix-name == defaultCompiler)
+            lib.optional (system == "x86_64-linux" && config.compiler-nix-name == mingwVersion)
             p.mingwW64;
 
           # CHaP input map, so we can find CHaP packages (needs to be more
@@ -105,9 +105,9 @@
             }
             // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
               # tools that work only with default compiler
-              haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.6";
-              hlint = "3.6.1";
-              stylish-haskell = "0.14.5.0";
+              haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.8";
+              hlint = "3.8";
+              stylish-haskell = "0.14.6.0";
             };
           # and from nixpkgs or other inputs
           shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck cabal-head];
@@ -167,7 +167,7 @@
         flake = cabalProject.flake (
           lib.optionalAttrs (system == "x86_64-linux") {
             # on linux, build/test other supported compilers
-            variants = lib.genAttrs ["ghc8107"] (compiler-nix-name: {
+            variants = lib.genAttrs ["ghc8107" mingwVersion] (compiler-nix-name: {
               inherit compiler-nix-name;
             });
           }
