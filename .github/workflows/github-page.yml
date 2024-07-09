@@ -7,134 +7,59 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     defaults:
       run:
         shell: bash
 
-    strategy:
-      fail-fast: false
-      matrix:
-        ghc: ["9.2.7"]
-        cabal: ["3.10.1.0"]
-        os: [ubuntu-latest]
-
-    env:
-      # Modify this value to "invalidate" the cabal cache.
-      CABAL_CACHE_VERSION: "2024-02-23"
-
-    concurrency:
-      group: >
-        a+${{ github.event_name }}
-        b+${{ github.workflow_ref }}
-        c+${{ github.job }}
-        d+${{ matrix.ghc }}
-        e+${{ matrix.cabal }}
-        f+${{ matrix.os }}
-        g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
-
     steps:
-    - name: Concurrency group
-      run: >
-        echo
-        a+${{ github.event_name }}
-        b+${{ github.workflow_ref }}
-        c+${{ github.job }}
-        d+${{ matrix.ghc }}
-        e+${{ matrix.cabal }}
-        f+${{ matrix.os }}
-        g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
-
-    - name: Install Haskell
-      uses: input-output-hk/actions/haskell@latest
-      id: setup-haskell
+    - name: Install Nix
+      uses: cachix/install-nix-action@v18
       with:
-        ghc-version: ${{ matrix.ghc }}
-        cabal-version: ${{ matrix.cabal }}
+        # Use last stable nixos channel and the same nix as in channel:
+        install_url: https://releases.nixos.org/nix/nix-2.11.1/install
+        nix_path: nixpkgs=channel:nixos-22.11
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
+        extra_nix_config: |
+          access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+          experimental-features = nix-command flakes
+          allow-import-from-derivation = true
+          substituters = https://cache.nixos.org https://cache.iog.io
+          trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
 
-    - name: Install system dependencies
-      uses: input-output-hk/actions/base@latest
-      with:
-        use-sodium-vrf: true # default is true
+    - uses: actions/checkout@v4
 
-    - uses: actions/checkout@v3
-
-    - name: Cabal update
-      run: cabal update
-
-    - name: Disable all tests
+    - name: Fetch nix cache and update cabal indices
       run: |
-        cat > cabal.project.local <<EOF
-        tests: False
-        EOF
+        nix develop .\#haddockShell --command \
+          cabal update
 
-    - name: Build dry run
-      run: cabal build all --dry-run --minimize-conflict-set
-
-    - name: Dry run
+    - name: Build whole project
       run: |
-        cabal build all --dry-run
-        mkdir ./haddocks
-        DRY_RUN=1 ./.github/bin/haddocks.sh ./haddocks true
+        nix develop .\#haddockShell --command \
+          cabal build all
 
-    # For users who fork cardano-cli and want to define a writable cache, then can set up their own
-    # S3 bucket then define in their forked repository settings the following secrets:
-    #
-    #   CACHE_AWS_ACCESS_KEY_ID
-    #   CACHE_AWS_SECRET_ACCESS_KEY
-    #   CACHE_URI
-    #   CACHE_AWS_REGION
-    - name: Cabal cache over S3
-      uses: action-works/cabal-cache-s3@v1
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.CACHE_AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.CACHE_AWS_SECRET_ACCESS_KEY }}
-      with:
-        region: ${{ vars.CACHE_AWS_REGION }}
-        dist-dir: dist-newstyle
-        store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
-        threads: ${{ vars.CACHE_THREADS }}
-        archive-uri: ${{ vars.CACHE_URI }}/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
-        skip: "${{ vars.CACHE_URI == '' }}"
+    - name: Build documentation
+      run: |
+        nix develop .\#haddockShell --command \
+          cabal haddock-project --output=./haddocks --internal --foreign-libraries
 
-    # It's important to ensure that people who fork this repository can not only successfully build in
-    # CI by default, but also have meaning cabal store caching.
-    #
-    # Because syncing with S3 requires credentials, we cannot rely on S3 for this. For this reason a
-    # https fallback is used. The https server mirrors the content of the S3 bucket. The https cabal
-    # store archive is read-only for security reasons.
-    #
-    # Users who fork this repository who want to have a writable cabal store archive are encouraged
-    # to set up their own S3 bucket.
-    - name: Cabal cache over HTTPS
-      uses: action-works/cabal-cache-s3@v1
-      with:
-        dist-dir: dist-newstyle
-        store-path: ${{ steps.setup-haskell.outputs.cabal-store }}
-        threads: 16
-        archive-uri: https://iohk.cache.haskellworks.io/${{ env.CABAL_CACHE_VERSION }}/${{ runner.os }}/${{ matrix.cabal }}/${{ matrix.ghc }}
-        skip: "${{ vars.CACHE_URI != '' }}"
-        enable-save: false
+    - name: Compress haddocks
+      run: |
+        tar -czf haddocks.tgz -C haddocks .
 
-    - name: Install dependencies
-      run: cabal build all
-
-    - name: Build Haddock documentation 🔧
-      run: ./.github/bin/haddocks.sh ./haddocks true
-
-    - name: Upload documentation
+    - name: Upload haddocks artifact
       uses: actions/upload-artifact@v4
       if: ${{ always() }}
       continue-on-error: true
       with:
-        name: haddocks-${{ matrix.os }}-${{ matrix.ghc }}
-        path: ./haddocks
+        name: haddocks
+        path: ./haddocks.tgz
 
     - name: Deploy documentation to gh-pages 🚀
       if: github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN || github.token }}
         publish_dir: haddocks
