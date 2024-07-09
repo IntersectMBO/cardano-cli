@@ -529,7 +529,7 @@ pTransferAmt =
 rHexHash :: ()
   => SerialiseAsRawBytes (Hash a)
   => AsType a
-  -> Maybe String -- | Optional prefix to the error message
+  -> Maybe String -- ^ Optional prefix to the error message
   -> ReadM (Hash a)
 rHexHash a mErrPrefix =
   Opt.eitherReader $
@@ -560,8 +560,8 @@ pGenesisDelegateVerificationKey =
 -- | Reader for verification keys
 rVerificationKey :: ()
   => SerialiseAsRawBytes (VerificationKey a)
-  => AsType a -- | Singleton value identifying the kind of verification keys
-  -> Maybe String -- | Optional prefix to the error message
+  => AsType a -- ^ Singleton value identifying the kind of verification keys
+  -> Maybe String -- ^ Optional prefix to the error message
   -> ReadM (VerificationKey a)
 rVerificationKey a mErrPrefix =
   Opt.eitherReader $ first
