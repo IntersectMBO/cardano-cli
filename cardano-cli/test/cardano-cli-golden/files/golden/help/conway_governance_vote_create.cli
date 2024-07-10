@@ -49,7 +49,6 @@ Available options:
                            Obtain it with "cardano-cli hash script ...".
   --anchor-url TEXT        Vote anchor URL
   --anchor-data-hash HASH  Hash of the vote anchor data (obtain it with
-                           "cardano-cli conway governance hash anchor-data
-                           ...").
+                           "cardano-cli hash anchor-data ...").
   --out-file FILE          Output filepath of the vote.
   -h,--help                Show this help text

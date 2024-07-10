@@ -79,7 +79,7 @@ Available options:
                            Target stake address (bech32 format).
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
-                           "cardano-cli conway governance hash anchor-data ...")
+                           "cardano-cli hash anchor-data ...")
   --prev-governance-action-tx-id TXID
                            Txid of the previous governance action.
   --prev-governance-action-index WORD16
