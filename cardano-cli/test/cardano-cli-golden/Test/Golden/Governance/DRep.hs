@@ -50,8 +50,8 @@ hprop_golden_governanceDRepKeyGen =
     H.assertFileOccurences 1 "DRepVerificationKey_ed25519" verificationKeyFile
     H.assertFileOccurences 1 "DRepSigningKey_ed25519" signingKeyFile
 
-    H.assertFileOccurences 1 "Delegate Representative Verification Key" verificationKeyFile
-    H.assertFileOccurences 1 "Delegate Representative Signing Key" signingKeyFile
+    H.assertFileOccurences 1 "Delegated Representative Verification Key" verificationKeyFile
+    H.assertFileOccurences 1 "Delegated Representative Signing Key" signingKeyFile
 
 #ifdef UNIX
     vrfMode <- retrievePermissions verificationKeyFile

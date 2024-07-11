@@ -56,7 +56,7 @@ pGovernanceDRepKeyGenCmd era = do
               <$> pVerificationKeyFileOut
               <*> pSigningKeyFileOut
         )
-    $ Opt.progDesc "Generate Delegate Representative verification and signing keys."
+    $ Opt.progDesc "Generate Delegated Representative verification and signing keys."
 
 pGovernanceDRepKeyIdCmd :: ()
   => CardanoEra era

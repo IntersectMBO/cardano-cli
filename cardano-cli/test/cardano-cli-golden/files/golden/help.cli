@@ -6967,7 +6967,7 @@ Usage: cardano-cli conway governance drep
 Usage: cardano-cli conway governance drep key-gen --verification-key-file FILE
                                                     --signing-key-file FILE
 
-  Generate Delegate Representative verification and signing keys.
+  Generate Delegated Representative verification and signing keys.
 
 Usage: cardano-cli conway governance drep id 
                                                ( --drep-verification-key STRING

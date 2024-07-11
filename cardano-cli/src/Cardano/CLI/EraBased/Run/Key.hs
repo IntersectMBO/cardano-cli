@@ -84,13 +84,13 @@ ccHotVkeyDesc :: TextEnvelopeDescr
 ccHotVkeyDesc = "Constitutional Committee Hot Verification Key"
 
 drepSkeyDesc :: TextEnvelopeDescr
-drepSkeyDesc = "Delegate Representative Signing Key"
+drepSkeyDesc = "Delegated Representative Signing Key"
 
 drepExtendedSkeyDesc :: TextEnvelopeDescr
-drepExtendedSkeyDesc = "Delegate Representative Extended Signing Key"
+drepExtendedSkeyDesc = "Delegated Representative Extended Signing Key"
 
 drepVkeyDesc :: TextEnvelopeDescr
-drepVkeyDesc = "Delegate Representative Verification Key"
+drepVkeyDesc = "Delegated Representative Verification Key"
 
 genesisVkeyDesc :: TextEnvelopeDescr
 genesisVkeyDesc = "Genesis Verification Key"

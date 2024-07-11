@@ -185,7 +185,7 @@ hprop_golden_convert_cardano_address_cc_drep = do
   let supplyValues =
         [ ("cc_cold.key", "--cc-cold-key", "Constitutional Committee Cold")
         , ("cc_hot.key",  "--cc-hot-key",  "Constitutional Committee Hot")
-        , ("drep.key",    "--drep-key",    "Delegate Representative")
+        , ("drep.key",    "--drep-key",    "Delegated Representative")
         ]
 
   propertyOnce $ forM_ supplyValues $ \(filename, flag, descPrefix) -> H.moduleWorkspace "tmp" $ \tempDir -> do
