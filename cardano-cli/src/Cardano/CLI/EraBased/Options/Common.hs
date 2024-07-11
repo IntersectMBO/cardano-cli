@@ -3140,7 +3140,7 @@ pVoterType :: Parser VType
 pVoterType =
   asum
    [  flag' VCC $ mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
-   ,  flag' VDR $ mconcat [long "drep", Opt.help "Delegate representative"]
+   ,  flag' VDR $ mconcat [long "drep", Opt.help "Delegated representative"]
    ,  flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
    ]
 

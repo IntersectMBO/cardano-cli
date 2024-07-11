@@ -13,7 +13,7 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  key-gen                  Generate Delegate Representative verification and
+  key-gen                  Generate Delegated Representative verification and
                            signing keys.
   id                       Generate a drep id.
   registration-certificate Create a registration certificate.
