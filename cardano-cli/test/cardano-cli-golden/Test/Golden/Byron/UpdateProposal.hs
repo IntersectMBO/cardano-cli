@@ -2,9 +2,8 @@
 
 module Test.Golden.Byron.UpdateProposal where
 
-import           Cardano.CLI.Pretty
-
 import           Cardano.CLI.Byron.UpdateProposal
+import           Cardano.CLI.Pretty
 
 import           Control.Monad (void)
 import           Control.Monad.Trans.Except (runExceptT)
@@ -22,28 +21,40 @@ hprop_byron_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir 
   expectedUpdateProposal <- noteInputFile "test/cardano-cli-golden/files/input/byron/update-proposal"
   signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
   createdUpdateProposal <- noteTempFile tempDir "byron-update-proposal"
-  void $ execCardanoCLI
-    [ "byron", "governance", "create-update-proposal"
-    , "--mainnet"
-    , "--signing-key", signingKey
-    , "--protocol-version-major", "1"
-    , "--protocol-version-minor", "0"
-    , "--protocol-version-alt", "0"
-    , "--application-name", "cardano-sl"
-    , "--software-version-num", "1"
-    , "--system-tag", "linux"
-    , "--installer-hash", "0"
-    , "--filepath", createdUpdateProposal
-    ]
+  void $
+    execCardanoCLI
+      [ "byron"
+      , "governance"
+      , "create-update-proposal"
+      , "--mainnet"
+      , "--signing-key"
+      , signingKey
+      , "--protocol-version-major"
+      , "1"
+      , "--protocol-version-minor"
+      , "0"
+      , "--protocol-version-alt"
+      , "0"
+      , "--application-name"
+      , "cardano-sl"
+      , "--software-version-num"
+      , "1"
+      , "--system-tag"
+      , "linux"
+      , "--installer-hash"
+      , "0"
+      , "--filepath"
+      , createdUpdateProposal
+      ]
 
   eExpected <- liftIO . runExceptT $ readByronUpdateProposal expectedUpdateProposal
   expected <- case eExpected of
-              Left err -> failWith Nothing . docToString $ renderByronUpdateProposalError err
-              Right prop -> return prop
+    Left err -> failWith Nothing . docToString $ renderByronUpdateProposalError err
+    Right prop -> return prop
 
   eCreated <- liftIO . runExceptT $ readByronUpdateProposal createdUpdateProposal
   created <- case eCreated of
-               Left err -> failWith Nothing . docToString $ renderByronUpdateProposalError err
-               Right prop -> return prop
+    Left err -> failWith Nothing . docToString $ renderByronUpdateProposalError err
+    Right prop -> return prop
 
   expected === created

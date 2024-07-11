@@ -3,13 +3,14 @@
 
 -- | This module defines constants derived from the environment.
 module Cardano.CLI.Environment
-  ( EnvCli(..)
+  ( EnvCli (..)
   , envCliAnyShelleyBasedEra
   , envCliAnyShelleyToBabbageEra
   , getEnvCli
   , getEnvNetworkId
   , getEnvSocketPath
-  ) where
+  )
+where
 
 import           Cardano.Api (AnyCardanoEra (..), CardanoEra (..), EraInEon (..), NetworkId (..),
                    NetworkMagic (..), ShelleyBasedEra (..), ShelleyToBabbageEra (..),
@@ -32,11 +33,12 @@ getEnvCli = do
   mSocketPath <- getEnvSocketPath
   mCardanoEra <- getCardanoEra
 
-  pure EnvCli
-    { envCliNetworkId = mNetworkId
-    , envCliSocketPath = mSocketPath
-    , envCliAnyCardanoEra = mCardanoEra
-    }
+  pure
+    EnvCli
+      { envCliNetworkId = mNetworkId
+      , envCliSocketPath = mSocketPath
+      , envCliAnyCardanoEra = mCardanoEra
+      }
 
 envCliAnyShelleyBasedEra :: EnvCli -> Maybe (EraInEon ShelleyBasedEra)
 envCliAnyShelleyBasedEra envCli = do
@@ -63,10 +65,11 @@ getEnvNetworkId = do
           case readMaybe @Word32 networkIdString of
             Just networkId -> pure $ Just $ Testnet $ NetworkMagic networkId
             Nothing -> do
-              IO.hPutStrLn IO.stderr $ mconcat
-                [ "The network id specified in CARDANO_NODE_NETWORK_ID invalid: " <> networkIdString
-                , " It should be either 'mainnet' or a number."
-                ]
+              IO.hPutStrLn IO.stderr $
+                mconcat
+                  [ "The network id specified in CARDANO_NODE_NETWORK_ID invalid: " <> networkIdString
+                  , " It should be either 'mainnet' or a number."
+                  ]
               pure Nothing
 
 -- | If the environment variable @CARDANO_NODE_SOCKET_PATH@ is set, then return the set value.
@@ -91,5 +94,4 @@ getCardanoEra = do
         "babbage" -> pure $ Just $ AnyCardanoEra BabbageEra
         "conway" -> pure $ Just $ AnyCardanoEra ConwayEra
         unknown -> error $ "Unknown era: " <> unknown -- TODO improve error handling
-
     Nothing -> pure Nothing

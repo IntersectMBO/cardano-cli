@@ -12,14 +12,20 @@ import qualified Hedgehog.Extras.Test.File as H
 
 hprop_golden_shelleyGenesisKeyHash :: Property
 hprop_golden_shelleyGenesisKeyHash = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  referenceVerificationKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_keys/verification_key"
-  goldenGenesisVerificationKeyHashFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_keys/verification_key.key-hash"
+  referenceVerificationKey <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_keys/verification_key"
+  goldenGenesisVerificationKeyHashFile <-
+    noteInputFile
+      "test/cardano-cli-golden/files/input/shelley/keys/genesis_keys/verification_key.key-hash"
   genesisVerificationKeyHashFile <- noteTempFile tempDir "key-hash.hex"
 
-  genesisVerificationKeyHash <- execCardanoCLI
-    [ "genesis","key-hash"
-    , "--verification-key-file", referenceVerificationKey
-    ]
+  genesisVerificationKeyHash <-
+    execCardanoCLI
+      [ "genesis"
+      , "key-hash"
+      , "--verification-key-file"
+      , referenceVerificationKey
+      ]
 
   H.writeFile genesisVerificationKeyHashFile genesisVerificationKeyHash
 

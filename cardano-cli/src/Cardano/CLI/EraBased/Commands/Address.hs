@@ -4,7 +4,8 @@
 module Cardano.CLI.EraBased.Commands.Address
   ( AddressCmds (..)
   , renderAddressCmds
-  ) where
+  )
+where
 
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
@@ -36,7 +37,7 @@ data AddressCmds era
 
 renderAddressCmds :: AddressCmds era -> Text
 renderAddressCmds = \case
-  AddressKeyGen {} -> "address key-gen"
-  AddressKeyHash {} -> "address key-hash"
-  AddressBuild {} -> "address build"
-  AddressInfo {} -> "address info"
+  AddressKeyGen{} -> "address key-gen"
+  AddressKeyHash{} -> "address key-hash"
+  AddressBuild{} -> "address build"
+  AddressInfo{} -> "address info"

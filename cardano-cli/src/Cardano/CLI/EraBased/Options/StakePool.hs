@@ -8,7 +8,8 @@
 
 module Cardano.CLI.EraBased.Options.StakePool
   ( pStakePoolCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -19,30 +20,33 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
-pStakePoolCmds :: ()
+pStakePoolCmds
+  :: ()
   => CardanoEra era
   -> EnvCli
   -> Maybe (Parser (Cmd.StakePoolCmds era))
 pStakePoolCmds era envCli =
-  subInfoParser "stake-pool"
-    ( Opt.progDesc
-        $ mconcat
+  subInfoParser
+    "stake-pool"
+    ( Opt.progDesc $
+        mconcat
           [ "Stake pool commands."
           ]
     )
     [ pStakePoolRegistrationCertificateCmd era envCli
     , pStakePoolDeregistrationCertificateCmd era
-    , Just
-        $ subParser "id"
-        $ Opt.info pStakePoolId
-        $ Opt.progDesc "Build pool id from the offline key"
-    , Just
-        $ subParser "metadata-hash"
-        $ Opt.info pStakePoolMetadataHashCmd
-        $ Opt.progDesc "Print the hash of pool metadata."
+    , Just $
+        subParser "id" $
+          Opt.info pStakePoolId $
+            Opt.progDesc "Build pool id from the offline key"
+    , Just $
+        subParser "metadata-hash" $
+          Opt.info pStakePoolMetadataHashCmd $
+            Opt.progDesc "Print the hash of pool metadata."
     ]
 
-pStakePoolId :: ()
+pStakePoolId
+  :: ()
   => Parser (Cmd.StakePoolCmds era)
 pStakePoolId =
   fmap Cmd.StakePoolIdCmd $
@@ -51,7 +55,8 @@ pStakePoolId =
       <*> pPoolIdOutputFormat
       <*> pMaybeOutputFile
 
-pStakePoolMetadataHashCmd :: ()
+pStakePoolMetadataHashCmd
+  :: ()
   => Parser (Cmd.StakePoolCmds era)
 pStakePoolMetadataHashCmd =
   fmap Cmd.StakePoolMetadataHashCmd $
@@ -59,7 +64,8 @@ pStakePoolMetadataHashCmd =
       <$> pPoolMetadataFile
       <*> pMaybeOutputFile
 
-pStakePoolRegistrationCertificateCmd :: ()
+pStakePoolRegistrationCertificateCmd
+  :: ()
   => CardanoEra era
   -> EnvCli
   -> Maybe (Parser (Cmd.StakePoolCmds era))
@@ -68,23 +74,24 @@ pStakePoolRegistrationCertificateCmd era envCli = do
   pure
     $ subParser "registration-certificate"
     $ Opt.info
-        ( fmap Cmd.StakePoolRegistrationCertificateCmd $
-            Cmd.StakePoolRegistrationCertificateCmdArgs w
-              <$> pStakePoolVerificationKeyOrFile Nothing
-              <*> pVrfVerificationKeyOrFile
-              <*> pPoolPledge
-              <*> pPoolCost
-              <*> pPoolMargin
-              <*> pRewardAcctVerificationKeyOrFile
-              <*> some pPoolOwnerVerificationKeyOrFile
-              <*> many pPoolRelay
-              <*> pStakePoolMetadataReference
-              <*> pNetworkId envCli
-              <*> pOutputFile
-        )
+      ( fmap Cmd.StakePoolRegistrationCertificateCmd $
+          Cmd.StakePoolRegistrationCertificateCmdArgs w
+            <$> pStakePoolVerificationKeyOrFile Nothing
+            <*> pVrfVerificationKeyOrFile
+            <*> pPoolPledge
+            <*> pPoolCost
+            <*> pPoolMargin
+            <*> pRewardAcctVerificationKeyOrFile
+            <*> some pPoolOwnerVerificationKeyOrFile
+            <*> many pPoolRelay
+            <*> pStakePoolMetadataReference
+            <*> pNetworkId envCli
+            <*> pOutputFile
+      )
     $ Opt.progDesc "Create a stake pool registration certificate"
 
-pStakePoolDeregistrationCertificateCmd :: ()
+pStakePoolDeregistrationCertificateCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (Cmd.StakePoolCmds era))
 pStakePoolDeregistrationCertificateCmd era = do
@@ -92,10 +99,10 @@ pStakePoolDeregistrationCertificateCmd era = do
   pure
     $ subParser "deregistration-certificate"
     $ Opt.info
-        ( fmap Cmd.StakePoolDeregistrationCertificateCmd $
-            Cmd.StakePoolDeregistrationCertificateCmdArgs w
-              <$> pStakePoolVerificationKeyOrFile Nothing
-              <*> pEpochNo "The epoch number."
-              <*> pOutputFile
-        )
+      ( fmap Cmd.StakePoolDeregistrationCertificateCmd $
+          Cmd.StakePoolDeregistrationCertificateCmdArgs w
+            <$> pStakePoolVerificationKeyOrFile Nothing
+            <*> pEpochNo "The epoch number."
+            <*> pOutputFile
+      )
     $ Opt.progDesc "Create a stake pool deregistration certificate"

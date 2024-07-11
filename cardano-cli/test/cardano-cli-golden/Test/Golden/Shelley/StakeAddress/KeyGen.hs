@@ -17,11 +17,15 @@ hprop_golden_shelleyStakeAddressKeyGen = propertyOnce . H.moduleWorkspace "tmp" 
   verificationKeyFile <- noteTempFile tempDir "kes.vkey"
   signingKeyFile <- noteTempFile tempDir "kes.skey"
 
-  void $ execCardanoCLI
-    [ "stake-address","key-gen"
-    , "--verification-key-file", verificationKeyFile
-    , "--signing-key-file", signingKeyFile
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "key-gen"
+      , "--verification-key-file"
+      , verificationKeyFile
+      , "--signing-key-file"
+      , signingKeyFile
+      ]
 
   H.assertFileOccurences 1 "StakeVerificationKeyShelley_ed25519" verificationKeyFile
   H.assertFileOccurences 1 "StakeSigningKeyShelley_ed25519" signingKeyFile

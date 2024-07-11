@@ -4,7 +4,8 @@
 
 module Test.Golden.Shelley.Genesis.Create
   ( hprop_golden_shelleyGenesisCreate
-  ) where
+  )
+where
 
 import           Control.Monad (void)
 import qualified Data.Aeson as J
@@ -63,16 +64,19 @@ parseHashKeys = J.withObject "Object" $ \o -> do
   pure $ fmap fst (HM.toList delegates)
 
 parseTotalSupply :: J.Value -> J.Parser Int
-parseTotalSupply = J.withObject "Object" $ \ o -> do
+parseTotalSupply = J.withObject "Object" $ \o -> do
   initialFunds <- (o J..: "initialFunds") >>= parseHashMap
   fmap sum (sequence (fmap (J.parseJSON @Int . snd) (HM.toList initialFunds)))
 
 hprop_golden_shelleyGenesisCreate :: Property
 hprop_golden_shelleyGenesisCreate = propertyOnce $ do
   H.moduleWorkspace "tmp" $ \tempDir -> do
-    sourceGenesisSpecFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
-    sourceAlonzoGenesisSpecFile <- noteInputFile "test/cardano-cli-golden/files/input/alonzo/genesis.alonzo.spec.json"
-    sourceConwayGenesisSpecFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/genesis.conway.spec.json"
+    sourceGenesisSpecFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
+    sourceAlonzoGenesisSpecFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/alonzo/genesis.alonzo.spec.json"
+    sourceConwayGenesisSpecFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/conway/genesis.conway.spec.json"
 
     genesisSpecFile <- noteTempFile tempDir "genesis.spec.json"
     alonzoSpecFile <- noteTempFile tempDir "genesis.alonzo.spec.json"
@@ -91,94 +95,22 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
     (utxoCount, fmtUtxoCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
 
     -- Create the genesis json file and required keys
-    void $ execCardanoCLI
-      [ "genesis","create"
-      , "--testnet-magic", "12"
-      , "--start-time", fmtStartTime
-      , "--supply", fmtSupply
-      , "--gen-genesis-keys", fmtDelegateCount
-      , "--gen-utxo-keys", fmtUtxoCount
-      , "--genesis-dir", tempDir
-      ]
-
-    H.assertFilesExist [genesisFile]
-
-    genesisContents <- H.evalIO $ LBS.readFile genesisFile
-
-    actualJson <- H.evalEither $ J.eitherDecode genesisContents
-    actualSupply <- H.evalEither $ J.parseEither parseMaxLovelaceSupply actualJson
-    actualStartTime <- H.evalEither $ J.parseEither parseSystemStart actualJson
-    actualDelegateCount <- H.evalEither $ J.parseEither parseDelegateCount actualJson
-    actualTotalSupply <- H.evalEither $ J.parseEither parseTotalSupply actualJson
-    actualHashKeys <- H.evalEither $ J.parseEither parseHashKeys actualJson
-    actualDelegateKeys <- H.evalEither $ J.parseEither parseDelegateKeys actualJson
-
-    actualSupply === supply
-    actualStartTime === fmtStartTime
-    actualDelegateCount === delegateCount
-    actualDelegateCount === utxoCount
-    actualTotalSupply === supply - 1_000_000 -- Check that the sum of the initial fund amounts matches the total supply
-                                             -- We don't use the entire supply so there is ada in the treasury. This is
-                                             -- required for stake pool rewards.
-
-    -- Check uniqueness and count of hash keys
-    S.size (S.fromList actualHashKeys) === length actualHashKeys -- This isn't strictly necessary because we use aeson which guarantees uniqueness of keys
-    S.size (S.fromList actualHashKeys) === delegateCount
-
-    -- Check uniqueness and count of hash keys
-    S.size (S.fromList actualDelegateKeys) === length actualDelegateKeys
-    S.size (S.fromList actualDelegateKeys) === delegateCount
-
-    for_ [1 .. delegateCount] $ \i -> do
-      -- Check Genesis keys
-      assertHasMappings [("type", "GenesisVerificationKey_ed25519")] $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
-      assertHasMappings [("type", "GenesisSigningKey_ed25519")] $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
-
-      H.assertEndsWithSingleNewline $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
-      H.assertEndsWithSingleNewline $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
-
-      -- Check delegate keys
-      assertHasMappings [("type", "GenesisDelegateSigningKey_ed25519")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
-      assertHasMappings [("type", "GenesisDelegateVerificationKey_ed25519")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
-      assertHasMappings [("type", "NodeOperationalCertificateIssueCounter")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
-
-      H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
-      H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
-      H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
-
-      -- Check utxo keys
-      assertHasMappings [("type", "GenesisUTxOSigningKey_ed25519")] $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
-      assertHasMappings [("type", "GenesisUTxOVerificationKey_ed25519")]  $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
-
-      H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
-      H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
-
-  H.moduleWorkspace "tmp" $ \tempDir -> do
-    let genesisFile = tempDir <> "/genesis.json"
-
-    fmtStartTime <- fmap H.formatIso8601 $ H.evalIO DT.getCurrentTime
-
-    (supply, fmtSupply) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 10_000_000 4_000_000_000)
-    (delegateCount, fmtDelegateCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
-    (utxoCount, fmtUtxoCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
-
-    sourceAlonzoGenesisSpecFile <- noteInputFile "test/cardano-cli-golden/files/input/alonzo/genesis.alonzo.spec.json"
-    alonzoSpecFile <- noteTempFile tempDir "genesis.alonzo.spec.json"
-    H.copyFile sourceAlonzoGenesisSpecFile alonzoSpecFile
-
-    sourceConwayGenesisSpecFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/genesis.conway.spec.json"
-    conwaySpecFile <- noteTempFile tempDir "genesis.conway.spec.json"
-    H.copyFile sourceConwayGenesisSpecFile conwaySpecFile
-
-    -- Create the genesis json file and required keys
-    void $ execCardanoCLI
-        [ "genesis","create"
-        , "--testnet-magic", "12"
-        , "--start-time", fmtStartTime
-        , "--supply", fmtSupply
-        , "--gen-genesis-keys", fmtDelegateCount
-        , "--gen-utxo-keys", fmtUtxoCount
-        , "--genesis-dir", tempDir
+    void $
+      execCardanoCLI
+        [ "genesis"
+        , "create"
+        , "--testnet-magic"
+        , "12"
+        , "--start-time"
+        , fmtStartTime
+        , "--supply"
+        , fmtSupply
+        , "--gen-genesis-keys"
+        , fmtDelegateCount
+        , "--gen-utxo-keys"
+        , fmtUtxoCount
+        , "--genesis-dir"
+        , tempDir
         ]
 
     H.assertFilesExist [genesisFile]
@@ -197,9 +129,10 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
     actualStartTime === fmtStartTime
     actualDelegateCount === delegateCount
     actualDelegateCount === utxoCount
-    actualTotalSupply === supply - 1_000_000  -- Check that the sum of the initial fund amounts matches the total supply
-                                            -- We don't use the entire supply so there is ada in the treasury. This is
-                                            -- required for stake pool rewards.
+    actualTotalSupply === supply - 1_000_000 -- Check that the sum of the initial fund amounts matches the total supply
+    -- We don't use the entire supply so there is ada in the treasury. This is
+    -- required for stake pool rewards.
+
     -- Check uniqueness and count of hash keys
     S.size (S.fromList actualHashKeys) === length actualHashKeys -- This isn't strictly necessary because we use aeson which guarantees uniqueness of keys
     S.size (S.fromList actualHashKeys) === delegateCount
@@ -210,24 +143,127 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
 
     for_ [1 .. delegateCount] $ \i -> do
       -- Check Genesis keys
-      assertHasMappings [("type", "GenesisSigningKey_ed25519")] $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
-      assertHasMappings [("type", "GenesisVerificationKey_ed25519")] $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
+      assertHasMappings [("type", "GenesisVerificationKey_ed25519")] $
+        tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
+      assertHasMappings [("type", "GenesisSigningKey_ed25519")] $
+        tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
 
       H.assertEndsWithSingleNewline $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
       H.assertEndsWithSingleNewline $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
 
       -- Check delegate keys
-      assertHasMappings [("type", "GenesisDelegateSigningKey_ed25519")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
-      assertHasMappings [("type", "GenesisDelegateVerificationKey_ed25519")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
-      assertHasMappings [("type", "NodeOperationalCertificateIssueCounter")] $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
+      assertHasMappings [("type", "GenesisDelegateSigningKey_ed25519")] $
+        tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
+      assertHasMappings [("type", "GenesisDelegateVerificationKey_ed25519")] $
+        tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
+      assertHasMappings [("type", "NodeOperationalCertificateIssueCounter")] $
+        tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
 
       H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
       H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
       H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
 
       -- Check utxo keys
-      assertHasMappings [("type", "GenesisUTxOSigningKey_ed25519")] $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
-      assertHasMappings [("type", "GenesisUTxOVerificationKey_ed25519")]  $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
+      assertHasMappings [("type", "GenesisUTxOSigningKey_ed25519")] $
+        tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
+      assertHasMappings [("type", "GenesisUTxOVerificationKey_ed25519")] $
+        tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
+
+      H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
+      H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
+
+  H.moduleWorkspace "tmp" $ \tempDir -> do
+    let genesisFile = tempDir <> "/genesis.json"
+
+    fmtStartTime <- fmap H.formatIso8601 $ H.evalIO DT.getCurrentTime
+
+    (supply, fmtSupply) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 10_000_000 4_000_000_000)
+    (delegateCount, fmtDelegateCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
+    (utxoCount, fmtUtxoCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
+
+    sourceAlonzoGenesisSpecFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/alonzo/genesis.alonzo.spec.json"
+    alonzoSpecFile <- noteTempFile tempDir "genesis.alonzo.spec.json"
+    H.copyFile sourceAlonzoGenesisSpecFile alonzoSpecFile
+
+    sourceConwayGenesisSpecFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/conway/genesis.conway.spec.json"
+    conwaySpecFile <- noteTempFile tempDir "genesis.conway.spec.json"
+    H.copyFile sourceConwayGenesisSpecFile conwaySpecFile
+
+    -- Create the genesis json file and required keys
+    void $
+      execCardanoCLI
+        [ "genesis"
+        , "create"
+        , "--testnet-magic"
+        , "12"
+        , "--start-time"
+        , fmtStartTime
+        , "--supply"
+        , fmtSupply
+        , "--gen-genesis-keys"
+        , fmtDelegateCount
+        , "--gen-utxo-keys"
+        , fmtUtxoCount
+        , "--genesis-dir"
+        , tempDir
+        ]
+
+    H.assertFilesExist [genesisFile]
+
+    genesisContents <- H.evalIO $ LBS.readFile genesisFile
+
+    actualJson <- H.evalEither $ J.eitherDecode genesisContents
+    actualSupply <- H.evalEither $ J.parseEither parseMaxLovelaceSupply actualJson
+    actualStartTime <- H.evalEither $ J.parseEither parseSystemStart actualJson
+    actualDelegateCount <- H.evalEither $ J.parseEither parseDelegateCount actualJson
+    actualTotalSupply <- H.evalEither $ J.parseEither parseTotalSupply actualJson
+    actualHashKeys <- H.evalEither $ J.parseEither parseHashKeys actualJson
+    actualDelegateKeys <- H.evalEither $ J.parseEither parseDelegateKeys actualJson
+
+    actualSupply === supply
+    actualStartTime === fmtStartTime
+    actualDelegateCount === delegateCount
+    actualDelegateCount === utxoCount
+    actualTotalSupply === supply - 1_000_000 -- Check that the sum of the initial fund amounts matches the total supply
+    -- We don't use the entire supply so there is ada in the treasury. This is
+    -- required for stake pool rewards.
+    -- Check uniqueness and count of hash keys
+    S.size (S.fromList actualHashKeys) === length actualHashKeys -- This isn't strictly necessary because we use aeson which guarantees uniqueness of keys
+    S.size (S.fromList actualHashKeys) === delegateCount
+
+    -- Check uniqueness and count of hash keys
+    S.size (S.fromList actualDelegateKeys) === length actualDelegateKeys
+    S.size (S.fromList actualDelegateKeys) === delegateCount
+
+    for_ [1 .. delegateCount] $ \i -> do
+      -- Check Genesis keys
+      assertHasMappings [("type", "GenesisSigningKey_ed25519")] $
+        tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
+      assertHasMappings [("type", "GenesisVerificationKey_ed25519")] $
+        tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
+
+      H.assertEndsWithSingleNewline $ tempDir <> "/genesis-keys/genesis" <> show i <> ".skey"
+      H.assertEndsWithSingleNewline $ tempDir <> "/genesis-keys/genesis" <> show i <> ".vkey"
+
+      -- Check delegate keys
+      assertHasMappings [("type", "GenesisDelegateSigningKey_ed25519")] $
+        tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
+      assertHasMappings [("type", "GenesisDelegateVerificationKey_ed25519")] $
+        tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
+      assertHasMappings [("type", "NodeOperationalCertificateIssueCounter")] $
+        tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
+
+      H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".skey"
+      H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".vkey"
+      H.assertEndsWithSingleNewline $ tempDir <> "/delegate-keys/delegate" <> show i <> ".counter"
+
+      -- Check utxo keys
+      assertHasMappings [("type", "GenesisUTxOSigningKey_ed25519")] $
+        tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
+      assertHasMappings [("type", "GenesisUTxOVerificationKey_ed25519")] $
+        tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
 
       H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
       H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"

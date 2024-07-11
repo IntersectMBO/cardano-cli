@@ -19,9 +19,14 @@ import qualified Hedgehog.Extras.Test.Base as H
 hprop_golden_shelleyGenesisDelegateKeys :: Property
 hprop_golden_shelleyGenesisDelegateKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/signing_key"
-  referenceOpCertCounter <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/operational_certificate_counter"
+  referenceVerKey <-
+    noteInputFile
+      "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/verification_key"
+  referenceSignKey <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/signing_key"
+  referenceOpCertCounter <-
+    noteInputFile
+      "test/cardano-cli-golden/files/input/shelley/keys/genesis_delegate_keys/operational_certificate_counter"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "genesis-delegate-verification-key-file"
@@ -29,12 +34,17 @@ hprop_golden_shelleyGenesisDelegateKeys = propertyOnce . H.moduleWorkspace "tmp"
   opCertCounter <- noteTempFile tempDir "delegate-operational-cert-counter-file"
 
   -- Generate payment verification key
-  void $ execCardanoCLI
-    [ "genesis","key-gen-delegate"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    , "--operational-certificate-issue-counter-file", opCertCounter
-    ]
+  void $
+    execCardanoCLI
+      [ "genesis"
+      , "key-gen-delegate"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      , "--operational-certificate-issue-counter-file"
+      , opCertCounter
+      ]
 
   let signingKeyType = textEnvelopeType (AsSigningKey AsGenesisDelegateKey)
       verificationKeyType = textEnvelopeType (AsVerificationKey AsGenesisDelegateKey)

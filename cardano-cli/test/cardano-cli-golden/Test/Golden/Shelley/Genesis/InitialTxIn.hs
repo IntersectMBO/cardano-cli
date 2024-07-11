@@ -12,12 +12,19 @@ import qualified Hedgehog.Extras.Test.Golden as H
 
 hprop_golden_shelleyGenesisInitialTxIn :: Property
 hprop_golden_shelleyGenesisInitialTxIn = propertyOnce $ do
-  verificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_verification_keys/genesis-utxo.vkey"
-  goldenUtxoHashFile <- H.note "test/cardano-cli-golden/files/golden/shelley/keys/genesis_utxo_hashes/utxo_hash"
-  utxoHash <- execCardanoCLI
-    [ "genesis","initial-txin"
-    , "--testnet-magic", "16"
-    , "--verification-key-file", verificationKeyFile
-    ]
+  verificationKeyFile <-
+    noteInputFile
+      "test/cardano-cli-golden/files/input/shelley/keys/genesis_verification_keys/genesis-utxo.vkey"
+  goldenUtxoHashFile <-
+    H.note "test/cardano-cli-golden/files/golden/shelley/keys/genesis_utxo_hashes/utxo_hash"
+  utxoHash <-
+    execCardanoCLI
+      [ "genesis"
+      , "initial-txin"
+      , "--testnet-magic"
+      , "16"
+      , "--verification-key-file"
+      , verificationKeyFile
+      ]
 
   H.diffVsGoldenFile utxoHash goldenUtxoHashFile

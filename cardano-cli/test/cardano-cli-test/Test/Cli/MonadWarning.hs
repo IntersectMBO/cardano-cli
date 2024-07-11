@@ -1,6 +1,7 @@
 module Test.Cli.MonadWarning
   ( hprop_monad_warning
-  ) where
+  )
+where
 
 import           Cardano.CLI.Types.MonadWarning (MonadWarning, reportIssue, runWarningStateT)
 
@@ -13,14 +14,14 @@ hprop_monad_warning :: Property
 hprop_monad_warning = property $ do
   (-8, [warning]) === duplicateNumber (-4)
   (4, []) === duplicateNumber 2
-  where
-    duplicateNumber :: Int -> (Int, [String])
-    duplicateNumber n = runState (runWarningStateT $ computeWithWarning n :: State [String] Int) []
+ where
+  duplicateNumber :: Int -> (Int, [String])
+  duplicateNumber n = runState (runWarningStateT $ computeWithWarning n :: State [String] Int) []
 
-    computeWithWarning :: (MonadWarning m) => Int -> m Int
-    computeWithWarning x = do
-      when (x < 0) $ reportIssue warning
-      return (x * 2)
+  computeWithWarning :: MonadWarning m => Int -> m Int
+  computeWithWarning x = do
+    when (x < 0) $ reportIssue warning
+    return (x * 2)
 
-    warning :: String
-    warning = "Input value is negative!"
+  warning :: String
+  warning = "Input value is negative!"

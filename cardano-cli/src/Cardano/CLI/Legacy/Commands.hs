@@ -3,7 +3,8 @@
 module Cardano.CLI.Legacy.Commands
   ( LegacyCmds (..)
   , renderLegacyCommand
-  ) where
+  )
+where
 
 import           Cardano.CLI.Legacy.Commands.Address
 import           Cardano.CLI.Legacy.Commands.Genesis
@@ -19,16 +20,16 @@ import           Cardano.CLI.Legacy.Commands.Transaction
 import           Data.Text (Text)
 
 data LegacyCmds
-  = LegacyAddressCmds       LegacyAddressCmds
-  | LegacyGenesisCmds       LegacyGenesisCmds
-  | LegacyGovernanceCmds    LegacyGovernanceCmds
-  | LegacyKeyCmds           LegacyKeyCmds
-  | LegacyNodeCmds          LegacyNodeCmds
-  | LegacyQueryCmds         LegacyQueryCmds
-  | LegacyStakeAddressCmds  LegacyStakeAddressCmds
-  | LegacyStakePoolCmds     LegacyStakePoolCmds
-  | LegacyTextViewCmds      LegacyTextViewCmds
-  | LegacyTransactionCmds   LegacyTransactionCmds
+  = LegacyAddressCmds LegacyAddressCmds
+  | LegacyGenesisCmds LegacyGenesisCmds
+  | LegacyGovernanceCmds LegacyGovernanceCmds
+  | LegacyKeyCmds LegacyKeyCmds
+  | LegacyNodeCmds LegacyNodeCmds
+  | LegacyQueryCmds LegacyQueryCmds
+  | LegacyStakeAddressCmds LegacyStakeAddressCmds
+  | LegacyStakePoolCmds LegacyStakePoolCmds
+  | LegacyTextViewCmds LegacyTextViewCmds
+  | LegacyTransactionCmds LegacyTransactionCmds
 
 renderLegacyCommand :: LegacyCmds -> Text
 renderLegacyCommand = \case

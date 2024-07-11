@@ -26,8 +26,12 @@ hprop_golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tm
   let era = BabbageEra -- TODO generate for all eras
 
   -- Reference files
-  referenceRegistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_pool_registration_certificate"
-  referenceDeregistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_pool_deregistration_certificate"
+  referenceRegistrationCertificate <-
+    noteInputFile
+      "test/cardano-cli-golden/files/input/shelley/certificates/stake_pool_registration_certificate"
+  referenceDeregistrationCertificate <-
+    noteInputFile
+      "test/cardano-cli-golden/files/input/shelley/certificates/stake_pool_deregistration_certificate"
 
   -- Key filepaths
   coldVerKey <- noteTempFile tempDir "cold-verification-key-file"
@@ -41,47 +45,70 @@ hprop_golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tm
   deregistrationCertificate <- noteTempFile tempDir "stake-pool-deregistration-certificate"
 
   -- Create cold key pair
-  void $ execCardanoCLI
-    [ "node", "key-gen"
-    , "--cold-verification-key-file", coldVerKey
-    , "--cold-signing-key-file", coldSignKey
-    , "--operational-certificate-issue-counter", operationalCertCounter
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen"
+      , "--cold-verification-key-file"
+      , coldVerKey
+      , "--cold-signing-key-file"
+      , coldSignKey
+      , "--operational-certificate-issue-counter"
+      , operationalCertCounter
+      ]
 
   H.assertFilesExist [coldSignKey, coldVerKey, operationalCertCounter]
 
   -- Generate stake key pair
-  void $ execCardanoCLI
-    [ "stake-address", "key-gen"
-    , "--verification-key-file", poolRewardAccountAndOwnerVerKey
-    , "--signing-key-file", poolRewardAccountSignKey
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "key-gen"
+      , "--verification-key-file"
+      , poolRewardAccountAndOwnerVerKey
+      , "--signing-key-file"
+      , poolRewardAccountSignKey
+      ]
 
   H.assertFilesExist [poolRewardAccountAndOwnerVerKey, poolRewardAccountSignKey]
 
   -- Generate vrf verification key
-  void $ execCardanoCLI
-    [ "node", "key-gen-VRF"
-    , "--verification-key-file", vrfVerKey
-    , "--signing-key-file", vrfSignKey
-    ]
-
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen-VRF"
+      , "--verification-key-file"
+      , vrfVerKey
+      , "--signing-key-file"
+      , vrfSignKey
+      ]
 
   H.assertFilesExist [vrfSignKey, vrfVerKey]
 
   -- Create stake pool registration certificate
-  void $ execCardanoCLI
-    [ "babbage", "stake-pool", "registration-certificate"
-    , "--cold-verification-key-file", coldVerKey
-    , "--vrf-verification-key-file", vrfVerKey
-    , "--mainnet"
-    , "--pool-cost", "1000"
-    , "--pool-pledge", "5000"
-    , "--pool-margin", "0.1"
-    , "--pool-reward-account-verification-key-file", poolRewardAccountAndOwnerVerKey
-    , "--pool-owner-stake-verification-key-file", poolRewardAccountAndOwnerVerKey
-    , "--out-file", registrationCertificate
-    ]
+  void $
+    execCardanoCLI
+      [ "babbage"
+      , "stake-pool"
+      , "registration-certificate"
+      , "--cold-verification-key-file"
+      , coldVerKey
+      , "--vrf-verification-key-file"
+      , vrfVerKey
+      , "--mainnet"
+      , "--pool-cost"
+      , "1000"
+      , "--pool-pledge"
+      , "5000"
+      , "--pool-margin"
+      , "0.1"
+      , "--pool-reward-account-verification-key-file"
+      , poolRewardAccountAndOwnerVerKey
+      , "--pool-owner-stake-verification-key-file"
+      , poolRewardAccountAndOwnerVerKey
+      , "--out-file"
+      , registrationCertificate
+      ]
 
   H.assertFilesExist [registrationCertificate]
 
@@ -89,18 +116,30 @@ hprop_golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tm
 
   -- Check the newly created files have not deviated from the
   -- golden files
-  checkTextEnvelopeFormat registrationCertificateType referenceRegistrationCertificate registrationCertificate
+  checkTextEnvelopeFormat
+    registrationCertificateType
+    referenceRegistrationCertificate
+    registrationCertificate
 
   -- Create stake pool deregistration certificate
-  void $ execCardanoCLI
-    [ "babbage", "stake-pool", "deregistration-certificate"
-    , "--cold-verification-key-file", coldVerKey
-    , "--epoch", "42"
-    , "--out-file", deregistrationCertificate
-    ]
+  void $
+    execCardanoCLI
+      [ "babbage"
+      , "stake-pool"
+      , "deregistration-certificate"
+      , "--cold-verification-key-file"
+      , coldVerKey
+      , "--epoch"
+      , "42"
+      , "--out-file"
+      , deregistrationCertificate
+      ]
 
   H.assertFilesExist [deregistrationCertificate]
 
   -- Check the newly created files have not deviated from the
   -- golden files
-  checkTextEnvelopeFormat registrationCertificateType referenceDeregistrationCertificate deregistrationCertificate
+  checkTextEnvelopeFormat
+    registrationCertificateType
+    referenceDeregistrationCertificate
+    deregistrationCertificate

@@ -3,9 +3,9 @@
 
 module Cardano.CLI.EraBased.Run.TextView
   ( runTextViewCmds
-
   , runTextViewInfoCmd
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -19,7 +19,8 @@ runTextViewCmds :: TextViewCmds era -> ExceptT TextViewFileError IO ()
 runTextViewCmds = \case
   TextViewInfo fpath mOutfile -> runTextViewInfoCmd fpath mOutfile
 
-runTextViewInfoCmd :: ()
+runTextViewInfoCmd
+  :: ()
   => FilePath
   -> Maybe (File () Out)
   -> ExceptT TextViewFileError IO ()

@@ -23,19 +23,25 @@ import qualified Hedgehog.Extras.Test.File as H
 hprop_golden_shelleyStakeKeys :: Property
 hprop_golden_shelleyStakeKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/signing_key"
+  referenceVerKey <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
+  referenceSignKey <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "stake-verification-key-file"
   signKey <- noteTempFile tempDir "stake-signing-key-file"
 
   -- Generate stake key pair
-  void $ execCardanoCLI
-    [ "stake-address","key-gen"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "key-gen"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   let signingKeyType = textEnvelopeType (AsSigningKey AsStakeKey)
       verificationKeyType = textEnvelopeType (AsVerificationKey AsStakeKey)
@@ -51,20 +57,27 @@ hprop_golden_shelleyStakeKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDi
 hprop_golden_shelleyStakeKeys_te :: Property
 hprop_golden_shelleyStakeKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/signing_key"
+  referenceVerKey <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
+  referenceSignKey <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "stake-verification-key-file"
   signKey <- noteTempFile tempDir "stake-signing-key-file"
 
   -- Generate stake key pair
-  void $ execCardanoCLI
-    [ "stake-address","key-gen"
-    , "--key-output-format", "text-envelope"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "key-gen"
+      , "--key-output-format"
+      , "text-envelope"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   let signingKeyType = textEnvelopeType (AsSigningKey AsStakeKey)
       verificationKeyType = textEnvelopeType (AsVerificationKey AsStakeKey)
@@ -86,12 +99,17 @@ hprop_golden_shelleyStakeKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ 
   signKeyFile <- noteTempFile tempDir "stake-signing-key-file"
 
   -- Generate stake key pair
-  void $ execCardanoCLI
-    [ "stake-address","key-gen"
-    , "--key-output-format", "bech32"
-    , "--verification-key-file", verKeyFile
-    , "--signing-key-file", signKeyFile
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "key-gen"
+      , "--key-output-format"
+      , "bech32"
+      , "--verification-key-file"
+      , verKeyFile
+      , "--signing-key-file"
+      , signKeyFile
+      ]
 
   verKey <- H.readFile verKeyFile
   H.assert $ verKey =~ id @String "stake_vk[a-z0-9]{59}"

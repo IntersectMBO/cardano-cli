@@ -4,7 +4,8 @@
 module Cardano.CLI.Legacy.Commands.TextView
   ( LegacyTextViewCmds (..)
   , renderLegacyTextViewCmds
-  ) where
+  )
+where
 
 import           Cardano.Api.Shelley
 

@@ -1,13 +1,15 @@
 {-# LANGUAGE GADTs #-}
 
 module Cardano.CLI.Types.Errors.NodeEraMismatchError
-  ( NodeEraMismatchError(..)
-  ) where
+  ( NodeEraMismatchError (..)
+  )
+where
 
 import           Cardano.Api
 
-data NodeEraMismatchError = forall era nodeEra.
+data NodeEraMismatchError
+  = forall era nodeEra.
   NodeEraMismatchError
-  { era           :: !(CardanoEra era)
-  , nodeEra       :: !(CardanoEra nodeEra)
+  { era :: !(CardanoEra era)
+  , nodeEra :: !(CardanoEra nodeEra)
   }

@@ -5,9 +5,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.ProtocolParamsError
-  ( ProtocolParamsError(..)
+  ( ProtocolParamsError (..)
   , renderProtocolParamsError
-  ) where
+  )
+where
 
 import           Cardano.Api
 

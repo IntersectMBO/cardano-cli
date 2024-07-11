@@ -5,7 +5,8 @@ module Test.Cli.ITN
   , hprop_convertITNExtendedSigningKey
   , hprop_convertITNKeys
   , hprop_golden_bech32Decode
-  ) where
+  )
+where
 
 import           Cardano.CLI.EraBased.Run.Key (decodeBech32)
 
@@ -51,17 +52,25 @@ hprop_convertITNKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   H.assertFilesExist [itnVerKeyFp, itnSignKeyFp]
 
   -- Generate haskell stake verification key
-  void $ execCardanoCLI
-    [ "key","convert-itn-key"
-    , "--itn-verification-key-file", itnVerKeyFp
-    , "--out-file", outputHaskellVerKeyFp
-    ]
+  void $
+    execCardanoCLI
+      [ "key"
+      , "convert-itn-key"
+      , "--itn-verification-key-file"
+      , itnVerKeyFp
+      , "--out-file"
+      , outputHaskellVerKeyFp
+      ]
   -- Generate haskell signing key
-  void $ execCardanoCLI
-    [ "key","convert-itn-key"
-    , "--itn-signing-key-file", itnSignKeyFp
-    , "--out-file", outputHaskellSignKeyFp
-    ]
+  void $
+    execCardanoCLI
+      [ "key"
+      , "convert-itn-key"
+      , "--itn-signing-key-file"
+      , itnSignKeyFp
+      , "--out-file"
+      , outputHaskellSignKeyFp
+      ]
 
   -- Check for existence of the converted ITN keys
   H.assertFilesExist [outputHaskellVerKeyFp, outputHaskellSignKeyFp]
@@ -69,10 +78,11 @@ hprop_convertITNKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
 -- | 1. Convert a bech32 ITN extended signing key to a haskell stake signing key
 hprop_convertITNExtendedSigningKey :: Property
 hprop_convertITNExtendedSigningKey = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  let itnExtendedSignKey = mconcat
-        [ "ed25519e_sk1qpcplz38tg4fusw0fkqljzspe9qmj06ldu9lgcve99v4fphuk9a535kwj"
-        , "f38hkyn0shcycyaha4k9tmjy6xgvzaz7stw5t7rqjadyjcwfyx6k"
-        ]
+  let itnExtendedSignKey =
+        mconcat
+          [ "ed25519e_sk1qpcplz38tg4fusw0fkqljzspe9qmj06ldu9lgcve99v4fphuk9a535kwj"
+          , "f38hkyn0shcycyaha4k9tmjy6xgvzaz7stw5t7rqjadyjcwfyx6k"
+          ]
 
   -- ITN input file paths
   itnSignKeyFp <- noteTempFile tempDir "itnExtendedSignKey.key"
@@ -85,11 +95,15 @@ hprop_convertITNExtendedSigningKey = propertyOnce . H.moduleWorkspace "tmp" $ \t
   H.assertFilesExist [itnSignKeyFp]
 
   -- Generate haskell signing key
-  void $ execCardanoCLI
-    [ "key","convert-itn-extended-key"
-    , "--itn-signing-key-file", itnSignKeyFp
-    , "--out-file", outputHaskellSignKeyFp
-    ]
+  void $
+    execCardanoCLI
+      [ "key"
+      , "convert-itn-extended-key"
+      , "--itn-signing-key-file"
+      , itnSignKeyFp
+      , "--out-file"
+      , outputHaskellSignKeyFp
+      ]
 
   -- Check for existence of the converted ITN keys
   H.assertFilesExist [outputHaskellSignKeyFp]
@@ -97,11 +111,12 @@ hprop_convertITNExtendedSigningKey = propertyOnce . H.moduleWorkspace "tmp" $ \t
 -- | 1. Convert a bech32 ITN BIP32 signing key to a haskell stake signing key
 hprop_convertITNBIP32SigningKey :: Property
 hprop_convertITNBIP32SigningKey = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  let itnExtendedSignKey = mconcat
-        [ "xprv1spkw5suj39723c40mr55gwh7j3vryjv2zdm4e47xs0deka"
-        , "jcza9ud848ckdqf48md9njzc5pkujfxwu2j8wdvtxkx02n3s2qa"
-        , "euhqnfx6zu9dyccpua6vf5x3kur9hsganq2kl0yw7y9hpunts0e9kc5xv3pz0yj"
-        ]
+  let itnExtendedSignKey =
+        mconcat
+          [ "xprv1spkw5suj39723c40mr55gwh7j3vryjv2zdm4e47xs0deka"
+          , "jcza9ud848ckdqf48md9njzc5pkujfxwu2j8wdvtxkx02n3s2qa"
+          , "euhqnfx6zu9dyccpua6vf5x3kur9hsganq2kl0yw7y9hpunts0e9kc5xv3pz0yj"
+          ]
 
   -- ITN input file paths
   itnSignKeyFp <- noteTempFile tempDir "itnBIP32SignKey.key"
@@ -115,11 +130,15 @@ hprop_convertITNBIP32SigningKey = propertyOnce . H.moduleWorkspace "tmp" $ \temp
   H.assertFilesExist [itnSignKeyFp]
 
   -- Generate haskell signing key
-  void $ execCardanoCLI
-    [ "key","convert-itn-bip32-key"
-    , "--itn-signing-key-file", itnSignKeyFp
-    , "--out-file", outputHaskellSignKeyFp
-    ]
+  void $
+    execCardanoCLI
+      [ "key"
+      , "convert-itn-bip32-key"
+      , "--itn-signing-key-file"
+      , itnSignKeyFp
+      , "--out-file"
+      , outputHaskellSignKeyFp
+      ]
 
   -- Check for existence of the converted ITN keys
   H.assertFilesExist [outputHaskellSignKeyFp]
@@ -128,10 +147,10 @@ hprop_convertITNBIP32SigningKey = propertyOnce . H.moduleWorkspace "tmp" $ \temp
 -- using 'itnVerKey' & 'itnSignKey' as inputs.
 hprop_golden_bech32Decode :: Property
 hprop_golden_bech32Decode = propertyOnce $ do
-  (vHumReadPart, vDataPart , _) <- H.evalEither $ decodeBech32 itnVerKey
+  (vHumReadPart, vDataPart, _) <- H.evalEither $ decodeBech32 itnVerKey
   Just vDataPartBase16 <- pure (dataPartToBase16 vDataPart)
 
-  (sHumReadPart, sDataPart , _) <- H.evalEither $ decodeBech32 itnSignKey
+  (sHumReadPart, sDataPart, _) <- H.evalEither $ decodeBech32 itnSignKey
   Just sDataPartBase16 <- pure (dataPartToBase16 sDataPart)
 
   -- Based on https://slowli.github.io/bech32-buffer/ which are in Base16
@@ -142,13 +161,11 @@ hprop_golden_bech32Decode = propertyOnce $ do
 
   -- ITN Verification key decode check
   expectedHumanReadPartVerificationKey === Bech32.humanReadablePartToText vHumReadPart
-  expectedDataPartVerificationKey ===  vDataPartBase16
-
+  expectedDataPartVerificationKey === vDataPartBase16
 
   -- ITN Signing key decode check
   expectedHumanReadPartSigningKey === Bech32.humanReadablePartToText sHumReadPart
   expectedDataPartSigningKey === sDataPartBase16
-
-  where
-    dataPartToBase16 :: Bech32.DataPart -> Maybe ByteString
-    dataPartToBase16 = fmap Base16.encode . Bech32.dataPartToBytes
+ where
+  dataPartToBase16 :: Bech32.DataPart -> Maybe ByteString
+  dataPartToBase16 = fmap Base16.encode . Bech32.dataPartToBytes

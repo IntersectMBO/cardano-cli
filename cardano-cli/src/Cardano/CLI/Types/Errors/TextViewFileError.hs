@@ -2,9 +2,10 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.TextViewFileError
-  ( TextViewFileError(..)
+  ( TextViewFileError (..)
   , renderTextViewFileError
-  ) where
+  )
+where
 
 import           Cardano.Api
 

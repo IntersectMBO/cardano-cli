@@ -2,12 +2,12 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 
 module Cardano.CLI.Legacy.Run.Genesis
   ( runLegacyGenesisCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 import           Cardano.Api.Ledger (Coin (..))
@@ -47,13 +47,15 @@ runLegacyGenesisCmds = \case
   GenesisHashFile gf ->
     runLegacyGenesisHashFileCmd gf
 
-runLegacyGenesisKeyGenGenesisCmd :: ()
+runLegacyGenesisKeyGenGenesisCmd
+  :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisKeyGenGenesisCmd vk sk = CreateTestnetData.runGenesisKeyGenGenesisCmd $ GenesisKeyGenGenesisCmdArgs vk sk
 
-runLegacyGenesisKeyGenDelegateCmd :: ()
+runLegacyGenesisKeyGenDelegateCmd
+  :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> OpCertCounterFile Out
@@ -66,7 +68,8 @@ runLegacyGenesisKeyGenDelegateCmd vkf skf okf =
       , Cmd.opCertCounterPath = okf
       }
 
-runLegacyGenesisKeyGenUTxOCmd :: ()
+runLegacyGenesisKeyGenUTxOCmd
+  :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
@@ -80,8 +83,8 @@ runLegacyGenesisKeyGenUTxOCmd vk sk =
 runLegacyGenesisKeyHashCmd :: VerificationKeyFile In -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisKeyHashCmd = runGenesisKeyHashCmd
 
-runLegacyGenesisVerKeyCmd ::
-     VerificationKeyFile Out
+runLegacyGenesisVerKeyCmd
+  :: VerificationKeyFile Out
   -> SigningKeyFile In
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisVerKeyCmd vk sk =
@@ -91,7 +94,8 @@ runLegacyGenesisVerKeyCmd vk sk =
       , Cmd.signingKeyPath = sk
       }
 
-runLegacyGenesisTxInCmd :: ()
+runLegacyGenesisTxInCmd
+  :: ()
   => VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
@@ -104,7 +108,8 @@ runLegacyGenesisTxInCmd vkt nid mOf =
       , Cmd.mOutFile = mOf
       }
 
-runLegacyGenesisAddrCmd :: ()
+runLegacyGenesisAddrCmd
+  :: ()
   => VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
@@ -117,11 +122,14 @@ runLegacyGenesisAddrCmd vkf nid mOf =
       , Cmd.mOutFile = mOf
       }
 
-runLegacyGenesisCreateCmd :: ()
+runLegacyGenesisCreateCmd
+  :: ()
   => KeyOutputFormat
   -> GenesisDir
-  -> Word  -- ^ num genesis & delegate keys to make
-  -> Word  -- ^ num utxo keys to make
+  -> Word
+  -- ^ num genesis & delegate keys to make
+  -> Word
+  -- ^ num utxo keys to make
   -> Maybe SystemStart
   -> Maybe Coin
   -> NetworkId
@@ -129,93 +137,136 @@ runLegacyGenesisCreateCmd :: ()
 runLegacyGenesisCreateCmd fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
   runGenesisCreateCmd
     Cmd.GenesisCreateCmdArgs
-    { Cmd.keyOutputFormat = fmt
-    , Cmd.genesisDir = genDir
-    , Cmd.numGenesisKeys = nGenKeys
-    , Cmd.numUTxOKeys = nUTxOKeys
-    , Cmd.mSystemStart = mStart
-    , Cmd.mSupply = mSupply
-    , Cmd.network = network
-    }
+      { Cmd.keyOutputFormat = fmt
+      , Cmd.genesisDir = genDir
+      , Cmd.numGenesisKeys = nGenKeys
+      , Cmd.numUTxOKeys = nUTxOKeys
+      , Cmd.mSystemStart = mStart
+      , Cmd.mSupply = mSupply
+      , Cmd.network = network
+      }
 
-runLegacyGenesisCreateCardanoCmd :: ()
+runLegacyGenesisCreateCardanoCmd
+  :: ()
   => GenesisDir
-  -> Word  -- ^ num genesis & delegate keys to make
-  -> Word  -- ^ num utxo keys to make
+  -> Word
+  -- ^ num genesis & delegate keys to make
+  -> Word
+  -- ^ num utxo keys to make
   -> Maybe SystemStart
   -> Maybe Coin
   -> BlockCount
-  -> Word     -- ^ slot length in ms
+  -> Word
+  -- ^ slot length in ms
   -> Rational
   -> NetworkId
-  -> FilePath -- ^ Byron Genesis
-  -> FilePath -- ^ Shelley Genesis
-  -> FilePath -- ^ Alonzo Genesis
-  -> FilePath -- ^ Conway Genesis
+  -> FilePath
+  -- ^ Byron Genesis
+  -> FilePath
+  -- ^ Shelley Genesis
+  -> FilePath
+  -- ^ Alonzo Genesis
+  -> FilePath
+  -- ^ Conway Genesis
   -> Maybe FilePath
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCreateCardanoCmd
-    genDir nGenKeys nUTxOKeys mStart mSupply security slotLength slotCoeff
-    network byronGenesis shelleyGenesis alonzoGenesis conwayGenesis mNodeCfg
-    = runGenesisCreateCardanoCmd
-    Cmd.GenesisCreateCardanoCmdArgs
-    { Cmd.genesisDir = genDir
-    , Cmd.numGenesisKeys = nGenKeys
-    , Cmd.numUTxOKeys = nUTxOKeys
-    , Cmd.mSystemStart = mStart
-    , Cmd.mSupply = mSupply
-    , Cmd.security = security
-    , Cmd.slotLength = slotLength
-    , Cmd.slotCoeff = slotCoeff
-    , Cmd.network = network
-    , Cmd.byronGenesisTemplate = byronGenesis
-    , Cmd.shelleyGenesisTemplate = shelleyGenesis
-    , Cmd.alonzoGenesisTemplate = alonzoGenesis
-    , Cmd.conwayGenesisTemplate = conwayGenesis
-    , Cmd.mNodeConfigTemplate = mNodeCfg
-    }
+  genDir
+  nGenKeys
+  nUTxOKeys
+  mStart
+  mSupply
+  security
+  slotLength
+  slotCoeff
+  network
+  byronGenesis
+  shelleyGenesis
+  alonzoGenesis
+  conwayGenesis
+  mNodeCfg =
+    runGenesisCreateCardanoCmd
+      Cmd.GenesisCreateCardanoCmdArgs
+        { Cmd.genesisDir = genDir
+        , Cmd.numGenesisKeys = nGenKeys
+        , Cmd.numUTxOKeys = nUTxOKeys
+        , Cmd.mSystemStart = mStart
+        , Cmd.mSupply = mSupply
+        , Cmd.security = security
+        , Cmd.slotLength = slotLength
+        , Cmd.slotCoeff = slotCoeff
+        , Cmd.network = network
+        , Cmd.byronGenesisTemplate = byronGenesis
+        , Cmd.shelleyGenesisTemplate = shelleyGenesis
+        , Cmd.alonzoGenesisTemplate = alonzoGenesis
+        , Cmd.conwayGenesisTemplate = conwayGenesis
+        , Cmd.mNodeConfigTemplate = mNodeCfg
+        }
 
-runLegacyGenesisCreateStakedCmd :: ()
-  => KeyOutputFormat    -- ^ key output format
+runLegacyGenesisCreateStakedCmd
+  :: ()
+  => KeyOutputFormat
+  -- ^ key output format
   -> GenesisDir
-  -> Word               -- ^ num genesis & delegate keys to make
-  -> Word               -- ^ num utxo keys to make
-  -> Word               -- ^ num pools to make
-  -> Word               -- ^ num delegators to make
+  -> Word
+  -- ^ num genesis & delegate keys to make
+  -> Word
+  -- ^ num utxo keys to make
+  -> Word
+  -- ^ num pools to make
+  -> Word
+  -- ^ num delegators to make
   -> Maybe SystemStart
-  -> Maybe Coin     -- ^ supply going to non-delegators
-  -> Coin           -- ^ supply going to delegators
+  -> Maybe Coin
+  -- ^ supply going to non-delegators
+  -> Coin
+  -- ^ supply going to delegators
   -> NetworkId
-  -> Word               -- ^ bulk credential files to write
-  -> Word               -- ^ pool credentials per bulk file
-  -> Word               -- ^ num stuffed UTxO entries
-  -> Maybe FilePath     -- ^ Specified stake pool relays
+  -> Word
+  -- ^ bulk credential files to write
+  -> Word
+  -- ^ pool credentials per bulk file
+  -> Word
+  -- ^ num stuffed UTxO entries
+  -> Maybe FilePath
+  -- ^ Specified stake pool relays
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCreateStakedCmd
-    keyOutputFormat genesisDir numGenesisKeys numUTxOKeys numPools
-    numStakeDelegators mSystemStart mNonDelegatedSupply delegatedSupply
-    network numBulkPoolCredFiles numBulkPoolsPerFile numStuffedUtxo
-    mStakePoolRelaySpecFile
-    = runGenesisCreateStakedCmd
-    Cmd.GenesisCreateStakedCmdArgs
-    { Cmd.keyOutputFormat = keyOutputFormat
-    , Cmd.genesisDir = genesisDir
-    , Cmd.numGenesisKeys = numGenesisKeys
-    , Cmd.numUTxOKeys = numUTxOKeys
-    , Cmd.numPools = numPools
-    , Cmd.numStakeDelegators = numStakeDelegators
-    , Cmd.mSystemStart = mSystemStart
-    , Cmd.mNonDelegatedSupply = mNonDelegatedSupply
-    , Cmd.delegatedSupply = delegatedSupply
-    , Cmd.network = network
-    , Cmd.numBulkPoolCredFiles = numBulkPoolCredFiles
-    , Cmd.numBulkPoolsPerFile = numBulkPoolsPerFile
-    , Cmd.numStuffedUtxo = numStuffedUtxo
-    , Cmd.mStakePoolRelaySpecFile = mStakePoolRelaySpecFile
-    }
+  keyOutputFormat
+  genesisDir
+  numGenesisKeys
+  numUTxOKeys
+  numPools
+  numStakeDelegators
+  mSystemStart
+  mNonDelegatedSupply
+  delegatedSupply
+  network
+  numBulkPoolCredFiles
+  numBulkPoolsPerFile
+  numStuffedUtxo
+  mStakePoolRelaySpecFile =
+    runGenesisCreateStakedCmd
+      Cmd.GenesisCreateStakedCmdArgs
+        { Cmd.keyOutputFormat = keyOutputFormat
+        , Cmd.genesisDir = genesisDir
+        , Cmd.numGenesisKeys = numGenesisKeys
+        , Cmd.numUTxOKeys = numUTxOKeys
+        , Cmd.numPools = numPools
+        , Cmd.numStakeDelegators = numStakeDelegators
+        , Cmd.mSystemStart = mSystemStart
+        , Cmd.mNonDelegatedSupply = mNonDelegatedSupply
+        , Cmd.delegatedSupply = delegatedSupply
+        , Cmd.network = network
+        , Cmd.numBulkPoolCredFiles = numBulkPoolCredFiles
+        , Cmd.numBulkPoolsPerFile = numBulkPoolsPerFile
+        , Cmd.numStuffedUtxo = numStuffedUtxo
+        , Cmd.mStakePoolRelaySpecFile = mStakePoolRelaySpecFile
+        }
 
 -- | Hash a genesis file
-runLegacyGenesisHashFileCmd :: ()
+runLegacyGenesisHashFileCmd
+  :: ()
   => GenesisFile
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisHashFileCmd = runGenesisHashFileCmd

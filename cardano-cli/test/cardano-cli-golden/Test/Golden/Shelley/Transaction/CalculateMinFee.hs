@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Test.Golden.Shelley.Transaction.CalculateMinFee
-   where
+module Test.Golden.Shelley.Transaction.CalculateMinFee where
 
 import           Control.Monad (forM_)
 import           Data.Aeson ((.=))
@@ -23,15 +22,18 @@ import qualified Hedgehog.Extras as H
 -- @cabal test cardano-cli-golden --test-options '-p "/golden shelley transaction calculate min fee/"'@
 hprop_golden_shelley_transaction_calculate_min_fee :: Property
 hprop_golden_shelley_transaction_calculate_min_fee = do
-  let supplyValues = [ []
-                     , ["--output-json"]
-                     , ["--output-text"]
-                     , ["--output-json", "--out-file"]
-                     , ["--output-text", "--out-file"]
-                     ]
+  let supplyValues =
+        [ []
+        , ["--output-json"]
+        , ["--output-text"]
+        , ["--output-json", "--out-file"]
+        , ["--output-text", "--out-file"]
+        ]
   propertyOnce $ forM_ supplyValues $ \flags ->
     H.moduleWorkspace "tmp" $ \tempDir -> do
-      protocolParamsJsonFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/transaction-calculate-min-fee/protocol-params.json"
+      protocolParamsJsonFile <-
+        noteInputFile
+          "test/cardano-cli-golden/files/input/shelley/transaction-calculate-min-fee/protocol-params.json"
       txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
       let outFileFp = tempDir </> "out.txt"
           outFile =
@@ -39,15 +41,23 @@ hprop_golden_shelley_transaction_calculate_min_fee = do
               _ : ["--out-file"] -> [outFileFp]
               _ -> []
 
-      minFeeTxt <- execCardanoCLI $
-        [ "transaction","calculate-min-fee"
-        , "--byron-witness-count", "10"
-        , "--witness-count", "5"
-        , "--protocol-params-file", protocolParamsJsonFile
-        , "--reference-script-size", "0"
-        , "--tx-body-file", txBodyFile
-        ] ++ flags
-          ++ outFile
+      minFeeTxt <-
+        execCardanoCLI $
+          [ "transaction"
+          , "calculate-min-fee"
+          , "--byron-witness-count"
+          , "10"
+          , "--witness-count"
+          , "5"
+          , "--protocol-params-file"
+          , protocolParamsJsonFile
+          , "--reference-script-size"
+          , "0"
+          , "--tx-body-file"
+          , txBodyFile
+          ]
+            ++ flags
+            ++ outFile
 
       case flags of
         [] ->

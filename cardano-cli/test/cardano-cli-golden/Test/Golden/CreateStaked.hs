@@ -2,9 +2,9 @@
 
 module Test.Golden.CreateStaked where
 
+import           Cardano.Api.Ledger (StandardCrypto)
 import           Cardano.Api.Shelley (ShelleyGenesis (sgNetworkMagic, sgStaking))
 
-import           Cardano.Api.Ledger (StandardCrypto)
 import           Cardano.Ledger.Shelley.Genesis (ShelleyGenesisStaking (sgsPools, sgsStake))
 
 import           Control.Monad (filterM, void)
@@ -23,7 +23,6 @@ import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
-
 {- HLINT ignore "Use camelCase" -}
 
 -- | Given a root directory, returns files within this root (recursively)
@@ -40,7 +39,6 @@ tree root = do
 hprop_golden_create_staked :: Property
 hprop_golden_create_staked =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
-
     let alonzo = "genesis.alonzo.spec.json"
         conway = "genesis.conway.spec.json"
         networkMagic = 42
@@ -55,18 +53,31 @@ hprop_golden_create_staked =
 
     void $
       execCardanoCLI
-        ["conway",  "genesis", "create-staked"
-         , "--gen-genesis-keys", "2"
-         , "--gen-pools", show numPools
-         , "--gen-utxo-keys", "3"
-         , "--gen-stake-delegs", show numStake
-         , "--supply", "1000000000000"
-         , "--supply-delegated", "1000000000000"
-         , "--testnet-magic", show networkMagic
-         , "--bulk-pool-cred-files", "2"
-         , "--bulk-pools-per-file", "2"
-         , "--num-stuffed-utxo", "7"
-         , "--genesis-dir", tempDir
+        [ "conway"
+        , "genesis"
+        , "create-staked"
+        , "--gen-genesis-keys"
+        , "2"
+        , "--gen-pools"
+        , show numPools
+        , "--gen-utxo-keys"
+        , "3"
+        , "--gen-stake-delegs"
+        , show numStake
+        , "--supply"
+        , "1000000000000"
+        , "--supply-delegated"
+        , "1000000000000"
+        , "--testnet-magic"
+        , show networkMagic
+        , "--bulk-pool-cred-files"
+        , "2"
+        , "--bulk-pools-per-file"
+        , "2"
+        , "--num-stuffed-utxo"
+        , "7"
+        , "--genesis-dir"
+        , tempDir
         ]
 
     generated <- liftIO $ tree tempDir

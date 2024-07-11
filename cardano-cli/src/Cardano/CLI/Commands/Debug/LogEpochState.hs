@@ -1,9 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 
 module Cardano.CLI.Commands.Debug.LogEpochState
-  ( LogEpochStateCmdArgs(..)
+  ( LogEpochStateCmdArgs (..)
   , Configuration
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -16,7 +17,8 @@ data Configuration
 --
 -- This command will connect to a local node and log the epoch state.
 data LogEpochStateCmdArgs = LogEpochStateCmdArgs
-  { nodeSocketPath    :: !SocketPath
+  { nodeSocketPath :: !SocketPath
   , configurationFile :: !(NodeConfigFile 'In)
-  , outputFilePath    :: !(File Configuration 'Out)
-  } deriving Show
+  , outputFilePath :: !(File Configuration 'Out)
+  }
+  deriving Show

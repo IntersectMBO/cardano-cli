@@ -1,8 +1,9 @@
 module Cardano.CLI.Commands.Debug
   ( DebugCmds (..)
-  ) where
+  )
+where
 
 import           Cardano.CLI.Commands.Debug.LogEpochState
 
-newtype DebugCmds =
-  DebugLogEpochStateCmd LogEpochStateCmdArgs
+newtype DebugCmds
+  = DebugLogEpochStateCmd LogEpochStateCmdArgs

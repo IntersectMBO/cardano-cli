@@ -9,14 +9,14 @@
 
 module Cardano.CLI.EraBased.Run.StakeAddress
   ( runStakeAddressCmds
-
   , runStakeAddressBuildCmd
   , runStakeAddressKeyGenCmd
   , runStakeAddressKeyHashCmd
   , runStakeAddressStakeDelegationCertificateCmd
   , runStakeAddressDeregistrationCertificateCmd
   , runStakeAddressRegistrationCertificateCmd
-  ) where
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
@@ -36,7 +36,8 @@ import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 import qualified Data.Text.IO as Text
 
-runStakeAddressCmds :: ()
+runStakeAddressCmds
+  :: ()
   => StakeAddressCmds era
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressCmds = \case
@@ -50,14 +51,25 @@ runStakeAddressCmds = \case
     runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
   StakeAddressStakeDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp ->
     runStakeAddressStakeDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp
-  StakeAddressStakeAndVoteDelegationCertificateCmd w stakeIdentifier stakePoolVerificationKeyHashSource voteDelegationTarget outputFp ->
-    runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeIdentifier stakePoolVerificationKeyHashSource voteDelegationTarget outputFp
+  StakeAddressStakeAndVoteDelegationCertificateCmd
+    w
+    stakeIdentifier
+    stakePoolVerificationKeyHashSource
+    voteDelegationTarget
+    outputFp ->
+      runStakeAddressStakeAndVoteDelegationCertificateCmd
+        w
+        stakeIdentifier
+        stakePoolVerificationKeyHashSource
+        voteDelegationTarget
+        outputFp
   StakeAddressVoteDelegationCertificateCmd w stakeIdentifier voteDelegationTarget outputFp ->
     runStakeAddressVoteDelegationCertificateCmd w stakeIdentifier voteDelegationTarget outputFp
   StakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp ->
     runStakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
 
-runStakeAddressKeyGenCmd :: ()
+runStakeAddressKeyGenCmd
+  :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
@@ -83,13 +95,15 @@ runStakeAddressKeyGenCmd fmt vkFp skFp = do
         newExceptT $ writeTextFile vkFp $ serialiseToBech32 vkey
   return (vkey, skey)
 
-runStakeAddressKeyHashCmd :: ()
+runStakeAddressKeyHashCmd
+  :: ()
   => VerificationKeyOrFile StakeKey
   -> Maybe (File () Out)
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressKeyHashCmd stakeVerKeyOrFile mOutputFp = do
-  vkey <- modifyError StakeAddressCmdReadKeyFileError $
-    readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
+  vkey <-
+    modifyError StakeAddressCmdReadKeyFileError $
+      readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
 
   let hexKeyHash = serialiseToRawBytesHex (verificationKeyHash vkey)
 
@@ -97,7 +111,8 @@ runStakeAddressKeyHashCmd stakeVerKeyOrFile mOutputFp = do
     Just (File fpath) -> liftIO $ BS.writeFile fpath hexKeyHash
     Nothing -> liftIO $ BS.putStrLn hexKeyHash
 
-runStakeAddressBuildCmd :: ()
+runStakeAddressBuildCmd
+  :: ()
   => StakeVerifier
   -> NetworkId
   -> Maybe (File () Out)
@@ -112,11 +127,12 @@ runStakeAddressBuildCmd stakeVerifier network mOutputFp = do
       Just (File fpath) -> Text.writeFile fpath stakeAddrText
       Nothing -> Text.putStrLn stakeAddrText
 
-
-runStakeAddressRegistrationCertificateCmd :: ()
+runStakeAddressRegistrationCertificateCmd
+  :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
-  -> Maybe L.Coin -- ^ Deposit required in conway era
+  -> Maybe L.Coin
+  -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
@@ -124,8 +140,10 @@ runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
     getStakeCredentialFromIdentifier stakeIdentifier
       & firstExceptT StakeAddressCmdStakeCredentialError
 
-  req <- firstExceptT StakeAddressCmdRegistrationError
-           . hoistEither $ createRegistrationCertRequirements sbe stakeCred mDeposit
+  req <-
+    firstExceptT StakeAddressCmdRegistrationError
+      . hoistEither
+      $ createRegistrationCertRequirements sbe stakeCred mDeposit
 
   let regCert = makeStakeAddressRegistrationCertificate req
 
@@ -134,15 +152,16 @@ runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
     $ writeLazyByteStringFile oFp
     $ shelleyBasedEraConstraints sbe
     $ textEnvelopeToJSON (Just regCertDesc) regCert
+ where
+  regCertDesc :: TextEnvelopeDescr
+  regCertDesc = "Stake Address Registration Certificate"
 
-  where
-    regCertDesc :: TextEnvelopeDescr
-    regCertDesc = "Stake Address Registration Certificate"
-
-createRegistrationCertRequirements :: ()
+createRegistrationCertRequirements
+  :: ()
   => ShelleyBasedEra era
   -> StakeCredential
-  -> Maybe L.Coin -- ^ Deposit required in conway era
+  -> Maybe L.Coin
+  -- ^ Deposit required in conway era
   -> Either StakeAddressRegistrationError (StakeAddressRequirements era)
 createRegistrationCertRequirements sbe stakeCred mdeposit =
   case sbe of
@@ -165,7 +184,8 @@ createRegistrationCertRequirements sbe stakeCred mdeposit =
         Just dep ->
           return $ StakeAddrRegistrationConway ConwayEraOnwardsConway dep stakeCred
 
-runStakeAddressStakeDelegationCertificateCmd :: ()
+runStakeAddressStakeDelegationCertificateCmd
+  :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
@@ -176,8 +196,9 @@ runStakeAddressStakeDelegationCertificateCmd :: ()
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrFile outFp =
   shelleyBasedEraConstraints sbe $ do
-    poolStakeVKeyHash <- modifyError StakeAddressCmdReadKeyFileError $
-      readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
+    poolStakeVKeyHash <-
+      modifyError StakeAddressCmdReadKeyFileError $
+        readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
 
     stakeCred <-
       getStakeCredentialFromIdentifier stakeVerifier
@@ -190,7 +211,8 @@ runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrF
       $ writeLazyByteStringFile outFp
       $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Delegation Certificate") certificate
 
-runStakeAddressStakeAndVoteDelegationCertificateCmd :: ()
+runStakeAddressStakeAndVoteDelegationCertificateCmd
+  :: ()
   => ConwayEraOnwards era
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
@@ -202,11 +224,13 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd :: ()
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile voteDelegationTarget outFp =
   conwayEraOnwardsConstraints w $ do
-    StakePoolKeyHash poolStakeVKeyHash <- modifyError StakeAddressCmdReadKeyFileError $
-      readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
+    StakePoolKeyHash poolStakeVKeyHash <-
+      modifyError StakeAddressCmdReadKeyFileError $
+        readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
 
-    stakeCredential <- modifyError StakeAddressCmdStakeCredentialError $
-      getStakeCredentialFromIdentifier stakeVerifier
+    stakeCredential <-
+      modifyError StakeAddressCmdStakeCredentialError $
+        getStakeCredentialFromIdentifier stakeVerifier
 
     drep <-
       readVoteDelegationTarget voteDelegationTarget
@@ -215,15 +239,16 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHa
     let delegatee = L.DelegStakeVote poolStakeVKeyHash drep
 
     let certificate =
-          ConwayCertificate w
-            $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+          ConwayCertificate w $
+            L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
 
     firstExceptT StakeAddressCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile outFp
       $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake and Vote Delegation Certificate") certificate
 
-runStakeAddressVoteDelegationCertificateCmd :: ()
+runStakeAddressVoteDelegationCertificateCmd
+  :: ()
   => ConwayEraOnwards era
   -> StakeIdentifier
   -- ^ Delegatee stake pool verification key or verification key file or
@@ -244,35 +269,40 @@ runStakeAddressVoteDelegationCertificateCmd w stakeVerifier voteDelegationTarget
     let delegatee = L.DelegVote drep
 
     let certificate =
-          ConwayCertificate w
-            $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+          ConwayCertificate w $
+            L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
 
     firstExceptT StakeAddressCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringFile outFp
       $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Vote Delegation Certificate") certificate
 
-createStakeDelegationCertificate :: forall era. ()
+createStakeDelegationCertificate
+  :: forall era
+   . ()
   => StakeCredential
   -> Hash StakePoolKey
   -> ShelleyBasedEra era
   -> Certificate era
 createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKeyHash) = do
   caseShelleyToBabbageOrConwayEraOnwards
-    (\w ->
-      shelleyToBabbageEraConstraints w
-        $ ShelleyRelatedCertificate w
-        $ L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) poolStakeVKeyHash)
-    (\w ->
-      conwayEraOnwardsConstraints w
-        $ ConwayCertificate w
-        $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
+    ( \w ->
+        shelleyToBabbageEraConstraints w $
+          ShelleyRelatedCertificate w $
+            L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) poolStakeVKeyHash
+    )
+    ( \w ->
+        conwayEraOnwardsConstraints w $
+          ConwayCertificate w $
+            L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
     )
 
-runStakeAddressDeregistrationCertificateCmd :: ()
+runStakeAddressDeregistrationCertificateCmd
+  :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
-  -> Maybe L.Coin -- ^ Deposit required in conway era
+  -> Maybe L.Coin
+  -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressDeregistrationCertificateCmd sbe stakeVerifier mDeposit oFp = do
@@ -280,8 +310,10 @@ runStakeAddressDeregistrationCertificateCmd sbe stakeVerifier mDeposit oFp = do
     getStakeCredentialFromIdentifier stakeVerifier
       & firstExceptT StakeAddressCmdStakeCredentialError
 
-  req <- firstExceptT StakeAddressCmdRegistrationError
-           . hoistEither $ createRegistrationCertRequirements sbe stakeCred mDeposit
+  req <-
+    firstExceptT StakeAddressCmdRegistrationError
+      . hoistEither
+      $ createRegistrationCertRequirements sbe stakeCred mDeposit
 
   let deRegCert = makeStakeAddressUnregistrationCertificate req
 
@@ -290,7 +322,6 @@ runStakeAddressDeregistrationCertificateCmd sbe stakeVerifier mDeposit oFp = do
     $ writeLazyByteStringFile oFp
     $ shelleyBasedEraConstraints sbe
     $ textEnvelopeToJSON (Just deregCertDesc) deRegCert
-
-  where
-    deregCertDesc :: TextEnvelopeDescr
-    deregCertDesc = "Stake Address Deregistration Certificate"
+ where
+  deregCertDesc :: TextEnvelopeDescr
+  deregCertDesc = "Stake Address Deregistration Certificate"

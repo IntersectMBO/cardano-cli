@@ -9,9 +9,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.QueryCmdError
-  ( QueryCmdError(..)
+  ( QueryCmdError (..)
   , renderQueryCmdError
-  ) where
+  )
+where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
@@ -68,8 +69,11 @@ renderQueryCmdError = \case
   QueryCmdByronEra ->
     "This query cannot be used for the Byron era"
   QueryCmdEraMismatch (EraMismatch ledgerEra queryEra) ->
-    "\nAn error mismatch occurred." <> "\nSpecified query era: " <> pretty queryEra <>
-    "\nCurrent ledger era: " <> pretty ledgerEra
+    "\nAn error mismatch occurred."
+      <> "\nSpecified query era: "
+      <> pretty queryEra
+      <> "\nCurrent ledger era: "
+      <> pretty ledgerEra
   QueryCmdPastHorizon e ->
     "Past horizon: " <> pshow e
   QueryCmdSystemStartUnavailable ->
@@ -91,9 +95,13 @@ renderQueryCmdError = \case
   QueryCmdStakeSnapshotDecodeError decoderError ->
     "Failed to decode StakeSnapshot.  Error: " <> pshow decoderError
   QueryCmdUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
-    "Unsupported feature for the node-to-client protocol version.\n" <>
-    "This query requires at least " <> pshow minNtcVersion <> " but the node negotiated " <> pshow ntcVersion <> ".\n" <>
-    "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
+    "Unsupported feature for the node-to-client protocol version.\n"
+      <> "This query requires at least "
+      <> pshow minNtcVersion
+      <> " but the node negotiated "
+      <> pshow ntcVersion
+      <> ".\n"
+      <> "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
   QueryCmdProtocolParameterConversionError ppce ->
     "Failed to convert protocol parameter: " <> prettyError ppce
   QueryCmdConvenienceError qce ->

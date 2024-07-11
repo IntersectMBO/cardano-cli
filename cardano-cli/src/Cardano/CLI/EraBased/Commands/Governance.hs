@@ -3,9 +3,10 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance
-  ( GovernanceCmds(..)
+  ( GovernanceCmds (..)
   , renderGovernanceCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 import           Cardano.Api.Ledger (Coin)
@@ -54,13 +55,13 @@ data GovernanceCmds era
 
 renderGovernanceCmds :: GovernanceCmds era -> Text
 renderGovernanceCmds = \case
-  GovernanceCreateMirCertificateStakeAddressesCmd {} ->
+  GovernanceCreateMirCertificateStakeAddressesCmd{} ->
     "governance create-mir-certificate stake-addresses"
-  GovernanceCreateMirCertificateTransferToTreasuryCmd {} ->
+  GovernanceCreateMirCertificateTransferToTreasuryCmd{} ->
     "governance create-mir-certificate transfer-to-treasury"
-  GovernanceCreateMirCertificateTransferToReservesCmd {} ->
+  GovernanceCreateMirCertificateTransferToReservesCmd{} ->
     "governance create-mir-certificate transfer-to-reserves"
-  GovernanceGenesisKeyDelegationCertificate {} ->
+  GovernanceGenesisKeyDelegationCertificate{} ->
     "governance create-genesis-key-delegation-certificate"
   GovernanceActionCmds cmds ->
     renderGovernanceActionCmds cmds

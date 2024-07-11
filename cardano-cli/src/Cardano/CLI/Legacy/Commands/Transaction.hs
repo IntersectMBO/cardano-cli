@@ -4,7 +4,8 @@
 module Cardano.CLI.Legacy.Commands.Transaction
   ( LegacyTransactionCmds (..)
   , renderLegacyTransactionCmds
-  ) where
+  )
+where
 
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
@@ -50,14 +51,14 @@ data LegacyTransactionCmds
       (Maybe ProtocolParamsFile)
       (Maybe UpdateProposalFile)
       (TxBodyFile Out)
-
-    -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
-  | TransactionBuildCmd
+  | -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
+    TransactionBuildCmd
       SocketPath
       (EraInEon ShelleyBasedEra)
       ConsensusModeParams
       NetworkId
-      (Maybe ScriptValidity) -- ^ Mark script as expected to pass or fail validation
+      (Maybe ScriptValidity)
+      -- ^ Mark script as expected to pass or fail validation
       (Maybe Word)
       -- ^ Override the required number of tx witnesses
       [(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
@@ -116,7 +117,8 @@ data LegacyTransactionCmds
       FilePath
   | TransactionPolicyIdCmd
       ScriptFile
-  | TransactionCalculateMinFeeCmd
+  | -- | The total size in bytes of the transaction reference scripts.
+    TransactionCalculateMinFeeCmd
       (TxBodyFile In)
       ProtocolParamsFile
       TxShelleyWitnessCount
@@ -124,7 +126,6 @@ data LegacyTransactionCmds
       ReferenceScriptSize
       (Maybe OutputFormatJsonOrText)
       (Maybe (File () Out))
-      -- ^ The total size in bytes of the transaction reference scripts.
   | TransactionCalculateMinValueCmd
       (EraInEon ShelleyBasedEra)
       ProtocolParamsFile
@@ -140,15 +141,15 @@ data LegacyTransactionCmds
 
 renderLegacyTransactionCmds :: LegacyTransactionCmds -> Text
 renderLegacyTransactionCmds = \case
-  TransactionBuildCmd                     {} -> "transaction build"
-  TransactionBuildRawCmd                  {} -> "transaction build-raw"
-  TransactionSignCmd                      {} -> "transaction sign"
-  TransactionWitnessCmd                   {} -> "transaction witness"
-  TransactionSignWitnessCmd               {} -> "transaction sign-witness"
-  TransactionSubmitCmd                    {} -> "transaction submit"
-  TransactionPolicyIdCmd                  {} -> "transaction policyid"
-  TransactionCalculateMinFeeCmd           {} -> "transaction calculate-min-fee"
-  TransactionCalculateMinValueCmd         {} -> "transaction calculate-min-value"
-  TransactionHashScriptDataCmd            {} -> "transaction hash-script-data"
-  TransactionTxIdCmd                      {} -> "transaction txid"
-  TransactionViewCmd                      {} -> "transaction view"
+  TransactionBuildCmd{} -> "transaction build"
+  TransactionBuildRawCmd{} -> "transaction build-raw"
+  TransactionSignCmd{} -> "transaction sign"
+  TransactionWitnessCmd{} -> "transaction witness"
+  TransactionSignWitnessCmd{} -> "transaction sign-witness"
+  TransactionSubmitCmd{} -> "transaction submit"
+  TransactionPolicyIdCmd{} -> "transaction policyid"
+  TransactionCalculateMinFeeCmd{} -> "transaction calculate-min-fee"
+  TransactionCalculateMinValueCmd{} -> "transaction calculate-min-value"
+  TransactionHashScriptDataCmd{} -> "transaction hash-script-data"
+  TransactionTxIdCmd{} -> "transaction txid"
+  TransactionViewCmd{} -> "transaction view"

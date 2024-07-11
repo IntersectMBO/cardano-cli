@@ -24,15 +24,22 @@ hprop_byronTx_legacy = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
   expectedTx <- noteInputFile "test/cardano-cli-golden/files/input/byron/tx/legacy.tx"
   createdTx <- noteTempFile tempDir "tx"
-  void $ execCardanoCLI
-    [ "byron", "transaction", "issue-utxo-expenditure"
-    , "--mainnet"
-    , "--byron-legacy-formats"
-    , "--wallet-key", signingKey
-    , "--tx", createdTx
-    , "--txin", "(796a90e0a89b292d53a6129b9f0d757429063b529d27e4f56565192a8c8da5e3,10)"
-    , "--txout", "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
-    ]
+  void $
+    execCardanoCLI
+      [ "byron"
+      , "transaction"
+      , "issue-utxo-expenditure"
+      , "--mainnet"
+      , "--byron-legacy-formats"
+      , "--wallet-key"
+      , signingKey
+      , "--tx"
+      , createdTx
+      , "--txin"
+      , "(796a90e0a89b292d53a6129b9f0d757429063b529d27e4f56565192a8c8da5e3,10)"
+      , "--txout"
+      , "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
+      ]
 
   compareByronTxs createdTx expectedTx
 
@@ -41,15 +48,22 @@ hprop_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
   expectedTx <- noteInputFile "test/cardano-cli-golden/files/input/byron/tx/normal.tx"
   createdTx <- noteTempFile tempDir "tx"
-  void $ execCardanoCLI
-    [ "byron", "transaction", "issue-utxo-expenditure"
-    , "--mainnet"
-    , "--byron-formats"
-    , "--wallet-key", signingKey
-    , "--tx", createdTx
-    , "--txin", "(796a90e0a89b292d53a6129b9f0d757429063b529d27e4f56565192a8c8da5e3,10)"
-    , "--txout", "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
-    ]
+  void $
+    execCardanoCLI
+      [ "byron"
+      , "transaction"
+      , "issue-utxo-expenditure"
+      , "--mainnet"
+      , "--byron-formats"
+      , "--wallet-key"
+      , signingKey
+      , "--tx"
+      , createdTx
+      , "--txin"
+      , "(796a90e0a89b292d53a6129b9f0d757429063b529d27e4f56565192a8c8da5e3,10)"
+      , "--txout"
+      , "(\"2657WMsDfac6eFirdvKVPVMxNVYuACd1RGM2arH3g1y1yaQCr1yYpb2jr2b2aSiDZ\",999)"
+      ]
 
   compareByronTxs createdTx expectedTx
 

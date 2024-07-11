@@ -1,8 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.StakeAddressRegistrationError
-  ( StakeAddressRegistrationError(..)
-  ) where
+  ( StakeAddressRegistrationError (..)
+  )
+where
 
 import           Cardano.Api
 

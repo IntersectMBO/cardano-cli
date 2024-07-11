@@ -13,44 +13,34 @@ module Cardano.CLI.Types.Key
   ( VerificationKeyOrFile (..)
   , readVerificationKeyOrFile
   , readVerificationKeyOrTextEnvFile
-
   , VerificationKeyTextOrFile (..)
   , VerificationKeyTextOrFileError (..)
   , readVerificationKeyTextOrFileAnyOf
   , renderVerificationKeyTextOrFileError
-
   , VerificationKeyOrHashOrFile (..)
   , readVerificationKeyOrHashOrFile
   , readVerificationKeyOrHashOrTextEnvFile
-
-  , VerificationKeyOrHashOrFileOrScript(..)
-  , VerificationKeyOrHashOrFileOrScriptHash(..)
-  , VerificationKeySource(..)
+  , VerificationKeyOrHashOrFileOrScript (..)
+  , VerificationKeyOrHashOrFileOrScriptHash (..)
+  , VerificationKeySource (..)
   , readVerificationKeyOrHashOrFileOrScriptHash
-
-  , PaymentVerifier(..)
-  , StakeIdentifier(..)
-  , StakeVerifier(..)
-
+  , PaymentVerifier (..)
+  , StakeIdentifier (..)
+  , StakeVerifier (..)
   , generateKeyPair
-
   --- Legacy
-  , StakePoolRegistrationParserRequirements(..)
-
+  , StakePoolRegistrationParserRequirements (..)
   -- NewEraBased
-  , AnyDelegationTarget(..)
+  , AnyDelegationTarget (..)
   , StakeTarget (..)
-
-  , ColdVerificationKeyOrFile(..)
-
-  , DRepHashSource(..)
-
+  , ColdVerificationKeyOrFile (..)
+  , DRepHashSource (..)
   , readDRepCredential
-
-  , SomeSigningKey(..)
+  , SomeSigningKey (..)
   , withSomeSigningKey
   , readSigningKeyFile
-  ) where
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
@@ -70,17 +60,19 @@ import qualified Data.Text.Encoding as Text
 
 -- | Either a verification key or path to a verification key file.
 data VerificationKeyOrFile keyrole
-  = VerificationKeyValue !(VerificationKey keyrole)
-  -- ^ A verification key.
-  | VerificationKeyFilePath !(VerificationKeyFile In)
-  -- ^ A path to a verification key file.
-  -- Note that this file hasn't been validated at all (whether it exists,
-  -- contains a key of the correct type, etc.)
+  = -- | A verification key.
+    VerificationKeyValue !(VerificationKey keyrole)
+  | -- | A path to a verification key file.
+    -- Note that this file hasn't been validated at all (whether it exists,
+    -- contains a key of the correct type, etc.)
+    VerificationKeyFilePath !(VerificationKeyFile In)
 
-deriving instance Show (VerificationKey keyrole)
+deriving instance
+  Show (VerificationKey keyrole)
   => Show (VerificationKeyOrFile keyrole)
 
-deriving instance Eq (VerificationKey keyrole)
+deriving instance
+  Eq (VerificationKey keyrole)
   => Eq (VerificationKeyOrFile keyrole)
 
 -- | Read a verification key or verification key file and return a
@@ -98,11 +90,12 @@ readVerificationKeyOrFile
 readVerificationKeyOrFile asType verKeyOrFile =
   case verKeyOrFile of
     VerificationKeyValue vk -> pure vk
-    VerificationKeyFilePath (File fp) -> hoistIOEither $
-      readKeyFile
-        (AsVerificationKey asType)
-        (NE.fromList [InputFormatBech32, InputFormatHex, InputFormatTextEnvelope])
-        fp
+    VerificationKeyFilePath (File fp) ->
+      hoistIOEither $
+        readKeyFile
+          (AsVerificationKey asType)
+          (NE.fromList [InputFormatBech32, InputFormatHex, InputFormatTextEnvelope])
+          fp
 
 -- | Read a verification key or verification key file and return a
 -- verification key.
@@ -136,41 +129,39 @@ data StakeIdentifier
   deriving (Eq, Show)
 
 data StakePoolRegistrationParserRequirements
- = StakePoolRegistrationParserRequirements
-     { sprStakePoolKey :: VerificationKeyOrFile StakePoolKey
-     -- ^ Stake pool verification key.
-     , sprVrfKey :: VerificationKeyOrFile VrfKey
-     -- ^ VRF Verification key.
-     , sprPoolPledge :: L.Coin
-     -- ^ Pool pledge.
-     , sprPoolCost :: L.Coin
-     -- ^ Pool cost.
-     , sprPoolMargin :: Rational
-     -- ^ Pool margin.
-     , sprRewardAccountKey :: VerificationKeyOrFile StakeKey
-     -- ^ Reward account verification staking key.
-     , spoPoolOwnerKeys :: [VerificationKeyOrFile StakeKey]
-     -- ^ Pool owner verification staking key(s).
-     , sprRelays :: [StakePoolRelay]
-     -- ^ Stake pool relays.
-     , sprMetadata :: Maybe StakePoolMetadataReference
-     -- ^ Stake pool metadata.
-     , sprNetworkId :: NetworkId
-     }
-
+  = StakePoolRegistrationParserRequirements
+  { sprStakePoolKey :: VerificationKeyOrFile StakePoolKey
+  -- ^ Stake pool verification key.
+  , sprVrfKey :: VerificationKeyOrFile VrfKey
+  -- ^ VRF Verification key.
+  , sprPoolPledge :: L.Coin
+  -- ^ Pool pledge.
+  , sprPoolCost :: L.Coin
+  -- ^ Pool cost.
+  , sprPoolMargin :: Rational
+  -- ^ Pool margin.
+  , sprRewardAccountKey :: VerificationKeyOrFile StakeKey
+  -- ^ Reward account verification staking key.
+  , spoPoolOwnerKeys :: [VerificationKeyOrFile StakeKey]
+  -- ^ Pool owner verification staking key(s).
+  , sprRelays :: [StakePoolRelay]
+  -- ^ Stake pool relays.
+  , sprMetadata :: Maybe StakePoolMetadataReference
+  -- ^ Stake pool metadata.
+  , sprNetworkId :: NetworkId
+  }
 
 -- | A resource that identifies the delegation target. We can delegate
 -- our stake for two reasons:
 -- 1. To gain rewards. This is limited to choosing a stake pool
 -- 2. To delegate voting power. We can delegate this to a DRep, always
 -- abstain our vote or vote no confidence
-
 data AnyDelegationTarget where
   ShelleyToBabbageDelegTarget
     :: ShelleyToBabbageEra era
-    -> VerificationKeyOrHashOrFile StakePoolKey -- ^ Stake pool target
+    -> VerificationKeyOrHashOrFile StakePoolKey
+    -- ^ Stake pool target
     -> AnyDelegationTarget
-
   ConwayOnwardDelegTarget
     :: ConwayEraOnwards era
     -> StakeTarget era
@@ -184,28 +175,23 @@ data StakeTarget era where
     :: ConwayEraOnwards era
     -> VerificationKeyOrHashOrFile StakePoolKey
     -> StakeTarget era
-
   -- This delegates stake for voting
   TargetVotingDrep
     :: ConwayEraOnwards era
     -> VerificationKeyOrHashOrFile DRepKey
     -> StakeTarget era
-
   -- This delegates stake for voting and rewards
   TargetVotingDrepAndStakePool
     :: ConwayEraOnwards era
     -> VerificationKeyOrHashOrFile DRepKey
     -> VerificationKeyOrHashOrFile StakePoolKey
     -> StakeTarget era
-
   TargetAlwaysAbstain
     :: ConwayEraOnwards era
     -> StakeTarget era
-
   TargetAlwaysNoConfidence
     :: ConwayEraOnwards era
     -> StakeTarget era
-
   TargetVotingDRepScriptHash
     :: ConwayEraOnwards era
     -> ScriptHash
@@ -243,26 +229,29 @@ readVerificationKeyTextOrFileAnyOf
 readVerificationKeyTextOrFileAnyOf verKeyTextOrFile =
   case verKeyTextOrFile of
     VktofVerificationKeyText vkText ->
-      pure $ first VerificationKeyTextError $
-        deserialiseAnyVerificationKey (Text.encodeUtf8 vkText)
+      pure $
+        first VerificationKeyTextError $
+          deserialiseAnyVerificationKey (Text.encodeUtf8 vkText)
     VktofVerificationKeyFile (File fp) -> do
       vkBs <- liftIO $ BS.readFile fp
-      pure $ first VerificationKeyTextError $
-        deserialiseAnyVerificationKey vkBs
-
+      pure $
+        first VerificationKeyTextError $
+          deserialiseAnyVerificationKey vkBs
 
 -- | Verification key, verification key hash, or path to a verification key
 -- file.
 data VerificationKeyOrHashOrFile keyrole
-  = VerificationKeyOrFile !(VerificationKeyOrFile keyrole)
-  -- ^ Either a verification key or path to a verification key file.
-  | VerificationKeyHash !(Hash keyrole)
-  -- ^ A verification key hash.
+  = -- | Either a verification key or path to a verification key file.
+    VerificationKeyOrFile !(VerificationKeyOrFile keyrole)
+  | -- | A verification key hash.
+    VerificationKeyHash !(Hash keyrole)
 
-deriving instance (Show (VerificationKeyOrFile keyrole), Show (Hash keyrole))
+deriving instance
+  (Show (VerificationKeyOrFile keyrole), Show (Hash keyrole))
   => Show (VerificationKeyOrHashOrFile keyrole)
 
-deriving instance (Eq (VerificationKeyOrFile keyrole), Eq (Hash keyrole))
+deriving instance
+  (Eq (VerificationKeyOrFile keyrole), Eq (Hash keyrole))
   => Eq (VerificationKeyOrHashOrFile keyrole)
 
 -- | Read a verification key or verification key hash or verification key file
@@ -338,25 +327,31 @@ readDRepCredential = \case
   DRepHashSourceScript (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)
   DRepHashSourceVerificationKey drepVKeyOrHashOrFile ->
-    L.KeyHashObj . unDRepKeyHash <$>
-      readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile
+    L.KeyHashObj . unDRepKeyHash
+      <$> readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile
 
 data VerificationKeyOrHashOrFileOrScript keyrole
   = VkhfsKeyHashFile !(VerificationKeyOrHashOrFile keyrole)
   | VkhfsScript !(File ScriptInAnyLang In)
 
-deriving instance (Eq (VerificationKeyOrHashOrFile keyrole))
+deriving instance
+  Eq (VerificationKeyOrHashOrFile keyrole)
   => Eq (VerificationKeyOrHashOrFileOrScript keyrole)
-deriving instance (Show (VerificationKeyOrHashOrFile keyrole))
+
+deriving instance
+  Show (VerificationKeyOrHashOrFile keyrole)
   => Show (VerificationKeyOrHashOrFileOrScript keyrole)
 
 data VerificationKeyOrHashOrFileOrScriptHash keyrole
   = VkhfshKeyHashFile !(VerificationKeyOrHashOrFile keyrole)
   | VkhfshScriptHash !ScriptHash
 
-deriving instance (Eq (VerificationKeyOrHashOrFile keyrole))
+deriving instance
+  Eq (VerificationKeyOrHashOrFile keyrole)
   => Eq (VerificationKeyOrHashOrFileOrScriptHash keyrole)
-deriving instance (Show (VerificationKeyOrHashOrFile keyrole))
+
+deriving instance
+  Show (VerificationKeyOrHashOrFile keyrole)
   => Show (VerificationKeyOrHashOrFileOrScriptHash keyrole)
 
 data VerificationKeySource keyrole
@@ -364,9 +359,12 @@ data VerificationKeySource keyrole
   | VksScript !(File ScriptInAnyLang In)
   | VksScriptHash !ScriptHash
 
-deriving instance (Eq (VerificationKeyOrHashOrFile keyrole))
+deriving instance
+  Eq (VerificationKeyOrHashOrFile keyrole)
   => Eq (VerificationKeySource keyrole)
-deriving instance (Show (VerificationKeyOrHashOrFile keyrole))
+
+deriving instance
+  Show (VerificationKeyOrHashOrFile keyrole)
   => Show (VerificationKeySource keyrole)
 
 readVerificationKeyOrHashOrFileOrScriptHash
@@ -380,93 +378,95 @@ readVerificationKeyOrHashOrFileOrScriptHash asType extractHash = \case
   VkhfshScriptHash (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)
   VkhfshKeyHashFile vKeyOrHashOrFile ->
-    L.KeyHashObj . extractHash <$>
-      readVerificationKeyOrHashOrTextEnvFile asType vKeyOrHashOrFile
+    L.KeyHashObj . extractHash
+      <$> readVerificationKeyOrHashOrTextEnvFile asType vKeyOrHashOrFile
 
 data SomeSigningKey
-  = AByronSigningKey                    (SigningKey ByronKey)
-  | APaymentSigningKey                  (SigningKey PaymentKey)
-  | APaymentExtendedSigningKey          (SigningKey PaymentExtendedKey)
-  | AStakeSigningKey                    (SigningKey StakeKey)
-  | AStakeExtendedSigningKey            (SigningKey StakeExtendedKey)
-  | AStakePoolSigningKey                (SigningKey StakePoolKey)
-  | AGenesisSigningKey                  (SigningKey GenesisKey)
-  | AGenesisExtendedSigningKey          (SigningKey GenesisExtendedKey)
-  | AGenesisDelegateSigningKey          (SigningKey GenesisDelegateKey)
-  | AGenesisDelegateExtendedSigningKey  (SigningKey GenesisDelegateExtendedKey)
-  | AGenesisUTxOSigningKey              (SigningKey GenesisUTxOKey)
-  | ADRepSigningKey                     (SigningKey DRepKey)
-  | ADRepExtendedSigningKey             (SigningKey DRepExtendedKey)
-  | ACommitteeColdSigningKey            (SigningKey CommitteeColdKey)
-  | ACommitteeColdExtendedSigningKey    (SigningKey CommitteeColdExtendedKey)
-  | ACommitteeHotSigningKey             (SigningKey CommitteeHotKey)
-  | ACommitteeHotExtendedSigningKey     (SigningKey CommitteeHotExtendedKey)
-  | AVrfSigningKey                      (SigningKey VrfKey)
-  | AKesSigningKey                      (SigningKey KesKey)
+  = AByronSigningKey (SigningKey ByronKey)
+  | APaymentSigningKey (SigningKey PaymentKey)
+  | APaymentExtendedSigningKey (SigningKey PaymentExtendedKey)
+  | AStakeSigningKey (SigningKey StakeKey)
+  | AStakeExtendedSigningKey (SigningKey StakeExtendedKey)
+  | AStakePoolSigningKey (SigningKey StakePoolKey)
+  | AGenesisSigningKey (SigningKey GenesisKey)
+  | AGenesisExtendedSigningKey (SigningKey GenesisExtendedKey)
+  | AGenesisDelegateSigningKey (SigningKey GenesisDelegateKey)
+  | AGenesisDelegateExtendedSigningKey (SigningKey GenesisDelegateExtendedKey)
+  | AGenesisUTxOSigningKey (SigningKey GenesisUTxOKey)
+  | ADRepSigningKey (SigningKey DRepKey)
+  | ADRepExtendedSigningKey (SigningKey DRepExtendedKey)
+  | ACommitteeColdSigningKey (SigningKey CommitteeColdKey)
+  | ACommitteeColdExtendedSigningKey (SigningKey CommitteeColdExtendedKey)
+  | ACommitteeHotSigningKey (SigningKey CommitteeHotKey)
+  | ACommitteeHotExtendedSigningKey (SigningKey CommitteeHotExtendedKey)
+  | AVrfSigningKey (SigningKey VrfKey)
+  | AKesSigningKey (SigningKey KesKey)
 
-withSomeSigningKey :: ()
+withSomeSigningKey
+  :: ()
   => SomeSigningKey
   -> (forall keyrole. (Key keyrole, HasTypeProxy keyrole) => SigningKey keyrole -> a)
   -> a
 withSomeSigningKey ssk f =
-    case ssk of
-      AByronSigningKey                    sk -> f sk
-      APaymentSigningKey                  sk -> f sk
-      APaymentExtendedSigningKey          sk -> f sk
-      AStakeSigningKey                    sk -> f sk
-      AStakeExtendedSigningKey            sk -> f sk
-      AStakePoolSigningKey                sk -> f sk
-      AGenesisSigningKey                  sk -> f sk
-      AGenesisExtendedSigningKey          sk -> f sk
-      AGenesisDelegateSigningKey          sk -> f sk
-      AGenesisDelegateExtendedSigningKey  sk -> f sk
-      AGenesisUTxOSigningKey              sk -> f sk
-      ADRepSigningKey                     sk -> f sk
-      ADRepExtendedSigningKey             sk -> f sk
-      ACommitteeColdSigningKey            sk -> f sk
-      ACommitteeColdExtendedSigningKey    sk -> f sk
-      ACommitteeHotSigningKey             sk -> f sk
-      ACommitteeHotExtendedSigningKey     sk -> f sk
-      AVrfSigningKey                      sk -> f sk
-      AKesSigningKey                      sk -> f sk
+  case ssk of
+    AByronSigningKey sk -> f sk
+    APaymentSigningKey sk -> f sk
+    APaymentExtendedSigningKey sk -> f sk
+    AStakeSigningKey sk -> f sk
+    AStakeExtendedSigningKey sk -> f sk
+    AStakePoolSigningKey sk -> f sk
+    AGenesisSigningKey sk -> f sk
+    AGenesisExtendedSigningKey sk -> f sk
+    AGenesisDelegateSigningKey sk -> f sk
+    AGenesisDelegateExtendedSigningKey sk -> f sk
+    AGenesisUTxOSigningKey sk -> f sk
+    ADRepSigningKey sk -> f sk
+    ADRepExtendedSigningKey sk -> f sk
+    ACommitteeColdSigningKey sk -> f sk
+    ACommitteeColdExtendedSigningKey sk -> f sk
+    ACommitteeHotSigningKey sk -> f sk
+    ACommitteeHotExtendedSigningKey sk -> f sk
+    AVrfSigningKey sk -> f sk
+    AKesSigningKey sk -> f sk
 
-readSigningKeyFile :: ()
+readSigningKeyFile
+  :: ()
   => SigningKeyFile In
   -> ExceptT (FileError InputDecodeError) IO SomeSigningKey
 readSigningKeyFile skFile =
-    newExceptT $
-      readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
-  where
-    -- If you update these variables, consider updating the ones with the same
-    -- names in Cardano.CLI.Read
-    textEnvFileTypes =
-      [ FromSomeType (AsSigningKey AsByronKey)                   AByronSigningKey
-      , FromSomeType (AsSigningKey AsPaymentKey)                 APaymentSigningKey
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey)         APaymentExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakeKey)                   AStakeSigningKey
-      , FromSomeType (AsSigningKey AsStakeExtendedKey)           AStakeExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakePoolKey)               AStakePoolSigningKey
-      , FromSomeType (AsSigningKey AsGenesisKey)                 AGenesisSigningKey
-      , FromSomeType (AsSigningKey AsGenesisExtendedKey)         AGenesisExtendedSigningKey
-      , FromSomeType (AsSigningKey AsGenesisDelegateKey)         AGenesisDelegateSigningKey
-      , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey) AGenesisDelegateExtendedSigningKey
-      , FromSomeType (AsSigningKey AsGenesisUTxOKey)             AGenesisUTxOSigningKey
-      , FromSomeType (AsSigningKey AsDRepKey)                    ADRepSigningKey
-      , FromSomeType (AsSigningKey AsDRepExtendedKey)            ADRepExtendedSigningKey
-      , FromSomeType (AsSigningKey AsCommitteeColdKey)           ACommitteeColdSigningKey
-      , FromSomeType (AsSigningKey AsCommitteeColdExtendedKey)   ACommitteeColdExtendedSigningKey
-      , FromSomeType (AsSigningKey AsCommitteeHotKey)            ACommitteeHotSigningKey
-      , FromSomeType (AsSigningKey AsCommitteeHotExtendedKey)    ACommitteeHotExtendedSigningKey
-      , FromSomeType (AsSigningKey AsVrfKey)                     AVrfSigningKey
-      , FromSomeType (AsSigningKey AsKesKey)                     AKesSigningKey
-      ]
+  newExceptT $
+    readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
+ where
+  -- If you update these variables, consider updating the ones with the same
+  -- names in Cardano.CLI.Read
+  textEnvFileTypes =
+    [ FromSomeType (AsSigningKey AsByronKey) AByronSigningKey
+    , FromSomeType (AsSigningKey AsPaymentKey) APaymentSigningKey
+    , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningKey
+    , FromSomeType (AsSigningKey AsStakeKey) AStakeSigningKey
+    , FromSomeType (AsSigningKey AsStakeExtendedKey) AStakeExtendedSigningKey
+    , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningKey
+    , FromSomeType (AsSigningKey AsGenesisKey) AGenesisSigningKey
+    , FromSomeType (AsSigningKey AsGenesisExtendedKey) AGenesisExtendedSigningKey
+    , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningKey
+    , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey) AGenesisDelegateExtendedSigningKey
+    , FromSomeType (AsSigningKey AsGenesisUTxOKey) AGenesisUTxOSigningKey
+    , FromSomeType (AsSigningKey AsDRepKey) ADRepSigningKey
+    , FromSomeType (AsSigningKey AsDRepExtendedKey) ADRepExtendedSigningKey
+    , FromSomeType (AsSigningKey AsCommitteeColdKey) ACommitteeColdSigningKey
+    , FromSomeType (AsSigningKey AsCommitteeColdExtendedKey) ACommitteeColdExtendedSigningKey
+    , FromSomeType (AsSigningKey AsCommitteeHotKey) ACommitteeHotSigningKey
+    , FromSomeType (AsSigningKey AsCommitteeHotExtendedKey) ACommitteeHotExtendedSigningKey
+    , FromSomeType (AsSigningKey AsVrfKey) AVrfSigningKey
+    , FromSomeType (AsSigningKey AsKesKey) AKesSigningKey
+    ]
 
-    bech32FileTypes =
-      [ FromSomeType (AsSigningKey AsPaymentKey)         APaymentSigningKey
-      , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakeKey)           AStakeSigningKey
-      , FromSomeType (AsSigningKey AsStakeExtendedKey)   AStakeExtendedSigningKey
-      , FromSomeType (AsSigningKey AsStakePoolKey)       AStakePoolSigningKey
-      , FromSomeType (AsSigningKey AsVrfKey)             AVrfSigningKey
-      , FromSomeType (AsSigningKey AsKesKey)             AKesSigningKey
-      ]
+  bech32FileTypes =
+    [ FromSomeType (AsSigningKey AsPaymentKey) APaymentSigningKey
+    , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningKey
+    , FromSomeType (AsSigningKey AsStakeKey) AStakeSigningKey
+    , FromSomeType (AsSigningKey AsStakeExtendedKey) AStakeExtendedSigningKey
+    , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningKey
+    , FromSomeType (AsSigningKey AsVrfKey) AVrfSigningKey
+    , FromSomeType (AsSigningKey AsKesKey) AKesSigningKey
+    ]

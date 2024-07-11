@@ -4,7 +4,8 @@
 module Cardano.CLI.Legacy.Commands.StakePool
   ( LegacyStakePoolCmds (..)
   , renderLegacyStakePoolCmds
-  ) where
+  )
+where
 
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
@@ -59,11 +60,11 @@ data LegacyStakePoolCmds
 
 renderLegacyStakePoolCmds :: LegacyStakePoolCmds -> Text
 renderLegacyStakePoolCmds = \case
-  StakePoolDeregistrationCertificateCmd {} ->
+  StakePoolDeregistrationCertificateCmd{} ->
     "stake-pool deregistration-certificate"
-  StakePoolIdCmd {} ->
+  StakePoolIdCmd{} ->
     "stake-pool id"
-  StakePoolMetadataHashCmd {} ->
+  StakePoolMetadataHashCmd{} ->
     "stake-pool metadata-hash"
-  StakePoolRegistrationCertificateCmd {} ->
+  StakePoolRegistrationCertificateCmd{} ->
     "stake-pool registration-certificate"

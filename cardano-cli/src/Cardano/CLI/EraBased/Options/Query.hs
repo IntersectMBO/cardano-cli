@@ -5,7 +5,8 @@
 
 module Cardano.CLI.EraBased.Options.Query
   ( pQueryCmds
-  ) where
+  )
+where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as MemberStatus (MemberStatus (..))
@@ -25,91 +26,99 @@ import qualified Options.Applicative as Opt
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pQueryCmds :: ()
+pQueryCmds
+  :: ()
   => CardanoEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryCmds era envCli =
-  subInfoParser "query"
-    ( Opt.progDesc
-        $ mconcat
+  subInfoParser
+    "query"
+    ( Opt.progDesc $
+        mconcat
           [ "Node query commands. Will query the local node whose Unix domain socket is "
           , "obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
           ]
     )
-    [ Just
-        $ subParser "protocol-parameters"
-        $ Opt.info (pQueryProtocolParametersCmd envCli)
-        $ Opt.progDesc "Get the node's current protocol parameters"
-    , Just
-        $ subParser "tip"
-        $ Opt.info (pQueryTipCmd era envCli)
-        $ Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
-    , Just
-        $ subParser "stake-pools"
-        $ Opt.info (pQueryStakePoolsCmd era envCli)
-        $ Opt.progDesc "Get the node's current set of stake pool ids"
-    , Just
-        $ subParser "stake-distribution"
-        $ Opt.info (pQueryStakeDistributionCmd era envCli)
-        $ Opt.progDesc "Get the node's current aggregated stake distribution"
-    , Just
-        $ subParser "stake-address-info"
-        $ Opt.info (pQueryStakeAddressInfoCmd era envCli)
-        $ Opt.progDesc $ mconcat
-            [ "Get the current delegations and reward accounts filtered by stake address."
-            ]
-    , Just
-        $ subParser "utxo"
-        $ Opt.info (pQueryUTxOCmd era envCli)
-        $ Opt.progDesc $ mconcat
-            [ "Get a portion of the current UTxO: by tx in, by address or the whole."
-            ]
-    , Just
-        $ subParser "ledger-state"
-        $ Opt.info (pQueryLedgerStateCmd era envCli)
-        $ Opt.progDesc $ mconcat
-            [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
-            ]
-    , Just
-        $ subParser "protocol-state"
-        $ Opt.info (pQueryProtocolStateCmd era envCli)
-        $ Opt.progDesc $ mconcat
-            [ "Dump the current protocol state of the node (Ledger.ChainDepState -- advanced command)"
-            ]
-    , Just
-        $ subParser "stake-snapshot"
-        $ Opt.info (pQueryStakeSnapshotCmd era envCli)
-        $ Opt.progDesc $ mconcat
-            [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
-            ]
-    , Just
-        $ hiddenSubParser "pool-params"
-        $ Opt.info (pQueryPoolStateCmd era envCli)
-        $ Opt.progDesc $ mconcat
-            [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
-            , "(Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced command)"
-            ]
-    , Just
-        $ subParser "leadership-schedule"
-        $ Opt.info (pLeadershipScheduleCmd era envCli)
-        $ Opt.progDesc "Get the slots the node is expected to mint a block in (advanced command)"
-    , Just
-        $ subParser "kes-period-info"
-        $ Opt.info (pKesPeriodInfoCmd era envCli)
-        $ Opt.progDesc "Get information about the current KES period and your node's operational certificate."
-    , Just
-        $ subParser "pool-state"
-        $ Opt.info (pQueryPoolStateCmd era envCli)
-        $ Opt.progDesc "Dump the pool state"
-    , Just
-        $ subParser "tx-mempool"
-        $ Opt.info (pQueryTxMempoolCmd envCli)
-        $ Opt.progDesc "Local Mempool info"
-    , Just
-        $ subParser "slot-number"
-        $ Opt.info (pQuerySlotNumberCmd era envCli)
-        $ Opt.progDesc "Query slot number for UTC timestamp"
+    [ Just $
+        subParser "protocol-parameters" $
+          Opt.info (pQueryProtocolParametersCmd envCli) $
+            Opt.progDesc "Get the node's current protocol parameters"
+    , Just $
+        subParser "tip" $
+          Opt.info (pQueryTipCmd era envCli) $
+            Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
+    , Just $
+        subParser "stake-pools" $
+          Opt.info (pQueryStakePoolsCmd era envCli) $
+            Opt.progDesc "Get the node's current set of stake pool ids"
+    , Just $
+        subParser "stake-distribution" $
+          Opt.info (pQueryStakeDistributionCmd era envCli) $
+            Opt.progDesc "Get the node's current aggregated stake distribution"
+    , Just $
+        subParser "stake-address-info" $
+          Opt.info (pQueryStakeAddressInfoCmd era envCli) $
+            Opt.progDesc $
+              mconcat
+                [ "Get the current delegations and reward accounts filtered by stake address."
+                ]
+    , Just $
+        subParser "utxo" $
+          Opt.info (pQueryUTxOCmd era envCli) $
+            Opt.progDesc $
+              mconcat
+                [ "Get a portion of the current UTxO: by tx in, by address or the whole."
+                ]
+    , Just $
+        subParser "ledger-state" $
+          Opt.info (pQueryLedgerStateCmd era envCli) $
+            Opt.progDesc $
+              mconcat
+                [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
+                ]
+    , Just $
+        subParser "protocol-state" $
+          Opt.info (pQueryProtocolStateCmd era envCli) $
+            Opt.progDesc $
+              mconcat
+                [ "Dump the current protocol state of the node (Ledger.ChainDepState -- advanced command)"
+                ]
+    , Just $
+        subParser "stake-snapshot" $
+          Opt.info (pQueryStakeSnapshotCmd era envCli) $
+            Opt.progDesc $
+              mconcat
+                [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
+                ]
+    , Just $
+        hiddenSubParser "pool-params" $
+          Opt.info (pQueryPoolStateCmd era envCli) $
+            Opt.progDesc $
+              mconcat
+                [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
+                , "(Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced command)"
+                ]
+    , Just $
+        subParser "leadership-schedule" $
+          Opt.info (pLeadershipScheduleCmd era envCli) $
+            Opt.progDesc "Get the slots the node is expected to mint a block in (advanced command)"
+    , Just $
+        subParser "kes-period-info" $
+          Opt.info (pKesPeriodInfoCmd era envCli) $
+            Opt.progDesc "Get information about the current KES period and your node's operational certificate."
+    , Just $
+        subParser "pool-state" $
+          Opt.info (pQueryPoolStateCmd era envCli) $
+            Opt.progDesc "Dump the pool state"
+    , Just $
+        subParser "tx-mempool" $
+          Opt.info (pQueryTxMempoolCmd envCli) $
+            Opt.progDesc "Local Mempool info"
+    , Just $
+        subParser "slot-number" $
+          Opt.info (pQuerySlotNumberCmd era envCli) $
+            Opt.progDesc "Query slot number for UTC timestamp"
     , Just
         . subParser "ref-script-size"
         . Opt.info (pQueryRefScriptSizeCmd era envCli)
@@ -207,13 +216,16 @@ pQueryProtocolStateCmd era envCli =
 
 pAllStakePoolsOrSome :: Parser (AllOrOnly (Hash StakePoolKey))
 pAllStakePoolsOrSome = pAll <|> pOnly
-  where pAll :: Parser (AllOrOnly (Hash StakePoolKey))
-        pAll = Opt.flag' All $ mconcat
-          [ Opt.long "all-stake-pools"
-          , Opt.help "Query for all stake pools"
-          ]
-        pOnly :: Parser (AllOrOnly (Hash StakePoolKey))
-        pOnly = Only <$> some (pStakePoolVerificationKeyHash Nothing)
+ where
+  pAll :: Parser (AllOrOnly (Hash StakePoolKey))
+  pAll =
+    Opt.flag' All $
+      mconcat
+        [ Opt.long "all-stake-pools"
+        , Opt.help "Query for all stake pools"
+        ]
+  pOnly :: Parser (AllOrOnly (Hash StakePoolKey))
+  pOnly = Only <$> some (pStakePoolVerificationKeyHash Nothing)
 
 pQueryStakeSnapshotCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryStakeSnapshotCmd era envCli =
@@ -246,19 +258,21 @@ pQueryTxMempoolCmd envCli =
       <*> pNetworkId envCli
       <*> pTxMempoolQuery
       <*> pMaybeOutputFile
-  where
-    pTxMempoolQuery :: Parser TxMempoolQuery
-    pTxMempoolQuery = asum
-      [ subParser "info"
-          $ Opt.info (pure TxMempoolQueryInfo)
-          $ Opt.progDesc "Ask the node about the current mempool's capacity and sizes"
-      , subParser "next-tx"
-          $ Opt.info (pure TxMempoolQueryNextTx)
-          $ Opt.progDesc "Requests the next transaction from the mempool's current list"
-      , subParser "tx-exists"
-          $ Opt.info (TxMempoolQueryTxExists <$> argument Opt.str (metavar "TX_ID"))
-          $ Opt.progDesc "Query if a particular transaction exists in the mempool"
+ where
+  pTxMempoolQuery :: Parser TxMempoolQuery
+  pTxMempoolQuery =
+    asum
+      [ subParser "info" $
+          Opt.info (pure TxMempoolQueryInfo) $
+            Opt.progDesc "Ask the node about the current mempool's capacity and sizes"
+      , subParser "next-tx" $
+          Opt.info (pure TxMempoolQueryNextTx) $
+            Opt.progDesc "Requests the next transaction from the mempool's current list"
+      , subParser "tx-exists" $
+          Opt.info (TxMempoolQueryTxExists <$> argument Opt.str (metavar "TX_ID")) $
+            Opt.progDesc "Query if a particular transaction exists in the mempool"
       ]
+
 pLeadershipScheduleCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
 pLeadershipScheduleCmd era envCli =
   fmap QueryLeadershipScheduleCmd $
@@ -294,9 +308,10 @@ pQuerySlotNumberCmd era envCli =
       <*> pNetworkId envCli
       <*> pTarget era
       <*> pUtcTimestamp
-  where
-    pUtcTimestamp =
-      convertTime <$> (Opt.strArgument . mconcat)
+ where
+  pUtcTimestamp =
+    convertTime
+      <$> (Opt.strArgument . mconcat)
         [ Opt.metavar "TIMESTAMP"
         , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
         ]
@@ -312,86 +327,97 @@ pQueryRefScriptSizeCmd era envCli =
       <*> pTarget era
       <*> (optional $ pOutputFormatJsonOrText "reference inputs")
       <*> pMaybeOutputFile
-  where
-    pByTxIn :: Parser TxIn
-    pByTxIn =
-      Opt.option (readerFromParsecParser parseTxIn) $ mconcat
+ where
+  pByTxIn :: Parser TxIn
+  pByTxIn =
+    Opt.option (readerFromParsecParser parseTxIn) $
+      mconcat
         [ Opt.long "tx-in"
         , Opt.metavar "TX-IN"
         , Opt.help "Transaction input (TxId#TxIx)."
         ]
 
-pQueryGetConstitutionCmd :: ()
+pQueryGetConstitutionCmd
+  :: ()
   => CardanoEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryGetConstitutionCmd era envCli = do
   w <- forEraMaybeEon era
-  pure
-    $ subParser "constitution"
-    $ Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs w era envCli)
-    $ Opt.progDesc "Get the constitution"
+  pure $
+    subParser "constitution" $
+      Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs w era envCli) $
+        Opt.progDesc "Get the constitution"
 
-pQueryGetGovStateCmd :: ()
+pQueryGetGovStateCmd
+  :: ()
   => CardanoEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryGetGovStateCmd era envCli = do
   w <- forEraMaybeEon era
-  pure
-    $ subParser "gov-state"
-    $ Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w era envCli)
-    $ Opt.progDesc "Get the governance state"
+  pure $
+    subParser "gov-state" $
+      Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w era envCli) $
+        Opt.progDesc "Get the governance state"
 
 -- TODO Conway: DRep State and DRep Stake Distribution parsers use DRep keys to obtain DRep credentials. This only
 -- makes use of 'KeyHashObj' constructor of 'Credential kr c'. Should we also support here 'ScriptHashObj'?
 -- What about 'DRep c' - this means that only 'KeyHash' constructor is in use here: should also
 -- 'DRepAlwaysAbstain' and 'DRepAlwaysNoConfidence' be supported here?
 
-pQueryDRepStateCmd :: ()
+pQueryDRepStateCmd
+  :: ()
   => CardanoEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryDRepStateCmd era envCli = do
   w <- forEraMaybeEon era
-  pure
-    $ subParser "drep-state"
-    $ Opt.info (QueryDRepStateCmd <$> pQueryDRepStateCmdArgs w)
-    $ Opt.progDesc "Get the DRep state."
-  where
-    pQueryDRepStateCmdArgs :: ConwayEraOnwards era -> Parser (QueryDRepStateCmdArgs era)
-    pQueryDRepStateCmdArgs w =
-      QueryDRepStateCmdArgs w
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
-        <*> pAllOrOnlyDRepHashSource
-        <*> Opt.flag NoStake WithStake (mconcat
-              [ Opt.long "include-stake"
-              , Opt.help $ mconcat
-                 [ "Also return the stake associated with each DRep. "
-                 , "The result is the same as with \"drep-stake-distribution\"; "
-                 , "this is a convenience option to obtain all information concerning a DRep at once. "
-                 , "This is a potentially expensive query, so it's OFF by default."
-                 ]
-              ]
-            )
-        <*> pTarget era
-        <*> optional pOutputFile
+  pure $
+    subParser "drep-state" $
+      Opt.info (QueryDRepStateCmd <$> pQueryDRepStateCmdArgs w) $
+        Opt.progDesc "Get the DRep state."
+ where
+  pQueryDRepStateCmdArgs :: ConwayEraOnwards era -> Parser (QueryDRepStateCmdArgs era)
+  pQueryDRepStateCmdArgs w =
+    QueryDRepStateCmdArgs w
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> pAllOrOnlyDRepHashSource
+      <*> Opt.flag
+        NoStake
+        WithStake
+        ( mconcat
+            [ Opt.long "include-stake"
+            , Opt.help $
+                mconcat
+                  [ "Also return the stake associated with each DRep. "
+                  , "The result is the same as with \"drep-stake-distribution\"; "
+                  , "this is a convenience option to obtain all information concerning a DRep at once. "
+                  , "This is a potentially expensive query, so it's OFF by default."
+                  ]
+            ]
+        )
+      <*> pTarget era
+      <*> optional pOutputFile
 
-pQueryDRepStakeDistributionCmd :: ()
+pQueryDRepStakeDistributionCmd
+  :: ()
   => CardanoEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryDRepStakeDistributionCmd era envCli = do
   w <- forEraMaybeEon era
-  pure
-    $ subParser "drep-stake-distribution"
-    $ Opt.info (QueryDRepStakeDistributionCmd <$> pQueryDRepStakeDistributionCmdArgs w)
-    $ Opt.progDesc "Get the DRep stake distribution."
-  where
-    pQueryDRepStakeDistributionCmdArgs :: ConwayEraOnwards era -> Parser (QueryDRepStakeDistributionCmdArgs era)
-    pQueryDRepStakeDistributionCmdArgs w = QueryDRepStakeDistributionCmdArgs w
+  pure $
+    subParser "drep-stake-distribution" $
+      Opt.info (QueryDRepStakeDistributionCmd <$> pQueryDRepStakeDistributionCmdArgs w) $
+        Opt.progDesc "Get the DRep stake distribution."
+ where
+  pQueryDRepStakeDistributionCmdArgs
+    :: ConwayEraOnwards era -> Parser (QueryDRepStakeDistributionCmdArgs era)
+  pQueryDRepStakeDistributionCmdArgs w =
+    QueryDRepStakeDistributionCmdArgs w
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
@@ -399,19 +425,22 @@ pQueryDRepStakeDistributionCmd era envCli = do
       <*> pTarget era
       <*> optional pOutputFile
 
-pQueryGetCommitteeStateCmd :: ()
+pQueryGetCommitteeStateCmd
+  :: ()
   => CardanoEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryGetCommitteeStateCmd era envCli = do
   w <- forEraMaybeEon era
-  pure
-    $ subParser "committee-state"
-    $ Opt.info (QueryCommitteeMembersStateCmd <$> pQueryCommitteeMembersStateArgs w)
-    $ Opt.progDesc "Get the committee state"
-  where
-    pQueryCommitteeMembersStateArgs :: ConwayEraOnwards era -> Parser (QueryCommitteeMembersStateCmdArgs era)
-    pQueryCommitteeMembersStateArgs w = QueryCommitteeMembersStateCmdArgs w
+  pure $
+    subParser "committee-state" $
+      Opt.info (QueryCommitteeMembersStateCmd <$> pQueryCommitteeMembersStateArgs w) $
+        Opt.progDesc "Get the committee state"
+ where
+  pQueryCommitteeMembersStateArgs
+    :: ConwayEraOnwards era -> Parser (QueryCommitteeMembersStateCmdArgs era)
+  pQueryCommitteeMembersStateArgs w =
+    QueryCommitteeMembersStateCmdArgs w
       <$> pSocketPath envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
@@ -421,44 +450,50 @@ pQueryGetCommitteeStateCmd era envCli = do
       <*> pTarget era
       <*> optional pOutputFile
 
-    pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
-    pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash =
-      asum
-        [ VkhfshKeyHashFile <$> pCommitteeColdVerificationKeyOrHashOrFile
-        , VkhfshScriptHash <$>
-            pScriptHash
-              "cold-script-hash"
-              "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
-        ]
+  pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
+    :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
+  pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash =
+    asum
+      [ VkhfshKeyHashFile <$> pCommitteeColdVerificationKeyOrHashOrFile
+      , VkhfshScriptHash
+          <$> pScriptHash
+            "cold-script-hash"
+            "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
+      ]
 
-    pCommitteeHotKeyOrHashOrFileOrScriptHash :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey)
-    pCommitteeHotKeyOrHashOrFileOrScriptHash =
-      asum
-        [ VkhfshKeyHashFile <$> pCommitteeHotKeyOrHashOrFile
-        , VkhfshScriptHash <$>
-            pScriptHash
-              "hot-script-hash"
-              "Hot Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
-        ]
+  pCommitteeHotKeyOrHashOrFileOrScriptHash
+    :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey)
+  pCommitteeHotKeyOrHashOrFileOrScriptHash =
+    asum
+      [ VkhfshKeyHashFile <$> pCommitteeHotKeyOrHashOrFile
+      , VkhfshScriptHash
+          <$> pScriptHash
+            "hot-script-hash"
+            "Hot Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
+      ]
 
-    pMemberStatus :: Parser MemberStatus
-    pMemberStatus =
-      asum
-        [ Opt.flag' MemberStatus.Active $ mconcat
+  pMemberStatus :: Parser MemberStatus
+  pMemberStatus =
+    asum
+      [ Opt.flag' MemberStatus.Active $
+          mconcat
             [ Opt.long "active"
             , Opt.help "Active committee members (members whose vote will count during ratification)"
             ]
-        , Opt.flag' MemberStatus.Expired $ mconcat
+      , Opt.flag' MemberStatus.Expired $
+          mconcat
             [ Opt.long "expired"
             , Opt.help "Expired committee members"
             ]
-        , Opt.flag' MemberStatus.Unrecognized $ mconcat
+      , Opt.flag' MemberStatus.Unrecognized $
+          mconcat
             [ Opt.long "unrecognized"
             , Opt.help "Unrecognized committe members: a hot credential for an unknown cold credential"
             ]
-        ]
+      ]
 
-pQueryNoArgCmdArgs :: ()
+pQueryNoArgCmdArgs
+  :: ()
   => ConwayEraOnwards era
   -> CardanoEra era
   -> EnvCli

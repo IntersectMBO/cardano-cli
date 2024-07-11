@@ -4,11 +4,13 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Governance.Vote
-  ( GovernanceVoteCmds(..)
-  , GovernanceVoteViewCmdArgs(..)
-  , GovernanceVoteCreateCmdArgs(..)
+  ( GovernanceVoteCmds (..)
+  , GovernanceVoteViewCmdArgs (..)
+  , GovernanceVoteCreateCmdArgs (..)
   , renderGovernanceVoteCmds
-  ) where
+  )
+where
+
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
@@ -26,27 +28,28 @@ data GovernanceVoteCmds era
 
 data GovernanceVoteCreateCmdArgs era
   = GovernanceVoteCreateCmdArgs
-      { eon                         :: ConwayEraOnwards era
-      , voteChoice                  :: Vote
-      , governanceAction            :: (TxId, Word16)
-      , votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
-      , mAnchor                     :: Maybe (VoteUrl, L.SafeHash L.StandardCrypto L.AnchorData)
-      , outFile                     :: VoteFile Out
-      }
+  { eon :: ConwayEraOnwards era
+  , voteChoice :: Vote
+  , governanceAction :: (TxId, Word16)
+  , votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
+  , mAnchor :: Maybe (VoteUrl, L.SafeHash L.StandardCrypto L.AnchorData)
+  , outFile :: VoteFile Out
+  }
 
 data GovernanceVoteViewCmdArgs era
   = GovernanceVoteViewCmdArgs
-      { eon         :: ConwayEraOnwards era
-      , outFormat  :: !ViewOutputFormat
-      , voteFile    :: VoteFile In
-      , mOutFile    :: Maybe (File () Out)
-      }
+  { eon :: ConwayEraOnwards era
+  , outFormat :: !ViewOutputFormat
+  , voteFile :: VoteFile In
+  , mOutFile :: Maybe (File () Out)
+  }
 
-renderGovernanceVoteCmds :: ()
+renderGovernanceVoteCmds
+  :: ()
   => GovernanceVoteCmds era
   -> Text
 renderGovernanceVoteCmds = \case
-  GovernanceVoteCreateCmd {} ->
+  GovernanceVoteCreateCmd{} ->
     "governance vote create"
-  GovernanceVoteViewCmd {} ->
+  GovernanceVoteViewCmd{} ->
     "governance vote view"

@@ -3,7 +3,8 @@
 
 module Cardano.CLI.EraBased.Options.Governance.Committee
   ( pGovernanceCommitteeCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
@@ -17,13 +18,15 @@ import           Data.Foldable (asum)
 import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
 
-pGovernanceCommitteeCmds :: ()
+pGovernanceCommitteeCmds
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeCmds era =
-  subInfoParser "committee"
-    ( Opt.progDesc
-        $ mconcat
+  subInfoParser
+    "committee"
+    ( Opt.progDesc $
+        mconcat
           [ "Committee member commands."
           ]
     )
@@ -34,51 +37,56 @@ pGovernanceCommitteeCmds era =
     , pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era
     ]
 
-pGovernanceCommitteeKeyGenColdCmd :: ()
+pGovernanceCommitteeKeyGenColdCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyGenColdCmd era = do
   w <- forEraMaybeEon era
-  pure
-    $ subParser "key-gen-cold"
-    $ Opt.info (pCmd w)
-    $ Opt.progDesc
-    $ mconcat
-        [ "Create a cold key pair for a Constitutional Committee Member"
-        ]
-  where
-    pCmd :: ()
-      => ConwayEraOnwards era
-      -> Parser (GovernanceCommitteeCmds era)
-    pCmd w =
-      fmap GovernanceCommitteeKeyGenColdCmd $
-        GovernanceCommitteeKeyGenColdCmdArgs w
-          <$> pColdVerificationKeyFile
-          <*> pColdSigningKeyFile
+  pure $
+    subParser "key-gen-cold" $
+      Opt.info (pCmd w) $
+        Opt.progDesc $
+          mconcat
+            [ "Create a cold key pair for a Constitutional Committee Member"
+            ]
+ where
+  pCmd
+    :: ()
+    => ConwayEraOnwards era
+    -> Parser (GovernanceCommitteeCmds era)
+  pCmd w =
+    fmap GovernanceCommitteeKeyGenColdCmd $
+      GovernanceCommitteeKeyGenColdCmdArgs w
+        <$> pColdVerificationKeyFile
+        <*> pColdSigningKeyFile
 
-pGovernanceCommitteeKeyGenHotCmd :: ()
+pGovernanceCommitteeKeyGenHotCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyGenHotCmd era = do
   w <- forEraMaybeEon era
-  pure
-    $ subParser "key-gen-hot"
-    $ Opt.info (pCmd w)
-    $ Opt.progDesc
-    $ mconcat
-        [ "Create a hot key pair for a Constitutional Committee Member"
-        ]
-  where
-    pCmd :: ()
-      => ConwayEraOnwards era
-      -> Parser (GovernanceCommitteeCmds era)
-    pCmd w =
-      fmap GovernanceCommitteeKeyGenHotCmd $
-        GovernanceCommitteeKeyGenHotCmdArgs w
-          <$> pVerificationKeyFileOut
-          <*> pSigningKeyFileOut
+  pure $
+    subParser "key-gen-hot" $
+      Opt.info (pCmd w) $
+        Opt.progDesc $
+          mconcat
+            [ "Create a hot key pair for a Constitutional Committee Member"
+            ]
+ where
+  pCmd
+    :: ()
+    => ConwayEraOnwards era
+    -> Parser (GovernanceCommitteeCmds era)
+  pCmd w =
+    fmap GovernanceCommitteeKeyGenHotCmd $
+      GovernanceCommitteeKeyGenHotCmdArgs w
+        <$> pVerificationKeyFileOut
+        <*> pSigningKeyFileOut
 
-pGovernanceCommitteeKeyHashCmd :: ()
+pGovernanceCommitteeKeyHashCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyHashCmd era = do
@@ -86,16 +94,17 @@ pGovernanceCommitteeKeyHashCmd era = do
   pure
     $ subParser "key-hash"
     $ Opt.info
-        ( fmap GovernanceCommitteeKeyHashCmd $
-            GovernanceCommitteeKeyHashCmdArgs w
-              <$> pAnyVerificationKeySource "Constitutional Committee Member key (hot or cold)"
-        )
+      ( fmap GovernanceCommitteeKeyHashCmd $
+          GovernanceCommitteeKeyHashCmdArgs w
+            <$> pAnyVerificationKeySource "Constitutional Committee Member key (hot or cold)"
+      )
     $ Opt.progDesc
     $ mconcat
-        [ "Print the identifier (hash) of a public key"
-        ]
+      [ "Print the identifier (hash) of a public key"
+      ]
 
-pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd :: ()
+pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
@@ -103,42 +112,46 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
   pure
     $ subParser "create-hot-key-authorization-certificate"
     $ Opt.info
-        ( fmap GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd $
-            GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs w
-              <$> pColdCredential
-              <*> pHotCredential
-              <*> pOutputFile
-        )
+      ( fmap GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd $
+          GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs w
+            <$> pColdCredential
+            <*> pHotCredential
+            <*> pOutputFile
+      )
     $ Opt.progDesc
     $ mconcat
-        [ "Create hot key authorization certificate for a Constitutional Committee Member"
-        ]
+      [ "Create hot key authorization certificate for a Constitutional Committee Member"
+      ]
 
-pGovernanceCommitteeCreateColdKeyResignationCertificateCmd :: ()
+pGovernanceCommitteeCreateColdKeyResignationCertificateCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
   w <- forEraMaybeEon era
-  pure
-    $ subParser "create-cold-key-resignation-certificate"
-    $ Opt.info (conwayEraOnwardsConstraints w $ mkParser w)
-    $ Opt.progDesc
-    $ mconcat
-        [ "Create cold key resignation certificate for a Constitutional Committee Member"
-        ]
+  pure $
+    subParser "create-cold-key-resignation-certificate" $
+      Opt.info (conwayEraOnwardsConstraints w $ mkParser w) $
+        Opt.progDesc $
+          mconcat
+            [ "Create cold key resignation certificate for a Constitutional Committee Member"
+            ]
  where
   mkParser w =
-    GovernanceCommitteeCreateColdKeyResignationCertificateCmd <$>
-      (GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs w <$>
-        pColdCredential <*> pAnchor <*> pOutputFile)
+    GovernanceCommitteeCreateColdKeyResignationCertificateCmd
+      <$> ( GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs w
+              <$> pColdCredential
+              <*> pAnchor
+              <*> pOutputFile
+          )
 
 pColdCredential :: Parser (VerificationKeySource CommitteeColdKey)
 pColdCredential =
   asum
     [ VksKeyHashFile . VerificationKeyOrFile <$> pCommitteeColdVerificationKeyOrFile
     , VksKeyHashFile . VerificationKeyHash <$> pCommitteeColdVerificationKeyHash
-    , VksScriptHash <$>
-        pScriptHash
+    , VksScriptHash
+        <$> pScriptHash
           "cold-script-hash"
           "Committee cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
     , VksScript <$> pScriptFor "cold-script-file" Nothing "Cold Native or Plutus script file"
@@ -149,8 +162,8 @@ pHotCredential =
   asum
     [ VksKeyHashFile . VerificationKeyOrFile <$> pCommitteeHotVerificationKeyOrFile
     , VksKeyHashFile . VerificationKeyHash <$> pCommitteeHotVerificationKeyHash
-    , VksScriptHash <$>
-        pScriptHash
+    , VksScriptHash
+        <$> pScriptHash
           "hot-script-hash"
           "Committee hot Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
     , VksScript <$> pScriptFor "hot-script-file" Nothing "Hot Native or Plutus script file"
@@ -168,10 +181,11 @@ pAnchorUrl =
   AnchorUrl
     <$> pUrl "resignation-metadata-url" "Constitutional Committee cold key resignation certificate URL"
 
-pSafeHash ::  Parser (L.SafeHash L.StandardCrypto L.AnchorData)
+pSafeHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pSafeHash =
-  Opt.option readSafeHash $ mconcat
-    [ Opt.long "resignation-metadata-hash"
-    , Opt.metavar "HASH"
-    , Opt.help "Constitutional Committee cold key resignation certificate metadata hash"
-    ]
+  Opt.option readSafeHash $
+    mconcat
+      [ Opt.long "resignation-metadata-hash"
+      , Opt.metavar "HASH"
+      , Opt.help "Constitutional Committee cold key resignation certificate metadata hash"
+      ]
