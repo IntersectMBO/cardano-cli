@@ -1,9 +1,8 @@
-name: Check Stylish Haskell
+name: Check Haskell formatting 
 
 on:
   merge_group:
   pull_request:
-  workflow_dispatch:
 
 # When pushing branches (and/or updating PRs), we do want to cancel previous
 # build runs. We assume they are stale now; and do not want to spend CI time and
@@ -20,64 +19,65 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-stylish-haskell:
+  check-formatting:
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-
     env:
-      # Modify this value to "invalidate" the cabal cache.
-      CABAL_CACHE_VERSION: "2024-02-23"
-
-      STYLISH_HASKELL_VERSION: "0.14.4.0"
-
-      STYLISH_HASKELL_PATHS: >
-        cardano-api
+      FOURMOLU_VERSION: "0.16.2.0"
+      STYLISH_HASKELL_VERSION: "0.14.6.0"
 
     steps:
+    - name: Download Fourmolu
+      run: |
+        fourmolu_path="$(mktemp -d)"
+        version="${{env.FOURMOLU_VERSION}}"
+        curl -sL \
+          "https://github.com/fourmolu/fourmolu/releases/download/v$version/fourmolu-$version-linux-x86_64" > "$fourmolu_path/fourmolu"
+        echo "PATH=$fourmolu_path:$PATH" >> "$GITHUB_ENV"
+        chmod u+rwx "$fourmolu_path/fourmolu"
+
     - name: Download stylish-haskell
       run: |
+        stylish_haskell_path="$(mktemp -d)"
         version="${{ env.STYLISH_HASKELL_VERSION }}"
-
         curl -sL \
           "https://github.com/haskell/stylish-haskell/releases/download/v$version/stylish-haskell-v$version-linux-x86_64.tar.gz" \
-          | tar -C "/tmp" -xz
-
-        echo "PATH=/tmp/stylish-haskell-v$version-linux-x86_64:$PATH" >> "$GITHUB_ENV"
+          | tar -C "$stylish_haskell_path" -xz
+        echo "PATH=$stylish_haskell_path/stylish-haskell-v$version-linux-x86_64:$PATH" >> "$GITHUB_ENV"
 
     - uses: actions/checkout@v3
 
-    - name: Run stylish-haskell over all Haskell files (always succeeds)
+    - name: Run formatting over all Haskell files (always succeeds)
       run: |
         git add .
         git stash
 
-        for x in $(git ls-tree --full-tree --name-only -r HEAD ${{ env.STYLISH_HASKELL_PATHS }}); do
+        for x in $(git ls-tree --full-tree --name-only -r HEAD); do
           if [ "${x##*.}" == "hs" ]; then
             if grep -qE '^#' "$x"; then
               echo "$x contains CPP.  Skipping."
             else
-              stylish-haskell -i "$x"
+              "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
             fi
           fi
         done
 
         git --no-pager diff
 
-    - name: Run stylish-haskell over all modified files
+    - name: Run formatting over all modified files
       run: |
         git add .
         git stash
         git fetch origin ${{ github.base_ref }} --unshallow
-        for x in $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}..HEAD ${{ env.STYLISH_HASKELL_PATHS }}); do
+        for x in $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}..HEAD); do
           if [ "${x##*.}" == "hs" ]; then
             if grep -qE '^#' "$x"; then
               echo "$x contains CPP.  Skipping."
             else
-              stylish-haskell -i "$x"
+              "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
             fi
           fi
         done
 
         git --no-pager diff --exit-code
+

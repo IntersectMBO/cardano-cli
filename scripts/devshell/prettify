@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+# Function to display help message
+show_help() {
+    echo "Usage: format <OPTION|FILES>"
+    echo "Format Haskell source files using fourmolu and stylish-haskell."
+    echo ""
+    echo "Options:"
+    echo "  -t, --tracked     Format all tracked Haskell (*.hs) files in the repository"
+    echo "  -s, --staged      Format all staged Haskell (*.hs) files"
+    echo "  -m, --modified    Format all modified Haskell (*.hs) files, including staged and unstaged"
+    echo "  -n, --not-staged  Format all non-staged modified Haskell (*.hs) files"
+    echo "  -h, --help        Show this help message"
+}
+
+# Function to run the formatting commands
+run_format() {
+    for file in "$@"; do
+        if [[ $file == *.hs ]]; then
+            if grep -qE '^#' "$file"; then
+              echo "$file contains CPP.  Skipping."
+            else
+              echo "Formatting: $file"
+              fourmolu -q -i "$file"
+              fourmolu -q -i "$file"
+              stylish-haskell -i "$file"
+            fi
+
+        fi
+    done
+}
+
+# Parse command line arguments
+case $1 in
+    -t|--tracked)
+        files=$(git ls-files '*.hs')
+        ;;
+    -s|--staged)
+        files=$(git diff --cached --name-only --diff-filter=ACM '*.hs')
+        ;;
+    -m|--modified)
+        files=$(git diff --name-only --diff-filter=ACM HEAD '*.hs')
+        ;;
+    -n|--not-staged)
+        files=$(git diff --name-only --diff-filter=ACM '*.hs')
+        ;;
+    -h|--help)
+        show_help
+        exit 0
+        ;;
+    *)
+        files="$@"
+        ;;
+esac
+
+if !(which stylish-haskell > /dev/null 2>&1); then
+    echo "ERROR: stylish-haskell is not available!"
+    echo -e
+    echo "Try entering the development shell with:"
+    echo "  nix develop"
+    exit 1
+fi
+
+if !(which fourmolu > /dev/null 2>&1); then
+    echo "ERROR: fourmolu is not available!"
+    echo -e
+    echo "Try entering the development shell with:"
+    echo "  nix develop"
+    exit 1
+fi
+
+
+if [[ -z $files ]]; then
+    echo "No files to format!"
+    if [[ -z $1 ]]; then
+      echo -e
+      show_help
+      exit 1
+    fi
+fi
+
+run_format $files
+
