@@ -555,10 +555,11 @@ parseUpdateProposalTTL =
 
 parseSoftforkRule :: Parser SoftforkRule
 parseSoftforkRule =
-  SoftforkRule
-    <$> ( rationalToLovelacePortion
-            <$> parseFraction "softfork-init-thd" "Propose initial threshold (right after proposal is confirmed)."
-        )
+  ( SoftforkRule . rationalToLovelacePortion
+      <$> parseFraction
+        "softfork-init-thd"
+        "Propose initial threshold (right after proposal is confirmed)."
+  )
     <*> ( rationalToLovelacePortion
             <$> parseFraction "softfork-min-thd" "Propose minimum threshold (threshold can't be less than this)."
         )

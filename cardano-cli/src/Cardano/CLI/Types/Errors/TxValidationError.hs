@@ -5,7 +5,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Types.Errors.TxValidationError
   ( TxAuxScriptsValidationError (..)

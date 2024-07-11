@@ -1384,11 +1384,12 @@ pProposalFile balExUnits =
 
 pCurrentTreasuryValueAndDonation
   :: ShelleyBasedEra era -> Parser (Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
-pCurrentTreasuryValueAndDonation sbe =
+pCurrentTreasuryValueAndDonation =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure Nothing)
-    (const $ optional ((,) <$> pCurrentTreasuryValue' <*> pTreasuryDonation'))
-    sbe
+    ( const $
+        optional ((,) <$> pCurrentTreasuryValue' <*> pTreasuryDonation')
+    )
 
 pCurrentTreasuryValue' :: Parser TxCurrentTreasuryValue
 pCurrentTreasuryValue' =
@@ -3608,8 +3609,7 @@ pAlwaysAbstain =
 
 pVoteAnchor :: Parser (VoteUrl, L.SafeHash L.StandardCrypto L.AnchorData)
 pVoteAnchor =
-  (,)
-    <$> (VoteUrl <$> pUrl "anchor-url" "Vote anchor URL")
+  ((,) . VoteUrl <$> pUrl "anchor-url" "Vote anchor URL")
     <*> pVoteAnchorDataHash
 
 pVoteAnchorDataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
