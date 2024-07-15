@@ -16,10 +16,7 @@
     supportedSystems = [
       "x86_64-linux"
       "x86_64-darwin"
-      # this is slow as we don't have aarch64-linux native builders as of 2024-04-03
-      # disabling to reduce CI time initially. Uncomment later
-      # When you uncomment, lookup the "TODO generalize" comments in release-upload.yaml
-      # "aarch64-linux"
+      "aarch64-linux"
       "aarch64-darwin"
     ];
 
@@ -175,8 +172,9 @@
       in
         lib.recursiveUpdate flake rec {
           project = cabalProject;
-          # add a required job, that's basically all hydraJobs.
-          hydraJobs =
+          # Skip aarch64-linux as we don't have any native builders for this arch as of 2024-07-15
+          # so this would choke the CI. aarch64-linux binary building is enabled through cross-compilation.
+          hydraJobs = lib.optionalAttrs (system != "aarch64-linux") (
             nixpkgs.callPackages inputs.iohkNix.utils.ciJobsAggregates
             {
               ciJobs =
@@ -186,7 +184,8 @@
                   revision = nixpkgs.writeText "revision" (inputs.self.rev or "dirty");
                 };
             }
-            // {haddockShell = devShells.haddockShell;};
+            // {haddockShell = devShells.haddockShell;}
+          );
           legacyPackages = rec {
             inherit cabalProject nixpkgs;
             # also provide hydraJobs through legacyPackages to allow building without system prefix:
