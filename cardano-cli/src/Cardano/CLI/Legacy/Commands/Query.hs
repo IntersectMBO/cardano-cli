@@ -57,7 +57,7 @@ data LegacyQueryLeadershipScheduleCmdArgs = LegacyQueryLeadershipScheduleCmdArgs
   , poolColdVerKeyFile  :: !(VerificationKeyOrHashOrFile StakePoolKey)
   , vrkSkeyFp           :: !(SigningKeyFile In)
   , whichSchedule       :: !EpochLeadershipSchedule
-  , format              :: Maybe QueryOutputFormat
+  , format              :: Maybe OutputFormatJsonOrText
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -86,7 +86,7 @@ data LegacyQueryStakePoolsCmdArgs = LegacyQueryStakePoolsCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , format              :: Maybe QueryOutputFormat
+  , format              :: Maybe OutputFormatJsonOrText
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -94,7 +94,7 @@ data LegacyQueryStakeDistributionCmdArgs = LegacyQueryStakeDistributionCmdArgs
   { nodeSocketPath      :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
-  , format              :: Maybe QueryOutputFormat
+  , format              :: Maybe OutputFormatJsonOrText
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -111,7 +111,7 @@ data LegacyQueryUTxOCmdArgs = LegacyQueryUTxOCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , queryFilter         :: !QueryUTxOFilter
   , networkId           :: !NetworkId
-  , format              :: Maybe QueryOutputFormat
+  , format              :: Maybe OutputFormatJsonOrText
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 

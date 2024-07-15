@@ -3,6 +3,10 @@ Usage: cardano-cli alonzo transaction calculate-min-fee --tx-body-file FILE
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
                                                           [--reference-script-size NATURAL]
+                                                          [ --output-json
+                                                          | --output-text
+                                                          ]
+                                                          [--out-file FILE]
                                                           [ --mainnet
                                                           | --testnet-magic NATURAL
                                                           ]
@@ -21,6 +25,11 @@ Available options:
   --reference-script-size NATURAL
                            Total size in bytes of transaction reference scripts
                            (default is 0).
+  --output-json            Format calculate-min-fee query output to JSON.
+                           Default format when writing to a file
+  --output-text            Format calculate-min-fee query output to TEXT.
+                           Default format when writing to stdout
+  --out-file FILE          The output file.
   --mainnet                DEPRECATED. This argument has no effect.
   --testnet-magic NATURAL  DEPRECATED. This argument has no effect.
   --tx-in-count NATURAL    DEPRECATED. This argument has no effect.

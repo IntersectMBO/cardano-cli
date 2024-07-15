@@ -33,6 +33,7 @@ module Cardano.CLI.EraBased.Run.Query
   , runQueryUTxOCmd
 
   , DelegationsAndRewards(..)
+  , newOutputFormat
   , renderQueryCmdError
   , renderOpCertIntervalInformation
   , percentage
@@ -1044,7 +1045,7 @@ writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
         Right chainDepstate -> liftIO . LBS.putStrLn $ encodePretty chainDepstate
 
 writeFilteredUTxOs :: Api.ShelleyBasedEra era
-                   -> Maybe QueryOutputFormat
+                   -> Maybe OutputFormatJsonOrText
                    -> Maybe (File () Out)
                    -> UTxO era
                    -> ExceptT QueryCmdError IO ()
@@ -1053,8 +1054,8 @@ writeFilteredUTxOs sbe format mOutFile utxo =
     firstExceptT QueryCmdWriteFileError . newExceptT .
       writeLazyByteStringOutput mOutFile $
         case newOutputFormat format mOutFile of
-          QueryOutputFormatJson -> encodePretty utxo
-          QueryOutputFormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo
+          OutputFormatJson -> encodePretty utxo
+          OutputFormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo
 
 filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
 filteredUTxOsToText sbe (UTxO utxo) = do
@@ -1172,7 +1173,7 @@ runQueryStakePoolsCmd
 
 -- TODO: replace with writeFormattedOutput
 writeStakePools
-  :: QueryOutputFormat
+  :: OutputFormatJsonOrText
   -> Maybe (File () Out)
   -> Set PoolId
   -> ExceptT QueryCmdError IO ()
@@ -1182,18 +1183,18 @@ writeStakePools format mOutFile stakePools =
   where
     toWrite :: LBS.ByteString =
       case format of
-        QueryOutputFormatText ->
+        OutputFormatText ->
           LBS.unlines
             $ map (strictTextToLazyBytestring . serialiseToBech32)
             $ Set.toList stakePools
-        QueryOutputFormatJson ->
+        OutputFormatJson ->
           encodePretty stakePools
 
 writeFormattedOutput
   :: MonadIOTransError QueryCmdError t m
   => ToJSON a
   => Pretty a
-  => Maybe QueryOutputFormat
+  => Maybe OutputFormatJsonOrText
   -> Maybe (File b Out)
   -> a
   -> t m ()
@@ -1203,8 +1204,8 @@ writeFormattedOutput mFormat mOutFile value =
   where
     toWrite :: LBS.ByteString =
       case newOutputFormat mFormat mOutFile of
-        QueryOutputFormatText -> fromString . docToString $ pretty value
-        QueryOutputFormatJson -> encodePretty value
+        OutputFormatText -> fromString . docToString $ pretty value
+        OutputFormatJson -> encodePretty value
 
 runQueryStakeDistributionCmd :: ()
   => Cmd.QueryStakeDistributionCmdArgs
@@ -1239,7 +1240,7 @@ runQueryStakeDistributionCmd
     & onLeft left
 
 writeStakeDistribution
-  :: QueryOutputFormat
+  :: OutputFormatJsonOrText
   -> Maybe (File () Out)
   -> Map PoolId Rational
   -> ExceptT QueryCmdError IO ()
@@ -1249,8 +1250,8 @@ writeStakeDistribution format mOutFile stakeDistrib =
   where
     toWrite :: LBS.ByteString =
       case format of
-        QueryOutputFormatJson -> encodePretty stakeDistrib
-        QueryOutputFormatText -> strictTextToLazyBytestring stakeDistributionText
+        OutputFormatJson -> encodePretty stakeDistrib
+        OutputFormatText -> strictTextToLazyBytestring stakeDistributionText
     stakeDistributionText =
       Text.unlines $
         [ title
@@ -1371,9 +1372,9 @@ runQueryLeadershipScheduleCmd
         start = SystemStart $ sgSystemStart shelleyGenesis
         toWrite =
           case newOutputFormat format mOutFile' of
-            QueryOutputFormatJson ->
+            OutputFormatJson ->
               encodePretty $ leadershipScheduleToJson schedule eInfo start
-            QueryOutputFormatText ->
+            OutputFormatText ->
               strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start
 
     leadershipScheduleToText
@@ -1660,12 +1661,12 @@ requireEon minEra era =
 -- | The output format to use, for commands with a recently introduced --output-[json,text] flag
 -- and that used to have the following default: --out-file implies JSON,
 -- output to stdout implied text.
-newOutputFormat :: Maybe QueryOutputFormat -> Maybe a -> QueryOutputFormat
+newOutputFormat :: Maybe OutputFormatJsonOrText -> Maybe a -> OutputFormatJsonOrText
 newOutputFormat format mOutFile =
   case (format, mOutFile) of
     (Just f, _) -> f -- Take flag from CLI if specified
-    (Nothing, Nothing) -> QueryOutputFormatText -- No CLI flag, writing to stdout: write text
-    (Nothing, Just _) -> QueryOutputFormatJson -- No CLI flag, writing to a file: write JSON
+    (Nothing, Nothing) -> OutputFormatText -- No CLI flag, writing to stdout: write text
+    (Nothing, Just _) ->  OutputFormatJson -- No CLI flag, writing to a file: write JSON
 
 strictTextToLazyBytestring :: Text -> LBS.ByteString
 strictTextToLazyBytestring t = BS.fromChunks [Text.encodeUtf8 t]

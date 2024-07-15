@@ -73,7 +73,7 @@ data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
   , vrkSkeyFp           :: !(SigningKeyFile In)
   , whichSchedule       :: !EpochLeadershipSchedule
   , target              :: !(Consensus.Target ChainPoint)
-  , format              :: Maybe QueryOutputFormat
+  , format              :: Maybe OutputFormatJsonOrText
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -105,7 +105,7 @@ data QueryStakePoolsCmdArgs = QueryStakePoolsCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , target              :: !(Consensus.Target ChainPoint)
-  , format              :: Maybe QueryOutputFormat
+  , format              :: Maybe OutputFormatJsonOrText
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -114,7 +114,7 @@ data QueryStakeDistributionCmdArgs = QueryStakeDistributionCmdArgs
   , consensusModeParams :: !ConsensusModeParams
   , networkId           :: !NetworkId
   , target              :: !(Consensus.Target ChainPoint)
-  , format              :: Maybe QueryOutputFormat
+  , format              :: Maybe OutputFormatJsonOrText
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -133,7 +133,7 @@ data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   , queryFilter         :: !QueryUTxOFilter
   , networkId           :: !NetworkId
   , target              :: !(Consensus.Target ChainPoint)
-  , format              :: Maybe QueryOutputFormat
+  , format              :: Maybe OutputFormatJsonOrText
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
@@ -203,7 +203,7 @@ data QueryRefScriptSizeCmdArgs = QueryRefScriptSizeCmdArgs
   , transactionInputs   :: !(Set TxIn)
   , networkId           :: !NetworkId
   , target              :: !(Consensus.Target ChainPoint)
-  , format              :: Maybe QueryOutputFormat
+  , format              :: Maybe OutputFormatJsonOrText
   , mOutFile            :: !(Maybe (File () Out))
   } deriving (Generic, Show)
 
