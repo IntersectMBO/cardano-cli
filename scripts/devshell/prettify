@@ -25,10 +25,11 @@ run_format() {
               fourmolu -q -i "$file"
               stylish-haskell -i "$file"
             fi
-
         fi
     done
 }
+
+flag_passed="true"
 
 # Parse command line arguments
 case $1 in
@@ -50,8 +51,27 @@ case $1 in
         ;;
     *)
         files="$@"
+        flag_passed="false"
         ;;
 esac
+
+if [[ $flag_passed == "true" ]] && [[ $# -gt 1 ]]; then
+  echo "ERROR: only one flag is allowed!"
+  echo -e
+  show_help
+  exit 1
+fi
+
+for file in $files; do
+  if [[ ! -a $file ]]; then
+    echo "ERROR: $file does not exist"
+    exit 1
+    if ![[ -f $file ]]; then
+      echo "ERROR: $file is not a regular file"
+      exit
+    fi
+  fi
+done
 
 for tool in stylish-haskell fourmolu
 do
@@ -63,7 +83,6 @@ do
     exit 1
   fi
 done
-
 
 if [[ -z $files ]]; then
     echo "No files to format!"
