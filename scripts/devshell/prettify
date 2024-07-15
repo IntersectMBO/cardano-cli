@@ -53,21 +53,16 @@ case $1 in
         ;;
 esac
 
-if !(which stylish-haskell > /dev/null 2>&1); then
-    echo "ERROR: stylish-haskell is not available!"
+for tool in stylish-haskell fourmolu
+do
+  if !(which $tool > /dev/null 2>&1); then
+    echo "ERROR: $tool is not available!"
     echo -e
     echo "Try entering the development shell with:"
     echo "  nix develop"
     exit 1
-fi
-
-if !(which fourmolu > /dev/null 2>&1); then
-    echo "ERROR: fourmolu is not available!"
-    echo -e
-    echo "Try entering the development shell with:"
-    echo "  nix develop"
-    exit 1
-fi
+  fi
+done
 
 
 if [[ -z $files ]]; then
