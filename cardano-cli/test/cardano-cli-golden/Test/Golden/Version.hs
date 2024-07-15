@@ -2,7 +2,8 @@
 
 module Test.Golden.Version
   ( hprop_golden_version
-  ) where
+  )
+where
 
 import           Control.Monad (void)
 
@@ -14,6 +15,7 @@ import           Hedgehog (Property)
 
 hprop_golden_version :: Property
 hprop_golden_version = propertyOnce $ do
-  void $ execCardanoCLI
-    [ "version"
-    ]
+  void $
+    execCardanoCLI
+      [ "version"
+      ]

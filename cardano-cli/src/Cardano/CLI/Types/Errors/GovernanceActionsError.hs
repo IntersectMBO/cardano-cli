@@ -1,8 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.GovernanceActionsError
-  ( GovernanceActionsError(..)
-  ) where
+  ( GovernanceActionsError (..)
+  )
+where
 
 import           Cardano.Api
 

@@ -15,13 +15,17 @@ hprop_golden_shelleyAllMultiSigAddressBuild :: Property
 hprop_golden_shelleyAllMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
   allMultiSigFp <- noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/scripts/all"
 
-  allMultiSigAddress <- execCardanoCLI
-    [ "address", "build"
-    , "--payment-script-file", allMultiSigFp
-    , "--mainnet"
-    ]
+  allMultiSigAddress <-
+    execCardanoCLI
+      [ "address"
+      , "build"
+      , "--payment-script-file"
+      , allMultiSigFp
+      , "--mainnet"
+      ]
 
-  goldenAllMultiSigAddrFp <- noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/addresses/all"
+  goldenAllMultiSigAddrFp <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/addresses/all"
 
   goldenAllMs <- H.readFile goldenAllMultiSigAddrFp
 
@@ -31,13 +35,17 @@ hprop_golden_shelleyAnyMultiSigAddressBuild :: Property
 hprop_golden_shelleyAnyMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
   anyMultiSigFp <- noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
 
-  anyMultiSigAddress <- execCardanoCLI
-    [ "address", "build"
-    , "--payment-script-file", anyMultiSigFp
-    , "--mainnet"
-    ]
+  anyMultiSigAddress <-
+    execCardanoCLI
+      [ "address"
+      , "build"
+      , "--payment-script-file"
+      , anyMultiSigFp
+      , "--mainnet"
+      ]
 
-  goldenAnyMultiSigAddrFp <- noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/addresses/any"
+  goldenAnyMultiSigAddrFp <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/addresses/any"
 
   goldenAnyMs <- H.readFile goldenAnyMultiSigAddrFp
 
@@ -45,14 +53,19 @@ hprop_golden_shelleyAnyMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "
 
 hprop_golden_shelleyAtLeastMultiSigAddressBuild :: Property
 hprop_golden_shelleyAtLeastMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
-  atLeastMultiSigFp <- noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/scripts/atleast"
+  atLeastMultiSigFp <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/scripts/atleast"
 
-  atLeastMultiSigAddress <- execCardanoCLI
-    [ "address", "build"
-    , "--payment-script-file", atLeastMultiSigFp
-    , "--mainnet"
-    ]
+  atLeastMultiSigAddress <-
+    execCardanoCLI
+      [ "address"
+      , "build"
+      , "--payment-script-file"
+      , atLeastMultiSigFp
+      , "--mainnet"
+      ]
 
-  goldenAtLeastMultiSigAddrFp <- H.note "test/cardano-cli-golden/files/golden/shelley/multisig/addresses/atleast"
+  goldenAtLeastMultiSigAddrFp <-
+    H.note "test/cardano-cli-golden/files/golden/shelley/multisig/addresses/atleast"
 
   H.diffVsGoldenFile atLeastMultiSigAddress goldenAtLeastMultiSigAddrFp

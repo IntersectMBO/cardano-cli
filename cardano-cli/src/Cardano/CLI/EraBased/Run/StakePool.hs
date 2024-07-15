@@ -7,12 +7,12 @@
 
 module Cardano.CLI.EraBased.Run.StakePool
   ( runStakePoolCmds
-
   , runStakePoolIdCmd
   , runStakePoolMetadataHashCmd
   , runStakePoolRegistrationCertificateCmd
   , runStakePoolDeregistrationCertificateCmd
-  ) where
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
@@ -27,14 +27,15 @@ import           Cardano.CLI.Types.Key (readVerificationKeyOrFile)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
 
-runStakePoolCmds :: ()
+runStakePoolCmds
+  :: ()
   => StakePoolCmds era
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolCmds = \case
-  StakePoolDeregistrationCertificateCmd args  -> runStakePoolDeregistrationCertificateCmd args
-  StakePoolIdCmd args                         -> runStakePoolIdCmd args
-  StakePoolMetadataHashCmd args               -> runStakePoolMetadataHashCmd args
-  StakePoolRegistrationCertificateCmd args    -> runStakePoolRegistrationCertificateCmd args
+  StakePoolDeregistrationCertificateCmd args -> runStakePoolDeregistrationCertificateCmd args
+  StakePoolIdCmd args -> runStakePoolIdCmd args
+  StakePoolMetadataHashCmd args -> runStakePoolMetadataHashCmd args
+  StakePoolRegistrationCertificateCmd args -> runStakePoolRegistrationCertificateCmd args
 
 --
 -- Stake pool command implementations
@@ -43,124 +44,132 @@ runStakePoolCmds = \case
 -- | Create a stake pool registration cert.
 -- TODO: Metadata and more stake pool relay support to be
 -- added in the future.
-runStakePoolRegistrationCertificateCmd :: ()
+runStakePoolRegistrationCertificateCmd
+  :: ()
   => StakePoolRegistrationCertificateCmdArgs era
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolRegistrationCertificateCmd
-    Cmd.StakePoolRegistrationCertificateCmdArgs
-      { sbe
-      , poolVerificationKeyOrFile
-      , vrfVerificationKeyOrFile
-      , poolPledge
-      , poolCost
-      , poolMargin
-      , rewardStakeVerificationKeyOrFile
-      , ownerStakeVerificationKeyOrFiles
-      , relays
-      , mMetadata
-      , network
-      , outFile
-      }
-    = shelleyBasedEraConstraints sbe $ do
-    -- Pool verification key
-    stakePoolVerKey <- firstExceptT StakePoolCmdReadKeyFileError
-      $ readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
-    let stakePoolId' = verificationKeyHash stakePoolVerKey
+  Cmd.StakePoolRegistrationCertificateCmdArgs
+    { sbe
+    , poolVerificationKeyOrFile
+    , vrfVerificationKeyOrFile
+    , poolPledge
+    , poolCost
+    , poolMargin
+    , rewardStakeVerificationKeyOrFile
+    , ownerStakeVerificationKeyOrFiles
+    , relays
+    , mMetadata
+    , network
+    , outFile
+    } =
+    shelleyBasedEraConstraints sbe $ do
+      -- Pool verification key
+      stakePoolVerKey <-
+        firstExceptT StakePoolCmdReadKeyFileError $
+          readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
+      let stakePoolId' = verificationKeyHash stakePoolVerKey
 
-    -- VRF verification key
-    vrfVerKey <- firstExceptT StakePoolCmdReadKeyFileError
-      $ readVerificationKeyOrFile AsVrfKey vrfVerificationKeyOrFile
-    let vrfKeyHash' = verificationKeyHash vrfVerKey
+      -- VRF verification key
+      vrfVerKey <-
+        firstExceptT StakePoolCmdReadKeyFileError $
+          readVerificationKeyOrFile AsVrfKey vrfVerificationKeyOrFile
+      let vrfKeyHash' = verificationKeyHash vrfVerKey
 
-    -- Pool reward account
-    rwdStakeVerKey <- firstExceptT StakePoolCmdReadKeyFileError
-      $ readVerificationKeyOrFile AsStakeKey rewardStakeVerificationKeyOrFile
-    let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
-        rewardAccountAddr = makeStakeAddress network stakeCred
+      -- Pool reward account
+      rwdStakeVerKey <-
+        firstExceptT StakePoolCmdReadKeyFileError $
+          readVerificationKeyOrFile AsStakeKey rewardStakeVerificationKeyOrFile
+      let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
+          rewardAccountAddr = makeStakeAddress network stakeCred
 
-    -- Pool owner(s)
-    sPoolOwnerVkeys <-
-      mapM
-        (firstExceptT StakePoolCmdReadKeyFileError
-          . readVerificationKeyOrFile AsStakeKey
-        )
-        ownerStakeVerificationKeyOrFiles
-    let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
+      -- Pool owner(s)
+      sPoolOwnerVkeys <-
+        mapM
+          ( firstExceptT StakePoolCmdReadKeyFileError
+              . readVerificationKeyOrFile AsStakeKey
+          )
+          ownerStakeVerificationKeyOrFiles
+      let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 
-    let stakePoolParams =
-          StakePoolParameters
-            { stakePoolId = stakePoolId'
-            , stakePoolVRF = vrfKeyHash'
-            , stakePoolCost = poolCost
-            , stakePoolMargin = poolMargin
-            , stakePoolRewardAccount = rewardAccountAddr
-            , stakePoolPledge = poolPledge
-            , stakePoolOwners = stakePoolOwners'
-            , stakePoolRelays = relays
-            , stakePoolMetadata = mMetadata
-            }
+      let stakePoolParams =
+            StakePoolParameters
+              { stakePoolId = stakePoolId'
+              , stakePoolVRF = vrfKeyHash'
+              , stakePoolCost = poolCost
+              , stakePoolMargin = poolMargin
+              , stakePoolRewardAccount = rewardAccountAddr
+              , stakePoolPledge = poolPledge
+              , stakePoolOwners = stakePoolOwners'
+              , stakePoolRelays = relays
+              , stakePoolMetadata = mMetadata
+              }
 
-    let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
-        req = createStakePoolRegistrationRequirements sbe
-          $ shelleyBasedEraConstraints sbe ledgerStakePoolParams
-        registrationCert = makeStakePoolRegistrationCertificate req
+      let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
+          req =
+            createStakePoolRegistrationRequirements sbe $
+              shelleyBasedEraConstraints sbe ledgerStakePoolParams
+          registrationCert = makeStakePoolRegistrationCertificate req
 
-    firstExceptT StakePoolCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringFile outFile
-      $ textEnvelopeToJSON (Just registrationCertDesc) registrationCert
-  where
+      firstExceptT StakePoolCmdWriteFileError
+        . newExceptT
+        $ writeLazyByteStringFile outFile
+        $ textEnvelopeToJSON (Just registrationCertDesc) registrationCert
+   where
     registrationCertDesc :: TextEnvelopeDescr
     registrationCertDesc = "Stake Pool Registration Certificate"
 
-createStakePoolRegistrationRequirements :: ()
+createStakePoolRegistrationRequirements
+  :: ()
   => ShelleyBasedEra era
   -> L.PoolParams (L.EraCrypto (ShelleyLedgerEra era))
   -> StakePoolRegistrationRequirements era
 createStakePoolRegistrationRequirements sbe pparams =
- case sbe of
-   ShelleyBasedEraShelley ->
-     StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraShelley pparams
-   ShelleyBasedEraAllegra ->
-     StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraAllegra pparams
-   ShelleyBasedEraMary ->
-     StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraMary pparams
-   ShelleyBasedEraAlonzo ->
-     StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraAlonzo pparams
-   ShelleyBasedEraBabbage ->
-     StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraBabbage pparams
-   ShelleyBasedEraConway ->
-     StakePoolRegistrationRequirementsConwayOnwards ConwayEraOnwardsConway pparams
+  case sbe of
+    ShelleyBasedEraShelley ->
+      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraShelley pparams
+    ShelleyBasedEraAllegra ->
+      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraAllegra pparams
+    ShelleyBasedEraMary ->
+      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraMary pparams
+    ShelleyBasedEraAlonzo ->
+      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraAlonzo pparams
+    ShelleyBasedEraBabbage ->
+      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraBabbage pparams
+    ShelleyBasedEraConway ->
+      StakePoolRegistrationRequirementsConwayOnwards ConwayEraOnwardsConway pparams
 
-
-runStakePoolDeregistrationCertificateCmd :: ()
+runStakePoolDeregistrationCertificateCmd
+  :: ()
   => StakePoolDeregistrationCertificateCmdArgs era
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolDeregistrationCertificateCmd
-    Cmd.StakePoolDeregistrationCertificateCmdArgs
-      { sbe
-      , poolVerificationKeyOrFile
-      , retireEpoch
-      , outFile
-      } =
-  shelleyBasedEraConstraints sbe $ do
-    -- Pool verification key
-    stakePoolVerKey <- firstExceptT StakePoolCmdReadKeyFileError
-      $ readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
+  Cmd.StakePoolDeregistrationCertificateCmdArgs
+    { sbe
+    , poolVerificationKeyOrFile
+    , retireEpoch
+    , outFile
+    } =
+    shelleyBasedEraConstraints sbe $ do
+      -- Pool verification key
+      stakePoolVerKey <-
+        firstExceptT StakePoolCmdReadKeyFileError $
+          readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
 
-    let stakePoolId' = verificationKeyHash stakePoolVerKey
-        req = createStakePoolRetirementRequirements sbe stakePoolId' retireEpoch
-        retireCert = makeStakePoolRetirementCertificate req
+      let stakePoolId' = verificationKeyHash stakePoolVerKey
+          req = createStakePoolRetirementRequirements sbe stakePoolId' retireEpoch
+          retireCert = makeStakePoolRetirementCertificate req
 
-    firstExceptT StakePoolCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringFile outFile
-      $ textEnvelopeToJSON (Just retireCertDesc) retireCert
-  where
+      firstExceptT StakePoolCmdWriteFileError
+        . newExceptT
+        $ writeLazyByteStringFile outFile
+        $ textEnvelopeToJSON (Just retireCertDesc) retireCert
+   where
     retireCertDesc :: TextEnvelopeDescr
     retireCertDesc = "Stake Pool Retirement Certificate"
 
-createStakePoolRetirementRequirements :: ()
+createStakePoolRetirementRequirements
+  :: ()
   => ShelleyBasedEra era
   -> PoolId
   -> L.EpochNo
@@ -180,47 +189,51 @@ createStakePoolRetirementRequirements sbe pid epoch =
     ShelleyBasedEraConway ->
       StakePoolRetirementRequirementsConwayOnwards ConwayEraOnwardsConway pid epoch
 
-runStakePoolIdCmd :: ()
+runStakePoolIdCmd
+  :: ()
   => StakePoolIdCmdArgs era
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolIdCmd
-    Cmd.StakePoolIdCmdArgs
-      { poolVerificationKeyOrFile
-      , outputFormat
-      , mOutFile
-      } = do
-  stakePoolVerKey <- firstExceptT StakePoolCmdReadKeyFileError
-    $ readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
+  Cmd.StakePoolIdCmdArgs
+    { poolVerificationKeyOrFile
+    , outputFormat
+    , mOutFile
+    } = do
+    stakePoolVerKey <-
+      firstExceptT StakePoolCmdReadKeyFileError $
+        readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
 
-  case outputFormat of
-    IdOutputFormatHex ->
-      firstExceptT StakePoolCmdWriteFileError
-        . newExceptT
-        $ writeByteStringOutput mOutFile
-        $ serialiseToRawBytesHex (verificationKeyHash stakePoolVerKey)
-    IdOutputFormatBech32 ->
-      firstExceptT StakePoolCmdWriteFileError
-        . newExceptT
-        $ writeTextOutput mOutFile
-        $ serialiseToBech32 (verificationKeyHash stakePoolVerKey)
+    case outputFormat of
+      IdOutputFormatHex ->
+        firstExceptT StakePoolCmdWriteFileError
+          . newExceptT
+          $ writeByteStringOutput mOutFile
+          $ serialiseToRawBytesHex (verificationKeyHash stakePoolVerKey)
+      IdOutputFormatBech32 ->
+        firstExceptT StakePoolCmdWriteFileError
+          . newExceptT
+          $ writeTextOutput mOutFile
+          $ serialiseToBech32 (verificationKeyHash stakePoolVerKey)
 
-runStakePoolMetadataHashCmd :: ()
+runStakePoolMetadataHashCmd
+  :: ()
   => StakePoolMetadataHashCmdArgs era
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolMetadataHashCmd
-    Cmd.StakePoolMetadataHashCmdArgs
-      { poolMetadataFile
-      , mOutFile
-      } = do
-  metadataBytes <- lift (readByteStringFile poolMetadataFile)
-    & onLeft (left . StakePoolCmdReadFileError)
+  Cmd.StakePoolMetadataHashCmdArgs
+    { poolMetadataFile
+    , mOutFile
+    } = do
+    metadataBytes <-
+      lift (readByteStringFile poolMetadataFile)
+        & onLeft (left . StakePoolCmdReadFileError)
 
-  (_metadata, metadataHash) <-
+    (_metadata, metadataHash) <-
       firstExceptT StakePoolCmdMetadataValidationError
-    . hoistEither
-    $ validateAndHashStakePoolMetadata metadataBytes
-  case mOutFile of
-    Nothing -> liftIO $ BS.putStrLn (serialiseToRawBytesHex metadataHash)
-    Just (File fpath) ->
-      handleIOExceptT (StakePoolCmdWriteFileError . FileIOError fpath)
-        $ BS.writeFile fpath (serialiseToRawBytesHex metadataHash)
+        . hoistEither
+        $ validateAndHashStakePoolMetadata metadataBytes
+    case mOutFile of
+      Nothing -> liftIO $ BS.putStrLn (serialiseToRawBytesHex metadataHash)
+      Just (File fpath) ->
+        handleIOExceptT (StakePoolCmdWriteFileError . FileIOError fpath) $
+          BS.writeFile fpath (serialiseToRawBytesHex metadataHash)

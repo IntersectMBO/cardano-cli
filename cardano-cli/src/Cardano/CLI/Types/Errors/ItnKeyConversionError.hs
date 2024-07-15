@@ -5,9 +5,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.ItnKeyConversionError
-  ( ItnKeyConversionError(..)
+  ( ItnKeyConversionError (..)
   , renderConversionError
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -30,8 +31,10 @@ renderConversionError = \case
   ItnKeyBech32DecodeError decErr ->
     "Error decoding Bech32 key: " <> prettyError decErr
   ItnReadBech32FileError fp readErr ->
-    "Error reading Bech32 key at: " <> pshow fp
-                      <> " Error: " <> pshow (displayException readErr)
+    "Error reading Bech32 key at: "
+      <> pshow fp
+      <> " Error: "
+      <> pshow (displayException readErr)
   ItnSigningKeyDeserialisationError _sKey ->
     -- Sensitive data, such as the signing key, is purposely not included in
     -- the error message.

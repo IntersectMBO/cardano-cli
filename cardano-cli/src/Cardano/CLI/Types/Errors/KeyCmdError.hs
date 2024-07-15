@@ -4,9 +4,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.KeyCmdError
-  ( KeyCmdError(..)
+  ( KeyCmdError (..)
   , renderKeyCmdError
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -22,10 +23,10 @@ data KeyCmdError
   | KeyCmdReadKeyFileError !(FileError InputDecodeError)
   | KeyCmdWriteFileError !(FileError ())
   | KeyCmdByronKeyFailure !Byron.ByronKeyFailure
-  | KeyCmdByronKeyParseError
+  | -- | Text representation of the parse error. Unfortunately, the actual
+    -- error type isn't exported.
+    KeyCmdByronKeyParseError
       !Text
-      -- ^ Text representation of the parse error. Unfortunately, the actual
-      -- error type isn't exported.
   | KeyCmdItnKeyConvError !ItnKeyConversionError
   | KeyCmdWrongKeyTypeError
   | KeyCmdCardanoAddressSigningKeyFileError
@@ -55,8 +56,11 @@ renderKeyCmdError err =
     KeyCmdCardanoAddressSigningKeyFileError fileErr ->
       prettyError fileErr
     KeyCmdNonLegacyKey fp ->
-      "Signing key at: " <> pretty fp <> " is not a legacy Byron signing key and should not need to be converted."
+      "Signing key at: "
+        <> pretty fp
+        <> " is not a legacy Byron signing key and should not need to be converted."
     KeyCmdVerificationKeyReadError e ->
       renderVerificationKeyTextOrFileError e
     KeyCmdExpectedExtendedVerificationKey someVerKey ->
-      "Expected an extended verification key but got: " <> pretty (renderSomeAddressVerificationKey someVerKey)
+      "Expected an extended verification key but got: "
+        <> pretty (renderSomeAddressVerificationKey someVerKey)

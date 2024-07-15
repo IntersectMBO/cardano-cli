@@ -4,9 +4,10 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Types.Errors.StakePoolCmdError
-  ( StakePoolCmdError(..)
+  ( StakePoolCmdError (..)
   , renderStakePoolCmdError
-  ) where
+  )
+where
 
 import           Cardano.Api
 

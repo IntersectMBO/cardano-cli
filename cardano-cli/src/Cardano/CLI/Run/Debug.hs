@@ -1,11 +1,12 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Run.Debug
-  ( DebugCmdError(..)
+  ( DebugCmdError (..)
   , runLogEpochStateCmd
   , runDebugCmds
   , renderDebugCmdError
-  ) where
+  )
+where
 
 import           Cardano.CLI.Commands.Debug
 import           Cardano.CLI.Run.Debug.LogEpochState

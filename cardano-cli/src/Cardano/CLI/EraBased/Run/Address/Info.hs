@@ -3,7 +3,8 @@
 
 module Cardano.CLI.EraBased.Run.Address.Info
   ( runAddressInfoCmd
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -35,32 +36,31 @@ instance ToJSON AddressInfo where
 
 runAddressInfoCmd :: Text -> Maybe (File () Out) -> ExceptT AddressInfoError IO ()
 runAddressInfoCmd addrTxt mOutputFp = do
-    addrInfo <- case (Left  <$> deserialiseAddress AsAddressAny addrTxt)
-                 <|> (Right <$> deserialiseAddress AsStakeAddress addrTxt) of
-
-      Nothing ->
-        left $ ShelleyAddressInvalid addrTxt
-
-      Just (Left (AddressByron payaddr)) ->
-            pure $ AddressInfo
-              { aiType = "payment"
-              , aiEra = "byron"
-              , aiEncoding = "base58"
-              , aiAddress = addrTxt
-              , aiBase16 = serialiseToRawBytesHexText payaddr
-              }
-
-      Just (Left (AddressShelley payaddr)) ->
-            pure $ AddressInfo
-              { aiType = "payment"
-              , aiEra = "shelley"
-              , aiEncoding = "bech32"
-              , aiAddress = addrTxt
-              , aiBase16 = serialiseToRawBytesHexText payaddr
-              }
-
-      Just (Right addr) ->
-        pure $ AddressInfo
+  addrInfo <- case (Left <$> deserialiseAddress AsAddressAny addrTxt)
+    <|> (Right <$> deserialiseAddress AsStakeAddress addrTxt) of
+    Nothing ->
+      left $ ShelleyAddressInvalid addrTxt
+    Just (Left (AddressByron payaddr)) ->
+      pure $
+        AddressInfo
+          { aiType = "payment"
+          , aiEra = "byron"
+          , aiEncoding = "base58"
+          , aiAddress = addrTxt
+          , aiBase16 = serialiseToRawBytesHexText payaddr
+          }
+    Just (Left (AddressShelley payaddr)) ->
+      pure $
+        AddressInfo
+          { aiType = "payment"
+          , aiEra = "shelley"
+          , aiEncoding = "bech32"
+          , aiAddress = addrTxt
+          , aiBase16 = serialiseToRawBytesHexText payaddr
+          }
+    Just (Right addr) ->
+      pure $
+        AddressInfo
           { aiType = "stake"
           , aiEra = "shelley"
           , aiEncoding = "bech32"
@@ -68,7 +68,6 @@ runAddressInfoCmd addrTxt mOutputFp = do
           , aiBase16 = serialiseToRawBytesHexText addr
           }
 
-    case mOutputFp of
-      Just (File fpath) -> liftIO $ LBS.writeFile fpath $ encodePretty addrInfo
-      Nothing -> liftIO $ LBS.putStrLn $ encodePretty addrInfo
-
+  case mOutputFp of
+    Just (File fpath) -> liftIO $ LBS.writeFile fpath $ encodePretty addrInfo
+    Nothing -> liftIO $ LBS.putStrLn $ encodePretty addrInfo

@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+
 module Cardano.CLI.Types.Errors.GovernanceQueryError where
 
 import           Cardano.Api
@@ -23,7 +24,11 @@ instance Error GovernanceQueryError where
     GovernanceQueryUnsupportedNtcVersion (UnsupportedNtcVersionError minNtcVersion ntcVersion) ->
       vsep
         [ "Unsupported feature for the node-to-client protocol version."
-        , "This query requires at least " <> pshow minNtcVersion <> " but the node negotiated " <> pshow ntcVersion <> "."
+        , "This query requires at least "
+            <> pshow minNtcVersion
+            <> " but the node negotiated "
+            <> pshow ntcVersion
+            <> "."
         , "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
         ]
     GovernanceQueryEraMismatch err ->

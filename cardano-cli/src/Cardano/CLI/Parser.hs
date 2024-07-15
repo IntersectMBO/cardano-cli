@@ -13,7 +13,8 @@ module Cardano.CLI.Parser
   , readViewOutputFormat
   , readURIOfMaxLength
   , eDNSName
-  ) where
+  )
+where
 
 import qualified Cardano.Api.Ledger as L
 
@@ -36,10 +37,11 @@ readIdOutputFormat = do
     "hex" -> pure IdOutputFormatHex
     "bech32" -> pure IdOutputFormatBech32
     _ ->
-      fail $ mconcat
-        [ "Invalid output format: " <> show s
-        , ". Accepted output formats are \"hex\" and \"bech32\"."
-        ]
+      fail $
+        mconcat
+          [ "Invalid output format: " <> show s
+          , ". Accepted output formats are \"hex\" and \"bech32\"."
+          ]
 
 readKeyOutputFormat :: Opt.ReadM KeyOutputFormat
 readKeyOutputFormat = do
@@ -48,10 +50,11 @@ readKeyOutputFormat = do
     "text-envelope" -> pure KeyOutputFormatTextEnvelope
     "bech32" -> pure KeyOutputFormatBech32
     _ ->
-      fail $ mconcat
-        [ "Invalid key output format: " <> show s
-        , ". Accepted output formats are \"text-envelope\" and \"bech32\"."
-        ]
+      fail $
+        mconcat
+          [ "Invalid key output format: " <> show s
+          , ". Accepted output formats are \"text-envelope\" and \"bech32\"."
+          ]
 
 readTxViewOutputFormat :: Opt.ReadM ViewOutputFormat
 readTxViewOutputFormat = readViewOutputFormat "transaction"
@@ -63,10 +66,13 @@ readViewOutputFormat kind = do
     "json" -> pure ViewOutputFormatJson
     "yaml" -> pure ViewOutputFormatYaml
     _ ->
-      fail $ mconcat
-        [ "Invalid ", kind, " output format: " <> show s
-        , ". Accepted output formats are \"json\" and \"yaml\"."
-        ]
+      fail $
+        mconcat
+          [ "Invalid "
+          , kind
+          , " output format: " <> show s
+          , ". Accepted output formats are \"json\" and \"yaml\"."
+          ]
 
 readGovernanceActionViewOutputFormat :: Opt.ReadM ViewOutputFormat
 readGovernanceActionViewOutputFormat = readViewOutputFormat "governance action view"
@@ -82,24 +88,26 @@ readStringOfMaxLength maxLen = do
   if strLen <= maxLen
     then pure s
     else
-      fail $ mconcat
-        [ "The provided string must have at most 64 characters, but it has "
-        , show strLen
-        , " characters."
-        ]
+      fail $
+        mconcat
+          [ "The provided string must have at most 64 characters, but it has "
+          , show strLen
+          , " characters."
+          ]
 
 readRationalUnitInterval :: Opt.ReadM Rational
 readRationalUnitInterval = readRational >>= checkUnitInterval
-  where
-   checkUnitInterval :: Rational -> Opt.ReadM Rational
-   checkUnitInterval q
-     | q >= 0 && q <= 1 = return q
-     | otherwise        = fail "Please enter a value in the range [0,1]"
+ where
+  checkUnitInterval :: Rational -> Opt.ReadM Rational
+  checkUnitInterval q
+    | q >= 0 && q <= 1 = return q
+    | otherwise = fail "Please enter a value in the range [0,1]"
 
 readFractionAsRational :: Opt.ReadM Rational
 readFractionAsRational = readerFromAttoParser fractionalAsRational
-  where fractionalAsRational :: Atto.Parser Rational
-        fractionalAsRational = (%) <$> (Atto.decimal @Integer <* Atto.char '/') <*> Atto.decimal @Integer
+ where
+  fractionalAsRational :: Atto.Parser Rational
+  fractionalAsRational = (%) <$> (Atto.decimal @Integer <* Atto.char '/') <*> Atto.decimal @Integer
 
 readRational :: Opt.ReadM Rational
 readRational =

@@ -8,7 +8,8 @@ module Cardano.CLI.EraBased.Commands
   , renderCmds
   , pAnyEraCommand
   , pCmds
-  ) where
+  )
+where
 
 import           Cardano.Api (ShelleyBasedEra (..), toCardanoEra)
 
@@ -48,16 +49,16 @@ renderAnyEraCommand = \case
   AnyEraCommandOf _ cmd -> renderCmds cmd
 
 data Cmds era
-  = AddressCmds         (AddressCmds era)
-  | KeyCmds             (KeyCmds era)
-  | GenesisCmds         (GenesisCmds era)
-  | GovernanceCmds      (GovernanceCmds era)
-  | NodeCmds            (NodeCmds era)
-  | QueryCmds           (QueryCmds era)
-  | StakeAddressCmds    (StakeAddressCmds era)
-  | StakePoolCmds       (StakePoolCmds era)
-  | TextViewCmds        (TextViewCmds era)
-  | TransactionCmds     (TransactionCmds era)
+  = AddressCmds (AddressCmds era)
+  | KeyCmds (KeyCmds era)
+  | GenesisCmds (GenesisCmds era)
+  | GovernanceCmds (GovernanceCmds era)
+  | NodeCmds (NodeCmds era)
+  | QueryCmds (QueryCmds era)
+  | StakeAddressCmds (StakeAddressCmds era)
+  | StakePoolCmds (StakePoolCmds era)
+  | TextViewCmds (TextViewCmds era)
+  | TransactionCmds (TransactionCmds era)
 
 renderCmds :: Cmds era -> Text
 renderCmds = \case
@@ -87,41 +88,41 @@ pAnyEraCommand envCli =
   asum
     [ -- Note, byron is ommitted because there is already a legacy command group for it.
 
-      subParser "shelley"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds ShelleyBasedEraShelley envCli)
-        $ Opt.progDesc "Shelley era commands"
-    , subParser "allegra"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds ShelleyBasedEraAllegra envCli)
-        $ Opt.progDesc "Allegra era commands"
-    , subParser "mary"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds ShelleyBasedEraMary envCli)
-        $ Opt.progDesc "Mary era commands"
-    , subParser "alonzo"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds ShelleyBasedEraAlonzo envCli)
-        $ Opt.progDesc "Alonzo era commands"
-    , subParser "babbage"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli)
-        $ Opt.progDesc "Babbage era commands"
-    , subParser "conway"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ShelleyBasedEraConway envCli)
-        $ Opt.progDesc "Conway era commands"
-
-    , subParser "latest"
-        $ Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli)
-        $ Opt.progDesc "Latest era commands (Babbage)"
+      subParser "shelley" $
+        Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds ShelleyBasedEraShelley envCli) $
+          Opt.progDesc "Shelley era commands"
+    , subParser "allegra" $
+        Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds ShelleyBasedEraAllegra envCli) $
+          Opt.progDesc "Allegra era commands"
+    , subParser "mary" $
+        Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds ShelleyBasedEraMary envCli) $
+          Opt.progDesc "Mary era commands"
+    , subParser "alonzo" $
+        Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds ShelleyBasedEraAlonzo envCli) $
+          Opt.progDesc "Alonzo era commands"
+    , subParser "babbage" $
+        Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli) $
+          Opt.progDesc "Babbage era commands"
+    , subParser "conway" $
+        Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ShelleyBasedEraConway envCli) $
+          Opt.progDesc "Conway era commands"
+    , subParser "latest" $
+        Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli) $
+          Opt.progDesc "Latest era commands (Babbage)"
     ]
 
 pCmds :: ShelleyBasedEra era -> EnvCli -> Parser (Cmds era)
 pCmds era envCli =
-  asum $ catMaybes
-    [ fmap AddressCmds      <$> pAddressCmds (toCardanoEra era) envCli
-    , fmap KeyCmds          <$> pKeyCmds
-    , fmap GenesisCmds      <$> pGenesisCmds envCli
-    , fmap GovernanceCmds   <$> pGovernanceCmds (toCardanoEra era)
-    , fmap NodeCmds         <$> pNodeCmds
-    , fmap QueryCmds        <$> pQueryCmds (toCardanoEra era) envCli
-    , fmap StakeAddressCmds <$> pStakeAddressCmds (toCardanoEra era) envCli
-    , fmap StakePoolCmds    <$> pStakePoolCmds (toCardanoEra era) envCli
-    , fmap TextViewCmds     <$> pTextViewCmds
-    , fmap TransactionCmds  <$> pTransactionCmds era envCli
-    ]
+  asum $
+    catMaybes
+      [ fmap AddressCmds <$> pAddressCmds (toCardanoEra era) envCli
+      , fmap KeyCmds <$> pKeyCmds
+      , fmap GenesisCmds <$> pGenesisCmds envCli
+      , fmap GovernanceCmds <$> pGovernanceCmds (toCardanoEra era)
+      , fmap NodeCmds <$> pNodeCmds
+      , fmap QueryCmds <$> pQueryCmds (toCardanoEra era) envCli
+      , fmap StakeAddressCmds <$> pStakeAddressCmds (toCardanoEra era) envCli
+      , fmap StakePoolCmds <$> pStakePoolCmds (toCardanoEra era) envCli
+      , fmap TextViewCmds <$> pTextViewCmds
+      , fmap TransactionCmds <$> pTransactionCmds era envCli
+      ]

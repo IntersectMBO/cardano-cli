@@ -17,10 +17,13 @@ hprop_golden_shelleyTextViewDecodeCbor = propertyOnce $ H.moduleWorkspace "tmp" 
 
   -- Defaults to signing a Mainnet transaction.
 
-  decodedTxt <- execCardanoCLI
-    [ "text-view","decode-cbor"
-    , "--file", unsignedTxFile
-    ]
+  decodedTxt <-
+    execCardanoCLI
+      [ "text-view"
+      , "decode-cbor"
+      , "--file"
+      , unsignedTxFile
+      ]
 
   H.writeFile decodedTxtFile decodedTxt
 

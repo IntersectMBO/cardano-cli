@@ -2,9 +2,10 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.NodeCmdError
-  ( NodeCmdError(..)
+  ( NodeCmdError (..)
   , renderNodeCmdError
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -24,14 +25,16 @@ data NodeCmdError
 
 renderNodeCmdError :: NodeCmdError -> Doc ann
 renderNodeCmdError = \case
-    NodeCmdVrfSigningKeyCreationError targetPath tempPath ->
-      "Error creating VRF signing key file. Target path: " <> pshow targetPath
-      <> " Temporary path: " <> pshow tempPath
-    NodeCmdReadFileError fileErr ->
-      prettyError fileErr
-    NodeCmdReadKeyFileError fileErr ->
-      prettyError fileErr
-    NodeCmdWriteFileError fileErr ->
-      prettyError fileErr
-    NodeCmdOperationalCertificateIssueError issueErr ->
-      prettyError issueErr
+  NodeCmdVrfSigningKeyCreationError targetPath tempPath ->
+    "Error creating VRF signing key file. Target path: "
+      <> pshow targetPath
+      <> " Temporary path: "
+      <> pshow tempPath
+  NodeCmdReadFileError fileErr ->
+    prettyError fileErr
+  NodeCmdReadKeyFileError fileErr ->
+    prettyError fileErr
+  NodeCmdWriteFileError fileErr ->
+    prettyError fileErr
+  NodeCmdOperationalCertificateIssueError issueErr ->
+    prettyError issueErr

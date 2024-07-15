@@ -7,7 +7,8 @@
 
 module Cardano.CLI.Legacy.Run.Address
   ( runLegacyAddressCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -34,7 +35,8 @@ runLegacyAddressCmds = \case
   AddressInfo txt mOFp ->
     runLegacyAddressInfoCmd txt mOFp & firstExceptT AddressCmdAddressInfoError
 
-runLegacyAddressKeyGenCmd :: ()
+runLegacyAddressKeyGenCmd
+  :: ()
   => KeyOutputFormat
   -> AddressKeyType
   -> VerificationKeyFile Out
@@ -42,13 +44,15 @@ runLegacyAddressKeyGenCmd :: ()
   -> ExceptT AddressCmdError IO ()
 runLegacyAddressKeyGenCmd = runAddressKeyGenCmd
 
-runLegacyAddressKeyHashCmd :: ()
+runLegacyAddressKeyHashCmd
+  :: ()
   => VerificationKeyTextOrFile
   -> Maybe (File () Out)
   -> ExceptT AddressCmdError IO ()
 runLegacyAddressKeyHashCmd = runAddressKeyHashCmd
 
-runLegacyAddressBuildCmd :: ()
+runLegacyAddressBuildCmd
+  :: ()
   => PaymentVerifier
   -> Maybe StakeIdentifier
   -> NetworkId
@@ -56,7 +60,8 @@ runLegacyAddressBuildCmd :: ()
   -> ExceptT AddressCmdError IO ()
 runLegacyAddressBuildCmd = runAddressBuildCmd
 
-runLegacyAddressInfoCmd :: ()
+runLegacyAddressInfoCmd
+  :: ()
   => Text
   -> Maybe (File () Out)
   -> ExceptT AddressInfoError IO ()

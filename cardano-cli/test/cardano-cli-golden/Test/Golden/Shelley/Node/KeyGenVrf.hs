@@ -18,14 +18,22 @@ hprop_golden_shelleyNodeKeyGenVrf = propertyOnce . H.moduleWorkspace "tmp" $ \te
   verificationKey <- noteTempFile tempDir "kes.vkey"
   signingKey <- noteTempFile tempDir "kes.skey"
 
-  void $ execCardanoCLI
-    [ "node","key-gen-VRF"
-    , "--verification-key-file", verificationKey
-    , "--signing-key-file", signingKey
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen-VRF"
+      , "--verification-key-file"
+      , verificationKey
+      , "--signing-key-file"
+      , signingKey
+      ]
 
-  assertHasMappings [("type", "VrfVerificationKey_PraosVRF"), ("description", "VRF Verification Key")] verificationKey
-  assertHasMappings [("type", "VrfSigningKey_PraosVRF"), ("description", "VRF Signing Key")] signingKey
+  assertHasMappings
+    [("type", "VrfVerificationKey_PraosVRF"), ("description", "VRF Verification Key")]
+    verificationKey
+  assertHasMappings
+    [("type", "VrfSigningKey_PraosVRF"), ("description", "VRF Signing Key")]
+    signingKey
 
   H.assertEndsWithSingleNewline verificationKey
   H.assertEndsWithSingleNewline signingKey
@@ -35,15 +43,24 @@ hprop_golden_shelleyNodeKeyGenVrf_te = propertyOnce . H.moduleWorkspace "tmp" $ 
   verificationKey <- noteTempFile tempDir "kes.vkey"
   signingKey <- noteTempFile tempDir "kes.skey"
 
-  void $ execCardanoCLI
-    [ "node","key-gen-VRF"
-    , "--key-output-format", "text-envelope"
-    , "--verification-key-file", verificationKey
-    , "--signing-key-file", signingKey
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen-VRF"
+      , "--key-output-format"
+      , "text-envelope"
+      , "--verification-key-file"
+      , verificationKey
+      , "--signing-key-file"
+      , signingKey
+      ]
 
-  assertHasMappings [("type", "VrfVerificationKey_PraosVRF"), ("description", "VRF Verification Key")] verificationKey
-  assertHasMappings [("type", "VrfSigningKey_PraosVRF"), ("description", "VRF Signing Key")] signingKey
+  assertHasMappings
+    [("type", "VrfVerificationKey_PraosVRF"), ("description", "VRF Verification Key")]
+    verificationKey
+  assertHasMappings
+    [("type", "VrfSigningKey_PraosVRF"), ("description", "VRF Signing Key")]
+    signingKey
 
   H.assertEndsWithSingleNewline verificationKey
   H.assertEndsWithSingleNewline signingKey
@@ -53,12 +70,17 @@ hprop_golden_shelleyNodeKeyGenVrf_bech32 = propertyOnce . H.moduleWorkspace "tmp
   verificationKey <- noteTempFile tempDir "kes.vkey"
   signingKey <- noteTempFile tempDir "kes.skey"
 
-  void $ execCardanoCLI
-    [ "node","key-gen-VRF"
-    , "--key-output-format", "bech32"
-    , "--verification-key-file", verificationKey
-    , "--signing-key-file", signingKey
-    ]
+  void $
+    execCardanoCLI
+      [ "node"
+      , "key-gen-VRF"
+      , "--key-output-format"
+      , "bech32"
+      , "--verification-key-file"
+      , verificationKey
+      , "--signing-key-file"
+      , signingKey
+      ]
 
   H.assertFileOccurences 1 "vrf_vk" verificationKey
   H.assertFileOccurences 1 "vrf_sk" signingKey

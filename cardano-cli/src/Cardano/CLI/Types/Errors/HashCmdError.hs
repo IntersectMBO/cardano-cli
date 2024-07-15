@@ -1,8 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.HashCmdError
-  ( HashCmdError(..)
-  ) where
+  ( HashCmdError (..)
+  )
+where
 
 import           Cardano.Api
 

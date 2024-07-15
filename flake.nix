@@ -110,6 +110,8 @@
             }
             // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
               # tools that work only with default compiler
+              cabal-gild = "1.3.1.2";
+              fourmolu = "0.16.2.0";
               haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.8";
               hlint = "3.8";
               stylish-haskell = "0.14.6.0";
@@ -120,6 +122,9 @@
           shell.withHoogle = false;
           # Skip cross compilers for the shell
           shell.crossPlatforms = _: [];
+          shell.shellHook = ''
+            export PATH="$(git rev-parse --show-toplevel)/scripts/devshell:$PATH"
+          '';
 
           # package customizations as needed. Where cabal.project is not
           # specific enough, or doesn't allow setting these.

@@ -8,7 +8,8 @@
 
 module Cardano.CLI.EraBased.Run.Governance.Vote
   ( runGovernanceVoteCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
@@ -26,7 +27,8 @@ import           Data.Aeson.Encode.Pretty
 import           Data.Function
 import qualified Data.Yaml.Pretty as Yaml
 
-runGovernanceVoteCmds :: ()
+runGovernanceVoteCmds
+  :: ()
   => Cmd.GovernanceVoteCmds era
   -> ExceptT CmdError IO ()
 runGovernanceVoteCmds = \case
@@ -37,69 +39,74 @@ runGovernanceVoteCmds = \case
     runGovernanceVoteViewCmd args
       & firstExceptT CmdGovernanceVoteError
 
-runGovernanceVoteCreateCmd :: ()
+runGovernanceVoteCreateCmd
+  :: ()
   => Cmd.GovernanceVoteCreateCmdArgs era
   -> ExceptT GovernanceVoteCmdError IO ()
 runGovernanceVoteCreateCmd
-    Cmd.GovernanceVoteCreateCmdArgs
-      { eon
-      , voteChoice
-      , governanceAction
-      , votingStakeCredentialSource
-      , mAnchor
-      , outFile
-      } = do
-  let (govActionTxId, govActionIndex) = governanceAction
-  let sbe = conwayEraOnwardsToShelleyBasedEra eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
-  voteProcedure <- case mAnchor of
-     Nothing -> pure $ createVotingProcedure eon voteChoice Nothing
-     Just (VoteUrl url, voteHash) -> shelleyBasedEraConstraints sbe $ do
-       let voteAnchor = L.Anchor { L.anchorUrl = url, L.anchorDataHash = voteHash }
-           VotingProcedure votingProcedureWithoutAnchor = createVotingProcedure eon voteChoice Nothing
-           votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor { L.vProcAnchor = L.SJust voteAnchor }
-       pure votingProcedureWithAnchor
+  Cmd.GovernanceVoteCreateCmdArgs
+    { eon
+    , voteChoice
+    , governanceAction
+    , votingStakeCredentialSource
+    , mAnchor
+    , outFile
+    } = do
+    let (govActionTxId, govActionIndex) = governanceAction
+    let sbe = conwayEraOnwardsToShelleyBasedEra eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
+    voteProcedure <- case mAnchor of
+      Nothing -> pure $ createVotingProcedure eon voteChoice Nothing
+      Just (VoteUrl url, voteHash) -> shelleyBasedEraConstraints sbe $ do
+        let voteAnchor = L.Anchor{L.anchorUrl = url, L.anchorDataHash = voteHash}
+            VotingProcedure votingProcedureWithoutAnchor = createVotingProcedure eon voteChoice Nothing
+            votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor{L.vProcAnchor = L.SJust voteAnchor}
+        pure votingProcedureWithAnchor
 
-  shelleyBasedEraConstraints sbe $ do
-    voter <- firstExceptT  GovernanceVoteCmdReadVerificationKeyError $ case votingStakeCredentialSource of
-      AnyDRepVerificationKeyOrHashOrFileOrScriptHash stake -> do
-        drepCred <- readVerificationKeyOrHashOrFileOrScriptHash AsDRepKey unDRepKeyHash stake
-        pure $ L.DRepVoter drepCred
+    shelleyBasedEraConstraints sbe $ do
+      voter <- firstExceptT GovernanceVoteCmdReadVerificationKeyError $ case votingStakeCredentialSource of
+        AnyDRepVerificationKeyOrHashOrFileOrScriptHash stake -> do
+          drepCred <- readVerificationKeyOrHashOrFileOrScriptHash AsDRepKey unDRepKeyHash stake
+          pure $ L.DRepVoter drepCred
+        AnyStakePoolVerificationKeyOrHashOrFile stake -> do
+          StakePoolKeyHash h <- readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
+          pure $ L.StakePoolVoter h
+        AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash stake -> do
+          hotCred <- readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeHotKey unCommitteeHotKeyHash stake
+          pure $ L.CommitteeVoter hotCred
 
-      AnyStakePoolVerificationKeyOrHashOrFile stake -> do
-        StakePoolKeyHash h <- readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
-        pure $ L.StakePoolVoter h
+      let govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
+          votingProcedures = singletonVotingProcedures eon voter govActIdentifier (unVotingProcedure voteProcedure)
+      firstExceptT GovernanceVoteCmdWriteError . newExceptT $
+        writeFileTextEnvelope outFile Nothing votingProcedures
 
-      AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash stake -> do
-        hotCred <- readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeHotKey unCommitteeHotKeyHash stake
-        pure $ L.CommitteeVoter hotCred
-
-    let govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
-        votingProcedures = singletonVotingProcedures eon voter govActIdentifier (unVotingProcedure voteProcedure)
-    firstExceptT GovernanceVoteCmdWriteError . newExceptT $ writeFileTextEnvelope outFile Nothing votingProcedures
-
-runGovernanceVoteViewCmd :: ()
+runGovernanceVoteViewCmd
+  :: ()
   => Cmd.GovernanceVoteViewCmdArgs era
   -> ExceptT GovernanceVoteCmdError IO ()
 runGovernanceVoteViewCmd
-    Cmd.GovernanceVoteViewCmdArgs
-      { eon
-      , outFormat
-      , voteFile
-      , mOutFile
-      } = do
-  let sbe = conwayEraOnwardsToShelleyBasedEra eon
+  Cmd.GovernanceVoteViewCmdArgs
+    { eon
+    , outFormat
+    , voteFile
+    , mOutFile
+    } = do
+    let sbe = conwayEraOnwardsToShelleyBasedEra eon
 
-  shelleyBasedEraConstraints sbe $ do
-    voteProcedures <- fmap fst . firstExceptT GovernanceVoteCmdReadVoteFileError . newExceptT $
-     readSingleVote eon (voteFile, Nothing)
-    firstExceptT GovernanceVoteCmdWriteError .
-      newExceptT .
-      (case outFormat of
-         ViewOutputFormatYaml ->
-           writeByteStringOutput mOutFile . Yaml.encodePretty
-             (Yaml.setConfCompare compare Yaml.defConfig)
-         ViewOutputFormatJson ->
-           writeLazyByteStringOutput mOutFile . encodePretty'
-             (defConfig {confCompare = compare})) .
-      unVotingProcedures $
-      voteProcedures
+    shelleyBasedEraConstraints sbe $ do
+      voteProcedures <-
+        fmap fst . firstExceptT GovernanceVoteCmdReadVoteFileError . newExceptT $
+          readSingleVote eon (voteFile, Nothing)
+      firstExceptT GovernanceVoteCmdWriteError
+        . newExceptT
+        . ( case outFormat of
+              ViewOutputFormatYaml ->
+                writeByteStringOutput mOutFile
+                  . Yaml.encodePretty
+                    (Yaml.setConfCompare compare Yaml.defConfig)
+              ViewOutputFormatJson ->
+                writeLazyByteStringOutput mOutFile
+                  . encodePretty'
+                    (defConfig{confCompare = compare})
+          )
+        . unVotingProcedures
+        $ voteProcedures

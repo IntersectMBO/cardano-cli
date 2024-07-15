@@ -22,7 +22,8 @@ hprop_golden_shelleyMIRCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \t
   let era = BabbageEra
 
   -- Reference keys
-  referenceMIRCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/mir_certificate"
+  referenceMIRCertificate <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/mir_certificate"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "stake-verification-key-file"
@@ -30,23 +31,33 @@ hprop_golden_shelleyMIRCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \t
   mirCertificate <- noteTempFile tempDir "mir-certificate-file"
 
   -- Generate stake key pair
-  void $ execCardanoCLI
-    [ "stake-address","key-gen"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "key-gen"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   H.assertFilesExist [verKey, signKey]
 
   let testAddr = "stake1u9j6axhcpd0exvrthn5dqzqt54g85akqvkn4uqmccm70qsc5hpv9w"
   -- Create MIR certificate
-  void $ execCardanoCLI
-    [ "babbage", "governance", "create-mir-certificate"
-    , "--reserves" --TODO: Should also do "--reserves"
-    , "--stake-address", testAddr
-    , "--reward", "1000"
-    , "--out-file", mirCertificate
-    ]
+  void $
+    execCardanoCLI
+      [ "babbage"
+      , "governance"
+      , "create-mir-certificate"
+      , "--reserves" -- TODO: Should also do "--reserves"
+      , "--stake-address"
+      , testAddr
+      , "--reward"
+      , "1000"
+      , "--out-file"
+      , mirCertificate
+      ]
 
   H.assertFilesExist [mirCertificate]
 

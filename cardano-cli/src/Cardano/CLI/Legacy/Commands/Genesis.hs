@@ -4,7 +4,8 @@
 module Cardano.CLI.Legacy.Commands.Genesis
   ( LegacyGenesisCmds (..)
   , renderLegacyGenesisCmds
-  ) where
+  )
+where
 
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
@@ -38,7 +39,8 @@ data LegacyGenesisCmds
       FilePath
       FilePath
       (Maybe FilePath)
-  | GenesisCreateStaked
+  | -- | Relay specification filepath
+    GenesisCreateStaked
       KeyOutputFormat
       GenesisDir
       Word
@@ -52,7 +54,7 @@ data LegacyGenesisCmds
       Word
       Word
       Word
-      (Maybe FilePath) -- ^ Relay specification filepath
+      (Maybe FilePath)
   | GenesisKeyGenGenesis
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
@@ -82,14 +84,14 @@ data LegacyGenesisCmds
 
 renderLegacyGenesisCmds :: LegacyGenesisCmds -> Text
 renderLegacyGenesisCmds = \case
-  GenesisCreate {} -> "genesis create"
-  GenesisCreateCardano {} -> "genesis create-cardano"
-  GenesisCreateStaked {} -> "genesis create-staked"
-  GenesisKeyGenGenesis {} -> "genesis key-gen-genesis"
-  GenesisKeyGenDelegate {} -> "genesis key-gen-delegate"
-  GenesisKeyGenUTxO {} -> "genesis key-gen-utxo"
-  GenesisCmdKeyHash {} -> "genesis key-hash"
-  GenesisVerKey {} -> "genesis get-ver-key"
-  GenesisTxIn {} -> "genesis initial-txin"
-  GenesisAddr {} -> "genesis initial-addr"
-  GenesisHashFile {} -> "genesis hash"
+  GenesisCreate{} -> "genesis create"
+  GenesisCreateCardano{} -> "genesis create-cardano"
+  GenesisCreateStaked{} -> "genesis create-staked"
+  GenesisKeyGenGenesis{} -> "genesis key-gen-genesis"
+  GenesisKeyGenDelegate{} -> "genesis key-gen-delegate"
+  GenesisKeyGenUTxO{} -> "genesis key-gen-utxo"
+  GenesisCmdKeyHash{} -> "genesis key-hash"
+  GenesisVerKey{} -> "genesis get-ver-key"
+  GenesisTxIn{} -> "genesis initial-txin"
+  GenesisAddr{} -> "genesis initial-addr"
+  GenesisHashFile{} -> "genesis hash"

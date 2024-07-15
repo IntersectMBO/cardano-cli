@@ -5,7 +5,8 @@
 module Cardano.CLI.Legacy.Commands.StakeAddress
   ( LegacyStakeAddressCmds (..)
   , renderLegacyStakeAddressCmds
-  ) where
+  )
+where
 
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
@@ -48,9 +49,9 @@ data LegacyStakeAddressCmds
 
 renderLegacyStakeAddressCmds :: LegacyStakeAddressCmds -> Text
 renderLegacyStakeAddressCmds = \case
-  StakeAddressKeyGenCmd {} -> "stake-address key-gen"
-  StakeAddressKeyHashCmd {} -> "stake-address key-hash"
-  StakeAddressBuildCmd {} -> "stake-address build"
-  StakeAddressRegistrationCertificateCmd {} -> "stake-address registration-certificate"
-  StakeAddressDelegationCertificateCmd {} -> "stake-address delegation-certificate"
-  StakeAddressDeregistrationCertificateCmd {} -> "stake-address deregistration-certificate"
+  StakeAddressKeyGenCmd{} -> "stake-address key-gen"
+  StakeAddressKeyHashCmd{} -> "stake-address key-hash"
+  StakeAddressBuildCmd{} -> "stake-address build"
+  StakeAddressRegistrationCertificateCmd{} -> "stake-address registration-certificate"
+  StakeAddressDelegationCertificateCmd{} -> "stake-address delegation-certificate"
+  StakeAddressDeregistrationCertificateCmd{} -> "stake-address deregistration-certificate"

@@ -1,4 +1,3 @@
-
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
@@ -9,7 +8,8 @@
 
 module Cardano.CLI.Run.Hash
   ( runHashCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
@@ -24,17 +24,19 @@ import           Data.Function
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
 
-runHashCmds :: ()
+runHashCmds
+  :: ()
   => Cmd.HashCmds
   -> ExceptT HashCmdError IO ()
 runHashCmds = \case
   Cmd.HashAnchorDataCmd args -> runHashAnchorDataCmd args
-  Cmd.HashScriptCmd     args -> runHashScriptCmd     args
+  Cmd.HashScriptCmd args -> runHashScriptCmd args
 
-runHashAnchorDataCmd :: ()
+runHashAnchorDataCmd
+  :: ()
   => Cmd.HashAnchorDataCmdArgs
   -> ExceptT HashCmdError IO ()
-runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs { toHash, mOutFile } =
+runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, mOutFile} =
   case toHash of
     Cmd.AnchorDataHashSourceBinaryFile fp -> do
       let path = unFile fp
@@ -49,22 +51,25 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs { toHash, mOutFile } =
     Cmd.AnchorDataHashSourceText text -> do
       let hash = L.hashAnchorData $ L.AnchorData $ Text.encodeUtf8 text
       writeHash hash
-  where
-    writeHash :: L.SafeHash L.StandardCrypto i -> ExceptT HashCmdError IO ()
-    writeHash hash = do
-      firstExceptT HashWriteFileError $
-        newExceptT $ writeTextOutput mOutFile text
-      where
-        text = hashToTextAsHex . L.extractHash $ hash
+ where
+  writeHash :: L.SafeHash L.StandardCrypto i -> ExceptT HashCmdError IO ()
+  writeHash hash = do
+    firstExceptT HashWriteFileError $
+      newExceptT $
+        writeTextOutput mOutFile text
+   where
+    text = hashToTextAsHex . L.extractHash $ hash
 
-runHashScriptCmd :: ()
+runHashScriptCmd
+  :: ()
   => Cmd.HashScriptCmdArgs
   -> ExceptT HashCmdError IO ()
-runHashScriptCmd Cmd.HashScriptCmdArgs { Cmd.toHash = File toHash, mOutFile } = do
+runHashScriptCmd Cmd.HashScriptCmdArgs{Cmd.toHash = File toHash, mOutFile} = do
   ScriptInAnyLang _ script <-
     readFileScriptInAnyLang toHash
       & firstExceptT (HashReadScriptError toHash)
   firstExceptT HashWriteFileError
     . newExceptT
-    . writeTextOutput mOutFile . serialiseToRawBytesHexText $ hashScript script
-
+    . writeTextOutput mOutFile
+    . serialiseToRawBytesHexText
+    $ hashScript script

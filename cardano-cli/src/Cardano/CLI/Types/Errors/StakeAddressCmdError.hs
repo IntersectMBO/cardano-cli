@@ -1,8 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.StakeAddressCmdError
-  ( StakeAddressCmdError(..)
-  ) where
+  ( StakeAddressCmdError (..)
+  )
+where
 
 import           Cardano.Api
 
@@ -22,9 +23,9 @@ data StakeAddressCmdError
 
 instance Error StakeAddressCmdError where
   prettyError = \case
-    StakeAddressCmdReadKeyFileError e       -> prettyError e
-    StakeAddressCmdReadScriptFileError e    -> prettyError e
-    StakeAddressCmdStakeCredentialError e   -> prettyError e
-    StakeAddressCmdWriteFileError e         -> prettyError e
-    StakeAddressCmdDelegationError e        -> prettyError e
-    StakeAddressCmdRegistrationError e      -> prettyError e
+    StakeAddressCmdReadKeyFileError e -> prettyError e
+    StakeAddressCmdReadScriptFileError e -> prettyError e
+    StakeAddressCmdStakeCredentialError e -> prettyError e
+    StakeAddressCmdWriteFileError e -> prettyError e
+    StakeAddressCmdDelegationError e -> prettyError e
+    StakeAddressCmdRegistrationError e -> prettyError e

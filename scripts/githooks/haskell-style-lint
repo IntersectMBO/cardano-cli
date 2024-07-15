@@ -1,6 +1,7 @@
-#!/bin/sh
-# This script validates the staged changes in Haskell files using stylish-haskell and hlint and returns non-zero
-# code when there are linting or style issues.
+#!/usr/bin/env bash
+# This script validates the staged changes in Haskell files using fourmolu and hlint, and
+# in cabal files using cabal-gild. It returns non-zero code when there are linting
+# or style issues.
 #
 # To set this script as your pre-commit hook, use the following command:
 #
@@ -13,9 +14,13 @@ for x in $(git diff --staged --name-only --diff-filter=ACM "*.hs" | tr '\n' ' ')
   if grep -qE '^#' "$x"; then
     echo "$x contains CPP.  Skipping."
   else
-    stylish-haskell -i "$x"
+    "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
   fi
   hlint "$x" || hlint_rc="1"
+done
+
+for x in $(git diff --staged --name-only --diff-filter=ACM "*.cabal" | tr '\n' ' '); do
+  cabal-gild -i "$x" -o "$x"
 done
 
 # fail if there are style issues

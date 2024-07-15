@@ -1,10 +1,10 @@
 {-# LANGUAGE NumericUnderscores #-}
-{-# LANGUAGE OverloadedStrings #-}
 
 module Test.Cli.JSON
   ( hprop_json_roundtrip_delegations_and_rewards
   , hprop_roundtrip_kes_period_info_output_JSON
-  ) where
+  )
+where
 
 import           Cardano.Api.Shelley
 
@@ -43,8 +43,7 @@ genDelegationsAndRewards = do
 
 genOpCertIntervalInformation :: Gen OpCertIntervalInformation
 genOpCertIntervalInformation = do
-  createOpCertIntervalInfo
-    <$> (CurrentKesPeriod <$> genWord64)
+  (createOpCertIntervalInfo . CurrentKesPeriod <$> genWord64)
     <*> (OpCertStartingKesPeriod <$> genWord64)
     <*> (OpCertEndingKesPeriod <$> genWord64)
     <*> Gen.maybe (SlotsTillKesKeyExpiry <$> genSlotNo)

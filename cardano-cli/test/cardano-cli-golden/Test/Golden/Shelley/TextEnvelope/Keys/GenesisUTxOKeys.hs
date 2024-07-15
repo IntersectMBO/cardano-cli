@@ -19,19 +19,25 @@ import qualified Hedgehog.Extras.Test.Base as H
 hprop_golden_shelleyGenesisUTxOKeys :: Property
 hprop_golden_shelleyGenesisUTxOKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  referenceVerKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_utxo_keys/verification_key"
-  referenceSignKey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_utxo_keys/signing_key"
+  referenceVerKey <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_utxo_keys/verification_key"
+  referenceSignKey <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_utxo_keys/signing_key"
 
   -- Key filepaths
   verKey <- noteTempFile tempDir "genesis-utxo-verification-key-file"
   signKey <- noteTempFile tempDir "genesis-utxo-signing-key-file"
 
   -- Generate payment verification key
-  void $ execCardanoCLI
-    [ "genesis","key-gen-utxo"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "genesis"
+      , "key-gen-utxo"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   let signingKeyType = textEnvelopeType (AsSigningKey AsGenesisUTxOKey)
       verificationKeyType = textEnvelopeType (AsVerificationKey AsGenesisUTxOKey)

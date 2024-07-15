@@ -2,7 +2,8 @@
 
 module Cardano.CLI.Legacy.Run
   ( runLegacyCmds
-  ) where
+  )
+where
 
 import           Cardano.CLI.Legacy.Options
 import           Cardano.CLI.Legacy.Run.Address
@@ -22,13 +23,13 @@ import           Control.Monad.Trans.Except.Extra (firstExceptT)
 
 runLegacyCmds :: LegacyCmds -> ExceptT CmdError IO ()
 runLegacyCmds = \case
-  LegacyAddressCmds      cmd -> firstExceptT CmdAddressError $ runLegacyAddressCmds cmd
-  LegacyGenesisCmds      cmd -> firstExceptT CmdGenesisError $ runLegacyGenesisCmds cmd
-  LegacyGovernanceCmds   cmd -> firstExceptT CmdGovernanceCmdError $ runLegacyGovernanceCmds cmd
-  LegacyKeyCmds          cmd -> firstExceptT CmdKeyError $ runLegacyKeyCmds cmd
-  LegacyNodeCmds         cmd -> firstExceptT CmdNodeError $ runLegacyNodeCmds cmd
-  LegacyQueryCmds        cmd -> firstExceptT CmdQueryError $ runLegacyQueryCmds cmd
+  LegacyAddressCmds cmd -> firstExceptT CmdAddressError $ runLegacyAddressCmds cmd
+  LegacyGenesisCmds cmd -> firstExceptT CmdGenesisError $ runLegacyGenesisCmds cmd
+  LegacyGovernanceCmds cmd -> firstExceptT CmdGovernanceCmdError $ runLegacyGovernanceCmds cmd
+  LegacyKeyCmds cmd -> firstExceptT CmdKeyError $ runLegacyKeyCmds cmd
+  LegacyNodeCmds cmd -> firstExceptT CmdNodeError $ runLegacyNodeCmds cmd
+  LegacyQueryCmds cmd -> firstExceptT CmdQueryError $ runLegacyQueryCmds cmd
   LegacyStakeAddressCmds cmd -> firstExceptT CmdStakeAddressError $ runLegacyStakeAddressCmds cmd
-  LegacyStakePoolCmds    cmd -> firstExceptT CmdStakePoolError $ runLegacyStakePoolCmds cmd
-  LegacyTextViewCmds     cmd -> firstExceptT CmdTextViewError $ runLegacyTextViewCmds cmd
-  LegacyTransactionCmds  cmd -> firstExceptT CmdTransactionError $ runLegacyTransactionCmds cmd
+  LegacyStakePoolCmds cmd -> firstExceptT CmdStakePoolError $ runLegacyStakePoolCmds cmd
+  LegacyTextViewCmds cmd -> firstExceptT CmdTextViewError $ runLegacyTextViewCmds cmd
+  LegacyTransactionCmds cmd -> firstExceptT CmdTransactionError $ runLegacyTransactionCmds cmd

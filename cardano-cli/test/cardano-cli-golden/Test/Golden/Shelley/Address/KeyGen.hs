@@ -18,22 +18,30 @@ hprop_golden_shelley_address_key_gen = propertyOnce . H.moduleWorkspace "tmp" $ 
   addressVKeyFile <- noteTempFile tempDir "address.vkey"
   addressSKeyFile <- noteTempFile tempDir "address.skey"
 
-  void $ execCardanoCLI
-    [ "address","key-gen"
-    , "--verification-key-file", addressVKeyFile
-    , "--signing-key-file", addressSKeyFile
-    ]
+  void $
+    execCardanoCLI
+      [ "address"
+      , "key-gen"
+      , "--verification-key-file"
+      , addressVKeyFile
+      , "--signing-key-file"
+      , addressSKeyFile
+      ]
 
-  assertHasMappings [("type", "PaymentVerificationKeyShelley_ed25519"),
-                     ("description", "Payment Verification Key")]
-                                addressVKeyFile
-  assertHasKeys ["cborHex"]     addressVKeyFile
+  assertHasMappings
+    [ ("type", "PaymentVerificationKeyShelley_ed25519")
+    , ("description", "Payment Verification Key")
+    ]
+    addressVKeyFile
+  assertHasKeys ["cborHex"] addressVKeyFile
   H.assertEndsWithSingleNewline addressVKeyFile
 
-  assertHasMappings [("type", "PaymentSigningKeyShelley_ed25519"),
-                     ("description", "Payment Signing Key")]
-                                addressSKeyFile
-  assertHasKeys ["cborHex"]     addressSKeyFile
+  assertHasMappings
+    [ ("type", "PaymentSigningKeyShelley_ed25519")
+    , ("description", "Payment Signing Key")
+    ]
+    addressSKeyFile
+  assertHasKeys ["cborHex"] addressSKeyFile
   H.assertEndsWithSingleNewline addressSKeyFile
 
 hprop_golden_shelley_address_extended_key_gen :: Property
@@ -41,21 +49,29 @@ hprop_golden_shelley_address_extended_key_gen = propertyOnce . H.moduleWorkspace
   addressVKeyFile <- noteTempFile tempDir "address.vkey"
   addressSKeyFile <- noteTempFile tempDir "address.skey"
 
-  void $ execCardanoCLI
-    [ "address","key-gen"
-    , "--extended-key"
-    , "--verification-key-file", addressVKeyFile
-    , "--signing-key-file", addressSKeyFile
-    ]
+  void $
+    execCardanoCLI
+      [ "address"
+      , "key-gen"
+      , "--extended-key"
+      , "--verification-key-file"
+      , addressVKeyFile
+      , "--signing-key-file"
+      , addressSKeyFile
+      ]
 
-  assertHasMappings [("type", "PaymentExtendedVerificationKeyShelley_ed25519_bip32"),
-                     ("description", "Payment Verification Key")]
-                                addressVKeyFile
-  assertHasKeys ["cborHex"]     addressVKeyFile
+  assertHasMappings
+    [ ("type", "PaymentExtendedVerificationKeyShelley_ed25519_bip32")
+    , ("description", "Payment Verification Key")
+    ]
+    addressVKeyFile
+  assertHasKeys ["cborHex"] addressVKeyFile
   H.assertEndsWithSingleNewline addressVKeyFile
 
-  assertHasMappings [("type", "PaymentExtendedSigningKeyShelley_ed25519_bip32"),
-                     ("description", "Payment Signing Key")]
-                                addressSKeyFile
-  assertHasKeys ["cborHex"]     addressSKeyFile
+  assertHasMappings
+    [ ("type", "PaymentExtendedSigningKeyShelley_ed25519_bip32")
+    , ("description", "Payment Signing Key")
+    ]
+    addressSKeyFile
+  assertHasKeys ["cborHex"] addressSKeyFile
   H.assertEndsWithSingleNewline addressSKeyFile

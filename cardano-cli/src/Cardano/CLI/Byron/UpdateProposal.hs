@@ -3,17 +3,17 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Byron.UpdateProposal
-  ( ByronUpdateProposalError(..)
+  ( ByronUpdateProposalError (..)
   , runProposalCreation
   , readByronUpdateProposal
   , renderByronUpdateProposalError
   , submitByronUpdateProposal
-  ) where
+  )
+where
 
 import           Cardano.Api (NetworkId, SerialiseAsRawBytes (..), SocketPath)
 import           Cardano.Api.Byron (AsType (AsByronUpdateProposal), ByronProtocolParametersUpdate,
                    ByronUpdateProposal, makeByronUpdateProposal, toByronLedgerUpdateProposal)
-import           Cardano.CLI.Pretty
 
 import           Cardano.Chain.Update (InstallerHash (..), ProtocolVersion (..),
                    SoftwareVersion (..), SystemTag (..))
@@ -21,6 +21,7 @@ import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
 import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
 import           Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
 import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS, renderHelpersError)
+import           Cardano.CLI.Pretty
 import           Cardano.CLI.Types.Common
 import           Ouroboros.Consensus.Ledger.SupportsMempool (txId)
 import           Ouroboros.Consensus.Util.Condense (condense)
@@ -68,17 +69,26 @@ runProposalCreation
   -> FilePath
   -> ByronProtocolParametersUpdate
   -> ExceptT ByronUpdateProposalError IO ()
-runProposalCreation nw sKey@(File sKeyfp) pVer sVer
-                    sysTag insHash outputFp params = do
-  sK <- firstExceptT (ReadSigningKeyFailure sKeyfp) $ readByronSigningKey NonLegacyByronKeyFormat sKey
-  let proposal = makeByronUpdateProposal nw pVer sVer sysTag insHash sK params
-  firstExceptT ByronUpdateProposalWriteError $
-    ensureNewFileLBS outputFp $ serialiseToRawBytes proposal
+runProposalCreation
+  nw
+  sKey@(File sKeyfp)
+  pVer
+  sVer
+  sysTag
+  insHash
+  outputFp
+  params = do
+    sK <- firstExceptT (ReadSigningKeyFailure sKeyfp) $ readByronSigningKey NonLegacyByronKeyFormat sKey
+    let proposal = makeByronUpdateProposal nw pVer sVer sysTag insHash sK params
+    firstExceptT ByronUpdateProposalWriteError $
+      ensureNewFileLBS outputFp $
+        serialiseToRawBytes proposal
 
 readByronUpdateProposal :: FilePath -> ExceptT ByronUpdateProposalError IO ByronUpdateProposal
 readByronUpdateProposal fp = do
-  proposalBs <- handleIOExceptT (ByronReadUpdateProposalFileFailure fp . Text.pack . displayException)
-                  $ BS.readFile fp
+  proposalBs <-
+    handleIOExceptT (ByronReadUpdateProposalFileFailure fp . Text.pack . displayException) $
+      BS.readFile fp
   let proposalResult = deserialiseFromRawBytes AsByronUpdateProposal proposalBs
   hoistEither $ first (const (UpdateProposalDecodingError fp)) proposalResult
 

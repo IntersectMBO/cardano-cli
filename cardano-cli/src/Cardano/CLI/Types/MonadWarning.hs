@@ -1,4 +1,8 @@
 -----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE InstanceSigs #-}
+
 -- |
 -- Module      :  Cardano.CLI.Types.MonadWarning
 --
@@ -33,19 +37,15 @@
 --   result <- runWarningIO $ computeWithWarning (-4)
 --   putStrLn $ "Result: " ++ show result
 -- @
------------------------------------------------------------------------------
-
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE InstanceSigs #-}
-
 module Cardano.CLI.Types.MonadWarning
-  ( MonadWarning(..)
+  ( MonadWarning (..)
   , WarningIO
   , WarningStateT
   , eitherToWarning
   , runWarningIO
   , runWarningStateT
-  ) where
+  )
+where
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Control.Monad.State (MonadState (..))
@@ -56,18 +56,22 @@ import           System.IO (hPutStrLn, stderr)
 -- their execution in the process.
 class Monad m => MonadWarning m where
   -- | Report a non-fatal issue.
-  reportIssue :: String -- ^ The warning message to report.
-              -> m ()   -- ^ The action that reports the warning.
+  reportIssue
+    :: String
+    -- ^ The warning message to report.
+    -> m ()
+    -- ^ The action that reports the warning.
 
 -- | Wrapper newtype for 'MonadIO' with 'MonadWarning' instance.
 -- This type is not meant to be constructed directly but just to serve
 -- as an instance of 'MonadWarning' that can be converted to 'MonadIO'.
 -- It is only necessary in order to avoid overlapping instances.
-newtype WarningIO m a = WarningIO {
-    runWarningIO :: m a
-    -- ^ Interpret a 'MonadWarning' as a 'MonadIO' by reporting
-    -- warnings to 'stderr'.
-  } deriving (Functor, Applicative, Monad, MonadIO)
+newtype WarningIO m a = WarningIO
+  { runWarningIO :: m a
+  -- ^ Interpret a 'MonadWarning' as a 'MonadIO' by reporting
+  -- warnings to 'stderr'.
+  }
+  deriving (Functor, Applicative, Monad, MonadIO)
 
 -- | This instance prints the issue to 'stderr'.
 instance MonadIO m => MonadWarning (WarningIO m) where
@@ -78,19 +82,20 @@ instance MonadIO m => MonadWarning (WarningIO m) where
 -- This type is not meant to be constructed directly but just to serve
 -- as an instance of 'MonadWarning' that can be converted to 'StateT'.
 -- It is only necessary in order to avoid overlapping instances.
-newtype WarningStateT m a = WarningStateT {
-    runWarningStateT :: StateT [String] m a
-    -- ^ Interpret a 'MonadWarning' as a @StateT [String]@ monad,
-    -- by accumulating warnings into the state.
-  } deriving (Functor, Applicative, Monad, MonadState [String])
+newtype WarningStateT m a = WarningStateT
+  { runWarningStateT :: StateT [String] m a
+  -- ^ Interpret a 'MonadWarning' as a @StateT [String]@ monad,
+  -- by accumulating warnings into the state.
+  }
+  deriving (Functor, Applicative, Monad, MonadState [String])
 
 -- | This instance adds the issue to the @[String]@ in the state.
 instance Monad m => MonadWarning (WarningStateT m) where
   reportIssue :: String -> WarningStateT m ()
-  reportIssue issue = state (\ x -> ((), issue : x))
+  reportIssue issue = state (\x -> ((), issue : x))
 
 -- | Convert an 'Either' into a 'MonadWarning'. If 'Either' is 'Left'
 -- it returns the default value (first parameter) and reports the 'String'
 -- as an error. If 'Either' is 'Right' it just returns that value.
 eitherToWarning :: MonadWarning m => a -> Either String a -> m a
-eitherToWarning def = either (\issue -> do {reportIssue issue; return def}) return
+eitherToWarning def = either (\issue -> do reportIssue issue; return def) return

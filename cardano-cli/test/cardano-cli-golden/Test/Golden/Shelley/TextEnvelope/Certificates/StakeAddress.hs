@@ -22,9 +22,15 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   let era = BabbageEra
 
   -- Reference files
-  referenceRegistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_registration_certificate"
-  referenceDeregistrationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_deregistration_certificate"
-  referenceDelegationCertificate <- noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_delegation_certificate"
+  referenceRegistrationCertificate <-
+    noteInputFile
+      "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_registration_certificate"
+  referenceDeregistrationCertificate <-
+    noteInputFile
+      "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_deregistration_certificate"
+  referenceDelegationCertificate <-
+    noteInputFile
+      "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_delegation_certificate"
   operatorVkey <- noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/operator.vkey"
 
   -- Key filepaths
@@ -34,46 +40,74 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   registrationCertificate <- noteTempFile tempDir "stake-address-registration-certificate"
 
   -- Generate stake verification key
-  void $ execCardanoCLI
-    [ "stake-address", "key-gen"
-    , "--verification-key-file", verKey
-    , "--signing-key-file", signKey
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "key-gen"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
 
   H.assertFilesExist [verKey, signKey]
 
   -- Create stake address registration certificate
-  void $ execCardanoCLI
-    [ "babbage", "stake-address", "registration-certificate"
-    , "--stake-verification-key-file", verKey
-    , "--out-file", registrationCertificate
-    ]
+  void $
+    execCardanoCLI
+      [ "babbage"
+      , "stake-address"
+      , "registration-certificate"
+      , "--stake-verification-key-file"
+      , verKey
+      , "--out-file"
+      , registrationCertificate
+      ]
 
   let registrationCertificateType = textEnvelopeTypeInEra era AsCertificate
 
   -- Check the newly created files have not deviated from the
   -- golden files
-  checkTextEnvelopeFormat registrationCertificateType referenceRegistrationCertificate registrationCertificate
+  checkTextEnvelopeFormat
+    registrationCertificateType
+    referenceRegistrationCertificate
+    registrationCertificate
 
   -- Create stake address deregistration certificate
-  void $ execCardanoCLI
-    [ "babbage", "stake-address", "deregistration-certificate"
-    , "--stake-verification-key-file", verKey
-    , "--out-file", deregistrationCertificate
-    ]
+  void $
+    execCardanoCLI
+      [ "babbage"
+      , "stake-address"
+      , "deregistration-certificate"
+      , "--stake-verification-key-file"
+      , verKey
+      , "--out-file"
+      , deregistrationCertificate
+      ]
 
   -- Check the newly created files have not deviated from the
   -- golden files
-  checkTextEnvelopeFormat registrationCertificateType referenceDeregistrationCertificate deregistrationCertificate
+  checkTextEnvelopeFormat
+    registrationCertificateType
+    referenceDeregistrationCertificate
+    deregistrationCertificate
 
   -- Create stake address delegation certificate
-  void $ execCardanoCLI
-    [ "stake-address", "delegation-certificate"
-    , "--stake-verification-key-file", verKey
-    , "--cold-verification-key-file", operatorVkey
-    , "--out-file", deregistrationCertificate
-    ]
+  void $
+    execCardanoCLI
+      [ "stake-address"
+      , "delegation-certificate"
+      , "--stake-verification-key-file"
+      , verKey
+      , "--cold-verification-key-file"
+      , operatorVkey
+      , "--out-file"
+      , deregistrationCertificate
+      ]
 
   -- Check the newly created files have not deviated from the
   -- golden files
-  checkTextEnvelopeFormat registrationCertificateType referenceDelegationCertificate deregistrationCertificate
+  checkTextEnvelopeFormat
+    registrationCertificateType
+    referenceDelegationCertificate
+    deregistrationCertificate

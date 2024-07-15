@@ -18,11 +18,15 @@ hprop_golden_shelleyGenesisKeyGenUtxo = propertyOnce . H.moduleWorkspace "tmp" $
   utxoVerificationKeyFile <- noteTempFile tempDir "utxo.vkey"
   utxoSigningKeyFile <- noteTempFile tempDir "utxo.skey"
 
-  void $ execCardanoCLI
-    [ "genesis","key-gen-utxo"
-    , "--verification-key-file", utxoVerificationKeyFile
-    , "--signing-key-file", utxoSigningKeyFile
-    ]
+  void $
+    execCardanoCLI
+      [ "genesis"
+      , "key-gen-utxo"
+      , "--verification-key-file"
+      , utxoVerificationKeyFile
+      , "--signing-key-file"
+      , utxoSigningKeyFile
+      ]
 
   assertHasMappings [("type", "GenesisUTxOVerificationKey_ed25519")] utxoVerificationKeyFile
   assertHasMappings [("type", "GenesisUTxOSigningKey_ed25519")] utxoSigningKeyFile

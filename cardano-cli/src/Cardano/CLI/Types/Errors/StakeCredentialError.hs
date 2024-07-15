@@ -1,8 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.StakeCredentialError
-  ( StakeCredentialError(..)
-  ) where
+  ( StakeCredentialError (..)
+  )
+where
 
 import           Cardano.Api
 

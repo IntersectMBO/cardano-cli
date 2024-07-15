@@ -1,8 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.RegistrationError
-  ( RegistrationError(..)
-  ) where
+  ( RegistrationError (..)
+  )
+where
 
 import           Cardano.Api
 

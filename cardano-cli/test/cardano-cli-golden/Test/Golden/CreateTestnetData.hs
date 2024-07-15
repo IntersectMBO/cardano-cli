@@ -1,5 +1,6 @@
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+
 module Test.Golden.CreateTestnetData where
 
 import           Cardano.Api.Ledger (ConwayGenesis (..), StandardCrypto)
@@ -45,15 +46,24 @@ numUtxoKeys = 3
 -- between the two tests, except for the possibly transient ones.
 mkArguments :: String -> [String]
 mkArguments outputDir =
-  ["conway",  "genesis", "create-testnet-data"
-   , "--genesis-keys", "2"
-   , "--utxo-keys", show numUtxoKeys
-   , "--out-dir", outputDir
-   , "--testnet-magic", show networkMagic
-   , "--pools", show numPools
-   , "--drep-keys", show numDReps
-   -- Relays file specifies two relays, like the number of SPOs
-   , "--relays", "test/cardano-cli-golden/files/input/shelley/genesis/relays.json"
+  [ "conway"
+  , "genesis"
+  , "create-testnet-data"
+  , "--genesis-keys"
+  , "2"
+  , "--utxo-keys"
+  , show numUtxoKeys
+  , "--out-dir"
+  , outputDir
+  , "--testnet-magic"
+  , show networkMagic
+  , "--pools"
+  , show numPools
+  , "--drep-keys"
+  , show numDReps
+  , -- Relays file specifies two relays, like the number of SPOs
+    "--relays"
+  , "test/cardano-cli-golden/files/input/shelley/genesis/relays.json"
   ]
 
 -- | Given a root directory, returns files within this root (recursively)
@@ -77,21 +87,23 @@ hprop_golden_create_testnet_data =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data with template/"'@
 hprop_golden_create_testnet_data_with_template :: Property
 hprop_golden_create_testnet_data_with_template =
-  golden_create_testnet_data $ Just "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
+  golden_create_testnet_data $
+    Just "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
 
 -- | Semaphore protecting against locked file error, when running properties concurrently.
 createTestnetDataOutSem :: FileSem
 createTestnetDataOutSem = newFileSem "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
-{-# NOINLINE createTestnetDataOutSem  #-}
+{-# NOINLINE createTestnetDataOutSem #-}
 
 -- | This test tests the non-transient case, i.e. it maximizes the files
 -- that can be written to disk.
-golden_create_testnet_data :: ()
-  => Maybe FilePath -- ^ The path to the shelley template use, if any
+golden_create_testnet_data
+  :: ()
+  => Maybe FilePath
+  -- ^ The path to the shelley template use, if any
   -> Property
 golden_create_testnet_data mShelleyTemplate =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
-
     let outputDir = tempDir </> "out"
         templateArg :: [String] =
           case mShelleyTemplate of
@@ -99,7 +111,9 @@ golden_create_testnet_data mShelleyTemplate =
             Just shelleyTemplate -> ["--spec-shelley", shelleyTemplate]
         numStakeDelegs = 4
 
-    void $ execCardanoCLI $ mkArguments outputDir <> ["--stake-delegators", show numStakeDelegs] <> templateArg
+    void $
+      execCardanoCLI $
+        mkArguments outputDir <> ["--stake-delegators", show numStakeDelegs] <> templateArg
 
     generated <- liftIO $ tree outputDir
     -- Sort output for stability, and make relative to avoid storing
@@ -113,7 +127,8 @@ golden_create_testnet_data mShelleyTemplate =
     bracketSem createTestnetDataOutSem $
       H.diffVsGoldenFile generated''
 
-    shelleyGenesis :: ShelleyGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
+    shelleyGenesis :: ShelleyGenesis StandardCrypto <-
+      H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
     sgNetworkMagic shelleyGenesis H.=== networkMagic
     length (L.sgsPools $ sgStaking shelleyGenesis) H.=== numPools
@@ -127,29 +142,35 @@ golden_create_testnet_data mShelleyTemplate =
     actualNumUtxoKeys <- liftIO $ listDirectories $ outputDir </> "utxo-keys"
     length actualNumUtxoKeys H.=== numUtxoKeys
 
-    conwayGenesis :: ConwayGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "conway-genesis.json"
+    conwayGenesis :: ConwayGenesis StandardCrypto <-
+      H.readJsonFileOk $ outputDir </> "conway-genesis.json"
 
     length (cgInitialDReps conwayGenesis) H.=== numDReps
 
     length (cgDelegs conwayGenesis) H.=== numStakeDelegs
-
 
 -- Execute this test with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data deleg non deleg/"'@
 hprop_golden_create_testnet_data_deleg_non_deleg :: Property
 hprop_golden_create_testnet_data_deleg_non_deleg =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
-
     let outputDir = tempDir </> "out"
         totalSupply :: Int = 2_000_000_000_000 -- 2*10^12
         delegatedSupply :: Int = 500_000_000_000 -- 5*10^11, i.e. totalSupply / 4
-
-    void $ execCardanoCLI
-      [ "conway", "genesis", "create-testnet-data"
-      , "--utxo-keys", "1"
-      , "--total-supply", show totalSupply
-      , "--delegated-supply", show delegatedSupply
-      , "--out-dir", outputDir]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "genesis"
+        , "create-testnet-data"
+        , "--utxo-keys"
+        , "1"
+        , "--total-supply"
+        , show totalSupply
+        , "--delegated-supply"
+        , show delegatedSupply
+        , "--out-dir"
+        , outputDir
+        ]
 
     genesis :: ShelleyGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
