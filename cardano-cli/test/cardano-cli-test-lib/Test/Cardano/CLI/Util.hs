@@ -16,12 +16,12 @@ module Test.Cardano.CLI.Util
   , withSnd
   , noteInputFile
   , noteTempFile
-
   , redactJsonField
   , bracketSem
   , FileSem
   , newFileSem
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -62,7 +62,6 @@ import qualified Hedgehog.Internal.Property as H
 import           Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import           Hedgehog.Internal.Source (getCaller)
 
-
 -- | Execute cardano-cli via the command line.
 --
 -- Waits for the process to finish and returns the stdout.
@@ -98,10 +97,11 @@ procFlex'
   -- ^ Captured stdout
 procFlex' execConfig pkg binaryEnv arguments = GHC.withFrozenCallStack . H.evalM $ do
   bin <- H.binFlex pkg binaryEnv
-  return (IO.proc bin arguments)
-    { IO.env = getLast $ execConfigEnv execConfig
-    , IO.cwd = getLast $ execConfigCwd execConfig
-    }
+  return
+    (IO.proc bin arguments)
+      { IO.env = getLast $ execConfigEnv execConfig
+      , IO.cwd = getLast $ execConfigCwd execConfig
+      }
 
 execDetailFlex
   :: (MonadTest m, MonadCatch m, MonadIO m, HasCallStack)
@@ -146,29 +146,32 @@ checkTextEnvelopeFormat tve reference created = GHC.withFrozenCallStack $ do
   createdTextEnvelope <- handleTextEnvelope eCreatedTextEnvelope
 
   typeTitleEquivalence refTextEnvelope createdTextEnvelope
-  where
-    handleTextEnvelope :: MonadTest m
-                        => Either (FileError TextEnvelopeError) TextEnvelope
-                        -> m TextEnvelope
-    handleTextEnvelope = \case
-      Right refTextEnvelope ->
-        return refTextEnvelope
-      Left fileErr ->
-        failWithCustom GHC.callStack Nothing . (docToString . prettyError) $ fileErr
+ where
+  handleTextEnvelope
+    :: MonadTest m
+    => Either (FileError TextEnvelopeError) TextEnvelope
+    -> m TextEnvelope
+  handleTextEnvelope = \case
+    Right refTextEnvelope ->
+      return refTextEnvelope
+    Left fileErr ->
+      failWithCustom GHC.callStack Nothing . (docToString . prettyError) $ fileErr
 
-    typeTitleEquivalence :: (MonadTest m, HasCallStack) => TextEnvelope -> TextEnvelope -> m ()
-    typeTitleEquivalence (TextEnvelope refType refTitle _)
-                          (TextEnvelope createdType createdTitle _) = GHC.withFrozenCallStack $ do
+  typeTitleEquivalence :: (MonadTest m, HasCallStack) => TextEnvelope -> TextEnvelope -> m ()
+  typeTitleEquivalence
+    (TextEnvelope refType refTitle _)
+    (TextEnvelope createdType createdTitle _) = GHC.withFrozenCallStack $ do
       equivalence refType createdType
       equivalence refTitle createdTitle
 
 checkTxCddlFormat
   :: (MonadTest m, MonadIO m, HasCallStack)
-  => FilePath -- ^ Reference/golden file
-  -> FilePath -- ^ Newly created file
+  => FilePath
+  -- ^ Reference/golden file
+  -> FilePath
+  -- ^ Newly created file
   -> m ()
 checkTxCddlFormat referencePath createdPath = do
-
   fileExists <- liftIO $ IO.doesFileExist referencePath
 
   if fileExists
@@ -178,19 +181,21 @@ checkTxCddlFormat referencePath createdPath = do
       r <- H.evalIO $ readCddlTx reference
       c <- H.evalIO $ readCddlTx created
       r H.=== c
-    else if createFiles
-      then do
-        -- CREATE_GOLDEN_FILES is set, so we create any golden files that don't
-        -- already exist.
-        H.note_ $ "Creating golden file " <> referencePath
-        H.createDirectoryIfMissing_ (takeDirectory referencePath)
-        H.readFile createdPath >>= H.writeFile referencePath
-      else do
-        H.note_ $ mconcat
-          [ "Golden file " <> referencePath
-          , " does not exist.  To create, run with CREATE_GOLDEN_FILES=1"
-          ]
-        H.failure
+    else
+      if createFiles
+        then do
+          -- CREATE_GOLDEN_FILES is set, so we create any golden files that don't
+          -- already exist.
+          H.note_ $ "Creating golden file " <> referencePath
+          H.createDirectoryIfMissing_ (takeDirectory referencePath)
+          H.readFile createdPath >>= H.writeFile referencePath
+        else do
+          H.note_ $
+            mconcat
+              [ "Golden file " <> referencePath
+              , " does not exist.  To create, run with CREATE_GOLDEN_FILES=1"
+              ]
+          H.failure
 
 -- | Whether the test should create the golden files if the file does ont exist.
 createFiles :: Bool
@@ -203,7 +208,6 @@ assertDirectoryMissing :: (MonadTest m, MonadIO m, HasCallStack) => FilePath -> 
 assertDirectoryMissing dir = GHC.withFrozenCallStack $ do
   exists <- H.evalIO $ IO.doesDirectoryExist dir
   when exists $ H.failWithCustom GHC.callStack Nothing (dir <> " should not have been created.")
-
 
 --------------------------------------------------------------------------------
 -- Helpers, Error rendering & Clean up
@@ -232,7 +236,7 @@ withSnd f a = (a, f a)
 -- These were lifted from hedgehog and slightly modified
 
 propertyOnce :: H.PropertyT IO () -> H.Property
-propertyOnce =  H.withTests 1 . H.withShrinks 0 . H.property
+propertyOnce = H.withTests 1 . H.withShrinks 0 . H.property
 
 -- | Check for equivalence between two types and perform a file cleanup on failure.
 equivalence
@@ -258,25 +262,32 @@ failDiffCustom cS x y =
     Nothing ->
       GHC.withFrozenCallStack $
         failWithCustom cS Nothing $
-        Prelude.unlines [
-            "Failed"
-          , "━━ lhs ━━"
-          , showPretty x
-          , "━━ rhs ━━"
-          , showPretty y
-          ]
-
+          Prelude.unlines
+            [ "Failed"
+            , "━━ lhs ━━"
+            , showPretty x
+            , "━━ rhs ━━"
+            , showPretty y
+            ]
     Just vdiff@(ValueSame _) ->
       GHC.withFrozenCallStack $
-        failWithCustom cS (Just $
-          H.Diff "━━━ Failed ("  "" "no differences" "" ") ━━━" vdiff) ""
-
+        failWithCustom
+          cS
+          ( Just $
+              H.Diff "━━━ Failed (" "" "no differences" "" ") ━━━" vdiff
+          )
+          ""
     Just vdiff ->
       GHC.withFrozenCallStack $
-        failWithCustom cS (Just $
-          H.Diff "━━━ Failed (" "- lhs" ") (" "+ rhs" ") ━━━" vdiff) ""
+        failWithCustom
+          cS
+          ( Just $
+              H.Diff "━━━ Failed (" "- lhs" ") (" "+ rhs" ") ━━━" vdiff
+          )
+          ""
 
-redactJsonField :: ()
+redactJsonField
+  :: ()
   => MonadTest m
   => MonadIO m
   => HasCallStack
@@ -299,7 +310,6 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
         v -> pure v
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
 
-
 -- | A file semaphore protecting against a concurrent path access
 data FileSem = FileSem !FilePath !QSem
 
@@ -314,17 +324,22 @@ deriving via (ShowOf FileSem) instance Pretty FileSem
 -- createTestnetDataOutSem = newFileSem "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
 -- {-# NOINLINE createTestnetDataOutSem  #-}
 -- @
-newFileSem :: FilePath -- ^ path to be guarded by a semaphore allowing only one concurrent to access it
-           -> FileSem
+newFileSem
+  :: FilePath
+  -- ^ path to be guarded by a semaphore allowing only one concurrent to access it
+  -> FileSem
 newFileSem fp = unsafePerformIO $ FileSem fp <$> newQSem 1
 {-# INLINE newFileSem #-}
 
 -- | Run action acquiring a semaphore, and releasing afterwards. Guards against concurrent access to
 -- a block of code.
-bracketSem :: MonadBaseControl IO m
-           => FileSem -- ^ a file semaphore
-           -> (FilePath -> m c) -- ^ an action, a file path will be extracted from the semaphore
-           -> m c
+bracketSem
+  :: MonadBaseControl IO m
+  => FileSem
+  -- ^ a file semaphore
+  -> (FilePath -> m c)
+  -- ^ an action, a file path will be extracted from the semaphore
+  -> m c
 bracketSem (FileSem path semaphore) act =
   bracket_ (liftBase $ waitQSem semaphore) (liftBase $ signalQSem semaphore) $
     act path

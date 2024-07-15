@@ -2,7 +2,8 @@
 
 module Cardano.CLI.Orphans
   (
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -13,7 +14,7 @@ import           Data.Aeson
 
 -- TODO upstream this orphaned instance to the ledger
 instance (L.EraTxOut ledgerera, L.EraGov ledgerera) => ToJSON (L.NewEpochState ledgerera) where
-  toJSON (L.NewEpochState nesEL nesBprev nesBCur nesEs nesRu nesPd _stashedAvvm)=
+  toJSON (L.NewEpochState nesEL nesBprev nesBCur nesEs nesRu nesPd _stashedAvvm) =
     object
       [ "currentEpoch" .= nesEL
       , "priorBlocks" .= nesBprev

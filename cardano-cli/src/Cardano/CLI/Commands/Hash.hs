@@ -8,7 +8,8 @@ module Cardano.CLI.Commands.Hash
   , HashScriptCmdArgs (..)
   , AnchorDataHashSource (..)
   , renderHashCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -21,10 +22,12 @@ data HashCmds
   | HashScriptCmd !HashScriptCmdArgs
 
 data HashAnchorDataCmdArgs
-  = HashAnchorDataCmdArgs {
-      toHash  :: !AnchorDataHashSource
-    , mOutFile :: !(Maybe (File () Out)) -- ^ The output file to which the hash is written
-  } deriving Show
+  = HashAnchorDataCmdArgs
+  { toHash :: !AnchorDataHashSource
+  , mOutFile :: !(Maybe (File () Out))
+  -- ^ The output file to which the hash is written
+  }
+  deriving Show
 
 data AnchorDataHashSource
   = AnchorDataHashSourceBinaryFile (File ProposalBinary In)
@@ -33,12 +36,14 @@ data AnchorDataHashSource
   deriving Show
 
 data HashScriptCmdArgs
-  = HashScriptCmdArgs {
-      toHash  ::  !ScriptFile
-    , mOutFile :: !(Maybe (File () Out)) -- ^ The output file to which the hash is written
-  } deriving Show
+  = HashScriptCmdArgs
+  { toHash :: !ScriptFile
+  , mOutFile :: !(Maybe (File () Out))
+  -- ^ The output file to which the hash is written
+  }
+  deriving Show
 
 renderHashCmds :: HashCmds -> Text
 renderHashCmds = \case
-  HashAnchorDataCmd {} -> "hash anchor-data"
-  HashScriptCmd {} -> "hash script"
+  HashAnchorDataCmd{} -> "hash anchor-data"
+  HashScriptCmd{} -> "hash script"

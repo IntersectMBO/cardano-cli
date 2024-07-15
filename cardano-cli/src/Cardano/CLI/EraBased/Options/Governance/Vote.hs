@@ -3,7 +3,8 @@
 
 module Cardano.CLI.EraBased.Options.Governance.Vote
   ( pGovernanceVoteCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -16,17 +17,20 @@ import           Data.Foldable
 import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
 
-pGovernanceVoteCmds :: ()
+pGovernanceVoteCmds
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceVoteCmds era))
 pGovernanceVoteCmds era =
-  subInfoParser "vote"
+  subInfoParser
+    "vote"
     (Opt.progDesc "Vote commands.")
-    [ pGovernanceVoteCreateCmd era,
-      pGovernanceVoteViewCmd era
+    [ pGovernanceVoteCreateCmd era
+    , pGovernanceVoteViewCmd era
     ]
 
-pGovernanceVoteCreateCmd :: ()
+pGovernanceVoteCreateCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceVoteCmds era))
 pGovernanceVoteCreateCmd era = do
@@ -34,29 +38,33 @@ pGovernanceVoteCreateCmd era = do
   pure
     $ subParser "create"
     $ Opt.info
-        ( GovernanceVoteCreateCmd
-            <$> pGovernanceVoteCreateCmdArgs w
-        )
+      ( GovernanceVoteCreateCmd
+          <$> pGovernanceVoteCreateCmdArgs w
+      )
     $ Opt.progDesc "Vote creation."
 
-pGovernanceVoteCreateCmdArgs :: ()
+pGovernanceVoteCreateCmdArgs
+  :: ()
   => ConwayEraOnwards era -> Parser (GovernanceVoteCreateCmdArgs era)
 pGovernanceVoteCreateCmdArgs cOnwards =
   GovernanceVoteCreateCmdArgs cOnwards
-      <$> pVoteChoice
-      <*> pGovernanceActionId
-      <*> pAnyVotingStakeVerificationKeyOrHashOrFile
-      <*> optional pVoteAnchor
-      <*> pFileOutDirection "out-file" "Output filepath of the vote."
+    <$> pVoteChoice
+    <*> pGovernanceActionId
+    <*> pAnyVotingStakeVerificationKeyOrHashOrFile
+    <*> optional pVoteAnchor
+    <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
 pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile
 pAnyVotingStakeVerificationKeyOrHashOrFile =
-  asum [ AnyDRepVerificationKeyOrHashOrFileOrScriptHash <$> pDRepVerificationKeyOrHashOrFileOrScriptHash
-       , AnyStakePoolVerificationKeyOrHashOrFile <$> pStakePoolVerificationKeyOrHashOrFile Nothing
-       , AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash <$> pCommitteeHotVerificationKeyOrHashOrVerificationFileOrScriptHash
-       ]
+  asum
+    [ AnyDRepVerificationKeyOrHashOrFileOrScriptHash <$> pDRepVerificationKeyOrHashOrFileOrScriptHash
+    , AnyStakePoolVerificationKeyOrHashOrFile <$> pStakePoolVerificationKeyOrHashOrFile Nothing
+    , AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash
+        <$> pCommitteeHotVerificationKeyOrHashOrVerificationFileOrScriptHash
+    ]
 
-pGovernanceVoteViewCmd :: ()
+pGovernanceVoteViewCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceVoteCmds era))
 pGovernanceVoteViewCmd era = do
@@ -64,7 +72,7 @@ pGovernanceVoteViewCmd era = do
   pure
     $ subParser "view"
     $ Opt.info
-        (GovernanceVoteViewCmd <$> pGovernanceVoteViewCmdArgs w)
+      (GovernanceVoteViewCmd <$> pGovernanceVoteViewCmdArgs w)
     $ Opt.progDesc "Vote viewing."
 
 pGovernanceVoteViewCmdArgs :: ConwayEraOnwards era -> Parser (GovernanceVoteViewCmdArgs era)

@@ -3,7 +3,8 @@
 
 module Cardano.CLI.Legacy.Run.StakeAddress
   ( runLegacyStakeAddressCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 import           Cardano.Api.Ledger (Coin)
@@ -17,7 +18,8 @@ import           Cardano.CLI.Types.Key
 
 import           Control.Monad (void)
 
-runLegacyStakeAddressCmds :: ()
+runLegacyStakeAddressCmds
+  :: ()
   => LegacyStakeAddressCmds
   -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressCmds = \case
@@ -34,7 +36,8 @@ runLegacyStakeAddressCmds = \case
   StakeAddressDeregistrationCertificateCmd anyEra stakeIdentifier mDeposit outputFp ->
     runLegacyStakeAddressDeregistrationCertificateCmd anyEra stakeIdentifier mDeposit outputFp
 
-runLegacyStakeAddressKeyGenCmd :: ()
+runLegacyStakeAddressKeyGenCmd
+  :: ()
   => KeyOutputFormat
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
@@ -42,14 +45,16 @@ runLegacyStakeAddressKeyGenCmd :: ()
 runLegacyStakeAddressKeyGenCmd vk sk =
   void <$> runStakeAddressKeyGenCmd vk sk
 
-runLegacyStakeAddressKeyHashCmd :: ()
+runLegacyStakeAddressKeyHashCmd
+  :: ()
   => VerificationKeyOrFile StakeKey
   -> Maybe (File () Out)
   -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressKeyHashCmd =
   runStakeAddressKeyHashCmd
 
-runLegacyStakeAddressBuildCmd :: ()
+runLegacyStakeAddressBuildCmd
+  :: ()
   => StakeVerifier
   -> NetworkId
   -> Maybe (File () Out)
@@ -57,16 +62,19 @@ runLegacyStakeAddressBuildCmd :: ()
 runLegacyStakeAddressBuildCmd =
   runStakeAddressBuildCmd
 
-runLegacyStakeAddressRegistrationCertificateCmd :: ()
+runLegacyStakeAddressRegistrationCertificateCmd
+  :: ()
   => EraInEon ShelleyBasedEra
   -> StakeIdentifier
-  -> Maybe Coin -- ^ Deposit required in conway era
+  -> Maybe Coin
+  -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressRegistrationCertificateCmd (EraInEon sbe) =
   runStakeAddressRegistrationCertificateCmd sbe
 
-runLegacyStakeAddresslDelegationCertificateCmd :: ()
+runLegacyStakeAddresslDelegationCertificateCmd
+  :: ()
   => EraInEon ShelleyBasedEra
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
@@ -78,10 +86,12 @@ runLegacyStakeAddresslDelegationCertificateCmd :: ()
 runLegacyStakeAddresslDelegationCertificateCmd (EraInEon sbe) =
   runStakeAddressStakeDelegationCertificateCmd sbe
 
-runLegacyStakeAddressDeregistrationCertificateCmd :: ()
+runLegacyStakeAddressDeregistrationCertificateCmd
+  :: ()
   => EraInEon ShelleyBasedEra
   -> StakeIdentifier
-  -> Maybe Coin -- ^ Deposit required in conway era
+  -> Maybe Coin
+  -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runLegacyStakeAddressDeregistrationCertificateCmd (EraInEon sbe) =

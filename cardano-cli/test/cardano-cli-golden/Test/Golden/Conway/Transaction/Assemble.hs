@@ -18,15 +18,23 @@ hprop_golden_conway_transaction_assemble_witness_signing_key :: Property
 hprop_golden_conway_transaction_assemble_witness_signing_key = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   witnessTx <- noteTempFile tempDir "single-signing-key-witness-tx"
   txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/txbody"
-  signingKeyWitnessFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/singleSigningKeyWitness"
+  signingKeyWitnessFile <-
+    noteInputFile "test/cardano-cli-golden/files/input/conway/singleSigningKeyWitness"
 
-  void $ execCardanoCLI
-    [ "conway", "transaction", "assemble"
-    , "--tx-body-file", txBodyFile
-    , "--witness-file", signingKeyWitnessFile
-    , "--witness-file", signingKeyWitnessFile
-    , "--out-file", witnessTx
-    ]
+  void $
+    execCardanoCLI
+      [ "conway"
+      , "transaction"
+      , "assemble"
+      , "--tx-body-file"
+      , txBodyFile
+      , "--witness-file"
+      , signingKeyWitnessFile
+      , "--witness-file"
+      , signingKeyWitnessFile
+      , "--out-file"
+      , witnessTx
+      ]
 
   goldenFile <- H.note "test/cardano-cli-golden/files/golden/conway/transaction/assemble_out"
   H.diffFileVsGoldenFile witnessTx goldenFile

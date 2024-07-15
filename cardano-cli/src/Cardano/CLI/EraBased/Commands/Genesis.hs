@@ -15,7 +15,8 @@ module Cardano.CLI.EraBased.Commands.Genesis
   , GenesisTxInCmdArgs (..)
   , GenesisAddrCmdArgs (..)
   , renderGenesisCmds
-  ) where
+  )
+where
 
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
@@ -48,7 +49,8 @@ data GenesisCreateCmdArgs = GenesisCreateCmdArgs
   , mSystemStart :: !(Maybe SystemStart)
   , mSupply :: !(Maybe Coin)
   , network :: !NetworkId
-  } deriving Show
+  }
+  deriving Show
 
 data GenesisCreateCardanoCmdArgs = GenesisCreateCardanoCmdArgs
   { genesisDir :: !GenesisDir
@@ -65,7 +67,8 @@ data GenesisCreateCardanoCmdArgs = GenesisCreateCardanoCmdArgs
   , alonzoGenesisTemplate :: !FilePath
   , conwayGenesisTemplate :: !FilePath
   , mNodeConfigTemplate :: !(Maybe FilePath)
-  } deriving Show
+  }
+  deriving Show
 
 data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
   { keyOutputFormat :: !KeyOutputFormat
@@ -81,83 +84,107 @@ data GenesisCreateStakedCmdArgs = GenesisCreateStakedCmdArgs
   , numBulkPoolCredFiles :: !Word
   , numBulkPoolsPerFile :: !Word
   , numStuffedUtxo :: !Word
-  , mStakePoolRelaySpecFile :: !(Maybe FilePath) -- ^ Relay specification filepath
-  } deriving Show
+  , mStakePoolRelaySpecFile :: !(Maybe FilePath)
+  -- ^ Relay specification filepath
+  }
+  deriving Show
 
 data GenesisCreateTestNetDataCmdArgs = GenesisCreateTestNetDataCmdArgs
-  { specShelley :: !(Maybe FilePath) -- ^ Path to the @genesis-shelley@ file to use. If unspecified, a default one will be used.
-  , specAlonzo :: !(Maybe FilePath) -- ^ Path to the @genesis-alonzo@ file to use. If unspecified, a default one will be used.
-  , specConway :: !(Maybe FilePath) -- ^ Path to the @genesis-conway@ file to use. If unspecified, a default one will be used.
-  , numGenesisKeys :: !Word -- ^ The number of genesis keys credentials to create and write to disk.
-  , numPools :: !Word -- ^ The number of stake pools credentials to create and write to disk.
-  , stakeDelegators :: !StakeDelegators -- ^ The number of delegators to pools and DReps to create.
-  , numDRepKeys :: !DRepCredentials -- ^ The number of DRep keys to create. They are registered and get delegated to by stake delegators
-  , numStuffedUtxo :: !Word -- ^ The number of UTxO accounts to make. They are "stuffed" because the credentials are not written to disk.
-  , numUtxoKeys :: !Word -- ^ The number of UTxO credentials to create and write to disk.
-  , totalSupply :: !(Maybe Coin) -- ^ The total number of Lovelace
-  , delegatedSupply :: !(Maybe Coin) -- ^ The number of Lovelace being delegated
-  , networkId :: !(Maybe NetworkId) -- ^ The network ID to use. Overrides the network id supplied in the spec file.
-  , relays :: !(Maybe FilePath) -- ^ Filepath of the specification of relays
-  , systemStart :: !(Maybe SystemStart) -- ^ The genesis start time.
-  , outputDir :: !FilePath -- ^ Directory where to write credentials and files.
-  } deriving Show
+  { specShelley :: !(Maybe FilePath)
+  -- ^ Path to the @genesis-shelley@ file to use. If unspecified, a default one will be used.
+  , specAlonzo :: !(Maybe FilePath)
+  -- ^ Path to the @genesis-alonzo@ file to use. If unspecified, a default one will be used.
+  , specConway :: !(Maybe FilePath)
+  -- ^ Path to the @genesis-conway@ file to use. If unspecified, a default one will be used.
+  , numGenesisKeys :: !Word
+  -- ^ The number of genesis keys credentials to create and write to disk.
+  , numPools :: !Word
+  -- ^ The number of stake pools credentials to create and write to disk.
+  , stakeDelegators :: !StakeDelegators
+  -- ^ The number of delegators to pools and DReps to create.
+  , numDRepKeys :: !DRepCredentials
+  -- ^ The number of DRep keys to create. They are registered and get delegated to by stake delegators
+  , numStuffedUtxo :: !Word
+  -- ^ The number of UTxO accounts to make. They are "stuffed" because the credentials are not written to disk.
+  , numUtxoKeys :: !Word
+  -- ^ The number of UTxO credentials to create and write to disk.
+  , totalSupply :: !(Maybe Coin)
+  -- ^ The total number of Lovelace
+  , delegatedSupply :: !(Maybe Coin)
+  -- ^ The number of Lovelace being delegated
+  , networkId :: !(Maybe NetworkId)
+  -- ^ The network ID to use. Overrides the network id supplied in the spec file.
+  , relays :: !(Maybe FilePath)
+  -- ^ Filepath of the specification of relays
+  , systemStart :: !(Maybe SystemStart)
+  -- ^ The genesis start time.
+  , outputDir :: !FilePath
+  -- ^ Directory where to write credentials and files.
+  }
+  deriving Show
 
 data GenesisKeyGenGenesisCmdArgs = GenesisKeyGenGenesisCmdArgs
   { verificationKeyPath :: !(VerificationKeyFile Out)
   , signingKeyPath :: !(SigningKeyFile Out)
-  } deriving Show
+  }
+  deriving Show
 
 data GenesisKeyGenDelegateCmdArgs = GenesisKeyGenDelegateCmdArgs
   { verificationKeyPath :: !(VerificationKeyFile Out)
   , signingKeyPath :: !(SigningKeyFile Out)
   , opCertCounterPath :: !(OpCertCounterFile Out)
-  } deriving Show
+  }
+  deriving Show
 
 data GenesisKeyGenUTxOCmdArgs = GenesisKeyGenUTxOCmdArgs
   { verificationKeyPath :: !(VerificationKeyFile Out)
   , signingKeyPath :: !(SigningKeyFile Out)
-  } deriving Show
+  }
+  deriving Show
 
 data GenesisVerKeyCmdArgs = GenesisVerKeyCmdArgs
   { verificationKeyPath :: !(VerificationKeyFile Out)
   , signingKeyPath :: !(SigningKeyFile In)
-  } deriving Show
+  }
+  deriving Show
 
 data GenesisTxInCmdArgs = GenesisTxInCmdArgs
   { verificationKeyPath :: !(VerificationKeyFile In)
   , network :: !NetworkId
   , mOutFile :: !(Maybe (File () Out))
-  } deriving Show
+  }
+  deriving Show
 
 data GenesisAddrCmdArgs = GenesisAddrCmdArgs
   { verificationKeyPath :: !(VerificationKeyFile In)
   , network :: !NetworkId
   , mOutFile :: !(Maybe (File () Out))
-  } deriving Show
+  }
+  deriving Show
 
 renderGenesisCmds :: GenesisCmds era -> Text
 renderGenesisCmds = \case
-  GenesisCreate {} ->
+  GenesisCreate{} ->
     "genesis create"
-  GenesisCreateCardano {} ->
+  GenesisCreateCardano{} ->
     "genesis create-cardano"
-  GenesisCreateStaked {} ->
+  GenesisCreateStaked{} ->
     "genesis create-staked"
-  GenesisCreateTestNetData {} ->
+  GenesisCreateTestNetData{} ->
     "genesis create-testnet-data"
-  GenesisKeyGenGenesis {} ->
+  GenesisKeyGenGenesis{} ->
     "genesis key-gen-genesis"
-  GenesisKeyGenDelegate {} ->
+  GenesisKeyGenDelegate{} ->
     "genesis key-gen-delegate"
-  GenesisKeyGenUTxO {} ->
+  GenesisKeyGenUTxO{} ->
     "genesis key-gen-utxo"
-  GenesisCmdKeyHash {} ->
+  GenesisCmdKeyHash{} ->
     "genesis key-hash"
-  GenesisVerKey {} ->
+  GenesisVerKey{} ->
     "genesis get-ver-key"
-  GenesisTxIn {} ->
+  GenesisTxIn{} ->
     "genesis initial-txin"
-  GenesisAddr {} ->
+  GenesisAddr{} ->
     "genesis initial-addr"
-  GenesisHashFile {} ->
+  GenesisHashFile{} ->
     "genesis hash"

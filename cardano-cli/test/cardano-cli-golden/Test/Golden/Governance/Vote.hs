@@ -18,16 +18,26 @@ hprop_golden_governance_governance_vote_create =
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote"
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "vote", "create"
-      , "--yes"
-      , "--governance-action-tx-id", "b1015258a99351c143a7a40b7b58f033ace10e3cc09c67780ed5b2b0992aa60a"
-      , "--governance-action-index", "5"
-      , "--drep-verification-key-file", vkeyFile
-      , "--out-file", voteFile
-      , "--anchor-url", "https://example.com/vote"
-      , "--anchor-data-hash", "6163683a90d8cb460a38cdcf0d7bab286f0f004ec6e761dc670c2ca4d3709a17"
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "vote"
+        , "create"
+        , "--yes"
+        , "--governance-action-tx-id"
+        , "b1015258a99351c143a7a40b7b58f033ace10e3cc09c67780ed5b2b0992aa60a"
+        , "--governance-action-index"
+        , "5"
+        , "--drep-verification-key-file"
+        , vkeyFile
+        , "--out-file"
+        , voteFile
+        , "--anchor-url"
+        , "https://example.com/vote"
+        , "--anchor-data-hash"
+        , "6163683a90d8cb460a38cdcf0d7bab286f0f004ec6e761dc670c2ca4d3709a17"
+        ]
 
     H.diffFileVsGoldenFile voteFile voteGold
 
@@ -40,10 +50,15 @@ hprop_golden_governance_governance_vote_view_json_stdout =
   propertyOnce $ do
     voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
     H.noteShow_ voteViewJsonSem
-    voteView <- execCardanoCLI
-      [ "conway", "governance", "vote", "view"
-      , "--vote-file", voteFile
-      ]
+    voteView <-
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "vote"
+        , "view"
+        , "--vote-file"
+        , voteFile
+        ]
 
     bracketSem voteViewJsonSem $
       H.diffVsGoldenFile voteView
@@ -54,11 +69,17 @@ hprop_golden_governance_governance_vote_view_json_outfile =
     voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
     voteViewFile <- H.noteTempFile tempDir "voteView"
     H.noteShow_ voteViewJsonSem
-    void $ execCardanoCLI
-      [ "conway", "governance", "vote", "view"
-      , "--vote-file", voteFile
-      , "--out-file", voteViewFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "vote"
+        , "view"
+        , "--vote-file"
+        , voteFile
+        , "--out-file"
+        , voteViewFile
+        ]
 
     bracketSem voteViewJsonSem $
       H.diffFileVsGoldenFile voteViewFile
@@ -68,11 +89,16 @@ hprop_golden_governance_governance_vote_view_yaml =
   propertyOnce $ do
     voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
     voteViewGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/voteViewYAML"
-    voteView <- execCardanoCLI
-      [ "conway", "governance", "vote", "view"
-      , "--output-yaml"
-      , "--vote-file", voteFile
-      ]
+    voteView <-
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "vote"
+        , "view"
+        , "--output-yaml"
+        , "--vote-file"
+        , voteFile
+        ]
 
     H.diffVsGoldenFile voteView voteViewGold
 
@@ -83,14 +109,22 @@ hprop_golden_governance_governance_vote_create_yes_cc_hot_key =
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_yes.json"
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "vote", "create"
-      , "--yes"
-      , "--governance-action-tx-id", "d21d997b5dbdd90180b642c3f4f2653cea629f6134cd9dc820d0fe6f11b54af4"
-      , "--governance-action-index", "0"
-      , "--cc-hot-verification-key-file", ccVkeyFile
-      , "--out-file", voteFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "vote"
+        , "create"
+        , "--yes"
+        , "--governance-action-tx-id"
+        , "d21d997b5dbdd90180b642c3f4f2653cea629f6134cd9dc820d0fe6f11b54af4"
+        , "--governance-action-index"
+        , "0"
+        , "--cc-hot-verification-key-file"
+        , ccVkeyFile
+        , "--out-file"
+        , voteFile
+        ]
 
     H.diffFileVsGoldenFile voteFile voteGold
 
@@ -101,14 +135,22 @@ hprop_golden_governance_governance_vote_create_no_cc_hot_key =
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_no.json"
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "vote", "create"
-      , "--no"
-      , "--governance-action-tx-id", "d21d997b5dbdd90180b642c3f4f2653cea629f6134cd9dc820d0fe6f11b54af4"
-      , "--governance-action-index", "0"
-      , "--cc-hot-verification-key-file", ccVkeyFile
-      , "--out-file", voteFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "vote"
+        , "create"
+        , "--no"
+        , "--governance-action-tx-id"
+        , "d21d997b5dbdd90180b642c3f4f2653cea629f6134cd9dc820d0fe6f11b54af4"
+        , "--governance-action-index"
+        , "0"
+        , "--cc-hot-verification-key-file"
+        , ccVkeyFile
+        , "--out-file"
+        , voteFile
+        ]
 
     H.diffFileVsGoldenFile voteFile voteGold
 
@@ -119,13 +161,21 @@ hprop_golden_governance_governance_vote_create_abstain_cc_hot_key =
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_abstain.json"
 
-    void $ execCardanoCLI
-      [ "conway", "governance", "vote", "create"
-      , "--abstain"
-      , "--governance-action-tx-id", "d21d997b5dbdd90180b642c3f4f2653cea629f6134cd9dc820d0fe6f11b54af4"
-      , "--governance-action-index", "0"
-      , "--cc-hot-verification-key-file", ccVkeyFile
-      , "--out-file", voteFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "vote"
+        , "create"
+        , "--abstain"
+        , "--governance-action-tx-id"
+        , "d21d997b5dbdd90180b642c3f4f2653cea629f6134cd9dc820d0fe6f11b54af4"
+        , "--governance-action-index"
+        , "0"
+        , "--cc-hot-verification-key-file"
+        , ccVkeyFile
+        , "--out-file"
+        , voteFile
+        ]
 
     H.diffFileVsGoldenFile voteFile voteGold

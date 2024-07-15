@@ -26,16 +26,23 @@ hash_trip_fun input =
   H.moduleWorkspace "tmp" $ \tempDir -> do
     hashFile <- noteTempFile tempDir "hash.txt"
 
-    hash <- execCardanoCLI
-      [ "hash", "anchor-data"
-        , "--text", input
-      ]
+    hash <-
+      execCardanoCLI
+        [ "hash"
+        , "anchor-data"
+        , "--text"
+        , input
+        ]
 
-    void $ execCardanoCLI
-      [ "hash", "anchor-data"
-      , "--text", input
-      , "--out-file", hashFile
-      ]
+    void $
+      execCardanoCLI
+        [ "hash"
+        , "anchor-data"
+        , "--text"
+        , input
+        , "--out-file"
+        , hashFile
+        ]
 
     hashFromFile <- H.readFile hashFile
 

@@ -9,8 +9,8 @@ import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
 import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.Process as H
 import qualified Hedgehog.Extras.Test.Golden as H
+import qualified Hedgehog.Extras.Test.Process as H
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -18,25 +18,37 @@ hprop_golden_shelley_stake_address_deregistration_certificate :: Property
 hprop_golden_shelley_stake_address_deregistration_certificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   base <- H.getProjectBase
 
-  verificationKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
+  verificationKeyFile <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
   deregistrationCertFile <- noteTempFile tempDir "deregistrationCertFile"
   scriptDeregistrationCertFile <- noteTempFile tempDir "scripDeregistrationCertFile"
-  exampleScript <- noteInputFile $ base </> "scripts/plutus/scripts/v1/custom-guess-42-datum-42.plutus"
+  exampleScript <-
+    noteInputFile $ base </> "scripts/plutus/scripts/v1/custom-guess-42-datum-42.plutus"
 
-  void $ execCardanoCLI
-    [ "babbage", "stake-address","deregistration-certificate"
-    , "--staking-verification-key-file", verificationKeyFile
-    , "--out-file", deregistrationCertFile
-    ]
+  void $
+    execCardanoCLI
+      [ "babbage"
+      , "stake-address"
+      , "deregistration-certificate"
+      , "--staking-verification-key-file"
+      , verificationKeyFile
+      , "--out-file"
+      , deregistrationCertFile
+      ]
 
   goldenFile1 <- H.note "test/cardano-cli-golden/files/golden/shelley/dereg-cert-1.json"
   H.diffFileVsGoldenFile deregistrationCertFile goldenFile1
 
-  void $ execCardanoCLI
-    [ "babbage", "stake-address","deregistration-certificate"
-    , "--stake-script-file", exampleScript
-    , "--out-file", scriptDeregistrationCertFile
-    ]
+  void $
+    execCardanoCLI
+      [ "babbage"
+      , "stake-address"
+      , "deregistration-certificate"
+      , "--stake-script-file"
+      , exampleScript
+      , "--out-file"
+      , scriptDeregistrationCertFile
+      ]
 
   goldenFile2 <- H.note "test/cardano-cli-golden/files/golden/shelley/dereg-cert-2.json"
   H.diffFileVsGoldenFile scriptDeregistrationCertFile goldenFile2

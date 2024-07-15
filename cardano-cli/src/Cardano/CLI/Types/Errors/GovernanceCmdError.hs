@@ -22,8 +22,8 @@ data GovernanceCmdError
   | VotingCredentialDecodeGovCmdEror DecoderError
   | WriteFileError (FileError ())
   | ReadFileError (FileError InputDecodeError)
-    -- Governance action related
-  | GovernanceCmdConstitutionError ConstitutionError
+  | -- Governance action related
+    GovernanceCmdConstitutionError ConstitutionError
   | GovernanceCmdProposalError ProposalError
   | GovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
   | GovernanceCmdTextEnvCddlReadError !(FileError TextEnvelopeCddlError)
@@ -40,19 +40,19 @@ data GovernanceCmdError
       -- ^ Number of reward amounts
   | GovernanceCmdCostModelsJsonDecodeErr !FilePath !Text
   | GovernanceCmdEmptyCostModel !FilePath
-  | GovernanceCmdUnexpectedKeyType
+  | -- | Expected key types
+    GovernanceCmdUnexpectedKeyType
       ![TextEnvelopeType]
-      -- ^ Expected key types
-  | GovernanceCmdPollOutOfBoundAnswer
+  | -- | Maximum answer index
+    GovernanceCmdPollOutOfBoundAnswer
       !Int
-      -- ^ Maximum answer index
   | GovernanceCmdPollInvalidChoice
   | GovernanceCmdDecoderError !DecoderError
   | GovernanceCmdVerifyPollError !GovernancePollError
   | GovernanceCmdWriteFileError !(FileError ())
   | GovernanceCmdDRepMetadataValidationError !DRepMetadataValidationError
-  -- Legacy - remove me after cardano-cli transitions to new era based structure
-  | GovernanceCmdMIRCertNotSupportedInConway
+  | -- Legacy - remove me after cardano-cli transitions to new era based structure
+    GovernanceCmdMIRCertNotSupportedInConway
   | GovernanceCmdGenesisDelegationNotSupportedInConway
   deriving Show
 
@@ -85,10 +85,13 @@ instance Error GovernanceCmdError where
     GovernanceCmdEmptyUpdateProposalError ->
       "Empty update proposals are not allowed."
     GovernanceCmdMIRCertificateKeyRewardMistmach fp nStakeVerKeys nRewards ->
-      "Error creating the MIR certificate at: " <> pretty fp
-      <> " The number of staking keys: " <> pshow nStakeVerKeys
-      <> " and the number of reward amounts: " <> pshow nRewards
-      <> " are not equivalent."
+      "Error creating the MIR certificate at: "
+        <> pretty fp
+        <> " The number of staking keys: "
+        <> pshow nStakeVerKeys
+        <> " and the number of reward amounts: "
+        <> pshow nRewards
+        <> " are not equivalent."
     GovernanceCmdCostModelsJsonDecodeErr fp msg ->
       "Error decoding cost model: " <> pretty msg <> " at: " <> pretty fp
     GovernanceCmdEmptyCostModel fp ->
@@ -114,5 +117,5 @@ instance Error GovernanceCmdError where
       "MIR certificates are not supported in Conway era onwards."
     GovernanceCmdGenesisDelegationNotSupportedInConway ->
       "Genesis delegation is not supported in Conway era onwards."
-    where
-      renderDecoderError = pretty . TL.toLazyText . B.build
+   where
+    renderDecoderError = pretty . TL.toLazyText . B.build

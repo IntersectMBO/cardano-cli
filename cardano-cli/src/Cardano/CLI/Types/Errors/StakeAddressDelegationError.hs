@@ -2,12 +2,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.StakeAddressDelegationError
-  ( StakeAddressDelegationError(..)
-  ) where
+  ( StakeAddressDelegationError (..)
+  )
+where
 
 import           Cardano.Api
 
-newtype StakeAddressDelegationError = VoteDelegationNotSupported (EraInEon ShelleyToBabbageEra) deriving Show
+newtype StakeAddressDelegationError = VoteDelegationNotSupported (EraInEon ShelleyToBabbageEra)
+  deriving Show
 
 instance Error StakeAddressDelegationError where
   prettyError = \case

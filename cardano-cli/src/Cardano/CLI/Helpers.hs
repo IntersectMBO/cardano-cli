@@ -5,7 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Helpers
-  ( HelpersError(..)
+  ( HelpersError (..)
   , printWarning
   , deprecationWarning
   , ensureNewFile
@@ -14,15 +14,16 @@ module Cardano.CLI.Helpers
   , readCBOR
   , renderHelpersError
   , validateCBOR
-  ) where
+  )
+where
 
 import qualified Cardano.Api.Ledger as L
-import           Cardano.CLI.Pretty (Doc, pretty, pshow)
 
 import           Cardano.Chain.Block (decCBORABlockOrBoundary)
 import qualified Cardano.Chain.Delegation as Delegation
 import qualified Cardano.Chain.Update as Update
 import qualified Cardano.Chain.UTxO as UTxO
+import           Cardano.CLI.Pretty (Doc, pretty, pshow)
 import           Cardano.CLI.Types.Common
 
 import           Codec.CBOR.Pretty (prettyHexEnc)
@@ -79,20 +80,22 @@ printWarning warning = do
   ANSI.hSetSGR IO.stderr [SetColor Foreground Vivid Yellow]
   IO.hPutStrLn IO.stderr $ "WARNING: " <> warning
   ANSI.hSetSGR IO.stderr [Reset]
-    -- We need to flush, or otherwise what's on stdout may have the wrong colour
-    -- since it's likely sharing a console with stderr
+  -- We need to flush, or otherwise what's on stdout may have the wrong colour
+  -- since it's likely sharing a console with stderr
   IO.hFlush IO.stderr
 
 deprecationWarning :: String -> IO ()
-deprecationWarning cmd = printWarning $
-  "This CLI command is deprecated.  Please use " <> cmd <> " command instead."
+deprecationWarning cmd =
+  printWarning $
+    "This CLI command is deprecated.  Please use " <> cmd <> " command instead."
 
 -- | Checks if a path exists and throws and error if it does.
 ensureNewFile :: (FilePath -> a -> IO ()) -> FilePath -> a -> ExceptT HelpersError IO ()
 ensureNewFile writer outFile blob = do
   exists <- liftIO $ IO.doesPathExist outFile
   when exists $
-    left $ OutputMustNotAlreadyExist outFile
+    left $
+      OutputMustNotAlreadyExist outFile
   liftIO $ writer outFile blob
 
 ensureNewFileLBS :: FilePath -> ByteString -> ExceptT HelpersError IO ()
@@ -119,19 +122,15 @@ validateCBOR cborObject bs =
     CBORBlockByron epochSlots -> do
       void $ decodeCBOR bs (L.toPlainDecoder L.byronProtVer (decCBORABlockOrBoundary epochSlots))
       Right "Valid Byron block."
-
     CBORDelegationCertificateByron -> do
       void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Delegation.Certificate)
       Right "Valid Byron delegation certificate."
-
     CBORTxByron -> do
       void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s UTxO.Tx)
       Right "Valid Byron Tx."
-
     CBORUpdateProposalByron -> do
       void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Update.Proposal)
       Right "Valid Byron update proposal."
-
     CBORVoteByron -> do
       void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Update.Vote)
       Right "Valid Byron vote."

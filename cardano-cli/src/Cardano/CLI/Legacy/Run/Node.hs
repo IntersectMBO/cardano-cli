@@ -3,7 +3,8 @@
 
 module Cardano.CLI.Legacy.Run.Node
   ( runLegacyNodeCmds
-  ) where
+  )
+where
 
 import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Run.Node
@@ -14,43 +15,50 @@ import           Control.Monad.Trans.Except (ExceptT)
 
 {- HLINT ignore "Reduce duplication" -}
 
-runLegacyNodeCmds :: ()
+runLegacyNodeCmds
+  :: ()
   => LegacyNodeCmds
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeCmds = \case
-  LegacyNodeKeyGenColdCmd args  -> runLegacyNodeKeyGenColdCmd args
-  LegacyNodeKeyGenKESCmd args   -> runLegacyNodeKeyGenKesCmd args
-  LegacyNodeKeyGenVRFCmd args   -> runLegacyNodeKeyGenVrfCmd args
-  LegacyNodeKeyHashVRFCmd args  -> runLegacyNodeKeyHashVrfCmd args
-  LegacyNodeNewCounterCmd args  -> runLegacyNodeNewCounterCmd args
+  LegacyNodeKeyGenColdCmd args -> runLegacyNodeKeyGenColdCmd args
+  LegacyNodeKeyGenKESCmd args -> runLegacyNodeKeyGenKesCmd args
+  LegacyNodeKeyGenVRFCmd args -> runLegacyNodeKeyGenVrfCmd args
+  LegacyNodeKeyHashVRFCmd args -> runLegacyNodeKeyHashVrfCmd args
+  LegacyNodeNewCounterCmd args -> runLegacyNodeNewCounterCmd args
   LegacyNodeIssueOpCertCmd args -> runLegacyNodeIssueOpCertCmd args
 
-runLegacyNodeKeyGenColdCmd :: ()
+runLegacyNodeKeyGenColdCmd
+  :: ()
   => Cmd.NodeKeyGenColdCmdArgs
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyGenColdCmd = runNodeKeyGenColdCmd
 
-runLegacyNodeKeyGenKesCmd :: ()
+runLegacyNodeKeyGenKesCmd
+  :: ()
   => Cmd.NodeKeyGenKESCmdArgs
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyGenKesCmd = runNodeKeyGenKesCmd
 
-runLegacyNodeKeyGenVrfCmd :: ()
+runLegacyNodeKeyGenVrfCmd
+  :: ()
   => Cmd.NodeKeyGenVRFCmdArgs
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyGenVrfCmd = runNodeKeyGenVrfCmd
 
-runLegacyNodeKeyHashVrfCmd :: ()
+runLegacyNodeKeyHashVrfCmd
+  :: ()
   => Cmd.NodeKeyHashVRFCmdArgs
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeKeyHashVrfCmd = runNodeKeyHashVrfCmd
 
-runLegacyNodeNewCounterCmd :: ()
+runLegacyNodeNewCounterCmd
+  :: ()
   => Cmd.NodeNewCounterCmdArgs
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeNewCounterCmd = runNodeNewCounterCmd
 
-runLegacyNodeIssueOpCertCmd :: ()
+runLegacyNodeIssueOpCertCmd
+  :: ()
   => Cmd.NodeIssueOpCertCmdArgs
   -> ExceptT NodeCmdError IO ()
 runLegacyNodeIssueOpCertCmd = runNodeIssueOpCertCmd

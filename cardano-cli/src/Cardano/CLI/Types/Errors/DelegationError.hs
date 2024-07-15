@@ -3,8 +3,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.DelegationError
-  ( DelegationError(..)
-  ) where
+  ( DelegationError (..)
+  )
+where
 
 import           Cardano.Api
 

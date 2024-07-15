@@ -6,9 +6,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.AddressCmdError
-  ( AddressCmdError(..)
+  ( AddressCmdError (..)
   , renderAddressCmdError
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -39,4 +40,5 @@ renderAddressCmdError = \case
   AddressCmdWriteFileError fileErr ->
     prettyError fileErr
   AddressCmdExpectedPaymentVerificationKey someAddress ->
-    "Expected payment verification key but got: " <> pretty (renderSomeAddressVerificationKey someAddress)
+    "Expected payment verification key but got: "
+      <> pretty (renderSomeAddressVerificationKey someAddress)

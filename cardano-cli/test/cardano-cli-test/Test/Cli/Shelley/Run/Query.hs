@@ -1,6 +1,7 @@
 module Test.Cli.Shelley.Run.Query
   ( hprop_percentage
-  ) where
+  )
+where
 
 import qualified Cardano.CLI.EraBased.Run.Query as Q
 import           Cardano.Slotting.Time (RelativeTime (..))

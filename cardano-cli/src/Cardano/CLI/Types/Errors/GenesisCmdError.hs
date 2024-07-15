@@ -2,8 +2,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.GenesisCmdError
-  ( GenesisCmdError(..)
-  ) where
+  ( GenesisCmdError (..)
+  )
+where
 
 import           Cardano.Api
 
@@ -27,7 +28,10 @@ data GenesisCmdError
   | GenesisCmdFilesNoIndex [FilePath]
   | GenesisCmdFilesDupIndex [FilePath]
   | GenesisCmdTextEnvReadFileError !(FileError TextEnvelopeError)
-  | GenesisCmdUnexpectedAddressVerificationKey !(VerificationKeyFile In) !Text !SomeAddressVerificationKey
+  | GenesisCmdUnexpectedAddressVerificationKey
+      !(VerificationKeyFile In)
+      !Text
+      !SomeAddressVerificationKey
   | GenesisCmdTooFewPoolsForBulkCreds !Word !Word !Word
   | GenesisCmdAddressCmdError !AddressCmdError
   | GenesisCmdNodeCmdError !NodeCmdError
@@ -35,11 +39,13 @@ data GenesisCmdError
   | GenesisCmdStakePoolCmdError !StakePoolCmdError
   | GenesisCmdCostModelsError !FilePath
   | GenesisCmdByronError !ByronGenesisError
-  | GenesisCmdTooManyRelaysError !FilePath !Int !Int -- ^ First @Int@ is the number of SPOs, second @Int@ is number of relays
+  | -- | First @Int@ is the number of SPOs, second @Int@ is number of relays
+    GenesisCmdTooManyRelaysError !FilePath !Int !Int
   | GenesisCmdStakePoolRelayFileError !FilePath !IOException
   | GenesisCmdStakePoolRelayJsonDecodeError !FilePath !String
   | GenesisCmdFileInputDecodeError !(FileError InputDecodeError)
-  | GenesisCmdDelegatedSupplyExceedsTotalSupply !Integer !Integer -- ^ First @Integer@ is the delegate supply, second @Integer@ is the total supply
+  | -- | First @Integer@ is the delegate supply, second @Integer@ is the total supply
+    GenesisCmdDelegatedSupplyExceedsTotalSupply !Integer !Integer
   deriving Show
 
 instance Error GenesisCmdError where
@@ -52,9 +58,14 @@ instance Error GenesisCmdError where
       prettyError fe
     GenesisCmdMismatchedGenesisKeyFiles gfiles dfiles vfiles ->
       "Mismatch between the files found:\n"
-        <> "Genesis key file indexes:      " <> pshow gfiles <> "\n"
-        <> "Delegate key file indexes:     " <> pshow dfiles <> "\n"
-        <> "Delegate VRF key file indexes: " <> pshow vfiles
+        <> "Genesis key file indexes:      "
+        <> pshow gfiles
+        <> "\n"
+        <> "Delegate key file indexes:     "
+        <> pshow dfiles
+        <> "\n"
+        <> "Delegate VRF key file indexes: "
+        <> pshow vfiles
     GenesisCmdFilesNoIndex files ->
       "The genesis keys files are expected to have a numeric index but these do not:\n"
         <> vsep (fmap pretty files)
@@ -65,14 +76,22 @@ instance Error GenesisCmdError where
       prettyError fileErr
     GenesisCmdUnexpectedAddressVerificationKey (File file) expect got ->
       mconcat
-        [ "Unexpected address verification key type in file ", pretty file
-        , ", expected: ", pretty expect, ", got: ", pretty (renderSomeAddressVerificationKey got)
+        [ "Unexpected address verification key type in file "
+        , pretty file
+        , ", expected: "
+        , pretty expect
+        , ", got: "
+        , pretty (renderSomeAddressVerificationKey got)
         ]
     GenesisCmdTooFewPoolsForBulkCreds pools files perPool ->
       mconcat
-        [ "Number of pools requested for generation (", pshow pools
-        , ") is insufficient to fill ", pshow files
-        , " bulk files, with ", pshow perPool, " pools per file."
+        [ "Number of pools requested for generation ("
+        , pshow pools
+        , ") is insufficient to fill "
+        , pshow files
+        , " bulk files, with "
+        , pshow perPool
+        , " pools per file."
         ]
     GenesisCmdAddressCmdError e ->
       renderAddressCmdError e
@@ -85,23 +104,38 @@ instance Error GenesisCmdError where
     GenesisCmdCostModelsError fp ->
       "Cost model is invalid: " <> pretty fp
     GenesisCmdGenesisFileDecodeError fp e ->
-      "Error while decoding Shelley genesis at: " <> pretty fp <>
-      " Error: " <>  pretty e
+      "Error while decoding Shelley genesis at: "
+        <> pretty fp
+        <> " Error: "
+        <> pretty e
     GenesisCmdGenesisFileReadError e ->
       prettyError e
     GenesisCmdByronError e -> pshow e
     GenesisCmdTooManyRelaysError fp nbSPOs nbRelays ->
-      pretty fp <> " specifies " <> pretty nbRelays <> " relays, but only " <> pretty nbSPOs <> " SPOs have been specified." <>
-      " Please specify a number of relays that is lesser or equal to the number of SPOs."
+      pretty fp
+        <> " specifies "
+        <> pretty nbRelays
+        <> " relays, but only "
+        <> pretty nbSPOs
+        <> " SPOs have been specified."
+        <> " Please specify a number of relays that is lesser or equal to the number of SPOs."
     GenesisCmdStakePoolRelayFileError fp e ->
-      "Error occurred while reading the stake pool relay specification file: " <> pretty fp <>
-      " Error: " <> pshow e
+      "Error occurred while reading the stake pool relay specification file: "
+        <> pretty fp
+        <> " Error: "
+        <> pshow e
     GenesisCmdStakePoolRelayJsonDecodeError fp e ->
-      "Error occurred while decoding the stake pool relay specification file: " <> pretty fp <>
-      " Error: " <> pretty e
+      "Error occurred while decoding the stake pool relay specification file: "
+        <> pretty fp
+        <> " Error: "
+        <> pretty e
     GenesisCmdFileInputDecodeError ide ->
       "Error occured while decoding a file: " <> pshow ide
     GenesisCmdDelegatedSupplyExceedsTotalSupply delegated total ->
-      "Provided delegated supply is " <> pretty delegated <> ", which is greater than the specified total supply: " <> pretty total <> "." <>
-      "This is incorrect: the delegated supply should be less or equal to the total supply." <>
-      " Note that the total supply can either come from --total-supply or from the default template. Please fix what you use."
+      "Provided delegated supply is "
+        <> pretty delegated
+        <> ", which is greater than the specified total supply: "
+        <> pretty total
+        <> "."
+        <> "This is incorrect: the delegated supply should be less or equal to the total supply."
+        <> " Note that the total supply can either come from --total-supply or from the default template. Please fix what you use."

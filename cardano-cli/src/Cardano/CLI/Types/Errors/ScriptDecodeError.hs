@@ -1,8 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.ScriptDecodeError
-  ( ScriptDecodeError(..)
-  ) where
+  ( ScriptDecodeError (..)
+  )
+where
 
 import           Cardano.Api
 
@@ -10,8 +11,8 @@ import           Cardano.Api
 -- Handling decoding the variety of script languages and formats
 --
 
-data ScriptDecodeError =
-    ScriptDecodeTextEnvelopeError TextEnvelopeError
+data ScriptDecodeError
+  = ScriptDecodeTextEnvelopeError TextEnvelopeError
   | ScriptDecodeSimpleScriptError JsonDecodeError
   deriving Show
 

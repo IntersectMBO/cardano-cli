@@ -5,7 +5,8 @@ module Cardano.CLI.EraBased.Run
   ( runAnyEraCommand
   , runCmds
   , runGovernanceCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -24,14 +25,16 @@ import           Cardano.CLI.Types.Errors.CmdError
 
 import           Data.Function ((&))
 
-runAnyEraCommand :: ()
+runAnyEraCommand
+  :: ()
   => AnyEraCommand
   -> ExceptT CmdError IO ()
 runAnyEraCommand = \case
   AnyEraCommandOf sbe cmd ->
     shelleyBasedEraConstraints sbe $ runCmds cmd
 
-runCmds :: ()
+runCmds
+  :: ()
   => Cmds era
   -> ExceptT CmdError IO ()
 runCmds = \case

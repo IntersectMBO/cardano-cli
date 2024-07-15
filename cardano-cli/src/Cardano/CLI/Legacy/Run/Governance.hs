@@ -7,7 +7,8 @@
 
 module Cardano.CLI.Legacy.Run.Governance
   ( runLegacyGovernanceCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
@@ -48,7 +49,8 @@ runLegacyGovernanceCmds = \case
   GovernanceVerifyPoll poll metadata mOutFile ->
     runLegacyGovernanceVerifyPoll poll metadata mOutFile
 
-runLegacyGovernanceCreatePoll :: ()
+runLegacyGovernanceCreatePoll
+  :: ()
   => Text
   -> [Text]
   -> Maybe Word
@@ -57,14 +59,15 @@ runLegacyGovernanceCreatePoll :: ()
 runLegacyGovernanceCreatePoll prompt choices nonce outFile =
   runGovernanceCreatePollCmd
     Cmd.GovernanceCreatePollCmdArgs
-      { eon     = BabbageEraOnwardsBabbage
+      { eon = BabbageEraOnwardsBabbage
       , prompt
       , choices
       , nonce
       , outFile
       }
 
-runLegacyGovernanceAnswerPoll :: ()
+runLegacyGovernanceAnswerPoll
+  :: ()
   => File GovernancePoll In
   -> Maybe Word
   -> Maybe (File () Out)
@@ -72,13 +75,14 @@ runLegacyGovernanceAnswerPoll :: ()
 runLegacyGovernanceAnswerPoll pollFile answerIndex mOutFile =
   runGovernanceAnswerPollCmd
     Cmd.GovernanceAnswerPollCmdArgs
-      { eon         = BabbageEraOnwardsBabbage
+      { eon = BabbageEraOnwardsBabbage
       , pollFile
       , answerIndex
       , mOutFile
       }
 
-runLegacyGovernanceVerifyPoll :: ()
+runLegacyGovernanceVerifyPoll
+  :: ()
   => File GovernancePoll In
   -> File (Tx ()) In
   -> Maybe (File () Out)
@@ -86,7 +90,7 @@ runLegacyGovernanceVerifyPoll :: ()
 runLegacyGovernanceVerifyPoll pollFile txFile mOutFile =
   runGovernanceVerifyPollCmd
     Cmd.GovernanceVerifyPollCmdArgs
-      { eon       = BabbageEraOnwardsBabbage
+      { eon = BabbageEraOnwardsBabbage
       , pollFile
       , txFile
       , mOutFile
@@ -95,8 +99,10 @@ runLegacyGovernanceVerifyPoll pollFile txFile mOutFile =
 runLegacyGovernanceMIRCertificatePayStakeAddrs
   :: EraInEon ShelleyToBabbageEra
   -> L.MIRPot
-  -> [StakeAddress] -- ^ Stake addresses
-  -> [L.Coin]     -- ^ Corresponding reward amounts (same length)
+  -> [StakeAddress]
+  -- ^ Stake addresses
+  -> [L.Coin]
+  -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceMIRCertificatePayStakeAddrs (EraInEon w) =
@@ -124,7 +130,8 @@ runLegacyGovernanceUpdateProposal
   -> [VerificationKeyFile In]
   -- ^ Genesis verification keys
   -> ProtocolParametersUpdate
-  -> Maybe FilePath -- ^ Cost models file path
+  -> Maybe FilePath
+  -- ^ Cost models file path
   -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceUpdateProposal upFile eNo genVerKeyFiles upPprams mCostModelFp = do
   finalUpPprams <- case mCostModelFp of
@@ -132,23 +139,27 @@ runLegacyGovernanceUpdateProposal upFile eNo genVerKeyFiles upPprams mCostModelF
     Just fp -> do
       costModelsBs <- handleIOExceptT (GovernanceCmdCostModelReadError . FileIOError fp) $ LB.readFile fp
 
-      cModels <- pure (eitherDecode costModelsBs)
-        & onLeft (left . GovernanceCmdCostModelsJsonDecodeErr fp . Text.pack)
+      cModels <-
+        pure (eitherDecode costModelsBs)
+          & onLeft (left . GovernanceCmdCostModelsJsonDecodeErr fp . Text.pack)
 
       let costModels = fromAlonzoCostModels cModels
 
       when (null costModels) $ left (GovernanceCmdEmptyCostModel fp)
 
-      return $ upPprams {protocolUpdateCostModels = costModels}
+      return $ upPprams{protocolUpdateCostModels = costModels}
 
   when (finalUpPprams == mempty) $ left GovernanceCmdEmptyUpdateProposalError
 
-  genVKeys <- sequence
-    [ firstExceptT GovernanceCmdTextEnvReadError . newExceptT $ readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
-    | vkeyFile <- genVerKeyFiles
-    ]
+  genVKeys <-
+    sequence
+      [ firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
+          readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
+      | vkeyFile <- genVerKeyFiles
+      ]
   let genKeyHashes = fmap verificationKeyHash genVKeys
       upProp = makeShelleyUpdateProposal finalUpPprams genKeyHashes eNo
 
-  firstExceptT GovernanceCmdTextEnvWriteError . newExceptT
-    $ writeLazyByteStringFile upFile $ textEnvelopeToJSON Nothing upProp
+  firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
+    writeLazyByteStringFile upFile $
+      textEnvelopeToJSON Nothing upProp

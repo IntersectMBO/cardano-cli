@@ -4,7 +4,8 @@
 
 module Cardano.CLI.EraBased.Options.Governance.Actions
   ( pGovernanceActionCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
@@ -20,13 +21,15 @@ import           GHC.Natural (Natural)
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
-pGovernanceActionCmds :: ()
+pGovernanceActionCmds
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionCmds era =
-  subInfoParser "action"
-    ( Opt.progDesc
-        $ mconcat
+  subInfoParser
+    "action"
+    ( Opt.progDesc $
+        mconcat
           [ "Governance action commands."
           ]
     )
@@ -48,12 +51,12 @@ pGovernanceActionViewCmd era = do
   return
     $ subParser "view"
     $ Opt.info
-        ( fmap Cmd.GovernanceActionViewCmd
-            $ Cmd.GovernanceActionViewCmdArgs eon
-                <$> pFileInDirection "action-file" "Path to action file."
-                <*> pGovernanceActionViewOutputFormat
-                <*> pMaybeOutputFile
-        )
+      ( fmap Cmd.GovernanceActionViewCmd $
+          Cmd.GovernanceActionViewCmdArgs eon
+            <$> pFileInDirection "action-file" "Path to action file."
+            <*> pGovernanceActionViewOutputFormat
+            <*> pMaybeOutputFile
+      )
     $ Opt.progDesc "View a governance action."
 
 pGovernanceActionNewInfoCmd
@@ -64,17 +67,16 @@ pGovernanceActionNewInfoCmd era = do
   pure
     $ subParser "create-info"
     $ Opt.info
-        ( fmap Cmd.GovernanceActionInfoCmd $
-            Cmd.GovernanceActionInfoCmdArgs eon
-              <$> pNetwork
-              <*> pGovActionDeposit
-              <*> pStakeIdentifier (Just "deposit-return")
-              <*> pAnchorUrl
-              <*> pAnchorDataHash
-              <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
-        )
+      ( fmap Cmd.GovernanceActionInfoCmd $
+          Cmd.GovernanceActionInfoCmdArgs eon
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pStakeIdentifier (Just "deposit-return")
+            <*> pAnchorUrl
+            <*> pAnchorDataHash
+            <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
+      )
     $ Opt.progDesc "Create an info action."
-
 
 pGovernanceActionNewConstitutionCmd
   :: CardanoEra era
@@ -84,19 +86,19 @@ pGovernanceActionNewConstitutionCmd era = do
   pure
     $ subParser "create-constitution"
     $ Opt.info
-        ( fmap Cmd.GovernanceActionCreateConstitutionCmd $
-            Cmd.GovernanceActionCreateConstitutionCmdArgs eon
-              <$> pNetwork
-              <*> pGovActionDeposit
-              <*> pStakeIdentifier (Just "deposit-return")
-              <*> pPreviousGovernanceAction
-              <*> pAnchorUrl
-              <*> pAnchorDataHash
-              <*> pConstitutionUrl
-              <*> pConstitutionHash
-              <*> optional pConstitutionScriptHash
-              <*> pFileOutDirection "out-file" "Output filepath of the constitution."
-        )
+      ( fmap Cmd.GovernanceActionCreateConstitutionCmd $
+          Cmd.GovernanceActionCreateConstitutionCmdArgs eon
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pStakeIdentifier (Just "deposit-return")
+            <*> pPreviousGovernanceAction
+            <*> pAnchorUrl
+            <*> pAnchorDataHash
+            <*> pConstitutionUrl
+            <*> pConstitutionHash
+            <*> optional pConstitutionScriptHash
+            <*> pFileOutDirection "out-file" "Output filepath of the constitution."
+      )
     $ Opt.progDesc "Create a constitution."
 
 pGovernanceActionUpdateCommitteeCmd
@@ -107,12 +109,13 @@ pGovernanceActionUpdateCommitteeCmd era = do
   pure
     $ subParser "update-committee"
     $ Opt.info
-        ( Cmd.GovernanceActionUpdateCommitteeCmd
-            <$> pUpdateCommitteeCmd eon
-        )
+      ( Cmd.GovernanceActionUpdateCommitteeCmd
+          <$> pUpdateCommitteeCmd eon
+      )
     $ Opt.progDesc "Create or update a new committee proposal."
 
-pUpdateCommitteeCmd :: ()
+pUpdateCommitteeCmd
+  :: ()
   => ConwayEraOnwards era
   -> Parser (Cmd.GovernanceActionUpdateCommitteeCmdArgs era)
 pUpdateCommitteeCmd eon =
@@ -124,13 +127,13 @@ pUpdateCommitteeCmd eon =
     <*> pAnchorDataHash
     <*> many pRemoveCommitteeColdVerificationKeySource
     <*> many
-          ( (,)
-              <$> pAddCommitteeColdVerificationKeySource
-              <*> pEpochNo "Committee member expiry epoch")
+      ( (,)
+          <$> pAddCommitteeColdVerificationKeySource
+          <*> pEpochNo "Committee member expiry epoch"
+      )
     <*> pRational "threshold" "Threshold of YES votes that are necessary for approving a governance action."
     <*> pPreviousGovernanceAction
     <*> pOutputFile
-
 
 pGovernanceActionNoConfidenceCmd
   :: CardanoEra era
@@ -140,25 +143,27 @@ pGovernanceActionNoConfidenceCmd era = do
   pure
     $ subParser "create-no-confidence"
     $ Opt.info
-        ( fmap Cmd.GovernanceActionCreateNoConfidenceCmd $
-            Cmd.GovernanceActionCreateNoConfidenceCmdArgs eon
-              <$> pNetwork
-              <*> pGovActionDeposit
-              <*> pStakeIdentifier (Just "deposit-return")
-              <*> pAnchorUrl
-              <*> pAnchorDataHash
-              <*> pPreviousGovernanceAction
-              <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
-        )
+      ( fmap Cmd.GovernanceActionCreateNoConfidenceCmd $
+          Cmd.GovernanceActionCreateNoConfidenceCmdArgs eon
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pStakeIdentifier (Just "deposit-return")
+            <*> pAnchorUrl
+            <*> pAnchorDataHash
+            <*> pPreviousGovernanceAction
+            <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
+      )
     $ Opt.progDesc "Create a no confidence proposal."
 
-pUpdateProtocolParametersPreConway :: ShelleyToBabbageEra era -> Parser (Cmd.UpdateProtocolParametersPreConway era)
+pUpdateProtocolParametersPreConway
+  :: ShelleyToBabbageEra era -> Parser (Cmd.UpdateProtocolParametersPreConway era)
 pUpdateProtocolParametersPreConway shelleyToBab =
   Cmd.UpdateProtocolParametersPreConway shelleyToBab
     <$> pEpochNoUpdateProp
     <*> pProtocolParametersUpdateGenesisKeys
 
-pUpdateProtocolParametersPostConway :: ConwayEraOnwards era -> Parser (Cmd.UpdateProtocolParametersConwayOnwards era)
+pUpdateProtocolParametersPostConway
+  :: ConwayEraOnwards era -> Parser (Cmd.UpdateProtocolParametersConwayOnwards era)
 pUpdateProtocolParametersPostConway conwayOnwards =
   Cmd.UpdateProtocolParametersConwayOnwards conwayOnwards
     <$> pNetwork
@@ -169,35 +174,37 @@ pUpdateProtocolParametersPostConway conwayOnwards =
     <*> pPreviousGovernanceAction
     <*> optional pConstitutionScriptHash
 
-
-pUpdateProtocolParametersCmd :: ShelleyBasedEra era -> Parser (Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era)
+pUpdateProtocolParametersCmd
+  :: ShelleyBasedEra era -> Parser (Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era)
 pUpdateProtocolParametersCmd =
   caseShelleyToBabbageOrConwayEraOnwards
-    (\shelleyToBab ->
+    ( \shelleyToBab ->
         let sbe = shelleyToBabbageEraToShelleyBasedEra shelleyToBab
-        in subParser "create-protocol-parameters-update"
-                         $ Opt.info
-                             ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs (shelleyToBabbageEraToShelleyBasedEra shelleyToBab)
-                                 <$> fmap Just (pUpdateProtocolParametersPreConway shelleyToBab)
-                                 <*> pure Nothing
-                                 <*> dpGovActionProtocolParametersUpdate sbe
-                                 <*> pCostModelsFile sbe
-                                 <*> pOutputFile
-                             )
-                         $ Opt.progDesc "Create a protocol parameters update.")
-    (\conwayOnwards ->
+         in subParser "create-protocol-parameters-update"
+              $ Opt.info
+                ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
+                    (shelleyToBabbageEraToShelleyBasedEra shelleyToBab)
+                    <$> fmap Just (pUpdateProtocolParametersPreConway shelleyToBab)
+                    <*> pure Nothing
+                    <*> dpGovActionProtocolParametersUpdate sbe
+                    <*> pCostModelsFile sbe
+                    <*> pOutputFile
+                )
+              $ Opt.progDesc "Create a protocol parameters update."
+    )
+    ( \conwayOnwards ->
         let sbe = conwayEraOnwardsToShelleyBasedEra conwayOnwards
-        in subParser "create-protocol-parameters-update"
-                        $ Opt.info
-                            ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
-                                (conwayEraOnwardsToShelleyBasedEra conwayOnwards) Nothing
-                                <$> fmap Just (pUpdateProtocolParametersPostConway conwayOnwards)
-                                <*> dpGovActionProtocolParametersUpdate sbe
-                                <*> pCostModelsFile sbe
-                                <*> pOutputFile
-                            )
-                        $ Opt.progDesc "Create a protocol parameters update."
-
+         in subParser "create-protocol-parameters-update"
+              $ Opt.info
+                ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
+                    (conwayEraOnwardsToShelleyBasedEra conwayOnwards)
+                    Nothing
+                    <$> fmap Just (pUpdateProtocolParametersPostConway conwayOnwards)
+                    <*> dpGovActionProtocolParametersUpdate sbe
+                    <*> pCostModelsFile sbe
+                    <*> pOutputFile
+                )
+              $ Opt.progDesc "Create a protocol parameters update."
     )
 
 -- | Cost models only makes sense in eras from Alonzo onwards. For earlier
@@ -207,36 +214,41 @@ pCostModelsFile =
   caseShelleyToMaryOrAlonzoEraOnwards
     (const $ pure Nothing)
     ( \alonzoOnwards ->
-         fmap (Cmd.CostModelsFile alonzoOnwards . File)
-           <$> optional pCostModels
+        fmap (Cmd.CostModelsFile alonzoOnwards . File)
+          <$> optional pCostModels
     )
 
-pGovernanceActionProtocolParametersUpdateCmd :: ()
+pGovernanceActionProtocolParametersUpdateCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionProtocolParametersUpdateCmd era = do
   w <- forEraMaybeEon era
-  pure $ Cmd.GovernanceActionProtocolParametersUpdateCmd
-    <$> pUpdateProtocolParametersCmd w
+  pure $
+    Cmd.GovernanceActionProtocolParametersUpdateCmd
+      <$> pUpdateProtocolParametersCmd w
 
 pMinFeeRefScriptCostPerByte :: Parser L.NonNegativeInterval
 pMinFeeRefScriptCostPerByte =
-  Opt.option (toNonNegativeIntervalOrErr <$> readRational)  $ mconcat
-    [ Opt.long "ref-script-cost-per-byte"
-    , Opt.metavar "RATIONAL"
-    , Opt.help "Reference script cost per byte for the minimum fee calculation."
-    ]
+  Opt.option (toNonNegativeIntervalOrErr <$> readRational) $
+    mconcat
+      [ Opt.long "ref-script-cost-per-byte"
+      , Opt.metavar "RATIONAL"
+      , Opt.help "Reference script cost per byte for the minimum fee calculation."
+      ]
 
 convertToLedger :: (a -> b) -> Parser (Maybe a) -> Parser (L.StrictMaybe b)
 convertToLedger conv = fmap (L.maybeToStrictMaybe . fmap conv)
 
 toNonNegativeIntervalOrErr :: Rational -> L.NonNegativeInterval
 toNonNegativeIntervalOrErr r = case L.boundRational r of
-                         Nothing ->
-                           error $ mconcat [ "toNonNegativeIntervalOrErr: "
-                                           , "rational out of bounds " <> show r
-                                           ]
-                         Just n -> n
+  Nothing ->
+    error $
+      mconcat
+        [ "toNonNegativeIntervalOrErr: "
+        , "rational out of bounds " <> show r
+        ]
+  Just n -> n
 
 mkProtocolVersionOrErr :: (Natural, Natural) -> L.ProtVer
 mkProtocolVersionOrErr (majorProtVer, minorProtVer) =
@@ -262,7 +274,6 @@ pCommonProtocolParameters =
     <*> convertToLedger toUnitIntervalOrErr (optional pMonetaryExpansion)
     <*> convertToLedger id (optional pMinPoolCost)
 
-
 pDeprecatedAfterMaryPParams :: Parser (DeprecatedAfterMaryPParams ledgerera)
 pDeprecatedAfterMaryPParams =
   DeprecatedAfterMaryPParams
@@ -282,14 +293,14 @@ pShelleyToAlonzoPParams =
 pAlonzoOnwardsPParams :: Parser (AlonzoOnwardsPParams ledgerera)
 pAlonzoOnwardsPParams =
   AlonzoOnwardsPParams L.SNothing -- The cost models are read separately from a file, so we use 'SNothing' as the place holder here
-    <$> convertToLedger (either (\e -> error $ "pAlonzoOnwardsPParams: " <> show e) id . toAlonzoPrices)
-                        (optional pExecutionUnitPrices)
+    <$> convertToLedger
+      (either (\e -> error $ "pAlonzoOnwardsPParams: " <> show e) id . toAlonzoPrices)
+      (optional pExecutionUnitPrices)
     <*> convertToLedger toAlonzoExUnits (optional pMaxTxExecutionUnits)
     <*> convertToLedger toAlonzoExUnits (optional pMaxBlockExecutionUnits)
     <*> convertToLedger id (optional pMaxValueSize)
     <*> convertToLedger id (optional pCollateralPercent)
     <*> convertToLedger id (optional pMaxCollateralInputs)
-
 
 pIntroducedInBabbagePParams :: Parser (IntroducedInBabbagePParams ledgerera)
 pIntroducedInBabbagePParams =
@@ -353,59 +364,68 @@ dpGovActionProtocolParametersUpdate = \case
       <*> pIntroducedInBabbagePParams
       <*> pIntroducedInConwayPParams
 
-pGovernanceActionTreasuryWithdrawalCmd :: CardanoEra era -> Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionTreasuryWithdrawalCmd
+  :: CardanoEra era -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionTreasuryWithdrawalCmd era = do
   eon <- forEraMaybeEon era
   pure
     $ subParser "create-treasury-withdrawal"
     $ Opt.info
-        ( fmap Cmd.GovernanceActionTreasuryWithdrawalCmd $
-            Cmd.GovernanceActionTreasuryWithdrawalCmdArgs eon
-              <$> pNetwork
-              <*> pGovActionDeposit
-              <*> pStakeIdentifier (Just "deposit-return")
-              <*> pAnchorUrl
-              <*> pAnchorDataHash
-              <*> many ((,) <$> pStakeVerificationKeyOrHashOrFile (Just "funds-receiving") <*> pTransferAmt)
-              <*> optional pConstitutionScriptHash
-              <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
-        )
+      ( fmap Cmd.GovernanceActionTreasuryWithdrawalCmd $
+          Cmd.GovernanceActionTreasuryWithdrawalCmdArgs eon
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pStakeIdentifier (Just "deposit-return")
+            <*> pAnchorUrl
+            <*> pAnchorDataHash
+            <*> many ((,) <$> pStakeVerificationKeyOrHashOrFile (Just "funds-receiving") <*> pTransferAmt)
+            <*> optional pConstitutionScriptHash
+            <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
+      )
     $ Opt.progDesc "Create a treasury withdrawal."
 
 pNetwork :: Parser L.Network
-pNetwork  = asum $ mconcat
-  [ [ Opt.flag' L.Mainnet $ mconcat
-      [ Opt.long "mainnet"
-      , Opt.help "Use the mainnet magic id."
+pNetwork =
+  asum $
+    mconcat
+      [
+        [ Opt.flag' L.Mainnet $
+            mconcat
+              [ Opt.long "mainnet"
+              , Opt.help "Use the mainnet magic id."
+              ]
+        , Opt.flag' L.Testnet $
+            mconcat
+              [ Opt.long "testnet"
+              , Opt.help "Use the testnet magic id."
+              ]
+        ]
       ]
-    , Opt.flag' L.Testnet $ mconcat
-      [ Opt.long "testnet"
-      , Opt.help "Use the testnet magic id."
-      ]
-    ]
-  ]
 
 pNewProtVer :: Parser (Natural, Natural)
 pNewProtVer = (,) <$> pProtMajor <*> pProtMinor
-  where
-    pProtMajor :: Parser Natural
-    pProtMajor =
-        Opt.option Opt.auto $ mconcat
-            [ Opt.long "protocol-major-version"
-            , Opt.metavar "MAJOR"
-            , Opt.help $ mconcat
-              ["Specify the major protocol version to fork into. It must be the next natural number "
+ where
+  pProtMajor :: Parser Natural
+  pProtMajor =
+    Opt.option Opt.auto $
+      mconcat
+        [ Opt.long "protocol-major-version"
+        , Opt.metavar "MAJOR"
+        , Opt.help $
+            mconcat
+              [ "Specify the major protocol version to fork into. It must be the next natural number "
               , "after the current version and must be supported by the node."
               ]
-            ]
+        ]
 
-    pProtMinor :: Parser Natural
-    pProtMinor =
-        Opt.option Opt.auto $ mconcat
-            [ Opt.long "protocol-minor-version"
-            , Opt.metavar "MINOR"
-            , Opt.help "Minor protocol version. Must be zero when the major protocol version is increased."
-            ]
+  pProtMinor :: Parser Natural
+  pProtMinor =
+    Opt.option Opt.auto $
+      mconcat
+        [ Opt.long "protocol-minor-version"
+        , Opt.metavar "MINOR"
+        , Opt.help "Minor protocol version. Must be zero when the major protocol version is increased."
+        ]
 
 pPV :: Parser L.ProtVer
 pPV = mkProtocolVersionOrErr <$> pNewProtVer
@@ -418,15 +438,15 @@ pGovernanceActionHardforkInitCmd era = do
   pure
     $ subParser "create-hardfork"
     $ Opt.info
-        ( fmap Cmd.GovernanceActionHardforkInitCmd $
-            Cmd.GovernanceActionHardforkInitCmdArgs eon
-              <$> pNetwork
-              <*> pGovActionDeposit
-              <*> pStakeIdentifier (Just "deposit-return")
-              <*> pPreviousGovernanceAction
-              <*> pAnchorUrl
-              <*> pAnchorDataHash
-              <*> pPV
-              <*> pFileOutDirection "out-file" "Output filepath of the hardfork proposal."
-        )
+      ( fmap Cmd.GovernanceActionHardforkInitCmd $
+          Cmd.GovernanceActionHardforkInitCmdArgs eon
+            <$> pNetwork
+            <*> pGovActionDeposit
+            <*> pStakeIdentifier (Just "deposit-return")
+            <*> pPreviousGovernanceAction
+            <*> pAnchorUrl
+            <*> pAnchorDataHash
+            <*> pPV
+            <*> pFileOutDirection "out-file" "Output filepath of the hardfork proposal."
+      )
     $ Opt.progDesc "Create a hardfork initiation proposal."

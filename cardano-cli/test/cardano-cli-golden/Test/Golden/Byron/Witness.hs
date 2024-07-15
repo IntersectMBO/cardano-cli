@@ -1,4 +1,3 @@
-
 module Test.Golden.Byron.Witness where
 
 import           Hedgehog (Property, property, success)

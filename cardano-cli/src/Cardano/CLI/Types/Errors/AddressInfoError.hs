@@ -1,8 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Types.Errors.AddressInfoError
-  ( AddressInfoError(..)
-  ) where
+  ( AddressInfoError (..)
+  )
+where
 
 import           Cardano.Api
 

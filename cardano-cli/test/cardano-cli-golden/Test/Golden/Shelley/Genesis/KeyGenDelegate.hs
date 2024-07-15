@@ -19,27 +19,38 @@ hprop_golden_shelley_genesis_key_gen_delegate = propertyOnce . H.moduleWorkspace
   signingKeyFile <- noteTempFile tempDir "key-gen.skey"
   operationalCertificateIssueCounterFile <- noteTempFile tempDir "op-cert.counter"
 
-  void $ execCardanoCLI
-    [ "genesis","key-gen-delegate"
-    , "--verification-key-file", verificationKeyFile
-    , "--signing-key-file", signingKeyFile
-    , "--operational-certificate-issue-counter", operationalCertificateIssueCounterFile
-    ]
+  void $
+    execCardanoCLI
+      [ "genesis"
+      , "key-gen-delegate"
+      , "--verification-key-file"
+      , verificationKeyFile
+      , "--signing-key-file"
+      , signingKeyFile
+      , "--operational-certificate-issue-counter"
+      , operationalCertificateIssueCounterFile
+      ]
 
-  assertHasMappings [("type", "GenesisDelegateVerificationKey_ed25519"),
-                     ("description", "Genesis delegate operator key")]
-                                verificationKeyFile
-  assertHasKeys ["cborHex"]     verificationKeyFile
+  assertHasMappings
+    [ ("type", "GenesisDelegateVerificationKey_ed25519")
+    , ("description", "Genesis delegate operator key")
+    ]
+    verificationKeyFile
+  assertHasKeys ["cborHex"] verificationKeyFile
   H.assertEndsWithSingleNewline verificationKeyFile
 
-  assertHasMappings [("type", "GenesisDelegateSigningKey_ed25519"),
-                     ("description", "Genesis delegate operator key")]
-                                signingKeyFile
-  assertHasKeys ["cborHex"]     signingKeyFile
+  assertHasMappings
+    [ ("type", "GenesisDelegateSigningKey_ed25519")
+    , ("description", "Genesis delegate operator key")
+    ]
+    signingKeyFile
+  assertHasKeys ["cborHex"] signingKeyFile
   H.assertEndsWithSingleNewline signingKeyFile
 
-  assertHasMappings [("type", "NodeOperationalCertificateIssueCounter"),
-                     ("description", "Next certificate issue number: 0")]
-                                operationalCertificateIssueCounterFile
-  assertHasKeys ["cborHex"]     operationalCertificateIssueCounterFile
+  assertHasMappings
+    [ ("type", "NodeOperationalCertificateIssueCounter")
+    , ("description", "Next certificate issue number: 0")
+    ]
+    operationalCertificateIssueCounterFile
+  assertHasKeys ["cborHex"] operationalCertificateIssueCounterFile
   H.assertEndsWithSingleNewline operationalCertificateIssueCounterFile

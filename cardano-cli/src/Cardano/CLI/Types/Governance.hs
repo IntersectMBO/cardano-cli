@@ -9,22 +9,23 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.Types.Key (DRepHashSource, VerificationKeyOrHashOrFile,
                    VerificationKeyOrHashOrFileOrScriptHash)
 
-
 data ConwayVote
+
 type VoteFile = File ConwayVote
 
-
 -- Vote type -- TODO: Conway era - remove me
-data VType = VCC -- committee
-           | VDR -- drep
-           | VSP -- spo
-           deriving Show
+data VType
+  = VCC -- committee
+  | VDR -- drep
+  | VSP -- spo
+  deriving Show
 
 -- | Possible credentials for creating a vote
-data AnyVotingStakeVerificationKeyOrHashOrFile =
-    AnyDRepVerificationKeyOrHashOrFileOrScriptHash (VerificationKeyOrHashOrFileOrScriptHash DRepKey)
+data AnyVotingStakeVerificationKeyOrHashOrFile
+  = AnyDRepVerificationKeyOrHashOrFileOrScriptHash (VerificationKeyOrHashOrFileOrScriptHash DRepKey)
   | AnyStakePoolVerificationKeyOrHashOrFile (VerificationKeyOrHashOrFile StakePoolKey)
-  | AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash (VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey)
+  | AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash
+      (VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey)
 
 data VoteDelegationTarget
   = VoteDelegationTargetOfDRep DRepHashSource

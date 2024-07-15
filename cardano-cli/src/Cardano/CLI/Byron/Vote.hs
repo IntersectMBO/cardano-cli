@@ -3,12 +3,13 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Byron.Vote
-  ( ByronVoteError(..)
+  ( ByronVoteError (..)
   , readByronVote
   , renderByronVoteError
   , runVoteCreation
   , submitByronVote
-  ) where
+  )
+where
 
 import           Cardano.Api.Byron
 
@@ -42,7 +43,7 @@ data ByronVoteError
 renderByronVoteError :: ByronVoteError -> Doc ann
 renderByronVoteError = \case
   ByronVoteDecodingError fp ->
-    "Error decoding Byron vote at " <>  pretty fp
+    "Error decoding Byron vote at " <> pretty fp
   ByronVoteGenesisReadError genErr ->
     "Error reading the genesis file:" <> pshow genErr
   ByronVoteReadFileFailure fp err ->
@@ -58,7 +59,6 @@ renderByronVoteError = \case
   ByronVoteKeyReadFailure err ->
     "Error reading the signing key: " <> pshow err
 
-
 runVoteCreation
   :: NetworkId
   -> SigningKeyFile In
@@ -70,8 +70,8 @@ runVoteCreation nw sKey upPropFp voteBool outputFp = do
   sK <- firstExceptT ByronVoteKeyReadFailure $ readByronSigningKey NonLegacyByronKeyFormat sKey
   proposal <- firstExceptT ByronVoteUpdateProposalFailure $ readByronUpdateProposal upPropFp
   let vote = makeByronVote nw sK proposal voteBool
-  firstExceptT ByronVoteUpdateHelperError . ensureNewFileLBS outputFp
-    $ serialiseToRawBytes vote
+  firstExceptT ByronVoteUpdateHelperError . ensureNewFileLBS outputFp $
+    serialiseToRawBytes vote
 
 submitByronVote
   :: SocketPath

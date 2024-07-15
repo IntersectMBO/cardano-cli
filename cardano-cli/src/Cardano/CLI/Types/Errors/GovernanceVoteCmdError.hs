@@ -32,5 +32,5 @@ instance Error GovernanceVoteCmdError where
       "Cannot write vote: " <> prettyError e
     GovernanceVoteCmdReadVoteTextError e ->
       "Cannot read vote text: " <> prettyError e
-    where
-      renderDecoderError = pretty . TL.toLazyText . B.build
+   where
+    renderDecoderError = pretty . TL.toLazyText . B.build

@@ -7,11 +7,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.TxCmdError
-  ( TxCmdError(..)
-  , AnyTxBodyErrorAutoBalance(..)
-  , AnyTxCmdTxExecUnitsErr(..)
+  ( TxCmdError (..)
+  , AnyTxBodyErrorAutoBalance (..)
+  , AnyTxCmdTxExecUnitsErr (..)
   , renderTxCmdError
-  ) where
+  )
+where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
@@ -58,9 +59,9 @@ data TxCmdError
   | TxCmdNotImplemented !Text
   | TxCmdWitnessEraMismatch !AnyCardanoEra !AnyCardanoEra !WitnessFile
   | TxCmdPolicyIdsMissing ![PolicyId] ![PolicyId]
-    -- The first list is the missing policy Ids, the second list is the
+  | -- The first list is the missing policy Ids, the second list is the
     -- policy Ids that were provided in the transaction.
-  | TxCmdPolicyIdsExcess ![PolicyId]
+    TxCmdPolicyIdsExcess ![PolicyId]
   | TxCmdByronEra
   | TxCmdBalanceTxBody !AnyTxBodyErrorAutoBalance
   | TxCmdTxInsDoNotExist !TxInsExistError
@@ -78,8 +79,8 @@ data TxCmdError
   | TxCmdScriptDataError !ScriptDataError
   | TxCmdCddlWitnessError CddlWitnessError
   | TxCmdRequiredSignerError RequiredSignerError
-  -- Validation errors
-  | forall era. TxCmdNotSupportedInEraValidationError (TxNotSupportedInEraValidationError era)
+  | -- Validation errors
+    forall era. TxCmdNotSupportedInEraValidationError (TxNotSupportedInEraValidationError era)
   | TxCmdAuxScriptsValidationError TxAuxScriptsValidationError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
@@ -108,81 +109,88 @@ renderTxCmdError = \case
   TxCmdTxSubmitError res ->
     "Error while submitting tx: " <> pretty res
   TxCmdTxSubmitErrorEraMismatch EraMismatch{ledgerEraName, otherEraName} ->
-    "The era of the node and the tx do not match. " <>
-    "The node is running in the " <> pretty ledgerEraName <>
-    " era, but the transaction is for the " <> pretty otherEraName <> " era."
+    "The era of the node and the tx do not match. "
+      <> "The node is running in the "
+      <> pretty ledgerEraName
+      <> " era, but the transaction is for the "
+      <> pretty otherEraName
+      <> " era."
   TxCmdBootstrapWitnessError sbwErr ->
     renderBootstrapWitnessError sbwErr
   TxCmdTxFeatureMismatch era TxFeatureImplicitFees ->
-    "An explicit transaction fee must be specified for " <>
-    pretty era <> " era transactions."
-
+    "An explicit transaction fee must be specified for "
+      <> pretty era
+      <> " era transactions."
   TxCmdTxFeatureMismatch (AnyCardanoEra ShelleyEra) TxFeatureValidityNoUpperBound ->
     "A TTL must be specified for Shelley era transactions."
-
   TxCmdTxFeatureMismatch era feature ->
-    pretty (renderFeature feature) <> " cannot be used for " <> pretty era <>
-    " era transactions."
-
+    pretty (renderFeature feature)
+      <> " cannot be used for "
+      <> pretty era
+      <> " era transactions."
   TxCmdTxBodyError err' ->
     "Transaction validaton error: " <> prettyError err'
-
   TxCmdNotImplemented msg ->
     "Feature not yet implemented: " <> pretty msg
-
   TxCmdWitnessEraMismatch era era' (WitnessFile file) ->
-    "The era of a witness does not match the era of the transaction. " <>
-    "The transaction is for the " <> pretty era <> " era, but the " <>
-    "witness in " <> pshow file <> " is for the " <> pretty era' <> " era."
-
+    "The era of a witness does not match the era of the transaction. "
+      <> "The transaction is for the "
+      <> pretty era
+      <> " era, but the "
+      <> "witness in "
+      <> pshow file
+      <> " is for the "
+      <> pretty era'
+      <> " era."
   TxCmdPolicyIdsMissing missingPolicyIds knownPolicyIds ->
     mconcat $
-    [ "The \"--mint\" flag specifies an asset with a policy Id, but no "
-    , "corresponding monetary policy script has been provided as a witness "
-    , "(via the \"--mint-script-file\" flag). The policy Id in question is: "
-    , prettyPolicyIdList missingPolicyIds
-    ] <> [". Known policy Ids are: " <> prettyPolicyIdList knownPolicyIds  | not (null knownPolicyIds) ]
-
-
+      [ "The \"--mint\" flag specifies an asset with a policy Id, but no "
+      , "corresponding monetary policy script has been provided as a witness "
+      , "(via the \"--mint-script-file\" flag). The policy Id in question is: "
+      , prettyPolicyIdList missingPolicyIds
+      ]
+        <> [". Known policy Ids are: " <> prettyPolicyIdList knownPolicyIds | not (null knownPolicyIds)]
   TxCmdPolicyIdsExcess policyids ->
     mconcat
-    [ "A script provided to witness minting does not correspond to the policy "
-    , "id of any asset specified in the \"--mint\" field. The script hash is: "
-    , prettyPolicyIdList policyids
-    ]
+      [ "A script provided to witness minting does not correspond to the policy "
+      , "id of any asset specified in the \"--mint\" field. The script hash is: "
+      , prettyPolicyIdList policyids
+      ]
   TxCmdByronEra ->
     "This query cannot be used for the Byron era"
   TxCmdBalanceTxBody (AnyTxBodyErrorAutoBalance err') ->
-     prettyError err'
+    prettyError err'
   TxCmdTxInsDoNotExist e ->
     pretty $ renderTxInsExistError e
   TxCmdPParamsErr err' ->
     prettyError err'
   TxCmdTextEnvError err' ->
     mconcat
-    [ "Failed to decode the ledger's CDDL serialisation format. "
-    , "File error: " <> prettyError err'
-    ]
+      [ "Failed to decode the ledger's CDDL serialisation format. "
+      , "File error: " <> prettyError err'
+      ]
   TxCmdTextEnvCddlError cddlErr ->
     mconcat
-    [ "Failed to decode the ledger's CDDL serialisation format. "
-    , "TextEnvelopeCddl error: " <> prettyError cddlErr
-    ]
+      [ "Failed to decode the ledger's CDDL serialisation format. "
+      , "TextEnvelopeCddl error: " <> prettyError cddlErr
+      ]
   TxCmdTxExecUnitsErr (AnyTxCmdTxExecUnitsErr err') ->
     prettyError err'
-  TxCmdPlutusScriptCostErr err'->
+  TxCmdPlutusScriptCostErr err' ->
     prettyError err'
   TxCmdPParamExecutionUnitsNotAvailable ->
     mconcat
-    [ "Execution units not available in the protocol parameters. This is "
-    , "likely due to not being in the Alonzo era"
-    ]
-  TxCmdTxNodeEraMismatchError (NodeEraMismatchError { NEM.era = valueEra, nodeEra = nodeEra }) ->
-    cardanoEraConstraints nodeEra $ cardanoEraConstraints valueEra $ mconcat
-      [ "Transactions can only be produced in the same era as the node. Requested era: "
-      , pretty valueEra <> ", node era: "
-      , pretty nodeEra <> "."
+      [ "Execution units not available in the protocol parameters. This is "
+      , "likely due to not being in the Alonzo era"
       ]
+  TxCmdTxNodeEraMismatchError (NodeEraMismatchError{NEM.era = valueEra, nodeEra = nodeEra}) ->
+    cardanoEraConstraints nodeEra $
+      cardanoEraConstraints valueEra $
+        mconcat
+          [ "Transactions can only be produced in the same era as the node. Requested era: "
+          , pretty valueEra <> ", node era: "
+          , pretty nodeEra <> "."
+          ]
   TxCmdQueryConvenienceError e ->
     pretty $ renderQueryConvenienceError e
   TxCmdQueryNotScriptLocked e ->
@@ -215,4 +223,4 @@ renderTxCmdError = \case
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =
-  mconcat .  List.intersperse ", " . fmap (pretty . serialiseToRawBytesHexText)
+  mconcat . List.intersperse ", " . fmap (pretty . serialiseToRawBytesHexText)

@@ -9,11 +9,11 @@
 
 module Cardano.CLI.EraBased.Run.Governance
   ( runGovernanceCmds
-
   , runGovernanceMIRCertificatePayStakeAddrs
   , runGovernanceCreateMirCertificateTransferToTreasuryCmd
   , runGovernanceCreateMirCertificateTransferToReservesCmd
-  ) where
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
@@ -33,75 +33,77 @@ import           Control.Monad
 import           Data.Function
 import qualified Data.Map.Strict as Map
 
-runGovernanceCmds :: ()
+runGovernanceCmds
+  :: ()
   => Cmd.GovernanceCmds era
   -> ExceptT CmdError IO ()
 runGovernanceCmds = \case
   Cmd.GovernanceCreateMirCertificateStakeAddressesCmd w mirpot vKeys rewards out ->
     runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
       & firstExceptT CmdGovernanceCmdError
-
   Cmd.GovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp ->
     runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp
       & firstExceptT CmdGovernanceCmdError
-
   Cmd.GovernanceCreateMirCertificateTransferToReservesCmd w ll oFp ->
     runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp
       & firstExceptT CmdGovernanceCmdError
-
   Cmd.GovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
     runGovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out
       & firstExceptT CmdGovernanceCmdError
-
   Cmd.GovernanceCommitteeCmds cmds ->
     runGovernanceCommitteeCmds cmds
       & firstExceptT CmdGovernanceCommitteeError
-
   Cmd.GovernanceActionCmds cmds ->
     runGovernanceActionCmds cmds
       & firstExceptT CmdGovernanceActionError
-
   Cmd.GovernanceDRepCmds cmds ->
     runGovernanceDRepCmds cmds
-
   Cmd.GovernancePollCmds cmds ->
     runGovernancePollCmds cmds
       & firstExceptT CmdGovernanceCmdError
-
   Cmd.GovernanceVoteCmds cmds ->
     runGovernanceVoteCmds cmds
 
 runGovernanceMIRCertificatePayStakeAddrs
   :: ShelleyToBabbageEra era
   -> L.MIRPot
-  -> [StakeAddress] -- ^ Stake addresses
-  -> [L.Coin]     -- ^ Corresponding reward amounts (same length)
+  -> [StakeAddress]
+  -- ^ Stake addresses
+  -> [L.Coin]
+  -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
   unless (length sAddrs == length rwdAmts) $
-    left $ GovernanceCmdMIRCertificateKeyRewardMistmach
-              (unFile oFp) (length sAddrs) (length rwdAmts)
+    left $
+      GovernanceCmdMIRCertificateKeyRewardMistmach
+        (unFile oFp)
+        (length sAddrs)
+        (length rwdAmts)
 
-  let sCreds  = map stakeAddressCredential sAddrs
-      mirTarget = L.StakeAddressesMIR
-                    $ Map.fromList [ (toShelleyStakeCredential scred, L.toDeltaCoin rwdAmt)
-                                    | (scred, rwdAmt) <- zip sCreds rwdAmts
-                                    ]
-  let mirCert = makeMIRCertificate
-        $ MirCertificateRequirements w mirPot
-        $ shelleyToBabbageEraConstraints w mirTarget
+  let sCreds = map stakeAddressCredential sAddrs
+      mirTarget =
+        L.StakeAddressesMIR $
+          Map.fromList
+            [ (toShelleyStakeCredential scred, L.toDeltaCoin rwdAmt)
+            | (scred, rwdAmt) <- zip sCreds rwdAmts
+            ]
+  let mirCert =
+        makeMIRCertificate $
+          MirCertificateRequirements w mirPot $
+            shelleyToBabbageEraConstraints w mirTarget
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
     $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
     $ writeLazyByteStringFile oFp
     $ textEnvelopeToJSON (Just mirCertDesc) mirCert
-  where
-    mirCertDesc :: TextEnvelopeDescr
-    mirCertDesc = "Move Instantaneous Rewards Certificate"
+ where
+  mirCertDesc :: TextEnvelopeDescr
+  mirCertDesc = "Move Instantaneous Rewards Certificate"
 
-runGovernanceCreateMirCertificateTransferToTreasuryCmd :: ()
+runGovernanceCreateMirCertificateTransferToTreasuryCmd
+  :: ()
   => ShelleyToBabbageEra era
   -> L.Coin
   -> File () Out
@@ -116,11 +118,12 @@ runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
     $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
     $ writeLazyByteStringFile oFp
     $ textEnvelopeToJSON (Just mirCertDesc) mirCert
-  where
-    mirCertDesc :: TextEnvelopeDescr
-    mirCertDesc = "MIR Certificate Send To Treasury"
+ where
+  mirCertDesc :: TextEnvelopeDescr
+  mirCertDesc = "MIR Certificate Send To Treasury"
 
-runGovernanceCreateMirCertificateTransferToReservesCmd :: ()
+runGovernanceCreateMirCertificateTransferToReservesCmd
+  :: ()
   => ShelleyToBabbageEra era
   -> L.Coin
   -> File () Out
@@ -135,6 +138,6 @@ runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
     $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
     $ writeLazyByteStringFile oFp
     $ textEnvelopeToJSON (Just mirCertDesc) mirCert
-  where
-    mirCertDesc :: TextEnvelopeDescr
-    mirCertDesc = "MIR Certificate Send To Reserves"
+ where
+  mirCertDesc :: TextEnvelopeDescr
+  mirCertDesc = "MIR Certificate Send To Reserves"

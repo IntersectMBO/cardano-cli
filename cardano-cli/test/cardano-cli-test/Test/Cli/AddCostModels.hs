@@ -23,10 +23,10 @@ hprop_roundtrip_Alonzo_addCostModelsToEraBasedProtocolParametersUpdate =
       cmdl
       (flip (addCostModelsToEraBasedProtocolParametersUpdate AlonzoEraOnwardsAlonzo) ppu)
       getCostModels
-  where
-    getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe Alonzo.CostModels
-    getCostModels (AlonzoEraBasedProtocolParametersUpdate _ _ AlonzoOnwardsPParams {alCostModels = SJust cmdls} _) = Just cmdls
-    getCostModels _ = Nothing
+ where
+  getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe Alonzo.CostModels
+  getCostModels (AlonzoEraBasedProtocolParametersUpdate _ _ AlonzoOnwardsPParams{alCostModels = SJust cmdls} _) = Just cmdls
+  getCostModels _ = Nothing
 
 hprop_roundtrip_Babbage_addCostModelsToEraBasedProtocolParametersUpdate :: Property
 hprop_roundtrip_Babbage_addCostModelsToEraBasedProtocolParametersUpdate =
@@ -37,10 +37,10 @@ hprop_roundtrip_Babbage_addCostModelsToEraBasedProtocolParametersUpdate =
       cmdl
       (flip (addCostModelsToEraBasedProtocolParametersUpdate AlonzoEraOnwardsBabbage) ppu)
       getCostModels
-  where
-    getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe Alonzo.CostModels
-    getCostModels (BabbageEraBasedProtocolParametersUpdate _ AlonzoOnwardsPParams {alCostModels = SJust cmdls} _ _) = Just cmdls
-    getCostModels _ = Nothing
+ where
+  getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe Alonzo.CostModels
+  getCostModels (BabbageEraBasedProtocolParametersUpdate _ AlonzoOnwardsPParams{alCostModels = SJust cmdls} _ _) = Just cmdls
+  getCostModels _ = Nothing
 
 hprop_roundtrip_Conway_addCostModelsToEraBasedProtocolParametersUpdate :: Property
 hprop_roundtrip_Conway_addCostModelsToEraBasedProtocolParametersUpdate =
@@ -51,7 +51,7 @@ hprop_roundtrip_Conway_addCostModelsToEraBasedProtocolParametersUpdate =
       cmdl
       (flip (addCostModelsToEraBasedProtocolParametersUpdate AlonzoEraOnwardsConway) ppu)
       getCostModels
-  where
-    getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe Alonzo.CostModels
-    getCostModels (ConwayEraBasedProtocolParametersUpdate _ AlonzoOnwardsPParams {alCostModels = SJust cmdls} _ _) = Just cmdls
-    getCostModels _ = Nothing
+ where
+  getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe Alonzo.CostModels
+  getCostModels (ConwayEraBasedProtocolParametersUpdate _ AlonzoOnwardsPParams{alCostModels = SJust cmdls} _ _) = Just cmdls
+  getCostModels _ = Nothing

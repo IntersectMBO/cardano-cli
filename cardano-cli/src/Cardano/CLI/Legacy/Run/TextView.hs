@@ -3,7 +3,8 @@
 
 module Cardano.CLI.Legacy.Run.TextView
   ( runLegacyTextViewCmds
-  ) where
+  )
+where
 
 import           Cardano.Api
 
@@ -15,7 +16,8 @@ runLegacyTextViewCmds :: LegacyTextViewCmds -> ExceptT TextViewFileError IO ()
 runLegacyTextViewCmds = \case
   TextViewInfo fpath mOutfile -> runLegacyTextViewInfoCmd fpath mOutfile
 
-runLegacyTextViewInfoCmd :: ()
+runLegacyTextViewInfoCmd
+  :: ()
   => FilePath
   -> Maybe (File () Out)
   -> ExceptT TextViewFileError IO ()

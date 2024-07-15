@@ -1,4 +1,3 @@
-
 module Test.Golden.Shelley.TextEnvelope.Tx.Witness where
 
 import           Hedgehog (Property, property, success)

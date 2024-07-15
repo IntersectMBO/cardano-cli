@@ -1,12 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-
 {-# OPTIONS_GHC -Wno-unused-imports #-}
 
 module Cardano.CLI.EraBased.Options.Governance.DRep
   ( pGovernanceDRepCmds
-  , pUpdateCertificateCmd) where
+  , pUpdateCertificateCmd
+  )
+where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
@@ -25,13 +26,15 @@ import           Data.String
 import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
 
-pGovernanceDRepCmds :: ()
+pGovernanceDRepCmds
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDRepCmds era =
-  subInfoParser "drep"
-    ( Opt.progDesc
-        $ mconcat
+  subInfoParser
+    "drep"
+    ( Opt.progDesc $
+        mconcat
           [ "DRep member commands."
           ]
     )
@@ -43,7 +46,8 @@ pGovernanceDRepCmds era =
     , pGovernanceDrepMetadataHashCmd era
     ]
 
-pGovernanceDRepKeyGenCmd :: ()
+pGovernanceDRepKeyGenCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDRepKeyGenCmd era = do
@@ -51,14 +55,15 @@ pGovernanceDRepKeyGenCmd era = do
   pure
     $ subParser "key-gen"
     $ Opt.info
-        ( fmap GovernanceDRepKeyGenCmd $
-            GovernanceDRepKeyGenCmdArgs w
-              <$> pVerificationKeyFileOut
-              <*> pSigningKeyFileOut
-        )
+      ( fmap GovernanceDRepKeyGenCmd $
+          GovernanceDRepKeyGenCmdArgs w
+            <$> pVerificationKeyFileOut
+            <*> pSigningKeyFileOut
+      )
     $ Opt.progDesc "Generate Delegated Representative verification and signing keys."
 
-pGovernanceDRepKeyIdCmd :: ()
+pGovernanceDRepKeyIdCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDRepKeyIdCmd era = do
@@ -66,37 +71,40 @@ pGovernanceDRepKeyIdCmd era = do
   pure
     $ subParser "id"
     $ Opt.info
-        ( fmap GovernanceDRepIdCmd $
-            GovernanceDRepIdCmdArgs w
-              <$> pDRepVerificationKeyOrFile
-              <*> pDRepIdOutputFormat
-              <*> optional pOutputFile
-        )
+      ( fmap GovernanceDRepIdCmd $
+          GovernanceDRepIdCmdArgs w
+            <$> pDRepVerificationKeyOrFile
+            <*> pDRepIdOutputFormat
+            <*> optional pOutputFile
+      )
     $ Opt.progDesc "Generate a drep id."
 
 pDRepIdOutputFormat :: Parser IdOutputFormat
 pDRepIdOutputFormat =
-  Opt.option readIdOutputFormat $ mconcat
-    [ Opt.long "output-format"
-    , Opt.metavar "STRING"
-    , Opt.help $ mconcat
-      [ "Optional drep id output format. Accepted output formats are \"hex\" "
-      , "and \"bech32\" (default is \"bech32\")."
+  Opt.option readIdOutputFormat $
+    mconcat
+      [ Opt.long "output-format"
+      , Opt.metavar "STRING"
+      , Opt.help $
+          mconcat
+            [ "Optional drep id output format. Accepted output formats are \"hex\" "
+            , "and \"bech32\" (default is \"bech32\")."
+            ]
+      , Opt.value IdOutputFormatBech32
       ]
-    , Opt.value IdOutputFormatBech32
-    ]
 
 -- Registration Certificate related
 
-pRegistrationCertificateCmd :: ()
+pRegistrationCertificateCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pRegistrationCertificateCmd era = do
   w <- forEraMaybeEon era
-  pure
-    $ subParser "registration-certificate"
-    $ Opt.info (conwayEraOnwardsConstraints w $ mkParser w)
-    $ Opt.progDesc "Create a registration certificate."
+  pure $
+    subParser "registration-certificate" $
+      Opt.info (conwayEraOnwardsConstraints w $ mkParser w) $
+        Opt.progDesc "Create a registration certificate."
  where
   mkParser w =
     fmap GovernanceDRepRegistrationCertificateCmd $
@@ -120,13 +128,15 @@ pDrepMetadataUrl =
 
 pDrepMetadataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pDrepMetadataHash =
-  Opt.option readSafeHash $ mconcat
-    [ Opt.long "drep-metadata-hash"
-    , Opt.metavar "HASH"
-    , Opt.help "DRep anchor data hash."
-    ]
+  Opt.option readSafeHash $
+    mconcat
+      [ Opt.long "drep-metadata-hash"
+      , Opt.metavar "HASH"
+      , Opt.help "DRep anchor data hash."
+      ]
 
-pRetirementCertificateCmd :: ()
+pRetirementCertificateCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pRetirementCertificateCmd era = do
@@ -142,7 +152,8 @@ pRetirementCertificateCmd era = do
       )
     $ Opt.progDesc "Create a DRep retirement certificate."
 
-pUpdateCertificateCmd :: ()
+pUpdateCertificateCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pUpdateCertificateCmd era = do
@@ -159,7 +170,8 @@ pUpdateCertificateCmd era = do
       )
     $ Opt.progDesc "Create a DRep update certificate."
 
-pGovernanceDrepMetadataHashCmd :: ()
+pGovernanceDrepMetadataHashCmd
+  :: ()
   => CardanoEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDrepMetadataHashCmd era = do
@@ -167,11 +179,11 @@ pGovernanceDrepMetadataHashCmd era = do
   pure
     $ subParser "metadata-hash"
     $ Opt.info
-        ( fmap GovernanceDRepMetadataHashCmd $
-            GovernanceDRepMetadataHashCmdArgs w
-              <$> pFileInDirection "drep-metadata-file" "JSON Metadata file to hash."
-              <*> pMaybeOutputFile
-        )
+      ( fmap GovernanceDRepMetadataHashCmd $
+          GovernanceDRepMetadataHashCmdArgs w
+            <$> pFileInDirection "drep-metadata-file" "JSON Metadata file to hash."
+            <*> pMaybeOutputFile
+      )
     $ Opt.progDesc "Calculate the hash of a metadata file."
 
 --------------------------------------------------------------------------------
@@ -182,10 +194,10 @@ data AnyEraDecider era where
 
 instance Eon AnyEraDecider where
   inEonForEra no yes = \case
-    ByronEra    -> no
-    ShelleyEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraShelley
-    AllegraEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAllegra
-    MaryEra     -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraMary
-    AlonzoEra   -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAlonzo
-    BabbageEra  -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraBabbage
-    ConwayEra   -> yes $ AnyEraDeciderConwayOnwards ConwayEraOnwardsConway
+    ByronEra -> no
+    ShelleyEra -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraShelley
+    AllegraEra -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAllegra
+    MaryEra -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraMary
+    AlonzoEra -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAlonzo
+    BabbageEra -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraBabbage
+    ConwayEra -> yes $ AnyEraDeciderConwayOnwards ConwayEraOnwardsConway

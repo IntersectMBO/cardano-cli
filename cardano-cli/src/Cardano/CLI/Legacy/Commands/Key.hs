@@ -4,7 +4,8 @@
 module Cardano.CLI.Legacy.Commands.Key
   ( LegacyKeyCmds (..)
   , renderLegacyKeyCmds
-  ) where
+  )
+where
 
 import           Cardano.Api.Shelley
 
@@ -31,7 +32,8 @@ data LegacyKeyCmds
       (SomeKeyFile In)
       (File () Out)
   | KeyConvertITNExtendedKeyCmd
-      (SomeKeyFile In) (File () Out)
+      (SomeKeyFile In)
+      (File () Out)
   | KeyConvertITNBip32KeyCmd
       (SomeKeyFile In)
       (File () Out)
@@ -43,11 +45,11 @@ data LegacyKeyCmds
 
 renderLegacyKeyCmds :: LegacyKeyCmds -> Text
 renderLegacyKeyCmds = \case
-  KeyVerificationKeyCmd {} -> "key verification-key"
-  KeyNonExtendedKeyCmd {} -> "key non-extended-key"
-  KeyConvertByronKeyCmd {} -> "key convert-byron-key"
-  KeyConvertByronGenesisVKeyCmd {} -> "key convert-byron-genesis-vkey"
-  KeyConvertITNKeyCmd {} -> "key convert-itn-key"
-  KeyConvertITNExtendedKeyCmd {} -> "key convert-itn-extended-key"
-  KeyConvertITNBip32KeyCmd {} -> "key convert-itn-bip32-key"
-  KeyConvertCardanoAddressKeyCmd {} -> "key convert-cardano-address-key"
+  KeyVerificationKeyCmd{} -> "key verification-key"
+  KeyNonExtendedKeyCmd{} -> "key non-extended-key"
+  KeyConvertByronKeyCmd{} -> "key convert-byron-key"
+  KeyConvertByronGenesisVKeyCmd{} -> "key convert-byron-genesis-vkey"
+  KeyConvertITNKeyCmd{} -> "key convert-itn-key"
+  KeyConvertITNExtendedKeyCmd{} -> "key convert-itn-extended-key"
+  KeyConvertITNBip32KeyCmd{} -> "key convert-itn-bip32-key"
+  KeyConvertCardanoAddressKeyCmd{} -> "key convert-cardano-address-key"

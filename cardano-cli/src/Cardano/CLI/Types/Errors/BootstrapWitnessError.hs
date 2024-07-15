@@ -1,16 +1,17 @@
 module Cardano.CLI.Types.Errors.BootstrapWitnessError
-  ( BootstrapWitnessError(..)
+  ( BootstrapWitnessError (..)
   , renderBootstrapWitnessError
-  ) where
+  )
+where
 
 import           Prettyprinter
 
 -- | Error constructing a Shelley bootstrap witness (i.e. a Byron key witness
 -- in the Shelley era).
 data BootstrapWitnessError
-  = MissingNetworkIdOrByronAddressError
-  -- ^ Neither a network ID nor a Byron address were provided to construct the
-  -- Shelley bootstrap witness. One or the other is required.
+  = -- | Neither a network ID nor a Byron address were provided to construct the
+    -- Shelley bootstrap witness. One or the other is required.
+    MissingNetworkIdOrByronAddressError
   deriving Show
 
 -- | Render an error message for a 'BootstrapWitnessError'.

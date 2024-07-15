@@ -3,10 +3,11 @@
 {- HLINT ignore "Move brackets to avoid $" -}
 
 module Cardano.CLI.Run.Ping
-  ( PingClientCmdError(..)
+  ( PingClientCmdError (..)
   , renderPingClientCmdError
   , runPingCmd
-  ) where
+  )
+where
 
 import           Cardano.CLI.Commands.Ping
 import           Cardano.CLI.Pretty
@@ -40,22 +41,25 @@ maybeUnixSockEndPoint = \case
   HostEndPoint _ -> Nothing
   UnixSockEndPoint sock -> Just sock
 
-pingClient :: Tracer IO CNP.LogMsg -> Tracer IO String -> PingCmd -> [CNP.NodeVersion] -> AddrInfo -> IO ()
+pingClient
+  :: Tracer IO CNP.LogMsg -> Tracer IO String -> PingCmd -> [CNP.NodeVersion] -> AddrInfo -> IO ()
 pingClient stdout stderr cmd = CNP.pingClient stdout stderr opts
-  where opts = CNP.PingOpts
-          { CNP.pingOptsQuiet          = pingCmdQuiet cmd
-          , CNP.pingOptsJson           = pingCmdJson cmd
-          , CNP.pingOptsCount          = pingCmdCount cmd
-          , CNP.pingOptsHost           = maybeHostEndPoint (pingCmdEndPoint cmd)
-          , CNP.pingOptsUnixSock       = maybeUnixSockEndPoint (pingCmdEndPoint cmd)
-          , CNP.pingOptsPort           = pingCmdPort cmd
-          , CNP.pingOptsMagic          = pingCmdMagic cmd
-          , CNP.pingOptsHandshakeQuery = pingOptsHandshakeQuery cmd
-          }
+ where
+  opts =
+    CNP.PingOpts
+      { CNP.pingOptsQuiet = pingCmdQuiet cmd
+      , CNP.pingOptsJson = pingCmdJson cmd
+      , CNP.pingOptsCount = pingCmdCount cmd
+      , CNP.pingOptsHost = maybeHostEndPoint (pingCmdEndPoint cmd)
+      , CNP.pingOptsUnixSock = maybeUnixSockEndPoint (pingCmdEndPoint cmd)
+      , CNP.pingOptsPort = pingCmdPort cmd
+      , CNP.pingOptsMagic = pingCmdMagic cmd
+      , CNP.pingOptsHandshakeQuery = pingOptsHandshakeQuery cmd
+      }
 
 runPingCmd :: PingCmd -> ExceptT PingClientCmdError IO ()
 runPingCmd options = do
-  let hints = Socket.defaultHints { Socket.addrSocketType = Socket.Stream }
+  let hints = Socket.defaultHints{Socket.addrSocketType = Socket.Stream}
 
   msgQueue <- liftIO STM.newEmptyTMVarIO
 
@@ -66,21 +70,28 @@ runPingCmd options = do
       addrs <- liftIO $ Socket.getAddrInfo (Just hints) (Just host) (Just (pingCmdPort options))
       return (addrs, CNP.supportedNodeToNodeVersions $ pingCmdMagic options)
     UnixSockEndPoint fname -> do
-      let addr = Socket.AddrInfo
-            [] Socket.AF_UNIX Socket.Stream
-            Socket.defaultProtocol (Socket.SockAddrUnix fname) Nothing
+      let addr =
+            Socket.AddrInfo
+              []
+              Socket.AF_UNIX
+              Socket.Stream
+              Socket.defaultProtocol
+              (Socket.SockAddrUnix fname)
+              Nothing
       return ([addr], CNP.supportedNodeToClientVersions $ pingCmdMagic options)
 
   -- Logger async thread handle
   laid <- liftIO . async $ CNP.logger msgQueue (pingCmdJson options) (pingOptsHandshakeQuery options)
   -- Ping client thread handles
-  caids <- forM addresses $ liftIO . async . pingClient (Tracer $ doLog msgQueue) (Tracer doErrLog) options versions
+  caids <-
+    forM addresses $
+      liftIO . async . pingClient (Tracer $ doLog msgQueue) (Tracer doErrLog) options versions
   res <- L.zip addresses <$> mapM (liftIO . waitCatch) caids
   liftIO $ doLog msgQueue CNP.LogEnd
   liftIO $ wait laid
 
   -- Collect errors 'es' from failed pings and 'addrs' from successful pings.
-  let (es, addrs) = foldl' partition ([],[]) res
+  let (es, addrs) = foldl' partition ([], []) res
 
   -- Report any errors
   case (es, addrs) of
@@ -89,19 +100,19 @@ runPingCmd options = do
     (_, _) -> do
       unless (pingCmdQuiet options) $ mapM_ (liftIO . IO.hPrint IO.stderr) es
       liftIO IO.exitSuccess
+ where
+  partition
+    :: ([(AddrInfo, SomeException)], [AddrInfo])
+    -> (AddrInfo, Either SomeException ())
+    -> ([(AddrInfo, SomeException)], [AddrInfo])
+  partition (es, as) (a, Left e) = ((a, e) : es, as)
+  partition (es, as) (a, Right _) = (es, a : as)
 
-  where
-    partition :: ([(AddrInfo, SomeException)], [AddrInfo])
-              -> (AddrInfo, Either SomeException ())
-              -> ([(AddrInfo, SomeException)], [AddrInfo])
-    partition (es, as) (a, Left e)  = ((a, e) : es, as)
-    partition (es, as) (a, Right _) = (es, a : as)
+  doLog :: StrictTMVar IO CNP.LogMsg -> CNP.LogMsg -> IO ()
+  doLog msgQueue msg = STM.atomically $ STM.putTMVar msgQueue msg
 
-    doLog :: StrictTMVar IO CNP.LogMsg -> CNP.LogMsg -> IO ()
-    doLog msgQueue msg = STM.atomically $ STM.putTMVar msgQueue msg
-
-    doErrLog :: String -> IO ()
-    doErrLog = IO.hPutStrLn IO.stderr
+  doErrLog :: String -> IO ()
+  doErrLog = IO.hPutStrLn IO.stderr
 
 renderPingClientCmdError :: PingClientCmdError -> Doc ann
 renderPingClientCmdError = \case

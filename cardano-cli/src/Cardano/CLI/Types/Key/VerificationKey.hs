@@ -1,9 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 
 module Cardano.CLI.Types.Key.VerificationKey
-  ( AnyVerificationKeySource(..)
-  , AnyVerificationKeyText(..)
-  ) where
+  ( AnyVerificationKeySource (..)
+  , AnyVerificationKeyText (..)
+  )
+where
 
 import           Cardano.Api
 
@@ -21,4 +22,3 @@ data AnyVerificationKeySource
   = AnyVerificationKeySourceOfText !AnyVerificationKeyText
   | AnyVerificationKeySourceOfFile !(File (VerificationKey ()) In)
   deriving (Eq, Show)
-
