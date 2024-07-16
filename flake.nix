@@ -23,7 +23,7 @@
     # see flake `variants` below for alternative compilers
     defaultCompiler = "ghc982";
     haddockShellCompiler = defaultCompiler;
-    mingwVersion = "ghc965";
+    mingwVersion = "ghc965"; # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the latter if you change this value.
     cabalHeadOverlay = final: prev: {
       cabal-head =
         (final.haskell-nix.cabalProject {
