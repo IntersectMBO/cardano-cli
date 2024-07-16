@@ -15,6 +15,7 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Commands.Debug
 import           Cardano.CLI.Commands.Debug.LogEpochState
+import           Cardano.CLI.Commands.Debug.TransactionView
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common
 
@@ -45,6 +46,13 @@ pDebugCmds envCli =
               , " The log file format is line delimited JSON."
               , " The command will not terminate."
               ]
+    , subParser "transaction" $
+        Opt.info
+          ( asum
+              [ subParser "view" (Opt.info pTransactionView $ Opt.progDesc "Print a transaction.")
+              ]
+          )
+          (Opt.progDesc "Transaction commands")
     ]
  where
   pLogEpochStateCmdArgs :: Parser DebugCmds
@@ -56,6 +64,13 @@ pDebugCmds envCli =
         <*> pFileOutDirection
           "out-file"
           "Output filepath of the log file.  The log file format is line delimited JSON."
+  pTransactionView :: Parser DebugCmds
+  pTransactionView =
+    fmap DebugTransactionViewCmd $
+      TransactionViewCmdArgs
+        <$> pTxViewOutputFormat
+        <*> pMaybeOutputFile
+        <*> pInputTxOrTxBodyFile
 
 pNodeConfigurationFileIn :: Parser (NodeConfigFile In)
 pNodeConfigurationFileIn =
