@@ -3,6 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
@@ -242,7 +243,8 @@ friendlyTxBodyImpl
                  , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
                  , "withdrawals" .= friendlyWithdrawals txWithdrawals
                  ]
-              ++ ( caseByronToBabbageOrConwaysEraOnwards
+              ++ ( monoidForEraInEon @ConwayEraOnwards
+                    era
                     ( \cOnwards ->
                         case txProposalProcedures of
                           Nothing -> []
@@ -250,9 +252,9 @@ friendlyTxBodyImpl
                           Just (Featured _ (TxProposalProcedures lProposals _witnesses)) ->
                             ["governance actions" .= (friendlyLedgerProposals cOnwards $ toList lProposals)]
                     )
-                    era
                  )
-              ++ ( caseByronToBabbageOrConwaysEraOnwards
+              ++ ( monoidForEraInEon @ConwayEraOnwards
+                    era
                     ( \cOnwards ->
                         case txVotingProcedures of
                           Nothing -> []
@@ -260,15 +262,14 @@ friendlyTxBodyImpl
                           Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
                             ["voters" .= friendlyVotingProcedures cOnwards votes]
                     )
-                    era
                  )
-              ++ ( caseByronToBabbageOrConwaysEraOnwards
+              ++ ( monoidForEraInEon @ConwayEraOnwards
+                    era
                     (const ["currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)])
-                    era
                  )
-              ++ ( caseByronToBabbageOrConwaysEraOnwards
-                    (const ["treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)])
+              ++ ( monoidForEraInEon @ConwayEraOnwards
                     era
+                    (const ["treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)])
                  )
           )
    where
@@ -276,11 +277,6 @@ friendlyTxBodyImpl
       :: ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
     friendlyLedgerProposals cOnwards proposalProcedures =
       Array $ Vector.fromList $ map (friendlyLedgerProposal cOnwards) proposalProcedures
-    caseByronToBabbageOrConwaysEraOnwards :: (ConwayEraOnwards era -> [a]) -> CardanoEra era -> [a]
-    caseByronToBabbageOrConwaysEraOnwards f =
-      caseByronOrShelleyBasedEra
-        []
-        (caseShelleyToBabbageOrConwayEraOnwards (const []) f)
 
 friendlyLedgerProposal
   :: ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
@@ -291,14 +287,10 @@ friendlyVotingProcedures
 friendlyVotingProcedures cOnwards x = conwayEraOnwardsConstraints cOnwards $ toJSON x
 
 redeemerIfShelleyBased :: MonadWarning m => CardanoEra era -> TxBody era -> m [Aeson.Pair]
-redeemerIfShelleyBased era tb =
-  caseByronOrShelleyBasedEra
-    (return [])
-    ( \shEra -> do
-        redeemerInfo <- friendlyRedeemer shEra tb
-        return ["redeemers" .= redeemerInfo]
-    )
-    era
+redeemerIfShelleyBased era tb = monoidForEraInEonA @ShelleyBasedEra era $
+  \shEra -> do
+    redeemerInfo <- friendlyRedeemer shEra tb
+    return ["redeemers" .= redeemerInfo]
 
 friendlyRedeemer :: MonadWarning m => ShelleyBasedEra era -> TxBody era -> m Aeson.Value
 friendlyRedeemer _ (ShelleyTxBody _ _ _ TxBodyNoScriptData _ _) = return Aeson.Null

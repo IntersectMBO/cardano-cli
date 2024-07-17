@@ -128,6 +128,7 @@ pQueryCmds era envCli =
     , pQueryDRepStateCmd era envCli
     , pQueryDRepStakeDistributionCmd era envCli
     , pQueryGetCommitteeStateCmd era envCli
+    , pQueryTreasuryValueCmd era envCli
     ]
 
 pQueryProtocolParametersCmd :: EnvCli -> Parser (QueryCmds era)
@@ -491,6 +492,28 @@ pQueryGetCommitteeStateCmd era envCli = do
             , Opt.help "Unrecognized committe members: a hot credential for an unknown cold credential"
             ]
       ]
+
+pQueryTreasuryValueCmd
+  :: ()
+  => CardanoEra era
+  -> EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryTreasuryValueCmd era envCli = do
+  w <- forEraMaybeEon era
+  pure $
+    subParser "treasury" $
+      Opt.info (QueryTreasuryValueCmd <$> pQueryTreasuryValueArgs w) $
+        Opt.progDesc "Get the treasury value"
+ where
+  pQueryTreasuryValueArgs
+    :: ConwayEraOnwards era -> Parser (QueryTreasuryValueCmdArgs era)
+  pQueryTreasuryValueArgs w =
+    QueryTreasuryValueCmdArgs w
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> pTarget era
+      <*> optional pOutputFile
 
 pQueryNoArgCmdArgs
   :: ()
