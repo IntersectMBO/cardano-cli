@@ -30,6 +30,7 @@ module Cardano.CLI.Json.Friendly
 
     -- * Ubiquitous types
   , FriendlyFormat (..)
+  , viewOutputFormatToFriendlyFormat
   )
 where
 
@@ -41,6 +42,7 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    ShelleyLedgerEra, StakeAddress (..), fromShelleyPaymentCredential,
                    fromShelleyStakeReference, toShelleyStakeCredential)
 
+import           Cardano.CLI.Types.Common (ViewOutputFormat (..))
 import           Cardano.CLI.Types.MonadWarning (MonadWarning, eitherToWarning, runWarningIO)
 import           Cardano.Prelude (Foldable (..), first)
 
@@ -73,6 +75,11 @@ import           GHC.Unicode (isAlphaNum)
 {- HLINT ignore "Move brackets to avoid $" -}
 
 data FriendlyFormat = FriendlyJson | FriendlyYaml
+
+viewOutputFormatToFriendlyFormat :: ViewOutputFormat -> FriendlyFormat
+viewOutputFormatToFriendlyFormat = \case
+  ViewOutputFormatJson -> FriendlyJson
+  ViewOutputFormatYaml -> FriendlyYaml
 
 friendly
   :: (MonadIO m, Aeson.ToJSON a)
@@ -631,7 +638,9 @@ renderCertificate sbe = \case
 
   delegateeJson
     :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-    => ShelleyBasedEra era -> L.Delegatee (L.EraCrypto (ShelleyLedgerEra era)) -> Aeson.Value
+    => ShelleyBasedEra era
+    -> L.Delegatee (L.EraCrypto (ShelleyLedgerEra era))
+    -> Aeson.Value
   delegateeJson _ =
     object . \case
       L.DelegStake hk@L.KeyHash{} ->
