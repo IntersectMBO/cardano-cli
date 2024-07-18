@@ -30,6 +30,7 @@ module Cardano.CLI.Json.Friendly
 
     -- * Ubiquitous types
   , FriendlyFormat (..)
+  , viewOutputFormatToFriendlyFormat
   )
 where
 
@@ -41,6 +42,7 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    ShelleyLedgerEra, StakeAddress (..), fromShelleyPaymentCredential,
                    fromShelleyStakeReference, toShelleyStakeCredential)
 
+import           Cardano.CLI.Types.Common (ViewOutputFormat (..))
 import           Cardano.CLI.Types.MonadWarning (MonadWarning, eitherToWarning, runWarningIO)
 import           Cardano.Prelude (Foldable (..), first)
 
@@ -73,6 +75,11 @@ import           GHC.Unicode (isAlphaNum)
 {- HLINT ignore "Move brackets to avoid $" -}
 
 data FriendlyFormat = FriendlyJson | FriendlyYaml
+
+viewOutputFormatToFriendlyFormat :: ViewOutputFormat -> FriendlyFormat
+viewOutputFormatToFriendlyFormat = \case
+  ViewOutputFormatJson -> FriendlyJson
+  ViewOutputFormatYaml -> FriendlyYaml
 
 friendly
   :: (MonadIO m, Aeson.ToJSON a)
@@ -234,39 +241,46 @@ friendlyTxBodyImpl
                  , "update proposal" .= friendlyUpdateProposal txUpdateProposal
                  , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
                  , "withdrawals" .= friendlyWithdrawals txWithdrawals
-                 , "governance actions"
-                    .= ( inEonForEra
-                          Null
-                          ( \(cOnwards :: ConwayEraOnwards era) ->
-                              case txProposalProcedures of
-                                Nothing -> Null
-                                Just (Featured _ TxProposalProceduresNone) -> Null
-                                Just (Featured _ (TxProposalProcedures lProposals _witnesses)) ->
-                                  friendlyLedgerProposals cOnwards $ toList lProposals
-                          )
-                          era
-                       )
-                 , "voters"
-                    .= ( inEonForEra
-                          Null
-                          ( \cOnwards ->
-                              case txVotingProcedures of
-                                Nothing -> Null
-                                Just (Featured _ TxVotingProceduresNone) -> Null
-                                Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
-                                  friendlyVotingProcedures cOnwards votes
-                          )
-                          era
-                       )
-                 , "currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)
-                 , "treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)
                  ]
+              ++ ( caseByronToBabbageOrConwaysEraOnwards
+                    ( \cOnwards ->
+                        case txProposalProcedures of
+                          Nothing -> []
+                          Just (Featured _ TxProposalProceduresNone) -> []
+                          Just (Featured _ (TxProposalProcedures lProposals _witnesses)) ->
+                            ["governance actions" .= (friendlyLedgerProposals cOnwards $ toList lProposals)]
+                    )
+                    era
+                 )
+              ++ ( caseByronToBabbageOrConwaysEraOnwards
+                    ( \cOnwards ->
+                        case txVotingProcedures of
+                          Nothing -> []
+                          Just (Featured _ TxVotingProceduresNone) -> []
+                          Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
+                            ["voters" .= friendlyVotingProcedures cOnwards votes]
+                    )
+                    era
+                 )
+              ++ ( caseByronToBabbageOrConwaysEraOnwards
+                    (const ["currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)])
+                    era
+                 )
+              ++ ( caseByronToBabbageOrConwaysEraOnwards
+                    (const ["treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)])
+                    era
+                 )
           )
    where
     friendlyLedgerProposals
       :: ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
     friendlyLedgerProposals cOnwards proposalProcedures =
       Array $ Vector.fromList $ map (friendlyLedgerProposal cOnwards) proposalProcedures
+    caseByronToBabbageOrConwaysEraOnwards :: (ConwayEraOnwards era -> [a]) -> CardanoEra era -> [a]
+    caseByronToBabbageOrConwaysEraOnwards f =
+      caseByronOrShelleyBasedEra
+        []
+        (caseShelleyToBabbageOrConwayEraOnwards (const []) f)
 
 friendlyLedgerProposal
   :: ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
@@ -631,7 +645,9 @@ renderCertificate sbe = \case
 
   delegateeJson
     :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-    => ShelleyBasedEra era -> L.Delegatee (L.EraCrypto (ShelleyLedgerEra era)) -> Aeson.Value
+    => ShelleyBasedEra era
+    -> L.Delegatee (L.EraCrypto (ShelleyLedgerEra era))
+    -> Aeson.Value
   delegateeJson _ =
     object . \case
       L.DelegStake hk@L.KeyHash{} ->

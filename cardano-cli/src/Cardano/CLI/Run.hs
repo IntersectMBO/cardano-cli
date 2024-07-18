@@ -80,7 +80,7 @@ renderClientCommandError = \case
   PingClientError err ->
     renderPingClientCmdError err
   DebugCmdError err ->
-    renderDebugCmdError err
+    prettyError err
 
 runDisplayVersion :: ExceptT ClientCommandErrors IO ()
 runDisplayVersion = do

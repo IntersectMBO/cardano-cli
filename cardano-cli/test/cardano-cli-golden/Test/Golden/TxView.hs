@@ -1,17 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.TxView
-  ( hprop_golden_view_shelley_yaml
-  , hprop_golden_view_allegra_yaml
-  , hprop_golden_view_mary_yaml
-  , hprop_golden_view_redeemer
-  , hprop_golden_view_metadata
-  , hprop_golden_view_alonzo_yaml
-  , hprop_golden_view_alonzo_signed_yaml
-  , hprop_golden_view_conway_three_votes
-  , hprop_golden_view_conway_proposal
-  )
-where
+module Test.Golden.TxView where
 
 import           Cardano.Api (TxMetadataJsonSchema (..))
 
@@ -24,65 +13,9 @@ import           Hedgehog (Property)
 import           Hedgehog.Extras (Integration, moduleWorkspace, note_, propertyOnce)
 import qualified Hedgehog.Extras.Test.Golden as H
 
-{- HLINT ignore "Use camelCase" -}
-
 goldenDir, inputDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden"
 inputDir = "test/cardano-cli-golden/files/input"
-
--- TODO: Expose command to view byron tx files
-_hprop_golden_view_byron_yaml :: Property
-_hprop_golden_view_byron_yaml =
-  propertyOnce $
-    moduleWorkspace "tmp" $ \tempDir -> do
-      transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
-
-      -- Create transaction body
-      void $
-        execCardanoCLI
-          [ "transaction"
-          , "build-raw"
-          , "--byron-era"
-          , "--tx-in"
-          , "F8EC302D19E3C8251C30B1434349BF2E949A1DBF14A4EBC3D512918D2D4D5C56#88"
-          , "--tx-out"
-          , "5oP9ib6ym3XfwXuy3ksXZzgtBzXSArXAACQVXKqcPhiLnHVYjXJNu2T6Zomh8LAWLV+68"
-          , "--out-file"
-          , transactionBodyFile
-          ]
-
-      -- View transaction body
-      result <-
-        execCardanoCLI
-          ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
-      H.diffVsGoldenFile result $ goldenDir </> "byron/transaction-view.out"
-
--- TODO: Expose command to view byron tx files
-_hprop_golden_view_byron_json_default :: Property
-_hprop_golden_view_byron_json_default =
-  propertyOnce $
-    moduleWorkspace "tmp" $ \tempDir -> do
-      transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
-
-      -- Create transaction body
-      void $
-        execCardanoCLI
-          [ "transaction"
-          , "build-raw"
-          , "--byron-era"
-          , "--tx-in"
-          , "F8EC302D19E3C8251C30B1434349BF2E949A1DBF14A4EBC3D512918D2D4D5C56#88"
-          , "--tx-out"
-          , "5oP9ib6ym3XfwXuy3ksXZzgtBzXSArXAACQVXKqcPhiLnHVYjXJNu2T6Zomh8LAWLV+68"
-          , "--out-file"
-          , transactionBodyFile
-          ]
-
-      -- View transaction body
-      result <-
-        execCardanoCLI
-          ["transaction", "view", "--tx-body-file", transactionBodyFile]
-      H.diffVsGoldenFile result $ goldenDir </> "byron/transaction-view-json.out"
 
 hprop_golden_view_shelley_yaml :: Property
 hprop_golden_view_shelley_yaml =
@@ -193,7 +126,7 @@ hprop_golden_view_shelley_yaml =
         -- View transaction body
         result <-
           execCardanoCLI
-            ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
+            ["debug", "transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
 
         H.diffVsGoldenFile result $ goldenDir </> "shelley/transaction-view.out"
 
@@ -229,7 +162,7 @@ hprop_golden_view_allegra_yaml =
       -- View transaction body
       result <-
         execCardanoCLI
-          ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
+          ["debug", "transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
       H.diffVsGoldenFile result $ goldenDir </> "allegra/transaction-view.out"
 
 hprop_golden_view_mary_yaml :: Property
@@ -303,7 +236,7 @@ hprop_golden_view_mary_yaml =
       -- View transaction body
       result <-
         execCardanoCLI
-          ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
+          ["debug", "transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
       H.diffVsGoldenFile result $ goldenDir </> "mary/transaction-view.out"
 
 hprop_golden_view_redeemer :: Property
@@ -316,7 +249,7 @@ hprop_golden_view_redeemer = do
       -- View transaction body
       result <-
         execCardanoCLI
-          ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
+          ["debug", "transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
 
       H.diffVsGoldenFile result $ goldenDir </> "babbage/transaction-view-redeemer.out"
  where
@@ -354,14 +287,20 @@ hprop_golden_view_metadata = propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> 
   makeTxBody TxMetadataJsonNoSchema transactionBodyMetaNoSchema
   resultNoSchema <-
     execCardanoCLI
-      ["transaction", "view", "--tx-body-file", transactionBodyMetaNoSchema, "--output-yaml"]
+      ["debug", "transaction", "view", "--tx-body-file", transactionBodyMetaNoSchema, "--output-yaml"]
   H.diffVsGoldenFile resultNoSchema $ goldenDir </> "babbage/transaction-view-metadata-noschema.out"
 
   transactionBodyMetaDetailedSchema <- noteTempFile tempDir "transaction-body-detailedschema"
   makeTxBody TxMetadataJsonDetailedSchema transactionBodyMetaDetailedSchema
   resultDetailedSchema <-
     execCardanoCLI
-      ["transaction", "view", "--tx-body-file", transactionBodyMetaDetailedSchema, "--output-yaml"]
+      [ "debug"
+      , "transaction"
+      , "view"
+      , "--tx-body-file"
+      , transactionBodyMetaDetailedSchema
+      , "--output-yaml"
+      ]
   H.diffVsGoldenFile resultDetailedSchema $
     goldenDir </> "babbage/transaction-view-metadata-detailedschema.out"
  where
@@ -463,7 +402,7 @@ hprop_golden_view_alonzo_yaml =
     -- View transaction body
     result <-
       execCardanoCLI
-        ["transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
+        ["debug", "transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
     H.diffVsGoldenFile result $ goldenDir </> "alonzo/transaction-view.out"
 
 -- | Execute me with:
@@ -495,7 +434,7 @@ hprop_golden_view_alonzo_signed_yaml =
     -- View transaction body
     result <-
       execCardanoCLI
-        ["transaction", "view", "--tx-file", transactionFile, "--output-yaml"]
+        ["debug", "transaction", "view", "--tx-file", transactionFile, "--output-yaml"]
 
     H.diffVsGoldenFile result (golden </> "signed-transaction-view.out")
 
@@ -509,7 +448,7 @@ hprop_golden_view_conway_three_votes =
 
     result <-
       execCardanoCLI
-        ["transaction", "view", "--tx-file", input </> "tx-three-votes.json", "--output-json"]
+        ["debug", "transaction", "view", "--tx-file", input </> "tx-three-votes.json", "--output-json"]
 
     H.diffVsGoldenFile result (golden </> "tx-three-votes-view.out.json")
 
@@ -523,6 +462,6 @@ hprop_golden_view_conway_proposal =
 
     result <-
       execCardanoCLI
-        ["transaction", "view", "--tx-file", input </> "tx-proposal.json", "--output-json"]
+        ["debug", "transaction", "view", "--tx-file", input </> "tx-proposal.json", "--output-json"]
 
     H.diffVsGoldenFile result (golden </> "tx-proposal.out.json")
