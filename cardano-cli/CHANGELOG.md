@@ -1,5 +1,27 @@
 # Changelog for cardano-cli
 
+## 9.0.1.0
+
+- Add era-independent "debug transaction view" command
+  (breaking)
+  [PR 840](https://github.com/IntersectMBO/cardano-cli/pull/840)
+
+- Add output options flags to calculate-min-fee
+  (feature, compatible)
+  [PR 824](https://github.com/IntersectMBO/cardano-cli/pull/824)
+
+- Fix commands' descriptions referencing old 'governance hash' command
+  (bugfix)
+  [PR 821](https://github.com/IntersectMBO/cardano-cli/pull/821)
+
+- transaction-build and build-estimate: include current treasury value only if a donation is being done
+  (breaking)
+  [PR 826](https://github.com/IntersectMBO/cardano-cli/pull/826)
+
+- Fix typo in committee help and error messages
+  (compatible)
+  [PR 820](https://github.com/IntersectMBO/cardano-cli/pull/820)
+
 ## 9.0.0.1 
 
 - transaction-build and build-estimate: include current treasury value only if a donation is being done
