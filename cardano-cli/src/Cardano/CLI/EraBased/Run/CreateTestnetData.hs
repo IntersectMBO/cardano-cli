@@ -210,7 +210,7 @@ runGenesisCreateTestNetDataCmd
     } = do
     liftIO $ createDirectoryIfMissing False outputDir
     shelleyGenesisInit <- maybeReadAndDecodeGenesisFileSpec specShelley shelleyGenesisDefaults
-    alonzoGenesis <- maybeReadAndDecodeGenesisFileSpec specAlonzo alonzoGenesisDefaults
+    alonzoGenesis <- maybeReadAndDecodeGenesisFileSpec specAlonzo (alonzoGenesisDefaults BabbageEra) -- FIXED in https://github.com/IntersectMBO/cardano-cli/pull/812
     conwayGenesis <- maybeReadAndDecodeGenesisFileSpec specConway conwayGenesisDefaults
 
     -- Read NetworkId either from file or from the flag. Flag overrides template file.
