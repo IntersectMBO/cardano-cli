@@ -14,7 +14,7 @@ repository cardano-haskell-packages
 -- you need to run if you change them
 index-state:
   , hackage.haskell.org 2024-12-10T16:20:07Z
-  , cardano-haskell-packages 2024-12-18T14:29:04Z
+  , cardano-haskell-packages 2024-12-20T15:52:56Z
 
 packages:
   cardano-cli
@@ -32,6 +32,7 @@ package bitvec
   flags: -simd
 
 extra-packages: Cabal
+
 if os(windows)
   constraints: time ^>=1.14
   allow-newer: *:time
@@ -79,21 +80,67 @@ source-repository-package
     ouroboros-network-testing
     quickcheck-monoids
 
+-- UTxO-HD for 10.2
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/ouroboros-consensus.git
-  tag: 038f9d6c5e4d6de7d2cfb2ac9e23d3b66c495418
-  --sha256: sha256-jzfJNLl8GfCTEP5ABpHZl6qps7U6NZi36UxYxooKH+A=
+  tag: 55866f574b05a957e638c358a4ac0ec04db33f62
+  --sha256: sha256-OcxbeYlVAea2wNjHBCFY+B0F7wMUyQNPTGi3+8rVhlU=
   subdir:
     ouroboros-consensus
     ouroboros-consensus-cardano
-    ouroboros-consensus-protocol
     ouroboros-consensus-diffusion
+    ouroboros-consensus-protocol
+    sop-extras
+    strict-sop-core
 
 source-repository-package
   type: git
+  location: https://github.com/IntersectMBO/cardano-base.git
+  tag: fb9b71f3bc33f8de673c6427736f09bf7972e81f
+  subdir:
+    cardano-crypto-class
+  --sha256: sha256-ExQ497FDYlmQyZaXOTddU+KraAUHnTAqPiyt055v0+M=
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  tag: c50d89688d9f30ea2dbd01afb19dbcaaf03e3da7
+  --sha256: sha256-3OVXLYCKSN4HPd3nsObK2mG8mB28AX46vuMqs+Jn3kw=
+  subdir:
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/alonzo/test-suite
+    eras/babbage/impl
+    eras/babbage/test-suite
+    eras/conway/impl
+    eras/conway/test-suite
+    eras/mary/impl
+    eras/shelley/impl
+    eras/shelley/test-suite
+    eras/shelley-ma/test-suite
+    libs/cardano-ledger-api
+    libs/cardano-ledger-core
+    libs/cardano-ledger-binary
+    libs/cardano-protocol-tpraos
+    libs/non-integral
+    libs/small-steps
+    libs/cardano-data
+    libs/set-algebra
+    libs/vector-map
+    eras/byron/chain/executable-spec
+    eras/byron/ledger/executable-spec
+    eras/byron/ledger/impl
+    eras/byron/ledger/impl/test
+    eras/byron/crypto
+    eras/byron/crypto/test
+
+
+-- UTxO-HD for 10.2
+source-repository-package
+  type: git
   location: https://github.com/IntersectMBO/cardano-api.git
-  tag: 04ac6b36284ea823da0a7b88210c03b586f7f808
-  --sha256: sha256-LcZe9GcH2qRvNCk4leJHMLEX0KMiqbkYP4xACBE/znE=
+  tag: 4e589d07400c7b72e29a7eebac2464deb7bd44d3
+  --sha256: sha256-ixllwMrB2Vj/QEJJ0+9Ai9g3/cBJK4aWvhFcy0fNHm0=
   subdir:
     cardano-api
