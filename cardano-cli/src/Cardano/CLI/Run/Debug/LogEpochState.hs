@@ -36,7 +36,7 @@ runLogEpochStateCmd
           Api.QuickValidation
           (EpochNo maxBound)
           ()
-          ( \(AnyNewEpochState sbe nes) _ _ -> do
+          ( \(AnyNewEpochState sbe nes _) _ _ -> do
               liftIO $
                 LBS.appendFile outputFilePath $
                   shelleyBasedEraConstraints sbe (Aeson.encode nes) <> "\n"
