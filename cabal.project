@@ -32,9 +32,6 @@ package bitvec
   flags: -simd
 
 extra-packages: Cabal
-if os(windows)
-  constraints: time ^>=1.14
-  allow-newer: *:time
 
 constraints: any.text source
 -- Depending on C++ for just so slightly faster utf8 parsing is a bit annoying
@@ -57,3 +54,24 @@ write-ghc-environment-files: always
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: 2149c2f2c81089074eb575497e3785b6180f6062
+  --sha256: sha256-lR9eVgUtcKs4cxajRnnKIhg91vYW2vbs/Hs/XhaVC5w=
+  subdir:
+    ouroboros-consensus
+    ouroboros-consensus-cardano
+    ouroboros-consensus-diffusion
+    ouroboros-consensus-protocol
+    sop-extras
+    strict-sop-core
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 5b2b3ab24fcff2ecf006419231e7c5a72d299724
+  --sha256: sha256-BsjOlSCK3piRfQ1ovrBJUfDtOKWlb4cKUP/3t7KiD/Y=
+  subdir:
+    cardano-api
