@@ -32,9 +32,6 @@ package bitvec
   flags: -simd
 
 extra-packages: Cabal
-if os(windows)
-  constraints: time ^>=1.14
-  allow-newer: *:time
 
 constraints: any.text source
 -- Depending on C++ for just so slightly faster utf8 parsing is a bit annoying
@@ -57,3 +54,26 @@ write-ghc-environment-files: always
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+-- UTxO-HD for 9.0. There were no changes in consensus from node 9.0 to 9.1
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: 440828510cd40f8f0cded91c89a21ed6fdbf7b9a
+  --sha256: sha256-f/b04vf7kqVRqnHGm6cKlis338qshTPuKP6bCrUtogw=
+  subdir:
+    ouroboros-consensus
+    ouroboros-consensus-cardano
+    ouroboros-consensus-diffusion
+    ouroboros-consensus-protocol
+    sop-extras
+    strict-sop-core
+
+-- UTxO-HD for 9.1
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 1751eea4e6f1a22bd74051556c63bef8e652fe16
+  --sha256: sha256-LpRVtus736O9kwgFgnCimS61lkJ2GShLObJ02gCils0=
+  subdir:
+    cardano-api
