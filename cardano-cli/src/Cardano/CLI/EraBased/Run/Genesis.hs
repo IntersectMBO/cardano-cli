@@ -12,13 +12,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
-
-{- HLINT ignore "Replace case with maybe" -}
-{- HLINT ignore "Reduce duplication" -}
-{- HLINT ignore "Redundant <$>" -}
-{- HLINT ignore "Use let" -}
 
 module Cardano.CLI.EraBased.Run.Genesis
   ( runGenesisCmds
@@ -30,9 +24,6 @@ module Cardano.CLI.EraBased.Run.Genesis
   , runGenesisKeyHashCmd
   , runGenesisTxInCmd
   , runGenesisVerKeyCmd
-
-    -- * Protocol Parameters
-  , readProtocolParameters
   )
 where
 
@@ -55,7 +46,8 @@ import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
-import qualified Cardano.CLI.EraBased.Run.CreateTestnetData as TN
+import           Cardano.CLI.EraBased.Run.Genesis.Common
+import qualified Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData as TN
 import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
@@ -63,7 +55,6 @@ import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
-import           Cardano.CLI.Types.Errors.ProtocolParamsError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto as CC
@@ -74,6 +65,7 @@ import           Cardano.Slotting.Slot (EpochSize (EpochSize))
 import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, force)
+import           Control.Exception (evaluate)
 import           Control.Monad (forM, forM_, unless, when)
 import           Data.Aeson hiding (Key)
 import qualified Data.Aeson as Aeson
@@ -84,7 +76,6 @@ import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Char (isDigit)
-import           Data.Either (fromRight)
 import           Data.Fixed (Fixed (MkFixed))
 import           Data.Function (on)
 import           Data.Functor (void)
@@ -241,11 +232,12 @@ writeOutput Nothing = Text.putStrLn
 --
 
 runGenesisCreateCmd
-  :: GenesisCreateCmdArgs
+  :: GenesisCreateCmdArgs era
   -> ExceptT GenesisCmdError IO ()
 runGenesisCreateCmd
   Cmd.GenesisCreateCmdArgs
-    { Cmd.keyOutputFormat
+    { Cmd.eon
+    , Cmd.keyOutputFormat
     , Cmd.genesisDir
     , Cmd.numGenesisKeys
     , Cmd.numUTxOKeys
@@ -257,15 +249,16 @@ runGenesisCreateCmd
         gendir = rootdir </> "genesis-keys"
         deldir = rootdir </> "delegate-keys"
         utxodir = rootdir </> "utxo-keys"
+        era = toCardanoEra eon
     liftIO $ do
       createDirectoryIfMissing False rootdir
       createDirectoryIfMissing False gendir
       createDirectoryIfMissing False deldir
       createDirectoryIfMissing False utxodir
 
-    template <- readShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
-    alonzoGenesis <- readAlonzoGenesis (rootdir </> "genesis.alonzo.spec.json")
-    conwayGenesis <- readConwayGenesis (rootdir </> "genesis.conway.spec.json")
+    template <- decodeShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
+    alonzoGenesis <- decodeAlonzoGenesisFile (Just era) $ rootdir </> "genesis.alonzo.spec.json"
+    conwayGenesis <- decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
       createGenesisKeys gendir index
@@ -276,7 +269,7 @@ runGenesisCreateCmd
 
     genDlgs <- readGenDelegsMap gendir deldir
     utxoAddrs <- readInitialFundAddresses utxodir network
-    start <- maybe (SystemStart <$> TN.getCurrentTimePlus30) pure mSystemStart
+    start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
 
     let shelleyGenesis =
           updateTemplate
@@ -385,11 +378,12 @@ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys = do
 --
 
 runGenesisCreateCardanoCmd
-  :: GenesisCreateCardanoCmdArgs
+  :: GenesisCreateCardanoCmdArgs era
   -> ExceptT GenesisCmdError IO ()
 runGenesisCreateCardanoCmd
   Cmd.GenesisCreateCardanoCmdArgs
-    { Cmd.genesisDir
+    { Cmd.eon
+    , Cmd.genesisDir
     , Cmd.numGenesisKeys
     , Cmd.numUTxOKeys
     , Cmd.mSystemStart
@@ -404,7 +398,7 @@ runGenesisCreateCardanoCmd
     , Cmd.conwayGenesisTemplate
     , Cmd.mNodeConfigTemplate
     } = do
-    start <- maybe (SystemStart <$> TN.getCurrentTimePlus30) pure mSystemStart
+    start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
     (byronGenesis', byronSecrets) <- convertToShelleyError $ Byron.mkGenesis $ byronParams start
     let
       byronGenesis =
@@ -431,6 +425,7 @@ runGenesisCreateCardanoCmd
       utxoKeys = gsPoorSecrets byronSecrets
       byronUtxoKeys = map (ByronSigningKey . Genesis.poorSecretToKey) utxoKeys
       shelleyUtxoKeys = map (convertPoor . Genesis.poorSecretToKey) utxoKeys
+      era = toCardanoEra eon
 
     dlgCerts <- convertToShelleyError $ mapM (findDelegateCert byronGenesis) byronDelegateKeys
     let
@@ -438,22 +433,18 @@ runGenesisCreateCardanoCmd
         t
           { sgNetworkMagic = unNetworkMagic (toNetworkMagic network)
           , sgNetworkId = toShelleyNetwork network
-          , sgActiveSlotsCoeff =
-              fromMaybe (error $ "Could not convert from Rational: " ++ show slotCoeff) $
-                L.boundRational slotCoeff
+          , sgActiveSlotsCoeff = unsafeBoundedRational slotCoeff
           , sgSecurityParam = unBlockCount security
           , sgUpdateQuorum = fromIntegral $ ((numGenesisKeys `div` 3) * 2) + 1
           , sgEpochLength = EpochSize $ floor $ (fromIntegral (unBlockCount security) * 10) / slotCoeff
           , sgMaxLovelaceSupply = 45_000_000_000_000_000
           , sgSystemStart = getSystemStart start
-          , sgSlotLength = L.secondsToNominalDiffTimeMicro $ MkFixed (fromIntegral slotLength) * 1000
+          , sgSlotLength = L.secondsToNominalDiffTimeMicro $ MkFixed (fromIntegral slotLength) * 1_000
           }
     shelleyGenesisTemplate' <-
-      liftIO $
-        overrideShelleyGenesis . fromRight (error "shelley genesis template not found")
-          <$> TN.readAndDecodeGenesisFile shelleyGenesisTemplate
-    alonzoGenesis <- readAlonzoGenesis alonzoGenesisTemplate
-    conwayGenesis <- readConwayGenesis conwayGenesisTemplate
+      overrideShelleyGenesis <$> decodeShelleyGenesisFile shelleyGenesisTemplate
+    alonzoGenesis <- decodeAlonzoGenesisFile (Just era) alonzoGenesisTemplate
+    conwayGenesis <- decodeConwayGenesisFile conwayGenesisTemplate
     (delegateMap, vrfKeys, kesKeys, opCerts) <-
       liftIO $ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys
     let
@@ -581,11 +572,12 @@ runGenesisCreateCardanoCmd
     dlgCertMap byronGenesis = Genesis.unGenesisDelegation $ Genesis.gdHeavyDelegation byronGenesis
 
 runGenesisCreateStakedCmd
-  :: GenesisCreateStakedCmdArgs
+  :: GenesisCreateStakedCmdArgs era
   -> ExceptT GenesisCmdError IO ()
 runGenesisCreateStakedCmd
   Cmd.GenesisCreateStakedCmdArgs
-    { Cmd.keyOutputFormat
+    { eon
+    , Cmd.keyOutputFormat
     , Cmd.genesisDir
     , Cmd.numGenesisKeys
     , Cmd.numUTxOKeys
@@ -606,6 +598,7 @@ runGenesisCreateStakedCmd
         pooldir = rootdir </> "pools"
         stdeldir = rootdir </> "stake-delegator-keys"
         utxodir = rootdir </> "utxo-keys"
+        era = toCardanoEra eon
 
     liftIO $ do
       createDirectoryIfMissing False rootdir
@@ -615,9 +608,9 @@ runGenesisCreateStakedCmd
       createDirectoryIfMissing False stdeldir
       createDirectoryIfMissing False utxodir
 
-    template <- readShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
-    alonzoGenesis <- readAlonzoGenesis (rootdir </> "genesis.alonzo.spec.json")
-    conwayGenesis <- readConwayGenesis (rootdir </> "genesis.conway.spec.json")
+    template <- decodeShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
+    alonzoGenesis <- decodeAlonzoGenesisFile (Just era) $ rootdir </> "genesis.alonzo.spec.json"
+    conwayGenesis <- decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
       createGenesisKeys gendir index
@@ -626,11 +619,11 @@ runGenesisCreateStakedCmd
     forM_ [1 .. numUTxOKeys] $ \index ->
       createUtxoKeys utxodir index
 
-    mayStakePoolRelays <- forM mStakePoolRelaySpecFile TN.readRelays
+    mStakePoolRelays <- forM mStakePoolRelaySpecFile readRelays
 
     poolParams <- forM [1 .. numPools] $ \index -> do
       createPoolCredentials keyOutputFormat pooldir index
-      buildPoolParams networkId pooldir (Just index) (fromMaybe mempty mayStakePoolRelays)
+      buildPoolParams networkId pooldir (Just index) (fromMaybe mempty mStakePoolRelays)
 
     when (numBulkPoolCredFiles * numBulkPoolsPerFile > numPools) $
       left $
@@ -662,11 +655,11 @@ runGenesisCreateStakedCmd
 
     genDlgs <- readGenDelegsMap gendir deldir
     nonDelegAddrs <- readInitialFundAddresses utxodir networkId
-    start <- maybe (SystemStart <$> TN.getCurrentTimePlus30) pure mSystemStart
+    start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
 
     let network = toShelleyNetwork networkId
     stuffedUtxoAddrs <-
-      liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) $ TN.genStuffedAddress network
+      liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) $ genStuffedAddress network
 
     let stake = second L.ppId . mkDelegationMapEntry <$> delegations
         stakePools = [(L.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations]
@@ -999,7 +992,7 @@ writeBulkPoolCredentials dir bulkIx poolIxs = do
     content <-
       handleIOExceptT (GenesisCmdFileError . FileIOError fp) $
         BS.readFile fp
-    firstExceptT (GenesisCmdAesonDecodeError fp . Text.pack) . hoistEither $
+    firstExceptT (GenesisCmdFileDecodeError fp . Text.pack) . hoistEither $
       Aeson.eitherDecodeStrict' content
 
 -- | This function should only be used for testing purposes.
@@ -1014,31 +1007,29 @@ computeInsecureDelegation g0 nw pool = do
   (stakeVK, g2) <- first getVerificationKey <$> generateInsecureSigningKey g1 AsStakeKey
 
   let stakeAddressReference = StakeAddressByValue . StakeCredentialByKey . verificationKeyHash $ stakeVK
-  let initialUtxoAddr =
+      initialUtxoAddr =
         makeShelleyAddress nw (PaymentCredentialByKey (verificationKeyHash paymentVK)) stakeAddressReference
 
-  delegation <-
-    pure $
-      force
+      delegation =
         Delegation
           { dInitialUtxoAddr = shelleyAddressInEra ShelleyBasedEraShelley initialUtxoAddr
           , dDelegStaking = L.hashKey (unStakeVerificationKey stakeVK)
           , dPoolParams = pool
           }
 
-  pure (g2, delegation)
+  evaluate . force $ (g2, delegation)
 
 -- | Attempts to read Shelley genesis from disk
 -- and if not found creates a default Shelley genesis.
-readShelleyGenesisWithDefault
+decodeShelleyGenesisWithDefault
   :: FilePath
   -> (ShelleyGenesis L.StandardCrypto -> ShelleyGenesis L.StandardCrypto)
   -> ExceptT GenesisCmdError IO (ShelleyGenesis L.StandardCrypto)
-readShelleyGenesisWithDefault fpath adjustDefaults = do
-  newExceptT (TN.readAndDecodeGenesisFile fpath)
+decodeShelleyGenesisWithDefault fpath adjustDefaults = do
+  decodeShelleyGenesisFile fpath
     `catchError` \err ->
       case err of
-        GenesisCmdGenesisFileReadError (FileIOError _ ioe)
+        GenesisCmdGenesisFileError (FileIOError _ ioe)
           | isDoesNotExistError ioe -> writeDefault
         _ -> left err
  where
@@ -1374,36 +1365,3 @@ runGenesisHashFileCmd (GenesisFile fpath) = do
   let gh :: Crypto.Hash Crypto.Blake2b_256 ByteString
       gh = Crypto.hashWith id content
   liftIO $ Text.putStrLn (Crypto.hashToTextAsHex gh)
-
-readAlonzoGenesis
-  :: FilePath
-  -> ExceptT GenesisCmdError IO L.AlonzoGenesis
-readAlonzoGenesis fpath = do
-  lbs <- handleIOExceptT (GenesisCmdGenesisFileError . FileIOError fpath) $ LBS.readFile fpath
-  firstExceptT (GenesisCmdAesonDecodeError fpath . Text.pack)
-    . hoistEither
-    $ Aeson.eitherDecode' lbs
-
-readConwayGenesis
-  :: FilePath
-  -> ExceptT GenesisCmdError IO (L.ConwayGenesis L.StandardCrypto)
-readConwayGenesis fpath = do
-  lbs <- handleIOExceptT (GenesisCmdGenesisFileError . FileIOError fpath) $ LBS.readFile fpath
-  firstExceptT (GenesisCmdAesonDecodeError fpath . Text.pack)
-    . hoistEither
-    $ Aeson.eitherDecode' lbs
-
--- Protocol Parameters
-
--- TODO: eliminate this and get only the necessary params, and get them in a more
--- helpful way rather than requiring them as a local file.
-readProtocolParameters
-  :: ()
-  => ShelleyBasedEra era
-  -> ProtocolParamsFile
-  -> ExceptT ProtocolParamsError IO (L.PParams (ShelleyLedgerEra era))
-readProtocolParameters sbe (ProtocolParamsFile fpath) = do
-  pparams <- handleIOExceptT (ProtocolParamsErrorFile . FileIOError fpath) $ LBS.readFile fpath
-  firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither $
-    shelleyBasedEraConstraints sbe $
-      Aeson.eitherDecode' pparams

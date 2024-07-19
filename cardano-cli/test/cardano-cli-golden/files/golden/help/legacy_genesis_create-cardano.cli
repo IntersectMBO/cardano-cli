@@ -1,4 +1,12 @@
-Usage: cardano-cli legacy genesis create-cardano --genesis-dir DIR
+Usage: cardano-cli legacy genesis create-cardano 
+                                                   [ --shelley-era
+                                                   | --allegra-era
+                                                   | --mary-era
+                                                   | --alonzo-era
+                                                   | --babbage-era
+                                                   | --conway-era
+                                                   ]
+                                                   --genesis-dir DIR
                                                    [--gen-genesis-keys INT]
                                                    [--gen-utxo-keys INT]
                                                    [--start-time UTC-TIME]
@@ -19,6 +27,12 @@ Usage: cardano-cli legacy genesis create-cardano --genesis-dir DIR
   genesis/delegation/spending keys.
 
 Available options:
+  --shelley-era            Specify the Shelley era
+  --allegra-era            Specify the Allegra era
+  --mary-era               Specify the Mary era
+  --alonzo-era             Specify the Alonzo era
+  --babbage-era            Specify the Babbage era (default)
+  --conway-era             Specify the Conway era
   --genesis-dir DIR        The genesis directory containing the genesis template
                            and required genesis/delegation/spending keys.
   --gen-genesis-keys INT   The number of genesis keys to make [default is 3].

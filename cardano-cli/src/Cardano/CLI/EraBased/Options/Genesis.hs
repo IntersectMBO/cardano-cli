@@ -24,14 +24,12 @@ import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
-{- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Move brackets to avoid $" -}
-
 pGenesisCmds
   :: ()
-  => EnvCli
+  => CardanoEra era
+  -> EnvCli
   -> Maybe (Parser (GenesisCmds era))
-pGenesisCmds envCli =
+pGenesisCmds era envCli =
   subInfoParser
     "genesis"
     ( Opt.progDesc $
@@ -67,33 +65,33 @@ pGenesisCmds envCli =
         subParser "initial-txin" $
           Opt.info (pGenesisTxIn envCli) $
             Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
-    , Just $
+    , forEraInEonMaybe era $ \sbe ->
         subParser "create-cardano" $
-          Opt.info (pGenesisCreateCardano envCli) $
+          Opt.info (pGenesisCreateCardano sbe envCli) $
             Opt.progDesc $
               mconcat
                 [ "Create a Byron and Shelley genesis file from a genesis "
                 , "template and genesis/delegation/spending keys."
                 ]
-    , Just $
+    , forEraInEonMaybe era $ \sbe ->
         subParser "create" $
-          Opt.info (pGenesisCreate envCli) $
+          Opt.info (pGenesisCreate sbe envCli) $
             Opt.progDesc $
               mconcat
                 [ "Create a Shelley genesis file from a genesis "
                 , "template and genesis/delegation/spending keys."
                 ]
-    , Just $
+    , forEraInEonMaybe era $ \sbe ->
         subParser "create-staked" $
-          Opt.info (pGenesisCreateStaked envCli) $
+          Opt.info (pGenesisCreateStaked sbe envCli) $
             Opt.progDesc $
               mconcat
                 [ "Create a staked Shelley genesis file from a genesis "
                 , "template and genesis/delegation/spending keys."
                 ]
-    , Just $
+    , forEraInEonMaybe era $ \sbe ->
         subParser "create-testnet-data" $
-          Opt.info (pGenesisCreateTestNetData envCli) $
+          Opt.info (pGenesisCreateTestNetData sbe envCli) $
             Opt.progDesc $
               mconcat
                 [ "Create data to use for starting a testnet."
@@ -154,10 +152,10 @@ pGenesisTxIn envCli =
       <*> pNetworkId envCli
       <*> pMaybeOutputFile
 
-pGenesisCreateCardano :: EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateCardano envCli =
+pGenesisCreateCardano :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateCardano sbe envCli =
   fmap GenesisCreateCardano $
-    GenesisCreateCardanoCmdArgs
+    GenesisCreateCardanoCmdArgs sbe
       <$> pGenesisDir
       <*> pGenesisNumGenesisKeys
       <*> pGenesisNumUTxOKeys
@@ -181,10 +179,10 @@ pGenesisCreateCardano envCli =
         "JSON file with genesis defaults for conway."
       <*> pNodeConfigTemplate
 
-pGenesisCreate :: EnvCli -> Parser (GenesisCmds era)
-pGenesisCreate envCli =
+pGenesisCreate :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
+pGenesisCreate sbe envCli =
   fmap GenesisCreate $
-    GenesisCreateCmdArgs
+    GenesisCreateCmdArgs sbe
       <$> pKeyOutputFormat
       <*> pGenesisDir
       <*> pGenesisNumGenesisKeys
@@ -193,10 +191,10 @@ pGenesisCreate envCli =
       <*> pInitialSupplyNonDelegated
       <*> pNetworkId envCli
 
-pGenesisCreateStaked :: EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateStaked envCli =
+pGenesisCreateStaked :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateStaked sbe envCli =
   fmap GenesisCreateStaked $
-    GenesisCreateStakedCmdArgs
+    GenesisCreateStakedCmdArgs sbe
       <$> pKeyOutputFormat
       <*> pGenesisDir
       <*> pGenesisNumGenesisKeys
@@ -222,13 +220,13 @@ pGenesisCreateStaked envCli =
         , Opt.completer (Opt.bashCompleter "file")
         ]
 
-pGenesisCreateTestNetData :: EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateTestNetData envCli =
+pGenesisCreateTestNetData :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateTestNetData sbe envCli =
   fmap GenesisCreateTestNetData $
-    GenesisCreateTestNetDataCmdArgs
-      <$> (optional $ pSpecFile "shelley")
-      <*> (optional $ pSpecFile "alonzo")
-      <*> (optional $ pSpecFile "conway")
+    GenesisCreateTestNetDataCmdArgs sbe
+      <$> optional (pSpecFile "shelley")
+      <*> optional (pSpecFile "alonzo")
+      <*> optional (pSpecFile "conway")
       <*> pNumGenesisKeys
       <*> pNumPools
       <*> pNumStakeDelegs
@@ -237,18 +235,18 @@ pGenesisCreateTestNetData envCli =
       <*> pNumUtxoKeys
       <*> pSupply
       <*> pSupplyDelegated
-      <*> (optional $ pNetworkIdForTestnetData envCli)
+      <*> optional (pNetworkIdForTestnetData envCli)
       <*> Opt.optional pRelays
       <*> pMaybeSystemStart
       <*> pOutputDir
  where
-  pSpecFile era =
+  pSpecFile eraStr =
     Opt.strOption $
       mconcat
-        [ Opt.long $ "spec-" <> era
+        [ Opt.long $ "spec-" <> eraStr
         , Opt.metavar "FILE"
         , Opt.help $
-            "The " <> era <> " specification file to use as input. A default one is generated if omitted."
+            "The " <> eraStr <> " specification file to use as input. A default one is generated if omitted."
         ]
   pNumGenesisKeys =
     Opt.option Opt.auto $
@@ -275,14 +273,15 @@ pGenesisCreateTestNetData envCli =
     pDReps :: CredentialGenerationMode -> String -> String -> Parser DRepCredentials
     pDReps mode modeOptionName modeExplanation =
       DRepCredentials mode
-        <$> ( Opt.option Opt.auto $
-                mconcat
-                  [ Opt.long modeOptionName
-                  , Opt.help $ "The number of DRep credentials to make (default is 0). " <> modeExplanation
-                  , Opt.metavar "INT"
-                  , Opt.value 0
-                  ]
-            )
+        <$> Opt.option
+          Opt.auto
+          ( mconcat
+              [ Opt.long modeOptionName
+              , Opt.help $ "The number of DRep credentials to make (default is 0). " <> modeExplanation
+              , Opt.metavar "INT"
+              , Opt.value 0
+              ]
+          )
   pNumStakeDelegs :: Parser StakeDelegators
   pNumStakeDelegs =
     pStakeDelegators OnDisk "stake-delegators" "Credentials are written to disk."
@@ -291,15 +290,16 @@ pGenesisCreateTestNetData envCli =
     pStakeDelegators :: CredentialGenerationMode -> String -> String -> Parser StakeDelegators
     pStakeDelegators mode modeOptionName modeExplanation =
       StakeDelegators mode
-        <$> ( Opt.option Opt.auto $
-                mconcat
-                  [ Opt.long modeOptionName
-                  , Opt.help $
-                      "The number of stake delegator credential sets to make (default is 0). " <> modeExplanation
-                  , Opt.metavar "INT"
-                  , Opt.value 0
-                  ]
-            )
+        <$> Opt.option
+          Opt.auto
+          ( mconcat
+              [ Opt.long modeOptionName
+              , Opt.help $
+                  "The number of stake delegator credential sets to make (default is 0). " <> modeExplanation
+              , Opt.metavar "INT"
+              , Opt.value 0
+              ]
+          )
   pNumStuffedUtxoCount :: Parser Word
   pNumStuffedUtxoCount =
     Opt.option Opt.auto $

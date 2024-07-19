@@ -16,8 +16,8 @@ import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.EraBased.Commands.Genesis
                    (GenesisKeyGenGenesisCmdArgs (GenesisKeyGenGenesisCmdArgs))
 import qualified Cardano.CLI.EraBased.Commands.Genesis as Cmd
-import qualified Cardano.CLI.EraBased.Run.CreateTestnetData as CreateTestnetData
 import           Cardano.CLI.EraBased.Run.Genesis
+import qualified Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData as CreateTestnetData
 import           Cardano.CLI.Legacy.Commands.Genesis
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GenesisCmdError
@@ -38,12 +38,12 @@ runLegacyGenesisCmds = \case
     runLegacyGenesisTxInCmd vk nw mOutFile
   GenesisAddr vk nw mOutFile ->
     runLegacyGenesisAddrCmd vk nw mOutFile
-  GenesisCreate fmt gd gn un ms am nw ->
-    runLegacyGenesisCreateCmd fmt gd gn un ms am nw
-  GenesisCreateCardano gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
-    runLegacyGenesisCreateCardanoCmd gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
-  GenesisCreateStaked fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
-    runLegacyGenesisCreateStakedCmd fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
+  GenesisCreate eSbe fmt gd gn un ms am nw ->
+    runLegacyGenesisCreateCmd eSbe fmt gd gn un ms am nw
+  GenesisCreateCardano eSbe gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
+    runLegacyGenesisCreateCardanoCmd eSbe gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
+  GenesisCreateStaked eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
+    runLegacyGenesisCreateStakedCmd eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
   GenesisHashFile gf ->
     runLegacyGenesisHashFileCmd gf
 
@@ -124,7 +124,8 @@ runLegacyGenesisAddrCmd vkf nid mOf =
 
 runLegacyGenesisCreateCmd
   :: ()
-  => KeyOutputFormat
+  => EraInEon ShelleyBasedEra
+  -> KeyOutputFormat
   -> GenesisDir
   -> Word
   -- ^ num genesis & delegate keys to make
@@ -134,10 +135,11 @@ runLegacyGenesisCreateCmd
   -> Maybe Coin
   -> NetworkId
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisCreateCmd fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
+runLegacyGenesisCreateCmd (EraInEon asbe) fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
   runGenesisCreateCmd
     Cmd.GenesisCreateCmdArgs
-      { Cmd.keyOutputFormat = fmt
+      { Cmd.eon = asbe
+      , Cmd.keyOutputFormat = fmt
       , Cmd.genesisDir = genDir
       , Cmd.numGenesisKeys = nGenKeys
       , Cmd.numUTxOKeys = nUTxOKeys
@@ -148,7 +150,8 @@ runLegacyGenesisCreateCmd fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
 
 runLegacyGenesisCreateCardanoCmd
   :: ()
-  => GenesisDir
+  => EraInEon ShelleyBasedEra
+  -> GenesisDir
   -> Word
   -- ^ num genesis & delegate keys to make
   -> Word
@@ -171,6 +174,7 @@ runLegacyGenesisCreateCardanoCmd
   -> Maybe FilePath
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCreateCardanoCmd
+  (EraInEon sbe)
   genDir
   nGenKeys
   nUTxOKeys
@@ -187,7 +191,8 @@ runLegacyGenesisCreateCardanoCmd
   mNodeCfg =
     runGenesisCreateCardanoCmd
       Cmd.GenesisCreateCardanoCmdArgs
-        { Cmd.genesisDir = genDir
+        { Cmd.eon = sbe
+        , Cmd.genesisDir = genDir
         , Cmd.numGenesisKeys = nGenKeys
         , Cmd.numUTxOKeys = nUTxOKeys
         , Cmd.mSystemStart = mStart
@@ -205,7 +210,8 @@ runLegacyGenesisCreateCardanoCmd
 
 runLegacyGenesisCreateStakedCmd
   :: ()
-  => KeyOutputFormat
+  => EraInEon ShelleyBasedEra
+  -> KeyOutputFormat
   -- ^ key output format
   -> GenesisDir
   -> Word
@@ -232,6 +238,7 @@ runLegacyGenesisCreateStakedCmd
   -- ^ Specified stake pool relays
   -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCreateStakedCmd
+  (EraInEon sbe)
   keyOutputFormat
   genesisDir
   numGenesisKeys
@@ -248,7 +255,8 @@ runLegacyGenesisCreateStakedCmd
   mStakePoolRelaySpecFile =
     runGenesisCreateStakedCmd
       Cmd.GenesisCreateStakedCmdArgs
-        { Cmd.keyOutputFormat = keyOutputFormat
+        { Cmd.eon = sbe
+        , Cmd.keyOutputFormat = keyOutputFormat
         , Cmd.genesisDir = genesisDir
         , Cmd.numGenesisKeys = numGenesisKeys
         , Cmd.numUTxOKeys = numUTxOKeys
