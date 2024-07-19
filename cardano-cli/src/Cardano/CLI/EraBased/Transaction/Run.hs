@@ -356,9 +356,7 @@ runTransactionBuildCmd
           testEquality era' nodeEra
             & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era' nodeEra)
 
-        scriptExecUnitsMap <-
-          firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
-            hoistEither $
+        let scriptExecUnitsMap =
               evaluateTransactionExecutionUnits
                 era'
                 systemStart
@@ -1730,9 +1728,7 @@ runTransactionCalculatePlutusScriptCostCmd
       executionUnitPrices <-
         pure (getExecutionUnitPrices era' pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
 
-      scriptExecUnitsMap <-
-        firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
-          hoistEither $
+      let scriptExecUnitsMap =
             evaluateTransactionExecutionUnits
               era'
               systemStart

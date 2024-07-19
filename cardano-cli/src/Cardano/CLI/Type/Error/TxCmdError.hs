@@ -9,7 +9,6 @@
 module Cardano.CLI.Type.Error.TxCmdError
   ( TxCmdError (..)
   , AnyTxBodyErrorAutoBalance (..)
-  , AnyTxCmdTxExecUnitsErr (..)
   , renderTxCmdError
   )
 where
@@ -37,9 +36,6 @@ import Data.Set (Set)
 import Data.Text (Text)
 
 {- HLINT ignore "Use let" -}
-
-data AnyTxCmdTxExecUnitsErr where
-  AnyTxCmdTxExecUnitsErr :: TransactionValidityError era -> AnyTxCmdTxExecUnitsErr
 
 data AnyTxBodyErrorAutoBalance where
   AnyTxBodyErrorAutoBalance :: TxBodyErrorAutoBalance era -> AnyTxBodyErrorAutoBalance
@@ -73,7 +69,6 @@ data TxCmdError
   | TxCmdPParamsErr !ProtocolParametersError
   | TxCmdTextEnvError !(FileError TextEnvelopeError)
   | TxCmdTextEnvCddlError !(FileError TextEnvelopeCddlError)
-  | TxCmdTxExecUnitsErr !AnyTxCmdTxExecUnitsErr
   | TxCmdPlutusScriptCostErr !PlutusScriptCostError
   | TxCmdPParamExecutionUnitsNotAvailable
   | TxCmdPlutusScriptsRequireCardanoMode
@@ -191,8 +186,6 @@ renderTxCmdError = \case
       [ "Failed to decode the ledger's CDDL serialisation format. "
       , "TextEnvelopeCddl error: " <> prettyError cddlErr
       ]
-  TxCmdTxExecUnitsErr (AnyTxCmdTxExecUnitsErr err') ->
-    prettyError err'
   TxCmdPlutusScriptCostErr err' ->
     prettyError err'
   TxCmdPParamExecutionUnitsNotAvailable ->
