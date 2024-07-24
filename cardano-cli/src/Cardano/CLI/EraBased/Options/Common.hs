@@ -1716,6 +1716,23 @@ pWithdrawal balance =
   parseWithdrawal =
     (,) <$> parseStakeAddress <* Parsec.char '+' <*> parseLovelace
 
+pPlutusStakeReferenceScriptWitnessFilesVotingProposing
+  :: String
+  -> BalanceTxExecUnits
+  -- ^ Use the @execution-units@ flag.
+  -> Parser (ScriptWitnessFiles WitCtxStake)
+pPlutusStakeReferenceScriptWitnessFilesVotingProposing prefix autoBalanceExecUnits =
+  PlutusReferenceScriptWitnessFiles
+    <$> pReferenceTxIn prefix "plutus"
+    <*> plutusP prefix PlutusScriptV3 "v3"
+    <*> pure NoScriptDatumOrFileForStake
+    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
+    <*> ( case autoBalanceExecUnits of
+            AutoBalance -> pure (ExecutionUnits 0 0)
+            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
+        )
+    <*> pure Nothing
+
 pPlutusStakeReferenceScriptWitnessFiles
   :: String
   -> BalanceTxExecUnits
@@ -1734,15 +1751,15 @@ pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
     <*> pure Nothing
 
 pPlutusScriptLanguage :: String -> Parser AnyScriptLanguage
-pPlutusScriptLanguage prefix = plutusP PlutusScriptV2 "v2" <|> plutusP PlutusScriptV3 "v3"
- where
-  plutusP :: PlutusScriptVersion lang -> String -> Parser AnyScriptLanguage
-  plutusP plutusVersion versionString =
-    Opt.flag'
-      (AnyScriptLanguage $ PlutusScriptLanguage plutusVersion)
-      ( Opt.long (prefix <> "plutus-script-" <> versionString)
-          <> Opt.help ("Specify a plutus script " <> versionString <> " reference script.")
-      )
+pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
+
+plutusP :: String -> PlutusScriptVersion lang -> String -> Parser AnyScriptLanguage
+plutusP prefix plutusVersion versionString =
+  Opt.flag'
+    (AnyScriptLanguage $ PlutusScriptLanguage plutusVersion)
+    ( Opt.long (prefix <> "plutus-script-" <> versionString)
+        <> Opt.help ("Specify a plutus script " <> versionString <> " reference script.")
+    )
 
 pUpdateProposalFile :: Parser UpdateProposalFile
 pUpdateProposalFile =
