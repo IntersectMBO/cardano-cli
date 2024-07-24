@@ -2227,17 +2227,33 @@ pTxIn balance =
       let simpleLang = AnyScriptLanguage SimpleScriptLanguage
        in SimpleReferenceScriptWitnessFiles refTxIn simpleLang Nothing
 
-  pPlutusReferenceScriptWitness :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxTxIn)
-  pPlutusReferenceScriptWitness autoBalanceExecUnits =
-    createPlutusReferenceScriptWitnessFiles
-      <$> pReferenceTxIn "spending-" "plutus"
-      <*> pPlutusScriptLanguage "spending-"
-      <*> pScriptDatumOrFile "spending-reference-tx-in" WitCtxTxIn
-      <*> pScriptRedeemerOrFile "spending-reference-tx-in"
-      <*> ( case autoBalanceExecUnits of
-              AutoBalance -> pure (ExecutionUnits 0 0)
-              ManualBalance -> pExecutionUnits "spending-reference-tx-in"
-          )
+  pPlutusReferenceScriptWitness
+    :: ShelleyBasedEra era -> BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxTxIn)
+  pPlutusReferenceScriptWitness sbe' autoBalanceExecUnits =
+    caseShelleyToBabbageOrConwayEraOnwards
+      ( const $
+          createPlutusReferenceScriptWitnessFiles
+            <$> pReferenceTxIn "spending-" "plutus"
+            <*> pPlutusScriptLanguage "spending-"
+            <*> pScriptDatumOrFile "spending-reference-tx-in" WitCtxTxIn
+            <*> pScriptRedeemerOrFile "spending-reference-tx-in"
+            <*> ( case autoBalanceExecUnits of
+                    AutoBalance -> pure (ExecutionUnits 0 0)
+                    ManualBalance -> pExecutionUnits "spending-reference-tx-in"
+                )
+      )
+      ( const $
+          createPlutusReferenceScriptWitnessFiles
+            <$> pReferenceTxIn "spending-" "plutus"
+            <*> pPlutusScriptLanguage "spending-"
+            <*> pScriptDatumOrFileCip69 "spending-reference-tx-in" WitCtxTxIn
+            <*> pScriptRedeemerOrFile "spending-reference-tx-in"
+            <*> ( case autoBalanceExecUnits of
+                    AutoBalance -> pure (ExecutionUnits 0 0)
+                    ManualBalance -> pExecutionUnits "spending-reference-tx-in"
+                )
+      )
+      sbe'
    where
     createPlutusReferenceScriptWitnessFiles
       :: TxIn
