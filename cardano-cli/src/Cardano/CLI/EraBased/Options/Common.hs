@@ -1243,6 +1243,31 @@ pScriptRedeemerOrFile scriptFlagPrefix =
     "The script redeemer value."
     "The script redeemer file."
 
+pScriptDatumOrFileCip69 :: String -> WitCtx witctx -> Parser (ScriptDatumOrFile witctx)
+pScriptDatumOrFileCip69 scriptFlagPrefix witctx =
+  case witctx of
+    WitCtxTxIn ->
+      asum
+        [ ScriptDatumOrFileForTxIn
+            <$> optional
+              ( pScriptDataOrFile
+                  (scriptFlagPrefix ++ "-datum")
+                  "The script datum."
+                  "The script datum file."
+              )
+        , pInlineDatumPresent
+        ]
+    WitCtxMint -> pure NoScriptDatumOrFileForMint
+    WitCtxStake -> pure NoScriptDatumOrFileForStake
+ where
+  pInlineDatumPresent :: Parser (ScriptDatumOrFile WitCtxTxIn)
+  pInlineDatumPresent =
+    flag' InlineDatumPresentAtTxIn $
+      mconcat
+        [ long (scriptFlagPrefix ++ "-inline-datum-present")
+        , Opt.help "Inline datum present at transaction input."
+        ]
+
 pScriptDatumOrFile :: String -> WitCtx witctx -> Parser (ScriptDatumOrFile witctx)
 pScriptDatumOrFile scriptFlagPrefix witctx =
   case witctx of
