@@ -40,5 +40,5 @@ Haddock documentation is available at: https://cardano-cli.cardano.intersectmbo.
 [![aarch64-darwin](https://img.shields.io/endpoint?url=https://ci.iog.io/job/IntersectMBO-cardano-cli/main/aarch64-darwin.required/shield&style=flat-square&label=aarch64-darwin)](https://ci.iog.io/job/IntersectMBO-cardano-cli/main/aarch64-darwin.required)
 [![GHA Build](https://img.shields.io/github/actions/workflow/status/intersectmbo/cardano-cli/haskell.yml?branch=main&label=GHA%20Build&style=flat-square)](https://github.com/IntersectMBO/cardano-cli/actions/workflows/haskell.yml?query=branch%3Amain)
 [![Haddock](https://img.shields.io/github/actions/workflow/status/intersectmbo/cardano-cli/github-page.yml?branch=main&label=Haddocks&style=flat-square)](https://github.com/IntersectMBO/cardano-cli/actions/workflows/github-page.yml?query=branch%3Amain)
-[![Release Upload](https://img.shields.io/github/actions/workflow/status/intersectmbo/cardano-cli/release-upload.yaml?label=GH%20Release%20Upload&style=flat-square)](https://github.com/IntersectMBO/cardano-cli/actions/workflows/release-upload.yaml)
+[![Release Upload](https://img.shields.io/github/actions/workflow/status/intersectmbo/cardano-cli/release-upload.yml?label=GH%20Release%20Upload&style=flat-square)](https://github.com/IntersectMBO/cardano-cli/actions/workflows/release-upload.yml)
 
