@@ -1,5 +1,18 @@
 # Changelog for cardano-cli
 
+## 9.2.1.0
+
+- Add "query treasury" command
+  (feature, compatible)
+  [PR 845](https://github.com/IntersectMBO/cardano-cli/pull/845)
+
+- Relax requirement of supplying datums to plutus spending scripts
+  Add flags to enable use of reference scripts with voting and proposing scripts
+    - `--vote-tx-in-reference`
+    - `--proposal-tx-in-reference`
+  (feature, compatible)
+  [PR 822](https://github.com/IntersectMBO/cardano-cli/pull/822)
+
 ## 9.2.0.0
 
 - Make `genesis`: `create`, `create-staked` and `create-cardano` commands accept optional era parameters.
