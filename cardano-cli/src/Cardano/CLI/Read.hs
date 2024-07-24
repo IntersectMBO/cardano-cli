@@ -450,7 +450,8 @@ renderScriptDataError = \case
 readScriptDatumOrFile
   :: ScriptDatumOrFile witctx
   -> ExceptT ScriptDataError IO (ScriptDatum witctx)
-readScriptDatumOrFile (ScriptDatumOrFileForTxIn df) =
+readScriptDatumOrFile (ScriptDatumOrFileForTxIn Nothing) = pure $ ScriptDatumForTxIn Nothing
+readScriptDatumOrFile (ScriptDatumOrFileForTxIn (Just df)) =
   ScriptDatumForTxIn . Just
     <$> readScriptDataOrFile df
 readScriptDatumOrFile InlineDatumPresentAtTxIn = pure InlineScriptDatum

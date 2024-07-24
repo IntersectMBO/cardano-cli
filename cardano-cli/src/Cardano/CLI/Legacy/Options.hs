@@ -353,7 +353,7 @@ pTransaction envCli =
       <*> pNetworkId envCli
       <*> optional pScriptValidity
       <*> optional pWitnessOverride
-      <*> some (pTxIn AutoBalance)
+      <*> some (pTxIn ShelleyBasedEraConway AutoBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pRequiredSigner
       <*> many pTxInCollateral
@@ -361,11 +361,11 @@ pTransaction envCli =
       <*> optional pTotalCollateral
       <*> many pTxOut
       <*> pChangeAddress
-      <*> optional (pMintMultiAsset AutoBalance)
+      <*> optional (pMintMultiAsset ShelleyBasedEraConway AutoBalance)
       <*> optional pInvalidBefore
       <*> optional pLegacyInvalidHereafter
-      <*> many (pCertificateFile AutoBalance)
-      <*> many (pWithdrawal AutoBalance)
+      <*> many (pCertificateFile ShelleyBasedEraConway AutoBalance)
+      <*> many (pWithdrawal ShelleyBasedEraConway AutoBalance)
       <*> pTxMetadataJsonSchema
       <*> many
         ( pScriptFor
@@ -395,19 +395,19 @@ pTransaction envCli =
     TransactionBuildRawCmd
       <$> pLegacyCardanoEra envCli
       <*> optional pScriptValidity
-      <*> some (pTxIn ManualBalance)
+      <*> some (pTxIn ShelleyBasedEraConway ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxInCollateral
       <*> optional pReturnCollateral
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
       <*> many pTxOut
-      <*> optional (pMintMultiAsset ManualBalance)
+      <*> optional (pMintMultiAsset ShelleyBasedEraConway ManualBalance)
       <*> optional pInvalidBefore
       <*> optional pLegacyInvalidHereafter
       <*> pTxFee
-      <*> many (pCertificateFile ManualBalance)
-      <*> many (pWithdrawal ManualBalance)
+      <*> many (pCertificateFile ShelleyBasedEraConway ManualBalance)
+      <*> many (pWithdrawal ShelleyBasedEraConway ManualBalance)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile

@@ -173,7 +173,7 @@ pTransactionBuildCmd era envCli = do
         <*> pNetworkId envCli
         <*> optional pScriptValidity
         <*> optional pWitnessOverride
-        <*> some (pTxIn AutoBalance)
+        <*> some (pTxIn sbe AutoBalance)
         <*> many pReadOnlyReferenceTxIn
         <*> many pRequiredSigner
         <*> many pTxInCollateral
@@ -181,11 +181,11 @@ pTransactionBuildCmd era envCli = do
         <*> optional pTotalCollateral
         <*> many pTxOut
         <*> pChangeAddress
-        <*> optional (pMintMultiAsset AutoBalance)
+        <*> optional (pMintMultiAsset sbe AutoBalance)
         <*> optional pInvalidBefore
         <*> pInvalidHereafter sbe
-        <*> many (pCertificateFile AutoBalance)
-        <*> many (pWithdrawal AutoBalance)
+        <*> many (pCertificateFile sbe AutoBalance)
+        <*> many (pWithdrawal sbe AutoBalance)
         <*> pTxMetadataJsonSchema
         <*> many
           ( pScriptFor
@@ -232,18 +232,18 @@ pTransactionBuildEstimateCmd era _envCli = do
         <*> optional pNumberOfByronKeyWitnesses
         <*> pProtocolParamsFile
         <*> pTotalUTxOValue
-        <*> some (pTxIn ManualBalance)
+        <*> some (pTxIn sbe ManualBalance)
         <*> many pReadOnlyReferenceTxIn
         <*> many pRequiredSigner
         <*> many pTxInCollateral
         <*> optional pReturnCollateral
         <*> many pTxOut
         <*> pChangeAddress
-        <*> optional (pMintMultiAsset ManualBalance)
+        <*> optional (pMintMultiAsset sbe ManualBalance)
         <*> optional pInvalidBefore
         <*> pInvalidHereafter sbe
-        <*> many (pCertificateFile ManualBalance)
-        <*> many (pWithdrawal ManualBalance)
+        <*> many (pCertificateFile sbe ManualBalance)
+        <*> many (pWithdrawal sbe ManualBalance)
         <*> optional pTotalCollateral
         <*> optional pReferenceScriptSize
         <*> pTxMetadataJsonSchema
@@ -275,19 +275,19 @@ pTransactionBuildRaw era =
   fmap TransactionBuildRawCmd $
     TransactionBuildRawCmdArgs era
       <$> optional pScriptValidity
-      <*> some (pTxIn ManualBalance)
+      <*> some (pTxIn era ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxInCollateral
       <*> optional pReturnCollateral
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
       <*> many pTxOut
-      <*> optional (pMintMultiAsset ManualBalance)
+      <*> optional (pMintMultiAsset era ManualBalance)
       <*> optional pInvalidBefore
       <*> pInvalidHereafter era
       <*> pTxFee
-      <*> many (pCertificateFile ManualBalance)
-      <*> many (pWithdrawal ManualBalance)
+      <*> many (pCertificateFile era ManualBalance)
+      <*> many (pWithdrawal era ManualBalance)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
