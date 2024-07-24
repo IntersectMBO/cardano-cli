@@ -1190,8 +1190,9 @@ pPollNonce =
 --------------------------------------------------------------------------------
 
 pScriptWitnessFiles
-  :: forall witctx
-   . WitCtx witctx
+  :: forall witctx era
+   . ShelleyBasedEra era
+  -> WitCtx witctx
   -> BalanceTxExecUnits
   -- ^ Use the @execution-units@ flag.
   -> String
@@ -1199,7 +1200,7 @@ pScriptWitnessFiles
   -> Maybe String
   -> String
   -> Parser (ScriptWitnessFiles witctx)
-pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   toScriptWitnessFiles
     <$> pScriptFor
       (scriptFlagPrefix ++ "-script-file")
@@ -1207,7 +1208,7 @@ pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefi
       ("The file containing the script to witness " ++ help)
     <*> optional
       ( (,,)
-          <$> pScriptDatumOrFile scriptFlagPrefix witctx
+          <$> cip69Modification sbe
           <*> pScriptRedeemerOrFile scriptFlagPrefix
           <*> ( case autoBalanceExecUnits of
                   AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1215,6 +1216,12 @@ pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefi
               )
       )
  where
+  cip69Modification :: ShelleyBasedEra era -> Parser (ScriptDatumOrFile witctx)
+  cip69Modification =
+    caseShelleyToBabbageOrConwayEraOnwards
+      (const $ pScriptDatumOrFile scriptFlagPrefix witctx)
+      (const $ pScriptDatumOrFileCip69 scriptFlagPrefix witctx)
+
   toScriptWitnessFiles
     :: ScriptFile
     -> Maybe
