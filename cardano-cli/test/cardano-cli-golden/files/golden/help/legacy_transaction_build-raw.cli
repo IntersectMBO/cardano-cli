@@ -14,11 +14,11 @@ Usage: cardano-cli legacy transaction build-raw
                                                       ( --spending-plutus-script-v2
                                                       | --spending-plutus-script-v3
                                                       )
-                                                      ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                                      [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                                       | --spending-reference-tx-in-datum-file JSON_FILE
                                                       | --spending-reference-tx-in-datum-value JSON_VALUE
                                                       | --spending-reference-tx-in-inline-datum-present
-                                                      )
+                                                      ]
                                                       ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                       | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                       | --spending-reference-tx-in-redeemer-value JSON_VALUE
@@ -27,11 +27,11 @@ Usage: cardano-cli legacy transaction build-raw
                                                     | --simple-script-tx-in-reference TX-IN
                                                     | --tx-in-script-file FILE
                                                       [
-                                                        ( --tx-in-datum-cbor-file CBOR_FILE
+                                                        [ --tx-in-datum-cbor-file CBOR_FILE
                                                         | --tx-in-datum-file JSON_FILE
                                                         | --tx-in-datum-value JSON_VALUE
                                                         | --tx-in-inline-datum-present
-                                                        )
+                                                        ]
                                                         ( --tx-in-redeemer-cbor-file CBOR_FILE
                                                         | --tx-in-redeemer-file JSON_FILE
                                                         | --tx-in-redeemer-value JSON_VALUE

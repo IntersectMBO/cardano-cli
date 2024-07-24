@@ -7708,11 +7708,11 @@ Usage: cardano-cli conway transaction build-raw
                                                       ( --spending-plutus-script-v2
                                                       | --spending-plutus-script-v3
                                                       )
-                                                      ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                                      [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                                       | --spending-reference-tx-in-datum-file JSON_FILE
                                                       | --spending-reference-tx-in-datum-value JSON_VALUE
                                                       | --spending-reference-tx-in-inline-datum-present
-                                                      )
+                                                      ]
                                                       ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                       | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                       | --spending-reference-tx-in-redeemer-value JSON_VALUE
@@ -7721,11 +7721,11 @@ Usage: cardano-cli conway transaction build-raw
                                                     | --simple-script-tx-in-reference TX-IN
                                                     | --tx-in-script-file FILE
                                                       [
-                                                        ( --tx-in-datum-cbor-file CBOR_FILE
+                                                        [ --tx-in-datum-cbor-file CBOR_FILE
                                                         | --tx-in-datum-file JSON_FILE
                                                         | --tx-in-datum-value JSON_VALUE
                                                         | --tx-in-inline-datum-present
-                                                        )
+                                                        ]
                                                         ( --tx-in-redeemer-cbor-file CBOR_FILE
                                                         | --tx-in-redeemer-file JSON_FILE
                                                         | --tx-in-redeemer-value JSON_VALUE
@@ -7821,21 +7821,37 @@ Usage: cardano-cli conway transaction build-raw
                                                   ]
                                                   [--protocol-params-file FILE]
                                                   [--vote-file FILE
-                                                    [--vote-script-file FILE
+                                                    [ --vote-script-file FILE
                                                       [
                                                         ( --vote-redeemer-cbor-file CBOR_FILE
                                                         | --vote-redeemer-file JSON_FILE
                                                         | --vote-redeemer-value JSON_VALUE
                                                         )
-                                                        --vote-execution-units (INT, INT)]]]
+                                                        --vote-execution-units (INT, INT)]
+                                                    | --vote-tx-in-reference TX-IN
+                                                      --vote-plutus-script-v3
+                                                      ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                      | --vote-reference-tx-in-redeemer-file JSON_FILE
+                                                      | --vote-reference-tx-in-redeemer-value JSON_VALUE
+                                                      )
+                                                      --vote-reference-tx-in-execution-units (INT, INT)
+                                                    ]]
                                                   [--proposal-file FILE
-                                                    [--proposal-script-file FILE
+                                                    [ --proposal-script-file FILE
                                                       [
                                                         ( --proposal-redeemer-cbor-file CBOR_FILE
                                                         | --proposal-redeemer-file JSON_FILE
                                                         | --proposal-redeemer-value JSON_VALUE
                                                         )
-                                                        --proposal-execution-units (INT, INT)]]]
+                                                        --proposal-execution-units (INT, INT)]
+                                                    | --proposal-tx-in-reference TX-IN
+                                                      --proposal-plutus-script-v3
+                                                      ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                      | --proposal-reference-tx-in-redeemer-file JSON_FILE
+                                                      | --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                                                      )
+                                                      --proposal-reference-tx-in-execution-units (INT, INT)
+                                                    ]]
                                                   [--current-treasury-value LOVELACE
                                                     --treasury-donation LOVELACE]
                                                   --out-file FILE
@@ -7859,11 +7875,11 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                                   ( --spending-plutus-script-v2
                                                   | --spending-plutus-script-v3
                                                   )
-                                                  ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                                  [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                                   | --spending-reference-tx-in-datum-file JSON_FILE
                                                   | --spending-reference-tx-in-datum-value JSON_VALUE
                                                   | --spending-reference-tx-in-inline-datum-present
-                                                  )
+                                                  ]
                                                   ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                   | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                   | --spending-reference-tx-in-redeemer-value JSON_VALUE
@@ -7871,11 +7887,11 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                                 | --simple-script-tx-in-reference TX-IN
                                                 | --tx-in-script-file FILE
                                                   [
-                                                    ( --tx-in-datum-cbor-file CBOR_FILE
+                                                    [ --tx-in-datum-cbor-file CBOR_FILE
                                                     | --tx-in-datum-file JSON_FILE
                                                     | --tx-in-datum-value JSON_VALUE
                                                     | --tx-in-inline-datum-present
-                                                    )
+                                                    ]
                                                     ( --tx-in-redeemer-cbor-file CBOR_FILE
                                                     | --tx-in-redeemer-file JSON_FILE
                                                     | --tx-in-redeemer-value JSON_VALUE
@@ -7960,17 +7976,31 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                               | --metadata-cbor-file FILE
                                               ]
                                               [--vote-file FILE
-                                                [--vote-script-file FILE
+                                                [ --vote-script-file FILE
                                                   [ --vote-redeemer-cbor-file CBOR_FILE
                                                   | --vote-redeemer-file JSON_FILE
                                                   | --vote-redeemer-value JSON_VALUE
-                                                  ]]]
+                                                  ]
+                                                | --vote-tx-in-reference TX-IN
+                                                  --vote-plutus-script-v3
+                                                  ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                  | --vote-reference-tx-in-redeemer-file JSON_FILE
+                                                  | --vote-reference-tx-in-redeemer-value JSON_VALUE
+                                                  )
+                                                ]]
                                               [--proposal-file FILE
-                                                [--proposal-script-file FILE
+                                                [ --proposal-script-file FILE
                                                   [ --proposal-redeemer-cbor-file CBOR_FILE
                                                   | --proposal-redeemer-file JSON_FILE
                                                   | --proposal-redeemer-value JSON_VALUE
-                                                  ]]]
+                                                  ]
+                                                | --proposal-tx-in-reference TX-IN
+                                                  --proposal-plutus-script-v3
+                                                  ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                  | --proposal-reference-tx-in-redeemer-file JSON_FILE
+                                                  | --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                                                  )
+                                                ]]
                                               [--treasury-donation LOVELACE]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
@@ -7993,11 +8023,11 @@ Usage: cardano-cli conway transaction build-estimate
                                                            ( --spending-plutus-script-v2
                                                            | --spending-plutus-script-v3
                                                            )
-                                                           ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                                           [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                                            | --spending-reference-tx-in-datum-file JSON_FILE
                                                            | --spending-reference-tx-in-datum-value JSON_VALUE
                                                            | --spending-reference-tx-in-inline-datum-present
-                                                           )
+                                                           ]
                                                            ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                            | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                            | --spending-reference-tx-in-redeemer-value JSON_VALUE
@@ -8006,11 +8036,11 @@ Usage: cardano-cli conway transaction build-estimate
                                                          | --simple-script-tx-in-reference TX-IN
                                                          | --tx-in-script-file FILE
                                                            [
-                                                             ( --tx-in-datum-cbor-file CBOR_FILE
+                                                             [ --tx-in-datum-cbor-file CBOR_FILE
                                                              | --tx-in-datum-file JSON_FILE
                                                              | --tx-in-datum-value JSON_VALUE
                                                              | --tx-in-inline-datum-present
-                                                             )
+                                                             ]
                                                              ( --tx-in-redeemer-cbor-file CBOR_FILE
                                                              | --tx-in-redeemer-file JSON_FILE
                                                              | --tx-in-redeemer-value JSON_VALUE
@@ -8106,21 +8136,37 @@ Usage: cardano-cli conway transaction build-estimate
                                                        | --metadata-cbor-file FILE
                                                        ]
                                                        [--vote-file FILE
-                                                         [--vote-script-file FILE
+                                                         [ --vote-script-file FILE
                                                            [
                                                              ( --vote-redeemer-cbor-file CBOR_FILE
                                                              | --vote-redeemer-file JSON_FILE
                                                              | --vote-redeemer-value JSON_VALUE
                                                              )
-                                                             --vote-execution-units (INT, INT)]]]
+                                                             --vote-execution-units (INT, INT)]
+                                                         | --vote-tx-in-reference TX-IN
+                                                           --vote-plutus-script-v3
+                                                           ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                           | --vote-reference-tx-in-redeemer-file JSON_FILE
+                                                           | --vote-reference-tx-in-redeemer-value JSON_VALUE
+                                                           )
+                                                           --vote-reference-tx-in-execution-units (INT, INT)
+                                                         ]]
                                                        [--proposal-file FILE
-                                                         [--proposal-script-file FILE
+                                                         [ --proposal-script-file FILE
                                                            [
                                                              ( --proposal-redeemer-cbor-file CBOR_FILE
                                                              | --proposal-redeemer-file JSON_FILE
                                                              | --proposal-redeemer-value JSON_VALUE
                                                              )
-                                                             --proposal-execution-units (INT, INT)]]]
+                                                             --proposal-execution-units (INT, INT)]
+                                                         | --proposal-tx-in-reference TX-IN
+                                                           --proposal-plutus-script-v3
+                                                           ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                           | --proposal-reference-tx-in-redeemer-file JSON_FILE
+                                                           | --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                                                           )
+                                                           --proposal-reference-tx-in-execution-units (INT, INT)
+                                                         ]]
                                                        [--current-treasury-value LOVELACE
                                                          --treasury-donation LOVELACE]
                                                        --out-file FILE
@@ -10291,11 +10337,11 @@ Usage: cardano-cli legacy transaction build-raw
                                                       ( --spending-plutus-script-v2
                                                       | --spending-plutus-script-v3
                                                       )
-                                                      ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                                      [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                                       | --spending-reference-tx-in-datum-file JSON_FILE
                                                       | --spending-reference-tx-in-datum-value JSON_VALUE
                                                       | --spending-reference-tx-in-inline-datum-present
-                                                      )
+                                                      ]
                                                       ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                       | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                       | --spending-reference-tx-in-redeemer-value JSON_VALUE
@@ -10304,11 +10350,11 @@ Usage: cardano-cli legacy transaction build-raw
                                                     | --simple-script-tx-in-reference TX-IN
                                                     | --tx-in-script-file FILE
                                                       [
-                                                        ( --tx-in-datum-cbor-file CBOR_FILE
+                                                        [ --tx-in-datum-cbor-file CBOR_FILE
                                                         | --tx-in-datum-file JSON_FILE
                                                         | --tx-in-datum-value JSON_VALUE
                                                         | --tx-in-inline-datum-present
-                                                        )
+                                                        ]
                                                         ( --tx-in-redeemer-cbor-file CBOR_FILE
                                                         | --tx-in-redeemer-file JSON_FILE
                                                         | --tx-in-redeemer-value JSON_VALUE
@@ -10431,11 +10477,11 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                                   ( --spending-plutus-script-v2
                                                   | --spending-plutus-script-v3
                                                   )
-                                                  ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                                  [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                                   | --spending-reference-tx-in-datum-file JSON_FILE
                                                   | --spending-reference-tx-in-datum-value JSON_VALUE
                                                   | --spending-reference-tx-in-inline-datum-present
-                                                  )
+                                                  ]
                                                   ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                   | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                   | --spending-reference-tx-in-redeemer-value JSON_VALUE
@@ -10443,11 +10489,11 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                                 | --simple-script-tx-in-reference TX-IN
                                                 | --tx-in-script-file FILE
                                                   [
-                                                    ( --tx-in-datum-cbor-file CBOR_FILE
+                                                    [ --tx-in-datum-cbor-file CBOR_FILE
                                                     | --tx-in-datum-file JSON_FILE
                                                     | --tx-in-datum-value JSON_VALUE
                                                     | --tx-in-inline-datum-present
-                                                    )
+                                                    ]
                                                     ( --tx-in-redeemer-cbor-file CBOR_FILE
                                                     | --tx-in-redeemer-file JSON_FILE
                                                     | --tx-in-redeemer-value JSON_VALUE
@@ -10533,17 +10579,31 @@ Usage: cardano-cli legacy transaction build --socket-path SOCKET_PATH
                                               ]
                                               [--update-proposal-file FILE]
                                               [--vote-file FILE
-                                                [--vote-script-file FILE
+                                                [ --vote-script-file FILE
                                                   [ --vote-redeemer-cbor-file CBOR_FILE
                                                   | --vote-redeemer-file JSON_FILE
                                                   | --vote-redeemer-value JSON_VALUE
-                                                  ]]]
+                                                  ]
+                                                | --vote-tx-in-reference TX-IN
+                                                  --vote-plutus-script-v3
+                                                  ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                  | --vote-reference-tx-in-redeemer-file JSON_FILE
+                                                  | --vote-reference-tx-in-redeemer-value JSON_VALUE
+                                                  )
+                                                ]]
                                               [--proposal-file FILE
-                                                [--proposal-script-file FILE
+                                                [ --proposal-script-file FILE
                                                   [ --proposal-redeemer-cbor-file CBOR_FILE
                                                   | --proposal-redeemer-file JSON_FILE
                                                   | --proposal-redeemer-value JSON_VALUE
-                                                  ]]]
+                                                  ]
+                                                | --proposal-tx-in-reference TX-IN
+                                                  --proposal-plutus-script-v3
+                                                  ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                  | --proposal-reference-tx-in-redeemer-file JSON_FILE
+                                                  | --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                                                  )
+                                                ]]
                                               [--treasury-donation LOVELACE]
                                               ( --out-file FILE
                                               | --calculate-plutus-script-cost FILE
@@ -11556,11 +11616,11 @@ Usage: cardano-cli transaction build-raw
                                                ( --spending-plutus-script-v2
                                                | --spending-plutus-script-v3
                                                )
-                                               ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                               [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                                | --spending-reference-tx-in-datum-file JSON_FILE
                                                | --spending-reference-tx-in-datum-value JSON_VALUE
                                                | --spending-reference-tx-in-inline-datum-present
-                                               )
+                                               ]
                                                ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                | --spending-reference-tx-in-redeemer-value JSON_VALUE
@@ -11569,11 +11629,11 @@ Usage: cardano-cli transaction build-raw
                                              | --simple-script-tx-in-reference TX-IN
                                              | --tx-in-script-file FILE
                                                [
-                                                 ( --tx-in-datum-cbor-file CBOR_FILE
+                                                 [ --tx-in-datum-cbor-file CBOR_FILE
                                                  | --tx-in-datum-file JSON_FILE
                                                  | --tx-in-datum-value JSON_VALUE
                                                  | --tx-in-inline-datum-present
-                                                 )
+                                                 ]
                                                  ( --tx-in-redeemer-cbor-file CBOR_FILE
                                                  | --tx-in-redeemer-file JSON_FILE
                                                  | --tx-in-redeemer-value JSON_VALUE
@@ -11691,11 +11751,11 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                            ( --spending-plutus-script-v2
                                            | --spending-plutus-script-v3
                                            )
-                                           ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                           [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                            | --spending-reference-tx-in-datum-file JSON_FILE
                                            | --spending-reference-tx-in-datum-value JSON_VALUE
                                            | --spending-reference-tx-in-inline-datum-present
-                                           )
+                                           ]
                                            ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                            | --spending-reference-tx-in-redeemer-file JSON_FILE
                                            | --spending-reference-tx-in-redeemer-value JSON_VALUE
@@ -11703,11 +11763,11 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                          | --simple-script-tx-in-reference TX-IN
                                          | --tx-in-script-file FILE
                                            [
-                                             ( --tx-in-datum-cbor-file CBOR_FILE
+                                             [ --tx-in-datum-cbor-file CBOR_FILE
                                              | --tx-in-datum-file JSON_FILE
                                              | --tx-in-datum-value JSON_VALUE
                                              | --tx-in-inline-datum-present
-                                             )
+                                             ]
                                              ( --tx-in-redeemer-cbor-file CBOR_FILE
                                              | --tx-in-redeemer-file JSON_FILE
                                              | --tx-in-redeemer-value JSON_VALUE
@@ -11793,17 +11853,31 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                        ]
                                        [--update-proposal-file FILE]
                                        [--vote-file FILE
-                                         [--vote-script-file FILE
+                                         [ --vote-script-file FILE
                                            [ --vote-redeemer-cbor-file CBOR_FILE
                                            | --vote-redeemer-file JSON_FILE
                                            | --vote-redeemer-value JSON_VALUE
-                                           ]]]
+                                           ]
+                                         | --vote-tx-in-reference TX-IN
+                                           --vote-plutus-script-v3
+                                           ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                           | --vote-reference-tx-in-redeemer-file JSON_FILE
+                                           | --vote-reference-tx-in-redeemer-value JSON_VALUE
+                                           )
+                                         ]]
                                        [--proposal-file FILE
-                                         [--proposal-script-file FILE
+                                         [ --proposal-script-file FILE
                                            [ --proposal-redeemer-cbor-file CBOR_FILE
                                            | --proposal-redeemer-file JSON_FILE
                                            | --proposal-redeemer-value JSON_VALUE
-                                           ]]]
+                                           ]
+                                         | --proposal-tx-in-reference TX-IN
+                                           --proposal-plutus-script-v3
+                                           ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                           | --proposal-reference-tx-in-redeemer-file JSON_FILE
+                                           | --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                                           )
+                                         ]]
                                        [--treasury-donation LOVELACE]
                                        ( --out-file FILE
                                        | --calculate-plutus-script-cost FILE
