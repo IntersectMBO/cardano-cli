@@ -1280,7 +1280,7 @@ pScriptDatumOrFile scriptFlagPrefix witctx =
   case witctx of
     WitCtxTxIn ->
       asum
-        [ ScriptDatumOrFileForTxIn
+        [ ScriptDatumOrFileForTxIn . Just
             <$> pScriptDataOrFile
               (scriptFlagPrefix ++ "-datum")
               "The script datum."
@@ -1583,9 +1583,10 @@ pTxBuildOutputOptions =
         )
 
 pCertificateFile
-  :: BalanceTxExecUnits
+  :: ShelleyBasedEra era
+  -> BalanceTxExecUnits
   -> Parser (CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))
-pCertificateFile balanceExecUnits =
+pCertificateFile sbe balanceExecUnits =
   (,)
     <$> ( fmap CertificateFile $
             asum
@@ -1605,6 +1606,7 @@ pCertificateFile balanceExecUnits =
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
   pCertifyingScriptOrReferenceScriptWit bExecUnits =
     pScriptWitnessFiles
+      sbe
       WitCtxStake
       balanceExecUnits
       "certificate"
@@ -1682,13 +1684,14 @@ pMetadataFile =
     ]
 
 pWithdrawal
-  :: BalanceTxExecUnits
+  :: ShelleyBasedEra era
+  -> BalanceTxExecUnits
   -> Parser
       ( StakeAddress
       , L.Coin
       , Maybe (ScriptWitnessFiles WitCtxStake)
       )
-pWithdrawal balance =
+pWithdrawal sbe balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
     <$> Opt.option
       (readerFromParsecParser parseWithdrawal)
@@ -1701,6 +1704,7 @@ pWithdrawal balance =
   pWithdrawalScriptOrReferenceScriptWit :: Parser (ScriptWitnessFiles WitCtxStake)
   pWithdrawalScriptOrReferenceScriptWit =
     pScriptWitnessFiles
+      sbe
       WitCtxStake
       balance
       "withdrawal"
@@ -2199,9 +2203,10 @@ pTxSubmitFile =
       ]
 
 pTxIn
-  :: BalanceTxExecUnits
+  :: ShelleyBasedEra era
+  -> BalanceTxExecUnits
   -> Parser (TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))
-pTxIn balance =
+pTxIn sbe balance =
   (,)
     <$> Opt.option
       (readerFromParsecParser parseTxIn)
@@ -2210,7 +2215,7 @@ pTxIn balance =
           <> Opt.help "TxId#TxIx"
       )
     <*> optional
-      ( pPlutusReferenceScriptWitness balance
+      ( pPlutusReferenceScriptWitness sbe balance
           <|> pSimpleReferenceSpendingScriptWitess
           <|> pEmbeddedPlutusScriptWitness
       )
@@ -2268,6 +2273,7 @@ pTxIn balance =
   pEmbeddedPlutusScriptWitness :: Parser (ScriptWitnessFiles WitCtxTxIn)
   pEmbeddedPlutusScriptWitness =
     pScriptWitnessFiles
+      sbe
       WitCtxTxIn
       balance
       "tx-in"
@@ -2437,9 +2443,10 @@ pRefScriptFp =
       <|> pure ReferenceScriptAnyEraNone
 
 pMintMultiAsset
-  :: BalanceTxExecUnits
+  :: ShelleyBasedEra era
+  -> BalanceTxExecUnits
   -> Parser (Value, [ScriptWitnessFiles WitCtxMint])
-pMintMultiAsset balanceExecUnits =
+pMintMultiAsset sbe balanceExecUnits =
   (,)
     <$> Opt.option
       (readerFromParsecParser parseValue)
@@ -2457,6 +2464,7 @@ pMintMultiAsset balanceExecUnits =
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxMint)
   pMintingScriptOrReferenceScriptWit bExecUnits =
     pScriptWitnessFiles
+      sbe
       WitCtxMint
       bExecUnits
       "mint"
