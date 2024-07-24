@@ -1,5 +1,16 @@
 # Changelog for cardano-cli
 
+## 9.2.0.0
+
+- Make `genesis`: `create`, `create-staked` and `create-cardano` commands accept optional era parameters.
+  (feature, compatible)
+  [PR 812](https://github.com/IntersectMBO/cardano-cli/pull/812)
+
+- Remove check of Drep metadata size, always return the hash of the file passed by the user. This to be compatible with CIP119.
+  Upgrade cardano-api-9.1.0.0
+  (feature, breaking)
+  [PR 818](https://github.com/IntersectMBO/cardano-cli/pull/818)
+
 ## 9.1.0.0
 
 - Add era-independent "debug transaction view" command
