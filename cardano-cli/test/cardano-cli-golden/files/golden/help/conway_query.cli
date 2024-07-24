@@ -19,6 +19,7 @@ Usage: cardano-cli conway query
                                   | drep-state
                                   | drep-stake-distribution
                                   | committee-state
+                                  | treasury
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -60,3 +61,4 @@ Available commands:
   drep-state               Get the DRep state.
   drep-stake-distribution  Get the DRep stake distribution.
   committee-state          Get the committee state
+  treasury                 Get the treasury value

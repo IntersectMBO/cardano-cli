@@ -38,8 +38,6 @@ module Cardano.CLI.EraBased.Run.Query
   )
 where
 
-{- HLINT ignore "Use list comprehension" -}
-
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
 import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
@@ -57,6 +55,7 @@ import           Cardano.CLI.Types.Key
 import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
+import qualified Cardano.Ledger.Shelley.LedgerState as L
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import           Ouroboros.Consensus.BlockchainTime.WallClock.Types (RelativeTime (..),
                    toRelativeTime)
@@ -99,9 +98,6 @@ import           Prettyprinter.Render.Terminal (AnsiStyle)
 import qualified System.IO as IO
 import           Text.Printf (printf)
 
-{- HLINT ignore "Move brackets to avoid $" -}
-{- HLINT ignore "Redundant flip" -}
-
 runQueryCmds :: Cmd.QueryCmds era -> ExceptT QueryCmdError IO ()
 runQueryCmds = \case
   Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
@@ -125,6 +121,7 @@ runQueryCmds = \case
   Cmd.QueryDRepStateCmd args -> runQueryDRepState args
   Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
   Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
+  Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
 
 runQueryConstitutionHashCmd
   :: ()
@@ -302,7 +299,7 @@ runQueryTipCmd
 
             let tolerance = RelativeTime (secondsToNominalDiffTime 600)
 
-            return $ flip (percentage tolerance) nowSeconds tipTimeResult
+            return $ percentage tolerance nowSeconds tipTimeResult
 
           mSyncProgress <- hushM syncProgressResult $ \e -> do
             liftIO . LT.hPutStrLn IO.stderr $
@@ -1734,6 +1731,31 @@ runQueryCommitteeMembersState
       runQuery localNodeConnInfo target $
         queryCommitteeMembersState eon coldKeys hotKeys (Set.fromList memberStatuses)
     writeOutput mOutFile $ A.toJSON committeeState
+
+runQueryTreasuryValue
+  :: Cmd.QueryTreasuryValueCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryTreasuryValue
+  Cmd.QueryTreasuryValueCmdArgs
+    { Cmd.eon
+    , Cmd.nodeSocketPath
+    , Cmd.consensusModeParams
+    , Cmd.networkId
+    , Cmd.target
+    , Cmd.mOutFile
+    } = conwayEraOnwardsConstraints eon $ do
+    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+
+    L.AccountState (L.Coin treasury) _reserves <-
+      runQuery localNodeConnInfo target $ queryAccountState eon
+    let treasuryString = show treasury
+    case mOutFile of
+      Nothing ->
+        liftIO $ putStrLn treasuryString
+      Just outFile ->
+        firstExceptT QueryCmdWriteFileError . ExceptT $
+          writeLazyByteStringFile outFile $
+            LBS.pack treasuryString
 
 runQuery
   :: LocalNodeConnectInfo

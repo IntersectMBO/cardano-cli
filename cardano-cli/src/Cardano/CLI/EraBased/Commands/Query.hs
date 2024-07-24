@@ -25,6 +25,7 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryNoArgCmdArgs (..)
   , QueryDRepStateCmdArgs (..)
   , QueryDRepStakeDistributionCmdArgs (..)
+  , QueryTreasuryValueCmdArgs (..)
   , renderQueryCmds
   , IncludeStake (..)
   )
@@ -63,6 +64,7 @@ data QueryCmds era
   | QueryDRepStateCmd !(QueryDRepStateCmdArgs era)
   | QueryDRepStakeDistributionCmd !(QueryDRepStakeDistributionCmdArgs era)
   | QueryCommitteeMembersStateCmd !(QueryCommitteeMembersStateCmdArgs era)
+  | QueryTreasuryValueCmd !(QueryTreasuryValueCmdArgs era)
   deriving (Generic, Show)
 
 data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
@@ -275,6 +277,16 @@ data QueryCommitteeMembersStateCmdArgs era = QueryCommitteeMembersStateCmdArgs
   }
   deriving Show
 
+data QueryTreasuryValueCmdArgs era = QueryTreasuryValueCmdArgs
+  { eon :: !(ConwayEraOnwards era)
+  , nodeSocketPath :: !SocketPath
+  , consensusModeParams :: !ConsensusModeParams
+  , networkId :: !NetworkId
+  , target :: !(Consensus.Target ChainPoint)
+  , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving Show
+
 renderQueryCmds :: QueryCmds era -> Text
 renderQueryCmds = \case
   QueryLeadershipScheduleCmd{} ->
@@ -319,6 +331,8 @@ renderQueryCmds = \case
     "drep-stake-distribution"
   QueryCommitteeMembersStateCmd{} ->
     "committee-state"
+  QueryTreasuryValueCmd{} ->
+    "treasury"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
 renderTxMempoolQuery = \case

@@ -7150,6 +7150,7 @@ Usage: cardano-cli conway query
                                   | drep-state
                                   | drep-stake-distribution
                                   | committee-state
+                                  | treasury
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -7485,6 +7486,15 @@ Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
                                                   [--out-file FILE]
 
   Get the committee state
+
+Usage: cardano-cli conway query treasury --socket-path SOCKET_PATH
+                                           [--cardano-mode
+                                             [--epoch-slots SLOTS]]
+                                           (--mainnet | --testnet-magic NATURAL)
+                                           [--volatile-tip | --immutable-tip]
+                                           [--out-file FILE]
+
+  Get the treasury value
 
 Usage: cardano-cli conway stake-address 
                                           ( key-gen
