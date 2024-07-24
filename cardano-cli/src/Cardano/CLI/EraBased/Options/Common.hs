@@ -1368,11 +1368,14 @@ pVoteFiles
 pVoteFiles sbe bExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])
-    (const . many $ pVoteFile bExUnits)
+    (const . many $ pVoteFile sbe bExUnits)
     sbe
 
-pVoteFile :: BalanceTxExecUnits -> Parser (VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))
-pVoteFile balExUnits =
+pVoteFile
+  :: ShelleyBasedEra era
+  -> BalanceTxExecUnits
+  -> Parser (VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+pVoteFile sbe balExUnits =
   (,)
     <$> pFileInDirection "vote-file" "Filepath of the vote."
     <*> optional (pVoteScriptOrReferenceScriptWitness balExUnits)
@@ -1381,11 +1384,13 @@ pVoteFile balExUnits =
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
   pVoteScriptOrReferenceScriptWitness bExUnits =
     pScriptWitnessFiles
+      sbe
       WitCtxStake
       bExUnits
       "vote"
       Nothing
       "a vote"
+      <|> pPlutusStakeReferenceScriptWitnessFilesVotingProposing "vote-" balExUnits
 
 pProposalFiles
   :: ShelleyBasedEra era
