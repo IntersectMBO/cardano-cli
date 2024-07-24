@@ -1399,12 +1399,14 @@ pProposalFiles
 pProposalFiles sbe balExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])
-    (const $ many (pProposalFile balExUnits))
+    (const $ many (pProposalFile sbe balExUnits))
     sbe
 
 pProposalFile
-  :: BalanceTxExecUnits -> Parser (ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))
-pProposalFile balExUnits =
+  :: ShelleyBasedEra era
+  -> BalanceTxExecUnits
+  -> Parser (ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+pProposalFile sbe balExUnits =
   (,)
     <$> pFileInDirection "proposal-file" "Filepath of the proposal."
     <*> optional (pProposingScriptOrReferenceScriptWitness balExUnits)
@@ -1413,11 +1415,13 @@ pProposalFile balExUnits =
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
   pProposingScriptOrReferenceScriptWitness bExUnits =
     pScriptWitnessFiles
+      sbe
       WitCtxStake
       bExUnits
       "proposal"
       Nothing
       "a proposal"
+      <|> pPlutusStakeReferenceScriptWitnessFilesVotingProposing "proposal-" balExUnits
 
 pCurrentTreasuryValueAndDonation
   :: ShelleyBasedEra era -> Parser (Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
