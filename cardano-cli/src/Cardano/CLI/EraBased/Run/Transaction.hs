@@ -1073,7 +1073,7 @@ convertCertificates sbe certsAndScriptWitnesses =
   TxCertificates sbe certs $ BuildTxWith reqWits
  where
   certs = map fst certsAndScriptWitnesses
-  reqWits = Map.fromList $ mapMaybe convert certsAndScriptWitnesses
+  reqWits = mapMaybe convert certsAndScriptWitnesses
   convert
     :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
     -> Maybe (StakeCredential, Witness WitCtxStake era)
