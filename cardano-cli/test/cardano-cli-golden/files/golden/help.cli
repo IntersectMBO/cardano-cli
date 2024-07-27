@@ -7129,6 +7129,7 @@ Usage: cardano-cli conway query
                                   | gov-state
                                   | drep-state
                                   | drep-stake-distribution
+                                  | spo-stake-distribution
                                   | committee-state
                                   | treasury
                                   )
@@ -7439,6 +7440,26 @@ Usage: cardano-cli conway query drep-stake-distribution
                                                           [--out-file FILE]
 
   Get the DRep stake distribution.
+
+Usage: cardano-cli conway query spo-stake-distribution --socket-path SOCKET_PATH
+                                                         [--cardano-mode
+                                                           [--epoch-slots SLOTS]]
+                                                         ( --mainnet
+                                                         | --testnet-magic NATURAL
+                                                         )
+                                                         ( --all-spos
+                                                         | 
+                                                         ( --spo-verification-key STRING
+                                                         | --spo-verification-key-file FILE
+                                                         | --spo-key-hash HASH
+                                                         )
+                                                         )
+                                                         [ --volatile-tip
+                                                         | --immutable-tip
+                                                         ]
+                                                         [--out-file FILE]
+
+  Get the SPO stake distribution.
 
 Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
                                                   [--cardano-mode

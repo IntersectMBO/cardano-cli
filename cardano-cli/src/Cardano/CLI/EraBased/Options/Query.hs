@@ -127,6 +127,7 @@ pQueryCmds era envCli =
     , pQueryGetGovStateCmd era envCli
     , pQueryDRepStateCmd era envCli
     , pQueryDRepStakeDistributionCmd era envCli
+    , pQuerySPOStakeDistributionCmd era envCli
     , pQueryGetCommitteeStateCmd era envCli
     , pQueryTreasuryValueCmd era envCli
     ]
@@ -423,6 +424,29 @@ pQueryDRepStakeDistributionCmd era envCli = do
       <*> pConsensusModeParams
       <*> pNetworkId envCli
       <*> pAllOrOnlyDRepHashSource
+      <*> pTarget era
+      <*> optional pOutputFile
+
+pQuerySPOStakeDistributionCmd
+  :: ()
+  => CardanoEra era
+  -> EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQuerySPOStakeDistributionCmd era envCli = do
+  w <- forEraMaybeEon era
+  pure $
+    subParser "spo-stake-distribution" $
+      Opt.info (QuerySPOStakeDistributionCmd <$> pQuerySPOStakeDistributionCmdArgs w) $
+        Opt.progDesc "Get the SPO stake distribution."
+ where
+  pQuerySPOStakeDistributionCmdArgs
+    :: ConwayEraOnwards era -> Parser (QuerySPOStakeDistributionCmdArgs era)
+  pQuerySPOStakeDistributionCmdArgs w =
+    QuerySPOStakeDistributionCmdArgs w
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> pAllOrOnlySPOHashSource
       <*> pTarget era
       <*> optional pOutputFile
 

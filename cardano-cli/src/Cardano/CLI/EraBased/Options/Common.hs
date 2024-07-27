@@ -3732,11 +3732,20 @@ pDRepHashSource =
     , DRepHashSourceVerificationKey <$> pDRepVerificationKeyOrHashOrFile
     ]
 
+pSPOHashSource :: Parser SPOHashSource
+pSPOHashSource = SPOHashSourceVerificationKey <$> pSPOVerificationKeyOrHashOrFile
+
 pDRepScriptHash :: Parser ScriptHash
 pDRepScriptHash =
   pScriptHash
     "drep-script-hash"
     "DRep script hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
+
+pSPOScriptHash :: Parser ScriptHash
+pSPOScriptHash =
+  pScriptHash
+    "spo-script-hash"
+    "Stake pool operator script hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
 
 pConstitutionScriptHash :: Parser ScriptHash
 pConstitutionScriptHash =
@@ -3750,6 +3759,14 @@ pDRepVerificationKeyOrHashOrFile =
   asum
     [ VerificationKeyOrFile <$> pDRepVerificationKeyOrFile
     , VerificationKeyHash <$> pDRepVerificationKeyHash
+    ]
+
+pSPOVerificationKeyOrHashOrFile
+  :: Parser (VerificationKeyOrHashOrFile StakePoolKey)
+pSPOVerificationKeyOrHashOrFile =
+  asum
+    [ VerificationKeyOrFile <$> pSPOVerificationKeyOrFile
+    , VerificationKeyHash <$> pSPOVerificationKeyHash
     ]
 
 pDRepVerificationKeyOrHashOrFileOrScriptHash
@@ -3773,6 +3790,17 @@ pAllOrOnlyDRepHashSource = pAll <|> pOnly
     Opt.flag' All $
       mconcat
         [ Opt.long "all-dreps"
+        , Opt.help "Query for all DReps."
+        ]
+
+pAllOrOnlySPOHashSource :: Parser (AllOrOnly SPOHashSource)
+pAllOrOnlySPOHashSource = pAll <|> pOnly
+ where
+  pOnly = Only <$> some pSPOHashSource
+  pAll =
+    Opt.flag' All $
+      mconcat
+        [ Opt.long "all-spos"
         , Opt.help "Query for all DReps."
         ]
 
@@ -3808,6 +3836,41 @@ pDRepVerificationKeyFile =
       [ Opt.long "drep-verification-key-file"
       , Opt.metavar "FILE"
       , Opt.help "Filepath of the DRep verification key."
+      , Opt.completer (Opt.bashCompleter "file")
+      ]
+
+pSPOVerificationKeyHash :: Parser (Hash StakePoolKey)
+pSPOVerificationKeyHash =
+  Opt.option (rBech32KeyHash AsStakePoolKey <|> rHexHash AsStakePoolKey Nothing) $
+    mconcat
+      [ Opt.long "spo-key-hash"
+      , Opt.metavar "HASH"
+      , Opt.help "SPO verification key hash (either Bech32-encoded or hex-encoded)."
+      ]
+
+pSPOVerificationKey :: Parser (VerificationKey StakePoolKey)
+pSPOVerificationKey =
+  Opt.option (readVerificationKey AsStakePoolKey) $
+    mconcat
+      [ Opt.long "spo-verification-key"
+      , Opt.metavar "STRING"
+      , Opt.help "SPO verification key (Bech32 or hex-encoded)."
+      ]
+
+pSPOVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakePoolKey)
+pSPOVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pSPOVerificationKey
+    , VerificationKeyFilePath <$> pSPOVerificationKeyFile
+    ]
+
+pSPOVerificationKeyFile :: Parser (VerificationKeyFile In)
+pSPOVerificationKeyFile =
+  fmap File . Opt.strOption $
+    mconcat
+      [ Opt.long "spo-verification-key-file"
+      , Opt.metavar "FILE"
+      , Opt.help "Filepath of the SPO verification key."
       , Opt.completer (Opt.bashCompleter "file")
       ]
 

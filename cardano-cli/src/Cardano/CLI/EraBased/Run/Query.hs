@@ -123,6 +123,7 @@ runQueryCmds = \case
   Cmd.QueryGovStateCmd args -> runQueryGovState args
   Cmd.QueryDRepStateCmd args -> runQueryDRepState args
   Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
+  Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
   Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
   Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
 
@@ -1699,6 +1700,31 @@ runQueryDRepStakeDistribution
     drepStakeDistribution <- runQuery localNodeConnInfo target $ queryDRepStakeDistribution eon dreps
     writeOutput mOutFile $
       Map.assocs drepStakeDistribution
+
+runQuerySPOStakeDistribution
+  :: Cmd.QuerySPOStakeDistributionCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQuerySPOStakeDistribution
+  Cmd.QuerySPOStakeDistributionCmdArgs
+    { Cmd.eon
+    , Cmd.nodeSocketPath
+    , Cmd.consensusModeParams
+    , Cmd.networkId
+    , Cmd.spoHashSources = spoHashSources'
+    , Cmd.target
+    , Cmd.mOutFile
+    } = conwayEraOnwardsConstraints eon $ do
+    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+        spoFromSource = firstExceptT QueryCmdSPOKeyError . readSPOCredential
+        spoHashSources = case spoHashSources' of
+          All -> []
+          Only l -> l
+
+    spos <- fromList <$> mapM spoFromSource spoHashSources
+
+    spoStakeDistribution <- runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
+    writeOutput mOutFile $
+      Map.assocs spoStakeDistribution
 
 runQueryCommitteeMembersState
   :: Cmd.QueryCommitteeMembersStateCmdArgs era
