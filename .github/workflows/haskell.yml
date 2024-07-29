@@ -20,8 +20,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ghc: ["9.6.4", "9.8.2"]
-        cabal: ["3.10.3.0"]
+        ghc: ["9.6", "9.8"]
+        cabal: ["3.12"]
         sys:
           - { os: windows-latest, shell: 'C:/msys64/usr/bin/bash.exe -e {0}' }
           - { os: ubuntu-latest, shell: bash }
@@ -32,7 +32,7 @@ jobs:
 
     env:
       # Modify this value to "invalidate" the cabal cache.
-      CABAL_CACHE_VERSION: "2024-02-23-4"
+      CABAL_CACHE_VERSION: "2024-07-26"
       # these two are msys2 env vars, they have no effect on non-msys2 installs.
       MSYS2_PATH_TYPE: inherit
       MSYSTEM: MINGW64
@@ -90,7 +90,7 @@ jobs:
 
     # Use a fresh cache each month
     - name: Store month number as environment variable used in cache version
-      run:  echo "MONTHNUM=$(/usr/bin/date -u '+%m')" >> $GITHUB_ENV
+      run:  echo "MONTHNUM=$(date -u '+%m')" >> $GITHUB_ENV
 
     # From the dependency list we restore the cached dependencies.
     # We use the hash of `dependencies.txt` as part of the cache key because that will be stable
@@ -123,7 +123,7 @@ jobs:
           ${{ steps.setup-haskell.outputs.cabal-store }}
           dist-newstyle
         key:
-          cache-${{ env.CABAL_CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-${{ env.MONTHNUM }}-${{ hashFiles('dependencies.txt') }}
+          ${{ steps.cache.outputs.cache-primary-key }}
 
     # Now we build.
     - name: Build all
