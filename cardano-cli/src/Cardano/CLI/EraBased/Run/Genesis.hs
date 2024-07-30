@@ -93,6 +93,7 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Data.Word (Word64)
 import qualified Data.Yaml as Yaml
+import           GHC.Exts (IsList (..))
 import           GHC.Generics (Generic)
 import           Lens.Micro ((^.))
 import           System.Directory (createDirectoryIfMissing, listDirectory)
@@ -810,7 +811,7 @@ updateOutputTemplate
         | ( GenesisKeyHash gh
             , (GenesisDelegateKeyHash gdh, VrfKeyHash h)
             ) <-
-            Map.toList genDelegMap
+            toList genDelegMap
         ]
 
     unLovelace :: Integral a => L.Coin -> a
@@ -1137,7 +1138,7 @@ updateTemplate
         | ( GenesisKeyHash gh
             , (GenesisDelegateKeyHash gdh, VrfKeyHash h)
             ) <-
-            Map.toList genDelegMap
+            toList genDelegMap
         ]
 
     unLovelace :: Integral a => L.Coin -> a

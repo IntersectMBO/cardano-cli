@@ -45,7 +45,6 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
 
 import           Cardano.CLI.Types.Common (ViewOutputFormat (..))
 import           Cardano.CLI.Types.MonadWarning (MonadWarning, eitherToWarning, runWarningIO)
-import           Cardano.Prelude (Foldable (..), first)
 
 import           Codec.CBOR.Encoding (Encoding)
 import           Codec.CBOR.FlatTerm (fromFlatTerm, toFlatTerm)
@@ -55,6 +54,7 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson
 import qualified Data.Aeson.Types as Aeson
+import           Data.Bifunctor (first)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LBS
@@ -69,6 +69,7 @@ import qualified Data.Vector as Vector
 import           Data.Yaml (array)
 import           Data.Yaml.Pretty (setConfCompare)
 import qualified Data.Yaml.Pretty as Yaml
+import           GHC.Exts (IsList (..))
 import           GHC.Real (denominator)
 import           GHC.Unicode (isAlphaNum)
 
@@ -663,7 +664,7 @@ friendlyMirTarget sbe = \case
             [ friendlyStakeCredential credential
             , "amount" .= friendlyLovelace (L.Coin 0 `L.addDeltaCoin` lovelace)
             ]
-         | (credential, lovelace) <- Map.toList (shelleyBasedEraConstraints sbe addresses)
+         | (credential, lovelace) <- shelleyBasedEraConstraints sbe $ toList addresses
          ]
   L.SendToOppositePotMIR amount -> "MIR amount" .= friendlyLovelace amount
 

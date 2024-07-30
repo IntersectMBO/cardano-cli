@@ -199,7 +199,7 @@ runTransactionBuildCmd
           <$> readTxGovernanceActions eon proposalFiles
 
     -- the same collateral input can be used for several plutus scripts
-    let filteredTxinsc = Set.toList $ Set.fromList txinsc
+    let filteredTxinsc = toList $ Set.fromList txinsc
 
     let allReferenceInputs =
           getAllReferenceInputs
@@ -377,7 +377,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     txOuts <- mapM (toTxOutInAnyEra sbe) txouts
 
     -- the same collateral input can be used for several plutus scripts
-    let filteredTxinsc = Set.toList $ Set.fromList txInsCollateral
+    let filteredTxinsc = toList $ Set.fromList txInsCollateral
 
     -- Conway related
     votingProceduresAndMaybeScriptWits <-
@@ -616,7 +616,7 @@ runTransactionBuildRawCmd
     txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
     -- the same collateral input can be used for several plutus scripts
-    let filteredTxinsc = Set.toList $ Set.fromList txInsCollateral
+    let filteredTxinsc = toList $ Set.fromList txInsCollateral
 
     -- Conway related
     votingProceduresAndMaybeScriptWits <-

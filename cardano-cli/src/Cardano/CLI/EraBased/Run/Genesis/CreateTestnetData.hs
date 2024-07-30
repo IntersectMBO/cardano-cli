@@ -759,7 +759,7 @@ updateOutputTemplate
         | ( GenesisKeyHash gh
             , (GenesisDelegateKeyHash gdh, VrfKeyHash h)
             ) <-
-            Map.toList genDelegMap
+            toList genDelegMap
         ]
 
     unLovelace :: Integral a => L.Coin -> a

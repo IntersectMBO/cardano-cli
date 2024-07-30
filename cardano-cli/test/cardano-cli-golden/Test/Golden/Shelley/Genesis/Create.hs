@@ -10,7 +10,6 @@ where
 import           Control.Monad (void)
 import qualified Data.Aeson as J
 import qualified Data.Aeson.Key as J
-import qualified Data.Aeson.KeyMap as KeyMap
 import qualified Data.Aeson.Types as J
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy as LBS
@@ -18,6 +17,7 @@ import           Data.Foldable (for_)
 import qualified Data.HashMap.Lazy as HM
 import qualified Data.Set as S
 import qualified Data.Time.Clock as DT
+import           GHC.Exts (IsList (..))
 
 import           Test.Cardano.CLI.Aeson (assertHasMappings)
 import           Test.Cardano.CLI.Util as OP
@@ -42,7 +42,7 @@ parseSystemStart :: J.Value -> J.Parser String
 parseSystemStart = J.withObject "Object" $ \o -> o J..: "systemStart"
 
 parseHashMap :: J.Value -> J.Parser (HM.HashMap String J.Value)
-parseHashMap (J.Object hm) = pure $ HM.fromList $ fmap (first J.toString) (KeyMap.toList hm)
+parseHashMap (J.Object hm) = pure $ HM.fromList $ fmap (first J.toString) (toList hm)
 parseHashMap v = J.typeMismatch "Object" v
 
 parseDelegateCount :: J.Value -> J.Parser Int
@@ -56,17 +56,17 @@ parseDelegateKey = J.withObject "Object" $ \o -> o J..: "delegate"
 parseDelegateKeys :: J.Value -> J.Parser [String]
 parseDelegateKeys = J.withObject "Object" $ \o -> do
   delegates <- (o J..: "genDelegs") >>= parseHashMap
-  sequence $ fmap (parseDelegateKey . snd) (HM.toList delegates)
+  sequence $ fmap (parseDelegateKey . snd) (toList delegates)
 
 parseHashKeys :: J.Value -> J.Parser [String]
 parseHashKeys = J.withObject "Object" $ \o -> do
   delegates <- (o J..: "genDelegs") >>= parseHashMap
-  pure $ fmap fst (HM.toList delegates)
+  pure $ fmap fst (toList delegates)
 
 parseTotalSupply :: J.Value -> J.Parser Int
 parseTotalSupply = J.withObject "Object" $ \o -> do
   initialFunds <- (o J..: "initialFunds") >>= parseHashMap
-  fmap sum (sequence (fmap (J.parseJSON @Int . snd) (HM.toList initialFunds)))
+  fmap sum (sequence (fmap (J.parseJSON @Int . snd) (toList initialFunds)))
 
 hprop_golden_shelleyGenesisCreate :: Property
 hprop_golden_shelleyGenesisCreate = propertyOnce $ do
