@@ -190,15 +190,15 @@ runQueryProtocolParametersCmd
           shelleyBasedEraConstraints sbe $
             encodePretty pparams
 
--- | Calculate the percentage sync rendered as text.
+-- | Calculate the percentage sync rendered as text: @min 1 (tipTime/nowTime)@
 percentage
   :: RelativeTime
-  -- ^ 'tolerance'.  If 'b' - 'a' < 'tolerance', then 100% is reported.  This even if we are 'tolerance' seconds
+  -- ^ @tolerance@.  If @b - a < tolerance@, then 100% is reported.  This even if we are @tolerance@ seconds
   -- behind, we are still considered fully synced.
   -> RelativeTime
-  -- ^ 'nowTime'.  The time of the most recently synced block.
+  -- ^ @tipTime@ The time of the most recently synced block.
   -> RelativeTime
-  -- ^ 'tipTime'.  The time of the tip of the block chain to which we need to sync.
+  -- ^ @nowTime@ The time of the tip of the block chain to which we need to sync.
   -> Text
 percentage tolerance a b = Text.pack (printf "%.2f" pc)
  where
@@ -211,10 +211,10 @@ percentage tolerance a b = Text.pack (printf "%.2f" pc)
   ua = min (sa + t) sb
   ub = sb
   -- Final percentage to render as text.
-  pc = id @Double (fromIntegral ua / fromIntegral ub) * 100.0
+  pc = (fromIntegral ua / fromIntegral ub) * 100.0 :: Double
 
-relativeTimeSeconds :: RelativeTime -> Integer
-relativeTimeSeconds (RelativeTime dt) = floor (nominalDiffTimeToSeconds dt)
+  relativeTimeSeconds :: RelativeTime -> Integer
+  relativeTimeSeconds (RelativeTime dt) = floor (nominalDiffTimeToSeconds dt)
 
 -- | Query the chain tip via the chain sync protocol.
 --
@@ -299,7 +299,7 @@ runQueryTipCmd
 
             let tolerance = RelativeTime (secondsToNominalDiffTime 600)
 
-            return $ percentage tolerance nowSeconds tipTimeResult
+            return $ percentage tolerance tipTimeResult nowSeconds
 
           mSyncProgress <- hushM syncProgressResult $ \e -> do
             liftIO . LT.hPutStrLn IO.stderr $
