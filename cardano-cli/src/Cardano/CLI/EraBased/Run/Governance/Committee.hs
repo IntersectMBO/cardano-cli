@@ -158,7 +158,7 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
         & firstExceptT GovernanceCommitteeCmdTextEnvWriteError . newExceptT
    where
     genKeyDelegCertDesc :: TextEnvelopeDescr
-    genKeyDelegCertDesc = "Constitutional Committee Hot Key Registration Certificate"
+    genKeyDelegCertDesc = "Constitutional Committee Hot Credential Authorization Certificate"
 
 runGovernanceCommitteeColdKeyResignationCertificate
   :: ()

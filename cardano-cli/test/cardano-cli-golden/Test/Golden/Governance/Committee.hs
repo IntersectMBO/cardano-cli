@@ -109,7 +109,7 @@ hprop_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate =
 
     assertHasMappings
       [ ("type", "CertificateConway")
-      , ("description", "Constitutional Committee Hot Key Registration Certificate")
+      , ("description", "Constitutional Committee Hot Credential Authorization Certificate")
       ]
       certFile
 
