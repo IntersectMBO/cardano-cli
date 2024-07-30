@@ -90,6 +90,7 @@ import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy.IO as LT
 import           Data.Time.Clock
+import           GHC.Exts (IsList (..))
 import           GHC.Generics
 import           Lens.Micro ((^.))
 import           Numeric (showEFloat)
@@ -1036,7 +1037,7 @@ writeStakeAddressInfo
     merged =
       [ (addr, mBalance, mPoolId, mDRep, mDeposit)
       | addr <-
-          Set.toList
+          toList
             ( Set.unions
                 [ Map.keysSet stakeAccountBalances
                 , Map.keysSet stakePools
@@ -1102,7 +1103,7 @@ writePoolState mOutFile serialisedCurrentEpochState = do
       & onLeft (left . QueryCmdPoolStateDecodeError)
 
   let hks =
-        Set.toList $
+        toList $
           Set.fromList $
             Map.keys (L.psStakePoolParams poolState)
               <> Map.keys (L.psFutureStakePoolParams poolState)
@@ -1188,17 +1189,17 @@ filteredUTxOsToText sbe (UTxO utxo) = do
     [ Text.unlines [title, Text.replicate (Text.length title + 2) "-"]
     , Text.unlines $ case sbe of
         ShelleyBasedEraShelley ->
-          map (utxoToText sbe) $ Map.toList utxo
+          map (utxoToText sbe) $ toList utxo
         ShelleyBasedEraAllegra ->
-          map (utxoToText sbe) $ Map.toList utxo
+          map (utxoToText sbe) $ toList utxo
         ShelleyBasedEraMary ->
-          map (utxoToText sbe) $ Map.toList utxo
+          map (utxoToText sbe) $ toList utxo
         ShelleyBasedEraAlonzo ->
-          map (utxoToText sbe) $ Map.toList utxo
+          map (utxoToText sbe) $ toList utxo
         ShelleyBasedEraBabbage ->
-          map (utxoToText sbe) $ Map.toList utxo
+          map (utxoToText sbe) $ toList utxo
         ShelleyBasedEraConway ->
-          map (utxoToText sbe) $ Map.toList utxo
+          map (utxoToText sbe) $ toList utxo
     ]
  where
   title :: Text
@@ -1314,7 +1315,7 @@ writeStakePools format mOutFile stakePools =
       OutputFormatText ->
         LBS.unlines $
           map (strictTextToLazyBytestring . serialiseToBech32) $
-            Set.toList stakePools
+            toList stakePools
       OutputFormatJson ->
         encodePretty stakePools
 
@@ -1390,7 +1391,7 @@ writeStakeDistribution format mOutFile stakeDistrib =
       [ title
       , Text.replicate (Text.length title + 2) "-"
       ]
-        ++ [showStakeDistr poolId stakeFraction | (poolId, stakeFraction) <- Map.toList stakeDistrib]
+        ++ [showStakeDistr poolId stakeFraction | (poolId, stakeFraction) <- toList stakeDistrib]
    where
     title :: Text
     title =
@@ -1541,7 +1542,7 @@ runQueryLeadershipScheduleCmd
       Text.unlines $
         title
           : Text.replicate (Text.length title + 2) "-"
-          : [showLeadershipSlot slot eInfo sStart | slot <- Set.toList leadershipSlots]
+          : [showLeadershipSlot slot eInfo sStart | slot <- toList leadershipSlots]
      where
       title :: Text
       title =
@@ -1574,7 +1575,7 @@ runQueryLeadershipScheduleCmd
       -> SystemStart
       -> [Aeson.Value]
     leadershipScheduleToJson leadershipSlots eInfo sStart =
-      showLeadershipSlot <$> List.sort (Set.toList leadershipSlots)
+      showLeadershipSlot <$> List.sort (toList leadershipSlots)
      where
       showLeadershipSlot :: SlotNo -> Aeson.Value
       showLeadershipSlot lSlot@(SlotNo sn) =

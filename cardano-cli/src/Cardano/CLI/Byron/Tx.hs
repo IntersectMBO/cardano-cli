@@ -52,6 +52,7 @@ import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Formatting (sformat, (%))
+import           GHC.Exts (IsList (..))
 
 data ByronTxError
   = TxDeserialisationFailed !FilePath !Binary.DecoderError
@@ -109,7 +110,7 @@ genesisUTxOTxIn gc vk genAddr =
     Map.fromList
       . mapMaybe (\(inp, out) -> mkEntry inp genAddr <$> keyMatchesUTxO vk out)
       . fromCompactTxInTxOutList
-      . Map.toList
+      . toList
       . UTxO.unUTxO
       . UTxO.genesisUtxo
       $ gc
