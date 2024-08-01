@@ -697,7 +697,7 @@ runQueryPoolStateCmd
 
             let poolFilter = case allOrOnlyPoolIds of
                   All -> Nothing
-                  Only poolIds -> Just $ Set.fromList poolIds
+                  Only poolIds -> Just $ fromList poolIds
 
             result <-
               lift (queryPoolState beo poolFilter)
@@ -834,7 +834,7 @@ runQueryStakeSnapshotCmd
 
             let poolFilter = case allOrOnlyPoolIds of
                   All -> Nothing
-                  Only poolIds -> Just $ Set.fromList poolIds
+                  Only poolIds -> Just $ fromList poolIds
 
             beo <- requireEon BabbageEra era
 
@@ -1102,16 +1102,17 @@ writePoolState mOutFile serialisedCurrentEpochState = do
     pure (decodePoolState serialisedCurrentEpochState)
       & onLeft (left . QueryCmdPoolStateDecodeError)
 
-  let hks =
+  let hks :: [L.KeyHash L.StakePool StandardCrypto]
+      hks =
         toList $
-          Set.fromList $
+          fromList @(Set (L.KeyHash L.StakePool StandardCrypto)) $
             Map.keys (L.psStakePoolParams poolState)
               <> Map.keys (L.psFutureStakePoolParams poolState)
               <> Map.keys (L.psRetiring poolState)
 
   let poolStates :: Map (L.KeyHash 'L.StakePool StandardCrypto) (Params StandardCrypto)
       poolStates =
-        Map.fromList $
+        fromList $
           hks
             <&> ( \hk ->
                     ( hk
@@ -1642,13 +1643,13 @@ runQueryDRepState
     let drepHashSources = case drepHashSources' of All -> []; Only l -> l
     drepCreds <- modifyError QueryCmdDRepKeyError $ mapM readDRepCredential drepHashSources
 
-    drepState <- runQuery localNodeConnInfo target $ queryDRepState eon $ Set.fromList drepCreds
+    drepState <- runQuery localNodeConnInfo target $ queryDRepState eon $ fromList drepCreds
 
     drepStakeDistribution <-
       case includeStake of
         Cmd.WithStake ->
           runQuery localNodeConnInfo target $
-            queryDRepStakeDistribution eon (Set.fromList $ L.DRepCredential <$> drepCreds)
+            queryDRepStakeDistribution eon (fromList $ L.DRepCredential <$> drepCreds)
         Cmd.NoStake -> return mempty
 
     writeOutput mOutFile $
@@ -1695,7 +1696,7 @@ runQueryDRepStakeDistribution
         drepHashSources = case drepHashSources' of
           All -> []
           Only l -> l
-    dreps <- Set.fromList <$> mapM drepFromSource drepHashSources
+    dreps <- fromList <$> mapM drepFromSource drepHashSources
 
     drepStakeDistribution <- runQuery localNodeConnInfo target $ queryDRepStakeDistribution eon dreps
     writeOutput mOutFile $
@@ -1721,16 +1722,16 @@ runQueryCommitteeMembersState
     let coldKeysFromVerKeyHashOrFile =
           modifyError QueryCmdCommitteeColdKeyError
             . readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash
-    coldKeys <- Set.fromList <$> mapM coldKeysFromVerKeyHashOrFile coldCredKeys
+    coldKeys <- fromList <$> mapM coldKeysFromVerKeyHashOrFile coldCredKeys
 
     let hotKeysFromVerKeyHashOrFile =
           modifyError QueryCmdCommitteeHotKeyError
             . readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeHotKey unCommitteeHotKeyHash
-    hotKeys <- Set.fromList <$> mapM hotKeysFromVerKeyHashOrFile hotCredKeys
+    hotKeys <- fromList <$> mapM hotKeysFromVerKeyHashOrFile hotCredKeys
 
     committeeState <-
       runQuery localNodeConnInfo target $
-        queryCommitteeMembersState eon coldKeys hotKeys (Set.fromList memberStatuses)
+        queryCommitteeMembersState eon coldKeys hotKeys (fromList memberStatuses)
     writeOutput mOutFile $ A.toJSON committeeState
 
 runQueryTreasuryValue
