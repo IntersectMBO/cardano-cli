@@ -9,22 +9,22 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CARDANO_GUILD_VERSION: "1.3.1.2"
+      CABAL_GILD_VERSION: "1.3.1.2"
 
     steps:
-    - name: Download cardano-gild
+    - name: Download cabal-gild
       run: |
-        cardano_gild_path="$(mktemp -d)"
-        version="${{env.CARDANO_GUILD_VERSION}}"
+        cabal_gild_path="$(mktemp -d)"
+        version="${{env.CABAL_GILD_VERSION}}"
         curl -sL \
           "https://github.com/tfausak/cabal-gild/releases/download/$version/cabal-gild-$version-linux-x64.tar.gz" \
-          | tar -C "$cardano_gild_path" -xz
+          | tar -C "$cabal_gild_path" -xz
 
-        echo "PATH=$cardano_gild_path:$PATH" >> "$GITHUB_ENV"
+        echo "PATH=$cabal_gild_path:$PATH" >> "$GITHUB_ENV"
 
     - uses: actions/checkout@v4
 
-    - name: Run cardano-gild over all modified files
+    - name: Run cabal-gild over all modified files
       run: |
         rc="0"
         
@@ -33,8 +33,13 @@ jobs:
           echo "cabal-gild --mode=check --input=$file"
           if ! cabal-gild --mode=check --input="$file"
           then
+            cabal-gild --mode=format --io="$file"
             echo "💣 $file is badly formatted. Fix it with:"
             echo "cabal-gild --mode=format --io=$file"
+            echo -e
+            echo "Diff for $file:"
+            git diff "$file"
+            echo -e
             rc="1"
           fi
         done
