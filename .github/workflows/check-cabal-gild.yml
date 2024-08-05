@@ -27,7 +27,7 @@ jobs:
     - name: Run cabal-gild over all modified files
       run: |
         rc="0"
-        
+        echo "cabal-gild version: ${{env.CABAL_GILD_VERSION}}"        
         for file in $(git ls-files "*.cabal")
         do
           echo "cabal-gild --mode=check --input=$file"
