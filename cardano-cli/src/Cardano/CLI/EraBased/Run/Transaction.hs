@@ -44,8 +44,6 @@ import qualified Cardano.Chain.Common as Byron
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
 import           Cardano.CLI.EraBased.Run.Query
-import           Cardano.CLI.Json.Friendly (friendlyTx, friendlyTxBody,
-                   viewOutputFormatToFriendlyFormat)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -79,6 +77,7 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Data.Type.Equality (TestEquality (..))
 import           Lens.Micro ((^.))
+import qualified System.Exit as IO
 import qualified System.IO as IO
 
 runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
@@ -1698,30 +1697,11 @@ runTransactionViewCmd
   => Cmd.TransactionViewCmdArgs
   -> ExceptT TxCmdError IO ()
 runTransactionViewCmd
-  Cmd.TransactionViewCmdArgs
-    { outputFormat
-    , mOutFile
-    , inputTxBodyOrTxFile
-    } =
-    case inputTxBodyOrTxFile of
-      InputTxBodyFile (File txbodyFilePath) -> do
-        txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-        unwitnessed <-
-          firstExceptT TxCmdTextEnvCddlError . newExceptT $
-            readFileTxBody txbodyFile
-        InAnyShelleyBasedEra era txbody <- pure $ unIncompleteCddlTxBody unwitnessed
-        -- Why are we differentiating between a transaction body and a transaction?
-        -- In the case of a transaction body, we /could/ simply call @makeSignedTransaction []@
-        -- to get a transaction which would allow us to reuse friendlyTxBS. However,
-        -- this would mean that we'd have an empty list of witnesses mentioned in the output, which
-        -- is arguably not part of the transaction body.
-        firstExceptT TxCmdWriteFileError . newExceptT $
-          friendlyTxBody (viewOutputFormatToFriendlyFormat outputFormat) mOutFile (toCardanoEra era) txbody
-      InputTxFile (File txFilePath) -> do
-        txFile <- liftIO $ fileOrPipe txFilePath
-        InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
-        firstExceptT TxCmdWriteFileError . newExceptT $
-          friendlyTx (viewOutputFormatToFriendlyFormat outputFormat) mOutFile (toCardanoEra era) tx
+  Cmd.TransactionViewCmdArgs =
+    liftIO $ do
+      putStrLn
+        "Command \"era transaction view\" has been removed. Please use \"debug transaction view\" instead."
+      IO.exitWith (IO.ExitFailure 1)
 
 -- ----------------------------------------------------------------------------
 -- Witness commands

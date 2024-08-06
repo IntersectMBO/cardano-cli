@@ -511,15 +511,11 @@ runLegacyTransactionTxIdCmd txfile =
 runLegacyTransactionViewCmd
   :: ViewOutputFormat -> Maybe (File () Out) -> InputTxBodyOrTxFile -> ExceptT TxCmdError IO ()
 runLegacyTransactionViewCmd
-  yamlOrJson
-  mOutFile
-  inputTxBodyOrTxFile =
+  _yamlOrJson
+  _mOutFile
+  _inputTxBodyOrTxFile =
     runTransactionViewCmd
-      ( Cmd.TransactionViewCmdArgs
-          yamlOrJson
-          mOutFile
-          inputTxBodyOrTxFile
-      )
+      Cmd.TransactionViewCmdArgs
 
 runLegacyTransactionWitnessCmd
   :: ()
