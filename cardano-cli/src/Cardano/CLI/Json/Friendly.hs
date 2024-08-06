@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
@@ -42,10 +43,13 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (Proposal),
                    ShelleyLedgerEra, StakeAddress (..), fromShelleyPaymentCredential,
                    fromShelleyStakeReference, toShelleyStakeCredential)
+import qualified Cardano.Api.Shelley as Api
 
 import           Cardano.CLI.Types.Common (ViewOutputFormat (..))
 import           Cardano.CLI.Types.MonadWarning (MonadWarning, eitherToWarning, runWarningIO)
-import           Cardano.Ledger.Api (Data, unRedeemers)
+import           Cardano.Ledger.Api (AlonzoPlutusPurpose (..), ConwayPlutusPurpose (..), Data,
+                   StandardCrypto, unRedeemers)
+import qualified Cardano.Ledger.Api as Ledger
 import           Cardano.Ledger.Api.Scripts (PlutusPurpose)
 import           Cardano.Ledger.Api.Tx (AsIx)
 
@@ -56,7 +60,6 @@ import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson
-import qualified Data.Aeson.KeyMap as KeyMap
 import qualified Data.Aeson.Types as Aeson
 import           Data.Bifunctor (first)
 import qualified Data.ByteString as BS
@@ -301,17 +304,17 @@ friendlyRedeemers
   :: forall era m. MonadWarning m => ShelleyBasedEra era -> TxBody era -> m Aeson.Value
 friendlyRedeemers _ (ShelleyTxBody _ _ _ TxBodyNoScriptData _ _) = return Aeson.Null
 friendlyRedeemers sbe (ShelleyTxBody _ _ _ (TxBodyScriptData _ _ r) _ _) =
-  Aeson.Object . KeyMap.fromList . Map.elems
+  Aeson.Array . Vector.fromList . Map.elems
     <$> Map.traverseWithKey (friendlyRedeemer sbe) (unRedeemers r)
  where
   friendlyRedeemer
     :: ShelleyBasedEra era
     -> PlutusPurpose AsIx (ShelleyLedgerEra era)
     -> (Data (ShelleyLedgerEra era), a)
-    -> m (Aeson.Key, Aeson.Value)
+    -> m Aeson.Value
   friendlyRedeemer _ ptr (redeemer, _) = do
     jsonRedeemer <- encodingToJSON $ L.toCBOR redeemer
-    return (Aeson.fromString $ show ptr, jsonRedeemer)
+    return $ Aeson.Array $ Vector.fromList [renderScriptPurpose sbe ptr, jsonRedeemer]
 
   encodingToJSON :: Encoding -> m Aeson.Value
   encodingToJSON e =
@@ -319,6 +322,59 @@ friendlyRedeemers sbe (ShelleyTxBody _ _ _ (TxBodyScriptData _ _ r) _ _) =
       first ("Error decoding redeemer: " ++) $
         fromFlatTerm (decodeValue True) $
           toFlatTerm e
+
+  -- Adapted from cardano-node/cardano-node/src/Cardano/Node/Tracing/Render.hs
+  renderScriptPurpose
+    :: ()
+    => Api.ShelleyBasedEra era
+    -> PlutusPurpose AsIx (Api.ShelleyLedgerEra era)
+    -> Aeson.Value
+  renderScriptPurpose =
+    Api.caseShelleyToMaryOrAlonzoEraOnwards
+      (const (const Aeson.Null))
+      ( \case
+          Api.AlonzoEraOnwardsAlonzo -> renderAlonzoPlutusPurpose
+          Api.AlonzoEraOnwardsBabbage -> renderAlonzoPlutusPurpose
+          Api.AlonzoEraOnwardsConway -> renderConwayPlutusPurpose
+      )
+
+  -- Adapted from cardano-node/cardano-node/src/Cardano/Node/Tracing/Render.hs
+  renderAlonzoPlutusPurpose
+    :: forall era2
+     . Ledger.EraCrypto era2 ~ StandardCrypto
+    => AlonzoPlutusPurpose AsIx era2
+    -> Aeson.Value
+  renderAlonzoPlutusPurpose = \case
+    AlonzoSpending (Ledger.AsIx txInIx) ->
+      Aeson.object ["spending" .= txInIx]
+    AlonzoMinting pid ->
+      Aeson.object ["minting" .= Aeson.toJSON pid]
+    AlonzoRewarding (Ledger.AsIx rwdAcctIx) ->
+      Aeson.object
+        ["rewarding" .= rwdAcctIx]
+    AlonzoCertifying cert ->
+      Aeson.object ["certifying" .= Aeson.toJSON cert]
+
+  -- Adapted from cardano-node/cardano-node/src/Cardano/Node/Tracing/Render.hs
+  renderConwayPlutusPurpose
+    :: forall era2
+     . Ledger.EraCrypto era2 ~ StandardCrypto
+    => ConwayPlutusPurpose AsIx era2
+    -> Aeson.Value
+  renderConwayPlutusPurpose = \case
+    ConwaySpending (Ledger.AsIx txInIx) ->
+      Aeson.object ["spending" .= txInIx]
+    ConwayMinting pid ->
+      Aeson.object ["minting" .= Aeson.toJSON pid]
+    ConwayRewarding (Ledger.AsIx rwdAcctIx) ->
+      Aeson.object
+        ["rewarding" .= rwdAcctIx]
+    ConwayCertifying cert ->
+      Aeson.object ["certifying" .= Aeson.toJSON cert]
+    ConwayVoting voter ->
+      Aeson.object ["voting" .= Aeson.toJSON voter]
+    ConwayProposing proposal ->
+      Aeson.object ["proposing" .= Aeson.toJSON proposal]
 
 friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
 friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null
