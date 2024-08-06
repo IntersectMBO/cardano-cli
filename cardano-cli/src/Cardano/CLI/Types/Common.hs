@@ -27,6 +27,7 @@ module Cardano.CLI.Types.Common
   , GenesisDir (..)
   , GenesisFile (..)
   , GenesisKeyFile (..)
+  , IncludeStake (..)
   , InputTxBodyOrTxFile (..)
   , KeyOutputFormat (..)
   , MetadataFile (..)
@@ -158,6 +159,11 @@ data StakeDelegators = StakeDelegators
   -- ^ The number of stake credentials to generate
   }
   deriving Show
+
+-- | Whether to include the stake, as queried by drep-stake-distribution, in
+-- the output of drep-state. This is (computationally) expensive, but sometimes
+-- convenient.
+data IncludeStake = WithStake | NoStake deriving Show
 
 data DRepCredentials = DRepCredentials
   { dRepCredentialGenerationMode :: !CredentialGenerationMode
