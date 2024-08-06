@@ -29,7 +29,7 @@ outputs:
   payment credential key hash: 52e63f22c5107ed776b70f7b92248b02552fd08f3e747bc745099441
   reference script: null
   stake reference: null
-redeemers: []
+redeemers: {}
 reference inputs: []
 required signers (payment key hashes needed for scripts): null
 return collateral: null

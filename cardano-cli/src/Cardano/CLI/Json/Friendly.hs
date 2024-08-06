@@ -48,6 +48,9 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
 
 import           Cardano.CLI.Types.Common (ViewOutputFormat (..))
 import           Cardano.CLI.Types.MonadWarning (MonadWarning, eitherToWarning, runWarningIO)
+import           Cardano.Ledger.Api (Data, unRedeemers)
+import           Cardano.Ledger.Api.Scripts (PlutusPurpose)
+import           Cardano.Ledger.Api.Tx (AsIx)
 
 import           Codec.CBOR.Encoding (Encoding)
 import           Codec.CBOR.FlatTerm (fromFlatTerm, toFlatTerm)
@@ -56,6 +59,7 @@ import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson
+import qualified Data.Aeson.KeyMap as KeyMap
 import qualified Data.Aeson.Types as Aeson
 import           Data.Bifunctor (first)
 import qualified Data.ByteString as BS
@@ -291,14 +295,26 @@ friendlyVotingProcedures cOnwards x = conwayEraOnwardsConstraints cOnwards $ toJ
 redeemerIfShelleyBased :: MonadWarning m => CardanoEra era -> TxBody era -> m [Aeson.Pair]
 redeemerIfShelleyBased era tb = monoidForEraInEonA @ShelleyBasedEra era $
   \shEra -> do
-    redeemerInfo <- friendlyRedeemer shEra tb
+    redeemerInfo <- friendlyRedeemers shEra tb
     return ["redeemers" .= redeemerInfo]
 
-friendlyRedeemer :: MonadWarning m => ShelleyBasedEra era -> TxBody era -> m Aeson.Value
-friendlyRedeemer _ (ShelleyTxBody _ _ _ TxBodyNoScriptData _ _) = return Aeson.Null
-friendlyRedeemer _ (ShelleyTxBody _ _ _ (TxBodyScriptData _ _ r) _ _) = encodingToJSON $ L.toCBOR r
+friendlyRedeemers
+  :: forall era m. MonadWarning m => ShelleyBasedEra era -> TxBody era -> m Aeson.Value
+friendlyRedeemers _ (ShelleyTxBody _ _ _ TxBodyNoScriptData _ _) = return Aeson.Null
+friendlyRedeemers sbe (ShelleyTxBody _ _ _ (TxBodyScriptData _ _ r) _ _) =
+  Aeson.Object . KeyMap.fromList . Map.elems
+    <$> Map.traverseWithKey (friendlyRedeemer sbe) (unRedeemers r)
  where
-  encodingToJSON :: MonadWarning m => Encoding -> m Aeson.Value
+  friendlyRedeemer
+    :: ShelleyBasedEra era
+    -> PlutusPurpose AsIx (ShelleyLedgerEra era)
+    -> (Data (ShelleyLedgerEra era), a)
+    -> m (Aeson.Key, Aeson.Value)
+  friendlyRedeemer _ ptr (redeemer, _) = do
+    jsonRedeemer <- encodingToJSON $ L.toCBOR redeemer
+    return (Aeson.fromString $ show ptr, jsonRedeemer)
+
+  encodingToJSON :: Encoding -> m Aeson.Value
   encodingToJSON e =
     eitherToWarning Aeson.Null $
       first ("Error decoding redeemer: " ++) $
