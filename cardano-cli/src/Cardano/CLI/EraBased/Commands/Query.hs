@@ -248,11 +248,6 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
   }
   deriving Show
 
--- | Whether to include the stake, as queried by drep-stake-distribution, in
--- the output of drep-state. This is (computationally) expensive, but sometimes
--- convenient.
-data IncludeStake = WithStake | NoStake deriving Show
-
 data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , nodeSocketPath :: !SocketPath
