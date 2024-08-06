@@ -1699,7 +1699,8 @@ runTransactionViewCmd
 runTransactionViewCmd
   Cmd.TransactionViewCmdArgs =
     liftIO $ do
-      putStrLn
+      IO.hPutStrLn
+        IO.stderr
         "Command \"era transaction view\" has been removed. Please use \"debug transaction view\" instead."
       IO.exitWith (IO.ExitFailure 1)
 
