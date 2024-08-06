@@ -55,6 +55,7 @@ import           Cardano.Ledger.Api (AlonzoPlutusPurpose (..), ConwayPlutusPurpo
 import qualified Cardano.Ledger.Api as Ledger
 import           Cardano.Ledger.Api.Scripts (PlutusPurpose)
 import           Cardano.Ledger.Api.Tx (AsIx)
+import           Cardano.Prelude (Word32, maybeToEither)
 
 import           Codec.CBOR.Encoding (Encoding)
 import           Codec.CBOR.FlatTerm (fromFlatTerm, toFlatTerm)
@@ -71,6 +72,7 @@ import qualified Data.ByteString.Lazy as LBS
 import           Data.Char (isAscii)
 import           Data.Function ((&))
 import           Data.Functor ((<&>))
+import           Data.List ((!?))
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
 import           Data.Ratio (numerator)
@@ -302,21 +304,25 @@ redeemerIfShelleyBased era tb = monoidForEraInEonA @ShelleyBasedEra era $
     redeemerInfo <- friendlyRedeemers shEra tb
     return ["redeemers" .= redeemerInfo]
 
+data IxType = InputIx | RewardIx
+
 friendlyRedeemers
   :: forall era m. MonadWarning m => ShelleyBasedEra era -> TxBody era -> m Aeson.Value
 friendlyRedeemers _ (ShelleyTxBody _ _ _ TxBodyNoScriptData _ _) = return Aeson.Null
-friendlyRedeemers sbe (ShelleyTxBody _ _ _ (TxBodyScriptData _ _ r) _ _) =
+friendlyRedeemers sbe txBody@(ShelleyTxBody _ _ _ (TxBodyScriptData _ _ r) _ _) =
   Aeson.Array . Vector.fromList . Map.elems
-    <$> Map.traverseWithKey (friendlyRedeemer sbe) (unRedeemers r)
+    <$> Map.traverseWithKey (friendlyRedeemer (getTxInputIx txBody) sbe) (unRedeemers r)
  where
   friendlyRedeemer
-    :: ShelleyBasedEra era
+    :: (IxType -> Word32 -> Maybe Aeson.Value)
+    -> ShelleyBasedEra era
     -> PlutusPurpose AsIx (ShelleyLedgerEra era)
     -> (Data (ShelleyLedgerEra era), a)
     -> m Aeson.Value
-  friendlyRedeemer _ ptr (redeemer, _) = do
+  friendlyRedeemer f _ ptr (redeemer, _) = do
+    jsonReference <- renderScriptPurpose f sbe ptr
     jsonRedeemer <- encodingToJSON $ L.toCBOR redeemer
-    return $ Aeson.Array $ Vector.fromList [renderScriptPurpose sbe ptr, jsonRedeemer]
+    return $ Aeson.Array $ Vector.fromList [jsonReference, jsonRedeemer]
 
   encodingToJSON :: Encoding -> m Aeson.Value
   encodingToJSON e =
@@ -328,55 +334,83 @@ friendlyRedeemers sbe (ShelleyTxBody _ _ _ (TxBodyScriptData _ _ r) _ _) =
   -- Adapted from cardano-node/cardano-node/src/Cardano/Node/Tracing/Render.hs
   renderScriptPurpose
     :: ()
-    => Api.ShelleyBasedEra era
+    => (IxType -> Word32 -> Maybe Aeson.Value)
+    -> Api.ShelleyBasedEra era
     -> PlutusPurpose AsIx (Api.ShelleyLedgerEra era)
-    -> Aeson.Value
-  renderScriptPurpose =
+    -> m Aeson.Value
+  renderScriptPurpose f =
     Api.caseShelleyToMaryOrAlonzoEraOnwards
-      (const (const Aeson.Null))
+      (const $ const $ return Aeson.Null)
       ( \case
-          Api.AlonzoEraOnwardsAlonzo -> renderAlonzoPlutusPurpose
-          Api.AlonzoEraOnwardsBabbage -> renderAlonzoPlutusPurpose
-          Api.AlonzoEraOnwardsConway -> renderConwayPlutusPurpose
+          Api.AlonzoEraOnwardsAlonzo -> renderAlonzoPlutusPurpose f
+          Api.AlonzoEraOnwardsBabbage -> renderAlonzoPlutusPurpose f
+          Api.AlonzoEraOnwardsConway -> renderConwayPlutusPurpose f
       )
 
   -- Adapted from cardano-node/cardano-node/src/Cardano/Node/Tracing/Render.hs
   renderAlonzoPlutusPurpose
     :: forall era2
      . Ledger.EraCrypto era2 ~ StandardCrypto
-    => AlonzoPlutusPurpose AsIx era2
-    -> Aeson.Value
-  renderAlonzoPlutusPurpose = \case
-    AlonzoSpending (Ledger.AsIx txInIx) ->
-      Aeson.object ["spending" .= txInIx]
+    => (IxType -> Word32 -> Maybe Aeson.Value)
+    -> AlonzoPlutusPurpose AsIx era2
+    -> m Aeson.Value
+  renderAlonzoPlutusPurpose f = \case
+    AlonzoSpending (Ledger.AsIx txInIx) -> do
+      address <- tryToSolve f InputIx txInIx
+      return $ Aeson.object ["spending" .= address]
     AlonzoMinting pid ->
-      Aeson.object ["minting" .= Aeson.toJSON pid]
-    AlonzoRewarding (Ledger.AsIx rwdAcctIx) ->
-      Aeson.object
-        ["rewarding" .= rwdAcctIx]
+      return $ Aeson.object ["minting" .= Aeson.toJSON pid]
+    AlonzoRewarding (Ledger.AsIx rwdAcctIx) -> do
+      address <- tryToSolve f RewardIx rwdAcctIx
+      return $ Aeson.object ["rewarding" .= address]
     AlonzoCertifying cert ->
-      Aeson.object ["certifying" .= Aeson.toJSON cert]
+      return $ Aeson.object ["certifying" .= Aeson.toJSON cert]
 
   -- Adapted from cardano-node/cardano-node/src/Cardano/Node/Tracing/Render.hs
   renderConwayPlutusPurpose
     :: forall era2
      . Ledger.EraCrypto era2 ~ StandardCrypto
-    => ConwayPlutusPurpose AsIx era2
-    -> Aeson.Value
-  renderConwayPlutusPurpose = \case
-    ConwaySpending (Ledger.AsIx txInIx) ->
-      Aeson.object ["spending" .= txInIx]
+    => (IxType -> Word32 -> Maybe Aeson.Value)
+    -> ConwayPlutusPurpose AsIx era2
+    -> m Aeson.Value
+  renderConwayPlutusPurpose f = \case
+    ConwaySpending (Ledger.AsIx txInIx) -> do
+      address <- tryToSolve f InputIx txInIx
+      return $ Aeson.object ["spending" .= address]
     ConwayMinting pid ->
-      Aeson.object ["minting" .= Aeson.toJSON pid]
-    ConwayRewarding (Ledger.AsIx rwdAcctIx) ->
-      Aeson.object
-        ["rewarding" .= rwdAcctIx]
+      return $ Aeson.object ["minting" .= Aeson.toJSON pid]
+    ConwayRewarding (Ledger.AsIx rwdAcctIx) -> do
+      address <- tryToSolve f RewardIx rwdAcctIx
+      return $ Aeson.object ["rewarding" .= address]
     ConwayCertifying cert ->
-      Aeson.object ["certifying" .= Aeson.toJSON cert]
+      return $ Aeson.object ["certifying" .= Aeson.toJSON cert]
     ConwayVoting voter ->
-      Aeson.object ["voting" .= Aeson.toJSON voter]
+      return $ Aeson.object ["voting" .= Aeson.toJSON voter]
     ConwayProposing proposal ->
-      Aeson.object ["proposing" .= Aeson.toJSON proposal]
+      return $ Aeson.object ["proposing" .= Aeson.toJSON proposal]
+
+  getTxInputIx :: TxBody era -> IxType -> Word32 -> Maybe Aeson.Value
+  getTxInputIx (TxBody txBodyContent) InputIx ix = do
+    thisTxIn <- txIns txBodyContent !? fromIntegral ix
+    return $ toJSON $ fst thisTxIn
+  getTxInputIx (TxBody txBodyContent) RewardIx ix = do
+    case txWithdrawals txBodyContent of
+      TxWithdrawals _ allWithdrawals -> do
+        (addr, _, _) <- allWithdrawals !? fromIntegral ix
+        return $ toJSON addr
+      TxWithdrawalsNone -> Nothing
+
+  tryToSolve
+    :: (IxType -> Word32 -> Maybe Aeson.Value)
+    -> IxType
+    -> Word32
+    -> m Aeson.Value
+  tryToSolve f ixType ix =
+    let ixTypeStr = case ixType of
+          InputIx -> "input"
+          RewardIx -> "reward"
+        msg = "Could not find " <> ixTypeStr <> " with index " <> show ix
+     in eitherToWarning (Aeson.Number $ fromIntegral ix) $ maybeToEither msg $ f ixType ix
 
 friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
 friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null
