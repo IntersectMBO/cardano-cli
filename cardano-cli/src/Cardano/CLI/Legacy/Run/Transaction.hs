@@ -152,8 +152,8 @@ runLegacyTransactionCmds = \case
     runLegacyTransactionHashScriptDataCmd scriptDataOrFile
   TransactionTxIdCmd txinfile ->
     runLegacyTransactionTxIdCmd txinfile
-  TransactionViewCmd yamlOrJson mOutFile txinfile ->
-    runLegacyTransactionViewCmd yamlOrJson mOutFile txinfile
+  TransactionViewCmd ->
+    runLegacyTransactionViewCmd
   TransactionPolicyIdCmd sFile ->
     runLegacyTransactionPolicyIdCmd sFile
   TransactionWitnessCmd txBodyfile witSignData mbNw outFile ->
@@ -508,14 +508,10 @@ runLegacyTransactionTxIdCmd txfile =
         txfile
     )
 
-runLegacyTransactionViewCmd
-  :: ViewOutputFormat -> Maybe (File () Out) -> InputTxBodyOrTxFile -> ExceptT TxCmdError IO ()
-runLegacyTransactionViewCmd
-  _yamlOrJson
-  _mOutFile
-  _inputTxBodyOrTxFile =
-    runTransactionViewCmd
-      Cmd.TransactionViewCmdArgs
+runLegacyTransactionViewCmd :: ExceptT TxCmdError IO ()
+runLegacyTransactionViewCmd =
+  runTransactionViewCmd
+    Cmd.TransactionViewCmdArgs
 
 runLegacyTransactionWitnessCmd
   :: ()

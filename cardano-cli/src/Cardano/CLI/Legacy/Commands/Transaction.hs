@@ -135,9 +135,6 @@ data LegacyTransactionCmds
   | TransactionTxIdCmd
       InputTxBodyOrTxFile
   | TransactionViewCmd
-      ViewOutputFormat
-      (Maybe (File () Out))
-      InputTxBodyOrTxFile
 
 renderLegacyTransactionCmds :: LegacyTransactionCmds -> Text
 renderLegacyTransactionCmds = \case
