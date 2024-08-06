@@ -10,11 +10,7 @@ metadata: null
 mint: null
 outputs: []
 redeemers:
-- - 0
-  - 0
-  - 42
-  - - 200
-    - 100
+  AlonzoSpending (AsIx {unAsIx = 0}): 42
 reference inputs: []
 required signers (payment key hashes needed for scripts): null
 return collateral: null
