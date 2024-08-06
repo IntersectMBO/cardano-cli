@@ -10727,13 +10727,9 @@ Usage: cardano-cli legacy transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli legacy transaction view [--output-json | --output-yaml]
-                                             [--out-file FILE]
-                                             ( --tx-body-file FILE
-                                             | --tx-file FILE
-                                             )
+Usage: cardano-cli legacy transaction view 
 
-  Print a transaction.
+  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli legacy key 
                                 ( verification-key
@@ -11988,11 +11984,9 @@ Usage: cardano-cli transaction txid (--tx-body-file FILE | --tx-file FILE)
 
   Print a transaction identifier.
 
-Usage: cardano-cli transaction view [--output-json | --output-yaml]
-                                      [--out-file FILE]
-                                      (--tx-body-file FILE | --tx-file FILE)
+Usage: cardano-cli transaction view 
 
-  Print a transaction.
+  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli key 
                          ( verification-key
