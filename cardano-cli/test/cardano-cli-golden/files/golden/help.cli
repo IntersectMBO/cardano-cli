@@ -1206,13 +1206,9 @@ Usage: cardano-cli shelley transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli shelley transaction view [--output-json | --output-yaml]
-                                              [--out-file FILE]
-                                              ( --tx-body-file FILE
-                                              | --tx-file FILE
-                                              )
+Usage: cardano-cli shelley transaction view 
 
-  Print a transaction.
+  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli allegra 
                              ( address
@@ -2405,13 +2401,9 @@ Usage: cardano-cli allegra transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli allegra transaction view [--output-json | --output-yaml]
-                                              [--out-file FILE]
-                                              ( --tx-body-file FILE
-                                              | --tx-file FILE
-                                              )
+Usage: cardano-cli allegra transaction view 
 
-  Print a transaction.
+  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli mary 
                           ( address
@@ -3718,13 +3710,9 @@ Usage: cardano-cli mary transaction txid (--tx-body-file FILE | --tx-file FILE)
 
   Print a transaction identifier.
 
-Usage: cardano-cli mary transaction view [--output-json | --output-yaml]
-                                           [--out-file FILE]
-                                           ( --tx-body-file FILE
-                                           | --tx-file FILE
-                                           )
+Usage: cardano-cli mary transaction view 
 
-  Print a transaction.
+  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli alonzo 
                             ( address
@@ -5054,13 +5042,9 @@ Usage: cardano-cli alonzo transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli alonzo transaction view [--output-json | --output-yaml]
-                                             [--out-file FILE]
-                                             ( --tx-body-file FILE
-                                             | --tx-file FILE
-                                             )
+Usage: cardano-cli alonzo transaction view 
 
-  Print a transaction.
+  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli babbage 
                              ( address
@@ -6412,13 +6396,9 @@ Usage: cardano-cli babbage transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli babbage transaction view [--output-json | --output-yaml]
-                                              [--out-file FILE]
-                                              ( --tx-body-file FILE
-                                              | --tx-file FILE
-                                              )
+Usage: cardano-cli babbage transaction view 
 
-  Print a transaction.
+  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli conway 
                             ( address
@@ -8301,13 +8281,9 @@ Usage: cardano-cli conway transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli conway transaction view [--output-json | --output-yaml]
-                                             [--out-file FILE]
-                                             ( --tx-body-file FILE
-                                             | --tx-file FILE
-                                             )
+Usage: cardano-cli conway transaction view 
 
-  Print a transaction.
+  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli latest 
                             ( address
@@ -9656,13 +9632,9 @@ Usage: cardano-cli latest transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli latest transaction view [--output-json | --output-yaml]
-                                             [--out-file FILE]
-                                             ( --tx-body-file FILE
-                                             | --tx-file FILE
-                                             )
+Usage: cardano-cli latest transaction view 
 
-  Print a transaction.
+  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli legacy Legacy commands
 

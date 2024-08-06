@@ -44,4 +44,5 @@ Available commands:
                            output.
   hash-script-data         Calculate the hash of script data.
   txid                     Print a transaction identifier.
-  view                     Print a transaction.
+  view                     This command has been removed. Please use "debug
+                           transaction view" instead.
