@@ -300,7 +300,7 @@ pTransaction envCli =
         (Opt.info pTransactionId $ Opt.progDesc "Print a transaction identifier.")
     , subParser "view" $
         Opt.info pTransactionView $
-          Opt.progDesc "Print a transaction."
+          Opt.progDesc "This command has been removed. Please use \"debug transaction view\" instead."
     ]
  where
   -- Backwards compatible parsers
@@ -488,10 +488,7 @@ pTransaction envCli =
 
   pTransactionView :: Parser LegacyTransactionCmds
   pTransactionView =
-    TransactionViewCmd
-      <$> pTxViewOutputFormat
-      <*> pMaybeOutputFile
-      <*> pInputTxOrTxBodyFile
+    pure TransactionViewCmd
 
 pNodeCmds :: Parser LegacyNodeCmds
 pNodeCmds =

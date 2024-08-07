@@ -1,16 +1,1 @@
-Usage: cardano-cli babbage transaction view [--output-json | --output-yaml]
-                                              [--out-file FILE]
-                                              ( --tx-body-file FILE
-                                              | --tx-file FILE
-                                              )
-
-  Print a transaction.
-
-Available options:
-  --output-json            Format transaction view output to JSON.
-  --output-yaml            Format transaction view output to YAML. Defaults to
-                           JSON if unspecified.
-  --out-file FILE          Optional output file. Default is to write to stdout.
-  --tx-body-file FILE      Input filepath of the JSON TxBody.
-  --tx-file FILE           Input filepath of the JSON Tx.
-  -h,--help                Show this help text
+Command "era transaction view" has been removed. Please use "debug transaction view" instead.

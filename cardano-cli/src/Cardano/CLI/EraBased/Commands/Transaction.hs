@@ -248,10 +248,6 @@ newtype TransactionTxIdCmdArgs = TransactionTxIdCmdArgs
   deriving Show
 
 data TransactionViewCmdArgs = TransactionViewCmdArgs
-  { outputFormat :: !ViewOutputFormat
-  , mOutFile :: !(Maybe (File () Out))
-  , inputTxBodyOrTxFile :: !InputTxBodyOrTxFile
-  }
   deriving Show
 
 renderTransactionCmds :: TransactionCmds era -> Text
