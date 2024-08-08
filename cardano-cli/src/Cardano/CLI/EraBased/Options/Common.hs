@@ -4,6 +4,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Use <$>" -}
@@ -28,9 +29,11 @@ import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 import           Control.Monad (mfilter)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
+import           Data.Bits (Bits, toIntegralSized)
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BSC
+import           Data.Data (Proxy (..), Typeable, typeRep)
 import           Data.Foldable
 import           Data.Functor (($>))
 import qualified Data.IP as IP
@@ -3180,9 +3183,44 @@ pMaxTransactionSize =
       , Opt.help "Maximum transaction size."
       ]
 
+-- | A parser for @(Int, Int)@-like expressions. In other words, 'integralReader'-lifted
+-- to a pairs with a Haskell-like syntax.
+pairIntegralReader :: (Typeable a, Integral a, Bits a) => ReadM (a, a)
+pairIntegralReader = readerFromParsecParser pairIntegralParsecParser
+
+pairIntegralParsecParser :: (Typeable a, Integral a, Bits a) => Parsec.Parser (a, a)
+pairIntegralParsecParser = do
+  Parsec.spaces -- Skip initial spaces
+  void $ Parsec.char '('
+  Parsec.spaces -- Skip spaces between opening paren and lhs
+  lhs :: a <- integralParsecParser
+  Parsec.spaces -- Skip spaces between lhs and comma
+  void $ Parsec.char ','
+  Parsec.spaces -- Skip spaces between comma and rhs
+  rhs :: a <- integralParsecParser
+  Parsec.spaces -- Skip spaces between comma and closing paren
+  void $ Parsec.char ')'
+  Parsec.spaces -- Skip trailing spaces
+  return (lhs, rhs)
+
+-- | @integralReader@ is a reader for a word of type @a@. When it fails
+-- parsing, it provides a nice error message. This custom reader is needed
+-- to avoid the overflow issues of 'Opt.auto' described in https://github.com/IntersectMBO/cardano-cli/issues/860.
+integralReader :: (Typeable a, Integral a, Bits a) => ReadM a
+integralReader = readerFromParsecParser integralParsecParser
+
+integralParsecParser :: forall a. (Typeable a, Integral a, Bits a) => Parsec.Parser a
+integralParsecParser = do
+  i <- decimal
+  case toIntegralSized i of
+    Nothing -> fail $ "Cannot parse " <> show i <> " as a " <> typeName
+    Just n -> return n
+ where
+  typeName = show $ typeRep (Proxy @a)
+
 pMaxBlockHeaderSize :: Parser Word16
 pMaxBlockHeaderSize =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "max-block-header-size"
       , Opt.metavar "WORD16"
