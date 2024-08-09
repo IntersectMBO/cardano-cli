@@ -1,0 +1,680 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE RecordWildCards #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Legacy.Run.Query</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryCmds"><span class="hs-identifier">runLegacyQueryCmds</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html"><span class="hs-identifier">Cardano.CLI.EraBased.Commands.Query</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">EraBased</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Query.html"><span class="hs-identifier">Cardano.CLI.EraBased.Run.Query</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">EraBased</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html"><span class="hs-identifier">Cardano.CLI.Legacy.Commands.Query</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.QueryCmdError</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html"><span class="hs-identifier">Ouroboros.Network.Protocol.LocalStateQuery.Type</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Consensus</span></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html"><span class="hs-identifier">Control.Monad.Trans.Except</span></a></span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryCmds"><span class="hs-identifier hs-type">runLegacyQueryCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryCmds"><span class="hs-identifier hs-type">Cmd.LegacyQueryCmds</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span id="runLegacyQueryCmds"><span class="annot"><span class="annottext">runLegacyQueryCmds :: LegacyQueryCmds -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryCmds"><span class="hs-identifier hs-var hs-var">runLegacyQueryCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-22"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryLeadershipScheduleCmd"><span class="hs-identifier hs-type">Cmd.QueryLeadershipScheduleCmd</span></a></span><span> </span><span id="local-6989586621682032756"><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs
+</span><a href="#local-6989586621682032756"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryLeadershipScheduleCmd"><span class="hs-identifier hs-var">runLegacyQueryLeadershipScheduleCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs
+</span><a href="#local-6989586621682032756"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryProtocolParametersCmd"><span class="hs-identifier hs-type">Cmd.QueryProtocolParametersCmd</span></a></span><span> </span><span id="local-6989586621682032759"><span class="annot"><span class="annottext">LegacyQueryProtocolParametersCmdArgs
+</span><a href="#local-6989586621682032759"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryProtocolParametersCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryProtocolParametersCmd"><span class="hs-identifier hs-var">runLegacyQueryProtocolParametersCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryProtocolParametersCmdArgs
+</span><a href="#local-6989586621682032759"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryTipCmd"><span class="hs-identifier hs-type">Cmd.QueryTipCmd</span></a></span><span> </span><span id="local-6989586621682032762"><span class="annot"><span class="annottext">LegacyQueryTipCmdArgs
+</span><a href="#local-6989586621682032762"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryTipCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryTipCmd"><span class="hs-identifier hs-var">runLegacyQueryTipCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryTipCmdArgs
+</span><a href="#local-6989586621682032762"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-25"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakePoolsCmd"><span class="hs-identifier hs-type">Cmd.QueryStakePoolsCmd</span></a></span><span> </span><span id="local-6989586621682032765"><span class="annot"><span class="annottext">LegacyQueryStakePoolsCmdArgs
+</span><a href="#local-6989586621682032765"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryStakePoolsCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakePoolsCmd"><span class="hs-identifier hs-var">runLegacyQueryStakePoolsCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryStakePoolsCmdArgs
+</span><a href="#local-6989586621682032765"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-26"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakeDistributionCmd"><span class="hs-identifier hs-type">Cmd.QueryStakeDistributionCmd</span></a></span><span> </span><span id="local-6989586621682032768"><span class="annot"><span class="annottext">LegacyQueryStakeDistributionCmdArgs
+</span><a href="#local-6989586621682032768"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryStakeDistributionCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakeDistributionCmd"><span class="hs-identifier hs-var">runLegacyQueryStakeDistributionCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryStakeDistributionCmdArgs
+</span><a href="#local-6989586621682032768"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakeAddressInfoCmd"><span class="hs-identifier hs-type">Cmd.QueryStakeAddressInfoCmd</span></a></span><span> </span><span id="local-6989586621682032771"><span class="annot"><span class="annottext">LegacyQueryStakeAddressInfoCmdArgs
+</span><a href="#local-6989586621682032771"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryStakeAddressInfoCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakeAddressInfoCmd"><span class="hs-identifier hs-var">runLegacyQueryStakeAddressInfoCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryStakeAddressInfoCmdArgs
+</span><a href="#local-6989586621682032771"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-28"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryLedgerStateCmd"><span class="hs-identifier hs-type">Cmd.QueryLedgerStateCmd</span></a></span><span> </span><span id="local-6989586621682032774"><span class="annot"><span class="annottext">LegacyQueryLedgerStateCmdArgs
+</span><a href="#local-6989586621682032774"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryLedgerStateCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryLedgerStateCmd"><span class="hs-identifier hs-var">runLegacyQueryLedgerStateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryLedgerStateCmdArgs
+</span><a href="#local-6989586621682032774"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakeSnapshotCmd"><span class="hs-identifier hs-type">Cmd.QueryStakeSnapshotCmd</span></a></span><span> </span><span id="local-6989586621682032777"><span class="annot"><span class="annottext">LegacyQueryStakeSnapshotCmdArgs
+</span><a href="#local-6989586621682032777"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryStakeSnapshotCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakeSnapshotCmd"><span class="hs-identifier hs-var">runLegacyQueryStakeSnapshotCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryStakeSnapshotCmdArgs
+</span><a href="#local-6989586621682032777"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryProtocolStateCmd"><span class="hs-identifier hs-type">Cmd.QueryProtocolStateCmd</span></a></span><span> </span><span id="local-6989586621682032780"><span class="annot"><span class="annottext">LegacyQueryProtocolStateCmdArgs
+</span><a href="#local-6989586621682032780"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryProtocolStateCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryProtocolStateCmd"><span class="hs-identifier hs-var">runLegacyQueryProtocolStateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryProtocolStateCmdArgs
+</span><a href="#local-6989586621682032780"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryUTxOCmd"><span class="hs-identifier hs-type">Cmd.QueryUTxOCmd</span></a></span><span> </span><span id="local-6989586621682032783"><span class="annot"><span class="annottext">LegacyQueryUTxOCmdArgs
+</span><a href="#local-6989586621682032783"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryUTxOCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryUTxOCmd"><span class="hs-identifier hs-var">runLegacyQueryUTxOCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryUTxOCmdArgs
+</span><a href="#local-6989586621682032783"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-32"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryKesPeriodInfoCmd"><span class="hs-identifier hs-type">Cmd.QueryKesPeriodInfoCmd</span></a></span><span> </span><span id="local-6989586621682032786"><span class="annot"><span class="annottext">LegacyQueryKesPeriodInfoCmdArgs
+</span><a href="#local-6989586621682032786"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryKesPeriodInfoCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryKesPeriodInfoCmd"><span class="hs-identifier hs-var">runLegacyQueryKesPeriodInfoCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryKesPeriodInfoCmdArgs
+</span><a href="#local-6989586621682032786"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryPoolStateCmd"><span class="hs-identifier hs-type">Cmd.QueryPoolStateCmd</span></a></span><span> </span><span id="local-6989586621682032789"><span class="annot"><span class="annottext">LegacyQueryPoolStateCmdArgs
+</span><a href="#local-6989586621682032789"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryPoolStateCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryPoolStateCmd"><span class="hs-identifier hs-var">runLegacyQueryPoolStateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryPoolStateCmdArgs
+</span><a href="#local-6989586621682032789"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryTxMempoolCmd"><span class="hs-identifier hs-type">Cmd.QueryTxMempoolCmd</span></a></span><span> </span><span id="local-6989586621682032792"><span class="annot"><span class="annottext">LegacyQueryTxMempoolCmdArgs
+</span><a href="#local-6989586621682032792"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQueryTxMempoolCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryTxMempoolCmd"><span class="hs-identifier hs-var">runLegacyQueryTxMempoolCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQueryTxMempoolCmdArgs
+</span><a href="#local-6989586621682032792"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-35"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QuerySlotNumberCmd"><span class="hs-identifier hs-type">Cmd.QuerySlotNumberCmd</span></a></span><span> </span><span id="local-6989586621682032795"><span class="annot"><span class="annottext">LegacyQuerySlotNumberCmdArgs
+</span><a href="#local-6989586621682032795"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyQuerySlotNumberCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQuerySlotNumberCmd"><span class="hs-identifier hs-var">runLegacyQuerySlotNumberCmd</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyQuerySlotNumberCmdArgs
+</span><a href="#local-6989586621682032795"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryProtocolParametersCmd"><span class="hs-identifier hs-type">runLegacyQueryProtocolParametersCmd</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolParametersCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryProtocolParametersCmdArgs</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span id="runLegacyQueryProtocolParametersCmd"><span class="annot"><span class="annottext">runLegacyQueryProtocolParametersCmd :: LegacyQueryProtocolParametersCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryProtocolParametersCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryProtocolParametersCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolParametersCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryProtocolParametersCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032798"><span id="local-6989586621682032799"><span id="local-6989586621682032800"><span id="local-6989586621682032801"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryProtocolParametersCmdArgs -&gt; Maybe (File () 'Out)
+networkId :: LegacyQueryProtocolParametersCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryProtocolParametersCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryProtocolParametersCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032798"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-42"></span><span>  </span><span class="annot"><span class="annottext">QueryProtocolParametersCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryProtocolParametersCmd"><span class="hs-identifier hs-var">EraBased.runQueryProtocolParametersCmd</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryProtocolParametersCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryProtocolParametersCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032798"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryTipCmd"><span class="hs-identifier hs-type">runLegacyQueryTipCmd</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTipCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryTipCmdArgs</span></a></span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-48"></span><span id="runLegacyQueryTipCmd"><span class="annot"><span class="annottext">runLegacyQueryTipCmd :: LegacyQueryTipCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryTipCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryTipCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTipCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryTipCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032813"><span id="local-6989586621682032814"><span id="local-6989586621682032815"><span id="local-6989586621682032816"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryTipCmdArgs -&gt; Maybe (File () 'Out)
+networkId :: LegacyQueryTipCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryTipCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryTipCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032813"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-49"></span><span>  </span><span class="annot"><span class="annottext">QueryTipCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryTipCmd"><span class="hs-identifier hs-var">EraBased.runQueryTipCmd</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryTipCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryTipCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032813"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span class="hs-comment">-- | Query the UTxO, filtered by a given set of addresses, from a Shelley node</span><span>
+</span><span id="line-52"></span><span class="hs-comment">-- via the local state query protocol.</span><span>
+</span><span id="line-53"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryUTxOCmd"><span class="hs-identifier hs-type">runLegacyQueryUTxOCmd</span></a></span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-55"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryUTxOCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryUTxOCmdArgs</span></a></span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-57"></span><span id="runLegacyQueryUTxOCmd"><span class="annot"><span class="annottext">runLegacyQueryUTxOCmd :: LegacyQueryUTxOCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryUTxOCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryUTxOCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryUTxOCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryUTxOCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032830"><span id="local-6989586621682032831"><span id="local-6989586621682032832"><span id="local-6989586621682032833"><span id="local-6989586621682032834"><span id="local-6989586621682032835"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+Maybe OutputFormatJsonOrText
+SocketPath
+ConsensusModeParams
+NetworkId
+QueryUTxOFilter
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+queryFilter :: QueryUTxOFilter
+networkId :: NetworkId
+format :: Maybe OutputFormatJsonOrText
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryUTxOCmdArgs -&gt; Maybe (File () 'Out)
+format :: LegacyQueryUTxOCmdArgs -&gt; Maybe OutputFormatJsonOrText
+networkId :: LegacyQueryUTxOCmdArgs -&gt; NetworkId
+queryFilter :: LegacyQueryUTxOCmdArgs -&gt; QueryUTxOFilter
+consensusModeParams :: LegacyQueryUTxOCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryUTxOCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032830"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-58"></span><span>  </span><span class="annot"><span class="annottext">QueryUTxOCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryUTxOCmd"><span class="hs-identifier hs-var">EraBased.runQueryUTxOCmd</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryUTxOCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryUTxOCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+Maybe OutputFormatJsonOrText
+SocketPath
+ConsensusModeParams
+NetworkId
+QueryUTxOFilter
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+queryFilter :: QueryUTxOFilter
+networkId :: NetworkId
+format :: Maybe OutputFormatJsonOrText
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+format :: Maybe OutputFormatJsonOrText
+networkId :: NetworkId
+queryFilter :: QueryUTxOFilter
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032830"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-59"></span><span>
+</span><span id="line-60"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryKesPeriodInfoCmd"><span class="hs-identifier hs-type">runLegacyQueryKesPeriodInfoCmd</span></a></span><span>
+</span><span id="line-61"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryKesPeriodInfoCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryKesPeriodInfoCmdArgs</span></a></span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-64"></span><span id="runLegacyQueryKesPeriodInfoCmd"><span class="annot"><span class="annottext">runLegacyQueryKesPeriodInfoCmd :: LegacyQueryKesPeriodInfoCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryKesPeriodInfoCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryKesPeriodInfoCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryKesPeriodInfoCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryKesPeriodInfoCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032852"><span id="local-6989586621682032853"><span id="local-6989586621682032854"><span id="local-6989586621682032855"><span id="local-6989586621682032856"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+File () 'In
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+nodeOpCertFp :: File () 'In
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryKesPeriodInfoCmdArgs -&gt; Maybe (File () 'Out)
+nodeOpCertFp :: LegacyQueryKesPeriodInfoCmdArgs -&gt; File () 'In
+networkId :: LegacyQueryKesPeriodInfoCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryKesPeriodInfoCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryKesPeriodInfoCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032852"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-65"></span><span>  </span><span class="annot"><span class="annottext">QueryKesPeriodInfoCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryKesPeriodInfoCmd"><span class="hs-identifier hs-var">EraBased.runQueryKesPeriodInfoCmd</span></a></span><span>
+</span><span id="line-66"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryKesPeriodInfoCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryKesPeriodInfoCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+File () 'In
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+nodeOpCertFp :: File () 'In
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+nodeOpCertFp :: File () 'In
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032852"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-67"></span><span>
+</span><span id="line-68"></span><span class="hs-comment">-- | Query the current and future parameters for a stake pool, including the retirement date.</span><span>
+</span><span id="line-69"></span><span class="hs-comment">-- Any of these may be empty (in which case a null will be displayed).</span><span>
+</span><span id="line-70"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryPoolStateCmd"><span class="hs-identifier hs-type">runLegacyQueryPoolStateCmd</span></a></span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryPoolStateCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryPoolStateCmdArgs</span></a></span><span>
+</span><span id="line-73"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-74"></span><span id="runLegacyQueryPoolStateCmd"><span class="annot"><span class="annottext">runLegacyQueryPoolStateCmd :: LegacyQueryPoolStateCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryPoolStateCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryPoolStateCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryPoolStateCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryPoolStateCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032871"><span id="local-6989586621682032872"><span id="local-6989586621682032873"><span id="local-6989586621682032874"><span id="local-6989586621682032875"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+AllOrOnly (Hash StakePoolKey)
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+allOrOnlyPoolIds :: AllOrOnly (Hash StakePoolKey)
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryPoolStateCmdArgs -&gt; Maybe (File () 'Out)
+allOrOnlyPoolIds :: LegacyQueryPoolStateCmdArgs -&gt; AllOrOnly (Hash StakePoolKey)
+networkId :: LegacyQueryPoolStateCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryPoolStateCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryPoolStateCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032871"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-75"></span><span>  </span><span class="annot"><span class="annottext">QueryPoolStateCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryPoolStateCmd"><span class="hs-identifier hs-var">EraBased.runQueryPoolStateCmd</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryPoolStateCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryPoolStateCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+AllOrOnly (Hash StakePoolKey)
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+allOrOnlyPoolIds :: AllOrOnly (Hash StakePoolKey)
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+allOrOnlyPoolIds :: AllOrOnly (Hash StakePoolKey)
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032871"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-76"></span><span>
+</span><span id="line-77"></span><span class="annot"><span class="hs-comment">-- | Query the local mempool state</span></span><span>
+</span><span id="line-78"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryTxMempoolCmd"><span class="hs-identifier hs-type">runLegacyQueryTxMempoolCmd</span></a></span><span>
+</span><span id="line-79"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-80"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTxMempoolCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryTxMempoolCmdArgs</span></a></span><span>
+</span><span id="line-81"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-82"></span><span id="runLegacyQueryTxMempoolCmd"><span class="annot"><span class="annottext">runLegacyQueryTxMempoolCmd :: LegacyQueryTxMempoolCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryTxMempoolCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryTxMempoolCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTxMempoolCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryTxMempoolCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032890"><span id="local-6989586621682032891"><span id="local-6989586621682032892"><span id="local-6989586621682032893"><span id="local-6989586621682032894"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+TxMempoolQuery
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+query :: TxMempoolQuery
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryTxMempoolCmdArgs -&gt; Maybe (File () 'Out)
+query :: LegacyQueryTxMempoolCmdArgs -&gt; TxMempoolQuery
+networkId :: LegacyQueryTxMempoolCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryTxMempoolCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryTxMempoolCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032890"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-83"></span><span>  </span><span class="annot"><span class="annottext">QueryTxMempoolCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryTxMempoolCmd"><span class="hs-identifier hs-var">EraBased.runQueryTxMempoolCmd</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryTxMempoolCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryTxMempoolCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+TxMempoolQuery
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+query :: TxMempoolQuery
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+query :: TxMempoolQuery
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032890"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-84"></span><span>
+</span><span id="line-85"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQuerySlotNumberCmd"><span class="hs-identifier hs-type">runLegacyQuerySlotNumberCmd</span></a></span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQuerySlotNumberCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQuerySlotNumberCmdArgs</span></a></span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-89"></span><span id="runLegacyQuerySlotNumberCmd"><span class="annot"><span class="annottext">runLegacyQuerySlotNumberCmd :: LegacyQuerySlotNumberCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQuerySlotNumberCmd"><span class="hs-identifier hs-var hs-var">runLegacyQuerySlotNumberCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQuerySlotNumberCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQuerySlotNumberCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032908"><span id="local-6989586621682032909"><span id="local-6989586621682032910"><span id="local-6989586621682032911"><span class="annot"><span class="annottext">UTCTime
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+utcTime :: UTCTime
+utcTime :: LegacyQuerySlotNumberCmdArgs -&gt; UTCTime
+networkId :: LegacyQuerySlotNumberCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQuerySlotNumberCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQuerySlotNumberCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032908"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-90"></span><span>  </span><span class="annot"><span class="annottext">QuerySlotNumberCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQuerySlotNumberCmd"><span class="hs-identifier hs-var">EraBased.runQuerySlotNumberCmd</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QuerySlotNumberCmdArgs"><span class="hs-identifier hs-type">EraBased.QuerySlotNumberCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">UTCTime
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+utcTime :: UTCTime
+utcTime :: UTCTime
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032908"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span class="hs-comment">-- | Obtain stake snapshot information for a pool, plus information about the total active stake.</span><span>
+</span><span id="line-93"></span><span class="hs-comment">-- This information can be used for leader slot calculation, for example, and has been requested by SPOs.</span><span>
+</span><span id="line-94"></span><span class="hs-comment">-- Obtaining the information directly is significantly more time and memory efficient than using a full ledger state dump.</span><span>
+</span><span id="line-95"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakeSnapshotCmd"><span class="hs-identifier hs-type">runLegacyQueryStakeSnapshotCmd</span></a></span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-97"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeSnapshotCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryStakeSnapshotCmdArgs</span></a></span><span>
+</span><span id="line-98"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-99"></span><span id="runLegacyQueryStakeSnapshotCmd"><span class="annot"><span class="annottext">runLegacyQueryStakeSnapshotCmd :: LegacyQueryStakeSnapshotCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakeSnapshotCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryStakeSnapshotCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeSnapshotCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryStakeSnapshotCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032924"><span id="local-6989586621682032925"><span id="local-6989586621682032926"><span id="local-6989586621682032927"><span id="local-6989586621682032928"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+AllOrOnly (Hash StakePoolKey)
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+allOrOnlyPoolIds :: AllOrOnly (Hash StakePoolKey)
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryStakeSnapshotCmdArgs -&gt; Maybe (File () 'Out)
+allOrOnlyPoolIds :: LegacyQueryStakeSnapshotCmdArgs -&gt; AllOrOnly (Hash StakePoolKey)
+networkId :: LegacyQueryStakeSnapshotCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryStakeSnapshotCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryStakeSnapshotCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032924"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-100"></span><span>  </span><span class="annot"><span class="annottext">QueryStakeSnapshotCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryStakeSnapshotCmd"><span class="hs-identifier hs-var">EraBased.runQueryStakeSnapshotCmd</span></a></span><span>
+</span><span id="line-101"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryStakeSnapshotCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryStakeSnapshotCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+AllOrOnly (Hash StakePoolKey)
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+allOrOnlyPoolIds :: AllOrOnly (Hash StakePoolKey)
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+allOrOnlyPoolIds :: AllOrOnly (Hash StakePoolKey)
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032924"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-102"></span><span>
+</span><span id="line-103"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryLedgerStateCmd"><span class="hs-identifier hs-type">runLegacyQueryLedgerStateCmd</span></a></span><span>
+</span><span id="line-104"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-105"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLedgerStateCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryLedgerStateCmdArgs</span></a></span><span>
+</span><span id="line-106"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-107"></span><span id="runLegacyQueryLedgerStateCmd"><span class="annot"><span class="annottext">runLegacyQueryLedgerStateCmd :: LegacyQueryLedgerStateCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryLedgerStateCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryLedgerStateCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLedgerStateCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryLedgerStateCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032943"><span id="local-6989586621682032944"><span id="local-6989586621682032945"><span id="local-6989586621682032946"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryLedgerStateCmdArgs -&gt; Maybe (File () 'Out)
+networkId :: LegacyQueryLedgerStateCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryLedgerStateCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryLedgerStateCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032943"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-108"></span><span>  </span><span class="annot"><span class="annottext">QueryLedgerStateCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryLedgerStateCmd"><span class="hs-identifier hs-var">EraBased.runQueryLedgerStateCmd</span></a></span><span>
+</span><span id="line-109"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryLedgerStateCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryLedgerStateCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032943"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-110"></span><span>
+</span><span id="line-111"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryProtocolStateCmd"><span class="hs-identifier hs-type">runLegacyQueryProtocolStateCmd</span></a></span><span>
+</span><span id="line-112"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-113"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolStateCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryProtocolStateCmdArgs</span></a></span><span>
+</span><span id="line-114"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-115"></span><span id="runLegacyQueryProtocolStateCmd"><span class="annot"><span class="annottext">runLegacyQueryProtocolStateCmd :: LegacyQueryProtocolStateCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryProtocolStateCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryProtocolStateCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolStateCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryProtocolStateCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032959"><span id="local-6989586621682032960"><span id="local-6989586621682032961"><span id="local-6989586621682032962"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryProtocolStateCmdArgs -&gt; Maybe (File () 'Out)
+networkId :: LegacyQueryProtocolStateCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryProtocolStateCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryProtocolStateCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032959"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-116"></span><span>  </span><span class="annot"><span class="annottext">QueryProtocolStateCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryProtocolStateCmd"><span class="hs-identifier hs-var">EraBased.runQueryProtocolStateCmd</span></a></span><span>
+</span><span id="line-117"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryProtocolStateCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryProtocolStateCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032959"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-118"></span><span>
+</span><span id="line-119"></span><span class="hs-comment">-- | Query the current delegations and reward accounts, filtered by a given</span><span>
+</span><span id="line-120"></span><span class="hs-comment">-- set of addresses, from a Shelley node via the local state query protocol.</span><span>
+</span><span id="line-121"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakeAddressInfoCmd"><span class="hs-identifier hs-type">runLegacyQueryStakeAddressInfoCmd</span></a></span><span>
+</span><span id="line-122"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-123"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeAddressInfoCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryStakeAddressInfoCmdArgs</span></a></span><span>
+</span><span id="line-124"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-125"></span><span id="runLegacyQueryStakeAddressInfoCmd"><span class="annot"><span class="annottext">runLegacyQueryStakeAddressInfoCmd :: LegacyQueryStakeAddressInfoCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakeAddressInfoCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryStakeAddressInfoCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeAddressInfoCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryStakeAddressInfoCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032975"><span id="local-6989586621682032976"><span id="local-6989586621682032977"><span id="local-6989586621682032978"><span id="local-6989586621682032979"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+StakeAddress
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+addr :: StakeAddress
+networkId :: NetworkId
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryStakeAddressInfoCmdArgs -&gt; Maybe (File () 'Out)
+networkId :: LegacyQueryStakeAddressInfoCmdArgs -&gt; NetworkId
+addr :: LegacyQueryStakeAddressInfoCmdArgs -&gt; StakeAddress
+consensusModeParams :: LegacyQueryStakeAddressInfoCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryStakeAddressInfoCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032975"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-126"></span><span>  </span><span class="annot"><span class="annottext">QueryStakeAddressInfoCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryStakeAddressInfoCmd"><span class="hs-identifier hs-var">EraBased.runQueryStakeAddressInfoCmd</span></a></span><span>
+</span><span id="line-127"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryStakeAddressInfoCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryStakeAddressInfoCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+StakeAddress
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+addr :: StakeAddress
+networkId :: NetworkId
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+networkId :: NetworkId
+addr :: StakeAddress
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032975"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-128"></span><span>
+</span><span id="line-129"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakePoolsCmd"><span class="hs-identifier hs-type">runLegacyQueryStakePoolsCmd</span></a></span><span>
+</span><span id="line-130"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-131"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakePoolsCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryStakePoolsCmdArgs</span></a></span><span>
+</span><span id="line-132"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-133"></span><span id="runLegacyQueryStakePoolsCmd"><span class="annot"><span class="annottext">runLegacyQueryStakePoolsCmd :: LegacyQueryStakePoolsCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakePoolsCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryStakePoolsCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakePoolsCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryStakePoolsCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682032994"><span id="local-6989586621682032995"><span id="local-6989586621682032996"><span id="local-6989586621682032997"><span id="local-6989586621682032998"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+Maybe OutputFormatJsonOrText
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+format :: Maybe OutputFormatJsonOrText
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryStakePoolsCmdArgs -&gt; Maybe (File () 'Out)
+format :: LegacyQueryStakePoolsCmdArgs -&gt; Maybe OutputFormatJsonOrText
+networkId :: LegacyQueryStakePoolsCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryStakePoolsCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryStakePoolsCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682032994"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-134"></span><span>  </span><span class="annot"><span class="annottext">QueryStakePoolsCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryStakePoolsCmd"><span class="hs-identifier hs-var">EraBased.runQueryStakePoolsCmd</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryStakePoolsCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryStakePoolsCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="#local-6989586621682033006"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+Maybe OutputFormatJsonOrText
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+format :: Maybe OutputFormatJsonOrText
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+format :: Maybe OutputFormatJsonOrText
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682032994"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-135"></span><span>
+</span><span id="line-136"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakeDistributionCmd"><span class="hs-identifier hs-type">runLegacyQueryStakeDistributionCmd</span></a></span><span>
+</span><span id="line-137"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-138"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeDistributionCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryStakeDistributionCmdArgs</span></a></span><span>
+</span><span id="line-139"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-140"></span><span id="runLegacyQueryStakeDistributionCmd"><span class="annot"><span class="annottext">runLegacyQueryStakeDistributionCmd :: LegacyQueryStakeDistributionCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryStakeDistributionCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryStakeDistributionCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeDistributionCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryStakeDistributionCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682033013"><span id="local-6989586621682033014"><span id="local-6989586621682033015"><span id="local-6989586621682033016"><span id="local-6989586621682033017"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+Maybe OutputFormatJsonOrText
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+format :: Maybe OutputFormatJsonOrText
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryStakeDistributionCmdArgs -&gt; Maybe (File () 'Out)
+format :: LegacyQueryStakeDistributionCmdArgs -&gt; Maybe OutputFormatJsonOrText
+networkId :: LegacyQueryStakeDistributionCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryStakeDistributionCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryStakeDistributionCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682033013"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-141"></span><span>  </span><span class="annot"><span class="annottext">QueryStakeDistributionCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryStakeDistributionCmd"><span class="hs-identifier hs-var">EraBased.runQueryStakeDistributionCmd</span></a></span><span>
+</span><span id="line-142"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryStakeDistributionCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryStakeDistributionCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+Maybe OutputFormatJsonOrText
+SocketPath
+ConsensusModeParams
+NetworkId
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+format :: Maybe OutputFormatJsonOrText
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+format :: Maybe OutputFormatJsonOrText
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682033013"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-143"></span><span>
+</span><span id="line-144"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryLeadershipScheduleCmd"><span class="hs-identifier hs-type">runLegacyQueryLeadershipScheduleCmd</span></a></span><span>
+</span><span id="line-145"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-146"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLeadershipScheduleCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryLeadershipScheduleCmdArgs</span></a></span><span>
+</span><span id="line-147"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.QueryCmdError.html#QueryCmdError"><span class="hs-identifier hs-type">QueryCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-148"></span><span id="runLegacyQueryLeadershipScheduleCmd"><span class="annot"><span class="annottext">runLegacyQueryLeadershipScheduleCmd :: LegacyQueryLeadershipScheduleCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.Query.html#runLegacyQueryLeadershipScheduleCmd"><span class="hs-identifier hs-var hs-var">runLegacyQueryLeadershipScheduleCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLeadershipScheduleCmdArgs"><span class="hs-identifier hs-type">Cmd.LegacyQueryLeadershipScheduleCmdArgs</span></a></span><span class="hs-special">{</span><span id="local-6989586621682033032"><span id="local-6989586621682033033"><span id="local-6989586621682033034"><span id="local-6989586621682033035"><span id="local-6989586621682033036"><span id="local-6989586621682033037"><span id="local-6989586621682033038"><span id="local-6989586621682033039"><span id="local-6989586621682033040"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+Maybe OutputFormatJsonOrText
+SigningKeyFile 'In
+SocketPath
+ConsensusModeParams
+NetworkId
+EpochLeadershipSchedule
+GenesisFile
+VerificationKeyOrHashOrFile StakePoolKey
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+genesisFp :: GenesisFile
+poolColdVerKeyFile :: VerificationKeyOrHashOrFile StakePoolKey
+vrkSkeyFp :: SigningKeyFile 'In
+whichSchedule :: EpochLeadershipSchedule
+format :: Maybe OutputFormatJsonOrText
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: LegacyQueryLeadershipScheduleCmdArgs -&gt; Maybe (File () 'Out)
+format :: LegacyQueryLeadershipScheduleCmdArgs
+-&gt; Maybe OutputFormatJsonOrText
+whichSchedule :: LegacyQueryLeadershipScheduleCmdArgs -&gt; EpochLeadershipSchedule
+vrkSkeyFp :: LegacyQueryLeadershipScheduleCmdArgs -&gt; SigningKeyFile 'In
+poolColdVerKeyFile :: LegacyQueryLeadershipScheduleCmdArgs
+-&gt; VerificationKeyOrHashOrFile StakePoolKey
+genesisFp :: LegacyQueryLeadershipScheduleCmdArgs -&gt; GenesisFile
+networkId :: LegacyQueryLeadershipScheduleCmdArgs -&gt; NetworkId
+consensusModeParams :: LegacyQueryLeadershipScheduleCmdArgs -&gt; ConsensusModeParams
+nodeSocketPath :: LegacyQueryLeadershipScheduleCmdArgs -&gt; SocketPath
+</span><a href="#local-6989586621682033032"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span></span></span></span></span></span></span></span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-149"></span><span>  </span><span class="annot"><span class="annottext">QueryLeadershipScheduleCmdArgs -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryLeadershipScheduleCmd"><span class="hs-identifier hs-var">EraBased.runQueryLeadershipScheduleCmd</span></a></span><span>
+</span><span id="line-150"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Query.html#QueryLeadershipScheduleCmdArgs"><span class="hs-identifier hs-type">EraBased.QueryLeadershipScheduleCmdArgs</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">target :: Target ChainPoint
+</span><a href="Cardano.CLI.EraBased.Commands.Query.html#target"><span class="hs-identifier hs-var">target</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-network-protocols-0.9.0.0-ce276fdc76289a1c19de688e9af024e8c1a565f433e844b02843811bb809f119/share/doc/html/src/Ouroboros.Network.Protocol.LocalStateQuery.Type.html#VolatileTip"><span class="hs-identifier hs-var">Consensus.VolatileTip</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+Maybe OutputFormatJsonOrText
+SigningKeyFile 'In
+SocketPath
+ConsensusModeParams
+NetworkId
+EpochLeadershipSchedule
+GenesisFile
+VerificationKeyOrHashOrFile StakePoolKey
+nodeSocketPath :: SocketPath
+consensusModeParams :: ConsensusModeParams
+networkId :: NetworkId
+genesisFp :: GenesisFile
+poolColdVerKeyFile :: VerificationKeyOrHashOrFile StakePoolKey
+vrkSkeyFp :: SigningKeyFile 'In
+whichSchedule :: EpochLeadershipSchedule
+format :: Maybe OutputFormatJsonOrText
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+format :: Maybe OutputFormatJsonOrText
+whichSchedule :: EpochLeadershipSchedule
+vrkSkeyFp :: SigningKeyFile 'In
+poolColdVerKeyFile :: VerificationKeyOrHashOrFile StakePoolKey
+genesisFp :: GenesisFile
+networkId :: NetworkId
+consensusModeParams :: ConsensusModeParams
+nodeSocketPath :: SocketPath
+</span><a href="#local-6989586621682033032"><span class="hs-glyph hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">..</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-151"></span></pre></body></html>

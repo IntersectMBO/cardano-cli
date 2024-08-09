@@ -1,0 +1,914 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DeriveGeneric #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Legacy.Commands.Query</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryCmds"><span class="hs-identifier">LegacyQueryCmds</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLeadershipScheduleCmdArgs"><span class="hs-identifier">LegacyQueryLeadershipScheduleCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolParametersCmdArgs"><span class="hs-identifier">LegacyQueryProtocolParametersCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryConstitutionHashCmdArgs"><span class="hs-identifier">LegacyQueryConstitutionHashCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTipCmdArgs"><span class="hs-identifier">LegacyQueryTipCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakePoolsCmdArgs"><span class="hs-identifier">LegacyQueryStakePoolsCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeDistributionCmdArgs"><span class="hs-identifier">LegacyQueryStakeDistributionCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeAddressInfoCmdArgs"><span class="hs-identifier">LegacyQueryStakeAddressInfoCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryUTxOCmdArgs"><span class="hs-identifier">LegacyQueryUTxOCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLedgerStateCmdArgs"><span class="hs-identifier">LegacyQueryLedgerStateCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolStateCmdArgs"><span class="hs-identifier">LegacyQueryProtocolStateCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeSnapshotCmdArgs"><span class="hs-identifier">LegacyQueryStakeSnapshotCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryKesPeriodInfoCmdArgs"><span class="hs-identifier">LegacyQueryKesPeriodInfoCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryPoolStateCmdArgs"><span class="hs-identifier">LegacyQueryPoolStateCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTxMempoolCmdArgs"><span class="hs-identifier">LegacyQueryTxMempoolCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQuerySlotNumberCmdArgs"><span class="hs-identifier">LegacyQuerySlotNumberCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#renderLegacyQueryCmds"><span class="hs-identifier">renderLegacyQueryCmds</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-9.1.0.0-3f6ab2b6cf2886ef0c64f4e3b9c659d20800797a71b90a3a82038aa494c77479/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span> </span><span class="hs-keyword">hiding</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">QueryInShelleyBasedEra</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Common.html"><span class="hs-identifier">Cardano.CLI.Types.Common</span></a></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Key.html"><span class="hs-identifier">Cardano.CLI.Types.Key</span></a></span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.html"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.html#Text"><span class="hs-identifier">Text</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/time-1.12.2-inplace/src/Data.Time.Clock.html"><span class="hs-identifier">Data.Time.Clock</span></a></span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html"><span class="hs-identifier">GHC.Generics</span></a></span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryCmds"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryCmds"><span class="hs-identifier hs-var">LegacyQueryCmds</span></a></span></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="QueryLeadershipScheduleCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryLeadershipScheduleCmd"><span class="hs-identifier hs-var">QueryLeadershipScheduleCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLeadershipScheduleCmdArgs"><span class="hs-identifier hs-type">LegacyQueryLeadershipScheduleCmdArgs</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryProtocolParametersCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryProtocolParametersCmd"><span class="hs-identifier hs-var">QueryProtocolParametersCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolParametersCmdArgs"><span class="hs-identifier hs-type">LegacyQueryProtocolParametersCmdArgs</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryTipCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryTipCmd"><span class="hs-identifier hs-var">QueryTipCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTipCmdArgs"><span class="hs-identifier hs-type">LegacyQueryTipCmdArgs</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryStakePoolsCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakePoolsCmd"><span class="hs-identifier hs-var">QueryStakePoolsCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakePoolsCmdArgs"><span class="hs-identifier hs-type">LegacyQueryStakePoolsCmdArgs</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryStakeDistributionCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakeDistributionCmd"><span class="hs-identifier hs-var">QueryStakeDistributionCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeDistributionCmdArgs"><span class="hs-identifier hs-type">LegacyQueryStakeDistributionCmdArgs</span></a></span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryStakeAddressInfoCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakeAddressInfoCmd"><span class="hs-identifier hs-var">QueryStakeAddressInfoCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeAddressInfoCmdArgs"><span class="hs-identifier hs-type">LegacyQueryStakeAddressInfoCmdArgs</span></a></span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryUTxOCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryUTxOCmd"><span class="hs-identifier hs-var">QueryUTxOCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryUTxOCmdArgs"><span class="hs-identifier hs-type">LegacyQueryUTxOCmdArgs</span></a></span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryLedgerStateCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryLedgerStateCmd"><span class="hs-identifier hs-var">QueryLedgerStateCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLedgerStateCmdArgs"><span class="hs-identifier hs-type">LegacyQueryLedgerStateCmdArgs</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryProtocolStateCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryProtocolStateCmd"><span class="hs-identifier hs-var">QueryProtocolStateCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolStateCmdArgs"><span class="hs-identifier hs-type">LegacyQueryProtocolStateCmdArgs</span></a></span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryStakeSnapshotCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakeSnapshotCmd"><span class="hs-identifier hs-var">QueryStakeSnapshotCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeSnapshotCmdArgs"><span class="hs-identifier hs-type">LegacyQueryStakeSnapshotCmdArgs</span></a></span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryKesPeriodInfoCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryKesPeriodInfoCmd"><span class="hs-identifier hs-var">QueryKesPeriodInfoCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryKesPeriodInfoCmdArgs"><span class="hs-identifier hs-type">LegacyQueryKesPeriodInfoCmdArgs</span></a></span><span>
+</span><span id="line-48"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryPoolStateCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryPoolStateCmd"><span class="hs-identifier hs-var">QueryPoolStateCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryPoolStateCmdArgs"><span class="hs-identifier hs-type">LegacyQueryPoolStateCmdArgs</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QueryTxMempoolCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryTxMempoolCmd"><span class="hs-identifier hs-var">QueryTxMempoolCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTxMempoolCmdArgs"><span class="hs-identifier hs-type">LegacyQueryTxMempoolCmdArgs</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="QuerySlotNumberCmd"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QuerySlotNumberCmd"><span class="hs-identifier hs-var">QuerySlotNumberCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQuerySlotNumberCmdArgs"><span class="hs-identifier hs-type">LegacyQuerySlotNumberCmdArgs</span></a></span><span>
+</span><span id="line-51"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007576"><span id="local-6989586621682007578"><span class="annot"><span class="annottext">(forall x. LegacyQueryCmds -&gt; Rep LegacyQueryCmds x)
+-&gt; (forall x. Rep LegacyQueryCmds x -&gt; LegacyQueryCmds)
+-&gt; Generic LegacyQueryCmds
+forall x. Rep LegacyQueryCmds x -&gt; LegacyQueryCmds
+forall x. LegacyQueryCmds -&gt; Rep LegacyQueryCmds x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x. LegacyQueryCmds -&gt; Rep LegacyQueryCmds x
+from :: forall x. LegacyQueryCmds -&gt; Rep LegacyQueryCmds x
+$cto :: forall x. Rep LegacyQueryCmds x -&gt; LegacyQueryCmds
+to :: forall x. Rep LegacyQueryCmds x -&gt; LegacyQueryCmds
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007582"><span id="local-6989586621682007627"><span id="local-6989586621682007631"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryCmds -&gt; ShowS
+[LegacyQueryCmds] -&gt; ShowS
+LegacyQueryCmds -&gt; String
+(Int -&gt; LegacyQueryCmds -&gt; ShowS)
+-&gt; (LegacyQueryCmds -&gt; String)
+-&gt; ([LegacyQueryCmds] -&gt; ShowS)
+-&gt; Show LegacyQueryCmds
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryCmds -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryCmds -&gt; ShowS
+$cshow :: LegacyQueryCmds -&gt; String
+show :: LegacyQueryCmds -&gt; String
+$cshowList :: [LegacyQueryCmds] -&gt; ShowS
+showList :: [LegacyQueryCmds] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-52"></span><span>
+</span><span id="line-53"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryLeadershipScheduleCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLeadershipScheduleCmdArgs"><span class="hs-identifier hs-var">LegacyQueryLeadershipScheduleCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryLeadershipScheduleCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLeadershipScheduleCmdArgs"><span class="hs-identifier hs-var">LegacyQueryLeadershipScheduleCmdArgs</span></a></span></span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-55"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-57"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="genesisFp"><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs -&gt; GenesisFile
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#genesisFp"><span class="hs-identifier hs-var hs-var">genesisFp</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#GenesisFile"><span class="hs-identifier hs-type">GenesisFile</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="poolColdVerKeyFile"><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs
+-&gt; VerificationKeyOrHashOrFile StakePoolKey
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#poolColdVerKeyFile"><span class="hs-identifier hs-var hs-var">poolColdVerKeyFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Key.html#VerificationKeyOrHashOrFile"><span class="hs-identifier hs-type">VerificationKeyOrHashOrFile</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">StakePoolKey</span></span><span class="hs-special">)</span><span>
+</span><span id="line-59"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="vrkSkeyFp"><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs -&gt; SigningKeyFile 'In
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#vrkSkeyFp"><span class="hs-identifier hs-var hs-var">vrkSkeyFp</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#SigningKeyFile"><span class="hs-identifier hs-type">SigningKeyFile</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">In</span></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="whichSchedule"><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs -&gt; EpochLeadershipSchedule
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#whichSchedule"><span class="hs-identifier hs-var hs-var">whichSchedule</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#EpochLeadershipSchedule"><span class="hs-identifier hs-type">EpochLeadershipSchedule</span></a></span><span>
+</span><span id="line-61"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="format"><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs
+-&gt; Maybe OutputFormatJsonOrText
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#format"><span class="hs-identifier hs-var hs-var">format</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#OutputFormatJsonOrText"><span class="hs-identifier hs-type">OutputFormatJsonOrText</span></a></span><span>
+</span><span id="line-62"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryLeadershipScheduleCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-64"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007645"><span id="local-6989586621682007647"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryLeadershipScheduleCmdArgs
+ -&gt; Rep LegacyQueryLeadershipScheduleCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryLeadershipScheduleCmdArgs x
+    -&gt; LegacyQueryLeadershipScheduleCmdArgs)
+-&gt; Generic LegacyQueryLeadershipScheduleCmdArgs
+forall x.
+Rep LegacyQueryLeadershipScheduleCmdArgs x
+-&gt; LegacyQueryLeadershipScheduleCmdArgs
+forall x.
+LegacyQueryLeadershipScheduleCmdArgs
+-&gt; Rep LegacyQueryLeadershipScheduleCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryLeadershipScheduleCmdArgs
+-&gt; Rep LegacyQueryLeadershipScheduleCmdArgs x
+from :: forall x.
+LegacyQueryLeadershipScheduleCmdArgs
+-&gt; Rep LegacyQueryLeadershipScheduleCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryLeadershipScheduleCmdArgs x
+-&gt; LegacyQueryLeadershipScheduleCmdArgs
+to :: forall x.
+Rep LegacyQueryLeadershipScheduleCmdArgs x
+-&gt; LegacyQueryLeadershipScheduleCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007650"><span id="local-6989586621682007673"><span id="local-6989586621682007676"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryLeadershipScheduleCmdArgs -&gt; ShowS
+[LegacyQueryLeadershipScheduleCmdArgs] -&gt; ShowS
+LegacyQueryLeadershipScheduleCmdArgs -&gt; String
+(Int -&gt; LegacyQueryLeadershipScheduleCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryLeadershipScheduleCmdArgs -&gt; String)
+-&gt; ([LegacyQueryLeadershipScheduleCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryLeadershipScheduleCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryLeadershipScheduleCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryLeadershipScheduleCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryLeadershipScheduleCmdArgs -&gt; String
+show :: LegacyQueryLeadershipScheduleCmdArgs -&gt; String
+$cshowList :: [LegacyQueryLeadershipScheduleCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryLeadershipScheduleCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryProtocolParametersCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolParametersCmdArgs"><span class="hs-identifier hs-var">LegacyQueryProtocolParametersCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryProtocolParametersCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolParametersCmdArgs"><span class="hs-identifier hs-var">LegacyQueryProtocolParametersCmdArgs</span></a></span></span><span>
+</span><span id="line-67"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryProtocolParametersCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-68"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryProtocolParametersCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-69"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryProtocolParametersCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryProtocolParametersCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007689"><span id="local-6989586621682007691"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryProtocolParametersCmdArgs
+ -&gt; Rep LegacyQueryProtocolParametersCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryProtocolParametersCmdArgs x
+    -&gt; LegacyQueryProtocolParametersCmdArgs)
+-&gt; Generic LegacyQueryProtocolParametersCmdArgs
+forall x.
+Rep LegacyQueryProtocolParametersCmdArgs x
+-&gt; LegacyQueryProtocolParametersCmdArgs
+forall x.
+LegacyQueryProtocolParametersCmdArgs
+-&gt; Rep LegacyQueryProtocolParametersCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryProtocolParametersCmdArgs
+-&gt; Rep LegacyQueryProtocolParametersCmdArgs x
+from :: forall x.
+LegacyQueryProtocolParametersCmdArgs
+-&gt; Rep LegacyQueryProtocolParametersCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryProtocolParametersCmdArgs x
+-&gt; LegacyQueryProtocolParametersCmdArgs
+to :: forall x.
+Rep LegacyQueryProtocolParametersCmdArgs x
+-&gt; LegacyQueryProtocolParametersCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007694"><span id="local-6989586621682007702"><span id="local-6989586621682007705"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryProtocolParametersCmdArgs -&gt; ShowS
+[LegacyQueryProtocolParametersCmdArgs] -&gt; ShowS
+LegacyQueryProtocolParametersCmdArgs -&gt; String
+(Int -&gt; LegacyQueryProtocolParametersCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryProtocolParametersCmdArgs -&gt; String)
+-&gt; ([LegacyQueryProtocolParametersCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryProtocolParametersCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryProtocolParametersCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryProtocolParametersCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryProtocolParametersCmdArgs -&gt; String
+show :: LegacyQueryProtocolParametersCmdArgs -&gt; String
+$cshowList :: [LegacyQueryProtocolParametersCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryProtocolParametersCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-73"></span><span>
+</span><span id="line-74"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryConstitutionHashCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryConstitutionHashCmdArgs"><span class="hs-identifier hs-var">LegacyQueryConstitutionHashCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryConstitutionHashCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryConstitutionHashCmdArgs"><span class="hs-identifier hs-var">LegacyQueryConstitutionHashCmdArgs</span></a></span></span><span>
+</span><span id="line-75"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryConstitutionHashCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-76"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryConstitutionHashCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-77"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryConstitutionHashCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-78"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryConstitutionHashCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-79"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-80"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007713"><span id="local-6989586621682007715"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryConstitutionHashCmdArgs
+ -&gt; Rep LegacyQueryConstitutionHashCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryConstitutionHashCmdArgs x
+    -&gt; LegacyQueryConstitutionHashCmdArgs)
+-&gt; Generic LegacyQueryConstitutionHashCmdArgs
+forall x.
+Rep LegacyQueryConstitutionHashCmdArgs x
+-&gt; LegacyQueryConstitutionHashCmdArgs
+forall x.
+LegacyQueryConstitutionHashCmdArgs
+-&gt; Rep LegacyQueryConstitutionHashCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryConstitutionHashCmdArgs
+-&gt; Rep LegacyQueryConstitutionHashCmdArgs x
+from :: forall x.
+LegacyQueryConstitutionHashCmdArgs
+-&gt; Rep LegacyQueryConstitutionHashCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryConstitutionHashCmdArgs x
+-&gt; LegacyQueryConstitutionHashCmdArgs
+to :: forall x.
+Rep LegacyQueryConstitutionHashCmdArgs x
+-&gt; LegacyQueryConstitutionHashCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007718"><span id="local-6989586621682007726"><span id="local-6989586621682007730"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryConstitutionHashCmdArgs -&gt; ShowS
+[LegacyQueryConstitutionHashCmdArgs] -&gt; ShowS
+LegacyQueryConstitutionHashCmdArgs -&gt; String
+(Int -&gt; LegacyQueryConstitutionHashCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryConstitutionHashCmdArgs -&gt; String)
+-&gt; ([LegacyQueryConstitutionHashCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryConstitutionHashCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryConstitutionHashCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryConstitutionHashCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryConstitutionHashCmdArgs -&gt; String
+show :: LegacyQueryConstitutionHashCmdArgs -&gt; String
+$cshowList :: [LegacyQueryConstitutionHashCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryConstitutionHashCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-81"></span><span>
+</span><span id="line-82"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryTipCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTipCmdArgs"><span class="hs-identifier hs-var">LegacyQueryTipCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryTipCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTipCmdArgs"><span class="hs-identifier hs-var">LegacyQueryTipCmdArgs</span></a></span></span><span>
+</span><span id="line-83"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryTipCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-84"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryTipCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-85"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryTipCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryTipCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007738"><span id="local-6989586621682007740"><span class="annot"><span class="annottext">(forall x. LegacyQueryTipCmdArgs -&gt; Rep LegacyQueryTipCmdArgs x)
+-&gt; (forall x. Rep LegacyQueryTipCmdArgs x -&gt; LegacyQueryTipCmdArgs)
+-&gt; Generic LegacyQueryTipCmdArgs
+forall x. Rep LegacyQueryTipCmdArgs x -&gt; LegacyQueryTipCmdArgs
+forall x. LegacyQueryTipCmdArgs -&gt; Rep LegacyQueryTipCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x. LegacyQueryTipCmdArgs -&gt; Rep LegacyQueryTipCmdArgs x
+from :: forall x. LegacyQueryTipCmdArgs -&gt; Rep LegacyQueryTipCmdArgs x
+$cto :: forall x. Rep LegacyQueryTipCmdArgs x -&gt; LegacyQueryTipCmdArgs
+to :: forall x. Rep LegacyQueryTipCmdArgs x -&gt; LegacyQueryTipCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007743"><span id="local-6989586621682007751"><span id="local-6989586621682007754"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryTipCmdArgs -&gt; ShowS
+[LegacyQueryTipCmdArgs] -&gt; ShowS
+LegacyQueryTipCmdArgs -&gt; String
+(Int -&gt; LegacyQueryTipCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryTipCmdArgs -&gt; String)
+-&gt; ([LegacyQueryTipCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryTipCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryTipCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryTipCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryTipCmdArgs -&gt; String
+show :: LegacyQueryTipCmdArgs -&gt; String
+$cshowList :: [LegacyQueryTipCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryTipCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-89"></span><span>
+</span><span id="line-90"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryStakePoolsCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakePoolsCmdArgs"><span class="hs-identifier hs-var">LegacyQueryStakePoolsCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryStakePoolsCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakePoolsCmdArgs"><span class="hs-identifier hs-var">LegacyQueryStakePoolsCmdArgs</span></a></span></span><span>
+</span><span id="line-91"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryStakePoolsCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-92"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryStakePoolsCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-93"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryStakePoolsCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-94"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="format"><span class="annot"><span class="annottext">LegacyQueryStakePoolsCmdArgs -&gt; Maybe OutputFormatJsonOrText
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#format"><span class="hs-identifier hs-var hs-var">format</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#OutputFormatJsonOrText"><span class="hs-identifier hs-type">OutputFormatJsonOrText</span></a></span><span>
+</span><span id="line-95"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryStakePoolsCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-97"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007763"><span id="local-6989586621682007765"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryStakePoolsCmdArgs -&gt; Rep LegacyQueryStakePoolsCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryStakePoolsCmdArgs x -&gt; LegacyQueryStakePoolsCmdArgs)
+-&gt; Generic LegacyQueryStakePoolsCmdArgs
+forall x.
+Rep LegacyQueryStakePoolsCmdArgs x -&gt; LegacyQueryStakePoolsCmdArgs
+forall x.
+LegacyQueryStakePoolsCmdArgs -&gt; Rep LegacyQueryStakePoolsCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryStakePoolsCmdArgs -&gt; Rep LegacyQueryStakePoolsCmdArgs x
+from :: forall x.
+LegacyQueryStakePoolsCmdArgs -&gt; Rep LegacyQueryStakePoolsCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryStakePoolsCmdArgs x -&gt; LegacyQueryStakePoolsCmdArgs
+to :: forall x.
+Rep LegacyQueryStakePoolsCmdArgs x -&gt; LegacyQueryStakePoolsCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007768"><span id="local-6989586621682007778"><span id="local-6989586621682007781"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryStakePoolsCmdArgs -&gt; ShowS
+[LegacyQueryStakePoolsCmdArgs] -&gt; ShowS
+LegacyQueryStakePoolsCmdArgs -&gt; String
+(Int -&gt; LegacyQueryStakePoolsCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryStakePoolsCmdArgs -&gt; String)
+-&gt; ([LegacyQueryStakePoolsCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryStakePoolsCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryStakePoolsCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryStakePoolsCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryStakePoolsCmdArgs -&gt; String
+show :: LegacyQueryStakePoolsCmdArgs -&gt; String
+$cshowList :: [LegacyQueryStakePoolsCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryStakePoolsCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-98"></span><span>
+</span><span id="line-99"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryStakeDistributionCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeDistributionCmdArgs"><span class="hs-identifier hs-var">LegacyQueryStakeDistributionCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryStakeDistributionCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeDistributionCmdArgs"><span class="hs-identifier hs-var">LegacyQueryStakeDistributionCmdArgs</span></a></span></span><span>
+</span><span id="line-100"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryStakeDistributionCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-101"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryStakeDistributionCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-102"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryStakeDistributionCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-103"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="format"><span class="annot"><span class="annottext">LegacyQueryStakeDistributionCmdArgs -&gt; Maybe OutputFormatJsonOrText
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#format"><span class="hs-identifier hs-var hs-var">format</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#OutputFormatJsonOrText"><span class="hs-identifier hs-type">OutputFormatJsonOrText</span></a></span><span>
+</span><span id="line-104"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryStakeDistributionCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-105"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-106"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007790"><span id="local-6989586621682007792"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryStakeDistributionCmdArgs
+ -&gt; Rep LegacyQueryStakeDistributionCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryStakeDistributionCmdArgs x
+    -&gt; LegacyQueryStakeDistributionCmdArgs)
+-&gt; Generic LegacyQueryStakeDistributionCmdArgs
+forall x.
+Rep LegacyQueryStakeDistributionCmdArgs x
+-&gt; LegacyQueryStakeDistributionCmdArgs
+forall x.
+LegacyQueryStakeDistributionCmdArgs
+-&gt; Rep LegacyQueryStakeDistributionCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryStakeDistributionCmdArgs
+-&gt; Rep LegacyQueryStakeDistributionCmdArgs x
+from :: forall x.
+LegacyQueryStakeDistributionCmdArgs
+-&gt; Rep LegacyQueryStakeDistributionCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryStakeDistributionCmdArgs x
+-&gt; LegacyQueryStakeDistributionCmdArgs
+to :: forall x.
+Rep LegacyQueryStakeDistributionCmdArgs x
+-&gt; LegacyQueryStakeDistributionCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007795"><span id="local-6989586621682007805"><span id="local-6989586621682007808"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryStakeDistributionCmdArgs -&gt; ShowS
+[LegacyQueryStakeDistributionCmdArgs] -&gt; ShowS
+LegacyQueryStakeDistributionCmdArgs -&gt; String
+(Int -&gt; LegacyQueryStakeDistributionCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryStakeDistributionCmdArgs -&gt; String)
+-&gt; ([LegacyQueryStakeDistributionCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryStakeDistributionCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryStakeDistributionCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryStakeDistributionCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryStakeDistributionCmdArgs -&gt; String
+show :: LegacyQueryStakeDistributionCmdArgs -&gt; String
+$cshowList :: [LegacyQueryStakeDistributionCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryStakeDistributionCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-107"></span><span>
+</span><span id="line-108"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryStakeAddressInfoCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeAddressInfoCmdArgs"><span class="hs-identifier hs-var">LegacyQueryStakeAddressInfoCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryStakeAddressInfoCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeAddressInfoCmdArgs"><span class="hs-identifier hs-var">LegacyQueryStakeAddressInfoCmdArgs</span></a></span></span><span>
+</span><span id="line-109"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryStakeAddressInfoCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-110"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryStakeAddressInfoCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-111"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="addr"><span class="annot"><span class="annottext">LegacyQueryStakeAddressInfoCmdArgs -&gt; StakeAddress
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#addr"><span class="hs-identifier hs-var hs-var">addr</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">StakeAddress</span></span><span>
+</span><span id="line-112"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryStakeAddressInfoCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-113"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryStakeAddressInfoCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-114"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-115"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007817"><span id="local-6989586621682007819"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryStakeAddressInfoCmdArgs
+ -&gt; Rep LegacyQueryStakeAddressInfoCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryStakeAddressInfoCmdArgs x
+    -&gt; LegacyQueryStakeAddressInfoCmdArgs)
+-&gt; Generic LegacyQueryStakeAddressInfoCmdArgs
+forall x.
+Rep LegacyQueryStakeAddressInfoCmdArgs x
+-&gt; LegacyQueryStakeAddressInfoCmdArgs
+forall x.
+LegacyQueryStakeAddressInfoCmdArgs
+-&gt; Rep LegacyQueryStakeAddressInfoCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryStakeAddressInfoCmdArgs
+-&gt; Rep LegacyQueryStakeAddressInfoCmdArgs x
+from :: forall x.
+LegacyQueryStakeAddressInfoCmdArgs
+-&gt; Rep LegacyQueryStakeAddressInfoCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryStakeAddressInfoCmdArgs x
+-&gt; LegacyQueryStakeAddressInfoCmdArgs
+to :: forall x.
+Rep LegacyQueryStakeAddressInfoCmdArgs x
+-&gt; LegacyQueryStakeAddressInfoCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007822"><span id="local-6989586621682007832"><span id="local-6989586621682007835"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryStakeAddressInfoCmdArgs -&gt; ShowS
+[LegacyQueryStakeAddressInfoCmdArgs] -&gt; ShowS
+LegacyQueryStakeAddressInfoCmdArgs -&gt; String
+(Int -&gt; LegacyQueryStakeAddressInfoCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryStakeAddressInfoCmdArgs -&gt; String)
+-&gt; ([LegacyQueryStakeAddressInfoCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryStakeAddressInfoCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryStakeAddressInfoCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryStakeAddressInfoCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryStakeAddressInfoCmdArgs -&gt; String
+show :: LegacyQueryStakeAddressInfoCmdArgs -&gt; String
+$cshowList :: [LegacyQueryStakeAddressInfoCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryStakeAddressInfoCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-116"></span><span>
+</span><span id="line-117"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryUTxOCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryUTxOCmdArgs"><span class="hs-identifier hs-var">LegacyQueryUTxOCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryUTxOCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryUTxOCmdArgs"><span class="hs-identifier hs-var">LegacyQueryUTxOCmdArgs</span></a></span></span><span>
+</span><span id="line-118"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryUTxOCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-119"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryUTxOCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-120"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="queryFilter"><span class="annot"><span class="annottext">LegacyQueryUTxOCmdArgs -&gt; QueryUTxOFilter
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#queryFilter"><span class="hs-identifier hs-var hs-var">queryFilter</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">QueryUTxOFilter</span></span><span>
+</span><span id="line-121"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryUTxOCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-122"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="format"><span class="annot"><span class="annottext">LegacyQueryUTxOCmdArgs -&gt; Maybe OutputFormatJsonOrText
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#format"><span class="hs-identifier hs-var hs-var">format</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#OutputFormatJsonOrText"><span class="hs-identifier hs-type">OutputFormatJsonOrText</span></a></span><span>
+</span><span id="line-123"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryUTxOCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-124"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-125"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007845"><span id="local-6989586621682007847"><span class="annot"><span class="annottext">(forall x. LegacyQueryUTxOCmdArgs -&gt; Rep LegacyQueryUTxOCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryUTxOCmdArgs x -&gt; LegacyQueryUTxOCmdArgs)
+-&gt; Generic LegacyQueryUTxOCmdArgs
+forall x. Rep LegacyQueryUTxOCmdArgs x -&gt; LegacyQueryUTxOCmdArgs
+forall x. LegacyQueryUTxOCmdArgs -&gt; Rep LegacyQueryUTxOCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x. LegacyQueryUTxOCmdArgs -&gt; Rep LegacyQueryUTxOCmdArgs x
+from :: forall x. LegacyQueryUTxOCmdArgs -&gt; Rep LegacyQueryUTxOCmdArgs x
+$cto :: forall x. Rep LegacyQueryUTxOCmdArgs x -&gt; LegacyQueryUTxOCmdArgs
+to :: forall x. Rep LegacyQueryUTxOCmdArgs x -&gt; LegacyQueryUTxOCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007850"><span id="local-6989586621682007862"><span id="local-6989586621682007865"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryUTxOCmdArgs -&gt; ShowS
+[LegacyQueryUTxOCmdArgs] -&gt; ShowS
+LegacyQueryUTxOCmdArgs -&gt; String
+(Int -&gt; LegacyQueryUTxOCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryUTxOCmdArgs -&gt; String)
+-&gt; ([LegacyQueryUTxOCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryUTxOCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryUTxOCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryUTxOCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryUTxOCmdArgs -&gt; String
+show :: LegacyQueryUTxOCmdArgs -&gt; String
+$cshowList :: [LegacyQueryUTxOCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryUTxOCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-126"></span><span>
+</span><span id="line-127"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryLedgerStateCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLedgerStateCmdArgs"><span class="hs-identifier hs-var">LegacyQueryLedgerStateCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryLedgerStateCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryLedgerStateCmdArgs"><span class="hs-identifier hs-var">LegacyQueryLedgerStateCmdArgs</span></a></span></span><span>
+</span><span id="line-128"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryLedgerStateCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-129"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryLedgerStateCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-130"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryLedgerStateCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-131"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryLedgerStateCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-132"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-133"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007873"><span id="local-6989586621682007875"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryLedgerStateCmdArgs
+ -&gt; Rep LegacyQueryLedgerStateCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryLedgerStateCmdArgs x
+    -&gt; LegacyQueryLedgerStateCmdArgs)
+-&gt; Generic LegacyQueryLedgerStateCmdArgs
+forall x.
+Rep LegacyQueryLedgerStateCmdArgs x
+-&gt; LegacyQueryLedgerStateCmdArgs
+forall x.
+LegacyQueryLedgerStateCmdArgs
+-&gt; Rep LegacyQueryLedgerStateCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryLedgerStateCmdArgs
+-&gt; Rep LegacyQueryLedgerStateCmdArgs x
+from :: forall x.
+LegacyQueryLedgerStateCmdArgs
+-&gt; Rep LegacyQueryLedgerStateCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryLedgerStateCmdArgs x
+-&gt; LegacyQueryLedgerStateCmdArgs
+to :: forall x.
+Rep LegacyQueryLedgerStateCmdArgs x
+-&gt; LegacyQueryLedgerStateCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007878"><span id="local-6989586621682007886"><span id="local-6989586621682007889"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryLedgerStateCmdArgs -&gt; ShowS
+[LegacyQueryLedgerStateCmdArgs] -&gt; ShowS
+LegacyQueryLedgerStateCmdArgs -&gt; String
+(Int -&gt; LegacyQueryLedgerStateCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryLedgerStateCmdArgs -&gt; String)
+-&gt; ([LegacyQueryLedgerStateCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryLedgerStateCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryLedgerStateCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryLedgerStateCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryLedgerStateCmdArgs -&gt; String
+show :: LegacyQueryLedgerStateCmdArgs -&gt; String
+$cshowList :: [LegacyQueryLedgerStateCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryLedgerStateCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-134"></span><span>
+</span><span id="line-135"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryProtocolStateCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolStateCmdArgs"><span class="hs-identifier hs-var">LegacyQueryProtocolStateCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryProtocolStateCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryProtocolStateCmdArgs"><span class="hs-identifier hs-var">LegacyQueryProtocolStateCmdArgs</span></a></span></span><span>
+</span><span id="line-136"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryProtocolStateCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-137"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryProtocolStateCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-138"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryProtocolStateCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-139"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryProtocolStateCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-140"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-141"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007897"><span id="local-6989586621682007899"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryProtocolStateCmdArgs
+ -&gt; Rep LegacyQueryProtocolStateCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryProtocolStateCmdArgs x
+    -&gt; LegacyQueryProtocolStateCmdArgs)
+-&gt; Generic LegacyQueryProtocolStateCmdArgs
+forall x.
+Rep LegacyQueryProtocolStateCmdArgs x
+-&gt; LegacyQueryProtocolStateCmdArgs
+forall x.
+LegacyQueryProtocolStateCmdArgs
+-&gt; Rep LegacyQueryProtocolStateCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryProtocolStateCmdArgs
+-&gt; Rep LegacyQueryProtocolStateCmdArgs x
+from :: forall x.
+LegacyQueryProtocolStateCmdArgs
+-&gt; Rep LegacyQueryProtocolStateCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryProtocolStateCmdArgs x
+-&gt; LegacyQueryProtocolStateCmdArgs
+to :: forall x.
+Rep LegacyQueryProtocolStateCmdArgs x
+-&gt; LegacyQueryProtocolStateCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007902"><span id="local-6989586621682007910"><span id="local-6989586621682007913"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryProtocolStateCmdArgs -&gt; ShowS
+[LegacyQueryProtocolStateCmdArgs] -&gt; ShowS
+LegacyQueryProtocolStateCmdArgs -&gt; String
+(Int -&gt; LegacyQueryProtocolStateCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryProtocolStateCmdArgs -&gt; String)
+-&gt; ([LegacyQueryProtocolStateCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryProtocolStateCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryProtocolStateCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryProtocolStateCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryProtocolStateCmdArgs -&gt; String
+show :: LegacyQueryProtocolStateCmdArgs -&gt; String
+$cshowList :: [LegacyQueryProtocolStateCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryProtocolStateCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-142"></span><span>
+</span><span id="line-143"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryStakeSnapshotCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeSnapshotCmdArgs"><span class="hs-identifier hs-var">LegacyQueryStakeSnapshotCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryStakeSnapshotCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryStakeSnapshotCmdArgs"><span class="hs-identifier hs-var">LegacyQueryStakeSnapshotCmdArgs</span></a></span></span><span>
+</span><span id="line-144"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryStakeSnapshotCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-145"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryStakeSnapshotCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-146"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryStakeSnapshotCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-147"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="allOrOnlyPoolIds"><span class="annot"><span class="annottext">LegacyQueryStakeSnapshotCmdArgs -&gt; AllOrOnly (Hash StakePoolKey)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#allOrOnlyPoolIds"><span class="hs-identifier hs-var hs-var">allOrOnlyPoolIds</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#AllOrOnly"><span class="hs-identifier hs-type">AllOrOnly</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Hash</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">StakePoolKey</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-148"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryStakeSnapshotCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-149"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-150"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007922"><span id="local-6989586621682007924"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryStakeSnapshotCmdArgs
+ -&gt; Rep LegacyQueryStakeSnapshotCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryStakeSnapshotCmdArgs x
+    -&gt; LegacyQueryStakeSnapshotCmdArgs)
+-&gt; Generic LegacyQueryStakeSnapshotCmdArgs
+forall x.
+Rep LegacyQueryStakeSnapshotCmdArgs x
+-&gt; LegacyQueryStakeSnapshotCmdArgs
+forall x.
+LegacyQueryStakeSnapshotCmdArgs
+-&gt; Rep LegacyQueryStakeSnapshotCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryStakeSnapshotCmdArgs
+-&gt; Rep LegacyQueryStakeSnapshotCmdArgs x
+from :: forall x.
+LegacyQueryStakeSnapshotCmdArgs
+-&gt; Rep LegacyQueryStakeSnapshotCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryStakeSnapshotCmdArgs x
+-&gt; LegacyQueryStakeSnapshotCmdArgs
+to :: forall x.
+Rep LegacyQueryStakeSnapshotCmdArgs x
+-&gt; LegacyQueryStakeSnapshotCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007927"><span id="local-6989586621682007938"><span id="local-6989586621682007941"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryStakeSnapshotCmdArgs -&gt; ShowS
+[LegacyQueryStakeSnapshotCmdArgs] -&gt; ShowS
+LegacyQueryStakeSnapshotCmdArgs -&gt; String
+(Int -&gt; LegacyQueryStakeSnapshotCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryStakeSnapshotCmdArgs -&gt; String)
+-&gt; ([LegacyQueryStakeSnapshotCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryStakeSnapshotCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryStakeSnapshotCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryStakeSnapshotCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryStakeSnapshotCmdArgs -&gt; String
+show :: LegacyQueryStakeSnapshotCmdArgs -&gt; String
+$cshowList :: [LegacyQueryStakeSnapshotCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryStakeSnapshotCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-151"></span><span>
+</span><span id="line-152"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryKesPeriodInfoCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryKesPeriodInfoCmdArgs"><span class="hs-identifier hs-var">LegacyQueryKesPeriodInfoCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryKesPeriodInfoCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryKesPeriodInfoCmdArgs"><span class="hs-identifier hs-var">LegacyQueryKesPeriodInfoCmdArgs</span></a></span></span><span>
+</span><span id="line-153"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryKesPeriodInfoCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-154"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryKesPeriodInfoCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-155"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryKesPeriodInfoCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-156"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="nodeOpCertFp"><span class="annot"><span class="annottext">LegacyQueryKesPeriodInfoCmdArgs -&gt; File () 'In
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeOpCertFp"><span class="hs-identifier hs-var hs-var">nodeOpCertFp</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">In</span></span><span class="hs-special">)</span><span>
+</span><span id="line-157"></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ Node operational certificate</span></span><span>
+</span><span id="line-158"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryKesPeriodInfoCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-159"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-160"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007950"><span id="local-6989586621682007952"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryKesPeriodInfoCmdArgs
+ -&gt; Rep LegacyQueryKesPeriodInfoCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryKesPeriodInfoCmdArgs x
+    -&gt; LegacyQueryKesPeriodInfoCmdArgs)
+-&gt; Generic LegacyQueryKesPeriodInfoCmdArgs
+forall x.
+Rep LegacyQueryKesPeriodInfoCmdArgs x
+-&gt; LegacyQueryKesPeriodInfoCmdArgs
+forall x.
+LegacyQueryKesPeriodInfoCmdArgs
+-&gt; Rep LegacyQueryKesPeriodInfoCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryKesPeriodInfoCmdArgs
+-&gt; Rep LegacyQueryKesPeriodInfoCmdArgs x
+from :: forall x.
+LegacyQueryKesPeriodInfoCmdArgs
+-&gt; Rep LegacyQueryKesPeriodInfoCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryKesPeriodInfoCmdArgs x
+-&gt; LegacyQueryKesPeriodInfoCmdArgs
+to :: forall x.
+Rep LegacyQueryKesPeriodInfoCmdArgs x
+-&gt; LegacyQueryKesPeriodInfoCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007955"><span id="local-6989586621682007964"><span id="local-6989586621682007967"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryKesPeriodInfoCmdArgs -&gt; ShowS
+[LegacyQueryKesPeriodInfoCmdArgs] -&gt; ShowS
+LegacyQueryKesPeriodInfoCmdArgs -&gt; String
+(Int -&gt; LegacyQueryKesPeriodInfoCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryKesPeriodInfoCmdArgs -&gt; String)
+-&gt; ([LegacyQueryKesPeriodInfoCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryKesPeriodInfoCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryKesPeriodInfoCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryKesPeriodInfoCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryKesPeriodInfoCmdArgs -&gt; String
+show :: LegacyQueryKesPeriodInfoCmdArgs -&gt; String
+$cshowList :: [LegacyQueryKesPeriodInfoCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryKesPeriodInfoCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-161"></span><span>
+</span><span id="line-162"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryPoolStateCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryPoolStateCmdArgs"><span class="hs-identifier hs-var">LegacyQueryPoolStateCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryPoolStateCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryPoolStateCmdArgs"><span class="hs-identifier hs-var">LegacyQueryPoolStateCmdArgs</span></a></span></span><span>
+</span><span id="line-163"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryPoolStateCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-164"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryPoolStateCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-165"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryPoolStateCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-166"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="allOrOnlyPoolIds"><span class="annot"><span class="annottext">LegacyQueryPoolStateCmdArgs -&gt; AllOrOnly (Hash StakePoolKey)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#allOrOnlyPoolIds"><span class="hs-identifier hs-var hs-var">allOrOnlyPoolIds</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#AllOrOnly"><span class="hs-identifier hs-type">AllOrOnly</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Hash</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">StakePoolKey</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-167"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryPoolStateCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-168"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-169"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682007976"><span id="local-6989586621682007978"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryPoolStateCmdArgs -&gt; Rep LegacyQueryPoolStateCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryPoolStateCmdArgs x -&gt; LegacyQueryPoolStateCmdArgs)
+-&gt; Generic LegacyQueryPoolStateCmdArgs
+forall x.
+Rep LegacyQueryPoolStateCmdArgs x -&gt; LegacyQueryPoolStateCmdArgs
+forall x.
+LegacyQueryPoolStateCmdArgs -&gt; Rep LegacyQueryPoolStateCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryPoolStateCmdArgs -&gt; Rep LegacyQueryPoolStateCmdArgs x
+from :: forall x.
+LegacyQueryPoolStateCmdArgs -&gt; Rep LegacyQueryPoolStateCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryPoolStateCmdArgs x -&gt; LegacyQueryPoolStateCmdArgs
+to :: forall x.
+Rep LegacyQueryPoolStateCmdArgs x -&gt; LegacyQueryPoolStateCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682007981"><span id="local-6989586621682007991"><span id="local-6989586621682007994"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryPoolStateCmdArgs -&gt; ShowS
+[LegacyQueryPoolStateCmdArgs] -&gt; ShowS
+LegacyQueryPoolStateCmdArgs -&gt; String
+(Int -&gt; LegacyQueryPoolStateCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryPoolStateCmdArgs -&gt; String)
+-&gt; ([LegacyQueryPoolStateCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryPoolStateCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryPoolStateCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryPoolStateCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryPoolStateCmdArgs -&gt; String
+show :: LegacyQueryPoolStateCmdArgs -&gt; String
+$cshowList :: [LegacyQueryPoolStateCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryPoolStateCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-170"></span><span>
+</span><span id="line-171"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQueryTxMempoolCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTxMempoolCmdArgs"><span class="hs-identifier hs-var">LegacyQueryTxMempoolCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQueryTxMempoolCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTxMempoolCmdArgs"><span class="hs-identifier hs-var">LegacyQueryTxMempoolCmdArgs</span></a></span></span><span>
+</span><span id="line-172"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQueryTxMempoolCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-173"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQueryTxMempoolCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-174"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQueryTxMempoolCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-175"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="query"><span class="annot"><span class="annottext">LegacyQueryTxMempoolCmdArgs -&gt; TxMempoolQuery
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#query"><span class="hs-identifier hs-var hs-var">query</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxMempoolQuery"><span class="hs-identifier hs-type">TxMempoolQuery</span></a></span><span>
+</span><span id="line-176"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">LegacyQueryTxMempoolCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-177"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-178"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682008003"><span id="local-6989586621682008005"><span class="annot"><span class="annottext">(forall x.
+ LegacyQueryTxMempoolCmdArgs -&gt; Rep LegacyQueryTxMempoolCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQueryTxMempoolCmdArgs x -&gt; LegacyQueryTxMempoolCmdArgs)
+-&gt; Generic LegacyQueryTxMempoolCmdArgs
+forall x.
+Rep LegacyQueryTxMempoolCmdArgs x -&gt; LegacyQueryTxMempoolCmdArgs
+forall x.
+LegacyQueryTxMempoolCmdArgs -&gt; Rep LegacyQueryTxMempoolCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQueryTxMempoolCmdArgs -&gt; Rep LegacyQueryTxMempoolCmdArgs x
+from :: forall x.
+LegacyQueryTxMempoolCmdArgs -&gt; Rep LegacyQueryTxMempoolCmdArgs x
+$cto :: forall x.
+Rep LegacyQueryTxMempoolCmdArgs x -&gt; LegacyQueryTxMempoolCmdArgs
+to :: forall x.
+Rep LegacyQueryTxMempoolCmdArgs x -&gt; LegacyQueryTxMempoolCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682008008"><span id="local-6989586621682008018"><span id="local-6989586621682008021"><span class="annot"><span class="annottext">Int -&gt; LegacyQueryTxMempoolCmdArgs -&gt; ShowS
+[LegacyQueryTxMempoolCmdArgs] -&gt; ShowS
+LegacyQueryTxMempoolCmdArgs -&gt; String
+(Int -&gt; LegacyQueryTxMempoolCmdArgs -&gt; ShowS)
+-&gt; (LegacyQueryTxMempoolCmdArgs -&gt; String)
+-&gt; ([LegacyQueryTxMempoolCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQueryTxMempoolCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQueryTxMempoolCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQueryTxMempoolCmdArgs -&gt; ShowS
+$cshow :: LegacyQueryTxMempoolCmdArgs -&gt; String
+show :: LegacyQueryTxMempoolCmdArgs -&gt; String
+$cshowList :: [LegacyQueryTxMempoolCmdArgs] -&gt; ShowS
+showList :: [LegacyQueryTxMempoolCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-179"></span><span>
+</span><span id="line-180"></span><span class="hs-keyword">data</span><span> </span><span id="LegacyQuerySlotNumberCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQuerySlotNumberCmdArgs"><span class="hs-identifier hs-var">LegacyQuerySlotNumberCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LegacyQuerySlotNumberCmdArgs"><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQuerySlotNumberCmdArgs"><span class="hs-identifier hs-var">LegacyQuerySlotNumberCmdArgs</span></a></span></span><span>
+</span><span id="line-181"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LegacyQuerySlotNumberCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">SocketPath</span></span><span>
+</span><span id="line-182"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="consensusModeParams"><span class="annot"><span class="annottext">LegacyQuerySlotNumberCmdArgs -&gt; ConsensusModeParams
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#consensusModeParams"><span class="hs-identifier hs-var hs-var">consensusModeParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">ConsensusModeParams</span></span><span>
+</span><span id="line-183"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="networkId"><span class="annot"><span class="annottext">LegacyQuerySlotNumberCmdArgs -&gt; NetworkId
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#networkId"><span class="hs-identifier hs-var hs-var">networkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">NetworkId</span></span><span>
+</span><span id="line-184"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="utcTime"><span class="annot"><span class="annottext">LegacyQuerySlotNumberCmdArgs -&gt; UTCTime
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#utcTime"><span class="hs-identifier hs-var hs-var">utcTime</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/time-1.12.2-inplace/src/Data.Time.Clock.Internal.UTCTime.html#UTCTime"><span class="hs-identifier hs-type">UTCTime</span></a></span><span>
+</span><span id="line-185"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-186"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682008029"><span id="local-6989586621682008031"><span class="annot"><span class="annottext">(forall x.
+ LegacyQuerySlotNumberCmdArgs -&gt; Rep LegacyQuerySlotNumberCmdArgs x)
+-&gt; (forall x.
+    Rep LegacyQuerySlotNumberCmdArgs x -&gt; LegacyQuerySlotNumberCmdArgs)
+-&gt; Generic LegacyQuerySlotNumberCmdArgs
+forall x.
+Rep LegacyQuerySlotNumberCmdArgs x -&gt; LegacyQuerySlotNumberCmdArgs
+forall x.
+LegacyQuerySlotNumberCmdArgs -&gt; Rep LegacyQuerySlotNumberCmdArgs x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x.
+LegacyQuerySlotNumberCmdArgs -&gt; Rep LegacyQuerySlotNumberCmdArgs x
+from :: forall x.
+LegacyQuerySlotNumberCmdArgs -&gt; Rep LegacyQuerySlotNumberCmdArgs x
+$cto :: forall x.
+Rep LegacyQuerySlotNumberCmdArgs x -&gt; LegacyQuerySlotNumberCmdArgs
+to :: forall x.
+Rep LegacyQuerySlotNumberCmdArgs x -&gt; LegacyQuerySlotNumberCmdArgs
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Generics.html#Generic"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682008034"><span id="local-6989586621682008042"><span id="local-6989586621682008045"><span class="annot"><span class="annottext">Int -&gt; LegacyQuerySlotNumberCmdArgs -&gt; ShowS
+[LegacyQuerySlotNumberCmdArgs] -&gt; ShowS
+LegacyQuerySlotNumberCmdArgs -&gt; String
+(Int -&gt; LegacyQuerySlotNumberCmdArgs -&gt; ShowS)
+-&gt; (LegacyQuerySlotNumberCmdArgs -&gt; String)
+-&gt; ([LegacyQuerySlotNumberCmdArgs] -&gt; ShowS)
+-&gt; Show LegacyQuerySlotNumberCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LegacyQuerySlotNumberCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LegacyQuerySlotNumberCmdArgs -&gt; ShowS
+$cshow :: LegacyQuerySlotNumberCmdArgs -&gt; String
+show :: LegacyQuerySlotNumberCmdArgs -&gt; String
+$cshowList :: [LegacyQuerySlotNumberCmdArgs] -&gt; ShowS
+showList :: [LegacyQuerySlotNumberCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-187"></span><span>
+</span><span id="line-188"></span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#renderLegacyQueryCmds"><span class="hs-identifier hs-type">renderLegacyQueryCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryCmds"><span class="hs-identifier hs-type">LegacyQueryCmds</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-189"></span><span id="renderLegacyQueryCmds"><span class="annot"><span class="annottext">renderLegacyQueryCmds :: LegacyQueryCmds -&gt; Text
+</span><a href="Cardano.CLI.Legacy.Commands.Query.html#renderLegacyQueryCmds"><span class="hs-identifier hs-var hs-var">renderLegacyQueryCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-190"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryLeadershipScheduleCmd"><span class="hs-identifier hs-type">QueryLeadershipScheduleCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query leadership-schedule&quot;</span></span><span>
+</span><span id="line-191"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryProtocolParametersCmd"><span class="hs-identifier hs-type">QueryProtocolParametersCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query protocol-parameters &quot;</span></span><span>
+</span><span id="line-192"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryTipCmd"><span class="hs-identifier hs-type">QueryTipCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query tip&quot;</span></span><span>
+</span><span id="line-193"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakePoolsCmd"><span class="hs-identifier hs-type">QueryStakePoolsCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query stake-pools&quot;</span></span><span>
+</span><span id="line-194"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakeDistributionCmd"><span class="hs-identifier hs-type">QueryStakeDistributionCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query stake-distribution&quot;</span></span><span>
+</span><span id="line-195"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakeAddressInfoCmd"><span class="hs-identifier hs-type">QueryStakeAddressInfoCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query stake-address-info&quot;</span></span><span>
+</span><span id="line-196"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryUTxOCmd"><span class="hs-identifier hs-type">QueryUTxOCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query utxo&quot;</span></span><span>
+</span><span id="line-197"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryLedgerStateCmd"><span class="hs-identifier hs-type">QueryLedgerStateCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query ledger-state&quot;</span></span><span>
+</span><span id="line-198"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryProtocolStateCmd"><span class="hs-identifier hs-type">QueryProtocolStateCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query protocol-state&quot;</span></span><span>
+</span><span id="line-199"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryStakeSnapshotCmd"><span class="hs-identifier hs-type">QueryStakeSnapshotCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query stake-snapshot&quot;</span></span><span>
+</span><span id="line-200"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryKesPeriodInfoCmd"><span class="hs-identifier hs-type">QueryKesPeriodInfoCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query kes-period-info&quot;</span></span><span>
+</span><span id="line-201"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryPoolStateCmd"><span class="hs-identifier hs-type">QueryPoolStateCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query pool-state&quot;</span></span><span>
+</span><span id="line-202"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QueryTxMempoolCmd"><span class="hs-identifier hs-type">QueryTxMempoolCmd</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#LegacyQueryTxMempoolCmdArgs"><span class="hs-identifier hs-type">LegacyQueryTxMempoolCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">SocketPath
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">ConsensusModeParams
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621682008047"><span class="annot"><span class="annottext">TxMempoolQuery
+</span><a href="#local-6989586621682008047"><span class="hs-identifier hs-var">txMempoolQuery</span></a></span></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query tx-mempool&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">TxMempoolQuery -&gt; Text
+</span><a href="#local-6989586621682008048"><span class="hs-identifier hs-var">renderTxMempoolQuery</span></a></span><span> </span><span class="annot"><span class="annottext">TxMempoolQuery
+</span><a href="#local-6989586621682008047"><span class="hs-identifier hs-var">txMempoolQuery</span></a></span><span>
+</span><span id="line-203"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Commands.Query.html#QuerySlotNumberCmd"><span class="hs-identifier hs-type">QuerySlotNumberCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;query slot-number&quot;</span></span><span>
+</span><span id="line-204"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-205"></span><span>  </span><span id="local-6989586621682008048"><span class="annot"><span class="annottext">renderTxMempoolQuery :: TxMempoolQuery -&gt; Text
+</span><a href="#local-6989586621682008048"><span class="hs-identifier hs-var hs-var">renderTxMempoolQuery</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-206"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#TxMempoolQueryTxExists"><span class="hs-identifier hs-type">TxMempoolQueryTxExists</span></a></span><span> </span><span id="local-6989586621682008056"><span class="annot"><span class="annottext">TxId
+</span><a href="#local-6989586621682008056"><span class="hs-identifier hs-var">tx</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;tx-exists &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">TxId -&gt; Text
+forall a. SerialiseAsRawBytes a =&gt; a -&gt; Text
+</span><span class="hs-identifier hs-var">serialiseToRawBytesHexText</span></span><span> </span><span class="annot"><span class="annottext">TxId
+</span><a href="#local-6989586621682008056"><span class="hs-identifier hs-var">tx</span></a></span><span>
+</span><span id="line-207"></span><span>    </span><span class="annot"><span class="annottext">TxMempoolQuery
+</span><a href="Cardano.CLI.Types.Common.html#TxMempoolQueryNextTx"><span class="hs-identifier hs-var">TxMempoolQueryNextTx</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;next-tx&quot;</span></span><span>
+</span><span id="line-208"></span><span>    </span><span class="annot"><span class="annottext">TxMempoolQuery
+</span><a href="Cardano.CLI.Types.Common.html#TxMempoolQueryInfo"><span class="hs-identifier hs-var">TxMempoolQueryInfo</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;info&quot;</span></span><span>
+</span><span id="line-209"></span></pre></body></html>
