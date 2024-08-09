@@ -21,7 +21,6 @@ import           Control.Monad.Class.MonadAsync (MonadAsync (async, wait, waitCa
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (left)
 import           Control.Tracer (Tracer (..))
-import           Data.List (foldl')
 import qualified Data.List as L
 import qualified Data.List as List
 import           Network.Socket (AddrInfo)
@@ -91,7 +90,7 @@ runPingCmd options = do
   liftIO $ wait laid
 
   -- Collect errors 'es' from failed pings and 'addrs' from successful pings.
-  let (es, addrs) = foldl' partition ([], []) res
+  let (es, addrs) = L.foldl' partition ([], []) res
 
   -- Report any errors
   case (es, addrs) of
