@@ -78,6 +78,13 @@ pQueryCmds era envCli =
                 [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
                 ]
     , Just $
+        subParser "ledger-peer-snapshot"
+          Opt.info (pQueryLedgerPeerSnapshotCmd era envCli)
+          Opt.progDesc $
+            mconcat
+              [ "Dump the current snapshot of ledger peers"
+              ]
+    , Just $
         subParser "protocol-state" $
           Opt.info (pQueryProtocolStateCmd era envCli) $
             Opt.progDesc $
@@ -204,6 +211,16 @@ pQueryLedgerStateCmd era envCli =
       <*> pNetworkId envCli
       <*> pTarget era
       <*> pMaybeOutputFile
+
+pQueryLedgerPeerSnapshotCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryLedgerPeerSnapshotCmd era envCli =
+  fmap QueryLedgerPeerSnapshotCmd $
+    QueryLedgerPeerSnapshotCmdArgs
+      <$> pSocketPath envCli
+      <*> pConsensusModeParams
+      <*> pNetworkId envCli
+      <*> pTarget era
+      <*> pOutputFile
 
 pQueryProtocolStateCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryProtocolStateCmd era envCli =

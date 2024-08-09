@@ -20,6 +20,7 @@ module Cardano.CLI.Legacy.Commands.Query
   , LegacyQueryPoolStateCmdArgs (..)
   , LegacyQueryTxMempoolCmdArgs (..)
   , LegacyQuerySlotNumberCmdArgs (..)
+  , LegacyQueryLedgerPeerSnapshotCmdArgs (..)
   , renderLegacyQueryCmds
   )
 where
@@ -48,7 +49,15 @@ data LegacyQueryCmds
   | QueryPoolStateCmd !LegacyQueryPoolStateCmdArgs
   | QueryTxMempoolCmd !LegacyQueryTxMempoolCmdArgs
   | QuerySlotNumberCmd !LegacyQuerySlotNumberCmdArgs
+  | QueryLedgerPeerSnapshotCmd !LegacyQueryLedgerPeerSnapshotCmdArgs  
   deriving (Generic, Show)
+
+data LegacyQueryLedgerPeerSnapshotCmdArgs = LegacyQueryLedgerPeerSnapshotCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !ConsensusModeParams
+  , networkId           :: !NetworkId
+  , outFile             :: !(File () Out)
+  } deriving (Generic, Show)
 
 data LegacyQueryLeadershipScheduleCmdArgs = LegacyQueryLeadershipScheduleCmdArgs
   { nodeSocketPath :: !SocketPath
@@ -201,6 +210,7 @@ renderLegacyQueryCmds = \case
   QueryPoolStateCmd{} -> "query pool-state"
   QueryTxMempoolCmd (LegacyQueryTxMempoolCmdArgs _ _ _ txMempoolQuery _) -> "query tx-mempool" <> renderTxMempoolQuery txMempoolQuery
   QuerySlotNumberCmd{} -> "query slot-number"
+  QueryLedgerPeerSnapshotCmd{} -> "query ledger-peer-snapshot"  
  where
   renderTxMempoolQuery = \case
     TxMempoolQueryTxExists tx -> "tx-exists " <> serialiseToRawBytesHexText tx

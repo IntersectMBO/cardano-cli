@@ -26,6 +26,7 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryDRepStateCmdArgs (..)
   , QueryDRepStakeDistributionCmdArgs (..)
   , QueryTreasuryValueCmdArgs (..)
+  , QueryLedgerPeerSnapshotCmdArgs (..)  
   , renderQueryCmds
   , IncludeStake (..)
   )
@@ -65,6 +66,7 @@ data QueryCmds era
   | QueryDRepStakeDistributionCmd !(QueryDRepStakeDistributionCmdArgs era)
   | QueryCommitteeMembersStateCmd !(QueryCommitteeMembersStateCmdArgs era)
   | QueryTreasuryValueCmd !(QueryTreasuryValueCmdArgs era)
+  | QueryLedgerPeerSnapshotCmd !QueryLedgerPeerSnapshotCmdArgs  
   deriving (Generic, Show)
 
 data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
@@ -156,6 +158,14 @@ data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
+
+data QueryLedgerPeerSnapshotCmdArgs = QueryLedgerPeerSnapshotCmdArgs
+  { nodeSocketPath      :: !SocketPath
+  , consensusModeParams :: !ConsensusModeParams
+  , networkId           :: !NetworkId
+  , target              :: !(Consensus.Target ChainPoint)
+  , outFile             :: !(File () Out)
+  } deriving (Generic, Show)
 
 data QueryProtocolStateCmdArgs = QueryProtocolStateCmdArgs
   { nodeSocketPath :: !SocketPath
@@ -307,6 +317,8 @@ renderQueryCmds = \case
     "query utxo"
   QueryLedgerStateCmd{} ->
     "query ledger-state"
+  QueryLedgerPeerSnapshotCmd{} ->
+    "query ledger-peer-snapshot"
   QueryProtocolStateCmd{} ->
     "query protocol-state"
   QueryStakeSnapshotCmd{} ->
