@@ -36,6 +36,8 @@ module Cardano.CLI.Types.Key
   , ColdVerificationKeyOrFile (..)
   , DRepHashSource (..)
   , readDRepCredential
+  , SPOHashSource (..)
+  , readSPOCredential
   , SomeSigningKey (..)
   , withSomeSigningKey
   , readSigningKeyFile
@@ -329,6 +331,19 @@ readDRepCredential = \case
   DRepHashSourceVerificationKey drepVKeyOrHashOrFile ->
     L.KeyHashObj . unDRepKeyHash
       <$> readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile
+
+newtype SPOHashSource
+  = SPOHashSourceVerificationKey
+      (VerificationKeyOrHashOrFile StakePoolKey)
+  deriving (Eq, Show)
+
+readSPOCredential
+  :: MonadIOTransError (FileError InputDecodeError) t m
+  => SPOHashSource
+  -> t m (L.KeyHash L.StakePool L.StandardCrypto)
+readSPOCredential = \case
+  SPOHashSourceVerificationKey spoVKeyOrHashOrFile ->
+    unStakePoolKeyHash <$> readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey spoVKeyOrHashOrFile
 
 data VerificationKeyOrHashOrFileOrScript keyrole
   = VkhfsKeyHashFile !(VerificationKeyOrHashOrFile keyrole)

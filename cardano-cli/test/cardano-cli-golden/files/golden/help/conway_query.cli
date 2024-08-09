@@ -18,6 +18,7 @@ Usage: cardano-cli conway query
                                   | gov-state
                                   | drep-state
                                   | drep-stake-distribution
+                                  | spo-stake-distribution
                                   | committee-state
                                   | treasury
                                   )
@@ -60,5 +61,6 @@ Available commands:
   gov-state                Get the governance state
   drep-state               Get the DRep state.
   drep-stake-distribution  Get the DRep stake distribution.
+  spo-stake-distribution   Get the SPO stake distribution.
   committee-state          Get the committee state
   treasury                 Get the treasury value
