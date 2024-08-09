@@ -57,8 +57,7 @@ import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.ListMap (ListMap (..))
-import qualified Data.ListMap as ListMap
-import           Data.Map.Strict (Map, fromList, toList)
+import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Maybe (fromMaybe)
 import qualified Data.Sequence.Strict as Seq
@@ -66,6 +65,7 @@ import           Data.String (fromString)
 import qualified Data.Text as Text
 import           Data.Tuple (swap)
 import           Data.Word (Word64)
+import           GHC.Exts (IsList (..))
 import           GHC.Generics (Generic)
 import           GHC.Num (Natural)
 import           Lens.Micro ((^.))
@@ -350,7 +350,7 @@ runGenesisCreateTestNetDataCmd
         :: [(VerificationKey StakeKey, VerificationKey DRepKey)]
         -> ListMap (L.Credential L.Staking L.StandardCrypto) (L.Delegatee L.StandardCrypto)
       delegs =
-        ListMap.fromList
+        fromList
           . map
             ( bimap
                 verificationKeytoStakeCredential
@@ -362,7 +362,7 @@ runGenesisCreateTestNetDataCmd
         -> [VerificationKey DRepKey]
         -> ListMap (L.Credential L.DRepRole L.StandardCrypto) (L.DRepState L.StandardCrypto)
       initialDReps minDeposit =
-        ListMap.fromList
+        fromList
           . map
             ( \c ->
                 ( verificationKeyToDRepCredential c
@@ -627,7 +627,7 @@ buildPoolParams nw dir index specifiedRelays = do
       }
  where
   lookupPoolRelay :: Map Word [L.StakePoolRelay] -> Seq.StrictSeq L.StakePoolRelay
-  lookupPoolRelay m = Seq.fromList $ Map.findWithDefault [] index m
+  lookupPoolRelay m = fromList $ Map.findWithDefault [] index m
   poolColdVKF = File $ dir </> "cold.vkey"
   poolVrfVKF = File $ dir </> "vrf.vkey"
   poolRewardVKF = File $ dir </> "staking-reward.vkey"
@@ -705,7 +705,7 @@ updateOutputTemplate
         , sgMaxLovelaceSupply = totalSupply
         , sgGenDelegs = shelleyDelKeys
         , sgInitialFunds =
-            ListMap.fromList
+            fromList
               [ (toShelleyAddr addr, v)
               | (addr, v) <-
                   distribute nonDelegCoin nUtxoAddrsNonDeleg utxoAddrsNonDeleg
@@ -754,7 +754,7 @@ updateOutputTemplate
      where
       L.Coin minUtxoVal = sgProtocolParams ^. L.ppMinUTxOValueL
     shelleyDelKeys =
-      Map.fromList
+      fromList
         [ (gh, L.GenDelegPair gdh h)
         | ( GenesisKeyHash gh
             , (GenesisDelegateKeyHash gdh, VrfKeyHash h)
@@ -811,7 +811,7 @@ readGenDelegsMap genesisKeys delegateKeys delegateVrfKeys = do
             (Hash GenesisKey)
             (Hash GenesisDelegateKey, Hash VrfKey)
       delegsMap =
-        Map.fromList
+        fromList
           [ (gh, (dh, vh))
           | (g, (d, v)) <- Map.elems combinedMap
           , let gh = verificationKeyHash g
@@ -832,7 +832,7 @@ readKeys
   -> ExceptT GenesisCmdError IO (Map k a)
 readKeys asType genesisVKeys = do
   firstExceptT GenesisCmdTextEnvReadFileError $
-    Map.fromList
+    fromList
       <$> sequence
         [ (,) ix <$> readKey (File file)
         | (ix, file) <- toList genesisVKeys

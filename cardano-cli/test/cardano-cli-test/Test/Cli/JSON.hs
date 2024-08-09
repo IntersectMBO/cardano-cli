@@ -16,8 +16,9 @@ import qualified Data.Map.Strict as Map
 import           Data.Time
 import           Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import           Data.Word (Word64)
+import           GHC.Exts (IsList (..))
 
-import           Test.Gen.Cardano.Api.Typed (genLovelace, genSlotNo, genStakeAddress,
+import           Test.Gen.Cardano.Api.Typed (genCoin, genSlotNo, genStakeAddress,
                    genVerificationKeyHash)
 
 import           Hedgehog (Gen, Property, forAll, property, tripping)
@@ -35,10 +36,10 @@ genDelegationsAndRewards :: Gen DelegationsAndRewards
 genDelegationsAndRewards = do
   let r = Range.constant 0 3
   sAddrs <- Gen.list r genStakeAddress
-  sLovelace <- Gen.list r genLovelace
-  let delegMapAmt = Map.fromList $ zip sAddrs sLovelace
+  sLovelace <- Gen.list r genCoin
+  let delegMapAmt = fromList $ zip sAddrs sLovelace
   poolIDs <- Gen.list r genPoolId
-  let delegMapPool = Map.fromList $ zip sAddrs poolIDs
+  let delegMapPool = fromList $ zip sAddrs poolIDs
   return $ DelegationsAndRewards (delegMapAmt, delegMapPool)
 
 genOpCertIntervalInformation :: Gen OpCertIntervalInformation

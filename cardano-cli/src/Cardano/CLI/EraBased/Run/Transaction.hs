@@ -65,7 +65,7 @@ import qualified Data.ByteString as Data.Bytestring
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Data ((:~:) (..))
-import           Data.Foldable (Foldable (..))
+import           Data.Foldable (foldl')
 import           Data.Function ((&))
 import qualified Data.List as List
 import           Data.Map.Strict (Map)
@@ -76,6 +76,7 @@ import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import           Data.Type.Equality (TestEquality (..))
+import           GHC.Exts (IsList (..))
 import           Lens.Micro ((^.))
 import qualified System.Exit as IO
 import qualified System.IO as IO
@@ -198,7 +199,7 @@ runTransactionBuildCmd
           <$> readTxGovernanceActions eon proposalFiles
 
     -- the same collateral input can be used for several plutus scripts
-    let filteredTxinsc = toList $ Set.fromList txinsc
+    let filteredTxinsc = toList @(Set _) $ fromList txinsc
 
     let allReferenceInputs =
           getAllReferenceInputs
@@ -376,7 +377,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     txOuts <- mapM (toTxOutInAnyEra sbe) txouts
 
     -- the same collateral input can be used for several plutus scripts
-    let filteredTxinsc = toList $ Set.fromList txInsCollateral
+    let filteredTxinsc = toList @(Set _) $ fromList txInsCollateral
 
     -- Conway related
     votingProceduresAndMaybeScriptWits <-
@@ -429,12 +430,12 @@ runTransactionBuildEstimateCmd -- TODO change type
           votingProceduresAndMaybeScriptWits
           proposals
           currentTreasuryValueAndDonation
-    let stakeCredentialsToDeregisterMap = Map.fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
-        drepsToDeregisterMap = Map.fromList $ catMaybes [getDRepDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
-        poolsToDeregister = Set.fromList $ catMaybes [getPoolDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
+    let stakeCredentialsToDeregisterMap = fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
+        drepsToDeregisterMap = fromList $ catMaybes [getDRepDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
+        poolsToDeregister = fromList $ catMaybes [getPoolDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
         totCol = fromMaybe 0 plutusCollateral
         pScriptExecUnits =
-          Map.fromList
+          fromList
             [ (sWitIndex, execUnits)
             | (sWitIndex, AnyScriptWitness (PlutusScriptWitness _ _ _ _ _ execUnits)) <-
                 collectTxBodyScriptWitnesses sbe txBodyContent
@@ -615,7 +616,7 @@ runTransactionBuildRawCmd
     txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
     -- the same collateral input can be used for several plutus scripts
-    let filteredTxinsc = toList $ Set.fromList txInsCollateral
+    let filteredTxinsc = toList @(Set _) $ fromList txInsCollateral
 
     -- Conway related
     votingProceduresAndMaybeScriptWits <-
@@ -760,7 +761,8 @@ runTxBuildRaw
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
 
 constructTxBodyContent
-  :: ShelleyBasedEra era
+  :: forall era
+   . ShelleyBasedEra era
   -> Maybe ScriptValidity
   -> Maybe (L.PParams (ShelleyLedgerEra era))
   -> [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
@@ -848,7 +850,12 @@ constructTxBodyContent
       validatedTxScriptValidity <-
         first TxCmdNotSupportedInEraValidationError $ validateTxScriptValidity sbe mScriptValidity
       validatedVotingProcedures <-
-        first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures
+        first (TxCmdTxGovDuplicateVotes . TxGovDuplicateVotes) $
+          mkTxVotingProcedures @BuildTx (fromList votingProcedures)
+      let txProposals = forShelleyBasedEraInEonMaybe sbe $ \w -> do
+            let txp :: TxProposalProcedures BuildTx era
+                txp = conwayEraOnwardsConstraints w $ mkTxProposalProcedures $ map (first unProposal) proposals
+            Featured w txp
       validatedCurrentTreasuryValue <-
         first
           TxCmdNotSupportedInEraValidationError
@@ -858,7 +865,8 @@ constructTxBodyContent
           TxCmdNotSupportedInEraValidationError
           (validateTxTreasuryDonation sbe (snd <$> mCurrentTreasuryValueAndDonation))
       return $
-        shelleyBasedEraConstraints sbe $
+        shelleyBasedEraConstraints
+          sbe
           ( defaultTxBodyContent sbe
               & setTxIns (validateTxIns inputsAndMaybeScriptWits)
               & setTxInsCollateral validatedCollateralTxIns
@@ -878,14 +886,11 @@ constructTxBodyContent
               & setTxUpdateProposal txUpdateProposal
               & setTxMintValue validatedMintValue
               & setTxScriptValidity validatedTxScriptValidity
+              & setTxVotingProcedures (mkFeatured validatedVotingProcedures)
+              & setTxProposalProcedures txProposals
+              & setTxCurrentTreasuryValue validatedCurrentTreasuryValue
+              & setTxTreasuryDonation validatedTreasuryDonation
           )
-            { -- TODO: Create set* function for proposal procedures and voting procedures
-              txProposalProcedures =
-                forShelleyBasedEraInEonMaybe sbe (`Featured` convToTxProposalProcedures proposals)
-            , txVotingProcedures = forShelleyBasedEraInEonMaybe sbe (`Featured` validatedVotingProcedures)
-            }
-            & setTxCurrentTreasuryValue validatedCurrentTreasuryValue
-            & setTxTreasuryDonation validatedTreasuryDonation
    where
     convertWithdrawals
       :: (StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))
@@ -1072,7 +1077,7 @@ convertCertificates sbe certsAndScriptWitnesses =
   TxCertificates sbe certs $ BuildTxWith reqWits
  where
   certs = map fst certsAndScriptWitnesses
-  reqWits = Map.fromList $ mapMaybe convert certsAndScriptWitnesses
+  reqWits = fromList $ mapMaybe convert certsAndScriptWitnesses
   convert
     :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
     -> Maybe (StakeCredential, Witness WitCtxStake era)
@@ -1129,7 +1134,7 @@ validateTxInsCollateral era txins = do
 validateTxInsReference
   :: ShelleyBasedEra era
   -> [TxIn]
-  -> Either TxCmdError (TxInsReference BuildTx era)
+  -> Either TxCmdError (TxInsReference era)
 validateTxInsReference _ [] = return TxInsReferenceNone
 validateTxInsReference sbe allRefIns = do
   forShelleyBasedEraInEonMaybe sbe (\supported -> TxInsReference supported allRefIns)
@@ -1160,16 +1165,16 @@ getAllReferenceInputs
         votesWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- votingProceduresAndMaybeScriptWits]
         propsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- propProceduresAnMaybeScriptWits]
 
-    catMaybes $
-      concat
-        [ txinsWitByRefInputs
-        , mintingRefInputs
-        , certsWitByRefInputs
-        , withdrawalsWitByRefInputs
-        , votesWitByRefInputs
-        , propsWitByRefInputs
-        , map Just readOnlyRefIns
-        ]
+    concatMap
+      catMaybes
+      [ txinsWitByRefInputs
+      , mintingRefInputs
+      , certsWitByRefInputs
+      , withdrawalsWitByRefInputs
+      , votesWitByRefInputs
+      , propsWitByRefInputs
+      , map Just readOnlyRefIns
+      ]
    where
     getReferenceInput
       :: ScriptWitness witctx era -> Maybe TxIn
@@ -1333,10 +1338,10 @@ createTxMintValue era (val, scriptWitnesses) =
             -- The set of policy ids for which we need witnesses:
             let witnessesNeededSet :: Set PolicyId
                 witnessesNeededSet =
-                  Set.fromList [pid | (AssetId pid _, _) <- valueToList val]
+                  fromList [pid | (AssetId pid _, _) <- valueToList val]
 
             let witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
-                witnessesProvidedMap = Map.fromList $ gatherMintingWitnesses scriptWitnesses
+                witnessesProvidedMap = fromList $ gatherMintingWitnesses scriptWitnesses
                 witnessesProvidedSet = Map.keysSet witnessesProvidedMap
 
             -- Check not too many, nor too few:
