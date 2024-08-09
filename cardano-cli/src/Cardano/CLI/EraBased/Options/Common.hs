@@ -4,6 +4,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Use <$>" -}
@@ -28,9 +29,11 @@ import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 import           Control.Monad (mfilter)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
+import           Data.Bits (Bits, toIntegralSized)
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BSC
+import           Data.Data (Proxy (..), typeRep)
 import           Data.Foldable
 import           Data.Functor (($>))
 import qualified Data.IP as IP
@@ -43,7 +46,7 @@ import qualified Data.Text as Text
 import           Data.Time.Clock (UTCTime)
 import           Data.Time.Format (defaultTimeLocale, parseTimeOrError)
 import           Data.Word
-import           GHC.Natural (Natural)
+import           GHC.Natural (Natural, naturalToWordMaybe)
 import           Network.Socket (PortNumber)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
@@ -3181,9 +3184,27 @@ pMaxTransactionSize =
       , Opt.help "Maximum transaction size."
       ]
 
+-- | @wordReader typeName@ is a reader for a word of type @a@. When it fails
+-- parsing, it provides a nice error message. This custom reader is needed
+-- to avoid the overflow issues of 'Opt.auto' described in https://github.com/IntersectMBO/cardano-cli/issues/860.
+wordReader :: (Integral a, Bits a) => String -> ReadM a
+wordReader typeName =
+  Opt.maybeReader parser
+ where
+  -- We use 'readMaybe' instead of 'read', because the latter wouldn't output a nice error message
+  parser s =
+    case readMaybe s >>= naturalToWordMaybe >>= toIntegralSized of
+      Nothing ->
+        fail $ "Cannot parse " <> s <> " as a " <> typeName
+      Just a ->
+        Just a
+
+word16Reader :: ReadM Word16
+word16Reader = wordReader $ show $ typeRep (Proxy @Word16)
+
 pMaxBlockHeaderSize :: Parser Word16
 pMaxBlockHeaderSize =
-  Opt.option Opt.auto $
+  Opt.option word16Reader $
     mconcat
       [ Opt.long "max-block-header-size"
       , Opt.metavar "WORD16"
