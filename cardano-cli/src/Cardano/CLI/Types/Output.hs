@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
@@ -6,6 +7,7 @@
 -- These types (and their encodings) are typically consumed by users of @cardano-cli@.
 module Cardano.CLI.Types.Output
   ( PlutusScriptCostError
+  , QueryDRepStateOutput (..)
   , QueryKesPeriodInfoOutput (..)
   , QueryTipLocalState (..)
   , QueryTipLocalStateOutput (..)
@@ -166,6 +168,37 @@ data QueryTipLocalStateOutput = QueryTipLocalStateOutput
   , mSyncProgress :: Maybe Text
   }
   deriving Show
+
+data QueryDRepStateOutput
+  = -- Not a record, because we want exhaustive warnings in the code of ToJSON below,
+    -- if we ever add more fields.
+    QueryDRepStateOutput
+      (L.Credential L.DRepRole L.StandardCrypto)
+      -- ^ Credential
+      EpochNo
+      -- ^ Expiry
+      (Maybe (L.Anchor L.StandardCrypto))
+      -- ^ Anchor
+      L.Coin
+      -- ^ Deposit
+      IncludeStake
+      (Maybe L.Coin)
+      -- ^ Stake
+
+instance ToJSON QueryDRepStateOutput where
+  toJSON (QueryDRepStateOutput credential expiry anchor deposit includeStake stake) =
+    toJSON
+      ( credential
+      , object $
+          [ "expiry" .= expiry
+          , "anchor" .= anchor
+          , "deposit" .= deposit
+          ]
+            <> ( case includeStake of
+                  WithStake -> ["stake" .= stake]
+                  NoStake -> []
+               )
+      )
 
 -- | A key-value pair difference list for encoding a JSON object.
 (..=) :: (KeyValue e kv, ToJSON v) => Aeson.Key -> v -> [kv] -> [kv]

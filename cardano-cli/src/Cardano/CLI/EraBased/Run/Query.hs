@@ -41,6 +41,7 @@ where
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
 import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
+import           Cardano.Api.Ledger (strictMaybeToMaybe)
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
@@ -52,6 +53,7 @@ import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.QueryCmdError
 import           Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
 import           Cardano.CLI.Types.Key
+import           Cardano.CLI.Types.Output (QueryDRepStateOutput (..))
 import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
@@ -1651,27 +1653,24 @@ runQueryDRepState
             queryDRepStakeDistribution eon (Set.fromList $ L.DRepCredential <$> drepCreds)
         Cmd.NoStake -> return mempty
 
-    writeOutput mOutFile $
-      drepStateToJson drepStakeDistribution <$> Map.assocs drepState
+    let assocs :: [(L.Credential L.DRepRole StandardCrypto, L.DRepState StandardCrypto)] = Map.assocs drepState
+        toWrite = toDRepStateOutput drepStakeDistribution <$> assocs
+
+    writeOutput mOutFile toWrite
    where
-    drepStateToJson
+    toDRepStateOutput
       :: ()
-      => ToJSON a
-      => Map (L.DRep StandardCrypto) a
+      => Map (L.DRep StandardCrypto) L.Coin
       -> (L.Credential L.DRepRole StandardCrypto, L.DRepState StandardCrypto)
-      -> (L.Credential L.DRepRole StandardCrypto, A.Value)
-    drepStateToJson stakeDistr (cred, ds) =
-      ( cred
-      , A.object $
-          [ "expiry" .= (ds ^. L.drepExpiryL)
-          , "anchor" .= (ds ^. L.drepAnchorL)
-          , "deposit" .= (ds ^. L.drepDepositL)
-          ]
-            <> ( case includeStake of
-                  Cmd.WithStake -> ["stake" .= Map.lookup (L.DRepCredential cred) stakeDistr]
-                  Cmd.NoStake -> []
-               )
-      )
+      -> QueryDRepStateOutput
+    toDRepStateOutput stakeDistr (cred, ds) =
+      QueryDRepStateOutput
+        cred
+        (ds ^. L.drepExpiryL)
+        (strictMaybeToMaybe $ ds ^. L.drepAnchorL)
+        (ds ^. L.drepDepositL)
+        includeStake
+        (Map.lookup (L.DRepCredential cred) stakeDistr)
 
 runQueryDRepStakeDistribution
   :: Cmd.QueryDRepStakeDistributionCmdArgs era
