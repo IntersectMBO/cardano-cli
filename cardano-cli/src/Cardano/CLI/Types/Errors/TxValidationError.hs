@@ -10,8 +10,6 @@ module Cardano.CLI.Types.Errors.TxValidationError
   ( TxAuxScriptsValidationError (..)
   , TxGovDuplicateVotes (..)
   , TxNotSupportedInEraValidationError (..)
-  , convToTxProposalProcedures
-  , convertToTxVotingProcedures
   , validateScriptSupportedInEra
   , validateTxAuxScripts
   , validateRequiredSigners
@@ -33,12 +31,7 @@ import           Cardano.CLI.Types.Common
 
 import           Prelude
 
-import           Control.Monad (foldM)
 import           Data.Bifunctor (first)
-import           Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
-import           Data.Maybe
-import qualified Data.OSet.Strict as OSet
 import qualified Data.Text as T
 import           Prettyprinter (viaShow)
 
@@ -107,14 +100,16 @@ validateTxCurrentTreasuryValue
   :: ()
   => ShelleyBasedEra era
   -> Maybe TxCurrentTreasuryValue
-  -> Either (TxNotSupportedInEraValidationError era) (Maybe (Featured ConwayEraOnwards era L.Coin))
+  -> Either
+      (TxNotSupportedInEraValidationError era)
+      (Maybe (Featured ConwayEraOnwards era (Maybe L.Coin)))
 validateTxCurrentTreasuryValue sbe mCurrentTreasuryValue =
   case mCurrentTreasuryValue of
     Nothing -> Right Nothing
     Just (TxCurrentTreasuryValue{unTxCurrentTreasuryValue}) ->
       caseShelleyToBabbageOrConwayEraOnwards
-        (const $ Left $ TxNotSupportedInShelleyBasedEraValidationError "Current treasury value" sbe)
-        (\cOnwards -> Right $ Just $ Featured cOnwards unTxCurrentTreasuryValue)
+        (const . Left $ TxNotSupportedInShelleyBasedEraValidationError "Current treasury value" sbe)
+        (const . pure . mkFeatured $ pure unTxCurrentTreasuryValue)
         sbe
 
 validateTxTreasuryDonation
@@ -127,8 +122,8 @@ validateTxTreasuryDonation sbe mTreasuryDonation =
     Nothing -> Right Nothing
     Just (TxTreasuryDonation{unTxTreasuryDonation}) ->
       caseShelleyToBabbageOrConwayEraOnwards
-        (const $ Left $ TxNotSupportedInShelleyBasedEraValidationError "Treasury donation" sbe)
-        (\cOnwards -> Right $ Just $ Featured cOnwards unTxTreasuryDonation)
+        (const . Left $ TxNotSupportedInShelleyBasedEraValidationError "Treasury donation" sbe)
+        (const . pure $ mkFeatured unTxTreasuryDonation)
         sbe
 
 validateTxReturnCollateral
@@ -224,21 +219,6 @@ conjureWitness era errF =
   maybe (cardanoEraConstraints era $ Left . errF $ AnyCardanoEra era) Right $
     forEraMaybeEon era
 
-getVotingScriptCredentials
-  :: VotingProcedures era
-  -> Maybe (L.Voter (L.EraCrypto (ShelleyLedgerEra era)))
-getVotingScriptCredentials (VotingProcedures (L.VotingProcedures m)) =
-  listToMaybe $ Map.keys m
-
-votingScriptWitnessSingleton
-  :: VotingProcedures era
-  -> Maybe (ScriptWitness WitCtxStake era)
-  -> Map (L.Voter (L.EraCrypto (ShelleyLedgerEra era))) (ScriptWitness WitCtxStake era)
-votingScriptWitnessSingleton _ Nothing = Map.empty
-votingScriptWitnessSingleton votingProcedures (Just scriptWitness) =
-  let voter = fromJust $ getVotingScriptCredentials votingProcedures
-   in Map.singleton voter scriptWitness
-
 newtype TxGovDuplicateVotes era
   = TxGovDuplicateVotes (VotesMergingConflict era)
 
@@ -247,40 +227,3 @@ instance Error (TxGovDuplicateVotes era) where
     "Trying to merge votes with similar action identifiers: "
       <> viaShow actionIds
       <> ". This would cause ignoring some of the votes, so not proceeding."
-
--- TODO: We fold twice, we can do it in a single fold
-convertToTxVotingProcedures
-  :: [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
-  -> Either (TxGovDuplicateVotes era) (TxVotingProcedures BuildTx era)
-convertToTxVotingProcedures votingProcedures = do
-  VotingProcedures procedure <-
-    first TxGovDuplicateVotes $
-      foldM f emptyVotingProcedures votingProcedures
-  pure $ TxVotingProcedures procedure (BuildTxWith votingScriptWitnessMap)
- where
-  votingScriptWitnessMap =
-    foldl
-      (\acc next -> acc `Map.union` uncurry votingScriptWitnessSingleton next)
-      Map.empty
-      votingProcedures
-  f acc (procedure, _witness) = mergeVotingProcedures acc procedure
-
-proposingScriptWitnessSingleton
-  :: Proposal era
-  -> Maybe (ScriptWitness WitCtxStake era)
-  -> Map (L.ProposalProcedure (ShelleyLedgerEra era)) (ScriptWitness WitCtxStake era)
-proposingScriptWitnessSingleton _ Nothing = Map.empty
-proposingScriptWitnessSingleton (Proposal proposalProcedure) (Just scriptWitness) =
-  Map.singleton proposalProcedure scriptWitness
-
-convToTxProposalProcedures
-  :: L.EraPParams (ShelleyLedgerEra era)
-  => [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
-  -> TxProposalProcedures BuildTx era
-convToTxProposalProcedures proposalProcedures =
-  -- TODO: Ledger does not export snoc so we can't fold here.
-  let proposals = OSet.fromFoldable $ map (unProposal . fst) proposalProcedures
-      sWitMap = BuildTxWith $ foldl sWitMapFolder Map.empty proposalProcedures
-   in TxProposalProcedures proposals sWitMap
- where
-  sWitMapFolder sWitMapAccum nextSWit = sWitMapAccum `Map.union` uncurry proposingScriptWitnessSingleton nextSWit

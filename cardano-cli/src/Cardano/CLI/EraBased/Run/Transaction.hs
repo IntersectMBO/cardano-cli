@@ -761,7 +761,8 @@ runTxBuildRaw
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
 
 constructTxBodyContent
-  :: ShelleyBasedEra era
+  :: forall era
+   . ShelleyBasedEra era
   -> Maybe ScriptValidity
   -> Maybe (L.PParams (ShelleyLedgerEra era))
   -> [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
@@ -849,7 +850,12 @@ constructTxBodyContent
       validatedTxScriptValidity <-
         first TxCmdNotSupportedInEraValidationError $ validateTxScriptValidity sbe mScriptValidity
       validatedVotingProcedures <-
-        first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures
+        first (TxCmdTxGovDuplicateVotes . TxGovDuplicateVotes) $
+          mkTxVotingProcedures @BuildTx (fromList votingProcedures)
+      let txProposals = forShelleyBasedEraInEonMaybe sbe $ \w -> do
+            let txp :: TxProposalProcedures BuildTx era
+                txp = conwayEraOnwardsConstraints w $ mkTxProposalProcedures $ map (first unProposal) proposals
+            Featured w txp
       validatedCurrentTreasuryValue <-
         first
           TxCmdNotSupportedInEraValidationError
@@ -859,7 +865,8 @@ constructTxBodyContent
           TxCmdNotSupportedInEraValidationError
           (validateTxTreasuryDonation sbe (snd <$> mCurrentTreasuryValueAndDonation))
       return $
-        shelleyBasedEraConstraints sbe $
+        shelleyBasedEraConstraints
+          sbe
           ( defaultTxBodyContent sbe
               & setTxIns (validateTxIns inputsAndMaybeScriptWits)
               & setTxInsCollateral validatedCollateralTxIns
@@ -879,14 +886,11 @@ constructTxBodyContent
               & setTxUpdateProposal txUpdateProposal
               & setTxMintValue validatedMintValue
               & setTxScriptValidity validatedTxScriptValidity
+              & setTxVotingProcedures (mkFeatured validatedVotingProcedures)
+              & setTxProposalProcedures txProposals
+              & setTxCurrentTreasuryValue validatedCurrentTreasuryValue
+              & setTxTreasuryDonation validatedTreasuryDonation
           )
-            { -- TODO: Create set* function for proposal procedures and voting procedures
-              txProposalProcedures =
-                forShelleyBasedEraInEonMaybe sbe (`Featured` convToTxProposalProcedures proposals)
-            , txVotingProcedures = forShelleyBasedEraInEonMaybe sbe (`Featured` validatedVotingProcedures)
-            }
-            & setTxCurrentTreasuryValue validatedCurrentTreasuryValue
-            & setTxTreasuryDonation validatedTreasuryDonation
    where
     convertWithdrawals
       :: (StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))
@@ -1130,7 +1134,7 @@ validateTxInsCollateral era txins = do
 validateTxInsReference
   :: ShelleyBasedEra era
   -> [TxIn]
-  -> Either TxCmdError (TxInsReference BuildTx era)
+  -> Either TxCmdError (TxInsReference era)
 validateTxInsReference _ [] = return TxInsReferenceNone
 validateTxInsReference sbe allRefIns = do
   forShelleyBasedEraInEonMaybe sbe (\supported -> TxInsReference supported allRefIns)
