@@ -259,7 +259,6 @@ library
     transformers-except ^>=0.1.3,
     unliftio-core,
     utf8-string,
-    vector,
     yaml,
 
 executable cardano-cli
@@ -337,7 +336,7 @@ test-suite cardano-cli-test
     Test.Cli.Governance.DRep
     Test.Cli.Governance.Hash
     Test.Cli.ITN
-    Test.Cli.JSON
+    Test.Cli.Json
     Test.Cli.MonadWarning
     Test.Cli.Pioneers.Exercise1
     Test.Cli.Pioneers.Exercise2

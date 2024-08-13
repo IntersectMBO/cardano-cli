@@ -1,6 +1,6 @@
 {-# LANGUAGE NumericUnderscores #-}
 
-module Test.Cli.JSON
+module Test.Cli.Json
   ( hprop_json_roundtrip_delegations_and_rewards
   , hprop_roundtrip_kes_period_info_output_JSON
   )
@@ -12,10 +12,10 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Output (QueryKesPeriodInfoOutput (..), createOpCertIntervalInfo)
 
 import           Data.Aeson
-import qualified Data.Map.Strict as Map
 import           Data.Time
 import           Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import           Data.Word (Word64)
+import           GHC.Exts (IsList (..))
 
 import           Test.Gen.Cardano.Api.Typed (genLovelace, genSlotNo, genStakeAddress,
                    genVerificationKeyHash)
@@ -36,9 +36,9 @@ genDelegationsAndRewards = do
   let r = Range.constant 0 3
   sAddrs <- Gen.list r genStakeAddress
   sLovelace <- Gen.list r genLovelace
-  let delegMapAmt = Map.fromList $ zip sAddrs sLovelace
+  let delegMapAmt = fromList $ zip sAddrs sLovelace
   poolIDs <- Gen.list r genPoolId
-  let delegMapPool = Map.fromList $ zip sAddrs poolIDs
+  let delegMapPool = fromList $ zip sAddrs poolIDs
   return $ DelegationsAndRewards (delegMapAmt, delegMapPool)
 
 genOpCertIntervalInformation :: Gen OpCertIntervalInformation

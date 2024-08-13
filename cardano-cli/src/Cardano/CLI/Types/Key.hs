@@ -50,9 +50,9 @@ import           Cardano.CLI.Types.Common
 
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as BS
-import qualified Data.List.NonEmpty as NE
 import           Data.Text (Text)
 import qualified Data.Text.Encoding as Text
+import           GHC.Exts (IsList (..))
 
 ------------------------------------------------------------------------------
 -- Verification key deserialisation
@@ -94,7 +94,7 @@ readVerificationKeyOrFile asType verKeyOrFile =
       hoistIOEither $
         readKeyFile
           (AsVerificationKey asType)
-          (NE.fromList [InputFormatBech32, InputFormatHex, InputFormatTextEnvelope])
+          (fromList [InputFormatBech32, InputFormatHex, InputFormatTextEnvelope])
           fp
 
 -- | Read a verification key or verification key file and return a

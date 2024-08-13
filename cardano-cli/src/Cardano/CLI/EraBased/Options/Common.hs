@@ -35,14 +35,13 @@ import           Data.Foldable
 import           Data.Functor (($>))
 import qualified Data.IP as IP
 import           Data.List.NonEmpty (NonEmpty)
-import qualified Data.List.NonEmpty as NE
 import           Data.Maybe
-import qualified Data.Set as Set
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Time.Clock (UTCTime)
 import           Data.Time.Format (defaultTimeLocale, parseTimeOrError)
 import           Data.Word
+import           GHC.Exts (IsList (..))
 import           GHC.Natural (Natural)
 import           Network.Socket (PortNumber)
 import           Options.Applicative hiding (help, str)
@@ -328,7 +327,7 @@ readVerificationKey asType =
   Opt.eitherReader deserialiseFromBech32OrHex
  where
   keyFormats :: NonEmpty (InputFormat (VerificationKey keyrole))
-  keyFormats = NE.fromList [InputFormatBech32, InputFormatHex]
+  keyFormats = fromList [InputFormatBech32, InputFormatHex]
 
   deserialiseFromBech32OrHex
     :: String
@@ -2747,7 +2746,7 @@ pQueryUTxOFilter =
         ]
 
   pQueryUTxOByAddress :: Parser QueryUTxOFilter
-  pQueryUTxOByAddress = QueryUTxOByAddress . Set.fromList <$> some pByAddress
+  pQueryUTxOByAddress = QueryUTxOByAddress . fromList <$> some pByAddress
 
   pByAddress :: Parser AddressAny
   pByAddress =
@@ -2759,7 +2758,7 @@ pQueryUTxOFilter =
         ]
 
   pQueryUTxOByTxIn :: Parser QueryUTxOFilter
-  pQueryUTxOByTxIn = QueryUTxOByTxIn . Set.fromList <$> some pByTxIn
+  pQueryUTxOByTxIn = QueryUTxOByTxIn . fromList <$> some pByTxIn
 
   pByTxIn :: Parser TxIn
   pByTxIn =

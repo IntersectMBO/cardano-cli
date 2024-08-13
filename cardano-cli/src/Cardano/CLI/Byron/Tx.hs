@@ -107,7 +107,7 @@ genesisUTxOTxIn gc vk genAddr =
  where
   initialUtxo :: Map Common.Address (UTxO.TxIn, UTxO.TxOut)
   initialUtxo =
-    Map.fromList
+    fromList
       . mapMaybe (\(inp, out) -> mkEntry inp genAddr <$> keyMatchesUTxO vk out)
       . fromCompactTxInTxOutList
       . toList

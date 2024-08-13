@@ -31,7 +31,7 @@ import           Cardano.CLI.Types.Errors.GovernanceCmdError
 
 import           Control.Monad
 import           Data.Function
-import qualified Data.Map.Strict as Map
+import           GHC.Exts (IsList (..))
 
 runGovernanceCmds
   :: ()
@@ -84,7 +84,7 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
   let sCreds = map stakeAddressCredential sAddrs
       mirTarget =
         L.StakeAddressesMIR $
-          Map.fromList
+          fromList
             [ (toShelleyStakeCredential scred, L.toDeltaCoin rwdAmt)
             | (scred, rwdAmt) <- zip sCreds rwdAmts
             ]

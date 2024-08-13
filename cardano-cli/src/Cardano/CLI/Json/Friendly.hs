@@ -5,6 +5,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Redundant bracket" #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Json.Friendly
@@ -39,7 +42,7 @@ import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
-                   KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (Proposal),
+                   KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (..),
                    ShelleyLedgerEra, StakeAddress (..), fromShelleyPaymentCredential,
                    fromShelleyStakeReference, toShelleyStakeCredential)
 
@@ -62,19 +65,15 @@ import           Data.Char (isAscii)
 import           Data.Function ((&))
 import           Data.Functor ((<&>))
 import qualified Data.Map.Strict as Map
-import           Data.Maybe (catMaybes, isJust, maybeToList)
+import           Data.Maybe
 import           Data.Ratio (numerator)
 import qualified Data.Text as Text
-import qualified Data.Vector as Vector
 import           Data.Yaml (array)
 import           Data.Yaml.Pretty (setConfCompare)
 import qualified Data.Yaml.Pretty as Yaml
 import           GHC.Exts (IsList (..))
 import           GHC.Real (denominator)
 import           GHC.Unicode (isAlphaNum)
-
-{- HLINT ignore "Redundant bracket" -}
-{- HLINT ignore "Move brackets to avoid $" -}
 
 data FriendlyFormat = FriendlyJson | FriendlyYaml
 
@@ -251,7 +250,7 @@ friendlyTxBodyImpl
                           Nothing -> []
                           Just (Featured _ TxProposalProceduresNone) -> []
                           Just (Featured _ (TxProposalProcedures lProposals _witnesses)) ->
-                            ["governance actions" .= (friendlyLedgerProposals cOnwards $ toList lProposals)]
+                            ["governance actions" .= friendlyLedgerProposals cOnwards (toList lProposals)]
                     )
                  )
               ++ ( monoidForEraInEon @ConwayEraOnwards
@@ -277,7 +276,7 @@ friendlyTxBodyImpl
     friendlyLedgerProposals
       :: ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
     friendlyLedgerProposals cOnwards proposalProcedures =
-      Array $ Vector.fromList $ map (friendlyLedgerProposal cOnwards) proposalProcedures
+      Array $ fromList $ map (friendlyLedgerProposal cOnwards) proposalProcedures
 
 friendlyLedgerProposal
   :: ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
@@ -703,7 +702,7 @@ friendlyFee = \case
   TxFeeExplicit _ fee -> friendlyLovelace fee
 
 friendlyLovelace :: L.Coin -> Aeson.Value
-friendlyLovelace (L.Coin value) = String $ textShow value <> " Lovelace"
+friendlyLovelace value = String $ docToText (pretty value)
 
 friendlyMintValue :: TxMintValue ViewTx era -> Aeson.Value
 friendlyMintValue = \case

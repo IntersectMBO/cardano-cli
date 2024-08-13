@@ -42,7 +42,7 @@ parseSystemStart :: J.Value -> J.Parser String
 parseSystemStart = J.withObject "Object" $ \o -> o J..: "systemStart"
 
 parseHashMap :: J.Value -> J.Parser (HM.HashMap String J.Value)
-parseHashMap (J.Object hm) = pure $ HM.fromList $ fmap (first J.toString) (toList hm)
+parseHashMap (J.Object hm) = pure $ fromList $ fmap (first J.toString) (toList hm)
 parseHashMap v = J.typeMismatch "Object" v
 
 parseDelegateCount :: J.Value -> J.Parser Int
@@ -134,12 +134,12 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
     -- required for stake pool rewards.
 
     -- Check uniqueness and count of hash keys
-    S.size (S.fromList actualHashKeys) === length actualHashKeys -- This isn't strictly necessary because we use aeson which guarantees uniqueness of keys
-    S.size (S.fromList actualHashKeys) === delegateCount
+    S.size (fromList actualHashKeys) === length actualHashKeys -- This isn't strictly necessary because we use aeson which guarantees uniqueness of keys
+    S.size (fromList actualHashKeys) === delegateCount
 
     -- Check uniqueness and count of hash keys
-    S.size (S.fromList actualDelegateKeys) === length actualDelegateKeys
-    S.size (S.fromList actualDelegateKeys) === delegateCount
+    S.size (fromList actualDelegateKeys) === length actualDelegateKeys
+    S.size (fromList actualDelegateKeys) === delegateCount
 
     for_ [1 .. delegateCount] $ \i -> do
       -- Check Genesis keys
@@ -230,12 +230,12 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
     -- We don't use the entire supply so there is ada in the treasury. This is
     -- required for stake pool rewards.
     -- Check uniqueness and count of hash keys
-    S.size (S.fromList actualHashKeys) === length actualHashKeys -- This isn't strictly necessary because we use aeson which guarantees uniqueness of keys
-    S.size (S.fromList actualHashKeys) === delegateCount
+    S.size (fromList actualHashKeys) === length actualHashKeys -- This isn't strictly necessary because we use aeson which guarantees uniqueness of keys
+    S.size (fromList actualHashKeys) === delegateCount
 
     -- Check uniqueness and count of hash keys
-    S.size (S.fromList actualDelegateKeys) === length actualDelegateKeys
-    S.size (S.fromList actualDelegateKeys) === delegateCount
+    S.size (fromList actualDelegateKeys) === length actualDelegateKeys
+    S.size (fromList actualDelegateKeys) === delegateCount
 
     for_ [1 .. delegateCount] $ \i -> do
       -- Check Genesis keys
