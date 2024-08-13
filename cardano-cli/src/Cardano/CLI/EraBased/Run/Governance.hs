@@ -69,7 +69,7 @@ runGovernanceMIRCertificatePayStakeAddrs
   -> L.MIRPot
   -> [StakeAddress]
   -- ^ Stake addresses
-  -> [L.Coin]
+  -> [Lovelace]
   -- ^ Corresponding reward amounts (same length)
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
@@ -105,7 +105,7 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
 runGovernanceCreateMirCertificateTransferToTreasuryCmd
   :: ()
   => ShelleyToBabbageEra era
-  -> L.Coin
+  -> Lovelace
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
@@ -125,7 +125,7 @@ runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
 runGovernanceCreateMirCertificateTransferToReservesCmd
   :: ()
   => ShelleyToBabbageEra era
-  -> L.Coin
+  -> Lovelace
   -> File () Out
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do

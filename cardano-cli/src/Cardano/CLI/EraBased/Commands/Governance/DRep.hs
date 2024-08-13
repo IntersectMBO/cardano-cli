@@ -50,7 +50,7 @@ data GovernanceDRepRegistrationCertificateCmdArgs era
   = GovernanceDRepRegistrationCertificateCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , drepHashSource :: !DRepHashSource
-  , deposit :: !L.Coin
+  , deposit :: !Lovelace
   , mAnchor :: !(Maybe (L.Anchor (L.EraCrypto (ShelleyLedgerEra era))))
   , outFile :: !(File () Out)
   }
@@ -59,7 +59,7 @@ data GovernanceDRepRetirementCertificateCmdArgs era
   = GovernanceDRepRetirementCertificateCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , drepHashSource :: !DRepHashSource
-  , deposit :: !L.Coin
+  , deposit :: !Lovelace
   , outFile :: !(File () Out)
   }
 

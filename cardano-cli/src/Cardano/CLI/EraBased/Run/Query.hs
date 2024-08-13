@@ -986,7 +986,7 @@ writeStakeAddressInfo
   :: ShelleyBasedEra era
   -> Maybe (File () Out)
   -> DelegationsAndRewards
-  -> Map StakeAddress L.Coin
+  -> Map StakeAddress Lovelace
   -- ^ deposits
   -> Map StakeAddress (L.DRep L.StandardCrypto)
   -- ^ vote delegatees
@@ -1035,7 +1035,7 @@ writeStakeAddressInfo
     friendlyDRep (L.DRepCredential cred) =
       L.credToText cred -- this will pring "keyHash-..." or "scriptHash-...", depending on the type of credential
     merged
-      :: [(StakeAddress, Maybe L.Coin, Maybe PoolId, Maybe (L.DRep L.StandardCrypto), Maybe L.Coin)]
+      :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe (L.DRep L.StandardCrypto), Maybe Lovelace)]
     merged =
       [ (addr, mBalance, mPoolId, mDRep, mDeposit)
       | addr <-
@@ -1661,7 +1661,7 @@ runQueryDRepState
    where
     toDRepStateOutput
       :: ()
-      => Map (L.DRep StandardCrypto) L.Coin
+      => Map (L.DRep StandardCrypto) Lovelace
       -> (L.Credential L.DRepRole StandardCrypto, L.DRepState StandardCrypto)
       -> QueryDRepStateOutput
     toDRepStateOutput stakeDistr (cred, ds) =

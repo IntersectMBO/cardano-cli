@@ -729,7 +729,7 @@ updateOutputTemplate
   -- ^ System start time
   -> Map (Hash GenesisKey) (Hash GenesisDelegateKey, Hash VrfKey)
   -- ^ Genesis delegation (not stake-based)
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Amount of lovelace not delegated
   -> Int
   -- ^ Number of UTxO addresses that are delegating
@@ -739,7 +739,7 @@ updateOutputTemplate
   -- ^ Pool map
   -> [(L.KeyHash 'L.Staking L.StandardCrypto, L.KeyHash 'L.StakePool L.StandardCrypto)]
   -- ^ Delegaton map
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Amount of lovelace to delegate
   -> Int
   -- ^ Number of UTxO address for delegation
@@ -794,13 +794,13 @@ updateOutputTemplate
     nonDelegCoin = fromIntegral (maybe maximumLovelaceSupply unLovelace mAmountNonDeleg)
     delegCoin = maybe 0 fromIntegral amountDeleg
 
-    distribute :: Integer -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
+    distribute :: Integer -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     distribute funds nAddrs addrs = zip addrs (fmap L.Coin (coinPerAddr + remainder : repeat coinPerAddr))
      where
       coinPerAddr, remainder :: Integer
       (coinPerAddr, remainder) = funds `divMod` fromIntegral nAddrs
 
-    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
+    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     mkStuffedUtxo xs = (,L.Coin minUtxoVal) <$> xs
      where
       L.Coin minUtxoVal = sgProtocolParams ^. L.ppMinUTxOValueL
@@ -814,7 +814,7 @@ updateOutputTemplate
             toList genDelegMap
         ]
 
-    unLovelace :: Integral a => L.Coin -> a
+    unLovelace :: Integral a => Lovelace -> a
     unLovelace (L.Coin coin) = fromIntegral coin
 
 createDelegateKeys :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdError IO ()
@@ -1047,13 +1047,13 @@ updateTemplate
   -- ^ System start time
   -> Map (Hash GenesisKey) (Hash GenesisDelegateKey, Hash VrfKey)
   -- ^ Genesis delegation (not stake-based)
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Amount of lovelace not delegated
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
   -> Map (L.KeyHash 'L.Staking L.StandardCrypto) (L.PoolParams L.StandardCrypto)
   -- ^ Genesis staking: pools/delegation map & delegated initial UTxO spec
-  -> L.Coin
+  -> Lovelace
   -- ^ Number of UTxO Addresses for delegation
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO Addresses for delegation
@@ -1109,7 +1109,7 @@ updateTemplate
     nonDelegCoin = fromIntegral (maybe maximumLovelaceSupply unLovelace mAmountNonDeleg)
     delegCoin = fromIntegral amountDeleg
 
-    distribute :: Integer -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
+    distribute :: Integer -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     distribute funds addrs =
       fst $ List.foldl' folder ([], fromIntegral funds) addrs
      where
@@ -1119,15 +1119,15 @@ updateTemplate
       splitThreshold = coinPerAddr + nAddrs
 
       folder
-        :: ([(AddressInEra ShelleyEra, L.Coin)], Integer)
+        :: ([(AddressInEra ShelleyEra, Lovelace)], Integer)
         -> AddressInEra ShelleyEra
-        -> ([(AddressInEra ShelleyEra, L.Coin)], Integer)
+        -> ([(AddressInEra ShelleyEra, Lovelace)], Integer)
       folder (acc, rest) addr
         | rest > splitThreshold =
             ((addr, L.Coin coinPerAddr) : acc, rest - coinPerAddr)
         | otherwise = ((addr, L.Coin rest) : acc, 0)
 
-    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
+    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     mkStuffedUtxo xs = (,L.Coin minUtxoVal) <$> xs
      where
       L.Coin minUtxoVal = sgProtocolParams template ^. L.ppMinUTxOValueL
@@ -1141,7 +1141,7 @@ updateTemplate
             toList genDelegMap
         ]
 
-    unLovelace :: Integral a => L.Coin -> a
+    unLovelace :: Integral a => Lovelace -> a
     unLovelace (L.Coin coin) = fromIntegral coin
 
 writeFileGenesis

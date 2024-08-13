@@ -47,7 +47,7 @@ data GovernanceActionUpdateCommitteeCmdArgs era
   = GovernanceActionUpdateCommitteeCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , networkId :: !L.Network
-  , deposit :: !L.Coin
+  , deposit :: !Lovelace
   , returnAddress :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
@@ -63,7 +63,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
   = GovernanceActionCreateConstitutionCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , networkId :: !L.Network
-  , deposit :: !L.Coin
+  , deposit :: !Lovelace
   , stakeCredential :: !StakeIdentifier
   , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
   , proposalUrl :: !ProposalUrl
@@ -80,7 +80,7 @@ data GovernanceActionInfoCmdArgs era
   = GovernanceActionInfoCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , networkId :: !L.Network
-  , deposit :: !L.Coin
+  , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
@@ -92,7 +92,7 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
   = GovernanceActionCreateNoConfidenceCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , networkId :: !L.Network
-  , deposit :: !L.Coin
+  , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
@@ -123,11 +123,11 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , networkId :: !L.Network
-  , deposit :: !L.Coin
+  , deposit :: !Lovelace
   , returnAddr :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
-  , treasuryWithdrawal :: ![(VerificationKeyOrHashOrFile StakeKey, L.Coin)]
+  , treasuryWithdrawal :: ![(VerificationKeyOrHashOrFile StakeKey, Lovelace)]
   , constitutionScriptHash :: !(Maybe ScriptHash)
   , outFile :: !(File () Out)
   }
@@ -137,7 +137,7 @@ data GovernanceActionHardforkInitCmdArgs era
   = GovernanceActionHardforkInitCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , networkId :: !L.Network
-  , deposit :: !L.Coin
+  , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier
   , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
   , proposalUrl :: !ProposalUrl
@@ -160,7 +160,7 @@ data UpdateProtocolParametersConwayOnwards era
   = UpdateProtocolParametersConwayOnwards
   { eon :: !(ConwayEraOnwards era)
   , networkId :: !L.Network
-  , deposit :: !L.Coin
+  , deposit :: !Lovelace
   , returnAddr :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)

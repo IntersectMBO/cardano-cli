@@ -24,7 +24,6 @@ module Cardano.CLI.Types.Errors.TxValidationError
 where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
@@ -87,7 +86,7 @@ instance Error (TxNotSupportedInEraValidationError era) where
 
 validateTxTotalCollateral
   :: ShelleyBasedEra era
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -> Either (TxNotSupportedInEraValidationError era) (TxTotalCollateral era)
 validateTxTotalCollateral _ Nothing = return TxTotalCollateralNone
 validateTxTotalCollateral sbe (Just coll) = do
@@ -102,7 +101,7 @@ validateTxCurrentTreasuryValue
   -> Maybe TxCurrentTreasuryValue
   -> Either
       (TxNotSupportedInEraValidationError era)
-      (Maybe (Featured ConwayEraOnwards era (Maybe L.Coin)))
+      (Maybe (Featured ConwayEraOnwards era (Maybe Lovelace)))
 validateTxCurrentTreasuryValue sbe mCurrentTreasuryValue =
   case mCurrentTreasuryValue of
     Nothing -> Right Nothing
@@ -116,7 +115,7 @@ validateTxTreasuryDonation
   :: ()
   => ShelleyBasedEra era
   -> Maybe TxTreasuryDonation
-  -> Either (TxNotSupportedInEraValidationError era) (Maybe (Featured ConwayEraOnwards era L.Coin))
+  -> Either (TxNotSupportedInEraValidationError era) (Maybe (Featured ConwayEraOnwards era Lovelace))
 validateTxTreasuryDonation sbe mTreasuryDonation =
   case mTreasuryDonation of
     Nothing -> Right Nothing

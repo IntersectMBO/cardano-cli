@@ -703,7 +703,7 @@ friendlyFee :: TxFee era -> Aeson.Value
 friendlyFee = \case
   TxFeeExplicit _ fee -> friendlyLovelace fee
 
-friendlyLovelace :: L.Coin -> Aeson.Value
+friendlyLovelace :: Lovelace -> Aeson.Value
 friendlyLovelace value = String $ docToText (pretty value)
 
 friendlyMintValue :: TxMintValue ViewTx era -> Aeson.Value

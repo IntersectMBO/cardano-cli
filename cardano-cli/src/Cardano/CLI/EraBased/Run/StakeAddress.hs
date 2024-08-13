@@ -131,7 +131,7 @@ runStakeAddressRegistrationCertificateCmd
   :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
@@ -160,7 +160,7 @@ createRegistrationCertRequirements
   :: ()
   => ShelleyBasedEra era
   -> StakeCredential
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Deposit required in conway era
   -> Either StakeAddressRegistrationError (StakeAddressRequirements era)
 createRegistrationCertRequirements sbe stakeCred mdeposit =
@@ -301,7 +301,7 @@ runStakeAddressDeregistrationCertificateCmd
   :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
