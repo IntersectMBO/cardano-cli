@@ -1107,10 +1107,9 @@ writePoolState mOutFile serialisedCurrentEpochState = do
   let hks :: [L.KeyHash L.StakePool StandardCrypto]
       hks =
         toList $
-          fromList @(Set (L.KeyHash L.StakePool StandardCrypto)) $
-            Map.keys (L.psStakePoolParams poolState)
-              <> Map.keys (L.psFutureStakePoolParams poolState)
-              <> Map.keys (L.psRetiring poolState)
+          Map.keysSet (L.psStakePoolParams poolState)
+            <> Map.keysSet (L.psFutureStakePoolParams poolState)
+            <> Map.keysSet (L.psRetiring poolState)
 
   let poolStates :: Map (L.KeyHash 'L.StakePool StandardCrypto) (Params StandardCrypto)
       poolStates =

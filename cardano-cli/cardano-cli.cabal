@@ -372,7 +372,6 @@ test-suite cardano-cli-golden
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-crypto-wrapper,
-    cardano-data >=1.1,
     cardano-ledger-byron,
     cardano-ledger-shelley >=1.10.0.0,
     cardano-strict-containers ^>=0.1,

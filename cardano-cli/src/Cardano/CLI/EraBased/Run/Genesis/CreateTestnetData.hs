@@ -57,7 +57,6 @@ import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.ListMap (ListMap (..))
-import qualified Data.ListMap as ListMap
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Maybe (fromMaybe)
@@ -351,7 +350,7 @@ runGenesisCreateTestNetDataCmd
         :: [(VerificationKey StakeKey, VerificationKey DRepKey)]
         -> ListMap (L.Credential L.Staking L.StandardCrypto) (L.Delegatee L.StandardCrypto)
       delegs =
-        ListMap.fromList
+        fromList
           . map
             ( bimap
                 verificationKeytoStakeCredential
@@ -363,7 +362,7 @@ runGenesisCreateTestNetDataCmd
         -> [VerificationKey DRepKey]
         -> ListMap (L.Credential L.DRepRole L.StandardCrypto) (L.DRepState L.StandardCrypto)
       initialDReps minDeposit =
-        ListMap.fromList
+        fromList
           . map
             ( \c ->
                 ( verificationKeyToDRepCredential c
@@ -706,7 +705,7 @@ updateOutputTemplate
         , sgMaxLovelaceSupply = totalSupply
         , sgGenDelegs = shelleyDelKeys
         , sgInitialFunds =
-            ListMap.fromList
+            fromList
               [ (toShelleyAddr addr, v)
               | (addr, v) <-
                   distribute nonDelegCoin nUtxoAddrsNonDeleg utxoAddrsNonDeleg

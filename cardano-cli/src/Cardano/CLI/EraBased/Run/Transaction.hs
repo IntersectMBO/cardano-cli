@@ -64,6 +64,7 @@ import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as Data.Bytestring
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
+import           Data.Containers.ListUtils (nubOrd)
 import           Data.Data ((:~:) (..))
 import qualified Data.Foldable as Foldable
 import           Data.Function ((&))
@@ -199,7 +200,7 @@ runTransactionBuildCmd
           <$> readTxGovernanceActions eon proposalFiles
 
     -- the same collateral input can be used for several plutus scripts
-    let filteredTxinsc = toList @(Set _) $ fromList txinsc
+    let filteredTxinsc = nubOrd txinsc
 
     let allReferenceInputs =
           getAllReferenceInputs

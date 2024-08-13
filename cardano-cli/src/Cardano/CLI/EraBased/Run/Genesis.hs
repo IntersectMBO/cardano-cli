@@ -769,7 +769,7 @@ updateOutputTemplate
       , sgMaxLovelaceSupply = fromIntegral $ nonDelegCoin + delegCoin
       , sgGenDelegs = shelleyDelKeys
       , sgInitialFunds =
-          ListMap.fromList
+          fromList
             [ (toShelleyAddr addr, v)
             | (addr, v) <-
                 distribute (nonDelegCoin - subtractForTreasury) nUtxoAddrsNonDeleg utxoAddrsNonDeleg
@@ -1080,7 +1080,7 @@ updateTemplate
             , sgMaxLovelaceSupply = fromIntegral $ nonDelegCoin + delegCoin
             , sgGenDelegs = shelleyDelKeys
             , sgInitialFunds =
-                ListMap.fromList
+                fromList
                   [ (toShelleyAddr addr, v)
                   | (addr, v) <-
                       distribute (nonDelegCoin - subtractForTreasury) utxoAddrsNonDeleg
@@ -1090,7 +1090,7 @@ updateTemplate
             , sgStaking =
                 ShelleyGenesisStaking
                   { sgsPools =
-                      ListMap.fromList
+                      fromList
                         [ (L.ppId poolParams, poolParams)
                         | poolParams <- Map.elems poolSpecs
                         ]
