@@ -370,7 +370,7 @@ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys = do
       -> (Hash GenesisKey, (Hash GenesisDelegateKey, Hash VrfKey))
     hashKeys (genesis, delegate, vrf) = (verificationKeyHash genesis, (verificationKeyHash delegate, verificationKeyHash vrf))
     delegateMap :: Map (Hash GenesisKey) (Hash GenesisDelegateKey, Hash VrfKey)
-    delegateMap = Map.fromList . map hashKeys $ combinedMap
+    delegateMap = fromList . map hashKeys $ combinedMap
 
   return (delegateMap, vrfKeys, kesKeys, opCerts)
 
@@ -806,7 +806,7 @@ updateOutputTemplate
       L.Coin minUtxoVal = sgProtocolParams ^. L.ppMinUTxOValueL
 
     shelleyDelKeys =
-      Map.fromList
+      fromList
         [ (gh, L.GenDelegPair gdh h)
         | ( GenesisKeyHash gh
             , (GenesisDelegateKeyHash gdh, VrfKeyHash h)
@@ -956,7 +956,7 @@ buildPoolParams nw dir index specifiedRelays = do
   lookupPoolRelay m =
     case index of
       Nothing -> mempty
-      Just index' -> maybe mempty Seq.fromList (Map.lookup index' m)
+      Just index' -> maybe mempty fromList (Map.lookup index' m)
 
   strIndex = maybe "" show index
   poolColdVKF = File $ dir </> "cold" ++ strIndex ++ ".vkey"
@@ -1133,7 +1133,7 @@ updateTemplate
       L.Coin minUtxoVal = sgProtocolParams template ^. L.ppMinUTxOValueL
 
     shelleyDelKeys =
-      Map.fromList
+      fromList
         [ (gh, L.GenDelegPair gdh h)
         | ( GenesisKeyHash gh
             , (GenesisDelegateKeyHash gdh, VrfKeyHash h)
@@ -1218,7 +1218,7 @@ readGenDelegsMap gendir deldir = do
             (Hash GenesisKey)
             (Hash GenesisDelegateKey, Hash VrfKey)
       delegsMap =
-        Map.fromList
+        fromList
           [ (gh, (dh, vh))
           | (g, (d, v)) <- Map.elems combinedMap
           , let gh = verificationKeyHash g
@@ -1243,7 +1243,7 @@ readGenesisKeys gendir = do
       , takeExtension file == ".vkey"
       ]
   firstExceptT GenesisCmdTextEnvReadFileError $
-    Map.fromList
+    fromList
       <$> sequence
         [ (,) ix <$> readKey (File file)
         | (file, ix) <- fileIxs
@@ -1268,7 +1268,7 @@ readDelegateKeys deldir = do
       , takeExtensions file == ".vkey"
       ]
   firstExceptT GenesisCmdTextEnvReadFileError $
-    Map.fromList
+    fromList
       <$> sequence
         [ (,) ix <$> readKey (File file)
         | (file, ix) <- fileIxs
@@ -1293,7 +1293,7 @@ readDelegateVrfKeys deldir = do
       , takeExtensions file == ".vrf.vkey"
       ]
   firstExceptT GenesisCmdTextEnvReadFileError $
-    Map.fromList
+    fromList
       <$> sequence
         [ (,) ix <$> readKey (File file)
         | (file, ix) <- fileIxs
