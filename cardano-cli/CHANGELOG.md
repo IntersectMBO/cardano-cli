@@ -1,5 +1,28 @@
 # Changelog for cardano-cli
 
+## 9.3.0.0
+
+- Add `query spo-stake-distribution` command to obtain stake distribution for SPOs
+  (feature)
+  [PR 854](https://github.com/IntersectMBO/cardano-cli/pull/854)
+
+- Remove redundant voting and proposal procedures functions.
+  Update cardano-api-9.2.0.0.
+  (compatible, refactoring)
+  [PR 856](https://github.com/IntersectMBO/cardano-cli/pull/856)
+
+- Create toJSON instance for `query drep-state` output. Haskell users can know use this type to parse back `query drep-state`'s output to a Haskell value automatically.
+  (feature, compatible)
+  [PR 863](https://github.com/IntersectMBO/cardano-cli/pull/863)
+
+- Make "[era] transaction view" command fail. Please use "debug transaction view" instead.
+  (breaking)
+  [PR 858](https://github.com/IntersectMBO/cardano-cli/pull/858)
+
+- Fix invalid sync percentage display in `query tip`
+  (compatible, bugfix)
+  [PR 851](https://github.com/IntersectMBO/cardano-cli/pull/851)
+
 ## 9.2.1.0
 
 - Add "query treasury" command
@@ -38,7 +61,7 @@
   (bugfix)
   [PR 821](https://github.com/IntersectMBO/cardano-cli/pull/821)
 
-## 9.0.0.1 
+## 9.0.0.1
 
 - transaction-build and build-estimate: include current treasury value only if a donation is being done
   (breaking)
@@ -55,12 +78,12 @@
   [PR 806](https://github.com/IntersectMBO/cardano-cli/pull/806)
 
 - Move "conway governance hash" commands to "hash". Users should adapt their calls as follows:
-  
+
   `cardano-cli conway governance hash anchor-data ...` becomes `cardano-cli hash anchor-data ...`
   `cardano-cli conway governance hash script ...` becomes `cardano-cli hash script ...`
   (breaking)
   [PR 787](https://github.com/IntersectMBO/cardano-cli/pull/787)
-  
+
 ## 8.25.0.0
 
 - Add --current-treasury-value and --treasury-donation to transaction build and friends
@@ -87,7 +110,7 @@
   [PR 775](https://github.com/IntersectMBO/cardano-cli/pull/775)
 
 - transaction view: show proposals and votes
-  
+
   This adds to new fields to the JSON output of `transaction view`: `governance actions` and `voters`.
   Please see https://github.com/IntersectMBO/cardano-cli/pull/774#issuecomment-2139062455 for example outputs.
   When those fields are irrelevant, they are present but there value is `null`.
