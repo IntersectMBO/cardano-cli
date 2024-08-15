@@ -57,7 +57,6 @@ import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.ListMap (ListMap (..))
-import qualified Data.ListMap as ListMap
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Maybe (fromMaybe)
@@ -351,7 +350,7 @@ runGenesisCreateTestNetDataCmd
         :: [(VerificationKey StakeKey, VerificationKey DRepKey)]
         -> ListMap (L.Credential L.Staking L.StandardCrypto) (L.Delegatee L.StandardCrypto)
       delegs =
-        ListMap.fromList
+        fromList
           . map
             ( bimap
                 verificationKeytoStakeCredential
@@ -359,11 +358,11 @@ runGenesisCreateTestNetDataCmd
             )
 
       initialDReps
-        :: L.Coin
+        :: Lovelace
         -> [VerificationKey DRepKey]
         -> ListMap (L.Credential L.DRepRole L.StandardCrypto) (L.DRepState L.StandardCrypto)
       initialDReps minDeposit =
-        ListMap.fromList
+        fromList
           . map
             ( \c ->
                 ( verificationKeyToDRepCredential c
@@ -665,7 +664,7 @@ updateOutputTemplate
   -- ^ System start time
   -> Map (Hash GenesisKey) (Hash GenesisDelegateKey, Hash VrfKey)
   -- ^ Genesis delegation (not stake-based)
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Total amount of lovelace
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
@@ -673,7 +672,7 @@ updateOutputTemplate
   -- ^ Pool map
   -> [(L.KeyHash 'L.Staking L.StandardCrypto, L.KeyHash 'L.StakePool L.StandardCrypto)]
   -- ^ Delegaton map
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Amount of lovelace to delegate
   -> Int
   -- ^ Number of UTxO address for delegation
@@ -706,7 +705,7 @@ updateOutputTemplate
         , sgMaxLovelaceSupply = totalSupply
         , sgGenDelegs = shelleyDelKeys
         , sgInitialFunds =
-            ListMap.fromList
+            fromList
               [ (toShelleyAddr addr, v)
               | (addr, v) <-
                   distribute nonDelegCoin nUtxoAddrsNonDeleg utxoAddrsNonDeleg
@@ -743,14 +742,14 @@ updateOutputTemplate
     -- Since the user can specify total supply and delegated amount, the non-delegated amount is:
     nonDelegCoinRaw = totalSupply - delegCoinRaw
 
-    distribute :: Natural -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
+    distribute :: Natural -> Int -> [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     distribute funds nAddrs addrs =
       zip addrs $ L.Coin . toInteger <$> (coinPerAddr + remainder : repeat coinPerAddr)
      where
       coinPerAddr, remainder :: Natural
       (coinPerAddr, remainder) = funds `divMod` fromIntegral nAddrs
 
-    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, L.Coin)]
+    mkStuffedUtxo :: [AddressInEra ShelleyEra] -> [(AddressInEra ShelleyEra, Lovelace)]
     mkStuffedUtxo xs = (,L.Coin minUtxoVal) <$> xs
      where
       L.Coin minUtxoVal = sgProtocolParams ^. L.ppMinUTxOValueL
@@ -763,7 +762,7 @@ updateOutputTemplate
             toList genDelegMap
         ]
 
-    unLovelace :: Integral a => L.Coin -> a
+    unLovelace :: Integral a => Lovelace -> a
     unLovelace (L.Coin coin) = fromIntegral coin
 
 readGenDelegsMap

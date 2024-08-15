@@ -246,11 +246,13 @@ friendlyTxBodyImpl
               ++ ( monoidForEraInEon @ConwayEraOnwards
                     era
                     ( \cOnwards ->
-                        case txProposalProcedures of
-                          Nothing -> []
-                          Just (Featured _ TxProposalProceduresNone) -> []
-                          Just (Featured _ (TxProposalProcedures lProposals _witnesses)) ->
-                            ["governance actions" .= friendlyLedgerProposals cOnwards (toList lProposals)]
+                        conwayEraOnwardsConstraints cOnwards $
+                          case txProposalProcedures of
+                            Nothing -> []
+                            Just (Featured _ TxProposalProceduresNone) -> []
+                            Just (Featured _ pp) -> do
+                              let lProposals = toList $ convProposalProcedures pp
+                              ["governance actions" .= (friendlyLedgerProposals cOnwards lProposals)]
                     )
                  )
               ++ ( monoidForEraInEon @ConwayEraOnwards
@@ -701,7 +703,7 @@ friendlyFee :: TxFee era -> Aeson.Value
 friendlyFee = \case
   TxFeeExplicit _ fee -> friendlyLovelace fee
 
-friendlyLovelace :: L.Coin -> Aeson.Value
+friendlyLovelace :: Lovelace -> Aeson.Value
 friendlyLovelace value = String $ docToText (pretty value)
 
 friendlyMintValue :: TxMintValue ViewTx era -> Aeson.Value
@@ -772,7 +774,7 @@ friendlyAuxScripts = \case
   TxAuxScriptsNone -> Null
   TxAuxScripts _ scripts -> String $ textShow scripts
 
-friendlyReferenceInputs :: TxInsReference build era -> Aeson.Value
+friendlyReferenceInputs :: TxInsReference era -> Aeson.Value
 friendlyReferenceInputs TxInsReferenceNone = Null
 friendlyReferenceInputs (TxInsReference _ txins) = toJSON txins
 

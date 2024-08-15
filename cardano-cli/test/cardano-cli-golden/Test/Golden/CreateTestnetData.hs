@@ -11,9 +11,9 @@ import qualified Cardano.Ledger.Shelley.API as L
 import           Control.Monad
 import           Control.Monad.IO.Class
 import           Data.List (intercalate, sort)
-import qualified Data.ListMap as ListMap
 import qualified Data.Sequence.Strict as Seq
 import           Data.Word (Word32)
+import           GHC.Exts (IsList (..))
 import           System.Directory
 import           System.Directory.Extra (listDirectories)
 import           System.FilePath
@@ -177,7 +177,7 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
     -- Because we don't test this elsewhere in this file:
     (L.sgMaxLovelaceSupply genesis) H.=== (fromIntegral totalSupply)
 
-    let initialFunds = ListMap.toList $ L.sgInitialFunds genesis
+    let initialFunds = toList $ L.sgInitialFunds genesis
     -- This checks that there is actually only one funded address
     (length initialFunds) H.=== 1
 

@@ -64,6 +64,7 @@ import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as Data.Bytestring
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
+import           Data.Containers.ListUtils (nubOrd)
 import           Data.Data ((:~:) (..))
 import qualified Data.Foldable as Foldable
 import           Data.Function ((&))
@@ -199,7 +200,7 @@ runTransactionBuildCmd
           <$> readTxGovernanceActions eon proposalFiles
 
     -- the same collateral input can be used for several plutus scripts
-    let filteredTxinsc = toList @(Set _) $ fromList txinsc
+    let filteredTxinsc = nubOrd txinsc
 
     let allReferenceInputs =
           getAllReferenceInputs
@@ -495,7 +496,7 @@ getConwayDeregistrationPoolId cert = do
 
 getDRepDeregistrationInfo
   :: Certificate era
-  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, L.Coin)
+  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, Lovelace)
 getDRepDeregistrationInfo ShelleyRelatedCertificate{} = Nothing
 getDRepDeregistrationInfo (ConwayCertificate w cert) =
   conwayEraOnwardsConstraints w $ getConwayDRepDeregistrationInfo cert
@@ -505,12 +506,12 @@ getConwayDRepDeregistrationInfo
   => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
   => L.ConwayEraTxCert (ShelleyLedgerEra era)
   => L.ConwayTxCert (ShelleyLedgerEra era)
-  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, L.Coin)
+  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, Lovelace)
 getConwayDRepDeregistrationInfo = L.getUnRegDRepTxCert
 
 getStakeDeregistrationInfo
   :: Certificate era
-  -> Maybe (StakeCredential, L.Coin)
+  -> Maybe (StakeCredential, Lovelace)
 getStakeDeregistrationInfo (ShelleyRelatedCertificate w cert) =
   shelleyToBabbageEraConstraints w $ getShelleyDeregistrationInfo cert
 getStakeDeregistrationInfo (ConwayCertificate w cert) =
@@ -523,7 +524,7 @@ getShelleyDeregistrationInfo
   => L.ShelleyEraTxCert (ShelleyLedgerEra era)
   => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
   => L.ShelleyTxCert (ShelleyLedgerEra era)
-  -> Maybe (StakeCredential, L.Coin)
+  -> Maybe (StakeCredential, Lovelace)
 getShelleyDeregistrationInfo cert = do
   case cert of
     L.UnRegTxCert stakeCred -> Just (fromShelleyStakeCredential stakeCred, 0)
@@ -534,7 +535,7 @@ getConwayDeregistrationInfo
   => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
   => L.ConwayEraTxCert (ShelleyLedgerEra era)
   => L.ConwayTxCert (ShelleyLedgerEra era)
-  -> Maybe (StakeCredential, L.Coin)
+  -> Maybe (StakeCredential, Lovelace)
 getConwayDeregistrationInfo cert = do
   case cert of
     L.UnRegDepositTxCert stakeCred depositRefund -> Just (fromShelleyStakeCredential stakeCred, depositRefund)
@@ -686,20 +687,20 @@ runTxBuildRaw
   -- ^ TxIn for collateral
   -> Maybe (TxOut CtxTx era)
   -- ^ Return collateral
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Total collateral
   -> [TxOut CtxTx era]
   -> Maybe SlotNo
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> L.Coin
+  -> Lovelace
   -- ^ Tx fee
   -> (Value, [ScriptWitness WitCtxMint era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
@@ -761,7 +762,8 @@ runTxBuildRaw
     first TxCmdTxBodyError $ createAndValidateTransactionBody sbe txBodyContent
 
 constructTxBodyContent
-  :: ShelleyBasedEra era
+  :: forall era
+   . ShelleyBasedEra era
   -> Maybe ScriptValidity
   -> Maybe (L.PParams (ShelleyLedgerEra era))
   -> [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
@@ -772,7 +774,7 @@ constructTxBodyContent
   -- ^ TxIn for collateral
   -> Maybe (TxOut CtxTx era)
   -- ^ Return collateral
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Total collateral
   -> [TxOut CtxTx era]
   -- ^ Normal outputs
@@ -784,11 +786,11 @@ constructTxBodyContent
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Withdrawals
   -> [Hash PaymentKey]
   -- ^ Required signers
-  -> L.Coin
+  -> Lovelace
   -- ^ Tx fee
   -> TxAuxScripts era
   -> TxMetadataInEra era
@@ -849,7 +851,12 @@ constructTxBodyContent
       validatedTxScriptValidity <-
         first TxCmdNotSupportedInEraValidationError $ validateTxScriptValidity sbe mScriptValidity
       validatedVotingProcedures <-
-        first TxCmdTxGovDuplicateVotes $ convertToTxVotingProcedures votingProcedures
+        first (TxCmdTxGovDuplicateVotes . TxGovDuplicateVotes) $
+          mkTxVotingProcedures @BuildTx (fromList votingProcedures)
+      let txProposals = forShelleyBasedEraInEonMaybe sbe $ \w -> do
+            let txp :: TxProposalProcedures BuildTx era
+                txp = conwayEraOnwardsConstraints w $ mkTxProposalProcedures $ map (first unProposal) proposals
+            Featured w txp
       validatedCurrentTreasuryValue <-
         first
           TxCmdNotSupportedInEraValidationError
@@ -859,7 +866,8 @@ constructTxBodyContent
           TxCmdNotSupportedInEraValidationError
           (validateTxTreasuryDonation sbe (snd <$> mCurrentTreasuryValueAndDonation))
       return $
-        shelleyBasedEraConstraints sbe $
+        shelleyBasedEraConstraints
+          sbe
           ( defaultTxBodyContent sbe
               & setTxIns (validateTxIns inputsAndMaybeScriptWits)
               & setTxInsCollateral validatedCollateralTxIns
@@ -879,18 +887,15 @@ constructTxBodyContent
               & setTxUpdateProposal txUpdateProposal
               & setTxMintValue validatedMintValue
               & setTxScriptValidity validatedTxScriptValidity
+              & setTxVotingProcedures (mkFeatured validatedVotingProcedures)
+              & setTxProposalProcedures txProposals
+              & setTxCurrentTreasuryValue validatedCurrentTreasuryValue
+              & setTxTreasuryDonation validatedTreasuryDonation
           )
-            { -- TODO: Create set* function for proposal procedures and voting procedures
-              txProposalProcedures =
-                forShelleyBasedEraInEonMaybe sbe (`Featured` convToTxProposalProcedures proposals)
-            , txVotingProcedures = forShelleyBasedEraInEonMaybe sbe (`Featured` validatedVotingProcedures)
-            }
-            & setTxCurrentTreasuryValue validatedCurrentTreasuryValue
-            & setTxTreasuryDonation validatedTreasuryDonation
    where
     convertWithdrawals
-      :: (StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))
-      -> (StakeAddress, L.Coin, BuildTxWith BuildTx (Witness WitCtxStake era))
+      :: (StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))
+      -> (StakeAddress, Lovelace, BuildTxWith BuildTx (Witness WitCtxStake era))
     convertWithdrawals (sAddr, ll, mScriptWitnessFiles) =
       case mScriptWitnessFiles of
         Just sWit -> (sAddr, ll, BuildTxWith $ ScriptWitness ScriptWitnessForStakeAddr sWit)
@@ -911,7 +916,7 @@ runTxBuild
   -- ^ TxIn for collateral
   -> Maybe (TxOut CtxTx era)
   -- ^ Return collateral
-  -> Maybe L.Coin
+  -> Maybe Lovelace
   -- ^ Total collateral
   -> [TxOut CtxTx era]
   -- ^ Normal outputs
@@ -925,7 +930,7 @@ runTxBuild
   -- ^ Tx upper bound
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
@@ -1130,7 +1135,7 @@ validateTxInsCollateral era txins = do
 validateTxInsReference
   :: ShelleyBasedEra era
   -> [TxIn]
-  -> Either TxCmdError (TxInsReference BuildTx era)
+  -> Either TxCmdError (TxInsReference era)
 validateTxInsReference _ [] = return TxInsReferenceNone
 validateTxInsReference sbe allRefIns = do
   forShelleyBasedEraInEonMaybe sbe (\supported -> TxInsReference supported allRefIns)
@@ -1140,7 +1145,7 @@ getAllReferenceInputs
   :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
   -> [ScriptWitness WitCtxMint era]
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
-  -> [(StakeAddress, L.Coin, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> [TxIn]
@@ -1538,11 +1543,11 @@ runTransactionCalculateMinFeeCmd
 -- TODO: move this to Cardano.API.Fee.evaluateTransactionFee.
 calculateByronWitnessFees
   :: ()
-  => L.Coin
+  => Lovelace
   -- ^ The tx fee per byte (from protocol parameters)
   -> Int
   -- ^ The number of Byron key witnesses
-  -> L.Coin
+  -> Lovelace
 calculateByronWitnessFees txFeePerByte byronwitcount =
   L.Coin $
     toInteger txFeePerByte

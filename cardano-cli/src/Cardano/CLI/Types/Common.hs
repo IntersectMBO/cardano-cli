@@ -502,7 +502,7 @@ type TxBodyFile = File (TxBody ())
 
 type TxFile = File (Tx ())
 
-newtype TxTreasuryDonation = TxTreasuryDonation {unTxTreasuryDonation :: L.Coin}
+newtype TxTreasuryDonation = TxTreasuryDonation {unTxTreasuryDonation :: Lovelace}
   deriving Show
 
 data TxMempoolQuery

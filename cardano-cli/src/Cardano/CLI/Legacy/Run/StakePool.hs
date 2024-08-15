@@ -66,9 +66,9 @@ runLegacyStakePoolRegistrationCertificateCmd
   -- ^ Stake pool verification key.
   -> VerificationKeyOrFile VrfKey
   -- ^ VRF Verification key.
-  -> L.Coin
+  -> Lovelace
   -- ^ Pool pledge.
-  -> L.Coin
+  -> Lovelace
   -- ^ Pool cost.
   -> Rational
   -- ^ Pool margin.

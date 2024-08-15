@@ -179,10 +179,10 @@ data QueryDRepStateOutput
       -- ^ Expiry
       (Maybe (L.Anchor L.StandardCrypto))
       -- ^ Anchor
-      L.Coin
+      Lovelace
       -- ^ Deposit
       IncludeStake
-      (Maybe L.Coin)
+      (Maybe Lovelace)
       -- ^ Stake
 
 instance ToJSON QueryDRepStateOutput where
@@ -300,7 +300,7 @@ data ScriptCostOutput
   = ScriptCostOutput
   { scScriptHash :: ScriptHash
   , scExecutionUnits :: ExecutionUnits
-  , scAda :: L.Coin
+  , scAda :: Lovelace
   }
 
 instance ToJSON ScriptCostOutput where
