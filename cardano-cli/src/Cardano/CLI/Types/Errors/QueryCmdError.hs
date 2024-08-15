@@ -52,6 +52,7 @@ data QueryCmdError
   | QueryCmdUnsupportedNtcVersion !UnsupportedNtcVersionError
   | QueryCmdProtocolParameterConversionError !ProtocolParametersConversionError
   | QueryCmdDRepKeyError !(FileError InputDecodeError)
+  | QueryCmdSPOKeyError !(FileError InputDecodeError)
   | QueryCmdCommitteeColdKeyError !(FileError InputDecodeError)
   | QueryCmdCommitteeHotKeyError !(FileError InputDecodeError)
   deriving Show
@@ -108,6 +109,8 @@ renderQueryCmdError = \case
     pretty $ renderQueryConvenienceError qce
   QueryCmdDRepKeyError e ->
     "Error reading delegation representative key: " <> prettyError e
+  QueryCmdSPOKeyError e ->
+    "Error reading Stake Pool Operator key: " <> prettyError e
   QueryCmdCommitteeColdKeyError e ->
     "Error reading committee cold key: " <> prettyError e
   QueryCmdCommitteeHotKeyError e ->

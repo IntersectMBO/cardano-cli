@@ -25,6 +25,7 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryNoArgCmdArgs (..)
   , QueryDRepStateCmdArgs (..)
   , QueryDRepStakeDistributionCmdArgs (..)
+  , QuerySPOStakeDistributionCmdArgs (..)
   , QueryTreasuryValueCmdArgs (..)
   , renderQueryCmds
   , IncludeStake (..)
@@ -63,6 +64,7 @@ data QueryCmds era
   | QueryGovStateCmd !(QueryNoArgCmdArgs era)
   | QueryDRepStateCmd !(QueryDRepStateCmdArgs era)
   | QueryDRepStakeDistributionCmd !(QueryDRepStakeDistributionCmdArgs era)
+  | QuerySPOStakeDistributionCmd !(QuerySPOStakeDistributionCmdArgs era)
   | QueryCommitteeMembersStateCmd !(QueryCommitteeMembersStateCmdArgs era)
   | QueryTreasuryValueCmd !(QueryTreasuryValueCmdArgs era)
   deriving (Generic, Show)
@@ -259,6 +261,17 @@ data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   }
   deriving Show
 
+data QuerySPOStakeDistributionCmdArgs era = QuerySPOStakeDistributionCmdArgs
+  { eon :: !(ConwayEraOnwards era)
+  , nodeSocketPath :: !SocketPath
+  , consensusModeParams :: !ConsensusModeParams
+  , networkId :: !NetworkId
+  , spoHashSources :: !(AllOrOnly SPOHashSource)
+  , target :: !(Consensus.Target ChainPoint)
+  , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving Show
+
 data QueryCommitteeMembersStateCmdArgs era = QueryCommitteeMembersStateCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , nodeSocketPath :: !SocketPath
@@ -324,6 +337,8 @@ renderQueryCmds = \case
     "drep-state"
   QueryDRepStakeDistributionCmd{} ->
     "drep-stake-distribution"
+  QuerySPOStakeDistributionCmd{} ->
+    "spo-stake-distribution"
   QueryCommitteeMembersStateCmd{} ->
     "committee-state"
   QueryTreasuryValueCmd{} ->
