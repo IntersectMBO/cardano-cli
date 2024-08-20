@@ -26,7 +26,7 @@ import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
 import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
-import           Control.Monad (mfilter)
+import           Control.Monad (mfilter, void)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
 import           Data.Bits (Bits, toIntegralSized)
@@ -1152,7 +1152,7 @@ pPollAnswer =
 
 pPollAnswerIndex :: Parser Word
 pPollAnswerIndex =
-  Opt.option auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "answer"
       , Opt.metavar "INT"
@@ -1182,7 +1182,7 @@ pPollTxFile =
 
 pPollNonce :: Parser Word
 pPollNonce =
-  Opt.option auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "nonce"
       , Opt.metavar "UINT"
@@ -1238,7 +1238,7 @@ pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagP
 pExecutionUnits :: String -> Parser ExecutionUnits
 pExecutionUnits scriptFlagPrefix =
   fmap (uncurry ExecutionUnits) $
-    Opt.option Opt.auto $
+    Opt.option pairIntegralReader $
       mconcat
         [ Opt.long (scriptFlagPrefix ++ "-execution-units")
         , Opt.metavar "(INT, INT)"
@@ -2327,7 +2327,7 @@ pTotalCollateral =
 
 pWitnessOverride :: Parser Word
 pWitnessOverride =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "witness-override"
       , Opt.metavar "WORD"
@@ -2336,7 +2336,7 @@ pWitnessOverride =
 
 pNumberOfShelleyKeyWitnesses :: Parser Int
 pNumberOfShelleyKeyWitnesses =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "shelley-key-witnesses"
       , Opt.metavar "INT"
@@ -2345,7 +2345,7 @@ pNumberOfShelleyKeyWitnesses =
 
 pNumberOfByronKeyWitnesses :: Parser Int
 pNumberOfByronKeyWitnesses =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "byron-key-witnesses"
       , Opt.metavar "Int"
@@ -2609,7 +2609,7 @@ pInvalidHereafter eon =
 pTxFee :: Parser Lovelace
 pTxFee =
   fmap (L.Coin . (fromIntegral :: Natural -> Integer)) $
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "fee"
         , Opt.metavar "LOVELACE"
@@ -2695,7 +2695,7 @@ pInputTxOrTxBodyFile =
 pTxInCountDeprecated :: Parser TxInCount
 pTxInCountDeprecated =
   fmap TxInCount $
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "tx-in-count"
         , Opt.metavar "NATURAL"
@@ -2705,7 +2705,7 @@ pTxInCountDeprecated =
 pTxOutCountDeprecated :: Parser TxOutCount
 pTxOutCountDeprecated =
   fmap TxOutCount $
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "tx-out-count"
         , Opt.metavar "NATURAL"
@@ -2715,7 +2715,7 @@ pTxOutCountDeprecated =
 pTxShelleyWitnessCount :: Parser TxShelleyWitnessCount
 pTxShelleyWitnessCount =
   fmap TxShelleyWitnessCount $
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "witness-count"
         , Opt.metavar "NATURAL"
@@ -2725,7 +2725,7 @@ pTxShelleyWitnessCount =
 pTxByronWitnessCount :: Parser TxByronWitnessCount
 pTxByronWitnessCount =
   fmap TxByronWitnessCount $
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "byron-witness-count"
         , Opt.metavar "NATURAL"
@@ -3167,7 +3167,7 @@ pMinPoolCost =
 
 pMaxBodySize :: Parser Word32
 pMaxBodySize =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "max-block-body-size"
       , Opt.metavar "WORD32"
@@ -3176,7 +3176,7 @@ pMaxBodySize =
 
 pMaxTransactionSize :: Parser Word32
 pMaxTransactionSize =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "max-tx-size"
       , Opt.metavar "WORD32"
@@ -3273,7 +3273,7 @@ pEpochBoundRetirement =
 
 pNumberOfPools :: Parser Natural
 pNumberOfPools =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "number-of-pools"
       , Opt.metavar "NATURAL"
@@ -3383,7 +3383,7 @@ pMaxTxExecutionUnits :: Parser ExecutionUnits
 pMaxTxExecutionUnits =
   uncurry ExecutionUnits
     <$> Opt.option
-      Opt.auto
+      pairIntegralReader
       ( mconcat
           [ Opt.long "max-tx-execution-units"
           , Opt.metavar "(INT, INT)"
@@ -3399,7 +3399,7 @@ pMaxBlockExecutionUnits :: Parser ExecutionUnits
 pMaxBlockExecutionUnits =
   uncurry ExecutionUnits
     <$> Opt.option
-      Opt.auto
+      pairIntegralReader
       ( mconcat
           [ Opt.long "max-block-execution-units"
           , Opt.metavar "(INT, INT)"
@@ -3413,7 +3413,7 @@ pMaxBlockExecutionUnits =
 
 pMaxValueSize :: Parser Natural
 pMaxValueSize =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "max-value-size"
       , Opt.metavar "INT"
@@ -3425,7 +3425,7 @@ pMaxValueSize =
 
 pCollateralPercent :: Parser Natural
 pCollateralPercent =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "collateral-percent"
       , Opt.metavar "INT"
@@ -3439,7 +3439,7 @@ pCollateralPercent =
 
 pMaxCollateralInputs :: Parser Natural
 pMaxCollateralInputs =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "max-collateral-inputs"
       , Opt.metavar "INT"
@@ -3455,7 +3455,7 @@ pProtocolVersion =
   (,) <$> pProtocolMajorVersion <*> pProtocolMinorVersion
  where
   pProtocolMajorVersion =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "protocol-major-version"
         , Opt.metavar "MAJOR"
@@ -3466,7 +3466,7 @@ pProtocolVersion =
               ]
         ]
   pProtocolMinorVersion =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "protocol-minor-version"
         , Opt.metavar "MINOR"
@@ -3617,7 +3617,7 @@ pDRepVotingThresholds =
 
 pMinCommitteeSize :: Parser Natural
 pMinCommitteeSize =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "min-committee-size"
       , Opt.metavar "INT"
@@ -3946,7 +3946,7 @@ pGovernanceActionId =
 
 pWord16 :: String -> String -> Parser Word16
 pWord16 l h =
-  Opt.option auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long l
       , Opt.metavar "WORD16"
@@ -3987,7 +3987,7 @@ pNetworkIdForTestnetData envCli =
 pReferenceScriptSize :: Parser ReferenceScriptSize
 pReferenceScriptSize =
   fmap ReferenceScriptSize $
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "reference-script-size"
         , Opt.metavar "NATURAL"
