@@ -300,38 +300,42 @@ friendlyVotingProcedures
   :: ConwayEraOnwards era -> L.VotingProcedures (ShelleyLedgerEra era) -> Aeson.Value
 friendlyVotingProcedures cOnwards x = conwayEraOnwardsConstraints cOnwards $ toJSON x
 
-getRedeemerDetails :: MonadWarning m => AlonzoEraOnwards era -> TxBody era -> m [Aeson.Pair]
+getRedeemerDetails
+  :: forall era m. MonadWarning m => AlonzoEraOnwards era -> TxBody era -> m [Aeson.Pair]
 getRedeemerDetails aeo tb = do
-  let _ = alonzoEraOnwardsToShelleyBasedEra aeo
   let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
-  redeemerInfo <- friendlyRedeemers aeo ledgerTx
+  redeemerInfo <- friendlyRedeemers ledgerTx
   return ["redeemers" .= redeemerInfo]
  where
   friendlyRedeemers
-    :: MonadWarning m
-    => AlonzoEraOnwards era
-    -> Ledger.Tx (ShelleyLedgerEra era)
+    :: Ledger.Tx (ShelleyLedgerEra era)
     -> m (Aeson.Value)
-  friendlyRedeemers aeo' tx =
-    alonzoEraOnwardsConstraints aeo' $ do
-      redeemerList <-
-        mapM
-          ( \(a, b) -> do
-              ma <-
-                let msg = "Could not find corresponding input to " <> show a
-                 in eitherToWarning (Aeson.Null) $
-                      maybeToEither msg $
-                        friendlyPurpouse aeo'
-                          <$> strictMaybeToMaybe (Ledger.redeemerPointerInverse (tx ^. Ledger.bodyTxL) a)
-              let fb = friendlyRedeemer b
-              return $ object ["input" .= ma, "redeemer" .= fb]
-          )
-          (Map.toList $ Ledger.unRedeemers $ tx ^. Ledger.witsTxL . Ledger.rdmrsTxWitsL)
-      let redeemerVector = Vector.fromList redeemerList
-      return $ Aeson.Array redeemerVector
+  friendlyRedeemers tx =
+    alonzoEraOnwardsConstraints aeo $ do
+      let redeemerAndExUnitPairList = Map.toList $ Ledger.unRedeemers $ tx ^. Ledger.witsTxL . Ledger.rdmrsTxWitsL
+      redeemerList <- mapM (uncurry $ friendlyRedeemerInfo tx) redeemerAndExUnitPairList
+      return $ Aeson.Array $ Vector.fromList redeemerList
 
-  friendlyRedeemer :: (Ledger.Data (ShelleyLedgerEra era), ExUnits) -> Aeson.Value
-  friendlyRedeemer (scriptData, ExUnits{exUnitsSteps = exSteps, exUnitsMem = exMemUnits}) =
+  friendlyRedeemerInfo
+    :: Ledger.Tx (ShelleyLedgerEra era)
+    -> Ledger.PlutusPurpose Ledger.AsIx (ShelleyLedgerEra era)
+    -> (Ledger.Data (ShelleyLedgerEra era), ExUnits)
+    -> m Aeson.Value
+  friendlyRedeemerInfo tx redeemerPurpose (redeemerData, exUnits) =
+    alonzoEraOnwardsConstraints aeo $ do
+      let inputNotFoundError = "Could not find corresponding input to " <> show redeemerPurpose
+          mCorrespondingInput = strictMaybeToMaybe $ Ledger.redeemerPointerInverse (tx ^. Ledger.bodyTxL) redeemerPurpose
+          mFriendlyPurposeResult = friendlyPurpose aeo <$> mCorrespondingInput
+      friendlyPurposeResult <-
+        eitherToWarning (Aeson.Null) $ maybeToEither inputNotFoundError mFriendlyPurposeResult
+      return $
+        object
+          [ "input" .= friendlyPurposeResult
+          , "redeemer" .= friendlyRedeemer redeemerData exUnits
+          ]
+
+  friendlyRedeemer :: Ledger.Data (ShelleyLedgerEra era) -> ExUnits -> Aeson.Value
+  friendlyRedeemer scriptData ExUnits{exUnitsSteps = exSteps, exUnitsMem = exMemUnits} =
     object
       [ "data" .= (Aeson.String $ T.pack $ show $ unData scriptData)
       , "execution units"
@@ -341,21 +345,21 @@ getRedeemerDetails aeo tb = do
             ]
       ]
 
-  friendlyPurpouse
+  friendlyPurpose
     :: AlonzoEraOnwards era -> Ledger.PlutusPurpose AsIxItem (ShelleyLedgerEra era) -> Aeson.Value
-  friendlyPurpouse AlonzoEraOnwardsAlonzo purpose =
+  friendlyPurpose AlonzoEraOnwardsAlonzo purpose =
     case purpose of
       Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> Aeson.object ["spending" .= friendlyInput sp]
       Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting" .= mp]
       Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["certifying" .= cp]
       Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["rewarding" .= rp]
-  friendlyPurpouse AlonzoEraOnwardsBabbage purpose =
+  friendlyPurpose AlonzoEraOnwardsBabbage purpose =
     case purpose of
       Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> friendlyInput sp
       Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting" .= mp]
       Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["certifying" .= cp]
       Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["rewarding" .= rp]
-  friendlyPurpouse AlonzoEraOnwardsConway purpose =
+  friendlyPurpose AlonzoEraOnwardsConway purpose =
     case purpose of
       Ledger.ConwaySpending (Ledger.AsIxItem _ sp) -> friendlyInput sp
       Ledger.ConwayMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting" .= mp]
