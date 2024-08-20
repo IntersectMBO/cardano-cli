@@ -232,7 +232,7 @@ friendlyTxBodyImpl
           )
       ) =
     do
-      redeemerDetails <- redeemerIfAlonzoOnwards era tb
+      redeemerDetails <- forEraInEon era (return []) (`getRedeemerDetails` tb)
       return $
         cardanoEraConstraints
           era
@@ -300,19 +300,11 @@ friendlyVotingProcedures
   :: ConwayEraOnwards era -> L.VotingProcedures (ShelleyLedgerEra era) -> Aeson.Value
 friendlyVotingProcedures cOnwards x = conwayEraOnwardsConstraints cOnwards $ toJSON x
 
-redeemerIfAlonzoOnwards :: MonadWarning m => CardanoEra era -> TxBody era -> m [Aeson.Pair]
-redeemerIfAlonzoOnwards cea tb = do
-  redeemerInfo <-
-    caseByronOrShelleyBasedEra
-      (return Aeson.Null)
-      ( const $ do
-          let ShelleyTx sbe ledgerTx = makeSignedTransaction [] tb
-          caseShelleyToMaryOrAlonzoEraOnwards
-            (\_ -> return Aeson.Null)
-            (`friendlyRedeemers` ledgerTx)
-            sbe
-      )
-      cea
+getRedeemerDetails :: MonadWarning m => AlonzoEraOnwards era -> TxBody era -> m [Aeson.Pair]
+getRedeemerDetails aeo tb = do
+  let _ = alonzoEraOnwardsToShelleyBasedEra aeo
+  let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
+  redeemerInfo <- friendlyRedeemers aeo ledgerTx
   return ["redeemers" .= redeemerInfo]
  where
   friendlyRedeemers
@@ -320,8 +312,8 @@ redeemerIfAlonzoOnwards cea tb = do
     => AlonzoEraOnwards era
     -> Ledger.Tx (ShelleyLedgerEra era)
     -> m (Aeson.Value)
-  friendlyRedeemers aeo tx =
-    alonzoEraOnwardsConstraints aeo $ do
+  friendlyRedeemers aeo' tx =
+    alonzoEraOnwardsConstraints aeo' $ do
       redeemerList <-
         mapM
           ( \(a, b) -> do
@@ -329,7 +321,8 @@ redeemerIfAlonzoOnwards cea tb = do
                 let msg = "Could not find corresponding input to " <> show a
                  in eitherToWarning (Aeson.Null) $
                       maybeToEither msg $
-                        friendlyPurpouse aeo <$> strictMaybeToMaybe (Ledger.redeemerPointerInverse (tx ^. Ledger.bodyTxL) a)
+                        friendlyPurpouse aeo'
+                          <$> strictMaybeToMaybe (Ledger.redeemerPointerInverse (tx ^. Ledger.bodyTxL) a)
               let fb = friendlyRedeemer b
               return $ object ["input" .= ma, "redeemer" .= fb]
           )
