@@ -337,11 +337,11 @@ getRedeemerDetails aeo tb = do
   friendlyRedeemer :: Ledger.Data (ShelleyLedgerEra era) -> ExUnits -> Aeson.Value
   friendlyRedeemer scriptData ExUnits{exUnitsSteps = exSteps, exUnitsMem = exMemUnits} =
     object
-      [ "data" .= (Aeson.String $ T.pack $ show $ unData scriptData)
+      [ "data" .= Aeson.String (T.pack $ show $ unData scriptData)
       , "execution units"
           .= object
-            [ "steps" .= (Aeson.Number $ fromIntegral exSteps)
-            , "memory" .= (Aeson.Number $ fromIntegral exMemUnits)
+            [ "steps" .= Aeson.Number (fromIntegral exSteps)
+            , "memory" .= Aeson.Number (fromIntegral exMemUnits)
             ]
       ]
 
@@ -372,7 +372,7 @@ getRedeemerDetails aeo tb = do
   friendlyInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =
     Aeson.String $
       T.pack $
-        (T.unpack $ hashToTextAsHex (extractHash txidHash)) ++ "#" ++ (show $ txIxToInt ix)
+        T.unpack (hashToTextAsHex (extractHash txidHash)) ++ "#" ++ show (txIxToInt ix)
 
 friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
 friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null
