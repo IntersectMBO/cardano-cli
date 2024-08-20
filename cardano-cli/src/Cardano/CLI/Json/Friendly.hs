@@ -330,7 +330,7 @@ getRedeemerDetails aeo tb = do
         eitherToWarning (Aeson.Null) $ maybeToEither inputNotFoundError mFriendlyPurposeResult
       return $
         object
-          [ "input" .= friendlyPurposeResult
+          [ "purpose" .= friendlyPurposeResult
           , "redeemer" .= friendlyRedeemer redeemerData exUnits
           ]
 
@@ -349,24 +349,24 @@ getRedeemerDetails aeo tb = do
     :: AlonzoEraOnwards era -> Ledger.PlutusPurpose AsIxItem (ShelleyLedgerEra era) -> Aeson.Value
   friendlyPurpose AlonzoEraOnwardsAlonzo purpose =
     case purpose of
-      Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> Aeson.object ["spending" .= friendlyInput sp]
-      Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting" .= mp]
-      Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["certifying" .= cp]
-      Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["rewarding" .= rp]
+      Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> Aeson.object ["spending script witnessed input" .= friendlyInput sp]
+      Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting currency with policy id" .= mp]
+      Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["validating certificate with script credentials" .= cp]
+      Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["withdrawing reward from script address" .= rp]
   friendlyPurpose AlonzoEraOnwardsBabbage purpose =
     case purpose of
-      Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> friendlyInput sp
-      Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting" .= mp]
-      Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["certifying" .= cp]
-      Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["rewarding" .= rp]
+      Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> Aeson.object ["spending script witnessed input" .= friendlyInput sp]
+      Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting currency with policy id" .= mp]
+      Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["validating certificate with script credentials" .= cp]
+      Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["withdrawing reward from script address" .= rp]
   friendlyPurpose AlonzoEraOnwardsConway purpose =
     case purpose of
-      Ledger.ConwaySpending (Ledger.AsIxItem _ sp) -> friendlyInput sp
-      Ledger.ConwayMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting" .= mp]
-      Ledger.ConwayCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["certifying" .= cp]
-      Ledger.ConwayRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["rewarding" .= rp]
-      Ledger.ConwayVoting (Ledger.AsIxItem _ vp) -> Aeson.object ["voting" .= vp]
-      Ledger.ConwayProposing (Ledger.AsIxItem _ pp) -> Aeson.object ["proposing" .= pp]
+      Ledger.ConwaySpending (Ledger.AsIxItem _ sp) -> Aeson.object ["spending script witnessed input" .= friendlyInput sp]
+      Ledger.ConwayMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting currency with policy id" .= mp]
+      Ledger.ConwayCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["validating certificate with script credentials" .= cp]
+      Ledger.ConwayRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["withdrawing reward from script address" .= rp]
+      Ledger.ConwayVoting (Ledger.AsIxItem _ vp) -> Aeson.object ["voting using script protected voter credentials" .= vp]
+      Ledger.ConwayProposing (Ledger.AsIxItem _ pp) -> Aeson.object ["submitting a proposal following proposal policy" .= pp]
 
   friendlyInput :: Ledger.TxIn Ledger.StandardCrypto -> Aeson.Value
   friendlyInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =

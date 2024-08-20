@@ -10,7 +10,8 @@ metadata: null
 mint: null
 outputs: []
 redeemers:
-- input: ed7c8f68c194cc763ee65ad22ef0973e26481be058c65005fd39fb93f9c43a20#213
+- purpose:
+    spending script witnessed input: ed7c8f68c194cc763ee65ad22ef0973e26481be058c65005fd39fb93f9c43a20#213
   redeemer:
     data: I 42
     execution units:
