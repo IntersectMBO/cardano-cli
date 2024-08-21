@@ -8,6 +8,7 @@ module Cardano.CLI.Options.Ping
 where
 
 import           Cardano.CLI.Commands.Ping
+import           Cardano.CLI.EraBased.Options.Common (integralReader)
 import qualified Cardano.Network.Ping as CNP
 
 import           Control.Applicative ((<|>))
@@ -55,7 +56,7 @@ pEndPoint = fmap HostEndPoint pHost <|> fmap UnixSockEndPoint pUnixSocket
 pPing :: Opt.Parser PingCmd
 pPing =
   PingCmd
-    <$> ( Opt.option Opt.auto $
+    <$> ( Opt.option integralReader $
             mconcat
               [ Opt.long "count"
               , Opt.short 'c'
@@ -78,7 +79,7 @@ pPing =
               , Opt.value "3001"
               ]
         )
-    <*> ( Opt.option Opt.auto $
+    <*> ( Opt.option integralReader $
             mconcat
               [ Opt.long "magic"
               , Opt.short 'm'

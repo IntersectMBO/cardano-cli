@@ -115,7 +115,7 @@ pNewCounter =
 
 pCounterValue :: Parser Word
 pCounterValue =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "counter-value"
       , Opt.metavar "INT"
