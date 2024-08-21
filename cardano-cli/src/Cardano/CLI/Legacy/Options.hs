@@ -564,7 +564,7 @@ pNodeCmds =
 
   pCounterValue :: Parser Word
   pCounterValue =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "counter-value"
         , Opt.metavar "INT"
@@ -1135,7 +1135,7 @@ pGenesisCmds envCli =
 
   pGenesisNumGenesisKeys :: Parser Word
   pGenesisNumGenesisKeys =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "gen-genesis-keys"
         , Opt.metavar "INT"
@@ -1148,7 +1148,7 @@ pGenesisCmds envCli =
 
   pGenesisNumUTxOKeys :: Parser Word
   pGenesisNumUTxOKeys =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "gen-utxo-keys"
         , Opt.metavar "INT"
@@ -1158,7 +1158,7 @@ pGenesisCmds envCli =
 
   pGenesisNumPools :: Parser Word
   pGenesisNumPools =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "gen-pools"
         , Opt.metavar "INT"
@@ -1168,7 +1168,7 @@ pGenesisCmds envCli =
 
   pGenesisNumStDelegs :: Parser Word
   pGenesisNumStDelegs =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "gen-stake-delegs"
         , Opt.metavar "INT"
@@ -1178,7 +1178,7 @@ pGenesisCmds envCli =
 
   pStuffedUtxoCount :: Parser Word
   pStuffedUtxoCount =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "num-stuffed-utxo"
         , Opt.metavar "INT"
@@ -1200,7 +1200,7 @@ pGenesisCmds envCli =
   pInitialSupplyNonDelegated =
     Opt.optional $
       fmap Coin $
-        Opt.option Opt.auto $
+        Opt.option integralReader $
           mconcat
             [ Opt.long "supply"
             , Opt.metavar "LOVELACE"
@@ -1212,7 +1212,7 @@ pGenesisCmds envCli =
   pInitialSupplyDelegated =
     fmap (Coin . fromMaybe 0) $
       Opt.optional $
-        Opt.option Opt.auto $
+        Opt.option integralReader $
           mconcat
             [ Opt.long "supply-delegated"
             , Opt.metavar "LOVELACE"
@@ -1223,7 +1223,7 @@ pGenesisCmds envCli =
 
   pSecurityParam :: Parser Word64
   pSecurityParam =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "security-param"
         , Opt.metavar "INT"
@@ -1233,7 +1233,7 @@ pGenesisCmds envCli =
 
   pSlotLength :: Parser Word
   pSlotLength =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "slot-length"
         , Opt.metavar "INT"
@@ -1253,7 +1253,7 @@ pGenesisCmds envCli =
 
   pBulkPoolCredFiles :: Parser Word
   pBulkPoolCredFiles =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "bulk-pool-cred-files"
         , Opt.metavar "INT"
@@ -1263,7 +1263,7 @@ pGenesisCmds envCli =
 
   pBulkPoolsPerFile :: Parser Word
   pBulkPoolsPerFile =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "bulk-pools-per-file"
         , Opt.metavar "INT"
