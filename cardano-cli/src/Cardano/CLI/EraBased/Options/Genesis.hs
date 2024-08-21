@@ -249,7 +249,7 @@ pGenesisCreateTestNetData sbe envCli =
             "The " <> eraStr <> " specification file to use as input. A default one is generated if omitted."
         ]
   pNumGenesisKeys =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "genesis-keys"
         , Opt.metavar "INT"
@@ -258,7 +258,7 @@ pGenesisCreateTestNetData sbe envCli =
         ]
   pNumPools :: Parser Word
   pNumPools =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "pools"
         , Opt.metavar "INT"
@@ -274,7 +274,7 @@ pGenesisCreateTestNetData sbe envCli =
     pDReps mode modeOptionName modeExplanation =
       DRepCredentials mode
         <$> Opt.option
-          Opt.auto
+          integralReader
           ( mconcat
               [ Opt.long modeOptionName
               , Opt.help $ "The number of DRep credentials to make (default is 0). " <> modeExplanation
@@ -291,7 +291,7 @@ pGenesisCreateTestNetData sbe envCli =
     pStakeDelegators mode modeOptionName modeExplanation =
       StakeDelegators mode
         <$> Opt.option
-          Opt.auto
+          integralReader
           ( mconcat
               [ Opt.long modeOptionName
               , Opt.help $
@@ -302,7 +302,7 @@ pGenesisCreateTestNetData sbe envCli =
           )
   pNumStuffedUtxoCount :: Parser Word
   pNumStuffedUtxoCount =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "stuffed-utxo"
         , Opt.metavar "INT"
@@ -311,7 +311,7 @@ pGenesisCreateTestNetData sbe envCli =
         ]
   pNumUtxoKeys :: Parser Word
   pNumUtxoKeys =
-    Opt.option Opt.auto $
+    Opt.option integralReader $
       mconcat
         [ Opt.long "utxo-keys"
         , Opt.metavar "INT"
@@ -322,7 +322,7 @@ pGenesisCreateTestNetData sbe envCli =
   pSupply =
     Opt.optional $
       fmap Coin $
-        Opt.option Opt.auto $
+        Opt.option integralReader $
           mconcat
             [ Opt.long "total-supply"
             , Opt.metavar "LOVELACE"
@@ -337,7 +337,7 @@ pGenesisCreateTestNetData sbe envCli =
   pSupplyDelegated =
     Opt.optional $
       fmap Coin $
-        Opt.option Opt.auto $
+        Opt.option integralReader $
           mconcat
             [ Opt.long "delegated-supply"
             , Opt.metavar "LOVELACE"
@@ -394,7 +394,7 @@ pMaybeSystemStart =
 
 pGenesisNumGenesisKeys :: Parser Word
 pGenesisNumGenesisKeys =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "gen-genesis-keys"
       , Opt.metavar "INT"
@@ -407,7 +407,7 @@ pNodeConfigTemplate = optional $ parseFilePath "node-config-template" "the node 
 
 pGenesisNumUTxOKeys :: Parser Word
 pGenesisNumUTxOKeys =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "gen-utxo-keys"
       , Opt.metavar "INT"
@@ -417,7 +417,7 @@ pGenesisNumUTxOKeys =
 
 pGenesisNumPools :: Parser Word
 pGenesisNumPools =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "gen-pools"
       , Opt.metavar "INT"
@@ -427,7 +427,7 @@ pGenesisNumPools =
 
 pGenesisNumStDelegs :: Parser Word
 pGenesisNumStDelegs =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "gen-stake-delegs"
       , Opt.metavar "INT"
@@ -437,7 +437,7 @@ pGenesisNumStDelegs =
 
 pStuffedUtxoCount :: Parser Word
 pStuffedUtxoCount =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "num-stuffed-utxo"
       , Opt.metavar "INT"
@@ -449,7 +449,7 @@ pInitialSupplyNonDelegated :: Parser (Maybe Coin)
 pInitialSupplyNonDelegated =
   Opt.optional $
     fmap Coin $
-      Opt.option Opt.auto $
+      Opt.option integralReader $
         mconcat
           [ Opt.long "supply"
           , Opt.metavar "LOVELACE"
@@ -461,7 +461,7 @@ pInitialSupplyDelegated :: Parser Coin
 pInitialSupplyDelegated =
   fmap (Coin . fromMaybe 0) $
     Opt.optional $
-      Opt.option Opt.auto $
+      Opt.option integralReader $
         mconcat
           [ Opt.long "supply-delegated"
           , Opt.metavar "LOVELACE"
@@ -472,7 +472,7 @@ pInitialSupplyDelegated =
 
 pSecurityParam :: Parser Word64
 pSecurityParam =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "security-param"
       , Opt.metavar "INT"
@@ -482,7 +482,7 @@ pSecurityParam =
 
 pSlotLength :: Parser Word
 pSlotLength =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "slot-length"
       , Opt.metavar "INT"
@@ -502,7 +502,7 @@ pSlotCoefficient =
 
 pBulkPoolCredFiles :: Parser Word
 pBulkPoolCredFiles =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "bulk-pool-cred-files"
       , Opt.metavar "INT"
@@ -512,7 +512,7 @@ pBulkPoolCredFiles =
 
 pBulkPoolsPerFile :: Parser Word
 pBulkPoolsPerFile =
-  Opt.option Opt.auto $
+  Opt.option integralReader $
     mconcat
       [ Opt.long "bulk-pools-per-file"
       , Opt.metavar "INT"
