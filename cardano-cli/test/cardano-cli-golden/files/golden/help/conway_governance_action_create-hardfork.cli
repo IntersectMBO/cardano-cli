@@ -42,11 +42,14 @@ Available options:
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
                            "cardano-cli hash anchor-data ...")
   --protocol-major-version MAJOR
-                           Specify the major protocol version to fork into. It
-                           must be the next natural number after the current
-                           version and must be supported by the node.
+                           Specify the major protocol version to fork into. An
+                           increase indicates a hard fork. It must be the next
+                           natural number after the current version and must be
+                           supported by the node.
   --protocol-minor-version MINOR
-                           Minor protocol version. Must be zero when the major
-                           protocol version is increased.
+                           Minor protocol version. An increase indicates a soft
+                           fork (old software can validate but not produce new
+                           blocks). Must be zero when the major protocol version
+                           is increased.
   --out-file FILE          Output filepath of the hardfork proposal.
   -h,--help                Show this help text

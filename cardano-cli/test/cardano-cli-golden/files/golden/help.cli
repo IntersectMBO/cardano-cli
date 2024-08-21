@@ -372,8 +372,8 @@ Usage: cardano-cli shelley governance action create-protocol-parameters-update -
                                                                                  [--monetary-expansion RATIONAL]
                                                                                  [--min-pool-cost NATURAL]
                                                                                  [--min-utxo-value NATURAL]
-                                                                                 [--protocol-major-version NATURAL
-                                                                                   --protocol-minor-version NATURAL]
+                                                                                 [--protocol-major-version MAJOR
+                                                                                   --protocol-minor-version MINOR]
                                                                                  [ --extra-entropy HEX
                                                                                  | --reset-extra-entropy
                                                                                  ]
@@ -1571,8 +1571,8 @@ Usage: cardano-cli allegra governance action create-protocol-parameters-update -
                                                                                  | --reset-extra-entropy
                                                                                  ]
                                                                                  [--decentralization-parameter RATIONAL]
-                                                                                 [--protocol-major-version NATURAL
-                                                                                   --protocol-minor-version NATURAL]
+                                                                                 [--protocol-major-version MAJOR
+                                                                                   --protocol-minor-version MINOR]
                                                                                  --out-file FILE
 
   Create a protocol parameters update.
@@ -2764,8 +2764,8 @@ Usage: cardano-cli mary governance action create-protocol-parameters-update --ep
                                                                               | --reset-extra-entropy
                                                                               ]
                                                                               [--decentralization-parameter RATIONAL]
-                                                                              [--protocol-major-version NATURAL
-                                                                                --protocol-minor-version NATURAL]
+                                                                              [--protocol-major-version MAJOR
+                                                                                --protocol-minor-version MINOR]
                                                                               --out-file FILE
 
   Create a protocol parameters update.
@@ -4079,8 +4079,8 @@ Usage: cardano-cli alonzo governance action create-protocol-parameters-update --
                                                                                 [--max-value-size INT]
                                                                                 [--collateral-percent INT]
                                                                                 [--max-collateral-inputs INT]
-                                                                                [--protocol-major-version NATURAL
-                                                                                  --protocol-minor-version NATURAL]
+                                                                                [--protocol-major-version MAJOR
+                                                                                  --protocol-minor-version MINOR]
                                                                                 [--cost-model-file FILE]
                                                                                 --out-file FILE
 
@@ -5412,8 +5412,8 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update -
                                                                                  [--max-value-size INT]
                                                                                  [--collateral-percent INT]
                                                                                  [--max-collateral-inputs INT]
-                                                                                 [--protocol-major-version NATURAL
-                                                                                   --protocol-minor-version NATURAL]
+                                                                                 [--protocol-major-version MAJOR
+                                                                                   --protocol-minor-version MINOR]
                                                                                  [--utxo-cost-per-byte LOVELACE]
                                                                                  [--cost-model-file FILE]
                                                                                  --out-file FILE
@@ -8670,8 +8670,8 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update --
                                                                                 [--max-value-size INT]
                                                                                 [--collateral-percent INT]
                                                                                 [--max-collateral-inputs INT]
-                                                                                [--protocol-major-version NATURAL
-                                                                                  --protocol-minor-version NATURAL]
+                                                                                [--protocol-major-version MAJOR
+                                                                                  --protocol-minor-version MINOR]
                                                                                 [--utxo-cost-per-byte LOVELACE]
                                                                                 [--cost-model-file FILE]
                                                                                 --out-file FILE
@@ -9769,8 +9769,8 @@ Usage: cardano-cli legacy governance create-genesis-key-delegation-certificate
 Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
                                                               --epoch NATURAL
                                                               (--genesis-verification-key-file FILE)
-                                                              [--protocol-major-version NATURAL
-                                                                --protocol-minor-version NATURAL]
+                                                              [--protocol-major-version MAJOR
+                                                                --protocol-minor-version MINOR]
                                                               [--decentralization-parameter RATIONAL]
                                                               [ --extra-entropy HEX
                                                               | --reset-extra-entropy
@@ -11082,8 +11082,8 @@ Usage: cardano-cli governance create-genesis-key-delegation-certificate
 Usage: cardano-cli governance create-update-proposal --out-file FILE
                                                        --epoch NATURAL
                                                        (--genesis-verification-key-file FILE)
-                                                       [--protocol-major-version NATURAL
-                                                         --protocol-minor-version NATURAL]
+                                                       [--protocol-major-version MAJOR
+                                                         --protocol-minor-version MINOR]
                                                        [--decentralization-parameter RATIONAL]
                                                        [ --extra-entropy HEX
                                                        | --reset-extra-entropy
