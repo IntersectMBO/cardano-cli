@@ -7,7 +7,6 @@ module Cardano.CLI.Legacy.Commands.Query
   ( LegacyQueryCmds (..)
   , LegacyQueryLeadershipScheduleCmdArgs (..)
   , LegacyQueryProtocolParametersCmdArgs (..)
-  , LegacyQueryConstitutionHashCmdArgs (..)
   , LegacyQueryTipCmdArgs (..)
   , LegacyQueryStakePoolsCmdArgs (..)
   , LegacyQueryStakeDistributionCmdArgs (..)
@@ -64,14 +63,6 @@ data LegacyQueryLeadershipScheduleCmdArgs = LegacyQueryLeadershipScheduleCmdArgs
   deriving (Generic, Show)
 
 data LegacyQueryProtocolParametersCmdArgs = LegacyQueryProtocolParametersCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
-  , mOutFile :: !(Maybe (File () Out))
-  }
-  deriving (Generic, Show)
-
-data LegacyQueryConstitutionHashCmdArgs = LegacyQueryConstitutionHashCmdArgs
   { nodeSocketPath :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId :: !NetworkId

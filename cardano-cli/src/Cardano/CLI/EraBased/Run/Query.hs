@@ -15,7 +15,6 @@
 
 module Cardano.CLI.EraBased.Run.Query
   ( runQueryCmds
-  , runQueryConstitutionHashCmd
   , runQueryKesPeriodInfoCmd
   , runQueryLeadershipScheduleCmd
   , runQueryLedgerStateCmd
@@ -105,7 +104,6 @@ runQueryCmds :: Cmd.QueryCmds era -> ExceptT QueryCmdError IO ()
 runQueryCmds = \case
   Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
   Cmd.QueryProtocolParametersCmd args -> runQueryProtocolParametersCmd args
-  Cmd.QueryConstitutionHashCmd args -> runQueryConstitutionHashCmd args
   Cmd.QueryTipCmd args -> runQueryTipCmd args
   Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
   Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
@@ -126,42 +124,6 @@ runQueryCmds = \case
   Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
   Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
   Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
-
-runQueryConstitutionHashCmd
-  :: ()
-  => Cmd.QueryConstitutionHashCmdArgs
-  -> ExceptT QueryCmdError IO ()
-runQueryConstitutionHashCmd
-  Cmd.QueryConstitutionHashCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
-    , Cmd.target
-    , Cmd.mOutFile
-    } = do
-    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
-
-    result <- liftIO $ executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-      AnyCardanoEra era <- lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
-
-      sbe <-
-        requireShelleyBasedEra era
-          & onNothing (left QueryCmdByronEra)
-
-      lift (shelleyBasedEraConstraints sbe (queryConstitutionHash sbe))
-        & onLeft (left . QueryCmdUnsupportedNtcVersion)
-        & onLeft (left . QueryCmdEraMismatch)
-
-    writeConstitutionHash mOutFile =<< except (join (first QueryCmdAcquireFailure result))
-   where
-    writeConstitutionHash
-      :: Maybe (File () Out)
-      -> L.SafeHash L.StandardCrypto L.AnchorData
-      -> ExceptT QueryCmdError IO ()
-    writeConstitutionHash mOutFile' cHash =
-      firstExceptT QueryCmdWriteFileError . newExceptT $
-        writeLazyByteStringOutput mOutFile' $
-          encodePretty cHash
 
 runQueryProtocolParametersCmd
   :: ()
