@@ -301,6 +301,14 @@ friendlyVotingProcedures
   :: ConwayEraOnwards era -> L.VotingProcedures (ShelleyLedgerEra era) -> Aeson.Value
 friendlyVotingProcedures cOnwards x = conwayEraOnwardsConstraints cOnwards $ toJSON x
 
+data EraIndependentPlutusScriptPurpose
+  = Spending
+  | Minting
+  | Certifying
+  | Rewarding
+  | Voting
+  | Proposing
+
 getRedeemerDetails
   :: forall era. AlonzoEraOnwards era -> TxBody era -> [Aeson.Pair]
 getRedeemerDetails aeo tb =
@@ -349,30 +357,38 @@ getRedeemerDetails aeo tb =
     :: AlonzoEraOnwards era -> Ledger.PlutusPurpose AsIxItem (ShelleyLedgerEra era) -> Aeson.Value
   friendlyPurpose AlonzoEraOnwardsAlonzo purpose =
     case purpose of
-      Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> Aeson.object ["spending script witnessed input" .= friendlyInput sp]
-      Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting currency with policy id" .= mp]
-      Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["validating certificate with script credentials" .= cp]
-      Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["withdrawing reward from script address" .= rp]
+      Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
+      Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> addLabelToPurpose Minting mp
+      Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
+      Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
   friendlyPurpose AlonzoEraOnwardsBabbage purpose =
     case purpose of
-      Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> Aeson.object ["spending script witnessed input" .= friendlyInput sp]
-      Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting currency with policy id" .= mp]
-      Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["validating certificate with script credentials" .= cp]
-      Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["withdrawing reward from script address" .= rp]
+      Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
+      Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> addLabelToPurpose Minting mp
+      Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
+      Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
   friendlyPurpose AlonzoEraOnwardsConway purpose =
     case purpose of
-      Ledger.ConwaySpending (Ledger.AsIxItem _ sp) -> Aeson.object ["spending script witnessed input" .= friendlyInput sp]
-      Ledger.ConwayMinting (Ledger.AsIxItem _ mp) -> Aeson.object ["minting currency with policy id" .= mp]
-      Ledger.ConwayCertifying (Ledger.AsIxItem _ cp) -> Aeson.object ["validating certificate with script credentials" .= cp]
-      Ledger.ConwayRewarding (Ledger.AsIxItem _ rp) -> Aeson.object ["withdrawing reward from script address" .= rp]
-      Ledger.ConwayVoting (Ledger.AsIxItem _ vp) -> Aeson.object ["voting using script protected voter credentials" .= vp]
-      Ledger.ConwayProposing (Ledger.AsIxItem _ pp) -> Aeson.object ["submitting a proposal following proposal policy" .= pp]
+      Ledger.ConwaySpending (Ledger.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
+      Ledger.ConwayMinting (Ledger.AsIxItem _ mp) -> addLabelToPurpose Minting mp
+      Ledger.ConwayCertifying (Ledger.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
+      Ledger.ConwayRewarding (Ledger.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
+      Ledger.ConwayVoting (Ledger.AsIxItem _ vp) -> addLabelToPurpose Voting vp
+      Ledger.ConwayProposing (Ledger.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
 
   friendlyInput :: Ledger.TxIn Ledger.StandardCrypto -> Aeson.Value
   friendlyInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =
     Aeson.String $
       T.pack $
         T.unpack (hashToTextAsHex (extractHash txidHash)) ++ "#" ++ show (txIxToInt ix)
+
+  addLabelToPurpose :: ToJSON v => EraIndependentPlutusScriptPurpose -> v -> Aeson.Value
+  addLabelToPurpose Spending sp = Aeson.object ["spending script witnessed input" .= sp]
+  addLabelToPurpose Minting mp = Aeson.object ["minting currency with policy id" .= mp]
+  addLabelToPurpose Certifying cp = Aeson.object ["validating certificate with script credentials" .= cp]
+  addLabelToPurpose Rewarding rp = Aeson.object ["withdrawing reward from script address" .= rp]
+  addLabelToPurpose Voting vp = Aeson.object ["voting using script protected voter credentials" .= vp]
+  addLabelToPurpose Proposing pp = Aeson.object ["submitting a proposal following proposal policy" .= pp]
 
 friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
 friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null
