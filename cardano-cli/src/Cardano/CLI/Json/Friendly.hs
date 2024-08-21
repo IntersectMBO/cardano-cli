@@ -312,8 +312,8 @@ getRedeemerDetails aeo tb = do
     -> m (Aeson.Value)
   friendlyRedeemers tx =
     alonzoEraOnwardsConstraints aeo $ do
-      let redeemerAndExUnitPairList = Map.toList $ Ledger.unRedeemers $ tx ^. Ledger.witsTxL . Ledger.rdmrsTxWitsL
-      redeemerList <- mapM (uncurry $ friendlyRedeemerInfo tx) redeemerAndExUnitPairList
+      let plutusScriptPurposeAndExUnits = Map.toList $ Ledger.unRedeemers $ tx ^. Ledger.witsTxL . Ledger.rdmrsTxWitsL
+      redeemerList <- mapM (uncurry $ friendlyRedeemerInfo tx) plutusScriptPurposeAndExUnits
       return $ Aeson.Array $ Vector.fromList redeemerList
 
   friendlyRedeemerInfo
