@@ -51,7 +51,7 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    toShelleyStakeCredential)
 
 import           Cardano.CLI.Types.Common (ViewOutputFormat (..))
-import           Cardano.CLI.Types.MonadWarning (MonadWarning, eitherToWarning, runWarningIO)
+import           Cardano.CLI.Types.MonadWarning (MonadWarning, runWarningIO)
 import           Cardano.Crypto.Hash (hashToTextAsHex)
 import           Cardano.Ledger.Alonzo.Core (AsIxItem)
 import           Cardano.Ledger.Alonzo.Scripts (ExUnits (..))
@@ -60,7 +60,6 @@ import qualified Cardano.Ledger.Api as Ledger
 import           Cardano.Ledger.Api.Tx.In (txIxToInt)
 import           Cardano.Ledger.Plutus.Data (unData)
 import qualified Cardano.Ledger.TxIn as Ledger
-import           Cardano.Prelude (maybeToEither)
 
 import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
@@ -232,29 +231,31 @@ friendlyTxBodyImpl
           )
       ) =
     do
-      redeemerDetails <- forEraInEon era (return []) (`getRedeemerDetails` tb)
       return $
         cardanoEraConstraints
           era
-          ( redeemerDetails
-              ++ [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
-                 , "certificates" .= forEraInEon era Null (`friendlyCertificates` txCertificates)
-                 , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
-                 , "era" .= era
-                 , "fee" .= friendlyFee txFee
-                 , "inputs" .= friendlyInputs txIns
-                 , "metadata" .= friendlyMetadata txMetadata
-                 , "mint" .= friendlyMintValue txMintValue
-                 , "outputs" .= map (friendlyTxOut era) txOuts
-                 , "reference inputs" .= friendlyReferenceInputs txInsReference
-                 , "total collateral" .= friendlyTotalCollateral txTotalCollateral
-                 , "return collateral" .= friendlyReturnCollateral era txReturnCollateral
-                 , "required signers (payment key hashes needed for scripts)"
-                    .= friendlyExtraKeyWits txExtraKeyWits
-                 , "update proposal" .= friendlyUpdateProposal txUpdateProposal
-                 , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
-                 , "withdrawals" .= friendlyWithdrawals txWithdrawals
-                 ]
+          ( [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
+            , "certificates" .= forEraInEon era Null (`friendlyCertificates` txCertificates)
+            , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
+            , "era" .= era
+            , "fee" .= friendlyFee txFee
+            , "inputs" .= friendlyInputs txIns
+            , "metadata" .= friendlyMetadata txMetadata
+            , "mint" .= friendlyMintValue txMintValue
+            , "outputs" .= map (friendlyTxOut era) txOuts
+            , "reference inputs" .= friendlyReferenceInputs txInsReference
+            , "total collateral" .= friendlyTotalCollateral txTotalCollateral
+            , "return collateral" .= friendlyReturnCollateral era txReturnCollateral
+            , "required signers (payment key hashes needed for scripts)"
+                .= friendlyExtraKeyWits txExtraKeyWits
+            , "update proposal" .= friendlyUpdateProposal txUpdateProposal
+            , "validity range" .= friendlyValidityRange era (txValidityLowerBound, txValidityUpperBound)
+            , "withdrawals" .= friendlyWithdrawals txWithdrawals
+            ]
+              ++ ( monoidForEraInEon @AlonzoEraOnwards
+                    era
+                    (`getRedeemerDetails` tb)
+                 )
               ++ ( monoidForEraInEon @ConwayEraOnwards
                     era
                     ( \cOnwards ->
@@ -301,38 +302,37 @@ friendlyVotingProcedures
 friendlyVotingProcedures cOnwards x = conwayEraOnwardsConstraints cOnwards $ toJSON x
 
 getRedeemerDetails
-  :: forall era m. MonadWarning m => AlonzoEraOnwards era -> TxBody era -> m [Aeson.Pair]
-getRedeemerDetails aeo tb = do
+  :: forall era. AlonzoEraOnwards era -> TxBody era -> [Aeson.Pair]
+getRedeemerDetails aeo tb =
   let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
-  redeemerInfo <- friendlyRedeemers ledgerTx
-  return ["redeemers" .= redeemerInfo]
+   in ["redeemers" .= friendlyRedeemers ledgerTx]
  where
   friendlyRedeemers
     :: Ledger.Tx (ShelleyLedgerEra era)
-    -> m (Aeson.Value)
+    -> Aeson.Value
   friendlyRedeemers tx =
     alonzoEraOnwardsConstraints aeo $ do
       let plutusScriptPurposeAndExUnits = Map.toList $ Ledger.unRedeemers $ tx ^. Ledger.witsTxL . Ledger.rdmrsTxWitsL
-      redeemerList <- mapM (uncurry $ friendlyRedeemerInfo tx) plutusScriptPurposeAndExUnits
-      return $ Aeson.Array $ Vector.fromList redeemerList
+          redeemerList = map (uncurry $ friendlyRedeemerInfo tx) plutusScriptPurposeAndExUnits
+      Aeson.Array $ Vector.fromList redeemerList
 
   friendlyRedeemerInfo
     :: Ledger.Tx (ShelleyLedgerEra era)
     -> Ledger.PlutusPurpose Ledger.AsIx (ShelleyLedgerEra era)
     -> (Ledger.Data (ShelleyLedgerEra era), ExUnits)
-    -> m Aeson.Value
+    -> Aeson.Value
   friendlyRedeemerInfo tx redeemerPurpose (redeemerData, exUnits) =
     alonzoEraOnwardsConstraints aeo $ do
-      let inputNotFoundError = "Could not find corresponding input to " <> show redeemerPurpose
+      let inputNotFoundError =
+            Aeson.object
+              [ "error" .= Aeson.String (T.pack $ "Could not find corresponding input to " ++ show redeemerPurpose)
+              ]
           mCorrespondingInput = strictMaybeToMaybe $ Ledger.redeemerPointerInverse (tx ^. Ledger.bodyTxL) redeemerPurpose
           mFriendlyPurposeResult = friendlyPurpose aeo <$> mCorrespondingInput
-      friendlyPurposeResult <-
-        eitherToWarning (Aeson.Null) $ maybeToEither inputNotFoundError mFriendlyPurposeResult
-      return $
-        object
-          [ "purpose" .= friendlyPurposeResult
-          , "redeemer" .= friendlyRedeemer redeemerData exUnits
-          ]
+       in object
+            [ "purpose" .= fromMaybe inputNotFoundError mFriendlyPurposeResult
+            , "redeemer" .= friendlyRedeemer redeemerData exUnits
+            ]
 
   friendlyRedeemer :: Ledger.Data (ShelleyLedgerEra era) -> ExUnits -> Aeson.Value
   friendlyRedeemer scriptData ExUnits{exUnitsSteps = exSteps, exUnitsMem = exMemUnits} =
