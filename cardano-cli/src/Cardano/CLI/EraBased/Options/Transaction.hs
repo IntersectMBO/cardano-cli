@@ -100,11 +100,6 @@ pTransactionCmds era' envCli =
         subParser "txid" $
           Opt.info pTransactionId $
             Opt.progDesc "Print a transaction identifier."
-    , Just $
-        subParser "view" $
-          Opt.info
-            (pure $ TransactionViewCmd TransactionViewCmdArgs)
-            (Opt.progDesc "This command has been removed. Please use \"debug transaction view\" instead.")
     ]
 
 -- Backwards compatible parsers
