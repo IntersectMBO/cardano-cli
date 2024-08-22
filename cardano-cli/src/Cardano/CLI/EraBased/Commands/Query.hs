@@ -8,7 +8,6 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryCommitteeMembersStateCmdArgs (..)
   , QueryLeadershipScheduleCmdArgs (..)
   , QueryProtocolParametersCmdArgs (..)
-  , QueryConstitutionHashCmdArgs (..)
   , QueryTipCmdArgs (..)
   , QueryStakePoolsCmdArgs (..)
   , QueryStakeDistributionCmdArgs (..)
@@ -46,7 +45,6 @@ import           GHC.Generics
 data QueryCmds era
   = QueryLeadershipScheduleCmd !QueryLeadershipScheduleCmdArgs
   | QueryProtocolParametersCmd !QueryProtocolParametersCmdArgs
-  | QueryConstitutionHashCmd !QueryConstitutionHashCmdArgs
   | QueryTipCmd !QueryTipCmdArgs
   | QueryStakePoolsCmd !QueryStakePoolsCmdArgs
   | QueryStakeDistributionCmd !QueryStakeDistributionCmdArgs
@@ -87,15 +85,6 @@ data QueryProtocolParametersCmdArgs = QueryProtocolParametersCmdArgs
   { nodeSocketPath :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId :: !NetworkId
-  , mOutFile :: !(Maybe (File () Out))
-  }
-  deriving (Generic, Show)
-
-data QueryConstitutionHashCmdArgs = QueryConstitutionHashCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -301,8 +290,6 @@ renderQueryCmds = \case
     "query leadership-schedule"
   QueryProtocolParametersCmd{} ->
     "query protocol-parameters "
-  QueryConstitutionHashCmd{} ->
-    "query constitution-hash "
   QueryTipCmd{} ->
     "query tip"
   QueryStakePoolsCmd{} ->
