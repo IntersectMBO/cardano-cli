@@ -20,8 +20,8 @@ Usage: cardano-cli babbage governance action create-protocol-parameters-update -
                                                                                  [--max-value-size INT]
                                                                                  [--collateral-percent INT]
                                                                                  [--max-collateral-inputs INT]
-                                                                                 [--protocol-major-version NATURAL
-                                                                                   --protocol-minor-version NATURAL]
+                                                                                 [--protocol-major-version MAJOR
+                                                                                   --protocol-minor-version MINOR]
                                                                                  [--utxo-cost-per-byte LOVELACE]
                                                                                  [--cost-model-file FILE]
                                                                                  --out-file FILE
@@ -82,13 +82,16 @@ Available options:
   --max-collateral-inputs INT
                            The maximum number of collateral inputs allowed in a
                            transaction (from Alonzo era).
-  --protocol-major-version NATURAL
-                           Major protocol version. An increase indicates a hard
-                           fork.
-  --protocol-minor-version NATURAL
+  --protocol-major-version MAJOR
+                           Specify the major protocol version to fork into. An
+                           increase indicates a hard fork. It must be the next
+                           natural number after the current version and must be
+                           supported by the node.
+  --protocol-minor-version MINOR
                            Minor protocol version. An increase indicates a soft
-                           fork (old software canvalidate but not produce new
-                           blocks).
+                           fork (old software can validate but not produce new
+                           blocks). Must be zero when the major protocol version
+                           is increased.
   --utxo-cost-per-byte LOVELACE
                            Cost in lovelace per unit of UTxO storage (from
                            Babbage era).

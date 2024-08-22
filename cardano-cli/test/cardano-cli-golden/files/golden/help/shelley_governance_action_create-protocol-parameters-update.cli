@@ -14,8 +14,8 @@ Usage: cardano-cli shelley governance action create-protocol-parameters-update -
                                                                                  [--monetary-expansion RATIONAL]
                                                                                  [--min-pool-cost NATURAL]
                                                                                  [--min-utxo-value NATURAL]
-                                                                                 [--protocol-major-version NATURAL
-                                                                                   --protocol-minor-version NATURAL]
+                                                                                 [--protocol-major-version MAJOR
+                                                                                   --protocol-minor-version MINOR]
                                                                                  [ --extra-entropy HEX
                                                                                  | --reset-extra-entropy
                                                                                  ]
@@ -56,13 +56,16 @@ Available options:
   --min-pool-cost NATURAL  The minimum allowed cost parameter for stake pools.
   --min-utxo-value NATURAL The minimum allowed UTxO value (Shelley to Mary
                            eras).
-  --protocol-major-version NATURAL
-                           Major protocol version. An increase indicates a hard
-                           fork.
-  --protocol-minor-version NATURAL
+  --protocol-major-version MAJOR
+                           Specify the major protocol version to fork into. An
+                           increase indicates a hard fork. It must be the next
+                           natural number after the current version and must be
+                           supported by the node.
+  --protocol-minor-version MINOR
                            Minor protocol version. An increase indicates a soft
-                           fork (old software canvalidate but not produce new
-                           blocks).
+                           fork (old software can validate but not produce new
+                           blocks). Must be zero when the major protocol version
+                           is increased.
   --extra-entropy HEX      Praos extra entropy seed, as a hex byte string.
   --reset-extra-entropy    Reset the Praos extra entropy to none.
   --decentralization-parameter RATIONAL

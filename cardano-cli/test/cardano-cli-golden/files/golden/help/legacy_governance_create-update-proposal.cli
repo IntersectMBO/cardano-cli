@@ -1,8 +1,8 @@
 Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
                                                               --epoch NATURAL
                                                               (--genesis-verification-key-file FILE)
-                                                              [--protocol-major-version NATURAL
-                                                                --protocol-minor-version NATURAL]
+                                                              [--protocol-major-version MAJOR
+                                                                --protocol-minor-version MINOR]
                                                               [--decentralization-parameter RATIONAL]
                                                               [ --extra-entropy HEX
                                                               | --reset-extra-entropy
@@ -39,13 +39,16 @@ Available options:
                            valid.
   --genesis-verification-key-file FILE
                            Filepath of the genesis verification key.
-  --protocol-major-version NATURAL
-                           Major protocol version. An increase indicates a hard
-                           fork.
-  --protocol-minor-version NATURAL
+  --protocol-major-version MAJOR
+                           Specify the major protocol version to fork into. An
+                           increase indicates a hard fork. It must be the next
+                           natural number after the current version and must be
+                           supported by the node.
+  --protocol-minor-version MINOR
                            Minor protocol version. An increase indicates a soft
-                           fork (old software canvalidate but not produce new
-                           blocks).
+                           fork (old software can validate but not produce new
+                           blocks). Must be zero when the major protocol version
+                           is increased.
   --decentralization-parameter RATIONAL
                            Decentralization parameter.
   --extra-entropy HEX      Praos extra entropy seed, as a hex byte string.

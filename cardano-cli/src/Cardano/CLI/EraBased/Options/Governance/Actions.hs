@@ -402,33 +402,8 @@ pNetwork =
         ]
       ]
 
-pNewProtVer :: Parser (Natural, Natural)
-pNewProtVer = (,) <$> pProtMajor <*> pProtMinor
- where
-  pProtMajor :: Parser Natural
-  pProtMajor =
-    Opt.option Opt.auto $
-      mconcat
-        [ Opt.long "protocol-major-version"
-        , Opt.metavar "MAJOR"
-        , Opt.help $
-            mconcat
-              [ "Specify the major protocol version to fork into. It must be the next natural number "
-              , "after the current version and must be supported by the node."
-              ]
-        ]
-
-  pProtMinor :: Parser Natural
-  pProtMinor =
-    Opt.option Opt.auto $
-      mconcat
-        [ Opt.long "protocol-minor-version"
-        , Opt.metavar "MINOR"
-        , Opt.help "Minor protocol version. Must be zero when the major protocol version is increased."
-        ]
-
 pPV :: Parser L.ProtVer
-pPV = mkProtocolVersionOrErr <$> pNewProtVer
+pPV = mkProtocolVersionOrErr <$> pProtocolVersion
 
 pGovernanceActionHardforkInitCmd
   :: CardanoEra era

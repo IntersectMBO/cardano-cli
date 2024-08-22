@@ -3420,18 +3420,23 @@ pProtocolVersion =
     Opt.option Opt.auto $
       mconcat
         [ Opt.long "protocol-major-version"
-        , Opt.metavar "NATURAL"
-        , Opt.help "Major protocol version. An increase indicates a hard fork."
+        , Opt.metavar "MAJOR"
+        , Opt.help $
+            mconcat
+              [ "Specify the major protocol version to fork into. An increase indicates a hard fork. "
+              , "It must be the next natural number after the current version and must be supported by the node."
+              ]
         ]
   pProtocolMinorVersion =
     Opt.option Opt.auto $
       mconcat
         [ Opt.long "protocol-minor-version"
-        , Opt.metavar "NATURAL"
+        , Opt.metavar "MINOR"
         , Opt.help $
             mconcat
-              [ "Minor protocol version. An increase indicates a soft fork"
-              , " (old software canvalidate but not produce new blocks)."
+              [ "Minor protocol version. An increase indicates a soft fork "
+              , "(old software can validate but not produce new blocks). "
+              , "Must be zero when the major protocol version is increased."
               ]
         ]
 
