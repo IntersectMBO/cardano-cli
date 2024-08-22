@@ -1065,7 +1065,7 @@ runTxBuild
             cAddr
             mOverrideWits
 
-      liftIO $ putStrLn $ "Estimated transaction fee: " <> (show fee :: String)
+      liftIO . putStrLn . docToString $ "Estimated transaction fee:" <+> pretty fee
 
       return balancedTxBody
 
