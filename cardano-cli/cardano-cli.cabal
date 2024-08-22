@@ -323,6 +323,8 @@ test-suite cardano-cli-test
     filepath,
     hedgehog,
     hedgehog-extras ^>=0.6.1.0,
+    lens,
+    lens-aeson,
     regex-tdfa,
     tasty,
     tasty-hedgehog,
@@ -350,6 +352,7 @@ test-suite cardano-cli-test
     Test.Cli.Shelley.Run.Hash
     Test.Cli.Shelley.Run.Query
     Test.Cli.Shelley.Transaction.Build
+    Test.Cli.Shelley.Transaction.BuildEstimate
     Test.Cli.VerificationKey
 
   ghc-options:

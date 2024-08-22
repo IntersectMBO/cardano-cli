@@ -1,0 +1,90 @@
+{
+    "constructor": 0,
+    "fields": [
+        {
+            "constructor": 0,
+            "fields": [
+                {
+                    "bytes": "09159adec41ce5d48dde24a275a5b2c2e79461c8693ef60af9fc3207"
+                },
+                {
+                    "bytes": "0ff1fd44947bcd4cdc6f06841d881ac2a0beb3f15ba5f5e3c08991d92e8ba643"
+                }
+            ]
+        },
+        {
+            "list": [
+                {
+                    "constructor": 0,
+                    "fields": [
+                        {
+                            "bytes": "ff7a6c9f3ebf80ab457cca7813842aa2150d0dad341a7956a334c76d"
+                        },
+                        {
+                            "bytes": "1a82818b488574c156f1fa8941bad9b4b4976ba21cfaede1ab33a30de39f7edd"
+                        }
+                    ]
+                },
+                {
+                    "constructor": 0,
+                    "fields": [
+                        {
+                            "bytes": "c2233827cca3a0cc2c49f91a66276c468be994db855d6b413005fa88"
+                        },
+                        {
+                            "bytes": "3b8536a38eea871cc8b2775deb5861ac4348ef61a84b9e9c643480ae5b88ffc3"
+                        }
+                    ]
+                },
+                {
+                    "constructor": 0,
+                    "fields": [
+                        {
+                            "bytes": "b23a02a308165c702ce00bf760a0eff33b27b12906e1805b7685125f"
+                        },
+                        {
+                            "bytes": "fdf913abfdb8f00997cca5c14ca0b82f3d08781015a061e91444425d6f777ffa"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "list": [
+                {
+                    "constructor": 0,
+                    "fields": [
+                        {
+                            "bytes": "fc6a114db76d31de585793749dcd6ad2d6c02a52ce9226820656bedd"
+                        },
+                        {
+                            "bytes": "7c9d1c732c313066ded1568dc24b1230cc782d331cb65465bc65ad5df6fbe832"
+                        }
+                    ]
+                },
+                {
+                    "constructor": 0,
+                    "fields": [
+                        {
+                            "bytes": "168ff0600f6245812192fb84c1d5a72129ae0445a272acc65dc88fb3"
+                        },
+                        {
+                            "bytes": "c60e20be4ce0fa457a8c65ade01005475e71880e921c2ee40a6b51d42fd95e11"
+                        }
+                    ]
+                },
+                {
+                    "constructor": 0,
+                    "fields": [
+                        {
+                            "bytes": "c530a8b72dd72e320e7f4883fcb98d0058e70efcf4e7e0871ce13eb7"
+                        },
+                        {
+                            "bytes": "ce75748d37a55ef1faec7219708059479197965a5927a7f9901c6bc9707eeaa1"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
