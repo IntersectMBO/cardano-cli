@@ -124,7 +124,7 @@ Usage: cardano-cli alonzo transaction build-raw
 
   Build a transaction (low-level, inconvenient)
 
-  Please note the order of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+  Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Available options:
   --script-valid           Assertion that the script is valid. (default)
