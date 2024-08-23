@@ -292,6 +292,7 @@ library cardano-cli-test-lib
     bytestring,
     cardano-api,
     cardano-cli,
+    containers,
     directory,
     exceptions,
     filepath,
@@ -302,6 +303,7 @@ library cardano-cli-test-lib
     process,
     text,
     transformers-base,
+    vector,
 
 test-suite cardano-cli-test
   import: project-config

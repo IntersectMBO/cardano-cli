@@ -1,15 +1,16 @@
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 
 module Test.Golden.CreateTestnetData where
 
+import           Cardano.Api
 import           Cardano.Api.Ledger (ConwayGenesis (..), StandardCrypto)
 import           Cardano.Api.Shelley (ShelleyGenesis (..))
 
 import qualified Cardano.Ledger.Shelley.API as L
 
 import           Control.Monad
-import           Control.Monad.IO.Class
 import           Data.List (intercalate, sort)
 import qualified Data.Sequence.Strict as Seq
 import           Data.Word (Word32)
@@ -18,6 +19,7 @@ import           System.Directory
 import           System.Directory.Extra (listDirectories)
 import           System.FilePath
 
+import           Test.Cardano.CLI.Aeson
 import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, newFileSem)
 
 import           Hedgehog (Property)
@@ -191,3 +193,43 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
     -- https://github.com/IntersectMBO/cardano-cli/issues/631 witnesses.
 
     H.assertWith (fromIntegral onlyHolderCoin) (\ohc -> ohc > totalSupply `div` 2)
+
+-- Execute this test with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data shelley genesis output/"'@
+--
+-- This test checks that we use the total supply value from the shelley template when --total-supply
+-- is not specified. It was broken in the past (see https://github.com/IntersectMBO/cardano-node/issues/5953).
+hprop_golden_create_testnet_data_shelley_genesis_output :: Property
+hprop_golden_create_testnet_data_shelley_genesis_output =
+  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+    vanillaShelleyGenesis :: ShelleyGenesis StandardCrypto <-
+      H.readJsonFileOk "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
+    let tweakedValue = 3_123_456_000_000
+        tweakedShelleyGenesis = vanillaShelleyGenesis{L.sgMaxLovelaceSupply = tweakedValue}
+        tweakedShelleyGenesisFp = tempDir </> "tweaked-shelley-genesis.json"
+
+    void $ liftIO $ writeFileJSON tweakedShelleyGenesisFp tweakedShelleyGenesis
+
+    let outputDir = tempDir </> "out"
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "genesis"
+        , "create-testnet-data"
+        , "--spec-shelley"
+        , tweakedShelleyGenesisFp
+        , "--out-dir"
+        , outputDir
+        ]
+
+    let outputGenesisFp = outputDir </> "shelley-genesis.json"
+        redactedOutputGenesisFp = outputDir </> "shelley-genesis-redacted.json"
+
+    redactJsonFieldsInFile
+      (fromList $ map (,"<redacted>") ["genDelegs", "systemStart"])
+      outputGenesisFp
+      redactedOutputGenesisFp
+
+    H.diffFileVsGoldenFile
+      redactedOutputGenesisFp
+      "test/cardano-cli-golden/files/golden/conway/custom-lovelace-supply-shelley-genesis.json"
