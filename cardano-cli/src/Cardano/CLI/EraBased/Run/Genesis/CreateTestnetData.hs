@@ -738,7 +738,7 @@ updateOutputTemplate
     totalSupply = fromIntegral $ maybe maximumLovelaceSupply unLovelace mTotalSupply
 
     delegCoinRaw, nonDelegCoinRaw :: Integer
-    delegCoinRaw = maybe 0 unLovelace mDelegatedSupply
+    delegCoinRaw = maybe (totalSupply `div` 2) unLovelace mDelegatedSupply
     -- Since the user can specify total supply and delegated amount, the non-delegated amount is:
     nonDelegCoinRaw = totalSupply - delegCoinRaw
 
