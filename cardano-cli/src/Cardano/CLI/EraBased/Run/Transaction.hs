@@ -81,6 +81,10 @@ import           GHC.Exts (IsList (..))
 import           Lens.Micro ((^.))
 import qualified System.Exit as IO
 import qualified System.IO as IO
+import GHC.Stack
+import qualified Text.Pretty.Simple
+import qualified Data.Text.Lazy
+import qualified Debug.Trace
 
 runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
 runTransactionCmds = \case
@@ -1046,10 +1050,11 @@ runTxBuild
         . hoistEither
         $ notScriptLockedTxIns txinsc txEraUtxo
 
+
       cAddr <-
         pure (anyAddressInEra era changeAddr)
           & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
-      balancedTxBody@(BalancedTxBody _ _ _ fee) <-
+      balancedTxBody@(BalancedTxBody bc _ _ fee) <-
         firstExceptT (TxCmdBalanceTxBody . AnyTxBodyErrorAutoBalance)
           . hoistEither
           $ makeTransactionBodyAutoBalance
@@ -1065,9 +1070,25 @@ runTxBuild
             cAddr
             mOverrideWits
 
+      -- traceIO' "txEraUtxo" txEraUtxo
+      -- traceIO' "stakepools" stakePools
+      -- traceIO' "stakedelegdeposits" stakeDelegDeposits
+      -- traceIO' "drepDelegDeposits" drepDelegDeposits
+      traceIO' "txb" txBodyContent
+
+
       liftIO . putStrLn . docToString $ "Estimated transaction fee:" <+> pretty fee
 
       return balancedTxBody
+
+traceIO' :: (HasCallStack, MonadIO m, Show a) => String -> a -> m ()
+traceIO' l a = withFrozenCallStack $ liftIO . Debug.Trace.traceIO $
+    "\r\n💎💎💎\r\n  "
+    <> callsite (getCallStack callStack) <> "\r\n📜 "
+    <> l <> ":\r\n" <>  Data.Text.Lazy.unpack (Text.Pretty.Simple.pShow a) <> "\r\n"
+  where
+    callsite ((_, SrcLoc{srcLocFile, srcLocStartLine, srcLocStartCol}):_) = mconcat [srcLocFile, ":", show srcLocStartLine, ":", show srcLocStartCol]
+    callsite _ = ""
 
 convertCertificates
   :: ()

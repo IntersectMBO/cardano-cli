@@ -251,6 +251,7 @@ library
     parsec,
     prettyprinter,
     prettyprinter-ansi-terminal,
+    pretty-simple,
     random,
     split,
     strict-stm,
