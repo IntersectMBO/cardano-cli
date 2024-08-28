@@ -11,12 +11,12 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          )
                                                                          --anchor-url TEXT
                                                                          --anchor-data-hash HASH
-                                                                         [
+                                                                         (
                                                                            ( --funds-receiving-stake-verification-key STRING
                                                                            | --funds-receiving-stake-verification-key-file FILE
                                                                            | --funds-receiving-stake-key-hash HASH
                                                                            )
-                                                                           --transfer LOVELACE]
+                                                                           --transfer LOVELACE)
                                                                          [--constitution-script-hash HASH]
                                                                          --out-file FILE
 
