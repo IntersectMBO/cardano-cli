@@ -45,15 +45,15 @@ Available options:
                            is 0).
   --utxo-keys INT          The number of UTxO keys to make (default is 0).
   --total-supply LOVELACE  The maximum possible amount of Lovelace, which is
-                           evenly distributed across stake holders. Defaults to
-                           1 million Ada (i.e. 10^12 Lovelace). If
+                           evenly distributed across stake holders. Overrides
+                           the value from the shelley genesis. If
                            --delegated-supply is specified, a part of this
                            amount will be delegated.
   --delegated-supply LOVELACE
                            The amount of the total supply which is evenly
-                           delegated. Defaults to 500 000 Ada (i.e. (10^12) / 2
-                           Lovelace). Cannot be more than the amount specified
-                           with --total-supply.
+                           delegated. Defaulted to half of the total supply.
+                           Cannot be more than the amount specified with
+                           --total-supply.
   --testnet-magic NATURAL  Specify a testnet magic id for the cluster. This
                            overrides both the network magic from the spec file
                            and CARDANO_NODE_NETWORK_ID environment variable.

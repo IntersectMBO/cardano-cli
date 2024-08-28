@@ -328,10 +328,9 @@ pGenesisCreateTestNetData sbe envCli =
             , Opt.metavar "LOVELACE"
             , Opt.help $
                 mconcat
-                  [ "The maximum possible amount of Lovelace, which is evenly distributed across stake holders. Defaults to 1 million Ada (i.e. 10^12 Lovelace)."
+                  [ "The maximum possible amount of Lovelace, which is evenly distributed across stake holders. Overrides the value from the shelley genesis."
                   , " If --delegated-supply is specified, a part of this amount will be delegated."
                   ]
-            , Opt.value 1_000_000_000_000
             ]
   pSupplyDelegated :: Parser (Maybe Coin)
   pSupplyDelegated =
@@ -343,10 +342,9 @@ pGenesisCreateTestNetData sbe envCli =
             , Opt.metavar "LOVELACE"
             , Opt.help $
                 mconcat
-                  [ "The amount of the total supply which is evenly delegated. Defaults to 500 000 Ada (i.e. (10^12) / 2 Lovelace)."
+                  [ "The amount of the total supply which is evenly delegated. Defaulted to half of the total supply."
                   , " Cannot be more than the amount specified with --total-supply."
                   ]
-            , Opt.value 500_000_000_000
             ]
   pRelays :: Parser FilePath
   pRelays =

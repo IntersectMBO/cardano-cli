@@ -4,17 +4,22 @@ module Test.Cardano.CLI.Aeson
   ( assertEqualModuloDesc
   , assertHasKeys
   , assertHasMappings
+  , redactJsonFieldsInFile
   )
 where
 
 import           Control.Monad (forM_)
 import           Control.Monad.IO.Class
 import           Data.Aeson hiding (pairs)
+import           Data.Aeson.Encode.Pretty (encodePretty)
+import           Data.Aeson.Key
 import qualified Data.Aeson.Key as Aeson
 import qualified Data.Aeson.KeyMap as Aeson.KeyMap
 import qualified Data.ByteString.Lazy as LBS
+import qualified Data.Map as Map
 import           Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Vector as Vector
 import           GHC.Stack (HasCallStack)
 import qualified GHC.Stack as GHC
 
@@ -176,3 +181,46 @@ removeDescription v =
   failWrongType got = do
     H.note_ $ "Expected object but got: " <> got
     H.failure
+
+-- | @redactJsonStringFieldInFile [(k0, v0), (k1, v1), ..] sourceFilePath targetFilePath@ reads the JSON at @sourceFilePath@, and then
+-- replaces the value associated to @k0@ by @v0@, replaces the value associated to @k1@ by @v1@, etc.
+-- Then the obtained JSON is written to @targetFilePath@. This replacement is done recursively
+-- so @k0@, @k1@, etc. can appear at any depth within the JSON.
+redactJsonFieldsInFile
+  :: ()
+  => MonadTest m
+  => MonadIO m
+  => HasCallStack
+  => Map.Map Text Text
+  -- ^ Map from key name, to the new (String) value to attach to this key
+  -> FilePath
+  -> FilePath
+  -> m ()
+redactJsonFieldsInFile changes sourceFilePath targetFilePath = GHC.withFrozenCallStack $ do
+  contents <- H.evalIO $ LBS.readFile sourceFilePath
+  case eitherDecode contents :: Either String Value of
+    Left err -> do
+      H.note_ $ "Failed to decode JSON: " <> err
+      H.success
+    Right json -> do
+      let redactedJson = redactJsonFields changes json
+      H.evalIO $ LBS.writeFile targetFilePath $ encodePretty redactedJson
+
+redactJsonFields :: () => Map.Map Text Text -> Value -> Value
+redactJsonFields changes v =
+  case v of
+    Object obj ->
+      let obj' =
+            Aeson.KeyMap.mapWithKey
+              ( \k v' ->
+                  case Map.lookup (toText k) changes of
+                    Just replacement -> String replacement
+                    Nothing -> recurse v'
+              )
+              obj
+       in Object obj'
+    Array vector ->
+      Array $ Vector.map recurse vector
+    _ -> v
+ where
+  recurse = redactJsonFields changes
