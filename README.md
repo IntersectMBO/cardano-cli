@@ -14,7 +14,19 @@ The `cardano-cli` tool allows users to perform various operations and actions on
 
 ## Executables
 
-You can download the hydra binaries of ``cardano-node`` and ``cardano-cli`` from the [release notes](https://github.com/IntersectMBO/cardano-node/releases)
+You can download the binaries of `cardano-cli` compatible with specific versions of `cardano-node` from [cardano-node's release notes](https://github.com/IntersectMBO/cardano-node/releases).
+
+You can also download binaries of all versions of `cardano-cli` from [cardano-cli's release notes](https://github.com/IntersectMBO/cardano-cli/releases)
+
+## Documentation
+
+Up to date command line help reference is available here:
+* [List of all commands](cardano-cli/test/cardano-cli-golden/files/golden/help.cli)
+* [Description of each command's options](cardano-cli/test/cardano-cli-golden/files/golden/help)
+
+Development documentation can be found in [Cardano Node Wiki](https://github.com/input-output-hk/cardano-node-wiki/wiki).
+
+Haddock documentation is available at: https://cardano-cli.cardano.intersectmbo.org/
 
 ## Contributing
 
@@ -27,12 +39,6 @@ See the [Contributing guide](CONTRIBUTING.md) for how to contribute to this proj
 * [Mateusz Gałażyn](https://github.com/carbolymer)
 * [Clément Hurlin](https://github.com/smelc)
 * [Pablo Lamela](https://github.com/palas)
-
-## Documentation
-
-Development documentation can be found in [Cardano Node Wiki](https://github.com/input-output-hk/cardano-node-wiki/wiki).
-
-Haddock documentation is available at: https://cardano-cli.cardano.intersectmbo.org/
 
 
 [![x86\_64-linux](https://img.shields.io/endpoint?url=https://ci.iog.io/job/IntersectMBO-cardano-cli/main/x86_64-linux.required/shield&style=flat-square&label=x86_64-linux)](https://ci.iog.io/job/IntersectMBO-cardano-cli/main/x86_64-linux.required)
