@@ -28,7 +28,7 @@ Usage: cardano-cli shelley
                              | transaction
                              )
 
-  Shelley era commands
+  Shelley era commands - DEPRECATED - will be removed in the future
 
 Usage: cardano-cli shelley address (key-gen | key-hash | build | info)
 
@@ -1223,7 +1223,7 @@ Usage: cardano-cli allegra
                              | transaction
                              )
 
-  Allegra era commands
+  Allegra era commands - DEPRECATED - will be removed in the future
 
 Usage: cardano-cli allegra address (key-gen | key-hash | build | info)
 
@@ -2418,7 +2418,7 @@ Usage: cardano-cli mary
                           | transaction
                           )
 
-  Mary era commands
+  Mary era commands - DEPRECATED - will be removed in the future
 
 Usage: cardano-cli mary address (key-gen | key-hash | build | info)
 
@@ -3727,7 +3727,7 @@ Usage: cardano-cli alonzo
                             | transaction
                             )
 
-  Alonzo era commands
+  Alonzo era commands - DEPRECATED - will be removed in the future
 
 Usage: cardano-cli alonzo address (key-gen | key-hash | build | info)
 
@@ -5059,7 +5059,7 @@ Usage: cardano-cli babbage
                              | transaction
                              )
 
-  Babbage era commands
+  Babbage era commands - DEPRECATED - will be removed in the future
 
 Usage: cardano-cli babbage address (key-gen | key-hash | build | info)
 
@@ -8319,7 +8319,7 @@ Usage: cardano-cli latest
                             | transaction
                             )
 
-  Latest era commands (Babbage)
+  Latest era commands (Babbage) - DEPRECATED - will be removed in the future
 
 Usage: cardano-cli latest address (key-gen | key-hash | build | info)
 
@@ -9659,7 +9659,7 @@ Usage: cardano-cli latest transaction view
 
 Usage: cardano-cli legacy Legacy commands
 
-  Legacy commands
+  Legacy commands - DEPRECATED - will be removed in the future
 
 Usage: cardano-cli legacy text-view decode-cbor
 

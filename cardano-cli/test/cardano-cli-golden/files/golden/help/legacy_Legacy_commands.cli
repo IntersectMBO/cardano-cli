@@ -2,4 +2,4 @@ Invalid argument `Legacy'
 
 Usage: cardano-cli legacy Legacy commands
 
-  Legacy commands
+  Legacy commands - DEPRECATED - will be removed in the future

@@ -45,7 +45,6 @@ import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
-import           Data.Function
 import           Data.Maybe (fromMaybe, maybeToList)
 import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
@@ -1303,43 +1302,37 @@ pLegacyCardanoEra envCli =
         [ Opt.flag' (AnyCardanoEra ByronEra) $
             mconcat
               [ Opt.long "byron-era"
-              , Opt.help "Specify the Byron era"
+              , Opt.help $ "Specify the Byron era" <> deprecationText
               ]
         , Opt.flag' (AnyCardanoEra ShelleyEra) $
             mconcat
               [ Opt.long "shelley-era"
-              , Opt.help "Specify the Shelley era"
+              , Opt.help $ "Specify the Shelley era" <> deprecationText
               ]
         , Opt.flag' (AnyCardanoEra AllegraEra) $
             mconcat
               [ Opt.long "allegra-era"
-              , Opt.help "Specify the Allegra era"
+              , Opt.help $ "Specify the Allegra era" <> deprecationText
               ]
         , Opt.flag' (AnyCardanoEra MaryEra) $
             mconcat
               [ Opt.long "mary-era"
-              , Opt.help "Specify the Mary era"
+              , Opt.help $ "Specify the Mary era" <> deprecationText
               ]
         , Opt.flag' (AnyCardanoEra AlonzoEra) $
             mconcat
               [ Opt.long "alonzo-era"
-              , Opt.help "Specify the Alonzo era"
+              , Opt.help $ "Specify the Alonzo era" <> deprecationText
               ]
         , Opt.flag' (AnyCardanoEra BabbageEra) $
             mconcat
               [ Opt.long "babbage-era"
-              , Opt.help "Specify the Babbage era (default)"
+              , Opt.help $ "Specify the Babbage era (default)" <> deprecationText
               ]
         ]
       , maybeToList $ pure <$> envCliAnyCardanoEra envCli
-      , -- TODO is this default needed anymore?
-        pure $ pure defaultCardanoEra
+      , pure . pure $ AnyCardanoEra BabbageEra
       ]
- where
-  defaultCardanoEra =
-    defaultShelleyBasedEra & \(EraInEon era) ->
-      let cera = toCardanoEra era
-       in cardanoEraConstraints cera (AnyCardanoEra cera)
 
 pLegacyShelleyBasedEra :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
 pLegacyShelleyBasedEra envCli =
@@ -1349,29 +1342,29 @@ pLegacyShelleyBasedEra envCli =
         [ Opt.flag' (EraInEon ShelleyBasedEraShelley) $
             mconcat
               [ Opt.long "shelley-era"
-              , Opt.help "Specify the Shelley era"
+              , Opt.help $ "Specify the Shelley era" <> deprecationText
               ]
         , Opt.flag' (EraInEon ShelleyBasedEraAllegra) $
             mconcat
               [ Opt.long "allegra-era"
-              , Opt.help "Specify the Allegra era"
+              , Opt.help $ "Specify the Allegra era" <> deprecationText
               ]
         , Opt.flag' (EraInEon ShelleyBasedEraMary) $
             mconcat
               [ Opt.long "mary-era"
-              , Opt.help "Specify the Mary era"
+              , Opt.help $ "Specify the Mary era" <> deprecationText
               ]
         , Opt.flag' (EraInEon ShelleyBasedEraAlonzo) $
             mconcat
               [ Opt.long "alonzo-era"
-              , Opt.help "Specify the Alonzo era"
+              , Opt.help $ "Specify the Alonzo era" <> deprecationText
               ]
         , Opt.flag' (EraInEon ShelleyBasedEraBabbage) $
             mconcat
               [ Opt.long "babbage-era"
-              , Opt.help "Specify the Babbage era (default)"
+              , Opt.help $ "Specify the Babbage era (default)" <> deprecationText
               ]
         ]
       , maybeToList $ pure <$> envCliAnyShelleyBasedEra envCli
-      , pure $ pure defaultShelleyBasedEra
+      , pure . pure $ EraInEon ShelleyBasedEraBabbage
       ]

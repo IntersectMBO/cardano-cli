@@ -57,12 +57,6 @@ import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
 import           Text.Read (readEither, readMaybe)
 
-defaultShelleyBasedEra :: EraInEon ShelleyBasedEra
-defaultShelleyBasedEra = EraInEon ShelleyBasedEraBabbage
-
-defaultShelleyToBabbageEra :: EraInEon ShelleyToBabbageEra
-defaultShelleyToBabbageEra = EraInEon ShelleyToBabbageEraBabbage
-
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
   mconcat
@@ -373,21 +367,24 @@ pAnyShelleyBasedEra envCli =
     mconcat
       [
         [ Opt.flag' (EraInEon ShelleyBasedEraShelley) $
-            mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
+            mconcat [Opt.long "shelley-era", Opt.help $ "Specify the Shelley era" <> deprecationText]
         , Opt.flag' (EraInEon ShelleyBasedEraAllegra) $
-            mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+            mconcat [Opt.long "allegra-era", Opt.help $ "Specify the Allegra era" <> deprecationText]
         , Opt.flag' (EraInEon ShelleyBasedEraMary) $
-            mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
+            mconcat [Opt.long "mary-era", Opt.help $ "Specify the Mary era" <> deprecationText]
         , Opt.flag' (EraInEon ShelleyBasedEraAlonzo) $
-            mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
+            mconcat [Opt.long "alonzo-era", Opt.help $ "Specify the Alonzo era" <> deprecationText]
         , Opt.flag' (EraInEon ShelleyBasedEraBabbage) $
-            mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era (default)"]
+            mconcat [Opt.long "babbage-era", Opt.help $ "Specify the Babbage era (default)" <> deprecationText]
         , Opt.flag' (EraInEon ShelleyBasedEraConway) $
             mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
         ]
       , maybeToList $ pure <$> envCliAnyShelleyBasedEra envCli
-      , pure $ pure defaultShelleyBasedEra
+      , pure . pure $ EraInEon ShelleyBasedEraBabbage
       ]
+
+deprecationText :: String
+deprecationText = " - DEPRECATED - will be removed in the future"
 
 pAnyShelleyToBabbageEra :: EnvCli -> Parser (EraInEon ShelleyToBabbageEra)
 pAnyShelleyToBabbageEra envCli =
@@ -395,18 +392,18 @@ pAnyShelleyToBabbageEra envCli =
     mconcat
       [
         [ Opt.flag' (EraInEon ShelleyToBabbageEraShelley) $
-            mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
+            mconcat [Opt.long "shelley-era", Opt.help $ "Specify the Shelley era" <> deprecationText]
         , Opt.flag' (EraInEon ShelleyToBabbageEraAllegra) $
-            mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+            mconcat [Opt.long "allegra-era", Opt.help $ "Specify the Allegra era" <> deprecationText]
         , Opt.flag' (EraInEon ShelleyToBabbageEraMary) $
-            mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
+            mconcat [Opt.long "mary-era", Opt.help $ "Specify the Mary era" <> deprecationText]
         , Opt.flag' (EraInEon ShelleyToBabbageEraAlonzo) $
-            mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
+            mconcat [Opt.long "alonzo-era", Opt.help $ "Specify the Alonzo era" <> deprecationText]
         , Opt.flag' (EraInEon ShelleyToBabbageEraBabbage) $
-            mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era (default)"]
+            mconcat [Opt.long "babbage-era", Opt.help $ "Specify the Babbage era (default)" <> deprecationText]
         ]
       , maybeToList $ pure <$> envCliAnyShelleyToBabbageEra envCli
-      , pure $ pure defaultShelleyToBabbageEra
+      , pure . pure $ EraInEon ShelleyToBabbageEraBabbage
       ]
 
 pShelleyBasedShelley :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
@@ -415,7 +412,7 @@ pShelleyBasedShelley envCli =
     mconcat
       [
         [ Opt.flag' (EraInEon ShelleyBasedEraShelley) $
-            mconcat [Opt.long "shelley-era", Opt.help "Specify the Shelley era"]
+            mconcat [Opt.long "shelley-era", Opt.help $ "Specify the Shelley era" <> deprecationText]
         ]
       , maybeToList $
           fmap pure $
@@ -429,7 +426,7 @@ pShelleyBasedAllegra envCli =
     mconcat
       [
         [ Opt.flag' (EraInEon ShelleyBasedEraAllegra) $
-            mconcat [Opt.long "allegra-era", Opt.help "Specify the Allegra era"]
+            mconcat [Opt.long "allegra-era", Opt.help $ "Specify the Allegra era" <> deprecationText]
         ]
       , maybeToList $
           fmap pure $
@@ -443,7 +440,7 @@ pShelleyBasedMary envCli =
     mconcat
       [
         [ Opt.flag' (EraInEon ShelleyBasedEraMary) $
-            mconcat [Opt.long "mary-era", Opt.help "Specify the Mary era"]
+            mconcat [Opt.long "mary-era", Opt.help $ "Specify the Mary era" <> deprecationText]
         ]
       , maybeToList $
           fmap pure $
@@ -457,7 +454,7 @@ pShelleyBasedAlonzo envCli =
     mconcat
       [
         [ Opt.flag' (EraInEon ShelleyBasedEraAlonzo) $
-            mconcat [Opt.long "alonzo-era", Opt.help "Specify the Alonzo era"]
+            mconcat [Opt.long "alonzo-era", Opt.help $ "Specify the Alonzo era" <> deprecationText]
         ]
       , maybeToList $
           fmap pure $
@@ -471,7 +468,7 @@ pShelleyBasedBabbage envCli =
     mconcat
       [
         [ Opt.flag' (EraInEon ShelleyBasedEraBabbage) $
-            mconcat [Opt.long "babbage-era", Opt.help "Specify the Babbage era (default)"]
+            mconcat [Opt.long "babbage-era", Opt.help $ "Specify the Babbage era" <> deprecationText]
         ]
       , maybeToList $
           fmap pure $

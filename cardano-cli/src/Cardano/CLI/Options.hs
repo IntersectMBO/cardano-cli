@@ -93,7 +93,7 @@ parseLegacy :: EnvCli -> Parser ClientCommand
 parseLegacy envCli =
   subParser "legacy" $
     Opt.info (LegacyCmds <$> parseLegacyCmds envCli) $
-      Opt.progDesc "Legacy commands"
+      Opt.progDesc ("Legacy commands" <> deprecationText)
 
 _parseTopLevelLatest :: EnvCli -> Parser ClientCommand
 _parseTopLevelLatest envCli =

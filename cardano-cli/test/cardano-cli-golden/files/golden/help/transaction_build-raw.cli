@@ -132,12 +132,18 @@ Usage: cardano-cli transaction build-raw
   Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Available options:
-  --byron-era              Specify the Byron era
-  --shelley-era            Specify the Shelley era
-  --allegra-era            Specify the Allegra era
-  --mary-era               Specify the Mary era
-  --alonzo-era             Specify the Alonzo era
-  --babbage-era            Specify the Babbage era (default)
+  --byron-era              Specify the Byron era - DEPRECATED - will be removed
+                           in the future
+  --shelley-era            Specify the Shelley era - DEPRECATED - will be
+                           removed in the future
+  --allegra-era            Specify the Allegra era - DEPRECATED - will be
+                           removed in the future
+  --mary-era               Specify the Mary era - DEPRECATED - will be removed
+                           in the future
+  --alonzo-era             Specify the Alonzo era - DEPRECATED - will be removed
+                           in the future
+  --babbage-era            Specify the Babbage era (default) - DEPRECATED - will
+                           be removed in the future
   --script-valid           Assertion that the script is valid. (default)
   --script-invalid         Assertion that the script is invalid. If a
                            transaction is submitted with such a script, the

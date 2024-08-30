@@ -75,8 +75,8 @@ decodeCBOR
 decodeCBOR bs decoder =
   first CBORDecodingError $ deserialiseFromBytes decoder bs
 
-printWarning :: String -> IO ()
-printWarning warning = do
+printWarning :: MonadIO m => String -> m ()
+printWarning warning = liftIO $ do
   ANSI.hSetSGR IO.stderr [SetColor Foreground Vivid Yellow]
   IO.hPutStrLn IO.stderr $ "WARNING: " <> warning
   ANSI.hSetSGR IO.stderr [Reset]

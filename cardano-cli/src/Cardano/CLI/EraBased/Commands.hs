@@ -38,11 +38,12 @@ import           Cardano.CLI.EraBased.Options.Transaction
 import           Data.Foldable
 import           Data.Maybe
 import           Data.Text (Text)
+import           Data.Typeable (Typeable)
 import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
 
 data AnyEraCommand where
-  AnyEraCommandOf :: ShelleyBasedEra era -> Cmds era -> AnyEraCommand
+  AnyEraCommandOf :: Typeable era => ShelleyBasedEra era -> Cmds era -> AnyEraCommand
 
 renderAnyEraCommand :: AnyEraCommand -> Text
 renderAnyEraCommand = \case
@@ -90,25 +91,25 @@ pAnyEraCommand envCli =
 
       subParser "shelley" $
         Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds ShelleyBasedEraShelley envCli) $
-          Opt.progDesc "Shelley era commands"
+          Opt.progDesc ("Shelley era commands" <> deprecationText)
     , subParser "allegra" $
         Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds ShelleyBasedEraAllegra envCli) $
-          Opt.progDesc "Allegra era commands"
+          Opt.progDesc ("Allegra era commands" <> deprecationText)
     , subParser "mary" $
         Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds ShelleyBasedEraMary envCli) $
-          Opt.progDesc "Mary era commands"
+          Opt.progDesc ("Mary era commands" <> deprecationText)
     , subParser "alonzo" $
         Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds ShelleyBasedEraAlonzo envCli) $
-          Opt.progDesc "Alonzo era commands"
+          Opt.progDesc ("Alonzo era commands" <> deprecationText)
     , subParser "babbage" $
         Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli) $
-          Opt.progDesc "Babbage era commands"
+          Opt.progDesc ("Babbage era commands" <> deprecationText)
     , subParser "conway" $
         Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ShelleyBasedEraConway envCli) $
           Opt.progDesc "Conway era commands"
     , subParser "latest" $
         Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli) $
-          Opt.progDesc "Latest era commands (Babbage)"
+          Opt.progDesc ("Latest era commands (Babbage)" <> deprecationText)
     ]
 
 pCmds :: ShelleyBasedEra era -> EnvCli -> Parser (Cmds era)
