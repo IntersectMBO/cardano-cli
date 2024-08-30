@@ -36,7 +36,7 @@ where
 
 import           Cardano.Api
 import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
-import           Cardano.Api.Experimental
+import qualified Cardano.Api.Experimental as Exp
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
@@ -65,6 +65,7 @@ import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as Data.Bytestring
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
+import           Data.Containers.ListUtils (nubOrd)
 import           Data.Data ((:~:) (..))
 import qualified Data.Foldable as Foldable
 import           Data.Function ((&))
@@ -103,12 +104,11 @@ runTransactionCmds = \case
 --
 
 runTransactionBuildCmd
-  :: ()
-  => Cmd.TransactionBuildCmdArgs era
+  :: Cmd.TransactionBuildCmdArgs era
   -> ExceptT TxCmdError IO ()
 runTransactionBuildCmd
   Cmd.TransactionBuildCmdArgs
-    { eon
+    { currentEra
     , nodeSocketPath
     , consensusModeParams
     , networkId = networkId
@@ -135,184 +135,178 @@ runTransactionBuildCmd
     , proposalFiles
     , treasuryDonation -- Maybe TxTreasuryDonation
     , buildOutputOptions
-    } =
-    caseShelleyToBabbageOrConwayEraOnwards
-      (left . TxCmdDeprecatedEra)
-      ( \ConwayEraOnwardsConway ->
-          shelleyBasedEraConstraints eon $ do
-            let era = toCardanoEra eon
+    } = do
+    let eon = Exp.eraToSbe currentEra
+        era' = toCardanoEra eon
 
-            -- The user can specify an era prior to the era that the node is currently in.
-            -- We cannot use the user specified era to construct a query against a node because it may differ
-            -- from the node's era and this will result in the 'QueryEraMismatch' failure.
+    -- The user can specify an era prior to the era that the node is currently in.
+    -- We cannot use the user specified era to construct a query against a node because it may differ
+    -- from the node's era and this will result in the 'QueryEraMismatch' failure.
 
-            let localNodeConnInfo =
-                  LocalNodeConnectInfo
-                    { localConsensusModeParams = consensusModeParams
-                    , localNodeNetworkId = networkId
-                    , localNodeSocketPath = nodeSocketPath
-                    }
+    let localNodeConnInfo =
+          LocalNodeConnectInfo
+            { localConsensusModeParams = consensusModeParams
+            , localNodeNetworkId = networkId
+            , localNodeSocketPath = nodeSocketPath
+            }
 
-            inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles eon txins
-            certFilesAndMaybeScriptWits <-
-              firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles eon certificates
+    inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles eon txins
+    certFilesAndMaybeScriptWits <-
+      firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles eon certificates
 
-            -- TODO: Conway Era - How can we make this more composable?
-            certsAndMaybeScriptWits <-
-              sequence
-                [ fmap
-                    (,mSwit)
-                    ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
-                        readFileTextEnvelope AsCertificate (File certFile)
-                    )
-                | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
-                ]
-            withdrawalsAndMaybeScriptWits <-
-              firstExceptT TxCmdScriptWitnessError $
-                readScriptWitnessFilesTuple eon withdrawals
-            txMetadata <-
-              firstExceptT TxCmdMetadataError . newExceptT $
-                readTxMetadata eon metadataSchema metadataFiles
-            valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
-            scripts <-
-              firstExceptT TxCmdScriptFileError $
-                mapM (readFileScriptInAnyLang . unFile) scriptFiles
-            txAuxScripts <-
-              hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
+    -- TODO: Conway Era - How can we make this more composable?
+    certsAndMaybeScriptWits <-
+      sequence
+        [ fmap
+            (,mSwit)
+            ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
+                shelleyBasedEraConstraints eon $
+                  readFileTextEnvelope AsCertificate (File certFile)
+            )
+        | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
+        ]
+    withdrawalsAndMaybeScriptWits <-
+      firstExceptT TxCmdScriptWitnessError $
+        readScriptWitnessFilesTuple eon withdrawals
+    txMetadata <-
+      firstExceptT TxCmdMetadataError . newExceptT $
+        readTxMetadata eon metadataSchema metadataFiles
+    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
+    scripts <-
+      firstExceptT TxCmdScriptFileError $
+        mapM (readFileScriptInAnyLang . unFile) scriptFiles
+    txAuxScripts <-
+      hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
 
-            mProp <- case mUpdateProposalFile of
-              Just (Featured w (Just updateProposalFile)) ->
-                readTxUpdateProposal w updateProposalFile & firstExceptT TxCmdReadTextViewFileError
-              _ -> pure TxUpdateProposalNone
+    mProp <- case mUpdateProposalFile of
+      Just (Featured w (Just updateProposalFile)) ->
+        readTxUpdateProposal w updateProposalFile & firstExceptT TxCmdReadTextViewFileError
+      _ -> pure TxUpdateProposalNone
 
-            requiredSigners <-
-              mapM (firstExceptT TxCmdRequiredSignerError . newExceptT . readRequiredSigner) reqSigners
-            mReturnCollateral <- forM mReturnColl $ toTxOutInShelleyBasedEra eon
+    requiredSigners <-
+      mapM (firstExceptT TxCmdRequiredSignerError . newExceptT . readRequiredSigner) reqSigners
+    mReturnCollateral <- forM mReturnColl $ toTxOutInShelleyBasedEra eon
 
-            txOuts <- mapM (toTxOutInAnyEra eon) txouts
+    txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
-            -- Conway related
-            votingProceduresAndMaybeScriptWits <-
-              inEonForEra
-                (pure mempty)
-                (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w voteFiles))
-                era
+    -- Conway related
+    votingProceduresAndMaybeScriptWits <-
+      inEonForEra
+        (pure mempty)
+        (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w voteFiles))
+        era'
 
-            proposals <-
-              newExceptT $
-                first TxCmdProposalError
-                  <$> readTxGovernanceActions eon proposalFiles
+    proposals <-
+      newExceptT $
+        first TxCmdProposalError
+          <$> readTxGovernanceActions eon proposalFiles
 
-            -- the same collateral input can be used for several plutus scripts
-            let filteredTxinsc = toList $ Set.fromList txinsc
+    -- the same collateral input can be used for several plutus scripts
+    let filteredTxinsc = nubOrd txinsc
 
-            let allReferenceInputs =
-                  getAllReferenceInputs
-                    inputsAndMaybeScriptWits
-                    (snd valuesWithScriptWits)
-                    certsAndMaybeScriptWits
-                    withdrawalsAndMaybeScriptWits
-                    votingProceduresAndMaybeScriptWits
-                    proposals
-                    readOnlyReferenceInputs
+    let allReferenceInputs =
+          getAllReferenceInputs
+            inputsAndMaybeScriptWits
+            (snd valuesWithScriptWits)
+            certsAndMaybeScriptWits
+            withdrawalsAndMaybeScriptWits
+            votingProceduresAndMaybeScriptWits
+            proposals
+            readOnlyReferenceInputs
 
-            let inputsThatRequireWitnessing = [input | (input, _) <- inputsAndMaybeScriptWits]
-                allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
+    let inputsThatRequireWitnessing = [input | (input, _) <- inputsAndMaybeScriptWits]
+        allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
 
-            AnyCardanoEra nodeEra <-
-              lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
-                & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-                & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+    AnyCardanoEra nodeEra <-
+      lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
+        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
-            (txEraUtxo, _, eraHistory, systemStart, _, _, _, featuredCurrentTreasuryValueM) <-
-              lift
-                ( executeLocalStateQueryExpr
-                    localNodeConnInfo
-                    Consensus.VolatileTip
-                    (queryStateForBalancedTx nodeEra allTxInputs [])
-                )
-                & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-                & onLeft (left . TxCmdQueryConvenienceError)
+    (txEraUtxo, _, eraHistory, systemStart, _, _, _, featuredCurrentTreasuryValueM) <-
+      lift
+        ( executeLocalStateQueryExpr
+            localNodeConnInfo
+            Consensus.VolatileTip
+            (queryStateForBalancedTx nodeEra allTxInputs [])
+        )
+        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . TxCmdQueryConvenienceError)
 
-            let currentTreasuryValueAndDonation =
-                  case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
-                    (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
-                    (Just _td, Nothing) -> Nothing -- TODO: Current treasury value couldn't be obtained but is required: we should fail suggesting that the node's version is too old
-                    (Just td, Just ctv) -> Just (ctv, td)
+    let currentTreasuryValueAndDonation =
+          case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
+            (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
+            (Just _td, Nothing) -> Nothing -- TODO: Current treasury value couldn't be obtained but is required: we should fail suggesting that the node's version is too old
+            (Just td, Just ctv) -> Just (ctv, td)
 
-            -- We need to construct the txBodycontent outside of runTxBuild
-            BalancedTxBody txBodyContent unsignedTx@(UnsignedTx balancedTxBody) _ _ <-
-              runTxBuild
+    -- We need to construct the txBodycontent outside of runTxBuild
+    BalancedTxBody txBodyContent unsignedTx@(Exp.UnsignedTx balancedTxBody) _ _ <-
+      runTxBuild
+        eon
+        nodeSocketPath
+        networkId
+        mScriptValidity
+        inputsAndMaybeScriptWits
+        readOnlyReferenceInputs
+        filteredTxinsc
+        mReturnCollateral
+        mTotalCollateral
+        txOuts
+        changeAddresses
+        valuesWithScriptWits
+        mValidityLowerBound
+        mValidityUpperBound
+        certsAndMaybeScriptWits
+        withdrawalsAndMaybeScriptWits
+        requiredSigners
+        txAuxScripts
+        txMetadata
+        mProp
+        mOverrideWitnesses
+        votingProceduresAndMaybeScriptWits
+        proposals
+        currentTreasuryValueAndDonation
+
+    -- TODO: Calculating the script cost should live as a different command.
+    -- Why? Because then we can simply read a txbody and figure out
+    -- the script cost vs having to build the tx body each time
+    case buildOutputOptions of
+      OutputScriptCostOnly fp -> do
+        let BuildTxWith mTxProtocolParams = txProtocolParams txBodyContent
+
+        pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
+        executionUnitPrices <-
+          pure (getExecutionUnitPrices era' pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
+
+        Refl <-
+          testEquality era' nodeEra
+            & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era' nodeEra)
+
+        scriptExecUnitsMap <-
+          firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
+            hoistEither $
+              evaluateTransactionExecutionUnitsShelley
                 eon
-                nodeSocketPath
-                networkId
-                mScriptValidity
-                inputsAndMaybeScriptWits
-                readOnlyReferenceInputs
-                filteredTxinsc
-                mReturnCollateral
-                mTotalCollateral
-                txOuts
-                changeAddresses
-                valuesWithScriptWits
-                mValidityLowerBound
-                mValidityUpperBound
-                certsAndMaybeScriptWits
-                withdrawalsAndMaybeScriptWits
-                requiredSigners
-                txAuxScripts
-                txMetadata
-                mProp
-                mOverrideWitnesses
-                votingProceduresAndMaybeScriptWits
-                proposals
-                currentTreasuryValueAndDonation
+                systemStart
+                (toLedgerEpochInfo eraHistory)
+                pparams
+                txEraUtxo
+                (Exp.obtainCommonConstraints currentEra balancedTxBody)
 
-            -- TODO: Calculating the script cost should live as a different command.
-            -- Why? Because then we can simply read a txbody and figure out
-            -- the script cost vs having to build the tx body each time
-            case buildOutputOptions of
-              OutputScriptCostOnly fp -> do
-                let BuildTxWith mTxProtocolParams = txProtocolParams txBodyContent
+        let mScriptWits = forEraInEon era' [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
 
-                pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
-                executionUnitPrices <-
-                  pure (getExecutionUnitPrices era pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
-
-                Refl <-
-                  testEquality era nodeEra
-                    & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
-
-                scriptExecUnitsMap <-
-                  firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
-                    hoistEither $
-                      evaluateTransactionExecutionUnitsShelley
-                        eon
-                        systemStart
-                        (toLedgerEpochInfo eraHistory)
-                        pparams
-                        txEraUtxo
-                        balancedTxBody
-
-                let mScriptWits = forEraInEon era [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
-
-                scriptCostOutput <-
-                  firstExceptT TxCmdPlutusScriptCostErr $
-                    hoistEither $
-                      renderScriptCosts
-                        txEraUtxo
-                        executionUnitPrices
-                        mScriptWits
-                        scriptExecUnitsMap
-                liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
-              OutputTxBodyOnly fpath ->
-                let
-                  noWitTx = ShelleyTx eon $ signTx useEra [] [] unsignedTx
-                 in
-                  lift (cardanoEraConstraints era $ writeTxFileTextEnvelopeCddl eon fpath noWitTx)
-                    & onLeft (left . TxCmdWriteFileError)
-      )
-      eon
+        scriptCostOutput <-
+          firstExceptT TxCmdPlutusScriptCostErr $
+            hoistEither $
+              renderScriptCosts
+                txEraUtxo
+                executionUnitPrices
+                mScriptWits
+                scriptExecUnitsMap
+        liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
+      OutputTxBodyOnly fpath -> do
+        let noWitTx = ShelleyTx eon $ Exp.obtainCommonConstraints currentEra $ Exp.signTx currentEra [] [] unsignedTx
+        lift (writeTxFileTextEnvelopeCddl eon fpath noWitTx)
+          & onLeft (left . TxCmdWriteFileError)
 
 runTransactionBuildEstimateCmd
   :: ()
@@ -320,7 +314,7 @@ runTransactionBuildEstimateCmd
   -> ExceptT TxCmdError IO ()
 runTransactionBuildEstimateCmd -- TODO change type
   Cmd.TransactionBuildEstimateCmdArgs
-    { eon
+    { currentEra
     , mScriptValidity
     , shelleyWitnesses
     , mByronWitnesses
@@ -349,7 +343,9 @@ runTransactionBuildEstimateCmd -- TODO change type
     , currentTreasuryValueAndDonation
     , txBodyOutFile
     } = do
-    let sbe = maryEraOnwardsToShelleyBasedEra eon
+    let sbe = Exp.eraToSbe currentEra
+        meo = babbageEraOnwardsToMaryEraOnwards $ Exp.eraToBabbageEraOnwards currentEra
+
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
     inputsAndMaybeScriptWits <-
@@ -386,7 +382,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     txOuts <- mapM (toTxOutInAnyEra sbe) txouts
 
     -- the same collateral input can be used for several plutus scripts
-    let filteredTxinsc = toList @(Set _) $ fromList txInsCollateral
+    let filteredTxinsc = nubOrd txInsCollateral
 
     -- Conway related
     votingProceduresAndMaybeScriptWits <-
@@ -454,7 +450,7 @@ runTransactionBuildEstimateCmd -- TODO change type
       hoistEither $
         first TxCmdFeeEstimationError $
           estimateBalancedTxBody
-            eon
+            meo
             txBodyContent
             ledgerPParams
             poolsToDeregister
@@ -468,15 +464,9 @@ runTransactionBuildEstimateCmd -- TODO change type
             (anyAddressInShelleyBasedEra sbe changeAddr)
             totalUTxOValue
 
-    caseShelleyToBabbageOrConwayEraOnwards
-      (left . TxCmdDeprecatedEra)
-      ( \ConwayEraOnwardsConway ->
-          let e :: Era ConwayEra = useEra
-              noWitTx = ShelleyTx sbe $ signTx e [] [] unsignedTx
-           in lift (writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx)
-                & onLeft (left . TxCmdWriteFileError)
-      )
-      sbe
+    let noWitTx = ShelleyTx sbe $ Exp.obtainCommonConstraints currentEra $ Exp.signTx currentEra [] [] unsignedTx
+    lift (writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx)
+      & onLeft (left . TxCmdWriteFileError)
 
 getPoolDeregistrationInfo
   :: Certificate era
