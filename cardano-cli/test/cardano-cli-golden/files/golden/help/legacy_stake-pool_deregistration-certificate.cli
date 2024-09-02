@@ -15,11 +15,16 @@ Usage: cardano-cli legacy stake-pool deregistration-certificate
   Create a stake pool deregistration certificate
 
 Available options:
-  --shelley-era            Specify the Shelley era
-  --allegra-era            Specify the Allegra era
-  --mary-era               Specify the Mary era
-  --alonzo-era             Specify the Alonzo era
-  --babbage-era            Specify the Babbage era (default)
+  --shelley-era            Specify the Shelley era - DEPRECATED - will be
+                           removed in the future
+  --allegra-era            Specify the Allegra era - DEPRECATED - will be
+                           removed in the future
+  --mary-era               Specify the Mary era - DEPRECATED - will be removed
+                           in the future
+  --alonzo-era             Specify the Alonzo era - DEPRECATED - will be removed
+                           in the future
+  --babbage-era            Specify the Babbage era (default) - DEPRECATED - will
+                           be removed in the future
   --conway-era             Specify the Conway era
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).

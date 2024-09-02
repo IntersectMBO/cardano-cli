@@ -25,11 +25,16 @@ Usage: cardano-cli genesis create-staked
   genesis/delegation/spending keys.
 
 Available options:
-  --shelley-era            Specify the Shelley era
-  --allegra-era            Specify the Allegra era
-  --mary-era               Specify the Mary era
-  --alonzo-era             Specify the Alonzo era
-  --babbage-era            Specify the Babbage era (default)
+  --shelley-era            Specify the Shelley era - DEPRECATED - will be
+                           removed in the future
+  --allegra-era            Specify the Allegra era - DEPRECATED - will be
+                           removed in the future
+  --mary-era               Specify the Mary era - DEPRECATED - will be removed
+                           in the future
+  --alonzo-era             Specify the Alonzo era - DEPRECATED - will be removed
+                           in the future
+  --babbage-era            Specify the Babbage era (default) - DEPRECATED - will
+                           be removed in the future
   --conway-era             Specify the Conway era
   --key-output-format STRING
                            Optional key output format. Accepted output formats

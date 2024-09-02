@@ -2,9 +2,10 @@
 
 module Test.Golden.Shelley.TextEnvelope.Certificates.StakeAddress where
 
-import           Cardano.Api (AsType (..), CardanoEra (..), textEnvelopeTypeInEra)
+import           Cardano.Api
 
 import           Control.Monad (void)
+import           Data.Char (toLower)
 
 import           Test.Cardano.CLI.Util
 
@@ -20,6 +21,7 @@ import qualified Hedgehog.Extras.Test.File as H
 hprop_golden_shelleyStakeAddressCertificates :: Property
 hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   let era = BabbageEra
+      eraStr = map toLower . docToString $ pretty era
 
   -- Reference files
   referenceRegistrationCertificate <-
@@ -42,7 +44,8 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   -- Generate stake verification key
   void $
     execCardanoCLI
-      [ "stake-address"
+      [ eraStr
+      , "stake-address"
       , "key-gen"
       , "--verification-key-file"
       , verKey
@@ -55,7 +58,7 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   -- Create stake address registration certificate
   void $
     execCardanoCLI
-      [ "babbage"
+      [ eraStr
       , "stake-address"
       , "registration-certificate"
       , "--stake-verification-key-file"
@@ -76,7 +79,7 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   -- Create stake address deregistration certificate
   void $
     execCardanoCLI
-      [ "babbage"
+      [ eraStr
       , "stake-address"
       , "deregistration-certificate"
       , "--stake-verification-key-file"
@@ -95,8 +98,9 @@ hprop_golden_shelleyStakeAddressCertificates = propertyOnce . H.moduleWorkspace 
   -- Create stake address delegation certificate
   void $
     execCardanoCLI
-      [ "stake-address"
-      , "delegation-certificate"
+      [ eraStr
+      , "stake-address"
+      , "stake-delegation-certificate"
       , "--stake-verification-key-file"
       , verKey
       , "--cold-verification-key-file"
