@@ -66,3 +66,11 @@ See the [RELEASING.md](RELEASING.md) for instructions.
 Please note that libraries need bounds on the version of their dependencies to avoid bitrot and be effectively reusable.
 
 [CHaP]: https://github.com/input-output-hk/cardano-haskell-packages
+
+## Improving `git blame`
+
+You can have `git blame` ignore the reformatting done when [introducting fourmolu](https://github.com/IntersectMBO/cardano-cli/pull/835/commits/9d1fd093071278be77428dba189d958d5b7a7aeb) by specifying `blame.ignoreRevsFile` to `.git-blame-ignore-revs` in your repository's git configuration. Do it as follows:
+
+```shell
+git config --local blame.ignoreRevsFile .git-blame-ignore-revs
+```
