@@ -7003,7 +7003,8 @@ Usage: cardano-cli conway governance drep retirement-certificate
   Create a DRep retirement certificate.
 
 Usage: cardano-cli conway governance drep update-certificate 
-                                                               ( --drep-verification-key STRING
+                                                               ( --drep-script-hash HASH
+                                                               | --drep-verification-key STRING
                                                                | --drep-verification-key-file FILE
                                                                | --drep-key-hash HASH
                                                                )

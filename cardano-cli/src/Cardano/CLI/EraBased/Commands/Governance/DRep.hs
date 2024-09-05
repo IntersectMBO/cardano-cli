@@ -66,7 +66,7 @@ data GovernanceDRepRetirementCertificateCmdArgs era
 data GovernanceDRepUpdateCertificateCmdArgs era
   = GovernanceDRepUpdateCertificateCmdArgs
   { eon :: !(ConwayEraOnwards era)
-  , drepVkeyHashSource :: !(VerificationKeyOrHashOrFile DRepKey)
+  , drepHashSource :: !DRepHashSource
   , mAnchor :: !(Maybe (L.Anchor (L.EraCrypto (ShelleyLedgerEra era))))
   , outFile :: !(File () Out)
   }

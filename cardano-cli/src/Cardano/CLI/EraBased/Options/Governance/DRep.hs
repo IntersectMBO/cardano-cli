@@ -164,7 +164,7 @@ pUpdateCertificateCmd era = do
       ( fmap GovernanceDRepUpdateCertificateCmd $
           conwayEraOnwardsConstraints w $
             GovernanceDRepUpdateCertificateCmdArgs w
-              <$> pDRepVerificationKeyOrHashOrFile
+              <$> pDRepHashSource
               <*> pDRepMetadata
               <*> pOutputFile
       )

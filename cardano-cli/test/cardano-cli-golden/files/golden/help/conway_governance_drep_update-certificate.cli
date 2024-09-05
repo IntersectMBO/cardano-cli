@@ -1,5 +1,6 @@
 Usage: cardano-cli conway governance drep update-certificate 
-                                                               ( --drep-verification-key STRING
+                                                               ( --drep-script-hash HASH
+                                                               | --drep-verification-key STRING
                                                                | --drep-verification-key-file FILE
                                                                | --drep-key-hash HASH
                                                                )
@@ -10,6 +11,8 @@ Usage: cardano-cli conway governance drep update-certificate
   Create a DRep update certificate.
 
 Available options:
+  --drep-script-hash HASH  DRep script hash (hex-encoded). Obtain it with
+                           "cardano-cli hash script ...".
   --drep-verification-key STRING
                            DRep verification key (Bech32 or hex-encoded).
   --drep-verification-key-file FILE

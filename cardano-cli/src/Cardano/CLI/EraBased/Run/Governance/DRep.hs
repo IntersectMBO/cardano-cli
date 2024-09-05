@@ -16,8 +16,6 @@ module Cardano.CLI.EraBased.Run.Governance.DRep
 where
 
 import           Cardano.Api
-import           Cardano.Api.Ledger (Credential (KeyHashObj))
-import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
 import qualified Cardano.CLI.EraBased.Run.Key as Key
@@ -147,17 +145,15 @@ runGovernanceDRepUpdateCertificateCmd
 runGovernanceDRepUpdateCertificateCmd
   Cmd.GovernanceDRepUpdateCertificateCmdArgs
     { eon = w
-    , drepVkeyHashSource
+    , drepHashSource
     , mAnchor
     , outFile
     } =
     conwayEraOnwardsConstraints w $ do
-      DRepKeyHash drepKeyHash <-
-        firstExceptT GovernanceCmdKeyReadError $
-          readVerificationKeyOrHashOrFile AsDRepKey drepVkeyHashSource
-      makeDrepUpdateCertificate (DRepUpdateRequirements w (KeyHashObj drepKeyHash)) mAnchor
-        & writeFileTextEnvelope outFile (Just "DRep Update Certificate")
-        & firstExceptT GovernanceCmdTextEnvWriteError . newExceptT
+      drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
+      let updateCertificate = makeDrepUpdateCertificate (DRepUpdateRequirements w drepCredential) mAnchor
+      firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
+        writeFileTextEnvelope outFile (Just "DRep Update Certificate") updateCertificate
 
 runGovernanceDRepMetadataHashCmd
   :: ()
