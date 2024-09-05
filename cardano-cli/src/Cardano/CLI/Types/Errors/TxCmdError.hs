@@ -56,7 +56,6 @@ data TxCmdError
   | TxCmdTxSubmitErrorEraMismatch !EraMismatch
   | TxCmdTxFeatureMismatch !AnyCardanoEra !TxFeature
   | TxCmdTxBodyError !TxBodyError
-  | TxCmdNotImplemented !Text
   | TxCmdWitnessEraMismatch !AnyCardanoEra !AnyCardanoEra !WitnessFile
   | TxCmdPolicyIdsMissing ![PolicyId] ![PolicyId]
   | -- The first list is the missing policy Ids, the second list is the
@@ -85,6 +84,7 @@ data TxCmdError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
+  | forall era. TxCmdDeprecatedEra (ShelleyToBabbageEra era)
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -94,6 +94,12 @@ renderTxCmdError = \case
     prettyError voteErr
   TxCmdConstitutionError constErr ->
     pshow constErr
+  TxCmdDeprecatedEra era ->
+    mconcat
+      [ "The era "
+      , pshow (toCardanoEra era)
+      , " is deprecated. Please use the Conway era."
+      ]
   TxCmdProposalError propErr ->
     pshow propErr
   TxCmdReadTextViewFileError fileErr ->
@@ -130,8 +136,6 @@ renderTxCmdError = \case
       <> " era transactions."
   TxCmdTxBodyError err' ->
     "Transaction validaton error: " <> prettyError err'
-  TxCmdNotImplemented msg ->
-    "Feature not yet implemented: " <> pretty msg
   TxCmdWitnessEraMismatch era era' (WitnessFile file) ->
     "The era of a witness does not match the era of the transaction. "
       <> "The transaction is for the "
