@@ -1,5 +1,42 @@
 # Changelog for cardano-cli
 
+## 9.4.0.0
+
+- add support for script based drep on update certificate
+  (feature)
+  [PR 884](https://github.com/IntersectMBO/cardano-cli/pull/884)
+
+- Bump CHaP
+  Propagate experimental api to `transaction build` internals
+  Deprecate pre-Conway eras for `transaction build`
+  (breaking)
+  [PR 853](https://github.com/IntersectMBO/cardano-cli/pull/853)
+
+- Add for eras <= Babbage a deprecation notice.
+  (feature, breaking)
+  [PR 879](https://github.com/IntersectMBO/cardano-cli/pull/879)
+
+- Make funds receiving address and amount mandatory.
+  (bugfix)
+  [PR 877](https://github.com/IntersectMBO/cardano-cli/pull/877)
+
+- create-testnet-data's --total-supply option doesn't have a default anymore. The default value is to take the value from the shelley genesis file (if provided, otherwise this file is defaulted, so total supply comes from the default shelley genesis). create-testnet-data's --delegated-supply option doesn't have a default anymore. The default is to use half of the total supply.
+  (breaking, bugfix)
+  [PR 874](https://github.com/IntersectMBO/cardano-cli/pull/874)
+
+- Forbid incorrect values in parsers of many Int-like options. Previously those values would overflow and be turned into a random valid value. If this breaks your use case, this means your use case wasn't doing what you expected.
+  (bugfix)
+  [PR 864](https://github.com/IntersectMBO/cardano-cli/pull/864)
+
+- Fix estimated fee rendering: previously the output was of the form `Estimated transaction fee: Coin 357154`.
+  Now it is: `Estimated transaction fee: 357154 Lovelace`
+  (bugfix)
+  [PR 873](https://github.com/IntersectMBO/cardano-cli/pull/873)
+
+- Modify `transaction view` to show what inputs redeemers refer to.
+  (feature)
+  [PR 861](https://github.com/IntersectMBO/cardano-cli/pull/861)
+
 ## 9.3.0.0
 
 - Add `query spo-stake-distribution` command to obtain stake distribution for SPOs
