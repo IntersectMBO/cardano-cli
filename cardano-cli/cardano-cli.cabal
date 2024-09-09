@@ -225,7 +225,7 @@ library
     cardano-ledger-byron >=1.0.1.0,
     cardano-ledger-core,
     cardano-ledger-shelley,
-    cardano-ping ^>=0.2.0.13,
+    cardano-ping ^>=0.4,
     cardano-prelude,
     cardano-slotting ^>=0.2.0.0,
     cardano-strict-containers ^>=0.1,
