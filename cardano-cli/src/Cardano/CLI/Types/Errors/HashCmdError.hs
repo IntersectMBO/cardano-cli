@@ -24,6 +24,8 @@ data HashCmdError
   | HashWriteFileError !(FileError ())
   | HashReadScriptError !FilePath !(FileError ScriptDecodeError)
   | HashInvalidURLError !String
+  | HashReadEnvVarError !IOException
+  | HashIpfsGatewayNotSetError
   | HashUnsupportedURLSchemeError !String
   | HashGetFileFromHttpError !HttpRequestError
   deriving Show
@@ -42,8 +44,10 @@ instance Error HashCmdError where
       prettyError fileErr
     HashReadScriptError filepath err ->
       "Cannot read script at " <> pretty filepath <> ": " <> prettyError err
-    HashInvalidURLError text -> "Cannot parse URL: " <> pretty text
+    HashInvalidURLError text -> "Cannot parse URI: " <> pretty text
     HashUnsupportedURLSchemeError text -> "Unsupported URL scheme: " <> pretty text
+    HashReadEnvVarError exc -> "Cannot read environment variable: " <> pretty (displayException exc)
+    HashIpfsGatewayNotSetError -> "IPFS schema requires IPFS_GATEWAY_URI environment variable to be set."
     HashGetFileFromHttpError err -> pretty $ displayException err
 
 data HttpRequestError
@@ -55,5 +59,5 @@ data HttpRequestError
 instance Exception HttpRequestError where
   displayException :: HttpRequestError -> String
   displayException (BadStatusCodeHRE code description) = "Bad status code when downloading anchor data: " <> show code <> " (" <> description <> ")"
-  displayException (HttpExceptionHRE exc) = "HTTP request error when downloading anchor data: " <> displayException exc
+  displayException (HttpExceptionHRE exc) = "HTTP(S) request error when downloading anchor data: " <> displayException exc
   displayException (IOExceptionHRE exc) = "I/O error when downloading anchor data: " <> displayException exc

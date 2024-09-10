@@ -26,13 +26,15 @@ import qualified Data.ByteString.Char8 as BS8
 import qualified Data.ByteString.Lazy as BSL
 import           Data.Char (toLower)
 import           Data.Function
+import           Data.List (intercalate)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
 import           Network.HTTP.Client (Response (..), httpLbs, newManager, requestFromURI)
 import           Network.HTTP.Client.TLS (tlsManagerSettings)
 import           Network.HTTP.Types (Status (statusCode), statusMessage)
-import           Network.URI (URI (..), parseAbsoluteURI, pathSegments)
+import           Network.URI (URI (..), URIAuth (..), parseAbsoluteURI, pathSegments)
+import qualified System.Environment as IO
 import           System.FilePath ((</>))
 import           System.FilePath.Posix (isDrive)
 
@@ -78,18 +80,19 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, mExpectedHash, mOutFile} 
     text = hashToTextAsHex . L.extractHash $ hash
 
   getByteStringFromURL :: L.Url -> ExceptT HashCmdError IO BS.ByteString
-  getByteStringFromURL urlText =
+  getByteStringFromURL urlText = do
     let urlString = Text.unpack $ L.urlToText urlText
-     in case parseAbsoluteURI urlString of
-          Just uri -> do
-            case map toLower $ uriScheme uri of
-              "file:" ->
-                let path = uriPathToFilePath (pathSegments uri)
-                 in handleIOExceptT (HashReadFileError path) $ BS.readFile path
-              "http:" -> getFileFromHttp uri
-              "https:" -> getFileFromHttp uri
-              unsupportedScheme -> left $ HashUnsupportedURLSchemeError unsupportedScheme
-          Nothing -> left $ HashInvalidURLError urlString
+    uri <- expectJustExceptT (HashInvalidURLError urlString) $ parseAbsoluteURI urlString
+    case map toLower $ uriScheme uri of
+      "file:" ->
+        let path = uriPathToFilePath (pathSegments uri)
+         in handleIOExceptT (HashReadFileError path) $ BS.readFile path
+      "http:" -> getFileFromHttp uri
+      "https:" -> getFileFromHttp uri
+      "ipfs:" -> do
+        httpUri <- convertToHttp uri
+        getFileFromHttp httpUri
+      unsupportedScheme -> left $ HashUnsupportedURLSchemeError unsupportedScheme
    where
     uriPathToFilePath :: [String] -> FilePath
     uriPathToFilePath allPath@(letter : path) =
@@ -117,6 +120,29 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, mExpectedHash, mOutFile} 
        where
         mkHandler :: (Monad m, Exception e) => (e -> HttpRequestError) -> Handler m HashCmdError
         mkHandler x = Handler $ return . HashGetFileFromHttpError . x
+
+    convertToHttp :: URI -> ExceptT HashCmdError IO URI
+    convertToHttp ipfsUri = do
+      mIpfsGatewayUriString <- handleIOExceptT HashReadEnvVarError $ IO.lookupEnv "IPFS_GATEWAY_URI"
+      ipfsGatewayUriString <- expectJustExceptT HashIpfsGatewayNotSetError mIpfsGatewayUriString
+      ipfsGatewayUri <-
+        expectJustExceptT (HashInvalidURLError ipfsGatewayUriString) $ parseAbsoluteURI ipfsGatewayUriString
+      return $
+        ipfsGatewayUri
+          { uriPath =
+              '/'
+                : intercalate
+                  "/"
+                  ( pathSegments ipfsGatewayUri
+                      ++ ["ipfs"]
+                      ++ maybe [] (\ipfsAuthority -> [uriRegName ipfsAuthority]) (uriAuthority ipfsUri)
+                      ++ pathSegments ipfsUri
+                  )
+          }
+
+  expectJustExceptT :: e -> Maybe a -> ExceptT e IO a
+  expectJustExceptT e Nothing = left e
+  expectJustExceptT _ (Just a) = return a
 
 runHashScriptCmd
   :: ()

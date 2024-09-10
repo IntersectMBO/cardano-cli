@@ -54,7 +54,7 @@ pAnchorDataHashSource =
     , Cmd.AnchorDataHashSourceTextFile
         <$> pFileInDirection "file-text" "Text file to hash"
     , Cmd.AnchorDataHashSourceURL
-        <$> pUrl "url" "A URL to the file to hash (HTTP(S) only)"
+        <$> pUrl "url" "A URL to the file to hash (HTTP(S) and IPFS only)"
     ]
 
 pHashScriptCmd :: Parser Cmd.HashCmds
