@@ -12,6 +12,7 @@ module Cardano.CLI.Commands.Hash
 where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.Types.Common
 
@@ -24,6 +25,7 @@ data HashCmds
 data HashAnchorDataCmdArgs
   = HashAnchorDataCmdArgs
   { toHash :: !AnchorDataHashSource
+  , mExpectedHash :: !(Maybe (L.SafeHash L.StandardCrypto L.AnchorData))
   , mOutFile :: !(Maybe (File () Out))
   -- ^ The output file to which the hash is written
   }

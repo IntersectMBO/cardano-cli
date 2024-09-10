@@ -32,6 +32,7 @@ pHashAnchorDataCmd = do
           Cmd.HashAnchorDataCmd
           ( Cmd.HashAnchorDataCmdArgs
               <$> pAnchorDataHashSource
+              <*> optional pExpectedHash
               <*> optional pOutputFile
           )
       )
