@@ -12537,6 +12537,7 @@ Usage: cardano-cli hash anchor-data
                                       | --file-binary FILEPATH
                                       | --file-text FILEPATH
                                       )
+                                      [--expected-hash HASH]
                                       [--out-file FILEPATH]
 
   Compute the hash of some anchor data (to then pass it to other commands).
