@@ -19,10 +19,22 @@ import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Errors.HashCmdError
 import           Cardano.Crypto.Hash (hashToTextAsHex)
 
+import           Control.Exception (throw)
+import           Control.Monad.Catch (Exception, Handler (Handler))
 import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BS8
+import qualified Data.ByteString.Lazy as BSL
+import           Data.Char (toLower)
 import           Data.Function
+import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
+import           Network.HTTP.Client (Response (..), httpLbs, newManager, requestFromURI)
+import           Network.HTTP.Client.TLS (tlsManagerSettings)
+import           Network.HTTP.Types (Status (statusCode), statusMessage)
+import           Network.URI (URI (..), parseAbsoluteURI, pathSegments)
+import           System.FilePath ((</>))
+import           System.FilePath.Posix (isDrive)
 
 runHashCmds
   :: ()
@@ -47,6 +59,8 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, mExpectedHash, mOutFile} 
         text <- handleIOExceptT (HashReadFileError path) $ Text.readFile path
         return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceText text -> return $ Text.encodeUtf8 text
+      Cmd.AnchorDataHashSourceURL urlText ->
+        getByteStringFromURL urlText
   let hash = L.hashAnchorData anchorData
   case mExpectedHash of
     Just expectedHash
@@ -62,6 +76,47 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, mExpectedHash, mOutFile} 
         writeTextOutput mOutFile text
    where
     text = hashToTextAsHex . L.extractHash $ hash
+
+  getByteStringFromURL :: L.Url -> ExceptT HashCmdError IO BS.ByteString
+  getByteStringFromURL urlText =
+    let urlString = Text.unpack $ L.urlToText urlText
+     in case parseAbsoluteURI urlString of
+          Just uri -> do
+            case map toLower $ uriScheme uri of
+              "file:" ->
+                let path = uriPathToFilePath (pathSegments uri)
+                 in handleIOExceptT (HashReadFileError path) $ BS.readFile path
+              "http:" -> getFileFromHttp uri
+              "https:" -> getFileFromHttp uri
+              unsupportedScheme -> left $ HashUnsupportedURLSchemeError unsupportedScheme
+          Nothing -> left $ HashInvalidURLError urlString
+   where
+    uriPathToFilePath :: [String] -> FilePath
+    uriPathToFilePath allPath@(letter : path) =
+      if isDrive letter
+        then foldl (</>) letter path
+        else foldl (</>) "/" allPath
+    uriPathToFilePath [] = "/"
+
+    getFileFromHttp :: URI -> ExceptT HashCmdError IO BS.ByteString
+    getFileFromHttp uri = handlesExceptT handlers $ liftIO $ do
+      request <- requestFromURI uri
+      manager <- newManager tlsManagerSettings
+      response <- httpLbs request manager
+      let status = responseStatus response
+      if statusCode status /= 200
+        then throw $ BadStatusCodeHRE (statusCode status) (BS8.unpack $ statusMessage status)
+        else return $ BS.concat . BSL.toChunks $ responseBody response
+     where
+      handlers :: [Handler IO HashCmdError]
+      handlers =
+        [ mkHandler id
+        , mkHandler HttpExceptionHRE
+        , mkHandler IOExceptionHRE
+        ]
+       where
+        mkHandler :: (Monad m, Exception e) => (e -> HttpRequestError) -> Handler m HashCmdError
+        mkHandler x = Handler $ return . HashGetFileFromHttpError . x
 
 runHashScriptCmd
   :: ()

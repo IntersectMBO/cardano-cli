@@ -12536,6 +12536,7 @@ Usage: cardano-cli hash anchor-data
                                       ( --text TEXT
                                       | --file-binary FILEPATH
                                       | --file-text FILEPATH
+                                      | --url TEXT
                                       )
                                       [--expected-hash HASH]
                                       [--out-file FILEPATH]

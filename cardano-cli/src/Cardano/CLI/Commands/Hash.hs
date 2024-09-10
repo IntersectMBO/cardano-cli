@@ -35,6 +35,7 @@ data AnchorDataHashSource
   = AnchorDataHashSourceBinaryFile (File ProposalBinary In)
   | AnchorDataHashSourceTextFile (File ProposalText In)
   | AnchorDataHashSourceText Text
+  | AnchorDataHashSourceURL L.Url
   deriving Show
 
 data HashScriptCmdArgs
