@@ -1,5 +1,12 @@
 # Changelog for cardano-cli
 
+## 9.4.1.0
+
+- Add support for fetching tip through cardano-ping-0.4.0.2
+  Added NodeToClientVersionV17
+  (feature, compatible)
+  [PR 888](https://github.com/IntersectMBO/cardano-cli/pull/888)
+
 ## 9.4.0.0
 
 - add support for script based drep on update certificate
