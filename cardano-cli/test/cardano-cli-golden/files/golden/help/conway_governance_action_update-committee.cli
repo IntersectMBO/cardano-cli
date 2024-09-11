@@ -4,21 +4,21 @@ Usage: cardano-cli conway governance action update-committee
                                                                )
                                                                --governance-action-deposit NATURAL
                                                                ( --deposit-return-stake-verification-key STRING
-                                                               | --deposit-return-stake-verification-key-file FILE
+                                                               | --deposit-return-stake-verification-key-file FILEPATH
                                                                | --deposit-return-stake-key-hash HASH
-                                                               | --deposit-return-stake-script-file FILE
+                                                               | --deposit-return-stake-script-file FILEPATH
                                                                | --deposit-return-stake-address ADDRESS
                                                                )
                                                                --anchor-url TEXT
                                                                --anchor-data-hash HASH
                                                                [ --remove-cc-cold-verification-key STRING
-                                                               | --remove-cc-cold-verification-key-file FILE
+                                                               | --remove-cc-cold-verification-key-file FILEPATH
                                                                | --remove-cc-cold-verification-key-hash STRING
                                                                | --remove-cc-cold-script-hash HASH
                                                                ]
                                                                [
                                                                  ( --add-cc-cold-verification-key STRING
-                                                                 | --add-cc-cold-verification-key-file FILE
+                                                                 | --add-cc-cold-verification-key-file FILEPATH
                                                                  | --add-cc-cold-verification-key-hash STRING
                                                                  | --add-cc-cold-script-hash HASH
                                                                  )
@@ -26,7 +26,7 @@ Usage: cardano-cli conway governance action update-committee
                                                                --threshold RATIONAL
                                                                [--prev-governance-action-tx-id TXID
                                                                  --prev-governance-action-index WORD16]
-                                                               --out-file FILE
+                                                               --out-file FILEPATH
 
   Create or update a new committee proposal.
 
@@ -37,11 +37,11 @@ Available options:
                            Deposit required to submit a governance action.
   --deposit-return-stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
-  --deposit-return-stake-verification-key-file FILE
+  --deposit-return-stake-verification-key-file FILEPATH
                            Filepath of the staking verification key.
   --deposit-return-stake-key-hash HASH
                            Stake verification key hash (hex-encoded).
-  --deposit-return-stake-script-file FILE
+  --deposit-return-stake-script-file FILEPATH
                            Filepath of the staking script.
   --deposit-return-stake-address ADDRESS
                            Target stake address (bech32 format).
@@ -50,7 +50,7 @@ Available options:
                            "cardano-cli hash anchor-data ...")
   --remove-cc-cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
-  --remove-cc-cold-verification-key-file FILE
+  --remove-cc-cold-verification-key-file FILEPATH
                            Filepath of the Constitutional Committee cold key.
   --remove-cc-cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
@@ -59,7 +59,7 @@ Available options:
                            Obtain it with "cardano-cli hash script ...".
   --add-cc-cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
-  --add-cc-cold-verification-key-file FILE
+  --add-cc-cold-verification-key-file FILEPATH
                            Filepath of the Constitutional Committee cold key.
   --add-cc-cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
@@ -73,5 +73,5 @@ Available options:
                            Txid of the previous governance action.
   --prev-governance-action-index WORD16
                            Action index of the previous governance action.
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

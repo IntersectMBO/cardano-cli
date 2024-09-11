@@ -1,18 +1,18 @@
 Usage: cardano-cli babbage stake-pool registration-certificate 
                                                                  ( --stake-pool-verification-key STRING
-                                                                 | --cold-verification-key-file FILE
+                                                                 | --cold-verification-key-file FILEPATH
                                                                  )
                                                                  ( --vrf-verification-key STRING
-                                                                 | --vrf-verification-key-file FILE
+                                                                 | --vrf-verification-key-file FILEPATH
                                                                  )
                                                                  --pool-pledge LOVELACE
                                                                  --pool-cost LOVELACE
                                                                  --pool-margin RATIONAL
                                                                  ( --pool-reward-account-verification-key STRING
-                                                                 | --pool-reward-account-verification-key-file FILE
+                                                                 | --pool-reward-account-verification-key-file FILEPATH
                                                                  )
                                                                  ( --pool-owner-verification-key STRING
-                                                                 | --pool-owner-stake-verification-key-file FILE
+                                                                 | --pool-owner-stake-verification-key-file FILEPATH
                                                                  )
                                                                  [ [--pool-relay-ipv4 STRING]
                                                                    [--pool-relay-ipv6 STRING]
@@ -26,18 +26,18 @@ Usage: cardano-cli babbage stake-pool registration-certificate
                                                                  ( --mainnet
                                                                  | --testnet-magic NATURAL
                                                                  )
-                                                                 --out-file FILE
+                                                                 --out-file FILEPATH
 
   Create a stake pool registration certificate
 
 Available options:
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
-  --cold-verification-key-file FILE
+  --cold-verification-key-file FILEPATH
                            Filepath of the stake pool verification key.
   --vrf-verification-key STRING
                            VRF verification key (Bech32 or hex-encoded).
-  --vrf-verification-key-file FILE
+  --vrf-verification-key-file FILEPATH
                            Filepath of the VRF verification key.
   --pool-pledge LOVELACE   The stake pool's pledge.
   --pool-cost LOVELACE     The stake pool's cost.
@@ -45,13 +45,13 @@ Available options:
   --pool-reward-account-verification-key STRING
                            Reward account stake verification key (Bech32 or
                            hex-encoded).
-  --pool-reward-account-verification-key-file FILE
+  --pool-reward-account-verification-key-file FILEPATH
                            Filepath of the reward account stake verification
                            key.
   --pool-owner-verification-key STRING
                            Pool owner stake verification key (Bech32 or
                            hex-encoded).
-  --pool-owner-stake-verification-key-file FILE
+  --pool-owner-stake-verification-key-file FILEPATH
                            Filepath of the pool owner stake verification key.
   --pool-relay-ipv4 STRING The stake pool relay's IPv4 address
   --pool-relay-ipv6 STRING The stake pool relay's IPv6 address
@@ -69,5 +69,5 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

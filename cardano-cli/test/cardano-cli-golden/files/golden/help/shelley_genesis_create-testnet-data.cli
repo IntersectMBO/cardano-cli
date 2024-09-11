@@ -1,6 +1,6 @@
-Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILE]
-                                                         [--spec-alonzo FILE]
-                                                         [--spec-conway FILE]
+Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILEPATH]
+                                                         [--spec-alonzo FILEPATH]
+                                                         [--spec-conway FILEPATH]
                                                          [--genesis-keys INT]
                                                          [--pools INT]
                                                          [ --stake-delegators INT
@@ -14,18 +14,18 @@ Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILE]
                                                          [--total-supply LOVELACE]
                                                          [--delegated-supply LOVELACE]
                                                          [--testnet-magic NATURAL]
-                                                         [--relays FILE]
+                                                         [--relays FILEPATH]
                                                          [--start-time UTC-TIME]
                                                          --out-dir DIR
 
   Create data to use for starting a testnet.
 
 Available options:
-  --spec-shelley FILE      The shelley specification file to use as input. A
+  --spec-shelley FILEPATH  The shelley specification file to use as input. A
                            default one is generated if omitted.
-  --spec-alonzo FILE       The alonzo specification file to use as input. A
+  --spec-alonzo FILEPATH   The alonzo specification file to use as input. A
                            default one is generated if omitted.
-  --spec-conway FILE       The conway specification file to use as input. A
+  --spec-conway FILEPATH   The conway specification file to use as input. A
                            default one is generated if omitted.
   --genesis-keys INT       The number of genesis keys to make (default is 3).
   --pools INT              The number of stake pool credential sets to make
@@ -57,7 +57,7 @@ Available options:
   --testnet-magic NATURAL  Specify a testnet magic id for the cluster. This
                            overrides both the network magic from the spec file
                            and CARDANO_NODE_NETWORK_ID environment variable.
-  --relays FILE            JSON file specifying the relays of each stake pool.
+  --relays FILEPATH        JSON file specifying the relays of each stake pool.
   --start-time UTC-TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
                            format. If unspecified, will be the current time +30
                            seconds.

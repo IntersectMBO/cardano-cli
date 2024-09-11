@@ -1,7 +1,7 @@
 Usage: cardano-cli debug transaction view [--output-json | --output-yaml]
-                                            [--out-file FILE]
-                                            ( --tx-body-file FILE
-                                            | --tx-file FILE
+                                            [--out-file FILEPATH]
+                                            ( --tx-body-file FILEPATH
+                                            | --tx-file FILEPATH
                                             )
 
   Print a transaction.
@@ -10,7 +10,7 @@ Available options:
   --output-json            Format transaction view output to JSON.
   --output-yaml            Format transaction view output to YAML. Defaults to
                            JSON if unspecified.
-  --out-file FILE          Optional output file. Default is to write to stdout.
-  --tx-body-file FILE      Input filepath of the JSON TxBody.
-  --tx-file FILE           Input filepath of the JSON Tx.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
+  --tx-body-file FILEPATH  Input filepath of the JSON TxBody.
+  --tx-file FILEPATH       Input filepath of the JSON Tx.
   -h,--help                Show this help text

@@ -1,7 +1,7 @@
-Usage: cardano-cli alonzo transaction policyid --script-file FILE
+Usage: cardano-cli alonzo transaction policyid --script-file FILEPATH
 
   Calculate the PolicyId from the monetary policy script.
 
 Available options:
-  --script-file FILE       Filepath of the script.
+  --script-file FILEPATH   Filepath of the script.
   -h,--help                Show this help text

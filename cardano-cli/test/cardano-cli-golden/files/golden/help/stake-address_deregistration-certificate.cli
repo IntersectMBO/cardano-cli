@@ -7,13 +7,13 @@ Usage: cardano-cli stake-address deregistration-certificate
                                                               | --conway-era
                                                               ]
                                                               ( --stake-verification-key STRING
-                                                              | --stake-verification-key-file FILE
+                                                              | --stake-verification-key-file FILEPATH
                                                               | --stake-key-hash HASH
-                                                              | --stake-script-file FILE
+                                                              | --stake-script-file FILEPATH
                                                               | --stake-address ADDRESS
                                                               )
                                                               [--key-reg-deposit-amt NATURAL]
-                                                              --out-file FILE
+                                                              --out-file FILEPATH
 
   Create a stake address deregistration certificate
 
@@ -31,12 +31,13 @@ Available options:
   --conway-era             Specify the Conway era
   --stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
-  --stake-verification-key-file FILE
+  --stake-verification-key-file FILEPATH
                            Filepath of the staking verification key.
   --stake-key-hash HASH    Stake verification key hash (hex-encoded).
-  --stake-script-file FILE Filepath of the staking script.
+  --stake-script-file FILEPATH
+                           Filepath of the staking script.
   --stake-address ADDRESS  Target stake address (bech32 format).
   --key-reg-deposit-amt NATURAL
                            Key registration deposit amount.
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

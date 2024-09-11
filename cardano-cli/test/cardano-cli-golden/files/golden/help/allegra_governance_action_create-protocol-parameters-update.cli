@@ -1,5 +1,5 @@
 Usage: cardano-cli allegra governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                 (--genesis-verification-key-file FILE)
+                                                                                 (--genesis-verification-key-file FILEPATH)
                                                                                  [--min-fee-linear LOVELACE]
                                                                                  [--min-fee-constant LOVELACE]
                                                                                  [--max-block-body-size WORD32]
@@ -20,14 +20,14 @@ Usage: cardano-cli allegra governance action create-protocol-parameters-update -
                                                                                  [--decentralization-parameter RATIONAL]
                                                                                  [--protocol-major-version MAJOR
                                                                                    --protocol-minor-version MINOR]
-                                                                                 --out-file FILE
+                                                                                 --out-file FILEPATH
 
   Create a protocol parameters update.
 
 Available options:
   --epoch NATURAL          The epoch number in which the update proposal is
                            valid.
-  --genesis-verification-key-file FILE
+  --genesis-verification-key-file FILEPATH
                            Filepath of the genesis verification key.
   --min-fee-linear LOVELACE
                            The linear factor per byte for the minimum fee
@@ -70,5 +70,5 @@ Available options:
                            fork (old software can validate but not produce new
                            blocks). Must be zero when the major protocol version
                            is increased.
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

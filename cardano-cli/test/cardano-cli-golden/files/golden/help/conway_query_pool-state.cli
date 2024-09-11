@@ -8,7 +8,7 @@ Usage: cardano-cli conway query pool-state --socket-path SOCKET_PATH
                                              | (--stake-pool-id STAKE_POOL_ID)
                                              )
                                              [--volatile-tip | --immutable-tip]
-                                             [--out-file FILE]
+                                             [--out-file FILEPATH]
 
   Dump the pool state
 
@@ -33,5 +33,5 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

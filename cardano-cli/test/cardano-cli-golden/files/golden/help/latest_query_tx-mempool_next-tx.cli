@@ -7,6 +7,6 @@ Usage: cardano-cli latest query tx-mempool --socket-path SOCKET_PATH
                                              | --testnet-magic NATURAL
                                              )
                                              (info | next-tx | tx-exists)
-                                             [--out-file FILE]
+                                             [--out-file FILEPATH]
 
   Local Mempool info

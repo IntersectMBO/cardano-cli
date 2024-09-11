@@ -1,7 +1,7 @@
-Usage: cardano-cli latest genesis hash --genesis FILE
+Usage: cardano-cli latest genesis hash --genesis FILEPATH
 
   Compute the hash of a genesis file
 
 Available options:
-  --genesis FILE           The genesis file.
+  --genesis FILEPATH       The genesis file.
   -h,--help                Show this help text

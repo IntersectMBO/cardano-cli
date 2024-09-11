@@ -1,6 +1,6 @@
-Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
+Usage: cardano-cli legacy governance create-update-proposal --out-file FILEPATH
                                                               --epoch NATURAL
-                                                              (--genesis-verification-key-file FILE)
+                                                              (--genesis-verification-key-file FILEPATH)
                                                               [--protocol-major-version MAJOR
                                                                 --protocol-minor-version MINOR]
                                                               [--decentralization-parameter RATIONAL]
@@ -34,10 +34,10 @@ Usage: cardano-cli legacy governance create-update-proposal --out-file FILE
   Create an update proposal
 
 Available options:
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   --epoch NATURAL          The epoch number in which the update proposal is
                            valid.
-  --genesis-verification-key-file FILE
+  --genesis-verification-key-file FILEPATH
                            Filepath of the genesis verification key.
   --protocol-major-version MAJOR
                            Specify the major protocol version to fork into. An

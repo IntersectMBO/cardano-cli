@@ -6,7 +6,7 @@ Usage: cardano-cli legacy transaction calculate-min-required-utxo
                                                                     | --babbage-era
                                                                     | --conway-era
                                                                     ]
-                                                                    --protocol-params-file FILE
+                                                                    --protocol-params-file FILEPATH
                                                                     --tx-out ADDRESS VALUE
                                                                     [ --tx-out-datum-hash HASH
                                                                     | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -19,7 +19,7 @@ Usage: cardano-cli legacy transaction calculate-min-required-utxo
                                                                     | --tx-out-inline-datum-file JSON_FILE
                                                                     | --tx-out-inline-datum-value JSON_VALUE
                                                                     ]
-                                                                    [--tx-out-reference-script-file FILE]
+                                                                    [--tx-out-reference-script-file FILEPATH]
 
   Calculate the minimum required UTxO for a transaction output.
 
@@ -35,7 +35,7 @@ Available options:
   --babbage-era            Specify the Babbage era (default) - DEPRECATED - will
                            be removed in the future
   --conway-era             Specify the Conway era
-  --protocol-params-file FILE
+  --protocol-params-file FILEPATH
                            Filepath of the JSON-encoded protocol parameters file
   --tx-out ADDRESS VALUE   The transaction output as ADDRESS VALUE where ADDRESS
                            is the Bech32-encoded address followed by the value
@@ -81,6 +81,6 @@ Available options:
                            inline datum, given here. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --tx-out-reference-script-file FILE
+  --tx-out-reference-script-file FILEPATH
                            Reference script input file.
   -h,--help                Show this help text

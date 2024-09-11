@@ -1,32 +1,33 @@
 Usage: cardano-cli conway governance committee create-cold-key-resignation-certificate 
                                                                                          ( --cold-verification-key STRING
-                                                                                         | --cold-verification-key-file FILE
+                                                                                         | --cold-verification-key-file FILEPATH
                                                                                          | --cold-verification-key-hash STRING
                                                                                          | --cold-script-hash HASH
-                                                                                         | --cold-script-file FILE
+                                                                                         | --cold-script-file FILEPATH
                                                                                          )
                                                                                          [--resignation-metadata-url TEXT
                                                                                            --resignation-metadata-hash HASH]
-                                                                                         --out-file FILE
+                                                                                         --out-file FILEPATH
 
   Create cold key resignation certificate for a Constitutional Committee Member
 
 Available options:
   --cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
-  --cold-verification-key-file FILE
+  --cold-verification-key-file FILEPATH
                            Filepath of the Constitutional Committee cold key.
   --cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
   --cold-script-hash HASH  Committee cold Native or Plutus script file hash
                            (hex-encoded). Obtain it with "cardano-cli hash
                            script ...".
-  --cold-script-file FILE  Cold Native or Plutus script file
+  --cold-script-file FILEPATH
+                           Cold Native or Plutus script file
   --resignation-metadata-url TEXT
                            Constitutional Committee cold key resignation
                            certificate URL
   --resignation-metadata-hash HASH
                            Constitutional Committee cold key resignation
                            certificate metadata hash
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

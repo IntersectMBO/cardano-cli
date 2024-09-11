@@ -1,24 +1,25 @@
 Usage: cardano-cli shelley transaction sign 
-                                              ( --tx-body-file FILE
-                                              | --tx-file FILE
+                                              ( --tx-body-file FILEPATH
+                                              | --tx-file FILEPATH
                                               )
-                                              [--signing-key-file FILE
+                                              [--signing-key-file FILEPATH
                                                 [--address STRING]]
                                               [ --mainnet
                                               | --testnet-magic NATURAL
                                               ]
-                                              --out-file FILE
+                                              --out-file FILEPATH
 
   Sign a transaction
 
 Available options:
-  --tx-body-file FILE      Input filepath of the JSON TxBody.
-  --tx-file FILE           Input filepath of the JSON Tx.
-  --signing-key-file FILE  Input filepath of the signing key (one or more).
+  --tx-body-file FILEPATH  Input filepath of the JSON TxBody.
+  --tx-file FILEPATH       Input filepath of the JSON Tx.
+  --signing-key-file FILEPATH
+                           Input filepath of the signing key (one or more).
   --address STRING         Byron address (Base58-encoded).
   --mainnet                Use the mainnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
-  --out-file FILE          Output filepath of the JSON Tx.
+  --out-file FILEPATH      Output filepath of the JSON Tx.
   -h,--help                Show this help text

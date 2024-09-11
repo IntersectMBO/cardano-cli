@@ -5,6 +5,6 @@ Usage: cardano-cli mary query tx-mempool --socket-path SOCKET_PATH
                                              [--epoch-slots SLOTS]]
                                            (--mainnet | --testnet-magic NATURAL)
                                            (info | next-tx | tx-exists)
-                                           [--out-file FILE]
+                                           [--out-file FILEPATH]
 
   Local Mempool info

@@ -1,15 +1,15 @@
-Usage: cardano-cli conway governance action view --action-file FILE
+Usage: cardano-cli conway governance action view --action-file FILEPATH
                                                    [ --output-json
                                                    | --output-yaml
                                                    ]
-                                                   [--out-file FILE]
+                                                   [--out-file FILEPATH]
 
   View a governance action.
 
 Available options:
-  --action-file FILE       Path to action file.
+  --action-file FILEPATH   Path to action file.
   --output-json            Format governance action view output to JSON.
   --output-yaml            Format governance action view output to YAML.
                            Defaults to JSON if unspecified.
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

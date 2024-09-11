@@ -1,10 +1,11 @@
-Usage: cardano-cli allegra key verification-key --signing-key-file FILE
-                                                  --verification-key-file FILE
+Usage: cardano-cli allegra key verification-key --signing-key-file FILEPATH
+                                                  --verification-key-file FILEPATH
 
   Get a verification key from a signing key. This supports all key types.
 
 Available options:
-  --signing-key-file FILE  Input filepath of the signing key.
-  --verification-key-file FILE
+  --signing-key-file FILEPATH
+                           Input filepath of the signing key.
+  --verification-key-file FILEPATH
                            Output filepath of the verification key.
   -h,--help                Show this help text

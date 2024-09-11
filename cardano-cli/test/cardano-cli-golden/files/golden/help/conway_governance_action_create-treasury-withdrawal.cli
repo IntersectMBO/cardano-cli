@@ -4,21 +4,21 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          )
                                                                          --governance-action-deposit NATURAL
                                                                          ( --deposit-return-stake-verification-key STRING
-                                                                         | --deposit-return-stake-verification-key-file FILE
+                                                                         | --deposit-return-stake-verification-key-file FILEPATH
                                                                          | --deposit-return-stake-key-hash HASH
-                                                                         | --deposit-return-stake-script-file FILE
+                                                                         | --deposit-return-stake-script-file FILEPATH
                                                                          | --deposit-return-stake-address ADDRESS
                                                                          )
                                                                          --anchor-url TEXT
                                                                          --anchor-data-hash HASH
                                                                          (
                                                                            ( --funds-receiving-stake-verification-key STRING
-                                                                           | --funds-receiving-stake-verification-key-file FILE
+                                                                           | --funds-receiving-stake-verification-key-file FILEPATH
                                                                            | --funds-receiving-stake-key-hash HASH
                                                                            )
                                                                            --transfer LOVELACE)
                                                                          [--constitution-script-hash HASH]
-                                                                         --out-file FILE
+                                                                         --out-file FILEPATH
 
   Create a treasury withdrawal.
 
@@ -29,11 +29,11 @@ Available options:
                            Deposit required to submit a governance action.
   --deposit-return-stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
-  --deposit-return-stake-verification-key-file FILE
+  --deposit-return-stake-verification-key-file FILEPATH
                            Filepath of the staking verification key.
   --deposit-return-stake-key-hash HASH
                            Stake verification key hash (hex-encoded).
-  --deposit-return-stake-script-file FILE
+  --deposit-return-stake-script-file FILEPATH
                            Filepath of the staking script.
   --deposit-return-stake-address ADDRESS
                            Target stake address (bech32 format).
@@ -42,7 +42,7 @@ Available options:
                            "cardano-cli hash anchor-data ...")
   --funds-receiving-stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
-  --funds-receiving-stake-verification-key-file FILE
+  --funds-receiving-stake-verification-key-file FILEPATH
                            Filepath of the staking verification key.
   --funds-receiving-stake-key-hash HASH
                            Stake verification key hash (hex-encoded).
@@ -50,5 +50,5 @@ Available options:
   --constitution-script-hash HASH
                            Constitution script hash (hex-encoded). Obtain it
                            with "cardano-cli hash script ...".
-  --out-file FILE          Output filepath of the treasury withdrawal.
+  --out-file FILEPATH      Output filepath of the treasury withdrawal.
   -h,--help                Show this help text

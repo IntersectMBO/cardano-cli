@@ -4,7 +4,7 @@ Usage: cardano-cli alonzo query ledger-state --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
-                                               [--out-file FILE]
+                                               [--out-file FILEPATH]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
@@ -23,5 +23,5 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

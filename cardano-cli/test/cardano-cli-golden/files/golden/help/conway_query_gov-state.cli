@@ -5,7 +5,7 @@ Usage: cardano-cli conway query gov-state --socket-path SOCKET_PATH
                                             | --testnet-magic NATURAL
                                             )
                                             [--volatile-tip | --immutable-tip]
-                                            [--out-file FILE]
+                                            [--out-file FILEPATH]
 
   Get the governance state
 
@@ -26,5 +26,5 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

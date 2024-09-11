@@ -7,10 +7,10 @@ Usage: cardano-cli stake-pool deregistration-certificate
                                                            | --conway-era
                                                            ]
                                                            ( --stake-pool-verification-key STRING
-                                                           | --cold-verification-key-file FILE
+                                                           | --cold-verification-key-file FILEPATH
                                                            )
                                                            --epoch NATURAL
-                                                           --out-file FILE
+                                                           --out-file FILEPATH
 
   Create a stake pool deregistration certificate
 
@@ -28,8 +28,8 @@ Available options:
   --conway-era             Specify the Conway era
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
-  --cold-verification-key-file FILE
+  --cold-verification-key-file FILEPATH
                            Filepath of the stake pool verification key.
   --epoch NATURAL          The epoch number.
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

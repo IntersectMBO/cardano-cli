@@ -1,4 +1,4 @@
-Usage: cardano-cli conway transaction calculate-min-value --protocol-params-file FILE
+Usage: cardano-cli conway transaction calculate-min-value --protocol-params-file FILEPATH
                                                             --tx-out ADDRESS VALUE
                                                             [ --tx-out-datum-hash HASH
                                                             | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -11,12 +11,12 @@ Usage: cardano-cli conway transaction calculate-min-value --protocol-params-file
                                                             | --tx-out-inline-datum-file JSON_FILE
                                                             | --tx-out-inline-datum-value JSON_VALUE
                                                             ]
-                                                            [--tx-out-reference-script-file FILE]
+                                                            [--tx-out-reference-script-file FILEPATH]
 
   DEPRECATED: Use 'calculate-min-required-utxo' instead.
 
 Available options:
-  --protocol-params-file FILE
+  --protocol-params-file FILEPATH
                            Filepath of the JSON-encoded protocol parameters file
   --tx-out ADDRESS VALUE   The transaction output as ADDRESS VALUE where ADDRESS
                            is the Bech32-encoded address followed by the value
@@ -62,5 +62,5 @@ Available options:
                            inline datum, given here. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --tx-out-reference-script-file FILE
+  --tx-out-reference-script-file FILEPATH
                            Reference script input file.

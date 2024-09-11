@@ -1,8 +1,8 @@
-Usage: cardano-cli hash script --script-file FILE [--out-file FILE]
+Usage: cardano-cli hash script --script-file FILEPATH [--out-file FILEPATH]
 
   Compute the hash of a script (to then pass it to other commands).
 
 Available options:
-  --script-file FILE       Filepath of the script.
-  --out-file FILE          The output file.
+  --script-file FILEPATH   Filepath of the script.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

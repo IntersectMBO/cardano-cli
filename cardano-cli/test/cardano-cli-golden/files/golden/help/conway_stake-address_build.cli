@@ -1,26 +1,27 @@
 Usage: cardano-cli conway stake-address build 
                                                 ( --stake-verification-key STRING
-                                                | --stake-verification-key-file FILE
+                                                | --stake-verification-key-file FILEPATH
                                                 | --stake-key-hash HASH
-                                                | --stake-script-file FILE
+                                                | --stake-script-file FILEPATH
                                                 )
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )
-                                                [--out-file FILE]
+                                                [--out-file FILEPATH]
 
   Build a stake address
 
 Available options:
   --stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
-  --stake-verification-key-file FILE
+  --stake-verification-key-file FILEPATH
                            Filepath of the staking verification key.
   --stake-key-hash HASH    Stake verification key hash (hex-encoded).
-  --stake-script-file FILE Filepath of the staking script.
+  --stake-script-file FILEPATH
+                           Filepath of the staking script.
   --mainnet                Use the mainnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

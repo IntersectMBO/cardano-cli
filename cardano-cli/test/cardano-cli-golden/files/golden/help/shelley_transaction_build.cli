@@ -23,7 +23,7 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                    | --spending-reference-tx-in-redeemer-value JSON_VALUE
                                                    )
                                                  | --simple-script-tx-in-reference TX-IN
-                                                 | --tx-in-script-file FILE
+                                                 | --tx-in-script-file FILEPATH
                                                    [
                                                      ( --tx-in-datum-cbor-file CBOR_FILE
                                                      | --tx-in-datum-file JSON_FILE
@@ -36,7 +36,7 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                      )]
                                                  ])
                                                [--read-only-tx-in-reference TX-IN]
-                                               [ --required-signer FILE
+                                               [ --required-signer FILEPATH
                                                | --required-signer-hash HASH
                                                ]
                                                [--tx-in-collateral TX-IN]
@@ -54,10 +54,10 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                  | --tx-out-inline-datum-file JSON_FILE
                                                  | --tx-out-inline-datum-value JSON_VALUE
                                                  ]
-                                                 [--tx-out-reference-script-file FILE]]
+                                                 [--tx-out-reference-script-file FILEPATH]]
                                                --change-address ADDRESS
                                                [--mint VALUE
-                                                 ( --mint-script-file FILE
+                                                 ( --mint-script-file FILEPATH
                                                    [ --mint-redeemer-cbor-file CBOR_FILE
                                                    | --mint-redeemer-file JSON_FILE
                                                    | --mint-redeemer-value JSON_VALUE
@@ -76,8 +76,8 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                  )]
                                                [--invalid-before SLOT]
                                                [--invalid-hereafter SLOT]
-                                               [--certificate-file FILE
-                                                 [ --certificate-script-file FILE
+                                               [--certificate-file FILEPATH
+                                                 [ --certificate-script-file FILEPATH
                                                    [ --certificate-redeemer-cbor-file CBOR_FILE
                                                    | --certificate-redeemer-file JSON_FILE
                                                    | --certificate-redeemer-value JSON_VALUE
@@ -92,7 +92,7 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                    )
                                                  ]]
                                                [--withdrawal WITHDRAWAL
-                                                 [ --withdrawal-script-file FILE
+                                                 [ --withdrawal-script-file FILEPATH
                                                    [ --withdrawal-redeemer-cbor-file CBOR_FILE
                                                    | --withdrawal-redeemer-file JSON_FILE
                                                    | --withdrawal-redeemer-value JSON_VALUE
@@ -109,13 +109,13 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                [ --json-metadata-no-schema
                                                | --json-metadata-detailed-schema
                                                ]
-                                               [--auxiliary-script-file FILE]
-                                               [ --metadata-json-file FILE
-                                               | --metadata-cbor-file FILE
+                                               [--auxiliary-script-file FILEPATH]
+                                               [ --metadata-json-file FILEPATH
+                                               | --metadata-cbor-file FILEPATH
                                                ]
-                                               [--update-proposal-file FILE]
-                                               ( --out-file FILE
-                                               | --calculate-plutus-script-cost FILE
+                                               [--update-proposal-file FILEPATH]
+                                               ( --out-file FILEPATH
+                                               | --calculate-plutus-script-cost FILEPATH
                                                )
 
   Build a balanced transaction (automatically calculates fees)
@@ -175,7 +175,8 @@ Available options:
   --simple-script-tx-in-reference TX-IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a simple reference script attached.
-  --tx-in-script-file FILE The file containing the script to witness the
+  --tx-in-script-file FILEPATH
+                           The file containing the script to witness the
                            spending of the transaction input.
   --tx-in-datum-cbor-file CBOR_FILE
                            The script datum file. The file has to be in CBOR
@@ -203,7 +204,8 @@ Available options:
                            Specify a read only reference input. This reference
                            input is not witnessing anything it is simply
                            provided in the plutus script context.
-  --required-signer FILE   Input filepath of the signing key (zero or more)
+  --required-signer FILEPATH
+                           Input filepath of the signing key (zero or more)
                            whose signature is required.
   --required-signer-hash HASH
                            Hash of the verification key (zero or more) whose
@@ -265,12 +267,13 @@ Available options:
                            inline datum, given here. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --tx-out-reference-script-file FILE
+  --tx-out-reference-script-file FILEPATH
                            Reference script input file.
   --change-address ADDRESS Address where ADA in excess of the tx fee will go to.
   --mint VALUE             Mint multi-asset value(s) with the multi-asset cli
                            syntax. You must specify a script witness.
-  --mint-script-file FILE  The file containing the script to witness the minting
+  --mint-script-file FILEPATH
+                           The file containing the script to witness the minting
                            of assets for a particular policy Id.
   --mint-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
@@ -304,11 +307,12 @@ Available options:
   --policy-id HASH         Policy id of minting script.
   --invalid-before SLOT    Time that transaction is valid from (in slots).
   --invalid-hereafter SLOT Time that transaction is valid until (in slots).
-  --certificate-file FILE  Filepath of the certificate. This encompasses all
+  --certificate-file FILEPATH
+                           Filepath of the certificate. This encompasses all
                            types of certificates (stake pool certificates, stake
                            key certificates etc). Optionally specify a script
                            witness.
-  --certificate-script-file FILE
+  --certificate-script-file FILEPATH
                            The file containing the script to witness the use of
                            the certificate.
   --certificate-redeemer-cbor-file CBOR_FILE
@@ -342,7 +346,7 @@ Available options:
                            StakeAddress is the Bech32-encoded stake address
                            followed by the amount in Lovelace. Optionally
                            specify a script witness.
-  --withdrawal-script-file FILE
+  --withdrawal-script-file FILEPATH
                            The file containing the script to witness the
                            withdrawal of rewards.
   --withdrawal-redeemer-cbor-file CBOR_FILE
@@ -378,16 +382,16 @@ Available options:
   --json-metadata-detailed-schema
                            Use the "detailed schema" conversion from JSON to tx
                            metadata.
-  --auxiliary-script-file FILE
+  --auxiliary-script-file FILEPATH
                            Filepath of auxiliary script(s)
-  --metadata-json-file FILE
+  --metadata-json-file FILEPATH
                            Filepath of the metadata file, in JSON format.
-  --metadata-cbor-file FILE
+  --metadata-cbor-file FILEPATH
                            Filepath of the metadata, in raw CBOR format.
-  --update-proposal-file FILE
+  --update-proposal-file FILEPATH
                            Filepath of the update proposal.
-  --out-file FILE          Output filepath of the JSON TxBody.
-  --calculate-plutus-script-cost FILE
+  --out-file FILEPATH      Output filepath of the JSON TxBody.
+  --calculate-plutus-script-cost FILEPATH
                            (File () Out) filepath of the script cost
                            information.
   -h,--help                Show this help text

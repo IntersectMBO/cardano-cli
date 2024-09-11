@@ -1,5 +1,5 @@
 Usage: cardano-cli latest governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                (--genesis-verification-key-file FILE)
+                                                                                (--genesis-verification-key-file FILEPATH)
                                                                                 [--min-fee-linear LOVELACE]
                                                                                 [--min-fee-constant LOVELACE]
                                                                                 [--max-block-body-size WORD32]
@@ -24,14 +24,14 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update --
                                                                                   --protocol-minor-version MINOR]
                                                                                 [--utxo-cost-per-byte LOVELACE]
                                                                                 [--cost-model-file FILE]
-                                                                                --out-file FILE
+                                                                                --out-file FILEPATH
 
   Create a protocol parameters update.
 
 Available options:
   --epoch NATURAL          The epoch number in which the update proposal is
                            valid.
-  --genesis-verification-key-file FILE
+  --genesis-verification-key-file FILEPATH
                            Filepath of the genesis verification key.
   --min-fee-linear LOVELACE
                            The linear factor per byte for the minimum fee
@@ -96,5 +96,5 @@ Available options:
                            Cost in lovelace per unit of UTxO storage (from
                            Babbage era).
   --cost-model-file FILE   Filepath of the JSON formatted cost model
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text
