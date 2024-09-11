@@ -1187,13 +1187,7 @@ pGenesisCmds envCli =
 
   pRelayJsonFp :: Parser FilePath
   pRelayJsonFp =
-    Opt.strOption $
-      mconcat
-        [ Opt.long "relay-specification-file"
-        , Opt.metavar "FILE"
-        , Opt.help "JSON file specified the relays of each stake pool."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+    parseFilePath "relay-specification-file" "JSON file specified the relays of each stake pool."
 
   pInitialSupplyNonDelegated :: Parser (Maybe Coin)
   pInitialSupplyNonDelegated =

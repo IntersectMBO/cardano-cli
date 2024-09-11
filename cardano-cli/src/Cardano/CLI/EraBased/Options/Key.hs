@@ -179,25 +179,12 @@ pByronKeyFile =
 
 pByronSigningKeyFile :: Parser (SigningKeyFile In)
 pByronSigningKeyFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "byron-signing-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Input filepath of the Byron-format signing key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath "byron-signing-key-file" "Input filepath of the Byron-format signing key."
 
 pByronVerificationKeyFile :: Parser (VerificationKeyFile In)
 pByronVerificationKeyFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "byron-verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Input filepath of the Byron-format verification key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File
+    <$> parseFilePath "byron-verification-key-file" "Input filepath of the Byron-format verification key."
 
 pKeyConvertByronGenesisKeyCmd :: Parser (KeyCmds era)
 pKeyConvertByronGenesisKeyCmd =
@@ -246,25 +233,12 @@ pITNKeyFIle =
 
 pITNSigningKeyFile :: Parser (SomeKeyFile direction)
 pITNSigningKeyFile =
-  fmap (ASigningKeyFile . File) $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "itn-signing-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the ITN signing key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  ASigningKeyFile . File <$> parseFilePath "itn-signing-key-file" "Filepath of the ITN signing key."
 
 pITNVerificationKeyFile :: Parser (SomeKeyFile direction)
 pITNVerificationKeyFile =
-  fmap (AVerificationKeyFile . File) $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "itn-verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the ITN verification key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  AVerificationKeyFile . File
+    <$> parseFilePath "itn-verification-key-file" "Filepath of the ITN verification key."
 
 pKeyConvertCardanoAddressKeyCmd :: Parser (KeyCmds era)
 pKeyConvertCardanoAddressKeyCmd =
