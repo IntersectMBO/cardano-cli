@@ -11,6 +11,7 @@ module Test.Cardano.CLI.Util
   , equivalence
   , execCardanoCLI
   , execDetailCardanoCLI
+  , execDetailCfgCardanoCLI
   , tryExecCardanoCLI
   , propertyOnce
   , withSnd
@@ -82,7 +83,20 @@ execDetailCardanoCLI
   -- ^ Arguments to the CLI command
   -> m (IO.ExitCode, String, String)
   -- ^ Captured stdout
-execDetailCardanoCLI = GHC.withFrozenCallStack $ execDetailFlex H.defaultExecConfig "cardano-cli" "CARDANO_CLI"
+execDetailCardanoCLI params = GHC.withFrozenCallStack $ execDetailCfgCardanoCLI H.defaultExecConfig params
+
+-- | Execute cardano-cli via the command line, expecting it to fail, and accepting custom config.
+--
+-- Waits for the process to finish and returns the exit code, stdout and stderr.
+execDetailCfgCardanoCLI
+  :: (MonadTest m, MonadCatch m, MonadIO m, HasCallStack)
+  => ExecConfig
+  -- ^ Configuration for the execution
+  -> [String]
+  -- ^ Arguments to the CLI command
+  -> m (IO.ExitCode, String, String)
+  -- ^ Captured stdout
+execDetailCfgCardanoCLI cfg = GHC.withFrozenCallStack $ execDetailFlex cfg "cardano-cli" "CARDANO_CLI"
 
 procFlex'
   :: (MonadTest m, MonadCatch m, MonadIO m, HasCallStack)
