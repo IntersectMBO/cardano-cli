@@ -1,0 +1,2 @@
+This is just a random file with content that is used for
+testing the hashing of anchor data files.
