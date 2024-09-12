@@ -1,6 +1,7 @@
 module Cardano.CLI.Commands.Ping
   ( EndPoint (..)
   , PingCmd (..)
+  , getConfigurationError
   )
 where
 
@@ -22,3 +23,16 @@ data PingCmd = PingCmd
   , pingOptsGetTip :: !Bool
   }
   deriving (Eq, Show)
+
+getConfigurationError :: PingCmd -> Maybe String
+getConfigurationError
+  PingCmd
+    { pingCmdEndPoint = endPoint
+    , pingOptsGetTip = getTip
+    , pingOptsHandshakeQuery = query
+    } =
+    case endPoint of
+      UnixSockEndPoint{}
+        | query || getTip -> Nothing
+        | otherwise -> Just "Unix sockets only support queries for available versions or a tip."
+      HostEndPoint{} -> Nothing
