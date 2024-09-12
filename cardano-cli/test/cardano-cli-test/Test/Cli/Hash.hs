@@ -9,14 +9,16 @@ import           Control.Exception.Lifted (bracket)
 import           Control.Monad (void)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Data.List (intercalate)
+import           Data.Monoid (Last (..))
 import qualified Data.Text as T
-import           GHC.IO.Exception (ExitCode (ExitFailure))
+import           GHC.IO.Exception (ExitCode (..))
 import           Network.HTTP.Types.Status (status200, status404)
 import           Network.Socket (close)
 import           Network.Wai (Request, Response, ResponseReceived, pathInfo, responseFile,
                    responseLBS)
 import           Network.Wai.Handler.Warp (defaultSettings, openFreePort, runSettingsSocket)
 import           System.Directory (getCurrentDirectory)
+import           System.Environment (getEnvironment)
 import           System.FilePath (dropTrailingPathSeparator)
 import           System.FilePath.Posix (splitDirectories)
 
@@ -31,6 +33,9 @@ exampleAnchorDataHash = "de38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5ee
 
 exampleAnchorDataPath :: String
 exampleAnchorDataPath = "test/cardano-cli-test/files/input/example_anchor_data.txt"
+
+exampleAchorDataIpfsHash :: String
+exampleAchorDataIpfsHash = "QmbL5EBFJLf8DdPkWAskG3Euin9tHY8naqQ2JDoHnWHHXJ"
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/generate anchor data hash from file/"'@
@@ -127,6 +132,43 @@ hprop_check_anchor_data_hash_from_http_uri =
               , "--expected-hash"
               , exampleAnchorDataHash
               ]
+      )
+
+-- | Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/check anchor data hash from ipfs uri/"'@
+hprop_check_anchor_data_hash_from_ipfs_uri :: Property
+hprop_check_anchor_data_hash_from_ipfs_uri =
+  propertyOnce $ do
+    let relativeUrl = ["ipfs", exampleAchorDataIpfsHash]
+    serveFileWhile
+      relativeUrl
+      exampleAnchorDataPath
+      ( \port -> do
+          env <- H.evalIO getEnvironment
+          result <-
+            execDetailCfgCardanoCLI
+              H.defaultExecConfig
+                { H.execConfigEnv =
+                    Last $
+                      Just
+                        ( ( "IPFS_GATEWAY_URI"
+                          , "http://localhost:" ++ show port ++ "/"
+                          )
+                            : env
+                        )
+                }
+              [ "hash"
+              , "anchor-data"
+              , "--url"
+              , "ipfs://" ++ exampleAchorDataIpfsHash
+              , "--expected-hash"
+              , exampleAnchorDataHash
+              ]
+          case result of
+            (ExitFailure _, _, stderr) -> do
+              H.note_ stderr
+              failure
+            (ExitSuccess, _, _) -> success
       )
 
 -- | Takes a relative url (as a list of segments), a file path, and an action, and it serves
