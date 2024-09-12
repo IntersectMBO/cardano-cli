@@ -492,6 +492,5 @@ Available options:
                            The donation to the treasury to perform.
   --out-file FILEPATH      Output filepath of the JSON TxBody.
   --calculate-plutus-script-cost FILEPATH
-                           (File () Out) filepath of the script cost
-                           information.
+                           Where to write the script cost information.
   -h,--help                Show this help text
