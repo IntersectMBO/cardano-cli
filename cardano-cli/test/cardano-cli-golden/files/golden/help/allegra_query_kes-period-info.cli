@@ -4,8 +4,8 @@ Usage: cardano-cli allegra query kes-period-info --socket-path SOCKET_PATH
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
-                                                   --op-cert-file FILE
-                                                   [--out-file FILE]
+                                                   --op-cert-file FILEPATH
+                                                   [--out-file FILEPATH]
 
   Get information about the current KES period and your node's operational
   certificate.
@@ -24,6 +24,6 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
-  --op-cert-file FILE      Filepath of the node's operational certificate.
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --op-cert-file FILEPATH  Filepath of the node's operational certificate.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

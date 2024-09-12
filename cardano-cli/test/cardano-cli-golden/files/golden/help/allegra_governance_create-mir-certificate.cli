@@ -4,7 +4,7 @@ Usage: cardano-cli allegra governance create-mir-certificate
                                                                  )
                                                                  (--stake-address ADDRESS)
                                                                  (--reward LOVELACE)
-                                                                 --out-file FILE
+                                                                 --out-file FILEPATH
                                                                | stake-addresses
                                                                | transfer-to-treasury
                                                                | transfer-to-rewards
@@ -17,7 +17,7 @@ Available options:
   --treasury               Use the treasury pot.
   --stake-address ADDRESS  Target stake address (bech32 format).
   --reward LOVELACE        The reward for the relevant reward account.
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text
 
 Available commands:

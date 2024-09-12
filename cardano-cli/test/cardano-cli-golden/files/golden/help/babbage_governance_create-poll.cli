@@ -1,7 +1,7 @@
 Usage: cardano-cli babbage governance create-poll --question STRING
                                                     (--answer STRING)
                                                     [--nonce UINT]
-                                                    --out-file FILE
+                                                    --out-file FILEPATH
 
   Create an SPO poll
 
@@ -10,5 +10,5 @@ Available options:
   --answer STRING          A possible choice for the poll. The option is
                            repeatable.
   --nonce UINT             An (optional) nonce for non-replayability.
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

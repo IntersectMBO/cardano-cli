@@ -7,8 +7,8 @@ Usage: cardano-cli allegra key convert-cardano-address-key
                                                              | --icarus-payment-key
                                                              | --byron-payment-key
                                                              )
-                                                             --signing-key-file FILE
-                                                             --out-file FILE
+                                                             --signing-key-file FILEPATH
+                                                             --out-file FILEPATH
 
   Convert a cardano-address extended signing key to a corresponding
   Shelley-format key.
@@ -23,6 +23,7 @@ Available options:
                            Icarus style.
   --byron-payment-key      Use a Byron-era extended payment key formatted in the
                            deprecated Byron style.
-  --signing-key-file FILE  Input filepath of the signing key.
-  --out-file FILE          The output file.
+  --signing-key-file FILEPATH
+                           Input filepath of the signing key.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

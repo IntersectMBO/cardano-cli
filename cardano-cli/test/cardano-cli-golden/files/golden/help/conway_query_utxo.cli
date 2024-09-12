@@ -7,7 +7,7 @@ Usage: cardano-cli conway query utxo --socket-path SOCKET_PATH
                                        (--mainnet | --testnet-magic NATURAL)
                                        [--volatile-tip | --immutable-tip]
                                        [--output-json | --output-text]
-                                       [--out-file FILE]
+                                       [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
@@ -36,5 +36,5 @@ Available options:
                            writing to a file
   --output-text            Format utxo query output to TEXT. Default format when
                            writing to stdout
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

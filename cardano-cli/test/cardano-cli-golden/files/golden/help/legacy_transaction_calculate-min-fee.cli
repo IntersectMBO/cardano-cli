@@ -1,12 +1,12 @@
-Usage: cardano-cli legacy transaction calculate-min-fee --tx-body-file FILE
-                                                          --protocol-params-file FILE
+Usage: cardano-cli legacy transaction calculate-min-fee --tx-body-file FILEPATH
+                                                          --protocol-params-file FILEPATH
                                                           --witness-count NATURAL
                                                           [--byron-witness-count NATURAL]
                                                           [--reference-script-size NATURAL]
                                                           [ --output-json
                                                           | --output-text
                                                           ]
-                                                          [--out-file FILE]
+                                                          [--out-file FILEPATH]
                                                           [ --mainnet
                                                           | --testnet-magic NATURAL
                                                           ]
@@ -16,8 +16,8 @@ Usage: cardano-cli legacy transaction calculate-min-fee --tx-body-file FILE
   Calculate the minimum fee for a transaction.
 
 Available options:
-  --tx-body-file FILE      Input filepath of the JSON TxBody.
-  --protocol-params-file FILE
+  --tx-body-file FILEPATH  Input filepath of the JSON TxBody.
+  --protocol-params-file FILEPATH
                            Filepath of the JSON-encoded protocol parameters file
   --witness-count NATURAL  The number of Shelley key witnesses.
   --byron-witness-count NATURAL
@@ -29,7 +29,7 @@ Available options:
                            Default format when writing to a file
   --output-text            Format calculate-min-fee query output to TEXT.
                            Default format when writing to stdout
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   --mainnet                DEPRECATED. This argument has no effect.
   --testnet-magic NATURAL  DEPRECATED. This argument has no effect.
   --tx-in-count NATURAL    DEPRECATED. This argument has no effect.

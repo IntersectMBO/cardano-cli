@@ -19,7 +19,7 @@ Usage: cardano-cli genesis create-staked
                                            [--bulk-pool-cred-files INT]
                                            [--bulk-pools-per-file INT]
                                            [--num-stuffed-utxo INT]
-                                           [--relay-specification-file FILE]
+                                           [--relay-specification-file FILEPATH]
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
@@ -69,6 +69,6 @@ Available options:
                            sets [default is 0].
   --num-stuffed-utxo INT   The number of fake UTxO entries to generate [default
                            is 0].
-  --relay-specification-file FILE
+  --relay-specification-file FILEPATH
                            JSON file specified the relays of each stake pool.
   -h,--help                Show this help text

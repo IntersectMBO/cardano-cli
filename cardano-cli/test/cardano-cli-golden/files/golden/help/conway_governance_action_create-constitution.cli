@@ -4,9 +4,9 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   )
                                                                   --governance-action-deposit NATURAL
                                                                   ( --deposit-return-stake-verification-key STRING
-                                                                  | --deposit-return-stake-verification-key-file FILE
+                                                                  | --deposit-return-stake-verification-key-file FILEPATH
                                                                   | --deposit-return-stake-key-hash HASH
-                                                                  | --deposit-return-stake-script-file FILE
+                                                                  | --deposit-return-stake-script-file FILEPATH
                                                                   | --deposit-return-stake-address ADDRESS
                                                                   )
                                                                   [--prev-governance-action-tx-id TXID
@@ -16,7 +16,7 @@ Usage: cardano-cli conway governance action create-constitution
                                                                   --constitution-url TEXT
                                                                   --constitution-hash HASH
                                                                   [--constitution-script-hash HASH]
-                                                                  --out-file FILE
+                                                                  --out-file FILEPATH
 
   Create a constitution.
 
@@ -27,11 +27,11 @@ Available options:
                            Deposit required to submit a governance action.
   --deposit-return-stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
-  --deposit-return-stake-verification-key-file FILE
+  --deposit-return-stake-verification-key-file FILEPATH
                            Filepath of the staking verification key.
   --deposit-return-stake-key-hash HASH
                            Stake verification key hash (hex-encoded).
-  --deposit-return-stake-script-file FILE
+  --deposit-return-stake-script-file FILEPATH
                            Filepath of the staking script.
   --deposit-return-stake-address ADDRESS
                            Target stake address (bech32 format).
@@ -48,5 +48,5 @@ Available options:
   --constitution-script-hash HASH
                            Constitution script hash (hex-encoded). Obtain it
                            with "cardano-cli hash script ...".
-  --out-file FILE          Output filepath of the constitution.
+  --out-file FILEPATH      Output filepath of the constitution.
   -h,--help                Show this help text

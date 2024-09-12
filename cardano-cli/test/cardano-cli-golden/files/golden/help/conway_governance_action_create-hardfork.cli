@@ -4,9 +4,9 @@ Usage: cardano-cli conway governance action create-hardfork
                                                               )
                                                               --governance-action-deposit NATURAL
                                                               ( --deposit-return-stake-verification-key STRING
-                                                              | --deposit-return-stake-verification-key-file FILE
+                                                              | --deposit-return-stake-verification-key-file FILEPATH
                                                               | --deposit-return-stake-key-hash HASH
-                                                              | --deposit-return-stake-script-file FILE
+                                                              | --deposit-return-stake-script-file FILEPATH
                                                               | --deposit-return-stake-address ADDRESS
                                                               )
                                                               [--prev-governance-action-tx-id TXID
@@ -15,7 +15,7 @@ Usage: cardano-cli conway governance action create-hardfork
                                                               --anchor-data-hash HASH
                                                               --protocol-major-version MAJOR
                                                               --protocol-minor-version MINOR
-                                                              --out-file FILE
+                                                              --out-file FILEPATH
 
   Create a hardfork initiation proposal.
 
@@ -26,11 +26,11 @@ Available options:
                            Deposit required to submit a governance action.
   --deposit-return-stake-verification-key STRING
                            Stake verification key (Bech32 or hex-encoded).
-  --deposit-return-stake-verification-key-file FILE
+  --deposit-return-stake-verification-key-file FILEPATH
                            Filepath of the staking verification key.
   --deposit-return-stake-key-hash HASH
                            Stake verification key hash (hex-encoded).
-  --deposit-return-stake-script-file FILE
+  --deposit-return-stake-script-file FILEPATH
                            Filepath of the staking script.
   --deposit-return-stake-address ADDRESS
                            Target stake address (bech32 format).
@@ -51,5 +51,5 @@ Available options:
                            fork (old software can validate but not produce new
                            blocks). Must be zero when the major protocol version
                            is increased.
-  --out-file FILE          Output filepath of the hardfork proposal.
+  --out-file FILEPATH      Output filepath of the hardfork proposal.
   -h,--help                Show this help text

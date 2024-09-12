@@ -1,17 +1,17 @@
-Usage: cardano-cli allegra genesis initial-addr --verification-key-file FILE
+Usage: cardano-cli allegra genesis initial-addr --verification-key-file FILEPATH
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
-                                                  [--out-file FILE]
+                                                  [--out-file FILEPATH]
 
   Get the address for an initial UTxO based on the verification key
 
 Available options:
-  --verification-key-file FILE
+  --verification-key-file FILEPATH
                            Input filepath of the verification key.
   --mainnet                Use the mainnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

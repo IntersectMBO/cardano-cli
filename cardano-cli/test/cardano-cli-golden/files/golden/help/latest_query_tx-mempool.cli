@@ -5,7 +5,7 @@ Usage: cardano-cli latest query tx-mempool --socket-path SOCKET_PATH
                                              | --testnet-magic NATURAL
                                              )
                                              (info | next-tx | tx-exists)
-                                             [--out-file FILE]
+                                             [--out-file FILEPATH]
 
   Local Mempool info
 
@@ -23,7 +23,7 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
 
 Available commands:

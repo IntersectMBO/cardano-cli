@@ -74,11 +74,5 @@ pDebugCmds envCli =
 
 pNodeConfigurationFileIn :: Parser (NodeConfigFile In)
 pNodeConfigurationFileIn =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "node-configuration-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Input filepath of the node configuration file."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File
+    <$> parseFilePath "node-configuration-file" "Input filepath of the node configuration file."

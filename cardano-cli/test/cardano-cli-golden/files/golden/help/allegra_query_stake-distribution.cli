@@ -7,7 +7,7 @@ Usage: cardano-cli allegra query stake-distribution --socket-path SOCKET_PATH
                                                       [ --output-json
                                                       | --output-text
                                                       ]
-                                                      [--out-file FILE]
+                                                      [--out-file FILEPATH]
 
   Get the node's current aggregated stake distribution
 
@@ -29,5 +29,5 @@ Available options:
                            Default format when writing to a file
   --output-text            Format stake-distribution query output to TEXT.
                            Default format when writing to stdout
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

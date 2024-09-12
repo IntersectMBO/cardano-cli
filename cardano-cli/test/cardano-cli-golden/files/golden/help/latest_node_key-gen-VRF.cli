@@ -1,6 +1,6 @@
 Usage: cardano-cli latest node key-gen-VRF [--key-output-format STRING]
-                                             --verification-key-file FILE
-                                             --signing-key-file FILE
+                                             --verification-key-file FILEPATH
+                                             --signing-key-file FILEPATH
 
   Create a key pair for a node VRF operational key
 
@@ -9,7 +9,8 @@ Available options:
                            Optional key output format. Accepted output formats
                            are "text-envelope" and "bech32" (default is
                            "text-envelope").
-  --verification-key-file FILE
+  --verification-key-file FILEPATH
                            Output filepath of the verification key.
-  --signing-key-file FILE  Output filepath of the signing key.
+  --signing-key-file FILEPATH
+                           Output filepath of the signing key.
   -h,--help                Show this help text

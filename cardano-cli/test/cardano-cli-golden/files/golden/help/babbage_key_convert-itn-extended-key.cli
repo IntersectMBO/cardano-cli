@@ -1,11 +1,11 @@
-Usage: cardano-cli babbage key convert-itn-extended-key --itn-signing-key-file FILE
-                                                          --out-file FILE
+Usage: cardano-cli babbage key convert-itn-extended-key --itn-signing-key-file FILEPATH
+                                                          --out-file FILEPATH
 
   Convert an Incentivized Testnet (ITN) extended (Ed25519Extended) signing key
   to a corresponding Shelley stake signing key
 
 Available options:
-  --itn-signing-key-file FILE
+  --itn-signing-key-file FILEPATH
                            Filepath of the ITN signing key.
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

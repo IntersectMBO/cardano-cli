@@ -6,10 +6,10 @@ Usage: cardano-cli conway key convert-byron-key [--password TEXT]
                                                   | --byron-genesis-delegate-key-type
                                                   | --legacy-byron-genesis-delegate-key-type
                                                   )
-                                                  ( --byron-signing-key-file FILE
-                                                  | --byron-verification-key-file FILE
+                                                  ( --byron-signing-key-file FILEPATH
+                                                  | --byron-verification-key-file FILEPATH
                                                   )
-                                                  --out-file FILE
+                                                  --out-file FILEPATH
 
   Convert a Byron payment, genesis or genesis delegate key (signing or
   verification) to a corresponding Shelley-format key.
@@ -27,9 +27,9 @@ Available options:
   --legacy-byron-genesis-delegate-key-type
                            Use a Byron-era genesis delegate key, in legacy SL
                            format.
-  --byron-signing-key-file FILE
+  --byron-signing-key-file FILEPATH
                            Input filepath of the Byron-format signing key.
-  --byron-verification-key-file FILE
+  --byron-verification-key-file FILEPATH
                            Input filepath of the Byron-format verification key.
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

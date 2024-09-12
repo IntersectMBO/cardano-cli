@@ -212,13 +212,7 @@ pGenesisCreateStaked sbe envCli =
  where
   pRelayJsonFp :: Parser FilePath
   pRelayJsonFp =
-    Opt.strOption $
-      mconcat
-        [ Opt.long "relay-specification-file"
-        , Opt.metavar "FILE"
-        , Opt.help "JSON file that specifies the relays of each stake pool."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+    parseFilePath "relay-specification-file" "JSON file that specifies the relays of each stake pool."
 
 pGenesisCreateTestNetData :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
 pGenesisCreateTestNetData sbe envCli =
@@ -241,13 +235,9 @@ pGenesisCreateTestNetData sbe envCli =
       <*> pOutputDir
  where
   pSpecFile eraStr =
-    Opt.strOption $
-      mconcat
-        [ Opt.long $ "spec-" <> eraStr
-        , Opt.metavar "FILE"
-        , Opt.help $
-            "The " <> eraStr <> " specification file to use as input. A default one is generated if omitted."
-        ]
+    parseFilePath
+      ("spec-" <> eraStr)
+      ("The " <> eraStr <> " specification file to use as input. A default one is generated if omitted.")
   pNumGenesisKeys =
     Opt.option integralReader $
       mconcat
@@ -348,13 +338,7 @@ pGenesisCreateTestNetData sbe envCli =
             ]
   pRelays :: Parser FilePath
   pRelays =
-    Opt.strOption $
-      mconcat
-        [ Opt.long "relays"
-        , Opt.metavar "FILE"
-        , Opt.help "JSON file specifying the relays of each stake pool."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+    parseFilePath "relays" "JSON file specifying the relays of each stake pool."
   pOutputDir =
     Opt.strOption $
       mconcat

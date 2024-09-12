@@ -4,17 +4,17 @@ Usage: cardano-cli babbage query leadership-schedule --socket-path SOCKET_PATH
                                                        ( --mainnet
                                                        | --testnet-magic NATURAL
                                                        )
-                                                       --genesis FILE
+                                                       --genesis FILEPATH
                                                        ( --stake-pool-verification-key STRING
-                                                       | --cold-verification-key-file FILE
+                                                       | --cold-verification-key-file FILEPATH
                                                        | --stake-pool-id STAKE_POOL_ID
                                                        )
-                                                       --vrf-signing-key-file FILE
+                                                       --vrf-signing-key-file FILEPATH
                                                        (--current | --next)
                                                        [ --output-json
                                                        | --output-text
                                                        ]
-                                                       [--out-file FILE]
+                                                       [--out-file FILEPATH]
 
   Get the slots the node is expected to mint a block in (advanced command)
 
@@ -32,15 +32,15 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
-  --genesis FILE           Shelley genesis filepath
+  --genesis FILEPATH       Shelley genesis filepath
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
-  --cold-verification-key-file FILE
+  --cold-verification-key-file FILEPATH
                            Filepath of the stake pool verification key.
   --stake-pool-id STAKE_POOL_ID
                            Stake pool ID/verification key hash (either
                            Bech32-encoded or hex-encoded).
-  --vrf-signing-key-file FILE
+  --vrf-signing-key-file FILEPATH
                            Input filepath of the VRF signing key.
   --current                Get the leadership schedule for the current epoch.
   --next                   Get the leadership schedule for the following epoch.
@@ -48,5 +48,5 @@ Available options:
                            Default format when writing to a file
   --output-text            Format leadership-schedule query output to TEXT.
                            Default format when writing to stdout
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

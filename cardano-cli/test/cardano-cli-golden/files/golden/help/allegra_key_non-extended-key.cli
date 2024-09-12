@@ -1,12 +1,12 @@
-Usage: cardano-cli allegra key non-extended-key --extended-verification-key-file FILE
-                                                  --verification-key-file FILE
+Usage: cardano-cli allegra key non-extended-key --extended-verification-key-file FILEPATH
+                                                  --verification-key-file FILEPATH
 
   Get a non-extended verification key from an extended verification key. This
   supports all extended key types.
 
 Available options:
-  --extended-verification-key-file FILE
+  --extended-verification-key-file FILEPATH
                            Input filepath of the ed25519-bip32 verification key.
-  --verification-key-file FILE
+  --verification-key-file FILEPATH
                            Output filepath of the verification key.
   -h,--help                Show this help text

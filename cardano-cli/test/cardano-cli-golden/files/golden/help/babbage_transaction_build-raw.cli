@@ -18,7 +18,7 @@ Usage: cardano-cli babbage transaction build-raw
                                                        )
                                                        --spending-reference-tx-in-execution-units (INT, INT)
                                                      | --simple-script-tx-in-reference TX-IN
-                                                     | --tx-in-script-file FILE
+                                                     | --tx-in-script-file FILEPATH
                                                        [
                                                          ( --tx-in-datum-cbor-file CBOR_FILE
                                                          | --tx-in-datum-file JSON_FILE
@@ -35,7 +35,7 @@ Usage: cardano-cli babbage transaction build-raw
                                                    [--tx-in-collateral TX-IN]
                                                    [--tx-out-return-collateral ADDRESS VALUE]
                                                    [--tx-total-collateral INTEGER]
-                                                   [ --required-signer FILE
+                                                   [ --required-signer FILEPATH
                                                    | --required-signer-hash HASH
                                                    ]
                                                    [--tx-out ADDRESS VALUE
@@ -50,9 +50,9 @@ Usage: cardano-cli babbage transaction build-raw
                                                      | --tx-out-inline-datum-file JSON_FILE
                                                      | --tx-out-inline-datum-value JSON_VALUE
                                                      ]
-                                                     [--tx-out-reference-script-file FILE]]
+                                                     [--tx-out-reference-script-file FILEPATH]]
                                                    [--mint VALUE
-                                                     ( --mint-script-file FILE
+                                                     ( --mint-script-file FILEPATH
                                                        [
                                                          ( --mint-redeemer-cbor-file CBOR_FILE
                                                          | --mint-redeemer-file JSON_FILE
@@ -75,8 +75,8 @@ Usage: cardano-cli babbage transaction build-raw
                                                    [--invalid-before SLOT]
                                                    [--invalid-hereafter SLOT]
                                                    --fee LOVELACE
-                                                   [--certificate-file FILE
-                                                     [ --certificate-script-file FILE
+                                                   [--certificate-file FILEPATH
+                                                     [ --certificate-script-file FILEPATH
                                                        [
                                                          ( --certificate-redeemer-cbor-file CBOR_FILE
                                                          | --certificate-redeemer-file JSON_FILE
@@ -94,7 +94,7 @@ Usage: cardano-cli babbage transaction build-raw
                                                        --certificate-reference-tx-in-execution-units (INT, INT)
                                                      ]]
                                                    [--withdrawal WITHDRAWAL
-                                                     [ --withdrawal-script-file FILE
+                                                     [ --withdrawal-script-file FILEPATH
                                                        [
                                                          ( --withdrawal-redeemer-cbor-file CBOR_FILE
                                                          | --withdrawal-redeemer-file JSON_FILE
@@ -114,13 +114,13 @@ Usage: cardano-cli babbage transaction build-raw
                                                    [ --json-metadata-no-schema
                                                    | --json-metadata-detailed-schema
                                                    ]
-                                                   [--auxiliary-script-file FILE]
-                                                   [ --metadata-json-file FILE
-                                                   | --metadata-cbor-file FILE
+                                                   [--auxiliary-script-file FILEPATH]
+                                                   [ --metadata-json-file FILEPATH
+                                                   | --metadata-cbor-file FILEPATH
                                                    ]
-                                                   [--protocol-params-file FILE]
-                                                   [--update-proposal-file FILE]
-                                                   --out-file FILE
+                                                   [--protocol-params-file FILEPATH]
+                                                   [--update-proposal-file FILEPATH]
+                                                   --out-file FILEPATH
 
   Build a transaction (low-level, inconvenient)
 
@@ -166,7 +166,8 @@ Available options:
   --simple-script-tx-in-reference TX-IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a simple reference script attached.
-  --tx-in-script-file FILE The file containing the script to witness the
+  --tx-in-script-file FILEPATH
+                           The file containing the script to witness the
                            spending of the transaction input.
   --tx-in-datum-cbor-file CBOR_FILE
                            The script datum file. The file has to be in CBOR
@@ -209,7 +210,8 @@ Available options:
                            as fees in the event of a Plutus script failure. Must
                            be used in conjuction with
                            "--tx-out-return-collateral".
-  --required-signer FILE   Input filepath of the signing key (zero or more)
+  --required-signer FILEPATH
+                           Input filepath of the signing key (zero or more)
                            whose signature is required.
   --required-signer-hash HASH
                            Hash of the verification key (zero or more) whose
@@ -258,11 +260,12 @@ Available options:
                            inline datum, given here. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --tx-out-reference-script-file FILE
+  --tx-out-reference-script-file FILEPATH
                            Reference script input file.
   --mint VALUE             Mint multi-asset value(s) with the multi-asset cli
                            syntax. You must specify a script witness.
-  --mint-script-file FILE  The file containing the script to witness the minting
+  --mint-script-file FILEPATH
+                           The file containing the script to witness the minting
                            of assets for a particular policy Id.
   --mint-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
@@ -301,11 +304,12 @@ Available options:
   --invalid-before SLOT    Time that transaction is valid from (in slots).
   --invalid-hereafter SLOT Time that transaction is valid until (in slots).
   --fee LOVELACE           The fee amount in Lovelace.
-  --certificate-file FILE  Filepath of the certificate. This encompasses all
+  --certificate-file FILEPATH
+                           Filepath of the certificate. This encompasses all
                            types of certificates (stake pool certificates, stake
                            key certificates etc). Optionally specify a script
                            witness.
-  --certificate-script-file FILE
+  --certificate-script-file FILEPATH
                            The file containing the script to witness the use of
                            the certificate.
   --certificate-redeemer-cbor-file CBOR_FILE
@@ -343,7 +347,7 @@ Available options:
                            StakeAddress is the Bech32-encoded stake address
                            followed by the amount in Lovelace. Optionally
                            specify a script witness.
-  --withdrawal-script-file FILE
+  --withdrawal-script-file FILEPATH
                            The file containing the script to witness the
                            withdrawal of rewards.
   --withdrawal-redeemer-cbor-file CBOR_FILE
@@ -383,15 +387,15 @@ Available options:
   --json-metadata-detailed-schema
                            Use the "detailed schema" conversion from JSON to tx
                            metadata.
-  --auxiliary-script-file FILE
+  --auxiliary-script-file FILEPATH
                            Filepath of auxiliary script(s)
-  --metadata-json-file FILE
+  --metadata-json-file FILEPATH
                            Filepath of the metadata file, in JSON format.
-  --metadata-cbor-file FILE
+  --metadata-cbor-file FILEPATH
                            Filepath of the metadata, in raw CBOR format.
-  --protocol-params-file FILE
+  --protocol-params-file FILEPATH
                            Filepath of the JSON-encoded protocol parameters file
-  --update-proposal-file FILE
+  --update-proposal-file FILEPATH
                            Filepath of the update proposal.
-  --out-file FILE          Output filepath of the JSON TxBody.
+  --out-file FILEPATH      Output filepath of the JSON TxBody.
   -h,--help                Show this help text

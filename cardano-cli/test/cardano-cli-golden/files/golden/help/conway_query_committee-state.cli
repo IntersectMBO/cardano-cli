@@ -5,12 +5,12 @@ Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
                                                   | --testnet-magic NATURAL
                                                   )
                                                   [ --cold-verification-key STRING
-                                                  | --cold-verification-key-file FILE
+                                                  | --cold-verification-key-file FILEPATH
                                                   | --cold-verification-key-hash STRING
                                                   | --cold-script-hash HASH
                                                   ]
                                                   [ --hot-key STRING
-                                                  | --hot-key-file FILE
+                                                  | --hot-key-file FILEPATH
                                                   | --hot-key-hash STRING
                                                   | --hot-script-hash HASH
                                                   ]
@@ -21,7 +21,7 @@ Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
                                                   [ --volatile-tip
                                                   | --immutable-tip
                                                   ]
-                                                  [--out-file FILE]
+                                                  [--out-file FILEPATH]
 
   Get the committee state
 
@@ -41,14 +41,14 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
-  --cold-verification-key-file FILE
+  --cold-verification-key-file FILEPATH
                            Filepath of the Constitutional Committee cold key.
   --cold-verification-key-hash STRING
                            Constitutional Committee key hash (hex-encoded).
   --cold-script-hash HASH  Cold Native or Plutus script file hash (hex-encoded).
                            Obtain it with "cardano-cli hash script ...".
   --hot-key STRING         Constitutional Committee hot key (hex-encoded).
-  --hot-key-file FILE      Filepath of the Constitutional Committee hot key.
+  --hot-key-file FILEPATH  Filepath of the Constitutional Committee hot key.
   --hot-key-hash STRING    Constitutional Committee key hash (hex-encoded).
   --hot-script-hash HASH   Hot Native or Plutus script file hash (hex-encoded).
                            Obtain it with "cardano-cli hash script ...".
@@ -60,5 +60,5 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
-  --out-file FILE          The output file.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

@@ -1,15 +1,15 @@
 Usage: cardano-cli hash anchor-data 
                                       ( --text TEXT
-                                      | --file-binary FILE
-                                      | --file-text FILE
+                                      | --file-binary FILEPATH
+                                      | --file-text FILEPATH
                                       )
-                                      [--out-file FILE]
+                                      [--out-file FILEPATH]
 
   Compute the hash of some anchor data (to then pass it to other commands).
 
 Available options:
   --text TEXT              Text to hash as UTF-8
-  --file-binary FILE       Binary file to hash
-  --file-text FILE         Text file to hash
-  --out-file FILE          The output file.
+  --file-binary FILEPATH   Binary file to hash
+  --file-text FILEPATH     Text file to hash
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text

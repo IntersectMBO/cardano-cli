@@ -2,7 +2,7 @@ Usage: cardano-cli conway query tip --socket-path SOCKET_PATH
                                       [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       [--volatile-tip | --immutable-tip]
-                                      [--out-file FILE]
+                                      [--out-file FILEPATH]
 
   Get the node's current tip (slot no, hash, block no)
 
@@ -23,5 +23,5 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
-  --out-file FILE          Optional output file. Default is to write to stdout.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

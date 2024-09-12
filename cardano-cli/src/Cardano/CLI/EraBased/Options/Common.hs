@@ -288,14 +288,7 @@ pStakeVerificationKeyOrFile prefix =
 
 pScriptFor :: String -> Maybe String -> String -> Parser ScriptFile
 pScriptFor name Nothing help' =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long name
-        , Opt.metavar "FILE"
-        , Opt.help help'
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  fmap File $ parseFilePath name help'
 pScriptFor name (Just deprecated) help' =
   pScriptFor name Nothing help'
     <|> File
@@ -338,13 +331,9 @@ pStakeVerificationKeyFile :: Maybe String -> Parser (VerificationKeyFile In)
 pStakeVerificationKeyFile prefix =
   File
     <$> asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long $ prefixFlag prefix "stake-verification-key-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Filepath of the staking verification key."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+      [ parseFilePath
+          (prefixFlag prefix "stake-verification-key-file")
+          "Filepath of the staking verification key."
       , Opt.strOption $
           mconcat
             [ Opt.long $ prefixFlag prefix "staking-verification-key-file"
@@ -491,24 +480,10 @@ pShelleyBasedConway envCli =
       ]
 
 pFileOutDirection :: String -> String -> Parser (File a Out)
-pFileOutDirection l h =
-  Opt.strOption $
-    mconcat
-      [ Opt.long l
-      , Opt.metavar "FILE"
-      , Opt.help h
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
+pFileOutDirection l h = File <$> parseFilePath l h
 
 pFileInDirection :: String -> String -> Parser (File a In)
-pFileInDirection l h =
-  Opt.strOption $
-    mconcat
-      [ Opt.long l
-      , Opt.metavar "FILE"
-      , Opt.help h
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
+pFileInDirection l h = File <$> parseFilePath l h
 
 parseLovelace :: Parsec.Parser Lovelace
 parseLovelace = do
@@ -540,13 +515,7 @@ pStakePoolVerificationKeyFile :: Maybe String -> Parser (VerificationKeyFile In)
 pStakePoolVerificationKeyFile prefix =
   File
     <$> asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long $ prefixFlag prefix "cold-verification-key-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Filepath of the stake pool verification key."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+      [ parseFilePath "cold-verification-key-file" "Filepath of the stake pool verification key."
       , Opt.strOption $
           mconcat
             [ Opt.long $ prefixFlag prefix "stake-pool-verification-key-file"
@@ -555,15 +524,7 @@ pStakePoolVerificationKeyFile prefix =
       ]
 
 pOutputFile :: Parser (File content Out)
-pOutputFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "out-file"
-        , Opt.metavar "FILE"
-        , Opt.help "The output file."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+pOutputFile = File <$> parseFilePath "out-file" "The output file."
 
 pMIRPot :: Parser L.MIRPot
 pMIRPot =
@@ -663,13 +624,7 @@ pColdVerificationKeyFile :: Parser (VerificationKeyFile direction)
 pColdVerificationKeyFile =
   fmap File $
     asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long "cold-verification-key-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Filepath of the cold verification key."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+      [ parseFilePath "cold-verification-key-file" "Filepath of the cold verification key."
       , Opt.strOption $
           mconcat
             [ Opt.long "verification-key-file"
@@ -677,18 +632,11 @@ pColdVerificationKeyFile =
             ]
       ]
 
--- TODO CIP-1694 parameterise this by signing key role
 pColdSigningKeyFile :: Parser (File (SigningKey keyrole) direction)
 pColdSigningKeyFile =
   fmap File $
     asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long "cold-signing-key-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Filepath of the cold signing key."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+      [ parseFilePath "cold-signing-key-file" "Filepath of the cold signing key."
       , Opt.strOption $
           mconcat
             [ Opt.long "signing-key-file"
@@ -696,40 +644,21 @@ pColdSigningKeyFile =
             ]
       ]
 
--- TODO CIP-1694 parameterise this by verification key role
 pVerificationKeyFileOut :: Parser (File (VerificationKey keyrole) Out)
 pVerificationKeyFileOut =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Output filepath of the verification key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath "verification-key-file" "Output filepath of the verification key."
 
 pSigningKeyFileOut :: Parser (File (SigningKey keyrole) Out)
 pSigningKeyFileOut =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "signing-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Output filepath of the signing key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath "signing-key-file" "Output filepath of the signing key."
 
 pOperatorCertIssueCounterFile :: Parser (File OpCertCounter direction)
 pOperatorCertIssueCounterFile =
   fmap File $
     asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long "operational-certificate-issue-counter-file"
-            , Opt.metavar "FILE"
-            , Opt.help "The file with the issue counter for the operational certificate."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+      [ parseFilePath
+          "operational-certificate-issue-counter-file"
+          "The file with the issue counter for the operational certificate."
       , Opt.strOption $
           mconcat
             [ Opt.long "operational-certificate-issue-counter"
@@ -781,14 +710,10 @@ pAddCommitteeColdVerificationKey =
 
 pAddCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
 pAddCommitteeColdVerificationKeyFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "add-cc-cold-verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the Constitutional Committee cold key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File
+    <$> parseFilePath
+      "add-cc-cold-verification-key-file"
+      "Filepath of the Constitutional Committee cold key."
 
 ---
 pRemoveCommitteeColdVerificationKeySource
@@ -852,14 +777,10 @@ deserialiseColdCCKeyHashFromHex =
 
 pRemoveCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
 pRemoveCommitteeColdVerificationKeyFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "remove-cc-cold-verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the Constitutional Committee cold key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File
+    <$> parseFilePath
+      "remove-cc-cold-verification-key-file"
+      "Filepath of the Constitutional Committee cold key."
 
 ---
 
@@ -897,36 +818,16 @@ pCommitteeColdVerificationKeyHash =
 
 pCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
 pCommitteeColdVerificationKeyFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "cold-verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the Constitutional Committee cold key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File
+    <$> parseFilePath "cold-verification-key-file" "Filepath of the Constitutional Committee cold key."
 
 pVerificationKeyFileIn :: Parser (VerificationKeyFile In)
 pVerificationKeyFileIn =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Input filepath of the verification key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath "verification-key-file" "Input filepath of the verification key."
 
 pAnyVerificationKeyFileIn :: String -> Parser (VerificationKeyFile In)
 pAnyVerificationKeyFileIn helpText =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help $ "Input filepath of the " <> helpText <> "."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath "verification-key-file" ("Input filepath of the " <> helpText <> ".")
 
 pAnyVerificationKeyText :: String -> Parser AnyVerificationKeyText
 pAnyVerificationKeyText helpText =
@@ -983,14 +884,7 @@ deserialiseHotCCKeyHashFromHex =
 
 pCommitteeHotVerificationKeyFile :: String -> Parser (VerificationKeyFile In)
 pCommitteeHotVerificationKeyFile longFlag =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long longFlag
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the Constitutional Committee hot key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath longFlag "Filepath of the Constitutional Committee hot key."
 
 -- | The first argument is the optional prefix.
 pCommitteeHotKeyHash :: Maybe String -> Parser (Hash CommitteeHotKey)
@@ -1113,13 +1007,7 @@ pStakePoolVerificationKeyOrHashOrFile prefix =
 pCBORInFile :: Parser FilePath
 pCBORInFile =
   asum
-    [ Opt.strOption $
-        mconcat
-          [ Opt.long "in-file"
-          , Opt.metavar "FILE"
-          , Opt.help "CBOR input file."
-          , Opt.completer (Opt.bashCompleter "file")
-          ]
+    [ parseFilePath "in-file" "CBOR input file."
     , Opt.strOption $
         mconcat
           [ Opt.long "file"
@@ -1157,25 +1045,12 @@ pPollAnswerIndex =
       ]
 
 pPollFile :: Parser (File GovernancePoll In)
-pPollFile =
-  Opt.strOption $
-    mconcat
-      [ Opt.long "poll-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath to the ongoing poll."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
+pPollFile = File <$> parseFilePath "poll-file" "Filepath to the ongoing poll."
 
 pPollTxFile :: Parser (TxFile In)
 pPollTxFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "tx-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath to the JSON TxBody or JSON Tx carrying a valid poll answer."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File
+    <$> parseFilePath "tx-file" "Filepath to the JSON TxBody or JSON Tx carrying a valid poll answer."
 
 pPollNonce :: Parser Word
 pPollNonce =
@@ -1490,13 +1365,7 @@ pPaymentVerificationKeyFile :: Parser (VerificationKeyFile In)
 pPaymentVerificationKeyFile =
   fmap File $
     asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long "payment-verification-key-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Filepath of the payment verification key."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+      [ parseFilePath "payment-verification-key-file" "Filepath of the payment verification key."
       , Opt.strOption $
           mconcat
             [ Opt.long "verification-key-file"
@@ -1558,14 +1427,8 @@ pAddressKeyType =
 
 pProtocolParamsFile :: Parser ProtocolParamsFile
 pProtocolParamsFile =
-  fmap ProtocolParamsFile $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "protocol-params-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the JSON-encoded protocol parameters file"
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  ProtocolParamsFile
+    <$> parseFilePath "protocol-params-file" "Filepath of the JSON-encoded protocol parameters file"
 
 pTxBuildOutputOptions :: Parser TxBuildOutputOptions
 pTxBuildOutputOptions =
@@ -1573,13 +1436,10 @@ pTxBuildOutputOptions =
  where
   pCalculatePlutusScriptCost :: Parser TxBuildOutputOptions
   pCalculatePlutusScriptCost =
-    OutputScriptCostOnly
-      <$> Opt.strOption
-        ( Opt.long "calculate-plutus-script-cost"
-            <> Opt.metavar "FILE"
-            <> Opt.help "(File () Out) filepath of the script cost information."
-            <> Opt.completer (Opt.bashCompleter "file")
-        )
+    OutputScriptCostOnly . File
+      <$> parseFilePath
+        "calculate-plutus-script-cost"
+        "Where to write the script cost information."
 
 pCertificateFile
   :: ShelleyBasedEra era
@@ -1589,13 +1449,7 @@ pCertificateFile sbe balanceExecUnits =
   (,)
     <$> ( fmap CertificateFile $
             asum
-              [ Opt.strOption $
-                  mconcat
-                    [ Opt.long "certificate-file"
-                    , Opt.metavar "FILE"
-                    , Opt.help helpText
-                    , Opt.completer (Opt.bashCompleter "file")
-                    ]
+              [ parseFilePath "certificate-file" helpText
               , Opt.strOption (Opt.long "certificate" <> Opt.internal)
               ]
         )
@@ -1622,14 +1476,7 @@ pCertificateFile sbe balanceExecUnits =
 
 pPoolMetadataFile :: Parser (StakePoolMetadataFile In)
 pPoolMetadataFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "pool-metadata-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the pool metadata."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath "pool-metadata-file" "Filepath of the pool metadata."
 
 pTxMetadataJsonSchema :: Parser TxMetadataJsonSchema
 pTxMetadataJsonSchema =
@@ -1659,13 +1506,7 @@ pMetadataFile =
   asum
     [ fmap MetadataFileJSON $
         asum
-          [ Opt.strOption $
-              mconcat
-                [ Opt.long "metadata-json-file"
-                , Opt.metavar "FILE"
-                , Opt.help "Filepath of the metadata file, in JSON format."
-                , Opt.completer (Opt.bashCompleter "file")
-                ]
+          [ File <$> parseFilePath "metadata-json-file" "Filepath of the metadata file, in JSON format."
           , Opt.strOption $
               mconcat
                 [ Opt.long "metadata-file" -- backward compat name
@@ -1673,13 +1514,7 @@ pMetadataFile =
                 ]
           ]
     , fmap MetadataFileCBOR $
-        Opt.strOption $
-          mconcat
-            [ Opt.long "metadata-cbor-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Filepath of the metadata, in raw CBOR format."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+        File <$> parseFilePath "metadata-cbor-file" "Filepath of the metadata, in raw CBOR format."
     ]
 
 pWithdrawal
@@ -1772,13 +1607,7 @@ pUpdateProposalFile :: Parser UpdateProposalFile
 pUpdateProposalFile =
   fmap UpdateProposalFile $
     asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long "update-proposal-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Filepath of the update proposal."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+      [ parseFilePath "update-proposal-file" "Filepath of the update proposal."
       , Opt.strOption $
           mconcat
             [ Opt.long "update-proposal"
@@ -1795,18 +1624,10 @@ pRequiredSigner =
  where
   sKeyFile :: Parser (SigningKeyFile In)
   sKeyFile =
-    fmap File $
-      Opt.strOption $
-        mconcat
-          [ Opt.long "required-signer"
-          , Opt.metavar "FILE"
-          , Opt.help $
-              mconcat
-                [ "Input filepath of the signing key (zero or more) whose "
-                , "signature is required."
-                ]
-          , Opt.completer (Opt.bashCompleter "file")
-          ]
+    File
+      <$> parseFilePath
+        "required-signer"
+        "Input filepath of the signing key (zero or more) whose signature is required."
   sPayKeyHash :: Parser (Hash PaymentKey)
   sPayKeyHash =
     Opt.option (readerFromParsecParser $ parseHash (AsHash AsPaymentKey)) $
@@ -1822,14 +1643,7 @@ pRequiredSigner =
 
 pVrfSigningKeyFile :: Parser (SigningKeyFile In)
 pVrfSigningKeyFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "vrf-signing-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Input filepath of the VRF signing key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath "vrf-signing-key-file" "Input filepath of the VRF signing key."
 
 pWhichLeadershipSchedule :: Parser EpochLeadershipSchedule
 pWhichLeadershipSchedule = pCurrent <|> pNext
@@ -1852,28 +1666,13 @@ pWhichLeadershipSchedule = pCurrent <|> pNext
 
 pWitnessSigningData :: Parser WitnessSigningData
 pWitnessSigningData =
-  KeyWitnessSigningData
-    <$> ( fmap File $
-            Opt.strOption $
-              mconcat
-                [ Opt.long "signing-key-file"
-                , Opt.metavar "FILE"
-                , Opt.help "Input filepath of the signing key (one or more)."
-                , Opt.completer (Opt.bashCompleter "file")
-                ]
-        )
+  KeyWitnessSigningData . File
+    <$> parseFilePath "signing-key-file" "Input filepath of the signing key (one or more)."
     <*> optional pByronAddress
 
 pSigningKeyFileIn :: Parser (SigningKeyFile In)
 pSigningKeyFileIn =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "signing-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Input filepath of the signing key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath "signing-key-file" "Input filepath of the signing key."
 
 pKesPeriod :: Parser KESPeriod
 pKesPeriod =
@@ -1899,25 +1698,11 @@ pEpochNoUpdateProp :: Parser EpochNo
 pEpochNoUpdateProp = pEpochNo "The epoch number in which the update proposal is valid."
 
 pGenesisFile :: String -> Parser GenesisFile
-pGenesisFile desc =
-  fmap GenesisFile $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "genesis"
-        , Opt.metavar "FILE"
-        , Opt.help desc
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+pGenesisFile desc = GenesisFile <$> parseFilePath "genesis" desc
 
 pOperationalCertificateFile :: Parser (File () direction)
 pOperationalCertificateFile =
-  Opt.strOption $
-    mconcat
-      [ Opt.long "op-cert-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath of the node's operational certificate."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
+  File <$> parseFilePath "op-cert-file" "Filepath of the node's operational certificate."
 
 pKeyOutputFormat :: Parser KeyOutputFormat
 pKeyOutputFormat =
@@ -2006,14 +1791,7 @@ pViewOutputFormat kind =
 pMaybeOutputFile :: Parser (Maybe (File content Out))
 pMaybeOutputFile =
   optional $
-    fmap File $
-      Opt.strOption $
-        mconcat
-          [ Opt.long "out-file"
-          , Opt.metavar "FILE"
-          , Opt.help "Optional output file. Default is to write to stdout."
-          , Opt.completer (Opt.bashCompleter "file")
-          ]
+    File <$> parseFilePath "out-file" "Optional output file. Default is to write to stdout."
 
 pVerificationKey
   :: forall keyrole
@@ -2040,25 +1818,14 @@ pVerificationKeyOrFileIn asType =
 
 pExtendedVerificationKeyFileIn :: Parser (VerificationKeyFile In)
 pExtendedVerificationKeyFileIn =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "extended-verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Input filepath of the ed25519-bip32 verification key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File
+    <$> parseFilePath
+      "extended-verification-key-file"
+      "Input filepath of the ed25519-bip32 verification key."
 
 pGenesisVerificationKeyFile :: Parser (VerificationKeyFile In)
 pGenesisVerificationKeyFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "genesis-verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the genesis verification key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath "genesis-verification-key-file" "Filepath of the genesis verification key."
 
 pGenesisVerificationKeyHash :: Parser (Hash GenesisKey)
 pGenesisVerificationKeyHash =
@@ -2101,14 +1868,10 @@ pGenesisVerificationKeyOrHashOrFile =
 
 pGenesisDelegateVerificationKeyFile :: Parser (VerificationKeyFile In)
 pGenesisDelegateVerificationKeyFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "genesis-delegate-verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the genesis delegate verification key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File
+    <$> parseFilePath
+      "genesis-delegate-verification-key-file"
+      "Filepath of the genesis delegate verification key."
 
 pGenesisDelegateVerificationKeyHash :: Parser (Hash GenesisDelegateKey)
 pGenesisDelegateVerificationKeyHash =
@@ -2177,13 +1940,7 @@ pKesVerificationKeyFile :: Parser (VerificationKeyFile In)
 pKesVerificationKeyFile =
   fmap File $
     asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long "kes-verification-key-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Filepath of the hot KES verification key."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+      [ parseFilePath "kes-verification-key-file" "Filepath of the hot KES verification key."
       , Opt.strOption $
           mconcat
             [ Opt.long "hot-kes-verification-key-file"
@@ -2192,14 +1949,7 @@ pKesVerificationKeyFile =
       ]
 
 pTxSubmitFile :: Parser FilePath
-pTxSubmitFile =
-  Opt.strOption $
-    mconcat
-      [ Opt.long "tx-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath of the transaction you intend to submit."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
+pTxSubmitFile = parseFilePath "tx-file" "Filepath of the transaction you intend to submit."
 
 pTxIn
   :: ShelleyBasedEra era
@@ -2433,12 +2183,7 @@ pTxOutDatum =
 pRefScriptFp :: Parser ReferenceScriptAnyEra
 pRefScriptFp =
   ReferenceScriptAnyEra
-    <$> Opt.strOption
-      ( Opt.long "tx-out-reference-script-file"
-          <> Opt.metavar "FILE"
-          <> Opt.help "Reference script input file."
-          <> Opt.completer (Opt.bashCompleter "file")
-      )
+    <$> parseFilePath "tx-out-reference-script-file" "Reference script input file."
       <|> pure ReferenceScriptAnyEraNone
 
 pMintMultiAsset
@@ -2614,38 +2359,16 @@ pTxFee =
         ]
 
 pWitnessFile :: Parser WitnessFile
-pWitnessFile =
-  fmap WitnessFile $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "witness-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the witness"
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+pWitnessFile = WitnessFile <$> parseFilePath "witness-file" "Filepath of the witness"
 
 pTxBodyFileIn :: Parser (TxBodyFile In)
-pTxBodyFileIn =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "tx-body-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Input filepath of the JSON TxBody."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+pTxBodyFileIn = File <$> parseFilePath "tx-body-file" "Input filepath of the JSON TxBody."
 
 pTxBodyFileOut :: Parser (TxBodyFile Out)
 pTxBodyFileOut =
   fmap File $
     asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long "out-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Output filepath of the JSON TxBody."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+      [ parseFilePath "out-file" "Output filepath of the JSON TxBody."
       , Opt.strOption $
           mconcat
             [ Opt.long "tx-body-file"
@@ -2654,27 +2377,13 @@ pTxBodyFileOut =
       ]
 
 pTxFileIn :: Parser (TxFile In)
-pTxFileIn =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "tx-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Input filepath of the JSON Tx."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+pTxFileIn = File <$> parseFilePath "tx-file" "Input filepath of the JSON Tx."
 
 pTxFileOut :: Parser (TxFile Out)
 pTxFileOut =
-  fmap File $
-    asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long "out-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Output filepath of the JSON Tx."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+  File
+    <$> asum
+      [ parseFilePath "out-file" "Output filepath of the JSON Tx."
       , Opt.strOption $
           mconcat
             [ Opt.long "tx-file"
@@ -2816,14 +2525,7 @@ pStakePoolVerificationKeyHash prefix =
 
 pVrfVerificationKeyFile :: Parser (VerificationKeyFile In)
 pVrfVerificationKeyFile =
-  fmap File $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "vrf-verification-key-file"
-        , Opt.metavar "FILE"
-        , Opt.help "Filepath of the VRF verification key."
-        , Opt.completer (Opt.bashCompleter "file")
-        ]
+  File <$> parseFilePath "vrf-verification-key-file" "Filepath of the VRF verification key."
 
 pVrfVerificationKeyHash :: Parser (Hash VrfKey)
 pVrfVerificationKeyHash =
@@ -2863,15 +2565,11 @@ pVrfVerificationKeyOrHashOrFile =
 
 pRewardAcctVerificationKeyFile :: Parser (VerificationKeyFile In)
 pRewardAcctVerificationKeyFile =
-  fmap File $
-    asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long "pool-reward-account-verification-key-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Filepath of the reward account stake verification key."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+  File
+    <$> asum
+      [ parseFilePath
+          "pool-reward-account-verification-key-file"
+          "Filepath of the reward account stake verification key."
       , Opt.strOption $
           mconcat
             [ Opt.long "reward-account-verification-key-file"
@@ -2897,15 +2595,11 @@ pRewardAcctVerificationKeyOrFile =
 
 pPoolOwnerVerificationKeyFile :: Parser (VerificationKeyFile In)
 pPoolOwnerVerificationKeyFile =
-  fmap File $
-    asum
-      [ Opt.strOption $
-          mconcat
-            [ Opt.long "pool-owner-stake-verification-key-file"
-            , Opt.metavar "FILE"
-            , Opt.help "Filepath of the pool owner stake verification key."
-            , Opt.completer (Opt.bashCompleter "file")
-            ]
+  File
+    <$> asum
+      [ parseFilePath
+          "pool-owner-stake-verification-key-file"
+          "Filepath of the pool owner stake verification key."
       , Opt.strOption $
           mconcat
             [ Opt.long "pool-owner-staking-verification-key"
@@ -3871,13 +3565,7 @@ pDRepVerificationKeyOrFile =
 
 pDRepVerificationKeyFile :: Parser (VerificationKeyFile In)
 pDRepVerificationKeyFile =
-  fmap File . Opt.strOption $
-    mconcat
-      [ Opt.long "drep-verification-key-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath of the DRep verification key."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
+  File <$> parseFilePath "drep-verification-key-file" "Filepath of the DRep verification key."
 
 pSPOVerificationKeyHash :: Parser (Hash StakePoolKey)
 pSPOVerificationKeyHash =
@@ -3906,13 +3594,7 @@ pSPOVerificationKeyOrFile =
 
 pSPOVerificationKeyFile :: Parser (VerificationKeyFile In)
 pSPOVerificationKeyFile =
-  fmap File . Opt.strOption $
-    mconcat
-      [ Opt.long "spo-verification-key-file"
-      , Opt.metavar "FILE"
-      , Opt.help "Filepath of the SPO verification key."
-      , Opt.completer (Opt.bashCompleter "file")
-      ]
+  File <$> parseFilePath "spo-verification-key-file" "Filepath of the SPO verification key."
 
 pAnchorUrl :: Parser ProposalUrl
 pAnchorUrl =
