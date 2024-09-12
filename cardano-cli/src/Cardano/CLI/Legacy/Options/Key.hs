@@ -8,7 +8,7 @@ module Cardano.CLI.Legacy.Options.Key
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import           Cardano.Api hiding (QueryInShelleyBasedEra (..), parseFilePath)
 
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Legacy.Commands.Key

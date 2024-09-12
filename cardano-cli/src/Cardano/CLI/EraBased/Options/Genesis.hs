@@ -9,7 +9,7 @@ module Cardano.CLI.EraBased.Options.Genesis
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import           Cardano.Api hiding (QueryInShelleyBasedEra (..), parseFilePath)
 import           Cardano.Api.Ledger (Coin (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
