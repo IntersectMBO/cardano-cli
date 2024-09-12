@@ -1439,7 +1439,7 @@ pTxBuildOutputOptions =
     OutputScriptCostOnly . File
       <$> parseFilePath
         "calculate-plutus-script-cost"
-        "(File () Out) filepath of the script cost information."
+        "Where to write the script cost information."
 
 pCertificateFile
   :: ShelleyBasedEra era
