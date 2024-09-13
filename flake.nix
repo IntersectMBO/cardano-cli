@@ -67,7 +67,11 @@
           inherit (inputs.haskellNix) config;
         };
         inherit (nixpkgs) lib;
-
+        macOS-security =
+          # make `/usr/bin/security` available in `PATH`, which is needed for stack
+          # on darwin which calls this binary to find certificates
+          nixpkgs.writeScriptBin "security" ''exec /usr/bin/security "$@"'';
+        isDarwin = (system == "x86_64-darwin") || (system == "aarch64-darwin");
         gitRevFlag =
           if inputs.self ? rev
           then [("--ghc-option=-D__GIT_REV__=\\\"" + inputs.self.rev + "\\\"")]
@@ -114,7 +118,7 @@
               stylish-haskell = "0.14.6.0";
             };
           # and from nixpkgs or other inputs
-          shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck cabal-head];
+          shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck cabal-head] ++ (lib.optional isDarwin macOS-security);
           # disable Hoogle until someone request it
           shell.withHoogle = false;
           # Skip cross compilers for the shell
@@ -161,7 +165,11 @@
               in ''
                 ${exportCliPath}
                 cp -r ${filteredProjectBase}/* ..
-              '';
+               '' + (if isDarwin
+                    then '' 
+                       export PATH=${macOS-security}/bin:$PATH
+                    ''
+                    else '''');
             })
             {
               packages.crypton-x509-system.postPatch = ''
