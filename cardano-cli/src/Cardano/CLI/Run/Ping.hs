@@ -18,6 +18,7 @@ import qualified Control.Concurrent.Class.MonadSTM.Strict as STM
 import           Control.Exception (SomeException)
 import           Control.Monad (forM, unless)
 import           Control.Monad.Class.MonadAsync (MonadAsync (async, wait, waitCatch))
+import           Control.Monad.Except (throwError)
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Except.Extra (left)
 import           Control.Tracer (Tracer (..))
@@ -28,7 +29,9 @@ import qualified Network.Socket as Socket
 import qualified System.Exit as IO
 import qualified System.IO as IO
 
-newtype PingClientCmdError = PingClientCmdError [(AddrInfo, SomeException)]
+data PingClientCmdError
+  = PingClientCmdError [(AddrInfo, SomeException)]
+  | PingClientMisconfigurationError String
 
 maybeHostEndPoint :: EndPoint -> Maybe String
 maybeHostEndPoint = \case
@@ -58,6 +61,9 @@ pingClient stdout stderr cmd = CNP.pingClient stdout stderr opts
       }
 
 runPingCmd :: PingCmd -> ExceptT PingClientCmdError IO ()
+runPingCmd options
+  | Just err <- getConfigurationError options =
+      throwError $ PingClientMisconfigurationError err
 runPingCmd options = do
   let hints = Socket.defaultHints{Socket.addrSocketType = Socket.Stream}
 
@@ -120,3 +126,4 @@ runPingCmd options = do
 renderPingClientCmdError :: PingClientCmdError -> Doc ann
 renderPingClientCmdError = \case
   PingClientCmdError es -> mconcat $ List.intersperse "\n" $ pshow <$> es
+  PingClientMisconfigurationError err -> pretty err
