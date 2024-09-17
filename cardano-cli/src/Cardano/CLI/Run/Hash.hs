@@ -20,6 +20,7 @@ import           Cardano.CLI.Types.Errors.HashCmdError
 import           Cardano.Crypto.Hash (hashToTextAsHex)
 
 import           Control.Exception (throw)
+import           Control.Monad (when)
 import           Control.Monad.Catch (Exception, Handler (Handler))
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BS8
@@ -27,6 +28,7 @@ import qualified Data.ByteString.Lazy as BSL
 import           Data.Char (toLower)
 import           Data.Function
 import           Data.List (intercalate)
+import           Data.Maybe (isJust)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
@@ -68,7 +70,9 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, mExpectedHash, mOutFile} 
     Just expectedHash
       | hash /= expectedHash ->
           left $ HashMismatchedHashError expectedHash hash
-      | otherwise -> liftIO $ putStrLn "Hashes match!"
+      | otherwise -> do
+          liftIO $ putStrLn "Hashes match!"
+          when (isJust mOutFile) $ writeHash hash
     Nothing -> writeHash hash
  where
   writeHash :: L.SafeHash L.StandardCrypto i -> ExceptT HashCmdError IO ()
