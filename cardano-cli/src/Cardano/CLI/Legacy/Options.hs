@@ -21,9 +21,9 @@ module Cardano.CLI.Legacy.Options
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import           Cardano.Api hiding (QueryInShelleyBasedEra (..), parseFilePath)
 import           Cardano.Api.Ledger (Coin (..))
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..), parseFilePath)
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Environment
