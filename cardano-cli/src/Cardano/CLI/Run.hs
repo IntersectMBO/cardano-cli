@@ -28,7 +28,6 @@ import Cardano.CLI.EraIndependent.Ping.Run
   ( runPingCmd
   )
 import Cardano.CLI.Legacy.Run (runLegacyCmds)
-import Cardano.CLI.Render (customRenderHelp)
 import Cardano.Git.Rev (gitRev)
 
 import RIO
@@ -38,6 +37,7 @@ import Data.Text qualified as Text
 import Data.Text.IO qualified as Text
 import Data.Version (showVersion)
 import Options.Applicative.Help.Core
+import Options.Applicative.Help.Types (renderHelp)
 import Options.Applicative.Types
   ( OptReader (..)
   , Option (..)
@@ -103,7 +103,7 @@ runDisplayVersion = do
 
 helpAll :: ParserPrefs -> String -> [String] -> ParserInfo a -> IO ()
 helpAll pprefs progn rnames parserInfo = do
-  IO.putStrLn $ customRenderHelp 80 (usage_help parserInfo)
+  IO.putStrLn $ renderHelp 80 (usage_help parserInfo)
   IO.putStrLn ""
   go (infoParser parserInfo)
  where

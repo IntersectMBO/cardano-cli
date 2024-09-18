@@ -25,13 +25,11 @@ import Cardano.CLI.EraIndependent.Node.Option
 import Cardano.CLI.EraIndependent.Ping.Option (parsePingCmd)
 import Cardano.CLI.Legacy.Option (parseLegacyCmds)
 import Cardano.CLI.Parser
-import Cardano.CLI.Render (customRenderHelp)
 import Cardano.CLI.Run (ClientCommand (..))
 
 import Data.Foldable
 import Options.Applicative
 import Options.Applicative qualified as Opt
-import Prettyprinter qualified as PP
 
 opts :: EnvCli -> ParserInfo ClientCommand
 opts envCli =
@@ -51,8 +49,7 @@ pref =
   Opt.prefs $
     mconcat
       [ showHelpOnEmpty
-      , helpEmbedBriefDesc PP.align
-      , helpRenderHelp customRenderHelp
+      , Opt.briefHangPoint maxBound
       ]
 
 addressCmdsTopLevel :: EnvCli -> Parser ClientCommand
