@@ -263,6 +263,7 @@ runLegacyTransactionBuildCmd
           wdrls
           metadataSchema
           scriptFiles
+          []
           metadataFiles
           mUpdateProposalFile
           voteFiles
@@ -391,6 +392,7 @@ runLegacyTransactionBuildRawCmd
                 wdrls
                 metadataSchema
                 scriptFiles
+                []
                 metadataFiles
                 mProtocolParamsFile
                 mUpdateProposalFile

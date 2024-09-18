@@ -28,6 +28,7 @@ module Cardano.CLI.Read
   , ScriptDataError (..)
   , readScriptDatumOrFile
   , readScriptRedeemerOrFile
+  , readTxSupplementaryDatums
   , renderScriptDataError
 
     -- * Tx
@@ -484,6 +485,11 @@ readScriptDataOrFile (ScriptDataCborFile fp) = do
       validateScriptData $
         getScriptData hSd
   return hSd
+
+readTxSupplementaryDatums ::  [ScriptDataOrFile] -> ExceptT ScriptDataError IO (TxSupplementalDatums era)
+readTxSupplementaryDatums supplementaryDatums = 
+  TxSupplementalDatums <$> mapM readScriptDataOrFile supplementaryDatums
+
 
 readVerificationKeyOrHashOrFileOrScript
   :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m

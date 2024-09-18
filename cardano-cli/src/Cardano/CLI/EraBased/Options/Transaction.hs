@@ -196,6 +196,7 @@ pTransactionBuildCmd era envCli = do
               Nothing
               "Filepath of auxiliary script(s)"
           )
+        <*> many (pScriptDataOrFile "supplementary-datum" "The supplementary datum." "The supplementary datum file.")
         <*> many pMetadataFile
         <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
         <*> pVoteFiles sbe AutoBalance
@@ -256,6 +257,7 @@ pTransactionBuildEstimateCmd era _envCli = do
               Nothing
               "Filepath of auxiliary script(s)"
           )
+        <*> many (pScriptDataOrFile "supplementary-datum" "The supplementary datum." "The supplementary datum file.") 
         <*> many pMetadataFile
         <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
         <*> pVoteFiles sbe ManualBalance
@@ -293,6 +295,7 @@ pTransactionBuildRaw era =
       <*> many (pWithdrawal era ManualBalance)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
+      <*> many (pScriptDataOrFile "supplementary-datum" "The supplementary datum." "The supplementary datum file.")
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
       <*> pFeatured era (optional pUpdateProposalFile)
