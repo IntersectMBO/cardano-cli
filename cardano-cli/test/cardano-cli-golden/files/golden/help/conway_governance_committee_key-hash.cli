@@ -1,7 +1,5 @@
 Usage: cardano-cli conway governance committee key-hash 
-                                                          ( --verification-key STRING
-                                                          | --verification-key-file FILEPATH
-                                                          )
+         (--verification-key STRING | --verification-key-file FILEPATH)
 
   Print the identifier (hash) of a public key
 

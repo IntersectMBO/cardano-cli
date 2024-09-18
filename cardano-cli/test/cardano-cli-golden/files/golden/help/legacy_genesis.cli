@@ -1,16 +1,8 @@
-Usage: cardano-cli legacy genesis 
-                                    ( key-gen-genesis
-                                    | key-gen-delegate
-                                    | key-gen-utxo
-                                    | key-hash
-                                    | get-ver-key
-                                    | initial-addr
-                                    | initial-txin
-                                    | create-cardano
-                                    | create
-                                    | create-staked
-                                    | hash
-                                    )
+Usage: cardano-cli legacy genesis (key-gen-genesis | key-gen-delegate | 
+                                    key-gen-utxo | key-hash | get-ver-key | 
+                                    initial-addr | initial-txin | 
+                                    create-cardano | create | create-staked | 
+                                    hash)
 
   Genesis block commands
 

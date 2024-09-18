@@ -1,7 +1,5 @@
 Usage: cardano-cli mary transaction txid 
-                                           ( --tx-body-file FILEPATH
-                                           | --tx-file FILEPATH
-                                           )
+         (--tx-body-file FILEPATH | --tx-file FILEPATH)
 
   Print a transaction identifier.
 

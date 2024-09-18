@@ -1,16 +1,9 @@
 Usage: cardano-cli stake-pool deregistration-certificate 
-                                                           [ --shelley-era
-                                                           | --allegra-era
-                                                           | --mary-era
-                                                           | --alonzo-era
-                                                           | --babbage-era
-                                                           | --conway-era
-                                                           ]
-                                                           ( --stake-pool-verification-key STRING
-                                                           | --cold-verification-key-file FILEPATH
-                                                           )
-                                                           --epoch NATURAL
-                                                           --out-file FILEPATH
+         [--shelley-era | --allegra-era | --mary-era | --alonzo-era | 
+           --babbage-era | --conway-era] 
+         (--stake-pool-verification-key STRING | 
+           --cold-verification-key-file FILEPATH) --epoch NATURAL
+         --out-file FILEPATH
 
   Create a stake pool deregistration certificate
 

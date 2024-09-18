@@ -1,7 +1,6 @@
-Usage: cardano-cli legacy query tip --socket-path SOCKET_PATH
-                                      [--cardano-mode [--epoch-slots SLOTS]]
-                                      (--mainnet | --testnet-magic NATURAL)
-                                      [--out-file FILEPATH]
+Usage: cardano-cli legacy query tip 
+         --socket-path SOCKET_PATH [--cardano-mode [--epoch-slots SLOTS]] 
+         (--mainnet | --testnet-magic NATURAL) [--out-file FILEPATH]
 
   Get the node's current tip (slot no, hash, block no)
 

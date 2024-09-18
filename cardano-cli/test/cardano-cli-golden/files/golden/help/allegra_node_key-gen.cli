@@ -1,7 +1,7 @@
-Usage: cardano-cli allegra node key-gen [--key-output-format STRING]
-                                          --cold-verification-key-file FILEPATH
-                                          --cold-signing-key-file FILEPATH
-                                          --operational-certificate-issue-counter-file FILEPATH
+Usage: cardano-cli allegra node key-gen 
+         [--key-output-format STRING] --cold-verification-key-file FILEPATH 
+         --cold-signing-key-file FILEPATH 
+         --operational-certificate-issue-counter-file FILEPATH
 
   Create a key pair for a node operator's offline key and a new certificate
   issue counter

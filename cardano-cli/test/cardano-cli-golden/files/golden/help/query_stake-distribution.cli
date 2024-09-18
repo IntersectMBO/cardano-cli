@@ -1,11 +1,7 @@
-Usage: cardano-cli query stake-distribution --socket-path SOCKET_PATH
-                                              [--cardano-mode
-                                                [--epoch-slots SLOTS]]
-                                              ( --mainnet
-                                              | --testnet-magic NATURAL
-                                              )
-                                              [--output-json | --output-text]
-                                              [--out-file FILEPATH]
+Usage: cardano-cli query stake-distribution 
+         --socket-path SOCKET_PATH [--cardano-mode [--epoch-slots SLOTS]] 
+         (--mainnet | --testnet-magic NATURAL) [--output-json | --output-text] 
+         [--out-file FILEPATH]
 
   Get the node's current aggregated stake distribution
 

@@ -1,9 +1,7 @@
 Usage: cardano-cli conway stake-pool id 
-                                          ( --stake-pool-verification-key STRING
-                                          | --cold-verification-key-file FILEPATH
-                                          )
-                                          [--output-format STRING]
-                                          [--out-file FILEPATH]
+         (--stake-pool-verification-key STRING | 
+           --cold-verification-key-file FILEPATH) [--output-format STRING] 
+         [--out-file FILEPATH]
 
   Build pool id from the offline key
 

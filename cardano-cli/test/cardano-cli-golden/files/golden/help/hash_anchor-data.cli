@@ -1,9 +1,6 @@
 Usage: cardano-cli hash anchor-data 
-                                      ( --text TEXT
-                                      | --file-binary FILEPATH
-                                      | --file-text FILEPATH
-                                      )
-                                      [--out-file FILEPATH]
+         (--text TEXT | --file-binary FILEPATH | --file-text FILEPATH) 
+         [--out-file FILEPATH]
 
   Compute the hash of some anchor data (to then pass it to other commands).
 

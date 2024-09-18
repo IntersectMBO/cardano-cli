@@ -1,11 +1,7 @@
-Usage: cardano-cli allegra query kes-period-info --socket-path SOCKET_PATH
-                                                   [--cardano-mode
-                                                     [--epoch-slots SLOTS]]
-                                                   ( --mainnet
-                                                   | --testnet-magic NATURAL
-                                                   )
-                                                   --op-cert-file FILEPATH
-                                                   [--out-file FILEPATH]
+Usage: cardano-cli allegra query kes-period-info 
+         --socket-path SOCKET_PATH [--cardano-mode [--epoch-slots SLOTS]] 
+         (--mainnet | --testnet-magic NATURAL) --op-cert-file FILEPATH 
+         [--out-file FILEPATH]
 
   Get information about the current KES period and your node's operational
   certificate.

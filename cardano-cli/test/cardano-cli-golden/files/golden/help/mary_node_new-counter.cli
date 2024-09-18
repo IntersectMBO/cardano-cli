@@ -1,10 +1,8 @@
 Usage: cardano-cli mary node new-counter 
-                                           ( --stake-pool-verification-key STRING
-                                           | --genesis-delegate-verification-key STRING
-                                           | --cold-verification-key-file FILEPATH
-                                           )
-                                           --counter-value INT
-                                           --operational-certificate-issue-counter-file FILEPATH
+         (--stake-pool-verification-key STRING | 
+           --genesis-delegate-verification-key STRING | 
+           --cold-verification-key-file FILEPATH) --counter-value INT 
+         --operational-certificate-issue-counter-file FILEPATH
 
   Create a new certificate issue counter
 

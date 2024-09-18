@@ -1,11 +1,8 @@
 Usage: cardano-cli stake-address build 
-                                         ( --stake-verification-key STRING
-                                         | --stake-verification-key-file FILEPATH
-                                         | --stake-key-hash HASH
-                                         | --stake-script-file FILEPATH
-                                         )
-                                         (--mainnet | --testnet-magic NATURAL)
-                                         [--out-file FILEPATH]
+         (--stake-verification-key STRING | 
+           --stake-verification-key-file FILEPATH | --stake-key-hash HASH | 
+           --stake-script-file FILEPATH) (--mainnet | --testnet-magic NATURAL) 
+         [--out-file FILEPATH]
 
   Build a stake address
 

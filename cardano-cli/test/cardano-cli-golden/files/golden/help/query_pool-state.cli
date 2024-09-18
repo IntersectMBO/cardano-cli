@@ -1,10 +1,8 @@
-Usage: cardano-cli query pool-state --socket-path SOCKET_PATH
-                                      [--cardano-mode [--epoch-slots SLOTS]]
-                                      (--mainnet | --testnet-magic NATURAL)
-                                      ( --all-stake-pools
-                                      | (--stake-pool-id STAKE_POOL_ID)
-                                      )
-                                      [--out-file FILEPATH]
+Usage: cardano-cli query pool-state 
+         --socket-path SOCKET_PATH [--cardano-mode [--epoch-slots SLOTS]] 
+         (--mainnet | --testnet-magic NATURAL) 
+         (--all-stake-pools | (--stake-pool-id STAKE_POOL_ID)) 
+         [--out-file FILEPATH]
 
   Dump the pool state
 

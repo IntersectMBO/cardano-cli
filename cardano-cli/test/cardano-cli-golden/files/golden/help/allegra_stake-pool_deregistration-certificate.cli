@@ -1,9 +1,7 @@
 Usage: cardano-cli allegra stake-pool deregistration-certificate 
-                                                                   ( --stake-pool-verification-key STRING
-                                                                   | --cold-verification-key-file FILEPATH
-                                                                   )
-                                                                   --epoch NATURAL
-                                                                   --out-file FILEPATH
+         (--stake-pool-verification-key STRING | 
+           --cold-verification-key-file FILEPATH) --epoch NATURAL
+         --out-file FILEPATH
 
   Create a stake pool deregistration certificate
 

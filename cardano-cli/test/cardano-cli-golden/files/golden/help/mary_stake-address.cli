@@ -1,11 +1,6 @@
 Usage: cardano-cli mary stake-address 
-                                        ( key-gen
-                                        | key-hash
-                                        | build
-                                        | registration-certificate
-                                        | deregistration-certificate
-                                        | stake-delegation-certificate
-                                        )
+         (key-gen | key-hash | build | registration-certificate | 
+           deregistration-certificate | stake-delegation-certificate)
 
   Stake address commands.
 

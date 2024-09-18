@@ -1,10 +1,6 @@
-Usage: cardano-cli shelley query ledger-state --socket-path SOCKET_PATH
-                                                [--cardano-mode
-                                                  [--epoch-slots SLOTS]]
-                                                ( --mainnet
-                                                | --testnet-magic NATURAL
-                                                )
-                                                [--out-file FILEPATH]
+Usage: cardano-cli shelley query ledger-state 
+         --socket-path SOCKET_PATH [--cardano-mode [--epoch-slots SLOTS]] 
+         (--mainnet | --testnet-magic NATURAL) [--out-file FILEPATH]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)

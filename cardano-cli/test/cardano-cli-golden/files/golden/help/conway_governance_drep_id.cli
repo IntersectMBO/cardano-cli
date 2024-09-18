@@ -1,9 +1,7 @@
 Usage: cardano-cli conway governance drep id 
-                                               ( --drep-verification-key STRING
-                                               | --drep-verification-key-file FILEPATH
-                                               )
-                                               [--output-format STRING]
-                                               [--out-file FILEPATH]
+         (--drep-verification-key STRING | 
+           --drep-verification-key-file FILEPATH) [--output-format STRING] 
+         [--out-file FILEPATH]
 
   Generate a drep id.
 
