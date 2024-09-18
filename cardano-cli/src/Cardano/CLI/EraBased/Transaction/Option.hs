@@ -55,10 +55,10 @@ pTransactionCmds envCli =
                     [ pretty @String "Build a transaction (low-level, inconvenient)"
                     , line
                     , line
-                    , H.yellow $
+                    , H.annotate (H.color H.Yellow) $
                         mconcat
                           [ "Please note "
-                          , H.underline "the order"
+                          , H.annotate H.underlined "the order"
                           , " of some cmd options is crucial. If used incorrectly may produce "
                           , "undesired tx body. See nested [] notation above for details."
                           ]
@@ -179,10 +179,10 @@ pTransactionBuildCmd envCli = do
                 [ pretty @String "Build a balanced transaction (automatically calculates fees)"
                 , line
                 , line
-                , H.yellow $
+                , H.annotate (H.color H.Yellow) $
                     mconcat
                       [ "Please note "
-                      , H.underline "the order"
+                      , H.annotate H.underlined "the order"
                       , " of some cmd options is crucial. If used incorrectly may produce "
                       , "undesired tx body. See nested [] notation above for details."
                       ]
@@ -243,10 +243,10 @@ pTransactionBuildEstimateCmd _envCli = do
                     "Build a balanced transaction without access to a live node (automatically estimates fees)"
                 , line
                 , line
-                , H.yellow $
+                , H.annotate (H.color H.Yellow) $
                     mconcat
                       [ "Please note "
-                      , H.underline "the order"
+                      , H.annotate H.underlined "the order"
                       , " of some cmd options is crucial. If used incorrectly may produce "
                       , "undesired tx body. See nested [] notation above for details."
                       ]

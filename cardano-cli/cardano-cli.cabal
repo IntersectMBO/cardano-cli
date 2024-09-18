@@ -190,7 +190,6 @@ library
     Cardano.CLI.Read.Committee.HotKey
     Cardano.CLI.Read.DRep
     Cardano.CLI.Read.GovernanceActionId
-    Cardano.CLI.Render
     Cardano.CLI.Run
     Cardano.CLI.Run.Mnemonic
     Cardano.CLI.TopHandler

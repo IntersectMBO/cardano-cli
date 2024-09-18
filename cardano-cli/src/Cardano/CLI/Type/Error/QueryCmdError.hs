@@ -18,7 +18,6 @@ import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api.Consensus as Consensus (PastHorizonException)
 
 import Cardano.Binary (DecoderError)
-import Cardano.CLI.Render
 import Cardano.Prelude (SomeException)
 
 import Data.ByteString.Lazy.Char8 qualified as LBS
@@ -89,3 +88,12 @@ renderQueryCmdError = \case
       <> "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
   QueryBackwardCompatibleError cmdText e ->
     renderAnyCmdError cmdText prettyException e
+ where
+  renderAnyCmdError :: Text -> (a -> Doc ann) -> a -> Doc ann
+  renderAnyCmdError cmdText renderer shelCliCmdErr =
+    mconcat
+      [ "Command failed: "
+      , pretty cmdText
+      , "\nError: "
+      , renderer shelCliCmdErr
+      ]
