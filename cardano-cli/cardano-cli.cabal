@@ -279,7 +279,7 @@ library
     mtl,
     network,
     network-uri,
-    optparse-applicative-fork,
+    optparse-applicative >=0.19,
     ouroboros-consensus,
     ouroboros-consensus-cardano,
     prettyprinter,
@@ -311,7 +311,7 @@ executable cardano-cli
     cardano-api,
     cardano-cli,
     cardano-crypto-class ^>=2.2,
-    optparse-applicative-fork,
+    optparse-applicative,
     rio,
     terminal-size,
 
