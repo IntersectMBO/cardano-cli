@@ -110,6 +110,10 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                               | --json-metadata-detailed-schema
                                               ]
                                               [--auxiliary-script-file FILEPATH]
+                                              [ --supplementary-datum-cbor-file CBOR_FILE
+                                              | --supplementary-datum-file JSON_FILE
+                                              | --supplementary-datum-value JSON_VALUE
+                                              ]
                                               [ --metadata-json-file FILEPATH
                                               | --metadata-cbor-file FILEPATH
                                               ]
@@ -410,6 +414,16 @@ Available options:
                            metadata.
   --auxiliary-script-file FILEPATH
                            Filepath of auxiliary script(s)
+  --supplementary-datum-cbor-file CBOR_FILE
+                           The supplementary datum file. The file has to be in
+                           CBOR format.
+  --supplementary-datum-file JSON_FILE
+                           The supplementary datum file. The file must follow
+                           the detailed JSON schema for script data.
+  --supplementary-datum-value JSON_VALUE
+                           The supplementary datum. There is no schema: (almost)
+                           any JSON value is supported, including top-level
+                           strings and numbers.
   --metadata-json-file FILEPATH
                            Filepath of the metadata file, in JSON format.
   --metadata-cbor-file FILEPATH
