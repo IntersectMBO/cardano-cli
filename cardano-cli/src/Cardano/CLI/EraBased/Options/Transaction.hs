@@ -21,7 +21,6 @@ import           Cardano.CLI.Types.Common
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
-import qualified Options.Applicative.Help as H
 import           Prettyprinter (line)
 
 {- HLINT ignore "Use <$>" -}
@@ -49,13 +48,12 @@ pTransactionCmds era' envCli =
                   [ pretty @String "Build a transaction (low-level, inconvenient)"
                   , line
                   , line
-                  , H.yellow $
-                      mconcat
-                        [ "Please note "
-                        , H.underline "the order"
-                        , " of some cmd options is crucial. If used incorrectly may produce "
-                        , "undesired tx body. See nested [] notation above for details."
-                        ]
+                  , mconcat
+                      [ "Please note "
+                      , "the order"
+                      , " of some cmd options is crucial. If used incorrectly may produce "
+                      , "undesired tx body. See nested [] notation above for details."
+                      ]
                   ]
     , pTransactionBuildCmd era' envCli
     , forShelleyBasedEraInEon era' Nothing (`pTransactionBuildEstimateCmd` envCli)
@@ -157,13 +155,12 @@ pTransactionBuildCmd sbe envCli = do
               [ pretty @String "Build a balanced transaction (automatically calculates fees)"
               , line
               , line
-              , H.yellow $
-                  mconcat
-                    [ "Please note "
-                    , H.underline "the order"
-                    , " of some cmd options is crucial. If used incorrectly may produce "
-                    , "undesired tx body. See nested [] notation above for details."
-                    ]
+              , mconcat
+                  [ "Please note "
+                  , "the order"
+                  , " of some cmd options is crucial. If used incorrectly may produce "
+                  , "undesired tx body. See nested [] notation above for details."
+                  ]
               ]
  where
   pCmd era' = do
@@ -216,13 +213,12 @@ pTransactionBuildEstimateCmd eon' _envCli = do
                   "Build a balanced transaction without access to a live node (automatically estimates fees)"
               , line
               , line
-              , H.yellow $
-                  mconcat
-                    [ "Please note "
-                    , H.underline "the order"
-                    , " of some cmd options is crucial. If used incorrectly may produce "
-                    , "undesired tx body. See nested [] notation above for details."
-                    ]
+              , mconcat
+                  [ "Please note "
+                  , "the order"
+                  , " of some cmd options is crucial. If used incorrectly may produce "
+                  , "undesired tx body. See nested [] notation above for details."
+                  ]
               ]
  where
   pCmd :: Exp.Era era -> Parser (TransactionCmds era)

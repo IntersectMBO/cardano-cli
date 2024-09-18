@@ -136,7 +136,6 @@ library
     Cardano.CLI.Orphans
     Cardano.CLI.Parser
     Cardano.CLI.Read
-    Cardano.CLI.Render
     Cardano.CLI.Run
     Cardano.CLI.Run.Address
     Cardano.CLI.Run.Address.Info
