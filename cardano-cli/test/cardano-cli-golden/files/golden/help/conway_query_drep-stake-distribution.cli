@@ -1,10 +1,19 @@
-Usage: cardano-cli conway query drep-stake-distribution 
-         --socket-path SOCKET_PATH [--cardano-mode [--epoch-slots SLOTS]] 
-         (--mainnet | --testnet-magic NATURAL) 
-         (--all-dreps | 
-           (--drep-script-hash HASH | --drep-verification-key STRING | 
-             --drep-verification-key-file FILEPATH | --drep-key-hash HASH)) 
-         [--volatile-tip | --immutable-tip] [--out-file FILEPATH]
+Usage: cardano-cli conway query drep-stake-distribution --socket-path SOCKET_PATH
+                                                        [--cardano-mode 
+                                                          [--epoch-slots SLOTS]]
+                                                        (--mainnet | 
+                                                          --testnet-magic NATURAL)
+                                                        (--all-dreps | 
+                                                          (--drep-script-hash HASH |
+
+                                                            --drep-verification-key STRING |
+
+                                                            --drep-verification-key-file FILEPATH |
+
+                                                            --drep-key-hash HASH))
+                                                        [--volatile-tip | 
+                                                          --immutable-tip] 
+                                                        [--out-file FILEPATH]
 
   Get the DRep stake distribution.
 

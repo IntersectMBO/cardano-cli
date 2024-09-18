@@ -1,6 +1,6 @@
-Usage: cardano-cli allegra governance 
-         (create-mir-certificate | create-genesis-key-delegation-certificate | 
-           action)
+Usage: cardano-cli allegra governance (create-mir-certificate | 
+                                        create-genesis-key-delegation-certificate |
+                                        action)
 
   Governance commands.
 

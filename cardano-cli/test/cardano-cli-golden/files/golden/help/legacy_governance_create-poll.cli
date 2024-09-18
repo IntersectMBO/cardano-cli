@@ -1,5 +1,7 @@
-Usage: cardano-cli legacy governance create-poll 
-         --question STRING (--answer STRING) [--nonce UINT] --out-file FILEPATH
+Usage: cardano-cli legacy governance create-poll --question STRING
+                                                 (--answer STRING) 
+                                                 [--nonce UINT]
+                                                 --out-file FILEPATH
 
   Create an SPO poll
 

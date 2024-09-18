@@ -1,7 +1,10 @@
-Usage: cardano-cli shelley query stake-pools 
-         --socket-path SOCKET_PATH [--cardano-mode [--epoch-slots SLOTS]] 
-         (--mainnet | --testnet-magic NATURAL) [--output-json | --output-text] 
-         [--out-file FILEPATH]
+Usage: cardano-cli shelley query stake-pools --socket-path SOCKET_PATH 
+                                             [--cardano-mode 
+                                               [--epoch-slots SLOTS]] 
+                                             (--mainnet | 
+                                               --testnet-magic NATURAL) 
+                                             [--output-json | --output-text] 
+                                             [--out-file FILEPATH]
 
   Get the node's current set of stake pool ids
 

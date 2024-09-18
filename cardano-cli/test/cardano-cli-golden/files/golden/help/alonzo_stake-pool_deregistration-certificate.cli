@@ -1,7 +1,8 @@
-Usage: cardano-cli alonzo stake-pool deregistration-certificate 
-         (--stake-pool-verification-key STRING | 
-           --cold-verification-key-file FILEPATH) --epoch NATURAL
-         --out-file FILEPATH
+Usage: cardano-cli alonzo stake-pool deregistration-certificate (--stake-pool-verification-key STRING |
+
+                                                                  --cold-verification-key-file FILEPATH)
+                                                                --epoch NATURAL
+                                                                --out-file FILEPATH
 
   Create a stake pool deregistration certificate
 

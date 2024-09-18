@@ -1,7 +1,8 @@
-Usage: cardano-cli babbage transaction 
-         (build-raw | build | build-estimate | sign | witness | assemble | 
-           submit | policyid | calculate-min-fee | calculate-min-required-utxo |
-           hash-script-data | txid | view)
+Usage: cardano-cli babbage transaction (build-raw | build | build-estimate | 
+                                         sign | witness | assemble | submit | 
+                                         policyid | calculate-min-fee | 
+                                         calculate-min-required-utxo | 
+                                         hash-script-data | txid | view)
 
   Transaction commands.
 

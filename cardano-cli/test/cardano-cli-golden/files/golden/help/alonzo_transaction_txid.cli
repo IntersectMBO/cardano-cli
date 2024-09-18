@@ -1,5 +1,5 @@
-Usage: cardano-cli alonzo transaction txid 
-         (--tx-body-file FILEPATH | --tx-file FILEPATH)
+Usage: cardano-cli alonzo transaction txid (--tx-body-file FILEPATH | 
+                                             --tx-file FILEPATH)
 
   Print a transaction identifier.
 

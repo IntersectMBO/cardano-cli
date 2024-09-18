@@ -1,6 +1,6 @@
-Usage: cardano-cli shelley stake-pool 
-         (registration-certificate | deregistration-certificate | id | 
-           metadata-hash)
+Usage: cardano-cli shelley stake-pool (registration-certificate | 
+                                        deregistration-certificate | id | 
+                                        metadata-hash)
 
   Stake pool commands.
 

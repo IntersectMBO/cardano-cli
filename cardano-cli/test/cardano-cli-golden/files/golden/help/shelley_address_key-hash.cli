@@ -1,6 +1,7 @@
-Usage: cardano-cli shelley address key-hash 
-         (--payment-verification-key STRING | 
-           --payment-verification-key-file FILEPATH) [--out-file FILEPATH]
+Usage: cardano-cli shelley address key-hash (--payment-verification-key STRING |
+
+                                              --payment-verification-key-file FILEPATH)
+                                            [--out-file FILEPATH]
 
   Print the hash of an address key.
 

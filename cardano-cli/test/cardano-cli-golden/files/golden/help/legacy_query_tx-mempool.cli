@@ -1,7 +1,9 @@
-Usage: cardano-cli legacy query tx-mempool 
-         --socket-path SOCKET_PATH [--cardano-mode [--epoch-slots SLOTS]] 
-         (--mainnet | --testnet-magic NATURAL) (info | next-tx | tx-exists) 
-         [--out-file FILEPATH]
+Usage: cardano-cli legacy query tx-mempool --socket-path SOCKET_PATH 
+                                           [--cardano-mode 
+                                             [--epoch-slots SLOTS]] 
+                                           (--mainnet | --testnet-magic NATURAL)
+                                           (info | next-tx | tx-exists) 
+                                           [--out-file FILEPATH]
 
   Local Mempool info
 
