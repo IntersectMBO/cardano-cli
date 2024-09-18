@@ -20,7 +20,6 @@ import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Run (runLegacyCmds)
-import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run.Debug
 import           Cardano.CLI.Run.Hash (runHashCmds)
 import           Cardano.CLI.Run.Ping (PingClientCmdError (..), renderPingClientCmdError,
@@ -38,6 +37,7 @@ import           Data.Version (showVersion)
 import           Options.Applicative.Help.Core
 import           Options.Applicative.Types (OptReader (..), Option (..), Parser (..),
                    ParserInfo (..), ParserPrefs (..))
+import           Options.Applicative.Help.Types (renderHelp)
 import           System.Info (arch, compilerName, compilerVersion, os)
 import qualified System.IO as IO
 
@@ -104,7 +104,7 @@ runDisplayVersion = do
 
 helpAll :: ParserPrefs -> String -> [String] -> ParserInfo a -> IO ()
 helpAll pprefs progn rnames parserInfo = do
-  IO.putStrLn $ customRenderHelp 80 (usage_help parserInfo)
+  IO.putStrLn $ renderHelp 80 (usage_help parserInfo)
   IO.putStrLn ""
   go (infoParser parserInfo)
  where
