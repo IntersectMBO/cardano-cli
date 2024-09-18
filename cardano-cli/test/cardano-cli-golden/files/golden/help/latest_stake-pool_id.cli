@@ -1,9 +1,7 @@
-Usage: cardano-cli latest stake-pool id 
-                                          ( --stake-pool-verification-key STRING
-                                          | --cold-verification-key-file FILEPATH
-                                          )
-                                          [--output-format STRING]
-                                          [--out-file FILEPATH]
+Usage: cardano-cli latest stake-pool id (--stake-pool-verification-key STRING | 
+                                          --cold-verification-key-file FILEPATH)
+                                        [--output-format STRING] 
+                                        [--out-file FILEPATH]
 
   Build pool id from the offline key
 

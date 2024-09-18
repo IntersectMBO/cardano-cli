@@ -1,9 +1,5 @@
-Usage: cardano-cli stake-pool 
-                                ( registration-certificate
-                                | deregistration-certificate
-                                | id
-                                | metadata-hash
-                                )
+Usage: cardano-cli stake-pool (registration-certificate | 
+                                deregistration-certificate | id | metadata-hash)
 
   Stake pool commands
 

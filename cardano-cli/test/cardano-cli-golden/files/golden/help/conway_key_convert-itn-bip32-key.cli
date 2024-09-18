@@ -1,5 +1,5 @@
 Usage: cardano-cli conway key convert-itn-bip32-key --itn-signing-key-file FILEPATH
-                                                      --out-file FILEPATH
+                                                    --out-file FILEPATH
 
   Convert an Incentivized Testnet (ITN) BIP32 (Ed25519Bip32) signing key to a
   corresponding Shelley stake signing key

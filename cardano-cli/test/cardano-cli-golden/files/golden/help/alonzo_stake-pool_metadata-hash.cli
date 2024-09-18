@@ -1,5 +1,5 @@
 Usage: cardano-cli alonzo stake-pool metadata-hash --pool-metadata-file FILEPATH
-                                                     [--out-file FILEPATH]
+                                                   [--out-file FILEPATH]
 
   Print the hash of pool metadata.
 

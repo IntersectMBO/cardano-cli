@@ -1,8 +1,7 @@
-Usage: cardano-cli debug transaction view [--output-json | --output-yaml]
-                                            [--out-file FILEPATH]
-                                            ( --tx-body-file FILEPATH
-                                            | --tx-file FILEPATH
-                                            )
+Usage: cardano-cli debug transaction view [--output-json | --output-yaml] 
+                                          [--out-file FILEPATH] 
+                                          (--tx-body-file FILEPATH | 
+                                            --tx-file FILEPATH)
 
   Print a transaction.
 

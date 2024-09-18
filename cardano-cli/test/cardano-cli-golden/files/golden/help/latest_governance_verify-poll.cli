@@ -1,6 +1,6 @@
 Usage: cardano-cli latest governance verify-poll --poll-file FILEPATH
-                                                   --tx-file FILEPATH
-                                                   [--out-file FILEPATH]
+                                                 --tx-file FILEPATH 
+                                                 [--out-file FILEPATH]
 
   Verify an answer to a given SPO poll
 

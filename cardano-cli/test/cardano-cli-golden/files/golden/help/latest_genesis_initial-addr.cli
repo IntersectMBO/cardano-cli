@@ -1,8 +1,7 @@
-Usage: cardano-cli latest genesis initial-addr --verification-key-file FILEPATH
-                                                 ( --mainnet
-                                                 | --testnet-magic NATURAL
-                                                 )
-                                                 [--out-file FILEPATH]
+Usage: cardano-cli latest genesis initial-addr --verification-key-file FILEPATH 
+                                               (--mainnet | 
+                                                 --testnet-magic NATURAL) 
+                                               [--out-file FILEPATH]
 
   Get the address for an initial UTxO based on the verification key
 

@@ -1,11 +1,7 @@
-Usage: cardano-cli latest stake-address 
-                                          ( key-gen
-                                          | key-hash
-                                          | build
-                                          | registration-certificate
-                                          | deregistration-certificate
-                                          | stake-delegation-certificate
-                                          )
+Usage: cardano-cli latest stake-address (key-gen | key-hash | build | 
+                                          registration-certificate | 
+                                          deregistration-certificate | 
+                                          stake-delegation-certificate)
 
   Stake address commands.
 

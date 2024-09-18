@@ -1,5 +1,5 @@
 Usage: cardano-cli byron key migrate-delegate-key-from --from FILEPATH
-                                                         --to FILEPATH
+                                                       --to FILEPATH
 
   Migrate a delegate key from an older version.
 

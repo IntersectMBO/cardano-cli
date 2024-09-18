@@ -49,7 +49,6 @@ import           Data.Maybe (fromMaybe, maybeToList)
 import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
-import qualified Options.Applicative.Help as H
 import           Prettyprinter (line)
 
 {- HLINT ignore "Use <$>" -}
@@ -235,13 +234,13 @@ pTransaction envCli =
                 [ pretty @String "Build a transaction (low-level, inconvenient)"
                 , line
                 , line
-                , H.yellow $
-                    mconcat
-                      [ "Please note "
-                      , H.underline "the order"
-                      , " of some cmd options is crucial. If used incorrectly may produce "
-                      , "undesired tx body. See nested [] notation above for details."
-                      ]
+                , -- H.yellow $
+                  mconcat
+                    [ "Please note "
+                    , {- H.underline -} "the order"
+                    , " of some cmd options is crucial. If used incorrectly may produce "
+                    , "undesired tx body. See nested [] notation above for details."
+                    ]
                 ]
     , subParser "build" $
         Opt.info pTransactionBuild $
@@ -251,13 +250,13 @@ pTransaction envCli =
                 [ pretty @String "Build a balanced transaction (automatically calculates fees)"
                 , line
                 , line
-                , H.yellow $
-                    mconcat
-                      [ "Please note "
-                      , H.underline "the order"
-                      , " of some cmd options is crucial. If used incorrectly may produce "
-                      , "undesired tx body. See nested [] notation above for details."
-                      ]
+                , -- H.yellow $
+                  mconcat
+                    [ "Please note "
+                    , {- H.underline -} "the order"
+                    , " of some cmd options is crucial. If used incorrectly may produce "
+                    , "undesired tx body. See nested [] notation above for details."
+                    ]
                 ]
     , subParser
         "sign"

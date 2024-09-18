@@ -1,11 +1,7 @@
-Usage: cardano-cli governance 
-                                ( create-mir-certificate
-                                | create-genesis-key-delegation-certificate
-                                | create-update-proposal
-                                | create-poll
-                                | answer-poll
-                                | verify-poll
-                                )
+Usage: cardano-cli governance (create-mir-certificate | 
+                                create-genesis-key-delegation-certificate | 
+                                create-update-proposal | create-poll | 
+                                answer-poll | verify-poll)
 
   Governance commands
 

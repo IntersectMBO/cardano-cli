@@ -1,7 +1,5 @@
-Usage: cardano-cli transaction txid 
-                                      ( --tx-body-file FILEPATH
-                                      | --tx-file FILEPATH
-                                      )
+Usage: cardano-cli transaction txid (--tx-body-file FILEPATH | 
+                                      --tx-file FILEPATH)
 
   Print a transaction identifier.
 
