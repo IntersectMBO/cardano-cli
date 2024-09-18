@@ -57,3 +57,11 @@ write-ghc-environment-files: always
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+package optparse-applicative
+  ghc-options: -Wno-x-partial -Wno-unused-imports
+
+source-repository-package
+   type: git
+   location: https://github.com/smelc/optparse-applicative
+   tag: 1aad1773bc78e161083e8306dc9111ce515bb0ac
