@@ -242,7 +242,7 @@ library
     microlens,
     mtl,
     network,
-    optparse-applicative-fork,
+    optparse-applicative,
     ouroboros-consensus ^>=0.20,
     ouroboros-consensus-cardano ^>=0.19,
     ouroboros-consensus-protocol ^>=0.9.0.1,
@@ -275,7 +275,7 @@ executable cardano-cli
   build-depends:
     cardano-cli,
     cardano-crypto-class ^>=2.1.2,
-    optparse-applicative-fork,
+    optparse-applicative,
     transformers-except,
 
 library cardano-cli-test-lib
