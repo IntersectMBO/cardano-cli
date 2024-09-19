@@ -9,6 +9,8 @@ module Cardano.CLI.Options
   )
 where
 
+import           Cardano.Api (ShelleyBasedEra (..))
+
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
@@ -62,6 +64,10 @@ parseClientCommand envCli =
     , backwardsCompatibilityCommands envCli
     , parseDisplayVersion (opts envCli)
     ]
+    <|> defaultParser envCli
+
+defaultParser :: EnvCli -> Parser ClientCommand
+defaultParser envCli = fmap (AnyEraCommand . AnyEraCommandOf ShelleyBasedEraConway) (pCmds ShelleyBasedEraConway envCli)
 
 parseByron :: EnvCli -> Parser ClientCommand
 parseByron mNetworkId =

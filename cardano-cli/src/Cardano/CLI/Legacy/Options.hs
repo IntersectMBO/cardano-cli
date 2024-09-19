@@ -34,7 +34,7 @@ import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
-import           Data.Maybe (fromMaybe, maybeToList)
+import           Data.Maybe (fromMaybe)
 import           Data.Word (Word64)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
