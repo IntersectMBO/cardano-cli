@@ -124,6 +124,7 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Function ((&))
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
+import           Data.Proxy (Proxy (..))
 import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as T
@@ -627,10 +628,13 @@ readCddlTx =
 
 txTextEnvelopeTypes :: [Text]
 txTextEnvelopeTypes =
-  "TxSignedShelley"
-    : [ "Tx " <> T.pack (show $ toCardanoEra sbe)
-      | AnyShelleyBasedEra sbe <- [AnyShelleyBasedEra ShelleyBasedEraAllegra ..]
-      ]
+  [ let TextEnvelopeType d = shelleyBasedEraConstraints sbe $ textEnvelopeType (proxyToAsType (makeTxProxy sbe))
+     in T.pack d
+  | AnyShelleyBasedEra sbe <- [minBound .. maxBound]
+  ]
+ where
+  makeTxProxy :: ShelleyBasedEra era -> Proxy (Tx era)
+  makeTxProxy _ = Proxy
 
 -- Tx witnesses
 
@@ -690,9 +694,13 @@ readCddlWitness fp = do
 
 txWitnessTextEnvelopeTypes :: [Text]
 txWitnessTextEnvelopeTypes =
-  [ "TxWitness " <> T.pack (show $ toCardanoEra sbe)
-  | AnyShelleyBasedEra sbe <- [AnyShelleyBasedEra ShelleyBasedEraShelley ..]
+  [ let TextEnvelopeType d = shelleyBasedEraConstraints sbe $ textEnvelopeType (proxyToAsType (makeWitnessProxy sbe))
+     in T.pack d
+  | AnyShelleyBasedEra sbe <- [minBound .. maxBound]
   ]
+ where
+  makeWitnessProxy :: ShelleyBasedEra era -> Proxy (KeyWitness era)
+  makeWitnessProxy _ = Proxy
 
 -- Witness handling
 
