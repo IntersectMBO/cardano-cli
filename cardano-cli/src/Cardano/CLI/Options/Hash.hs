@@ -32,11 +32,18 @@ pHashAnchorDataCmd = do
           Cmd.HashAnchorDataCmd
           ( Cmd.HashAnchorDataCmdArgs
               <$> pAnchorDataHashSource
-              <*> optional pExpectedHash
-              <*> optional pOutputFile
+              <*> pHashGoal
           )
       )
     $ Opt.progDesc "Compute the hash of some anchor data (to then pass it to other commands)."
+
+pHashGoal :: Parser Cmd.HashGoal
+pHashGoal =
+  asum
+    [ Cmd.CheckHash <$> pExpectedHash
+    , Cmd.HashToFile <$> pOutputFile
+    ]
+    <|> pure Cmd.HashToStdout
 
 pAnchorDataHashSource :: Parser Cmd.AnchorDataHashSource
 pAnchorDataHashSource =

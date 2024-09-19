@@ -14,13 +14,13 @@ where
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
+import           Cardano.CLI.Commands.Hash (HashGoal (..))
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Errors.HashCmdError
 import           Cardano.Crypto.Hash (hashToTextAsHex)
 
 import           Control.Exception (throw)
-import           Control.Monad (when)
 import           Control.Monad.Catch (Exception, Handler (Handler))
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BS8
@@ -28,7 +28,6 @@ import qualified Data.ByteString.Lazy as BSL
 import           Data.Char (toLower)
 import           Data.Function
 import           Data.List (intercalate)
-import           Data.Maybe (isJust)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
@@ -52,7 +51,7 @@ runHashAnchorDataCmd
   :: ()
   => Cmd.HashAnchorDataCmdArgs
   -> ExceptT HashCmdError IO ()
-runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, mExpectedHash, mOutFile} = do
+runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
   anchorData <-
     L.AnchorData <$> case toHash of
       Cmd.AnchorDataHashSourceBinaryFile fp -> do
@@ -66,17 +65,17 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, mExpectedHash, mOutFile} 
       Cmd.AnchorDataHashSourceURL urlText ->
         getByteStringFromURL urlText
   let hash = L.hashAnchorData anchorData
-  case mExpectedHash of
-    Just expectedHash
+  case hashGoal of
+    CheckHash expectedHash
       | hash /= expectedHash ->
           left $ HashMismatchedHashError expectedHash hash
       | otherwise -> do
           liftIO $ putStrLn "Hashes match!"
-          when (isJust mOutFile) $ writeHash hash
-    Nothing -> writeHash hash
+    HashToFile outFile -> writeHash (Just outFile) hash
+    HashToStdout -> writeHash Nothing hash
  where
-  writeHash :: L.SafeHash L.StandardCrypto i -> ExceptT HashCmdError IO ()
-  writeHash hash = do
+  writeHash :: Maybe (File () Out) -> L.SafeHash L.StandardCrypto i -> ExceptT HashCmdError IO ()
+  writeHash mOutFile hash = do
     firstExceptT HashWriteFileError $
       newExceptT $
         writeTextOutput mOutFile text
