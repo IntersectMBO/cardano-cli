@@ -37,6 +37,7 @@ module Cardano.CLI.Read
   , readFileTx
   , readFileTxBody
   , readCddlTx -- For testing purposes
+  , txTextEnvelopeTypes -- For testing purposes
 
     -- * Tx witnesses
   , ReadWitnessSigningDataError (..)
@@ -47,6 +48,7 @@ module Cardano.CLI.Read
   , CddlWitnessError (..)
   , readFileTxKeyWitness
   , readWitnessSigningData
+  , txWitnessTextEnvelopeTypes -- For testing purposes
 
     -- * Required signer
   , RequiredSignerError (..)
@@ -617,29 +619,32 @@ instance Error CddlError where
       prettyError e
 
 readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
-readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
- where
-  teTypes =
-    [ FromCDDLTx "Witnessed Tx ShelleyEra" CddlTx
-    , FromCDDLTx "Witnessed Tx AllegraEra" CddlTx
-    , FromCDDLTx "Witnessed Tx MaryEra" CddlTx
-    , FromCDDLTx "Witnessed Tx AlonzoEra" CddlTx
-    , FromCDDLTx "Witnessed Tx BabbageEra" CddlTx
-    , FromCDDLTx "Witnessed Tx ConwayEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx ByronEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx ShelleyEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx AllegraEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx MaryEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx AlonzoEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx BabbageEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx ConwayEra" CddlTx
-    , FromCDDLTx "TxSignedShelley" CddlTx
-    , FromCDDLTx "Tx AllegraEra" CddlTx
-    , FromCDDLTx "Tx MaryEra" CddlTx
-    , FromCDDLTx "Tx AlonzoEra" CddlTx
-    , FromCDDLTx "Tx BabbageEra" CddlTx
-    , FromCDDLTx "Tx ConwayEra" CddlTx
-    ]
+readCddlTx =
+  readFileOrPipeTextEnvelopeCddlAnyOf $
+    map (`FromCDDLTx` CddlTx) txTextEnvelopeTypes
+
+txTextEnvelopeTypes :: [Text]
+txTextEnvelopeTypes =
+  [ "Witnessed Tx ShelleyEra"
+  , "Witnessed Tx AllegraEra"
+  , "Witnessed Tx MaryEra"
+  , "Witnessed Tx AlonzoEra"
+  , "Witnessed Tx BabbageEra"
+  , "Witnessed Tx ConwayEra"
+  , "Unwitnessed Tx ByronEra"
+  , "Unwitnessed Tx ShelleyEra"
+  , "Unwitnessed Tx AllegraEra"
+  , "Unwitnessed Tx MaryEra"
+  , "Unwitnessed Tx AlonzoEra"
+  , "Unwitnessed Tx BabbageEra"
+  , "Unwitnessed Tx ConwayEra"
+  , "TxSignedShelley"
+  , "Tx AllegraEra"
+  , "Tx MaryEra"
+  , "Tx AlonzoEra"
+  , "Tx BabbageEra"
+  , "Tx ConwayEra"
+  ]
 
 -- Tx witnesses
 
@@ -695,16 +700,17 @@ readCddlWitness
   :: FilePath
   -> IO (Either (FileError TextEnvelopeCddlError) CddlWitness)
 readCddlWitness fp = do
-  readFileTextEnvelopeCddlAnyOf teTypes fp
- where
-  teTypes =
-    [ FromCDDLWitness "TxWitness ShelleyEra" CddlWitness
-    , FromCDDLWitness "TxWitness AllegraEra" CddlWitness
-    , FromCDDLWitness "TxWitness MaryEra" CddlWitness
-    , FromCDDLWitness "TxWitness AlonzoEra" CddlWitness
-    , FromCDDLWitness "TxWitness BabbageEra" CddlWitness
-    , FromCDDLWitness "TxWitness ConwayEra" CddlWitness
-    ]
+  readFileTextEnvelopeCddlAnyOf (map (`FromCDDLWitness` CddlWitness) txWitnessTextEnvelopeTypes) fp
+
+txWitnessTextEnvelopeTypes :: [Text]
+txWitnessTextEnvelopeTypes =
+  [ "TxWitness ShelleyEra"
+  , "TxWitness AllegraEra"
+  , "TxWitness MaryEra"
+  , "TxWitness AlonzoEra"
+  , "TxWitness BabbageEra"
+  , "TxWitness ConwayEra"
+  ]
 
 -- Witness handling
 
