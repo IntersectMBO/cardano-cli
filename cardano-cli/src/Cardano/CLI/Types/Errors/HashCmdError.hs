@@ -19,7 +19,9 @@ import           Network.HTTP.Client (HttpException)
 data HashCmdError
   = HashMismatchedHashError
       !(L.SafeHash L.StandardCrypto L.AnchorData)
+      -- ^ Expected hash
       !(L.SafeHash L.StandardCrypto L.AnchorData)
+      -- ^ Actual hash
   | HashReadFileError !FilePath !IOException
   | HashWriteFileError !(FileError ())
   | HashReadScriptError !FilePath !(FileError ScriptDecodeError)
