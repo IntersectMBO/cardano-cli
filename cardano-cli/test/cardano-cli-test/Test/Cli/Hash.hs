@@ -150,7 +150,7 @@ hprop_check_anchor_data_hash_from_ipfs_uri =
       ( \port -> do
           env <- H.evalIO getEnvironment
           result <-
-            execDetailCfgCardanoCLI
+            execDetailConfigCardanoCLI
               H.defaultExecConfig
                 { H.execConfigEnv =
                     Last $
