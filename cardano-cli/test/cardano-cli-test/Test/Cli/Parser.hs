@@ -6,20 +6,31 @@ module Test.Cli.Parser
   ( hprop_integral_reader
   , hprop_integral_pair_reader_positive
   , hprop_integral_pair_reader_negative
+  , hprop_test_cddl_tx_envelope_completeness
+  , hprop_test_cddl_tx_witness_envelope_completeness
   )
 where
 
+import           Cardano.Api (AnyShelleyBasedEra (..), HasTextEnvelope (..), TextEnvelopeType (..),
+                   proxyToAsType)
+import           Cardano.Api.Shelley (shelleyBasedEraConstraints)
+
 import           Cardano.CLI.EraBased.Options.Common (integralParsecParser,
                    pairIntegralParsecParser)
+import           Cardano.CLI.Read (txTextEnvelopeTypes, txWitnessTextEnvelopeTypes)
 
 import           Data.Bits (Bits)
 import           Data.Data (Proxy (..), Typeable)
 import           Data.Either (isLeft, isRight)
+import qualified Data.Text as T
 import           Data.Word (Word16)
 import qualified Text.Parsec as Parsec
 
+import           Test.Gen.Cardano.Api.Typed (genCardanoKeyWitness, genTx)
+
 import           Hedgehog (Gen, Property, assert, property, (===))
 import           Hedgehog.Extras (assertWith, propertyOnce)
+import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Gen as Gen
 import           Hedgehog.Internal.Property (forAll)
 import qualified Hedgehog.Range as Gen
@@ -97,3 +108,31 @@ hprop_integral_pair_reader_negative = propertyOnce $ do
     case Parsec.runParser pairIntegralParsecParser () "" s of
       Left parsecError -> Left $ show parsecError
       Right x -> Right x
+
+-- | Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/cddl tx envelope completeness/"'@
+hprop_test_cddl_tx_envelope_completeness :: Property
+hprop_test_cddl_tx_envelope_completeness = property $ do
+  AnyShelleyBasedEra era <- H.noteShowM . forAll $ Gen.element [minBound .. maxBound]
+  x <- forAll $ genTx era
+  shelleyBasedEraConstraints era $ do
+    let TextEnvelopeType d = textEnvelopeType (proxyToAsType (getProxy x))
+    H.note_ $ "Envelope type: " <> show d
+    assert $ elem (T.pack d) txTextEnvelopeTypes
+ where
+  getProxy :: forall a. a -> Proxy a
+  getProxy _ = Proxy
+
+-- | Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/cddl tx witness envelope completeness/"'@
+hprop_test_cddl_tx_witness_envelope_completeness :: Property
+hprop_test_cddl_tx_witness_envelope_completeness = property $ do
+  AnyShelleyBasedEra era <- H.noteShowM . forAll $ Gen.element [minBound .. maxBound]
+  x <- forAll $ genCardanoKeyWitness era
+  shelleyBasedEraConstraints era $ do
+    let TextEnvelopeType d = textEnvelopeType (proxyToAsType (getProxy x))
+    H.note_ $ "Envelope type: " <> show d
+    assert $ elem (T.pack d) txWitnessTextEnvelopeTypes
+ where
+  getProxy :: forall a. a -> Proxy a
+  getProxy _ = Proxy
