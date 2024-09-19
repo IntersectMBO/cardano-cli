@@ -108,8 +108,10 @@ pAnyEraCommand envCli =
         Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ShelleyBasedEraConway envCli) $
           Opt.progDesc "Conway era commands"
     , subParser "latest" $
-        Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli) $
+        Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ShelleyBasedEraConway envCli) $
           Opt.progDesc ("Latest era commands (Babbage)" <> deprecationText)
+    , -- Default to Conway era
+      AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ShelleyBasedEraConway envCli
     ]
 
 pCmds :: ShelleyBasedEra era -> EnvCli -> Parser (Cmds era)
