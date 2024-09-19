@@ -197,7 +197,6 @@ serveFileWhile relativeUrl filePath action =
             app req respond = do
               let path = T.unpack <$> pathInfo req
               if path == relativeUrl
-                -- Status -> ResponseHeaders -> FilePath -> Maybe FilePart -> Response
                 then respond $ responseFile status200 [("Content-Type", "text/plain")] filePath Nothing
                 else respond $ responseLBS status404 [("Content-Type", "text/plain")] "404 - Not Found"
 
