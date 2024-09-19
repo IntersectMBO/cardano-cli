@@ -3724,3 +3724,19 @@ pFeatured peon p = do
 hiddenSubParser :: String -> ParserInfo a -> Parser a
 hiddenSubParser availableCommand pInfo =
   Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand <> Opt.hidden
+
+bounded :: forall a. (Bounded a, Integral a, Show a) => String -> ReadM a
+bounded t = eitherReader $ \s -> do
+  i <- Read.readEither @Integer s
+  when (i < fromIntegral (minBound @a)) $ Left $ t <> " must not be less than " <> show (minBound @a)
+  when (i > fromIntegral (maxBound @a)) $ Left $ t <> " must not greater than " <> show (maxBound @a)
+  pure (fromIntegral i)
+
+parseFilePath :: String -> String -> Opt.Parser FilePath
+parseFilePath optname desc =
+  Opt.strOption
+    ( Opt.long optname
+        <> Opt.metavar "FILEPATH"
+        <> Opt.help desc
+        <> Opt.completer (Opt.bashCompleter "file")
+    )

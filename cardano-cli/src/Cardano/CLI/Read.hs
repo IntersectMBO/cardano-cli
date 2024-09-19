@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
@@ -37,6 +38,7 @@ module Cardano.CLI.Read
   , readFileTx
   , readFileTxBody
   , readCddlTx -- For testing purposes
+  , txTextEnvelopeTypes -- For testing purposes
 
     -- * Tx witnesses
   , ReadWitnessSigningDataError (..)
@@ -47,6 +49,7 @@ module Cardano.CLI.Read
   , CddlWitnessError (..)
   , readFileTxKeyWitness
   , readWitnessSigningData
+  , txWitnessTextEnvelopeTypes -- For testing purposes
 
     -- * Required signer
   , RequiredSignerError (..)
@@ -121,8 +124,10 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Function ((&))
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
+import           Data.Proxy (Proxy (..))
 import           Data.String
 import           Data.Text (Text)
+import qualified Data.Text as T
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.Encoding.Error as Text
@@ -617,23 +622,19 @@ instance Error CddlError where
       prettyError e
 
 readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
-readCddlTx = readFileOrPipeTextEnvelopeCddlAnyOf teTypes
+readCddlTx =
+  readFileOrPipeTextEnvelopeCddlAnyOf $
+    map (`FromCDDLTx` CddlTx) txTextEnvelopeTypes
+
+txTextEnvelopeTypes :: [Text]
+txTextEnvelopeTypes =
+  [ let TextEnvelopeType d = shelleyBasedEraConstraints sbe $ textEnvelopeType (proxyToAsType (makeTxProxy sbe))
+     in T.pack d
+  | AnyShelleyBasedEra sbe <- [minBound .. maxBound]
+  ]
  where
-  teTypes =
-    [ FromCDDLTx "Witnessed Tx ShelleyEra" CddlTx
-    , FromCDDLTx "Witnessed Tx AllegraEra" CddlTx
-    , FromCDDLTx "Witnessed Tx MaryEra" CddlTx
-    , FromCDDLTx "Witnessed Tx AlonzoEra" CddlTx
-    , FromCDDLTx "Witnessed Tx BabbageEra" CddlTx
-    , FromCDDLTx "Witnessed Tx ConwayEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx ByronEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx ShelleyEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx AllegraEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx MaryEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx AlonzoEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx BabbageEra" CddlTx
-    , FromCDDLTx "Unwitnessed Tx ConwayEra" CddlTx
-    ]
+  makeTxProxy :: ShelleyBasedEra era -> Proxy (Tx era)
+  makeTxProxy _ = Proxy
 
 -- Tx witnesses
 
@@ -689,16 +690,17 @@ readCddlWitness
   :: FilePath
   -> IO (Either (FileError TextEnvelopeCddlError) CddlWitness)
 readCddlWitness fp = do
-  readFileTextEnvelopeCddlAnyOf teTypes fp
+  readFileTextEnvelopeCddlAnyOf (map (`FromCDDLWitness` CddlWitness) txWitnessTextEnvelopeTypes) fp
+
+txWitnessTextEnvelopeTypes :: [Text]
+txWitnessTextEnvelopeTypes =
+  [ let TextEnvelopeType d = shelleyBasedEraConstraints sbe $ textEnvelopeType (proxyToAsType (makeWitnessProxy sbe))
+     in T.pack d
+  | AnyShelleyBasedEra sbe <- [minBound .. maxBound]
+  ]
  where
-  teTypes =
-    [ FromCDDLWitness "TxWitness ShelleyEra" CddlWitness
-    , FromCDDLWitness "TxWitness AllegraEra" CddlWitness
-    , FromCDDLWitness "TxWitness MaryEra" CddlWitness
-    , FromCDDLWitness "TxWitness AlonzoEra" CddlWitness
-    , FromCDDLWitness "TxWitness BabbageEra" CddlWitness
-    , FromCDDLWitness "TxWitness ConwayEra" CddlWitness
-    ]
+  makeWitnessProxy :: ShelleyBasedEra era -> Proxy (KeyWitness era)
+  makeWitnessProxy _ = Proxy
 
 -- Witness handling
 
