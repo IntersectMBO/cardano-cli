@@ -124,24 +124,24 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
       mkHandler :: (Monad m, Exception e) => (e -> HttpRequestError) -> Handler m HashCmdError
       mkHandler x = Handler $ return . HashGetFileFromHttpError . x
 
-    convertToHttp :: URI -> ExceptT HashCmdError IO URI
-    convertToHttp ipfsUri = do
-      mIpfsGatewayUriString <- handleIOExceptT HashReadEnvVarError $ IO.lookupEnv "IPFS_GATEWAY_URI"
-      ipfsGatewayUriString <- hoistMaybe HashIpfsGatewayNotSetError mIpfsGatewayUriString
-      ipfsGatewayUri <-
-        hoistMaybe (HashInvalidURLError ipfsGatewayUriString) $ parseAbsoluteURI ipfsGatewayUriString
-      return $
-        ipfsGatewayUri
-          { uriPath =
-              '/'
-                : intercalate
-                  "/"
-                  ( pathSegments ipfsGatewayUri
-                      ++ ["ipfs"]
-                      ++ maybe [] (\ipfsAuthority -> [uriRegName ipfsAuthority]) (uriAuthority ipfsUri)
-                      ++ pathSegments ipfsUri
-                  )
-          }
+convertToHttp :: URI -> ExceptT HashCmdError IO URI
+convertToHttp ipfsUri = do
+  mIpfsGatewayUriString <- handleIOExceptT HashReadEnvVarError $ IO.lookupEnv "IPFS_GATEWAY_URI"
+  ipfsGatewayUriString <- hoistMaybe HashIpfsGatewayNotSetError mIpfsGatewayUriString
+  ipfsGatewayUri <-
+    hoistMaybe (HashInvalidURLError ipfsGatewayUriString) $ parseAbsoluteURI ipfsGatewayUriString
+  return $
+    ipfsGatewayUri
+      { uriPath =
+          '/'
+            : intercalate
+              "/"
+              ( pathSegments ipfsGatewayUri
+                  ++ ["ipfs"]
+                  ++ maybe [] (\ipfsAuthority -> [uriRegName ipfsAuthority]) (uriAuthority ipfsUri)
+                  ++ pathSegments ipfsUri
+              )
+      }
 
 runHashScriptCmd
   :: ()
