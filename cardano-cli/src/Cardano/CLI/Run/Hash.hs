@@ -85,7 +85,7 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
   getByteStringFromURL :: L.Url -> ExceptT HashCmdError IO BS.ByteString
   getByteStringFromURL urlText = do
     let urlString = Text.unpack $ L.urlToText urlText
-    uri <- expectJustExceptT (HashInvalidURLError urlString) $ parseAbsoluteURI urlString
+    uri <- hoistMaybe (HashInvalidURLError urlString) $ parseAbsoluteURI urlString
     case map toLower $ uriScheme uri of
       "file:" ->
         let path = uriPathToFilePath (pathSegments uri)
@@ -127,9 +127,9 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
     convertToHttp :: URI -> ExceptT HashCmdError IO URI
     convertToHttp ipfsUri = do
       mIpfsGatewayUriString <- handleIOExceptT HashReadEnvVarError $ IO.lookupEnv "IPFS_GATEWAY_URI"
-      ipfsGatewayUriString <- expectJustExceptT HashIpfsGatewayNotSetError mIpfsGatewayUriString
+      ipfsGatewayUriString <- hoistMaybe HashIpfsGatewayNotSetError mIpfsGatewayUriString
       ipfsGatewayUri <-
-        expectJustExceptT (HashInvalidURLError ipfsGatewayUriString) $ parseAbsoluteURI ipfsGatewayUriString
+        hoistMaybe (HashInvalidURLError ipfsGatewayUriString) $ parseAbsoluteURI ipfsGatewayUriString
       return $
         ipfsGatewayUri
           { uriPath =
@@ -142,10 +142,6 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
                       ++ pathSegments ipfsUri
                   )
           }
-
-  expectJustExceptT :: e -> Maybe a -> ExceptT e IO a
-  expectJustExceptT e Nothing = left e
-  expectJustExceptT _ (Just a) = return a
 
 runHashScriptCmd
   :: ()
