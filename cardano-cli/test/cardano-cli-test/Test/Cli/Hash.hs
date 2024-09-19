@@ -8,13 +8,17 @@ import           Control.Concurrent (forkOS)
 import           Control.Exception.Lifted (bracket)
 import           Control.Monad (void)
 import           Control.Monad.Trans.Control (MonadBaseControl)
+import qualified Data.ByteString.UTF8 as BSU8
 import           Data.List (intercalate)
 import           Data.Monoid (Last (..))
+import           Data.String (IsString (fromString))
+import           Data.Text (unpack)
 import qualified Data.Text as T
 import           GHC.IO.Exception (ExitCode (..))
 import           Network.HTTP.Types.Status (status200, status404)
+import           Network.HTTP.Types.URI (renderQuery)
 import           Network.Socket (close)
-import           Network.Wai (Request, Response, ResponseReceived, pathInfo, responseFile,
+import           Network.Wai (Request (..), Response, ResponseReceived, pathInfo, responseFile,
                    responseLBS)
 import           Network.Wai.Handler.Warp (defaultSettings, openFreePort, runSettingsSocket)
 import           System.Directory (getCurrentDirectory)
@@ -122,7 +126,7 @@ hprop_check_anchor_data_hash_from_http_uri =
     serveFileWhile
       relativeUrl
       exampleAnchorDataPath
-      ( \port ->
+      ( \port -> do
           void $
             execCardanoCLI
               [ "hash"
@@ -198,7 +202,10 @@ serveFileWhile relativeUrl filePath action =
               let path = T.unpack <$> pathInfo req
               if path == relativeUrl
                 then respond $ responseFile status200 [("Content-Type", "text/plain")] filePath Nothing
-                else respond $ responseLBS status404 [("Content-Type", "text/plain")] "404 - Not Found"
+                else
+                  respond $
+                    responseLBS status404 [("Content-Type", "text/plain")] $
+                      fromString ("404 - Url \"" ++ urlFromRequest req ++ "\" - Not Found")
 
         -- Run server asynchronously in a separate thread
         void $ H.evalIO $ forkOS $ runSettingsSocket defaultSettings socket app
@@ -208,3 +215,11 @@ serveFileWhile relativeUrl filePath action =
     (\(_, socket) -> H.evalIO $ close socket)
     -- Test action
     (\(port, _) -> action port)
+ where
+  urlFromRequest :: Request -> String
+  urlFromRequest req =
+    "http://"
+      ++ maybe "localhost" BSU8.toString (requestHeaderHost req)
+      ++ "/"
+      ++ intercalate "/" (unpack <$> pathInfo req)
+      ++ BSU8.toString (renderQuery True (queryString req))

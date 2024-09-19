@@ -342,6 +342,7 @@ test-suite cardano-cli-test
     text,
     time,
     transformers,
+    utf8-string,
     wai,
     warp,
 
