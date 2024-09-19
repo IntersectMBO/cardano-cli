@@ -625,20 +625,7 @@ readCddlTx =
 
 txTextEnvelopeTypes :: [Text]
 txTextEnvelopeTypes =
-  [ "Witnessed Tx ShelleyEra"
-  , "Witnessed Tx AllegraEra"
-  , "Witnessed Tx MaryEra"
-  , "Witnessed Tx AlonzoEra"
-  , "Witnessed Tx BabbageEra"
-  , "Witnessed Tx ConwayEra"
-  , "Unwitnessed Tx ByronEra"
-  , "Unwitnessed Tx ShelleyEra"
-  , "Unwitnessed Tx AllegraEra"
-  , "Unwitnessed Tx MaryEra"
-  , "Unwitnessed Tx AlonzoEra"
-  , "Unwitnessed Tx BabbageEra"
-  , "Unwitnessed Tx ConwayEra"
-  , "TxSignedShelley"
+  [ "TxSignedShelley"
   , "Tx AllegraEra"
   , "Tx MaryEra"
   , "Tx AlonzoEra"
