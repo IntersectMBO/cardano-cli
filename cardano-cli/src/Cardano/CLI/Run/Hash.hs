@@ -113,16 +113,16 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
       if statusCode status /= 200
         then throw $ BadStatusCodeHRE (statusCode status) (BS8.unpack $ statusMessage status)
         else return $ BS.concat . BSL.toChunks $ responseBody response
+
+    handlers :: [Handler IO HashCmdError]
+    handlers =
+      [ mkHandler id
+      , mkHandler HttpExceptionHRE
+      , mkHandler IOExceptionHRE
+      ]
      where
-      handlers :: [Handler IO HashCmdError]
-      handlers =
-        [ mkHandler id
-        , mkHandler HttpExceptionHRE
-        , mkHandler IOExceptionHRE
-        ]
-       where
-        mkHandler :: (Monad m, Exception e) => (e -> HttpRequestError) -> Handler m HashCmdError
-        mkHandler x = Handler $ return . HashGetFileFromHttpError . x
+      mkHandler :: (Monad m, Exception e) => (e -> HttpRequestError) -> Handler m HashCmdError
+      mkHandler x = Handler $ return . HashGetFileFromHttpError . x
 
     convertToHttp :: URI -> ExceptT HashCmdError IO URI
     convertToHttp ipfsUri = do
