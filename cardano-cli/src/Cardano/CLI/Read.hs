@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
@@ -125,6 +126,7 @@ import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
 import           Data.String
 import           Data.Text (Text)
+import qualified Data.Text as T
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.Encoding.Error as Text
@@ -625,13 +627,10 @@ readCddlTx =
 
 txTextEnvelopeTypes :: [Text]
 txTextEnvelopeTypes =
-  [ "TxSignedShelley"
-  , "Tx AllegraEra"
-  , "Tx MaryEra"
-  , "Tx AlonzoEra"
-  , "Tx BabbageEra"
-  , "Tx ConwayEra"
-  ]
+  "TxSignedShelley"
+    : [ "Tx " <> T.pack (show $ toCardanoEra sbe)
+      | AnyShelleyBasedEra sbe <- [AnyShelleyBasedEra ShelleyBasedEraAllegra ..]
+      ]
 
 -- Tx witnesses
 
@@ -691,12 +690,8 @@ readCddlWitness fp = do
 
 txWitnessTextEnvelopeTypes :: [Text]
 txWitnessTextEnvelopeTypes =
-  [ "TxWitness ShelleyEra"
-  , "TxWitness AllegraEra"
-  , "TxWitness MaryEra"
-  , "TxWitness AlonzoEra"
-  , "TxWitness BabbageEra"
-  , "TxWitness ConwayEra"
+  [ "TxWitness " <> T.pack (show $ toCardanoEra sbe)
+  | AnyShelleyBasedEra sbe <- [AnyShelleyBasedEra ShelleyBasedEraShelley ..]
   ]
 
 -- Witness handling
