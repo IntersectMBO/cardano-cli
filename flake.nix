@@ -70,6 +70,8 @@
         macOS-security =
           # make `/usr/bin/security` available in `PATH`, which is needed for stack
           # on darwin which calls this binary to find certificates
+          # Without this, we get the following error when compiling darwin in Hydra:
+          # I/O error when downloading anchor data: security: createProcess: posix_spawnp: does not exist (No such file or directory)
           nixpkgs.writeScriptBin "security" ''exec /usr/bin/security "$@"'';
         isDarwin = (system == "x86_64-darwin") || (system == "aarch64-darwin");
         gitRevFlag =
