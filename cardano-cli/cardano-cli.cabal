@@ -235,13 +235,18 @@ library
     cryptonite,
     deepseq,
     directory,
+    exceptions,
     filepath,
     formatting,
+    http-client,
+    http-client-tls,
+    http-types,
     io-classes,
     iproute,
     microlens,
     mtl,
     network,
+    network-uri,
     optparse-applicative-fork,
     ouroboros-consensus ^>=0.20,
     ouroboros-consensus-cardano ^>=0.19,
@@ -321,10 +326,15 @@ test-suite cardano-cli-test
     cardano-ledger-alonzo,
     cardano-slotting,
     containers,
+    directory,
     exceptions,
     filepath,
     hedgehog,
     hedgehog-extras ^>=0.6.1.0,
+    http-types,
+    lifted-base,
+    monad-control,
+    network,
     parsec,
     regex-tdfa,
     tasty,
@@ -332,6 +342,9 @@ test-suite cardano-cli-test
     text,
     time,
     transformers,
+    utf8-string,
+    wai,
+    warp,
 
   build-tool-depends: tasty-discover:tasty-discover
   other-modules:
@@ -340,6 +353,7 @@ test-suite cardano-cli-test
     Test.Cli.FilePermissions
     Test.Cli.Governance.DRep
     Test.Cli.Governance.Hash
+    Test.Cli.Hash
     Test.Cli.ITN
     Test.Cli.Json
     Test.Cli.MonadWarning

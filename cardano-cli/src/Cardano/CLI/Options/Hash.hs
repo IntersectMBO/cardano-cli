@@ -32,10 +32,18 @@ pHashAnchorDataCmd = do
           Cmd.HashAnchorDataCmd
           ( Cmd.HashAnchorDataCmdArgs
               <$> pAnchorDataHashSource
-              <*> optional pOutputFile
+              <*> pHashGoal
           )
       )
     $ Opt.progDesc "Compute the hash of some anchor data (to then pass it to other commands)."
+
+pHashGoal :: Parser Cmd.HashGoal
+pHashGoal =
+  asum
+    [ Cmd.CheckHash <$> pExpectedHash
+    , Cmd.HashToFile <$> pOutputFile
+    ]
+    <|> pure Cmd.HashToStdout
 
 pAnchorDataHashSource :: Parser Cmd.AnchorDataHashSource
 pAnchorDataHashSource =
@@ -52,6 +60,8 @@ pAnchorDataHashSource =
         <$> pFileInDirection "file-binary" "Binary file to hash"
     , Cmd.AnchorDataHashSourceTextFile
         <$> pFileInDirection "file-text" "Text file to hash"
+    , Cmd.AnchorDataHashSourceURL
+        <$> pUrl "url" "A URL to the file to hash (HTTP(S) and IPFS only)"
     ]
 
 pHashScriptCmd :: Parser Cmd.HashCmds

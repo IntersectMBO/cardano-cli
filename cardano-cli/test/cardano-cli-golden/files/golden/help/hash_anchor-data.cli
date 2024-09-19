@@ -2,8 +2,11 @@ Usage: cardano-cli hash anchor-data
                                       ( --text TEXT
                                       | --file-binary FILEPATH
                                       | --file-text FILEPATH
+                                      | --url TEXT
                                       )
-                                      [--out-file FILEPATH]
+                                      [ --expected-hash HASH
+                                      | --out-file FILEPATH
+                                      ]
 
   Compute the hash of some anchor data (to then pass it to other commands).
 
@@ -11,5 +14,9 @@ Available options:
   --text TEXT              Text to hash as UTF-8
   --file-binary FILEPATH   Binary file to hash
   --file-text FILEPATH     Text file to hash
+  --url TEXT               A URL to the file to hash (HTTP(S) and IPFS only)
+  --expected-hash HASH     Expected hash for the anchor data for verification
+                           purposes. If provided, the hash of the anchor data
+                           will be compared to this value.
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

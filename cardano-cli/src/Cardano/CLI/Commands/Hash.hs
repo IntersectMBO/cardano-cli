@@ -4,6 +4,7 @@
 
 module Cardano.CLI.Commands.Hash
   ( HashCmds (..)
+  , HashGoal (..)
   , HashAnchorDataCmdArgs (..)
   , HashScriptCmdArgs (..)
   , AnchorDataHashSource (..)
@@ -12,6 +13,7 @@ module Cardano.CLI.Commands.Hash
 where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.Types.Common
 
@@ -21,11 +23,19 @@ data HashCmds
   = HashAnchorDataCmd !HashAnchorDataCmdArgs
   | HashScriptCmd !HashScriptCmdArgs
 
+data HashGoal
+  = -- | The hash is written to stdout
+    HashToStdout
+  | -- | The hash to check against
+    CheckHash !(L.SafeHash L.StandardCrypto L.AnchorData)
+  | -- | The output file to which the hash is written
+    HashToFile !(File () Out)
+  deriving Show
+
 data HashAnchorDataCmdArgs
   = HashAnchorDataCmdArgs
   { toHash :: !AnchorDataHashSource
-  , mOutFile :: !(Maybe (File () Out))
-  -- ^ The output file to which the hash is written
+  , hashGoal :: !HashGoal
   }
   deriving Show
 
@@ -33,6 +43,7 @@ data AnchorDataHashSource
   = AnchorDataHashSourceBinaryFile (File ProposalBinary In)
   | AnchorDataHashSourceTextFile (File ProposalText In)
   | AnchorDataHashSourceText Text
+  | AnchorDataHashSourceURL L.Url
   deriving Show
 
 data HashScriptCmdArgs
