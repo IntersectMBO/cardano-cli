@@ -494,17 +494,15 @@ runGenesisCreateCardanoCmd
       writeFileGenesis (rootdir </> "conway-genesis.json") $ WritePretty conwayGenesis
 
     liftIO $ do
-      case mNodeConfigTemplate of
-        Nothing -> pure ()
-        Just nodeCfg -> do
-          let hashes =
-                Map.fromList
-                  [ ("ByronGenesisHash", byronGenesisHash)
-                  , ("ShelleyGenesisHash", shelleyGenesisHash)
-                  , ("AlonzoGenesisHash", alonzoGenesisHash)
-                  , ("ConwayGenesisHash", conwayGenesisHash)
-                  ]
-          writeGenesisHashesToNodeConfigFile nodeCfg hashes (rootdir </> "node-config.json")
+      forM_ mNodeConfigTemplate $ \nodeCfg -> do
+        let hashes =
+              Map.fromList
+                [ ("ByronGenesisHash", byronGenesisHash)
+                , ("ShelleyGenesisHash", shelleyGenesisHash)
+                , ("AlonzoGenesisHash", alonzoGenesisHash)
+                , ("ConwayGenesisHash", conwayGenesisHash)
+                ]
+        writeGenesisHashesToNodeConfigFile nodeCfg hashes (rootdir </> "node-config.json")
    where
     convertToShelleyError = withExceptT GenesisCmdByronError
     convertGenesisKey :: Byron.SigningKey -> SigningKey GenesisExtendedKey
@@ -567,14 +565,15 @@ runGenesisCreateCardanoCmd
 -- at @src@ and the writes an augmented version of this file at @dest@, with the hashes.
 writeGenesisHashesToNodeConfigFile
   :: ()
+  => MonadIO m
   => FilePath
   -- ^ From where to read the node configuration file
   -> Map.Map Aeson.Key (Crypto.Hash h a)
   -- ^ Key of an era's hash (like "ByronGenesisHash", "ShelleyGenesisHash", etc.), to the hash of its genesis file
   -> FilePath
   -- ^ Where to write the updated node config file
-  -> IO ()
-writeGenesisHashesToNodeConfigFile sourcePath hashes destinationPath = do
+  -> m ()
+writeGenesisHashesToNodeConfigFile sourcePath hashes destinationPath = liftIO $ do
   nodeConfig <- Yaml.decodeFileThrow sourcePath
   let newConfig = foldr updateConfigHash nodeConfig $ Map.toList hashes
   Aeson.encodeFile destinationPath newConfig

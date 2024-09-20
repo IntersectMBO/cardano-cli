@@ -44,6 +44,14 @@ data GenesisCmdError
       !(VerificationKeyFile In)
       !Text
       !SomeAddressVerificationKey
+  | -- | @GenesisCmdWrongNodeConfigFile path error@ indicates
+    -- that the node configuration at @path@ is badly formed. @error@
+    -- gives details about the error
+    GenesisCmdWrongNodeConfigFile !FilePath !Text
+  | -- | @GenesisCmdWrongGenesisHash path key seen expected@ indicates
+    -- that the node configuration at @path@ has the wrong value @seen@ for @key@.
+    -- The value should be @expected@ instead.
+    GenesisCmdWrongGenesisHash !FilePath !Text !Text !Text
   deriving Show
 
 instance Error GenesisCmdError where
@@ -133,3 +141,18 @@ instance Error GenesisCmdError where
         <> "."
         <> "This is incorrect: the delegated supply should be less or equal to the total supply."
         <> " Note that the total supply can either come from --total-supply or from the default template. Please fix what you use."
+    GenesisCmdWrongNodeConfigFile path err ->
+      "Node configuration file at "
+        <> pretty path
+        <> " is badly formed: "
+        <> pretty err
+    GenesisCmdWrongGenesisHash path key seen expected ->
+      "Hash associated to key \""
+        <> pretty key
+        <> "\" in file "
+        <> pretty path
+        <> " is wrong. The value in the file is "
+        <> pretty seen
+        <> " whereas "
+        <> pretty expected
+        <> " is expected."
