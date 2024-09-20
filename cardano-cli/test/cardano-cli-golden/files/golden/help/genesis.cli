@@ -1,37 +1,39 @@
-Usage: cardano-cli genesis 
-                             ( key-gen-genesis
-                             | key-gen-delegate
-                             | key-gen-utxo
-                             | key-hash
-                             | get-ver-key
-                             | initial-addr
-                             | initial-txin
-                             | create-cardano
-                             | create
-                             | create-staked
-                             | hash
-                             )
+Usage: cardano-cli genesis --genesis-output-dir FILEPATH
+                             --start-time POSIXSECONDS
+                             --protocol-parameters-file FILEPATH
+                             --k INT
+                             --protocol-magic INT
+                             --n-poor-addresses INT
+                             --n-delegate-addresses INT
+                             --total-balance INT
+                             --delegate-share DOUBLE
+                             --avvm-entry-count INT
+                             --avvm-entry-balance INT
+                             [--avvm-balance-factor DOUBLE]
+                             [--secret-seed INT]
 
-  Genesis block commands
+  Create genesis.
 
 Available options:
+  --genesis-output-dir FILEPATH
+                           Non-existent directory where genesis JSON file and
+                           secrets shall be placed.
+  --start-time POSIXSECONDS
+                           Start time of the new cluster to be enshrined in the
+                           new genesis.
+  --protocol-parameters-file FILEPATH
+                           JSON file with protocol parameters.
+  --k INT                  The security parameter of the Ouroboros protocol.
+  --protocol-magic INT     The magic number unique to any instance of Cardano.
+  --n-poor-addresses INT   Number of poor nodes (with small balance).
+  --n-delegate-addresses INT
+                           Number of delegate nodes (with huge balance).
+  --total-balance INT      Total balance owned by these nodes.
+  --delegate-share DOUBLE  Portion of stake owned by all delegates together.
+  --avvm-entry-count INT   Number of AVVM addresses.
+  --avvm-entry-balance INT AVVM address.
+  --avvm-balance-factor DOUBLE
+                           AVVM balances will be multiplied by this factor
+                           (defaults to 1).
+  --secret-seed INT        Optionally specify the seed of generation.
   -h,--help                Show this help text
-
-Available commands:
-  key-gen-genesis          Create a Shelley genesis key pair
-  key-gen-delegate         Create a Shelley genesis delegate key pair
-  key-gen-utxo             Create a Shelley genesis UTxO key pair
-  key-hash                 Print the identifier (hash) of a public key
-  get-ver-key              Derive the verification key from a signing key
-  initial-addr             Get the address for an initial UTxO based on the
-                           verification key
-  initial-txin             Get the TxIn for an initial UTxO based on the
-                           verification key
-  create-cardano           Create a Byron and Shelley genesis file from a
-                           genesis template and genesis/delegation/spending
-                           keys.
-  create                   Create a Shelley genesis file from a genesis template
-                           and genesis/delegation/spending keys.
-  create-staked            Create a staked Shelley genesis file from a genesis
-                           template and genesis/delegation/spending keys.
-  hash                     Compute the hash of a genesis file

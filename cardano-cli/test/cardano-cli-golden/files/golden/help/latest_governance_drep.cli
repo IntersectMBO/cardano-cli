@@ -1,0 +1,22 @@
+Usage: cardano-cli latest governance drep 
+                                            ( key-gen
+                                            | id
+                                            | registration-certificate
+                                            | retirement-certificate
+                                            | update-certificate
+                                            | metadata-hash
+                                            )
+
+  DRep member commands.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  key-gen                  Generate Delegated Representative verification and
+                           signing keys.
+  id                       Generate a drep id.
+  registration-certificate Create a registration certificate.
+  retirement-certificate   Create a DRep retirement certificate.
+  update-certificate       Create a DRep update certificate.
+  metadata-hash            Calculate the hash of a metadata file.

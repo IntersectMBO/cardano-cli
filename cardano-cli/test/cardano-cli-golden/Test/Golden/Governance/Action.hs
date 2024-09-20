@@ -45,20 +45,19 @@ hprop_golden_governance_action_create_constitution =
       exampleAnchorDataHash2
       tempDir
 
-    void $
-      execCardanoCLI
-        [ "latest"
-        , "stake-address"
-        , "key-gen"
-        , "--verification-key-file"
-        , stakeAddressVKeyFile
-        , "--signing-key-file"
-        , stakeAddressSKeyFile
-        ]
+base_golden_governance_action_create_constitution
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)
+  => String
+  -> String
+  -> FilePath
+  -> m ()
+base_golden_governance_action_create_constitution hash1 hash2 tempDir = do
+  stakeAddressVKeyFile <- noteTempFile tempDir "stake-address.vkey"
+  stakeAddressSKeyFile <- noteTempFile tempDir "stake-address.skey"
 
   void $
     execCardanoCLI
-      [ "legacy"
+      [ "latest"
       , "stake-address"
       , "key-gen"
       , "--verification-key-file"

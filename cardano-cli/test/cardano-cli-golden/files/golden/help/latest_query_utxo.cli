@@ -5,6 +5,7 @@ Usage: cardano-cli latest query utxo --socket-path SOCKET_PATH
                                        | (--tx-in TX-IN)
                                        )
                                        (--mainnet | --testnet-magic NATURAL)
+                                       [--volatile-tip | --immutable-tip]
                                        [--output-json | --output-text]
                                        [--out-file FILEPATH]
 
@@ -28,6 +29,9 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --output-json            Format utxo query output to JSON. Default format when
                            writing to a file
   --output-text            Format utxo query output to TEXT. Default format when

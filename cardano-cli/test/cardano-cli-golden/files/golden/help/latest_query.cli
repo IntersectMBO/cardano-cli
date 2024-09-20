@@ -14,6 +14,13 @@ Usage: cardano-cli latest query
                                   | tx-mempool
                                   | slot-number
                                   | ref-script-size
+                                  | constitution
+                                  | gov-state
+                                  | drep-state
+                                  | drep-stake-distribution
+                                  | spo-stake-distribution
+                                  | committee-state
+                                  | treasury
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -50,3 +57,10 @@ Available commands:
   slot-number              Query slot number for UTC timestamp
   ref-script-size          Calculate the reference input scripts size in bytes
                            for provided transaction inputs.
+  constitution             Get the constitution
+  gov-state                Get the governance state
+  drep-state               Get the DRep state.
+  drep-stake-distribution  Get the DRep stake distribution.
+  spo-stake-distribution   Get the SPO stake distribution.
+  committee-state          Get the committee state
+  treasury                 Get the treasury value

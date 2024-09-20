@@ -1,6 +1,6 @@
 Usage: cardano-cli address (key-gen | key-hash | build | info)
 
-  Payment address commands
+  Payment address commands.
 
 Available options:
   -h,--help                Show this help text

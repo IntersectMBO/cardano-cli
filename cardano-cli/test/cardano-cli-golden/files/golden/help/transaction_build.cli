@@ -1,5 +1,4 @@
 Usage: cardano-cli transaction build --socket-path SOCKET_PATH
-                                       [--babbage-era | --conway-era]
                                        [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        [--script-valid | --script-invalid]
@@ -109,7 +108,6 @@ Usage: cardano-cli transaction build --socket-path SOCKET_PATH
                                        [ --metadata-json-file FILEPATH
                                        | --metadata-cbor-file FILEPATH
                                        ]
-                                       [--update-proposal-file FILEPATH]
                                        [--vote-file FILEPATH
                                          [ --vote-script-file FILEPATH
                                            [ --vote-redeemer-cbor-file CBOR_FILE
@@ -151,8 +149,11 @@ Available options:
                            CARDANO_NODE_SOCKET_PATH environment variable. The
                            argument is optional if CARDANO_NODE_SOCKET_PATH is
                            defined and mandatory otherwise.
+<<<<<<< HEAD
   --babbage-era            Specify the Babbage era (default)
   --conway-era             Specify the Conway era
+=======
+>>>>>>> 1a727cee4 (Update golden files)
   --cardano-mode           For talking to a node running in full Cardano mode
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
@@ -413,8 +414,6 @@ Available options:
                            Filepath of the metadata file, in JSON format.
   --metadata-cbor-file FILEPATH
                            Filepath of the metadata, in raw CBOR format.
-  --update-proposal-file FILEPATH
-                           Filepath of the update proposal.
   --vote-file FILEPATH     Filepath of the vote.
   --vote-script-file FILEPATH
                            The file containing the script to witness a vote

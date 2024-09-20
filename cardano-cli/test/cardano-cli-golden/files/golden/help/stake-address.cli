@@ -1,22 +1,35 @@
 Usage: cardano-cli stake-address 
                                    ( key-gen
-                                   | build
                                    | key-hash
+                                   | build
                                    | registration-certificate
                                    | deregistration-certificate
-                                   | delegation-certificate
+                                   | stake-delegation-certificate
+                                   | stake-and-vote-delegation-certificate
+                                   | vote-delegation-certificate
                                    )
 
-  Stake address commands
+  Stake address commands.
 
 Available options:
   -h,--help                Show this help text
 
 Available commands:
   key-gen                  Create a stake address key pair
+  key-hash                 Print the hash of a stake address key
   build                    Build a stake address
-  key-hash                 Print the hash of a stake address key.
   registration-certificate Create a stake address registration certificate
   deregistration-certificate
                            Create a stake address deregistration certificate
-  delegation-certificate   Create a stake address pool delegation certificate
+  stake-delegation-certificate
+                           Create a stake address stake delegation certificate,
+                           which when submitted in a transaction delegates stake
+                           to a stake pool.
+  stake-and-vote-delegation-certificate
+                           Create a stake address stake and vote delegation
+                           certificate, which when submitted in a transaction
+                           delegates stake to a stake pool and a DRep.
+  vote-delegation-certificate
+                           Create a stake address vote delegation certificate,
+                           which when submitted in a transaction delegates stake
+                           to a DRep.

@@ -5,6 +5,9 @@ Usage: cardano-cli latest query ref-script-size --socket-path SOCKET_PATH
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
                                                   [ --output-json
                                                   | --output-text
                                                   ]
@@ -28,6 +31,9 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --output-json            Format reference inputs query output to JSON. Default
                            format when writing to a file
   --output-text            Format reference inputs query output to TEXT. Default
