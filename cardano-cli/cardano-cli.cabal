@@ -121,29 +121,12 @@ library
     Cardano.CLI.IO.Lazy
     Cardano.CLI.Json.Friendly
     Cardano.CLI.Legacy.Commands
-    Cardano.CLI.Legacy.Commands.Address
     Cardano.CLI.Legacy.Commands.Genesis
     Cardano.CLI.Legacy.Commands.Governance
-    Cardano.CLI.Legacy.Commands.Key
-    Cardano.CLI.Legacy.Commands.Node
-    Cardano.CLI.Legacy.Commands.Query
-    Cardano.CLI.Legacy.Commands.StakeAddress
-    Cardano.CLI.Legacy.Commands.StakePool
-    Cardano.CLI.Legacy.Commands.TextView
-    Cardano.CLI.Legacy.Commands.Transaction
     Cardano.CLI.Legacy.Options
-    Cardano.CLI.Legacy.Options.Key
     Cardano.CLI.Legacy.Run
-    Cardano.CLI.Legacy.Run.Address
     Cardano.CLI.Legacy.Run.Genesis
     Cardano.CLI.Legacy.Run.Governance
-    Cardano.CLI.Legacy.Run.Key
-    Cardano.CLI.Legacy.Run.Node
-    Cardano.CLI.Legacy.Run.Query
-    Cardano.CLI.Legacy.Run.StakeAddress
-    Cardano.CLI.Legacy.Run.StakePool
-    Cardano.CLI.Legacy.Run.TextView
-    Cardano.CLI.Legacy.Run.Transaction
     Cardano.CLI.OS.Posix
     Cardano.CLI.Options
     Cardano.CLI.Options.Debug
