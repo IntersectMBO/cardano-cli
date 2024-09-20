@@ -217,6 +217,7 @@ friendlyTxBodyImpl
             txValidityUpperBound
             txMetadata
             txAuxScripts
+            _txSupplementalDatums
             txExtraKeyWits
             _txProtocolParams
             txWithdrawals

@@ -955,6 +955,10 @@ Usage: cardano-cli shelley transaction build-raw
                                                    | --json-metadata-detailed-schema
                                                    ]
                                                    [--auxiliary-script-file FILEPATH]
+                                                   [ --supplementary-datum-cbor-file CBOR_FILE
+                                                   | --supplementary-datum-file JSON_FILE
+                                                   | --supplementary-datum-value JSON_VALUE
+                                                   ]
                                                    [ --metadata-json-file FILEPATH
                                                    | --metadata-cbor-file FILEPATH
                                                    ]
@@ -1078,6 +1082,10 @@ Usage: cardano-cli shelley transaction build --socket-path SOCKET_PATH
                                                | --json-metadata-detailed-schema
                                                ]
                                                [--auxiliary-script-file FILEPATH]
+                                               [ --supplementary-datum-cbor-file CBOR_FILE
+                                               | --supplementary-datum-file JSON_FILE
+                                               | --supplementary-datum-value JSON_VALUE
+                                               ]
                                                [ --metadata-json-file FILEPATH
                                                | --metadata-cbor-file FILEPATH
                                                ]
@@ -2150,6 +2158,10 @@ Usage: cardano-cli allegra transaction build-raw
                                                    | --json-metadata-detailed-schema
                                                    ]
                                                    [--auxiliary-script-file FILEPATH]
+                                                   [ --supplementary-datum-cbor-file CBOR_FILE
+                                                   | --supplementary-datum-file JSON_FILE
+                                                   | --supplementary-datum-value JSON_VALUE
+                                                   ]
                                                    [ --metadata-json-file FILEPATH
                                                    | --metadata-cbor-file FILEPATH
                                                    ]
@@ -2273,6 +2285,10 @@ Usage: cardano-cli allegra transaction build --socket-path SOCKET_PATH
                                                | --json-metadata-detailed-schema
                                                ]
                                                [--auxiliary-script-file FILEPATH]
+                                               [ --supplementary-datum-cbor-file CBOR_FILE
+                                               | --supplementary-datum-file JSON_FILE
+                                               | --supplementary-datum-value JSON_VALUE
+                                               ]
                                                [ --metadata-json-file FILEPATH
                                                | --metadata-cbor-file FILEPATH
                                                ]
@@ -3338,6 +3354,10 @@ Usage: cardano-cli mary transaction build-raw
                                                 | --json-metadata-detailed-schema
                                                 ]
                                                 [--auxiliary-script-file FILEPATH]
+                                                [ --supplementary-datum-cbor-file CBOR_FILE
+                                                | --supplementary-datum-file JSON_FILE
+                                                | --supplementary-datum-value JSON_VALUE
+                                                ]
                                                 [ --metadata-json-file FILEPATH
                                                 | --metadata-cbor-file FILEPATH
                                                 ]
@@ -3459,6 +3479,10 @@ Usage: cardano-cli mary transaction build --socket-path SOCKET_PATH
                                             | --json-metadata-detailed-schema
                                             ]
                                             [--auxiliary-script-file FILEPATH]
+                                            [ --supplementary-datum-cbor-file CBOR_FILE
+                                            | --supplementary-datum-file JSON_FILE
+                                            | --supplementary-datum-value JSON_VALUE
+                                            ]
                                             [ --metadata-json-file FILEPATH
                                             | --metadata-cbor-file FILEPATH
                                             ]
@@ -3594,6 +3618,10 @@ Usage: cardano-cli mary transaction build-estimate
                                                      | --json-metadata-detailed-schema
                                                      ]
                                                      [--auxiliary-script-file FILEPATH]
+                                                     [ --supplementary-datum-cbor-file CBOR_FILE
+                                                     | --supplementary-datum-file JSON_FILE
+                                                     | --supplementary-datum-value JSON_VALUE
+                                                     ]
                                                      [ --metadata-json-file FILEPATH
                                                      | --metadata-cbor-file FILEPATH
                                                      ]
@@ -4668,6 +4696,10 @@ Usage: cardano-cli alonzo transaction build-raw
                                                   | --json-metadata-detailed-schema
                                                   ]
                                                   [--auxiliary-script-file FILEPATH]
+                                                  [ --supplementary-datum-cbor-file CBOR_FILE
+                                                  | --supplementary-datum-file JSON_FILE
+                                                  | --supplementary-datum-value JSON_VALUE
+                                                  ]
                                                   [ --metadata-json-file FILEPATH
                                                   | --metadata-cbor-file FILEPATH
                                                   ]
@@ -4791,6 +4823,10 @@ Usage: cardano-cli alonzo transaction build --socket-path SOCKET_PATH
                                               | --json-metadata-detailed-schema
                                               ]
                                               [--auxiliary-script-file FILEPATH]
+                                              [ --supplementary-datum-cbor-file CBOR_FILE
+                                              | --supplementary-datum-file JSON_FILE
+                                              | --supplementary-datum-value JSON_VALUE
+                                              ]
                                               [ --metadata-json-file FILEPATH
                                               | --metadata-cbor-file FILEPATH
                                               ]
@@ -4926,6 +4962,10 @@ Usage: cardano-cli alonzo transaction build-estimate
                                                        | --json-metadata-detailed-schema
                                                        ]
                                                        [--auxiliary-script-file FILEPATH]
+                                                       [ --supplementary-datum-cbor-file CBOR_FILE
+                                                       | --supplementary-datum-file JSON_FILE
+                                                       | --supplementary-datum-value JSON_VALUE
+                                                       ]
                                                        [ --metadata-json-file FILEPATH
                                                        | --metadata-cbor-file FILEPATH
                                                        ]
@@ -6023,6 +6063,10 @@ Usage: cardano-cli babbage transaction build-raw
                                                    | --json-metadata-detailed-schema
                                                    ]
                                                    [--auxiliary-script-file FILEPATH]
+                                                   [ --supplementary-datum-cbor-file CBOR_FILE
+                                                   | --supplementary-datum-file JSON_FILE
+                                                   | --supplementary-datum-value JSON_VALUE
+                                                   ]
                                                    [ --metadata-json-file FILEPATH
                                                    | --metadata-cbor-file FILEPATH
                                                    ]
@@ -6146,6 +6190,10 @@ Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
                                                | --json-metadata-detailed-schema
                                                ]
                                                [--auxiliary-script-file FILEPATH]
+                                               [ --supplementary-datum-cbor-file CBOR_FILE
+                                               | --supplementary-datum-file JSON_FILE
+                                               | --supplementary-datum-value JSON_VALUE
+                                               ]
                                                [ --metadata-json-file FILEPATH
                                                | --metadata-cbor-file FILEPATH
                                                ]
@@ -6281,6 +6329,10 @@ Usage: cardano-cli babbage transaction build-estimate
                                                         | --json-metadata-detailed-schema
                                                         ]
                                                         [--auxiliary-script-file FILEPATH]
+                                                        [ --supplementary-datum-cbor-file CBOR_FILE
+                                                        | --supplementary-datum-file JSON_FILE
+                                                        | --supplementary-datum-value JSON_VALUE
+                                                        ]
                                                         [ --metadata-json-file FILEPATH
                                                         | --metadata-cbor-file FILEPATH
                                                         ]
@@ -7840,6 +7892,10 @@ Usage: cardano-cli conway transaction build-raw
                                                   | --json-metadata-detailed-schema
                                                   ]
                                                   [--auxiliary-script-file FILEPATH]
+                                                  [ --supplementary-datum-cbor-file CBOR_FILE
+                                                  | --supplementary-datum-file JSON_FILE
+                                                  | --supplementary-datum-value JSON_VALUE
+                                                  ]
                                                   [ --metadata-json-file FILEPATH
                                                   | --metadata-cbor-file FILEPATH
                                                   ]
@@ -7996,6 +8052,10 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                               | --json-metadata-detailed-schema
                                               ]
                                               [--auxiliary-script-file FILEPATH]
+                                              [ --supplementary-datum-cbor-file CBOR_FILE
+                                              | --supplementary-datum-file JSON_FILE
+                                              | --supplementary-datum-value JSON_VALUE
+                                              ]
                                               [ --metadata-json-file FILEPATH
                                               | --metadata-cbor-file FILEPATH
                                               ]
@@ -8157,6 +8217,10 @@ Usage: cardano-cli conway transaction build-estimate
                                                        | --json-metadata-detailed-schema
                                                        ]
                                                        [--auxiliary-script-file FILEPATH]
+                                                       [ --supplementary-datum-cbor-file CBOR_FILE
+                                                       | --supplementary-datum-file JSON_FILE
+                                                       | --supplementary-datum-value JSON_VALUE
+                                                       ]
                                                        [ --metadata-json-file FILEPATH
                                                        | --metadata-cbor-file FILEPATH
                                                        ]
@@ -9285,6 +9349,10 @@ Usage: cardano-cli latest transaction build-raw
                                                   | --json-metadata-detailed-schema
                                                   ]
                                                   [--auxiliary-script-file FILEPATH]
+                                                  [ --supplementary-datum-cbor-file CBOR_FILE
+                                                  | --supplementary-datum-file JSON_FILE
+                                                  | --supplementary-datum-value JSON_VALUE
+                                                  ]
                                                   [ --metadata-json-file FILEPATH
                                                   | --metadata-cbor-file FILEPATH
                                                   ]
@@ -9408,6 +9476,10 @@ Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
                                               | --json-metadata-detailed-schema
                                               ]
                                               [--auxiliary-script-file FILEPATH]
+                                              [ --supplementary-datum-cbor-file CBOR_FILE
+                                              | --supplementary-datum-file JSON_FILE
+                                              | --supplementary-datum-value JSON_VALUE
+                                              ]
                                               [ --metadata-json-file FILEPATH
                                               | --metadata-cbor-file FILEPATH
                                               ]
@@ -9543,6 +9615,10 @@ Usage: cardano-cli latest transaction build-estimate
                                                        | --json-metadata-detailed-schema
                                                        ]
                                                        [--auxiliary-script-file FILEPATH]
+                                                       [ --supplementary-datum-cbor-file CBOR_FILE
+                                                       | --supplementary-datum-file JSON_FILE
+                                                       | --supplementary-datum-value JSON_VALUE
+                                                       ]
                                                        [ --metadata-json-file FILEPATH
                                                        | --metadata-cbor-file FILEPATH
                                                        ]

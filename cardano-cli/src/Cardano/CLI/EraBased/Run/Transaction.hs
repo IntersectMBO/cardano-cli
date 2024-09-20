@@ -128,6 +128,7 @@ runTransactionBuildCmd
     , certificates
     , withdrawals
     , metadataSchema
+    , supplementaryDatums
     , scriptFiles
     , metadataFiles
     , mUpdateProposalFile
@@ -174,6 +175,10 @@ runTransactionBuildCmd
               firstExceptT TxCmdMetadataError . newExceptT $
                 readTxMetadata eon metadataSchema metadataFiles
             valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
+
+            txSupplementaryDatums <- 
+              firstExceptT TxCmdScriptDataError $ readTxSupplementaryDatums supplementaryDatums
+
             scripts <-
               firstExceptT TxCmdScriptFileError $
                 mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -261,6 +266,7 @@ runTransactionBuildCmd
                 withdrawalsAndMaybeScriptWits
                 requiredSigners
                 txAuxScripts
+                txSupplementaryDatums
                 txMetadata
                 mProp
                 mOverrideWitnesses
@@ -340,6 +346,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , withdrawals
     , metadataSchema
     , scriptFiles
+    , supplementaryDatums
     , metadataFiles
     , mUpdateProposalFile
     , voteFiles
@@ -373,6 +380,9 @@ runTransactionBuildEstimateCmd -- TODO change type
     txAuxScripts <-
       hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts sbe scripts
 
+    txSupplementalDatums <- 
+      firstExceptT TxCmdScriptDataError $ readTxSupplementaryDatums supplementaryDatums
+    
     txUpdateProposal <- case mUpdateProposalFile of
       Just (Featured w (Just updateProposalFile)) ->
         readTxUpdateProposal w updateProposalFile & firstExceptT TxCmdReadTextViewFileError
@@ -434,6 +444,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           requiredSigners
           0
           txAuxScripts
+          txSupplementalDatums
           txMetadata
           txUpdateProposal
           votingProceduresAndMaybeScriptWits
@@ -584,6 +595,7 @@ runTransactionBuildRawCmd
     , withdrawals
     , metadataSchema
     , scriptFiles
+    , supplementaryDatums
     , metadataFiles
     , mProtocolParamsFile
     , mUpdateProprosalFile
@@ -610,6 +622,10 @@ runTransactionBuildRawCmd
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
+
+    txSupplementaryDatums <- 
+      firstExceptT TxCmdScriptDataError $ readTxSupplementaryDatums supplementaryDatums
+
     txAuxScripts <-
       hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
 
@@ -677,6 +693,7 @@ runTransactionBuildRawCmd
           withdrawalsAndMaybeScriptWits
           requiredSigners
           txAuxScripts
+          txSupplementaryDatums
           txMetadata
           mLedgerPParams
           txUpdateProposal
@@ -718,6 +735,7 @@ runTxBuildRaw
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
+  -> TxSupplementalDatums era
   -> TxMetadataInEra era
   -> Maybe (LedgerProtocolParameters era)
   -> TxUpdateProposal era
@@ -742,6 +760,7 @@ runTxBuildRaw
   withdrawals
   reqSigners
   txAuxScripts
+  txSupplementalDatums
   txMetadata
   mpparams
   txUpdateProposal
@@ -767,6 +786,7 @@ runTxBuildRaw
         reqSigners
         fee
         txAuxScripts
+        txSupplementalDatums
         txMetadata
         txUpdateProposal
         votingProcedures
@@ -807,6 +827,7 @@ constructTxBodyContent
   -> Lovelace
   -- ^ Tx fee
   -> TxAuxScripts era
+  -> TxSupplementalDatums era
   -> TxMetadataInEra era
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
@@ -834,6 +855,7 @@ constructTxBodyContent
   reqSigners
   fee
   txAuxScripts
+  txSupplementalDatums
   txMetadata
   txUpdateProposal
   votingProcedures
@@ -893,6 +915,7 @@ constructTxBodyContent
               & setTxValidityLowerBound validatedLowerBound
               & setTxValidityUpperBound mUpperBound
               & setTxMetadata txMetadata
+              & setTxSupplementalDatums txSupplementalDatums
               & setTxAuxScripts txAuxScripts
               & setTxExtraKeyWits validatedReqSigners
               & setTxProtocolParams (BuildTxWith $ LedgerProtocolParameters <$> mPparams)
@@ -948,6 +971,7 @@ runTxBuild
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
+  -> TxSupplementalDatums era
   -> TxMetadataInEra era
   -> TxUpdateProposal era
   -> Maybe Word
@@ -975,6 +999,7 @@ runTxBuild
   withdrawals
   reqSigners
   txAuxScripts
+  txSupplementaryData
   txMetadata
   txUpdateProposal
   mOverrideWits
@@ -1047,6 +1072,7 @@ runTxBuild
             reqSigners
             0
             txAuxScripts
+            txSupplementaryData
             txMetadata
             txUpdateProposal
             votingProcedures
