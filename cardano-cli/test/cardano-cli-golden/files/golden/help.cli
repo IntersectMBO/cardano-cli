@@ -807,7 +807,9 @@ Usage: cardano-cli shelley genesis create-staked [--key-output-format STRING]
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILEPATH]
+Usage: cardano-cli shelley genesis create-testnet-data 
+                                                         [--node-configuration FILEPATH]
+                                                         [--spec-shelley FILEPATH]
                                                          [--spec-alonzo FILEPATH]
                                                          [--spec-conway FILEPATH]
                                                          [--genesis-keys INT]
@@ -1872,7 +1874,9 @@ Usage: cardano-cli allegra genesis create-staked [--key-output-format STRING]
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli allegra genesis create-testnet-data [--spec-shelley FILEPATH]
+Usage: cardano-cli allegra genesis create-testnet-data 
+                                                         [--node-configuration FILEPATH]
+                                                         [--spec-shelley FILEPATH]
                                                          [--spec-alonzo FILEPATH]
                                                          [--spec-conway FILEPATH]
                                                          [--genesis-keys INT]
@@ -2935,7 +2939,9 @@ Usage: cardano-cli mary genesis create-staked [--key-output-format STRING]
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli mary genesis create-testnet-data [--spec-shelley FILEPATH]
+Usage: cardano-cli mary genesis create-testnet-data 
+                                                      [--node-configuration FILEPATH]
+                                                      [--spec-shelley FILEPATH]
                                                       [--spec-alonzo FILEPATH]
                                                       [--spec-conway FILEPATH]
                                                       [--genesis-keys INT]
@@ -3990,7 +3996,9 @@ Usage: cardano-cli alonzo genesis create-staked [--key-output-format STRING]
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILEPATH]
+Usage: cardano-cli alonzo genesis create-testnet-data 
+                                                        [--node-configuration FILEPATH]
+                                                        [--spec-shelley FILEPATH]
                                                         [--spec-alonzo FILEPATH]
                                                         [--spec-conway FILEPATH]
                                                         [--genesis-keys INT]
@@ -5062,7 +5070,9 @@ Usage: cardano-cli babbage genesis create-staked [--key-output-format STRING]
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli babbage genesis create-testnet-data [--spec-shelley FILEPATH]
+Usage: cardano-cli babbage genesis create-testnet-data 
+                                                         [--node-configuration FILEPATH]
+                                                         [--spec-shelley FILEPATH]
                                                          [--spec-alonzo FILEPATH]
                                                          [--spec-conway FILEPATH]
                                                          [--genesis-keys INT]
@@ -6410,7 +6420,9 @@ Usage: cardano-cli conway genesis create-staked [--key-output-format STRING]
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH]
+Usage: cardano-cli conway genesis create-testnet-data 
+                                                        [--node-configuration FILEPATH]
+                                                        [--spec-shelley FILEPATH]
                                                         [--spec-alonzo FILEPATH]
                                                         [--spec-conway FILEPATH]
                                                         [--genesis-keys INT]
@@ -8340,7 +8352,9 @@ Usage: cardano-cli latest genesis create-staked [--key-output-format STRING]
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILEPATH]
+Usage: cardano-cli latest genesis create-testnet-data 
+                                                        [--node-configuration FILEPATH]
+                                                        [--spec-shelley FILEPATH]
                                                         [--spec-alonzo FILEPATH]
                                                         [--spec-conway FILEPATH]
                                                         [--genesis-keys INT]
