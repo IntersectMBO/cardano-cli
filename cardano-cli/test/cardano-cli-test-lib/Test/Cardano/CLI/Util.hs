@@ -10,6 +10,7 @@ module Test.Cardano.CLI.Util
   , checkTextEnvelopeFormat
   , equivalence
   , execCardanoCLI
+  , execCardanoCLIWithEnvVars
   , execDetailCardanoCLI
   , execDetailConfigCardanoCLI
   , tryExecCardanoCLI
@@ -43,6 +44,7 @@ import           Data.Function ((&))
 import qualified Data.List as List
 import           Data.Monoid (Last (..))
 import           Data.Text (Text)
+import           GHC.IO.Exception (ExitCode (..))
 import           GHC.Stack (CallStack, HasCallStack)
 import qualified GHC.Stack as GHC
 import qualified System.Directory as IO
@@ -73,6 +75,31 @@ execCardanoCLI
   -> m String
   -- ^ Captured stdout
 execCardanoCLI = GHC.withFrozenCallStack $ H.execFlex "cardano-cli" "CARDANO_CLI"
+
+-- | Execute cardano-cli via the command line but set
+-- environment variables. Fails if the process returns a non-zero exit code.
+--
+-- Waits for the process to finish and returns the stdout.
+execCardanoCLIWithEnvVars
+  :: (MonadTest m, MonadCatch m, MonadIO m, HasCallStack)
+  => [(String, String)]
+  -- ^ Environment variables to set
+  -> [String]
+  -- ^ Arguments to the CLI command
+  -> m String
+execCardanoCLIWithEnvVars envVars args = GHC.withFrozenCallStack $ do
+  env <- H.evalIO IO.getEnvironment
+  result <-
+    execDetailConfigCardanoCLI
+      H.defaultExecConfig
+        { H.execConfigEnv = Last $ Just (envVars ++ env)
+        }
+      args
+  case result of
+    (ExitFailure _, _, stderr) -> do
+      H.note_ stderr
+      H.failure
+    (ExitSuccess, stdout, _) -> return stdout
 
 -- | Execute cardano-cli via the command line, expecting it to fail.
 --

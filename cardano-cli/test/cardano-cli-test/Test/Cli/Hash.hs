@@ -10,7 +10,6 @@ import           Control.Monad (void)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 import qualified Data.ByteString.UTF8 as BSU8
 import           Data.List (intercalate)
-import           Data.Monoid (Last (..))
 import           Data.String (IsString (fromString))
 import           Data.Text (unpack)
 import qualified Data.Text as T
@@ -22,7 +21,6 @@ import           Network.Wai (Request (..), Response, ResponseReceived, pathInfo
                    responseLBS)
 import           Network.Wai.Handler.Warp (defaultSettings, openFreePort, runSettingsSocket)
 import           System.Directory (getCurrentDirectory)
-import           System.Environment (getEnvironment)
 import           System.FilePath (dropTrailingPathSeparator)
 import           System.FilePath.Posix (splitDirectories)
 
@@ -38,8 +36,8 @@ exampleAnchorDataHash = "de38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5ee
 exampleAnchorDataPath :: String
 exampleAnchorDataPath = "test/cardano-cli-test/files/input/example_anchor_data.txt"
 
-exampleAchorDataIpfsHash :: String
-exampleAchorDataIpfsHash = "QmbL5EBFJLf8DdPkWAskG3Euin9tHY8naqQ2JDoHnWHHXJ"
+exampleAnchorDataIpfsHash :: String
+exampleAnchorDataIpfsHash = "QmbL5EBFJLf8DdPkWAskG3Euin9tHY8naqQ2JDoHnWHHXJ"
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/generate anchor data hash from file/"'@
@@ -143,36 +141,21 @@ hprop_check_anchor_data_hash_from_http_uri =
 hprop_check_anchor_data_hash_from_ipfs_uri :: Property
 hprop_check_anchor_data_hash_from_ipfs_uri =
   propertyOnce $ do
-    let relativeUrl = ["ipfs", exampleAchorDataIpfsHash]
+    let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
     serveFileWhile
       relativeUrl
       exampleAnchorDataPath
       ( \port -> do
-          env <- H.evalIO getEnvironment
-          result <-
-            execDetailConfigCardanoCLI
-              H.defaultExecConfig
-                { H.execConfigEnv =
-                    Last $
-                      Just
-                        ( ( "IPFS_GATEWAY_URI"
-                          , "http://localhost:" ++ show port ++ "/"
-                          )
-                            : env
-                        )
-                }
+          void $
+            execCardanoCLIWithEnvVars
+              [("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/")]
               [ "hash"
               , "anchor-data"
               , "--url"
-              , "ipfs://" ++ exampleAchorDataIpfsHash
+              , "ipfs://" ++ exampleAnchorDataIpfsHash
               , "--expected-hash"
               , exampleAnchorDataHash
               ]
-          case result of
-            (ExitFailure _, _, stderr) -> do
-              H.note_ stderr
-              failure
-            (ExitSuccess, _, _) -> success
       )
 
 -- | Takes a relative url (as a list of segments), a file path, and an action, and it serves
