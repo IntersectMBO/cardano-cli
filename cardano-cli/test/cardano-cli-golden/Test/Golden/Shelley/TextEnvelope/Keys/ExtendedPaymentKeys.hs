@@ -36,7 +36,8 @@ hprop_golden_shelleyExtendedPaymentKeys = propertyOnce . H.moduleWorkspace "tmp"
   -- Generate payment verification key
   void $
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "key-gen"
       , "--extended-key"
       , "--verification-key-file"
@@ -72,7 +73,8 @@ hprop_golden_shelleyExtendedPaymentKeys_te = propertyOnce . H.moduleWorkspace "t
   -- Generate payment verification key
   void $
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "key-gen"
       , "--key-output-format"
       , "text-envelope"
@@ -105,7 +107,8 @@ hprop_golden_shelleyExtendedPaymentKeys_bech32 = propertyOnce . H.moduleWorkspac
   -- Generate payment verification key
   void $
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "key-gen"
       , "--key-output-format"
       , "bech32"

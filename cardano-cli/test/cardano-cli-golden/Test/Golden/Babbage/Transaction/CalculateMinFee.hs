@@ -21,7 +21,8 @@ hprop_golden_babbage_transaction_calculate_min_fee = propertyOnce $ do
 
   minFeeTxt <-
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "calculate-min-fee"
       , "--witness-count"
       , "1"

@@ -47,7 +47,8 @@ hprop_golden_governance_action_create_constitution =
 
     void $
       execCardanoCLI
-        [ "stake-address"
+        [ "latest"
+        , "stake-address"
         , "key-gen"
         , "--verification-key-file"
         , stakeAddressVKeyFile

@@ -35,7 +35,8 @@ hprop_golden_shelleyStakeKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDi
   -- Generate stake key pair
   void $
     execCardanoCLI
-      [ "stake-address"
+      [ "latest"
+      , "stake-address"
       , "key-gen"
       , "--verification-key-file"
       , verKey
@@ -69,7 +70,8 @@ hprop_golden_shelleyStakeKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tem
   -- Generate stake key pair
   void $
     execCardanoCLI
-      [ "stake-address"
+      [ "latest"
+      , "stake-address"
       , "key-gen"
       , "--key-output-format"
       , "text-envelope"
@@ -101,7 +103,8 @@ hprop_golden_shelleyStakeKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ 
   -- Generate stake key pair
   void $
     execCardanoCLI
-      [ "stake-address"
+      [ "latest"
+      , "stake-address"
       , "key-gen"
       , "--key-output-format"
       , "bech32"

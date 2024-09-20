@@ -43,7 +43,8 @@ hprop_golden_shelley_transaction_calculate_min_fee = do
 
       minFeeTxt <-
         execCardanoCLI $
-          [ "transaction"
+          [ "latest"
+          , "transaction"
           , "calculate-min-fee"
           , "--byron-witness-count"
           , "10"

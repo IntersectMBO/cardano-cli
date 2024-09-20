@@ -21,7 +21,8 @@ hprop_golden_shelley_genesis_key_gen_delegate = propertyOnce . H.moduleWorkspace
 
   void $
     execCardanoCLI
-      [ "genesis"
+      [ "latest"
+      , "genesis"
       , "key-gen-delegate"
       , "--verification-key-file"
       , verificationKeyFile

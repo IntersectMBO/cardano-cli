@@ -19,7 +19,8 @@ hprop_golden_shelleyTextViewDecodeCbor = propertyOnce $ H.moduleWorkspace "tmp" 
 
   decodedTxt <-
     execCardanoCLI
-      [ "text-view"
+      [ "latest"
+      , "text-view"
       , "decode-cbor"
       , "--file"
       , unsignedTxFile

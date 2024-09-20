@@ -21,7 +21,8 @@ hprop_golden_shelleyAddressInfo = propertyOnce $ do
 
     infoText1 <-
       execCardanoCLI
-        [ "address"
+        [ "latest"
+        , "address"
         , "info"
         , "--address"
         , byronBase58
@@ -35,7 +36,8 @@ hprop_golden_shelleyAddressInfo = propertyOnce $ do
 
     infoText2 <-
       execCardanoCLI
-        [ "address"
+        [ "latest"
+        , "address"
         , "info"
         , "--address"
         , byronHex
@@ -48,7 +50,8 @@ hprop_golden_shelleyAddressInfo = propertyOnce $ do
 
     infoText3 <-
       execCardanoCLI
-        [ "address"
+        [ "latest"
+        , "address"
         , "info"
         , "--address"
         , shelleyHex

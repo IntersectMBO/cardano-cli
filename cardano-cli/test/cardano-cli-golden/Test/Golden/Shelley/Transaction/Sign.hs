@@ -31,7 +31,8 @@ hprop_golden_shelley_transaction_sign = propertyOnce $ H.moduleWorkspace "tmp" $
 
   void $
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "sign"
       , "--mainnet"
       , "--tx-body-file"
@@ -49,7 +50,8 @@ hprop_golden_shelley_transaction_sign = propertyOnce $ H.moduleWorkspace "tmp" $
 
   void $
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "sign"
       , "--mainnet"
       , "--tx-body-file"
@@ -69,7 +71,8 @@ hprop_golden_shelley_transaction_sign = propertyOnce $ H.moduleWorkspace "tmp" $
 
   void $
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "sign"
       , "--mainnet"
       , "--tx-body-file"
@@ -89,7 +92,8 @@ hprop_golden_shelley_transaction_sign = propertyOnce $ H.moduleWorkspace "tmp" $
 
   void $
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "sign"
       , "--mainnet"
       , "--tx-body-file"

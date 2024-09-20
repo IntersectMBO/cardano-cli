@@ -19,7 +19,8 @@ hprop_golden_shelleyGenesisInitialTxIn = propertyOnce $ do
     H.note "test/cardano-cli-golden/files/golden/shelley/keys/genesis_utxo_hashes/utxo_hash"
   utxoHash <-
     execCardanoCLI
-      [ "genesis"
+      [ "latest"
+      , "genesis"
       , "initial-txin"
       , "--testnet-magic"
       , "16"

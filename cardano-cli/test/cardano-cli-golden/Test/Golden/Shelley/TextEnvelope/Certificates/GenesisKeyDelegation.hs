@@ -45,7 +45,8 @@ hprop_golden_shelleyGenesisKeyDelegationCertificate =
     -- Generate genesis key pair
     void $
       execCardanoCLI
-        [ "genesis"
+        [ "latest"
+        , "genesis"
         , "key-gen-genesis"
         , "--verification-key-file"
         , genesisVerKeyFilePath
@@ -56,7 +57,8 @@ hprop_golden_shelleyGenesisKeyDelegationCertificate =
     -- Generate genesis delegate key pair
     void $
       execCardanoCLI
-        [ "genesis"
+        [ "latest"
+        , "genesis"
         , "key-gen-delegate"
         , "--verification-key-file"
         , genesisDelegVerKeyFilePath
@@ -69,7 +71,8 @@ hprop_golden_shelleyGenesisKeyDelegationCertificate =
     -- Generate VRF key pair
     void $
       execCardanoCLI
-        [ "node"
+        [ "latest"
+        , "node"
         , "key-gen-VRF"
         , "--verification-key-file"
         , vrfVerKeyFilePath

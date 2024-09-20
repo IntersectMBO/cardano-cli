@@ -48,7 +48,8 @@ hprop_golden_shelley_transaction_signing_key_witness = propertyOnce $ H.moduleWo
 
   void $
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "witness"
       , "--tx-body-file"
       , txBodyOutFile

@@ -19,7 +19,6 @@ module Cardano.CLI.Legacy.Options
 where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..), parseFilePath)
-import qualified Cardano.Api.Experimental as Exp
 import           Cardano.Api.Ledger (Coin (..))
 
 import           Cardano.Chain.Common (BlockCount (BlockCount))

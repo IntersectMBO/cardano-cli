@@ -47,7 +47,8 @@ hprop_golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tm
   -- Create cold key pair
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen"
       , "--cold-verification-key-file"
       , coldVerKey
@@ -62,7 +63,8 @@ hprop_golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tm
   -- Generate stake key pair
   void $
     execCardanoCLI
-      [ "stake-address"
+      [ "latest"
+      , "stake-address"
       , "key-gen"
       , "--verification-key-file"
       , poolRewardAccountAndOwnerVerKey
@@ -75,7 +77,8 @@ hprop_golden_shelleyStakePoolCertificates = propertyOnce . H.moduleWorkspace "tm
   -- Generate vrf verification key
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen-VRF"
       , "--verification-key-file"
       , vrfVerKey

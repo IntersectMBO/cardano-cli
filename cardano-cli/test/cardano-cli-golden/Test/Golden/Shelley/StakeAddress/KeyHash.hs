@@ -20,7 +20,8 @@ hprop_golden_shelleyStakeAddressKeyHash = propertyOnce . H.moduleWorkspace "tmp"
 
   verificationKeyHash <-
     execCardanoCLI
-      [ "stake-address"
+      [ "latest"
+      , "stake-address"
       , "key-hash"
       , "--stake-verification-key-file"
       , verificationKeyFile

@@ -20,7 +20,8 @@ hprop_golden_shelley_address_key_gen = propertyOnce . H.moduleWorkspace "tmp" $ 
 
   void $
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "key-gen"
       , "--verification-key-file"
       , addressVKeyFile
@@ -51,7 +52,8 @@ hprop_golden_shelley_address_extended_key_gen = propertyOnce . H.moduleWorkspace
 
   void $
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "key-gen"
       , "--extended-key"
       , "--verification-key-file"

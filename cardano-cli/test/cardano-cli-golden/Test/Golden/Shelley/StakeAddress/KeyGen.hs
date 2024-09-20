@@ -19,7 +19,8 @@ hprop_golden_shelleyStakeAddressKeyGen = propertyOnce . H.moduleWorkspace "tmp" 
 
   void $
     execCardanoCLI
-      [ "stake-address"
+      [ "latest"
+      , "stake-address"
       , "key-gen"
       , "--verification-key-file"
       , verificationKeyFile

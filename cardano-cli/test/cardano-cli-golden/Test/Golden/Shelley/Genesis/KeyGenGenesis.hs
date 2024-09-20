@@ -20,7 +20,8 @@ hprop_golden_shelleyGenesisKeyGenGenesis = propertyOnce . H.moduleWorkspace "tmp
 
   void $
     execCardanoCLI
-      [ "genesis"
+      [ "latest"
+      , "genesis"
       , "key-gen-genesis"
       , "--verification-key-file"
       , verificationKeyFile
