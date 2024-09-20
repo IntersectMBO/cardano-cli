@@ -49,11 +49,13 @@ import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Crypto.Hash as Crypto
 import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, deepseq)
 import           Control.Monad (forM, forM_, unless, void, when)
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.KeyMap as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.ListMap (ListMap (..))
@@ -65,6 +67,7 @@ import           Data.String (fromString)
 import qualified Data.Text as Text
 import           Data.Tuple (swap)
 import           Data.Word (Word64)
+import qualified Data.Yaml as Yaml
 import           GHC.Exts (IsList (..))
 import           GHC.Generics (Generic)
 import           GHC.Num (Natural)
