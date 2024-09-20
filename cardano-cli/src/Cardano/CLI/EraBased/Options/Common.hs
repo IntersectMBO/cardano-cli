@@ -361,10 +361,6 @@ subParser :: String -> ParserInfo a -> Parser a
 subParser availableCommand pInfo =
   Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
 
-subParserWithDefault :: a -> String -> ParserInfo a -> Parser a
-subParserWithDefault def availableCommand pInfo =
-  subParser availableCommand pInfo <|> pure def
-
 subInfoParser :: String -> InfoMod a -> [Maybe (Parser a)] -> Maybe (Parser a)
 subInfoParser name i mps = case catMaybes mps of
   [] -> Nothing

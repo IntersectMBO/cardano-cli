@@ -9,8 +9,6 @@ module Cardano.CLI.Options
   )
 where
 
-import           Cardano.Api (ShelleyBasedEra (..))
-
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
@@ -55,19 +53,15 @@ parseClientCommand envCli =
     -- There are name clashes between Shelley commands and the Byron backwards
     -- compat commands (e.g. "genesis"), and we need to prefer the Shelley ones
     -- so we list it first.
-    [ parseAnyEra envCli
-    , parseLegacy envCli
+    [ parseLegacy envCli
     , parseByron envCli
+    , parseAnyEra envCli
     , parseHash
     , parsePing
     , parseDebug envCli
     , backwardsCompatibilityCommands envCli
     , parseDisplayVersion (opts envCli)
     ]
-    <|> defaultParser envCli
-
-defaultParser :: EnvCli -> Parser ClientCommand
-defaultParser envCli = fmap (AnyEraCommand . AnyEraCommandOf ShelleyBasedEraConway) (pCmds ShelleyBasedEraConway envCli)
 
 parseByron :: EnvCli -> Parser ClientCommand
 parseByron mNetworkId =
@@ -95,7 +89,7 @@ parseLegacy :: EnvCli -> Parser ClientCommand
 parseLegacy envCli =
   subParser "legacy" $
     Opt.info (LegacyCmds <$> parseLegacyCmds envCli) $
-      Opt.progDesc ("Legacy commands" <> deprecationText)
+      Opt.progDesc "Legacy commands"
 
 -- | Parse Legacy commands at the top level of the CLI.
 -- Yes! A --version flag or version command. Either guess is right!
