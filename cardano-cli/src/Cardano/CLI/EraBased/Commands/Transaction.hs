@@ -21,6 +21,7 @@ module Cardano.CLI.EraBased.Commands.Transaction
   )
 where
 
+import qualified Cardano.Api.Experimental as Exp
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
@@ -87,7 +88,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
 
 -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
 data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
-  { eon :: !(ShelleyBasedEra era)
+  { currentEra :: !(Exp.Era era)
   , nodeSocketPath :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId :: !NetworkId
@@ -135,7 +136,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
 
 -- | Like 'TransactionBuildCmd' but does not require explicit access to a running node
 data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
-  { eon :: !(MaryEraOnwards era)
+  { currentEra :: !(Exp.Era era)
   , mScriptValidity :: !(Maybe ScriptValidity)
   -- ^ Mark script as expected to pass or fail validation
   , shelleyWitnesses :: !Int

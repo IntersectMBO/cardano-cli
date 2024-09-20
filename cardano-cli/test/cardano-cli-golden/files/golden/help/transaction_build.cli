@@ -1,10 +1,5 @@
 Usage: cardano-cli transaction build --socket-path SOCKET_PATH
-                                       [ --shelley-era
-                                       | --allegra-era
-                                       | --mary-era
-                                       | --alonzo-era
-                                       | --babbage-era
-                                       ]
+                                       [--babbage-era | --conway-era]
                                        [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        [--script-valid | --script-invalid]
@@ -156,16 +151,8 @@ Available options:
                            CARDANO_NODE_SOCKET_PATH environment variable. The
                            argument is optional if CARDANO_NODE_SOCKET_PATH is
                            defined and mandatory otherwise.
-  --shelley-era            Specify the Shelley era - DEPRECATED - will be
-                           removed in the future
-  --allegra-era            Specify the Allegra era - DEPRECATED - will be
-                           removed in the future
-  --mary-era               Specify the Mary era - DEPRECATED - will be removed
-                           in the future
-  --alonzo-era             Specify the Alonzo era - DEPRECATED - will be removed
-                           in the future
-  --babbage-era            Specify the Babbage era (default) - DEPRECATED - will
-                           be removed in the future
+  --babbage-era            Specify the Babbage era (default)
+  --conway-era             Specify the Conway era
   --cardano-mode           For talking to a node running in full Cardano mode
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.

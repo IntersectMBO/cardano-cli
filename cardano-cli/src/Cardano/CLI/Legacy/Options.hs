@@ -22,6 +22,7 @@ module Cardano.CLI.Legacy.Options
 where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..), parseFilePath)
+import qualified Cardano.Api.Experimental as Exp
 import           Cardano.Api.Ledger (Coin (..))
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..), parseFilePath)
 
@@ -349,7 +350,7 @@ pTransaction envCli =
   pTransactionBuild =
     TransactionBuildCmd
       <$> pSocketPath envCli
-      <*> pLegacyShelleyBasedEra envCli
+      <*> pEra envCli
       <*> pConsensusModeParams
       <*> pNetworkId envCli
       <*> optional pScriptValidity
@@ -1359,6 +1360,26 @@ pLegacyShelleyBasedEra envCli =
               , Opt.help $ "Specify the Babbage era (default)" <> deprecationText
               ]
         ]
-      , maybeToList $ pure <$> envCliAnyShelleyBasedEra envCli
+      , maybeToList $ pure <$> envCliAnyEon envCli
       , pure . pure $ EraInEon ShelleyBasedEraBabbage
+      ]
+
+pEra :: EnvCli -> Parser (Exp.Some Exp.Era)
+pEra envCli =
+  asum $
+    mconcat
+      [
+        [ Opt.flag' (Exp.Some Exp.BabbageEra) $
+            mconcat
+              [ Opt.long "babbage-era"
+              , Opt.help "Specify the Babbage era (default)"
+              ]
+        , Opt.flag' (Exp.Some Exp.ConwayEra) $
+            mconcat
+              [ Opt.long "conway-era"
+              , Opt.help "Specify the Conway era"
+              ]
+        ]
+      , maybeToList $ pure <$> envCliSomeEra envCli
+      , pure $ pure (Exp.Some Exp.BabbageEra)
       ]

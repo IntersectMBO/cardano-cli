@@ -7,6 +7,7 @@ module Cardano.CLI.Legacy.Commands.Transaction
   )
 where
 
+import qualified Cardano.Api.Experimental as Exp
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
@@ -54,7 +55,7 @@ data LegacyTransactionCmds
   | -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
     TransactionBuildCmd
       SocketPath
-      (EraInEon ShelleyBasedEra)
+      (Exp.Some Exp.Era)
       ConsensusModeParams
       NetworkId
       (Maybe ScriptValidity)

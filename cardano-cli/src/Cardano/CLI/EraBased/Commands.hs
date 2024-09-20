@@ -20,7 +20,7 @@ import           Cardano.CLI.EraBased.Commands.Key
 import           Cardano.CLI.EraBased.Commands.Node
 import           Cardano.CLI.EraBased.Commands.Query
 import           Cardano.CLI.EraBased.Commands.StakeAddress
-import           Cardano.CLI.EraBased.Commands.StakePool
+import           Cardano.CLI.EraBased.Commands.StakePool hiding (sbe)
 import           Cardano.CLI.EraBased.Commands.TextView
 import           Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.CLI.EraBased.Options.Address
@@ -113,17 +113,18 @@ pAnyEraCommand envCli =
     ]
 
 pCmds :: ShelleyBasedEra era -> EnvCli -> Parser (Cmds era)
-pCmds era envCli =
+pCmds sbe' envCli = do
+  let cEra = toCardanoEra sbe'
   asum $
     catMaybes
-      [ fmap AddressCmds <$> pAddressCmds (toCardanoEra era) envCli
+      [ fmap AddressCmds <$> pAddressCmds cEra envCli
       , fmap KeyCmds <$> pKeyCmds
-      , fmap GenesisCmds <$> pGenesisCmds (toCardanoEra era) envCli
-      , fmap GovernanceCmds <$> pGovernanceCmds (toCardanoEra era)
+      , fmap GenesisCmds <$> pGenesisCmds cEra envCli
+      , fmap GovernanceCmds <$> pGovernanceCmds cEra
       , fmap NodeCmds <$> pNodeCmds
-      , fmap QueryCmds <$> pQueryCmds (toCardanoEra era) envCli
-      , fmap StakeAddressCmds <$> pStakeAddressCmds (toCardanoEra era) envCli
-      , fmap StakePoolCmds <$> pStakePoolCmds (toCardanoEra era) envCli
+      , fmap QueryCmds <$> pQueryCmds cEra envCli
+      , fmap StakeAddressCmds <$> pStakeAddressCmds cEra envCli
+      , fmap StakePoolCmds <$> pStakePoolCmds cEra envCli
       , fmap TextViewCmds <$> pTextViewCmds
-      , fmap TransactionCmds <$> pTransactionCmds era envCli
+      , fmap TransactionCmds <$> pTransactionCmds sbe' envCli
       ]

@@ -14,9 +14,11 @@ module Cardano.CLI.Helpers
   , readCBOR
   , renderHelpersError
   , validateCBOR
+  , printEraDeprecationWarning
   )
 where
 
+import           Cardano.Api (AnyCardanoEra (..), CardanoEra (ConwayEra), ToCardanoEra (..))
 import qualified Cardano.Api.Ledger as L
 
 import           Cardano.Chain.Block (decCBORABlockOrBoundary)
@@ -42,6 +44,7 @@ import           Data.Functor (void)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
+import           Data.Typeable (Typeable)
 import qualified System.Console.ANSI as ANSI
 import           System.Console.ANSI
 import qualified System.Directory as IO
@@ -134,3 +137,10 @@ validateCBOR cborObject bs =
     CBORVoteByron -> do
       void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Update.Vote)
       Right "Valid Byron vote."
+
+printEraDeprecationWarning :: Typeable era => MonadIO m => ToCardanoEra eon => eon era -> m ()
+printEraDeprecationWarning era = do
+  let selectedEraNum = fromEnum $ AnyCardanoEra (toCardanoEra era)
+      currentEraNum = fromEnum $ AnyCardanoEra ConwayEra
+  when (selectedEraNum < currentEraNum) $
+    printWarning "Selected era is deprecated and will be removed in the future."

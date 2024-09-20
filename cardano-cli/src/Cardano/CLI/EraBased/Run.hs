@@ -21,6 +21,7 @@ import           Cardano.CLI.EraBased.Run.StakeAddress
 import           Cardano.CLI.EraBased.Run.StakePool
 import           Cardano.CLI.EraBased.Run.TextView
 import           Cardano.CLI.EraBased.Run.Transaction
+import           Cardano.CLI.Helpers (printEraDeprecationWarning)
 import           Cardano.CLI.Types.Errors.CmdError
 
 import           Data.Function ((&))
@@ -31,11 +32,7 @@ runAnyEraCommand
   -> ExceptT CmdError IO ()
 runAnyEraCommand = \case
   AnyEraCommandOf sbe cmd -> do
-    -- FIXME: Uncomment this after CLI release
-    -- let selectedEraNum = fromEnum $ AnyShelleyBasedEra sbe
-    --     currentEraNum = fromEnum $ AnyShelleyBasedEra ShelleyBasedEraConway
-    -- when (selectedEraNum < currentEraNum) $
-    --   printWarning "Selected era is deprecated and will be removed in the future."
+    printEraDeprecationWarning sbe
     shelleyBasedEraConstraints sbe $ runCmds cmd
 
 runCmds

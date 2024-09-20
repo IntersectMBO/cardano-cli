@@ -84,7 +84,6 @@ data TxCmdError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
-  | forall era. TxCmdDeprecatedEra (ShelleyToBabbageEra era)
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -94,12 +93,6 @@ renderTxCmdError = \case
     prettyError voteErr
   TxCmdConstitutionError constErr ->
     pshow constErr
-  TxCmdDeprecatedEra era ->
-    mconcat
-      [ "The era "
-      , pshow (toCardanoEra era)
-      , " is deprecated. Please use the Conway era."
-      ]
   TxCmdProposalError propErr ->
     pshow propErr
   TxCmdReadTextViewFileError fileErr ->

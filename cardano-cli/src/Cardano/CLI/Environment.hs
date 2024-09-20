@@ -4,18 +4,19 @@
 -- | This module defines constants derived from the environment.
 module Cardano.CLI.Environment
   ( EnvCli (..)
-  , envCliAnyShelleyBasedEra
-  , envCliAnyShelleyToBabbageEra
+  , envCliSomeEra
+  , envCliAnyEon
   , getEnvCli
   , getEnvNetworkId
   , getEnvSocketPath
   )
 where
 
-import           Cardano.Api (AnyCardanoEra (..), CardanoEra (..), EraInEon (..), NetworkId (..),
-                   NetworkMagic (..), ShelleyBasedEra (..), ShelleyToBabbageEra (..),
-                   forEraInEonMaybe)
+import           Cardano.Api (AnyCardanoEra (..), CardanoEra (..), Eon, EraInEon (..),
+                   NetworkId (..), NetworkMagic (..), forEraInEonMaybe)
+import qualified Cardano.Api.Experimental as Exp
 
+import           Data.Typeable
 import           Data.Word (Word32)
 import qualified System.Environment as IO
 import qualified System.IO as IO
@@ -40,13 +41,13 @@ getEnvCli = do
       , envCliAnyCardanoEra = mCardanoEra
       }
 
-envCliAnyShelleyBasedEra :: EnvCli -> Maybe (EraInEon ShelleyBasedEra)
-envCliAnyShelleyBasedEra envCli = do
+envCliSomeEra :: EnvCli -> Maybe (Exp.Some Exp.Era)
+envCliSomeEra envCli = do
   AnyCardanoEra era <- envCliAnyCardanoEra envCli
-  forEraInEonMaybe era EraInEon
+  forEraInEonMaybe era Exp.Some
 
-envCliAnyShelleyToBabbageEra :: EnvCli -> Maybe (EraInEon ShelleyToBabbageEra)
-envCliAnyShelleyToBabbageEra envCli = do
+envCliAnyEon :: Typeable eon => Eon eon => EnvCli -> Maybe (EraInEon eon)
+envCliAnyEon envCli = do
   AnyCardanoEra era <- envCliAnyCardanoEra envCli
   forEraInEonMaybe era EraInEon
 

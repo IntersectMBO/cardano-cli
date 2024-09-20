@@ -10,6 +10,7 @@ module Cardano.CLI.EraBased.Options.Transaction
 where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import qualified Cardano.Api.Experimental as Exp
 
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.Transaction
@@ -30,7 +31,7 @@ pTransactionCmds
   => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (TransactionCmds era))
-pTransactionCmds era envCli =
+pTransactionCmds era' envCli =
   subInfoParser
     "transaction"
     ( Opt.progDesc $
@@ -40,7 +41,7 @@ pTransactionCmds era envCli =
     )
     [ Just $
         subParser "build-raw" $
-          Opt.info (pTransactionBuildRaw era) $
+          Opt.info (pTransactionBuildRaw era') $
             Opt.progDescDoc $
               Just $
                 mconcat
@@ -55,8 +56,8 @@ pTransactionCmds era envCli =
                         , "undesired tx body. See nested [] notation above for details."
                         ]
                   ]
-    , pTransactionBuildCmd era envCli
-    , forShelleyBasedEraInEon era Nothing (`pTransactionBuildEstimateCmd` envCli)
+    , pTransactionBuildCmd era' envCli
+    , forShelleyBasedEraInEon era' Nothing (`pTransactionBuildEstimateCmd` envCli)
     , Just $
         subParser "sign" $
           Opt.info (pTransactionSign envCli) $
@@ -88,9 +89,9 @@ pTransactionCmds era envCli =
             Opt.progDesc "Calculate the minimum fee for a transaction."
     , Just $
         subParser "calculate-min-required-utxo" $
-          Opt.info (pTransactionCalculateMinReqUTxO era) $
+          Opt.info (pTransactionCalculateMinReqUTxO era') $
             Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
-    , Just $ pCalculateMinRequiredUtxoBackwardCompatible era
+    , Just $ pCalculateMinRequiredUtxoBackwardCompatible era'
     , Just $
         subParser "hash-script-data" $
           Opt.info pTxHashScriptData $
@@ -108,14 +109,14 @@ pTransactionCmds era envCli =
 
 -- Backwards compatible parsers
 calcMinValueInfo :: ShelleyBasedEra era -> ParserInfo (TransactionCmds era)
-calcMinValueInfo era =
-  Opt.info (pTransactionCalculateMinReqUTxO era) $
+calcMinValueInfo era' =
+  Opt.info (pTransactionCalculateMinReqUTxO era') $
     Opt.progDesc "DEPRECATED: Use 'calculate-min-required-utxo' instead."
 
 pCalculateMinRequiredUtxoBackwardCompatible :: ShelleyBasedEra era -> Parser (TransactionCmds era)
-pCalculateMinRequiredUtxoBackwardCompatible era =
+pCalculateMinRequiredUtxoBackwardCompatible era' =
   Opt.subparser $
-    Opt.command "calculate-min-value" (calcMinValueInfo era) <> Opt.internal
+    Opt.command "calculate-min-value" (calcMinValueInfo era') <> Opt.internal
 
 assembleInfo :: ParserInfo (TransactionCmds era)
 assembleInfo =
@@ -147,11 +148,13 @@ pScriptValidity =
           ]
     ]
 
-pTransactionBuildCmd :: ShelleyBasedEra era -> EnvCli -> Maybe (Parser (TransactionCmds era))
-pTransactionBuildCmd era envCli = do
+pTransactionBuildCmd
+  :: ShelleyBasedEra era -> EnvCli -> Maybe (Parser (TransactionCmds era))
+pTransactionBuildCmd sbe envCli = do
+  era' <- forEraMaybeEon (toCardanoEra sbe)
   pure $
     subParser "build" $
-      Opt.info (pCmd era) $
+      Opt.info (pCmd era') $
         Opt.progDescDoc $
           Just $
             mconcat
@@ -167,10 +170,9 @@ pTransactionBuildCmd era envCli = do
                     ]
               ]
  where
-  pCmd :: ShelleyBasedEra era -> Parser (TransactionCmds era)
-  pCmd sbe =
+  pCmd era' = do
     fmap TransactionBuildCmd $
-      TransactionBuildCmdArgs sbe
+      TransactionBuildCmdArgs era'
         <$> pSocketPath envCli
         <*> pConsensusModeParams
         <*> pNetworkId envCli
@@ -204,11 +206,13 @@ pTransactionBuildCmd era envCli = do
         <*> pTxBuildOutputOptions
 
 -- | Estimate the transaction fees without access to a live node.
-pTransactionBuildEstimateCmd :: MaryEraOnwards era -> EnvCli -> Maybe (Parser (TransactionCmds era))
-pTransactionBuildEstimateCmd era _envCli = do
+pTransactionBuildEstimateCmd
+  :: forall era. MaryEraOnwards era -> EnvCli -> Maybe (Parser (TransactionCmds era))
+pTransactionBuildEstimateCmd eon' _envCli = do
+  era' <- forEraMaybeEon (toCardanoEra eon')
   pure $
     subParser "build-estimate" $
-      Opt.info (pCmd era) $
+      Opt.info (pCmd era') $
         Opt.progDescDoc $
           Just $
             mconcat
@@ -225,11 +229,11 @@ pTransactionBuildEstimateCmd era _envCli = do
                     ]
               ]
  where
-  pCmd :: MaryEraOnwards era -> Parser (TransactionCmds era)
-  pCmd w = do
-    let sbe = maryEraOnwardsToShelleyBasedEra w
+  pCmd :: Exp.Era era -> Parser (TransactionCmds era)
+  pCmd era' = do
+    let sbe = Exp.eraToSbe era'
     fmap TransactionBuildEstimateCmd $
-      TransactionBuildEstimateCmdArgs w
+      TransactionBuildEstimateCmdArgs era'
         <$> optional pScriptValidity
         <*> pNumberOfShelleyKeyWitnesses
         <*> optional pNumberOfByronKeyWitnesses
@@ -274,31 +278,31 @@ pChangeAddress =
         ]
 
 pTransactionBuildRaw :: ShelleyBasedEra era -> Parser (TransactionCmds era)
-pTransactionBuildRaw era =
+pTransactionBuildRaw era' =
   fmap TransactionBuildRawCmd $
-    TransactionBuildRawCmdArgs era
+    TransactionBuildRawCmdArgs era'
       <$> optional pScriptValidity
-      <*> some (pTxIn era ManualBalance)
+      <*> some (pTxIn era' ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxInCollateral
       <*> optional pReturnCollateral
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
       <*> many pTxOut
-      <*> optional (pMintMultiAsset era ManualBalance)
+      <*> optional (pMintMultiAsset era' ManualBalance)
       <*> optional pInvalidBefore
-      <*> pInvalidHereafter era
+      <*> pInvalidHereafter era'
       <*> pTxFee
-      <*> many (pCertificateFile era ManualBalance)
-      <*> many (pWithdrawal era ManualBalance)
+      <*> many (pCertificateFile era' ManualBalance)
+      <*> many (pWithdrawal era' ManualBalance)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
-      <*> pFeatured era (optional pUpdateProposalFile)
-      <*> pVoteFiles era ManualBalance
-      <*> pProposalFiles era ManualBalance
-      <*> pCurrentTreasuryValueAndDonation era
+      <*> pFeatured era' (optional pUpdateProposalFile)
+      <*> pVoteFiles era' ManualBalance
+      <*> pProposalFiles era' ManualBalance
+      <*> pCurrentTreasuryValueAndDonation era'
       <*> pTxBodyFileOut
 
 pTransactionSign :: EnvCli -> Parser (TransactionCmds era)
@@ -359,9 +363,9 @@ pTransactionCalculateMinFee =
       <* optional pTxOutCountDeprecated
 
 pTransactionCalculateMinReqUTxO :: ShelleyBasedEra era -> Parser (TransactionCmds era)
-pTransactionCalculateMinReqUTxO era =
+pTransactionCalculateMinReqUTxO era' =
   fmap TransactionCalculateMinValueCmd $
-    TransactionCalculateMinValueCmdArgs era
+    TransactionCalculateMinValueCmdArgs era'
       <$> pProtocolParamsFile
       <*> pTxOutShelleyBased
 

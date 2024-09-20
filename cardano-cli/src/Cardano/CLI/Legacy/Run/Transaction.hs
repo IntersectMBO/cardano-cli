@@ -12,10 +12,12 @@ where
 
 import           Cardano.Api
 import qualified Cardano.Api.Byron as Api
+import qualified Cardano.Api.Experimental as Exp
 import           Cardano.Api.Ledger (Coin)
 
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Transaction
+import           Cardano.CLI.Helpers (printEraDeprecationWarning)
 import           Cardano.CLI.Legacy.Commands.Transaction
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.TxCmdError
@@ -28,7 +30,7 @@ runLegacyTransactionCmds :: LegacyTransactionCmds -> ExceptT TxCmdError IO ()
 runLegacyTransactionCmds = \case
   TransactionBuildCmd
     mNodeSocketPath
-    era
+    era@(Exp.Some expEra)
     consensusModeParams
     nid
     mScriptValidity
@@ -54,6 +56,7 @@ runLegacyTransactionCmds = \case
     mNewConstitution
     mTreasuryDonation
     outputOptions -> do
+      printEraDeprecationWarning $ Exp.eraToSbe expEra
       runLegacyTransactionBuildCmd
         mNodeSocketPath
         era
@@ -83,7 +86,7 @@ runLegacyTransactionCmds = \case
         mTreasuryDonation
         outputOptions
   TransactionBuildRawCmd
-    era
+    era@(AnyCardanoEra cardanoEra')
     mScriptValidity
     txins
     readOnlyRefIns
@@ -104,6 +107,7 @@ runLegacyTransactionCmds = \case
     mProtocolParamsFile
     mUpProp
     out -> do
+      printEraDeprecationWarning cardanoEra'
       runLegacyTransactionBuildRawCmd
         era
         mScriptValidity
@@ -146,7 +150,8 @@ runLegacyTransactionCmds = \case
         referenceScriptSize
         format
         mOutFile
-  TransactionCalculateMinValueCmd (EraInEon sbe) pParamsFile txOuts' ->
+  TransactionCalculateMinValueCmd (EraInEon sbe) pParamsFile txOuts' -> do
+    printEraDeprecationWarning sbe
     runLegacyTransactionCalculateMinValueCmd (AnyShelleyBasedEra sbe) pParamsFile txOuts'
   TransactionHashScriptDataCmd scriptDataOrFile ->
     runLegacyTransactionHashScriptDataCmd scriptDataOrFile
@@ -168,7 +173,7 @@ runLegacyTransactionCmds = \case
 runLegacyTransactionBuildCmd
   :: ()
   => SocketPath
-  -> EraInEon ShelleyBasedEra
+  -> Exp.Some Exp.Era
   -> ConsensusModeParams
   -> NetworkId
   -> Maybe ScriptValidity
@@ -207,7 +212,7 @@ runLegacyTransactionBuildCmd
   -> ExceptT TxCmdError IO ()
 runLegacyTransactionBuildCmd
   socketPath
-  (EraInEon sbe)
+  (Exp.Some era)
   consensusModeParams
   nid
   mScriptValidity
@@ -233,6 +238,7 @@ runLegacyTransactionBuildCmd
   proposalFiles
   mTreasuryDonation
   outputOptions = do
+    let sbe = Exp.eraToSbe era
     mUpdateProposalFile <-
       validateUpdateProposalFile (toCardanoEra sbe) mUpdateProposal
         & hoistEither
@@ -242,7 +248,7 @@ runLegacyTransactionBuildCmd
 
     runTransactionBuildCmd
       ( Cmd.TransactionBuildCmdArgs
-          sbe
+          era
           socketPath
           consensusModeParams
           nid
