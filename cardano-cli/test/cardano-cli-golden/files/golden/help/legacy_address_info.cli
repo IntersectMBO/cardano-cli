@@ -1,8 +1,0 @@
-Usage: cardano-cli legacy address info --address ADDRESS [--out-file FILEPATH]
-
-  Print information about an address.
-
-Available options:
-  --address ADDRESS        A Cardano address
-  --out-file FILEPATH      Optional output file. Default is to write to stdout.
-  -h,--help                Show this help text
