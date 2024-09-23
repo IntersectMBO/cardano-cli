@@ -8,6 +8,7 @@
 
 module Cardano.CLI.Run.Hash
   ( runHashCmds
+  , getByteStringFromURL
   )
 where
 
@@ -63,7 +64,7 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
         return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceText text -> return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceURL urlText ->
-        getByteStringFromURL urlText
+        fetchURLToHashCmdError $ getByteStringFromURL urlText
   let hash = L.hashAnchorData anchorData
   case hashGoal of
     CheckHash expectedHash
@@ -82,66 +83,70 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
    where
     text = hashToTextAsHex . L.extractHash $ hash
 
-  getByteStringFromURL :: L.Url -> ExceptT HashCmdError IO BS.ByteString
-  getByteStringFromURL urlText = do
-    let urlString = Text.unpack $ L.urlToText urlText
-    uri <- hoistMaybe (HashInvalidURLError urlString) $ parseAbsoluteURI urlString
-    case map toLower $ uriScheme uri of
-      "file:" ->
-        let path = uriPathToFilePath (pathSegments uri)
-         in handleIOExceptT (HashReadFileError path) $ BS.readFile path
-      "http:" -> getFileFromHttp uri
-      "https:" -> getFileFromHttp uri
-      "ipfs:" -> do
-        httpUri <- convertToHttp uri
-        getFileFromHttp httpUri
-      unsupportedScheme -> left $ HashUnsupportedURLSchemeError unsupportedScheme
+  fetchURLToHashCmdError
+    :: ExceptT FetchURLError IO BS8.ByteString -> ExceptT HashCmdError IO BS8.ByteString
+  fetchURLToHashCmdError = withExceptT HashFetchURLError
+
+getByteStringFromURL :: L.Url -> ExceptT FetchURLError IO BS.ByteString
+getByteStringFromURL urlText = do
+  let urlString = Text.unpack $ L.urlToText urlText
+  uri <- hoistMaybe (FetchURLInvalidURLError urlString) $ parseAbsoluteURI urlString
+  case map toLower $ uriScheme uri of
+    "file:" ->
+      let path = uriPathToFilePath (pathSegments uri)
+       in handleIOExceptT (FetchURLReadFileError path) $ BS.readFile path
+    "http:" -> getFileFromHttp uri
+    "https:" -> getFileFromHttp uri
+    "ipfs:" -> do
+      httpUri <- convertToHttp uri
+      getFileFromHttp httpUri
+    unsupportedScheme -> left $ FetchURLUnsupportedURLSchemeError unsupportedScheme
+ where
+  uriPathToFilePath :: [String] -> FilePath
+  uriPathToFilePath allPath@(letter : path) =
+    if isDrive letter
+      then foldl (</>) letter path
+      else foldl (</>) "/" allPath
+  uriPathToFilePath [] = "/"
+
+  getFileFromHttp :: URI -> ExceptT FetchURLError IO BS.ByteString
+  getFileFromHttp uri = handlesExceptT handlers $ liftIO $ do
+    request <- requestFromURI uri
+    manager <- newManager tlsManagerSettings
+    response <- httpLbs request manager
+    let status = responseStatus response
+    if statusCode status /= 200
+      then throw $ BadStatusCodeHRE (statusCode status) (BS8.unpack $ statusMessage status)
+      else return $ BS.concat . BSL.toChunks $ responseBody response
+
+  handlers :: [Handler IO FetchURLError]
+  handlers =
+    [ mkHandler id
+    , mkHandler HttpExceptionHRE
+    , mkHandler IOExceptionHRE
+    ]
    where
-    uriPathToFilePath :: [String] -> FilePath
-    uriPathToFilePath allPath@(letter : path) =
-      if isDrive letter
-        then foldl (</>) letter path
-        else foldl (</>) "/" allPath
-    uriPathToFilePath [] = "/"
+    mkHandler :: (Monad m, Exception e) => (e -> HttpRequestError) -> Handler m FetchURLError
+    mkHandler x = Handler $ return . FetchURLGetFileFromHttpError . x
 
-    getFileFromHttp :: URI -> ExceptT HashCmdError IO BS.ByteString
-    getFileFromHttp uri = handlesExceptT handlers $ liftIO $ do
-      request <- requestFromURI uri
-      manager <- newManager tlsManagerSettings
-      response <- httpLbs request manager
-      let status = responseStatus response
-      if statusCode status /= 200
-        then throw $ BadStatusCodeHRE (statusCode status) (BS8.unpack $ statusMessage status)
-        else return $ BS.concat . BSL.toChunks $ responseBody response
-
-    handlers :: [Handler IO HashCmdError]
-    handlers =
-      [ mkHandler id
-      , mkHandler HttpExceptionHRE
-      , mkHandler IOExceptionHRE
-      ]
-     where
-      mkHandler :: (Monad m, Exception e) => (e -> HttpRequestError) -> Handler m HashCmdError
-      mkHandler x = Handler $ return . HashGetFileFromHttpError . x
-
-convertToHttp :: URI -> ExceptT HashCmdError IO URI
-convertToHttp ipfsUri = do
-  mIpfsGatewayUriString <- handleIOExceptT HashReadEnvVarError $ IO.lookupEnv "IPFS_GATEWAY_URI"
-  ipfsGatewayUriString <- hoistMaybe HashIpfsGatewayNotSetError mIpfsGatewayUriString
-  ipfsGatewayUri <-
-    hoistMaybe (HashInvalidURLError ipfsGatewayUriString) $ parseAbsoluteURI ipfsGatewayUriString
-  return $
-    ipfsGatewayUri
-      { uriPath =
-          '/'
-            : intercalate
-              "/"
-              ( pathSegments ipfsGatewayUri
-                  ++ ["ipfs"]
-                  ++ maybe [] (\ipfsAuthority -> [uriRegName ipfsAuthority]) (uriAuthority ipfsUri)
-                  ++ pathSegments ipfsUri
-              )
-      }
+  convertToHttp :: URI -> ExceptT FetchURLError IO URI
+  convertToHttp ipfsUri = do
+    mIpfsGatewayUriString <- handleIOExceptT FetchURLReadEnvVarError $ IO.lookupEnv "IPFS_GATEWAY_URI"
+    ipfsGatewayUriString <- hoistMaybe FetchURLIpfsGatewayNotSetError mIpfsGatewayUriString
+    ipfsGatewayUri <-
+      hoistMaybe (FetchURLInvalidURLError ipfsGatewayUriString) $ parseAbsoluteURI ipfsGatewayUriString
+    return $
+      ipfsGatewayUri
+        { uriPath =
+            '/'
+              : intercalate
+                "/"
+                ( pathSegments ipfsGatewayUri
+                    ++ ["ipfs"]
+                    ++ maybe [] (\ipfsAuthority -> [uriRegName ipfsAuthority]) (uriAuthority ipfsUri)
+                    ++ pathSegments ipfsUri
+                )
+        }
 
 runHashScriptCmd
   :: ()

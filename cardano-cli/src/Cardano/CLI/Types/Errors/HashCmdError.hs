@@ -4,6 +4,7 @@
 module Cardano.CLI.Types.Errors.HashCmdError
   ( HashCmdError (..)
   , HttpRequestError (..)
+  , FetchURLError (..)
   )
 where
 
@@ -25,11 +26,7 @@ data HashCmdError
   | HashReadFileError !FilePath !IOException
   | HashWriteFileError !(FileError ())
   | HashReadScriptError !FilePath !(FileError ScriptDecodeError)
-  | HashInvalidURLError !String
-  | HashReadEnvVarError !IOException
-  | HashIpfsGatewayNotSetError
-  | HashUnsupportedURLSchemeError !String
-  | HashGetFileFromHttpError !HttpRequestError
+  | HashFetchURLError !FetchURLError
   deriving Show
 
 instance Error HashCmdError where
@@ -46,11 +43,27 @@ instance Error HashCmdError where
       prettyError fileErr
     HashReadScriptError filepath err ->
       "Cannot read script at " <> pretty filepath <> ": " <> prettyError err
-    HashInvalidURLError text -> "Cannot parse URI: " <> pretty text
-    HashUnsupportedURLSchemeError text -> "Unsupported URL scheme: " <> pretty text
-    HashReadEnvVarError exc -> "Cannot read environment variable: " <> pretty (displayException exc)
-    HashIpfsGatewayNotSetError -> "IPFS schema requires IPFS_GATEWAY_URI environment variable to be set."
-    HashGetFileFromHttpError err -> pretty $ displayException err
+    HashFetchURLError fetchErr ->
+      pretty (displayException fetchErr)
+
+data FetchURLError
+  = FetchURLInvalidURLError !String
+  | FetchURLReadFileError !FilePath !IOException
+  | FetchURLUnsupportedURLSchemeError !String
+  | FetchURLReadEnvVarError !IOException
+  | FetchURLGetFileFromHttpError !HttpRequestError
+  | FetchURLIpfsGatewayNotSetError
+  deriving Show
+
+instance Exception FetchURLError where
+  displayException :: FetchURLError -> String
+  displayException (FetchURLInvalidURLError text) = "Cannot parse URI: " <> text
+  displayException (FetchURLReadFileError filepath exc) =
+    "Cannot read " <> filepath <> ": " <> displayException exc
+  displayException (FetchURLUnsupportedURLSchemeError text) = "Unsupported URL scheme: " <> text
+  displayException (FetchURLReadEnvVarError exc) = "Cannot read environment variable: " <> displayException exc
+  displayException (FetchURLGetFileFromHttpError err) = displayException err
+  displayException FetchURLIpfsGatewayNotSetError = "IPFS schema requires IPFS_GATEWAY_URI environment variable to be set."
 
 data HttpRequestError
   = BadStatusCodeHRE !Int !String
