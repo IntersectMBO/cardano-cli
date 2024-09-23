@@ -10,7 +10,7 @@ import           System.FilePath (dropTrailingPathSeparator)
 import           System.FilePath.Posix (splitDirectories)
 
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPath, serveFileWhile)
+                   exampleAnchorDataPathTest, serveFileWhile)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog as H
@@ -26,7 +26,7 @@ hprop_generate_anchor_data_hash_from_file =
         [ "hash"
         , "anchor-data"
         , "--file-binary"
-        , exampleAnchorDataPath
+        , exampleAnchorDataPathTest
         ]
     result === exampleAnchorDataHash
 
@@ -40,7 +40,7 @@ hprop_check_anchor_data_hash_from_file =
         [ "hash"
         , "anchor-data"
         , "--file-binary"
-        , exampleAnchorDataPath
+        , exampleAnchorDataPathTest
         , "--expected-hash"
         , exampleAnchorDataHash
         ]
@@ -55,7 +55,7 @@ hprop_check_anchor_data_hash_from_file_fails =
         [ "hash"
         , "anchor-data"
         , "--file-binary"
-        , exampleAnchorDataPath
+        , exampleAnchorDataPathTest
         , "--expected-hash"
         , 'c' : drop 1 exampleAnchorDataHash
         ]
@@ -73,7 +73,7 @@ hprop_generate_anchor_data_hash_from_file_uri =
         [ "hash"
         , "anchor-data"
         , "--url"
-        , "file://" ++ posixCwd ++ "/" ++ exampleAnchorDataPath
+        , "file://" ++ posixCwd ++ "/" ++ exampleAnchorDataPathTest
         ]
     result === exampleAnchorDataHash
  where
@@ -100,7 +100,7 @@ hprop_check_anchor_data_hash_from_http_uri =
     let relativeUrl = ["example", "url", "file.txt"]
     serveFileWhile
       relativeUrl
-      exampleAnchorDataPath
+      exampleAnchorDataPathTest
       ( \port -> do
           void $
             execCardanoCLI
@@ -121,7 +121,7 @@ hprop_check_anchor_data_hash_from_ipfs_uri =
     let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
     serveFileWhile
       relativeUrl
-      exampleAnchorDataPath
+      exampleAnchorDataPathTest
       ( \port -> do
           void $
             execCardanoCLIWithEnvVars

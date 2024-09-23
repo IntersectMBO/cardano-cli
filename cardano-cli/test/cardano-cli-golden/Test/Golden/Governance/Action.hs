@@ -11,7 +11,7 @@ import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPath, serveFileWhile)
+                   exampleAnchorDataPathGolden, serveFileWhile)
 import qualified Test.Cardano.CLI.Util as H
 import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
                    noteInputFile, noteTempFile, propertyOnce)
@@ -216,7 +216,7 @@ base_golden_conway_governance_action_view_create_info_json_outfile hash tempDir 
   let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
   serveFileWhile
     relativeUrl
-    exampleAnchorDataPath
+    exampleAnchorDataPathGolden
     ( \port -> do
         void $
           execCardanoCLIWithEnvVars

@@ -1,6 +1,13 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Test.Cardano.CLI.Hash (exampleAnchorDataHash, serveFileWhile, exampleAnchorDataPath, exampleAnchorDataIpfsHash) where
+module Test.Cardano.CLI.Hash
+  ( exampleAnchorDataHash
+  , serveFileWhile
+  , exampleAnchorDataPathTest
+  , exampleAnchorDataPathGolden
+  , exampleAnchorDataIpfsHash
+  )
+where
 
 import           Cardano.Api (MonadIO)
 
@@ -26,8 +33,11 @@ import           Hedgehog.Internal.Source (HasCallStack)
 exampleAnchorDataHash :: String
 exampleAnchorDataHash = "de38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"
 
-exampleAnchorDataPath :: String
-exampleAnchorDataPath = "test/cardano-cli-test/files/input/example_anchor_data.txt"
+exampleAnchorDataPathGolden :: String
+exampleAnchorDataPathGolden = "test/cardano-cli-golden/files/input/example_anchor_data.txt"
+
+exampleAnchorDataPathTest :: String
+exampleAnchorDataPathTest = "test/cardano-cli-test/files/input/example_anchor_data.txt"
 
 exampleAnchorDataIpfsHash :: String
 exampleAnchorDataIpfsHash = "QmbL5EBFJLf8DdPkWAskG3Euin9tHY8naqQ2JDoHnWHHXJ"
