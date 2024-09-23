@@ -9,6 +9,9 @@
 module Cardano.CLI.Run.Hash
   ( runHashCmds
   , getByteStringFromURL
+  , SupportedSchemas (..)
+  , allSchemas
+  , httpsAndIpfsSchemas
   )
 where
 
@@ -64,7 +67,7 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
         return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceText text -> return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceURL urlText ->
-        fetchURLToHashCmdError $ getByteStringFromURL urlText
+        fetchURLToHashCmdError $ getByteStringFromURL allSchemas urlText
   let hash = L.hashAnchorData anchorData
   case hashGoal of
     CheckHash expectedHash
@@ -87,17 +90,27 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
     :: ExceptT FetchURLError IO BS8.ByteString -> ExceptT HashCmdError IO BS8.ByteString
   fetchURLToHashCmdError = withExceptT HashFetchURLError
 
-getByteStringFromURL :: L.Url -> ExceptT FetchURLError IO BS.ByteString
-getByteStringFromURL urlText = do
+data SupportedSchemas = FileSchema | HttpSchema | HttpsSchema | IpfsSchema
+  deriving (Show, Eq)
+
+allSchemas :: [SupportedSchemas]
+allSchemas = [FileSchema, HttpSchema, HttpsSchema, IpfsSchema]
+
+httpsAndIpfsSchemas :: [SupportedSchemas]
+httpsAndIpfsSchemas = [HttpsSchema, IpfsSchema]
+
+getByteStringFromURL :: [SupportedSchemas] -> L.Url -> ExceptT FetchURLError IO BS.ByteString
+getByteStringFromURL supportedSchemas urlText = do
   let urlString = Text.unpack $ L.urlToText urlText
   uri <- hoistMaybe (FetchURLInvalidURLError urlString) $ parseAbsoluteURI urlString
   case map toLower $ uriScheme uri of
-    "file:" ->
-      let path = uriPathToFilePath (pathSegments uri)
-       in handleIOExceptT (FetchURLReadFileError path) $ BS.readFile path
-    "http:" -> getFileFromHttp uri
-    "https:" -> getFileFromHttp uri
-    "ipfs:" -> do
+    "file:"
+      | FileSchema `elem` supportedSchemas ->
+          let path = uriPathToFilePath (pathSegments uri)
+           in handleIOExceptT (FetchURLReadFileError path) $ BS.readFile path
+    "http:" | HttpSchema `elem` supportedSchemas -> getFileFromHttp uri
+    "https:" | HttpsSchema `elem` supportedSchemas -> getFileFromHttp uri
+    "ipfs:" | IpfsSchema `elem` supportedSchemas -> do
       httpUri <- convertToHttp uri
       getFileFromHttp httpUri
     unsupportedScheme -> left $ FetchURLUnsupportedURLSchemeError unsupportedScheme
