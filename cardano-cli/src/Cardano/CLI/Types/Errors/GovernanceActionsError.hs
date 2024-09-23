@@ -67,7 +67,7 @@ instance Error GovernanceActionsError where
     GovernanceActionsProposalFetchURLError adt fetchErr ->
       "Error while checking "
         <> pretty (anchorDataTypeCheckName adt)
-        <> " hash:"
+        <> " hash: "
         <> pretty (displayException fetchErr)
 
 data AnchorDataTypeCheck = ProposalCheck

@@ -29,6 +29,7 @@ import           Control.Monad.Catch (Exception, Handler (Handler))
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.ByteString.Lazy as BSL
+import qualified Data.ByteString.Lazy.Char8 as BSL8
 import           Data.Char (toLower)
 import           Data.Function
 import           Data.List (intercalate)
@@ -129,7 +130,11 @@ getByteStringFromURL supportedSchemas urlText = do
     response <- httpLbs request manager
     let status = responseStatus response
     if statusCode status /= 200
-      then throw $ BadStatusCodeHRE (statusCode status) (BS8.unpack $ statusMessage status)
+      then
+        throw $
+          BadStatusCodeHRE
+            (statusCode status)
+            (BS8.unpack (statusMessage status) ++ ": " ++ BSL8.unpack (responseBody response))
       else return $ BS.concat . BSL.toChunks $ responseBody response
 
   handlers :: [Handler IO FetchURLError]
