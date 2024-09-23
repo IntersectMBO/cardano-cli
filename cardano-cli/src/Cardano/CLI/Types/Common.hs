@@ -31,6 +31,7 @@ module Cardano.CLI.Types.Common
   , InputTxBodyOrTxFile (..)
   , KeyOutputFormat (..)
   , MetadataFile (..)
+  , MustCheckHash (..)
   , OpCertCounter
   , OpCertCounterFile
   , OpCertEndingKesPeriod (..)
@@ -638,4 +639,9 @@ data InputTxBodyOrTxFile = InputTxBodyFile (TxBodyFile In) | InputTxFile (TxFile
 data ParserFileDirection
   = Input
   | Output
+  deriving (Eq, Show)
+
+data MustCheckHash a
+  = CheckHash
+  | TrustHash
   deriving (Eq, Show)
