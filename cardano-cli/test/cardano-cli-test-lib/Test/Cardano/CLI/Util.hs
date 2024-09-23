@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Test.Cardano.CLI.Util
@@ -22,6 +23,7 @@ module Test.Cardano.CLI.Util
   , bracketSem
   , FileSem
   , newFileSem
+  , expectFailure
   )
 where
 
@@ -60,7 +62,7 @@ import qualified Hedgehog as H
 import           Hedgehog.Extras (ExecConfig)
 import qualified Hedgehog.Extras as H
 import           Hedgehog.Extras.Test (ExecConfig (..))
-import           Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
+import           Hedgehog.Internal.Property (Diff, MonadTest, PropertyT, liftTest, mkTest)
 import qualified Hedgehog.Internal.Property as H
 import           Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import           Hedgehog.Internal.Source (getCaller)
@@ -384,3 +386,11 @@ bracketSem
 bracketSem (FileSem path semaphore) act =
   bracket_ (liftBase $ waitQSem semaphore) (liftBase $ signalQSem semaphore) $
     act path
+
+-- | Invert the behavior of a MonadTest: success becomes failure and vice versa.
+expectFailure :: HasCallStack => H.TestT IO m -> PropertyT IO ()
+expectFailure prop = GHC.withFrozenCallStack $ do
+  (res, _) <- H.evalIO $ H.runTestT prop
+  case res of
+    Left _ -> pure () -- Property failed so we succeed
+    _ -> H.failWith Nothing "Expected the test to fail but it passed" -- Property passed but we expected a failure
