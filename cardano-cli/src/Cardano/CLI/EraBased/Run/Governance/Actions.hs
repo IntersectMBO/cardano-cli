@@ -101,18 +101,7 @@ runGovernanceActionInfoCmd
             , L.anchorDataHash = proposalHash
             }
 
-    case checkProposalHash of
-      CheckHash -> do
-        anchorData <-
-          L.AnchorData
-            <$> fetchURLErrorToGovernanceActionError
-              ProposalCheck
-              (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl proposalAnchor)
-        let hash = L.hashAnchorData anchorData
-        when (hash /= L.anchorDataHash proposalAnchor) $
-          left $
-            GovernanceActionsProposalMismatchedHashError ProposalCheck proposalHash hash
-      TrustHash -> pure ()
+    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     let sbe = conwayEraOnwardsToShelleyBasedEra eon
         govAction = InfoAct
@@ -121,10 +110,10 @@ runGovernanceActionInfoCmd
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
       conwayEraOnwardsConstraints eon $
         writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
-   where
-    fetchURLErrorToGovernanceActionError
-      :: AnchorDataTypeCheck -> ExceptT FetchURLError IO a -> ExceptT GovernanceActionsError IO a
-    fetchURLErrorToGovernanceActionError adt = withExceptT (GovernanceActionsProposalFetchURLError adt)
+
+fetchURLErrorToGovernanceActionError
+  :: AnchorDataTypeCheck -> ExceptT FetchURLError IO a -> ExceptT GovernanceActionsError IO a
+fetchURLErrorToGovernanceActionError adt = withExceptT (GovernanceActionsProposalFetchURLError adt)
 
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd
@@ -185,9 +174,11 @@ runGovernanceActionCreateConstitutionCmd
     , Cmd.mPrevGovernanceActionId
     , Cmd.proposalUrl
     , Cmd.proposalHash
+    , Cmd.checkProposalHash
     , Cmd.constitutionUrl
     , Cmd.constitutionHash
     , Cmd.constitutionScript
+    , Cmd.checkConstitutionHash
     , Cmd.outFile
     } = do
     depositStakeCredential <-
@@ -199,6 +190,8 @@ runGovernanceActionCreateConstitutionCmd
             { L.anchorUrl = unProposalUrl proposalUrl
             , L.anchorDataHash = proposalHash
             }
+
+    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     let prevGovActId =
           L.maybeToStrictMaybe $
@@ -216,6 +209,8 @@ runGovernanceActionCreateConstitutionCmd
             (toShelleyScriptHash <$> L.maybeToStrictMaybe constitutionScript)
         sbe = conwayEraOnwardsToShelleyBasedEra eon
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAct proposalAnchor
+
+    carryHashChecks checkConstitutionHash constitutionAnchor ConstitutionCheck
 
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
       conwayEraOnwardsConstraints eon $
@@ -497,3 +492,22 @@ runGovernanceActionHardforkInitCmd
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
       conwayEraOnwardsConstraints eon $
         writeFileTextEnvelope outFile (Just "Hardfork initiation proposal") proposalProcedure
+
+carryHashChecks
+  :: MustCheckHash a
+  -> L.Anchor L.StandardCrypto
+  -> AnchorDataTypeCheck
+  -> ExceptT GovernanceActionsError IO ()
+carryHashChecks checkHash anchor errorAdaptor =
+  case checkHash of
+    CheckHash -> do
+      anchorData <-
+        L.AnchorData
+          <$> fetchURLErrorToGovernanceActionError
+            errorAdaptor
+            (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl anchor)
+      let hash = L.hashAnchorData anchorData
+      when (hash /= L.anchorDataHash anchor) $
+        left $
+          GovernanceActionsProposalMismatchedHashError errorAdaptor (L.anchorDataHash anchor) hash
+    TrustHash -> pure ()

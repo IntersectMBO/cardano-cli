@@ -70,8 +70,11 @@ instance Error GovernanceActionsError where
         <+> "hash:"
         <+> pretty (displayException fetchErr)
 
-data AnchorDataTypeCheck = ProposalCheck
+data AnchorDataTypeCheck
+  = ProposalCheck
+  | ConstitutionCheck
   deriving Show
 
 anchorDataTypeCheckName :: AnchorDataTypeCheck -> String
 anchorDataTypeCheckName ProposalCheck = "proposal"
+anchorDataTypeCheckName ConstitutionCheck = "constitution"
