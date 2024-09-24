@@ -264,7 +264,7 @@ readScriptWitnessFiles
 readScriptWitnessFiles era = mapM readSwitFile
  where
   readSwitFile (tIn, Just switFile) = do
-    sWit <- readScriptWitness era switFile
+    sWit <- snd <$> readScriptWitness era switFile
     return (tIn, Just sWit)
   readSwitFile (tIn, Nothing) = return (tIn, Nothing)
 
@@ -275,14 +275,14 @@ readScriptWitnessFilesTuple
 readScriptWitnessFilesTuple era = mapM readSwitFile
  where
   readSwitFile (tIn, b, Just switFile) = do
-    sWit <- readScriptWitness era switFile
+    sWit <- snd <$> readScriptWitness era switFile
     return (tIn, b, Just sWit)
   readSwitFile (tIn, b, Nothing) = return (tIn, b, Nothing)
 
 readScriptWitness
   :: ShelleyBasedEra era
   -> ScriptWitnessFiles witctx
-  -> ExceptT ScriptWitnessError IO (ScriptWitness witctx era)
+  -> ExceptT ScriptWitnessError IO (Maybe PolicyId, ScriptWitness witctx era)
 readScriptWitness era (SimpleScriptWitnessFile (File scriptFile)) = do
   script@(ScriptInAnyLang lang _) <-
     firstExceptT ScriptWitnessErrorFile $
@@ -290,7 +290,7 @@ readScriptWitness era (SimpleScriptWitnessFile (File scriptFile)) = do
   ScriptInEra langInEra script' <- validateScriptSupportedInEra era script
   case script' of
     SimpleScript sscript ->
-      return . SimpleScriptWitness langInEra $ SScript sscript
+      return . (Nothing,) . SimpleScriptWitness langInEra $ SScript sscript
     -- If the supplied cli flags were for a simple script (i.e. the user did
     -- not supply the datum, redeemer or ex units), but the script file turns
     -- out to be a valid plutus script, then we must fail.
@@ -319,14 +319,16 @@ readScriptWitness
         redeemer <-
           firstExceptT ScriptWitnessErrorScriptData $
             readScriptRedeemerOrFile redeemerOrFile
-        return $
-          PlutusScriptWitness
-            langInEra
-            version
-            (PScript pscript)
-            datum
-            redeemer
-            execUnits
+        return
+          ( Nothing
+          , PlutusScriptWitness
+              langInEra
+              version
+              (PScript pscript)
+              datum
+              redeemer
+              execUnits
+          )
 
       -- If the supplied cli flags were for a plutus script (i.e. the user did
       -- supply the datum, redeemer and ex units), but the script file turns
@@ -367,14 +369,17 @@ readScriptWitness
                   redeemer <-
                     firstExceptT ScriptWitnessErrorScriptData $
                       readScriptRedeemerOrFile redeemerOrFile
-                  return $
-                    PlutusScriptWitness
-                      sLangInEra
-                      version
-                      (PReferenceScript refTxIn (unPolicyId <$> mPid))
-                      datum
-                      redeemer
-                      execUnits
+                  return
+                    ( mPid
+                    , PlutusScriptWitness
+                        sLangInEra
+                        version
+                        -- setting ScriptHash to Nothing as this field will be removed from PReferenceScript
+                        (PReferenceScript refTxIn Nothing)
+                        datum
+                        redeemer
+                        execUnits
+                    )
             Nothing ->
               left $
                 ScriptWitnessErrorScriptLanguageNotSupportedInEra anyScrLang (anyCardanoEra $ toCardanoEra era)
@@ -398,8 +403,9 @@ readScriptWitness
             Just sLangInEra ->
               case languageOfScriptLanguageInEra sLangInEra of
                 SimpleScriptLanguage ->
-                  return . SimpleScriptWitness sLangInEra $
-                    SReferenceScript refTxIn (unPolicyId <$> mPid)
+                  return . (mPid,) . SimpleScriptWitness sLangInEra $
+                    -- setting ScriptHash to Nothing as this field will be removed from SReferenceScript
+                    SReferenceScript refTxIn Nothing
                 PlutusScriptLanguage{} ->
                   error "readScriptWitness: Should not be possible to specify a plutus script"
             Nothing ->
@@ -917,8 +923,9 @@ readSingleVote w (voteFp, mScriptWitFiles) = do
       let sbe = conwayEraOnwardsToShelleyBasedEra w
       runExceptT $ do
         sWits <-
-          firstExceptT VoteErrorScriptWitness $
-            mapM (readScriptWitness sbe) sWitFile
+          fmap (fmap snd) $
+            firstExceptT VoteErrorScriptWitness $
+              mapM (readScriptWitness sbe) sWitFile
         hoistEither $ (,sWits) <$> votProceds
 
 data ConstitutionError
@@ -963,8 +970,9 @@ readProposal w (fp, mScriptWit) = do
       let sbe = conwayEraOnwardsToShelleyBasedEra w
       runExceptT $ do
         sWit <-
-          firstExceptT ProposalErrorScriptWitness $
-            mapM (readScriptWitness sbe) sWitFile
+          fmap (fmap snd) $
+            firstExceptT ProposalErrorScriptWitness $
+              mapM (readScriptWitness sbe) sWitFile
         hoistEither $ (,sWit) <$> prop
 
 constitutionHashSourceToHash
