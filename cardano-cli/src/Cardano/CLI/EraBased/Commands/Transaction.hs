@@ -43,7 +43,6 @@ data TransactionCmds era
   | TransactionCalculateMinValueCmd !(TransactionCalculateMinValueCmdArgs era)
   | TransactionHashScriptDataCmd !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
-  | TransactionViewCmd !TransactionViewCmdArgs
 
 data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   { eon :: !(ShelleyBasedEra era)
@@ -265,4 +264,3 @@ renderTransactionCmds = \case
   TransactionCalculateMinValueCmd{} -> "transaction calculate-min-value"
   TransactionHashScriptDataCmd{} -> "transaction hash-script-data"
   TransactionTxIdCmd{} -> "transaction txid"
-  TransactionViewCmd{} -> "transaction view"

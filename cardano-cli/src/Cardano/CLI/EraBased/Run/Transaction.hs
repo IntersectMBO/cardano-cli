@@ -26,7 +26,6 @@ module Cardano.CLI.EraBased.Run.Transaction
   , runTransactionPolicyIdCmd
   , runTransactionHashScriptDataCmd
   , runTransactionTxIdCmd
-  , runTransactionViewCmd
   , runTransactionWitnessCmd
   , runTransactionSignWitnessCmd
   , toTxOutByronEra
@@ -80,7 +79,6 @@ import qualified Data.Text.IO as Text
 import           Data.Type.Equality (TestEquality (..))
 import           GHC.Exts (IsList (..))
 import           Lens.Micro ((^.))
-import qualified System.Exit as IO
 import qualified System.IO as IO
 
 runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
@@ -94,7 +92,6 @@ runTransactionCmds = \case
   Cmd.TransactionCalculateMinValueCmd args -> runTransactionCalculateMinValueCmd args
   Cmd.TransactionHashScriptDataCmd args -> runTransactionHashScriptDataCmd args
   Cmd.TransactionTxIdCmd args -> runTransactionTxIdCmd args
-  Cmd.TransactionViewCmd args -> runTransactionViewCmd args
   Cmd.TransactionPolicyIdCmd args -> runTransactionPolicyIdCmd args
   Cmd.TransactionWitnessCmd args -> runTransactionWitnessCmd args
   Cmd.TransactionSignWitnessCmd args -> runTransactionSignWitnessCmd args
@@ -1701,18 +1698,6 @@ runTransactionTxIdCmd
           return . InAnyShelleyBasedEra era $ getTxBody tx
 
     liftIO $ BS.putStrLn $ serialiseToRawBytesHex (getTxId txbody)
-
-runTransactionViewCmd
-  :: ()
-  => Cmd.TransactionViewCmdArgs
-  -> ExceptT TxCmdError IO ()
-runTransactionViewCmd
-  Cmd.TransactionViewCmdArgs =
-    liftIO $ do
-      IO.hPutStrLn
-        IO.stderr
-        "Command \"era transaction view\" has been removed. Please use \"debug transaction view\" instead."
-      IO.exitWith (IO.ExitFailure 1)
 
 -- ----------------------------------------------------------------------------
 -- Witness commands

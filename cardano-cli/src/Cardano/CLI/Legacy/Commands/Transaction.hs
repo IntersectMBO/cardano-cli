@@ -135,7 +135,6 @@ data LegacyTransactionCmds
       ScriptDataOrFile
   | TransactionTxIdCmd
       InputTxBodyOrTxFile
-  | TransactionViewCmd
 
 renderLegacyTransactionCmds :: LegacyTransactionCmds -> Text
 renderLegacyTransactionCmds = \case
@@ -150,4 +149,3 @@ renderLegacyTransactionCmds = \case
   TransactionCalculateMinValueCmd{} -> "transaction calculate-min-value"
   TransactionHashScriptDataCmd{} -> "transaction hash-script-data"
   TransactionTxIdCmd{} -> "transaction txid"
-  TransactionViewCmd{} -> "transaction view"
