@@ -34,7 +34,7 @@ Available options:
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
                            "cardano-cli hash anchor-data ...")
   --check-anchor-data      Check the proposal hash (from --anchor-data-hash) by
-                           downloading anchor data (from --anchor-url).
+                           downloading proposal data (from --anchor-url).
   --trust-anchor-data      Do not check the proposal hash (from
                            --anchor-data-hash) and trust it is correct.
   --out-file FILEPATH      Path to action file to be used later on with build or

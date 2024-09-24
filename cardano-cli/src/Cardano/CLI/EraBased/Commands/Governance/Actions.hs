@@ -68,8 +68,10 @@ data GovernanceActionCreateConstitutionCmdArgs era
   , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+  , checkProposalHash :: !(MustCheckHash ProposalUrl)
   , constitutionUrl :: !ConstitutionUrl
   , constitutionHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+  , checkConstitutionHash :: !(MustCheckHash ConstitutionUrl)
   , constitutionScript :: !(Maybe ScriptHash)
   , outFile :: !(File () Out)
   }

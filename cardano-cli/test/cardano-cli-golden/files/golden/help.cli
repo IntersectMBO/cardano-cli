@@ -5926,8 +5926,14 @@ Usage: cardano-cli conway governance action create-constitution
                                                                     --prev-governance-action-index WORD16]
                                                                   --anchor-url TEXT
                                                                   --anchor-data-hash HASH
+                                                                  ( --check-anchor-data
+                                                                  | --trust-anchor-data
+                                                                  )
                                                                   --constitution-url TEXT
                                                                   --constitution-hash HASH
+                                                                  ( --check-constitution-hash
+                                                                  | --trust-constitution-hash
+                                                                  )
                                                                   [--constitution-script-hash HASH]
                                                                   --out-file FILEPATH
 

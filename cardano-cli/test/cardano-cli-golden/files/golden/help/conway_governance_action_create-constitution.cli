@@ -13,8 +13,14 @@ Usage: cardano-cli conway governance action create-constitution
                                                                     --prev-governance-action-index WORD16]
                                                                   --anchor-url TEXT
                                                                   --anchor-data-hash HASH
+                                                                  ( --check-anchor-data
+                                                                  | --trust-anchor-data
+                                                                  )
                                                                   --constitution-url TEXT
                                                                   --constitution-hash HASH
+                                                                  ( --check-constitution-hash
+                                                                  | --trust-constitution-hash
+                                                                  )
                                                                   [--constitution-script-hash HASH]
                                                                   --out-file FILEPATH
 
@@ -42,9 +48,20 @@ Available options:
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
                            "cardano-cli hash anchor-data ...")
+  --check-anchor-data      Check the proposal hash (from --anchor-data-hash) by
+                           downloading proposal data (from --anchor-url).
+  --trust-anchor-data      Do not check the proposal hash (from
+                           --anchor-data-hash) and trust it is correct.
   --constitution-url TEXT  Constitution URL.
   --constitution-hash HASH Hash of the constitution data (obtain it with
                            "cardano-cli hash anchor-data ...").
+  --check-constitution-hash
+                           Check the constitution hash (from
+                           --constitution-hash) by downloading constitution data
+                           (from --constitution-url).
+  --trust-constitution-hash
+                           Do not check the constitution hash (from
+                           --constitution-hash) and trust it is correct.
   --constitution-script-hash HASH
                            Constitution script hash (hex-encoded). Obtain it
                            with "cardano-cli hash script ...".
