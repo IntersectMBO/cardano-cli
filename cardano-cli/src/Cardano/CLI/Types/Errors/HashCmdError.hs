@@ -32,17 +32,17 @@ data HashCmdError
 instance Error HashCmdError where
   prettyError = \case
     HashMismatchedHashError expectedHash actualHash ->
-      "Hashes do not match! \n"
-        <> "Expected: "
-        <> pretty (show (extractHash expectedHash))
-        <> "\n  Actual: "
-        <> pretty (show (extractHash actualHash))
+      "Hashes do not match!"
+        <> "\nExpected:"
+          <+> pretty (show (extractHash expectedHash))
+        <> "\n  Actual:"
+          <+> pretty (show (extractHash actualHash))
     HashReadFileError filepath exc ->
-      "Cannot read " <> pretty filepath <> ": " <> pretty (displayException exc)
+      "Cannot read" <+> pretty filepath <> ":" <+> pretty (displayException exc)
     HashWriteFileError fileErr ->
       prettyError fileErr
     HashReadScriptError filepath err ->
-      "Cannot read script at " <> pretty filepath <> ": " <> prettyError err
+      "Cannot read script at" <+> pretty filepath <> ":" <+> prettyError err
     HashFetchURLError fetchErr ->
       pretty (displayException fetchErr)
 

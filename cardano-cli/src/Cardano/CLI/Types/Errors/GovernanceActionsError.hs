@@ -57,18 +57,18 @@ instance Error GovernanceActionsError where
     GovernanceActionsReadStakeCredErrror e ->
       prettyError e
     GovernanceActionsProposalMismatchedHashError adt expectedHash actualHash ->
-      "Hashes do not match while checking "
-        <> pretty (anchorDataTypeCheckName adt)
-        <> " hashes! \n"
-        <> "Expected: "
-        <> pretty (show (L.extractHash expectedHash))
-        <> "\n  Actual: "
-        <> pretty (show (L.extractHash actualHash))
+      "Hashes do not match while checking"
+        <+> pretty (anchorDataTypeCheckName adt)
+        <+> "hashes!"
+        <> "\nExpected:"
+          <+> pretty (show (L.extractHash expectedHash))
+        <> "\n  Actual:"
+          <+> pretty (show (L.extractHash actualHash))
     GovernanceActionsProposalFetchURLError adt fetchErr ->
-      "Error while checking "
-        <> pretty (anchorDataTypeCheckName adt)
-        <> " hash: "
-        <> pretty (displayException fetchErr)
+      "Error while checking"
+        <+> pretty (anchorDataTypeCheckName adt)
+        <+> "hash:"
+        <+> pretty (displayException fetchErr)
 
 data AnchorDataTypeCheck = ProposalCheck
   deriving Show
