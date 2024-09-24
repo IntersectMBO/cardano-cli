@@ -11,7 +11,6 @@ Usage: cardano-cli conway transaction
                                         | calculate-min-required-utxo
                                         | hash-script-data
                                         | txid
-                                        | view
                                         )
 
   Transaction commands.
@@ -44,5 +43,3 @@ Available commands:
                            output.
   hash-script-data         Calculate the hash of script data.
   txid                     Print a transaction identifier.
-  view                     This command has been removed. Please use "debug
-                           transaction view" instead.

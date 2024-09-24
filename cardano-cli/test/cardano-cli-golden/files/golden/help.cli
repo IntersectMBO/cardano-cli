@@ -832,7 +832,6 @@ Usage: cardano-cli shelley transaction
                                          | calculate-min-required-utxo
                                          | hash-script-data
                                          | txid
-                                         | view
                                          )
 
   Transaction commands.
@@ -1080,10 +1079,6 @@ Usage: cardano-cli shelley transaction txid
                                               )
 
   Print a transaction identifier.
-
-Usage: cardano-cli shelley transaction view 
-
-  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli allegra 
                              ( address
@@ -1902,7 +1897,6 @@ Usage: cardano-cli allegra transaction
                                          | calculate-min-required-utxo
                                          | hash-script-data
                                          | txid
-                                         | view
                                          )
 
   Transaction commands.
@@ -2150,10 +2144,6 @@ Usage: cardano-cli allegra transaction txid
                                               )
 
   Print a transaction identifier.
-
-Usage: cardano-cli allegra transaction view 
-
-  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli mary 
                           ( address
@@ -2964,7 +2954,6 @@ Usage: cardano-cli mary transaction
                                       | calculate-min-required-utxo
                                       | hash-script-data
                                       | txid
-                                      | view
                                       )
 
   Transaction commands.
@@ -3210,10 +3199,6 @@ Usage: cardano-cli mary transaction txid
                                            )
 
   Print a transaction identifier.
-
-Usage: cardano-cli mary transaction view 
-
-  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli alonzo 
                             ( address
@@ -4037,7 +4022,6 @@ Usage: cardano-cli alonzo transaction
                                         | calculate-min-required-utxo
                                         | hash-script-data
                                         | txid
-                                        | view
                                         )
 
   Transaction commands.
@@ -4285,10 +4269,6 @@ Usage: cardano-cli alonzo transaction txid
                                              )
 
   Print a transaction identifier.
-
-Usage: cardano-cli alonzo transaction view 
-
-  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli babbage 
                              ( address
@@ -5135,7 +5115,6 @@ Usage: cardano-cli babbage transaction
                                          | calculate-min-required-utxo
                                          | hash-script-data
                                          | txid
-                                         | view
                                          )
 
   Transaction commands.
@@ -5640,10 +5619,6 @@ Usage: cardano-cli babbage transaction txid
                                               )
 
   Print a transaction identifier.
-
-Usage: cardano-cli babbage transaction view 
-
-  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli conway 
                             ( address
@@ -6952,7 +6927,6 @@ Usage: cardano-cli conway transaction
                                         | calculate-min-required-utxo
                                         | hash-script-data
                                         | txid
-                                        | view
                                         )
 
   Transaction commands.
@@ -7549,10 +7523,6 @@ Usage: cardano-cli conway transaction txid
                                              )
 
   Print a transaction identifier.
-
-Usage: cardano-cli conway transaction view 
-
-  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli latest 
                             ( address
@@ -8397,7 +8367,6 @@ Usage: cardano-cli latest transaction
                                         | calculate-min-required-utxo
                                         | hash-script-data
                                         | txid
-                                        | view
                                         )
 
   Transaction commands.
@@ -8902,10 +8871,6 @@ Usage: cardano-cli latest transaction txid
                                              )
 
   Print a transaction identifier.
-
-Usage: cardano-cli latest transaction view 
-
-  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli legacy Legacy commands
 
@@ -9570,7 +9535,6 @@ Usage: cardano-cli legacy transaction
                                         | calculate-min-required-utxo
                                         | hash-script-data
                                         | txid
-                                        | view
                                         )
 
   Transaction commands
@@ -9993,10 +9957,6 @@ Usage: cardano-cli legacy transaction txid
                                              )
 
   Print a transaction identifier.
-
-Usage: cardano-cli legacy transaction view 
-
-  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli legacy key 
                                 ( verification-key
@@ -10843,7 +10803,6 @@ Usage: cardano-cli transaction
                                  | calculate-min-required-utxo
                                  | hash-script-data
                                  | txid
-                                 | view
                                  )
 
   Transaction commands
@@ -11252,10 +11211,6 @@ Usage: cardano-cli transaction txid
                                       )
 
   Print a transaction identifier.
-
-Usage: cardano-cli transaction view 
-
-  This command has been removed. Please use "debug transaction view" instead.
 
 Usage: cardano-cli key 
                          ( verification-key
