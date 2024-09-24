@@ -10,8 +10,9 @@ import           Control.Monad (void)
 import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathGolden, serveFileWhile)
+import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataHash2,
+                   exampleAnchorDataIpfsHash, exampleAnchorDataIpfsHash2,
+                   exampleAnchorDataPathGolden, exampleAnchorDataPathGolden2, serveFilesWhile)
 import qualified Test.Cardano.CLI.Util as H
 import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
                    noteInputFile, noteTempFile, propertyOnce)
@@ -20,73 +21,97 @@ import           Hedgehog (MonadTest, Property)
 import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
+hprop_golden_governance_action_create_constitution_wrong_hash1_fails :: Property
+hprop_golden_governance_action_create_constitution_wrong_hash1_fails =
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_action_create_constitution
+      ('a' : drop 1 exampleAnchorDataHash)
+      exampleAnchorDataHash2
+      tempDir
+
+hprop_golden_governance_action_create_constitution_wrong_hash2_fails :: Property
+hprop_golden_governance_action_create_constitution_wrong_hash2_fails =
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_action_create_constitution
+      exampleAnchorDataHash
+      ('a' : drop 1 exampleAnchorDataHash2)
+      tempDir
+
 hprop_golden_governance_action_create_constitution :: Property
 hprop_golden_governance_action_create_constitution =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    stakeAddressVKeyFile <- noteTempFile tempDir "stake-address.vkey"
-    stakeAddressSKeyFile <- noteTempFile tempDir "stake-address.skey"
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_action_create_constitution
+      exampleAnchorDataHash
+      exampleAnchorDataHash2
+      tempDir
 
-    void $
-      execCardanoCLI
-        [ "legacy"
-        , "stake-address"
-        , "key-gen"
-        , "--verification-key-file"
-        , stakeAddressVKeyFile
-        , "--signing-key-file"
-        , stakeAddressSKeyFile
-        ]
+base_golden_governance_action_create_constitution
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)
+  => String
+  -> String
+  -> FilePath
+  -> m ()
+base_golden_governance_action_create_constitution hash1 hash2 tempDir = do
+  stakeAddressVKeyFile <- noteTempFile tempDir "stake-address.vkey"
+  stakeAddressSKeyFile <- noteTempFile tempDir "stake-address.skey"
 
-    actionFile <- noteTempFile tempDir "create-constitution.action"
-    redactedActionFile <- noteTempFile tempDir "create-constitution.action.redacted"
+  void $
+    execCardanoCLI
+      [ "legacy"
+      , "stake-address"
+      , "key-gen"
+      , "--verification-key-file"
+      , stakeAddressVKeyFile
+      , "--signing-key-file"
+      , stakeAddressSKeyFile
+      ]
 
-    proposalHash <-
-      execCardanoCLI
-        [ "hash"
-        , "anchor-data"
-        , "--text"
-        , "whatever"
-        ]
+  actionFile <- noteTempFile tempDir "create-constitution.action"
+  redactedActionFile <- noteTempFile tempDir "create-constitution.action.redacted"
 
-    constitutionHash <-
-      execCardanoCLI
-        [ "hash"
-        , "anchor-data"
-        , "--text"
-        , "something else"
-        ]
+  let relativeUrl1 = ["ipfs", exampleAnchorDataIpfsHash]
+  let relativeUrl2 = ["ipfs", exampleAnchorDataIpfsHash2]
 
-    void $
-      execCardanoCLI
-        [ "conway"
-        , "governance"
-        , "action"
-        , "create-constitution"
-        , "--mainnet"
-        , "--anchor-data-hash"
-        , "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
-        , "--anchor-url"
-        , proposalHash
-        , "--governance-action-deposit"
-        , "10"
-        , "--deposit-return-stake-verification-key-file"
-        , stakeAddressVKeyFile
-        , "--out-file"
-        , actionFile
-        , "--constitution-url"
-        , "constitution-dummy-url"
-        , "--constitution-hash"
-        , constitutionHash
-        ]
+  serveFilesWhile
+    [ (relativeUrl1, exampleAnchorDataPathGolden)
+    , (relativeUrl2, exampleAnchorDataPathGolden2)
+    ]
+    ( \port -> do
+        void $
+          execCardanoCLIWithEnvVars
+            [("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/")]
+            [ "conway"
+            , "governance"
+            , "action"
+            , "create-constitution"
+            , "--mainnet"
+            , "--anchor-data-hash"
+            , hash1
+            , "--anchor-url"
+            , "ipfs://" ++ exampleAnchorDataIpfsHash
+            , "--check-anchor-data"
+            , "--governance-action-deposit"
+            , "10"
+            , "--deposit-return-stake-verification-key-file"
+            , stakeAddressVKeyFile
+            , "--out-file"
+            , actionFile
+            , "--constitution-url"
+            , "ipfs://" ++ exampleAnchorDataIpfsHash2
+            , "--constitution-hash"
+            , hash2
+            , "--check-constitution-hash"
+            ]
+    )
 
-    goldenActionFile <-
-      H.note
-        "test/cardano-cli-golden/files/golden/governance/action/create-constitution-for-stake-address.action.golden"
+  goldenActionFile <-
+    H.note
+      "test/cardano-cli-golden/files/golden/governance/action/create-constitution-for-stake-address.action.golden"
 
-    -- Remove cbor hex from comparison, as it's not stable
-    H.redactJsonField "cborHex" "<cborHex>" actionFile redactedActionFile
+  -- Remove cbor hex from comparison, as it's not stable
+  H.redactJsonField "cborHex" "<cborHex>" actionFile redactedActionFile
 
-    H.diffFileVsGoldenFile redactedActionFile goldenActionFile
+  H.diffFileVsGoldenFile redactedActionFile goldenActionFile
 
 hprop_golden_conway_governance_action_view_constitution_json :: Property
 hprop_golden_conway_governance_action_view_constitution_json =
@@ -128,6 +153,7 @@ hprop_golden_conway_governance_action_view_constitution_json =
         , proposalHash
         , "--anchor-url"
         , "proposal-dummy-url"
+        , "--trust-anchor-data"
         , "--governance-action-deposit"
         , "10"
         , "--deposit-return-stake-verification-key-file"
@@ -138,6 +164,7 @@ hprop_golden_conway_governance_action_view_constitution_json =
         , "http://my-great-constitution.rocks"
         , "--constitution-hash"
         , constitutionHash
+        , "--trust-constitution-hash"
         ]
 
     goldenActionViewFile <-
@@ -214,9 +241,8 @@ base_golden_conway_governance_action_view_create_info_json_outfile hash tempDir 
 
   actionFile <- noteTempFile tempDir "action"
   let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
-  serveFileWhile
-    relativeUrl
-    exampleAnchorDataPathGolden
+  serveFilesWhile
+    [(relativeUrl, exampleAnchorDataPathGolden)]
     ( \port -> do
         void $
           execCardanoCLIWithEnvVars
