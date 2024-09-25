@@ -11,6 +11,9 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 )
                                                                                 --anchor-url TEXT
                                                                                 --anchor-data-hash HASH
+                                                                                ( --check-anchor-data
+                                                                                | --trust-anchor-data
+                                                                                )
                                                                                 [--prev-governance-action-tx-id TXID
                                                                                   --prev-governance-action-index WORD16]
                                                                                 [--constitution-script-hash HASH]
@@ -80,6 +83,10 @@ Available options:
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
                            "cardano-cli hash anchor-data ...")
+  --check-anchor-data      Check the proposal hash (from --anchor-data-hash) by
+                           downloading proposal data (from --anchor-url).
+  --trust-anchor-data      Do not check the proposal hash (from
+                           --anchor-data-hash) and trust it is correct.
   --prev-governance-action-tx-id TXID
                            Txid of the previous governance action.
   --prev-governance-action-index WORD16

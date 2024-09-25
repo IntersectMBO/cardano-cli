@@ -1,0 +1,2 @@
+This is another file that serves for testing
+the hashing of anchor data files. 

@@ -10,7 +10,7 @@ import           System.FilePath (dropTrailingPathSeparator)
 import           System.FilePath.Posix (splitDirectories)
 
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathTest, serveFileWhile)
+                   exampleAnchorDataPathTest, serveFilesWhile)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog as H
@@ -98,9 +98,8 @@ hprop_check_anchor_data_hash_from_http_uri :: Property
 hprop_check_anchor_data_hash_from_http_uri =
   propertyOnce $ do
     let relativeUrl = ["example", "url", "file.txt"]
-    serveFileWhile
-      relativeUrl
-      exampleAnchorDataPathTest
+    serveFilesWhile
+      [(relativeUrl, exampleAnchorDataPathTest)]
       ( \port -> do
           void $
             execCardanoCLI
@@ -119,9 +118,8 @@ hprop_check_anchor_data_hash_from_ipfs_uri :: Property
 hprop_check_anchor_data_hash_from_ipfs_uri =
   propertyOnce $ do
     let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
-    serveFileWhile
-      relativeUrl
-      exampleAnchorDataPathTest
+    serveFilesWhile
+      [(relativeUrl, exampleAnchorDataPathTest)]
       ( \port -> do
           void $
             execCardanoCLIWithEnvVars

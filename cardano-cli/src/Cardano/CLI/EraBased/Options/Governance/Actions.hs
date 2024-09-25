@@ -74,26 +74,10 @@ pGovernanceActionNewInfoCmd era = do
             <*> pStakeIdentifier (Just "deposit-return")
             <*> pAnchorUrl
             <*> pAnchorDataHash
-            <*> pMustCheckProposalHash
+            <*> pMustCheckHash proposalHashCheckInfo
             <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
       )
     $ Opt.progDesc "Create an info action."
- where
-  pMustCheckProposalHash :: Parser (MustCheckHash ProposalUrl)
-  pMustCheckProposalHash =
-    asum
-      [ Opt.flag' CheckHash $
-          mconcat
-            [ Opt.long "check-anchor-data"
-            , Opt.help
-                "Check the proposal hash (from --anchor-data-hash) by downloading anchor data (from --anchor-url)."
-            ]
-      , Opt.flag' TrustHash $
-          mconcat
-            [ Opt.long "trust-anchor-data"
-            , Opt.help "Do not check the proposal hash (from --anchor-data-hash) and trust it is correct."
-            ]
-      ]
 
 pGovernanceActionNewConstitutionCmd
   :: CardanoEra era
@@ -111,8 +95,10 @@ pGovernanceActionNewConstitutionCmd era = do
             <*> pPreviousGovernanceAction
             <*> pAnchorUrl
             <*> pAnchorDataHash
+            <*> pMustCheckHash proposalHashCheckInfo
             <*> pConstitutionUrl
             <*> pConstitutionHash
+            <*> pMustCheckHash constitutionHashCheckInfo
             <*> optional pConstitutionScriptHash
             <*> pFileOutDirection "out-file" "Output filepath of the constitution."
       )
@@ -142,6 +128,7 @@ pUpdateCommitteeCmd eon =
     <*> pStakeIdentifier (Just "deposit-return")
     <*> pAnchorUrl
     <*> pAnchorDataHash
+    <*> pMustCheckHash proposalHashCheckInfo
     <*> many pRemoveCommitteeColdVerificationKeySource
     <*> many
       ( (,)
@@ -167,6 +154,7 @@ pGovernanceActionNoConfidenceCmd era = do
             <*> pStakeIdentifier (Just "deposit-return")
             <*> pAnchorUrl
             <*> pAnchorDataHash
+            <*> pMustCheckHash proposalHashCheckInfo
             <*> pPreviousGovernanceAction
             <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
       )
@@ -188,6 +176,7 @@ pUpdateProtocolParametersPostConway conwayOnwards =
     <*> pStakeIdentifier (Just "deposit-return")
     <*> pAnchorUrl
     <*> pAnchorDataHash
+    <*> pMustCheckHash proposalHashCheckInfo
     <*> pPreviousGovernanceAction
     <*> optional pConstitutionScriptHash
 
@@ -395,6 +384,7 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
             <*> pStakeIdentifier (Just "deposit-return")
             <*> pAnchorUrl
             <*> pAnchorDataHash
+            <*> pMustCheckHash proposalHashCheckInfo
             <*> some ((,) <$> pStakeIdentifier (Just "funds-receiving") <*> pTreasuryWithdrawalAmt)
             <*> optional pConstitutionScriptHash
             <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
@@ -438,6 +428,7 @@ pGovernanceActionHardforkInitCmd era = do
             <*> pPreviousGovernanceAction
             <*> pAnchorUrl
             <*> pAnchorDataHash
+            <*> pMustCheckHash proposalHashCheckInfo
             <*> pPV
             <*> pFileOutDirection "out-file" "Output filepath of the hardfork proposal."
       )

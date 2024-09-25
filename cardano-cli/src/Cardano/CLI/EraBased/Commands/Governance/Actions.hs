@@ -51,6 +51,7 @@ data GovernanceActionUpdateCommitteeCmdArgs era
   , returnAddress :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+  , checkProposalHash :: !(MustCheckHash ProposalUrl)
   , oldCommitteeVkeySource :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey]
   , newCommitteeVkeySource :: ![(VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey, EpochNo)]
   , requiredThreshold :: !Rational
@@ -68,8 +69,10 @@ data GovernanceActionCreateConstitutionCmdArgs era
   , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+  , checkProposalHash :: !(MustCheckHash ProposalUrl)
   , constitutionUrl :: !ConstitutionUrl
   , constitutionHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+  , checkConstitutionHash :: !(MustCheckHash ConstitutionUrl)
   , constitutionScript :: !(Maybe ScriptHash)
   , outFile :: !(File () Out)
   }
@@ -97,6 +100,7 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
   , returnStakeAddress :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+  , checkProposalHash :: !(MustCheckHash ProposalUrl)
   , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
   , outFile :: !(File () Out)
   }
@@ -128,6 +132,7 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
   , returnAddr :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+  , checkProposalHash :: !(MustCheckHash ProposalUrl)
   , treasuryWithdrawal :: ![(StakeIdentifier, Lovelace)]
   , constitutionScriptHash :: !(Maybe ScriptHash)
   , outFile :: !(File () Out)
@@ -143,6 +148,7 @@ data GovernanceActionHardforkInitCmdArgs era
   , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+  , checkProposalHash :: !(MustCheckHash ProposalUrl)
   , protVer :: !L.ProtVer
   , outFile :: !(File () Out)
   }
@@ -165,6 +171,7 @@ data UpdateProtocolParametersConwayOnwards era
   , returnAddr :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+  , checkProposalHash :: !(MustCheckHash ProposalUrl)
   , governanceActionId :: !(Maybe (TxId, Word16))
   , constitutionScriptHash :: !(Maybe ScriptHash)
   }
